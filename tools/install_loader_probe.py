@@ -35,10 +35,10 @@ LUA_ENTRY = "DataCenter/Global/LuaEntry.luac"
 ORIGINAL_LUA_ENTRY = "DataCenter/Global/LuaEntry_original.luac"
 PROBE_ENTRY = "LWControlProbe.luac"
 APPLY_DISABLED_REASON = (
-    "Loader-probe installation is disabled: the LWLF-v3 LENC encoder and an offline "
-    "candidate-package path are recovered, but the candidate has not yet been "
-    "validated by a bounded current-game load. Use --prepare-dir for read-only/offline "
-    "package generation and verification."
+    "Loader-probe command-line installation remains disabled after the successful "
+    "2026-09-06 bounded current-game load. Use --prepare-dir for reproducible offline "
+    "candidate generation while the verified install/launch/restore workflow is "
+    "promoted into a dedicated command."
 )
 
 
@@ -603,7 +603,7 @@ def main() -> int:
     mode.add_argument(
         "--apply",
         action="store_true",
-        help="fail closed until the prepared current-build candidate is validated live",
+        help="remain fail closed while the proven live acceptance workflow is promoted into a dedicated command",
     )
     mode.add_argument("--restore", type=Path, help="restore a backup directory created by this tool")
     mode.add_argument(

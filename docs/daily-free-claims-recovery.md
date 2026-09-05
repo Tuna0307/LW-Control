@@ -331,6 +331,15 @@ the exported current point/chest state and the recovered manager algorithm. See
 limits and freshness checks are local fail-closed safeguards; the point and chest
 derivation rules are the current-game behavior recovered above.
 
+On 2026-09-06 the separate encrypted loader-heartbeat candidate was accepted by
+the current game in a bounded launch. `LastWar.exe` started through the official
+launcher and produced a fresh `lwcontrol-loader-probe-1` heartbeat. No gameplay
+message was sent. The game was then closed, the original script package and
+`BaseUtils.rdl` were restored, and every backed-up file matched its original
+SHA-256. This proves current-build encrypted Lua payload execution at the loader
+heartbeat level. Live execution of the daily-task snapshot payload remains the
+next read-only milestone.
+
 For repeatable static analysis, `tools/inspect_lua53_bytecode.py` now accepts an
 exact `--prototype` path (for example `0.10`). In that mode it emits the complete
 instruction and constant body for only that prototype, reducing unrelated output

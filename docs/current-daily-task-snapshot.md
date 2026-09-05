@@ -2,8 +2,10 @@
 
 This document defines the JSON boundary between a future current-game Lua state
 probe and the C# reconstruction. It is an offline contract only. No current-game
-probe has produced this file yet, no loader candidate has been accepted by the
-current game, and no network or reward-claim command is authorized by this work.
+daily-task probe has produced this file yet. The separate encrypted loader
+heartbeat candidate was accepted by the current game on 2026-09-06, but this
+daily-task state payload has not yet been installed or executed live. No network
+or reward-claim command is authorized by this work.
 
 The contract intentionally exports symbolic task states. The current game's
 numeric `TaskState` values are still unknown and are not guessed here. A future
@@ -114,9 +116,10 @@ The minimum current-game data source remains:
 - the manager's current task-state enum symbols for symbolic comparisons.
 
 The probe should derive the symbolic task and chest states inside Lua, write only
-the snapshot and heartbeat metadata, and send zero `SFSNetwork` messages. Live
-loader execution remains `UNKNOWN` until the current game actually loads a bounded
-candidate and produces a fresh heartbeat.
+the snapshot and heartbeat metadata, and send zero `SFSNetwork` messages. Generic
+encrypted loader execution is now proven by the 2026-09-06 heartbeat acceptance;
+live execution of this daily-task snapshot payload remains `UNKNOWN` until a fresh
+snapshot is actually produced by the current game.
 
 An offline draft of the state builder now lives at
 [`tools/current_daily_task_snapshot_probe.lua`](../tools/current_daily_task_snapshot_probe.lua).
@@ -135,5 +138,5 @@ build completes with zero warnings and zero errors, and the desktop smoke test
 exits successfully. The Lua draft parses successfully with the installed Python
 `luaparser` package, and a static token check finds no `SFSNetwork`, `SendMessage`,
 `SendLuaMessage`, `io.open`, or `os.execute` path in that draft. These checks prove
-only the offline contract and source consistency; they do not change live loader
-acceptance from `UNKNOWN`.
+only the offline contract and source consistency. Loader heartbeat execution is
+now proven separately; this snapshot payload itself remains unproven live.

@@ -92,9 +92,10 @@ python tools/install_loader_probe.py --apply --json
 ```
 
 It still returns an `InstallRefused` result and does not create a backup or modify
-a game file. The LWLF-v3 encoder and offline candidate-package path have now been
-recovered, but the prepared candidate has not yet been accepted by a bounded
-current-game load, so the apply path remains disabled.
+a game file. The encrypted candidate itself has now been accepted by a bounded
+current-game load, but the command-line apply path remains disabled until the
+verified install/launch/restore sequence is promoted into a dedicated guarded
+command rather than reusing the historical plaintext research installer.
 
 Build and verify a separate candidate without touching the installed package:
 
@@ -127,9 +128,39 @@ and `LWControlProbe.luac`, requires their plaintext to match the exact wrapper a
 probe sources produced by this tool, verifies the preserved official Lua entry,
 checks current `xlua.dll`, package length/CRC, content version, and the unchanged
 `BaseUtils.rdl` contract. The verified candidate is therefore structurally valid
-under the post-install preflight rules. This still does **not** prove that the
-current game will execute the encrypted plaintext payloads; bounded live-loader
-acceptance remains `UNKNOWN` until a current-game load produces the probe heartbeat.
+under the post-install preflight rules.
+
+### Successful encrypted loader acceptance — 2026-09-06
+
+A bounded live acceptance run started at approximately 02:46 Singapore time with
+Last War closed. The exact verified content-version-12 candidate was copied over
+only `LWScripts.data`, `LWScripts.txt`, and `version.txt`; `BaseUtils.rdl` remained
+unchanged and `CommonUtils.IsDebug` remained false. Installed-package preflight
+then recognized the exact encrypted wrapper/probe pair before launch.
+
+The official `LastWarLauncher.exe` started `LastWar.exe`, and the injected probe
+produced a fresh `%LOCALAPPDATA%\\LWControl\\runtime\\loader-probe.json` heartbeat:
+
+```json
+{"version":"lwcontrol-loader-probe-1","loaded":true,"updated_at":1788633990}
+```
+
+That timestamp is 2026-09-05 18:46:30 UTC / 2026-09-06 02:46:30 Singapore time.
+No bridge command or gameplay/network message was sent during this acceptance
+run. After the heartbeat was observed, Last War was closed and all four backed-up
+files (`LWScripts.data`, `LWScripts.txt`, `version.txt`, and `BaseUtils.rdl`) were
+restored. SHA-256 comparison reported exact equality for every restored file, and
+the final preflight again showed the official 18,686-entry package, content version
+12, clean BaseUtils SHA-256
+`b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6`,
+`IsDebug=false`, and no installed probe markers.
+
+The backup retained by the bounded run is:
+`C:\\Users\\chimw\\AppData\\Local\\LWControl\\backups\\loader-live-20260906-024606-1896b30414a64c6ea70ab76265874e04`.
+
+This changes encrypted current-build loader execution from `UNKNOWN` to
+**PROVEN for the loader heartbeat payload**. It does not yet prove the newer
+daily-task snapshot payload or any reward-claim path.
 
 Restore a recorded backup while the game is closed:
 

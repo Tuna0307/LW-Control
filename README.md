@@ -34,7 +34,9 @@ transform. The symmetric LENC encoder now builds and re-verifies a separate
 encrypted candidate package without changing installed files. A separate
 `--verify-dir` path now proves that candidate satisfies the same encrypted-payload,
 official-entry, metadata, and BaseUtils preflight contract expected after
-installation; live current-game acceptance of that candidate remains gated. The
+installation. A bounded current-game launch on 2026-09-06 loaded that encrypted
+candidate and produced a fresh loader heartbeat; the game was then closed and the
+original package/BaseUtils were restored with exact hash equality. The
 current daily-task Lua protocol is
 also recovered down to wire command names, request fields, and response-state
 handlers. The current task-point and five-box goal-state algorithm is now mirrored

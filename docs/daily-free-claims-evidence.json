@@ -108,7 +108,24 @@
           "default capture/heartbeat age limit 15 seconds with 5-second future tolerance",
           "unsupported schema version or non-state mode rejected"
         ],
-        "live_probe_execution": "UNKNOWN"
+        "live_probe_execution": "PROVEN loader-heartbeat payload on 2026-09-06; daily-task snapshot payload remains UNKNOWN",
+        "live_loader_acceptance": {
+          "captured_at_singapore": "2026-09-06T02:46:30+08:00",
+          "candidate_entry_count": 18688,
+          "heartbeat": {
+            "version": "lwcontrol-loader-probe-1",
+            "loaded": true,
+            "updated_at_unix": 1788633990
+          },
+          "game_started": true,
+          "gameplay_messages_sent": 0,
+          "restored": true,
+          "restore_sha256_match": true,
+          "post_restore_entry_count": 18686,
+          "post_restore_content_version": 12,
+          "post_restore_baseutils_sha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6",
+          "post_restore_is_debug": false
+        }
       }
     }
   }
