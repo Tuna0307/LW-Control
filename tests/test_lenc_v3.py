@@ -7,6 +7,7 @@ from tools.extract_lenc_v3 import (
     chacha8_core_no_feedforward_block,
     decode_lenc_bytes,
     derive_secret_from_tables,
+    encode_lenc_bytes,
     transform_payload,
 )
 
@@ -49,16 +50,21 @@ class LencV3Checks(unittest.TestCase):
         self.assertNotEqual(int.from_bytes(block[:4], "little"), standard_first_word)
 
     def test_decodes_synthetic_zlib_entry(self):
-        import zlib
-
         plain = b"\x1bLuaS\x01 synthetic loader fixture"
-        compressed = zlib.compress(plain, 9)
-        # The native loader inflates only the 78 DA zlib form.
-        self.assertEqual(compressed[:2], b"\x78\xda")
-        entry = b"LENC" + transform_payload(compressed, EXPECTED_KEY, EXPECTED_NONCE)
+        entry = encode_lenc_bytes(plain, EXPECTED_KEY, EXPECTED_NONCE)
         result = decode_lenc_bytes(entry, EXPECTED_KEY, EXPECTED_NONCE)
         self.assertTrue(result["zlib_inflated"])
         self.assertEqual(result["decoded"], plain)
+
+    def test_encoder_is_deterministic_and_round_trips_plaintext_lua(self):
+        plain = b"local M = {}; function M.Pump() return true end; return M\n"
+        first = encode_lenc_bytes(plain, EXPECTED_KEY, EXPECTED_NONCE)
+        second = encode_lenc_bytes(plain, EXPECTED_KEY, EXPECTED_NONCE)
+        self.assertEqual(first, second)
+        self.assertTrue(first.startswith(b"LENC"))
+        decoded = decode_lenc_bytes(first, EXPECTED_KEY, EXPECTED_NONCE)
+        self.assertTrue(decoded["zlib_inflated"])
+        self.assertEqual(decoded["decoded"], plain)
 
     def test_rejects_non_lenc_entry(self):
         with self.assertRaises(LencV3Error):

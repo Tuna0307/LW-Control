@@ -137,6 +137,51 @@ It reads the selected archive entry into memory, derives the current key/nonce
 from the hash-gated `xlua.dll`, reproduces the native transform, inflates `78 DA`
 payloads, and reports hashes and prefixes only.
 
+## Producer-side encoding recovered
+
+The transform at RVA `0x27564` is an XOR stream transform, so the same recovered
+block function is used in both directions. `tools/extract_lenc_v3.py` now exposes
+`encode_lenc_bytes()`: it zlib-compresses source bytes at level 9, verifies the
+compressed representation starts with `78 DA`, applies the native transform, and
+prefixes `LENC`.
+
+Exact reproduction of the official compressed byte stream is **not** a loader
+requirement. The native loader checks only for the `78 DA` header after the
+transform and then invokes its inflate path. Python zlib level 9 satisfies that
+header contract. Synthetic plaintext Lua and binary-Lua fixtures both round-trip
+through `encode -> native transform inverse -> inflate` in the offline tests.
+
+The exported native load-buffer wrapper at RVA `0x25DA0` also clears the mode
+argument before entering the normal Lua load core. That path therefore does not
+force binary-only mode after the LENC/inflate stage. This is static evidence that
+an encrypted plaintext Lua wrapper is compatible with the loader's parser mode;
+current-game acceptance of the prepared wrapper remains a separate live proof.
+
+`tools/install_loader_probe.py --prepare-dir <directory>` now uses that encoder to
+build a completely separate LWLF-v3 candidate package. It leaves the installed
+archive untouched, preserves the exact official `LuaEntry.luac` as
+`LuaEntry_original.luac`, adds an encrypted wrapper and encrypted probe entry,
+re-reads the serialized package, and decodes both new entries back to their exact
+source bytes.
+
+A 2026-09-06 offline preparation against content version 12 produced:
+
+- input entry count: `18,686`;
+- candidate entry count: `18,688`;
+- candidate package length: `41,177,738` bytes;
+- candidate SHA-256:
+  `c10f132de46ac376d4bae74151c308b94fd2ea0f64aa3cc15afe64c55f95efaa`;
+- encrypted wrapper SHA-256:
+  `f1d714c64dc572f038757172f1faea3245e4108aedff8aa140bfe92ba004ea3a`;
+- encrypted probe SHA-256:
+  `0dd8d216cd94863530233ff9dd2d2c2c57c6573b74f6969b537d88da8497f5`;
+- preserved official entry SHA-256:
+  `50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137`.
+
+The installed package was re-checked after preparation and remained at 18,686
+entries with the original package CRC, clean `BaseUtils.rdl` hash, and
+`IsDebug=false`.
+
 ## PROVEN / UNKNOWN boundary
 
 | Status | Finding |
@@ -147,12 +192,12 @@ payloads, and reports hashes and prefixes only.
 | PROVEN | RVA `0x27564` is an eight-round ChaCha-family core with no feed-forward. |
 | PROVEN | Current-build key and nonce derivation and exact values above. |
 | PROVEN | Official `LuaEntry.luac` decrypts to `78 DA`, inflates, and yields Lua bytecode. |
-| UNKNOWN | Exact producer-side compression settings/library needed to reproduce the official compressed stream byte-for-byte. |
-| UNKNOWN | A write-compatible package injection path for modified Lua on the current build. |
+| PROVEN | The XOR transform is symmetric and level-9 zlib produces the native loader's required `78 DA` input. |
+| PROVEN | A separate LWLF-v3 candidate containing encrypted wrapper/probe entries serializes and decodes back to the exact source bytes. |
+| UNKNOWN | Whether the current game will accept and execute that prepared candidate package; no live installation was performed in this pass. |
 | UNKNOWN | Whether every `LENC` entry uses this same contract across future builds; hashes and tables must be revalidated after updates. |
 
-As an encoder check, Python zlib levels 1 through 9 were tried against the
-recovered 2,873-byte Lua chunk. None reproduced the official compressed stream
-byte-for-byte. Levels 7 through 9 did produce a `78 DA` stream but with different
-bytes/length. Decoder recovery is therefore complete for this build, while exact
-producer-side reproduction remains open.
+Python zlib does not reproduce the official compressed stream byte-for-byte, but
+that distinction is now classified as producer implementation detail rather than
+a loader blocker. The remaining gate is a bounded current-game load of the
+already prepared and offline-verified candidate.

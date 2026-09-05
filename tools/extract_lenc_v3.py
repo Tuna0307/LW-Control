@@ -158,6 +158,22 @@ def transform_payload(payload: bytes, key: bytes, nonce: bytes) -> bytes:
     return bytes(output)
 
 
+def encode_lenc_bytes(plaintext: bytes, key: bytes, nonce: bytes, *, compress: bool = True) -> bytes:
+    """Encode bytes for the current LWLF-v3 native xLua LENC loader.
+
+    The native transform is XOR based, so encryption and decryption use the same
+    stream operation.  The loader only enters its inflate branch for a 78 DA zlib
+    stream; Python's level-9 zlib output has that header and round-trips through
+    the recovered native decoder.
+    """
+    if not isinstance(plaintext, (bytes, bytearray)):
+        raise LencV3Error("LENC plaintext must be bytes")
+    payload = zlib.compress(bytes(plaintext), 9) if compress else bytes(plaintext)
+    if compress and not payload.startswith(b"\x78\xDA"):
+        raise LencV3Error("compressed LENC payload did not produce the required 78 DA header")
+    return LENC_MAGIC + transform_payload(payload, key, nonce)
+
+
 def decode_lenc_bytes(entry: bytes, key: bytes, nonce: bytes) -> dict[str, Any]:
     if len(entry) < 4 or not entry.startswith(LENC_MAGIC):
         raise LencV3Error("entry does not begin with the LENC magic")

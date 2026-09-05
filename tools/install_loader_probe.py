@@ -34,11 +34,10 @@ LUA_ENTRY = "DataCenter/Global/LuaEntry.luac"
 ORIGINAL_LUA_ENTRY = "DataCenter/Global/LuaEntry_original.luac"
 PROBE_ENTRY = "LWControlProbe.luac"
 APPLY_DISABLED_REASON = (
-    "Loader-probe installation is disabled: the current official "
-    "DataCenter/Global/LuaEntry.luac uses the LENC encrypted format, and replacing "
-    "it with plaintext Lua has already been proven to break Lua startup. The "
-    "read-only LWLF-v3 decoder is recovered, but an exact producer-side encoder "
-    "and a write-compatible current-build injection path are not yet proven."
+    "Loader-probe installation is disabled: the LWLF-v3 LENC encoder and an offline "
+    "candidate-package path are recovered, but the candidate has not yet been "
+    "validated by a bounded current-game load. Use --prepare-dir for read-only/offline "
+    "package generation and verification."
 )
 
 
@@ -334,6 +333,108 @@ def _prepare_entries(entries: list[tuple[str, bytes]]) -> list[tuple[str, bytes]
     return output
 
 
+def _prepare_lenc_entries(entries: list[tuple[str, bytes]], xlua: Path) -> tuple[list[tuple[str, bytes]], dict]:
+    """Prepare current-build encrypted probe entries without writing game files."""
+    try:
+        from .extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce, encode_lenc_bytes
+    except ImportError:
+        from extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce, encode_lenc_bytes
+
+    mapped = _entry_map(entries)
+    if LUA_ENTRY not in mapped:
+        raise InstallRefused(f"{LUA_ENTRY} is missing from LWScripts.data")
+    official = bytes(mapped[LUA_ENTRY])
+    native = derive_xlua_key_nonce(xlua)
+    key = native["key"]
+    nonce = native["nonce"]
+    wrapper = encode_lenc_bytes(_entry_source(), key, nonce)
+    probe = encode_lenc_bytes(_probe_source(), key, nonce)
+
+    mapped[ORIGINAL_LUA_ENTRY] = official
+    mapped[LUA_ENTRY] = wrapper
+    mapped[PROBE_ENTRY] = probe
+
+    output: list[tuple[str, bytes]] = []
+    seen: set[str] = set()
+    for name, _ in entries:
+        output.append((name, mapped[name]))
+        seen.add(name)
+    for name in (ORIGINAL_LUA_ENTRY, PROBE_ENTRY):
+        if name not in seen:
+            output.append((name, mapped[name]))
+
+    wrapper_check = decode_lenc_bytes(wrapper, key, nonce)
+    probe_check = decode_lenc_bytes(probe, key, nonce)
+    if wrapper_check["decoded"] != _entry_source() or probe_check["decoded"] != _probe_source():
+        raise InstallRefused("LENC probe entries failed encode/decode verification")
+    return output, {
+        "xlua_sha256": native["sha256"],
+        "wrapper_size": len(wrapper),
+        "probe_size": len(probe),
+        "wrapper_sha256": hashlib.sha256(wrapper).hexdigest(),
+        "probe_sha256": hashlib.sha256(probe).hexdigest(),
+        "official_preserved_sha256": hashlib.sha256(official).hexdigest(),
+        "round_trip_verified": True,
+    }
+
+
+def prepare_offline_candidate(paths: dict[str, Path], output_dir: Path) -> dict:
+    """Build and verify a separate candidate package; never replace installed files."""
+    before = preflight(paths)
+    if before["file_version"] != 3:
+        raise InstallRefused(f"offline LENC preparation requires LWLF version 3, got {before['file_version']}")
+    output_dir = output_dir.resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    data_out = output_dir / "LWScripts.data"
+    metadata_out = output_dir / "LWScripts.txt"
+    version_out = output_dir / "version.txt"
+    for path in (data_out, metadata_out, version_out):
+        if path.exists():
+            raise InstallRefused(f"offline candidate output already exists: {path}")
+
+    xlua = paths["game_exe"].parent / "LastWar_Data" / "Plugins" / "x86_64" / "xlua.dll"
+    file_version, content_version, entries = read_lwlf(paths["data"])
+    prepared_entries, lenc = _prepare_lenc_entries(entries, xlua)
+    write_lwlf(data_out, file_version, content_version, prepared_entries)
+    verify_version, verify_content, verify_entries = read_lwlf(data_out)
+    verify_map = _entry_map(verify_entries)
+    if (verify_version, verify_content) != (file_version, content_version):
+        raise InstallRefused("offline candidate LWLF header did not round-trip")
+    if verify_map.get(ORIGINAL_LUA_ENTRY) != _entry_map(entries)[LUA_ENTRY]:
+        raise InstallRefused("offline candidate did not preserve the official LuaEntry bytes")
+    try:
+        from .extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce
+    except ImportError:
+        from extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce
+    native = derive_xlua_key_nonce(xlua)
+    wrapper_check = decode_lenc_bytes(verify_map[LUA_ENTRY], native["key"], native["nonce"])
+    probe_check = decode_lenc_bytes(verify_map[PROBE_ENTRY], native["key"], native["nonce"])
+    if wrapper_check["decoded"] != _entry_source():
+        raise InstallRefused("serialized offline candidate wrapper failed LENC decode verification")
+    if probe_check["decoded"] != _probe_source():
+        raise InstallRefused("serialized offline candidate probe failed LENC decode verification")
+    package_crc = crc32_file(data_out)
+    package_length = data_out.stat().st_size
+    metadata_out.write_text(f"{package_length}|{package_crc}", encoding="utf-8")
+    version_out.write_text(str(content_version), encoding="utf-8")
+    return {
+        "changed_installed_files": False,
+        "output_dir": str(output_dir),
+        "data": str(data_out),
+        "metadata": str(metadata_out),
+        "version": str(version_out),
+        "file_version": file_version,
+        "content_version": content_version,
+        "entry_count": len(verify_entries),
+        "package_length": package_length,
+        "package_crc32": package_crc,
+        "package_sha256": hashlib.sha256(data_out.read_bytes()).hexdigest(),
+        "lenc": lenc,
+        "serialized_round_trip_verified": True,
+        "preflight": before,
+    }
+
+
 def _make_backup(paths: dict[str, Path]) -> Path:
     root = paths["backup_root"]
     root.mkdir(parents=True, exist_ok=True)
@@ -423,9 +524,14 @@ def main() -> int:
     mode.add_argument(
         "--apply",
         action="store_true",
-        help="fail closed until the current LENC loader contract is recovered",
+        help="fail closed until the prepared current-build candidate is validated live",
     )
     mode.add_argument("--restore", type=Path, help="restore a backup directory created by this tool")
+    mode.add_argument(
+        "--prepare-dir",
+        type=Path,
+        help="build and verify a separate encrypted candidate package without changing installed files",
+    )
     parser.add_argument("--json", action="store_true", help="emit JSON")
     args = parser.parse_args()
     paths = discover_paths()
@@ -433,6 +539,8 @@ def main() -> int:
         if args.restore:
             _restore_from_backup(paths, args.restore.resolve())
             result = {"restored": str(args.restore.resolve()), "preflight": preflight(paths)}
+        elif args.prepare_dir:
+            result = prepare_offline_candidate(paths, args.prepare_dir)
         elif args.apply:
             result = apply_install(paths)
         else:

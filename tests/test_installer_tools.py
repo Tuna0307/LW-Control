@@ -9,6 +9,7 @@ from tools.install_loader_probe import (
     PROBE_ENTRY,
     InstallRefused,
     _entry_source,
+    _prepare_lenc_entries,
     _prepare_entries,
     _probe_source,
     apply_install,
@@ -19,11 +20,11 @@ from tools.install_loader_probe import (
 
 
 class InstallerToolChecks(unittest.TestCase):
-    def test_apply_is_fail_closed_until_write_compatible_lenc_path_is_proven(self):
-        with self.assertRaisesRegex(InstallRefused, "LENC encrypted format"):
+    def test_apply_is_fail_closed_until_live_candidate_load_is_proven(self):
+        with self.assertRaisesRegex(InstallRefused, "candidate"):
             apply_install({})
-        self.assertIn("plaintext Lua", APPLY_DISABLED_REASON)
-        self.assertIn("write-compatible", APPLY_DISABLED_REASON)
+        self.assertIn("--prepare-dir", APPLY_DISABLED_REASON)
+        self.assertIn("current-game load", APPLY_DISABLED_REASON)
 
     def test_lwlf_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:

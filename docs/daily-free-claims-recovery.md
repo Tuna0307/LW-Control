@@ -193,3 +193,76 @@ The application still sends zero game actions. Live work should begin with a
 read-only `state`/`probe` adapter and current bridge-heartbeat compatibility check,
 then add one bounded claim only after the read/result correlation path is verified
 against the current game installation.
+
+## Current-game Lua daily-task protocol recovery
+
+The recovered LWLF-v3 decoder made it possible to inspect the currently installed
+content-version-12 Lua bytecode directly. This is independent current-game
+evidence, rather than behavior inferred only from the supplied controller binary.
+No network message was sent during this analysis.
+
+`tools/inspect_lua53_bytecode.py` parses the game's custom Lua 5.3 format byte `1`
+and retains prototype source lines, local names, constants, and instructions. The
+current archive's `Net/Config/MsgDefines.luac` proves these protocol mappings:
+
+| Symbol | Wire command |
+| --- | --- |
+| `DailyQuestLs` | `daily.quest.ls` |
+| `DailyQuestReward` | `daily.quest.reward` |
+| `DailyTaskReward` | `daily.task.reward` |
+| `PushDailyQuest` | `push.daily.quest` |
+| `PushTaskComplete` | `push.task.complete` |
+
+The daily-task manager's `TryReqUpdateData` sends exactly:
+
+`SFSNetwork.SendMessage(MsgDefines.DailyQuestLs)`
+
+Current UI code proves two separate claim request contracts.
+
+Daily goal/chest rewards use `DailyQuestReward`. `UI/UIMainTask/Component/UIBox`
+sets the manager's current reward to `param.index` and sends:
+
+`SFSNetwork.SendMessage(MsgDefines.DailyQuestReward, param.index)`
+
+`Net/Msgs/DailyQuestRewardMessage:OnCreate(param)` serializes that argument as:
+
+`sfsObj:PutInt("stage", param)`
+
+`UI/UILWQuest/UILWQuestList/Component/UILWDailyTaskGoalItem` first checks
+`TaskState.CanReceive`, requires a valid index, guards repeat sending with
+`isSend`, and also contains a current path that sends `DailyQuestReward` with
+`-1`. The exact semantic meaning of `-1` is not yet classified beyond being a
+special value used by current UI code.
+
+Individual daily tasks use `DailyTaskReward`. Both the old/main-task UI and the
+current quest-list UI send the task identity directly, for example:
+
+`SFSNetwork.SendMessage(MsgDefines.DailyTaskReward, info.id)`
+
+`Net/Config/MsgMap.luac` maps this command to
+`Net.Msgs.Alliance.AllianceDailyTaskRewardMessage`. Despite that historical class
+namespace/name, its current `OnCreate(taskId)` serializes the argument as:
+
+`sfsObj:PutUtfString("taskId", taskId)`
+
+and its response handler dispatches to
+`DataCenter.DailyTaskManager:DailyTaskRewardMessageHandle(t)`.
+
+The response side gives the evidence needed for fail-closed verification. All
+three recovered manager handlers first test `message.errorCode`; a non-null error
+is displayed and does not enter the success-state path. On success:
+
+- `DailyQuestLsMessageHandle` calls `UpdateDailyTask(message)` and broadcasts
+  `EventId.DailyQuestLs`;
+- `DailyQuestRewardMessageHandle` adds rewards/resources, applies every value in
+  `message.stageArr` through `SetCurReward`, and broadcasts
+  `EventId.DailyQuestReward`;
+- `DailyTaskRewardMessageHandle` adds rewards/resources, updates every item in
+  `message.taskInfo` through `UpdateOneDailyTaskInfo`, and broadcasts
+  `EventId.DailyQuestSuccess`.
+
+`SFSNetwork.SendMessage` resolves each command through `Net.Config.MsgMap`, builds
+the mapped message object, converts it to binary, and calls the managed network
+layer's `SendLuaMessage`. These facts are sufficient to specify the current daily
+task read/request/response contract for reconstruction. They do not constitute a
+live claim test, and the desktop controller still sends zero game actions.

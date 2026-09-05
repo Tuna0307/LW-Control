@@ -30,8 +30,11 @@ the xLua-derived key/nonce, its eight-round no-feed-forward ChaCha-family transf
 zlib inflate, and the resulting Lua bytecode. See
 [Assembly-CSharp / xLua LENC runtime recovery](docs/assembly-csharp-lwlua-lenc-runtime.md).
 Native RG-loader analysis has also recovered the full 32-bit metadata-token
-transform. Exact producer-side re-encoding and a write-compatible current-build
-injection path remain open research.
+transform. The symmetric LENC encoder now builds and re-verifies a separate
+encrypted candidate package without changing installed files; live current-game
+acceptance of that candidate remains gated. The current daily-task Lua protocol is
+also recovered down to wire command names, request fields, and response-state
+handlers; see the current-game section of the Daily Free Claims notes.
 
 ## Run the earlier Python prototype
 

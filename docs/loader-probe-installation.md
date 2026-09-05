@@ -90,9 +90,28 @@ python tools/install_loader_probe.py --apply --json
 ```
 
 It still returns an `InstallRefused` result and does not create a backup or modify
-a game file. The read-only LWLF-v3 decoder has now been recovered, but an exact
-producer-side encoder and a write-compatible current-build injection strategy are
-not yet proven, so the old apply path remains disabled.
+a game file. The LWLF-v3 encoder and offline candidate-package path have now been
+recovered, but the prepared candidate has not yet been accepted by a bounded
+current-game load, so the apply path remains disabled.
+
+Build and verify a separate candidate without touching the installed package:
+
+```powershell
+python tools/install_loader_probe.py --prepare-dir "$env:TEMP\lwcontrol-lenc-candidate" --json
+```
+
+The preparation path derives the current key/nonce from the hash-gated native
+`xlua.dll`, encrypts both the wrapper and probe sources, preserves the official
+`LuaEntry.luac`, writes a new LWLF-v3 package in the selected output directory,
+then re-reads that file and decrypts the serialized wrapper/probe back to their
+exact input bytes. It refuses to overwrite an existing candidate directory's
+package files.
+
+The first verified content-version-12 candidate contained 18,688 entries versus
+18,686 in the installed archive and had package SHA-256
+`c10f132de46ac376d4bae74151c308b94fd2ea0f64aa3cc15afe64c55f95efaa`.
+The installed archive, metadata, `BaseUtils.rdl`, and `IsDebug=false` state were
+unchanged after this operation.
 
 Restore a recorded backup while the game is closed:
 
@@ -119,4 +138,6 @@ It derives the key/nonce from the current hash-gated `xlua.dll`, reproduces the
 native eight-round no-feed-forward ChaCha-family transform, observes the expected
 `78 DA` zlib stream, and inflates the official entry to Lua bytecode. See
 [Assembly-CSharp / xLua LENC runtime recovery](assembly-csharp-lwlua-lenc-runtime.md).
-Daily-free-claim state parsing and claim execution remain separate work.
+The same module now also provides the symmetric encoder used by the offline
+candidate builder. Live installation remains deliberately gated on current-game
+acceptance evidence.
