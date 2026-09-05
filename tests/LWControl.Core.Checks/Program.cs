@@ -46,6 +46,53 @@ CurrentDailyTaskSnapshot ValidDailyTaskSnapshot(DateTimeOffset capturedAt) => ne
         new() { Index = 5, ActivationPoint = 50, State = CurrentTaskState.NoComplete }
     ]
 };
+CurrentWorldMapSnapshot ValidWorldMapSnapshot(DateTimeOffset capturedAt) => new()
+{
+    SchemaVersion = CurrentWorldMapSnapshot.SupportedSchemaVersion,
+    Mode = CurrentWorldMapSnapshot.SupportedMode,
+    Source = CurrentWorldMapSnapshot.SupportedSource,
+    CaptureId = "world-capture-test-1",
+    CapturedAt = capturedAt,
+    Heartbeat = new()
+    {
+        ProbeVersion = "offline-world-probe-1",
+        ObservedAt = capturedAt
+    },
+    Points =
+    [
+        new()
+        {
+            Id = 123,
+            PointType = 4,
+            Uuid = 456,
+            ServerId = 1,
+            SrcServerId = 1,
+            WorldId = 2,
+            CollectResourceInfo = new()
+            {
+                ResourceType = 3,
+                Level = 8,
+                Type = 0,
+                AttachId = 0
+            }
+        },
+        new()
+        {
+            Id = 124,
+            PointType = 5,
+            Uuid = 457,
+            ServerId = 1,
+            SrcServerId = 1,
+            WorldId = 2,
+            ResourceInfo = new()
+            {
+                ResourceId = 99,
+                State = 1,
+                GatherUuid = 0
+            }
+        }
+    ]
+};
 
 cases.Add(("Confirmed free reward is selected", () => Check(Selected(observation))));
 cases.Add(("Recovered defaults are disabled with all seven categories and limit twenty", () =>
@@ -276,6 +323,50 @@ cases.Add(("Daily-task claim proof requires a correlated post-claim state transi
         before,
         after with { ReceivedStages = [1], Boxes = before.Boxes },
         now));
+}));
+cases.Add(("Read-only world-map snapshot accepts recovered structured point fields", () =>
+{
+    var snapshot = ValidWorldMapSnapshot(now);
+    snapshot.Validate(now);
+    Check(snapshot.Source == "WorldPointManager");
+    Check(snapshot.Points.Count == 2);
+    Check(snapshot.Points[0].CollectResourceInfo?.Level == 8);
+}));
+cases.Add(("World-map snapshot rejects stale, action-shaped, and duplicate point captures", () =>
+{
+    Throws<InvalidDataException>(() => ValidWorldMapSnapshot(now.AddSeconds(-16)).Validate(now));
+    Throws<InvalidDataException>(() => (ValidWorldMapSnapshot(now) with { Mode = "scan" }).Validate(now));
+    Throws<InvalidDataException>(() => (ValidWorldMapSnapshot(now) with { Source = "UIIcons" }).Validate(now));
+
+    var snapshot = ValidWorldMapSnapshot(now);
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Points = [.. snapshot.Points, snapshot.Points[0] with { Uuid = 999 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Points = [snapshot.Points[0] with { WorldId = -1 }]
+    }).Validate(now));
+}));
+cases.Add(("World-map snapshot JSON is strict", () =>
+{
+    var directory = Path.Combine(Path.GetTempPath(), $"lwcontrol-world-snapshot-check-{Guid.NewGuid():N}");
+    try
+    {
+        var path = Path.Combine(directory, "world-snapshot.json");
+        var snapshot = ValidWorldMapSnapshot(now);
+        JsonFiles.Write(path, snapshot);
+        var loaded = JsonFiles.Read<CurrentWorldMapSnapshot>(path);
+        loaded.Validate(now);
+
+        var text = File.ReadAllText(path);
+        File.WriteAllText(path, text.Replace(
+            "\"captureId\": \"world-capture-test-1\"",
+            "\"captureId\": \"world-capture-test-1\",\n  \"unexpected\": true",
+            StringComparison.Ordinal));
+        Throws<JsonException>(() => JsonFiles.Read<CurrentWorldMapSnapshot>(path));
+    }
+    finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
 }));
 
 int failed = 0;

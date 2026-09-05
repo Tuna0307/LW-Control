@@ -95,6 +95,24 @@ metadata findings do not establish that a complete, working bot can be rebuilt
 without additional dependencies or runtime observations. This assessment does
 not implement game injection, license bypass, or protection circumvention.
 
+## 2026-09-06 world-map scanner checkpoint
+
+The current installed game now provides a stronger reconstruction boundary than
+the earlier targeted-search work. Static inspection of the current
+`Assembly-CSharp.rdl` proves that `WorldPointManager` owns structured loaded
+world-point state and drives an AOI/block request pipeline through
+`WorldGetBlockMessage`, `HandleViewPointsReply`, `ParseWorldGetBlock`, and
+`AddPointInfo`. The current generated `Protobuf.WorldPointInfo` also exposes
+structured point identity/routing fields and typed payloads.
+
+This moves the World Map Scan feature from "bulk source unknown" to "bulk source
+identified, read-only contract implemented, live capture pending". The detailed
+evidence, PROVEN/UNKNOWN boundary, request fields, and schema are recorded in
+[`current-world-map-snapshot.md`](current-world-map-snapshot.md) and
+[`current-world-map-static-evidence.json`](current-world-map-static-evidence.json).
+No game launch, network send, or installed-file modification was used for this
+checkpoint.
+
 ## Reference for bundle entry layout
 
 The .NET runtime's own
