@@ -1,0 +1,30 @@
+name: C# build and checks
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build desktop application
+        run: dotnet build src/LWControl.Desktop/LWControl.Desktop.csproj --configuration Release
+      - name: Test daily-claim planning and file persistence
+        run: dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj --configuration Release
+      - name: Smoke-test desktop form and settings
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath 'src/LWControl.Desktop/bin/Release/net10.0-windows/LWControl.Desktop.exe' -ArgumentList '--smoke-test' -PassThru
+          if (-not $process.WaitForExit(30000)) {
+            $process.Kill()
+            throw 'Desktop smoke check timed out.'
+          }
+          if ($process.ExitCode -ne 0) { throw "Desktop smoke check failed: $($process.ExitCode)" }

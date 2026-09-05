@@ -8,3 +8,6 @@ analysis/
 *.zip
 *.log
 .env
+**/bin/
+**/obj/
+.vs/

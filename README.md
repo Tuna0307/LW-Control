@@ -1,8 +1,22 @@
 # LW-Control
 
-An independent **offline controller prototype** for early development.
+Independent Last War controller research, a C# Windows planning application,
+and the earlier Python offline prototype.
 
-## Run
+## Run the C# Windows application
+
+Requires the .NET 10 SDK on Windows.
+
+```powershell
+dotnet run --project src/LWControl.Desktop/LWControl.Desktop.csproj
+dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj
+```
+
+The desktop app saves settings, imports observations, previews daily-claim
+decisions, and exports plans. It has no live game adapter and sends no actions.
+See [implementation details](docs/csharp-implementation.md).
+
+## Run the earlier Python prototype
 
 Requires Python 3.10 or newer; no third-party dependencies.
 
@@ -24,8 +38,8 @@ there is no game connection, game-file access, or executable launch.
 - `examples/demo.json`: synthetic scenario, not a game protocol.
 - `tests/test_controller.py`: controller decisions and failure-handling tests.
 
-All source code here is newly written. The prototype is synchronous, uses
-process-local state, and has no desktop UI. A live adapter is not implemented.
+All source code here is newly written. The Python prototype is synchronous and uses
+process-local state. The C# application has a Windows Forms interface. A live adapter is not implemented.
 Live integration will require bounded I/O, persistent request tracking,
 stronger result verification, and Windows testing.
 
@@ -33,7 +47,8 @@ stronger result verification, and Windows testing.
 
 C# is the chosen language for the planned Windows application because LWControl
 retains named .NET assemblies and managed method bodies. The current Python code
-remains an offline prototype; a C# implementation has not yet been added.
+remains an offline prototype. The first C# desktop shell and independent
+daily-claim planning library are now in `src/`.
 
 The first feature selected for detailed study is daily free claims. Missing
 developer documentation does not block static analysis of its decision logic.
