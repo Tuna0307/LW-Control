@@ -34,5 +34,32 @@
       "sha256": "fd96de7215ceb3a88403c32bfb09c5feb5601fbcfbc40e1db41e9b2286f87cd2",
       "note": "Embedded resource materialized by ILSpy from LastWarControl.Game.dll."
     }
-  ]
+  ],
+  "current_game_static_evidence": {
+    "method": "Read-only decode and instruction inspection of installed content-version-12 LWLF-v3 Lua bytecode; no game command was sent.",
+    "daily_task_info_entry": "DataCenter/DailyTaskData/DailyTaskInfo.luac",
+    "daily_task_info_fields": [
+      "id",
+      "num",
+      "totalNum",
+      "totalTimes",
+      "state",
+      "reward"
+    ],
+    "initial_values": {
+      "id": 0,
+      "num": 0,
+      "totalNum": 0,
+      "totalTimes": 0,
+      "state": 0,
+      "reward": "empty table"
+    },
+    "update_contract": {
+      "partial_update": true,
+      "nil_fields_are_ignored": true,
+      "reward_transform": "DataCenter.RewardManager:ReturnRewardParamForView(message.reward)",
+      "manager_identity_field": "message.id",
+      "manager_storage": "dailyQuestTasks[message.id]"
+    }
+  }
 }

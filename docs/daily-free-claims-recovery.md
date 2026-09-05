@@ -261,6 +261,28 @@ is displayed and does not enter the success-state path. On success:
   `message.taskInfo` through `UpdateOneDailyTaskInfo`, and broadcasts
   `EventId.DailyQuestSuccess`.
 
+The current `DataCenter/DailyTaskData/DailyTaskInfo.luac` also proves the local
+state shape used by those task updates. A fresh object initializes these fields:
+
+| Field | Initial value |
+| --- | ---: |
+| `id` | `0` |
+| `num` | `0` |
+| `totalNum` | `0` |
+| `totalTimes` | `0` |
+| `state` | `0` |
+| `reward` | empty table |
+
+`DailyTaskInfo:UpdateInfo(message)` treats all six fields as partial-update
+fields: it only overwrites a field when the corresponding message value is not
+`nil`. A non-null `reward` is normalized through
+`DataCenter.RewardManager:ReturnRewardParamForView(message.reward)` before being
+stored. `DailyTaskManager:UpdateOneDailyTaskInfo(message)` keys lookup by
+`message.id`, creates a new `DailyTaskInfo` when no record exists, calls
+`UpdateInfo`, and stores newly created records in `dailyQuestTasks` by task id.
+This gives the read-only bridge a concrete current-build task-state schema without
+requiring any claim request.
+
 `SFSNetwork.SendMessage` resolves each command through `Net.Config.MsgMap`, builds
 the mapped message object, converts it to binary, and calls the managed network
 layer's `SendLuaMessage`. These facts are sufficient to specify the current daily
