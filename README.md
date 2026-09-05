@@ -37,7 +37,9 @@ official-entry, metadata, and BaseUtils preflight contract expected after
 installation; live current-game acceptance of that candidate remains gated. The
 current daily-task Lua protocol is
 also recovered down to wire command names, request fields, and response-state
-handlers; see the current-game section of the Daily Free Claims notes.
+handlers. The current task-point and five-box goal-state algorithm is now mirrored
+symbolically in the C# core without assuming the game's numeric `TaskState` enum;
+see the current-game section of the Daily Free Claims notes.
 
 ## Run the earlier Python prototype
 

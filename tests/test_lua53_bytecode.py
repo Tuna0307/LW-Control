@@ -4,6 +4,7 @@ import unittest
 from tools.inspect_lua53_bytecode import (
     Lua53Error,
     decode_instruction,
+    inspect_chunk,
     parse_lua53_chunk,
 )
 
@@ -45,6 +46,15 @@ class Lua53BytecodeChecks(unittest.TestCase):
     def test_rejects_non_lua_chunk(self):
         with self.assertRaises(Lua53Error):
             parse_lua53_chunk(b"not lua")
+
+    def test_exact_prototype_selector_returns_full_body_and_rejects_missing_path(self):
+        result = inspect_chunk(minimal_last_war_chunk(), prototype_path="0")
+        self.assertEqual(result["prototype_count"], 1)
+        self.assertEqual(result["prototypes"][0]["path"], "0")
+        self.assertEqual(result["prototypes"][0]["instructions"], [])
+        self.assertEqual(result["prototypes"][0]["constants"], [])
+        with self.assertRaises(Lua53Error):
+            inspect_chunk(minimal_last_war_chunk(), prototype_path="0.10")
 
 
 if __name__ == "__main__":

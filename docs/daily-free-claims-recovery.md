@@ -283,6 +283,47 @@ stored. `DailyTaskManager:UpdateOneDailyTaskInfo(message)` keys lookup by
 This gives the read-only bridge a concrete current-build task-state schema without
 requiring any claim request.
 
+The manager's daily goal/chest state is now also recovered. `UpdateDailyTask`
+clears the current state on each non-null update, sets `curReward` to `0`, then
+replaces it with `message.curReward` when that field is present. The same update
+rebuilds `dailyBoxActive` from each `message.rewardList` item whose `point` is
+present by appending that point with `table.insert`, while reward payloads are
+normalized through `RewardManager:ReturnRewardParamForView`. `message.dailyQuest`,
+when present, is iterated into `UpdateOneDailyTaskInfo`.
+
+`SetCurReward(value)` does exactly one operation: `table.insert(self.curReward,
+value)`. The current `GetBoxState(index, curPoint)` contract is therefore:
+
+1. if `index` occurs anywhere in `curReward`, return `TaskState.Received`;
+2. otherwise look up `dailyBoxActive[index]`; when it exists and is less than or
+   equal to `curPoint`, return `TaskState.CanReceive`;
+3. otherwise return `TaskState.NoComplete`.
+
+`GetCurValue()` is also recovered exactly. It starts `result` at zero and iterates
+`dailyQuestTasks`. For a task whose `state` equals `TaskState.Received`, it asks
+`DailyTaskTemplateManager:GetQuestTemplate(k)` for the template keyed by that
+task-table key. If the template exists, it adds `template.point` to `result`.
+Other task states and missing templates contribute nothing. The returned sum is
+the `curPoint` consumed by `GetBoxState`.
+
+`IsAllBoxRewardReceived()` obtains the current point value and calls that state
+function for exactly five indices, `1` through `5`; it returns false on the first
+non-`Received` box and true only when all five are received. This means a future
+read-only bridge does not need to infer chest state from UI pixels: the minimum
+state needed to reproduce the game's decision is the received-stage list,
+per-index activation threshold, plus task state/template-point pairs from which
+the current point can be reproduced. The C# core now contains
+`CurrentDailyTaskState`, a symbolic interpreter for this exact contract including
+`GetCurValue`. It does not assume the numeric values of the game's `TaskState`
+enum and sends no action. A future in-game read-only probe can avoid exporting an
+unknown numeric enum entirely by comparing against `TaskState.Received` inside
+Lua and exporting the derived symbolic state/current point.
+
+For repeatable static analysis, `tools/inspect_lua53_bytecode.py` now accepts an
+exact `--prototype` path (for example `0.10`). In that mode it emits the complete
+instruction and constant body for only that prototype, reducing unrelated output
+while preserving the same read-only package decode path.
+
 `SFSNetwork.SendMessage` resolves each command through `Net.Config.MsgMap`, builds
 the mapped message object, converts it to binary, and calls the managed network
 layer's `SendLuaMessage`. These facts are sufficient to specify the current daily

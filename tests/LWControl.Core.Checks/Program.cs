@@ -121,6 +121,37 @@ cases.Add(("Recovered bridge heartbeat health contract is enforced", () =>
     Check(!LocalBridgeInspector.IsBridgeHealthy(false, startedAt, checkedAt, checkedAt));
     Check(!LocalBridgeInspector.IsBridgeHealthy(true, checkedAt, checkedAt.AddSeconds(-3), checkedAt));
 }));
+cases.Add(("Current-game daily chest state contract is mirrored symbolically", () =>
+{
+    var thresholds = new Dictionary<int, int>
+    {
+        [1] = 20,
+        [2] = 40,
+        [3] = 60,
+        [4] = 80,
+        [5] = 100
+    };
+    int[] received = [1, 3];
+
+    Check(CurrentDailyTaskState.GetBoxState(1, 50, received, thresholds) == CurrentTaskState.Received);
+    Check(CurrentDailyTaskState.GetBoxState(2, 50, received, thresholds) == CurrentTaskState.CanReceive);
+    Check(CurrentDailyTaskState.GetBoxState(4, 50, received, thresholds) == CurrentTaskState.NoComplete);
+    Check(CurrentDailyTaskState.GetBoxState(9, 999, received, thresholds) == CurrentTaskState.NoComplete);
+    Check(!CurrentDailyTaskState.IsAllBoxRewardReceived(999, received, thresholds));
+    Check(CurrentDailyTaskState.IsAllBoxRewardReceived(0, [1, 2, 3, 4, 5], thresholds));
+}));
+cases.Add(("Current-game daily point total uses only received task templates", () =>
+{
+    CurrentDailyTaskPointState[] tasks =
+    [
+        new(CurrentTaskState.Received, 10),
+        new(CurrentTaskState.CanReceive, 99),
+        new(CurrentTaskState.NoComplete, 88),
+        new(CurrentTaskState.Received, 20),
+        new(CurrentTaskState.Received, null)
+    ];
+    Check(CurrentDailyTaskState.GetCurValue(tasks) == 30);
+}));
 
 int failed = 0;
 foreach (var test in cases)

@@ -60,6 +60,36 @@
       "reward_transform": "DataCenter.RewardManager:ReturnRewardParamForView(message.reward)",
       "manager_identity_field": "message.id",
       "manager_storage": "dailyQuestTasks[message.id]"
+    },
+    "daily_goal_state": {
+      "update_daily_task": {
+        "curReward_default_on_update": 0,
+        "curReward_message_field": "message.curReward",
+        "reward_list_message_field": "message.rewardList",
+        "reward_list_point_field": "point",
+        "daily_box_active_storage": "table.insert(self.dailyBoxActive, reward_item.point)",
+        "daily_quest_message_field": "message.dailyQuest",
+        "daily_quest_update": "each entry is passed to UpdateOneDailyTaskInfo"
+      },
+      "set_cur_reward": "table.insert(self.curReward, value)",
+      "get_cur_value": {
+        "initial_value": 0,
+        "task_storage": "dailyQuestTasks",
+        "included_state": "TaskState.Received",
+        "template_lookup": "DataCenter.DailyTaskTemplateManager:GetQuestTemplate(k)",
+        "contribution": "template.point when template exists",
+        "other_states": "contribute zero"
+      },
+      "get_box_state": {
+        "received": "index occurs in curReward",
+        "can_receive": "dailyBoxActive[index] exists and dailyBoxActive[index] <= curPoint",
+        "otherwise": "TaskState.NoComplete"
+      },
+      "all_boxes_received": {
+        "indices": [1, 2, 3, 4, 5],
+        "rule": "true only when GetBoxState(index, GetCurValue()) is TaskState.Received for every index"
+      },
+      "task_state_numeric_values": "UNKNOWN; reconstruction uses symbolic enum names only"
     }
   }
 }

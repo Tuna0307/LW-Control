@@ -351,11 +351,23 @@ def flatten_prototypes(root: LuaPrototype) -> list[LuaPrototype]:
     return result
 
 
-def inspect_chunk(data: bytes, contains: str | None = None, context: int = 5) -> dict[str, Any]:
+def inspect_chunk(
+    data: bytes,
+    contains: str | None = None,
+    context: int = 5,
+    prototype_path: str | None = None,
+) -> dict[str, Any]:
     header, main = parse_lua53_chunk(data)
     prototype_rows = []
     contains_lower = contains.lower() if contains is not None else None
-    for proto in flatten_prototypes(main):
+    all_prototypes = flatten_prototypes(main)
+    selected_prototypes = [
+        proto for proto in all_prototypes
+        if prototype_path is None or proto.index_path == prototype_path
+    ]
+    if prototype_path is not None and not selected_prototypes:
+        raise Lua53Error(f"Lua prototype path {prototype_path!r} is missing")
+    for proto in selected_prototypes:
         constants = [constant.value for constant in proto.constants]
         matching_indices = [
             index
@@ -390,8 +402,7 @@ def inspect_chunk(data: bytes, contains: str | None = None, context: int = 5) ->
                     }
                 )
         if contains_lower is None or matching_indices:
-            prototype_rows.append(
-                {
+            prototype_row = {
                     "path": proto.index_path,
                     "source": proto.source,
                     "line_defined": proto.line_defined,
@@ -412,11 +423,29 @@ def inspect_chunk(data: bytes, contains: str | None = None, context: int = 5) ->
                     "upvalue_names": proto.upvalue_names,
                     "hits": hits,
                 }
-            )
-    return {"header": header, "prototype_count": len(flatten_prototypes(main)), "prototypes": prototype_rows}
+            if prototype_path is not None:
+                prototype_row["instructions"] = [
+                    {
+                        "pc": pc,
+                        "line": proto.line_info[pc] if pc < len(proto.line_info) else None,
+                        **row,
+                    }
+                    for pc, row in enumerate(instructions)
+                ]
+                prototype_row["constants"] = [
+                    {"index": index, "value": constant.value}
+                    for index, constant in enumerate(proto.constants)
+                ]
+            prototype_rows.append(prototype_row)
+    return {"header": header, "prototype_count": len(all_prototypes), "prototypes": prototype_rows}
 
 
-def inspect_installed_entry(entry_name: str, contains: str | None, context: int) -> dict[str, Any]:
+def inspect_installed_entry(
+    entry_name: str,
+    contains: str | None,
+    context: int,
+    prototype_path: str | None = None,
+) -> dict[str, Any]:
     paths = discover_paths()
     xlua = paths["game_exe"].parent / "LastWar_Data" / "Plugins" / "x86_64" / "xlua.dll"
     native = derive_xlua_key_nonce(xlua)
@@ -425,7 +454,12 @@ def inspect_installed_entry(entry_name: str, contains: str | None, context: int)
     if entry_name not in mapped:
         raise Lua53Error(f"entry {entry_name!r} is missing from LWScripts.data")
     decoded = decode_lenc_bytes(mapped[entry_name], native["key"], native["nonce"])["decoded"]
-    result = inspect_chunk(decoded, contains=contains, context=context)
+    result = inspect_chunk(
+        decoded,
+        contains=contains,
+        context=context,
+        prototype_path=prototype_path,
+    )
     return {
         "entry": entry_name,
         "file_version": file_version,
@@ -441,10 +475,11 @@ def main() -> int:
     parser.add_argument("--entry", required=True)
     parser.add_argument("--contains", help="show prototypes/instructions referencing matching string constants")
     parser.add_argument("--context", type=int, default=5)
+    parser.add_argument("--prototype", help="show only the exact prototype path, for example 0.10")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
     try:
-        result = inspect_installed_entry(args.entry, args.contains, args.context)
+        result = inspect_installed_entry(args.entry, args.contains, args.context, args.prototype)
     except (Lua53Error, OSError, EOFError, ValueError) as exc:
         output = {"ok": False, "error": str(exc), "error_type": type(exc).__name__}
         print(json.dumps(output, indent=2) if args.json else f"REFUSED: {exc}")
