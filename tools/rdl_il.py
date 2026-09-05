@@ -18,6 +18,10 @@ from dncil.cil.body.reader import read_method_body_from_bytes
 
 
 HEADER_FORMAT_BIT = 0x02
+TOKEN_XOR_A = 0xA5A5A5A5
+TOKEN_SUB = 0x075BCD16
+TOKEN_XOR_B = 0x3ADE68B1
+TOKEN_ROR = 5
 
 
 class RdlMethodBodyError(ValueError):
@@ -98,3 +102,33 @@ def instruction_rows(parsed: ParsedRdlMethodBody) -> list[dict[str, Any]]:
             }
         )
     return rows
+
+
+def decode_metadata_token(token_value: int) -> int:
+    """Decode one current RDL 32-bit metadata-token operand."""
+    if not isinstance(token_value, int) or not 0 <= token_value <= 0xFFFFFFFF:
+        raise RdlMethodBodyError("encoded token must be a 32-bit unsigned integer")
+    value = token_value ^ TOKEN_XOR_A
+    value = (value - TOKEN_SUB) & 0xFFFFFFFF
+    value ^= TOKEN_XOR_B
+    return ((value >> TOKEN_ROR) | (value << (32 - TOKEN_ROR))) & 0xFFFFFFFF
+
+
+def encode_metadata_token(token_value: int) -> int:
+    """Encode one normal 32-bit metadata token into the current RDL representation."""
+    if not isinstance(token_value, int) or not 0 <= token_value <= 0xFFFFFFFF:
+        raise RdlMethodBodyError("metadata token must be a 32-bit unsigned integer")
+    value = ((token_value << TOKEN_ROR) | (token_value >> (32 - TOKEN_ROR))) & 0xFFFFFFFF
+    value ^= TOKEN_XOR_B
+    value = (value + TOKEN_SUB) & 0xFFFFFFFF
+    return value ^ TOKEN_XOR_A
+
+
+def encoded_field_token_rid_mod8(token_value: int) -> int:
+    """Compatibility helper returning decoded FieldDef RID modulo eight."""
+    decoded = decode_metadata_token(token_value)
+    if decoded >> 24 != 0x04:
+        raise RdlMethodBodyError(
+            f"encoded token decodes to 0x{decoded:08X}, which is not a FieldDef token"
+        )
+    return (decoded & 0x00FFFFFF) % 8

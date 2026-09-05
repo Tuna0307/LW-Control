@@ -98,6 +98,17 @@ Restore a recorded backup while the game is closed:
 python tools/install_loader_probe.py --restore "<backup-directory>" --json
 ```
 
-The next loader milestone is a read-only decoder that can decrypt a copy of the
-official LENC entry and verify plausible output without changing the installed
-package. Daily-free-claim state parsing and claim execution remain separate work.
+The repository now also contains a read-only LENC contract inspector:
+
+```powershell
+python tools/inspect_lenc_contract.py --json
+```
+
+It verifies the current LENC entry identity, resolves the encoded key operand
+directly to FieldDef RID `1472` (`00..1F`) with the recovered native RG token
+transform, confirms the zero 12-byte nonce and ChaCha8 round count, and records
+the remaining `ChaCha20.Constants` discrepancy. The next loader milestone is to
+recover that runtime constant-supply/patch path, then
+decrypt a copy of the official entry and verify the Lua output without changing
+the installed package. Daily-free-claim state parsing and claim execution remain
+separate work.

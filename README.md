@@ -20,9 +20,15 @@ The daily-claim preview policy is now based on statically recovered behavior fro
 the supplied executable; see [Daily Free Claims recovery notes](docs/daily-free-claims-recovery.md).
 The current game's `BaseUtils.rdl` loader metadata can also be inspected read-only;
 see [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md).
+Native `GameAssembly.dll` tracing is documented in
+[GameAssembly RGMD runtime recovery](docs/gameassembly-rgmd-runtime.md).
 Closed-game loader experiments also identified the current `LENC` encrypted Lua
 entry format. The rejected probe path and its fail-closed status are documented in
-[Version-aware loader probe research](docs/loader-probe-installation.md).
+[Version-aware loader probe research](docs/loader-probe-installation.md). A
+read-only `tools/inspect_lenc_contract.py` check now reproduces the recovered
+LENC key/nonce/round evidence. Native RG-loader analysis has also recovered the
+full 32-bit metadata-token transform; the unresolved runtime constants gate
+remains explicit.
 
 ## Run the earlier Python prototype
 
@@ -72,4 +78,5 @@ rules with a clean-room runtime-policy preview.
 - [Daily Free Claims recovery evidence](docs/daily-free-claims-evidence.json)
 - [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md)
 - [BaseUtils.rdl recovery evidence](docs/baseutils-rdl-evidence.json)
+- [GameAssembly RGMD runtime recovery](docs/gameassembly-rgmd-runtime.md)
 - [Version-aware loader probe research](docs/loader-probe-installation.md)

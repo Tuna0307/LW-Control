@@ -28,6 +28,7 @@ from inspect_baseutils_rdl import (
     _table_index_width,
     _u,
 )
+from rdl_il import encode_metadata_token
 
 
 def _layout_through_memberref(rows: dict[int, int], heap_sizes: int) -> tuple[dict[int, int], dict[str, int]]:
@@ -208,7 +209,13 @@ def inspect_memberref_callers(path: Path, member_name: str, type_name: str | Non
     text_start = int(section["raw_pointer"])
     text_end = text_start + int(section["raw_size"])
     for match in matches:
-        token = struct.pack("<I", int(match["token_value"]))
+        logical_token = int(match["token_value"])
+        stored_token = (
+            encode_metadata_token(logical_token)
+            if metadata["signature"] == "RGMD"
+            else logical_token
+        )
+        token = struct.pack("<I", stored_token)
         search_at = text_start
         while True:
             position = data.find(token, search_at, text_end)
@@ -231,6 +238,7 @@ def inspect_memberref_callers(path: Path, member_name: str, type_name: str | Non
                 {
                     "memberref_rid": match["rid"],
                     "memberref_token": match["metadata_token"],
+                    "stored_operand": f"0x{stored_token:08X}",
                     "method_rid": method["rid"],
                     "method_name": method["name"],
                     "declaring_type": declaring_types.get(int(method["rid"])),
