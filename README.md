@@ -39,7 +39,12 @@ current daily-task Lua protocol is
 also recovered down to wire command names, request fields, and response-state
 handlers. The current task-point and five-box goal-state algorithm is now mirrored
 symbolically in the C# core without assuming the game's numeric `TaskState` enum;
-see the current-game section of the Daily Free Claims notes.
+see the current-game section of the Daily Free Claims notes. A strict version-1
+read-only snapshot model now defines the exact future Lua-to-C# state boundary and
+re-derives current points and all five chest states before accepting a capture; see
+[Current daily-task read-only snapshot contract](docs/current-daily-task-snapshot.md).
+An offline Lua state-builder draft implements the same cross-checks without file
+I/O, network sends, or loader installation.
 
 ## Run the earlier Python prototype
 
@@ -87,6 +92,8 @@ rules with a clean-room runtime-policy preview.
 - [Managed-code recovery assessment](docs/recovery-assessment.md)
 - [Daily Free Claims runtime and bridge recovery](docs/daily-free-claims-recovery.md)
 - [Daily Free Claims recovery evidence](docs/daily-free-claims-evidence.json)
+- [Current daily-task read-only snapshot contract](docs/current-daily-task-snapshot.md)
+- [Current daily-task snapshot JSON schema](docs/current-daily-task-snapshot.schema.json)
 - [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md)
 - [BaseUtils.rdl recovery evidence](docs/baseutils-rdl-evidence.json)
 - [GameAssembly RGMD runtime recovery](docs/gameassembly-rgmd-runtime.md)

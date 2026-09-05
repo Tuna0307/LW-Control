@@ -89,7 +89,27 @@
         "indices": [1, 2, 3, 4, 5],
         "rule": "true only when GetBoxState(index, GetCurValue()) is TaskState.Received for every index"
       },
-      "task_state_numeric_values": "UNKNOWN; reconstruction uses symbolic enum names only"
+      "task_state_numeric_values": "UNKNOWN; reconstruction uses symbolic enum names only",
+      "snapshot_contract": {
+        "status": "OFFLINE_CONTRACT_ONLY",
+        "schema_version": 1,
+        "mode": "state",
+        "game_derived_validation": [
+          "currentPoint must equal the sum of template.point for tasks symbolically marked Received",
+          "box state must re-derive from receivedStages, activation threshold, and currentPoint",
+          "box indices are exactly 1 through 5"
+        ],
+        "local_fail_closed_guards": [
+          "unknown JSON properties rejected",
+          "numeric task-state values rejected",
+          "duplicate or missing task IDs rejected",
+          "invalid received-stage and box indices rejected",
+          "negative or excessive local point/threshold values rejected",
+          "default capture/heartbeat age limit 15 seconds with 5-second future tolerance",
+          "unsupported schema version or non-state mode rejected"
+        ],
+        "live_probe_execution": "UNKNOWN"
+      }
     }
   }
 }

@@ -319,6 +319,18 @@ enum and sends no action. A future in-game read-only probe can avoid exporting a
 unknown numeric enum entirely by comparing against `TaskState.Received` inside
 Lua and exporting the derived symbolic state/current point.
 
+The reconstruction now also has a strict version-1 JSON snapshot boundary for
+that future probe. It carries task IDs, symbolic task states, template points,
+the exported and independently re-derived current point, received chest-stage
+indices, all five activation thresholds and symbolic chest states, plus capture
+and heartbeat metadata. The C# validator rejects duplicate task IDs, unsupported
+schema/mode values, numeric or unknown task-state values, malformed stage/box
+indices, invalid point ranges, stale/future timestamps, and any mismatch between
+the exported current point/chest state and the recovered manager algorithm. See
+[`current-daily-task-snapshot.md`](current-daily-task-snapshot.md). These input
+limits and freshness checks are local fail-closed safeguards; the point and chest
+derivation rules are the current-game behavior recovered above.
+
 For repeatable static analysis, `tools/inspect_lua53_bytecode.py` now accepts an
 exact `--prototype` path (for example `0.10`). In that mode it emits the complete
 instruction and constant body for only that prototype, reducing unrelated output

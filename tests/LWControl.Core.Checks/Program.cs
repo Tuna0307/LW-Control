@@ -18,6 +18,34 @@ void Throws<T>(Action action) where T : Exception
 }
 bool Selected(ClaimObservation item, DailyClaimSettings? config = null) =>
     DailyClaimPlanner.Build(config ?? settings, [item], now).Decisions.Single().Selected;
+CurrentDailyTaskSnapshot ValidDailyTaskSnapshot(DateTimeOffset capturedAt) => new()
+{
+    SchemaVersion = CurrentDailyTaskSnapshot.SupportedSchemaVersion,
+    Mode = CurrentDailyTaskSnapshot.SupportedMode,
+    CaptureId = "capture-test-1",
+    CapturedAt = capturedAt,
+    Heartbeat = new()
+    {
+        ProbeVersion = "offline-test-probe-1",
+        ObservedAt = capturedAt
+    },
+    Tasks =
+    [
+        new() { TaskId = "task-a", State = CurrentTaskState.Received, TemplatePoint = 30 },
+        new() { TaskId = "task-b", State = CurrentTaskState.CanReceive, TemplatePoint = 40 },
+        new() { TaskId = "task-c", State = CurrentTaskState.NoComplete, TemplatePoint = null }
+    ],
+    CurrentPoint = 30,
+    ReceivedStages = [1],
+    Boxes =
+    [
+        new() { Index = 1, ActivationPoint = 10, State = CurrentTaskState.Received },
+        new() { Index = 2, ActivationPoint = 20, State = CurrentTaskState.CanReceive },
+        new() { Index = 3, ActivationPoint = 30, State = CurrentTaskState.CanReceive },
+        new() { Index = 4, ActivationPoint = 40, State = CurrentTaskState.NoComplete },
+        new() { Index = 5, ActivationPoint = 50, State = CurrentTaskState.NoComplete }
+    ]
+};
 
 cases.Add(("Confirmed free reward is selected", () => Check(Selected(observation))));
 cases.Add(("Recovered defaults are disabled with all seven categories and limit twenty", () =>
@@ -151,6 +179,72 @@ cases.Add(("Current-game daily point total uses only received task templates", (
         new(CurrentTaskState.Received, null)
     ];
     Check(CurrentDailyTaskState.GetCurValue(tasks) == 30);
+}));
+cases.Add(("Read-only daily-task snapshot validates derived point and box state", () =>
+{
+    var snapshot = ValidDailyTaskSnapshot(now);
+    snapshot.Validate(now);
+    Check(snapshot.CurrentPoint == CurrentDailyTaskState.GetCurValue(
+        snapshot.Tasks.Select(task => new CurrentDailyTaskPointState(task.State, task.TemplatePoint))));
+}));
+cases.Add(("Daily-task snapshot rejects stale, future, unsupported, and action-shaped captures", () =>
+{
+    Throws<InvalidDataException>(() => ValidDailyTaskSnapshot(now.AddSeconds(-16)).Validate(now));
+    Throws<InvalidDataException>(() => ValidDailyTaskSnapshot(now.AddSeconds(6)).Validate(now));
+    Throws<InvalidDataException>(() => (ValidDailyTaskSnapshot(now) with { SchemaVersion = 2 }).Validate(now));
+    Throws<InvalidDataException>(() => (ValidDailyTaskSnapshot(now) with { Mode = "run_once" }).Validate(now));
+    Throws<InvalidDataException>(() => (ValidDailyTaskSnapshot(now) with
+    {
+        Heartbeat = new() { ProbeVersion = "offline-test-probe-1", ObservedAt = now.AddSeconds(-16) }
+    }).Validate(now));
+}));
+cases.Add(("Daily-task snapshot rejects identity, threshold, and derivation corruption", () =>
+{
+    var snapshot = ValidDailyTaskSnapshot(now);
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Tasks = [.. snapshot.Tasks, snapshot.Tasks[0]]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with { CurrentPoint = 31 }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with { ReceivedStages = [1, 1] }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Boxes = snapshot.Boxes.Select(box => box.Index == 5
+            ? box with { ActivationPoint = -1 }
+            : box).ToArray()
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Boxes = snapshot.Boxes.Select(box => box.Index == 2
+            ? box with { State = CurrentTaskState.NoComplete }
+            : box).ToArray()
+    }).Validate(now));
+}));
+cases.Add(("Daily-task snapshot JSON is strict and uses symbolic task states", () =>
+{
+    var directory = Path.Combine(Path.GetTempPath(), $"lwcontrol-snapshot-check-{Guid.NewGuid():N}");
+    try
+    {
+        var path = Path.Combine(directory, "snapshot.json");
+        var snapshot = ValidDailyTaskSnapshot(now);
+        JsonFiles.Write(path, snapshot);
+        var text = File.ReadAllText(path);
+        Check(text.Contains("\"state\": \"Received\"", StringComparison.Ordinal));
+        var loaded = JsonFiles.Read<CurrentDailyTaskSnapshot>(path);
+        loaded.Validate(now);
+
+        File.WriteAllText(path, text.Replace(
+            "\"captureId\": \"capture-test-1\"",
+            "\"captureId\": \"capture-test-1\",\n  \"unexpected\": true",
+            StringComparison.Ordinal));
+        Throws<JsonException>(() => JsonFiles.Read<CurrentDailyTaskSnapshot>(path));
+
+        JsonFiles.Write(path, snapshot);
+        text = File.ReadAllText(path);
+        File.WriteAllText(path, text.Replace("\"Received\"", "999", StringComparison.Ordinal));
+        Throws<JsonException>(() => JsonFiles.Read<CurrentDailyTaskSnapshot>(path));
+    }
+    finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
 }));
 
 int failed = 0;

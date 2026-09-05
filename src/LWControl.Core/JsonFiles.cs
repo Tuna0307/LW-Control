@@ -10,7 +10,11 @@ public static class JsonFiles
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        Converters = { new JsonStringEnumConverter<ClaimKind>(allowIntegerValues: false) }
+        Converters =
+        {
+            new JsonStringEnumConverter<ClaimKind>(allowIntegerValues: false),
+            new JsonStringEnumConverter<CurrentTaskState>(allowIntegerValues: false)
+        }
     };
 
     public static T Read<T>(string path) where T : class
