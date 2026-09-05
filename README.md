@@ -20,6 +20,9 @@ The daily-claim preview policy is now based on statically recovered behavior fro
 the supplied executable; see [Daily Free Claims recovery notes](docs/daily-free-claims-recovery.md).
 The current game's `BaseUtils.rdl` loader metadata can also be inspected read-only;
 see [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md).
+Closed-game loader experiments also identified the current `LENC` encrypted Lua
+entry format. The rejected probe path and its fail-closed status are documented in
+[Version-aware loader probe research](docs/loader-probe-installation.md).
 
 ## Run the earlier Python prototype
 
@@ -69,3 +72,4 @@ rules with a clean-room runtime-policy preview.
 - [Daily Free Claims recovery evidence](docs/daily-free-claims-evidence.json)
 - [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md)
 - [BaseUtils.rdl recovery evidence](docs/baseutils-rdl-evidence.json)
+- [Version-aware loader probe research](docs/loader-probe-installation.md)

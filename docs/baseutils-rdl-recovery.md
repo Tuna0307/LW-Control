@@ -57,6 +57,21 @@ The first three bytes match the supplied installer's accepted compact method
 contract: header byte `0x08`/`0x0A`, Boolean constant opcode `0x16`/`0x17`, then
 `ret` (`0x2A`). The current second byte is `0x16`, which is the false constant.
 
+The same method-header transformation appears on larger methods. Current RDL tiny
+headers such as `0x08` parse as normal tiny CIL headers after setting bit `0x02`
+in memory (`0x0A`), while observed fat headers such as `0x11` parse after the same
+in-memory repair (`0x13`). `tools/rdl_il.py` now implements this as a read-only
+copy operation and feeds only the repaired copy to `dncil`; it never writes the
+header back to the RDL file.
+
+Using that repair, `LencCodec.Decrypt` (TypeDef RID 13, MethodDef RID 156, RVA
+`0x542C`, file offset `0x362C`) parses as structured CIL. The recovered control
+flow checks for null/short input, validates a four-byte LENC magic header, copies
+the bytes after that header into a new buffer, and passes the payload plus two
+static fields to a lower-level routine before returning the result. Metadata-token
+operands are still transformed independently, so field/method/string identities
+cannot yet be assigned from their raw operand values alone.
+
 This proves the previous failure was caused by the method moving, not by the
 `IsDebug` method disappearing or changing to an unknown implementation. The old
 installer hard-coded RVA `0x333C` (file offset `0x153C`); the current metadata puts
@@ -79,9 +94,14 @@ Use `--json` to capture machine-readable evidence.
 
 ## Consequence for reconstruction
 
-The loader no longer needs a fixed build-specific `IsDebug` RVA. A safer future
-installer can resolve `CommonUtils.IsDebug` from metadata, verify its exact
-signature/body contract, verify the expected game/content version, and fail closed
-when any identity check is ambiguous. That installer has not been implemented or
-run in this recovery pass because Last War is currently running and the user asked
-for analysis/documentation while continuing to play.
+The loader no longer needs a fixed build-specific `IsDebug` RVA. The repository
+now contains `tools/install_loader_probe.py`, which resolves `CommonUtils.IsDebug`
+from metadata and verifies the exact signature/body contract plus the current
+`BaseUtils.rdl` hash and script content version. A live closed-game experiment on
+2026-09-05 proved that changing this build's `IsDebug` result to true makes the Lua
+loader seek `.lua` resources instead of the official `.luac` entry and breaks Lua
+startup. A second package-only experiment also failed because the official entry
+uses the current `LENC` encrypted representation. The tool therefore treats the
+method as an identity gate, leaves it unchanged, and now refuses `--apply` until a
+verified LENC-compatible strategy exists. See
+[Version-aware loader probe](loader-probe-installation.md).

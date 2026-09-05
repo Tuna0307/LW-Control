@@ -380,18 +380,198 @@ def inspect(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
     }
 
 
+def inspect_callers(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
+    """Find direct IL call/callvirt operands that reference an exact MethodDef.
+
+    This is intentionally a narrow read-only cross-reference pass. It does not
+    attempt to be a general IL disassembler; a hit must have a call/callvirt
+    opcode immediately before the exact MethodDef token and must fall inside the
+    RVA range of a metadata MethodDef.
+    """
+    target = inspect(path, method_name)
+    data = path.read_bytes()
+    root = _find_metadata_root(data)
+    streams, _ = _parse_metadata_streams(data, root)
+    rows, heap_sizes, row_data = _parse_tables(data, streams["#~"])
+    sizes, widths = _early_table_layout(rows, heap_sizes)
+    offsets = _table_offsets(row_data, rows, sizes)
+    string_at = _string_reader(data, streams["#Strings"])
+    section = _find_text_section(data)
+
+    string_width = widths["string"]
+    blob_width = widths["blob"]
+    param_width = _table_index_width(rows, 8)
+    method_row_size = sizes[6]
+    methods: dict[int, dict[str, Any]] = {}
+    for rid in range(1, rows.get(6, 0) + 1):
+        cursor = offsets[6] + (rid - 1) * method_row_size
+        rva, impl_flags, flags = struct.unpack_from("<IHH", data, cursor)
+        cursor += 8
+        name_index = _u(data, cursor, string_width)
+        cursor += string_width
+        signature_index = _u(data, cursor, blob_width)
+        cursor += blob_width
+        param_list = _u(data, cursor, param_width)
+        methods[rid] = {
+            "rid": rid,
+            "rva": rva,
+            "impl_flags": impl_flags,
+            "flags": flags,
+            "name": string_at(name_index),
+            "signature_index": signature_index,
+            "param_list": param_list,
+        }
+
+    pointer_values: list[int] = []
+    if rows.get(5, 0):
+        width = _table_index_width(rows, 6)
+        pointer_values = [
+            _u(data, offsets[5] + index * sizes[5], width)
+            for index in range(rows[5])
+        ]
+
+    type_row_size = sizes[2]
+    extends_width = _coded_index_width(rows, [2, 1, 27], 2)
+    field_width = _table_index_width(rows, 4)
+    method_list_width = _table_index_width(rows, 6)
+    declaring_types: dict[int, dict[str, Any]] = {}
+    for type_rid in range(1, rows.get(2, 0) + 1):
+        cursor = offsets[2] + (type_rid - 1) * type_row_size
+        type_flags = struct.unpack_from("<I", data, cursor)[0]
+        cursor += 4
+        type_name_index = _u(data, cursor, string_width)
+        cursor += string_width
+        namespace_index = _u(data, cursor, string_width)
+        cursor += string_width + extends_width + field_width
+        method_list = _u(data, cursor, method_list_width)
+        if type_rid < rows[2]:
+            next_cursor = (
+                offsets[2]
+                + type_rid * type_row_size
+                + 4
+                + string_width * 2
+                + extends_width
+                + field_width
+            )
+            next_method_list = _u(data, next_cursor, method_list_width)
+        else:
+            next_method_list = (rows.get(5, 0) if rows.get(5, 0) else rows[6]) + 1
+        declaring = {
+            "rid": type_rid,
+            "name": string_at(type_name_index),
+            "namespace": string_at(namespace_index),
+            "flags": type_flags,
+        }
+        for pointer_rid in range(method_list, next_method_list):
+            method_rid = pointer_values[pointer_rid - 1] if pointer_values else pointer_rid
+            if method_rid in methods:
+                declaring_types[method_rid] = declaring
+
+    ranged_methods = []
+    for method in methods.values():
+        if not method["rva"]:
+            continue
+        try:
+            file_offset = _rva_to_offset(int(method["rva"]), section)
+        except RdlFormatError:
+            continue
+        ranged_methods.append((file_offset, method))
+    ranged_methods.sort(key=lambda item: (item[0], item[1]["rid"]))
+
+    # Use the next strictly greater method start as the conservative body range.
+    next_greater: dict[int, int] = {}
+    unique_starts = sorted({offset for offset, _ in ranged_methods})
+    section_end = int(section["raw_pointer"]) + int(section["raw_size"])
+    for index, start in enumerate(unique_starts):
+        next_greater[start] = unique_starts[index + 1] if index + 1 < len(unique_starts) else section_end
+
+    target_rid = int(target["method"]["rid"])
+    token_value = 0x06000000 | target_rid
+    token = struct.pack("<I", token_value)
+    text_start = int(section["raw_pointer"])
+    text_end = text_start + int(section["raw_size"])
+    callers = []
+    search_at = text_start
+    while True:
+        position = data.find(token, search_at, text_end)
+        if position < 0:
+            break
+        search_at = position + 1
+        opcode_offset = position - 1
+        opcode = data[opcode_offset] if opcode_offset >= text_start else None
+        if opcode not in (0x28, 0x6F):
+            continue
+        owner = None
+        for start, method in reversed(ranged_methods):
+            if start <= opcode_offset < next_greater[start]:
+                owner = (start, method)
+                break
+        if owner is None:
+            continue
+        start, method = owner
+        declaring = declaring_types.get(int(method["rid"]), {})
+        callers.append(
+            {
+                "method_rid": method["rid"],
+                "method_name": method["name"],
+                "declaring_type": declaring,
+                "method_rva": method["rva"],
+                "method_file_offset": start,
+                "call_file_offset": opcode_offset,
+                "call_relative_offset": opcode_offset - start,
+                "opcode": "call" if opcode == 0x28 else "callvirt",
+                "context": data[max(start, opcode_offset - 16) : min(next_greater[start], position + 20)].hex(" "),
+            }
+        )
+
+    return {
+        "path": str(path),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "target": {
+            "method": target["method"],
+            "metadata_token": f"0x{token_value:08X}",
+            "token_bytes_le": token.hex(" "),
+        },
+        "caller_count": len(callers),
+        "callers": callers,
+        "read_only": True,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path, help="path to BaseUtils.rdl")
     parser.add_argument(
         "--method", default="IsDebug", help="exact MethodDef name (default: IsDebug)"
     )
+    parser.add_argument(
+        "--callers", action="store_true", help="find direct IL callers of the exact MethodDef"
+    )
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     args = parser.parse_args()
 
-    result = inspect(args.path, args.method)
+    result = inspect_callers(args.path, args.method) if args.callers else inspect(args.path, args.method)
     if args.json:
         print(json.dumps(result, indent=2))
+    elif args.callers:
+        print(f"File: {result['path']}")
+        print(f"SHA-256: {result['sha256']}")
+        print(
+            f"Target token: {result['target']['metadata_token']} "
+            f"({result['target']['token_bytes_le']})"
+        )
+        print(f"Direct callers: {result['caller_count']}")
+        for caller in result["callers"]:
+            declaring = caller.get("declaring_type") or {}
+            namespace = declaring.get("namespace") or ""
+            type_name = declaring.get("name") or "?"
+            qualified = f"{namespace + '.' if namespace else ''}{type_name}.{caller['method_name']}"
+            print(
+                f"- {qualified} MethodDef {caller['method_rid']} "
+                f"RVA 0x{caller['method_rva']:X}, {caller['opcode']} at "
+                f"file+0x{caller['call_file_offset']:X}"
+            )
+        print("Read-only: no file changes performed")
     else:
         method = result["method"]
         declaring = method["declaring_type"]
