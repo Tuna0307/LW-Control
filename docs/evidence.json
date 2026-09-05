@@ -1,0 +1,171 @@
+{
+  "method": "Static byte inspection only; offsets are zero-based in uncompressed files. Marker presence is not proof of executed behavior.",
+  "artifacts": [
+    {
+      "file": "LWControl.exe",
+      "size_bytes": 102876940,
+      "sha256": "205b3e4adf59fceee30088d30ae1e4d02831c38c8934660a4fbd421a6bf39e15",
+      "machine": "0x8664",
+      "markers": [
+        {
+          "text": ".NETCoreApp,Version=v10.0",
+          "offset_decimal": 58328477,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "System.Windows.Forms",
+          "offset_decimal": 57904520,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "Microsoft.Web.WebView2.WinForms",
+          "offset_decimal": 57905781,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.Core.Automation",
+          "offset_decimal": 57883699,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "FailClosedAutomationScheduler",
+          "offset_decimal": 57899166,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "EffectVerifier",
+          "offset_decimal": 57898904,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "JsonFeatureRuntimeStore",
+          "offset_decimal": 57872541,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.Core.Features.Radar",
+          "offset_decimal": 57897684,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.Core.Features.DailyFreeClaims",
+          "offset_decimal": 57905686,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.Core.Features.TroopPromotion",
+          "offset_decimal": 57885050,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.Core.Features.Rally",
+          "offset_decimal": 57920166,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "lua-heartbeat.json",
+          "offset_decimal": 57958393,
+          "encoding": "utf-16le"
+        },
+        {
+          "text": "LastWarControl.Game.Installation",
+          "offset_decimal": 57883666,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.Auth",
+          "offset_decimal": 57879875,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "LastWarControl.App.Updates",
+          "offset_decimal": 57904123,
+          "encoding": "utf-8"
+        }
+      ]
+    },
+    {
+      "file": "lwbridge-0.3.1.exe",
+      "size_bytes": 15515648,
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+      "machine": "0x8664",
+      "markers": [
+        {
+          "text": "tauri-2.11.5",
+          "offset_decimal": 8547361,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "src\\services\\automation.rs",
+          "offset_decimal": 8532632,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "src\\services\\bridge_store.rs",
+          "offset_decimal": 8537928,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "bridge://automation-status",
+          "offset_decimal": 13670549,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "automation-status.json",
+          "offset_decimal": 13108264,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "buildingResources",
+          "offset_decimal": 8532792,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "equipmentPresets",
+          "offset_decimal": 8536072,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "named pipe handshake rejected",
+          "offset_decimal": 8537334,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "xlua-proxy-secure.dll",
+          "offset_decimal": 9990885,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "bridge-scripts.dat",
+          "offset_decimal": 9990867,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "struct ProxyBundleManifest",
+          "offset_decimal": 13155907,
+          "encoding": "utf-8"
+        },
+        {
+          "text": "auth-session.v2.json",
+          "offset_decimal": 13104591,
+          "encoding": "utf-8"
+        }
+      ]
+    },
+    {
+      "file": "LWControl.zip",
+      "size_bytes": 93278380,
+      "sha256": "064c8b5e08335d263a086e4bdf22a34be5b2ec777853a3b45b50d6315a65e59a"
+    },
+    {
+      "file": "E900fix.cmd",
+      "size_bytes": 2305,
+      "sha256": "4a6c79e996f84ca25103f57f887bdb7b4b1a92c52bc2f06fb2ccd47d86b250dc"
+    },
+    {
+      "file": "Repair-LastWar-E900.ps1",
+      "size_bytes": 17231,
+      "sha256": "dc5a2f3d4b28a053e0a43cd8eec0d4fe5e396647cf1d09fa8f7e546438f33232"
+    }
+  ]
+}
