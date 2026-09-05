@@ -89,8 +89,10 @@ python tools/install_loader_probe.py --json
 python tools/install_loader_probe.py --apply --json
 ```
 
-It returns an `InstallRefused` result explaining that the LENC contract must be
-recovered first; it does not create a backup or modify a game file.
+It still returns an `InstallRefused` result and does not create a backup or modify
+a game file. The read-only LWLF-v3 decoder has now been recovered, but an exact
+producer-side encoder and a write-compatible current-build injection strategy are
+not yet proven, so the old apply path remains disabled.
 
 Restore a recorded backup while the game is closed:
 
@@ -104,11 +106,17 @@ The repository now also contains a read-only LENC contract inspector:
 python tools/inspect_lenc_contract.py --json
 ```
 
-It verifies the current LENC entry identity, resolves the encoded key operand
-directly to FieldDef RID `1472` (`00..1F`) with the recovered native RG token
-transform, confirms the zero 12-byte nonce and ChaCha8 round count, and records
-the remaining `ChaCha20.Constants` discrepancy. The next loader milestone is to
-recover that runtime constant-supply/patch path, then
-decrypt a copy of the official entry and verify the Lua output without changing
-the installed package. Daily-free-claim state parsing and claim execution remain
-separate work.
+That older inspector records the managed `BaseUtils.LencCodec` evidence. Subsequent
+tracing proved that the installed LWLF file version `3` does not use that managed
+path: `LWLuaFile.LoadFile` returns the raw `LENC` entry and native xLua performs
+the live transform. The current read-only decoder is:
+
+```powershell
+python tools/extract_lenc_v3.py --json
+```
+
+It derives the key/nonce from the current hash-gated `xlua.dll`, reproduces the
+native eight-round no-feed-forward ChaCha-family transform, observes the expected
+`78 DA` zlib stream, and inflates the official entry to Lua bytecode. See
+[Assembly-CSharp / xLua LENC runtime recovery](assembly-csharp-lwlua-lenc-runtime.md).
+Daily-free-claim state parsing and claim execution remain separate work.

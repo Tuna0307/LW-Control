@@ -1,13 +1,18 @@
+import struct
 import unittest
+import json
 
 from tools.rdl_il import (
     HEADER_FORMAT_BIT,
     RdlMethodBodyError,
     decode_metadata_token,
+    encode_rdl_u32,
     encode_metadata_token,
     encoded_field_token_rid_mod8,
     instruction_rows,
+    parse_decoded_method_body_bytes,
     parse_method_body_bytes,
+    repair_method_code_operands_copy,
     repair_method_header_copy,
 )
 
@@ -77,9 +82,54 @@ class RdlIlChecks(unittest.TestCase):
                 self.assertEqual(decode_metadata_token(encoded), decoded)
                 self.assertEqual(encode_metadata_token(decoded), encoded)
 
+    def test_repairs_long_branch_operand_but_not_inline_integer(self):
+        branch_body = (
+            bytes.fromhex("11 30 08 00 06 00 00 00 00 00 00 00 38")
+            + struct.pack("<I", encode_rdl_u32(0))
+            + b"\x2A"
+        )
+        rows = instruction_rows(parse_decoded_method_body_bytes(branch_body))
+        self.assertEqual(rows[0]["opcode"], "br")
+        self.assertEqual(rows[0]["operand"], 17)
+
+        integer_body = (
+            bytes.fromhex("11 30 08 00 07 00 00 00 00 00 00 00 20")
+            + struct.pack("<I", 0x12345678)
+            + b"\x26\x2A"
+        )
+        rows = instruction_rows(parse_decoded_method_body_bytes(integer_body))
+        self.assertEqual(rows[0]["opcode"], "ldc.i4")
+        self.assertEqual(rows[0]["operand"], 0x12345678)
+
+    def test_repairs_token_and_switch_target_operands(self):
+        token_body = (
+            bytes.fromhex("11 30 08 00 07 00 00 00 00 00 00 00 72")
+            + struct.pack("<I", encode_metadata_token(0x70000001))
+            + b"\x26\x2A"
+        )
+        rows = instruction_rows(parse_decoded_method_body_bytes(token_body))
+        self.assertEqual(rows[0]["operand"], 0x70000001)
+
+        switch_body = (
+            bytes.fromhex("11 30 08 00 0A 00 00 00 00 00 00 00 45")
+            + struct.pack("<I", 1)
+            + struct.pack("<I", encode_rdl_u32(0))
+            + b"\x2A"
+        )
+        repaired = repair_method_code_operands_copy(switch_body)
+        self.assertEqual(struct.unpack_from("<I", repaired, 17)[0], 0)
+
     def test_rejects_empty_body(self):
         with self.assertRaises(RdlMethodBodyError):
             parse_method_body_bytes(b"")
+
+    def test_instruction_rows_are_json_serializable_for_local_operands(self):
+        transformed = bytes.fromhex(
+            "11 30 01 00 04 00 00 00 00 00 00 00 11 00 26 2A"
+        )
+        rows = instruction_rows(parse_method_body_bytes(transformed))
+        json.dumps(rows)
+        self.assertEqual(rows[0]["opcode"], "ldloc.s")
 
 
 if __name__ == "__main__":

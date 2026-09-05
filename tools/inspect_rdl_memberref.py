@@ -17,6 +17,7 @@ from typing import Any
 
 from inspect_baseutils_rdl import (
     RdlFormatError,
+    _blob_value,
     _coded_index_width,
     _early_table_layout,
     _find_metadata_root,
@@ -55,7 +56,16 @@ def _offsets(row_data: int, rows: dict[int, int], sizes: dict[int, int], through
     return result
 
 
-def inspect_memberref_callers(path: Path, member_name: str, type_name: str | None = None) -> dict[str, Any]:
+def inspect_memberref_callers(
+    path: Path,
+    member_name: str | None = None,
+    type_name: str | None = None,
+    token_value: int | None = None,
+) -> dict[str, Any]:
+    if (member_name is None) == (token_value is None):
+        raise ValueError("select exactly one MemberRef by name or metadata token")
+    if token_value is not None and token_value >> 24 != 0x0A:
+        raise ValueError(f"0x{token_value:08X} is not a MemberRef metadata token")
     data = path.read_bytes()
     root = _find_metadata_root(data)
     streams, metadata = _parse_metadata_streams(data, root)
@@ -114,7 +124,10 @@ def inspect_memberref_callers(path: Path, member_name: str, type_name: str | Non
         cursor += string_width
         signature_index = _u(data, cursor, blob_width)
         name = string_at(name_index)
-        if name != member_name:
+        logical_token = 0x0A000000 | rid
+        if member_name is not None and name != member_name:
+            continue
+        if token_value is not None and logical_token != token_value:
             continue
         tag = parent & 0x7
         parent_rid = parent >> 3
@@ -126,23 +139,26 @@ def inspect_memberref_callers(path: Path, member_name: str, type_name: str | Non
             declaring = type_refs.get(parent_rid)
         if type_name is not None and (declaring is None or declaring.get("name") != type_name):
             continue
-        token_value = 0x0A000000 | rid
         matches.append(
             {
                 "rid": rid,
-                "metadata_token": f"0x{token_value:08X}",
-                "token_value": token_value,
+                "metadata_token": f"0x{logical_token:08X}",
+                "token_value": logical_token,
                 "name": name,
                 "parent_kind": parent_kind,
                 "parent_rid": parent_rid,
                 "declaring_type": declaring,
                 "signature_index": signature_index,
+                "signature": _blob_value(data, streams["#Blob"], signature_index).hex(" "),
             }
         )
 
     if not matches:
+        selector = (
+            f"named {member_name!r}" if member_name is not None else f"token 0x{token_value:08X}"
+        )
         raise RdlFormatError(
-            f"no MemberRef named {member_name!r}"
+            f"no MemberRef {selector}"
             + (f" on type {type_name!r}" if type_name else "")
         )
 
@@ -269,11 +285,22 @@ def inspect_memberref_callers(path: Path, member_name: str, type_name: str | Non
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path)
-    parser.add_argument("--member", required=True, help="exact MemberRef name")
+    selector = parser.add_mutually_exclusive_group(required=True)
+    selector.add_argument("--member", help="exact MemberRef name")
+    selector.add_argument(
+        "--token",
+        type=lambda value: int(value, 0),
+        help="exact logical MemberRef metadata token, for example 0x0A000DA5",
+    )
     parser.add_argument("--type", dest="type_name", help="optional exact declaring type name")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
-    result = inspect_memberref_callers(args.path, args.member, args.type_name)
+    result = inspect_memberref_callers(
+        args.path,
+        member_name=args.member,
+        type_name=args.type_name,
+        token_value=args.token,
+    )
     if args.json:
         print(json.dumps(result, indent=2))
     else:

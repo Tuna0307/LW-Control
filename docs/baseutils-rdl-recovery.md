@@ -143,13 +143,16 @@ implementation with offset zero and the full buffer length. Metadata constants
 for `ChaCha20` recover `BLOCK_SIZE = 64` and `ROUNDS = 8`, so this is a ChaCha8
 variant rather than the usual 20-round configuration.
 
-One blocker remains before a decoder can be called proven. The current managed
+The current managed
 `ChaCha20..cctor` creates `Constants` as an empty `uint[]`, while the `Xor` body
 immediately indexes four words from that field. A trial using the standard ChaCha
 constant `"expand 32-byte k"`, the recovered key `00..1F`, zero nonce, counter
 zero, and eight rounds does **not** reproduce the expected Lua 5.3 header from the
-official LENC payload. That means the runtime constant-supply or patch path still
-needs to be recovered. No game file was modified during these checks.
+official LENC payload. Subsequent Assembly-CSharp/xLua tracing resolved the scope
+of this discrepancy: this managed path is not the live decoder for the installed
+LWLF version `3`. Version `3` returns the raw `LENC` bytes to native xLua, whose
+separate transform has now been recovered. No game file was modified during these
+checks.
 
 The managed-field question is now narrower. The encoded field token used for
 `ChaCha20.Constants` is `0x679F9902`, which decodes directly to FieldDef token
@@ -158,9 +161,9 @@ access encodings finds four `ldsfld` sites (`0x27C1`, `0x27CC`, `0x27DA`, and
 `0x27E8`) and exactly one `stsfld` site (`0x2B42`). Parsing `ChaCha20..cctor`
 shows that sole store is the sequence `ldc.i4.0`, `newarr`, `stsfld`, `ret`.
 There is no second managed store and no managed address-take (`ldsflda`) for the
-field. Therefore ordinary managed code does not populate the four constants
-after the static constructor; the remaining explanation must be in the custom
-load/runtime transformation or another native mechanism.
+field. Therefore ordinary managed code does not populate the four constants after
+the static constructor. This remains a property of the managed path; it is no
+longer a blocker for decoding the installed version-3 entry.
 
 `LencCodec.SmokeTest` does not provide an embedded known-answer vector. Its
 recovered flow accepts caller-supplied encrypted bytes plus an expected string,
@@ -168,13 +171,15 @@ checks the `LENC` magic, decrypts to text, and compares the result with that
 caller-supplied expectation. It therefore confirms the intended verification
 path but does not reveal the missing `ChaCha20.Constants` value.
 
-`tools/inspect_lenc_contract.py` reproduces the current key/nonce/round evidence,
-checks the official `LuaEntry.luac` hash, and records the failed standard-constant
-trial read-only:
+`tools/inspect_lenc_contract.py` reproduces the managed-path key/nonce/round
+evidence, checks the official `LuaEntry.luac` hash, and records the failed
+standard-constant trial read-only:
 
 ```powershell
 python tools/inspect_lenc_contract.py --json
 ```
 
 Native runtime tracing is documented separately in
-[GameAssembly RGMD runtime recovery](gameassembly-rgmd-runtime.md).
+[GameAssembly RGMD runtime recovery](gameassembly-rgmd-runtime.md). The live
+LWLF-v3 decoder and the reason this managed trial does not apply are documented in
+[Assembly-CSharp / xLua LENC runtime recovery](assembly-csharp-lwlua-lenc-runtime.md).

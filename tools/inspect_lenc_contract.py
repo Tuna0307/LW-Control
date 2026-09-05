@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Read-only inspector for the current Last War LENC loader contract.
+"""Read-only inspector for the managed BaseUtils LENC contract evidence.
 
 The tool validates the current BaseUtils.rdl/script-package identity, parses the
-LencCodec static constructor through the in-memory RDL header repair, narrows the
-encoded key FieldDef through the recovered RID-mod-8 token rule, and reports the
-remaining ChaCha runtime-constants discrepancy. It never writes game files.
+LencCodec static constructor through the in-memory RDL header repair, and records
+the managed ChaCha constants discrepancy. Subsequent xLua tracing proved this is
+not the live LWLF-v3 decoder; see tools/extract_lenc_v3.py. It never writes game
+files.
 """
 
 from __future__ import annotations
@@ -256,12 +257,11 @@ def inspect_contract(baseutils: Path, script_package: Path) -> dict[str, Any]:
             "expected_lua53_prefix_hex": EXPECTED_LUA53_PREFIX.hex(),
             "lua53_prefix_match": trial_plain_prefix == EXPECTED_LUA53_PREFIX,
         },
-        "remaining_unknown": (
+        "managed_path_scope": (
             "Managed ChaCha20.Constants is initialized as an empty uint array in the "
-            "current RDL body even though Xor indexes four words from it, and the only "
-            "managed stsfld for that encoded field token is the empty-array store in "
-            "ChaCha20..cctor. The runtime constant-supply/patch path must therefore be "
-            "recovered before a decoder is proven."
+            "current RDL body even though Xor indexes four words from it. This discrepancy "
+            "belongs to the managed path. Installed LWLF version 3 bypasses this path and "
+            "is decoded by native xLua; see tools/extract_lenc_v3.py."
         ),
         "read_only": True,
     }

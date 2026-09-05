@@ -19,10 +19,11 @@ from tools.install_loader_probe import (
 
 
 class InstallerToolChecks(unittest.TestCase):
-    def test_apply_is_fail_closed_while_lenc_contract_is_unresolved(self):
+    def test_apply_is_fail_closed_until_write_compatible_lenc_path_is_proven(self):
         with self.assertRaisesRegex(InstallRefused, "LENC encrypted format"):
             apply_install({})
         self.assertIn("plaintext Lua", APPLY_DISABLED_REASON)
+        self.assertIn("write-compatible", APPLY_DISABLED_REASON)
 
     def test_lwlf_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:

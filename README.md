@@ -25,10 +25,13 @@ Native `GameAssembly.dll` tracing is documented in
 Closed-game loader experiments also identified the current `LENC` encrypted Lua
 entry format. The rejected probe path and its fail-closed status are documented in
 [Version-aware loader probe research](docs/loader-probe-installation.md). A
-read-only `tools/inspect_lenc_contract.py` check now reproduces the recovered
-LENC key/nonce/round evidence. Native RG-loader analysis has also recovered the
-full 32-bit metadata-token transform; the unresolved runtime constants gate
-remains explicit.
+read-only native decoder now reproduces the installed LWLF-v3 loader, including
+the xLua-derived key/nonce, its eight-round no-feed-forward ChaCha-family transform,
+zlib inflate, and the resulting Lua bytecode. See
+[Assembly-CSharp / xLua LENC runtime recovery](docs/assembly-csharp-lwlua-lenc-runtime.md).
+Native RG-loader analysis has also recovered the full 32-bit metadata-token
+transform. Exact producer-side re-encoding and a write-compatible current-build
+injection path remain open research.
 
 ## Run the earlier Python prototype
 
@@ -79,4 +82,5 @@ rules with a clean-room runtime-policy preview.
 - [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md)
 - [BaseUtils.rdl recovery evidence](docs/baseutils-rdl-evidence.json)
 - [GameAssembly RGMD runtime recovery](docs/gameassembly-rgmd-runtime.md)
+- [Assembly-CSharp / xLua LENC runtime recovery](docs/assembly-csharp-lwlua-lenc-runtime.md)
 - [Version-aware loader probe research](docs/loader-probe-installation.md)

@@ -222,7 +222,11 @@ def _rva_to_offset(rva: int, section: dict[str, int | str]) -> int:
     return int(section["raw_pointer"]) + (rva - va)
 
 
-def inspect(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
+def inspect(
+    path: Path,
+    method_name: str | None = "IsDebug",
+    signature_hex: str | None = None,
+) -> dict[str, Any]:
     data = path.read_bytes()
     root = _find_metadata_root(data)
     streams, metadata = _parse_metadata_streams(data, root)
@@ -253,7 +257,10 @@ def inspect(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
         cursor += blob_width
         param_list = _u(data, cursor, param_width)
         name = string_at(name_index)
-        if name == method_name:
+        signature = _blob_value(data, streams["#Blob"], signature_index).hex(" ")
+        if (method_name is None or name == method_name) and (
+            signature_hex is None or signature == signature_hex.lower()
+        ):
             matches.append(
                 {
                     "rid": rid,
@@ -263,16 +270,15 @@ def inspect(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
                     "name": name,
                     "name_index": name_index,
                     "signature_index": signature_index,
-                    "signature": _blob_value(
-                        data, streams["#Blob"], signature_index
-                    ).hex(" "),
+                    "signature": signature,
                     "param_list": param_list,
                 }
             )
 
     if len(matches) != 1:
+        selector = method_name if method_name is not None else f"signature {signature_hex}"
         raise RdlFormatError(
-            f"expected exactly one {method_name} MethodDef, found {len(matches)}"
+            f"expected exactly one {selector} MethodDef, found {len(matches)}"
         )
     method = matches[0]
 
@@ -380,7 +386,11 @@ def inspect(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
     }
 
 
-def inspect_callers(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
+def inspect_callers(
+    path: Path,
+    method_name: str = "IsDebug",
+    signature_hex: str | None = None,
+) -> dict[str, Any]:
     """Find direct IL call/callvirt operands that reference an exact MethodDef.
 
     This is intentionally a narrow read-only cross-reference pass. It does not
@@ -388,10 +398,10 @@ def inspect_callers(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
     opcode immediately before the exact MethodDef token and must fall inside the
     RVA range of a metadata MethodDef.
     """
-    target = inspect(path, method_name)
+    target = inspect(path, method_name, signature_hex)
     data = path.read_bytes()
     root = _find_metadata_root(data)
-    streams, _ = _parse_metadata_streams(data, root)
+    streams, metadata = _parse_metadata_streams(data, root)
     rows, heap_sizes, row_data = _parse_tables(data, streams["#~"])
     sizes, widths = _early_table_layout(rows, heap_sizes)
     offsets = _table_offsets(row_data, rows, sizes)
@@ -487,7 +497,14 @@ def inspect_callers(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
 
     target_rid = int(target["method"]["rid"])
     token_value = 0x06000000 | target_rid
-    token = struct.pack("<I", token_value)
+    stored_token_value = token_value
+    if metadata["signature"] == "RGMD":
+        try:
+            from .rdl_il import encode_metadata_token
+        except ImportError:
+            from rdl_il import encode_metadata_token
+        stored_token_value = encode_metadata_token(token_value)
+    token = struct.pack("<I", stored_token_value)
     text_start = int(section["raw_pointer"])
     text_end = text_start + int(section["raw_size"])
     callers = []
@@ -530,7 +547,8 @@ def inspect_callers(path: Path, method_name: str = "IsDebug") -> dict[str, Any]:
         "target": {
             "method": target["method"],
             "metadata_token": f"0x{token_value:08X}",
-            "token_bytes_le": token.hex(" "),
+            "stored_operand": f"0x{stored_token_value:08X}",
+            "stored_operand_bytes_le": token.hex(" "),
         },
         "caller_count": len(callers),
         "callers": callers,
@@ -545,12 +563,28 @@ def main() -> int:
         "--method", default="IsDebug", help="exact MethodDef name (default: IsDebug)"
     )
     parser.add_argument(
+        "--signature",
+        help="optional exact MethodDef signature blob as lowercase hex bytes",
+    )
+    parser.add_argument(
+        "--signature-only",
+        action="store_true",
+        help="select the unique MethodDef by --signature regardless of method name",
+    )
+    parser.add_argument(
         "--callers", action="store_true", help="find direct IL callers of the exact MethodDef"
     )
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     args = parser.parse_args()
 
-    result = inspect_callers(args.path, args.method) if args.callers else inspect(args.path, args.method)
+    if args.signature_only and not args.signature:
+        parser.error("--signature-only requires --signature")
+    selected_name = None if args.signature_only else args.method
+    result = (
+        inspect_callers(args.path, selected_name, args.signature)
+        if args.callers
+        else inspect(args.path, selected_name, args.signature)
+    )
     if args.json:
         print(json.dumps(result, indent=2))
     elif args.callers:

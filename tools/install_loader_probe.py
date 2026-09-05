@@ -36,8 +36,9 @@ PROBE_ENTRY = "LWControlProbe.luac"
 APPLY_DISABLED_REASON = (
     "Loader-probe installation is disabled: the current official "
     "DataCenter/Global/LuaEntry.luac uses the LENC encrypted format, and replacing "
-    "it with plaintext Lua has already been proven to break Lua startup. Recover "
-    "and verify the current LENC loader contract before enabling an install path."
+    "it with plaintext Lua has already been proven to break Lua startup. The "
+    "read-only LWLF-v3 decoder is recovered, but an exact producer-side encoder "
+    "and a write-compatible current-build injection path are not yet proven."
 )
 
 
