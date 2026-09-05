@@ -29,6 +29,7 @@ except ImportError:  # direct script execution: python tools/install_loader_prob
 EXPECTED_CONTENT_VERSION = 12
 EXPECTED_BASEUTILS_SHA256 = "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
 FAILED_DEBUG_PATCH_SHA256 = "72b813dd3e36be894b4dafe4f1b58e19e60956ba7b9d1c0b2786e48b1e995798"
+EXPECTED_LUA_ENTRY_SHA256 = "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
 PROBE_VERSION = "lwcontrol-loader-probe-1"
 LUA_ENTRY = "DataCenter/Global/LuaEntry.luac"
 ORIGINAL_LUA_ENTRY = "DataCenter/Global/LuaEntry_original.luac"
@@ -183,6 +184,49 @@ def _entry_map(entries: list[tuple[str, bytes]]) -> dict[str, bytes]:
     return {name: data for name, data in entries}
 
 
+def _xlua_path(paths: dict[str, Path]) -> Path:
+    return paths["game_exe"].parent / "LastWar_Data" / "Plugins" / "x86_64" / "xlua.dll"
+
+
+def _installed_probe_state(mapped: dict[str, bytes], xlua: Path) -> dict:
+    """Recognize only the exact encrypted wrapper/probe pair produced by this tool."""
+    has_original = ORIGINAL_LUA_ENTRY in mapped
+    has_probe = PROBE_ENTRY in mapped
+    if not has_original and not has_probe:
+        return {"installed": False}
+    if not has_original or not has_probe:
+        raise InstallRefused("Incomplete loader-probe installation markers are present")
+
+    try:
+        from .extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce
+    except ImportError:
+        from extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce
+
+    native = derive_xlua_key_nonce(xlua)
+    try:
+        wrapper = decode_lenc_bytes(mapped[LUA_ENTRY], native["key"], native["nonce"])
+        probe = decode_lenc_bytes(mapped[PROBE_ENTRY], native["key"], native["nonce"])
+    except (OSError, EOFError, ValueError, zlib.error) as exc:
+        raise InstallRefused("Installed loader-probe entries are not valid current-build LENC payloads") from exc
+    if wrapper["decoded"] != _entry_source() or probe["decoded"] != _probe_source():
+        raise InstallRefused("A different encrypted LuaEntry/probe modification is already installed")
+
+    official = mapped[ORIGINAL_LUA_ENTRY]
+    official_hash = hashlib.sha256(official).hexdigest()
+    if official_hash != EXPECTED_LUA_ENTRY_SHA256:
+        raise InstallRefused(
+            f"Preserved official LuaEntry SHA-256 {official_hash} does not match {EXPECTED_LUA_ENTRY_SHA256}"
+        )
+    return {
+        "installed": True,
+        "xlua_sha256": native["sha256"],
+        "official_entry": official,
+        "active_entry_sha256": hashlib.sha256(mapped[LUA_ENTRY]).hexdigest(),
+        "probe_entry_sha256": hashlib.sha256(mapped[PROBE_ENTRY]).hexdigest(),
+        "payloads_verified": True,
+    }
+
+
 def preflight(paths: dict[str, Path]) -> dict:
     if game_is_running():
         raise InstallRefused("LastWar is running; close it before installing the loader probe")
@@ -235,14 +279,16 @@ def preflight(paths: dict[str, Path]) -> dict:
     mapped = _entry_map(entries)
     if LUA_ENTRY not in mapped:
         raise InstallRefused(f"{LUA_ENTRY} is missing from LWScripts.data")
-    official_entry = mapped[LUA_ENTRY]
-    installed = ORIGINAL_LUA_ENTRY in mapped or PROBE_ENTRY in mapped
-    if installed:
-        current = mapped.get(LUA_ENTRY, b"")
-        if b"LWCONTROL_LOADER_PROBE" not in current:
-            raise InstallRefused("A different LuaEntry modification is already installed")
+    probe_state = _installed_probe_state(mapped, _xlua_path(paths))
+    installed = probe_state["installed"]
+    official_entry = probe_state.get("official_entry", mapped[LUA_ENTRY])
+    official_hash = hashlib.sha256(official_entry).hexdigest()
+    if official_hash != EXPECTED_LUA_ENTRY_SHA256:
+        raise InstallRefused(
+            f"Official LuaEntry SHA-256 {official_hash} does not match {EXPECTED_LUA_ENTRY_SHA256}"
+        )
 
-    return {
+    result = {
         "file_version": file_version,
         "content_version": content_version,
         "entry_count": len(entries),
@@ -254,10 +300,18 @@ def preflight(paths: dict[str, Path]) -> dict:
         "is_debug_rva": method["rva"],
         "is_debug_value": method["constant_boolean_return"],
         "lua_entry_bytes": len(official_entry),
-        "lua_entry_sha256": hashlib.sha256(official_entry).hexdigest(),
+        "lua_entry_sha256": official_hash,
         "lua_entry_prefix_hex": official_entry[:32].hex(),
         "already_installed": installed,
     }
+    if installed:
+        result.update({
+            "active_lua_entry_sha256": probe_state["active_entry_sha256"],
+            "probe_entry_sha256": probe_state["probe_entry_sha256"],
+            "probe_payloads_verified": probe_state["payloads_verified"],
+            "xlua_sha256": probe_state["xlua_sha256"],
+        })
+    return result
 
 
 def _entry_source() -> bytes:
@@ -392,7 +446,7 @@ def prepare_offline_candidate(paths: dict[str, Path], output_dir: Path) -> dict:
         if path.exists():
             raise InstallRefused(f"offline candidate output already exists: {path}")
 
-    xlua = paths["game_exe"].parent / "LastWar_Data" / "Plugins" / "x86_64" / "xlua.dll"
+    xlua = _xlua_path(paths)
     file_version, content_version, entries = read_lwlf(paths["data"])
     prepared_entries, lenc = _prepare_lenc_entries(entries, xlua)
     write_lwlf(data_out, file_version, content_version, prepared_entries)
@@ -432,6 +486,31 @@ def prepare_offline_candidate(paths: dict[str, Path], output_dir: Path) -> dict:
         "lenc": lenc,
         "serialized_round_trip_verified": True,
         "preflight": before,
+    }
+
+
+def verify_offline_candidate(paths: dict[str, Path], candidate_dir: Path) -> dict:
+    """Run the installed-package preflight contract against a separate candidate directory."""
+    before = preflight(paths)
+    candidate_dir = candidate_dir.resolve()
+    candidate_paths = dict(paths)
+    candidate_paths["data"] = candidate_dir / "LWScripts.data"
+    candidate_paths["metadata"] = candidate_dir / "LWScripts.txt"
+    candidate_paths["version"] = candidate_dir / "version.txt"
+    for key in ("data", "metadata", "version"):
+        if not candidate_paths[key].is_file():
+            raise InstallRefused(f"Candidate is missing {candidate_paths[key].name}: {candidate_paths[key]}")
+
+    candidate = preflight(candidate_paths)
+    if not candidate["already_installed"] or not candidate.get("probe_payloads_verified"):
+        raise InstallRefused("Candidate does not contain the exact encrypted loader-probe payloads")
+    if candidate["lua_entry_sha256"] != before["lua_entry_sha256"]:
+        raise InstallRefused("Candidate did not preserve the current official LuaEntry")
+    return {
+        "changed_installed_files": False,
+        "candidate_dir": str(candidate_dir),
+        "installed_preflight": before,
+        "candidate_preflight": candidate,
     }
 
 
@@ -532,6 +611,11 @@ def main() -> int:
         type=Path,
         help="build and verify a separate encrypted candidate package without changing installed files",
     )
+    mode.add_argument(
+        "--verify-dir",
+        type=Path,
+        help="run the installed-package preflight contract against a separate encrypted candidate directory",
+    )
     parser.add_argument("--json", action="store_true", help="emit JSON")
     args = parser.parse_args()
     paths = discover_paths()
@@ -541,6 +625,8 @@ def main() -> int:
             result = {"restored": str(args.restore.resolve()), "preflight": preflight(paths)}
         elif args.prepare_dir:
             result = prepare_offline_candidate(paths, args.prepare_dir)
+        elif args.verify_dir:
+            result = verify_offline_candidate(paths, args.verify_dir)
         elif args.apply:
             result = apply_install(paths)
         else:

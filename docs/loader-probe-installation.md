@@ -16,6 +16,8 @@ The installer fails closed unless all of these recovered facts still match:
 - `LWScripts.txt` exactly matches the package byte length and standard CRC-32;
 - `BaseUtils.rdl` SHA-256 is
   `b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6`;
+- the preserved official `DataCenter/Global/LuaEntry.luac` SHA-256 is
+  `50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137`;
 - metadata uniquely resolves `CommonUtils.IsDebug` with signature `00 00 02` and
   the recovered tiny constant-Boolean body, and the method still returns false;
 - Last War is not running;
@@ -112,6 +114,22 @@ The first verified content-version-12 candidate contained 18,688 entries versus
 `c10f132de46ac376d4bae74151c308b94fd2ea0f64aa3cc15afe64c55f95efaa`.
 The installed archive, metadata, `BaseUtils.rdl`, and `IsDebug=false` state were
 unchanged after this operation.
+
+The candidate can now be checked independently with the same preflight contract
+used for an installed package:
+
+```powershell
+python tools/install_loader_probe.py --verify-dir "<candidate-directory>" --json
+```
+
+That path is also read-only. It decrypts the candidate's active `LuaEntry.luac`
+and `LWControlProbe.luac`, requires their plaintext to match the exact wrapper and
+probe sources produced by this tool, verifies the preserved official Lua entry,
+checks current `xlua.dll`, package length/CRC, content version, and the unchanged
+`BaseUtils.rdl` contract. The verified candidate is therefore structurally valid
+under the post-install preflight rules. This still does **not** prove that the
+current game will execute the encrypted plaintext payloads; bounded live-loader
+acceptance remains `UNKNOWN` until a current-game load produces the probe heartbeat.
 
 Restore a recorded backup while the game is closed:
 
