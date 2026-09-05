@@ -21,7 +21,7 @@ public sealed record CurrentDailyTaskSnapshotHeartbeat
 }
 
 /// <summary>
-/// Read-only interchange contract for a future current-game daily-task probe.
+/// Read-only interchange contract for the current-game daily-task probe.
 /// The game-derived fields are validated against CurrentDailyTaskState before use.
 /// </summary>
 public sealed record CurrentDailyTaskSnapshot

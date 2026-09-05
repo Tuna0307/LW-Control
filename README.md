@@ -53,6 +53,14 @@ validator before the exact original game files were restored. See
 repeatable guarded runner is `tools/run_daily_task_snapshot_probe.py`; it permits
 at most one list refresh and contains no reward-claim action path.
 
+The next bounded action boundary is now defined offline as well. A fresh validated
+daily-task snapshot can produce candidates only for explicit symbolic
+`CanReceive` stages/tasks, and a later snapshot must prove that exact target became
+`Received`; see
+[Current daily-task bounded claim proof contract](docs/current-daily-task-claim-proof.md).
+The successful live snapshot had zero such candidates, so that evidence justifies
+zero reward sends.
+
 ## Run the earlier Python prototype
 
 Requires Python 3.10 or newer; no third-party dependencies.

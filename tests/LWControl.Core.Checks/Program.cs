@@ -246,6 +246,37 @@ cases.Add(("Daily-task snapshot JSON is strict and uses symbolic task states", (
     }
     finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
 }));
+cases.Add(("Daily-task claim proof selects only explicit CanReceive targets", () =>
+{
+    var snapshot = ValidDailyTaskSnapshot(now);
+    var candidates = CurrentDailyTaskClaimProof.EligibleCandidates(snapshot, now);
+    Check(candidates.Count == 3);
+    Check(candidates[0].Kind == CurrentDailyTaskClaimTargetKind.DailyQuestStage && candidates[0].Stage == 2);
+    Check(candidates[1].Kind == CurrentDailyTaskClaimTargetKind.DailyQuestStage && candidates[1].Stage == 3);
+    Check(candidates[2].Kind == CurrentDailyTaskClaimTargetKind.DailyTask && candidates[2].TaskId == "task-b");
+    Check(CurrentDailyTaskClaimProof.SelectOne(snapshot, now) == candidates[0]);
+}));
+cases.Add(("Daily-task claim proof requires a correlated post-claim state transition", () =>
+{
+    var before = ValidDailyTaskSnapshot(now.AddSeconds(-1));
+    var candidate = CurrentDailyTaskClaimProof.SelectOne(before, now)!;
+    var after = before with
+    {
+        CaptureId = "capture-test-2",
+        CapturedAt = now,
+        Heartbeat = new() { ProbeVersion = "offline-test-probe-1", ObservedAt = now },
+        ReceivedStages = [1, 2],
+        Boxes = before.Boxes.Select(box => box.Index == 2
+            ? box with { State = CurrentTaskState.Received }
+            : box).ToArray()
+    };
+    Check(CurrentDailyTaskClaimProof.EffectConfirmed(candidate, before, after, now));
+    Check(!CurrentDailyTaskClaimProof.EffectConfirmed(
+        candidate,
+        before,
+        after with { ReceivedStages = [1], Boxes = before.Boxes },
+        now));
+}));
 
 int failed = 0;
 foreach (var test in cases)

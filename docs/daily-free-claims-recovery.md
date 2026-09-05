@@ -363,6 +363,18 @@ No `DailyQuestReward` or `DailyTaskReward` action was sent. Numeric `TaskState`
 values remain deliberately unknown; the live probe compares the game's symbolic
 enum members directly.
 
+The next action-proof boundary is now encoded offline in
+[`current-daily-task-claim-proof.md`](current-daily-task-claim-proof.md). The
+current package was rechecked at the exact chest/task request serializers and the
+manager success handlers. `CurrentDailyTaskClaimProof` accepts only an explicit
+symbolic `CanReceive` chest stage or task ID from a fresh validated snapshot, and
+its effect verifier requires that exact target to become `Received` in a fresh
+post-action snapshot. It excludes the quest-list UI's special
+`DailyQuestReward(-1)` path because that value's semantics remain unclassified.
+The successful live 23-task snapshot contained no `CanReceive` task and all five
+chest stages were already `Received`, so it produces zero eligible claim
+candidates.
+
 For repeatable static analysis, `tools/inspect_lua53_bytecode.py` now accepts an
 exact `--prototype` path (for example `0.10`). In that mode it emits the complete
 instruction and constant body for only that prototype, reducing unrelated output

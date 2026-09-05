@@ -128,6 +128,46 @@
           "restored": true,
           "restore_sha256_match": true
         },
+        "claim_proof_contract": {
+          "status": "OFFLINE_FAIL_CLOSED_CONTRACT",
+          "current_package_rechecked": true,
+          "daily_quest_request": {
+            "ui_entry": "UI/UIMainTask/Component/UIBox.luac",
+            "ui_prototype": "0.10",
+            "required_symbolic_state": "TaskState.CanReceive",
+            "wire_symbol": "DailyQuestReward",
+            "argument": "param.index",
+            "serializer_entry": "Net/Msgs/DailyQuestRewardMessage.luac",
+            "serializer_prototype": "0.0",
+            "serialized_field": "stage",
+            "serialized_type": "int"
+          },
+          "daily_task_request": {
+            "wire_symbol": "DailyTaskReward",
+            "serializer_entry": "Net/Msgs/Alliance/AllianceDailyTaskRewardMessage.luac",
+            "serializer_prototype": "0.0",
+            "serialized_field": "taskId",
+            "serialized_type": "utf_string"
+          },
+          "daily_quest_success_handler": {
+            "entry": "DataCenter/DailyTaskData/DailyTaskManager.luac",
+            "prototype": "0.11",
+            "error_guard": "message.errorCode must be nil",
+            "state_effect": "each message.stageArr value is passed to SetCurReward",
+            "event": "EventId.DailyQuestReward"
+          },
+          "daily_task_success_handler": {
+            "entry": "DataCenter/DailyTaskData/DailyTaskManager.luac",
+            "prototype": "0.27",
+            "error_guard": "message.errorCode must be nil",
+            "state_effect": "each message.taskInfo value is passed to UpdateOneDailyTaskInfo"
+          },
+          "special_stage_minus_one": "EXCLUDED; current quest-list UI sends it but exact semantics remain UNKNOWN",
+          "selector": "fresh validated snapshot; CanReceive only; explicit stage 1..5 or explicit taskId",
+          "effect_rule": "exact target must transition from CanReceive to Received in a fresh post-action snapshot",
+          "captured_state_eligible_candidates": 0,
+          "reward_claims_sent": 0
+        },
         "live_loader_acceptance": {
           "captured_at_singapore": "2026-09-06T02:46:30+08:00",
           "candidate_entry_count": 18688,
