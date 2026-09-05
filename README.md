@@ -25,6 +25,21 @@ there is no game connection, game-file access, or executable launch.
 - `tests/test_controller.py`: controller decisions and failure-handling tests.
 
 All source code here is newly written. The prototype is synchronous, uses
-process-local state, and has no desktop UI. A live adapter requires a defined,
-developer-supported test interface, bounded I/O, persistent request tracking,
-and stronger result verification.
+process-local state, and has no desktop UI. A live adapter is not implemented.
+Live integration will require bounded I/O, persistent request tracking,
+stronger result verification, and Windows testing.
+
+## Reconstruction direction
+
+C# is the chosen language for the planned Windows application because LWControl
+retains named .NET assemblies and managed method bodies. The current Python code
+remains an offline prototype; a C# implementation has not yet been added.
+
+The first feature selected for detailed study is daily free claims. Missing
+developer documentation does not block static analysis of its decision logic.
+
+## Research
+
+- [Initial architecture assessment](docs/architecture.md)
+- [Artifact hashes and marker evidence](docs/evidence.json)
+- [Managed-code recovery assessment](docs/recovery-assessment.md)
