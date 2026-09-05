@@ -13,8 +13,13 @@ dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj
 ```
 
 The desktop app saves settings, imports observations, previews daily-claim
-decisions, and exports plans. It has no live game adapter and sends no actions.
+decisions, exports plans, and can inspect the existing bridge read-only. It has no
+live game adapter and sends no actions.
 See [implementation details](docs/csharp-implementation.md).
+The daily-claim preview policy is now based on statically recovered behavior from
+the supplied executable; see [Daily Free Claims recovery notes](docs/daily-free-claims-recovery.md).
+The current game's `BaseUtils.rdl` loader metadata can also be inspected read-only;
+see [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md).
 
 ## Run the earlier Python prototype
 
@@ -50,11 +55,17 @@ retains named .NET assemblies and managed method bodies. The current Python code
 remains an offline prototype. The first C# desktop shell and independent
 daily-claim planning library are now in `src/`.
 
-The first feature selected for detailed study is daily free claims. Missing
-developer documentation does not block static analysis of its decision logic.
+The first feature selected for detailed study is daily free claims. Its bundle,
+managed feature logic, embedded game runtime, and local file-command transport have
+now been statically recovered far enough to replace the first synthetic planner
+rules with a clean-room runtime-policy preview.
 
 ## Research
 
 - [Initial architecture assessment](docs/architecture.md)
 - [Artifact hashes and marker evidence](docs/evidence.json)
 - [Managed-code recovery assessment](docs/recovery-assessment.md)
+- [Daily Free Claims runtime and bridge recovery](docs/daily-free-claims-recovery.md)
+- [Daily Free Claims recovery evidence](docs/daily-free-claims-evidence.json)
+- [BaseUtils.rdl loader recovery](docs/baseutils-rdl-recovery.md)
+- [BaseUtils.rdl recovery evidence](docs/baseutils-rdl-evidence.json)

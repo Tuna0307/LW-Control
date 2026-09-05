@@ -6,9 +6,9 @@ public sealed class MainForm : Form
 {
     private readonly string settingsPath;
     private readonly CheckBox enabled = new() { Text = "Enable daily-claim planning", AutoSize = true };
-    private readonly CheckBox expiry = new() { Text = "Prioritize expiring rewards", AutoSize = true };
+    private readonly CheckBox expiry = new() { Text = "Prefer expiring rewards (reference core only)", AutoSize = true };
     private readonly CheckBox chests = new() { Text = "Then prioritize task chests", AutoSize = true };
-    private readonly NumericUpDown limit = new() { Minimum = 1, Maximum = 50, Width = 70 };
+    private readonly NumericUpDown limit = new() { Minimum = 1, Maximum = 20, Width = 70 };
     private readonly CheckedListBox categories = new() { CheckOnClick = true, Dock = DockStyle.Fill };
     private readonly Label status = new() { AutoSize = true, Text = "No observations loaded." };
     private readonly DataGridView grid = new()
@@ -44,6 +44,7 @@ public sealed class MainForm : Form
         AddButton(actions, "Load observations…", LoadObservations);
         AddButton(actions, "Load sample", LoadSample);
         AddButton(actions, "Build plan", BuildPlan);
+        AddButton(actions, "Inspect bridge (read-only)", InspectBridge);
         AddButton(actions, "Save settings", SaveSettings);
         export.Click += (_, _) => Guard(ExportPlan);
         actions.Controls.Add(export);
@@ -130,9 +131,14 @@ public sealed class MainForm : Form
         var example = new ClaimObservation
         {
             SourceKey = "sample-vip", RewardName = "Sample VIP reward", Kind = ClaimKind.VipDailyReward,
-            CapturedAt = now, FreeConfirmed = true, CurrencyCost = 0, RemainingFreeClaims = 1, ClaimButtonVisible = true
+            CapturedAt = now, Status = ClaimSourceStatus.Claimable, FreeConfirmed = true,
+            CurrencyCost = 0, RemainingFreeClaims = 1, ClaimButtonVisible = true, ClaimButtonSemantic = "free"
         };
-        observations = [example, example with { SourceKey = "sample-unknown", RewardName = "Sample unknown cost", CurrencyCost = null }];
+        observations = [example, example with
+        {
+            SourceKey = "sample-unknown", RewardName = "Sample unknown cost",
+            CurrencyCost = null, RemainingFreeClaims = null, FreeConfirmed = null, ClaimButtonSemantic = null
+        }];
         source = "SAMPLE DATA";
         InvalidatePlan();
         AddLog("Loaded sample observations. Enable planning and select VIP daily rewards to preview.");
@@ -174,6 +180,18 @@ public sealed class MainForm : Form
         value.Validate();
         JsonFiles.Write(settingsPath, value);
         AddLog("Settings saved.");
+    }
+
+    private void InspectBridge()
+    {
+        var inspection = LocalBridgeInspector.Inspect();
+        string heartbeat = inspection.HeartbeatAt?.ToString("u") ?? "missing";
+        string age = inspection.HeartbeatAgeSeconds.HasValue
+            ? $"{inspection.HeartbeatAgeSeconds.Value:F1}s old" : "age unknown";
+        string version = inspection.DailyFreeClaimsVersion ?? "missing";
+        AddLog($"Bridge inspection: {inspection.StatusCode}; game={inspection.GameRunning}; " +
+            $"heartbeat={heartbeat} ({age}); daily-free={version}; pending={inspection.PendingCommandCount}. " +
+            "Read-only inspection sent no command.");
     }
 
     private void InvalidatePlan()

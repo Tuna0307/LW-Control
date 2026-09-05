@@ -1,0 +1,38 @@
+{
+  "method": "Static .NET bundle extraction and ILSpy 11.0.0.9375 decompilation; no supplied executable or game command was run.",
+  "source": {
+    "file": "LWControl.exe",
+    "size_bytes": 102876940,
+    "sha256": "205b3e4adf59fceee30088d30ae1e4d02831c38c8934660a4fbd421a6bf39e15"
+  },
+  "bundle": {
+    "major_version": 6,
+    "minor_version": 0,
+    "entry_count": 269,
+    "header_offset": 102861360,
+    "bundle_id": "HYOrSR4iwOur"
+  },
+  "recovered_artifacts": [
+    {
+      "file": "LastWarControl.Core.dll",
+      "size_bytes": 380928,
+      "sha256": "3715b00c3b49d59bc0edee5ed206a4e57ca279bff8511b8ae0721a2df67b7b5d"
+    },
+    {
+      "file": "LastWarControl.Game.dll",
+      "size_bytes": 4894720,
+      "sha256": "c2bcd754ff24c2351a7e5cee30b6b9eae2de6d23ee8e54d86968f11d360dac24"
+    },
+    {
+      "file": "LastWarControl.Bridge.dll",
+      "size_bytes": 24576,
+      "sha256": "2136abfb5720f007a9d255a4750f2308c561ac80d80d96815ca75c2d7a0c5776"
+    },
+    {
+      "file": "LastWarControl.Game.Lua.LWC2DailyFreeClaims.lua",
+      "size_bytes": 44110,
+      "sha256": "fd96de7215ceb3a88403c32bfb09c5feb5601fbcfbc40e1db41e9b2286f87cd2",
+      "note": "Embedded resource materialized by ILSpy from LastWarControl.Game.dll."
+    }
+  ]
+}
