@@ -24,11 +24,25 @@ from tools.extract_lenc_v3 import EXPECTED_KEY, EXPECTED_NONCE, encode_lenc_byte
 
 
 class InstallerToolChecks(unittest.TestCase):
-    def test_apply_is_fail_closed_until_live_candidate_load_is_proven(self):
+    def test_apply_remains_fail_closed_after_bounded_live_acceptance(self):
         with self.assertRaisesRegex(InstallRefused, "candidate"):
             apply_install({})
         self.assertIn("--prepare-dir", APPLY_DISABLED_REASON)
-        self.assertIn("current-game load", APPLY_DISABLED_REASON)
+        self.assertIn("bounded current-game load", APPLY_DISABLED_REASON)
+
+    def test_live_probe_allows_only_bounded_daily_list_refresh_contract(self):
+        source = _probe_source().decode("utf-8")
+        self.assertIn("TryReqUpdateData", source)
+        self.assertIn("if refresh_requested then return false end", source)
+        self.assertIn("daily-task-snapshot.json", source)
+        self.assertIn("daily-task-refresh.json", source)
+        for forbidden in (
+            "DailyQuestReward",
+            "DailyTaskReward",
+            "daily.quest.reward",
+            "daily.task.reward",
+        ):
+            self.assertNotIn(forbidden, source)
 
     def test_lwlf_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:

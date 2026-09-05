@@ -1,8 +1,9 @@
 """Version-aware Last War Lua loader probe installer.
 
-This tool is intentionally narrow. It installs a tiny Lua heartbeat probe so the
-reconstructed controller can prove that the current game build loads injected
-scripts. It does not queue bridge commands or perform gameplay actions.
+This tool is intentionally narrow. It installs a tiny Lua heartbeat/state probe so
+the reconstructed controller can prove that the current game build loads injected
+scripts. When daily-task state is unavailable, the probe may queue one copy of the
+game's own read-only DailyQuestLs refresh. It never sends reward-claim actions.
 """
 
 from __future__ import annotations
@@ -345,27 +346,232 @@ return original
     return source.encode("utf-8")
 
 
+def _snapshot_builder_source() -> str:
+    path = Path(__file__).with_name("current_daily_task_snapshot_probe.lua")
+    return path.read_text(encoding="utf-8")
+
+
 def _probe_source() -> bytes:
-    source = f'''local M = {{ VERSION = "{PROBE_VERSION}" }}
-local root = (os.getenv("LOCALAPPDATA") or ".") .. [[\\LWControl\\runtime]]
-local path = root .. [[\\loader-probe.json]]
+    source = r'''local M = { VERSION = "__PROBE_VERSION__" }
+local root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWControl\runtime]]
+local heartbeat_path = root .. [[\loader-probe.json]]
+local snapshot_path = root .. [[\daily-task-snapshot.json]]
+local status_path = root .. [[\daily-task-snapshot-status.json]]
+local refresh_path = root .. [[\daily-task-refresh.json]]
 local last_write = 0
-local function write_probe()
-    local now = tonumber(os.time()) or 0
+local refresh_requested = false
+local refresh_requested_at = nil
+local update_observed_at = nil
+local update_observed_task_count = nil
+local update_observed_box_count = nil
+local update_wrapped = false
+local unpack_values = table.unpack or unpack
+local capture_snapshot = nil
+
+local snapshot_builder = (function()
+__SNAPSHOT_BUILDER__
+end)()
+
+local function json_string(value)
+    if value == nil then return "null" end
+    value = tostring(value)
+    value = string.gsub(value, '[%z\1-\31\\"]', function(ch)
+        if ch == '"' then return '\\"' end
+        if ch == '\\' then return '\\\\' end
+        if ch == '\b' then return '\\b' end
+        if ch == '\f' then return '\\f' end
+        if ch == '\n' then return '\\n' end
+        if ch == '\r' then return '\\r' end
+        if ch == '\t' then return '\\t' end
+        return string.format('\\u%04x', string.byte(ch))
+    end)
+    return '"' .. value .. '"'
+end
+
+local function write_heartbeat(now)
     if now == last_write then return true end
-    local file = io.open(path, "wb")
+    local file = io.open(heartbeat_path, "wb")
     if not file then return false end
-    file:write('{{"version":"{PROBE_VERSION}","loaded":true,"updated_at":', tostring(now), '}}')
+    file:write('{"version":"__PROBE_VERSION__","loaded":true,"updated_at":', tostring(now), '}')
     file:close()
     last_write = now
     return true
 end
-function M.Pump()
-    return write_probe()
+
+local function serialize_snapshot(snapshot)
+    local parts = {
+        '{"schemaVersion":', tostring(snapshot.schemaVersion),
+        ',"mode":', json_string(snapshot.mode),
+        ',"captureId":', json_string(snapshot.captureId),
+        ',"capturedAt":', json_string(snapshot.capturedAt),
+        ',"heartbeat":{"probeVersion":', json_string(snapshot.heartbeat.probeVersion),
+        ',"observedAt":', json_string(snapshot.heartbeat.observedAt), '}',
+        ',"tasks":['
+    }
+    for index, task in ipairs(snapshot.tasks) do
+        if index > 1 then table.insert(parts, ',') end
+        table.insert(parts, '{"taskId":')
+        table.insert(parts, json_string(task.taskId))
+        table.insert(parts, ',"state":')
+        table.insert(parts, json_string(task.state))
+        table.insert(parts, ',"templatePoint":')
+        table.insert(parts, task.templatePoint == nil and 'null' or tostring(task.templatePoint))
+        table.insert(parts, '}')
+    end
+    table.insert(parts, '],"currentPoint":')
+    table.insert(parts, tostring(snapshot.currentPoint))
+    table.insert(parts, ',"receivedStages":[')
+    for index, stage in ipairs(snapshot.receivedStages) do
+        if index > 1 then table.insert(parts, ',') end
+        table.insert(parts, tostring(stage))
+    end
+    table.insert(parts, '],"boxes":[')
+    for index, box in ipairs(snapshot.boxes) do
+        if index > 1 then table.insert(parts, ',') end
+        table.insert(parts, '{"index":')
+        table.insert(parts, tostring(box.index))
+        table.insert(parts, ',"activationPoint":')
+        table.insert(parts, tostring(box.activationPoint))
+        table.insert(parts, ',"state":')
+        table.insert(parts, json_string(box.state))
+        table.insert(parts, '}')
+    end
+    table.insert(parts, ']}')
+    return table.concat(parts)
 end
-write_probe()
+
+local function write_status(now, state, err)
+    local file = io.open(status_path, "wb")
+    if not file then return false end
+    file:write('{"probeVersion":', json_string(snapshot_builder.VERSION),
+        ',"state":', json_string(state), ',"updatedAt":', tostring(now),
+        ',"error":', json_string(err), '}')
+    file:close()
+    return true
+end
+
+local function table_count(value)
+    if type(value) ~= "table" then return nil end
+    local count = 0
+    for _ in pairs(value) do count = count + 1 end
+    return count
+end
+
+local function json_number_or_null(value)
+    if type(value) == "number" then return tostring(value) end
+    return "null"
+end
+
+local function write_refresh(now, state, err)
+    local file = io.open(refresh_path, "wb")
+    if not file then return false end
+    file:write('{"probeVersion":', json_string(snapshot_builder.VERSION),
+        ',"state":', json_string(state),
+        ',"updatedAt":', tostring(now),
+        ',"requestedAt":', json_number_or_null(refresh_requested_at),
+        ',"updateObservedAt":', json_number_or_null(update_observed_at),
+        ',"taskCount":', json_number_or_null(update_observed_task_count),
+        ',"boxCount":', json_number_or_null(update_observed_box_count),
+        ',"error":', json_string(err), '}')
+    file:close()
+    return true
+end
+
+local function install_update_observer(manager)
+    if update_wrapped then return true end
+    if type(manager.UpdateDailyTask) ~= "function" then return false end
+    local previous = manager.UpdateDailyTask
+    manager.UpdateDailyTask = function(...)
+        local values = { pcall(previous, ...) }
+        local ok = table.remove(values, 1)
+        local self = select(1, ...)
+        local now = tonumber(os.time()) or 0
+        update_observed_at = now
+        if type(self) == "table" or type(self) == "userdata" then
+            update_observed_task_count = table_count(self.dailyQuestTasks)
+            update_observed_box_count = table_count(self.dailyBoxActive)
+        end
+        write_refresh(now, "update_observed", ok and nil or values[1])
+        if ok and type(capture_snapshot) == "function" then
+            local capture_ok, capture_err = pcall(capture_snapshot, now)
+            if not capture_ok then write_status(now, "error", capture_err) end
+        end
+        if not ok then error(values[1]) end
+        return unpack_values(values)
+    end
+    update_wrapped = true
+    return true
+end
+
+local function request_refresh_once(manager, now)
+    if refresh_requested then return false end
+    if type(manager.TryReqUpdateData) ~= "function" then return false end
+    refresh_requested = true
+    refresh_requested_at = now
+    write_refresh(now, "requested", nil)
+    local ok, err = pcall(manager.TryReqUpdateData, manager)
+    if not ok then
+        write_refresh(now, "request_error", err)
+        return false
+    end
+    return true
+end
+
+capture_snapshot = function(now)
+    local data_center = rawget(_G, "DataCenter")
+    local task_state = rawget(_G, "TaskState")
+    if type(data_center) ~= "table" then return nil, "DataCenter unavailable" end
+    if task_state == nil then return nil, "TaskState unavailable" end
+    local manager = data_center.DailyTaskManager
+    local template_manager = data_center.DailyTaskTemplateManager
+    if manager == nil then return nil, "DailyTaskManager unavailable" end
+    if template_manager == nil then return nil, "DailyTaskTemplateManager unavailable" end
+    install_update_observer(manager)
+
+    local captured_at = os.date("!%Y-%m-%dT%H:%M:%SZ", now)
+    local snapshot, err = snapshot_builder.Build(
+        manager,
+        template_manager,
+        task_state,
+        "live-" .. tostring(now),
+        captured_at)
+    if snapshot == nil then
+        if type(manager.dailyBoxActive) == "table" and manager.dailyBoxActive[1] == nil then
+            request_refresh_once(manager, now)
+        end
+        return nil, err or "snapshot builder refused state"
+    end
+
+    local file = io.open(snapshot_path, "wb")
+    if not file then return nil, "daily-task snapshot file could not be opened" end
+    file:write(serialize_snapshot(snapshot))
+    file:close()
+    update_observed_task_count = table_count(manager.dailyQuestTasks)
+    update_observed_box_count = table_count(manager.dailyBoxActive)
+    write_status(now, "captured", nil)
+    write_refresh(now, "captured", nil)
+    return true
+end
+
+function M.Pump()
+    local now = tonumber(os.time()) or 0
+    local heartbeat_ok = write_heartbeat(now)
+    local ok, captured, err = pcall(capture_snapshot, now)
+    if not ok then
+        write_status(now, "error", captured)
+    elseif captured then
+        write_status(now, "captured", nil)
+    else
+        write_status(now, "waiting", err)
+    end
+    return heartbeat_ok
+end
+
+M.Pump()
 return M
 '''
+    source = source.replace("__PROBE_VERSION__", PROBE_VERSION)
+    source = source.replace("__SNAPSHOT_BUILDER__", _snapshot_builder_source())
     return source.encode("utf-8")
 
 

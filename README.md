@@ -42,11 +42,16 @@ also recovered down to wire command names, request fields, and response-state
 handlers. The current task-point and five-box goal-state algorithm is now mirrored
 symbolically in the C# core without assuming the game's numeric `TaskState` enum;
 see the current-game section of the Daily Free Claims notes. A strict version-1
-read-only snapshot model now defines the exact future Lua-to-C# state boundary and
+read-only snapshot model now defines the Lua-to-C# state boundary and
 re-derives current points and all five chest states before accepting a capture; see
 [Current daily-task read-only snapshot contract](docs/current-daily-task-snapshot.md).
-An offline Lua state-builder draft implements the same cross-checks without file
-I/O, network sends, or loader installation.
+That snapshot payload has now also executed successfully in the current game. One
+bounded `DailyQuestLs` refresh populated 23 task records and five box thresholds,
+the Lua probe emitted a valid 240-point snapshot, and the same JSON passed the C#
+validator before the exact original game files were restored. See
+[Current daily-task live capture](docs/current-daily-task-live-capture.md). The
+repeatable guarded runner is `tools/run_daily_task_snapshot_probe.py`; it permits
+at most one list refresh and contains no reward-claim action path.
 
 ## Run the earlier Python prototype
 

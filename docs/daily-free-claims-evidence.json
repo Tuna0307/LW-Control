@@ -91,7 +91,7 @@
       },
       "task_state_numeric_values": "UNKNOWN; reconstruction uses symbolic enum names only",
       "snapshot_contract": {
-        "status": "OFFLINE_CONTRACT_ONLY",
+        "status": "LIVE_READ_ONLY_CAPTURE_PROVEN",
         "schema_version": 1,
         "mode": "state",
         "game_derived_validation": [
@@ -108,7 +108,26 @@
           "default capture/heartbeat age limit 15 seconds with 5-second future tolerance",
           "unsupported schema version or non-state mode rejected"
         ],
-        "live_probe_execution": "PROVEN loader-heartbeat payload on 2026-09-06; daily-task snapshot payload remains UNKNOWN",
+        "live_probe_execution": "PROVEN current-game daily-task snapshot payload on 2026-09-06",
+        "live_daily_task_capture": {
+          "captured_at_utc": "2026-09-05T19:01:33Z",
+          "captured_at_singapore": "2026-09-06T03:01:33+08:00",
+          "refresh_command": "DailyTaskManager:TryReqUpdateData -> MsgDefines.DailyQuestLs",
+          "refresh_limit": 1,
+          "requested_at_unix": 1788634888,
+          "update_observed_at_unix": 1788634893,
+          "task_count": 23,
+          "box_count": 5,
+          "current_point": 240,
+          "activation_thresholds": [40, 80, 120, 160, 200],
+          "received_stages": [1, 2, 3, 4, 5],
+          "box_states": ["Received", "Received", "Received", "Received", "Received"],
+          "python_independent_current_point": 240,
+          "csharp_snapshot_validation": "PASS",
+          "reward_claims_sent": 0,
+          "restored": true,
+          "restore_sha256_match": true
+        },
         "live_loader_acceptance": {
           "captured_at_singapore": "2026-09-06T02:46:30+08:00",
           "candidate_entry_count": 18688,

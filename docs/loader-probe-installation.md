@@ -159,8 +159,37 @@ The backup retained by the bounded run is:
 `C:\\Users\\chimw\\AppData\\Local\\LWControl\\backups\\loader-live-20260906-024606-1896b30414a64c6ea70ab76265874e04`.
 
 This changes encrypted current-build loader execution from `UNKNOWN` to
-**PROVEN for the loader heartbeat payload**. It does not yet prove the newer
-daily-task snapshot payload or any reward-claim path.
+**PROVEN for the loader heartbeat payload**. The later daily-task capture below
+separately proves the snapshot payload; reward-claim execution remains unproven.
+
+### Successful daily-task state capture — 2026-09-06
+
+The proven encrypted wrapper was then extended to embed the strict version-1
+daily-task state builder. The first live state attempt reached the current-game
+manager objects but failed closed because the five daily box thresholds had not
+yet been populated. Bytecode inspection showed that the game's own
+`DailyTaskManager:TryReqUpdateData()` queues `MsgDefines.DailyQuestLs`, and that a
+successful list response calls `UpdateDailyTask(message)`.
+
+The probe now permits exactly one such list refresh when `dailyBoxActive[1]` is
+missing. It records request time and wraps `UpdateDailyTask` only to observe the
+response-driven state transition. In the repeatable live run, the request occurred
+at Unix time `1788634888`; `UpdateDailyTask` was observed at `1788634893` with 23
+tasks and five box thresholds; the state builder then emitted a fresh version-1
+snapshot. No reward-claim action path is present in the generated probe.
+
+The repository now contains a dedicated guarded runner:
+
+```powershell
+python tools/run_daily_task_snapshot_probe.py --candidate-dir "<candidate-directory>" --json
+```
+
+It re-verifies the exact encrypted candidate, refuses to start when Last War is
+already running, creates exact backups, installs only script package/metadata/
+version, launches through the official launcher, reads the heartbeat/status/
+refresh/snapshot files, closes the game, restores in `finally`, and requires exact
+SHA-256 equality afterward. The successful run reported `reward_claims_sent: 0`.
+See [`current-daily-task-live-capture.md`](current-daily-task-live-capture.md).
 
 Restore a recorded backup while the game is closed:
 

@@ -315,12 +315,12 @@ per-index activation threshold, plus task state/template-point pairs from which
 the current point can be reproduced. The C# core now contains
 `CurrentDailyTaskState`, a symbolic interpreter for this exact contract including
 `GetCurValue`. It does not assume the numeric values of the game's `TaskState`
-enum and sends no action. A future in-game read-only probe can avoid exporting an
+enum and sends no action. The live in-game read-only probe avoids exporting an
 unknown numeric enum entirely by comparing against `TaskState.Received` inside
 Lua and exporting the derived symbolic state/current point.
 
 The reconstruction now also has a strict version-1 JSON snapshot boundary for
-that future probe. It carries task IDs, symbolic task states, template points,
+the live probe. It carries task IDs, symbolic task states, template points,
 the exported and independently re-derived current point, received chest-stage
 indices, all five activation thresholds and symbolic chest states, plus capture
 and heartbeat metadata. The C# validator rejects duplicate task IDs, unsupported
@@ -336,9 +336,32 @@ the current game in a bounded launch. `LastWar.exe` started through the official
 launcher and produced a fresh `lwcontrol-loader-probe-1` heartbeat. No gameplay
 message was sent. The game was then closed, the original script package and
 `BaseUtils.rdl` were restored, and every backed-up file matched its original
-SHA-256. This proves current-build encrypted Lua payload execution at the loader
-heartbeat level. Live execution of the daily-task snapshot payload remains the
-next read-only milestone.
+SHA-256. This proved current-build encrypted Lua payload execution at the loader
+heartbeat level and enabled the daily-task live-capture milestone below.
+
+That next milestone is now complete. The first state-only live attempt reached
+the real `DailyTaskManager`, `DailyTaskTemplateManager`, and global `TaskState`,
+but failed closed because `dailyBoxActive[1]` was still absent. Static inspection
+of prototype `0.4`/`0.4.0` then confirmed that `TryReqUpdateData()` appends a
+callback whose body calls `SFSNetwork.SendMessage(MsgDefines.DailyQuestLs)`.
+Prototype `0.9` confirms that a successful `DailyQuestLsMessageHandle` calls
+`UpdateDailyTask(message)` before broadcasting `EventId.DailyQuestLs`.
+
+The bounded probe was therefore extended with one and only one call to the game's
+own `TryReqUpdateData()` refresh plus read-only instrumentation around
+`UpdateDailyTask`. In the repeatable 2026-09-06 run the request was recorded at
+Unix time `1788634888`, `UpdateDailyTask` was observed at `1788634893`, and the
+manager then contained 23 tasks and five box thresholds. The same update produced
+a version-1 snapshot with `currentPoint=240`, received stages `1..5`, thresholds
+`40,80,120,160,200`, and all five box states `Received`. Independent point
+summation produced 240 and the C# `CurrentDailyTaskSnapshot.Validate()` path
+accepted the live JSON. The runner then closed the game and restored all backed-up
+files with exact SHA-256 equality. Full evidence and the repeatable command are in
+[`current-daily-task-live-capture.md`](current-daily-task-live-capture.md).
+
+No `DailyQuestReward` or `DailyTaskReward` action was sent. Numeric `TaskState`
+values remain deliberately unknown; the live probe compares the game's symbolic
+enum members directly.
 
 For repeatable static analysis, `tools/inspect_lua53_bytecode.py` now accepts an
 exact `--prototype` path (for example `0.10`). In that mode it emits the complete

@@ -1,11 +1,11 @@
 # Current daily-task read-only snapshot contract
 
-This document defines the JSON boundary between a future current-game Lua state
-probe and the C# reconstruction. It is an offline contract only. No current-game
-daily-task probe has produced this file yet. The separate encrypted loader
-heartbeat candidate was accepted by the current game on 2026-09-06, but this
-daily-task state payload has not yet been installed or executed live. No network
-or reward-claim command is authorized by this work.
+This document defines the JSON boundary between the current-game Lua state probe
+and the C# reconstruction. The contract was exercised successfully in a bounded
+current-game run on 2026-09-06. The probe produced a version-1 state snapshot that
+passed the C# validator after one bounded `DailyQuestLs` data refresh. No reward-
+claim command was sent. See
+[`current-daily-task-live-capture.md`](current-daily-task-live-capture.md).
 
 The contract intentionally exports symbolic task states. The current game's
 numeric `TaskState` values are still unknown and are not guessed here. A future
@@ -104,7 +104,7 @@ These guards deliberately fail closed. A malformed or internally inconsistent
 snapshot is unusable for claim eligibility and must not be converted into an
 action request.
 
-## What the future Lua probe must read
+## What the live Lua probe reads
 
 The minimum current-game data source remains:
 
@@ -115,28 +115,29 @@ The minimum current-game data source remains:
 - `DataCenter.DailyTaskManager.dailyBoxActive` for activation thresholds;
 - the manager's current task-state enum symbols for symbolic comparisons.
 
-The probe should derive the symbolic task and chest states inside Lua, write only
-the snapshot and heartbeat metadata, and send zero `SFSNetwork` messages. Generic
-encrypted loader execution is now proven by the 2026-09-06 heartbeat acceptance;
-live execution of this daily-task snapshot payload remains `UNKNOWN` until a fresh
-snapshot is actually produced by the current game.
+The probe derives the symbolic task and chest states inside Lua and writes the
+snapshot/heartbeat metadata. If the daily-task manager has not yet populated
+`dailyBoxActive`, the outer loader probe may queue exactly one call to the game's
+own `DailyTaskManager:TryReqUpdateData()` path. Recovered bytecode proves that path
+queues `MsgDefines.DailyQuestLs`. It is a list refresh, not a reward command.
 
-An offline draft of the state builder now lives at
+The state builder lives at
 [`tools/current_daily_task_snapshot_probe.lua`](../tools/current_daily_task_snapshot_probe.lua).
 It performs no file I/O and contains no network send path. Instead it accepts the
 manager, template-manager, and task-state objects as arguments and returns a plain
 Lua snapshot table. Before returning, it cross-checks `GetCurValue()` against an
 independent task/template sum and `GetBoxState()` against the recovered five-box
-derivation. This draft is deliberately not wired into `install_loader_probe.py`;
-current-game loading of any injected payload remains unproven.
+derivation. `install_loader_probe.py` now embeds this builder into the exact
+encrypted probe source, while `run_daily_task_snapshot_probe.py` performs the
+bounded install/launch/read/restore workflow.
 
 ## Validation at this checkpoint
 
-The offline implementation was checked with the repository's existing validation
-paths: all 21 C# core checks pass, all 43 Python tests pass, the Release desktop
-build completes with zero warnings and zero errors, and the desktop smoke test
-exits successfully. The Lua draft parses successfully with the installed Python
-`luaparser` package, and a static token check finds no `SFSNetwork`, `SendMessage`,
-`SendLuaMessage`, `io.open`, or `os.execute` path in that draft. These checks prove
-only the offline contract and source consistency. Loader heartbeat execution is
-now proven separately; this snapshot payload itself remains unproven live.
+The builder still parses successfully with `luaparser`, and its standalone source
+contains no file I/O or network send path. The generated outer probe was also
+checked to contain no `DailyQuestReward`, `DailyTaskReward`, `daily.quest.reward`,
+or `daily.task.reward` token. In the live run the list refresh was requested once,
+`UpdateDailyTask` was then observed with 23 tasks and five box thresholds, and a
+fresh snapshot was emitted. The live snapshot independently derived to 240 points
+and was accepted by `CurrentDailyTaskSnapshot.Validate()` in the C# core. Exact
+script-package/BaseUtils restoration was verified by SHA-256 equality.

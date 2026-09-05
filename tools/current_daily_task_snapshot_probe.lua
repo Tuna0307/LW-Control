@@ -1,9 +1,9 @@
--- Offline draft for the future current-game daily-task read-only snapshot probe.
+-- Current-game daily-task read-only snapshot builder.
 --
 -- This module performs no file I/O and sends no network messages. It accepts the
 -- manager/template/state objects as arguments, validates the recovered state
--- relationships, and returns a plain Lua table that a later loader-accepted
--- writer can serialize using the version-1 JSON contract.
+-- relationships, and returns a plain Lua table that the loader-accepted writer
+-- serializes using the version-1 JSON contract.
 
 local M = {
     VERSION = "lwcontrol-daily-state-probe-1",
