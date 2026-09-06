@@ -469,12 +469,19 @@ cases.Add(("Recovered World Map full-grid plan batches every logical block withi
     var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 50, 50, requestedEdge: 99);
     Check(plan.RequestedEdge == 100);
     Check(plan.RequestedBlocks.Count == 10_000);
-    Check(plan.Batches.Count > 1);
+    Check(plan.Batches.Count == 65);
+    Check(plan.Batches.Count(batch => batch.RequestedBlocks.Count == 160) == 60);
+    Check(plan.Batches.Count(batch => batch.RequestedBlocks.Count == 80) == 5);
     Check(plan.Batches.All(batch => batch.TransportIndexes.Count is > 0 and <= RecoveredWorldMapScanPlanner.MaxNativeBatchIndexes));
     Check(plan.Batches.SelectMany(batch => batch.RequestedBlocks)
         .Select(block => (block.X, block.Y)).Distinct().Count() == 10_000);
     Check(plan.Batches.Sum(batch => batch.RequestedBlocks.Count) == 10_000);
     Check(plan.Batches.Select((batch, index) => batch.Sequence == index + 1).All(value => value));
+    Check(plan.Batches.All(batch => batch.LeftBottomTile.X is >= 0 and <= 999
+        && batch.LeftBottomTile.Y is >= 0 and <= 999
+        && batch.RightTopTile.X is >= 0 and <= 999
+        && batch.RightTopTile.Y is >= 0 and <= 999));
+    Check(plan.Batches.Any(batch => batch.RightTopTile.X == 999 || batch.RightTopTile.Y == 999));
 }));
 foreach (var test in cases)
 {

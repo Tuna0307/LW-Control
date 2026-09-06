@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-09-06",
+  "capturedAt": "2026-09-06T06:51:52Z",
+  "classification": "PROVEN_CURRENT_BUILD_FULL_WORLD_COVERAGE",
+  "candidate": {
+    "name": "world-full-scan-20260906-1455",
+    "contentVersion": 12,
+    "packageSha256": "514925be44e3c466dd4e89bc0807698880f81b360b686dafa3e4159752adcd09",
+    "probeSourceSha256": "7ff6063594f40165708c73365958e78a5e04cabe2b54f1015e66826949c4e071",
+    "encryptedRoundTripVerified": true
+  },
+  "recoveredContract": {
+    "logicalGrid": [100, 100],
+    "requestedLogicalBlocks": 10000,
+    "plannedBatchCount": 65,
+    "fullBatchCount": 60,
+    "fullBatchLogicalBlocks": 160,
+    "tailBatchCount": 5,
+    "tailBatchLogicalBlocks": 80,
+    "serialCapabilityProbeFirst": true,
+    "maximumConcurrency": 8,
+    "normalMapWorldSize": 1000,
+    "edgeTileClamp": 999,
+    "maximumRetries": 0,
+    "maximumCameraMoves": 0
+  },
+  "liveResult": {
+    "state": "proven",
+    "requestedBlockCount": 10000,
+    "coveredBlockCount": 10000,
+    "requestSentCount": 65,
+    "completedBatchCount": 65,
+    "observedFullBatchCount": 60,
+    "observedTailBatchCount": 5,
+    "maximumConcurrency": 8,
+    "peakInflight": 8,
+    "waveCount": 12,
+    "postResponseCaptureCount": 65,
+    "accumulatedRecordCount": 16406,
+    "duplicateRecordCount": 106,
+    "targetProtocolResponseCount": 66,
+    "rejectedResponseCount": 1,
+    "retryCount": 0,
+    "cameraMoveCount": 0,
+    "responseHookRestored": true,
+    "managerFlagRestored": true,
+    "liveContractVerified": true
+  },
+  "retainedRawEvidence": {
+    "relativePath": ".codex-live/world-full-scan-20260906-1455/live-result.json",
+    "bytes": 2259053,
+    "sha256": "f46dc73ba474bdbaa194afa28bd3e54bf2434768f605cd8ed674b1cabc372f47"
+  },
+  "protectedRestore": {
+    "exactHashMatch": true,
+    "before": {
+      "data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
+      "metadata": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
+      "version": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+      "baseutils": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+    },
+    "after": {
+      "data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
+      "metadata": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
+      "version": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+      "baseutils": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+    }
+  },
+  "proofBoundary": {
+    "proven": [
+      "current content-version-12 accepts recovered full-grid transport geometry",
+      "10000 of 10000 logical blocks covered by uniquely correlated batch responses",
+      "65 of 65 batches completed with peak inflight 8 and cap 8",
+      "point identities accumulated after original response handling across loaded-area replacement",
+      "owned runtime state and protected files restored exactly"
+    ],
+    "recoveredOriginal": [
+      "160-index native batch ceiling",
+      "65-batch full-grid plan with 60 full and 5 tail batches",
+      "serial first capability batch",
+      "default concurrency 8",
+      "normal-map edge tile clamp to WorldSize minus 1"
+    ],
+    "dynamic": [
+      "captured point identities describe world state during the live scan and can change afterward"
+    ]
+  }
+}
