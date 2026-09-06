@@ -418,6 +418,21 @@ cases.Add(("Recovered World Map thirteen-by-thirteen plan splits into 156 plus 1
     Check(plan.Batches.All(batch => batch.TransportIndexes.Count is > 0 and <= RecoveredWorldMapScanPlanner.MaxNativeBatchIndexes));
     Check(plan.Batches.Sum(batch => batch.RequestedBlocks.Count) == 169);
 }));
+cases.Add(("Recovered World Map nineteen-by-nineteen plan exposes two-batch concurrent wave after probe", () =>
+{
+    var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 58, 47, requestedEdge: 19);
+    Check(plan.RequestedEdge == 19);
+    Check(plan.RequestedBlocks.Count == 361);
+    Check(plan.Batches.Count == 3);
+    Check(plan.Batches[0].RequestedBlocks.Count == 152);
+    Check(plan.Batches[1].RequestedBlocks.Count == 152);
+    Check(plan.Batches[2].RequestedBlocks.Count == 57);
+    Check(plan.Batches[0].TransportIndexes.Count == 152);
+    Check(plan.Batches[1].TransportIndexes.Count == 152);
+    Check(plan.Batches[2].TransportIndexes.Count == 95);
+    Check(plan.Batches.All(batch => batch.TransportIndexes.Count is > 0 and <= RecoveredWorldMapScanPlanner.MaxNativeBatchIndexes));
+    Check(plan.Batches.Sum(batch => batch.RequestedBlocks.Count) == 361);
+}));
 cases.Add(("Recovered World Map response coverage accumulates and fails closed on missing blocks", () =>
 {
     var batch = RecoveredWorldMapScanPlanner.Build(100, 10, 58, 47, requestedEdge: 3).Batches.Single();

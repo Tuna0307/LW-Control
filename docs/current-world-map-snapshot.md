@@ -210,6 +210,24 @@ multi-batch completion rule. It is not a claim that `_pointInfos` itself is
 append-only or complete; response-envelope coverage remains the authoritative
 completion evidence.
 
+## PROVEN: bounded concurrent native batch wave
+
+Candidate w23 extended the same recovered scheduler boundary with a 19-by-19
+logical request (361 blocks). The recovered planner produced three batches of
+152, 152, and 57 logical blocks. Batch 1 completed serially first. Batches 2 and
+3 were then both issued before the first of their responses arrived, proving a
+two-inflight concurrent wave rather than sequential request timing.
+
+Each concurrent response was correlated to exactly one in-flight request by
+compatible server/world identity plus exact `leftBottom`/`rightTop` bounds. The
+concurrent batches covered 152/152 and 57/57 logical targets respectively, for a
+final 361/361 completion result. There were exactly three sends, zero retries,
+zero camera moves, and exact hook/flag/file restoration.
+
+This proves bounded concurrent scheduling at in-flight width two on the current
+build. The recovered original scanner's default width of eight and its adaptive
+retry/concurrency-reduction/fallback paths remain separate claims.
+
 ## UNKNOWN / not claimed at this checkpoint
 
 - The exact current user-string text returned by `WorldGetBlockMessage.GetMsgId`
@@ -218,9 +236,10 @@ completion evidence.
 - The observed point-ID-to-tile decode is live-proven for records returned by
   candidate a20, but schema version 1 still does not promise a universal
   user-facing X/Y presentation contract for every point/map mode.
-- Multi-block coverage and serial two-batch completion are proven for a bounded
-  13-by-13 request. Full-world orchestration, concurrent native scheduling,
-  retries, and camera fallback remain separate unproven behaviors.
+- Multi-block coverage, serial two-batch completion, and a two-inflight
+  concurrent wave are proven. Full-world orchestration, the wider original
+  concurrency policy, retries, and camera fallback remain separate unproven
+  behaviors.
 - The additional season-specific `WorldPointInfo` payload bodies are not yet
   normalized into version 1.
 

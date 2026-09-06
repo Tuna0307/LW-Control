@@ -2,7 +2,7 @@
 
 Date: 2026-09-06
 
-Status: **LOADED WORLD SNAPSHOT, MULTI-BLOCK AOI, AND BOUNDED SERIAL MULTI-BATCH COMPLETENESS PROVEN; FULL-WORLD COMPLETENESS PENDING**
+Status: **LOADED WORLD SNAPSHOT, MULTI-BLOCK AOI, SERIAL MULTI-BATCH COMPLETENESS, AND A TWO-INFLIGHT CONCURRENT WAVE ARE PROVEN; FULL-WORLD COMPLETENESS PENDING**
 
 The current-build loaded-state World Map boundary is now proven end to end. The
 successful candidate used the game's current `SceneUtils.ChangeToWorld` routine
@@ -226,18 +226,65 @@ This proves bounded serial multi-batch completeness on the current build for an
 explicit 13-by-13 request. It does not prove full-world completion, concurrent
 native scheduling, retry behavior, or camera fallback.
 
+## Live candidate w23: bounded concurrent native scheduling proof
+
+Candidate w23 package SHA-256:
+`c67b7c71dc1e422e46d86f5a54ecba330c6c1a369f4419d37ee7aa679acd33fd`.
+Probe-source SHA-256:
+`659fb3eaeab2311ad5b4d85ebe9af38325c894ab4913ad1ecd01299c03cd76ab`.
+
+The proof used a 19-by-19 logical window, X `58..76`, Y `38..56`, totaling
+**361 logical blocks**. The recovered planner selected an 8-by-19 native batch
+shape and produced exactly **152 + 152 + 57** logical blocks. The final narrow
+batch kept the recovered minimum-width padding, producing a 95-index transport
+envelope X `73..77`, Y `38..56`.
+
+Batch 1 was sent and completed first as the recovered serial capability probe,
+covering **152/152** logical blocks. Batches 2 and 3 were then issued as a
+bounded two-request concurrent wave. Event ordering proves both send calls
+completed before either correlated response arrived:
+
+- batch 2 send start/completion events: `1` / `2`;
+- batch 3 send start/completion events: `3` / `4`;
+- concurrent-wave launch-complete event: `5`;
+- batch 2 response event: `6`;
+- batch 3 response event: `7`.
+
+`concurrent_peak_inflight` was therefore `2`, and
+`concurrent_response_before_wave_complete` was false. The two authoritative
+responses were matched uniquely by server/world plus exact request bounds:
+
+| Batch | Logical coverage | Logical blocks | Transport coverage | Bounds |
+| ---: | --- | ---: | --- | --- |
+| 1 | X `58..65`, Y `38..56` | 152 | X `58..65`, Y `38..56` | `380581` .. `570661` |
+| 2 | X `66..73`, Y `38..56` | 152 | X `66..73`, Y `38..56` | `380661` .. `570741` |
+| 3 | X `74..76`, Y `38..56` | 57 | X `73..77`, Y `38..56` | `380731` .. `570781` |
+
+All three responses came through `DispatchResponse2` from
+`$.array[serverPointArr][0]`, server `2212`, world `0`. The final result was
+**361/361 logical blocks covered**, exactly three sends, three completed
+batches, zero retries, and zero camera moves. The response hook and manager flag
+restored successfully, and all official protected hashes matched their exact
+pre-run values afterward.
+
+This proves the recovered serial-first then bounded-concurrent scheduling shape
+for two simultaneous remaining native batches. It does not yet prove the
+original default concurrency of eight, retry/concurrency-reduction behavior,
+camera fallback, or full-world completion.
+
 ## Remaining boundary
 
 The current build now has live proof for loaded-state capture, one padded wider
-AOI request, multi-block logical coverage, and a two-batch serial completion rule
-that succeeds only when all 169 requested logical blocks are covered by
-correlated authoritative response envelopes. `_pointInfos` remains replaceable
-loaded-AOI state and is not used as completeness proof.
+AOI request, multi-block logical coverage, serial multi-batch completion, and a
+two-inflight concurrent native wave. Completion succeeds only when every
+requested logical block is covered by correlated authoritative response
+envelopes. `_pointInfos` remains replaceable loaded-AOI state and is not used as
+completeness proof.
 
-The remaining World Scan work is broader scan orchestration: bounded concurrent
-native scheduling if desired, retry/fallback behavior, and a full-world sweep
-policy with a terminal proof that every requested logical block was accounted
-for. The C# `RecoveredWorldMapScanPlanner` already mirrors the recovered
+The remaining World Scan work is broader scan orchestration: the original wider
+concurrency policy, retry/fallback behavior, and a full-world sweep policy with a
+terminal proof that every requested logical block was accounted for. The C#
+`RecoveredWorldMapScanPlanner` already mirrors the recovered
 original centered odd windows, row-major block IDs, 160-index native limit,
 minimum 5-by-4 transport padding, serpentine batch order, and fail-closed
 coverage accounting.

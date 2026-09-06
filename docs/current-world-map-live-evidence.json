@@ -1,6 +1,6 @@
 {
   "date": "2026-09-06",
-  "status": "loaded_world_snapshot_multi_block_and_serial_multi_batch_proven",
+  "status": "loaded_world_snapshot_multi_block_serial_multi_batch_and_two_inflight_concurrency_proven",
   "currentUi": {
     "entry": "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac",
     "entrySha256": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
@@ -253,6 +253,106 @@
     "restoreHashMatch": true,
     "result": "proven"
   },
+  "w23": {
+    "packageSha256": "c67b7c71dc1e422e46d86f5a54ecba330c6c1a369f4419d37ee7aa679acd33fd",
+    "probeSourceSha256": "659fb3eaeab2311ad5b4d85ebe9af38325c894ab4913ad1ecd01299c03cd76ab",
+    "bridgeSourceSha256": "c4c8b39b630b150f7a72922f77f10d441631437da12108fe3efa3a5e9b83c5a4",
+    "fileVersion": 3,
+    "contentVersion": 12,
+    "entryCount": 18688,
+    "requestedLogicalBlocks": 361,
+    "coveredLogicalBlocks": 361,
+    "maximumRequests": 3,
+    "actualRequests": 3,
+    "completedBatches": 3,
+    "maximumConcurrentRequests": 2,
+    "peakInflight": 2,
+    "visibleBlocks": {
+      "left": 53,
+      "right": 57,
+      "bottom": 46,
+      "top": 49
+    },
+    "logicalCoverage": {
+      "left": 58,
+      "right": 76,
+      "bottom": 38,
+      "top": 56
+    },
+    "batches": [
+      {
+        "sequence": 1,
+        "requestedLogicalBlocks": 152,
+        "coveredLogicalBlocks": 152,
+        "transportCoverage": {
+          "left": 58,
+          "right": 65,
+          "bottom": 38,
+          "top": 56
+        },
+        "transportIndexCount": 152,
+        "leftBottom": 380581,
+        "rightTop": 570661,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      },
+      {
+        "sequence": 2,
+        "requestedLogicalBlocks": 152,
+        "coveredLogicalBlocks": 152,
+        "transportCoverage": {
+          "left": 66,
+          "right": 73,
+          "bottom": 38,
+          "top": 56
+        },
+        "transportIndexCount": 152,
+        "leftBottom": 380661,
+        "rightTop": 570741,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      },
+      {
+        "sequence": 3,
+        "requestedLogicalBlocks": 57,
+        "coveredLogicalBlocks": 57,
+        "transportCoverage": {
+          "left": 73,
+          "right": 77,
+          "bottom": 38,
+          "top": 56
+        },
+        "transportIndexCount": 95,
+        "leftBottom": 380731,
+        "rightTop": 570781,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      }
+    ],
+    "eventOrdering": {
+      "batch2SendStarted": 1,
+      "batch2SendCompleted": 2,
+      "batch3SendStarted": 3,
+      "batch3SendCompleted": 4,
+      "waveLaunchCompleted": 5,
+      "batch2Response": 6,
+      "batch3Response": 7,
+      "responseBeforeWaveComplete": false
+    },
+    "serialCapabilityProbeFirst": true,
+    "cameraMoves": 0,
+    "retries": 0,
+    "responseHookRestored": true,
+    "managerFlagRestored": true,
+    "restoreHashMatch": true,
+    "result": "proven"
+  },
   "restoredOfficialHashes": {
     "LWScripts.data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
     "LWScripts.txt": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
@@ -261,7 +361,7 @@
   },
   "unknown": [
     "user-facing meaning of every observed pointType",
-    "concurrent native batch scheduling and retry/camera fallback",
+    "original wider concurrency width and retry/camera fallback",
     "full-world coverage policy and completion proof"
   ]
 }

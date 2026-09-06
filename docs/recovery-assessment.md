@@ -107,8 +107,8 @@ structured point identity/routing fields and typed payloads.
 
 This moves the World Map Scan feature beyond loaded-state discovery: the bulk
 source is identified, the read-only snapshot contract is implemented and proven
-live, and bounded multi-block plus serial multi-batch logical coverage are now
-proven end to end. The detailed
+live, and bounded multi-block, serial multi-batch, plus a two-inflight
+concurrent wave are now proven end to end. The detailed
 evidence, PROVEN/UNKNOWN boundary, request fields, and schema are recorded in
 [`current-world-map-snapshot.md`](current-world-map-snapshot.md) and
 [`current-world-map-static-evidence.json`](current-world-map-static-evidence.json).
@@ -161,9 +161,18 @@ exactly two sends, zero retries, zero camera moves, restored hook/manager state,
 and exact installed-file hash restoration. Package SHA-256 was
 `6e8abb9bbbedb7292d959f6006ddb9db04370c8e5a7e6e94e2af935f9b08defd`.
 
+Candidate `w23` then exercised the recovered serial-first/concurrent scheduling
+shape using a 19-by-19 logical window. The recovered split was 152 + 152 + 57.
+Batch 1 completed 152/152 first. Batches 2 and 3 were then both sent before the
+first concurrent response arrived: send completion events were 2 and 4, the
+wave completed at event 5, and responses arrived at events 6 and 7. The final
+result was 361/361, peak in-flight width 2, exactly three sends, zero retries,
+zero camera moves, and exact hook/manager/file restoration. Package SHA-256 was
+`c67b7c71dc1e422e46d86f5a54ecba330c6c1a369f4419d37ee7aa679acd33fd`.
+
 The remaining scanner work is broader orchestration and full-world completion
-proof. Concurrent native scheduling, retry/camera fallback, and terminal
-full-world coverage remain unproven.
+proof. The wider original concurrency policy, retry/camera fallback, and
+terminal full-world coverage remain unproven.
 
 ## Reference for bundle entry layout
 
