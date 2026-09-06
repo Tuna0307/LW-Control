@@ -13,6 +13,10 @@ Windows Forms. There are no third-party NuGet package dependencies.
 - Follow the recovered runtime's task-chest and fixed-adapter priority ordering.
 - Export a preview plan and invalidate it when settings or observations change.
 - Inspect the existing LastWarControl bridge read-only without queueing a command.
+- Inspect and command the clean-room Daily Task runtime through a fresh-heartbeat
+  gated, single-use local command contract.
+- Run **Claim daily tasks / 领取每日任务奖励** from the Windows UI when the current
+  Daily Task runtime is installed and loaded by Last War.
 - Reject unknown costs, paid rewards, stale/future observations, expired rewards,
   unconfirmed source state, and duplicate source identities.
 
@@ -37,10 +41,20 @@ The current `BaseUtils.rdl` metadata and `CommonUtils.IsDebug` location have als
 been recovered independently with `tools/inspect_baseutils_rdl.py`; see
 [BaseUtils.rdl loader recovery](baseutils-rdl-recovery.md).
 
-The application sends no game actions and has no live adapter, injection,
-authentication service connection, background task runner, or automatic claim
-execution. It is an application implementation milestone, not a working game bot.
-Imported observations are untrusted preview data, not verified server evidence.
+Daily Task Claim is now the first live adapter. Its C# client writes one atomic
+`run_once` command only when the runtime heartbeat is fresh, waits for a correlated
+result, validates all counters/target identities, and validates the final
+authoritative `CurrentDailyTaskSnapshot`. A target reported as claimed must still
+be `Received` in that final snapshot. The other six Daily Free Claims categories
+remain preview-only. Imported observation files remain untrusted preview data and
+are never used as live Daily Task claim evidence.
+
+The game-side Daily Task runtime is newly written Lua packaged into the current
+encrypted LWLF-v3 script container. It preserves the official `LuaEntry`, registers
+through the current-build-proven `UpdateManager.AddUpdate`, and uses only recovered
+current commands/handlers: `DailyQuestLs`, `DailyTaskReward`,
+`DailyQuestReward`, the three manager handlers, and optional `PushDailyQuest`
+observation. It never uses `DailyQuestReward(-1)`.
 
 ## Build and run on Windows
 
@@ -50,7 +64,22 @@ Install the .NET 10 SDK, then run from the repository root:
 dotnet build src/LWControl.Desktop/LWControl.Desktop.csproj --configuration Release
 dotnet run --project src/LWControl.Desktop/LWControl.Desktop.csproj
 dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj --configuration Release
+dotnet run --project src/LWControl.DailyTaskCli/LWControl.DailyTaskCli.csproj -- inspect
 ```
+
+The runtime installer is separate from the UI so it can fail closed while Last War
+is closed and keep an exact rollback record:
+
+```powershell
+python tools/prepare_daily_task_runtime.py --prepare-dir .codex-live/daily-runtime-new --json
+python tools/install_daily_task_runtime.py --install .codex-live/daily-runtime-new --json
+python tools/install_daily_task_runtime.py --status --json
+```
+
+After installation, start Last War normally. Once the city/client is loaded, open
+the desktop app, enable daily claims and the Daily Task Chest category, then click
+**Claim daily tasks**. The Simplified Chinese UI exposes the same action as
+**领取每日任务奖励**; protocol matching is language-independent.
 
 The application starts with planning disabled. To inspect the screen's behavior,
 click **Load sample**, enable planning, select **VipDailyReward**, then click
@@ -76,12 +105,24 @@ form with a bounded smoke check exercising sample planning and settings saving.
 Workflow success must be checked before calling the build verified. The smoke
 check does not replace manual visual QA or live-game testing.
 
-Local validation on Windows used the .NET 10.0.400 SDK. The core and desktop
-projects compiled with zero warnings and zero errors. All 15 core checks passed,
-including the recovered bridge-heartbeat contract. The bounded Windows Forms smoke
-test also completed successfully and exercised sample planning plus settings
-persistence. It is still not a substitute for manual visual QA or a live game
-command test.
+Local validation on Windows used the .NET 10.0.400 SDK. The core, desktop, and
+Daily Task CLI projects compiled with zero warnings and zero errors. The
+2026-09-06 completion rerun passed **23/23** focused Daily Task, startup,
+installer, and LENC Python tests, and the bounded Windows Forms smoke test also
+passes. Eight consecutive claim-free cold starts also produced a fresh
+`UpdateManager.AddUpdate` heartbeat without changing the installed game hashes.
+
+Live validation went further: runtime candidate `a42` (content version 12,
+SHA-256 `afc145b9614cc81697e7079723a688ee26ccd9c6a3aa569ecf31e341bc60c8f6`)
+registered through `UpdateManager.AddUpdate`. The C# client first completed a real
+zero-target `run_once` with no reward send and a validated final snapshot. After a
+later naturally claimable state appeared, the persistently installed runtime
+completed two independent `maximumClaims=1` positive runs: activity chest stage
+`2` and daily task `105`. Each command sent exactly one reward request, performed
+two list refreshes, reported one confirmed claim, and returned a fresh final
+snapshot proving the exact target `Received`. The task run also raised
+`currentPoint` from `80` to `90`. A full uninstall restored the exact official
+hashes and reinstall reproduced the exact runtime hashes.
 
 Windows project configuration follows the
 [Microsoft Desktop SDK reference](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props-desktop).

@@ -13,8 +13,10 @@ dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj
 ```
 
 The desktop app saves settings, imports observations, previews daily-claim
-decisions, exports plans, and can inspect the existing bridge read-only. It has no
-live game adapter and sends no actions.
+decisions, exports plans, and can inspect the existing bridge read-only. The
+**Daily Task Claim** path now also has a clean-room current-game runtime and a
+bilingual **Claim daily tasks / 领取每日任务奖励** action. Other reward categories
+remain preview-only.
 See [implementation details](docs/csharp-implementation.md).
 The daily-claim preview policy is now based on statically recovered behavior from
 the supplied executable; see [Daily Free Claims recovery notes](docs/daily-free-claims-recovery.md).
@@ -53,13 +55,36 @@ validator before the exact original game files were restored. See
 repeatable guarded runner is `tools/run_daily_task_snapshot_probe.py`; it permits
 at most one list refresh and contains no reward-claim action path.
 
-The next bounded action boundary is now defined offline as well. A fresh validated
-daily-task snapshot can produce candidates only for explicit symbolic
-`CanReceive` stages/tasks, and a later snapshot must prove that exact target became
-`Received`; see
+The bounded claim contract is also live-proven for both explicit target types. A
+task-101 request produced a later authoritative `CanReceive -> Received`
+transition, and one explicit `DailyQuestReward(1)` produced a later stage-1
+`Received` state. The direct chest response had an empty `stageArr`, proving that
+fresh authoritative list state, rather than response echo data, must verify the
+effect. See
 [Current daily-task bounded claim proof contract](docs/current-daily-task-claim-proof.md).
-The successful live snapshot had zero such candidates, so that evidence justifies
-zero reward sends.
+
+The persistent Daily Task runtime uses the current game's proven
+`UpdateManager.AddUpdate` scheduler and a single-use local `run_once` command. It
+refreshes `DailyQuestLs`, selects only an explicit symbolic `CanReceive` target,
+sends that exact task/stage claim, refreshes state, and accepts the claim only when
+the same target is `Received`. It re-detects from fresh state before every next
+target and never uses the special unclassified stage `-1` path. The current
+content-version-12 runtime is installed with an exact reversible backup. To inspect
+or rebuild it:
+
+```powershell
+python tools/install_daily_task_runtime.py --status --json
+python tools/prepare_daily_task_runtime.py --prepare-dir .codex-live/daily-runtime-new --json
+python tools/install_daily_task_runtime.py --install .codex-live/daily-runtime-new --json
+dotnet run --project src/LWControl.DailyTaskCli/LWControl.DailyTaskCli.csproj -- inspect
+```
+
+Live runtime validation on 2026-09-06 proved recurring registration through
+`UpdateManager.AddUpdate`, then exercised the same C# client used by the desktop.
+With the fresh account state containing no `CanReceive` target, `run_once` issued
+one read-only list refresh and returned `no_eligible_target` with **0 reward
+sends**. Uninstall restored every official protected hash exactly, and reinstall
+reproduced the verified runtime hashes.
 
 ## Run the earlier Python prototype
 
@@ -74,8 +99,8 @@ The example uses invented daily-claim and resource-batch state. It prints JSON
 activity events while demonstrating settings, cooldowns, health checks,
 request/result correlation, effect checks, and stop/resume behavior.
 
-This is not yet a working Last War bot. The only adapter is an in-memory mock;
-there is no game connection, game-file access, or executable launch.
+This earlier Python prototype is still only a mock. The current Daily Task live
+implementation is in the C#/Lua runtime paths described above.
 
 ## Contents
 
@@ -84,9 +109,10 @@ there is no game connection, game-file access, or executable launch.
 - `tests/test_controller.py`: controller decisions and failure-handling tests.
 
 All source code here is newly written. The Python prototype is synchronous and uses
-process-local state. The C# application has a Windows Forms interface. A live adapter is not implemented.
-Live integration will require bounded I/O, persistent request tracking,
-stronger result verification, and Windows testing.
+process-local state. The C# application has a Windows Forms interface. Daily Task
+Claim now has bounded live I/O, persistent command IDs, authoritative result
+verification, and Windows live testing; the remaining reward categories do not
+yet have live adapters.
 
 ## Reconstruction direction
 

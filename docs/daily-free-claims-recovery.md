@@ -137,6 +137,23 @@ request time, and string arguments. The pending queue has 64 named slots. The ho
 writes a temporary file and atomically moves it into a free slot. Command IDs are
 single-use across pending, processing, result, cancelled, and ledger state.
 
+Fresh decompilation of the supplied build-188 managed assemblies on 2026-09-06
+confirmed the exact host envelope type as
+`CommandEnvelope(int SchemaVersion, string CommandId, string FeatureId,
+DateTimeOffset RequestedAt, IReadOnlyDictionary<string,string?> Arguments)`.
+`FileCommandBridge.EnqueueAsync` writes schema version `1`, validates safe command
+and feature identities, reserves one of `slot-00.json` through `slot-63.json`, and
+uses a per-command ledger admission file to reject replay/reuse.
+
+The supplied desktop host's `DailyFreeClaimsCommandArguments.Apply` also confirms
+the exact execution shape. It defaults `mode` to `run_once`, forces
+`background=false`, `free_only=true`, and disables advertisement, ticket, and
+premium-currency claims. It serializes the enabled/blocked adapter IDs, maximum
+claims per run, all seven category booleans, task-chest preference, expiry
+preference, and unknown-cost stop policy as string arguments. The recovered
+`DailyTaskChestAdapter` identity is `daily_task_chest`, priority `900`, with home
+scene plus daily-task-page locks.
+
 Bridge health also checks for a running `LastWar` process and a fresh
 `runtime\lua-heartbeat.json`. The recovered host uses a 15-second heartbeat
 freshness window with a five-second future-clock tolerance.
@@ -359,9 +376,54 @@ accepted the live JSON. The runner then closed the game and restored all backed-
 files with exact SHA-256 equality. Full evidence and the repeatable command are in
 [`current-daily-task-live-capture.md`](current-daily-task-live-capture.md).
 
-No `DailyQuestReward` or `DailyTaskReward` action was sent. Numeric `TaskState`
-values remain deliberately unknown; the live probe compares the game's symbolic
-enum members directly.
+That read-only checkpoint sent no `DailyQuestReward` or `DailyTaskReward`
+action. Numeric `TaskState` values remain deliberately unknown; the live probe
+compares the game's symbolic enum members directly.
+
+The next bounded action work established both current explicit reward paths. One
+`DailyTaskReward("101")` send was followed by a fresh state in which task `101`
+was `Received`. The same post-state also had tasks `102` and `119` as `Received`;
+the cause of those additional updates remains unclassified. Static current-build
+inspection now also identifies `PushDailyQuestMessage` as a separate path that
+iterates `message.dailyQuest` through `UpdateOneDailyTaskInfo`, providing a
+concrete candidate explanation that still requires a matching live payload.
+
+For the chest path, one exact `DailyQuestReward(1)` send produced a live
+`DailyQuestRewardMessageHandle` call with no `errorCode` but an empty `stageArr`.
+The manager state was unchanged inside that immediate handler. A later fresh
+`DailyQuestLs` state refresh showed `receivedStages=[1]` and stage `1` as
+`Received`. This proves the current server accepted the explicit stage claim and
+also disproves the earlier assumption that a successful direct reward response
+must echo the claimed stage.
+
+The bounded claimer now treats a fresh `DailyQuestLs` state transition as the
+authoritative effect check. Direct reward responses and `PushDailyQuest` are still
+captured as diagnostic/correlation evidence, and any observed response error or
+handler failure remains fail-closed. The special `DailyQuestReward(-1)` path is
+still excluded.
+
+### Persistent clean-room Daily Task runtime
+
+The recovered original `run_once` shape is now carried into a current-build
+clean-room implementation for the `daily_task_chest` scope. The game runtime is
+`lwcontrol-daily-task-runtime-1`; the C# client is
+`CurrentDailyTaskRuntimeClient`; the CLI harness is `LWControl.DailyTaskCli`; and
+the Windows UI exposes the same client through **Claim daily tasks / 领取每日任务奖励**.
+
+The game-side command file is intentionally narrower than the original seven-
+adapter bridge: schema `1`, a safe single-use command ID, `mode=run_once`, and a
+bounded `maximumClaims=1..20`. Durable per-command result files prevent a completed
+ID from being replayed. The client refuses to submit when the runtime heartbeat is
+missing/stale/version-mismatched or when another command is pending. Completed
+results are accepted only after the final current-game snapshot validates and
+still contains every reported target as `Received`.
+
+Candidate `a42` was encrypted and verified against current content version `12`,
+then live-registered through `UpdateManager.AddUpdate`. With no claimable target,
+the real C# client performed one list refresh and returned `no_eligible_target`
+with zero reward sends. The runtime was then installed persistently, repeated the
+same result after a normal launch, and passed an uninstall/reinstall cycle with
+exact official/runtime hash equality. The install does not patch `BaseUtils.rdl`.
 
 The next action-proof boundary is now encoded offline in
 [`current-daily-task-claim-proof.md`](current-daily-task-claim-proof.md). The
@@ -371,9 +433,24 @@ symbolic `CanReceive` chest stage or task ID from a fresh validated snapshot, an
 its effect verifier requires that exact target to become `Received` in a fresh
 post-action snapshot. It excludes the quest-list UI's special
 `DailyQuestReward(-1)` path because that value's semantics remain unclassified.
-The successful live 23-task snapshot contained no `CanReceive` task and all five
-chest stages were already `Received`, so it produces zero eligible claim
-candidates.
+The first successful live 23-task snapshot contained no `CanReceive` task and all
+five chest stages were already `Received`, so that historical snapshot produced
+zero eligible claim candidates.
+
+After the daily reset later on 2026-09-06, a fresh capture produced three
+explicit `CanReceive` task IDs (`101`, `102`, and `119`). A bounded candidate
+selected task `101` and sent exactly one `DailyTaskReward("101")` request with
+no retry. Its injected response-handler wrapper did not observe the matching
+handler before timeout, so that task-response payload remains incomplete research
+evidence. It no longer blocks effect verification because the recovered original
+verifier and the current chest proof both establish fresh authoritative state as
+the decisive completion evidence. A
+separate fresh post-run capture nevertheless showed task `101` as `Received`;
+tasks `102` and `119` were also `Received`, bringing `currentPoint` to `60` and
+making chest stage 1 `CanReceive`. The additional task transitions remain
+unexplained rather than inferred. See
+[`current-daily-task-claim-live-capture.md`](current-daily-task-claim-live-capture.md)
+for the exact evidence boundary and restoration hashes.
 
 For repeatable static analysis, `tools/inspect_lua53_bytecode.py` now accepts an
 exact `--prototype` path (for example `0.10`). In that mode it emits the complete

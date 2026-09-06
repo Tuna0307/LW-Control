@@ -1,0 +1,295 @@
+{
+  "checkpoint": "current-daily-task-bounded-claim-2026-09-06",
+  "evidence_model": {
+    "proven_current_build": "Facts observed from current content-version-12 bytecode or bounded current-game runs.",
+    "recovered_original_lw_control": "Behavior decompiled from the supplied build-188 LW Control package.",
+    "unknown": "Behavior not yet attributed to a captured current-game message or otherwise proven."
+  },
+  "current_build": {
+    "lwlf_file_version": 3,
+    "content_version": 12,
+    "official_entry_count_after_restore": 18686,
+    "protocol": {
+      "task_claim": {
+        "symbol": "DailyTaskReward",
+        "argument": "taskId",
+        "serialized_field": "taskId",
+        "serialized_type": "utf_string",
+        "mapped_message": "Net.Msgs.Alliance.AllianceDailyTaskRewardMessage"
+      },
+      "chest_claim": {
+        "symbol": "DailyQuestReward",
+        "argument": "stage",
+        "serialized_field": "stage",
+        "serialized_type": "int",
+        "allowed_bounded_stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "special_stage_minus_one": "UNKNOWN_AND_EXCLUDED"
+      },
+      "separate_task_push": {
+        "symbol": "PushDailyQuest",
+        "mapped_message": "Net.Msgs.Alliance.PushDailyQuestMessage",
+        "state_effect": "message.dailyQuest entries are applied through UpdateOneDailyTaskInfo",
+        "live_payload_captured": false
+      }
+    }
+  },
+  "task_claim_proof": {
+    "pre_state": {
+      "captured_at": "2026-09-06T04:08:01Z",
+      "current_point": 0,
+      "received_stages": [],
+      "claimable_task_ids": [
+        "101",
+        "102",
+        "119"
+      ]
+    },
+    "candidate": {
+      "name": "a36",
+      "package_sha256": "8858136a4ebbbc96e64f9be47ebaf62a1ebb6cacbcb807aa5db016a0d93ca927",
+      "maximum_reward_claim_sends": 1,
+      "retry_count": 0
+    },
+    "owned_request": {
+      "before_capture_id": "claim-before-1788667935",
+      "before_captured_at": "2026-09-06T04:12:15Z",
+      "kind": "DailyTask",
+      "task_id": "101",
+      "before_state": "CanReceive",
+      "wire_symbol": "DailyTaskReward",
+      "send_count": 1,
+      "retry_count": 0
+    },
+    "direct_response": {
+      "expected_handler": "DailyTaskRewardMessageHandle",
+      "observed_by_probe": false,
+      "payload_correlation_proven": false
+    },
+    "authoritative_post_state": {
+      "captured_at": "2026-09-06T04:14:28Z",
+      "task_states": {
+        "101": "Received",
+        "102": "Received",
+        "119": "Received"
+      },
+      "current_point": 60,
+      "received_stages": [],
+      "chest_1_state": "CanReceive",
+      "selected_target_state_effect_confirmed": true
+    },
+    "unknown": [
+      "exact task response or PushDailyQuest payload responsible for the additional 102 and 119 transitions"
+    ]
+  },
+  "chest_claim_proof": {
+    "pre_state": {
+      "captured_at": "2026-09-06T04:35:28Z",
+      "current_point": 60,
+      "received_stages": [],
+      "chest_states": {
+        "1": "CanReceive",
+        "2": "NoComplete",
+        "3": "NoComplete",
+        "4": "NoComplete",
+        "5": "NoComplete"
+      }
+    },
+    "candidate": {
+      "name": "a38",
+      "package_sha256": "87c52ff658f0ea62b802b6b229ef06542b71f61583c8bc11587c7c87514bbabe",
+      "probe_source_sha256": "0888912ecfd23d127c41a4b5842338c82947e7980981107b9bbff0a19249e5da",
+      "builder_source_sha256": "fe4c289b7f4d6d38c2bd1d9bf8192980f447d27da38e87f2898375e358530c8d",
+      "xlua_sha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "serialized_round_trip_verified": true,
+      "maximum_reward_claim_sends": 1,
+      "retry_count": 0
+    },
+    "owned_request": {
+      "before_captured_at": "2026-09-06T04:36:09Z",
+      "kind": "DailyQuestStage",
+      "stage": 1,
+      "before_state": "CanReceive",
+      "wire_symbol": "DailyQuestReward",
+      "send_count": 1,
+      "retry_count": 0
+    },
+    "direct_response": {
+      "handler": "DailyQuestRewardMessageHandle",
+      "observed": true,
+      "handler_ok": true,
+      "error_code_present": false,
+      "stage_arr": [],
+      "immediate_state": "CanReceive",
+      "immediate_received_stages": [],
+      "stage_echo_required_for_success": false
+    },
+    "authoritative_post_state": {
+      "captured_at": "2026-09-06T04:38:18Z",
+      "current_point": 60,
+      "received_stages": [
+        1
+      ],
+      "chest_1_state": "Received",
+      "selected_target_state_effect_confirmed": true
+    },
+    "unknown": [
+      "exact delayed message or push that caused stage 1 to appear in refreshed manager/server state"
+    ]
+  },
+  "recovered_original_lw_control": {
+    "source_version": "1.2.59+build.188",
+    "source_exe_sha256": "205b3e4adf59fceee30088d30ae1e4d02831c38c8934660a4fbd421a6bf39e15",
+    "feature_id": "daily_free_claims",
+    "daily_task_adapter_id": "daily_task_chest",
+    "daily_task_adapter_priority": 900,
+    "execution_mode": "run_once",
+    "background": false,
+    "free_only": true,
+    "bridge": {
+      "schema_version": 1,
+      "envelope_fields": [
+        "SchemaVersion",
+        "CommandId",
+        "FeatureId",
+        "RequestedAt",
+        "Arguments"
+      ],
+      "pending_slots": 64,
+      "command_ids_single_use": true
+    },
+    "verification": {
+      "authoritative_sources": [
+        "server_state_manager",
+        "server_reward_receipt"
+      ],
+      "action_return_alone_is_success": false,
+      "fresh_post_state_required": true
+    }
+  },
+  "probe_v3": {
+    "version": "lwcontrol-daily-claim-probe-3",
+    "verification_mode": "fresh_daily_quest_list_state",
+    "reward_send_limit": 1,
+    "retry_count": 0,
+    "response_and_push_capture": true,
+    "observed_response_error_fails_closed": true,
+    "post_claim_daily_quest_list_refresh_required": true,
+    "prepared_candidate": {
+      "name": "a40",
+      "package_sha256": "5d4d7f7e87680c5ac62876f96ba5163e0a862b4ac4ac0ff558a91c37b049c43a",
+      "probe_source_sha256": "1687bd1ee8d9003aa06fbcb4bbd1524e20f9d0ca9d4d028ae67874e27b8ce575",
+      "builder_source_sha256": "fe4c289b7f4d6d38c2bd1d9bf8192980f447d27da38e87f2898375e358530c8d",
+      "serialized_round_trip_verified": true,
+      "changed_installed_files_during_prepare": false
+    },
+    "live_v3_execution": "NOT_RUN_AUTOMATIC_REVIEW_BLOCKED; current captured state also has no new CanReceive target",
+    "validation": {
+      "focused_python_checks": "11/11 passed",
+      "generated_lua_parse": "passed"
+    }
+  },
+  "restoration": {
+    "restore_hash_match": true,
+    "sha256": {
+      "LWScripts.data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
+      "LWScripts.txt": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
+      "version.txt": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba9188",
+      "BaseUtils.rdl": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+    }
+  },
+  "remaining_unknowns": [
+    "task 101 response/push payload correlation explaining tasks 102 and 119",
+    "exact delayed chest-state update message",
+    "special DailyQuestReward(-1) semantics",
+    "positive reward send through the persistent runtime when a new target is naturally CanReceive"
+  ],
+  "persistent_runtime": {
+    "version": "lwcontrol-daily-task-runtime-1",
+    "candidate": {
+      "name": "a42",
+      "content_version": 12,
+      "entry_count": 18688,
+      "package_sha256": "afc145b9614cc81697e7079723a688ee26ccd9c6a3aa569ecf31e341bc60c8f6",
+      "wrapper_source_sha256": "16dfbf083cb8a324a6c15984e7c6694732869a11e8e2bd366bdca0b434625081",
+      "runtime_source_sha256": "4cf83ff8f8a63c815cb9995b0472923c00147bc8db045151d56df5928988e6ff",
+      "builder_source_sha256": "fe4c289b7f4d6d38c2bd1d9bf8192980f447d27da38e87f2898375e358530c8d",
+      "serialized_round_trip_verified": true
+    },
+    "scheduler": {
+      "live_registered": true,
+      "method": "UpdateManager.AddUpdate"
+    },
+    "command_contract": {
+      "schema_version": 1,
+      "mode": "run_once",
+      "maximum_claims_range": [
+        1,
+        20
+      ],
+      "single_use_command_ids": true,
+      "one_in_flight_target": true,
+      "redetect_after_confirmed_claim": true,
+      "special_stage_minus_one_excluded": true
+    },
+    "fresh_zero_target_state": {
+      "captured_at": "2026-09-06T04:56:48Z",
+      "current_point": 60,
+      "received_stages": [
+        1
+      ],
+      "received_task_ids": [
+        "101",
+        "102",
+        "119"
+      ],
+      "claimable_targets": 0
+    },
+    "temporary_live_command_proof": {
+      "completed_at": "2026-09-06T04:57:43Z",
+      "state": "completed",
+      "message": "no_eligible_target",
+      "refresh_send_count": 1,
+      "reward_send_count": 0,
+      "confirmed_claims": 0,
+      "final_snapshot_validated_by_csharp": true
+    },
+    "persistent_install_live_proof": {
+      "runtime_heartbeat_fresh": true,
+      "runtime_registration_method": "UpdateManager.AddUpdate",
+      "completed_at": "2026-09-06T04:59:18Z",
+      "state": "completed",
+      "message": "no_eligible_target",
+      "refresh_send_count": 1,
+      "reward_send_count": 0,
+      "confirmed_claims": 0,
+      "final_snapshot_validated_by_csharp": true
+    },
+    "installer": {
+      "uninstall_restored_exact_official_hashes": true,
+      "reinstall_reproduced_exact_runtime_hashes": true,
+      "baseutils_changed": false,
+      "final_installed": true,
+      "final_installed_hashes": {
+        "LWScripts.data": "afc145b9614cc81697e7079723a688ee26ccd9c6a3aa569ecf31e341bc60c8f6",
+        "LWScripts.txt": "5e2080c4d443bfec5f72d9cbc6c5482d60320235cfcf0e60f2fd14cd79c55221",
+        "version.txt": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba9188",
+        "BaseUtils.rdl": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+      }
+    },
+    "positive_reward_send_through_persistent_runtime": "NOT_YET_AVAILABLE_NO_CURRENT_CANRECEIVE_TARGET"
+  },
+  "final_validation": {
+    "focused_python_runtime_checks": "15/15 passed",
+    "csharp_core_checks": "37/37 passed",
+    "desktop_build": "0 warnings, 0 errors",
+    "daily_task_cli_build": "0 warnings, 0 errors",
+    "windows_forms_smoke": "passed",
+    "generated_runtime_lua_parse": "passed"
+  }
+}
