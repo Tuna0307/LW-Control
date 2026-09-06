@@ -105,13 +105,65 @@ world-point state and drives an AOI/block request pipeline through
 `AddPointInfo`. The current generated `Protobuf.WorldPointInfo` also exposes
 structured point identity/routing fields and typed payloads.
 
-This moves the World Map Scan feature from "bulk source unknown" to "bulk source
-identified, read-only contract implemented, live capture pending". The detailed
+This moves the World Map Scan feature beyond loaded-state discovery: the bulk
+source is identified, the read-only snapshot contract is implemented and proven
+live, and bounded multi-block plus serial multi-batch logical coverage are now
+proven end to end. The detailed
 evidence, PROVEN/UNKNOWN boundary, request fields, and schema are recorded in
 [`current-world-map-snapshot.md`](current-world-map-snapshot.md) and
 [`current-world-map-static-evidence.json`](current-world-map-static-evidence.json).
 No game launch, network send, or installed-file modification was used for this
 checkpoint.
+
+The dedicated current-build world-map probe first proved the loaded-state boundary
+live. Reverse engineering of the current `UIMainChangeScene`/`SceneUtils`
+bytecode showed that the current UI uses a Lua `UIButton:SetOnClick` callback and
+that the canonical City-to-World routine is `SceneUtils.ChangeToWorld`; the
+older raw Unity `Button.onClick:Invoke()` assumption did not change the current
+scene. Candidate a13 used the current routine once, observed authoritative
+`CS.SceneManager.CurrSceneID == SceneManagerSceneID.World`, resolved
+`CS.SceneManager.World.PointManager`, waited for `_pointInfos` to stabilize at
+86 records, and emitted a schema-v1 snapshot. Exact installed hashes were
+restored afterward. The evidence and remaining wider-AOI boundary are recorded
+in [`current-world-map-live-capture.md`](current-world-map-live-capture.md) and
+[`current-world-map-live-evidence.json`](current-world-map-live-evidence.json).
+
+Candidate a20 then proved the next transport boundary. With the visible AOI at
+blocks X `53..57`, Y `46..49`, it selected adjacent logical block `(58,47)` and
+used the original scanner's recovered minimum 5-by-4 padded transport envelope,
+X `56..60`, Y `46..49`. A small managed bridge supplied the exact current C#
+argument types to `WorldPointManager.SendAoiRequest`. One request produced one
+correlated `world.get.block` response whose authoritative nested
+`serverPointArr` bounds covered exactly that padded envelope. The manager then
+contained 13 identities not present before the request. There were no retries or
+camera moves, the response hook and touched manager flag were restored, and the
+installed game/script hashes were restored exactly afterward.
+
+The recovered scanner policy is now implemented offline in
+`src/LWControl.Core/RecoveredWorldMapScan.cs`. The clean-room planner mirrors
+the original centered odd scan window, row-major block IDs, 160-index native
+batch limit, minimum 5-by-4 transport padding, serpentine batch order, and
+logical-block response coverage accumulation. Its checks reproduce the proven
+a20 request geometry and verify that partial response coverage does not become a
+successful batch.
+
+A bounded three-logical-block candidate (`a21`, package SHA-256
+`3969bfefb53a2c4da757f184ca6a891e4b4c20d836b0150640233e2488c466ad`)
+was then executed live. One padded request covered all three requested logical
+blocks through a correlated authoritative `world.get.block` envelope, with zero
+retry/camera activity and exact post-run hash restoration.
+
+Candidate `a22` then exercised the recovered 160-index split with the smallest
+odd square above that ceiling: 13 by 13 = 169 logical blocks. The planner
+produced 156 + 13 logical blocks. Batch 1 reached 156/156 correlated coverage
+before batch 2 was sent; batch 2 reached 13/13. The final result was 169/169,
+exactly two sends, zero retries, zero camera moves, restored hook/manager state,
+and exact installed-file hash restoration. Package SHA-256 was
+`6e8abb9bbbedb7292d959f6006ddb9db04370c8e5a7e6e94e2af935f9b08defd`.
+
+The remaining scanner work is broader orchestration and full-world completion
+proof. Concurrent native scheduling, retry/camera fallback, and terminal
+full-world coverage remain unproven.
 
 ## Reference for bundle entry layout
 

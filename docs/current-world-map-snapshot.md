@@ -1,10 +1,12 @@
 # Current world-map read-only snapshot contract
 
 This checkpoint identifies the current game's structured bulk world-point source
-and defines a read-only JSON boundary for the reconstruction. All evidence in
-this document was collected by static inspection of the installed 2026-09-06
-build. The game was not launched, no network message was sent, and no installed
-game file was modified.
+and defines a read-only JSON boundary for the reconstruction. The contract was
+first recovered statically and was then proven against a bounded live current-
+build capture on 2026-09-06. Later bounded live requests proved the recovered
+5-by-4 minimum transport, three-logical-block coverage, and a serial 13-by-13
+two-batch completion rule with 169/169 correlated logical blocks. Every live
+candidate restored the exact pre-run installed hashes after capture.
 
 The machine-readable contract is
 [`current-world-map-snapshot.schema.json`](current-world-map-snapshot.schema.json),
@@ -164,20 +166,78 @@ limits:
 
 The shared JSON reader also imposes its existing 2 MiB input limit.
 
+## PROVEN: one bounded wider AOI request
+
+Candidate a20 selected the adjacent logical AOI block `(58,47)` while the live
+visible range was X `53..57`, Y `46..49`. Following recovered original-LW-Control
+behavior, the logical request was carried in a padded 5-by-4 transport envelope,
+X `56..60`, Y `46..49`, containing 20 row-major block indexes. The request used
+the current manager's block size `10` and block count `100`, and converted the
+padded tile bounds to `leftBottom = 460561` and `rightTop = 500611`.
+
+Exactly one request was sent through the recovered managed bridge. Exactly one
+`world.get.block` target response was observed through `DispatchResponse2`. Its
+authoritative nested `serverPointArr` envelope decoded to exactly the same block
+coverage X `56..60`, Y `46..49`, including the requested logical block. This is
+live proof that the recovered transport shape, managed argument bridge, nested
+response extraction, and overlap/coverage correlation work on the current
+build for one bounded adjacent request.
+
+The manager state changed from 86 to 60 loaded points and contained 13 point IDs
+not present before the request. Several returned IDs independently decoded to
+tile coordinates inside the authoritative response bounds, proving the current
+ID-to-tile decode for those observed records. See
+[`current-world-map-live-capture.md`](current-world-map-live-capture.md) for the
+complete evidence.
+
+## PROVEN: multi-block and serial multi-batch logical coverage
+
+Candidate a21 sent one padded request for three adjacent logical targets and
+completed only after correlated authoritative `world.get.block` response
+coverage accounted for all **3/3** targets. This proves that logical coverage
+can be tracked independently from the larger padded transport envelope on the
+current build.
+
+Candidate a22 then exercised the recovered native batch boundary with a bounded
+13-by-13 logical window (169 blocks). The recovered planner split it into **156
++ 13** logical blocks. Batch 1 completed 156/156 before batch 2 was sent; batch 2
+then completed 13/13. Both responses came from the authoritative nested
+`serverPointArr` envelope for the compatible live server/world identity. The
+final result was 169/169, exactly two sends, zero retries, and zero camera moves.
+
+This is live proof of the serial capability-probe ordering and bounded
+multi-batch completion rule. It is not a claim that `_pointInfos` itself is
+append-only or complete; response-envelope coverage remains the authoritative
+completion evidence.
+
 ## UNKNOWN / not claimed at this checkpoint
 
-- A live snapshot from the current running game has not yet been captured.
 - The exact current user-string text returned by `WorldGetBlockMessage.GetMsgId`
   was not re-decoded in this checkpoint, although the message class and complete
   C# request/response path are current-build proven.
-- The exact mapping from point `id` to user-facing map X/Y coordinates is not yet
-  part of schema version 1. AOI/block conversion methods exist, but the mapping
-  will be documented only after it is recovered and independently checked.
-- No policy for sweeping beyond the game's currently loaded AOI has been chosen.
+- The observed point-ID-to-tile decode is live-proven for records returned by
+  candidate a20, but schema version 1 still does not promise a universal
+  user-facing X/Y presentation contract for every point/map mode.
+- Multi-block coverage and serial two-batch completion are proven for a bounded
+  13-by-13 request. Full-world orchestration, concurrent native scheduling,
+  retries, and camera fallback remain separate unproven behaviors.
 - The additional season-specific `WorldPointInfo` payload bodies are not yet
   normalized into version 1.
 
-The next implementation milestone is a bounded read-only capture adapter that
-exports the already-loaded `WorldPointManager` state into this contract. A wider
-map sweep should only be designed after that snapshot is proven against live
-points.
+`tools/current_world_map_snapshot_probe.lua` implements the bounded adapter from
+the recovered original reflection contract. It enumerates only the already-
+loaded `WorldPointManager._pointInfos` collection, verifies its observed count
+and duplicate identities, and emits schema-v1 identity/routing fields.
+
+Candidate a13 proved this boundary live: `CS.SceneManager.CurrSceneID` matched
+the current World scene ID, `CS.SceneManager.World.PointManager` was the manager
+source, `_pointInfos` stabilized at 86 records, and a schema-v1 snapshot was
+emitted. See [`current-world-map-live-capture.md`](current-world-map-live-capture.md)
+and [`current-world-map-live-evidence.json`](current-world-map-live-evidence.json).
+
+The bounded scanner policy is implemented in `RecoveredWorldMapScanPlanner`,
+including the recovered 160-index limit, minimum 5-by-4 transport padding,
+batching, serpentine order, and fail-closed response coverage accounting. Live
+candidates a21 and a22 now prove multi-block acceptance and serial two-batch
+completion on the current build. Full-world completeness remains a later,
+separate claim.

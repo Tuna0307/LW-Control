@@ -370,6 +370,97 @@ cases.Add(("World-map snapshot JSON is strict", () =>
 }));
 
 int failed = 0;
+cases.Add(("Recovered World Map default plan matches the original five-by-five logical policy", () =>
+{
+    var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 55, 47);
+    Check(plan.RequestedEdge == 5);
+    Check(plan.RequestedCoverage == new RecoveredWorldMapCoverage
+    {
+        Left = 53, Bottom = 45, Right = 57, Top = 49
+    });
+    Check(plan.RequestedBlocks.Count == 25);
+    Check(plan.RequestedBlocks[0].X == 55 && plan.RequestedBlocks[0].Y == 47);
+    Check(plan.Batches.Count == 1);
+    Check(plan.Batches[0].RequestedBlocks.Count == 25);
+    Check(plan.Batches[0].TransportIndexes.Count == 25);
+    Check(plan.Batches[0].TransportIndexes[0] == 4553);
+    Check(plan.Batches[0].TransportIndexes[^1] == 4957);
+}));
+cases.Add(("Recovered World Map small batch uses the proven minimum five-by-four transport", () =>
+{
+    var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 58, 47, requestedEdge: 3);
+    var batch = plan.Batches.Single();
+    Check(batch.RequestedCoverage == new RecoveredWorldMapCoverage
+    {
+        Left = 57, Bottom = 46, Right = 59, Top = 48
+    });
+    Check(batch.TransportCoverage == new RecoveredWorldMapCoverage
+    {
+        Left = 56, Bottom = 46, Right = 60, Top = 49
+    });
+    Check(batch.TransportIndexes.Count == 20);
+    Check(batch.TransportIndexes[0] == 4656);
+    Check(batch.TransportIndexes[^1] == 4960);
+    Check(batch.LeftBottomTile == new RecoveredWorldMapTilePoint { X = 560, Y = 460 });
+    Check(batch.RightTopTile == new RecoveredWorldMapTilePoint { X = 610, Y = 500 });
+    Check(batch.RequestTile == new RecoveredWorldMapTilePoint { X = 585, Y = 480 });
+}));
+cases.Add(("Recovered World Map thirteen-by-thirteen plan splits into 156 plus 13 logical blocks", () =>
+{
+    var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 58, 47, requestedEdge: 13);
+    Check(plan.RequestedEdge == 13);
+    Check(plan.RequestedBlocks.Count == 169);
+    Check(plan.Batches.Count == 2);
+    Check(plan.Batches[0].RequestedBlocks.Count == 156);
+    Check(plan.Batches[1].RequestedBlocks.Count == 13);
+    Check(plan.Batches[0].TransportIndexes.Count == 156);
+    Check(plan.Batches[1].TransportIndexes.Count == 65);
+    Check(plan.Batches.All(batch => batch.TransportIndexes.Count is > 0 and <= RecoveredWorldMapScanPlanner.MaxNativeBatchIndexes));
+    Check(plan.Batches.Sum(batch => batch.RequestedBlocks.Count) == 169);
+}));
+cases.Add(("Recovered World Map response coverage accumulates and fails closed on missing blocks", () =>
+{
+    var batch = RecoveredWorldMapScanPlanner.Build(100, 10, 58, 47, requestedEdge: 3).Batches.Single();
+    var first = new RecoveredWorldMapResponseEnvelope
+    {
+        ServerId = 2212,
+        WorldId = 0,
+        Coverage = new() { Left = 57, Bottom = 46, Right = 58, Top = 48 }
+    };
+    var partial = RecoveredWorldMapScanPlanner.EvaluateCoverage(batch, 2212, 0, [first]);
+    Check(partial.CoveredBlocks == 6 && partial.ExpectedBlocks == 9 && !partial.Complete);
+
+    var second = new RecoveredWorldMapResponseEnvelope
+    {
+        ServerId = null,
+        WorldId = 0,
+        Coverage = new() { Left = 59, Bottom = 46, Right = 59, Top = 48 }
+    };
+    var wrongServer = new RecoveredWorldMapResponseEnvelope
+    {
+        ServerId = 9999,
+        WorldId = 0,
+        Coverage = batch.RequestedCoverage
+    };
+    var complete = RecoveredWorldMapScanPlanner.EvaluateCoverage(
+        batch, 2212, 0, [first, second, wrongServer]);
+    Check(complete.Complete);
+    Check(complete.CoveredBlocks == 9);
+    Check(complete.AcceptedEnvelopes == 2);
+    Check(complete.RejectedEnvelopes == 1);
+}));
+cases.Add(("Recovered World Map full-grid plan batches every logical block within native limits", () =>
+{
+    var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 50, 50, requestedEdge: 99);
+    Check(plan.RequestedEdge == 100);
+    Check(plan.RequestedBlocks.Count == 10_000);
+    Check(plan.Batches.Count > 1);
+    Check(plan.Batches.All(batch => batch.TransportIndexes.Count is > 0 and <= RecoveredWorldMapScanPlanner.MaxNativeBatchIndexes));
+    Check(plan.Batches.SelectMany(batch => batch.RequestedBlocks)
+        .Select(block => (block.X, block.Y)).Distinct().Count() == 10_000);
+    Check(plan.Batches.Sum(batch => batch.RequestedBlocks.Count) == 10_000);
+    Check(plan.Batches.Select((batch, index) => batch.Sequence == index + 1).All(value => value));
+}));
 foreach (var test in cases)
 {
     try { test.Run(); Console.WriteLine($"PASS {test.Name}"); }
