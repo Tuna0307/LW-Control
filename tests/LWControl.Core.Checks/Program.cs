@@ -93,7 +93,6 @@ CurrentWorldMapSnapshot ValidWorldMapSnapshot(DateTimeOffset capturedAt) => new(
         }
     ]
 };
-
 CurrentRallySnapshot ValidRallySyncSnapshot(DateTimeOffset capturedAt) => new()
 {
     SchemaVersion = CurrentRallySnapshot.SupportedSchemaVersion,
@@ -162,13 +161,18 @@ CurrentRallyObservedSnapshot ValidCurrentJoinableRally() => new()
     AttackName = "Leader",
     TargetPointId = 67890,
     TargetUuid = "boss-target-object-1",
-    TargetUid = "boss-1",
-    TargetName = "Boss",
+    TargetUid = "38",
+    TargetName = "",
     TargetContentId = "boss-content-1",
     TargetBaseSkinId = 0,
     TargetBaseSkinIdSource = CurrentRallySnapshot.CurrentTargetBaseSkinIdSource,
     TargetLevel = 0,
     TargetLevelSource = CurrentRallySnapshot.CurrentTargetLevelSource,
+    ResolvedTargetName = "300602",
+    ResolvedTargetLevel = 30,
+    ResolvedTargetMetadataSource = CurrentRallySnapshot.CurrentBossResolvedTargetMetadataSource,
+    ResolvedTargetDisplayName = "",
+    ResolvedTargetDisplayNameSource = CurrentRallySnapshot.CurrentBossResolvedTargetDisplayNameSource,
     JoinRallyType = "RALLY_FOR_BOSS",
     JoinRallyTypeSource = CurrentRallySnapshot.CurrentJoinRallyTypeSource,
     JoinTargetUuid = "rally-current-1",
@@ -190,8 +194,8 @@ CurrentRallyObservedSnapshot ValidCurrentJoinableRally() => new()
     BossHp = 1_000,
     UpdateTime = 1_000_000,
     MemberCount = 1,
-    MemberCountSource = "memberList",
-    MemberNames = ["Leader"],
+    MemberCountSource = CurrentRallySnapshot.CurrentLeaderInclusiveMemberCountSource,
+    MemberNames = [],
     CanJoin = true,
     IsLeader = false,
     InTeam = false,
@@ -481,8 +485,6 @@ cases.Add(("World-map snapshot JSON is strict", () =>
     }
     finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
 }));
-
-int failed = 0;
 cases.Add(("Recovered Auto Join Rally gates match the original Lua v49 order", () =>
 {
     var options = new RecoveredAutoJoinRallyOptions
@@ -687,6 +689,22 @@ cases.Add(("Current Rally importer enforces recovered content-v12 join eligibili
     {
         Rallies = [rally with { TargetLevel = -1 }]
     }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { MemberCount = 0 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { MemberCountSource = "memberList" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { ResolvedTargetLevel = 0 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { ResolvedTargetMetadataSource = "unproven" }]
+    }).Validate(now));
 
     var ownTarget = rally with { CanJoin = false, InTeam = true, JoinState = "4" };
     (snapshot with
@@ -710,9 +728,57 @@ cases.Add(("Current Rally importer enforces recovered content-v12 join eligibili
         WarType = "ATTACK_AL_CITY",
         JoinRallyType = "RALLY_FOR_ALLIANCE_CITY",
         JoinMonsterSpecialType = null,
-        JoinMonsterSpecialTypeSource = CurrentRallySnapshot.CurrentNoMonsterSpecialTypeSource
+        JoinMonsterSpecialTypeSource = CurrentRallySnapshot.CurrentNoMonsterSpecialTypeSource,
+        TargetName = "Alliance City",
+        TargetLevel = 5,
+        ResolvedTargetName = "Alliance City",
+        ResolvedTargetLevel = 5,
+        ResolvedTargetMetadataSource = CurrentRallySnapshot.CurrentMessageResolvedTargetMetadataSource,
+        ResolvedTargetDisplayName = "Alliance City",
+        ResolvedTargetDisplayNameSource = CurrentRallySnapshot.CurrentMessageResolvedTargetDisplayNameSource
     };
     (snapshot with { Rallies = [allianceCity] }).Validate(now);
+}));
+cases.Add(("Current Rally schema-v5 maps the live boss shape without inventing taxonomy or march time", () =>
+{
+    var rally = ValidCurrentJoinableRally();
+    var snapshot = ValidRallySyncSnapshot(now) with
+    {
+        Mode = CurrentRallySnapshot.StateMode,
+        ObservedRallyCount = 1,
+        JoinableRallyCount = 1,
+        JoinedRallyCount = 0,
+        Rallies = [rally],
+        Sync = null,
+        PreSyncObservedRallyCount = null,
+        PreSyncJoinableRallyCount = null,
+        ListRefreshCorrelated = null
+    };
+
+    var candidate = snapshot.ToRecoveredCandidates(now).Single();
+    Check(candidate.RallyId == rally.Uuid);
+    Check(candidate.LeaderId == "leader-1" && candidate.LeaderName == "Leader");
+    Check(candidate.MemberCountKnown && candidate.MemberCount == 1 && candidate.MemberNames.Count == 0);
+    Check(candidate.TargetType == "Unknown");
+    Check(candidate.TargetName == "300602" && candidate.TargetLevel == 30);
+    Check(candidate.RemainingSeconds == 100);
+    Check(candidate.MarchSeconds is null);
+
+    var failClosedOptions = new RecoveredAutoJoinRallyOptions { SkipUnknownTargetType = true };
+    Check(RecoveredAutoJoinRallyPlanner.RejectionReason(failClosedOptions, candidate) == "UnknownTargetType");
+    var failClosed = CurrentRallyPlannerPreview.Preview(failClosedOptions, snapshot, now);
+    Check(!failClosed.Selected);
+
+    var explicitUnknownCompatibility = CurrentRallyPlannerPreview.Preview(
+        new RecoveredAutoJoinRallyOptions { SkipUnknownTargetType = false }, snapshot, now);
+    Check(explicitUnknownCompatibility.Selected);
+    Check(explicitUnknownCompatibility.Candidate?.TargetType == "Unknown");
+
+    var localized = snapshot with
+    {
+        Rallies = [rally with { ResolvedTargetDisplayName = "localized-name" }]
+    };
+    Check(localized.ToRecoveredCandidates(now).Single().TargetName == "localized-name");
 }));
 cases.Add(("Recovered World Map default plan matches the original five-by-five logical policy", () =>
 {
@@ -827,6 +893,80 @@ cases.Add(("Recovered World Map full-grid plan batches every logical block withi
         && batch.RightTopTile.Y is >= 0 and <= 999));
     Check(plan.Batches.Any(batch => batch.RightTopTile.X == 999 || batch.RightTopTile.Y == 999));
 }));
+cases.Add(("Daily Task live command protocol is bounded and heartbeat-gated", () =>
+{
+    string command = CurrentDailyTaskRuntimeClient.BuildCommandText("daily-test_1", 20);
+    Check(command == "schema=1\ncommandId=daily-test_1\nmode=run_once\nmaximumClaims=20\n");
+    Throws<ArgumentException>(() => CurrentDailyTaskRuntimeClient.BuildCommandText("bad id", 1));
+    Throws<ArgumentOutOfRangeException>(() => CurrentDailyTaskRuntimeClient.BuildCommandText("daily-test", 21));
+
+    string directory = Path.Combine(Path.GetTempPath(), $"lw-daily-runtime-{Guid.NewGuid():N}");
+    Directory.CreateDirectory(directory);
+    try
+    {
+        var client = new CurrentDailyTaskRuntimeClient(directory);
+        Check(client.Inspect(now).StatusCode == "heartbeat_missing");
+        File.WriteAllText(Path.Combine(directory, "daily-task-runtime-heartbeat.json"),
+            JsonSerializer.Serialize(new
+            {
+                version = CurrentDailyTaskRuntimeClient.ExpectedRuntimeVersion,
+                loaded = true,
+                updatedAt = now.ToUnixTimeSeconds(),
+                registrationMethod = "UpdateManager.AddUpdate"
+            }));
+        var inspection = client.Inspect(now);
+        Check(inspection.StatusCode == "ready");
+        Check(inspection.HeartbeatFresh);
+        Check(inspection.RegistrationMethod == "UpdateManager.AddUpdate");
+        Check(client.Inspect(now + TimeSpan.FromSeconds(16)).StatusCode == "heartbeat_stale");
+    }
+    finally
+    {
+        if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+    }
+}));
+cases.Add(("Daily Task live result requires final authoritative Received state", () =>
+{
+    var final = ValidDailyTaskSnapshot(now) with
+    {
+        Tasks =
+        [
+            new() { TaskId = "task-a", State = CurrentTaskState.Received, TemplatePoint = 30 },
+            new() { TaskId = "task-b", State = CurrentTaskState.Received, TemplatePoint = 40 },
+            new() { TaskId = "task-c", State = CurrentTaskState.NoComplete, TemplatePoint = null }
+        ],
+        CurrentPoint = 70,
+        Boxes =
+        [
+            new() { Index = 1, ActivationPoint = 10, State = CurrentTaskState.Received },
+            new() { Index = 2, ActivationPoint = 20, State = CurrentTaskState.CanReceive },
+            new() { Index = 3, ActivationPoint = 30, State = CurrentTaskState.CanReceive },
+            new() { Index = 4, ActivationPoint = 40, State = CurrentTaskState.CanReceive },
+            new() { Index = 5, ActivationPoint = 50, State = CurrentTaskState.CanReceive }
+        ]
+    };
+    var result = new CurrentDailyTaskRuntimeResult
+    {
+        SchemaVersion = 1,
+        RuntimeVersion = CurrentDailyTaskRuntimeClient.ExpectedRuntimeVersion,
+        CommandId = "daily-result-1",
+        State = "completed",
+        Message = "no_more_eligible_targets",
+        ConfirmedClaims = 1,
+        RewardSendCount = 1,
+        RefreshSendCount = 2,
+        ClaimedTargets = [new() { Kind = "DailyTask", TaskId = "task-b" }],
+        FinalSnapshot = final,
+        CompletedAt = now
+    };
+    result.Validate("daily-result-1");
+    Throws<InvalidDataException>(() => (result with
+    {
+        ClaimedTargets = [new() { Kind = "DailyTask", TaskId = "task-c" }]
+    }).Validate("daily-result-1"));
+}));
+
+int failed = 0;
 foreach (var test in cases)
 {
     try { test.Run(); Console.WriteLine($"PASS {test.Name}"); }

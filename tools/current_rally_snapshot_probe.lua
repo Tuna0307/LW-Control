@@ -5,8 +5,8 @@
 -- no UI click, march, message-send, or reward-claim path.
 
 local M = {
-    VERSION = "lwcontrol-current-rally-snapshot-4",
-    SCHEMA_VERSION = 4,
+    VERSION = "lwcontrol-current-rally-snapshot-5",
+    SCHEMA_VERSION = 5,
     MODE = "state",
 }
 
@@ -246,6 +246,11 @@ local function build_war_row(manager, raw_uuid)
     local world_id = number_or_nil(value(data, "worldId"))
     local join_monster_special_type = nil
     local join_monster_special_type_source = "UIAllianceWarMainTableCtrl.GetWarItemData: non-boss branch unset"
+    local resolved_target_name = text(value(data, "targetName"))
+    local resolved_target_level = number_or_nil(value(data, "targetLevel"))
+    local resolved_target_metadata_source = "AllianceWarInfo.ParseData: message.targetName/message.targetLevel"
+    local resolved_target_display_name = resolved_target_name
+    local resolved_target_display_name_source = "AllianceWarInfo.ParseData: message.targetName"
     if war_type == "ATTACK_BOSS" then
         local data_center = rawget(_G, "DataCenter")
         local monster_manager = safe_get(data_center, "MonsterTemplateManager")
@@ -255,16 +260,26 @@ local function build_war_row(manager, raw_uuid)
         end
         join_monster_special_type = number_or_nil(value(monster, "special"))
         join_monster_special_type_source = "UIAllianceWarMainTableCtrl.GetWarItemData: MonsterTemplateManager.GetMonsterTemplate(targetUid).special"
+        resolved_target_name = text(value(monster, "name"))
+        resolved_target_level = number_or_nil(value(monster, "level"))
+        resolved_target_metadata_source = "UIAllianceWarMainTableCtrl.GetWarItemData: MonsterTemplateManager.GetMonsterTemplate(targetUid).name/level"
+        resolved_target_display_name_source = "UIAllianceWarMainTableCtrl.GetWarItemData: CS.GameEntry.Localization.GetString(monster.name)"
+        if resolved_target_name == "" or resolved_target_name == "0" or resolved_target_name == "nil"
+            or resolved_target_level == nil or resolved_target_level < 0 then
+            return fail("MonsterTemplateManager.GetMonsterTemplate returned incomplete boss display metadata for rally " .. uuid)
+        end
+        local cs = rawget(_G, "CS")
+        local localization = safe_get(safe_get(cs, "GameEntry"), "Localization")
+        local ok_localized, localized = invoke(localization, "GetString", value(monster, "name"))
+        if ok_localized then resolved_target_display_name = text(localized) else resolved_target_display_name = "" end
     end
     local members = value(data, "memberList")
     local names, names_error = member_names(members)
     if names == nil then return nil, names_error end
-    local member_count = number_or_nil(value(data, "join"))
-    local member_source = "alliance_war.join"
-    if member_count == nil then
-        member_count, member_source = collection_count(members)
-        if member_count == nil then return fail(member_source) end
-    end
+    local listed_member_count, count_error = collection_count(members)
+    if listed_member_count == nil then return fail(count_error) end
+    local member_count = listed_member_count + 1
+    local member_source = "AllianceWarDataManager.CheckJoinAllianceWarByWarData: table.count(memberList)+1"
 
     return {
         uuid = uuid,
@@ -288,6 +303,11 @@ local function build_war_row(manager, raw_uuid)
         targetBaseSkinIdSource = "AllianceWarInfo.ParseData: message.targetBaseSkinId",
         targetLevel = number_or_nil(value(data, "targetLevel")),
         targetLevelSource = "AllianceWarInfo.ParseData: message.targetLevel",
+        resolvedTargetName = resolved_target_name,
+        resolvedTargetLevel = resolved_target_level,
+        resolvedTargetMetadataSource = resolved_target_metadata_source,
+        resolvedTargetDisplayName = resolved_target_display_name,
+        resolvedTargetDisplayNameSource = resolved_target_display_name_source,
         joinRallyType = join_rally_type,
         joinRallyTypeSource = "UIAllianceWarMainTableCtrl.OnJoinClick",
         joinTargetUuid = uuid,

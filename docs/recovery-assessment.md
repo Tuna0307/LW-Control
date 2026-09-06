@@ -115,6 +115,19 @@ evidence, PROVEN/UNKNOWN boundary, request fields, and schema are recorded in
 No game launch, network send, or installed-file modification was used for this
 checkpoint.
 
+The user-provided original `LWControl.zip` has now yielded the embedded
+`LWC2MapScanner.lua` v108 and `LWC2AutoJoinRally.lua` v49 source resources plus
+their managed Core/Game contracts. This resolves the loaded-point enumeration
+uncertainty: the original scanner reflects `WorldPointManager._pointInfos` and
+enumerates structured values. It also proves that original Auto Join Rally uses
+an `AllianceWarDataManager` candidate selector and `MarchUtil.StartMarch` with
+strict post-state verification rather than merely toggling the game's native
+alliance auto-rally switch. The full evidence boundary is recorded in
+[`original-lwcontrol-map-rally-recovery.md`](original-lwcontrol-map-rally-recovery.md)
+and [`original-lwcontrol-map-rally-evidence.json`](original-lwcontrol-map-rally-evidence.json).
+A clean-room offline reconstruction of the proven v49 candidate/squad gates is
+implemented in `src/LWControl.Core/RecoveredAutoJoinRally.cs`.
+
 The dedicated current-build world-map probe first proved the loaded-state boundary
 live. Reverse engineering of the current `UIMainChangeScene`/`SceneUtils`
 bytecode showed that the current UI uses a Lua `UIButton:SetOnClick` callback and
@@ -173,6 +186,239 @@ zero camera moves, and exact hook/manager/file restoration. Package SHA-256 was
 The remaining scanner work is broader orchestration and full-world completion
 proof. The wider original concurrency policy, retry/camera fallback, and
 terminal full-world coverage remain unproven.
+
+## 2026-09-06 Auto Join Rally current-build checkpoint
+
+The current-build Rally boundary has advanced from static recovery to a live
+read-only manager capture plus one exact list refresh. The first candidate a22
+exposed a scheduling problem: the probe only pumped during early Lua startup and
+therefore timed out before stable player identity. Reverse engineering of the
+already successful World Map runtime path led to recurring registration through
+`UpdateManager.AddUpdate`; a23 then captured three free current formations and
+an empty Alliance War manager with zero sends, zero joins, and zero claims.
+
+The original LW Control source showed that an empty manager list is refreshed
+before it is treated as final. Current content-version-12 bytecode independently
+confirmed `MsgDefines.GetAllianceWarList == "alliance.team.ls"`, the current
+message handler's `InitAllianceWarList(teams)` update, and the UI's exact
+`SFSNetwork.SendMessage(MsgDefines.GetAllianceWarList,
+LuaEntry.Player:GetCurServerId())` call. Candidate a24 used that recovered call
+exactly once. One owned send correlated to one current handler response with a
+`teams` field; the post-handler manager remained empty, with no retry, no Rally
+join, and no reward claim. For that capture, zero active Rallies is therefore an
+authoritative refreshed result rather than a stale-manager assumption.
+
+The live evidence and candidate hashes are recorded in
+[`current-rally-live-capture.md`](current-rally-live-capture.md) and
+[`current-rally-live-evidence.json`](current-rally-live-evidence.json). A strict
+clean-room importer now validates these snapshots and maps the directly proven
+formation index/free/stamina fields into `RecoveredRallySquad`. It drives the
+offline selector only for the authoritative empty-after-refresh case, producing
+`auto_join_rally_no_new_joinable_rally`. Non-empty current Rally candidate
+mapping remains intentionally blocked until a real Rally verifies the current
+target-field/category combinations instead of guessing them.
+
+Subsequent content-version-12 bytecode recovery narrowed that block further.
+Current `AllianceWarDataManager.GetAllianceWarDurationSec` proves that raw
+`waitTime` and `marchTime` are absolute server-time millisecond values; the game
+compares them directly with `UITimeManager:GetServerTime()` and converts them to
+seconds only when producing a phase countdown. This is incompatible with LW
+Control v49's old direct use of those raw fields as planner durations. The
+read-only snapshot builder now records the current manager-derived
+`remainingSeconds` instead of carrying that old assumption forward.
+
+Current `UIAllianceWarMainTableCtrl.OnJoinClick` and `Util/MarchUtil.luac` also
+recover the richer normal join call chain. The main-table UI invokes
+`OnClickStartMarch(JOIN_RALLY, leaderMarch.startId, uuid, -1, 1, targetType,
+data.server, data.worldId, monsterSpecialType)`, and the dedicated
+`MarchUtil.OnJoinRally(selfMarchUuid, rallyType, targetUuid, targetPointId,
+curStamina)` checks the current JOIN_RALLY stamina cost before calling
+`StartMarch(JOIN_RALLY, targetPointId, targetUuid, -1, selfMarchUuid)`. No live
+join was performed.
+
+The same reverse-engineering pass fully recovered
+`AllianceWarDataManager.CheckJoinAllianceWarByWarData`: states 1-8 are explicit
+rejection/leader/own-target cases, while state 9 returns `canJoin = not inTeam`.
+Its only timing gates are positive `GetAllianceWarDurationSec` and the current
+wait deadline (with the build's `<9527` legacy/sentinel handling). There is no
+selected-formation travel-time gate in manager eligibility.
+
+Both current formation selection variants were then traced through
+`OnAtkClick`, `OnCheckTime`, `CheckCanBattle`, and their confirm closures. For
+`JOIN_RALLY + RALLY_FOR_BOSS`, the game calculates selected-formation travel
+time and compares it with `assembly_monster_toplimit/k3 * 60`. Exceeding that
+threshold shows warning `110204`, but confirmation continues to
+`ChangeMarchByType`/`OnCreateClick`; `CheckCanBattle` contains no hidden Rally
+travel-time check. The current adapter therefore must not invent that threshold
+as a hard joinability rule. The historical v49 planner remains unchanged and
+separate.
+
+The next reverse-engineering pass resolved the current target-field structure
+far enough to remove the generic guesses from the adapter. `Global/EnumType.luac`
+defines `AllianceTeamType` as `ATTACK_BOSS=0`, `ATTACK_BUILDING=1`,
+`ATTACK_CITY=2`, `ATTACK_AL_CITY=3`, `ATTACK_ALLIANCE_THRONE=4`,
+`ATTACK_DRAGON_BUILDING=5`, `ATTACK_SERVER_THRONE=6`, `ATTACK_AL_CENTER=7`,
+`ATTACK_CITY_STRONGHOLD=8`, `ATTACK_EPIDEMIC_BUILDING=10`,
+`ATTACK_EPIDEMIC_CITY=11`, `ATTACK_OUTPOST=12`, and `ATTACK_ZWL=13`; the
+current enum assigns no value 9. `AllianceWarInfo` stores `targetUuid` and
+`targetUid` independently. It also initializes `targetBaseSkinId` and
+`targetLevel` to zero and `ParseData` copies the corresponding incoming message
+fields when present. The list-response chain is now traced from `t.teams`
+through `InitAllianceWarList` and `UpdateOneAllianceWarList` into that
+`AllianceWarInfo.ParseData` call; `UIAllianceWarMainTableCtrl` later fetches the
+same object by Rally UUID and reads these fields for city/epidemic-city icon
+selection.
+
+`UIAllianceWarDetailCtrl.GetWarItemData` proves that boss display level/name are
+resolved from `MonsterTemplateManager:GetMonsterTemplate(targetUid)`, while an
+`ATTACK_AL_CITY` uses `WorldCity(targetContentId)` for its level and fallback
+name. The main-table `OnJoinClick` Rally branch uses the Alliance War `uuid` and
+`leaderMarch.startId` as the join identity/point and assigns Rally target types
+for boss, building, alliance-city, city, epidemic-city, and city-stronghold. It
+also forwards `data.server` and `data.worldId`; `AllianceWarInfo.ParseData`
+copies those values from `message.server` and `message.worldId`. The classic
+table item omits `monsterSpecialType`, while `LWAllianceWarItem` forwards
+`dataInfo.monsterSpecialType`. Its `RefreshData` gets that row from
+`UIAllianceWarMainTableCtrl.GetWarItemData(uuid, true)`, whose boss branch
+derives the value from `MonsterTemplateManager.GetMonsterTemplate(targetUid).special`;
+non-boss branches leave it unset.
+`CurrentRallySnapshot` and the read-only probe are now schema v5 so the six-type
+map, server/world route, boss-only monster-special derivation, template-resolved
+boss name/level, leader-inclusive member count, and optional localized boss
+display name are validated explicitly. The proven
+`targetBaseSkinId`/`targetLevel` fields remain recorded with
+`AllianceWarInfo.ParseData` provenance, while the old guessed `data.level`
+fallback remains excluded.
+Fresh schema-v3 offline candidates were then prepared and encrypted round-trip
+verified without touching the installed files: a29 read-only package SHA-256
+`564901c298c743dd821dfd8b9035a211a4e7b45ba762d106b207e90ce41ee8ca`
+and a30 one-refresh package SHA-256
+`adf005f48bb6766038a6d7ddd8a26751fe0b43780d18e78a2fd103b95d237860`.
+Those packages are now historical schema-v3 evidence. After correcting the
+main-table map and server/world route, preliminary schema-v4 a31/a32 were
+prepared and encrypted round-trip verified offline: a31 package SHA-256
+`3046414cc764c10ce994edef1b3c4188475b1267111d6945d4e5405128764aab`
+and a32 package SHA-256
+`4efc161edfc350549df7c6f3b908bcf851a15f20f508f1b818a2b8b1e112c700`.
+The subsequent `monsterSpecialType` producer trace superseded those preliminary
+artifacts. Final schema-v4 a33/a34 were then prepared and round-trip verified:
+a33 package SHA-256
+`7def3ad0a0653670944ec727cb49a2bc7517fc9a8e30dd2fa7d7f185a2ddd928`
+and a34 package SHA-256
+`2a8e8a5227dff29185a1fd3a13341ad8e97495aa02b61ea21e09cf99f239a001`.
+All four v4 builds reported `changed_installed_files=false`; they are retained as
+historical schema-v4 evidence.
+
+A real current joinable boss Rally was subsequently captured read-only. Its raw
+row had `targetUid=38`, empty `targetName`, `targetLevel=0`, `joinState=9`, and an
+empty `memberList`; the current monster template resolved name value `300602`
+and level `30`. Current manager bytecode proves occupancy is
+`table.count(memberList)+1`, so that live row has one participant including the
+leader. Current UI bytecode also proves boss display text comes from
+`CS.GameEntry.Localization:GetString(monster.name)`, although the exact returned
+localized string was not retained in that capture.
+
+The schema-v5 adapter now converts non-empty joinable snapshots into the
+recovered planner. It deliberately maps target taxonomy to `Unknown` until an
+authoritative structured current world-point type is correlated to the exact
+Rally target, and it leaves planner `MarchSeconds` unknown because current raw
+`marchTime` is an absolute timestamp. This removes the previous non-empty
+conversion block without inventing `WorldBoss` or travel-time semantics.
+
+## 2026-09-06 Daily task bounded claim and bilingual desktop checkpoint
+
+The daily reset supplied the first fresh current-build claimable state. A
+read-only capture at `2026-09-06T04:08:01Z` showed tasks `101`, `102`, and `119`
+as `CanReceive`, with zero daily points and no claimable chest. A bounded
+content-version-12 candidate then selected task `101` and sent exactly one
+`DailyTaskReward("101")` request with no retry. The expected injected
+`DailyTaskRewardMessageHandle` wrapper did not observe the response before the
+timeout, so strict request/response correlation remains UNKNOWN.
+
+A separate read-only refresh after restoration nevertheless proved the selected
+state effect: task `101` changed from `CanReceive` to `Received`. Tasks `102` and
+`119` were also `Received`, producing `currentPoint=60` and making chest stage 1
+`CanReceive`. The reconstruction does not yet attribute those additional task
+changes to a particular response shape. Full evidence and exact hashes are in
+[`current-daily-task-claim-live-capture.md`](current-daily-task-claim-live-capture.md)
+and [`current-daily-task-claim-live-evidence.json`](current-daily-task-claim-live-evidence.json).
+The game was closed and the official 18,686-entry script package plus unchanged
+`BaseUtils.rdl` were restored after the tests.
+
+A second bounded action then exercised the explicit daily chest path. Fresh state
+at `2026-09-06T04:35:28Z` showed `currentPoint=60`, no received stages, and chest
+stage `1` as `CanReceive`. Candidate `a38` sent exactly one
+`DailyQuestReward(1)` request. The current `DailyQuestRewardMessageHandle` was
+observed live with no `errorCode` and no handler exception, but its `stageArr` was
+empty and the manager still showed stage `1` as `CanReceive` inside that immediate
+response path. A separate authoritative refresh at `2026-09-06T04:38:18Z` then
+showed `receivedStages=[1]` and stage `1` as `Received`, proving the one-shot chest
+effect while disproving the assumption that the direct response must contain the
+claimed stage.
+
+Current bytecode inspection also recovered the separate `PushDailyQuest` message
+path: it iterates `message.dailyQuest` and applies every entry through
+`DailyTaskManager:UpdateOneDailyTaskInfo`. This is a concrete candidate for the
+multi-task update seen after task `101`, but no matching live push payload has yet
+been captured, so that attribution remains UNKNOWN.
+
+The daily claim probe is now version `lwcontrol-daily-claim-probe-3`. It retains
+the one-reward-send/no-retry gate and records reward/push responses, but completion
+is based on one fresh post-claim daily-task list refresh proving the exact selected
+target changed to `Received`. Focused Python checks are `11/11` and the generated
+Lua source parses successfully. A fresh end-to-end v3 action run still requires a
+new current `CanReceive` target; the existing stage `1` is already received.
+
+The Daily Task work has now moved from probe-only into a persistent clean-room
+runtime and the C# desktop. `lwcontrol-daily-task-runtime-1` uses the already
+proven `UpdateManager.AddUpdate` scheduler, current Daily Task list/reward message
+paths, one in-flight target at a time, fresh-state verification, and re-detection
+after each confirmed claim. `CurrentDailyTaskRuntimeClient` gates commands on a
+fresh runtime heartbeat, uses single-use IDs, and rejects a completed result unless
+its final authoritative snapshot still proves every reported target `Received`.
+The UI exposes this in both English and Simplified Chinese.
+
+Runtime candidate `a42`, content version `12`, package SHA-256
+`afc145b9614cc81697e7079723a688ee26ccd9c6a3aa569ecf31e341bc60c8f6`,
+passed encrypted round-trip verification and live registration through
+`UpdateManager.AddUpdate`. A read-only snapshot at `2026-09-06T04:56:48Z`
+proved there were no current `CanReceive` targets. The C# client then completed a
+real `run_once` through the runtime with exactly one list refresh, zero reward
+sends, and a validated `no_eligible_target` final snapshot. The persistently
+installed runtime repeated that result after a normal game launch. The reversible
+installer then restored every official protected hash exactly and reinstalled the
+same verified runtime hashes. The 2026-09-06 completion rerun passes 21/21 focused
+Daily Task, installer, and LENC Python tests plus 37/37 C# core checks, with
+zero-warning desktop/CLI builds and a passing Windows Forms smoke.
+
+The Daily Task implementation is now complete through the persistent runtime as
+well. A naturally claimable state on 2026-09-06 allowed two independent
+`maximumClaims=1` runs through installed `a42`: the first claimed activity chest
+stage `2` with one reward send and a fresh post-state showing
+`receivedStages=[1,2]`; the second claimed daily task `105` with one reward send
+and a fresh post-state showing task `105` `Received` and `currentPoint=90`. Both
+runs had `ConfirmedClaims=1`, `RefreshSendCount=2`, and no retry.
+
+A transient stale-heartbeat launch was also observed before the successful runs.
+The installed bytes still matched `a42`, and the C# gate sent no command while the
+heartbeat was stale. Exact uninstall, a zero-command registration smoke, and a
+clean reinstall restored normal `UpdateManager.AddUpdate` heartbeats. The startup
+cause remains unclassified, so a fresh runtime heartbeat remains required before
+every live dispatch.
+
+English and Simplified Chinese are now explicit desktop product languages.
+`LWControl.Desktop` has a runtime language selector, Chinese/English labels,
+buttons, reward-category names, status text, and grid headers through a dedicated
+`UiText` layer, while protocol identities and eligibility logic remain
+language-independent. The desktop project builds successfully with this change.
+The remaining localization polish is persistence of the selected UI language and
+translation of secondary diagnostic/error text that still originates from the
+core or runtime.
+
+Generated encrypted candidate packages and temporary live-probe bundles live
+under `.codex-live/`. They are local research/build artifacts rather than product
+source. The directory is now ignored by Git so those large generated files no
+longer clutter repository status; existing local contents were preserved.
 
 ## Reference for bundle entry layout
 

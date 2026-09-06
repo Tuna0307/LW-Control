@@ -84,6 +84,20 @@ class RallySnapshotProbeSourceTests(unittest.TestCase):
         self.assertIn('joinMonsterSpecialType = join_monster_special_type', source)
         self.assertIn('joinMonsterSpecialTypeSource = join_monster_special_type_source', source)
 
+    def test_builder_uses_leader_inclusive_member_count_and_boss_display_metadata(self):
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn("local member_count = listed_member_count + 1", source)
+        self.assertIn(
+            'member_source = "AllianceWarDataManager.CheckJoinAllianceWarByWarData: table.count(memberList)+1"',
+            source,
+        )
+        self.assertNotIn('value(data, "join")', source)
+        self.assertIn('resolved_target_name = text(value(monster, "name"))', source)
+        self.assertIn('resolved_target_level = number_or_nil(value(monster, "level"))', source)
+        self.assertIn('safe_get(safe_get(cs, "GameEntry"), "Localization")', source)
+        self.assertIn('invoke(localization, "GetString", value(monster, "name"))', source)
+        self.assertIn("resolvedTargetDisplayName = resolved_target_display_name", source)
+
     def test_builder_keeps_current_target_fields_distinct_and_uses_proven_level_fields(self):
         source = SOURCE.read_text(encoding="utf-8")
         self.assertIn('targetUuid = text(value(data, "targetUuid"))', source)

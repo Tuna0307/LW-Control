@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "read-only-manager-capture-and-one-request-refresh-proven",
+  "status": "schema5-live-nonempty-manager-shape-and-one-request-refresh-proven",
   "currentBuild": {
     "contentVersion": 12,
     "candidateSource": "DataCenter.AllianceWarDataManager.GetAllianceWarIdList",
@@ -72,8 +72,15 @@
       "targetBaseSkinIdInput": "message.targetBaseSkinId",
       "cityIconFallback": "ATTACK_CITY and ATTACK_EPIDEMIC_CITY read data.targetLevel for BuildTemplateManager.GetBuildingLevelTemplate(FUN_BUILD_MAIN, targetLevel)",
       "bossDisplayMetadata": "MonsterTemplateManager.GetMonsterTemplate(data.targetUid) -> template level/name",
+      "bossDisplayLocalization": "UIAllianceWarMainTableCtrl -> CS.GameEntry.Localization.GetString(monster.name)",
       "allianceCityDisplayMetadata": "AllianceCityTemplateManager.GetTemplate(data.targetContentId) -> template level/fallback name",
       "genericDataLevelFallbackAllowed": false
+    },
+    "memberCountSemantics": {
+      "source": "AllianceWarDataManager.CheckJoinAllianceWarByWarData and fullness path",
+      "formula": "table.count(memberList)+1",
+      "leaderIncludedByPlusOne": true,
+      "emptyMemberListCount": 1
     },
     "normalJoinUiSource": "UIAllianceWarMainTableCtrl.OnJoinClick prototype 0.14 lines 663-707",
     "normalJoinUiCall": "MarchUtil.OnClickStartMarch(MarchTargetType.JOIN_RALLY, data.leaderMarch.startId, uuid, -1, 1, targetType, data.server, data.worldId, monsterSpecialType)",
@@ -277,6 +284,85 @@
       "restoreHashMatch": true
     }
   },
+  "schema5LiveNonEmpty": {
+    "result": "successful-read-only-nonempty-boss-capture",
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "explicitNetworkSends": 0,
+    "observed": {
+      "warType": "ATTACK_BOSS",
+      "joinState": 9,
+      "canJoin": true,
+      "isLeader": false,
+      "inTeam": false,
+      "remainingSecondsApprox": 40,
+      "targetUid": "38",
+      "rawTargetName": "",
+      "rawTargetLevel": 0,
+      "resolvedTargetName": "300602",
+      "resolvedTargetLevel": 30,
+      "monsterSpecialType": 0,
+      "rawMemberListCount": 0,
+      "leaderInclusiveMemberCount": 1
+    },
+    "plannerBoundary": {
+      "targetType": "Unknown",
+      "reason": "no authoritative structured current world-point taxonomy was correlated to this Rally target",
+      "worldBossFallbackFromBossPredicatesAllowed": false,
+      "hardCodeTargetUid38Allowed": false,
+      "marchSeconds": null,
+      "marchSecondsReason": "raw current marchTime is an absolute timestamp, not selected-formation travel time"
+    },
+    "localizedDisplayName": {
+      "callPathProven": true,
+      "source": "CS.GameEntry.Localization.GetString(monster.name)",
+      "liveReturnedStringRetained": false
+    }
+  },
+  "schema5PostExpiryReadOnly": {
+    "result": "success-empty-after-later-restart",
+    "capturedAt": "2026-09-06T07:28:32Z",
+    "packageSha256": "5044d73b064a00aa352c65bdba18fabbe1be6e0f18f1fa993afb58e8cdb4b76e",
+    "probeSourceSha256": "14e9ccf5b33df195ba50a790ef0fc8955bb7021fd442b81b8ab2fdb6ca592ade",
+    "builderSourceSha256": "f411aeb853df82660aada1aa959ca0699997a90d3a092907ccf924b12e181f26",
+    "observedRallyCount": 0,
+    "explicitNetworkSends": 0,
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "a42RestoreHashMatch": true
+  },
+  "schema5PostExpirySync": {
+    "result": "success-authoritative-empty-after-later-refresh",
+    "capturedAt": "2026-09-06T07:30:07Z",
+    "packageSha256": "73ee216f96ea80a611c376d4d357d7e8feafc4ad17f52042852ae6e9af3a73e1",
+    "probeSourceSha256": "4331bd48031ed4631b832c4c6f7005ccf9ddda8769cb3eb70bedaafb9aae58e9",
+    "builderSourceSha256": "f411aeb853df82660aada1aa959ca0699997a90d3a092907ccf924b12e181f26",
+    "protocol": "alliance.team.ls",
+    "ownedSendCount": 1,
+    "foreignSyncSendCount": 0,
+    "handlerCount": 1,
+    "responseTeamsPresent": true,
+    "exactlyOneOwnedSend": true,
+    "noForeignSameProtocolSend": true,
+    "noRetry": true,
+    "observedRallyCount": 0,
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "a42RestoreHashMatch": true
+  },
+  "schema5FinalOfflineCandidates": {
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "builderSourceSha256": "c1b4de3bf0c1e5442344eb97db82f9484bd728babd842770d92c21b5b050fe09",
+    "readOnly": {
+      "packageSha256": "70744fc749807ec49d06774937312eb6a21a4fcfbc0f72a65fe48c10c82e5a57",
+      "probeSourceSha256": "027d4ab43bc4dba17613d1a11b7d3841c3758343fd87e622a83acca5361443b7"
+    },
+    "oneRefresh": {
+      "packageSha256": "4d38100bf1a7eea79d097d16bcfeff4b055114cf0fbfe410268bb46ac6ce647b",
+      "probeSourceSha256": "e6c8ed0b78562a74e99c153a4d6b1de898173330a60dd0d170b0e0007cbb1637"
+    }
+  },
   "restoration": {
     "exactPrePostHashMatchRecorded": true,
     "baseUtilsModified": false,
@@ -316,8 +402,14 @@
       "AllianceWarInfo.ParseData copies message.targetBaseSkinId and message.targetLevel when present",
       "UIAllianceWarMainTableCtrl fetches AllianceWarInfo by uuid and reads targetLevel for city and epidemic-city icon fallback",
       "boss target display metadata resolves from MonsterTemplateManager(targetUid)",
+      "real joinable boss Rally observed with targetUid 38, raw targetLevel 0, resolved template name 300602, and resolved template level 30",
+      "current boss display name call path is CS.GameEntry.Localization.GetString(monster.name)",
+      "current Rally participant count is table.count(memberList)+1 and therefore includes the leader",
+      "live empty memberList maps to leader-inclusive member count 1",
       "ATTACK_AL_CITY display name/level resolves from AllianceCityTemplateManager(targetContentId)",
-      "normal Rally join identity is rally uuid plus leaderMarch.startId"
+      "normal Rally join identity is rally uuid plus leaderMarch.startId",
+      "schema-v5 non-empty adapter preserves current unknown target taxonomy as Unknown instead of inferring WorldBoss",
+      "schema-v5 non-empty adapter does not reuse raw current marchTime as planner MarchSeconds"
     ],
     "recoveredOriginal": [
       "refresh an empty manager list before final no-candidate conclusion",
@@ -327,7 +419,9 @@
     ],
     "unknown": [
       "UI-parity policy for handling the current boss-Rally travel-time warning",
-      "live non-empty Rally verification of recovered timing, enum value, target fields, and branch-specific metadata",
+      "authoritative structured current target taxonomy for the captured targetUid 38 / template 300602 Rally",
+      "exact current-runtime localized display string returned for template key 300602",
+      "selected-formation travel time for recovered planner MarchSeconds",
       "current live join transport and success proof",
       "multi-Rally ordering under live current data"
     ]

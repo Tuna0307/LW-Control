@@ -499,6 +499,55 @@ authoritatively empty at that capture. It does not supply the still-missing
 non-empty current Rally row needed to verify server values for the recovered
 target/countdown mapping.
 
+### Schema-v5 non-empty Rally evidence
+
+A later read-only live capture supplied the missing real Rally row. The observed
+row was a normal joinable boss Rally with `joinState=9`, `canJoin=true`,
+`isLeader=false`, `inTeam=false`, and roughly 40 seconds remaining. No Rally
+join, march start, reward claim, or explicit network send was performed by that
+capture.
+
+The raw Alliance War row and the current UI metadata path disagreed in an
+important way. The row carried `targetUid=38`, an empty raw `targetName`, and raw
+`targetLevel=0`. `MonsterTemplateManager:GetMonsterTemplate(targetUid)` resolved
+the same target to template name value `300602` and level `30`. Current
+`UIAllianceWarMainTableCtrl` bytecode proves that the displayed boss name is
+obtained with `CS.GameEntry.Localization:GetString(monster.name)`. The exact
+localized current-runtime string for `300602` has not yet been retained in a live
+capture, so schema v5 preserves the stable template name value separately from
+the optional localized display string.
+
+The same current manager bytecode resolves Rally occupancy. Both fullness paths
+use `table.count(data.memberList) + 1`; the `+1` is the leader. The live row had
+an empty `memberList`, therefore its authoritative participant count is `1`, not
+`0`. Schema v5 records that leader-inclusive count while keeping the raw member
+name list separate; planner member-name checks already treat the leader name as a
+separate field.
+
+The live target is the known `targetUid=38`, template/name value `300602`, level
+30 target recovered historically as Doom Elite / 末日精英 in Build 189. That fact
+does not make it a current `WorldBoss` taxonomy value. Earlier compatibility
+work that used boss predicates to force `WorldBoss` was wrong. Until this exact
+Rally target is correlated to authoritative structured current world-point
+metadata, the current-snapshot adapter maps its recovered planner `TargetType`
+to `Unknown`. This preserves the original fail-closed behavior when
+`SkipUnknownTargetType` is enabled and avoids hard-coding ID `38`.
+
+Schema v5 also stops treating raw current `marchTime` as recovered planner march
+duration. Current `waitTime`/`marchTime` are absolute timestamps, while selected
+formation travel time is calculated separately by the formation UI. The adapter
+therefore emits `MarchSeconds=null` until that selected-formation calculation is
+captured through its proven current path.
+
+After the live Rally ended, a fresh schema-v5 read-only manager capture at
+`2026-09-06T07:28:32Z` observed zero Rallies. A second schema-v5 run at
+`2026-09-06T07:30:07Z` sent exactly one owned `alliance.team.ls` list-refresh
+request, observed exactly one matching handler response with `teams` present,
+performed no retry, and again observed zero Rallies. This later result proves the
+server list was empty by that time; it does not invalidate the earlier non-empty
+capture. Both runs restored the protected game files, and the verified Daily Task
+runtime `a42` was then restored byte-for-byte.
+
 ### PROVEN current-build facts
 
 - The current global manager paths used by the probe are
@@ -532,6 +581,13 @@ target/countdown mapping.
 - Boss display metadata comes from `MonsterTemplateManager(targetUid)`, while
   Alliance-city metadata comes from its template and city/epidemic-city icon
   fallback can use the server-provided `targetLevel`.
+- A real joinable current boss Rally was captured with raw `targetLevel=0`,
+  template-resolved level `30`, and template name value `300602`.
+- Current boss display text is obtained through
+  `CS.GameEntry.Localization:GetString(monster.name)`; schema v5 stores that
+  localized text separately from the stable template name value.
+- Current Rally occupancy is leader-inclusive: the manager fullness checks use
+  `table.count(memberList)+1`; an empty member list therefore means one member.
 - The normal Rally join transport uses the Alliance War `uuid` plus
   `leaderMarch.startId` and forwards `data.server` plus `data.worldId`; it does
   not use `targetUid` as the join UUID.
@@ -539,11 +595,16 @@ target/countdown mapping.
   RALLY_FOR_ALLIANCE_CITY` and `ATTACK_CITY_STRONGHOLD ->
   RALLY_CITY_STRONGHOLD`; the other currently enumerated types have no mapping
   in this function and remain empty in the snapshot contract.
-- Snapshot schema v4 now enforces those recovered enum/routing contracts and
+- Snapshot schema v5 now enforces those recovered enum/routing contracts and
   records `targetBaseSkinId`/`targetLevel` with exact `AllianceWarInfo.ParseData`
   provenance, plus the boss-only `MonsterTemplateManager(targetUid).special`
-  derivation used for `monsterSpecialType`, while continuing to exclude the
-  unproven `data.level` fallback.
+  derivation used for `monsterSpecialType`, template-resolved boss name/level,
+  leader-inclusive occupancy, and the optional localized display name while
+  continuing to exclude the unproven `data.level` fallback.
+- The schema-v5 planner adapter converts non-empty current joinable rows into the
+  recovered selector without inventing target taxonomy or selected-formation
+  march time: `TargetType=Unknown` and `MarchSeconds=null` until those fields are
+  proven from authoritative current sources.
 
 ### RECOVERED original LW Control behavior
 
@@ -559,9 +620,13 @@ target/countdown mapping.
 - UI-parity details for presenting/automatically handling the current
   `110204` boss-Rally travel-time warning are not implemented; this is no longer
   an eligibility unknown.
-- Current live observation of a non-empty Rally row to verify the recovered
-  countdown, enum value, distinct target fields, and branch-specific metadata
-  against actual server data.
+- Authoritative structured current target taxonomy for the captured
+  `targetUid=38` / template `300602` Rally. Boss predicates and the known Doom
+  Elite identity are not accepted as `WorldBoss` authority.
+- Exact current-runtime localized display string returned for template key
+  `300602`; the call path is proven but the live returned string was not retained.
+- Selected-formation travel time for recovered planner `MarchSeconds`; raw Rally
+  `marchTime` is an absolute timestamp and is intentionally not reused.
 - Current live Rally join transport and correlated success proof.
 - Multi-Rally ordering behavior under current live data.
 

@@ -46,6 +46,11 @@ public sealed record CurrentRallyObservedSnapshot
     public required string TargetBaseSkinIdSource { get; init; }
     public double? TargetLevel { get; init; }
     public required string TargetLevelSource { get; init; }
+    public required string ResolvedTargetName { get; init; }
+    public double? ResolvedTargetLevel { get; init; }
+    public required string ResolvedTargetMetadataSource { get; init; }
+    public required string ResolvedTargetDisplayName { get; init; }
+    public required string ResolvedTargetDisplayNameSource { get; init; }
     public required string JoinRallyType { get; init; }
     public required string JoinRallyTypeSource { get; init; }
     public required string JoinTargetUuid { get; init; }
@@ -111,7 +116,7 @@ public sealed record CurrentRallySyncEvidence
 /// </summary>
 public sealed record CurrentRallySnapshot
 {
-    public const int SupportedSchemaVersion = 4;
+    public const int SupportedSchemaVersion = 5;
     public const string StateMode = "state";
     public const string SyncStateMode = "sync_state";
     public const string SupportedCandidateSource = "DataCenter.AllianceWarDataManager.GetAllianceWarIdList";
@@ -122,6 +127,11 @@ public sealed record CurrentRallySnapshot
     public const string CurrentWorldIdSource = "AllianceWarInfo.ParseData: message.worldId";
     public const string CurrentTargetBaseSkinIdSource = "AllianceWarInfo.ParseData: message.targetBaseSkinId";
     public const string CurrentTargetLevelSource = "AllianceWarInfo.ParseData: message.targetLevel";
+    public const string CurrentBossResolvedTargetMetadataSource = "UIAllianceWarMainTableCtrl.GetWarItemData: MonsterTemplateManager.GetMonsterTemplate(targetUid).name/level";
+    public const string CurrentMessageResolvedTargetMetadataSource = "AllianceWarInfo.ParseData: message.targetName/message.targetLevel";
+    public const string CurrentBossResolvedTargetDisplayNameSource = "UIAllianceWarMainTableCtrl.GetWarItemData: CS.GameEntry.Localization.GetString(monster.name)";
+    public const string CurrentMessageResolvedTargetDisplayNameSource = "AllianceWarInfo.ParseData: message.targetName";
+    public const string CurrentLeaderInclusiveMemberCountSource = "AllianceWarDataManager.CheckJoinAllianceWarByWarData: table.count(memberList)+1";
     public const string CurrentJoinRallyTypeSource = "UIAllianceWarMainTableCtrl.OnJoinClick";
     public const string CurrentJoinTargetSource = "UIAllianceWarMainTableCtrl.OnJoinClick: leaderMarch.startId + rally uuid + data.server + data.worldId";
     public const string CurrentBossMonsterSpecialTypeSource = "UIAllianceWarMainTableCtrl.GetWarItemData: MonsterTemplateManager.GetMonsterTemplate(targetUid).special";
@@ -197,7 +207,9 @@ public sealed record CurrentRallySnapshot
         foreach (var rally in Rallies)
         {
             if (string.IsNullOrWhiteSpace(rally.Uuid) || !rallyIds.Add(rally.Uuid)
-                || rally.MemberCount < 0 || rally.MemberNames is null || rally.MemberNames.Any(name => name is null)
+                || rally.MemberCount < 1
+                || !string.Equals(rally.MemberCountSource, CurrentLeaderInclusiveMemberCountSource, StringComparison.Ordinal)
+                || rally.MemberNames is null || rally.MemberNames.Any(name => name is null)
                 || rally.Leader is null)
                 throw new InvalidDataException("Rally snapshot contains an invalid or duplicate Rally record.");
             if (rally.RemainingSeconds is null
@@ -251,6 +263,49 @@ public sealed record CurrentRallySnapshot
                 SquadId = squadId,
                 IsFree = formation.IsFree,
                 Stamina = checked((int)formation.Stamina)
+            });
+        }
+        return result;
+    }
+
+    public IReadOnlyList<RecoveredRallyCandidate> ToRecoveredCandidates(DateTimeOffset now)
+    {
+        Validate(now);
+        var result = new List<RecoveredRallyCandidate>();
+        foreach (var rally in Rallies)
+        {
+            if (!rally.CanJoin || rally.IsLeader || rally.InTeam) continue;
+            if (rally.ResolvedTargetLevel is not double resolvedLevel
+                || double.IsNaN(resolvedLevel) || double.IsInfinity(resolvedLevel)
+                || resolvedLevel < 0 || resolvedLevel != Math.Truncate(resolvedLevel)
+                || resolvedLevel > int.MaxValue)
+                throw new InvalidDataException("Current Rally target level cannot be represented by the recovered planner.");
+            if (rally.RemainingSeconds is not double remaining
+                || double.IsNaN(remaining) || double.IsInfinity(remaining)
+                || remaining < 0 || remaining != Math.Truncate(remaining)
+                || remaining > int.MaxValue)
+                throw new InvalidDataException("Current Rally remaining time cannot be represented by the recovered planner.");
+
+            string targetName = string.IsNullOrWhiteSpace(rally.ResolvedTargetDisplayName)
+                ? rally.ResolvedTargetName
+                : rally.ResolvedTargetDisplayName;
+            result.Add(new RecoveredRallyCandidate
+            {
+                RallyId = rally.Uuid,
+                LeaderId = rally.Leader.OwnerUid,
+                LeaderName = rally.Leader.OwnerName,
+                MemberNames = rally.MemberNames.ToArray(),
+                // Current Rally target taxonomy is intentionally fail-closed until a
+                // structured world-point type is correlated to this exact Rally target.
+                TargetType = "Unknown",
+                TargetName = targetName,
+                TargetLevel = checked((int)resolvedLevel),
+                MemberCountKnown = true,
+                MemberCount = rally.MemberCount,
+                RemainingSeconds = checked((int)remaining),
+                // Raw current waitTime/marchTime are absolute timestamps and are not
+                // selected-formation travel time.
+                MarchSeconds = null
             });
         }
         return result;
@@ -373,17 +428,55 @@ public sealed record CurrentRallySnapshot
         // Current AllianceWarInfo keeps targetUuid/targetUid distinct and also owns
         // targetBaseSkinId/targetLevel, populated directly from the Rally message.
         if (rally.TargetUuid is null || rally.TargetUid is null || rally.TargetName is null
-            || rally.TargetContentId is null)
+            || rally.TargetContentId is null || rally.ResolvedTargetName is null
+            || rally.ResolvedTargetDisplayName is null)
             throw new InvalidDataException("Rally snapshot current target fields are incomplete.");
         if (rally.TargetBaseSkinId is null or < 0 || rally.TargetLevel is null or < 0
             || !string.Equals(rally.TargetBaseSkinIdSource, CurrentTargetBaseSkinIdSource, StringComparison.Ordinal)
             || !string.Equals(rally.TargetLevelSource, CurrentTargetLevelSource, StringComparison.Ordinal))
             throw new InvalidDataException("Rally snapshot current target level/skin fields do not match AllianceWarInfo.ParseData.");
+
+        if (string.Equals(rally.WarType, "ATTACK_BOSS", StringComparison.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(rally.ResolvedTargetName)
+                || rally.ResolvedTargetName is "0" or "nil"
+                || rally.ResolvedTargetLevel is not > 0
+                || rally.ResolvedTargetLevel != Math.Truncate(rally.ResolvedTargetLevel.Value)
+                || !string.Equals(rally.ResolvedTargetMetadataSource,
+                    CurrentBossResolvedTargetMetadataSource, StringComparison.Ordinal)
+                || !string.Equals(rally.ResolvedTargetDisplayNameSource,
+                    CurrentBossResolvedTargetDisplayNameSource, StringComparison.Ordinal))
+                throw new InvalidDataException("Boss Rally display metadata does not match the current monster-template path.");
+        }
+        else if (!string.Equals(rally.ResolvedTargetName, rally.TargetName, StringComparison.Ordinal)
+            || rally.ResolvedTargetLevel != rally.TargetLevel
+            || !string.Equals(rally.ResolvedTargetMetadataSource,
+                CurrentMessageResolvedTargetMetadataSource, StringComparison.Ordinal)
+            || !string.Equals(rally.ResolvedTargetDisplayName, rally.ResolvedTargetName, StringComparison.Ordinal)
+            || !string.Equals(rally.ResolvedTargetDisplayNameSource,
+                CurrentMessageResolvedTargetDisplayNameSource, StringComparison.Ordinal))
+        {
+            throw new InvalidDataException("Non-boss Rally resolved metadata does not match the current message-backed path.");
+        }
     }
 }
 
 public static class CurrentRallyPlannerPreview
 {
+    public static RecoveredRallySelection Preview(
+        RecoveredAutoJoinRallyOptions options,
+        CurrentRallySnapshot snapshot,
+        DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(snapshot);
+        snapshot.Validate(now);
+        return RecoveredAutoJoinRallyPlanner.Select(
+            options,
+            snapshot.ToRecoveredCandidates(now),
+            snapshot.ToRecoveredSquads(now));
+    }
+
     /// <summary>
     /// Drives the recovered selector only for the evidence-backed empty-after-refresh case.
     /// A non-empty current snapshot is deliberately refused until its target-field/category
@@ -401,6 +494,6 @@ public static class CurrentRallyPlannerPreview
             throw new InvalidDataException("Rally snapshot does not prove an authoritative empty list after refresh.");
         if (snapshot.Rallies.Count != 0)
             throw new InvalidDataException("Non-empty current Rally candidate mapping is not yet recovered.");
-        return RecoveredAutoJoinRallyPlanner.Select(options, [], snapshot.ToRecoveredSquads(now));
+        return Preview(options, snapshot, now);
     }
 }
