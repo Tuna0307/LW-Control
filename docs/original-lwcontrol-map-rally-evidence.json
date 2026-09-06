@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "status": "partial_reconstruction_with_source_level_evidence",
+  "sourceArchive": {
+    "pathHint": "LW/LWControl.zip",
+    "sha256": "064c8b5e08335d263a086e4bdf22a34be5b2ec777853a3b45b50d6315a65e59a",
+    "host": {
+      "name": "LWControl.exe",
+      "size": 102876940,
+      "sha256": "205b3e4adf59fceee30088d30ae1e4d02831c38c8934660a4fbd421a6bf39e15",
+      "kind": "native_x64_dotnet_single_file_host",
+      "bundleEntryCount": 269
+    }
+  },
+  "luaArtifacts": {
+    "LWC2MapScanner.lua": {
+      "version": "lwc2-map-scanner-108",
+      "sha256": "da17f5b2b0054437b3ec777f89dda81db74533ecf61386536f41810eb14a52e2"
+    },
+    "LWC2AutoJoinRally.lua": {
+      "version": "lwc2-auto-join-rally-49",
+      "sha256": "a8dd8b8d07dd114cc8ab210ccca4163b31b1aadb5e1e107a817120dbd9c58b44"
+    }
+  },
+  "worldMap": {
+    "loadedPointEnumeration": "reflection_of_WorldPointManager._pointInfos",
+    "nativeBlockIndexFormula": "y * _lwAoiBlockCount + x",
+    "nativeBatchIndexMaximum": 160,
+    "nativeConcurrencyMaximum": 20,
+    "defaultRequestedConcurrency": 8,
+    "defaultScanBlockEdge": 5,
+    "defaultMaxRecords": 25000,
+    "nativeSendPath": "WorldPointManager.SendAoiRequest",
+    "supportedRecoveredWorldSize": 1000,
+    "worldSize3000": "big_map_mode_unresolved"
+  },
+  "autoJoinRally": {
+    "candidateSource": "AllianceWarDataManager.GetAllianceWarIdList",
+    "parameterCapture": "UIAllianceWarDetailCtrl.OnJoinClick intercepted at MarchUtil.OnClickStartMarch",
+    "joinExecutor": "Util.MarchUtil.StartMarch",
+    "wireWaitTimeIndex": -1,
+    "nativeAllianceAutoRallyToggleUsed": false,
+    "ambiguousPostSendPolicy": "commit_uncertain_no_retry"
+  },
+  "unknown": [
+    "live_non_empty_current_rally_field_and_countdown_verification",
+    "current_build_correlated_rally_join_success_proof",
+    "native_autoRallyInfo.index_semantics"
+  ]
+}

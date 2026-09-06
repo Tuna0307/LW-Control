@@ -94,6 +94,119 @@ CurrentWorldMapSnapshot ValidWorldMapSnapshot(DateTimeOffset capturedAt) => new(
     ]
 };
 
+CurrentRallySnapshot ValidRallySyncSnapshot(DateTimeOffset capturedAt) => new()
+{
+    SchemaVersion = CurrentRallySnapshot.SupportedSchemaVersion,
+    Mode = CurrentRallySnapshot.SyncStateMode,
+    ReadOnly = true,
+    CaptureId = "live-sync-test-post",
+    CapturedAt = capturedAt,
+    CandidateSource = CurrentRallySnapshot.SupportedCandidateSource,
+    FormationSource = CurrentRallySnapshot.SupportedFormationSource,
+    WorldMarchSource = "SceneManager.World.MarchDataManager",
+    Player = new()
+    {
+        Uid = "player-1",
+        InAlliance = true,
+        AllianceUid = "alliance-1",
+        Stamina = 26
+    },
+    ObservedRallyCount = 0,
+    JoinableRallyCount = 0,
+    JoinedRallyCount = 0,
+    FormationCount = 3,
+    FreeFormationCount = 3,
+    Rallies = [],
+    Formations =
+    [
+        new() { Uuid = "1349056539444945940", Index = 1, State = "0", IsFree = true, Stamina = 26,
+            CurrentRallyId = "", OwnerMarchChecked = true },
+        new() { Uuid = "1349056695082984539", Index = 2, State = "0", IsFree = true, Stamina = 26,
+            CurrentRallyId = "", OwnerMarchChecked = true },
+        new() { Uuid = "1356530504375510135", Index = 3, State = "0", IsFree = true, Stamina = 26,
+            CurrentRallyId = "", OwnerMarchChecked = true }
+    ],
+    Sync = new()
+    {
+        Protocol = CurrentRallySnapshot.CurrentRefreshProtocol,
+        TargetServer = 2212,
+        CurrentWorldId = 0,
+        OwnedSendCount = 1,
+        ForeignSyncSendCount = 0,
+        HandlerCount = 1,
+        ResponseErrorCode = null,
+        ResponseTeamsPresent = true,
+        ResponseObservedAt = 1_788_646_379,
+        ExactlyOneOwnedSend = true,
+        NoForeignSameProtocolSend = true,
+        NoRetry = true
+    },
+    PreSyncObservedRallyCount = 0,
+    PreSyncJoinableRallyCount = 0,
+    ListRefreshCorrelated = true
+};
+
+CurrentRallyObservedSnapshot ValidCurrentJoinableRally() => new()
+{
+    Uuid = "rally-current-1",
+    RawWarType = 0,
+    WarType = "ATTACK_BOSS",
+    WarTypeSource = CurrentRallySnapshot.CurrentWarTypeSource,
+    Server = 2212,
+    ServerSource = CurrentRallySnapshot.CurrentServerSource,
+    WorldId = 0,
+    WorldIdSource = CurrentRallySnapshot.CurrentWorldIdSource,
+    WorldType = "0",
+    AttackPointId = 12345,
+    AttackUid = "leader-1",
+    AttackName = "Leader",
+    TargetPointId = 67890,
+    TargetUuid = "boss-target-object-1",
+    TargetUid = "boss-1",
+    TargetName = "Boss",
+    TargetContentId = "boss-content-1",
+    TargetBaseSkinId = 0,
+    TargetBaseSkinIdSource = CurrentRallySnapshot.CurrentTargetBaseSkinIdSource,
+    TargetLevel = 0,
+    TargetLevelSource = CurrentRallySnapshot.CurrentTargetLevelSource,
+    JoinRallyType = "RALLY_FOR_BOSS",
+    JoinRallyTypeSource = CurrentRallySnapshot.CurrentJoinRallyTypeSource,
+    JoinTargetUuid = "rally-current-1",
+    JoinTargetPointId = 77777,
+    JoinTargetServerId = 2212,
+    JoinTargetWorldId = 0,
+    JoinMonsterSpecialType = 0,
+    JoinMonsterSpecialTypeSource = CurrentRallySnapshot.CurrentBossMonsterSpecialTypeSource,
+    JoinTargetSource = CurrentRallySnapshot.CurrentJoinTargetSource,
+    CreateTime = 900_000,
+    WaitTime = 1_100_000,
+    MarchTime = 1_200_000,
+    RemainingSeconds = 100,
+    RemainingSecondsSource = "AllianceWarDataManager.GetAllianceWarDurationSec",
+    ServerTimeMs = 1_000_000,
+    CurrentSoldiers = 100,
+    MaxSoldiers = 500,
+    AssemblyMarchMax = 5,
+    BossHp = 1_000,
+    UpdateTime = 1_000_000,
+    MemberCount = 1,
+    MemberCountSource = "memberList",
+    MemberNames = ["Leader"],
+    CanJoin = true,
+    IsLeader = false,
+    InTeam = false,
+    JoinState = "9",
+    Leader = new()
+    {
+        Uuid = "leader-march-1",
+        OwnerUid = "leader-1",
+        OwnerName = "Leader",
+        Status = "WAIT_RALLY",
+        StartId = 77777,
+        TeamUuid = "rally-current-1"
+    }
+};
+
 cases.Add(("Confirmed free reward is selected", () => Check(Selected(observation))));
 cases.Add(("Recovered defaults are disabled with all seven categories and limit twenty", () =>
 {
@@ -370,6 +483,237 @@ cases.Add(("World-map snapshot JSON is strict", () =>
 }));
 
 int failed = 0;
+cases.Add(("Recovered Auto Join Rally gates match the original Lua v49 order", () =>
+{
+    var options = new RecoveredAutoJoinRallyOptions
+    {
+        AllowedTargetTypes = new HashSet<string>(["WorldBoss"], StringComparer.Ordinal),
+        MinimumTargetLevel = 20,
+        MaximumTargetLevel = 30,
+        MinimumRemainingSeconds = 30,
+        JoinSafetyBufferSeconds = 15,
+        MinimumMemberCount = 2,
+        SkipUnknownLeader = true,
+        SkipUnknownTargetType = true,
+        SkipUnknownMarchTime = true
+    };
+    var candidate = new RecoveredRallyCandidate
+    {
+        RallyId = "rally-1",
+        LeaderId = "leader-1",
+        LeaderName = "Leader",
+        MemberNames = ["Member"],
+        TargetType = "WorldBoss",
+        TargetName = "Doom Elite",
+        TargetLevel = 25,
+        MemberCountKnown = true,
+        MemberCount = 2,
+        RemainingSeconds = 90,
+        MarchSeconds = 20
+    };
+    Check(RecoveredAutoJoinRallyPlanner.RejectionReason(options, candidate) is null);
+    Check(RecoveredAutoJoinRallyPlanner.RejectionReason(
+        options,
+        candidate with { MemberCountKnown = false }) == "UnknownMemberCount");
+    var unknownTargetReason = RecoveredAutoJoinRallyPlanner.RejectionReason(
+        options,
+        candidate with { TargetType = "Unknown" });
+    if (unknownTargetReason != "UnknownTargetType")
+        throw new Exception($"Expected UnknownTargetType, got {unknownTargetReason ?? "<none>"}");
+    Check(RecoveredAutoJoinRallyPlanner.RejectionReason(
+        options,
+        candidate with { RemainingSeconds = 34, MarchSeconds = 20 }) == "InsufficientRemainingTime");
+}));
+cases.Add(("Recovered Auto Join Rally preserves idle squad and explicit team-profile gates", () =>
+{
+    var schemes = new[]
+    {
+        new RecoveredRallyJoinScheme
+        {
+            Id = "doom-20-30", MonsterName = "Doom Elite", MinimumLevel = 20, MaximumLevel = 30
+        }
+    };
+    var profiles = Enumerable.Range(1, 4).ToDictionary(
+        id => id,
+        id => new RecoveredRallyTeamProfile
+        {
+            SquadId = id,
+            AllowJoin = id == 2,
+            JoinSchemes = id == 2 ? schemes : []
+        });
+    var options = new RecoveredAutoJoinRallyOptions
+    {
+        ReservedIdleSquadCount = 1,
+        PreferredSquadOrder = [2, 1, 3, 4],
+        TeamJoinProfiles = profiles
+    };
+    var candidate = new RecoveredRallyCandidate
+    {
+        RallyId = "rally-2",
+        LeaderId = "leader-2",
+        LeaderName = "Leader",
+        MemberNames = [],
+        TargetType = "WorldBoss",
+        TargetName = "Doom Elite",
+        TargetLevel = 25,
+        MemberCountKnown = true,
+        MemberCount = 1,
+        RemainingSeconds = 90,
+        MarchSeconds = 20
+    };
+    var selected = RecoveredAutoJoinRallyPlanner.Select(
+        options,
+        [candidate],
+        [
+            new() { SquadId = 1, IsFree = true, Stamina = 100 },
+            new() { SquadId = 2, IsFree = true, Stamina = 100 }
+        ]);
+    Check(selected.Selected);
+    Check(selected.Squad?.SquadId == 2);
+
+    var reserved = RecoveredAutoJoinRallyPlanner.Select(
+        options,
+        [candidate],
+        [new() { SquadId = 2, IsFree = true, Stamina = 100 }]);
+    Check(!reserved.Selected && reserved.Reason == "auto_join_rally_no_available_squad");
+}));
+cases.Add(("Current Rally sync snapshot proves an authoritative refreshed empty list", () =>
+{
+    var snapshot = ValidRallySyncSnapshot(now);
+    snapshot.Validate(now);
+    Check(snapshot.IsAuthoritativeEmptyAfterRefresh);
+    var squads = snapshot.ToRecoveredSquads(now);
+    Check(squads.Count == 3 && squads.All(squad => squad.IsFree && squad.Stamina == 26));
+
+    var selection = CurrentRallyPlannerPreview.PreviewAuthoritativeEmpty(
+        new RecoveredAutoJoinRallyOptions(), snapshot, now);
+    Check(!selection.Selected);
+    Check(selection.Reason == "auto_join_rally_no_new_joinable_rally");
+}));
+cases.Add(("Current Rally importer refuses uncorrelated empty state and corrupted formation counts", () =>
+{
+    var snapshot = ValidRallySyncSnapshot(now);
+    Throws<InvalidDataException>(() => (snapshot with { ListRefreshCorrelated = false }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with { FormationCount = 2 }).Validate(now));
+    Throws<InvalidDataException>(() => CurrentRallyPlannerPreview.PreviewAuthoritativeEmpty(
+        new RecoveredAutoJoinRallyOptions(), snapshot with
+        {
+            Mode = CurrentRallySnapshot.StateMode,
+            Sync = null,
+            PreSyncObservedRallyCount = null,
+            PreSyncJoinableRallyCount = null,
+            ListRefreshCorrelated = null
+        }, now));
+}));
+cases.Add(("Current Rally importer enforces recovered content-v12 join eligibility", () =>
+{
+    var rally = ValidCurrentJoinableRally();
+    var snapshot = ValidRallySyncSnapshot(now) with
+    {
+        Mode = CurrentRallySnapshot.StateMode,
+        ObservedRallyCount = 1,
+        JoinableRallyCount = 1,
+        JoinedRallyCount = 0,
+        Rallies = [rally],
+        Sync = null,
+        PreSyncObservedRallyCount = null,
+        PreSyncJoinableRallyCount = null,
+        ListRefreshCorrelated = null
+    };
+    snapshot.Validate(now);
+
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinState = "8" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { RemainingSeconds = 0 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { WaitTime = 999_999 }]
+    }).Validate(now));
+
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { RawWarType = 1 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { RawWarType = 9, WarType = "UNKNOWN" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinRallyType = "RALLY_FOR_CITY" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinTargetUuid = "boss-1" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinTargetPointId = 88888 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinTargetServerId = 9999 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinTargetWorldId = 9 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinTargetPointId = 0, Leader = rally.Leader with { StartId = 0 } }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { ServerSource = "unproven" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { WorldId = -1, JoinTargetWorldId = -1 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { JoinMonsterSpecialType = -1 }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { TargetLevelSource = "unproven" }]
+    }).Validate(now));
+    Throws<InvalidDataException>(() => (snapshot with
+    {
+        Rallies = [rally with { TargetLevel = -1 }]
+    }).Validate(now));
+
+    var ownTarget = rally with { CanJoin = false, InTeam = true, JoinState = "4" };
+    (snapshot with
+    {
+        JoinableRallyCount = 0,
+        JoinedRallyCount = 1,
+        Rallies = [ownTarget]
+    }).Validate(now);
+
+    var alreadyJoined = rally with { CanJoin = false, InTeam = true, JoinState = "9" };
+    (snapshot with
+    {
+        JoinableRallyCount = 0,
+        JoinedRallyCount = 1,
+        Rallies = [alreadyJoined]
+    }).Validate(now);
+
+    var allianceCity = rally with
+    {
+        RawWarType = 3,
+        WarType = "ATTACK_AL_CITY",
+        JoinRallyType = "RALLY_FOR_ALLIANCE_CITY",
+        JoinMonsterSpecialType = null,
+        JoinMonsterSpecialTypeSource = CurrentRallySnapshot.CurrentNoMonsterSpecialTypeSource
+    };
+    (snapshot with { Rallies = [allianceCity] }).Validate(now);
+}));
 cases.Add(("Recovered World Map default plan matches the original five-by-five logical policy", () =>
 {
     var plan = RecoveredWorldMapScanPlanner.Build(100, 10, 55, 47);
