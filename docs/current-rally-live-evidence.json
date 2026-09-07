@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 1,
+  "status": "schema5-live-nonempty-manager-shape-and-one-request-refresh-proven",
+  "currentBuild": {
+    "contentVersion": 12,
+    "candidateSource": "DataCenter.AllianceWarDataManager.GetAllianceWarIdList",
+    "formationSource": "DataCenter.ArmyFormationDataManager.GetCurFormationList",
+    "refreshProtocol": "alliance.team.ls",
+    "refreshUiCall": "SFSNetwork.SendMessage(MsgDefines.GetAllianceWarList, LuaEntry.Player:GetCurServerId())",
+    "timingSemantics": {
+      "clockSource": "UITimeManager:GetInstance():GetServerTime()",
+      "rawWaitTime": "absolute server-time milliseconds",
+      "rawMarchTime": "absolute server-time milliseconds",
+      "remainingSecondsSource": "AllianceWarDataManager.GetAllianceWarDurationSec",
+      "remainingSecondsBehavior": "returns waitTime-currentTime before wait deadline, marchTime-currentTime before march deadline, otherwise -1; values converted from milliseconds to seconds"
+    },
+    "joinEligibility": {
+      "source": "AllianceWarDataManager.CheckJoinAllianceWarByWarData prototype 0.27 lines 489-537",
+      "states": {
+        "1": "nil data -> false,false,false",
+        "2": "self owns leader march -> false,true,false",
+        "3": "member count plus one reaches assemblyMarchMax -> false,false,false",
+        "4": "targetUid is self -> false,false,true",
+        "5": "epidemic battlefield enemy restriction -> false,false,false",
+        "6": "alliance mismatch -> false,false,false",
+        "7": "CheckAllianceWarData failed -> false,false,false",
+        "8": "CheckRallyWaitStateTimeoutValid failed -> false,false,false",
+        "9": "normal path -> canJoin equals not inTeam; isLeader false"
+      },
+      "durationGate": "CheckAllianceWarData prototype 0.49 requires GetAllianceWarDurationSec(data, curTime) > 0",
+      "waitGate": "CheckRallyWaitStateTimeoutValid prototype 0.50 accepts missing/legacy waitTime below 9527; otherwise requires curTime <= waitTime",
+      "formationTravelTimeGate": false
+    },
+    "formationTravelTime": {
+      "scope": "JOIN_RALLY + RALLY_FOR_BOSS formation-selection UI",
+      "source": "UIFormationSelectListV2Ctrl/NewCtrl OnAtkClick 0.22 and OnCheckTime 0.23",
+      "calculation": "GetTimeFormCurPosToTarPos(selectedFormationUuid)",
+      "warningThreshold": "DataConfig.TryGetNum(assembly_monster_toplimit, k3) * 60",
+      "warningMessage": "110204",
+      "hardEligibilityGate": false,
+      "onAtkConfirm": "prototype 0.22.2 -> ChangeMarchByType(uuid)",
+      "onCheckTimeConfirm": "prototype 0.23.6 -> OnCreateClick(uuid)",
+      "checkCanBattleTravelGate": false
+    },
+    "allianceTeamType": {
+      "source": "Global/EnumType.luac lines 4715-4730",
+      "values": {
+        "0": "ATTACK_BOSS",
+        "1": "ATTACK_BUILDING",
+        "2": "ATTACK_CITY",
+        "3": "ATTACK_AL_CITY",
+        "4": "ATTACK_ALLIANCE_THRONE",
+        "5": "ATTACK_DRAGON_BUILDING",
+        "6": "ATTACK_SERVER_THRONE",
+        "7": "ATTACK_AL_CENTER",
+        "8": "ATTACK_CITY_STRONGHOLD",
+        "10": "ATTACK_EPIDEMIC_BUILDING",
+        "11": "ATTACK_EPIDEMIC_CITY",
+        "12": "ATTACK_OUTPOST",
+        "13": "ATTACK_ZWL"
+      },
+      "unassignedValue9": true
+    },
+    "targetFieldSemantics": {
+      "source": "GetAllianceWarListMessage.luac -> AllianceWarDataManager.InitAllianceWarList/UpdateOneAllianceWarList -> AllianceWarInfo.ParseData -> UIAllianceWarMainTableCtrl.GetAllianceWarDataByUuid",
+      "targetUuidDistinctFromTargetUid": true,
+      "allianceWarInfoHasTargetLevel": true,
+      "allianceWarInfoHasTargetBaseSkinId": true,
+      "targetLevelDefault": 0,
+      "targetBaseSkinIdDefault": 0,
+      "targetLevelInput": "message.targetLevel",
+      "targetBaseSkinIdInput": "message.targetBaseSkinId",
+      "cityIconFallback": "ATTACK_CITY and ATTACK_EPIDEMIC_CITY read data.targetLevel for BuildTemplateManager.GetBuildingLevelTemplate(FUN_BUILD_MAIN, targetLevel)",
+      "bossDisplayMetadata": "MonsterTemplateManager.GetMonsterTemplate(data.targetUid) -> template level/name",
+      "bossDisplayLocalization": "UIAllianceWarMainTableCtrl -> CS.GameEntry.Localization.GetString(monster.name)",
+      "allianceCityDisplayMetadata": "AllianceCityTemplateManager.GetTemplate(data.targetContentId) -> template level/fallback name",
+      "genericDataLevelFallbackAllowed": false
+    },
+    "memberCountSemantics": {
+      "source": "AllianceWarDataManager.CheckJoinAllianceWarByWarData and fullness path",
+      "formula": "table.count(memberList)+1",
+      "leaderIncludedByPlusOne": true,
+      "emptyMemberListCount": 1
+    },
+    "normalJoinUiSource": "UIAllianceWarMainTableCtrl.OnJoinClick prototype 0.14 lines 663-707",
+    "normalJoinUiCall": "MarchUtil.OnClickStartMarch(MarchTargetType.JOIN_RALLY, data.leaderMarch.startId, uuid, -1, 1, targetType, data.server, data.worldId, monsterSpecialType)",
+    "normalJoinIdentity": {
+      "joinTargetUuid": "Alliance War rally uuid",
+      "joinTargetPointId": "leaderMarch.startId",
+      "joinTargetServerId": "data.server copied from message.server by AllianceWarInfo.ParseData",
+      "joinTargetWorldId": "data.worldId copied from message.worldId by AllianceWarInfo.ParseData",
+      "targetUidUsedAsJoinTargetUuid": false
+    },
+    "joinTargetTypeMap": {
+      "ATTACK_BOSS": "RALLY_FOR_BOSS",
+      "ATTACK_BUILDING": "RALLY_FOR_BUILDING",
+      "ATTACK_AL_CITY": "RALLY_FOR_ALLIANCE_CITY",
+      "ATTACK_CITY": "RALLY_FOR_CITY",
+      "ATTACK_EPIDEMIC_CITY": "RALLY_EPIDEMIC_CITY",
+      "ATTACK_CITY_STRONGHOLD": "RALLY_CITY_STRONGHOLD"
+    },
+    "monsterSpecialTypeRouting": {
+      "mainTableControllerParameter": true,
+      "classicAllianceWarItem": "calls OnJoinClick(uuid), so monsterSpecialType is absent",
+      "lwAllianceWarItem": "calls OnJoinClick(uuid, dataInfo.monsterSpecialType)",
+      "lwAllianceWarItemDataSource": "LWAllianceWarItem.RefreshData -> UIAllianceWarMainTableCtrl.GetWarItemData(uuid, true)",
+      "bossProducer": "GetWarItemData -> MonsterTemplateManager.GetMonsterTemplate(data.targetUid).special",
+      "nonBossBehavior": "GetWarItemData leaves monsterSpecialType unset"
+    },
+    "onJoinRally": {
+      "parameters": ["selfMarchUuid", "rallyType", "targetUuid", "targetPointId", "curStamina"],
+      "staminaCheck": "GetCostStaminaByTargetType(JOIN_RALLY, rallyType)",
+      "startMarchCall": "MarchUtil.StartMarch(MarchTargetType.JOIN_RALLY, targetPointId, targetUuid, -1, selfMarchUuid)"
+    },
+    "startMarchParameters": [
+      "targetType", "targetPoint", "targetUuid", "timeIndex", "mUuid", "fUuid",
+      "autoBackHome", "dataObj", "pos", "targetServer", "desTimeIndex", "extraParam"
+    ]
+  },
+  "a22": {
+    "result": "timed-out-before-stable-player-state",
+    "interpretation": "recurring scheduling failure; not a manager-contract failure",
+    "packageSha256": "3ec127309cf17b89bd6772a8aa6a595186a12cc3da03c8402a2cb80536110e8c",
+    "metadataSha256": "20197b848187707df3f4be677e01bd8628e9bd081546e972633d7def35c01fcd"
+  },
+  "a23": {
+    "result": "success",
+    "registrationMethod": "UpdateManager.AddUpdate",
+    "capturedAt": "2026-09-05T22:07:53Z",
+    "explicitNetworkSends": 0,
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "observedRallyCount": 0,
+    "formationCount": 3,
+    "freeFormationCount": 3,
+    "formationStamina": 25,
+    "packageSha256": "bbba2d05efffd76820e128e175bc693dc1a0652b90d0e6edc84785aabd22fef3",
+    "metadataSha256": "c7a117e174f4c804454483d23592235ba609c4728d83c83b43fd8af484079260",
+    "versionSha256": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+    "builderSourceSha256": "2bf9497333aa7d112e43829ed27a277bce62e394bf636f7b7e7e08bcfd402728",
+    "preparerSourceSha256": "6a09edb7314386612213f508dd7706b627f29447a8db6b4496f33eb9709fc1d5"
+  },
+  "a24": {
+    "result": "success",
+    "captureId": "live-sync-1788646379-post",
+    "capturedAt": "2026-09-05T22:12:59Z",
+    "protocol": "alliance.team.ls",
+    "targetServer": 2212,
+    "currentWorldId": 0,
+    "ownedSendCount": 1,
+    "foreignSyncSendCount": 0,
+    "handlerCount": 1,
+    "responseTeamsPresent": true,
+    "exactlyOneOwnedSend": true,
+    "noRetry": true,
+    "listRefreshCorrelated": true,
+    "preSyncObservedRallyCount": 0,
+    "postSyncObservedRallyCount": 0,
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "formations": [
+      { "index": 1, "uuid": "1349056539444945940", "isFree": true, "state": "0", "stamina": 26 },
+      { "index": 2, "uuid": "1349056695082984539", "isFree": true, "state": "0", "stamina": 26 },
+      { "index": 3, "uuid": "1356530504375510135", "isFree": true, "state": "0", "stamina": 26 }
+    ],
+    "packageSha256": "99b8e564a979f8136db89500133214952eeaa4e77e516b260cc6e629c1541cbc",
+    "metadataSha256": "4854c0bd0b4b5d0225d3d83b9489c65cb546ec32a7ae30f000279d3a38d3fa15",
+    "versionSha256": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+    "syncTemplateSourceSha256": "ea7b01db1dbfeb435f370605ae391cbf8e144bbb9ffad1782b2dcf02ce1880ff",
+    "syncPreparerSourceSha256": "8e4b2e5451a72a820c4cb4e4cef7001d1a5a0658164270c5cbeef6b376854c79"
+  },
+  "a27OfflineSchema2": {
+    "result": "prepared-and-verified-offline",
+    "installedOrRun": false,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "f61df176a4a030a29ab2119134463c2b983ac024de1695fd00766adf19597d74",
+    "probeSourceSha256": "b17e12127f61054803c237014562e28b1da29261766ca462001378de0a515cec",
+    "builderSourceSha256": "bf7b77f5d0057fbc7d4fdf90294e6f1570508c275d0a3e9975642f796159d132"
+  },
+  "a28OfflineSchema2Sync": {
+    "result": "prepared-and-verified-offline",
+    "installedOrRun": false,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "d7069c45e29cacace6e971eeaf8c2d60cf82001b2170f7fca0516372720a1f18",
+    "probeSourceSha256": "ec18138248dac66e0089d3d5c62b8df5b0b4d8a8f113c200c36341439254583d",
+    "builderSourceSha256": "bf7b77f5d0057fbc7d4fdf90294e6f1570508c275d0a3e9975642f796159d132",
+    "templateSourceSha256": "ea7b01db1dbfeb435f370605ae391cbf8e144bbb9ffad1782b2dcf02ce1880ff"
+  },
+  "a29OfflineSchema3": {
+    "result": "prepared-and-verified-offline",
+    "installedOrRun": false,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "564901c298c743dd821dfd8b9035a211a4e7b45ba762d106b207e90ce41ee8ca",
+    "probeSourceSha256": "bb13f815da3e62663428569642d96c67a3ac8f2b2effdfebb521d6bd9cafe86d",
+    "builderSourceSha256": "ce169dfc90d4ebfe7dc8e910db9992ad1dedc12c513c665578e2f94484ab066b"
+  },
+  "a30OfflineSchema3Sync": {
+    "result": "prepared-and-verified-offline",
+    "installedOrRun": false,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "adf005f48bb6766038a6d7ddd8a26751fe0b43780d18e78a2fd103b95d237860",
+    "probeSourceSha256": "e6b6cb863c0ba804fd5f4397913722a0482fbc9f2cd58f658490a13b3d552fb1",
+    "builderSourceSha256": "ce169dfc90d4ebfe7dc8e910db9992ad1dedc12c513c665578e2f94484ab066b",
+    "templateSourceSha256": "ea7b01db1dbfeb435f370605ae391cbf8e144bbb9ffad1782b2dcf02ce1880ff"
+  },
+  "a31OfflineSchema4": {
+    "result": "prepared-and-verified-offline-superseded",
+    "supersededBy": "a33OfflineSchema4Final",
+    "installedOrRun": false,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "3046414cc764c10ce994edef1b3c4188475b1267111d6945d4e5405128764aab",
+    "probeSourceSha256": "76d401a241237295ced93677389ed55262fbffa52ff0bef64b272ffe5b113530",
+    "builderSourceSha256": "8675ee67d4842c8f3b0bd1dcd21e21e159e620e46a7df30684027bf496edb924"
+  },
+  "a32OfflineSchema4Sync": {
+    "result": "prepared-and-verified-offline-superseded",
+    "supersededBy": "a34OfflineSchema4FinalSync",
+    "installedOrRun": false,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "4efc161edfc350549df7c6f3b908bcf851a15f20f508f1b818a2b8b1e112c700",
+    "probeSourceSha256": "677dd3019f30ddf48a43059db51d74b5e03c3c4ec4e17c5458e7188176a36cd7",
+    "builderSourceSha256": "8675ee67d4842c8f3b0bd1dcd21e21e159e620e46a7df30684027bf496edb924",
+    "templateSourceSha256": "ea7b01db1dbfeb435f370605ae391cbf8e144bbb9ffad1782b2dcf02ce1880ff"
+  },
+  "a33OfflineSchema4Final": {
+    "result": "prepared-verified-and-live-read-only-captured",
+    "installedOrRun": true,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "7def3ad0a0653670944ec727cb49a2bc7517fc9a8e30dd2fa7d7f185a2ddd928",
+    "probeSourceSha256": "b117187a12f1a71d3b2d93a2547380df8c32bed5583886874f064bcae555b39b",
+    "builderSourceSha256": "b6ce0019165ca9e4d5f7c3dd627ec021983b76c068c866746cb5ef4b4c09b2f4",
+    "live": {
+      "capturedAt": "2026-09-06T06:58:04Z",
+      "captureId": "live-1788677884",
+      "observedRallyCount": 0,
+      "joinableRallyCount": 0,
+      "joinedRallyCount": 0,
+      "formationCount": 3,
+      "freeFormationCount": 3,
+      "explicitNetworkSends": 0,
+      "rallyJoinActions": 0,
+      "rewardClaimActions": 0,
+      "restoreHashMatch": true
+    }
+  },
+  "a34OfflineSchema4FinalSync": {
+    "result": "prepared-verified-and-live-authoritative-empty-refresh",
+    "installedOrRun": true,
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "packageSha256": "2a8e8a5227dff29185a1fd3a13341ad8e97495aa02b61ea21e09cf99f239a001",
+    "probeSourceSha256": "840e1ea7fb48f5c75133e011d4708cf21677eda97ce5814c1d6ceba1d39890fe",
+    "builderSourceSha256": "b6ce0019165ca9e4d5f7c3dd627ec021983b76c068c866746cb5ef4b4c09b2f4",
+    "templateSourceSha256": "ea7b01db1dbfeb435f370605ae391cbf8e144bbb9ffad1782b2dcf02ce1880ff",
+    "live": {
+      "capturedAt": "2026-09-06T06:59:04Z",
+      "captureId": "live-sync-1788677944-post",
+      "protocol": "alliance.team.ls",
+      "targetServer": 2212,
+      "preSyncObservedRallyCount": 0,
+      "preSyncJoinableRallyCount": 0,
+      "observedRallyCount": 0,
+      "joinableRallyCount": 0,
+      "joinedRallyCount": 0,
+      "formationCount": 3,
+      "freeFormationCount": 3,
+      "ownedSendCount": 1,
+      "foreignSyncSendCount": 0,
+      "handlerCount": 1,
+      "responseTeamsPresent": true,
+      "exactlyOneOwnedSend": true,
+      "noForeignSameProtocolSend": true,
+      "noRetry": true,
+      "rallyJoinActions": 0,
+      "rewardClaimActions": 0,
+      "listRefreshCorrelated": true,
+      "restoreHashMatch": true
+    }
+  },
+  "schema5LiveNonEmpty": {
+    "result": "successful-read-only-nonempty-boss-capture",
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "explicitNetworkSends": 0,
+    "observed": {
+      "warType": "ATTACK_BOSS",
+      "joinState": 9,
+      "canJoin": true,
+      "isLeader": false,
+      "inTeam": false,
+      "remainingSecondsApprox": 40,
+      "targetUid": "38",
+      "rawTargetName": "",
+      "rawTargetLevel": 0,
+      "resolvedTargetName": "300602",
+      "resolvedTargetLevel": 30,
+      "monsterSpecialType": 0,
+      "rawMemberListCount": 0,
+      "leaderInclusiveMemberCount": 1
+    },
+    "plannerBoundary": {
+      "targetType": "Unknown",
+      "reason": "no authoritative structured current world-point taxonomy was correlated to this Rally target",
+      "worldBossFallbackFromBossPredicatesAllowed": false,
+      "hardCodeTargetUid38Allowed": false,
+      "marchSeconds": null,
+      "marchSecondsReason": "raw current marchTime is an absolute timestamp, not selected-formation travel time"
+    },
+    "localizedDisplayName": {
+      "callPathProven": true,
+      "source": "CS.GameEntry.Localization.GetString(monster.name)",
+      "liveReturnedStringRetained": false
+    }
+  },
+  "schema5PostExpiryReadOnly": {
+    "result": "success-empty-after-later-restart",
+    "capturedAt": "2026-09-06T07:28:32Z",
+    "packageSha256": "5044d73b064a00aa352c65bdba18fabbe1be6e0f18f1fa993afb58e8cdb4b76e",
+    "probeSourceSha256": "14e9ccf5b33df195ba50a790ef0fc8955bb7021fd442b81b8ab2fdb6ca592ade",
+    "builderSourceSha256": "f411aeb853df82660aada1aa959ca0699997a90d3a092907ccf924b12e181f26",
+    "observedRallyCount": 0,
+    "explicitNetworkSends": 0,
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "a42RestoreHashMatch": true
+  },
+  "schema5PostExpirySync": {
+    "result": "success-authoritative-empty-after-later-refresh",
+    "capturedAt": "2026-09-06T07:30:07Z",
+    "packageSha256": "73ee216f96ea80a611c376d4d357d7e8feafc4ad17f52042852ae6e9af3a73e1",
+    "probeSourceSha256": "4331bd48031ed4631b832c4c6f7005ccf9ddda8769cb3eb70bedaafb9aae58e9",
+    "builderSourceSha256": "f411aeb853df82660aada1aa959ca0699997a90d3a092907ccf924b12e181f26",
+    "protocol": "alliance.team.ls",
+    "ownedSendCount": 1,
+    "foreignSyncSendCount": 0,
+    "handlerCount": 1,
+    "responseTeamsPresent": true,
+    "exactlyOneOwnedSend": true,
+    "noForeignSameProtocolSend": true,
+    "noRetry": true,
+    "observedRallyCount": 0,
+    "rallyJoinActions": 0,
+    "rewardClaimActions": 0,
+    "a42RestoreHashMatch": true
+  },
+  "schema5FinalOfflineCandidates": {
+    "changedInstalledFiles": false,
+    "serializedRoundTripVerified": true,
+    "builderSourceSha256": "c1b4de3bf0c1e5442344eb97db82f9484bd728babd842770d92c21b5b050fe09",
+    "readOnly": {
+      "packageSha256": "70744fc749807ec49d06774937312eb6a21a4fcfbc0f72a65fe48c10c82e5a57",
+      "probeSourceSha256": "027d4ab43bc4dba17613d1a11b7d3841c3758343fd87e622a83acca5361443b7"
+    },
+    "oneRefresh": {
+      "packageSha256": "4d38100bf1a7eea79d097d16bcfeff4b055114cf0fbfe410268bb46ac6ce647b",
+      "probeSourceSha256": "e6c8ed0b78562a74e99c153a4d6b1de898173330a60dd0d170b0e0007cbb1637"
+    }
+  },
+  "restoration": {
+    "exactPrePostHashMatchRecorded": true,
+    "baseUtilsModified": false,
+    "commonUtilsIsDebugModified": false,
+    "officialHashes": {
+      "LWScripts.data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
+      "LWScripts.txt": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
+      "version.txt": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+      "BaseUtils.rdl": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+    }
+  },
+  "classification": {
+    "proven": [
+      "current manager paths",
+      "recurring UpdateManager.AddUpdate scheduling",
+      "current alliance.team.ls refresh call",
+      "exactly one correlated refresh in a24",
+      "authoritative zero active Rallies for the a24 capture",
+      "final schema-v4 a33 live read-only capture with zero explicit sends and exact restore",
+      "final schema-v4 a34 live refresh with exactly one owned send, one handler, authoritative zero active Rallies, and exact restore",
+      "three free current formations in a24",
+      "current waitTime and marchTime are absolute server-time milliseconds",
+      "GetAllianceWarDurationSec current countdown semantics",
+      "CheckJoinAllianceWarByWarData state 1-9 boolean tuple semantics",
+      "CheckAllianceWarData positive-duration eligibility gate",
+      "CheckRallyWaitStateTimeoutValid sentinel and wait-deadline semantics",
+      "current manager eligibility has no formation travel-time gate",
+      "JOIN_RALLY RALLY_FOR_BOSS formation travel time is a confirmable UI warning in both formation UI variants",
+      "current normal Rally UI join call",
+      "current MarchUtil.OnJoinRally helper and StartMarch handoff",
+      "current numeric AllianceTeamType values 0..8 and 10..13, with value 9 unassigned",
+      "main-table Rally target-type mappings for boss, building, alliance city, city, epidemic city, and city stronghold",
+      "main-table Rally join route forwards AllianceWarInfo server and worldId",
+      "boss monsterSpecialType derives from MonsterTemplateManager.GetMonsterTemplate(targetUid).special and is unset on non-boss branches",
+      "current AllianceWarInfo keeps targetUuid and targetUid separate and defines targetBaseSkinId plus targetLevel",
+      "GetAllianceWarListMessage response teams flow through InitAllianceWarList -> UpdateOneAllianceWarList -> AllianceWarInfo.ParseData",
+      "AllianceWarInfo.ParseData copies message.targetBaseSkinId and message.targetLevel when present",
+      "UIAllianceWarMainTableCtrl fetches AllianceWarInfo by uuid and reads targetLevel for city and epidemic-city icon fallback",
+      "boss target display metadata resolves from MonsterTemplateManager(targetUid)",
+      "real joinable boss Rally observed with targetUid 38, raw targetLevel 0, resolved template name 300602, and resolved template level 30",
+      "current boss display name call path is CS.GameEntry.Localization.GetString(monster.name)",
+      "current Rally participant count is table.count(memberList)+1 and therefore includes the leader",
+      "live empty memberList maps to leader-inclusive member count 1",
+      "ATTACK_AL_CITY display name/level resolves from AllianceCityTemplateManager(targetContentId)",
+      "normal Rally join identity is rally uuid plus leaderMarch.startId",
+      "schema-v5 non-empty adapter preserves current unknown target taxonomy as Unknown instead of inferring WorldBoss",
+      "schema-v5 non-empty adapter does not reuse raw current marchTime as planner MarchSeconds"
+    ],
+    "recoveredOriginal": [
+      "refresh an empty manager list before final no-candidate conclusion",
+      "AllianceWarDataManager candidate selection",
+      "ArmyFormationDataManager squad selection",
+      "MarchUtil.StartMarch JOIN_RALLY execution with strict post-state verification"
+    ],
+    "unknown": [
+      "UI-parity policy for handling the current boss-Rally travel-time warning",
+      "authoritative structured current target taxonomy for the captured targetUid 38 / template 300602 Rally",
+      "exact current-runtime localized display string returned for template key 300602",
+      "selected-formation travel time for recovered planner MarchSeconds",
+      "current live join transport and success proof",
+      "multi-Rally ordering under live current data"
+    ]
+  }
+}

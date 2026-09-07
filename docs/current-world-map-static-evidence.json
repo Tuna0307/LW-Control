@@ -1,0 +1,97 @@
+{
+  "capturedAt": "2026-09-06",
+  "mode": "static-read-only",
+  "gameLaunched": false,
+  "networkMessagesSent": 0,
+  "installedFilesModified": 0,
+  "assemblyCSharp": {
+    "path": "LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+    "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "worldPointManager": {
+    "typeRid": 1786,
+    "methods": {
+      "sendAoiRequest": "0x0600351F",
+      "handleViewPointsReply": "0x06003553",
+      "parseWorldGetBlock": "0x06003555",
+      "newPointInfo": "0x06003561",
+      "addPointInfo": "0x06003570",
+      "removePointInfo": "0x06003573",
+      "sendViewRequest": "0x0600356C",
+      "updateLwAoi": "0x060035AF"
+    },
+    "stateFields": [
+      "_pointInfos",
+      "allViewPoints",
+      "uuidInfoMap",
+      "allObjs",
+      "outOfViewPoints",
+      "outOfViewPointsObj",
+      "_lwAoiBlockSize",
+      "_lwAoiBlockCount",
+      "_curViewIndex",
+      "_msgViewIndex"
+    ]
+  },
+  "worldGetBlockRequest": {
+    "typeRid": 872,
+    "fields": [
+      "bigMap",
+      "x",
+      "y",
+      "serverId",
+      "worldId",
+      "type",
+      "lod",
+      "index",
+      "blockSize",
+      "firstTime",
+      "leftBottom",
+      "rightTop",
+      "battleFieldFirst"
+    ]
+  },
+  "worldPointInfo": {
+    "generatedType": "Protobuf.WorldPointInfo",
+    "identityFields": ["id", "pointType", "uuid", "serverId", "srcServerId", "worldId"],
+    "commonPayloadsInSnapshotV1": [
+      "BuildInfo",
+      "RoadInfo",
+      "CollectResourceInfo",
+      "ResourceInfo",
+      "ExplorePointInfo",
+      "SamplePointInfo",
+      "GarbagePointInfo"
+    ],
+    "knownExtendedPayloadFamiliesNotYetModeled": [
+      "HeroDispatchMissionPointInfo",
+      "TreasurePointInfo",
+      "AllianceCollectResInfo",
+      "IceSuppliesPointInfo",
+      "GhostReconPointInfo",
+      "CityAttachment",
+      "ZoneMobilizationPointInfo",
+      "SurprisePoint",
+      "MeteoritePoint",
+      "MonsterChallengeTreasurePointInfo",
+      "ActivityTreasurePoint",
+      "QuarantinePoint",
+      "Status",
+      "CityCompetitionPoint",
+      "ZwlBuilding",
+      "AllianceBossS0BuildPointInfo"
+    ]
+  },
+  "proven": [
+    "The current game has a structured bulk AOI/block world-point request and response path.",
+    "WorldGetBlockMessage responses are routed to SceneManager.World.HandleViewPointsReply.",
+    "WorldPointManager parses block replies and owns point/object dictionaries and UUID indexes.",
+    "The current generated protobuf exposes structured point identity, routing and typed payload fields."
+  ],
+  "unknown": [
+    "No live world snapshot has been captured yet.",
+    "Point-id to user-facing X/Y coordinate mapping is not yet proven for snapshot v1.",
+    "The replacement scanner's wider-area sweep policy is not yet defined.",
+    "Extended season-specific payload bodies are not yet normalized."
+  ]
+}

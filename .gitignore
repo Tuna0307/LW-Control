@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+upload/
+analysis/
+*.exe
+*.dll
+*.zip
+*.log
+.env
+**/bin/
+**/obj/
+.vs/
+.codex-live/

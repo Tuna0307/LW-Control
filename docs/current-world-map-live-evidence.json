@@ -1,0 +1,367 @@
+{
+  "date": "2026-09-06",
+  "status": "loaded_world_snapshot_multi_block_serial_multi_batch_and_two_inflight_concurrency_proven",
+  "currentUi": {
+    "entry": "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac",
+    "entrySha256": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+    "decodedSha256": "3ff1ee95d6edafbbca58c0d29d5fdcd42c2fb71e0aeab34510a2123af9c3cef9",
+    "transition": "SceneUtils.ChangeToWorld",
+    "worldPredicate": "CS.SceneManager.CurrSceneID == SceneManagerSceneID.World",
+    "luaButtonContract": "UIButton.SetOnClick -> UIMainChangeScene.OnClick"
+  },
+  "a12": {
+    "packageSha256": "58826ee01d0bbee2bb6e418d7b8414ddbb341abe140daf3a77a2f96b29706ab9",
+    "probeSourceSha256": "3139b93a6b043e4ddb7d17c792eceb7fc3ddcd10fe50791b23d0f6be3c998527",
+    "transition": "Unity Button.onClick.Invoke",
+    "transitionInvocations": 1,
+    "result": "no_world_transition",
+    "currentSceneId": "1",
+    "citySceneId": "1",
+    "worldSceneId": "2",
+    "snapshotPresent": false,
+    "restoreHashMatch": true
+  },
+  "a13": {
+    "packageSha256": "c7e832d9054b6bbb3b31da2cab50787e6d604ee0b3f15c9d52c6f00ef300b81c",
+    "probeSourceSha256": "de5fce1c67bf1b1c2bd4301f8ea04edc6cee70f825f6abf88f7e76f7e0851d16",
+    "transition": "SceneUtils.ChangeToWorld",
+    "transitionInvocations": 1,
+    "sceneState": "world",
+    "currentSceneId": "2",
+    "citySceneId": "1",
+    "worldSceneId": "2",
+    "worldSource": "CS.SceneManager.World",
+    "managerSource": "CS.SceneManager.World.PointManager",
+    "stablePointCount": 86,
+    "snapshot": {
+      "captureId": "live-world-1788642296",
+      "capturedAt": "2026-09-05T21:04:56Z",
+      "schemaVersion": 1,
+      "mode": "state",
+      "source": "WorldPointManager",
+      "pointTypeCounts": {
+        "6": 72,
+        "7": 12,
+        "17": 1,
+        "25": 1
+      }
+    },
+    "explicitProbeNetworkSends": 0,
+    "explicitProbeAoiRequests": 0,
+    "restoreHashMatch": true
+  },
+  "a20": {
+    "packageSha256": "180fc3ce979602a187b1e189252955b505b627c740f6a6fe6459776cb4f6dc46",
+    "probeSourceSha256": "275d40f7e32a187016abdc2c8dc6f4efd86c5eaad887527a14f1dad1cdedcd14",
+    "bridgeSourceSha256": "c4c8b39b630b150f7a72922f77f10d441631437da12108fe3efa3a5e9b83c5a4",
+    "sceneState": "world",
+    "currentSceneId": 2,
+    "visibleBlocks": {
+      "left": 53,
+      "right": 57,
+      "bottom": 46,
+      "top": 49
+    },
+    "targetLogicalBlock": {
+      "x": 58,
+      "y": 47,
+      "index": 4758
+    },
+    "transportCoverage": {
+      "left": 56,
+      "right": 60,
+      "bottom": 46,
+      "top": 49,
+      "indexes": [
+        4656, 4657, 4658, 4659, 4660,
+        4756, 4757, 4758, 4759, 4760,
+        4856, 4857, 4858, 4859, 4860,
+        4956, 4957, 4958, 4959, 4960
+      ]
+    },
+    "geometry": {
+      "blockSize": 10,
+      "blockCount": 100,
+      "tileLeft": 560,
+      "tileRightExclusive": 610,
+      "tileBottom": 460,
+      "tileTopExclusive": 500,
+      "leftBottom": 460561,
+      "rightTop": 500611,
+      "requestX": 585,
+      "requestY": 480
+    },
+    "request": {
+      "serverId": 2212,
+      "worldId": 0,
+      "bigMap": 0,
+      "serverLod": 0,
+      "aoiRequests": 1,
+      "retries": 0,
+      "cameraMoves": 0
+    },
+    "response": {
+      "command": "world.get.block",
+      "route": "DispatchResponse2",
+      "authoritativeSource": "$.array[serverPointArr][0]",
+      "targetResponses": 1,
+      "rejectedResponses": 0,
+      "leftBottom": 460561,
+      "rightTop": 500611,
+      "serverId": 2212,
+      "worldId": 0,
+      "coveredBlocks": {
+        "left": 56,
+        "right": 60,
+        "bottom": 46,
+        "top": 49
+      }
+    },
+    "pointState": {
+      "beforeCount": 86,
+      "afterCount": 60,
+      "newPointIds": [
+        462595, 465591, 466598, 468588, 472587, 473589, 473594,
+        474591, 481598, 482594, 490590, 495596, 499591
+      ]
+    },
+    "responseHookRestored": true,
+    "managerFlagRestored": true,
+    "restoreHashMatch": true,
+    "result": "proven"
+  },
+  "a21": {
+    "packageSha256": "3969bfefb53a2c4da757f184ca6a891e4b4c20d836b0150640233e2488c466ad",
+    "probeSourceSha256": "6b067269071ab39d3f26502e6e9b9beac3a19634e8ca97efa8a33fa97fbf6869",
+    "fileVersion": 3,
+    "contentVersion": 12,
+    "entryCount": 18688,
+    "serializedRoundTripVerified": true,
+    "requestedLogicalBlocks": 3,
+    "maximumRequests": 1,
+    "logicalTargets": [
+      { "x": 58, "y": 46 },
+      { "x": 58, "y": 47 },
+      { "x": 58, "y": 48 }
+    ],
+    "transportCoverage": {
+      "left": 56,
+      "right": 60,
+      "bottom": 46,
+      "top": 49,
+      "transportIndexCount": 20
+    },
+    "response": {
+      "command": "world.get.block",
+      "authoritativeSource": "$.array[serverPointArr][0]",
+      "serverId": 2212,
+      "worldId": 0,
+      "coveredLogicalBlocks": 3
+    },
+    "cameraMoves": 0,
+    "retries": 0,
+    "responseHookRestored": true,
+    "managerFlagRestored": true,
+    "restoreHashMatch": true,
+    "liveExecuted": true,
+    "liveProof": true,
+    "result": "proven"
+  },
+  "a22": {
+    "packageSha256": "6e8abb9bbbedb7292d959f6006ddb9db04370c8e5a7e6e94e2af935f9b08defd",
+    "probeSourceSha256": "3a28a3b4a2c0cafa67bf35e7ba7f3a403660ed0980a8ed2acce0500cb4ce3475",
+    "bridgeSourceSha256": "c4c8b39b630b150f7a72922f77f10d441631437da12108fe3efa3a5e9b83c5a4",
+    "fileVersion": 3,
+    "contentVersion": 12,
+    "entryCount": 18688,
+    "requestedLogicalBlocks": 169,
+    "coveredLogicalBlocks": 169,
+    "maximumRequests": 2,
+    "actualRequests": 2,
+    "completedBatches": 2,
+    "visibleBlocks": {
+      "left": 53,
+      "right": 57,
+      "bottom": 46,
+      "top": 49
+    },
+    "logicalCoverage": {
+      "left": 58,
+      "right": 70,
+      "bottom": 41,
+      "top": 53
+    },
+    "batches": [
+      {
+        "sequence": 1,
+        "requestedLogicalBlocks": 156,
+        "coveredLogicalBlocks": 156,
+        "requestedCoverage": {
+          "left": 58,
+          "right": 69,
+          "bottom": 41,
+          "top": 53
+        },
+        "transportCoverage": {
+          "left": 58,
+          "right": 69,
+          "bottom": 41,
+          "top": 53
+        },
+        "transportIndexCount": 156,
+        "requestX": 640,
+        "requestY": 475,
+        "leftBottom": 410581,
+        "rightTop": 540701,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      },
+      {
+        "sequence": 2,
+        "requestedLogicalBlocks": 13,
+        "coveredLogicalBlocks": 13,
+        "requestedCoverage": {
+          "left": 70,
+          "right": 70,
+          "bottom": 41,
+          "top": 53
+        },
+        "transportCoverage": {
+          "left": 68,
+          "right": 72,
+          "bottom": 41,
+          "top": 53
+        },
+        "transportIndexCount": 65,
+        "requestX": 705,
+        "requestY": 475,
+        "leftBottom": 410681,
+        "rightTop": 540731,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      }
+    ],
+    "serialCapabilityProbeFirst": true,
+    "cameraMoves": 0,
+    "retries": 0,
+    "responseHookRestored": true,
+    "managerFlagRestored": true,
+    "restoreHashMatch": true,
+    "result": "proven"
+  },
+  "w23": {
+    "packageSha256": "c67b7c71dc1e422e46d86f5a54ecba330c6c1a369f4419d37ee7aa679acd33fd",
+    "probeSourceSha256": "659fb3eaeab2311ad5b4d85ebe9af38325c894ab4913ad1ecd01299c03cd76ab",
+    "bridgeSourceSha256": "c4c8b39b630b150f7a72922f77f10d441631437da12108fe3efa3a5e9b83c5a4",
+    "fileVersion": 3,
+    "contentVersion": 12,
+    "entryCount": 18688,
+    "requestedLogicalBlocks": 361,
+    "coveredLogicalBlocks": 361,
+    "maximumRequests": 3,
+    "actualRequests": 3,
+    "completedBatches": 3,
+    "maximumConcurrentRequests": 2,
+    "peakInflight": 2,
+    "visibleBlocks": {
+      "left": 53,
+      "right": 57,
+      "bottom": 46,
+      "top": 49
+    },
+    "logicalCoverage": {
+      "left": 58,
+      "right": 76,
+      "bottom": 38,
+      "top": 56
+    },
+    "batches": [
+      {
+        "sequence": 1,
+        "requestedLogicalBlocks": 152,
+        "coveredLogicalBlocks": 152,
+        "transportCoverage": {
+          "left": 58,
+          "right": 65,
+          "bottom": 38,
+          "top": 56
+        },
+        "transportIndexCount": 152,
+        "leftBottom": 380581,
+        "rightTop": 570661,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      },
+      {
+        "sequence": 2,
+        "requestedLogicalBlocks": 152,
+        "coveredLogicalBlocks": 152,
+        "transportCoverage": {
+          "left": 66,
+          "right": 73,
+          "bottom": 38,
+          "top": 56
+        },
+        "transportIndexCount": 152,
+        "leftBottom": 380661,
+        "rightTop": 570741,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      },
+      {
+        "sequence": 3,
+        "requestedLogicalBlocks": 57,
+        "coveredLogicalBlocks": 57,
+        "transportCoverage": {
+          "left": 73,
+          "right": 77,
+          "bottom": 38,
+          "top": 56
+        },
+        "transportIndexCount": 95,
+        "leftBottom": 380731,
+        "rightTop": 570781,
+        "responseSource": "$.array[serverPointArr][0]",
+        "responseRoute": "DispatchResponse2",
+        "serverId": 2212,
+        "worldId": 0
+      }
+    ],
+    "eventOrdering": {
+      "batch2SendStarted": 1,
+      "batch2SendCompleted": 2,
+      "batch3SendStarted": 3,
+      "batch3SendCompleted": 4,
+      "waveLaunchCompleted": 5,
+      "batch2Response": 6,
+      "batch3Response": 7,
+      "responseBeforeWaveComplete": false
+    },
+    "serialCapabilityProbeFirst": true,
+    "cameraMoves": 0,
+    "retries": 0,
+    "responseHookRestored": true,
+    "managerFlagRestored": true,
+    "restoreHashMatch": true,
+    "result": "proven"
+  },
+  "restoredOfficialHashes": {
+    "LWScripts.data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
+    "LWScripts.txt": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
+    "version.txt": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+    "BaseUtils.rdl": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+  },
+  "unknown": [
+    "user-facing meaning of every observed pointType",
+    "original wider concurrency width and retry/camera fallback",
+    "full-world coverage policy and completion proof"
+  ]
+}

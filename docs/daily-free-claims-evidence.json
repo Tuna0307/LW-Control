@@ -1,0 +1,191 @@
+{
+  "method": "Static .NET bundle extraction and ILSpy 11.0.0.9375 decompilation; no supplied executable or game command was run.",
+  "source": {
+    "file": "LWControl.exe",
+    "size_bytes": 102876940,
+    "sha256": "205b3e4adf59fceee30088d30ae1e4d02831c38c8934660a4fbd421a6bf39e15"
+  },
+  "bundle": {
+    "major_version": 6,
+    "minor_version": 0,
+    "entry_count": 269,
+    "header_offset": 102861360,
+    "bundle_id": "HYOrSR4iwOur"
+  },
+  "recovered_artifacts": [
+    {
+      "file": "LastWarControl.Core.dll",
+      "size_bytes": 380928,
+      "sha256": "3715b00c3b49d59bc0edee5ed206a4e57ca279bff8511b8ae0721a2df67b7b5d"
+    },
+    {
+      "file": "LastWarControl.Game.dll",
+      "size_bytes": 4894720,
+      "sha256": "c2bcd754ff24c2351a7e5cee30b6b9eae2de6d23ee8e54d86968f11d360dac24"
+    },
+    {
+      "file": "LastWarControl.Bridge.dll",
+      "size_bytes": 24576,
+      "sha256": "2136abfb5720f007a9d255a4750f2308c561ac80d80d96815ca75c2d7a0c5776"
+    },
+    {
+      "file": "LastWarControl.Game.Lua.LWC2DailyFreeClaims.lua",
+      "size_bytes": 44110,
+      "sha256": "fd96de7215ceb3a88403c32bfb09c5feb5601fbcfbc40e1db41e9b2286f87cd2",
+      "note": "Embedded resource materialized by ILSpy from LastWarControl.Game.dll."
+    }
+  ],
+  "current_game_static_evidence": {
+    "method": "Read-only decode and instruction inspection of installed content-version-12 LWLF-v3 Lua bytecode; no game command was sent.",
+    "daily_task_info_entry": "DataCenter/DailyTaskData/DailyTaskInfo.luac",
+    "daily_task_info_fields": [
+      "id",
+      "num",
+      "totalNum",
+      "totalTimes",
+      "state",
+      "reward"
+    ],
+    "initial_values": {
+      "id": 0,
+      "num": 0,
+      "totalNum": 0,
+      "totalTimes": 0,
+      "state": 0,
+      "reward": "empty table"
+    },
+    "update_contract": {
+      "partial_update": true,
+      "nil_fields_are_ignored": true,
+      "reward_transform": "DataCenter.RewardManager:ReturnRewardParamForView(message.reward)",
+      "manager_identity_field": "message.id",
+      "manager_storage": "dailyQuestTasks[message.id]"
+    },
+    "daily_goal_state": {
+      "update_daily_task": {
+        "curReward_default_on_update": 0,
+        "curReward_message_field": "message.curReward",
+        "reward_list_message_field": "message.rewardList",
+        "reward_list_point_field": "point",
+        "daily_box_active_storage": "table.insert(self.dailyBoxActive, reward_item.point)",
+        "daily_quest_message_field": "message.dailyQuest",
+        "daily_quest_update": "each entry is passed to UpdateOneDailyTaskInfo"
+      },
+      "set_cur_reward": "table.insert(self.curReward, value)",
+      "get_cur_value": {
+        "initial_value": 0,
+        "task_storage": "dailyQuestTasks",
+        "included_state": "TaskState.Received",
+        "template_lookup": "DataCenter.DailyTaskTemplateManager:GetQuestTemplate(k)",
+        "contribution": "template.point when template exists",
+        "other_states": "contribute zero"
+      },
+      "get_box_state": {
+        "received": "index occurs in curReward",
+        "can_receive": "dailyBoxActive[index] exists and dailyBoxActive[index] <= curPoint",
+        "otherwise": "TaskState.NoComplete"
+      },
+      "all_boxes_received": {
+        "indices": [1, 2, 3, 4, 5],
+        "rule": "true only when GetBoxState(index, GetCurValue()) is TaskState.Received for every index"
+      },
+      "task_state_numeric_values": "UNKNOWN; reconstruction uses symbolic enum names only",
+      "snapshot_contract": {
+        "status": "LIVE_READ_ONLY_CAPTURE_PROVEN",
+        "schema_version": 1,
+        "mode": "state",
+        "game_derived_validation": [
+          "currentPoint must equal the sum of template.point for tasks symbolically marked Received",
+          "box state must re-derive from receivedStages, activation threshold, and currentPoint",
+          "box indices are exactly 1 through 5"
+        ],
+        "local_fail_closed_guards": [
+          "unknown JSON properties rejected",
+          "numeric task-state values rejected",
+          "duplicate or missing task IDs rejected",
+          "invalid received-stage and box indices rejected",
+          "negative or excessive local point/threshold values rejected",
+          "default capture/heartbeat age limit 15 seconds with 5-second future tolerance",
+          "unsupported schema version or non-state mode rejected"
+        ],
+        "live_probe_execution": "PROVEN current-game daily-task snapshot payload on 2026-09-06",
+        "live_daily_task_capture": {
+          "captured_at_utc": "2026-09-05T19:01:33Z",
+          "captured_at_singapore": "2026-09-06T03:01:33+08:00",
+          "refresh_command": "DailyTaskManager:TryReqUpdateData -> MsgDefines.DailyQuestLs",
+          "refresh_limit": 1,
+          "requested_at_unix": 1788634888,
+          "update_observed_at_unix": 1788634893,
+          "task_count": 23,
+          "box_count": 5,
+          "current_point": 240,
+          "activation_thresholds": [40, 80, 120, 160, 200],
+          "received_stages": [1, 2, 3, 4, 5],
+          "box_states": ["Received", "Received", "Received", "Received", "Received"],
+          "python_independent_current_point": 240,
+          "csharp_snapshot_validation": "PASS",
+          "reward_claims_sent": 0,
+          "restored": true,
+          "restore_sha256_match": true
+        },
+        "claim_proof_contract": {
+          "status": "OFFLINE_FAIL_CLOSED_CONTRACT",
+          "current_package_rechecked": true,
+          "daily_quest_request": {
+            "ui_entry": "UI/UIMainTask/Component/UIBox.luac",
+            "ui_prototype": "0.10",
+            "required_symbolic_state": "TaskState.CanReceive",
+            "wire_symbol": "DailyQuestReward",
+            "argument": "param.index",
+            "serializer_entry": "Net/Msgs/DailyQuestRewardMessage.luac",
+            "serializer_prototype": "0.0",
+            "serialized_field": "stage",
+            "serialized_type": "int"
+          },
+          "daily_task_request": {
+            "wire_symbol": "DailyTaskReward",
+            "serializer_entry": "Net/Msgs/Alliance/AllianceDailyTaskRewardMessage.luac",
+            "serializer_prototype": "0.0",
+            "serialized_field": "taskId",
+            "serialized_type": "utf_string"
+          },
+          "daily_quest_success_handler": {
+            "entry": "DataCenter/DailyTaskData/DailyTaskManager.luac",
+            "prototype": "0.11",
+            "error_guard": "message.errorCode must be nil",
+            "state_effect": "each message.stageArr value is passed to SetCurReward",
+            "event": "EventId.DailyQuestReward"
+          },
+          "daily_task_success_handler": {
+            "entry": "DataCenter/DailyTaskData/DailyTaskManager.luac",
+            "prototype": "0.27",
+            "error_guard": "message.errorCode must be nil",
+            "state_effect": "each message.taskInfo value is passed to UpdateOneDailyTaskInfo"
+          },
+          "special_stage_minus_one": "EXCLUDED; current quest-list UI sends it but exact semantics remain UNKNOWN",
+          "selector": "fresh validated snapshot; CanReceive only; explicit stage 1..5 or explicit taskId",
+          "effect_rule": "exact target must transition from CanReceive to Received in a fresh post-action snapshot",
+          "captured_state_eligible_candidates": 0,
+          "reward_claims_sent": 0
+        },
+        "live_loader_acceptance": {
+          "captured_at_singapore": "2026-09-06T02:46:30+08:00",
+          "candidate_entry_count": 18688,
+          "heartbeat": {
+            "version": "lwcontrol-loader-probe-1",
+            "loaded": true,
+            "updated_at_unix": 1788633990
+          },
+          "game_started": true,
+          "gameplay_messages_sent": 0,
+          "restored": true,
+          "restore_sha256_match": true,
+          "post_restore_entry_count": 18686,
+          "post_restore_content_version": 12,
+          "post_restore_baseutils_sha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6",
+          "post_restore_is_debug": false
+        }
+      }
+    }
+  }
+}

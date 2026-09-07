@@ -1,0 +1,51 @@
+{
+  "analysis_date": "2026-09-05",
+  "method": "read-only metadata parsing; no game file write and no bridge command",
+  "artifact": {
+    "name": "BaseUtils.rdl",
+    "size": 565248,
+    "sha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6",
+    "file_magic_hex": "52 47 01 00"
+  },
+  "metadata": {
+    "signature": "RGMD",
+    "file_offset": 212892,
+    "file_offset_hex": "0x33F9C",
+    "version": "v4.0.30319",
+    "streams": {
+      "#~": { "file_offset_hex": "0x34008", "size_hex": "0x29124" },
+      "#Strings": { "file_offset_hex": "0x5D12C", "size_hex": "0xFD1D" },
+      "#US": { "file_offset_hex": "0x6CE4C", "size_hex": "0x12BCD" },
+      "#GUID": { "file_offset_hex": "0x7FA1C", "size_hex": "0x10" },
+      "#Blob": { "file_offset_hex": "0x7FA2C", "size_hex": "0x9E44" }
+    },
+    "typedef_rows": 454,
+    "methoddef_rows": 4080,
+    "methodptr_rows": 4080
+  },
+  "text_section": {
+    "header_offset_hex": "0x90",
+    "virtual_address_hex": "0x2000",
+    "virtual_size_hex": "0x89794",
+    "raw_pointer_hex": "0x200",
+    "raw_size_hex": "0x89800"
+  },
+  "resolved_method": {
+    "qualified_name": "CommonUtils.IsDebug",
+    "typedef_rid": 9,
+    "methoddef_rid": 133,
+    "method_flags_hex": "0x0096",
+    "signature_blob_hex": "00 00 02",
+    "rva_hex": "0x4BD0",
+    "file_offset_hex": "0x2DD0",
+    "body_prefix_hex": "08 16 2A 08 16 2A 00 00",
+    "legacy_installer_signature_match": true,
+    "constant_boolean_return": false
+  },
+  "previous_hardcoded_target": {
+    "rva_hex": "0x333C",
+    "file_offset_hex": "0x153C",
+    "current_bytes_hex": "06 7B E2 3A 9F 67 28 22",
+    "matches_loader_signature": false
+  }
+}

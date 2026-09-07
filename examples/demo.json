@@ -1,0 +1,21 @@
+{
+  "features": [
+    {"name": "claim_daily", "enabled": true, "cooldown_seconds": 60},
+    {"name": "collect_resources", "enabled": true, "cooldown_seconds": 10}
+  ],
+  "initial_state": {
+    "observed_at": 0,
+    "connected": true,
+    "daily_available": true,
+    "resource_batches": 2
+  },
+  "steps": [
+    {"at": 0},
+    {"at": 1},
+    {"at": 2},
+    {"at": 11, "state": {"observed_at": 11}},
+    {"at": 12, "state": {"connected": false}},
+    {"at": 13, "control": "stop"},
+    {"at": 14, "control": "resume", "state": {"connected": true, "observed_at": 14}}
+  ]
+}

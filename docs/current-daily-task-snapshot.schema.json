@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lw-control/current-daily-task-snapshot.schema.json",
+  "title": "LW-Control current daily-task read-only snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "mode",
+    "captureId",
+    "capturedAt",
+    "heartbeat",
+    "tasks",
+    "currentPoint",
+    "receivedStages",
+    "boxes"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "mode": { "const": "state" },
+    "captureId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "heartbeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["probeVersion", "observedAt"],
+      "properties": {
+        "probeVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "observedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["taskId", "state", "templatePoint"],
+        "properties": {
+          "taskId": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "state": {
+            "type": "string",
+            "enum": ["NoComplete", "CanReceive", "Received"]
+          },
+          "templatePoint": {
+            "anyOf": [
+              { "type": "integer", "minimum": 0, "maximum": 1000000 },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    },
+    "currentPoint": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "receivedStages": {
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 1, "maximum": 5 }
+    },
+    "boxes": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["index", "activationPoint", "state"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "activationPoint": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+          "state": {
+            "type": "string",
+            "enum": ["NoComplete", "CanReceive", "Received"]
+          }
+        }
+      }
+    }
+  }
+}

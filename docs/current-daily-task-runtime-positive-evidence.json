@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-09-06",
+  "runtime": {
+    "version": "lwcontrol-daily-task-runtime-1",
+    "candidate": "a42",
+    "contentVersion": 12,
+    "packageSha256": "afc145b9614cc81697e7079723a688ee26ccd9c6a3aa569ecf31e341bc60c8f6",
+    "registrationMethod": "UpdateManager.AddUpdate"
+  },
+  "startupRecovery": {
+    "initialFreshGameProcessStartedLocal": "2026-09-06T13:13:06+08:00",
+    "initialHeartbeatAtUtc": "2026-09-06T04:59:38Z",
+    "initialStatus": "heartbeat_stale",
+    "claimSentWhileStale": false,
+    "installedPackageStillVerified": true,
+    "officialRestoreHashes": {
+      "data": "73f69efea8bcd121ede8fa292d621eb68cea4c6368e331e8c614e95fff5a6a0c",
+      "metadata": "314a2f87ac7f4697df31db7bb73303efaed472ec0ec0d74046d27a9f3d28fdac",
+      "version": "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
+      "baseutils": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+    },
+    "noCommandSmoke": {
+      "runtimeRegistered": true,
+      "commandsCreated": 0,
+      "rewardClaimSends": 0,
+      "restoreHashMatch": true
+    },
+    "persistentReinstall": {
+      "installedAtUtc": "2026-09-06T05:24:17.631626Z",
+      "newGameProcessStartedLocal": "2026-09-06T13:24:35.223254+08:00",
+      "heartbeatAdvancedToUnix": 1788672284,
+      "heartbeatFresh": true
+    },
+    "rootCause": "UNKNOWN"
+  },
+  "positiveRuns": [
+    {
+      "commandId": "daily-20260906052628-1ae66dc66bde49f09e9337c354d10a9d",
+      "completedAtUtc": "2026-09-06T05:26:29Z",
+      "maximumClaims": 1,
+      "state": "completed",
+      "message": "maximum_claims_reached",
+      "rewardSendCount": 1,
+      "refreshSendCount": 2,
+      "confirmedClaims": 1,
+      "target": {
+        "kind": "DailyQuestStage",
+        "stage": 2
+      },
+      "authoritativePostState": {
+        "currentPoint": 80,
+        "receivedStages": [1, 2],
+        "stage2": "Received"
+      },
+      "retryObserved": false
+    },
+    {
+      "commandId": "daily-20260906052640-bd591dd9a9684156a0a8aaef037f1c4a",
+      "completedAtUtc": "2026-09-06T05:26:41Z",
+      "maximumClaims": 1,
+      "state": "completed",
+      "message": "maximum_claims_reached",
+      "rewardSendCount": 1,
+      "refreshSendCount": 2,
+      "confirmedClaims": 1,
+      "target": {
+        "kind": "DailyTask",
+        "taskId": "105"
+      },
+      "authoritativePostState": {
+        "currentPoint": 90,
+        "task105": "Received",
+        "receivedStages": [1, 2]
+      },
+      "retryObserved": false
+    }
+  ],
+  "verification": {
+    "focusedPythonDailyTaskInstallerLenc": "21/21 passed",
+    "csharpCoreChecks": "37/37 passed",
+    "desktopBuild": "0 warnings, 0 errors",
+    "dailyTaskCliBuild": "0 warnings, 0 errors",
+    "windowsFormsSmoke": "passed"
+  },
+  "conclusion": "Persistent Daily Task Claim positive paths are live-proven for both activity chests and individual daily tasks."
+}
