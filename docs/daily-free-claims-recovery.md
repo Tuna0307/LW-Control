@@ -1,5 +1,10 @@
 # Daily Free Claims recovery notes
 
+The [2026-09-07 resumed checkpoint](resume-checkpoint-2026-09-07.md) preserves
+the disconnected investigation's leads separately from reverified facts. The
+desktop now exposes all seven category implementation statuses. This does not
+add live adapters beyond the existing Daily Task runtime.
+
 ## What was analyzed
 
 This pass continued static analysis of the supplied `LWControl.exe`. The executable

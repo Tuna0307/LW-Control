@@ -15,6 +15,10 @@ internal static class Program
                 form.Show();
                 Application.DoEvents();
                 form.RunSmokeCheck();
+                int outputIndex = Array.IndexOf(args, "--smoke-output");
+                if (outputIndex >= 0 && outputIndex + 1 >= args.Length)
+                    throw new ArgumentException("--smoke-output requires a directory.");
+                form.RunAppearanceSmokeCheck(outputIndex >= 0 ? Path.GetFullPath(args[outputIndex + 1]) : null);
                 form.Close();
             }
             finally

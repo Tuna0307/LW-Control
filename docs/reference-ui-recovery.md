@@ -43,7 +43,12 @@ The reference Settings view contains four recovered sections:
 - **Hotkeys & Foreground Gate**: fixed right-mouse menu toggle, Q/W/E/R, A/S/D/F, Space, F6/F7/F8, Alt+1..4, F9, and a Save gameplay hotkeys action.
 - **System & Diagnostics**: Export runtime logs and Refresh runtime state.
 
-The rebuilt desktop mirrors these controls. Language and runtime refresh are currently functional; unrecovered behavior remains disabled. Existing Daily Task/planner controls are preserved in a separate `Recovered Tools` settings tab so recovered functionality is not discarded while the reference shell is reconstructed.
+The rebuilt desktop mirrors these controls. Language, five accent choices,
+session-log export, and runtime refresh are functional; unrecovered behavior
+remains disabled. Appearance and language persist separately from claim-policy
+settings. Existing Daily Task/planner controls are preserved in a separate
+`Recovered Tools` settings tab. See the [2026-09-07 resume checkpoint](resume-checkpoint-2026-09-07.md)
+for palette provenance and validation.
 
 The recovered feature catalog contains exactly 42 unique features. The grouping and action labels below come from the embedded reference UI.
 
@@ -121,7 +126,10 @@ The reference grouping array also contains `map_scan`; its route is Map & Data, 
 ## Current rebuilt desktop implementation
 
 - `World Scan` is **AVAILABLE**. `Scan`, filtering/search, details, and `Locate in Game` remain wired to the current persistent World Scan runtime.
-- `Daily Free Claims` is **PARTIAL**. The rebuilt project has a recovered Daily Task Claim runtime path, but the full 42-feature reference `daily_free_claims` behavior is not yet recovered. Its reference action buttons therefore remain disabled.
+- `Daily Free Claims` is **PARTIAL**. Of its seven categories, only Daily Task
+  has an implemented runtime. `View categories` displays recovery and
+  implementation status; `Run Once` and `Pause` remain disabled. The 42-feature
+  count describes the entire application, not Daily Free Claims.
 - Every other recovered reference feature is **PENDING** and its action buttons are disabled. No missing feature is presented as functional.
 - The legacy Daily Task planning/import controls remain under Settings so current recovered functionality is not lost while the reference shell is reconstructed.
 

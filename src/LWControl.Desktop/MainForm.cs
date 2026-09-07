@@ -2,7 +2,7 @@ using LWControl.Core;
 
 namespace LWControl.Desktop;
 
-public sealed class MainForm : Form
+public sealed partial class MainForm : Form
 {
     private readonly string settingsPath;
     private UiLanguage language = UiText.DetectDefault();
@@ -69,6 +69,7 @@ public sealed class MainForm : Form
     public MainForm(string settingsPath)
     {
         this.settingsPath = settingsPath;
+        LoadAppearance();
         MinimumSize = new Size(1050, 700);
         Size = new Size(1320, 840);
         StartPosition = FormStartPosition.CenterScreen;
@@ -94,6 +95,7 @@ public sealed class MainForm : Form
             language = languagePicker.SelectedIndex == 1 ? UiLanguage.SimplifiedChinese : UiLanguage.English;
             ApplyLanguage();
             RefreshRuntimeStatus(logResult: false);
+            Guard(SaveAppearance);
         };
 
         ApplyLanguage();
@@ -122,6 +124,7 @@ public sealed class MainForm : Form
             if (eventArgs.RowIndex >= 0) await GuardAsync(FocusSelectedWorldRecordAsync);
         };
         ShowPage("home");
+        ApplyAppearance();
         RefreshRuntimeStatus(logResult: false);
         AddLog(UiText.Get(language, "Ready"));
     }
@@ -338,6 +341,12 @@ public sealed class MainForm : Form
         var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, WrapContents = true };
         foreach (string action in feature.Actions)
             actions.Controls.Add(new Button { Text = action, AutoSize = true, Enabled = false });
+        if (feature.Id == "daily_free_claims")
+        {
+            var details = new Button { Text = "View categories", AutoSize = true };
+            details.Click += (_, _) => ShowDailyClaimRecovery();
+            actions.Controls.Add(details);
+        }
         card.Controls.Add(actions, 0, 2);
         return card;
     }
@@ -426,18 +435,23 @@ public sealed class MainForm : Form
             SettingsRow("Hide in background", "The reference hides its menu whenever LastWar is not foreground.", new CheckBox { Checked = true, Enabled = false, AutoSize = true }),
         ]));
 
-        var languageChoice = new ComboBox { Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
+        var languageChoice = settingsLanguagePicker;
         languageChoice.Items.AddRange(["Chinese (Simplified)", "English"]);
         languageChoice.SelectedIndex = language == UiLanguage.SimplifiedChinese ? 0 : 1;
         languageChoice.SelectedIndexChanged += (_, _) =>
             languagePicker.SelectedIndex = languageChoice.SelectedIndex == 0 ? 1 : 0;
         var accent = new FlowLayoutPanel { AutoSize = true, WrapContents = false };
-        foreach (string name in new[] { "Cyan", "Gold", "Indigo", "Rose", "Emerald" })
-            accent.Controls.Add(new Button { Text = name, Enabled = false, AutoSize = true });
+        foreach (var palette in DesktopPalette.All)
+        {
+            var button = new Button { Text = palette.Name, AutoSize = true };
+            button.Click += (_, _) => Guard(() => SetAccent(palette.Name));
+            accentButtons.Add(palette.Name, button);
+            accent.Controls.Add(button);
+        }
         scroll.Controls.Add(BuildSettingsSection("APPEARANCE", "Appearance & Language",
         [
             SettingsRow("Interface language", "Chinese / English", languageChoice),
-            SettingsRow("Accent color", "Reference choices recovered; styling switch is not implemented yet.", accent),
+            SettingsRow("Accent color", "Choose a color. Appearance is saved automatically.", accent),
         ]));
 
         var menuToggle = new ComboBox { Width = 160, Enabled = false, DropDownStyle = ComboBoxStyle.DropDownList };
@@ -455,16 +469,23 @@ public sealed class MainForm : Form
 
         var refresh = new Button { Text = "Refresh runtime state", AutoSize = true };
         refresh.Click += (_, _) => Guard(() => RefreshRuntimeStatus(logResult: true));
+        var exportLog = new Button { Text = "Export session log", AutoSize = true };
+        exportLog.Click += (_, _) => Guard(ExportSessionLog);
         scroll.Controls.Add(BuildSettingsSection("SYSTEM", "System & Diagnostics",
         [
-            SettingsRow("Export runtime logs", "Reference action placeholder.", new Button { Text = "Export runtime logs", Enabled = false, AutoSize = true }),
+            SettingsRow("Export session log", "Save messages from this desktop session to a text file.", exportLog),
             SettingsRow("Refresh runtime state", "Refresh the current game and persistent-runtime status.", refresh),
         ]));
         scroll.SizeChanged += (_, _) =>
         {
             int width = Math.Max(560, scroll.ClientSize.Width - 40);
             foreach (Control control in scroll.Controls)
-                if (Equals(control.Tag, "settings-section")) control.Width = width;
+                if (Equals(control.Tag, "settings-section"))
+                {
+                    control.MinimumSize = new Size(width, 0);
+                    control.MaximumSize = new Size(width, 0);
+                    control.Width = width;
+                }
         };
         return scroll;
     }
@@ -523,6 +544,8 @@ public sealed class MainForm : Form
         {
             Width = 900,
             AutoSize = true,
+            MinimumSize = new Size(900, 0),
+            MaximumSize = new Size(900, 0),
             ColumnCount = 1,
             RowCount = rows.Count + 1,
             BorderStyle = BorderStyle.FixedSingle,
@@ -561,10 +584,12 @@ public sealed class MainForm : Form
     private void ShowPage(string key)
     {
         if (!pages.TryGetValue(key, out Control? selected)) return;
+        activePage = key;
         foreach (var pair in pages) pair.Value.Visible = pair.Key == key;
         selected.BringToFront();
         foreach (var pair in navigationButtons)
             pair.Value.Font = new Font(Font.FontFamily, 10, pair.Key == key ? FontStyle.Bold : FontStyle.Regular);
+        ApplyAppearance();
     }
 
     private void ApplySettings(DailyClaimSettings value)
@@ -961,6 +986,7 @@ public sealed class MainForm : Form
     }
     private void ApplyLanguage()
     {
+        settingsLanguagePicker.SelectedIndex = language == UiLanguage.SimplifiedChinese ? 0 : 1;
         var checkedKinds = categories.CheckedItems.Cast<ClaimKindOption>().Select(item => item.Kind).ToHashSet();
         Text = UiText.Get(language, "Title");
         header.Text = UiText.Get(language, "Header");
