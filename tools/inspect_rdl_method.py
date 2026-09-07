@@ -19,13 +19,31 @@ from inspect_baseutils_rdl import (
     _find_text_section,
     _parse_metadata_streams,
     _parse_tables,
+    _read_compressed_uint,
     _rva_to_offset,
     _string_reader,
     _table_index_width,
     _table_offsets,
     _u,
 )
-from rdl_il import instruction_rows, parse_decoded_method_body_file
+from rdl_il import encode_metadata_token, instruction_rows, parse_decoded_method_body_file
+
+
+def _resolve_user_string(data: bytes, stream: tuple[int, int], token: int) -> str | None:
+    if (token & 0xFF000000) != 0x70000000:
+        return None
+    index = token & 0x00FFFFFF
+    start, size = stream
+    if not (0 <= index < size):
+        return None
+    length, prefix = _read_compressed_uint(data, start + index)
+    value_start = start + index + prefix
+    value_end = value_start + length
+    if value_end > start + size or length == 0:
+        return ""
+    # #US entries end with the ECMA-335 special-character flag byte.
+    payload = data[value_start : max(value_start, value_end - 1)]
+    return payload.decode("utf-16-le", errors="replace")
 
 
 def inspect_methods(
@@ -37,6 +55,7 @@ def inspect_methods(
     type_name: str | None = None,
     signature_hex: str | None = None,
     include_il: bool = False,
+    include_callers: bool = False,
 ) -> dict[str, Any]:
     if (
         method_rid is None
@@ -169,15 +188,66 @@ def inspect_methods(
             row["range_end"] = next_start_by_rid[rid]
         if include_il and row["file_offset"] is not None:
             parsed = parse_decoded_method_body_file(path, int(row["file_offset"]))
+            instructions = instruction_rows(parsed)
+            user_strings = streams.get("#US")
+            if user_strings is not None:
+                for instruction in instructions:
+                    if instruction.get("opcode") == "ldstr" and isinstance(instruction.get("operand"), int):
+                        instruction["resolved_operand"] = _resolve_user_string(
+                            data, user_strings, int(instruction["operand"])
+                        )
             row["method_body"] = {
                 "original_header_byte": parsed.original_header_byte,
                 "repaired_header_byte": parsed.repaired_header_byte,
                 "header_size": parsed.header_size,
                 "code_size": parsed.code_size,
                 "total_size": parsed.total_size,
-                "instructions": instruction_rows(parsed),
+                "instructions": instructions,
             }
         matches.append(row)
+
+    if include_callers:
+        text_start = int(section["raw_pointer"])
+        text_end = text_start + int(section["raw_size"])
+        for target in matches:
+            token_value = 0x06000000 | int(target["rid"])
+            stored_token = (
+                encode_metadata_token(token_value)
+                if metadata["signature"] == "RGMD"
+                else token_value
+            )
+            needle = struct.pack("<I", stored_token)
+            callers: list[dict[str, Any]] = []
+            search_at = text_start
+            while True:
+                position = data.find(needle, search_at, text_end)
+                if position < 0:
+                    break
+                search_at = position + 1
+                opcode_offset = position - 1
+                opcode = data[opcode_offset] if opcode_offset >= text_start else None
+                if opcode not in (0x28, 0x6F):
+                    continue
+                owner_rid = None
+                owner_start = None
+                for start, rid in reversed(method_starts):
+                    if start <= opcode_offset < next_start_by_rid[rid]:
+                        owner_rid = rid
+                        owner_start = start
+                        break
+                if owner_rid is None or owner_start is None:
+                    continue
+                owner = methods[owner_rid]
+                callers.append({
+                    "method_rid": owner_rid,
+                    "metadata_token": owner["metadata_token"],
+                    "method_name": owner["name"],
+                    "declaring_type": declaring_types.get(owner_rid),
+                    "call_relative_offset": opcode_offset - owner_start,
+                    "opcode": "call" if opcode == 0x28 else "callvirt",
+                })
+            target["callers"] = callers
+            target["caller_count"] = len(callers)
 
     return {
         "path": str(path),
@@ -190,6 +260,7 @@ def inspect_methods(
             "type": type_name,
             "signature": signature_hex,
             "include_il": include_il,
+            "include_callers": include_callers,
         },
         "match_count": len(matches),
         "matches": matches,
@@ -210,6 +281,7 @@ def main() -> int:
     parser.add_argument("--type", dest="type_name", help="exact declaring TypeDef name")
     parser.add_argument("--signature", help="exact signature blob as lowercase hex bytes")
     parser.add_argument("--il", action="store_true", help="decode matching method bodies in memory")
+    parser.add_argument("--callers", action="store_true", help="find direct callers of matching MethodDefs")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
     result = inspect_methods(
@@ -220,6 +292,7 @@ def main() -> int:
         type_name=args.type_name,
         signature_hex=args.signature,
         include_il=args.il,
+        include_callers=args.callers,
     )
     if args.json:
         print(json.dumps(result, indent=2))
@@ -235,6 +308,14 @@ def main() -> int:
                 f"- {qualified} {method['metadata_token']} RVA 0x{method['rva']:X} "
                 f"signature {method['signature']}"
             )
+            if args.callers:
+                print(f"  Direct callers: {method.get('caller_count', 0)}")
+                for caller in method.get("callers", []):
+                    caller_type = (caller.get("declaring_type") or {}).get("name") or "?"
+                    print(
+                        f"    {caller_type}.{caller['method_name']} {caller['metadata_token']} "
+                        f"{caller['opcode']} +0x{caller['call_relative_offset']:X}"
+                    )
         print("Read-only: no file changes performed")
     return 0
 

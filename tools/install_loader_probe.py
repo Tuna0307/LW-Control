@@ -152,8 +152,27 @@ def game_is_running() -> bool:
     return '"LastWar.exe"' in result.stdout
 
 
+def _canonical_local_appdata(local_app_data: str | None = None, user_profile: str | None = None) -> Path:
+    raw_value = local_app_data or os.environ["LOCALAPPDATA"]
+    raw = Path(raw_value).resolve()
+    profile_value = user_profile or os.environ.get("USERPROFILE")
+    if not profile_value:
+        return raw
+    canonical = (Path(profile_value) / "AppData" / "Local").resolve()
+    packages = canonical / "Packages"
+    try:
+        relative = raw.relative_to(packages)
+    except ValueError:
+        return raw
+    lower_parts = [part.casefold() for part in relative.parts]
+    for index in range(len(lower_parts) - 1):
+        if lower_parts[index] == "localcache" and lower_parts[index + 1] == "local":
+            return canonical
+    return raw
+
+
 def discover_paths() -> dict[str, Path]:
-    local = Path(os.environ["LOCALAPPDATA"]).resolve()
+    local = _canonical_local_appdata()
     local_low = (local.parent / "LocalLow").resolve()
     install = local / "FunFly" / "Last War-Survival Game"
     script_dir = local_low / "FunFly" / "Last War-Survival Game" / "lwScripts"

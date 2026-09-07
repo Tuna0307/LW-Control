@@ -1,6 +1,6 @@
 import unittest
 
-from tools.prepare_daily_task_runtime import _runtime_source, _wrapper_source
+from tools.prepare_daily_task_runtime import _runtime_source, _world_scan_source, _wrapper_source
 
 
 class DailyTaskRuntimeSourceChecks(unittest.TestCase):
@@ -36,6 +36,16 @@ class DailyTaskRuntimeSourceChecks(unittest.TestCase):
         self.assertIn("command_id_already_completed", runtime)
         self.assertIn('require, "DataCenter.Global.LuaEntry_original"', wrapper)
         self.assertIn('require, "LWControlDailyTaskRuntime"', wrapper)
+
+    def test_persistent_package_hosts_world_scan_command_runtime(self):
+        wrapper = _wrapper_source().decode("utf-8")
+        world_scan = _world_scan_source().decode("utf-8")
+        self.assertIn('rawset(_G, "LWControlWorldScanPersistentRuntime", true)', wrapper)
+        self.assertIn('require, "LWControlWorldScanRuntime"', wrapper)
+        self.assertIn('PATHS.command = root .. [[\\world-map-scan-command.txt]]', world_scan)
+        self.assertIn('values.mode ~= "run_once"', world_scan)
+        self.assertIn('M.ResetScan(command_id)', world_scan)
+        self.assertIn('if M.PERSISTENT then M.ProcessScanCommand(now) end', world_scan)
 
 
 if __name__ == "__main__":

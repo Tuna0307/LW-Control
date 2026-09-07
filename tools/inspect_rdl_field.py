@@ -24,6 +24,45 @@ from inspect_baseutils_rdl import (
 )
 
 
+def _constant_table_layout(
+    rows: dict[int, int], row_data: int, sizes: dict[int, int], widths: dict[str, int]
+) -> tuple[int, int, int]:
+    """Return Constant-table offset, row size, and HasConstant index width."""
+    string_width = widths["string"]
+    blob_width = widths["blob"]
+    extended_sizes = dict(sizes)
+    extended_sizes[7] = _table_index_width(rows, 8)  # ParamPtr
+    extended_sizes[8] = 4 + string_width  # Param
+    extended_sizes[9] = _table_index_width(rows, 2) + _coded_index_width(rows, [2, 1, 27], 2)
+    extended_sizes[10] = (
+        _coded_index_width(rows, [2, 1, 26, 6, 27], 3) + string_width + blob_width
+    )
+    has_constant_width = _coded_index_width(rows, [4, 8, 23], 2)
+    extended_sizes[11] = 2 + has_constant_width + blob_width
+    cursor = row_data
+    for table in range(11):
+        cursor += rows.get(table, 0) * extended_sizes[table]
+    return cursor, extended_sizes[11], has_constant_width
+
+
+def _decode_constant(element_type: int, payload: bytes) -> int | float | bool | str | None:
+    if element_type == 0x02 and payload:
+        return payload[0] != 0
+    formats = {
+        0x04: "<b", 0x05: "<B", 0x06: "<h", 0x07: "<H",
+        0x08: "<i", 0x09: "<I", 0x0A: "<q", 0x0B: "<Q",
+        0x0C: "<f", 0x0D: "<d",
+    }
+    fmt = formats.get(element_type)
+    if fmt is not None and len(payload) >= struct.calcsize(fmt):
+        return struct.unpack_from(fmt, payload)[0]
+    if element_type == 0x0E:
+        return payload.decode("utf-16-le", errors="replace")
+    if element_type == 0x12 and not payload:
+        return None
+    return payload.hex(" ")
+
+
 def inspect_fields(
     path: Path,
     *,
@@ -60,6 +99,24 @@ def inspect_fields(
             "signature_index": signature_index,
             "signature": _blob_value(data, streams["#Blob"], signature_index).hex(" "),
         }
+
+    constant_offset, constant_row_size, has_constant_width = _constant_table_layout(
+        rows, row_data, sizes, widths
+    )
+    for constant_rid in range(1, rows.get(11, 0) + 1):
+        cursor = constant_offset + (constant_rid - 1) * constant_row_size
+        element_type = data[cursor]
+        cursor += 2  # element type + padding
+        parent = _u(data, cursor, has_constant_width)
+        cursor += has_constant_width
+        value_index = _u(data, cursor, blob_width)
+        parent_tag = parent & 0x03
+        parent_rid = parent >> 2
+        if parent_tag != 0 or parent_rid not in fields:
+            continue
+        payload = _blob_value(data, streams["#Blob"], value_index)
+        fields[parent_rid]["constant_element_type"] = element_type
+        fields[parent_rid]["constant"] = _decode_constant(element_type, payload)
 
     extends_width = _coded_index_width(rows, [2, 1, 27], 2)
     field_list_width = _table_index_width(rows, 4)
@@ -157,7 +214,8 @@ def main() -> int:
             namespace = declaring.get("namespace") or ""
             type_label = declaring.get("name") or "?"
             qualified = f"{namespace + '.' if namespace else ''}{type_label}.{field['name']}"
-            print(f"- {qualified} {field['metadata_token']} signature {field['signature']}")
+            constant = f" = {field['constant']}" if "constant" in field else ""
+            print(f"- {qualified} {field['metadata_token']}{constant} signature {field['signature']}")
         print("Read-only: no file changes performed")
     return 0
 

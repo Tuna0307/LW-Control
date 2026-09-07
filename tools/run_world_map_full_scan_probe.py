@@ -1,4 +1,4 @@
-"""Run the bounded 100x100 full-world World AOI proof and restore exactly."""
+"""Run the bounded full-world AOI proof with raw current-build march-push capture."""
 
 from __future__ import annotations
 
@@ -37,6 +37,8 @@ RUNTIME_FILES = {
     "heartbeat": "world-map-full-scan-heartbeat.json",
     "status": "world-map-full-scan-status.json",
     "result": "world-map-full-scan-result.json",
+    "monster_diagnostics": "world-map-full-scan-monster-diagnostics.json",
+    "direct_diagnostics": "world-map-full-scan-direct-diagnostics.json",
 }
 
 
@@ -72,9 +74,25 @@ def _read_json(path: Path) -> object | None:
         return {"parse_error": str(exc), "path": str(path)}
 
 
+def _restore_scan_files_while_running(paths: dict[str, Path], backup: Path) -> None:
+    """Restore only files changed by this scan without requiring process exit.
+
+    The game has already loaded the candidate Lua package into memory when this
+    runs.  Keeping the process alive is safe only if the three on-disk files can
+    be restored exactly; any sharing violation or hash mismatch falls back to
+    the established close-and-restore path in run_probe().
+    """
+    for key in ("data", "metadata", "version"):
+        source = backup / paths[key].name
+        if not source.is_file():
+            raise InstallRefused(f"Backup is missing {source.name}")
+    for key in ("data", "metadata", "version"):
+        shutil.copy2(backup / paths[key].name, paths[key])
+
+
 def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
-    if timeout_seconds < 30 or timeout_seconds > 180:
-        raise InstallRefused("timeout must be between 30 and 180 seconds")
+    if timeout_seconds < 120 or timeout_seconds > 900:
+        raise InstallRefused("timeout must be between 120 and 900 seconds")
     paths = discover_paths()
     if game_is_running():
         raise InstallRefused("LastWar.exe is already running; close it before the bounded full-scan probe")
@@ -106,7 +124,13 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
         "probe_source_sha256": verified["probe_source_sha256"],
         "backup": str(backup),
         "timeout_seconds": timeout_seconds,
-        "maximum_probe_requests": 65,
+        "maximum_direct_block_requests": 65,
+        "maximum_official_view_requests": 500,
+        "maximum_managed_rect_march_requests": 0,
+        "maximum_world_detail_requests": 50000,
+        "world_detail_request_batch_size": 48,
+        "world_detail_max_retries": 1,
+        "maximum_total_network_requests": 50565,
         "requested_logical_blocks": 10000,
         "expected_batch_count": 65,
         "expected_full_batch_count": 60,
@@ -116,7 +140,8 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
         "serial_capability_probe_first": True,
         "remaining_full_scan_requests": 64,
         "maximum_concurrent_requests": 8,
-        "camera_moves": 0,
+        "expected_camera_moves": 500,
+        "expected_camera_restore": True,
         "retries": 0,
         "world_block_sender": bridge_build,
     }
@@ -163,10 +188,33 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
                 "covered_block_count": final_status.get("covered_block_count"),
                 "full_scan_peak_inflight": final_status.get("full_scan_peak_inflight"),
                 "accumulated_record_count": final_status.get("accumulated_record_count"),
+                "monster_discovery_source": final_status.get("monster_discovery_source"),
+                "direct_monster_record_count": final_status.get("direct_monster_record_count"),
+                "monster_view_index": final_status.get("monster_view_index"),
+                "monster_view_count": final_status.get("monster_view_count"),
+                "monster_camera_move_count": final_status.get("monster_camera_move_count"),
+                "monster_official_request_count": final_status.get("monster_official_request_count"),
+                "monster_march_request_count": final_status.get("monster_march_request_count"),
+                "monster_march_response_count": final_status.get("monster_march_response_count"),
+                "monster_march_foreign_send_count": final_status.get("monster_march_foreign_send_count"),
+                "monster_march_duplicate_push_count": final_status.get("monster_march_duplicate_push_count"),
+                "monster_view_diagnostic_count": final_status.get("monster_view_diagnostic_count"),
+                "monster_capture_count": final_status.get("monster_capture_count"),
+                "monster_views_with_bosses": final_status.get("monster_views_with_bosses"),
+                "monster_camera_restored": final_status.get("monster_camera_restored"),
+                "monster_march_hook_restored": final_status.get("monster_march_hook_restored"),
             }
         else:
             result["status_summary"] = final_status
         result["result_present"] = runtime_paths["result"].is_file()
+        if runtime_paths["monster_diagnostics"].is_file():
+            monster_diagnostics_path = candidate_dir / "live-monster-diagnostics.json"
+            shutil.copy2(runtime_paths["monster_diagnostics"], monster_diagnostics_path)
+            result["monster_diagnostics_path"] = str(monster_diagnostics_path)
+        if runtime_paths["direct_diagnostics"].is_file():
+            direct_diagnostics_path = candidate_dir / "live-direct-diagnostics.json"
+            shutil.copy2(runtime_paths["direct_diagnostics"], direct_diagnostics_path)
+            result["direct_diagnostics_path"] = str(direct_diagnostics_path)
         if probe_result is None:
             probe_result = _read_json(runtime_paths["result"])
         if isinstance(probe_result, dict) and probe_result.get("state") == "proven":
@@ -180,9 +228,30 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
                 shutil.copy2(runtime_paths["heartbeat"], live_heartbeat_path)
             result["live_result_path"] = str(live_result_path)
     finally:
-        _stop_game()
-        _restore_from_backup(paths, backup)
-        if bridge_preexisting:
+        live_restore_ok = False
+        result["live_restore_attempted"] = False
+        result["live_restore_error"] = None
+        if isinstance(probe_result, dict) and probe_result.get("state") == "proven" and game_is_running():
+            result["live_restore_attempted"] = True
+            try:
+                _restore_scan_files_while_running(paths, backup)
+                live_restore_ok = _hashes(paths) == before
+                if not live_restore_ok:
+                    result["live_restore_error"] = "protected hashes did not match after live restore"
+            except (OSError, InstallRefused) as exc:
+                result["live_restore_error"] = str(exc)
+        if not live_restore_ok:
+            _stop_game()
+            _restore_from_backup(paths, backup)
+        result["game_left_running"] = live_restore_ok and game_is_running()
+        result["restore_mode"] = "live_process_preserved" if live_restore_ok else "closed_fallback"
+        result["runtime_helper_cleanup_deferred"] = False
+        if result["game_left_running"]:
+            # WorldBlockSender.dll is loaded with Assembly.LoadFrom and Windows
+            # may hold it open. It is an LWControl runtime helper, not a game
+            # file. Leave it for the next closed-game scan/cleanup.
+            result["runtime_helper_cleanup_deferred"] = True
+        elif bridge_preexisting:
             shutil.copy2(bridge_backup, bridge_path)
         else:
             bridge_path.unlink(missing_ok=True)
@@ -205,18 +274,78 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
         or probe_result.get("maximum_concurrency") != 8
         or not isinstance(probe_result.get("full_scan_peak_inflight"), int)
         or not 1 <= probe_result["full_scan_peak_inflight"] <= 8
-        or probe_result.get("camera_move_count") != 0
+        or probe_result.get("monster_discovery_source") != "PushWorldMarchWorldGet.serverMarchArr.marchInfos"
+        or not isinstance(probe_result.get("direct_monster_record_count"), int)
+        or probe_result["direct_monster_record_count"] < 0
+        or probe_result.get("camera_move_count") != 500
+        or probe_result.get("monster_camera_view_count") != 500
+        or probe_result.get("monster_official_request_count") != 500
+        or probe_result.get("monster_march_request_count") != 0
+        or probe_result.get("monster_march_response_count") != 500
+        or probe_result.get("monster_march_foreign_send_count") != 0
+        or probe_result.get("monster_march_hook_restored") is not True
+        or probe_result.get("monster_capture_count") != 500
+        or not isinstance(probe_result.get("monster_views_with_marches"), int)
+        or probe_result["monster_views_with_marches"] < 1
+        or not isinstance(probe_result.get("monster_views_with_bosses"), int)
+        or probe_result["monster_views_with_bosses"] < 1
+        or not isinstance(probe_result.get("monster_max_march_count"), int)
+        or probe_result["monster_max_march_count"] < 1
+        or probe_result.get("camera_restored") is not True
         or probe_result.get("retry_count") != 0
         or probe_result.get("response_hook_restored") is not True
         or probe_result.get("manager_flag_restored") is not True
+        or probe_result.get("world_response_flag_restored") is not True
     ):
         raise InstallRefused("full-scan probe result did not satisfy the recovered full-world contract")
     batch_results = probe_result.get("batch_results")
     point_records = probe_result.get("point_records")
+    monster_view_diagnostics = probe_result.get("monster_view_diagnostics")
+    player_power_enrichment = probe_result.get("player_power_enrichment")
     if not isinstance(batch_results, list) or len(batch_results) != 65:
         raise InstallRefused("full-scan probe did not record all 65 batch results")
     if not isinstance(point_records, list) or probe_result.get("accumulated_record_count") != len(point_records):
         raise InstallRefused("full-scan accumulated point-record count is inconsistent")
+    if not isinstance(monster_view_diagnostics, list) or len(monster_view_diagnostics) != 500:
+        raise InstallRefused("passive AOI monster scan did not retain all 500 view diagnostics")
+    if (
+        not isinstance(player_power_enrichment, dict)
+        or player_power_enrichment.get("source")
+        != "DataCenter.WorldPointDetailManager.GetDetailByPointId"
+        or player_power_enrichment.get("request_route")
+        != "UI.UIWorldPoint.Controller.UIWorldPointCtrl.RequestWorldPointDetail"
+        or player_power_enrichment.get("batch_size") != 48
+        or player_power_enrichment.get("wait_seconds") != 0.5
+        or player_power_enrichment.get("max_retries") != 1
+        or player_power_enrichment.get("complete") is not True
+        or player_power_enrichment.get("target_limit") is not None
+        or player_power_enrichment.get("skipped_target_count") != 0
+        or player_power_enrichment.get("capped") is not False
+        or not isinstance(player_power_enrichment.get("request_count"), int)
+        or not 0 <= player_power_enrichment["request_count"] <= 50000
+        or not isinstance(player_power_enrichment.get("request_failure_count"), int)
+        or not 0 <= player_power_enrichment["request_failure_count"] <= player_power_enrichment["request_count"]
+        or not isinstance(player_power_enrichment.get("resolved_count"), int)
+        or player_power_enrichment["resolved_count"] < 0
+        or not isinstance(player_power_enrichment.get("unresolved_count"), int)
+        or player_power_enrichment["unresolved_count"] < 0
+        or player_power_enrichment.get("retry_count") not in (0, 1)
+    ):
+        raise InstallRefused("player-power enrichment did not satisfy the bounded current-build detail contract")
+    direct_monsters = [
+        record for record in point_records
+        if isinstance(record, dict)
+        and record.get("kind") == "monster"
+        and record.get("source") == "WorldPointManager._pointInfos"
+    ]
+    if len(direct_monsters) != probe_result["direct_monster_record_count"]:
+        raise InstallRefused("direct monster count does not match retained WorldPointInfo records")
+    required_kinds = {"player_base", "resource_point", "alliance_building", "monster"}
+    observed_kinds = {
+        record.get("kind") for record in point_records if isinstance(record, dict)
+    }
+    if not required_kinds.issubset(observed_kinds):
+        raise InstallRefused("full-scan did not retain every core World Scan record category")
     result["result_summary"] = {
         "state": probe_result["state"],
         "requested_block_count": probe_result["requested_block_count"],
@@ -229,12 +358,33 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
         "accumulated_record_count": probe_result["accumulated_record_count"],
         "duplicate_record_count": probe_result.get("duplicate_record_count"),
         "post_response_capture_count": probe_result.get("post_response_capture_count"),
+        "monster_discovery_source": probe_result["monster_discovery_source"],
+        "direct_monster_record_count": probe_result["direct_monster_record_count"],
+        "kind_counts": probe_result.get("kind_counts"),
+        "point_type_counts": probe_result.get("point_type_counts"),
         "target_response_count": probe_result.get("target_response_count"),
         "rejected_response_count": probe_result.get("rejected_response_count"),
         "camera_move_count": probe_result["camera_move_count"],
+        "monster_camera_view_count": probe_result["monster_camera_view_count"],
+        "monster_official_request_count": probe_result["monster_official_request_count"],
+        "monster_march_request_count": probe_result["monster_march_request_count"],
+        "monster_march_response_count": probe_result["monster_march_response_count"],
+        "monster_march_foreign_send_count": probe_result["monster_march_foreign_send_count"],
+        "monster_march_duplicate_push_count": probe_result.get("monster_march_duplicate_push_count", 0),
+        "monster_march_hook_restored": probe_result["monster_march_hook_restored"],
+        "monster_view_diagnostic_count": len(monster_view_diagnostics),
+        "monster_capture_count": probe_result["monster_capture_count"],
+        "monster_views_with_marches": probe_result.get("monster_views_with_marches"),
+        "monster_views_with_bosses": probe_result["monster_views_with_bosses"],
+        "player_power_enrichment": player_power_enrichment,
+        "monster_max_march_count": probe_result.get("monster_max_march_count"),
+        "camera_restored": probe_result["camera_restored"],
+        "camera_restore_distance": probe_result.get("camera_restore_distance"),
+        "camera_restore_zoom_delta": probe_result.get("camera_restore_zoom_delta"),
         "retry_count": probe_result["retry_count"],
         "response_hook_restored": probe_result["response_hook_restored"],
         "manager_flag_restored": probe_result["manager_flag_restored"],
+        "world_response_flag_restored": probe_result["world_response_flag_restored"],
     }
     result["live_contract_verified"] = True
     return result
@@ -243,7 +393,7 @@ def run_probe(candidate_dir: Path, timeout_seconds: int) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate-dir", type=Path, required=True)
-    parser.add_argument("--timeout-seconds", type=int, default=120)
+    parser.add_argument("--timeout-seconds", type=int, default=600)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
     try:

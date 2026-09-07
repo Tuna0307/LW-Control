@@ -26,7 +26,14 @@ try:
         read_lwlf,
         sha256_file,
     )
-    from .prepare_daily_task_runtime import RUNTIME_ENTRY, _runtime_source, _wrapper_source, verify
+    from .prepare_daily_task_runtime import (
+        RUNTIME_ENTRY,
+        WORLD_SCAN_ENTRY,
+        _runtime_source,
+        _world_scan_source,
+        _wrapper_source,
+        verify,
+    )
 except ImportError:
     from extract_lenc_v3 import decode_lenc_bytes, derive_xlua_key_nonce
     from install_loader_probe import (
@@ -42,7 +49,14 @@ except ImportError:
         read_lwlf,
         sha256_file,
     )
-    from prepare_daily_task_runtime import RUNTIME_ENTRY, _runtime_source, _wrapper_source, verify
+    from prepare_daily_task_runtime import (
+        RUNTIME_ENTRY,
+        WORLD_SCAN_ENTRY,
+        _runtime_source,
+        _world_scan_source,
+        _wrapper_source,
+        verify,
+    )
 
 
 MANIFEST_NAME = "daily-task-runtime-install.json"
@@ -73,15 +87,18 @@ def inspect(paths: dict[str, Path]) -> dict[str, object]:
     file_version, content_version, entries = read_lwlf(paths["data"])
     mapped = _entry_map(entries)
     runtime_present = RUNTIME_ENTRY in mapped
+    world_scan_present = WORLD_SCAN_ENTRY in mapped
     original_present = ORIGINAL_LUA_ENTRY in mapped
     payloads_match = False
     payload_error = None
-    if runtime_present and original_present:
+    if runtime_present and world_scan_present and original_present:
         try:
             native = derive_xlua_key_nonce(_xlua_path(paths))
             wrapper = decode_lenc_bytes(mapped[LUA_ENTRY], native["key"], native["nonce"])["decoded"]
             runtime = decode_lenc_bytes(mapped[RUNTIME_ENTRY], native["key"], native["nonce"])["decoded"]
-            payloads_match = wrapper == _wrapper_source() and runtime == _runtime_source()
+            world_scan = decode_lenc_bytes(mapped[WORLD_SCAN_ENTRY], native["key"], native["nonce"])["decoded"]
+            payloads_match = wrapper == _wrapper_source() and runtime == _runtime_source() \
+                and world_scan == _world_scan_source()
         except Exception as exc:  # inspection reports, never mutates
             payload_error = str(exc)
     manifest = _read_manifest(paths)
@@ -97,12 +114,14 @@ def inspect(paths: dict[str, Path]) -> dict[str, object]:
         "content_version": content_version,
         "entry_count": len(entries),
         "runtime_entry_present": runtime_present,
+        "world_scan_entry_present": world_scan_present,
         "preserved_original_present": original_present,
         "payloads_match_current_source": payloads_match,
         "payload_error": payload_error,
         "manifest_present": manifest is not None,
         "manifest_hash_match": manifest_hash_match,
-        "installed": runtime_present and original_present and payloads_match and manifest is not None and manifest_hash_match,
+        "installed": runtime_present and world_scan_present and original_present and payloads_match \
+            and manifest is not None and manifest_hash_match,
         "current_hashes": current_hashes,
         "manifest": manifest,
     }
@@ -127,7 +146,8 @@ def install(paths: dict[str, Path], candidate_dir: Path) -> dict[str, object]:
     current = inspect(paths)
     if current["installed"]:
         return {"changed": False, "reason": "already_installed", "inspection": current}
-    if current["runtime_entry_present"] or current["preserved_original_present"] or current["manifest_present"]:
+    if current["runtime_entry_present"] or current["world_scan_entry_present"] \
+            or current["preserved_original_present"] or current["manifest_present"]:
         raise InstallRefused("A partial or different Daily Task runtime installation is present; inspect before changing it")
 
     verified = verify(paths, candidate_dir)

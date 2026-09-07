@@ -893,6 +893,159 @@ cases.Add(("Recovered World Map full-grid plan batches every logical block withi
         && batch.RightTopTile.Y is >= 0 and <= 999));
     Check(plan.Batches.Any(batch => batch.RightTopTile.X == 999 || batch.RightTopTile.Y == 999));
 }));
+cases.Add(("Current World Map full-scan result validates proven transport and rich records", () =>
+{
+    string directory = Path.Combine(Path.GetTempPath(), $"lw-world-scan-{Guid.NewGuid():N}");
+    Directory.CreateDirectory(directory);
+    try
+    {
+        string path = Path.Combine(directory, "live-result.json");
+        var payload = new
+        {
+            schemaVersion = 2,
+            probeVersion = "lwcontrol-world-full-scan-probe-4",
+            state = "proven",
+            capturedAt = "2026-09-06T06:51:52Z",
+            requested_block_count = 10_000,
+            covered_block_count = 10_000,
+            request_sent_count = 65,
+            completed_batch_count = 65,
+            maximum_concurrency = 8,
+            full_scan_peak_inflight = 8,
+            accumulated_record_count = 4,
+            duplicate_record_count = 2,
+            monster_discovery_source = "PushWorldMarchWorldGet.serverMarchArr.marchInfos",
+            direct_monster_record_count = 0,
+            camera_move_count = 500,
+            camera_restored = true,
+            monster_camera_view_count = 500,
+            monster_official_request_count = 500,
+            monster_march_request_count = 0,
+            monster_march_response_count = 500,
+            monster_march_foreign_send_count = 0,
+            monster_march_duplicate_push_count = 0,
+            monster_march_hook_restored = true,
+            monster_capture_count = 500,
+            monster_views_with_marches = 1,
+            monster_views_with_bosses = 1,
+            monster_max_march_count = 1,
+            retry_count = 0,
+            response_hook_restored = true,
+            manager_flag_restored = true,
+            world_response_flag_restored = true,
+            point_records = new object[]
+            {
+                new
+                {
+                    id = 456321,
+                    pointId = 456321,
+                    pointType = 6,
+                    kind = "player_base",
+                    uuid = 9001,
+                    serverId = 2212,
+                    srcServerId = 2212,
+                    worldId = 0,
+                    x = 321,
+                    y = 456,
+                    name = "Commander",
+                    playerName = "Commander",
+                    playerId = "player-1",
+                    alliance = "ABC",
+                    allianceId = "alliance-1",
+                    level = 30,
+                    power = 123456L,
+                    powerSource = "DataCenter.WorldPointDetailManager.GetDetailByPointId",
+                    shield = new
+                    {
+                        known = true,
+                        active = true,
+                        expiresAt = 1_788_650_000L,
+                        remainingSeconds = 120,
+                        source = "WorldPointInfo.BuildInfo.protectEndTime"
+                    },
+                    source = "WorldPointManager._pointInfos"
+                },
+                new
+                {
+                    id = 222111,
+                    pointId = 222111,
+                    pointType = 7,
+                    kind = "resource_point",
+                    uuid = 0,
+                    serverId = 2212,
+                    srcServerId = 2212,
+                    worldId = 0,
+                    x = 111,
+                    y = 222,
+                    resourceTypeId = "1",
+                    resourceType = "food",
+                    resourceRemaining = 750000L,
+                    resourceCapacity = 1000000L,
+                    resourceAmountSource = "DataCenter.WorldPointDetailManager.GetDetailByPointId",
+                    source = "WorldPointManager._pointInfos"
+                },
+                new
+                {
+                    id = 333222,
+                    pointId = 333222,
+                    pointType = 15,
+                    kind = "alliance_building",
+                    uuid = 0,
+                    serverId = 2212,
+                    srcServerId = 2212,
+                    worldId = 0,
+                    x = 222,
+                    y = 333,
+                    alliance = "ABC",
+                    allianceId = "alliance-1",
+                    source = "WorldPointManager._pointInfos"
+                },
+                new
+                {
+                    id = 654123,
+                    pointId = 654123,
+                    pointType = 4,
+                    kind = "monster",
+                    uuid = "monster-march-1",
+                    serverId = 2212,
+                    srcServerId = 2212,
+                    worldId = 0,
+                    x = 123,
+                    y = 654,
+                    level = 30,
+                    monsterId = "38",
+                    recommendedPower = 500000L,
+                    source = "PushWorldMarchWorldGet.serverMarchArr.marchInfos"
+                }
+            }
+        };
+        File.WriteAllText(path, JsonSerializer.Serialize(payload));
+        var result = CurrentWorldMapFullScanResult.Read(path);
+        Check(result.AccumulatedRecordCount == 4);
+        Check(result.MonsterDiscoverySource == "PushWorldMarchWorldGet.serverMarchArr.marchInfos");
+        Check(result.DirectMonsterRecordCount == 0);
+        Check(result.MonsterMarchRequestCount == 0 && result.MonsterMarchResponseCount == 500);
+        Check(result.MonsterMarchForeignSendCount == 0 && result.MonsterMarchDuplicatePushCount == 0);
+        Check(result.MonsterMarchHookRestored);
+        Check(result.PointRecords.Single(record => record.Kind == "player_base").PlayerName == "Commander");
+        Check(result.PointRecords.Single(record => record.Kind == "player_base").PowerSource
+            == "DataCenter.WorldPointDetailManager.GetDetailByPointId");
+        Check(result.PointRecords.Single(record => record.Kind == "player_base").Shield?.Active == true);
+        var resource = result.PointRecords.Single(record => record.Kind == "resource_point");
+        Check(resource.ResourceRemaining == 750000L && resource.ResourceCapacity == 1000000L);
+        Check(resource.ResourceAmountSource == "DataCenter.WorldPointDetailManager.GetDetailByPointId");
+        Check(result.PointRecords.Single(record => record.Kind == "monster").PointType == 4);
+
+        string invalid = File.ReadAllText(path).Replace(
+            "\"covered_block_count\":10000", "\"covered_block_count\":9999", StringComparison.Ordinal);
+        File.WriteAllText(path, invalid);
+        Throws<InvalidDataException>(() => CurrentWorldMapFullScanResult.Read(path));
+    }
+    finally
+    {
+        if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+    }
+}));
 cases.Add(("Daily Task live command protocol is bounded and heartbeat-gated", () =>
 {
     string command = CurrentDailyTaskRuntimeClient.BuildCommandText("daily-test_1", 20);
@@ -924,6 +1077,71 @@ cases.Add(("Daily Task live command protocol is bounded and heartbeat-gated", ()
     {
         if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
     }
+}));
+
+cases.Add(("Persistent World Scan command protocol is heartbeat-gated", () =>
+{
+    string command = CurrentWorldMapScanClient.BuildCommandText("world-test_1");
+    Check(command == "schema=1\ncommandId=world-test_1\nmode=run_once\n");
+    Throws<ArgumentException>(() => CurrentWorldMapScanClient.BuildCommandText("bad id"));
+
+    string directory = Path.Combine(Path.GetTempPath(), $"lw-world-runtime-{Guid.NewGuid():N}");
+    Directory.CreateDirectory(directory);
+    try
+    {
+        var client = new CurrentWorldMapScanClient(directory);
+        Check(client.Inspect(now).StatusCode == "heartbeat_missing");
+        File.WriteAllText(Path.Combine(directory, "world-map-full-scan-heartbeat.json"),
+            JsonSerializer.Serialize(new
+            {
+                version = CurrentWorldMapScanClient.ExpectedRuntimeVersion,
+                loaded = true,
+                persistent = true,
+                updated_at = now.ToUnixTimeSeconds(),
+                registrationMethod = "UpdateManager.AddUpdate"
+            }));
+        var inspection = client.Inspect(now);
+        Check(inspection.StatusCode == "ready");
+        Check(inspection.HeartbeatFresh);
+        Check(inspection.RegistrationMethod == "UpdateManager.AddUpdate");
+        Check(client.Inspect(now + TimeSpan.FromSeconds(16)).StatusCode == "heartbeat_stale");
+    }
+    finally
+    {
+        if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+    }
+}));
+
+cases.Add(("Packaged LocalAppData resolves to the real user profile path", () =>
+{
+    string profile = @"C:\Users\tester";
+    string packaged = @"C:\Users\tester\AppData\Local\Packages\OpenAI.Codex_test\LocalCache\Local";
+    string expected = @"C:\Users\tester\AppData\Local";
+    Check(string.Equals(RuntimePaths.ResolveLocalApplicationData(packaged, profile), expected,
+        StringComparison.OrdinalIgnoreCase));
+    Check(string.Equals(RuntimePaths.ResolveLocalApplicationData(expected, profile), expected,
+        StringComparison.OrdinalIgnoreCase));
+}));
+cases.Add(("World Map focus command is bounded to the selected verified coordinate", () =>
+{
+    var record = new CurrentWorldMapScanRecord
+    {
+        Id = 123,
+        PointId = 123,
+        PointType = 6,
+        Kind = "player_base",
+        ServerId = 1,
+        SrcServerId = 1,
+        WorldId = 1,
+        X = 321,
+        Y = 654,
+        Source = "WorldPointManager._pointInfos"
+    };
+    string command = CurrentWorldMapFocusClient.BuildCommandText("focus-test_1", record);
+    Check(command == "schema=1\ncommandId=focus-test_1\nx=321\ny=654\nserverId=1\npointId=123\n");
+    Throws<ArgumentException>(() => CurrentWorldMapFocusClient.BuildCommandText("bad id", record));
+    Throws<ArgumentOutOfRangeException>(() => CurrentWorldMapFocusClient.BuildCommandText(
+        "focus-test", record with { X = 1000 }));
 }));
 cases.Add(("Daily Task live result requires final authoritative Received state", () =>
 {

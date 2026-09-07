@@ -17,6 +17,15 @@ decisions, exports plans, and can inspect the existing bridge read-only. The
 **Daily Task Claim** path now also has a clean-room current-game runtime and a
 bilingual **Claim daily tasks / 领取每日任务奖励** action. Other reward categories
 remain preview-only.
+The desktop also exposes **World Scan / 世界扫描**. Its 100x100/65-batch direct
+block transport is live-proven. The rebuilt monster phase follows the recovered
+500-view camera path and the current-build explicit march-message contract; the
+importer refuses to show a completed scan unless that march path, monster capture,
+and cleanup are also proven by the live result. The current checkpoint has passed
+static validation but still requires that final guarded live monster proof.
+Current generated `WorldPointInfo` payloads are preferred over historical field
+aliases; unsupported optional fields stay unknown. See
+[World Scan rich-record recovery](docs/current-world-map-record-recovery.md).
 See [implementation details](docs/csharp-implementation.md).
 The daily-claim preview policy is now based on statically recovered behavior from
 the supplied executable; see [Daily Free Claims recovery notes](docs/daily-free-claims-recovery.md).

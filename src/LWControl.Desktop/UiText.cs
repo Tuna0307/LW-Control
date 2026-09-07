@@ -13,8 +13,8 @@ public static class UiText
 {
     private static readonly Dictionary<string, (string English, string Chinese)> Strings = new()
     {
-        ["Title"] = ("LW Control — Daily claims", "LW Control — 每日奖励"),
-        ["Header"] = ("DAILY CLAIMS\nDaily Task live runtime · Other reward categories remain preview-only", "每日奖励\n每日任务实时运行 · 其他奖励类别目前仅供预览"),
+        ["Title"] = ("LW Control", "LW Control"),
+        ["Header"] = ("LW CONTROL\nDaily Task live runtime · Proven full-world scan", "LW CONTROL\n每日任务实时运行 · 已验证全地图扫描"),
         ["Enable"] = ("Enable daily-claim planning", "启用每日奖励规划"),
         ["Expiry"] = ("Prefer expiring rewards (reference core only)", "优先即将过期的奖励（仅参考核心）"),
         ["Chests"] = ("Then prioritize task chests", "然后优先任务宝箱"),
@@ -26,6 +26,7 @@ public static class UiText
         ["BuildPlan"] = ("Build plan", "生成计划"),
         ["InspectBridge"] = ("Inspect bridge (read-only)", "检查桥接（只读）"),
         ["ClaimDailyTasks"] = ("Claim daily tasks", "领取每日任务奖励"),
+        ["WorldScan"] = ("World Scan", "世界扫描"),
         ["SaveSettings"] = ("Save settings", "保存设置"),
         ["ExportPlan"] = ("Export plan", "导出计划"),
         ["NoObservations"] = ("No observations loaded.", "尚未载入观察数据。"),

@@ -119,6 +119,11 @@ class WorldMapConcurrentProbeSourceTests(unittest.TestCase):
         source = BRIDGE.read_text(encoding="utf-8")
         self.assertIn("Action<object[]> SendAoi", source)
         self.assertIn('method.Name != "SendAoiRequest"', source)
+        self.assertIn("Action<object[]> SendRectMarch", source)
+        self.assertIn('gameAssembly.GetType("WorldGetRectMarchInfosMessage", true)', source)
+        self.assertIn('gameAssembly.GetType("WorldGetRectMarchInfosMessage+Request", true)', source)
+        self.assertIn('parameters[0].ParameterType == typeof(object[])', source)
+        self.assertIn('send.Invoke(message, new object[] { new object[] { request } })', source)
 
 
 if __name__ == "__main__":

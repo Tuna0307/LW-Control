@@ -24,7 +24,7 @@ public static class LocalBridgeInspector
     public static readonly TimeSpan ProcessStartTolerance = TimeSpan.FromSeconds(2);
 
     public static string DefaultRootDirectory => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LastWarControl");
+        RuntimePaths.CanonicalLocalApplicationData, "LastWarControl");
 
     public static LocalBridgeInspection Inspect(string? rootDirectory = null, DateTimeOffset? checkedAt = null)
     {

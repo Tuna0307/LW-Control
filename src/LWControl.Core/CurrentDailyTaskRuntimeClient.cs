@@ -105,8 +105,7 @@ public sealed class CurrentDailyTaskRuntimeClient
         root = Path.GetFullPath(rootDirectory ?? DefaultRootDirectory);
     }
 
-    public static string DefaultRootDirectory => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LWControl", "runtime");
+    public static string DefaultRootDirectory => RuntimePaths.LWControlRuntimeDirectory;
 
     public CurrentDailyTaskRuntimeInspection Inspect(DateTimeOffset? checkedAt = null)
     {
