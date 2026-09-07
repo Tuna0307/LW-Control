@@ -29,8 +29,24 @@ internal static class Program
             }
             return;
         }
-        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        var settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "LWControlRebuild", "settings.json");
-        Application.Run(new MainForm(path));
+        if (args.Contains("--legacy-ui"))
+        {
+            Application.Run(new MainForm(settingsPath));
+            return;
+        }
+        string? smokeOutput = ReadOption(args, "--webview-smoke-output");
+        bool smoke = args.Contains("--webview-smoke") || smokeOutput is not null;
+        bool referenceOnly = args.Contains("--reference-capture");
+        Application.Run(new ReferenceWebViewForm(settingsPath, smokeOutput, referenceOnly, smoke));
+    }
+
+    private static string? ReadOption(string[] args, string name)
+    {
+        int index = Array.IndexOf(args, name);
+        if (index < 0) return null;
+        if (index + 1 >= args.Length) throw new ArgumentException($"{name} requires a value.");
+        return Path.GetFullPath(args[index + 1]);
     }
 }

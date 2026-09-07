@@ -13,6 +13,7 @@ internal enum FeatureImplementationState
 {
     Pending,
     Partial,
+    Recovered,
     Available,
 }
 
@@ -22,7 +23,7 @@ internal sealed record ReferenceFeature(
     string Description,
     ReferenceFeatureGroup Group,
     IReadOnlyList<string> Actions,
-    FeatureImplementationState State = FeatureImplementationState.Pending);
+    FeatureImplementationState State = FeatureImplementationState.Recovered);
 
 internal static class ReferenceFeatureCatalog
 {
@@ -51,7 +52,7 @@ internal static class ReferenceFeatureCatalog
         F("alliance_gift_claim", "Alliance Gifts", "Claim alliance gifts and reward chests.", ReferenceFeatureGroup.AutomationDaily, "Claim All"),
         F("use_stamina_item", "Use Stamina Item", "Safely use stamina recovery items at a threshold.", ReferenceFeatureGroup.AutomationDaily, "Use One", "Use at Threshold"),
         F("auto_reward_collect", "Reward Collector", "Collect currently available task and building rewards.", ReferenceFeatureGroup.AutomationDaily, "Collect All"),
-        F("daily_free_claims", "Daily Free Claims", "Claim only rewards verified as free.", ReferenceFeatureGroup.AutomationDaily, FeatureImplementationState.Partial, "Run Once", "Pause"),
+        F("daily_free_claims", "Daily Free Claims", "Claim only rewards verified as free.", ReferenceFeatureGroup.AutomationDaily, FeatureImplementationState.Recovered, "Run Once", "Pause"),
         F("auto_attack", "Auto Attack", "Search for a target and dispatch an attack squad.", ReferenceFeatureGroup.AutomationDaily, "Attack Once", "Start", "Stop"),
         F("auto_rally", "Auto Rally", "Select a target and create an alliance rally.", ReferenceFeatureGroup.AutomationDaily, "Create Once", "Start", "Stop"),
         F("auto_chat", "Auto Chat", "Send alliance notices or scheduled messages.", ReferenceFeatureGroup.AutomationDaily, "Send Once"),

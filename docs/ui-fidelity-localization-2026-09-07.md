@@ -95,3 +95,13 @@ Final outcomes:
 
 The final screenshots were inspected for Chinese feature/action text, shortcut
 cards, category status, and minimum-width map headers. No game action was sent.
+
+## Follow-up: WebView2 renderer migration
+
+This document records the earlier WinForms fidelity pass. It has since been
+superseded as the default renderer by the recovered WebView2 resource; the
+WinForms implementation remains available through `--legacy-ui` and its smoke
+suite still passes. See
+[WebView2 reference UI verification](webview-ui-verification-2026-09-07.md) for
+the final 127-capture matrix, exact recovered-resource hash, capability-layer
+differences, and current validation results.

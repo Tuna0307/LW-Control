@@ -125,17 +125,27 @@ The reference grouping array also contains `map_scan`; its route is Map & Data, 
 
 ## Current rebuilt desktop implementation
 
-The [completed UI/localization follow-up](ui-fidelity-localization-2026-09-07.md)
-records exact navigation order, bilingual coverage, feature-scoped action text,
-responsive cards, dark tabs, six Hotkeys cards, and native-renderer differences.
+The default desktop now hosts the exact recovered Build 189 UI resource in
+WebView2. Its embedded bytes retain SHA-256
+`d75e86d7cef945929cd3fc6af8d736f4cd3dee028f8d79d52b405edc95486e4a`.
+The earlier WinForms reconstruction remains available with `--legacy-ui`.
+The [WebView2 verification checkpoint](webview-ui-verification-2026-09-07.md)
+records the 127-capture fixture matrix, exact resource hash, visual comparison,
+and fail-closed execution contract. The earlier
+[UI/localization follow-up](ui-fidelity-localization-2026-09-07.md) remains the
+historical record of the WinForms pass.
 
 - `World Scan` is **AVAILABLE**. `Scan`, filtering/search, details, and `Locate in Game` remain wired to the current persistent World Scan runtime.
 - `Daily Free Claims` is **PARTIAL**. Of its seven categories, only Daily Task
-  has an implemented runtime. `View categories` displays recovery and
-  implementation status; `Run Once` and `Pause` remain disabled. The 42-feature
-  count describes the entire application, not Daily Free Claims.
+  has an implemented runtime. The WebView rebuild enables only its recovered
+  `run_once` action, relabelled **Daily Task only**, and independently gates that
+  route in the host. `Pause`, probes/state helpers, and the unrecovered reward
+  categories remain disabled/unavailable. The 42-feature count describes the
+  entire application, not Daily Free Claims.
 - Every other recovered reference feature is **PENDING** and its action buttons are disabled. No missing feature is presented as functional.
-- The legacy Daily Task planning/import controls remain under Settings so current recovered functionality is not lost while the reference shell is reconstructed.
+- Rebuild-specific AVAILABLE/PARTIAL/PENDING badges and disabled styling are
+  intentional additions to the recovered UI and are not represented as original
+  artifact behavior.
 
 ## Start Game behavior
 

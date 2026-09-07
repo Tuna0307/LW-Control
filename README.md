@@ -12,6 +12,13 @@ dotnet run --project src/LWControl.Desktop/LWControl.Desktop.csproj
 dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj
 ```
 
+The normal desktop now renders the exact recovered Build 189 WebView2 UI bundle.
+Use `--legacy-ui` to open the earlier WinForms reconstruction. Rebuild-specific
+availability badges and execution gates are applied after the recovered UI mounts
+so unproven feature actions remain disabled. The fixture-only 127-capture
+verification is documented in
+[WebView2 reference UI verification](docs/webview-ui-verification-2026-09-07.md).
+
 The desktop app saves settings, imports observations, previews daily-claim
 decisions, exports plans, and can inspect the existing bridge read-only. The
 **Daily Task Claim** path now also has a clean-room current-game runtime and a
