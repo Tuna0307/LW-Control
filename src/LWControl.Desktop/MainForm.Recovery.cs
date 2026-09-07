@@ -60,7 +60,10 @@ public sealed partial class MainForm
             Font = Font, ShowInTaskbar = false, MinimizeBox = false,
         };
         dialog.Controls.Add(BuildDailyClaimRecoveryPage());
+        RegisterStaticText(dialog);
+        ApplyStaticLocalization();
         ApplyControlAppearance(dialog, DesktopPalette.Find(appearance.Accent));
-        dialog.ShowDialog(this);
+        try { dialog.ShowDialog(this); }
+        finally { UnregisterText(dialog); }
     }
 }

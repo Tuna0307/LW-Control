@@ -9,9 +9,9 @@ This document separates recovered reference behavior, proven current-build behav
 The reference application exposes these top-level destinations:
 
 - Home
+- Automation
 - Map & Data
 - Squads & AFK
-- Automation
 - Hotkeys
 - Settings
 
@@ -47,7 +47,7 @@ The rebuilt desktop mirrors these controls. Language, five accent choices,
 session-log export, and runtime refresh are functional; unrecovered behavior
 remains disabled. Appearance and language persist separately from claim-policy
 settings. Existing Daily Task/planner controls are preserved in a separate
-`Recovered Tools` settings tab. See the [2026-09-07 resume checkpoint](resume-checkpoint-2026-09-07.md)
+`Daily Task Tools` settings tab. See the [2026-09-07 resume checkpoint](resume-checkpoint-2026-09-07.md)
 for palette provenance and validation.
 
 The recovered feature catalog contains exactly 42 unique features. The grouping and action labels below come from the embedded reference UI.
@@ -124,6 +124,10 @@ The reference grouping array also contains `map_scan`; its route is Map & Data, 
 | `secret_task` | Secret Task | Refresh for free, dispatch heroes, and claim secret-task rewards. | Free Refresh; Dispatch One; Claim One |
 
 ## Current rebuilt desktop implementation
+
+The [completed UI/localization follow-up](ui-fidelity-localization-2026-09-07.md)
+records exact navigation order, bilingual coverage, feature-scoped action text,
+responsive cards, dark tabs, six Hotkeys cards, and native-renderer differences.
 
 - `World Scan` is **AVAILABLE**. `Scan`, filtering/search, details, and `Locate in Game` remain wired to the current persistent World Scan runtime.
 - `Daily Free Claims` is **PARTIAL**. Of its seven categories, only Daily Task

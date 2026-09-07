@@ -69,8 +69,8 @@ public sealed partial class MainForm
                 pair.Value.ForeColor = DesktopPalette.Find(pair.Key).HighlightColor;
                 pair.Value.FlatAppearance.BorderColor = pair.Key == appearance.Accent
                     ? palette.PrimaryColor : BorderColor;
-                pair.Value.Text = pair.Key == appearance.Accent ? $"✓ {pair.Key}" : pair.Key;
-                pair.Value.AccessibleDescription = pair.Key == appearance.Accent ? "Selected accent" : "Select accent";
+                pair.Value.Text = pair.Key == appearance.Accent ? $"✓ {T(pair.Key)}" : T(pair.Key);
+                pair.Value.AccessibleDescription = T(pair.Key == appearance.Accent ? "Selected accent" : "Select accent");
             }
         }
         finally { ResumeLayout(performLayout: true); }
@@ -80,8 +80,9 @@ public sealed partial class MainForm
     {
         control.BackColor = control is Form || control.Parent is null ? ShellColor : control.Parent.BackColor;
         control.ForeColor = TextColor;
-        if (Equals(control.Tag, "feature-card") || Equals(control.Tag, "settings-section"))
+        if (Equals(control.Tag, "feature-card") || Equals(control.Tag, "shortcut-card") || Equals(control.Tag, "settings-section") || Equals(control.Tag, "summary-card"))
             control.BackColor = SurfaceColor;
+        if (Equals(control.Tag, "sidebar")) control.BackColor = Color.FromArgb(9, 11, 16);
         switch (control)
         {
             case TabPage tab:
@@ -128,9 +129,21 @@ public sealed partial class MainForm
                 control.BackColor = control.Parent.BackColor;
                 break;
         }
+        if (control.Tag is FeatureImplementationState state)
+        {
+            control.BackColor = SurfaceColor;
+            control.ForeColor = state switch
+            {
+                FeatureImplementationState.Available => Color.FromArgb(110, 231, 183),
+                FeatureImplementationState.Partial => Color.FromArgb(252, 211, 77),
+                _ => Color.FromArgb(160, 168, 186),
+            };
+        }
+        if (Equals(control.Tag, "summary-card")) control.BackColor = SurfaceColor;
         // DataGridView manages its editing/scrollbar child controls itself.
         if (control is DataGridView) return;
         foreach (Control child in control.Controls) ApplyControlAppearance(child, palette);
+        if (control is ReferenceTabs tabs) tabs.ApplyPalette(palette);
     }
 
     private static void PaintDisabledButton(object? sender, PaintEventArgs e)
@@ -159,7 +172,7 @@ public sealed partial class MainForm
     {
         using var dialog = new SaveFileDialog
         {
-            Filter = "Text log|*.txt", FileName = $"lwcontrol-session-{DateTime.Now:yyyyMMdd-HHmmss}.txt",
+            Filter = T("Text log|*.txt"), FileName = $"lwcontrol-session-{DateTime.Now:yyyyMMdd-HHmmss}.txt",
         };
         if (dialog.ShowDialog(this) != DialogResult.OK) return;
         File.WriteAllText(dialog.FileName, log.Text);

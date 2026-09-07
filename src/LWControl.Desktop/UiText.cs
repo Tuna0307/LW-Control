@@ -9,7 +9,7 @@ public enum UiLanguage
     SimplifiedChinese,
 }
 
-public static class UiText
+public static partial class UiText
 {
     private static readonly Dictionary<string, (string English, string Chinese)> Strings = new()
     {
@@ -26,7 +26,7 @@ public static class UiText
         ["BuildPlan"] = ("Build plan", "生成计划"),
         ["InspectBridge"] = ("Inspect bridge (read-only)", "检查桥接（只读）"),
         ["ClaimDailyTasks"] = ("Claim daily tasks", "领取每日任务奖励"),
-        ["WorldScan"] = ("World Scan", "世界扫描"),
+        ["WorldScan"] = ("World Scan", "全图扫描"),
         ["SaveSettings"] = ("Save settings", "保存设置"),
         ["ExportPlan"] = ("Export plan", "导出计划"),
         ["NoObservations"] = ("No observations loaded.", "尚未载入观察数据。"),

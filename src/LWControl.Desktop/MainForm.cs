@@ -26,7 +26,7 @@ public sealed partial class MainForm : Form
     private readonly DataGridView worldGrid = new()
     {
         Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
-        AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+        AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
         RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect,
         MultiSelect = false
     };
@@ -75,6 +75,7 @@ public sealed partial class MainForm : Form
         StartPosition = FormStartPosition.CenterScreen;
         Font = new Font("Segoe UI", 10);
         Controls.Add(BuildApplicationShell());
+        RegisterStaticText(this);
 
         loadObservationsButton.Click += (_, _) => Guard(LoadObservations);
         loadSampleButton.Click += (_, _) => Guard(LoadSample);
@@ -92,6 +93,7 @@ public sealed partial class MainForm : Form
         languagePicker.SelectedIndex = language == UiLanguage.SimplifiedChinese ? 1 : 0;
         languagePicker.SelectedIndexChanged += (_, _) =>
         {
+            if (applyingLanguage) return;
             language = languagePicker.SelectedIndex == 1 ? UiLanguage.SimplifiedChinese : UiLanguage.English;
             ApplyLanguage();
             RefreshRuntimeStatus(logResult: false);
@@ -115,7 +117,7 @@ public sealed partial class MainForm : Form
         expiry.CheckedChanged += (_, _) => InvalidatePlan();
         chests.CheckedChanged += (_, _) => InvalidatePlan();
         limit.ValueChanged += (_, _) => InvalidatePlan();
-        categories.ItemCheck += (_, _) => InvalidatePlan();
+        categories.ItemCheck += (_, _) => { if (!applyingLanguage) InvalidatePlan(); };
         worldTypeFilter.SelectedIndexChanged += (_, _) => ApplyWorldFilter();
         worldSearch.TextChanged += (_, _) => ApplyWorldFilter();
         worldGrid.SelectionChanged += (_, _) => UpdateWorldSelection();
@@ -124,32 +126,30 @@ public sealed partial class MainForm : Form
             if (eventArgs.RowIndex >= 0) await GuardAsync(FocusSelectedWorldRecordAsync);
         };
         ShowPage("home");
-        ApplyAppearance();
         RefreshRuntimeStatus(logResult: false);
         AddLog(UiText.Get(language, "Ready"));
     }
 
     private Control BuildApplicationShell()
     {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };
-        root.RowStyles.Add(new(SizeType.Absolute, 62));
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 2, Margin = Padding.Empty };
+        root.ColumnStyles.Add(new(SizeType.Absolute, 192));
+        root.ColumnStyles.Add(new(SizeType.Percent, 100));
+        root.RowStyles.Add(new(SizeType.Absolute, 70));
         root.RowStyles.Add(new(SizeType.Percent, 100));
         root.RowStyles.Add(new(SizeType.Absolute, 30));
         root.RowStyles.Add(new(SizeType.Absolute, 112));
-        root.Controls.Add(BuildTopBar(), 0, 0);
-
-        var body = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
-        body.ColumnStyles.Add(new(SizeType.Absolute, 190));
-        body.ColumnStyles.Add(new(SizeType.Percent, 100));
-        body.Controls.Add(BuildNavigation(), 0, 0);
-        body.Controls.Add(pageHost, 1, 0);
-        root.Controls.Add(body, 0, 1);
+        root.Controls.Add(BuildTopBar(), 1, 0);
+        var navigation = BuildNavigation();
+        root.Controls.Add(navigation, 0, 0);
+        root.SetRowSpan(navigation, 4);
+        root.Controls.Add(pageHost, 1, 1);
 
         status.Dock = DockStyle.Fill;
         status.Padding = new Padding(12, 5, 0, 0);
-        root.Controls.Add(status, 0, 2);
+        root.Controls.Add(status, 1, 2);
         log.Margin = new Padding(12, 0, 12, 10);
-        root.Controls.Add(log, 0, 3);
+        root.Controls.Add(log, 1, 3);
 
         pages["home"] = BuildHomePage();
         pages["map"] = BuildWorldMapPage();
@@ -171,10 +171,11 @@ public sealed partial class MainForm : Form
         var top = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Padding = new Padding(14, 8, 14, 6) };
         top.ColumnStyles.Add(new(SizeType.Percent, 100));
         top.ColumnStyles.Add(new(SizeType.AutoSize));
-        header.Font = new Font(Font.FontFamily, 11, FontStyle.Bold);
+        header.Font = new Font(Font.FontFamily, 14, FontStyle.Bold);
+        header.TextAlign = ContentAlignment.MiddleLeft;
         top.Controls.Add(header, 0, 0);
 
-        var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight };
+        var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight, Anchor = AnchorStyles.Right, Padding = new Padding(0, 10, 0, 0) };
         actions.Controls.Add(startGameButton);
         actions.Controls.Add(refreshButton);
         actions.Controls.Add(regionChip);
@@ -195,12 +196,14 @@ public sealed partial class MainForm : Form
             Padding = new Padding(12, 16, 8, 12),
             AutoScroll = true,
         };
-        AddNavigationButton(panel, "home", "Home");
-        AddNavigationButton(panel, "map", "Map & Data");
-        AddNavigationButton(panel, "squads", "Squads & AFK");
-        AddNavigationButton(panel, "automation", "Automation");
-        AddNavigationButton(panel, "hotkeys", "Hotkeys");
-        AddNavigationButton(panel, "settings", "Settings");
+        panel.Tag = "sidebar";
+        panel.Controls.Add(new Label
+        {
+            Text = "LW Control", AutoSize = false, Width = 158, Height = 52,
+            Font = new Font(Font.FontFamily, 15, FontStyle.Bold), Padding = new Padding(5, 6, 0, 0),
+            Margin = new Padding(0, 0, 0, 12),
+        });
+        foreach (var entry in Navigation) AddNavigationButton(panel, entry.Key, entry.Title);
         return panel;
     }
 
@@ -210,9 +213,9 @@ public sealed partial class MainForm : Form
         {
             Text = text,
             Width = 158,
-            Height = 42,
+            Height = 44,
             TextAlign = ContentAlignment.MiddleLeft,
-            Margin = new Padding(0, 0, 0, 8),
+            Margin = new Padding(0, 0, 0, 4),
         };
         button.Click += (_, _) => ShowPage(key);
         navigationButtons[key] = button;
@@ -226,28 +229,34 @@ public sealed partial class MainForm : Form
         int pending = ReferenceFeatureCatalog.All.Count - available - partial;
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, ColumnCount = 1, Padding = new Padding(18) };
         root.RowStyles.Add(new(SizeType.Absolute, 48));
-        root.RowStyles.Add(new(SizeType.Absolute, 62));
-        root.RowStyles.Add(new(SizeType.Absolute, 55));
-        root.RowStyles.Add(new(SizeType.Absolute, 85));
+        root.RowStyles.Add(new(SizeType.Absolute, 56));
+        root.RowStyles.Add(new(SizeType.Absolute, 106));
+        root.RowStyles.Add(new(SizeType.Absolute, 78));
         root.RowStyles.Add(new(SizeType.Percent, 100));
-        root.Controls.Add(new Label { Text = "LW Control", Font = new Font(Font.FontFamily, 20, FontStyle.Bold), AutoSize = true }, 0, 0);
+        root.Controls.Add(new Label { Text = "Command Center", Font = new Font(Font.FontFamily, 20, FontStyle.Bold), AutoSize = true }, 0, 0);
         root.Controls.Add(new Label
         {
-            Text = "Reference UI recovered from LWControl.zip. Features remain visible while unfinished actions stay disabled.",
+            Text = "Your tools, connection status, and feature availability.",
             AutoSize = true,
             MaximumSize = new Size(900, 0),
         }, 0, 1);
-        runtimeSummaryLabel.Font = new Font(Font.FontFamily, 10, FontStyle.Bold);
-        root.Controls.Add(runtimeSummaryLabel, 0, 2);
+        var counts = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1 };
+        foreach (var summary in new[] { ("Features", 42), ("AVAILABLE", available), ("PARTIAL", partial), ("PENDING", pending) })
+        {
+            counts.ColumnStyles.Add(new(SizeType.Percent, 25));
+            counts.Controls.Add(Bind(new Label
+            {
+                Dock = DockStyle.Fill, Padding = new Padding(14), Margin = new Padding(0, 0, 12, 12),
+                Font = new Font(Font.FontFamily, 14, FontStyle.Bold), Tag = "summary-card",
+            }, () => $"{summary.Item2}\n{T(summary.Item1)}"));
+        }
+        root.Controls.Add(counts, 0, 2);
+        runtimeSummaryLabel.AutoSize = false;
+        runtimeSummaryLabel.Dock = DockStyle.Fill;
+        root.Controls.Add(runtimeSummaryLabel, 0, 3);
         root.Controls.Add(new Label
         {
-            Text = $"Recovered feature catalog: 42 total · {available} available · {partial} partial · {pending} pending",
-            AutoSize = true,
-            Font = new Font(Font.FontFamily, 11, FontStyle.Bold),
-        }, 0, 3);
-        root.Controls.Add(new Label
-        {
-            Text = "World Scan is the currently available reference feature. Daily Free Claims is marked partial because only the recovered Daily Task path is live; its reference actions remain disabled until the full feature is recovered.",
+            Text = "World Scan is available. Daily Free Claims is partial: only Daily Task is implemented.\nPending actions stay disabled until their integration is verified.",
             AutoSize = true,
             MaximumSize = new Size(900, 0),
         }, 0, 4);
@@ -261,13 +270,13 @@ public sealed partial class MainForm : Form
         root.RowStyles.Add(new(SizeType.Absolute, 44));
         root.RowStyles.Add(new(SizeType.Percent, 100));
         var feature = ReferenceFeatureCatalog.InGroup(ReferenceFeatureGroup.MapData).Single();
-        root.Controls.Add(new Label
+        root.Controls.Add(Bind(new Label
         {
-            Text = $"{feature.Name}\r\n{feature.Description}",
             Font = new Font(Font.FontFamily, 11, FontStyle.Bold),
             AutoSize = true,
-        }, 0, 0);
-        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
+        }, () => $"{T(feature.Name)} · {T("AVAILABLE")}\n{T(feature.Description)}"), 0, 0);
+        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = true, AutoSize = true };
+        root.RowStyles[1] = new RowStyle(SizeType.AutoSize);
         toolbar.Controls.Add(worldScanButton);
         toolbar.Controls.Add(new Label { Text = "Type", AutoSize = true, Padding = new Padding(8, 7, 0, 0) });
         toolbar.Controls.Add(worldTypeFilter);
@@ -297,9 +306,10 @@ public sealed partial class MainForm : Form
         {
             Dock = DockStyle.Fill,
             AutoScroll = true,
-            FlowDirection = FlowDirection.TopDown,
-            WrapContents = false,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
             Padding = new Padding(8),
+            Tag = "feature-grid",
         };
         foreach (ReferenceFeature feature in ReferenceFeatureCatalog.InGroup(group))
             scroll.Controls.Add(BuildFeatureCard(feature));
@@ -309,22 +319,25 @@ public sealed partial class MainForm : Form
 
     private Control BuildFeatureCard(ReferenceFeature feature)
     {
-        var card = new TableLayoutPanel
+        var card = new ReferenceCard
         {
             Width = 900,
-            Height = Math.Max(132, 104 + ((feature.Actions.Count + 4) / 5) * 38),
+            Height = 190,
             ColumnCount = 1,
             RowCount = 3,
-            BorderStyle = BorderStyle.FixedSingle,
-            Padding = new Padding(12),
-            Margin = new Padding(4, 4, 4, 10),
+            BorderStyle = BorderStyle.None,
+            Padding = new Padding(16),
+            Margin = new Padding(0, 0, 12, 12),
             Tag = "feature-card",
         };
-        card.RowStyles.Add(new(SizeType.Absolute, 28));
+        card.RowStyles.Add(new(SizeType.Absolute, 32));
         card.RowStyles.Add(new(SizeType.Absolute, 42));
         card.RowStyles.Add(new(SizeType.Percent, 100));
-        var heading = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
-        heading.Controls.Add(new Label { Text = feature.Name, AutoSize = true, Font = new Font(Font.FontFamily, 11, FontStyle.Bold) });
+        var heading = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = Padding.Empty };
+        heading.ColumnStyles.Add(new(SizeType.Percent, 100));
+        heading.ColumnStyles.Add(new(SizeType.AutoSize));
+        heading.Controls.Add(Bind(new Label { Dock = DockStyle.Fill, AutoEllipsis = true, Font = new Font(Font.FontFamily, 10, FontStyle.Bold) },
+            () => UiText.Feature(language, feature.Id, "name", feature.Name)), 0, 0);
         heading.Controls.Add(new Label
         {
             Text = feature.State switch
@@ -334,13 +347,16 @@ public sealed partial class MainForm : Form
                 _ => "PENDING",
             },
             AutoSize = true,
-            Padding = new Padding(10, 2, 0, 0),
-        });
+            Padding = new Padding(6, 3, 6, 3),
+            Tag = feature.State,
+        }, 1, 0);
         card.Controls.Add(heading, 0, 0);
-        card.Controls.Add(new Label { Text = feature.Description, AutoSize = true, MaximumSize = new Size(850, 38) }, 0, 1);
-        var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, WrapContents = true };
+        card.Controls.Add(Bind(new Label { AutoSize = true, MaximumSize = new Size(850, 0) },
+            () => UiText.Feature(language, feature.Id, "description", feature.Description)), 0, 1);
+        var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = true, Margin = Padding.Empty };
         foreach (string action in feature.Actions)
-            actions.Controls.Add(new Button { Text = action, AutoSize = true, Enabled = false });
+            actions.Controls.Add(Bind(new Button { AutoSize = true, Enabled = false },
+                () => UiText.Feature(language, feature.Id, "action", action)));
         if (feature.Id == "daily_free_claims")
         {
             var details = new Button { Text = "View categories", AutoSize = true };
@@ -353,69 +369,54 @@ public sealed partial class MainForm : Form
 
     private static void ResizeFeatureCards(FlowLayoutPanel panel)
     {
-        int width = Math.Max(520, panel.ClientSize.Width - 36);
+        int available = Math.Max(320, panel.ClientSize.Width - 36);
+        int columns = available >= 880 ? 2 : 1;
+        int width = available / columns - 12;
         foreach (Control control in panel.Controls)
-            if (Equals(control.Tag, "feature-card")) control.Width = width;
+            if (control is TableLayoutPanel card && Equals(card.Tag, "feature-card"))
+            {
+                card.Width = width;
+                var description = (Label)card.GetControlFromPosition(0, 1)!;
+                description.MaximumSize = new Size(width - 38, 0);
+                int textHeight = TextRenderer.MeasureText(description.Text, description.Font,
+                    new Size(width - 38, 0), TextFormatFlags.WordBreak).Height + 12;
+                card.RowStyles[1].Height = textHeight;
+                var actions = (FlowLayoutPanel)card.GetControlFromPosition(0, 2)!;
+                int actionHeight = actions.GetPreferredSize(new Size(width - 38, 0)).Height + 12;
+                card.Height = Math.Max(190, 32 + textHeight + actionHeight + card.Padding.Vertical);
+            }
+            else if (control is TableLayoutPanel shortcut && Equals(shortcut.Tag, "shortcut-card"))
+            {
+                shortcut.Width = width;
+                int height = 66 + shortcut.Padding.Vertical;
+                for (int row = 2; row <= 3; row++)
+                {
+                    var label = (Label)shortcut.GetControlFromPosition(0, row)!;
+                    label.MaximumSize = new Size(width - 38, 0);
+                    int measured = TextRenderer.MeasureText(label.Text, label.Font, new Size(width - 38, 0), TextFormatFlags.WordBreak).Height + 12;
+                    shortcut.RowStyles[row] = new RowStyle(SizeType.Absolute, measured);
+                    height += measured;
+                }
+                shortcut.Height = Math.Max(204, height);
+            }
     }
 
     private Control BuildAutomationPage()
     {
-        var tabs = new TabControl { Dock = DockStyle.Fill };
-        var daily = new TabPage("Daily");
-        var events = new TabPage("Event");
-        var alliance = new TabPage("Alliance");
-        daily.Controls.Add(BuildFeatureListPage(ReferenceFeatureGroup.AutomationDaily));
-        events.Controls.Add(BuildFeatureListPage(ReferenceFeatureGroup.AutomationEvent));
-        alliance.Controls.Add(BuildFeatureListPage(ReferenceFeatureGroup.AutomationAlliance));
-        tabs.TabPages.Add(daily);
-        tabs.TabPages.Add(events);
-        tabs.TabPages.Add(alliance);
+        var tabs = new ReferenceTabs();
+        tabs.AddPage("Daily", BuildFeatureListPage(ReferenceFeatureGroup.AutomationDaily));
+        tabs.AddPage("Events", BuildFeatureListPage(ReferenceFeatureGroup.AutomationEvent));
+        tabs.AddPage("Alliance", BuildFeatureListPage(ReferenceFeatureGroup.AutomationAlliance));
         return tabs;
     }
 
-    private Control BuildHotkeysPage()
-    {
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1, Padding = new Padding(18) };
-        root.RowStyles.Add(new(SizeType.Absolute, 48));
-        root.RowStyles.Add(new(SizeType.Absolute, 48));
-        root.RowStyles.Add(new(SizeType.Percent, 100));
-        root.Controls.Add(new Label { Text = "Hotkeys", Font = new Font(Font.FontFamily, 18, FontStyle.Bold), AutoSize = true }, 0, 0);
-        root.Controls.Add(new Label
-        {
-            Text = "Recovered bindings from the reference feature actions are shown below. The actions remain disabled until their feature is implemented.",
-            AutoSize = true,
-        }, 0, 1);
-        var table = new DataGridView
-        {
-            Dock = DockStyle.Fill,
-            ReadOnly = true,
-            AllowUserToAddRows = false,
-            AllowUserToDeleteRows = false,
-            RowHeadersVisible = false,
-            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-            DataSource = new[]
-            {
-                new { Key = "Q / W / E / R", Action = "Attack Targets", Detail = "Send squads 1 through 4 to the target under the pointer.", Gate = "Foreground game + world target", State = "Pending" },
-                new { Key = "A / S / D / F", Action = "Recall Squads", Detail = "Recall squads 1 through 4 to the base.", Gate = "Foreground game + active march", State = "Pending" },
-                new { Key = "Space", Action = "Shield Countdown", Detail = "Hold Space to show remaining shield time over protected cities.", Gate = "Foreground game + shielded city", State = "Pending" },
-                new { Key = "F6 / F7 / F8", Action = "Use Shield", Detail = "Use 8-hour, 12-hour, or 24-hour shield items.", Gate = "Foreground game + matching shield item", State = "Pending" },
-                new { Key = "Alt + 1 / 2 / 3 / 4", Action = "Equipment Schemes", Detail = "Apply equipment schemes 1 through 4 to configured squads.", Gate = "Foreground game + saved scheme", State = "Pending" },
-                new { Key = "F9", Action = "Random Teleport", Detail = "Use a random teleport item and wait for position-change evidence.", Gate = "Foreground game + home ready", State = "Pending" },
-            },
-        };
-        root.Controls.Add(table, 0, 2);
-        return root;
-    }
+    private Control BuildHotkeysPage() => BuildRecoveredHotkeyCards();
 
     private Control BuildSettingsPage()
     {
-        var tabs = new TabControl { Dock = DockStyle.Fill };
-        var referenceTab = new TabPage("Reference Settings");
-        referenceTab.Controls.Add(BuildReferenceSettingsPage());
-        var toolsTab = new TabPage("Recovered Tools");
-        toolsTab.Controls.Add(BuildRecoveredToolsPage());
-        tabs.TabPages.Add(referenceTab);
-        tabs.TabPages.Add(toolsTab);
+        var tabs = new ReferenceTabs();
+        tabs.AddPage("Appearance & Controls", BuildReferenceSettingsPage());
+        tabs.AddPage("Daily Task Tools", BuildRecoveredToolsPage());
         return tabs;
     }
 
@@ -431,15 +432,17 @@ public sealed partial class MainForm : Form
         };
         scroll.Controls.Add(BuildSettingsSection("DISPLAY", "Display & Behavior",
         [
-            SettingsRow("Windows DPI scaling", $"Current monitor · {(int)Math.Round(DeviceDpi / 96d * 100)}%", null),
+            SettingsRow("Windows DPI scaling", "Calculated by the host for the current monitor.", null),
             SettingsRow("Hide in background", "The reference hides its menu whenever LastWar is not foreground.", new CheckBox { Checked = true, Enabled = false, AutoSize = true }),
         ]));
 
         var languageChoice = settingsLanguagePicker;
-        languageChoice.Items.AddRange(["Chinese (Simplified)", "English"]);
+        languageChoice.Items.AddRange(["简体中文", "English"]);
         languageChoice.SelectedIndex = language == UiLanguage.SimplifiedChinese ? 0 : 1;
         languageChoice.SelectedIndexChanged += (_, _) =>
-            languagePicker.SelectedIndex = languageChoice.SelectedIndex == 0 ? 1 : 0;
+        {
+            if (!applyingLanguage) languagePicker.SelectedIndex = languageChoice.SelectedIndex == 0 ? 1 : 0;
+        };
         var accent = new FlowLayoutPanel { AutoSize = true, WrapContents = false };
         foreach (var palette in DesktopPalette.All)
         {
@@ -540,7 +543,7 @@ public sealed partial class MainForm : Form
 
     private Control BuildSettingsSection(string eyebrow, string title, IReadOnlyList<Control> rows)
     {
-        var section = new TableLayoutPanel
+        var section = new ReferenceCard
         {
             Width = 900,
             AutoSize = true,
@@ -548,7 +551,7 @@ public sealed partial class MainForm : Form
             MaximumSize = new Size(900, 0),
             ColumnCount = 1,
             RowCount = rows.Count + 1,
-            BorderStyle = BorderStyle.FixedSingle,
+            BorderStyle = BorderStyle.None,
             Padding = new Padding(12),
             Margin = new Padding(4, 4, 4, 12),
             Tag = "settings-section",
@@ -589,6 +592,8 @@ public sealed partial class MainForm : Form
         selected.BringToFront();
         foreach (var pair in navigationButtons)
             pair.Value.Font = new Font(Font.FontFamily, 10, pair.Key == key ? FontStyle.Bold : FontStyle.Regular);
+        UpdateNavigationLabels();
+        UpdatePageHeader();
         ApplyAppearance();
     }
 
@@ -646,15 +651,21 @@ public sealed partial class MainForm : Form
     {
         if (observations.Length == 0) throw new InvalidOperationException("Load observations first.");
         plan = DailyClaimPlanner.Build(CurrentSettings(), observations, DateTimeOffset.UtcNow);
+        RenderPlan();
+        export.Enabled = true;
+        AddLog("Plan built. No reward has been claimed.");
+    }
+
+    private void RenderPlan()
+    {
+        if (plan is null) return;
         grid.DataSource = plan.Decisions.Select(d => new
         {
-            Reward = d.Observation.RewardName, Category = d.Observation.Kind,
-            Decision = d.Selected ? UiText.Get(language, "Selected") : UiText.Get(language, "Skipped"), d.Reason
+            Reward = d.Observation.RewardName, Category = UiText.ClaimKindName(language, d.Observation.Kind),
+            Decision = d.Selected ? UiText.Get(language, "Selected") : UiText.Get(language, "Skipped"), Reason = T(d.Reason)
         }).ToArray();
         status.Text = $"{source} · {plan.Decisions.Count(d => d.Selected)} {UiText.Get(language, "Selected")} · 0 {UiText.Get(language, "ActionsSent")}";
         ApplyGridHeaders();
-        export.Enabled = true;
-        AddLog("Plan built. No reward has been claimed.");
     }
 
     private void ExportPlan()
@@ -698,11 +709,11 @@ public sealed partial class MainForm : Form
         startGameButton.Enabled = false;
         try
         {
-            status.Text = "Start Game · checking persistent runtime";
+            status.Text = T("Start Game · checking persistent runtime");
             AddLog("Start Game requested. The persistent runtime is verified or installed while Last War is closed, then the official game is launched.");
             var client = new LastWarStartupClient();
             var result = await client.StartAsync(PostLog);
-            status.Text = "Last War · running · World Scan runtime ready";
+            status.Text = T("Last War · running · World Scan runtime ready");
             AddLog($"Start Game ready: game already running={result.GameWasAlreadyRunning}; runtime changed={result.RuntimeChanged}; "
                 + $"world={result.WorldScanRuntime.StatusCode}; daily={result.DailyTaskRuntime.StatusCode}; launch={result.LaunchPath}");
             RefreshRuntimeStatus(logResult: false);
@@ -719,8 +730,8 @@ public sealed partial class MainForm : Form
         string game = inspection.GameRunning ? "running" : "stopped";
         string world = inspection.World.StatusCode;
         string daily = inspection.Daily.StatusCode;
-        runtimeSummaryLabel.Text = $"Game: {game} · World Scan runtime: {world} · Daily Task runtime: {daily}";
-        status.Text = $"Last War · {game} · World {world} · Daily {daily}";
+        runtimeSummaryLabel.Text = F("Game: {0}\nWorld Scan: {1} · Daily Task: {2}", T(game), RuntimeLabel(world), RuntimeLabel(daily));
+        status.Text = F("Last War · {0} · World Scan: {1} · Daily Task: {2}", T(game), RuntimeLabel(world), RuntimeLabel(daily));
         if (logResult)
             AddLog($"Runtime refresh: game={game}; world={world}; daily={daily}; "
                 + $"world version={inspection.World.RuntimeVersion ?? "missing"}; daily version={inspection.Daily.RuntimeVersion ?? "missing"}.");
@@ -754,9 +765,9 @@ public sealed partial class MainForm : Form
             if (inspection.StatusCode != "ready")
                 throw new InvalidOperationException($"Daily Task runtime is not ready ({inspection.StatusCode}).");
             AddLog($"Daily Task run started; maximum {(int)limit.Value} confirmed claims.");
-            status.Text = $"Daily Task · running · 0 {UiText.Get(language, "ActionsSent")}";
+            status.Text = F("Daily Task · running · 0 {0}", UiText.Get(language, "ActionsSent"));
             var result = await client.RunOnceAsync((int)limit.Value);
-            status.Text = $"Daily Task · {result.State} · {result.ConfirmedClaims} confirmed";
+            status.Text = F("Daily Task · {0} · {1} confirmed", T(result.State), result.ConfirmedClaims);
             AddLog($"Daily Task run {result.State}: {result.ConfirmedClaims} confirmed claims, " +
                 $"{result.RewardSendCount} reward sends, {result.RefreshSendCount} state refreshes. {result.Message}");
             if (result.State != "completed")
@@ -774,7 +785,7 @@ public sealed partial class MainForm : Form
         try
         {
             AddLog("World Scan started through the persistent in-game runtime. Last War stays open during and after the scan.");
-            status.Text = "World Scan · running";
+            status.Text = T("World Scan · running");
             var client = new CurrentWorldMapScanClient();
             var run = await client.RunAsync();
             var result = run.Result;
@@ -784,7 +795,7 @@ public sealed partial class MainForm : Form
             int resources = result.PointRecords.Count(record => record.Kind == "resource_point");
             int monsters = result.PointRecords.Count(record => record.Kind == "monster");
             int allianceBuildings = result.PointRecords.Count(record => record.Kind == "alliance_building");
-            status.Text = $"World Scan · {result.AccumulatedRecordCount:N0} records · 10,000/10,000 blocks";
+            status.Text = F("World Scan · {0:N0} records · 10,000/10,000 blocks", result.AccumulatedRecordCount);
             AddLog($"World Scan proven: {result.AccumulatedRecordCount:N0} records; "
                 + $"players={players:N0}, resources={resources:N0}, monsters={monsters:N0}, alliance buildings={allianceBuildings:N0}. "
                 + $"camera moves={result.CameraMoveCount:N0}; runtime={run.RestoreMode}; game left running={run.GameLeftRunning}. Evidence: {run.LiveResultPath}");
@@ -820,6 +831,8 @@ public sealed partial class MainForm : Form
 
     private void ApplyWorldFilter()
     {
+        int oldIndex = worldGrid.CurrentCell?.RowIndex ?? -1;
+        var selectedPoint = oldIndex >= 0 && oldIndex < worldVisibleRecords.Length ? worldVisibleRecords[oldIndex].PointId : (long?)null;
         string? kind = (worldTypeFilter.SelectedItem as WorldTypeOption)?.Kind;
         string query = worldSearch.Text.Trim();
         worldVisibleRecords = worldRecords.Where(record =>
@@ -855,13 +868,15 @@ public sealed partial class MainForm : Form
         if (worldVisibleRecords.Length > 0)
         {
             worldGrid.ClearSelection();
-            worldGrid.Rows[0].Selected = true;
-            worldGrid.CurrentCell = worldGrid.Rows[0].Cells[0];
+            int selectedIndex = Array.FindIndex(worldVisibleRecords, record => record.PointId == selectedPoint);
+            if (selectedIndex < 0) selectedIndex = 0;
+            worldGrid.Rows[selectedIndex].Selected = true;
+            worldGrid.CurrentCell = worldGrid.Rows[selectedIndex].Cells[0];
         }
         else
         {
             locateWorldButton.Enabled = false;
-            worldDetails.Clear();
+            worldDetails.Text = T("Select a result to view its details.");
         }
         UpdateWorldSelection();
     }
@@ -872,32 +887,33 @@ public sealed partial class MainForm : Form
         if (rowIndex < 0 || rowIndex >= worldVisibleRecords.Length)
         {
             locateWorldButton.Enabled = false;
-            worldDetails.Clear();
+            worldDetails.Text = T("Select a result to view its details.");
             return;
         }
         var record = worldVisibleRecords[rowIndex];
         locateWorldButton.Enabled = true;
         string shield = record.Shield is null || !record.Shield.Known
             ? "unknown" : record.Shield.Active ? "protected" : "unprotected";
-        worldDetails.Text = string.Join(Environment.NewLine,
-        [
-            record.DisplayName,
-            $"Category: {WorldKindName(record.Kind)}",
-            $"Point type: {CurrentPointTypeName(record.PointType)}",
-            $"Coordinate: X {record.X} / Y {record.Y}",
-            $"Server: {record.ServerId}",
-            $"Point ID: {record.PointId}",
-            $"UUID: {record.Uuid ?? "--"}",
-            $"Player: {record.PlayerName ?? record.PlayerId ?? "--"}",
-            $"Alliance: {record.Alliance ?? record.AllianceId ?? "--"}",
-            $"Level: {record.Level?.ToString() ?? "--"}",
-            $"Power: {record.Power?.ToString("N0") ?? "--"}",
-            $"Shield: {shield}",
-            $"Resource: {record.ResourceType ?? record.ResourceTypeId ?? "--"}",
-            $"Monster ID: {record.MonsterId ?? "--"}",
-            $"Recommended power: {record.RecommendedPower?.ToString("N0") ?? "--"}",
-            $"Source: {record.Source}",
-        ]);
+        var details = new (string Label, string Value)[]
+        {
+            ("Category", WorldKindName(record.Kind)),
+            ("Point type", CurrentPointTypeName(record.PointType)),
+            ("Coordinate", $"X {record.X} / Y {record.Y}"),
+            ("Server", record.ServerId.ToString()),
+            ("Point ID", record.PointId.ToString()),
+            ("UUID", record.Uuid ?? "--"),
+            ("Player", record.PlayerName ?? record.PlayerId ?? "--"),
+            ("Alliance", record.Alliance ?? record.AllianceId ?? "--"),
+            ("Level", record.Level?.ToString() ?? "--"),
+            ("Power", record.Power?.ToString("N0") ?? "--"),
+            ("Shield", T(shield)),
+            ("Resource", record.ResourceType ?? record.ResourceTypeId ?? "--"),
+            ("Monster ID", record.MonsterId ?? "--"),
+            ("Recommended power", record.RecommendedPower?.ToString("N0") ?? "--"),
+            ("Source", record.Source),
+        };
+        worldDetails.Text = record.DisplayName + Environment.NewLine
+            + string.Join(Environment.NewLine, details.Select(item => $"{T(item.Label)}: {item.Value}"));
     }
 
     private async Task FocusSelectedWorldRecordAsync()
@@ -909,9 +925,9 @@ public sealed partial class MainForm : Form
         locateWorldButton.Enabled = false;
         try
         {
-            status.Text = $"World Map · locating X {record.X} Y {record.Y}";
+            status.Text = F("World Map · locating X {0} Y {1}", record.X, record.Y);
             var result = await new CurrentWorldMapFocusClient().FocusAsync(record);
-            status.Text = $"World Map · located X {result.X} Y {result.Y}";
+            status.Text = F("World Map · located X {0} Y {1}", result.X, result.Y);
             AddLog($"Located {record.DisplayName} at X {result.X} Y {result.Y}; verified camera X {result.ObservedX:F0} Y {result.ObservedY:F0} via {result.Route}.");
         }
         finally
@@ -969,11 +985,11 @@ public sealed partial class MainForm : Form
         status.Text = $"{source} · {observations.Length} · {UiText.Get(language, "BuildReview")}";
     }
 
-    private void AddLog(string message) => log.AppendText($"{DateTime.Now:HH:mm:ss}  {message}{Environment.NewLine}");
+    private void AddLog(string message) => log.AppendText($"{DateTime.Now:HH:mm:ss}  {T(message)}{Environment.NewLine}");
     private void Guard(Action action)
     {
         try { action(); }
-        catch (Exception ex) { AddLog(ex.Message); MessageBox.Show(this, ex.Message, UiText.Get(language, "WarningTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        catch (Exception ex) { AddLog(ex.Message); MessageBox.Show(this, T(ex.Message), UiText.Get(language, "WarningTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning); }
     }
     private async Task GuardAsync(Func<Task> action)
     {
@@ -981,50 +997,61 @@ public sealed partial class MainForm : Form
         catch (Exception ex)
         {
             AddLog(ex.Message);
-            MessageBox.Show(this, ex.Message, UiText.Get(language, "WarningTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, T(ex.Message), UiText.Get(language, "WarningTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
     private void ApplyLanguage()
     {
-        settingsLanguagePicker.SelectedIndex = language == UiLanguage.SimplifiedChinese ? 0 : 1;
-        var checkedKinds = categories.CheckedItems.Cast<ClaimKindOption>().Select(item => item.Kind).ToHashSet();
-        Text = UiText.Get(language, "Title");
-        header.Text = UiText.Get(language, "Header");
-        startGameButton.Text = language == UiLanguage.SimplifiedChinese ? "启动游戏" : "Start game";
-        refreshButton.Text = language == UiLanguage.SimplifiedChinese ? "刷新" : "Refresh";
-        regionChip.Text = language == UiLanguage.SimplifiedChinese ? "区域 --" : "Region --";
-        evidenceButton.Text = language == UiLanguage.SimplifiedChinese ? "证据" : "Evidence";
-        if (navigationButtons.Count > 0)
+        if (applyingLanguage) return;
+        applyingLanguage = true;
+        try
         {
-            navigationButtons["home"].Text = language == UiLanguage.SimplifiedChinese ? "主页" : "Home";
-            navigationButtons["map"].Text = language == UiLanguage.SimplifiedChinese ? "地图与数据" : "Map & Data";
-            navigationButtons["squads"].Text = language == UiLanguage.SimplifiedChinese ? "队伍与挂机" : "Squads & AFK";
-            navigationButtons["automation"].Text = language == UiLanguage.SimplifiedChinese ? "自动化" : "Automation";
-            navigationButtons["hotkeys"].Text = language == UiLanguage.SimplifiedChinese ? "快捷键" : "Hotkeys";
-            navigationButtons["settings"].Text = language == UiLanguage.SimplifiedChinese ? "设置" : "Settings";
+            settingsLanguagePicker.SelectedIndex = language == UiLanguage.SimplifiedChinese ? 0 : 1;
+            foreach (string sourceKey in new[] { "SampleData", "Imported" })
+                if (source == UiText.Get(UiLanguage.English, sourceKey) || source == UiText.Get(UiLanguage.SimplifiedChinese, sourceKey))
+                    source = UiText.Get(language, sourceKey);
+            var checkedKinds = categories.CheckedItems.Cast<ClaimKindOption>().Select(item => item.Kind).ToHashSet();
+            Text = UiText.Get(language, "Title");
+            header.Text = UiText.Get(language, "Header");
+            startGameButton.Text = language == UiLanguage.SimplifiedChinese ? "启动游戏" : "Start game";
+            refreshButton.Text = language == UiLanguage.SimplifiedChinese ? "刷新" : "Refresh";
+            regionChip.Text = language == UiLanguage.SimplifiedChinese ? "区域 --" : "Region --";
+            evidenceButton.Text = language == UiLanguage.SimplifiedChinese ? "证据" : "Evidence";
+            if (navigationButtons.Count > 0)
+            {
+                navigationButtons["home"].Text = language == UiLanguage.SimplifiedChinese ? "主页" : "Home";
+                navigationButtons["map"].Text = language == UiLanguage.SimplifiedChinese ? "地图与数据" : "Map & Data";
+                navigationButtons["squads"].Text = language == UiLanguage.SimplifiedChinese ? "队伍与挂机" : "Squads & AFK";
+                navigationButtons["automation"].Text = language == UiLanguage.SimplifiedChinese ? "自动化" : "Automation";
+                navigationButtons["hotkeys"].Text = language == UiLanguage.SimplifiedChinese ? "快捷键" : "Hotkeys";
+                navigationButtons["settings"].Text = language == UiLanguage.SimplifiedChinese ? "设置" : "Settings";
+            }
+            enabled.Text = UiText.Get(language, "Enable");
+            expiry.Text = UiText.Get(language, "Expiry");
+            chests.Text = UiText.Get(language, "Chests");
+            claimsPerRunLabel.Text = UiText.Get(language, "ClaimsPerRun");
+            categoriesLabel.Text = UiText.Get(language, "Categories");
+            languageLabel.Text = UiText.Get(language, "Language");
+            loadObservationsButton.Text = UiText.Get(language, "LoadObservations");
+            loadSampleButton.Text = UiText.Get(language, "LoadSample");
+            buildPlanButton.Text = UiText.Get(language, "BuildPlan");
+            inspectBridgeButton.Text = UiText.Get(language, "InspectBridge");
+            claimDailyTasksButton.Text = UiText.Get(language, "ClaimDailyTasks");
+            worldScanButton.Text = UiText.Get(language, "WorldScan");
+            locateWorldButton.Text = language == UiLanguage.SimplifiedChinese ? "在游戏中定位" : "Locate in Game";
+            worldSearch.PlaceholderText = language == UiLanguage.SimplifiedChinese
+                ? "名称、联盟、ID、坐标…" : "Name, alliance, ID, coordinate…";
+            saveSettingsButton.Text = UiText.Get(language, "SaveSettings");
+            export.Text = UiText.Get(language, "ExportPlan");
+            RebuildCategoryItems(checkedKinds);
+            RebuildWorldTypeFilter();
+            RenderPlan();
+            ApplyGridHeaders();
+            if (worldRecords.Length > 0) ApplyWorldFilter();
+            else UpdateWorldSelection();
+            ApplyStaticLocalization();
         }
-        enabled.Text = UiText.Get(language, "Enable");
-        expiry.Text = UiText.Get(language, "Expiry");
-        chests.Text = UiText.Get(language, "Chests");
-        claimsPerRunLabel.Text = UiText.Get(language, "ClaimsPerRun");
-        categoriesLabel.Text = UiText.Get(language, "Categories");
-        languageLabel.Text = UiText.Get(language, "Language");
-        loadObservationsButton.Text = UiText.Get(language, "LoadObservations");
-        loadSampleButton.Text = UiText.Get(language, "LoadSample");
-        buildPlanButton.Text = UiText.Get(language, "BuildPlan");
-        inspectBridgeButton.Text = UiText.Get(language, "InspectBridge");
-        claimDailyTasksButton.Text = UiText.Get(language, "ClaimDailyTasks");
-        worldScanButton.Text = UiText.Get(language, "WorldScan");
-        locateWorldButton.Text = language == UiLanguage.SimplifiedChinese ? "在游戏中定位" : "Locate in Game";
-        worldSearch.PlaceholderText = language == UiLanguage.SimplifiedChinese
-            ? "名称、联盟、ID、坐标…" : "Name, alliance, ID, coordinate…";
-        saveSettingsButton.Text = UiText.Get(language, "SaveSettings");
-        export.Text = UiText.Get(language, "ExportPlan");
-        RebuildCategoryItems(checkedKinds);
-        RebuildWorldTypeFilter();
-        if (observations.Length > 0) InvalidatePlan();
-        ApplyGridHeaders();
-        if (worldRecords.Length > 0) ApplyWorldFilter();
+        finally { applyingLanguage = false; }
     }
 
     private void RebuildCategoryItems(IReadOnlySet<ClaimKind> checkedKinds)

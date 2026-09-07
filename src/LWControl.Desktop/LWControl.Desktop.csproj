@@ -8,5 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../LWControl.Core/LWControl.Core.csproj" />
+    <EmbeddedResource Include="ReferenceUiStrings.json" />
+    <EmbeddedResource Include="DesktopUiStrings.json" />
   </ItemGroup>
 </Project>

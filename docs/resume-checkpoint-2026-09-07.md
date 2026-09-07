@@ -52,8 +52,8 @@ the primary color with transparency and its 300 highlight.
 
 WinForms opaque surfaces, native widgets, and layout remain an approximation
 of the original WebView interface. This is not a pixel-identical reproduction.
-The existing interface is only partly translated; persisting a language does
-not imply every recovered label has been translated.
+At this initial checkpoint, the interface was only partly translated. That
+limitation is addressed by the later [UI/localization follow-up](ui-fidelity-localization-2026-09-07.md).
 
 ## RECOVERED: unresolved original reward categories
 
@@ -91,8 +91,9 @@ map trigger or the Tavern selector has been resolved.
 
 ## Remaining work
 
-1. Finish remaining UI fidelity and localization against the extracted visual
-   reference; retain explicit availability labels.
+1. UI fidelity/localization in the native desktop: completed by the
+   [UI follow-up](ui-fidelity-localization-2026-09-07.md), retaining explicit
+   availability labels. See its scope and renderer differences.
 2. Resolve Tavern semantics through permitted static analysis or documented
    interfaces before treating the old collector as compatible.
 3. Keep new claim functionality unavailable until its supported integration
