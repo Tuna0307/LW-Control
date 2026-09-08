@@ -2,13 +2,15 @@
 
 Last updated: 2026-09-08
 
-Project-manager review 2 audited `0664e0a` plus the foundation/SQLite work. The follow-up PM2 checkpoint fixes all four independently reproduced edge cases, R3 proves real document lifetime/UI responsiveness, and the R4 isolated native-host checkpoint completes the controlled production-WebView interaction matrix. **The remaining foundation limit is integration with real lifecycle/scan workers and their durable diagnostics; Overview lifecycle and full Map Data functionality remain incomplete.** Read [the audit](docs/lwbridge-project-status.md), [PM2 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json), and [R4 native-host evidence](evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json). Keep [task.md](task.md) as the detailed instructions/acceptance contract. This checklist was renamed from `TASKS.md` to avoid confusing the two files; do not recreate the old name.
+Project-manager review 3 audited implementation `04237c2`. PM2-01â€“04 now pass; substantial R3/R4 native-host behavior, R5 producer/ABI recovery and the default R6 persisted-search slice are verified. **Two preference gaps remain (PM3-01/02), and real Overview lifecycle/full Map Data are incomplete.** Use [the current audit](docs/lwbridge-project-status.md) and [review 3 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-3.json). Preserve completed work; do not restart PM2 fixes or the recovered R5 investigations. `task.md` remains the full instructions; this file is the progress checklist.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
 ## Project rules
 
 **Mandatory on every task/checkpoint, not one-time checkboxes:** follow [AGENTS.md](AGENTS.md). Prioritize reverse-engineering verified LWBridge and current official Last War artifacts; never invent production facts or numbers. Immediately document every successful recovery with source/hash/locator/reproduction/limits. Update evidence and progress, run applicable checks, then commit and push the completed task/checkpoint to the verified GitHub branch and confirm the remote revision. Report actual blockers rather than silently skipping these requirements.
+
+**Tool permission is already granted:** discover/install/configure useful reverse-engineering tools and runtimes as needed. Missing integration is a setup problem to solve, not a reason to guess or stop. Record tool versions/locations/invocations. Attribute real environment denials to the rejecting system and its stated reason, not to the user; continue permitted independent work.
 
 - [x] LWBridge is the only feature authority for this repository.
 - [x] Active login/account/license UI is excluded from the independent rebuild.
@@ -31,9 +33,15 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 - [x] Keep launch and production scanning fail-closed until bridge readiness is proven.
 - [x] Complete tracked legacy source/test/tool/document cleanup and retain current LWBridge evidence/references. Do not restore old implementation.
 
-## R1–R4 — Finish the foundation first (P0)
+## R1â€“R4 â€” Finish the foundation first (P0)
 
-### Next batch — independently reproduced defects
+### Next batch — review 3 remaining preference requirements
+
+- [ ] **PM3-01 / R2/R4:** display rejected-save errors in the login-free single-profile UI and require visible error feedback in the native-host pass gate. The current probe explicitly reports `preferenceRollbackErrorVisible=false` despite `ok:true`.
+- [ ] **PM3-02 / R2/R4:** reconcile failed optimistic saves against the last confirmed persisted value, not another optimistic draft. The [provider reproducer](evidence/lwbridge-implementation/pm-review-3-repro/check-overlap-failures.cjs) shows two failed false-to-true-to-false saves leave UI true while storage stays false. Add both-fail/mixed-failure and recovery cases to real WebView tests.
+- [ ] Add recurring CI coverage for the isolated host interaction matrix/new preference assertions and the three new launch/ABI/query inspectors where their explicit prerequisites are available. Keep live/machine-dependent diagnostics separate.
+
+### Resolved PM2 defects â€” preserve their regression tests
 
 - [x] **PM2-01 / R2:** `SetLocalConfig` applies validated partial fields to the locked fresh baseline; deterministic backend tests preserve another owner's reconnect/root/history fields and profile identity.
 - [x] **PM2-02 / R2:** missing primary recovers a valid owned backup and stable profile identity; incompatible backup and unreadable-storage cases fail closed instead of creating a fresh identity.
@@ -46,8 +54,8 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 
 - [x] **R1 / profile contracts:** restore original implicit active-profile injection and event-envelope filtering in the generated API/native adapter; classify global commands; validate malformed payloads and profile scope consistently.
 - [x] Test implicit/explicit/foreign profiles, malformed input, wrong-session responses and wrong-profile/late events through the frontend/native boundary.
-- [x] **R2 implemented slice:** commit memory after durable replacement; add schema/owner checks, isolated storage and corrupt-primary backup recovery. Full recovery/ownership acceptance remains PM2-01–03.
-- [x] Roll back rejected preference saves in the UI and make errors visible; persist/validate server-jump history instead of echoing it.
+- [x] **R2 implemented slice:** durable write-before-memory, isolated storage, backup/owner/schema handling and the specified PM2 recovery cases pass. New UI preference acceptance remains PM3-01/02.
+- [x] Basic single-save rollback and persistent validated server history work. Visible error feedback and failure combinations remain PM3-01/02.
 - [x] Inject temporary config roots for checks/capture and prove real user configuration is unchanged. Test denied writes, restart, corrupt JSON, interrupted replacement and competing writers.
 - [x] **R3 implemented slice:** shared executor/registry and allowlisted subscription ownership pass cooperative delayed-service, duplicate-ID and window-close checks. The native-host follow-up also offloads backend work and gives each WebView document its own request/subscription generation.
 - [x] Test browser timeout propagation plus host explicit cancel/close/reload/duplicate IDs/late completion with a controllable delayed backend service; prove cancellation prevents the service commit and success publication.
@@ -56,10 +64,10 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [x] Implement/test real document reload/navigation invalidation: a real WebView2 reload cancels the prior request, clears prior subscriptions, rotates the document session/generation and rejects an invoke carrying the old session ID.
 - [x] **R4 / verification:** split deterministic tests from installed-game diagnostics; run deterministic backend/transport tests in CI.
 - [x] Requested live mode rejects missing native transport in the Node harness; read-only bootstrap suppresses auto-launch and uses isolated storage.
-- [x] Complete the production-mode WebView matrix. The isolated native-host probe passes origin rejection, session rotation/stale-session rejection, structured errors, duplicate active request rejection, real reload cancellation/subscription reset, slow-storage responsiveness, actual React preference rollback with ordered overlapping saves, picker busy/cancel/invalid behavior, closed-window late-response suppression and startup auto-launch suppression. This is controlled host proof only; real lifecycle/scan workers remain R5/R7.
+- [x] Verified R4 slice: actual native-host duplicate/session/reload/slow-storage/picker/close/startup handling, single failed-save rollback and two successful ordered saves. Full preference feedback/failure acceptance remains PM3-01/02; do not treat the current probe ok flag as a complete R4 gate.
 - [x] Check AMD64 COFF machine plus PE32+ for game/xLua; include official-runtime inspector syntax checks. Exact xLua ABI selection is now recovered by `LWB-R5-002`; lifecycle integration remains R5.
 
-## R5 — Overview lifecycle (P0 critical path; research alongside R1–R4)
+## R5 â€” Overview lifecycle (P0 critical path; research alongside R1â€“R4)
 
 - [x] Recover the host-side producer for `LaunchEnvelope` (`descriptorJson`, `launchProof`, `gameLaunchTicket`). `LWB-R5-001` locates the outer-host state machine, exact field xrefs/value sources, JSON serialization and handoff clone. This is static recovery only; proof/ticket semantics remain below.
 - [ ] Recover exact descriptor/proof/ticket representation and validation rules.
@@ -71,7 +79,7 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [ ] Recover and implement repair/update/restart presentation and state transitions.
 - [ ] Validate repeated cold start, restart, disconnect, and stop cycles against the current client.
 
-## R6 — Offline map contracts, index and result services (P0 parallel work)
+## R6 â€” Offline map contracts, index and result services (P0 parallel work)
 
 This work can advance while R5 research is blocked. Static/offline proof does not replace later current-client proof.
 
@@ -82,11 +90,11 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 - [x] Add the recovered SQLite schema/index foundation with deterministic restart/upsert/server-scope tests; require an explicit already-derived `record_key` rather than guessing ingestion identity.
 - [x] Implement persistent player mark/unmark and server-scoped clear using recovered identities/SQL scope; emit the recovered player-mark refresh event.
 - [x] Implement the `LWB-R6-003` default persisted `map_search` slice: recovered pagination, `updatedAt` ordering with `record_key ASC`, `{rows,total}`, city marks/`markedOnly`, and fail-closed `MAP_QUERY_UNRECOVERED` for unsupported filters/sorts.
-- [ ] Implement options/counts, search, remaining filters, stable sorting and pagination with late-result rejection.
+- [ ] Extend the existing default search with recovered remaining predicates/sorts, options and counts/summary; test actual frontend payloads for all eight tabs plus stale-query rejection. Do not reimplement completed LIMIT/OFFSET/updatedAt/markedOnly support.
 - [ ] Implement full filtered Excel export and verify it reopens with correct rows/types/large IDs.
 - [ ] Connect offline services to real native handlers and result tabs; test using explicitly labelled recovered/synthetic samples. Keep unknown semantic fields open.
 
-## R7 — Production manual scan (P0; requires R5/R6)
+## R7 â€” Production manual scan (P0; requires R5/R6)
 
 - [ ] Connect production `map_scan_start` to the recovered bridge/native capture path.
 - [ ] Recover exact block scheduler/tick behavior, block ordering, retry rules, and resume state.
@@ -96,13 +104,13 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 - [ ] Prove a bounded scan before full coverage; validate UI/query/export against committed data and record updates/removals.
 - [ ] Validate representative data for all eight record kinds and repeated full-scan completion.
 
-## R8 — Automatic scanning and server travel (P0)
+## R8 â€” Automatic scanning and server travel (P0)
 
 - [ ] Recover/implement confirmed cross-server travel, valid options/current/home context, persistent history and active-scan conflicts.
 - [ ] Implement Auto Scan as a single-owner durable scheduler: configuration, Run Now, intervals/eligibility, target sequence, failures, cancel and return-to-origin.
 - [ ] Prove navigation, refresh, reconnect and restart cannot create duplicate cycles or change server context before confirmed travel.
 
-## R9 — Conditional actions and scheduled jobs (P0)
+## R9 â€” Conditional actions and scheduled jobs (P0)
 
 - [ ] Implement coordinate jump and march follow with authoritative visible outcomes.
 - [ ] Implement treasure refresh/status/claims; distinguish queued work from confirmed claim results.
@@ -110,13 +118,13 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 - [ ] Implement and test alliance-sharing payloads offline; live message delivery requires explicit messaging authorization.
 - [ ] Prove each action's eligibility, duplicate suppression, failure behavior and authoritative outcome using suitable authorized targets.
 
-## R10 — Acceptance and handoff (P0 release gate)
+## R10 â€” Acceptance and handoff (P0 release gate)
 
 - [ ] Run and record all 47 full acceptance cases from `task.md` as pass/fail/not-run/blocked with exact build and evidence paths. Foundation subchecks do not close an entire case.
 - [ ] Recheck production-mode behavior and the fixture visual matrix separately; preserve original labels/layout/assets and login-free startup.
 - [ ] Deliver a fresh runnable build and exact commands; update the S/O/M ledger and R backlog with remaining unknowns. Do not claim either page complete with unresolved required cases.
 
-## P1 — Remaining feature families
+## P1 â€” Remaining feature families
 
 - [ ] Build the exact original command/event/config catalog from the verified application.
 - [ ] Recover one feature family at a time using the same evidence labels and live-proof gates.
@@ -124,7 +132,7 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 
 ## Verification
 
-Review 2: source/hash, Release build, deterministic backend checks, Node transport checks and nine fixture captures passed. The PM2 follow-up now also passes the independent PM2-01–04 reproducer plus expanded deterministic persistence/request-lifetime regressions. Installed-game inspection remains an optional diagnostic. The runtime inspector collects read-only evidence; it does not verify launch/scan functionality. See [review 2 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-2.json) and [PM2 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json).
+Review 3: standard build/backend/Node checks and all four independent PM2 cases pass. The real isolated host probe passes its current aggregate gate but reports hidden save-error feedback (PM3-01); the extra provider test fails for two rejected rapid saves (PM3-02). New R5/R6 inspectors reran successfully. See [current evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-3.json) for exact source hashes, fixture/browser results and limits. No real game operation is proven.
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check

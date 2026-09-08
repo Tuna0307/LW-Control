@@ -5,16 +5,16 @@ original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
-## Project-manager review 2 — `0664e0a` plus foundation/SQLite changes (2026-09-08)
+## Project-manager review 3 — implementation `04237c2` (2026-09-08)
 
 See [the source audit and R1–R10 exit criteria](lwbridge-project-status.md). The tables below credit implemented slices only: no complete Overview lifecycle or production Map Data workflow is LIVE-PROVEN. Milestone A environment hashes below are the earlier recorded baseline, not a fresh runtime fingerprint from this review.
 
-- R1 generated routing checks pass. PM2 repairs config/request edge cases, R3 proves real WebView reload/session ownership plus responsive rendering during isolated config-lock contention, and R4 completes the controlled native interaction matrix (duplicate IDs, preference rollback/overlap, picker busy/cancel/invalid, closed-window late suppression). Real lifecycle/scan worker integration remains open.
+- R1 and independent PM2 checks pass. R3/R4 native-host ownership, responsiveness and most interaction cases pass. PM3-01 error visibility and PM3-02 failed-overlap rollback remain open; see the current audit before calling R4 complete. Real lifecycle/scan worker integration and diagnostics also remain open.
 - O04/O05 currently save preferences only. O02 start rejects; O03 stop rejects; O06 recovery is constant idle state. `profile_instances_reconcile` is a status read, not startup launch.
 - Map start only normalizes/rejects. Map stop returns unavailable state; it has no running service to cancel. Summary zeroes describe unavailable storage, not a successful empty scan.
 - Server-jump history is now validated/persisted per local profile. Localization still returns an empty dictionary and logging is a no-op. Do not mark those dependencies complete based on successful RPC responses.
 - M03/M05–M09 and durable job-store portions can be recovered/implemented/tested offline during R5 bootstrap research. Their end-to-end/live acceptance remains open; “blocked” must not prevent independent offline work.
-- Fresh review 2 checks: source/hash, Release build, deterministic console checks, Node transport checks, nine fixture captures and 35 source-reference browser checks passed; all 32 pixel pairs were identical. Four additional expected properties failed at that historical review snapshot. PM2 later fixes those four, and R3/R4 add real native-host coverage; see the dated evidence rather than rewriting the review snapshot.
+- Review 3 reran standard checks, independent PM2 cases, the real isolated native-host probe and all three new recovery inspectors. It confirmed PM3-01 and reproduced PM3-02; see [current evidence](../evidence/lwbridge-implementation/2026-09-08-pm-review-3.json) for exact results. Historical evidence is retained separately.
 
 ## Milestone A environment evidence
 
@@ -75,7 +75,7 @@ See [the source audit and R1–R10 exit criteria](lwbridge-project-status.md). T
 | Command names/payload wrappers | `evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js` | `src/LWBridge.Desktop/LWBridgeBackend.cs` | Recovered wrapper strings inspected; unsupported production commands reject explicitly. |
 | WebView command/event transport | original Tauri invoke/listen wrapper + rebuild host policy | `LWBridgeWindow.cs` + `WebUi/preview-host.js` + request/subscription registries | Active-profile injection/event envelopes restored. Isolated native WebView proves duplicate active-ID rejection, reload rotation/cancel/subscription reset, stale-session and external-navigation rejection, structured errors, responsive slow storage and no late publication after real window close. Real lifecycle-worker state mutation remains gated on R5/R7. |
 | Fixture/read-only isolation | rebuild requirement | `preview-host.js`, `LocalConfigStore`, bootstrap/probe modes | Fixture commands cannot reach live handlers; capture/read-only modes remain isolated. The native host probe uses a unique temp config plus in-memory map DB, reports startup auto-launch suppressed, touches no user config and performs no live-game command. Requested live without native transport still fails visibly. |
-| Stable local profile | original implicit profile routing + rebuild persistence policy | versioned config plus recovered `U/W` routing | Restart/write/corrupt-primary checks plus PM2 backend partial-save, missing-primary backup recovery, owner/schema preservation and unreadable-storage cases pass offline. Real WebView overlapping auto-launch saves are serialized and preserve latest durable/UI state. |
+| Stable local profile | original profile routing + rebuild persistence policy | versioned config plus recovered U/W routing | Specified PM2 config/identity regressions pass. Single-save rollback and successful rapid saves pass; hidden errors and multiple failed-save rollback remain PM3-01/02. |
 | Game-root validation | `game_root_status`, `game_root_select` | `GameInstallationService.cs` + native picker | Installed/missing-root diagnostics and recovered cancel/invalid picker behavior pass in the isolated real WebView host. Both installed `LastWar.exe` and `xlua.dll` report AMD64 `0x8664/PE32+`; `LWB-R5-002` separately proves the exact export ABI fingerprint selector and current secure classification. |
 | Launch safety gate | `profile_instance_start` | `LWBridgeBackend.cs` | Self-check requires `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; no unmanaged launch is attempted. |
 
@@ -96,4 +96,4 @@ captures and the source-reference browser/pixel comparison. Console tests now us
 isolated storage; installation checks are optional unless `--require-installed`
 is supplied. The independent PM2 reproducer now reports four passes, with broader
 branches promoted into the standard suite. No current live-game functionality is
-proven by these checks. See the review-2 audit and PM2 fix evidence for exact scope.
+proven by these checks. See review 3 evidence for the current scope, including PM3-01/02; prior reports remain historical.

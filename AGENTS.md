@@ -45,7 +45,29 @@ Use these evidence labels consistently:
 
 Preserve meaningful superseded findings with their source/build and explain why they no longer apply. Do not overwrite historical evidence to make it agree with the latest result. Index new material in `docs/README.md`, update `docs/lwbridge-feature-ledger.md` and the relevant `BACKLOG.md` entries, and link the subject document instead of duplicating conflicting specifications.
 
-## 3. Completion requires evidence, documentation and GitHub delivery
+## 3. Tool choice and installation are pre-authorized
+
+The user grants standing permission to use, obtain, install and configure whatever tools are needed for this project's reverse-engineering, reconstruction and validation. **Do not ask again for routine project-related tool discovery, downloads, installation or configuration.** The user is not expected to know which tools are already installed. The objective is working, evidence-backed functionality, not limiting the investigation to tools exposed as AI integrations.
+
+- Inspect available executables, package managers, runtimes, libraries, installed-tool directories and existing scripts. A tool missing from `PATH` or from the AI tool list is not proof it is absent from the machine.
+- **“No Ghidra integration is available” is not a research blocker.** If Ghidra or another suitable analyzer is needed, locate/install it and its required runtime, then use its standalone GUI, CLI, headless scripting or exported analysis. Apply the same approach to disassemblers, decompilers, debuggers, PE/IL/Lua/resource inspectors and custom scripts. Select tools according to the unresolved contract, not vendor preference.
+- Use available capabilities directly when no connector/plugin exists. Follow the current environment's tool-use rules. Do not confuse missing MCP integration with inability to invoke a local tool.
+- Prefer official project/vendor distributions or trusted package-manager sources. Verify the download/version and published checksum/signature where available. Use an isolated environment or user-scoped tool directory when practical; keep installers, binaries, caches and generated bulk output out of source commits.
+- Record the tool name/version, source/download URL or package ID, installation location, runtime dependencies and exact invocation in the relevant recovery finding. Verify it runs before claiming setup complete. Another AI must be able to reuse the installation and reproduce the analysis.
+- Install tools when they materially enable the next investigation; do not spend a checkpoint installing an unrelated collection. Reuse capable installed tools and valid prior evidence. If a necessary tool is unavailable, diagnose/install it or continue through another suitable permitted analysis method rather than guessing the missing contract.
+
+### Report blockers accurately; do not attribute them to the user
+
+The user has not withheld permission for the project-related technical work described above. Separate these cases explicitly:
+
+- **Tool/setup gap:** identify what is missing, what discovery/install/configuration was attempted, the concrete error and the next remedy. Missing integration alone is not a final blocker.
+- **Unrecovered contract:** identify the missing fact, source/build and next analysis. This is a research gap, not denied permission. Continue independent recovery/implementation while investigating it.
+- **Unavailable validation target:** identify the missing runtime/world state or authoritative observation; do not relabel offline evidence as live proof.
+- **Environment/platform restriction:** identify the exact denied operation, the tool/system that rejected it and its stated reason. Say that the restriction is imposed by that environment, not by the user. Record the restriction and pursue a permitted alternative when one exists.
+
+User consent does not change system/developer policy, OS permissions or unavailable tool capabilities. Do not claim otherwise or repackage a denied operation through another executor merely to evade a restriction. Use the permissions actually available and explain the precise remaining requirement only when it genuinely prevents progress. Do not repeatedly request authorization already granted here.
+
+## 4. Completion requires evidence, documentation and GitHub delivery
 
 The user explicitly requires **commit and push to GitHub after each completed task or coherent checkpoint**. This is standing project authorization for the relevant work; do not ask for the same routine commit/push permission again.
 
@@ -60,7 +82,7 @@ A task/checkpoint is complete only after ALL applicable steps are done:
 
 If checks, permissions, authentication, remote divergence or connectivity prevent a step, preserve the work and record the exact failure and next action. Do not claim it was pushed or the feature is complete. A checkpoint intentionally preserving known failures must say so in its docs and commit message; it is not a release or a waiver of those failures. Do not defer all documentation/commits until the entire reconstruction is finished.
 
-## 4. Required reading and handoff structure
+## 5. Required reading and handoff structure
 
 - `AGENTS.md` — mandatory project rules; applies to all work and future sessions.
 - `task.md` — primary AI handoff, full Overview + Map Data requirements and acceptance contract.

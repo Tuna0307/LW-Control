@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for project-manager review 2, the completed PM2 follow-up repair, and ordered remaining work. The original four PM2 failures remain documented as historical review evidence; current source passes the independent reproducer and expanded deterministic regressions. The subject documents below retain technical evidence.
+Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for review 3: accepted PM2/R3/R5/R6 progress, open PM3 preference cases and current priorities. The [earlier audit/follow-ups](reviews/2026-09-08-review-2-and-followups.md) are historical only. Follow `AGENTS.md` tool-setup authorization; missing integration alone is not a blocker.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.

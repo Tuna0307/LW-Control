@@ -18,10 +18,10 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 - Recovered React/Vite UI is reproduced in WebView2 with the original feature pages, themes, icons, and nine languages.
 - Login/account/license presentation has been removed from the rebuild.
 - A real JavaScript-to-C# command/event boundary exists with request/session correlation, profile scoping, origin validation, cancellation, and structured failures.
-- Game-root discovery/validation, local configuration, process inspection, startup/reconnect preference storage, and fixture/live separation are implemented in part. The current audit records four remaining persistence/request-lifetime defects.
+- Installation validation, isolated config, profile routing and the four PM2 fixes are verified. Native-host interaction coverage is substantial; review 3 still identifies two preference feedback/failure gaps.
 - Launch remains fail-closed until the recovered bootstrap contract is complete.
 - Map Scan request normalization is implemented for all eight recovered data types, with `normal=8` and `fast=20` concurrency. Production scanning remains gated on a verified bridge-ready game session.
-- SQLite schema, explicit-key storage, persistent player marks and server-scoped clear have offline tests. Search/options/export and real capture are still unfinished.
+- SQLite schema, explicit-key storage, marks, scoped clear and default persisted search have offline tests. Remaining filters/options/counts/export and real capture are unfinished.
 - A repeatable read-only official-client inspector records current runtime versions, hashes, PE structure, packaged containers, hot-update state, and launcher lifecycle evidence.
 
 ## Start here
@@ -29,6 +29,8 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 **Every AI/contributor must first read [AGENTS.md](AGENTS.md).** These are mandatory user rules: reverse-engineer verified LWBridge and current official Last War artifacts before inferring behavior, never invent facts or numbers, document every successful recovery immediately, and commit/push each completed task or checkpoint to GitHub with verification.
 
 Then read [docs/README.md](docs/README.md) for the evidence index and current reading order. Include `AGENTS.md` and `task.md` when handing work to another AI.
+
+Project-related reverse-engineering tool discovery, installation and configuration are pre-authorized. A missing AI integration does not prevent standalone/headless tool use. Follow `AGENTS.md` for reproducible setup and accurate reporting of genuine environment restrictions.
 
 The two active planning files are:
 
