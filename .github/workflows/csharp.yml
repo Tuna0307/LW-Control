@@ -1,4 +1,4 @@
-name: C# build and checks
+name: LWBridge build and recovery checks
 on:
   pull_request:
     branches: [main]
@@ -15,16 +15,24 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
-      - name: Build desktop application
-        run: dotnet build src/LWControl.Desktop/LWControl.Desktop.csproj --configuration Release
-      - name: Test daily-claim planning and file persistence
-        run: dotnet run --project tests/LWControl.Core.Checks/LWControl.Core.Checks.csproj --configuration Release
-      - name: Smoke-test desktop form and settings
+      - name: Verify recovered assets and generated UI
+        run: python tools/build_lwbridge_frontend.py --check
+      - name: Build LWBridge desktop application
+        run: dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release
+      - name: Capture all recovered desktop feature pages
+        shell: pwsh
+        run: ./tools/capture_lwbridge_ui.ps1
+      - name: Install browser verification dependencies
         shell: pwsh
         run: |
-          $process = Start-Process -FilePath 'src/LWControl.Desktop/bin/Release/net10.0-windows/LWControl.Desktop.exe' -ArgumentList '--smoke-test' -PassThru
-          if (-not $process.WaitForExit(30000)) {
-            $process.Kill()
-            throw 'Desktop smoke check timed out.'
-          }
-          if ($process.ExitCode -ne 0) { throw "Desktop smoke check failed: $($process.ExitCode)" }
+          npm install --prefix "$env:RUNNER_TEMP/lwbridge-ui-check" --no-save playwright@1.62.1
+          python -m pip install Pillow==12.3.0
+      - name: Compare the recovered frontend and rebuilt feature views
+        shell: pwsh
+        run: |
+          $env:NODE_PATH = "$env:RUNNER_TEMP/lwbridge-ui-check/node_modules"
+          node tools/check_lwbridge_frontend.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/compare_lwbridge_frontend.py
+      - name: Compile LWBridge recovery inspectors
+        run: python -m py_compile tools/inspect_lwbridge_injection.py tools/inspect_lwbridge_map_scan.py tools/inspect_lwbridge_proxy_map_scan.py

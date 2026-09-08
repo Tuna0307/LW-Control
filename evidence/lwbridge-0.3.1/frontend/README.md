@@ -12,7 +12,9 @@ This directory persists the decompressed embedded frontend recovered from the
 verified executable. It exists so UI reconstruction does not depend on temporary
 `.codex-live` files.
 
-`manifest.sha256.txt` hashes the recovered files in this directory. The main UI
+`manifest.sha256.txt` hashes only the recovered frontend files (`index.html` and
+`assets/`). This explanatory README and the manifest itself are maintained
+metadata and are intentionally outside that immutable-byte check. The main UI
 authority is `assets/index-C5e98iqj.css`, `assets/index-sfL2sT3K.js`, the locale
 chunks, and the feature chunks referenced by the recovered Vite entry.
 
