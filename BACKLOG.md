@@ -25,7 +25,7 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 
 - [x] Integrate Daybreak R6-006/007 and regular-AI R6-008–013 in the shared branch; no cherry-pick required.
 - [x] PM5-01: correct old boolean inspector's railway/reindeer metadata and identify R6-010 as the saved frontend authority.
-- [ ] Regular AI: add persisted non-truck UR/special-quality and above-five non-special truck boundary tests when extending quality coverage.
+- [x] Regular AI: persisted quality regressions now cover railway/dispatch/ghost UR rows with `isSpecialURQuality=true`, a non-special truck quality above five, truck UR page/count consistency, and server isolation. Railway also combines recovered UR + retained-item predicates.
 - [ ] Regular AI: complete ESC-001/002 attempt/alternative packets if requesting escalation. Current state NEEDS_INFORMATION; no specialist technical assignment approved.
 - [ ] PM: review each completed packet, record the reason and approve only the specific permitted question; return insufficient requests with concrete missing evidence.
 - [ ] Regular AI: integrate/validate each accepted specialist return; retain all live-proof gates.

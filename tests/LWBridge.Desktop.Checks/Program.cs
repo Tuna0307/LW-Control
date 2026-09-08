@@ -859,6 +859,18 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         null, 3, null, null, null, 1870,
         "{\"serverId\":7,\"uuid\":\"truck-f\",\"quality\":3,\"updatedAt\":1870}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-ur-high", 47, "truck-g", "Truck G", null,
+        null, 7, null, null, null, 1860,
+        "{\"serverId\":7,\"uuid\":\"truck-g\",\"quality\":7,\"isSpecialURQuality\":false,\"updatedAt\":1860}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 8, "truck-quality-ur-other-server", 48, "truck-server8", "Truck Server 8", null,
+        null, 8, null, null, null, 1855,
+        "{\"serverId\":8,\"uuid\":\"truck-server8\",\"quality\":8,\"isSpecialURQuality\":false,\"updatedAt\":1855}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "railway", 7, "railway-quality-ur-special", 49, "railway-a", "Railway A", null,
+        null, 6, null, null, null, 1850,
+        "{\"serverId\":7,\"uuid\":\"railway-a\",\"quality\":6,\"isSpecialURQuality\":true,\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":1850}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "dispatch", 7, "dispatch-regular", 51, "dispatch-a", "Dispatch A", null,
         6, null, null, null, null, 1800,
         "{\"serverId\":7,\"uuid\":\"dispatch-a\",\"level\":6,\"isSpecial\":false,\"updatedAt\":1800}"));
@@ -866,6 +878,14 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "dispatch", 7, "dispatch-special", 52, "dispatch-b", "Dispatch B", null,
         5, null, null, null, null, 1700,
         "{\"serverId\":7,\"uuid\":\"dispatch-b\",\"level\":5,\"isSpecial\":true,\"updatedAt\":1700}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "dispatch", 7, "dispatch-quality-ur-special", 55, "dispatch-c", "Dispatch C", null,
+        7, 6, null, null, null, 1690,
+        "{\"serverId\":7,\"uuid\":\"dispatch-c\",\"level\":7,\"quality\":6,\"isSpecial\":false,\"isSpecialURQuality\":true,\"updatedAt\":1690}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "ghost", 7, "ghost-quality-ur-special", 56, "ghost-a", "Ghost A", null,
+        null, 7, null, null, null, 1680,
+        "{\"serverId\":7,\"uuid\":\"ghost-a\",\"quality\":7,\"isSpecialURQuality\":true,\"updatedAt\":1680}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "treasure", 7, "treasure-standard", 53, "treasure-a", "Treasure A", null,
         null, null, null, null, null, 1650,
@@ -1091,7 +1111,6 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         ("r", "truck-e"),
         ("sr", "truck-f"),
         ("ssr", "truck-b"),
-        ("ur", "truck-a"),
     })
     {
         using JsonDocument qualitySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
@@ -1107,6 +1126,53 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
               rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
             $"truck quality {quality} uses recovered ordinary-quality predicate and binding");
+    }
+
+    foreach ((int page, string expectedUuid) in new[]
+    {
+        (1, "truck-a"),
+        (2, "truck-g"),
+    })
+    {
+        using JsonDocument truckUrSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "truck",
+            query = new { serverId = 7, quality = "ur", page, pageSize = 1 },
+        }));
+        object? truckUrResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", truckUrSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(truckUrResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 2 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"truck UR page {page} keeps count/page consistent, includes non-special quality above five and remains server-scoped");
+    }
+
+    foreach ((string kind, string? itemKey, string expectedUuid) in new[]
+    {
+        ("railway", "item:2", "railway-a"),
+        ("dispatch", null, "dispatch-c"),
+        ("ghost", null, "ghost-a"),
+    })
+    {
+        object query = itemKey is null
+            ? new { serverId = 7, quality = "ur" }
+            : new { serverId = 7, quality = "ur", itemKey };
+        using JsonDocument nonTruckUrSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind,
+            query,
+        }));
+        object? nonTruckUrResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", nonTruckUrSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(nonTruckUrResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid &&
+              rows[0].GetProperty("isSpecialURQuality").GetBoolean(),
+            $"{kind} persisted UR search retains special-UR rows because the recovered exclusion is truck-only");
     }
 
     foreach (string kind in new[] { "truck", "railway", "dispatch", "ghost" })
