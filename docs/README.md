@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for review 3 plus the PM3 follow-up: accepted PM2/R3/R4/R5/R6 progress, closed preference feedback/reconciliation defects and current R5/R6 priorities. The [earlier audit/follow-ups](reviews/2026-09-08-review-2-and-followups.md) are historical only. Follow `AGENTS.md` tool-setup authorization; missing integration alone is not a blocker.
+Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for review 4: accepted preference fixes, new R5/R6 findings, fresh checks and the research/implementation split. [`deep-binary-handoff.md`](deep-binary-handoff.md) is the separate research supplement for the user's Daybreak task, including DB-01–06 and the operation-specific SB-01/02 restrictions. It does not replace `task.md` or authorize replaying denied actions. The [review 3/follow-ups](reviews/2026-09-08-review-3-and-followups.md) and [review 2/follow-ups](reviews/2026-09-08-review-2-and-followups.md) are historical only.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -21,12 +21,15 @@ Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for review
 - [`../task.md`](../task.md) is the primary AI instruction file and full Overview + Map Data acceptance specification.
 - [`../BACKLOG.md`](../BACKLOG.md) is the current progress checklist, renamed from `TASKS.md`. Do not recreate the old name or duplicate the requirements.
 
+- [`deep-binary-handoff.md`](deep-binary-handoff.md) assigns unresolved research questions and identifies ordinary implementation that can continue independently.
+
 ## Visual and machine-readable evidence
 
 - [`ui-reproduction/`](ui-reproduction/) contains the current deterministic UI regression evidence.
 - [`task-reference/`](task-reference/) contains the user-supplied Overview and Map Data visual references.
 - [`../evidence/lwbridge-0.3.1/`](../evidence/lwbridge-0.3.1/) contains immutable recovered frontend evidence.
 - [`../evidence/lwbridge-implementation/`](../evidence/lwbridge-implementation/) contains rebuild milestone evidence.
+- [Review 4 evidence](../evidence/lwbridge-implementation/2026-09-08-pm-review-4.json) records the audited implementation, fresh check results, retained safety-review restrictions and precise proof limits.
 - [`../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json`](../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json) records the PM2 repair source hashes, exact locators, commands, results and remaining limits.
 - [`../evidence/lwbridge-implementation/2026-09-08-r3-native-host.json`](../evidence/lwbridge-implementation/2026-09-08-r3-native-host.json) records the real isolated WebView2 reload/session and slow-storage responsiveness checkpoint.
 - [`../evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json`](../evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json) records the recovered picker result contract and the completed controlled native-WebView duplicate/preference/picker/closed-window interaction matrix.

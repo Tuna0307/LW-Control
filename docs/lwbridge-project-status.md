@@ -1,89 +1,75 @@
-# Project manager checkpoint — review 3 + PM3 follow-up
+# Project-manager checkpoint — review 4
 
-Reviewed: 2026-09-08 at implementation commit `04237c2` on `research/offline-controller`; the worktree was clean before this review. This is the current audit and next-work guide. The [review 2 narrative and subsequent recovery notes](reviews/2026-09-08-review-2-and-followups.md) are preserved as historical evidence, not current instructions.
+Reviewed: 2026-09-08, implementation `5174cf9298fd9895cfd6e70d2af3216077d3928d`, branch `research/offline-controller`. The worktree was clean before this audit. This checkpoint changes planning/evidence documentation, not production behavior. The [review 3 narrative and follow-ups](reviews/2026-09-08-review-3-and-followups.md) are preserved as historical evidence.
 
 ## Decision
 
-**Accept the PM2 fixes, substantial native-host work, additional R5 recovery and the limited R6 persisted-search implementation. Both requested pages still need real-game completion.** PM2-01–04 now pass independently. Do not spend another batch fixing those old defects or repeating the recovered launch-envelope/ABI investigations.
+**Accept the preference fixes and the new supported Map Data filter slice. Keep launch, production scan and full-page acceptance open.** Fresh provider and actual isolated WebView tests close PM3-01/02. Do not ask the next AI to fix those same defects again.
 
-PM3-01 and PM3-02 are now closed by the 2026-09-08 preference checkpoint. Rejected saves are visible in the login-free single-profile flow, failed rapid saves reconcile to the last confirmed persisted value, and the real native-host `ok` gate includes those requirements. Continue the main R5 launch-contract and R6 map-query/export tracks; this does not make the Overview lifecycle live-proven.
+Give the research AI [the deeper binary handoff](deep-binary-handoff.md), together with `AGENTS.md`, `task.md` and the referenced evidence. It identifies four clear deeper-analysis packages and two artifact-first packages. The ordinary implementation AI can continue storage/query/host work in parallel. `task.md` is still the sole full requirements file; `BACKLOG.md` is the checklist, and the new document is a research supplement. Do not recreate `TASKS.md`.
 
-The user's standing tool permission is now explicit in [AGENTS.md](../AGENTS.md), section 3. Install/configure appropriate reverse-engineering tools when needed; missing Ghidra or MCP integration is a setup task, not a final research blocker. Attribute an actual denial to the rejecting environment and its stated reason. Never describe it as permission the user withheld.
+The reported safety-review denials are recorded as **SB-01/02**, with source and evidence limits. They came from the reviewing environment, not permission withheld by the user. No denied operation was retried here; switching models does not authorize replaying it through another executor.
 
-## What changed since the previous management review
+## New work reviewed
 
-| Commit / work | Accepted result | Remaining boundary |
+| Commit / finding | Accepted result | Limit / next requirement |
 |---|---|---|
-| `6b7efca` PM2 fixes | Backend partial saves preserve fresh fields; missing-primary backup recovery preserves identity; incompatible primaries are not overwritten; late request disposal is fixed | All four independent reproducer cases now pass. This closes the specified PM2 defects, not all possible persistence/lifetime cases. |
-| `e48fc73` native document lifetime | Backend/storage work runs off the UI thread; real WebView reload rotates session/request/subscription ownership; stale session/publication rejected | Current config/storage/diagnostic paths are tested. Real lifecycle/scan workers and durable runtime diagnostics do not exist yet. |
-| `50b824d` native interactions + PM3 follow-up | Actual React single-save rollback, ordered successful rapid saves, duplicate IDs, picker busy/cancel/invalid, navigation rejection, late close suppression and startup suppression | PM3 follow-up adds visible save-error feedback, confirmed-value rollback, both-fail/mixed rapid-save cases and successful recovery in the same real WebView host. Lifecycle-worker integration remains open. |
-| `6fdc983` / `LWB-R5-001` | Outer-host `LaunchEnvelope` producer, field value sources, JSON serialization and handoff recovered with exact locators | `descriptorJson`, `launchProof`, `gameLaunchTicket` names/handoff are known; complete representation, producer semantics, validation and child input decoding remain open. |
-| `6978d58` / `LWB-R5-002` | Exact export-table fingerprint algorithm and secure/plain selector recovered; current installed xLua again matches secure in this audit | Static/current-file compatibility correlation, not proof of successful injection, owned process, handshake or heartbeat. |
-| `LWB-R5-003` | Child `LaunchEnvelope` parser, descriptor expiry/shape gates, two-segment proof signature/timing validation and `LWLT1`/`LWLT2` ticket grammar recovered | Static-only. Host proof/ticket producers, remaining descriptor semantics, ticket ownership/consumption and exact child argument construction are still open; lifecycle remains fail-closed. |
-| `LWB-R5-004` | Outer `LeaseActivationResponse.launchProof` propagation, exact `primary_official` / `cached_reusable` / `independent_official` ticket-source labels, `ticket_missing` transition and cached launcher-report ticket/expiry fields recovered | Static-only. Exact response/ticket producers and signing inputs, `LWLT2` extra-field meaning, ownership/consumption, helper `0x14033C51B` semantics and child argument construction remain open; lifecycle remains fail-closed. |
-| `LWB-R5-005` | Embedded profile-launcher post-start ticket poll: observed length/sequence comparison, exact ownership-changed/timeout/consumption-failed branches and marker lengths recovered | Static-only from preserved bounded disassembly. Query/caller input identities, time units, result-variant meanings and producer/signing contracts remain open; lifecycle remains fail-closed. |
-| `04237c2` / `LWB-R6-003` | Persisted `map_search` returns rows/total with LIMIT/OFFSET, `updatedAt` order, stable `record_key` tie-break and city marks/markedOnly | Other filters/sorts reject `MAP_QUERY_UNRECOVERED`; options/summary/export and authoritative ingestion remain unfinished. A small offline query slice is not the full Map Data page. |
-| `LWB-R6-004` | Frontend `map_data_options`/`map_summary` response consumers, per-tab conditional query emission and search/options/summary stale-generation guards recovered; eight tab envelopes regression-tested | Static frontend plus offline query-contract checks. Option aggregation SQL, summary server selection, advanced predicate/sort SQL and native export remain unresolved and fail-closed. |
-| `LWB-R6-005` | Verified-binary backend predicates recovered at raw PE file offsets for city alliance/no-alliance, resource/monster name keys and truck/railway retained-item membership, then implemented in persisted `map_search` | RECOVERED static plus IMPLEMENTED/OFFLINE-TESTED. Deterministic filter cases pass. Keyword escaping, quality/special/reindeer, time-dependent completion, plunderability, treasure/lucky behavior, alternate sorts, options and summary remain unresolved. |
+| `98065f2` — PM3-01/02 | Visible single-profile save errors; confirmed persisted-value reconciliation; both-fail, mixed-failure and recovery cases; stronger actual native-host gates | Fresh isolated Node/WebView checks pass. These are preference/host tests, not launch/reconnect proof. Windows CI now includes the provider and host matrices; this audit did not run GitHub Actions remotely. |
+| `21333c3` — `LWB-R5-003` | Documented child envelope parser, descriptor gates, proof validation branches and ticket grammar | Review accepted the recorded static scope. It did not rerun binary extraction or establish a working producer/lifecycle. |
+| `beb4677` — `LWB-R5-004` | Documented outer launch-material propagation, ticket-source taxonomy and cached report fields | The record says its new fixed-address verifier was syntax-checked but execution was denied. Do not describe the verifier as successfully run. SB-01 applies to that operation. |
+| `b3e6c33` — `LWB-R5-005` | Retained bounded disassembly documents ownership-change, timeout and failure branches in the consumption poll | Broader analysis was denied (SB-02). Caller/input identities, units and variant meanings remain unknown. Saved-text validation is not fresh binary verification. |
+| `198812c` — `LWB-R6-004` | Eight frontend query families, options/summary consumers and frontend stale-generation guards are documented/tested | Consumer field names do not establish aggregation, server selection, export or unsupported backend predicates. |
+| `5174cf9` — `LWB-R6-005` | Persisted search implements recovered city alliance/no-alliance, resource/monster name-key and truck/railway current-goods membership predicates | Standard deterministic tests pass. Count/page use matching predicates. Remaining filters/sorts, options, summary, export and authoritative ingestion remain unfinished. |
 
-## Current functional boundary
+No new production defect was reproduced by the checks in this review. That is a bounded result, not proof that all untested or unimplemented workflows are correct.
 
-- **Overview:** installation detection, preference storage, native RPC and substantial UI/host behavior exist. `profile_instance_start` still rejects `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; stop has no owned instance. Reconcile is a status read; reconnect is a stored preference without a real recovery worker. Bridge status/pending/recovery are not authoritative live services.
-- **Map Data:** schema, explicit-key upsert/read/count, persisted marks, transactional scoped clear and the default search slice exist. Clear preserves marks and other servers. Options and city export remain unavailable, summary is still unavailable/zero, and no production scan/capture/scheduler runs. Unknown native keys and normalization must be recovered before claiming a complete typed index.
-- **Shared controls:** no verified real server travel, runtime localization, meaningful pending count or full live event/diagnostic stream. Existing themes/languages/navigation remain visual/host work, not proof of connected game features.
+## Current operational boundary
 
-## PM3-01 — Save error visibility in the single-profile UI
+- **Overview:** local profile/configuration, installation checks and substantial native-host interaction work exist. Start still rejects `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; stop has no owned instance. Reconcile remains a status read. Startup/reconnect preferences are stored but do not constitute working lifecycle services. Process existence is not bridge readiness.
+- **Map Data:** recovered schema, explicit-key persistence, marks, scoped clear and a supported query subset exist. Options/export remain unavailable; summary lacks an authoritative production data source. No real capture/scheduler/ingestion service runs. Unknown native keys/types must not be replaced by frontend fallback identities or synthetic records.
+- **Other shared/action features:** meaningful pending count, live runtime localization/diagnostics, confirmed travel, follow/jump, treasure/plunder/train actions and durable automatic jobs remain partial or unimplemented. No complete case in the 47-case acceptance matrix was signed off here.
 
-**Status:** IMPLEMENTED/OFFLINE-TESTED; closed R2/R4 requirement. This is rebuild UI behavior, not a claim about the original executable.
+## Research routing
 
-**Sources/locators:** `WebUi/local-providers.js`, `Xt`, `asProfileError`, `profile-save-error`; `LWBridgeWindow.RunHostProbeAsync`, rollback phase and final `ok` conjunction. Exact source hashes, commands and host results are in [PM3 fix evidence](../evidence/lwbridge-implementation/2026-09-08-pm3-preference-fix.json).
+Detailed questions, known evidence and research deliverables are in [the supplement](deep-binary-handoff.md).
 
-**Reproduction/result:** Build and run the executable with `--host-probe <isolated-output.json>`. The real React switch rolls back to persisted state and now reports `preferenceRollbackErrorVisible=true` with `Expected isolated preference-save failure.`. The host aggregate gate explicitly requires that visible error and reports `ok:true`. The alert is absent during normal operation, preserving the steady recovered layout.
+| Package | Classification | Why / implementation dependency |
+|---|---|---|
+| DB-01 — launch input/ownership semantics | **DEEP-BINARY** | Remaining producer/consumer relationships, descriptor/helper meanings, child input/quoting and external service boundaries constrain R5/O02–O06. Preserve SB-01 on the recorded verifier. |
+| DB-02 — consumption poll | **DEEP-BINARY** | Opaque caller/input/producer identities, units and result variants cannot be established from branch names or constant magnitudes. Preserve SB-02 and the saved-evidence limit. |
+| DB-03 — native map identities/normalization | **DEEP-BINARY**, readable artifacts first where available | Native key generation, per-kind types and update/removal transformations constrain trustworthy R6 ingestion. SQL primary keys and UI row fields alone are insufficient. |
+| DB-04 — scan scheduling/capture/completion | **DEEP-BINARY** | Exact coverage/order/timing, queues/acknowledgements/drop, cancel/resume/drain and publication semantics constrain R7, later R8. |
+| DB-05 — advanced predicates/derived sorts | **ARTIFACT-REVIEW**, deep analysis conditional | Existing SQL/resources/readable code may answer remaining filter/clock/eligibility questions. Escalate only the opaque native calculations. Do not repeat the implemented `R6-005` subset. |
+| DB-06 — status/travel/actions/jobs | **ARTIFACT-REVIEW**, deep analysis conditional | Start with frontend and current official-client request/handler/event evidence; identify native gaps per operation. Authoritative live outcomes are a separate validation phase. |
 
-**Validation/limits:** Provider/host tests use isolated configuration and perform no live-game commands. This closes preference feedback only; startup launch/reconnect still require R5 lifecycle services.
+Restrictions apply to operations, not entire topic names. A missing integration is a setup issue; an unknown contract is a research issue; an unavailable world state is a validation issue. Record the exact reason instead of calling all three “safety-blocked.” The handoff does not assign replaying denied disassembly, proof fabrication or live game actions.
 
-## PM3-02 — Rapid failed-save reconciliation
+## Ordinary implementation work that can proceed
 
-**Status:** IMPLEMENTED/OFFLINE-TESTED; closed R2/R4 correctness requirement.
+1. **R6 query integrity:** preserve known predicates and add meaningful combination/profile/server/count/page coverage when changing the implementation. `SearchIndexed` currently issues separate count and page reads under a process-local lock; a second connection can still change the database between them. Introduce and test a consistent read snapshot as **IMPLEMENTATION POLICY**. This is a code-structure limitation identified in review, not a newly reproduced concurrency failure.
+2. **R6 persistence:** implement versioned migration, transactional failure recovery and run/server/profile generation boundaries from the known schema/publication contract. Keep real ingestion gated on DB-03/04. Infrastructure tests must distinguish explicitly synthetic records from current-client proof.
+3. **R6 options/summary/export:** consumers are now known. Locate aggregation/deduplication/order/server-selection and original export column/scope/format semantics in existing evidence before filling them. File dialog/cancel/error and lossless workbook infrastructure can proceed; full filtered export and accurate counts remain feature gates.
+4. **R3/R4 worker integration:** prepare typed ownership/cancellation/event/journal boundaries and durable diagnostics; connect real lifecycle/scan workers only after their contracts are supported. Preserve native document lifetime and the repaired preferences.
+5. **Test/tool hygiene:** retain provider/WebView tests in CI. The existing host-probe helper uses an unbounded visible `Start-Process -Wait`; improve it to hidden execution with a bounded wait and cleanup of its own child process. This audit invoked the underlying probe hidden with an isolated output and a 55-second bound. That bound is test orchestration policy, not a recovered game timeout. Do not add denied binary verifiers to CI as a workaround.
+6. **Delivery:** document new findings immediately, update the ledger/backlog, run appropriate checks and commit/push each coherent checkpoint. The research AI returns exact newly unblocked contracts; the coding AI does not wait on unrelated gaps.
 
-**Source/locator:** `WebUi/local-providers.js`, `Xt.setAutoLaunchGame`, `autoLaunchCommitted`, `autoLaunchSaveRevision` and the serialized save chain; `tools/check_lwbridge_preference_provider.cjs`; `LWBridgeWindow.RunHostProbeAsync` preference failure/recovery phases.
+## Fresh verification in this review
 
-**Reproduction:** Start with persisted/UI false; toggle true and then false before either save finishes; reject both serialized saves. Run from repository root:
+Source hashes, commands, machine-readable outcomes and limits are in [review 4 evidence](../evidence/lwbridge-implementation/2026-09-08-pm-review-4.json).
 
-```powershell
-node evidence/lwbridge-implementation/pm-review-3-repro/check-overlap-failures.cjs
-```
+- Recovered frontend generation/integrity check passed. Release build passed with zero warnings/errors.
+- Standard backend suite passed, including map persistence/query contracts and optional installed-client diagnostic. Real configuration remained unchanged. No game/launcher was running in that diagnostic snapshot.
+- The preference provider's five outcome scenarios and original PM3 failed-overlap reproducer passed.
+- Actual isolated WebView host passed `ok`, visible failed-save feedback, both-fail/mixed reconciliation, successful recovery and late-close suppression. Real configuration hashes matched before/after.
+- Nine desktop fixture captures and 35 browser checks passed. Of 32 source-reference screenshot pairs, 30 were identical; maximum MAE was approximately `0.00006310`, and no pixels crossed the comparison's high-delta threshold. This protects synthetic recovered-frontend regression behavior; it is not a new authenticated reference-app comparison or live feature proof.
+- All LWBridge Python inspectors passed syntax parsing only. This audit did not execute them against the reference, repeat denied operations or generate new disassembly.
 
-**Observed after fix:** the historical reproducer now reports submitted values `[true,false]`, committed false, final UI false and `passed:true`. The maintained provider matrix passes both-fail, first-fail/second-success, first-success/second-fail, both-success and recovery. The real WebView probe independently passes both-fail/mixed cases, restores the confirmed first-success value when the second save fails, and clears the error after a later successful save. Native saves remain serialized with observed maximum concurrency `1`.
+The independent PM2 reproducer and older transport harness results remain historical audit evidence; the standard suite covering the PM2 fixes was rerun now. No launch, injection, scan, travel, claim, plunder or alliance message was performed by this audit.
 
-**Validation/limits:** Exact results are in [PM3 fix evidence](../evidence/lwbridge-implementation/2026-09-08-pm3-preference-fix.json). This is isolated rebuild validation; it does not prove game launch, bridge readiness or reconnect behavior.
+## Documentation cleanup
 
-## Next AI work in order
-
-1. **R5 recovery/implementation critical path:** start from `LWB-R5-001/002/003/004/005` and the existing inspectors/evidence. `LWB-R5-005` now establishes the child post-start ownership/consumption poll branches while deliberately leaving its opaque query/caller input identities, time units and result-variant meanings unresolved. Continue into the exact response/ticket producers and signing inputs, remaining descriptor semantics, `LWLT2` extra-field meaning, caller/producer identities feeding the poll, helper `0x14033C51B` semantics and exact child argument construction/quoting. Do not infer helper/input semantics from names or control flow alone. Once those contracts are supported, implement owned start/status/stop, exact ABI choice, fresh bridge identity/heartbeat, startup/reconnect/repair and failure cleanup. Verify current artifacts before using recovered offsets/values.
-2. **R6 parallel deliverable:** `LWB-R6-004` pins all eight frontend query families, false/zero/empty/omitted distinctions, options/summary response consumers and frontend stale-generation guards. `LWB-R6-005` now recovers the first exact backend filter predicates. Implement and test only that verified subset, then continue recovering the remaining predicate/sort SQL, `map_data_options` aggregation, authoritative counts/summary server selection and full filtered Excel export. Preserve truthful unsupported errors.
-3. **R6 integrity:** recover native per-kind keys/types/update/removal semantics; implement versioned schema/migration, consistent query snapshots and staging-to-committed publication. A process-local store lock does not make separate count/page SQL reads a cross-connection snapshot. Add scoped clear generation protection and reject late run/server/profile results. Do not invent successful scan publication from nonzero row counts.
-4. **R7–R9:** after prerequisites, connect bounded then full scans, durable automatic server cycles and all conditional actions/jobs. Require authoritative current-client outcomes and record specific world/target availability limits. Preserve the 47 full acceptance cases.
-5. **Regression coverage:** the deterministic preference matrix and isolated native host matrix now run in Windows CI. Current-build/reference recovery inspectors remain compile-checked there because their runtime inputs are not present in game-independent CI; add artifact-backed CI execution only when those prerequisites are explicitly supplied.
-6. **Checkpoint delivery:** document new findings immediately, update `BACKLOG.md`/feature ledger, run applicable checks and commit/push the coherent checkpoint. Verify the remote commit; do not leave status documents beginning with superseded blockers.
-
-## Verification performed in review 3
-
-Current results, source hashes, limitations and reproduction commands are in [the review 3 record](../evidence/lwbridge-implementation/2026-09-08-pm-review-3.json).
-
-- Recovered frontend hash/generation check and Release build passed, zero warnings/errors.
-- Standard deterministic backend suite passed, including the optional read-only installed-client diagnostic; real configuration comparison passed and no game/launcher was running in that snapshot.
-- The independent PM2 reproducer now reports all four `passed:true` outcomes.
-- Node missing-native and transport-boundary harnesses passed.
-- The isolated native WebView probe passes its strengthened gate: actual reload/session/ownership, cancellation, duplicate/error, picker/rollback/ordered save, visible save errors, both-fail/mixed rapid-save reconciliation, successful recovery and close paths ran. Real user config bytes were unchanged; no live game commands ran.
-- The three new static inspectors reran successfully against the verified reference/recovered frontend and installed xLua. This confirms reproducibility of the saved contracts and current-file selector result; it does not complete R5 launch semantics.
-- The maintained PM3 provider matrix passes all four rapid-save outcome combinations plus recovery; the earlier audit reproducer now returns `passed:true` against the fixed provider.
-- Fresh fixture/browser comparison results are recorded in the evidence record. Populated production map states and successful game lifecycle remain unverified.
-
-## Tools, authorization and genuine limits
-
-This review used existing .NET, Node, Python, WebView2 and the existing PE/disassembly inspectors; it did not need a new analyzer installation. `Get-Command` resolved Python/Node/.NET. Java/Ghidra/headless/LLVM/7z names were not found on the inspected PATH, which does **not** establish that those tools are absent elsewhere. The next AI must discover/install what its specific investigation needs, rather than relying on this limited inventory.
-
-The user's permission is not a missing prerequisite for project-related tool setup. Distinguish setup errors, unrecovered contracts, unavailable live targets and actual platform restrictions in every blocker report. Record exact errors and pursue permitted alternatives/independent work. Do not infer that broad user consent changes an external platform's restrictions or claim a denied action succeeded.
-
-No game launch, injection, travel, scan, claim or message delivery was performed in this management review. Completed cleanup and the login-free recovered UI are preserved. Hand off [AGENTS.md](../AGENTS.md), [task.md](../task.md) and [BACKLOG.md](../BACKLOG.md); they retain one clear rule/requirement/checklist structure.
+- Replaced stale “fix PM3 first” instructions with the verified current state and DB routing.
+- Corrected BACKLOG text encoding and stale foundation/ABI statements.
+- Preserved the prior audit and its relative evidence links in `docs/reviews/`.
+- Kept one full task specification and all 47 acceptance cases; added the research supplement to the evidence index and ledger.
+- Preserved recovered assets, production code and historical findings. No legacy cleanup was repeated.

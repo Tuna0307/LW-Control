@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "type": "project-manager-review-4",
+  "implementationRevision": "5174cf9298fd9895cfd6e70d2af3216077d3928d",
+  "branch": "research/offline-controller",
+  "scope": "Source/evidence audit, fresh offline regression checks, deeper-research routing and documentation cleanup. Production code unchanged.",
+  "referenceIdentityFromExistingEvidence": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "freshBinaryExtractionOrDisassemblyInThisReview": false
+  },
+  "sourceFileSha256": {
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "1be4c1afbf514912999cd26d74b15ddc89c2bce3523313cd0e13c637f79b0fa4",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "c480e4c361cb69cff9d381916046f6612742ecea07b386dd5419e3b65ac77e8a",
+    "src/LWBridge.Desktop/HostProbeCommandService.cs": "90a454dddfc273aa8dfb3bb4b1b9ecc07044bfe5659ff121fcb780b54e4e2418",
+    "src/LWBridge.Desktop/MapDataStore.cs": "d21a9c88bb9b966cdf8aec893ae5722921f5384bf2a17e90aeeb6a0b796baa62",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "4731286d964217573f203dd120a06964fb06f1d1609b14f0b642186df35b6660",
+    "src/LWBridge.Desktop/WebUi/local-providers.js": "5956a49c0e636cd90b4a07b04143f8875b5fdc633dfbfac39fc2af1437bd5551",
+    "src/LWBridge.Desktop/WebUi/presentation.css": "fd1e7bfe684b06c6eda73d24b2531327dfa0dd0befbda9a08df55805b674090d",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "76b5ffc6a6757a781c3eae839fae6f8d48824752c1792fc7cf66c59a347552b9",
+    "tools/check_lwbridge_preference_provider.cjs": "77867a0fbf106e4644598a99981a41559bf7ce3352dc4e3677b55e0eabe4e3b4",
+    "tools/check_lwbridge_host_probe.ps1": "f796d2eeaeb95c5f18d4bcf4d81ca31e017eb2498a87d2c31b3ea67c37b82ca6",
+    "tools/check_lwbridge_frontend.cjs": "20f1cb0f0a1bce62cd36b8a42fdf25bf088943ad5284428d10a1135be39e369e",
+    "tools/capture_lwbridge_ui.ps1": "e67f2d32302971c356c4e4fe8af5504e5a9ad5f21f5cfd9003285a809539a185",
+    "tools/compare_lwbridge_frontend.py": "92e0dcb97daafafa3a81664dbbc9a5cec540c84a948783282793dcf96ef10a0c",
+    ".github/workflows/csharp.yml": "36d563b14052b1cca3fcd17272a91037fc3ba57ba9c849729df25c6a166b2fed",
+    "evidence/lwbridge-implementation/2026-09-08-r5-launch-material.json": "d7139abe19d645001f5800c187bbbfc3d2ae8f3ae8794afec008ee5bc97955d9",
+    "evidence/lwbridge-implementation/2026-09-08-r5-ticket-consumption.json": "3c0086cd310562935a30cff0606f6f857cc345c6b35397e1d59427fd0d53ec58",
+    "evidence/lwbridge-implementation/2026-09-08-r5-ticket-consumption-disassembly.txt": "893438e51dac3c1c51395ea419a613f350295d9cf6222e78250b35c5ecd8b616",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-frontend-consumers.json": "d8aee893696c111e9c573d18af5cda1891e9cbcce9151cc8e8d0e4a35c13daca",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-query-backend.json": "c0b29f2652a7d80c4bcbcb73c2d0280d4ef9c5b63da5a215819faaec060e642d",
+    "tools/inspect_lwbridge_injection.py": "7661d12179b095c4a4dc0d73bbd9c0d98cbbaeba7b91f9c5c6992b329fac12bf",
+    "tools/inspect_lwbridge_launch_contract.py": "f4ae3c80dac6850634b3d50a074138f9309ea7cb72940493edb8e885040ae863",
+    "tools/inspect_lwbridge_launch_material.py": "82b42b5af0922cf6044b7880c2c5f6fbfaff097a7178d4cbf7751b8fe7b0d313",
+    "tools/inspect_lwbridge_launch_validation.py": "e28aed04374af042c98754e74af698d1e8e603f19e44e9007e7dcea85c829870",
+    "tools/inspect_lwbridge_map_frontend_consumers.py": "8333af7ba29a0fd29db3456b82eed3543c365a40b78b255d2a2683696c192c14",
+    "tools/inspect_lwbridge_map_query_backend.py": "41cfaceb2e87e852bd91fdbc48f1e07f5865e184a96e35cdf42fdd7903df98f6",
+    "tools/inspect_lwbridge_map_query_frontend.py": "1f1acfa39eed85adfd4463db7b2856d8227aed126cae6501af6c109a2a822b2e",
+    "tools/inspect_lwbridge_map_scan.py": "f66778f427367585d78c9fa2d759db0a63957d9e5775934c94433ca10c5243b4",
+    "tools/inspect_lwbridge_proxy_map_scan.py": "11163bc9813df11e72350b79e0a4d947a522b6e891e25f761a70270744332b71",
+    "tools/inspect_lwbridge_ticket_consumption_evidence.py": "ec6c98d0f24ad6b576e318b421d9ee3bc62edb35dfa788d491a441cb1b24a51a",
+    "tools/inspect_lwbridge_xlua_abi.py": "7cbc2196544b30809a5bfdfa8f88701f2dffc0b2ff9450c23f776db0726c6543"
+  },
+  "checks": {
+    "frontendIntegrity": {
+      "passed": true,
+      "command": "python tools/build_lwbridge_frontend.py --check"
+    },
+    "releaseBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0,
+      "command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release"
+    },
+    "standardBackend": {
+      "passed": true,
+      "failures": [],
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "verifyRealConfigUnchanged": true,
+      "installedDiagnosticOptional": true,
+      "gameRunningAtDiagnostic": false,
+      "launcherRunningAtDiagnostic": false
+    },
+    "preferenceProvider": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_preference_provider.cjs",
+      "scenarios": {
+        "bothFail": true,
+        "failThenSuccess": true,
+        "successThenFail": true,
+        "bothSuccess": true,
+        "recovery": true
+      }
+    },
+    "originalPm3Reproducer": {
+      "passed": true,
+      "command": "node evidence/lwbridge-implementation/pm-review-3-repro/check-overlap-failures.cjs",
+      "committed": false,
+      "finalUi": false
+    },
+    "nativeWebViewHost": {
+      "passed": true,
+      "reproduction": [
+        "Build the Release executable, then resolve src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe.",
+        "Start-Process the executable with --host-probe and an isolated absolute JSON output path, correctly quote the path, use -WindowStyle Hidden -PassThru.",
+        "WaitForExit(55000); on timeout stop only that child process and fail the test. This bound is review orchestration policy, not a recovered runtime timeout.",
+        "Read the result after exit and assert ok plus all preference feedback/reconciliation/recovery gates. Compare actual user config hashes before/after without recording config contents."
+      ],
+      "sharedHelperRun": false,
+      "sharedHelperLimitation": "tools/check_lwbridge_host_probe.ps1 still uses visible unbounded Start-Process -Wait; the audit invoked the underlying probe with hidden/bounded orchestration.",
+      "gates": {
+        "ok": true,
+        "implementationPolicy": true,
+        "slowStorageUiResponsive": true,
+        "sessionRotated": true,
+        "reloadCancelledOldWork": true,
+        "reloadResetSubscriptions": true,
+        "staleSessionIgnored": true,
+        "structuredError": true,
+        "duplicateRequestRejected": true,
+        "preferenceRollbackVisible": true,
+        "preferenceRollbackErrorVisible": true,
+        "preferenceRollbackBefore": false,
+        "preferenceRollbackOptimistic": true,
+        "preferenceRollbackAfter": false,
+        "preferenceConfigBefore": false,
+        "preferenceConfigAfter": false,
+        "overlappingPreferenceSavesOrdered": true,
+        "overlapInitial": false,
+        "overlapFirstDraft": true,
+        "overlapLatest": false,
+        "overlapFinal": false,
+        "overlapConfig": false,
+        "preferenceBothFailedReconciled": true,
+        "bothFailedInitial": false,
+        "bothFailedFirstDraft": true,
+        "bothFailedSecondDraft": false,
+        "bothFailedFinal": false,
+        "bothFailedConfig": false,
+        "preferenceFailThenSuccessReconciled": true,
+        "failThenSuccessInitial": false,
+        "failThenSuccessFirstDraft": true,
+        "failThenSuccessSecondDraft": false,
+        "failThenSuccessFinal": false,
+        "failThenSuccessConfig": false,
+        "preferenceSuccessThenFailReconciled": true,
+        "successThenFailInitial": false,
+        "successThenFailFirstDraft": true,
+        "successThenFailSecondDraft": false,
+        "successThenFailFinal": true,
+        "successThenFailConfig": true,
+        "preferenceRecoveryClearsError": true,
+        "preferenceRecoveryInitial": true,
+        "preferenceRecoveryOptimistic": false,
+        "preferenceRecoveryFinal": false,
+        "preferenceRecoveryConfig": false,
+        "pickerCancelAndInvalidHandled": true,
+        "pickerCancelBusy": true,
+        "pickerInvalidBusy": true,
+        "externalNavigationRejected": true,
+        "closedWindowLateResponseSuppressed": true,
+        "startupAutoLaunchSuppressed": true,
+        "isolatedPersistentConfig": true,
+        "userConfigTouched": false,
+        "liveGameCommandsPerformed": false
+      },
+      "preferenceRollbackErrorText": "Expected isolated preference-save failure.",
+      "serviceCounts": {
+        "slowSyncStarted": 0,
+        "delayedStarted": 2,
+        "delayedActive": 0,
+        "delayedCancelled": 2,
+        "lateStarted": 1,
+        "lateCompleted": 1,
+        "configSaveStarted": 11,
+        "configSaveCompleted": 6,
+        "configSaveFailed": 5,
+        "configSaveActive": 0,
+        "configSaveMaxActive": 1,
+        "pickerStarted": 2,
+        "pickerCancelled": 1,
+        "pickerInvalid": 1
+      },
+      "realConfigUnchanged": true
+    },
+    "desktopFixtures": {
+      "passed": true,
+      "command": "./tools/capture_lwbridge_ui.ps1 -OutputDirectory .codex-live/pm-review-4/captures",
+      "views": [
+        {
+          "view": "advanced",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "automation",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "city-layout",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "hotkeys",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "map-data",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "march",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "mini-games",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "overview",
+          "errors": [],
+          "noAuthRequests": true
+        },
+        {
+          "view": "settings",
+          "errors": [],
+          "noAuthRequests": true
+        }
+      ]
+    },
+    "browser": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_frontend.cjs",
+      "nodePathUsed": "C:/Users/chimw/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules",
+      "checkCount": 35,
+      "errors": []
+    },
+    "pixelComparison": {
+      "command": "python tools/compare_lwbridge_frontend.py",
+      "pairs": 32,
+      "identical": 30,
+      "maxMae": 6.309772302487074e-05,
+      "maxHighDeltaRate": 0.0,
+      "nonIdentical": [
+        {
+          "view": "city-layout-dark-zh-CN",
+          "mae": 6.309772302487074e-05,
+          "highDeltaRate": 0.0,
+          "identical": false
+        },
+        {
+          "view": "hotkeys-dark-en",
+          "mae": 3.4106877310740937e-06,
+          "highDeltaRate": 0.0,
+          "identical": false
+        }
+      ],
+      "scope": "Extracted reference frontend with synthetic responses, not an authenticated reference-app window or live game outcome."
+    },
+    "inspectorSyntax": {
+      "passed": true,
+      "count": 11,
+      "method": "ast.parse(Path.read_text(encoding='utf-8-sig')) for tools/inspect_lwbridge*.py; no module execution or reference-binary access",
+      "binaryInspectorsExecuted": false
+    },
+    "documentation": {
+      "passed": true,
+      "markdownFilesChecked": 16,
+      "missingLocalTargets": [],
+      "acceptanceCases": 47,
+      "acceptanceRowsUnchangedFromReviewedRevision": true,
+      "formerTASKSFileAbsent": true,
+      "backlogEncodingRepaired": true
+    }
+  },
+  "recordedRestrictions": [
+    {
+      "id": "SB-01",
+      "operation": "New fixed-address launch-material verifier execution against reference binary",
+      "source": "evidence/lwbridge-implementation/2026-09-08-r5-launch-material.json",
+      "locator": "reproduction.currentCheckpointExecution",
+      "reason": "Saved evidence records safety-review denial; user reports OpenAI could not determine safety status. Raw review telemetry not attached.",
+      "retriedThisReview": false
+    },
+    {
+      "id": "SB-02",
+      "operation": "Broader binary/deeper helper-disassembly requests",
+      "source": "evidence/lwbridge-implementation/2026-09-08-r5-ticket-consumption.json",
+      "locator": "reproduction.currentCheckpointExecution",
+      "reason": "Saved evidence says environment safety review could not determine safety status; finding instead relies on retained bounded disassembly.",
+      "retriedThisReview": false
+    }
+  ],
+  "researchRouting": {
+    "DEEP-BINARY": [
+      "DB-01 launch input/ownership semantics",
+      "DB-02 consumption poll inputs/units/variants",
+      "DB-03 native map identity/normalization",
+      "DB-04 capture/scheduler/completion"
+    ],
+    "ARTIFACT-REVIEW_THEN_CONDITIONAL_DEEP-BINARY": [
+      "DB-05 advanced filters/sorts",
+      "DB-06 authoritative status/travel/actions/jobs"
+    ],
+    "IMPLEMENTATION": [
+      "Supported query coverage and consistent snapshots",
+      "Store migration/transaction/generation infrastructure",
+      "Export infrastructure with unresolved semantics gated",
+      "Host diagnostics/worker interfaces",
+      "Hidden bounded host-probe helper"
+    ],
+    "handoff": "docs/deep-binary-handoff.md",
+    "newTaskCreatedOrDispatched": false
+  },
+  "implementationLimits": [
+    "Owned Overview launch/stop/startup/reconnect is not implemented or live-proven.",
+    "Full Map Data ingestion, scan, queries/options/summary/export and actions remain incomplete.",
+    "Separate count/page reads are not a cross-connection snapshot; structural limitation, not newly reproduced race.",
+    "PM2 standalone reproducer and older transport harness results are historical; current standard backend suite was rerun.",
+    "GitHub Actions workflow was source-reviewed, not run remotely by this audit.",
+    "No denied action retried, fresh native analysis, live game launch/injection/scan/travel/claim/plunder or message delivery in this review."
+  ]
+}
