@@ -53,7 +53,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [x] **PM3-01 / R2/R4:** rejected saves are visible in login-free single-profile mode through the existing `profile-error` visual language, and native-host `ok` now requires visible non-empty error feedback.
 - [x] **PM3-02 / R2/R4:** optimistic saves reconcile against the last confirmed persisted value. Both-fail, fail/success, success/fail, all-success and recovery cases pass in the deterministic provider matrix; both-fail/mixed/recovery cases also pass in the real isolated WebView host.
 - [x] Add recurring CI coverage for the isolated host interaction matrix and new preference assertions. The three current-build recovery inspectors remain compile-checked only because their runtime validation depends on reference/current-install artifacts that are not part of game-independent CI.
-- [ ] **IMPLEMENTATION / test hygiene:** make `tools/check_lwbridge_host_probe.ps1` launch hidden, use a bounded test-policy wait and clean up only its own child process on timeout. Review 4 ran the underlying probe hidden with a bound; the shared helper still uses unbounded `-Wait`.
+- [x] **IMPLEMENTATION / test hygiene:** `tools/check_lwbridge_host_probe.ps1` now launches hidden, quotes its path-valued output argument, uses the review-4 55-second orchestration bound as explicit IMPLEMENTATION POLICY, fails on timeout/nonzero exit, and cleans up only the process it started. The isolated configuration and existing required gates are unchanged.
 
 ### Resolved PM2 defects — preserve their regression tests
 

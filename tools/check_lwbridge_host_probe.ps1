@@ -7,15 +7,31 @@ if (-not (Test-Path $exe)) {
 }
 
 $output = Join-Path ([System.IO.Path]::GetTempPath()) ("lwbridge-host-probe-{0}.json" -f [guid]::NewGuid().ToString('N'))
+$process = $null
+# IMPLEMENTATION POLICY: review 4 used a 55-second orchestration bound for this
+# isolated diagnostic. This is a test-runner timeout, not a recovered LWBridge
+# or game-runtime timeout. See evidence/lwbridge-implementation/2026-09-08-pm-review-4.json.
+$waitTimeoutMs = 55000
 try {
-    $process = Start-Process -FilePath $exe -ArgumentList @('--host-probe', $output) -Wait -PassThru
+    # Start-Process handles the executable path separately; quote the path-valued
+    # argument explicitly so temporary directories containing spaces are safe.
+    $quotedOutput = '"' + $output + '"'
+    $process = Start-Process -FilePath $exe -ArgumentList @('--host-probe', $quotedOutput) -WindowStyle Hidden -PassThru
+    if (-not $process.WaitForExit($waitTimeoutMs)) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        $process.WaitForExit()
+        throw "LWBridge host probe timed out after $waitTimeoutMs ms."
+    }
+    if ($process.ExitCode -ne 0) {
+        throw "LWBridge host probe exited with code $($process.ExitCode)."
+    }
     if (-not (Test-Path $output)) {
-        throw "LWBridge host probe did not produce its JSON report (exit $($process.ExitCode))."
+        throw 'LWBridge host probe did not produce its JSON report.'
     }
 
     $report = Get-Content -Raw $output | ConvertFrom-Json
-    if ($process.ExitCode -ne 0 -or $report.ok -ne $true) {
-        throw "LWBridge host probe failed (exit $($process.ExitCode)): $($report | ConvertTo-Json -Depth 8 -Compress)"
+    if ($report.ok -ne $true) {
+        throw "LWBridge host probe failed: $($report | ConvertTo-Json -Depth 8 -Compress)"
     }
 
     $required = @(
@@ -38,5 +54,9 @@ try {
     Write-Output ($report | ConvertTo-Json -Depth 8)
 }
 finally {
+    if ($null -ne $process -and -not $process.HasExited) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        $process.WaitForExit()
+    }
     Remove-Item $output -ErrorAction SilentlyContinue
 }
