@@ -179,10 +179,8 @@ internal sealed class LWBridgeBackend
             case "map_search":
                 {
                     MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
-                    throw new BridgeCommandException(
-                        "MAP_INDEX_UNAVAILABLE",
-                        "Map search is unavailable before the production map index is initialized.",
-                        query);
+                    MapSearchResult result = RequireMapDataStore().SearchIndexed(query);
+                    return new { rows = result.Rows, total = result.Total };
                 }
             case "map_city_export":
                 {

@@ -81,6 +81,7 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 - [ ] Implement transactional profile/server/run storage, generations/checkpoints and durable jobs with restart recovery.
 - [x] Add the recovered SQLite schema/index foundation with deterministic restart/upsert/server-scope tests; require an explicit already-derived `record_key` rather than guessing ingestion identity.
 - [x] Implement persistent player mark/unmark and server-scoped clear using recovered identities/SQL scope; emit the recovered player-mark refresh event.
+- [x] Implement the `LWB-R6-003` default persisted `map_search` slice: recovered pagination, `updatedAt` ordering with `record_key ASC`, `{rows,total}`, city marks/`markedOnly`, and fail-closed `MAP_QUERY_UNRECOVERED` for unsupported filters/sorts.
 - [ ] Implement options/counts, search, remaining filters, stable sorting and pagination with late-result rejection.
 - [ ] Implement full filtered Excel export and verify it reopens with correct rows/types/large IDs.
 - [ ] Connect offline services to real native handlers and result tabs; test using explicitly labelled recovered/synthetic samples. Keep unknown semantic fields open.

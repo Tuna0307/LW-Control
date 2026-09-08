@@ -9,11 +9,36 @@ internal sealed record MapDataQueryOptions(
     int ServerId,
     int Page,
     int PageSize,
-    IReadOnlyList<MapDataSort> Sorts);
+    IReadOnlyList<MapDataSort> Sorts,
+    bool MarkedOnly,
+    IReadOnlyList<string> UnsupportedFeatures);
 
 internal static class MapDataQueryContract
 {
     public const int RecoveredPageSize = 50;
+
+    private static readonly string[] FilterFields =
+    [
+        "keyword",
+        "resourceNameKey",
+        "monsterNameKey",
+        "treasureType",
+        "suppliesType",
+        "alliance",
+        "withoutAlliance",
+        "quality",
+        "specialOnly",
+        "reindeerOnly",
+        "itemKey",
+        "completionStatus",
+        "plunderableOnly",
+        "includeForeignRadarTreasures",
+        "luckyFirst",
+        "viewerUid",
+        "viewerAllianceId",
+        "minLevel",
+        "maxLevel",
+    ];
 
     private static readonly HashSet<string> AllowedKinds =
         new(MapScanContract.AllTypes, StringComparer.Ordinal);
@@ -34,7 +59,18 @@ internal static class MapDataQueryContract
         int page = OptionalPositiveInt(query, "page", 1);
         int pageSize = OptionalPositiveInt(query, "pageSize", RecoveredPageSize);
         IReadOnlyList<MapDataSort> sorts = NormalizeSorts(query);
-        return new MapDataQueryOptions(kind, serverId, page, pageSize, sorts);
+        bool markedOnly = OptionalBoolean(query, "markedOnly", false);
+        IReadOnlyList<string> unsupported = CollectUnsupportedFeatures(kind, query, sorts, markedOnly);
+        return new MapDataQueryOptions(kind, serverId, page, pageSize, sorts, markedOnly, unsupported);
+    }
+
+    public static void RequireRecoveredIndexedSearch(MapDataQueryOptions options)
+    {
+        if (options.UnsupportedFeatures.Count == 0) return;
+        throw new BridgeCommandException(
+            "MAP_QUERY_UNRECOVERED",
+            "The requested Map Data filter/sort has not been recovered sufficiently for production use.",
+            new { options.Kind, unsupported = options.UnsupportedFeatures });
     }
 
     public static int RequiredServerId(JsonElement payload)
@@ -69,6 +105,41 @@ internal static class MapDataQueryContract
         return sorts.Count == 0
             ? new[] { new MapDataSort("updatedAt", "desc") }
             : sorts;
+    }
+
+    private static IReadOnlyList<string> CollectUnsupportedFeatures(
+        string kind,
+        JsonElement query,
+        IReadOnlyList<MapDataSort> sorts,
+        bool markedOnly)
+    {
+        var unsupported = new List<string>();
+        foreach (string name in FilterFields)
+        {
+            if (!query.TryGetProperty(name, out JsonElement value) || IsNeutral(value)) continue;
+            unsupported.Add(name);
+        }
+
+        if (markedOnly && kind != "city") unsupported.Add("markedOnly");
+        if (sorts.Count != 1 || !string.Equals(sorts[0].SortBy, "updatedAt", StringComparison.Ordinal))
+            unsupported.Add("sorts");
+        return unsupported.Distinct(StringComparer.Ordinal).ToArray();
+    }
+
+    private static bool IsNeutral(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.Null or JsonValueKind.Undefined => true,
+        JsonValueKind.String => string.IsNullOrEmpty(value.GetString()),
+        _ => false,
+    };
+
+    private static bool OptionalBoolean(JsonElement payload, string name, bool fallback)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return fallback;
+        if (value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw new BridgeCommandException("INVALID_MAP_QUERY", $"{name} must be a boolean.");
+        return value.GetBoolean();
     }
 
     private static int OptionalPositiveInt(JsonElement payload, string name, int fallback)

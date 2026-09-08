@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Data.Sqlite;
 
 namespace LWBridge.Desktop;
@@ -40,6 +41,8 @@ internal sealed record MapScanRunSeed(
     string? Error);
 
 internal sealed record MapClearResult(int ServerId, int DeletedRuns, int DeletedRecords);
+
+internal sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total);
 
 internal sealed class MapDataStore : IDisposable
 {
@@ -227,6 +230,49 @@ internal sealed class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$kind", kind);
             command.Parameters.AddWithValue("$server", serverId);
             return Convert.ToInt32(command.ExecuteScalar());
+        }
+    }
+
+    public MapSearchResult SearchIndexed(MapDataQueryOptions options)
+    {
+        ValidateKind(options.Kind);
+        ValidateServerId(options.ServerId);
+        MapDataQueryContract.RequireRecoveredIndexedSearch(options);
+
+        string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
+        long offset = checked(((long)options.Page - 1L) * options.PageSize);
+        bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
+
+        lock (gate)
+        {
+            string join = city
+                ? " LEFT JOIN player_marks mark ON mark.server_id=page.server_id AND mark.owner_uid=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)"
+                : string.Empty;
+            string markedFilter = city && options.MarkedOnly ? " AND mark.owner_uid IS NOT NULL" : string.Empty;
+
+            int total;
+            using (SqliteCommand count = connection.CreateCommand())
+            {
+                count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE page.kind=$kind AND page.server_id=$server{markedFilter}";
+                count.Parameters.AddWithValue("$kind", options.Kind);
+                count.Parameters.AddWithValue("$server", options.ServerId);
+                total = Convert.ToInt32(count.ExecuteScalar());
+            }
+
+            using SqliteCommand page = connection.CreateCommand();
+            page.CommandText = city
+                ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE page.kind=$kind AND page.server_id=$server{markedFilter} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
+                : $"SELECT page.data_json FROM map_records page WHERE page.kind=$kind AND page.server_id=$server ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
+            page.Parameters.AddWithValue("$kind", options.Kind);
+            page.Parameters.AddWithValue("$server", options.ServerId);
+            page.Parameters.AddWithValue("$limit", options.PageSize);
+            page.Parameters.AddWithValue("$offset", offset);
+
+            var rows = new List<JsonElement>();
+            using SqliteDataReader reader = page.ExecuteReader();
+            while (reader.Read())
+                rows.Add(ReadSearchRow(reader.GetString(0), city ? reader.GetInt32(1) != 0 : null));
+            return new MapSearchResult(rows, total);
         }
     }
 
@@ -435,6 +481,23 @@ internal sealed class MapDataStore : IDisposable
         reader.IsDBNull(11) ? null : reader.GetInt64(11),
         reader.GetInt64(12),
         reader.GetString(13));
+
+    private static JsonElement ReadSearchRow(string dataJson, bool? marked)
+    {
+        try
+        {
+            JsonNode? node = JsonNode.Parse(dataJson);
+            if (node is not JsonObject row)
+                throw new BridgeCommandException("MAP_INDEX_CORRUPT", "Stored map row is not a JSON object.");
+            if (marked.HasValue) row["marked"] = marked.Value;
+            using JsonDocument document = JsonDocument.Parse(row.ToJsonString());
+            return document.RootElement.Clone();
+        }
+        catch (JsonException ex)
+        {
+            throw new BridgeCommandException("MAP_INDEX_CORRUPT", "Stored map row contains invalid JSON.", ex.Message);
+        }
+    }
 
     private static void ValidateRecord(MapStoredRecord record)
     {

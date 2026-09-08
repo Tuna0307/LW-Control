@@ -32,6 +32,7 @@ Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for projec
 - [`../evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json`](../evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json) records the recovered picker result contract and the completed controlled native-WebView duplicate/preference/picker/closed-window interaction matrix.
 - [`../evidence/lwbridge-implementation/2026-09-08-r5-launch-envelope-producer.json`](../evidence/lwbridge-implementation/2026-09-08-r5-launch-envelope-producer.json) records `LWB-R5-001`: exact outer-host `LaunchEnvelope` field/value locators, JSON serialization/handoff and the remaining proof/ticket/child-input blockers.
 - [`../evidence/lwbridge-implementation/2026-09-08-r5-xlua-abi-selector.json`](../evidence/lwbridge-implementation/2026-09-08-r5-xlua-abi-selector.json) records `LWB-R5-002`: exact `LWXE1\n` export-fingerprint construction, ordinal/name ordering, SHA-256 selector, bundled secure/plain values and current-client secure classification.
+- [`../evidence/lwbridge-implementation/2026-09-08-r6-map-query-frontend.json`](../evidence/lwbridge-implementation/2026-09-08-r6-map-query-frontend.json) records `LWB-R6-003`: exact frontend Map Data query-builder/sort/page/export-envelope locators plus the implemented default persisted-search slice and its fail-closed filter/sort limits.
 - [`../evidence/official-runtime/`](../evidence/official-runtime/) contains read-only current-client runtime snapshots.
 
 ## Evidence labels

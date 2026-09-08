@@ -1,0 +1,118 @@
+{
+  "findingId": "LWB-R6-003",
+  "date": "2026-09-08",
+  "scope": "Map Data frontend query builder, sort vocabulary and city export envelope",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "api": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\api-ClPPi2JT.js",
+      "sha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+    }
+  },
+  "locators": {
+    "queryBuilderCharacterRange": [
+      36703,
+      37718
+    ],
+    "mapSearchWrapperCharacterOffset": 21344,
+    "mapDataOptionsWrapperCharacterOffset": 21176,
+    "mapCityExportWrapperCharacterOffset": 21401,
+    "defaultPageSizeCharacterOffset": 5402,
+    "cityExportPageSizeCharacterOffset": 40411
+  },
+  "commands": {
+    "mapSearch": {
+      "name": "map_search",
+      "payload": [
+        "kind",
+        "query"
+      ]
+    },
+    "mapDataOptions": {
+      "name": "map_data_options",
+      "payload": [
+        "serverId"
+      ]
+    },
+    "mapCityExport": {
+      "name": "map_city_export",
+      "payloadShape": "{query,...options}"
+    }
+  },
+  "queryFields": [
+    "serverId",
+    "keyword",
+    "resourceNameKey",
+    "monsterNameKey",
+    "treasureType",
+    "suppliesType",
+    "alliance",
+    "withoutAlliance",
+    "markedOnly",
+    "page",
+    "pageSize",
+    "sorts",
+    "quality",
+    "specialOnly",
+    "reindeerOnly",
+    "itemKey",
+    "completionStatus",
+    "plunderableOnly",
+    "includeForeignRadarTreasures",
+    "luckyFirst",
+    "viewerUid",
+    "viewerAllianceId",
+    "minLevel",
+    "maxLevel"
+  ],
+  "sortKeys": [
+    "updatedAt",
+    "level",
+    "health",
+    "shield",
+    "distance",
+    "quality",
+    "power",
+    "remainingLootCount",
+    "arriveTime",
+    "protectTime",
+    "completionTime",
+    "itemCount"
+  ],
+  "pagination": {
+    "defaultPageSize": 50,
+    "cityExportPageSize": 200,
+    "resultFields": [
+      "rows",
+      "total"
+    ]
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_query_frontend.py evidence\\lwbridge-0.3.1\\frontend",
+    "python tools\\inspect_lwbridge_map_query_frontend.py evidence\\lwbridge-0.3.1\\frontend --json"
+  ],
+  "validationAndLimits": {
+    "validation": "static-only against immutable recovered frontend assets",
+    "liveProven": false,
+    "unknownBlocked": [
+      "exact original SQL predicate for nonempty keyword/alliance/special/item/plunder filters",
+      "exact SQL expression for every non-updatedAt sort key",
+      "complete map_data_options aggregation SQL",
+      "city export native file-picker/workbook writer contract"
+    ]
+  },
+  "implementationImpact": {
+    "defaultIndexedSearch": "implemented offline in MapDataStore.SearchIndexed",
+    "supportedSlice": [
+      "page/pageSize LIMIT/OFFSET",
+      "updatedAt asc/desc with record_key ASC tie-breaker",
+      "city marked state and markedOnly through recovered player_marks join",
+      "rows/total backend envelope"
+    ],
+    "implementationPolicy": "unrecovered filter values other than omitted/null/empty-string fields, and non-updatedAt sorts, fail with MAP_QUERY_UNRECOVERED"
+  }
+}

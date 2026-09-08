@@ -735,12 +735,16 @@ Check(mapOptions.Kind == "city" && mapOptions.ServerId == 7 && mapOptions.Page =
     "map query normalizes recovered kind/server/page contract");
 Check(mapOptions.Sorts.SequenceEqual(new[] { new MapDataSort("level", "asc"), new MapDataSort("updatedAt", "desc") }),
     "map query preserves ordered recovered sort contract");
+Check(mapOptions.UnsupportedFeatures.Contains("sorts", StringComparer.Ordinal),
+    "non-updatedAt sort remains fail-closed until its original SQL expression is recovered");
 
 using JsonDocument minimalMapQuery = JsonDocument.Parse("{\"kind\":\"monster\",\"query\":{\"serverId\":1}}");
 MapDataQueryOptions minimalMapOptions = MapDataQueryContract.NormalizeSearch(minimalMapQuery.RootElement);
 Check(minimalMapOptions.Page == 1 && minimalMapOptions.PageSize == MapDataQueryContract.RecoveredPageSize &&
       minimalMapOptions.Sorts.SequenceEqual(new[] { new MapDataSort("updatedAt", "desc") }),
     "map query defaults to page 1, recovered page size 50 and updatedAt desc");
+Check(!minimalMapOptions.MarkedOnly && minimalMapOptions.UnsupportedFeatures.Count == 0,
+    "default indexed map query contains no unrecovered filter/sort features");
 
 using JsonDocument badMapKind = JsonDocument.Parse("{\"kind\":\"bogus\",\"query\":{\"serverId\":1}}");
 await ExpectBridgeError("INVALID_MAP_KIND", "unknown map result kind is rejected", () =>
@@ -749,6 +753,135 @@ await ExpectBridgeError("INVALID_MAP_KIND", "unknown map result kind is rejected
 using JsonDocument badMapSort = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":1,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"sideways\"}]}}");
 await ExpectBridgeError("INVALID_MAP_QUERY", "invalid map sort order is rejected", () =>
     Task.Run(() => { MapDataQueryContract.NormalizeSearch(badMapSort.RootElement); }));
+
+using (var indexedSearchStore = MapDataStore.CreateInMemory())
+{
+    var indexedSearchBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: indexedSearchStore);
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 7, "city-a", 11, "uuid-a", "Alpha", "ONE",
+        30, null, null, null, null, 3000,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\",\"updatedAt\":3000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 7, "city-b", 12, "uuid-b", "Bravo", "TWO",
+        29, null, null, null, null, 3000,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000002\",\"ownerName\":\"Bravo\",\"updatedAt\":3000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 7, "city-c", 13, "uuid-c", "Charlie", null,
+        28, null, null, null, null, 1000,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000003\",\"ownerName\":\"Charlie\",\"updatedAt\":1000}"));
+    indexedSearchStore.UpsertPlayerMark(new MapPlayerMark(
+        7, "10000000000000000001", "active", 4000, null,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\"}"));
+
+    using JsonDocument firstPageSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new
+        {
+            serverId = 7,
+            keyword = "",
+            page = 1,
+            pageSize = 2,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? firstPageResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", firstPageSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(firstPageResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 3 && rows.GetArrayLength() == 2,
+            "persisted default map_search returns recovered rows/total pagination envelope");
+        Check(rows[0].GetProperty("ownerName").GetString() == "Alpha" &&
+              rows[1].GetProperty("ownerName").GetString() == "Bravo",
+            "default map_search orders by updatedAt desc with record_key asc tie-breaker");
+        Check(rows[0].GetProperty("marked").GetBoolean() && !rows[1].GetProperty("marked").GetBoolean(),
+            "city map_search joins persisted player marks into visible marked state");
+    }
+
+    using JsonDocument secondPageSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, page = 2, pageSize = 2 },
+    }));
+    object? secondPageResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", secondPageSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(secondPageResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(rows.GetArrayLength() == 1 && rows[0].GetProperty("ownerName").GetString() == "Charlie",
+            "persisted map_search uses recovered LIMIT/OFFSET page semantics");
+    }
+
+    using JsonDocument ascendingSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new
+        {
+            serverId = 7,
+            page = 1,
+            pageSize = 3,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "asc" } },
+        },
+    }));
+    object? ascendingResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", ascendingSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(ascendingResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(rows.GetArrayLength() == 3 &&
+              rows[0].GetProperty("ownerName").GetString() == "Charlie" &&
+              rows[1].GetProperty("ownerName").GetString() == "Alpha" &&
+              rows[2].GetProperty("ownerName").GetString() == "Bravo",
+            "persisted map_search supports recovered updatedAt asc with record_key asc tie-breaker");
+    }
+
+    using JsonDocument markedOnlySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, markedOnly = true },
+    }));
+    object? markedOnlyResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", markedOnlySearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(markedOnlyResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("marked").GetBoolean(),
+            "city markedOnly search uses recovered server/owner mark join");
+    }
+
+    using JsonDocument unrecoveredKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, keyword = "Alpha" },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "nonempty keyword stays fail-closed until exact predicate is recovered", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredKeywordSearch.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument unrecoveredFalseFilter = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new { serverId = 7, includeForeignRadarTreasures = false },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "explicit false treasure filter stays fail-closed until exact predicate is recovered", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredFalseFilter.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument unrecoveredLevelSort = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, sorts = new[] { new { sortBy = "level", sortOrder = "asc" } } },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "alternate map sort stays fail-closed until exact SQL expression is recovered", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredLevelSort.RootElement.Clone(), CancellationToken.None));
+}
 
 using JsonDocument unavailableSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
 {
