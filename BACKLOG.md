@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-08
 
-Project-manager review 2 audited `0664e0a` plus the foundation/SQLite work. The follow-up PM2 checkpoint fixes all four independently reproduced edge cases and promotes them into the deterministic suite. **R2/R3 remain partial because real WebView reload, UI responsiveness, production-mode host tests and lifecycle integration are still open; Overview lifecycle and full Map Data functionality remain incomplete.** Read [the audit](docs/lwbridge-project-status.md) and [PM2 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json). Keep [task.md](task.md) as the detailed instructions/acceptance contract. This checklist was renamed from `TASKS.md` to avoid confusing the two files; do not recreate the old name.
+Project-manager review 2 audited `0664e0a` plus the foundation/SQLite work. The follow-up PM2 checkpoint fixes all four independently reproduced edge cases, R3 proves real document lifetime/UI responsiveness, and the R4 isolated native-host checkpoint completes the controlled production-WebView interaction matrix. **The remaining foundation limit is integration with real lifecycle/scan workers and their durable diagnostics; Overview lifecycle and full Map Data functionality remain incomplete.** Read [the audit](docs/lwbridge-project-status.md), [PM2 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json), and [R4 native-host evidence](evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json). Keep [task.md](task.md) as the detailed instructions/acceptance contract. This checklist was renamed from `TASKS.md` to avoid confusing the two files; do not recreate the old name.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -22,7 +22,7 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 - [x] Recover and reproduce the original React/Vite feature UI in WebView2.
 - [x] Preserve eight normal pages and the explicitly requested hidden Advanced view.
 - [x] Preserve themes, icons, navigation, and nine languages.
-- [x] Add real WebView2 JavaScript-to-C# RPC with profile injection/filtering, request/session IDs, origin checks, structured errors and cooperative timeout/cancel/event plumbing. Remaining host lifetime work is R3/R4.
+- [x] Add real WebView2 JavaScript-to-C# RPC with profile injection/filtering, request/session IDs, origin checks, structured errors and cooperative timeout/cancel/event plumbing. R3/R4 real-host lifetime and interaction verification now pass; real worker integration remains below.
 - [x] Add local profile/configuration persistence. Failure handling and test isolation remain R2.
 - [x] Detect the current installation, check required files and game/xLua PE32+ format. Exact machine/ABI compatibility remains R4/R5.
 - [x] Keep unmanaged game processes distinct from a verified LWBridge-owned instance.
@@ -56,7 +56,7 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [x] Implement/test real document reload/navigation invalidation: a real WebView2 reload cancels the prior request, clears prior subscriptions, rotates the document session/generation and rejects an invoke carrying the old session ID.
 - [x] **R4 / verification:** split deterministic tests from installed-game diagnostics; run deterministic backend/transport tests in CI.
 - [x] Requested live mode rejects missing native transport in the Node harness; read-only bootstrap suppresses auto-launch and uses isolated storage.
-- [ ] Complete the production-mode WebView matrix. The isolated native-host probe now passes origin rejection, session rotation/stale-session rejection, structured errors, real reload cancellation/subscription reset, slow-storage responsiveness and startup auto-launch suppression. Busy state, picker cancel/invalid selection, overlapping preference saves/UI rollback and closed-window late response still need native-host cases.
+- [x] Complete the production-mode WebView matrix. The isolated native-host probe passes origin rejection, session rotation/stale-session rejection, structured errors, duplicate active request rejection, real reload cancellation/subscription reset, slow-storage responsiveness, actual React preference rollback with ordered overlapping saves, picker busy/cancel/invalid behavior, closed-window late-response suppression and startup auto-launch suppression. This is controlled host proof only; real lifecycle/scan workers remain R5/R7.
 - [x] Check AMD64 COFF machine plus PE32+ for game/xLua; include official-runtime inspector syntax checks. Exact xLua ABI compatibility remains R5.
 
 ## R5 — Overview lifecycle (P0 critical path; research alongside R1–R4)

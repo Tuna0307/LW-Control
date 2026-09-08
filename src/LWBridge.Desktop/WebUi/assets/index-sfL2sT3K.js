@@ -33,13 +33,19 @@ function Xt({children}) {
     const [autoLaunchGame, setAutoLaunch] = j.useState(() => live
         ? window.__LWBridgeBootstrap?.autoLaunchGame !== false
         : localStorage.getItem('lwbridge.autoLaunchGame') !== 'false');
+    const autoLaunchSaveRevision = j.useRef(0);
+    const autoLaunchSaveChain = j.useRef(Promise.resolve());
     const [gameLaunchBusy, setGameLaunchBusy] = j.useState(false);
     const [profileLaunchErrors, setProfileLaunchErrors] = j.useState([]);
+    const asProfileError = error => ({
+        profileId: window.LWBridgePreview.profiles.selectedProfileId,
+        error: error?.code || 'NATIVE_COMMAND_FAILED'
+    });
     j.useEffect(() => {
         if (!live || !autoLaunchGame) return;
         setGameLaunchBusy(true);
         window.LWBridgePreview.invoke('profile_instances_reconcile', {autoLaunchAll: true})
-            .catch(error => setProfileLaunchErrors([String(error?.message || error)]))
+            .catch(error => setProfileLaunchErrors([asProfileError(error)]))
             .finally(() => setGameLaunchBusy(false));
     }, []);
     const value = {
@@ -49,12 +55,17 @@ function Xt({children}) {
         setAutoLaunchGame: value => {
             const enabled = !!value;
             const previous = autoLaunchGame;
+            const revision = ++autoLaunchSaveRevision.current;
             setAutoLaunch(enabled);
             if (live) {
-                window.LWBridgePreview.invoke('local_config_set', {autoLaunchGame: enabled})
+                const save = autoLaunchSaveChain.current
+                    .catch(() => void 0)
+                    .then(() => window.LWBridgePreview.invoke('local_config_set', {autoLaunchGame: enabled}));
+                autoLaunchSaveChain.current = save;
+                save
                     .catch(error => {
-                        setAutoLaunch(previous);
-                        setProfileLaunchErrors([String(error?.message || error)]);
+                        if (autoLaunchSaveRevision.current === revision) setAutoLaunch(previous);
+                        setProfileLaunchErrors([asProfileError(error)]);
                     });
             } else {
                 localStorage.setItem('lwbridge.autoLaunchGame', String(enabled));

@@ -14,7 +14,20 @@ internal static class Program
         string initialView = ReadValueOption(args, "--view") ?? "overview";
         string? language = ReadValueOption(args, "--language");
         string? theme = ReadValueOption(args, "--theme");
-        Application.Run(new LWBridgeWindow(capturePath, liveProbePath, hostProbePath, initialView, language, theme));
+        var window = new LWBridgeWindow(capturePath, liveProbePath, hostProbePath, initialView, language, theme);
+        if (hostProbePath is null)
+        {
+            Application.Run(window);
+            return;
+        }
+
+        // IMPLEMENTATION POLICY: the isolated host probe deliberately closes its
+        // real window before releasing a late backend completion. Keep the UI
+        // thread alive just long enough to persist that post-close evidence.
+        using var context = new ApplicationContext();
+        window.HostProbeFinished += (_, _) => context.ExitThread();
+        window.Show();
+        Application.Run(context);
     }
 
     private static string? ReadPathOption(string[] args, string name)

@@ -29,6 +29,7 @@ Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for projec
 - [`../evidence/lwbridge-implementation/`](../evidence/lwbridge-implementation/) contains rebuild milestone evidence.
 - [`../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json`](../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json) records the PM2 repair source hashes, exact locators, commands, results and remaining limits.
 - [`../evidence/lwbridge-implementation/2026-09-08-r3-native-host.json`](../evidence/lwbridge-implementation/2026-09-08-r3-native-host.json) records the real isolated WebView2 reload/session and slow-storage responsiveness checkpoint.
+- [`../evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json`](../evidence/lwbridge-implementation/2026-09-08-r4-native-host-interactions.json) records the recovered picker result contract and the completed controlled native-WebView duplicate/preference/picker/closed-window interaction matrix.
 - [`../evidence/official-runtime/`](../evidence/official-runtime/) contains read-only current-client runtime snapshots.
 
 ## Evidence labels

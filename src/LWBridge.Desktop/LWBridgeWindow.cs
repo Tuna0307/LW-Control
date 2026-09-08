@@ -45,11 +45,14 @@ internal sealed class LWBridgeWindow : Form
     private int rejectedNavigationCount;
     private int lastClosedSubscriptionCount;
     private int lastClosedRequestCount;
+    private int postedWebMessageCount;
     private readonly WebView2 webView = new()
     {
         Dock = DockStyle.Fill,
         DefaultBackgroundColor = Color.FromArgb(245, 245, 247),
     };
+
+    public event EventHandler? HostProbeFinished;
 
     public LWBridgeWindow(string? capturePath, string? liveProbePath, string? hostProbePath, string initialView, string? language, string? theme)
     {
@@ -145,7 +148,8 @@ internal sealed class LWBridgeWindow : Form
             if (hostProbePath is not null)
             {
                 await RunHostProbeAsync(core, hostProbePath);
-                Close();
+                if (!IsDisposed) Close();
+                HostProbeFinished?.Invoke(this, EventArgs.Empty);
                 return;
             }
             if (liveProbePath is not null)
@@ -184,7 +188,9 @@ internal sealed class LWBridgeWindow : Form
                 await File.WriteAllTextAsync(artifactPath + ".error.txt", ex.ToString());
             }
             Environment.ExitCode = 1;
-            Close();
+            if (!IsDisposed) Close();
+            if (hostProbePath is not null)
+                HostProbeFinished?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -243,6 +249,57 @@ internal sealed class LWBridgeWindow : Form
         if (hostProbeService is null || isolatedConfigRoot is null)
             throw new InvalidOperationException("Host probe service is unavailable.");
 
+        int delayedStartedBeforeDuplicate = hostProbeService.DelayedStarted;
+        string duplicatePhase = """
+            window.__LWBridgeHostProbe = { pending: true, phase: 'duplicate' };
+            (async () => {
+              try {
+                const native = window.chrome.webview;
+                const profileId = window.LWBridgePreview.profiles.selectedProfileId;
+                const id = 'duplicate-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now());
+                const responses = [];
+                const onMessage = event => {
+                  let message = event.data;
+                  if (typeof message === 'string') {
+                    try { message = JSON.parse(message); } catch { return; }
+                  }
+                  if (message?.kind === 'response' && message.id === id) responses.push({
+                    ok: message.ok === true,
+                    code: message.error?.code || ''
+                  });
+                };
+                native.addEventListener('message', onMessage);
+                const request = {
+                  kind: 'invoke', sessionId: window.__LWBridgeBootstrap.sessionId, id,
+                  command: 'diagnostic_host_delayed', payload: { profileId }
+                };
+                native.postMessage(request);
+                native.postMessage(request);
+                for (let attempt = 0; attempt < 100 && !responses.some(r => r.code === 'DUPLICATE_REQUEST_ID'); attempt++)
+                  await new Promise(resolve => setTimeout(resolve, 20));
+                native.postMessage({kind: 'cancel', sessionId: window.__LWBridgeBootstrap.sessionId, id});
+                for (let attempt = 0; attempt < 100 && responses.length < 2; attempt++)
+                  await new Promise(resolve => setTimeout(resolve, 20));
+                native.removeEventListener('message', onMessage);
+                window.__LWBridgeHostProbe = { pending: false, phase: 'duplicate', responses };
+              } catch (error) {
+                window.__LWBridgeHostProbe = { pending: false, phase: 'duplicate', error: String(error?.message || error) };
+              }
+            })();
+            """;
+        await core.ExecuteScriptAsync(duplicatePhase);
+        JsonElement duplicate = await ReadHostProbeResultAsync(core, "duplicate");
+        for (int attempt = 0; attempt < 100 && hostProbeService.DelayedActive != 0; attempt++)
+            await Task.Delay(20);
+        string[] duplicateCodes = duplicate.GetProperty("responses").EnumerateArray()
+            .Select(item => item.GetProperty("code").GetString() ?? string.Empty)
+            .ToArray();
+        bool duplicateRequestRejected = hostProbeService.DelayedStarted == delayedStartedBeforeDuplicate + 1 &&
+            hostProbeService.DelayedActive == 0 &&
+            duplicateCodes.Count(code => code == "DUPLICATE_REQUEST_ID") == 1 &&
+            duplicateCodes.Count(code => code == "COMMAND_CANCELLED") == 1;
+        int delayedCancelledBeforeReload = hostProbeService.DelayedCancelled;
+
         string firstPhase = """
             window.__LWBridgeHostProbe = { pending: true, phase: 'first' };
             (async () => {
@@ -299,8 +356,10 @@ internal sealed class LWBridgeWindow : Form
 
         for (int attempt = 0; attempt < 100 && hostProbeService.DelayedActive != 0; attempt++)
             await Task.Delay(20);
-        if (hostProbeService.DelayedActive != 0 || hostProbeService.DelayedCancelled < 1)
+        if (hostProbeService.DelayedActive != 0 || hostProbeService.DelayedCancelled <= delayedCancelledBeforeReload)
             throw new InvalidOperationException("Reload did not cancel and drain the prior document request.");
+        int reloadClosedRequestCount = lastClosedRequestCount;
+        int reloadClosedSubscriptionCount = lastClosedSubscriptionCount;
 
         string oldSessionJson = JsonSerializer.Serialize(oldSessionId);
         string secondPhase = $$"""
@@ -355,6 +414,150 @@ internal sealed class LWBridgeWindow : Form
         string expectedErrorCode = second.GetProperty("expectedErrorCode").GetString() ?? string.Empty;
         bool bootstrapAutoLaunch = second.GetProperty("bootstrapAutoLaunch").ValueKind == JsonValueKind.True;
 
+        hostProbeService.QueueConfigSave(delayMs: 180, fail: true);
+        string rollbackPhase = """
+            window.__LWBridgeHostProbe = { pending: true, phase: 'rollback' };
+            (async () => {
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+              const toggle = () => document.querySelector('.quick-actions-panel .toggle-row[role="switch"]');
+              try {
+                for (let attempt = 0; attempt < 100 && !toggle(); attempt++) await sleep(20);
+                if (!toggle()) throw new Error('auto-launch switch not rendered');
+                const beforeChecked = toggle().getAttribute('aria-checked') === 'true';
+                const beforeConfig = await window.LWBridgePreview.invoke('local_config_get');
+                toggle().click();
+                await sleep(40);
+                const optimisticChecked = toggle().getAttribute('aria-checked') === 'true';
+                for (let attempt = 0; attempt < 100 && (toggle().getAttribute('aria-checked') === 'true') !== beforeChecked; attempt++) await sleep(20);
+                const afterChecked = toggle().getAttribute('aria-checked') === 'true';
+                const afterConfig = await window.LWBridgePreview.invoke('local_config_get');
+                const readVisibleError = () => [...document.querySelectorAll('.profile-error')]
+                  .map(node => node.textContent?.trim() || '').filter(Boolean).join(' ');
+                let visibleErrorText = readVisibleError();
+                for (let attempt = 0; attempt < 100 && !visibleErrorText; attempt++) {
+                  await sleep(20);
+                  visibleErrorText = readVisibleError();
+                }
+                window.__LWBridgeHostProbe = {
+                  pending: false, phase: 'rollback', beforeChecked, optimisticChecked,
+                  afterChecked, beforeConfig, afterConfig, visibleErrorText
+                };
+              } catch (error) {
+                window.__LWBridgeHostProbe = { pending: false, phase: 'rollback', error: String(error?.message || error) };
+              }
+            })();
+            """;
+        await core.ExecuteScriptAsync(rollbackPhase);
+        JsonElement rollback = await ReadHostProbeResultAsync(core, "rollback");
+        bool rollbackBefore = rollback.GetProperty("beforeChecked").GetBoolean();
+        bool rollbackOptimistic = rollback.GetProperty("optimisticChecked").GetBoolean();
+        bool rollbackAfter = rollback.GetProperty("afterChecked").GetBoolean();
+        bool rollbackConfigBefore = rollback.GetProperty("beforeConfig").GetProperty("autoLaunchGame").GetBoolean();
+        bool rollbackConfigAfter = rollback.GetProperty("afterConfig").GetProperty("autoLaunchGame").GetBoolean();
+        string preferenceRollbackErrorText = rollback.GetProperty("visibleErrorText").GetString() ?? string.Empty;
+        bool preferenceRollbackErrorVisible = !string.IsNullOrWhiteSpace(preferenceRollbackErrorText);
+        bool preferenceRollbackVisible = rollbackOptimistic != rollbackBefore && rollbackAfter == rollbackBefore &&
+            rollbackConfigBefore == rollbackConfigAfter && rollbackConfigAfter == rollbackAfter;
+
+        hostProbeService.QueueConfigSave(delayMs: 240);
+        hostProbeService.QueueConfigSave();
+        string overlapPhase = """
+            window.__LWBridgeHostProbe = { pending: true, phase: 'overlap' };
+            (async () => {
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+              const toggle = () => document.querySelector('.quick-actions-panel .toggle-row[role="switch"]');
+              try {
+                const startState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                const initialChecked = toggle().getAttribute('aria-checked') === 'true';
+                toggle().click();
+                for (let attempt = 0; attempt < 50 && (toggle().getAttribute('aria-checked') === 'true') === initialChecked; attempt++) await sleep(10);
+                const firstDraftChecked = toggle().getAttribute('aria-checked') === 'true';
+                toggle().click();
+                const latestIntendedChecked = initialChecked;
+                let endState = startState;
+                for (let attempt = 0; attempt < 120; attempt++) {
+                  await sleep(20);
+                  endState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                  if (endState.configSaveStarted >= startState.configSaveStarted + 2 && endState.configSaveActive === 0) break;
+                }
+                const finalChecked = toggle().getAttribute('aria-checked') === 'true';
+                const finalConfig = await window.LWBridgePreview.invoke('local_config_get');
+                window.__LWBridgeHostProbe = {
+                  pending: false, phase: 'overlap', initialChecked, firstDraftChecked,
+                  latestIntendedChecked, finalChecked, finalConfig, startState, endState
+                };
+              } catch (error) {
+                window.__LWBridgeHostProbe = { pending: false, phase: 'overlap', error: String(error?.message || error) };
+              }
+            })();
+            """;
+        await core.ExecuteScriptAsync(overlapPhase);
+        JsonElement overlap = await ReadHostProbeResultAsync(core, "overlap");
+        bool overlapInitial = overlap.GetProperty("initialChecked").GetBoolean();
+        bool overlapFirstDraft = overlap.GetProperty("firstDraftChecked").GetBoolean();
+        bool overlapLatest = overlap.GetProperty("latestIntendedChecked").GetBoolean();
+        bool overlapFinal = overlap.GetProperty("finalChecked").GetBoolean();
+        bool overlapConfig = overlap.GetProperty("finalConfig").GetProperty("autoLaunchGame").GetBoolean();
+        int overlapStartedBefore = overlap.GetProperty("startState").GetProperty("configSaveStarted").GetInt32();
+        int overlapStartedAfter = overlap.GetProperty("endState").GetProperty("configSaveStarted").GetInt32();
+        int overlapMaxActive = overlap.GetProperty("endState").GetProperty("configSaveMaxActive").GetInt32();
+        bool overlappingPreferenceSavesOrdered = overlapFirstDraft != overlapInitial && overlapLatest == overlapInitial &&
+            overlapFinal == overlapLatest && overlapConfig == overlapLatest &&
+            overlapStartedAfter >= overlapStartedBefore + 2 && overlapMaxActive == 1;
+
+        hostProbeService.SetForceMissingGameRoot(true);
+        Task pickerReloaded = WaitForNextSuccessfulNavigationAsync(core);
+        core.Reload();
+        await pickerReloaded.WaitAsync(TimeSpan.FromSeconds(15));
+        hostProbeService.QueuePicker(HostProbePickerOutcome.Cancel);
+        hostProbeService.QueuePicker(HostProbePickerOutcome.Invalid);
+        string pickerPhase = """
+            window.__LWBridgeHostProbe = { pending: true, phase: 'picker' };
+            (async () => {
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+              const button = () => document.querySelector('.game-root-missing button');
+              const message = () => document.querySelector('.game-root-missing span')?.textContent || '';
+              try {
+                for (let attempt = 0; attempt < 100 && !button(); attempt++) await sleep(20);
+                if (!button()) throw new Error('game-root picker button not rendered');
+                const baselineText = message();
+                const startState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                button().click();
+                await sleep(40);
+                const cancelBusy = button().disabled === true;
+                for (let attempt = 0; attempt < 100 && button().disabled; attempt++) await sleep(20);
+                const afterCancelText = message();
+                button().click();
+                await sleep(40);
+                const invalidBusy = button().disabled === true;
+                for (let attempt = 0; attempt < 100 && button().disabled; attempt++) await sleep(20);
+                const afterInvalidText = message();
+                const endState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                window.__LWBridgeHostProbe = {
+                  pending: false, phase: 'picker', baselineText, cancelBusy, afterCancelText,
+                  invalidBusy, afterInvalidText, startState, endState
+                };
+              } catch (error) {
+                window.__LWBridgeHostProbe = { pending: false, phase: 'picker', error: String(error?.message || error) };
+              }
+            })();
+            """;
+        await core.ExecuteScriptAsync(pickerPhase);
+        JsonElement picker = await ReadHostProbeResultAsync(core, "picker");
+        string pickerBaselineText = picker.GetProperty("baselineText").GetString() ?? string.Empty;
+        string pickerAfterCancelText = picker.GetProperty("afterCancelText").GetString() ?? string.Empty;
+        string pickerAfterInvalidText = picker.GetProperty("afterInvalidText").GetString() ?? string.Empty;
+        bool pickerCancelBusy = picker.GetProperty("cancelBusy").GetBoolean();
+        bool pickerInvalidBusy = picker.GetProperty("invalidBusy").GetBoolean();
+        int pickerCancelledBefore = picker.GetProperty("startState").GetProperty("pickerCancelled").GetInt32();
+        int pickerInvalidBefore = picker.GetProperty("startState").GetProperty("pickerInvalid").GetInt32();
+        int pickerCancelledAfter = picker.GetProperty("endState").GetProperty("pickerCancelled").GetInt32();
+        int pickerInvalidAfter = picker.GetProperty("endState").GetProperty("pickerInvalid").GetInt32();
+        bool pickerCancelAndInvalidHandled = pickerCancelBusy && pickerInvalidBusy &&
+            pickerAfterCancelText == pickerBaselineText && !string.IsNullOrWhiteSpace(pickerAfterInvalidText) &&
+            pickerAfterInvalidText != pickerBaselineText && pickerCancelledAfter == pickerCancelledBefore + 1 &&
+            pickerInvalidAfter == pickerInvalidBefore + 1;
+
         string localSourceBeforeExternal = core.Source;
         string sessionBeforeExternal = documentSession.Id;
         int rejectedBefore = rejectedNavigationCount;
@@ -364,18 +567,50 @@ internal sealed class LWBridgeWindow : Form
         bool externalNavigationRejected = rejectedNavigationCount > rejectedBefore &&
             core.Source.StartsWith(UiOrigin + "/", StringComparison.Ordinal) &&
             documentSession.Id == sessionBeforeExternal;
+        string sourceAfterExternal = core.Source;
+
+        string latePhase = """
+            window.__LWBridgeHostProbeLate = { started: true };
+            window.LWBridgePreview.invoke('diagnostic_host_late', {
+              profileId: window.LWBridgePreview.profiles.selectedProfileId
+            }).then(
+              () => { window.__LWBridgeHostProbeLate.completed = true; },
+              error => { window.__LWBridgeHostProbeLate.error = error?.code || String(error); }
+            );
+            """;
+        int lateStartedBefore = hostProbeService.LateStarted;
+        await core.ExecuteScriptAsync(latePhase);
+        for (int attempt = 0; attempt < 100 && hostProbeService.LateStarted <= lateStartedBefore; attempt++)
+            await Task.Delay(20);
+        if (hostProbeService.LateStarted <= lateStartedBefore)
+            throw new InvalidOperationException("Host probe late request did not start before window close.");
+        int activeRequestsBeforeClose = documentSession.Requests.ActiveCount;
+        int postedMessagesBeforeClose = postedWebMessageCount;
+        Close();
+        hostProbeService.ReleaseLate();
+        for (int attempt = 0; attempt < 100 && hostProbeService.LateCompleted < 1; attempt++)
+            await Task.Delay(20);
+        for (int attempt = 0; attempt < 100 && documentSession.Requests.ActiveCount != 0; attempt++)
+            await Task.Delay(20);
+        int postedMessagesAfterLateCompletion = postedWebMessageCount;
+        int activeRequestsAfterLateCompletion = documentSession.Requests.ActiveCount;
+        bool closedWindowLateResponseSuppressed = sessionClosed && activeRequestsBeforeClose >= 1 &&
+            hostProbeService.LateCompleted >= 1 && activeRequestsAfterLateCompletion == 0 &&
+            postedMessagesAfterLateCompletion == postedMessagesBeforeClose;
 
         bool slowStorageUiResponsive = timerDelayMs < 400 && slowStorageElapsedMs >= 700;
         bool sessionRotated = !string.Equals(oldSessionId, newSessionId, StringComparison.Ordinal) &&
             documentGeneration >= 2;
-        bool reloadCancelledOldWork = hostProbeService.DelayedCancelled >= 1 &&
-            hostProbeService.DelayedActive == 0 && lastClosedRequestCount >= 1;
-        bool reloadResetSubscriptions = lastClosedSubscriptionCount >= 1;
+        bool reloadCancelledOldWork = hostProbeService.DelayedCancelled > delayedCancelledBeforeReload &&
+            hostProbeService.DelayedActive == 0 && reloadClosedRequestCount >= 1;
+        bool reloadResetSubscriptions = reloadClosedSubscriptionCount >= 1;
         bool staleSessionIgnored = slowBeforeStale == 0 && slowAfterStale == 0;
         bool structuredError = expectedErrorCode == "DIAGNOSTIC_EXPECTED";
         bool startupAutoLaunchSuppressed = !bootstrapAutoLaunch;
         bool ok = slowStorageUiResponsive && sessionRotated && reloadCancelledOldWork && reloadResetSubscriptions &&
-            staleSessionIgnored && structuredError && externalNavigationRejected && startupAutoLaunchSuppressed;
+            staleSessionIgnored && structuredError && externalNavigationRejected && startupAutoLaunchSuppressed &&
+            duplicateRequestRejected && preferenceRollbackVisible && overlappingPreferenceSavesOrdered &&
+            pickerCancelAndInvalidHandled && closedWindowLateResponseSuppressed;
 
         var result = new
         {
@@ -391,17 +626,51 @@ internal sealed class LWBridgeWindow : Form
             documentGeneration,
             reloadCancelledOldWork,
             reloadResetSubscriptions,
-            lastClosedRequestCount,
-            lastClosedSubscriptionCount,
+            lastClosedRequestCount = reloadClosedRequestCount,
+            lastClosedSubscriptionCount = reloadClosedSubscriptionCount,
             staleSessionIgnored,
             slowBeforeStale,
             slowAfterStale,
             structuredError,
             expectedErrorCode,
+            duplicateRequestRejected,
+            duplicateCodes,
+            preferenceRollbackVisible,
+            preferenceRollbackErrorVisible,
+            preferenceRollbackErrorText,
+            preferenceRollbackBefore = rollbackBefore,
+            preferenceRollbackOptimistic = rollbackOptimistic,
+            preferenceRollbackAfter = rollbackAfter,
+            preferenceConfigBefore = rollbackConfigBefore,
+            preferenceConfigAfter = rollbackConfigAfter,
+            overlappingPreferenceSavesOrdered,
+            overlapInitial,
+            overlapFirstDraft,
+            overlapLatest,
+            overlapFinal,
+            overlapConfig,
+            overlapStartedBefore,
+            overlapStartedAfter,
+            overlapMaxActive,
+            pickerCancelAndInvalidHandled,
+            pickerCancelBusy,
+            pickerInvalidBusy,
+            pickerBaselineText,
+            pickerAfterCancelText,
+            pickerAfterInvalidText,
+            pickerCancelledBefore,
+            pickerCancelledAfter,
+            pickerInvalidBefore,
+            pickerInvalidAfter,
             externalNavigationRejected,
             localSourceBeforeExternal,
-            sourceAfterExternal = core.Source,
+            sourceAfterExternal,
             rejectedNavigationCount,
+            closedWindowLateResponseSuppressed,
+            activeRequestsBeforeClose,
+            activeRequestsAfterLateCompletion,
+            postedMessagesBeforeClose,
+            postedMessagesAfterLateCompletion,
             service = hostProbeService.Snapshot(),
             startupAutoLaunchSuppressed,
             isolatedPersistentConfig = true,
@@ -602,7 +871,16 @@ internal sealed class LWBridgeWindow : Form
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>
                     command == "game_root_select"
                         ? SelectGameRootAsync(cancellationToken)
-                        : Task.Run(() => backend.InvokeAsync(command, payload, cancellationToken), cancellationToken));
+                        : command == "game_root_status" && hostProbeService?.ForceMissingGameRoot == true
+                            ? Task.FromResult<object?>(new GameRootStatus(
+                                false, string.Empty, "host-probe", "GAME_ROOT_NOT_FOUND",
+                                null, null, null, null))
+                        : Task.Run(async () =>
+                        {
+                            if (hostProbeService is not null)
+                                await hostProbeService.BeforeProductionCommandAsync(command, cancellationToken).ConfigureAwait(false);
+                            return await backend.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
+                        }, cancellationToken));
                 if (!IsCurrentDocument(session)) return;
                 if (execution.Status == NativeRequestExecutionStatus.Rejected)
                 {
@@ -639,6 +917,26 @@ internal sealed class LWBridgeWindow : Form
     {
         GameRootStatus current = await Task.Run(backend.GetGameRootStatus, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
+
+        if (hostProbeService?.TryTakePicker(out HostProbePickerOutcome probeOutcome) == true)
+        {
+            hostProbeService.RecordPickerStarted();
+            await Task.Delay(180, cancellationToken);
+            if (probeOutcome == HostProbePickerOutcome.Cancel)
+            {
+                hostProbeService.RecordPickerCancelled();
+                return new { canceled = true };
+            }
+
+            if (isolatedConfigRoot is null)
+                throw new InvalidOperationException("Host probe picker requires isolated storage.");
+            string invalidRoot = Path.Combine(isolatedConfigRoot, "invalid-game-root");
+            Directory.CreateDirectory(invalidRoot);
+            GameRootStatus invalid = await Task.Run(() => backend.SaveGameRoot(invalidRoot), cancellationToken);
+            hostProbeService.RecordPickerInvalid();
+            return invalid;
+        }
+
         using var dialog = new FolderBrowserDialog
         {
             Description = "Select the Last War installation directory",
@@ -647,14 +945,9 @@ internal sealed class LWBridgeWindow : Form
         };
         if (!string.IsNullOrWhiteSpace(current.Path) && Directory.Exists(current.Path))
             dialog.InitialDirectory = current.Path;
-        if (dialog.ShowDialog(this) != DialogResult.OK) return null;
+        if (dialog.ShowDialog(this) != DialogResult.OK) return new { canceled = true };
         string selectedPath = dialog.SelectedPath;
         GameRootStatus selected = await Task.Run(() => backend.SaveGameRoot(selectedPath), cancellationToken);
-        if (!selected.Valid)
-            throw new BridgeCommandException(
-                selected.Error ?? "GAME_ROOT_INVALID",
-                "The selected directory is not a valid supported Last War installation.",
-                selected);
         return selected;
     }
 
@@ -708,6 +1001,7 @@ internal sealed class LWBridgeWindow : Form
     {
         if (!IsCurrentDocument(session)) return;
         if (webView.CoreWebView2 is null) return;
+        postedWebMessageCount++;
         webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(message, JsonOptions.Default));
     }
 
