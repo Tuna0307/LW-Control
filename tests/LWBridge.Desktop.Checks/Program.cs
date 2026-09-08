@@ -831,6 +831,14 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "dispatch", 7, "dispatch-special", 52, "dispatch-b", "Dispatch B", null,
         null, null, null, null, null, 1700,
         "{\"serverId\":7,\"uuid\":\"dispatch-b\",\"isSpecial\":true,\"updatedAt\":1700}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 8, "city-literal-wildcards", 61, "literal-a", "A%_\\B", "LIT",
+        null, null, null, null, null, 1600,
+        "{\"serverId\":8,\"ownerUid\":\"literal-owner\",\"ownerName\":\"A%_\\\\B\",\"updatedAt\":1600}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 8, "city-wildcard-control", 62, "control-a", "AxyzQB", "CONTROL",
+        null, null, null, null, null, 1500,
+        "{\"serverId\":8,\"ownerUid\":\"control-owner\",\"ownerName\":\"AxyzQB\",\"updatedAt\":1500}"));
     indexedSearchStore.UpsertPlayerMark(new MapPlayerMark(
         7, "10000000000000000001", "active", 4000, null,
         "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\"}"));
@@ -1027,14 +1035,60 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
             .SequenceEqual(new[] { "specialOnly" }),
         "explicit false specialOnly stays fail-closed because the recovered frontend omits that form");
 
-    using JsonDocument unrecoveredKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    foreach ((string keyword, string expectedOwner) in new[]
+    {
+        ("alpha", "Alpha"),
+        ("one", "Alpha"),
+        ("uuid-b", "Bravo"),
+        ("10000000000000000003", "Charlie"),
+    })
+    {
+        using JsonDocument keywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "city",
+            query = new { serverId = 7, keyword },
+        }));
+        object? keywordResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", keywordSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(keywordResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("ownerName").GetString() == expectedOwner,
+            $"keyword literal substring searches recovered name/alliance/uuid/data_json columns for {keyword}");
+    }
+
+    using JsonDocument nameColumnKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "resource",
+        query = new { serverId = 7, keyword = "mine" },
+    }));
+    object? nameColumnKeywordResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", nameColumnKeywordSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(nameColumnKeywordResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("resourceNameKey").GetString() == "iron",
+            "keyword searches the indexed name column when data_json does not contain the display name");
+    }
+
+    using JsonDocument escapedKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = indexedSearchBackend.ProfileId,
         kind = "city",
-        query = new { serverId = 7, keyword = "Alpha" },
+        query = new { serverId = 8, keyword = "%_\\" },
     }));
-    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "nonempty keyword stays fail-closed until exact predicate is recovered", async () =>
-        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredKeywordSearch.RootElement.Clone(), CancellationToken.None));
+    object? escapedKeywordResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", escapedKeywordSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(escapedKeywordResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("ownerName").GetString() == "A%_\\B",
+            "keyword escapes backslash, percent and underscore before literal-substring matching");
+    }
 
     using JsonDocument unrecoveredFalseFilter = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

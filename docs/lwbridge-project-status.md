@@ -10,7 +10,7 @@ Give the research AI [the deeper binary handoff](deep-binary-handoff.md), togeth
 
 The reported safety-review denials are recorded as **SB-01/02**, with source and evidence limits. They came from the reviewing environment, not permission withheld by the user. No denied operation was retried here; switching models does not authorize replaying it through another executor.
 
-Post-review continuation `LWB-R6-006` recovered and offline-tested the parameter-free `specialOnly` and `reindeerOnly` Map Data predicates. This does not change the review's launch, ingestion, options/export or live-proof boundaries.
+Post-review continuation `LWB-R6-006/007` recovered and offline-tested the parameter-free `specialOnly`/`reindeerOnly` predicates and exact literal-substring keyword construction. This does not change the review's launch, ingestion, options/export or live-proof boundaries.
 
 ## New work reviewed
 
@@ -28,7 +28,7 @@ No new production defect was reproduced by the checks in this review. That is a 
 ## Current operational boundary
 
 - **Overview:** local profile/configuration, installation checks and substantial native-host interaction work exist. Start still rejects `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; stop has no owned instance. Reconcile remains a status read. Startup/reconnect preferences are stored but do not constitute working lifecycle services. Process existence is not bridge readiness.
-- **Map Data:** recovered schema, explicit-key persistence, marks, scoped clear and a supported query subset including `LWB-R6-006` special/reindeer booleans exist. Options/export remain unavailable; summary lacks an authoritative production data source. No real capture/scheduler/ingestion service runs. Unknown native keys/types must not be replaced by frontend fallback identities or synthetic records.
+- **Map Data:** recovered schema, explicit-key persistence, marks, scoped clear and a supported query subset including `LWB-R6-006/007` boolean and keyword filters exist. Options/export remain unavailable; summary lacks an authoritative production data source. No real capture/scheduler/ingestion service runs. Unknown native keys/types must not be replaced by frontend fallback identities or synthetic records.
 - **Other shared/action features:** meaningful pending count, live runtime localization/diagnostics, confirmed travel, follow/jump, treasure/plunder/train actions and durable automatic jobs remain partial or unimplemented. No complete case in the 47-case acceptance matrix was signed off here.
 
 ## Research routing
@@ -41,7 +41,7 @@ Detailed questions, known evidence and research deliverables are in [the supplem
 | DB-02 — consumption poll | **DEEP-BINARY** | Opaque caller/input/producer identities, units and result variants cannot be established from branch names or constant magnitudes. Preserve SB-02 and the saved-evidence limit. |
 | DB-03 — native map identities/normalization | **DEEP-BINARY**, readable artifacts first where available | Native key generation, per-kind types and update/removal transformations constrain trustworthy R6 ingestion. SQL primary keys and UI row fields alone are insufficient. |
 | DB-04 — scan scheduling/capture/completion | **DEEP-BINARY** | Exact coverage/order/timing, queues/acknowledgements/drop, cancel/resume/drain and publication semantics constrain R7, later R8. |
-| DB-05 — advanced predicates/derived sorts | **ARTIFACT-REVIEW**, deep analysis conditional | Existing SQL/resources/readable code may answer remaining filter/clock/eligibility questions. Escalate only the opaque native calculations. Do not repeat the implemented `R6-005/006` subset. |
+| DB-05 — advanced predicates/derived sorts | **ARTIFACT-REVIEW**, deep analysis conditional | Existing SQL/resources/readable code may answer remaining filter/clock/eligibility questions. Escalate only the opaque native calculations. Do not repeat the implemented `R6-005/006/007` subset. |
 | DB-06 — status/travel/actions/jobs | **ARTIFACT-REVIEW**, deep analysis conditional | Start with frontend and current official-client request/handler/event evidence; identify native gaps per operation. Authoritative live outcomes are a separate validation phase. |
 
 Restrictions apply to operations, not entire topic names. A missing integration is a setup issue; an unknown contract is a research issue; an unavailable world state is a validation issue. Record the exact reason instead of calling all three “safety-blocked.” The handoff does not assign replaying denied disassembly, proof fabrication or live game actions.

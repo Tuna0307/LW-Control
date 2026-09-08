@@ -11,6 +11,7 @@ internal sealed record MapDataQueryOptions(
     int PageSize,
     IReadOnlyList<MapDataSort> Sorts,
     bool MarkedOnly,
+    string? Keyword,
     string? Alliance,
     bool WithoutAlliance,
     string? ResourceNameKey,
@@ -67,6 +68,7 @@ internal static class MapDataQueryContract
         int pageSize = OptionalPositiveInt(query, "pageSize", RecoveredPageSize);
         IReadOnlyList<MapDataSort> sorts = NormalizeSorts(query);
         bool markedOnly = OptionalBoolean(query, "markedOnly", false);
+        string? keyword = OptionalString(query, "keyword");
         string? alliance = OptionalString(query, "alliance");
         bool withoutAlliance = OptionalTrue(query, "withoutAlliance");
         string? resourceNameKey = OptionalString(query, "resourceNameKey");
@@ -82,6 +84,7 @@ internal static class MapDataQueryContract
             pageSize,
             sorts,
             markedOnly,
+            keyword,
             alliance,
             withoutAlliance,
             resourceNameKey,
@@ -157,7 +160,8 @@ internal static class MapDataQueryContract
 
     private static bool IsRecoveredFilter(string kind, string name, JsonElement value) => name switch
     {
-        // LWB-R6-005/006: only frontend-emitted forms backed by verified original predicate strings are accepted.
+        // LWB-R6-005/006/007: only frontend-emitted forms backed by verified original predicate strings are accepted.
+        "keyword" => value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "alliance" => kind == "city" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
         "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),

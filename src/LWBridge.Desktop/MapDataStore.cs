@@ -253,9 +253,11 @@ internal sealed class MapDataStore : IDisposable
                 "page.kind=$kind",
                 "page.server_id=$server",
             };
-            // LWB-R6-005/006: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
+            // LWB-R6-005/006/007: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
+            if (options.Keyword is not null)
+                predicates.Add("(page.name LIKE $keywordName ESCAPE '\\' COLLATE NOCASE OR page.alliance_name LIKE $keywordAlliance ESCAPE '\\' COLLATE NOCASE OR page.uuid LIKE $keywordUuid ESCAPE '\\' COLLATE NOCASE OR page.data_json LIKE $keywordJson ESCAPE '\\' COLLATE NOCASE)");
             if (options.Alliance is not null)
                 predicates.Add("page.alliance_name = $alliance");
             if (options.WithoutAlliance)
@@ -490,6 +492,14 @@ internal sealed class MapDataStore : IDisposable
     {
         command.Parameters.AddWithValue("$kind", options.Kind);
         command.Parameters.AddWithValue("$server", options.ServerId);
+        if (options.Keyword is not null)
+        {
+            string keyword = BuildRecoveredKeywordPattern(options.Keyword);
+            command.Parameters.AddWithValue("$keywordName", keyword);
+            command.Parameters.AddWithValue("$keywordAlliance", keyword);
+            command.Parameters.AddWithValue("$keywordUuid", keyword);
+            command.Parameters.AddWithValue("$keywordJson", keyword);
+        }
         if (options.Alliance is not null)
             command.Parameters.AddWithValue("$alliance", options.Alliance);
         if (options.ResourceNameKey is not null)
@@ -498,6 +508,16 @@ internal sealed class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$monsterNameKey", options.MonsterNameKey);
         if (options.ItemKey is not null)
             command.Parameters.AddWithValue("$itemKey", options.ItemKey);
+    }
+
+    // LWB-R6-007: original order is backslash, percent, underscore, then literal-percent wrapping.
+    private static string BuildRecoveredKeywordPattern(string keyword)
+    {
+        string escaped = keyword
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("%", "\\%", StringComparison.Ordinal)
+            .Replace("_", "\\_", StringComparison.Ordinal);
+        return $"%{escaped}%";
     }
 
     private static MapStoredRecord ReadRecord(SqliteDataReader reader) => new(

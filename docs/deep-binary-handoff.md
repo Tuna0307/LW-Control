@@ -81,9 +81,9 @@ These are historical/user-reported restrictions, not denials newly received by t
 
 **Tags:** ARTIFACT-REVIEW → DEEP-BINARY if data/code evidence remains insufficient; R6/M06/M07/M09.
 
-**Already recovered/implemented:** `LWB-R6-003/004/005/006`: pagination, updated-time/stable-key ordering, marks, serialized tab queries, city alliance/no-alliance, resource/monster name-key equality, truck/railway current-goods item membership, dispatch/ghost special-only and truck/railway reindeer-only predicates. Do not send those back for recovery.
+**Already recovered/implemented:** `LWB-R6-003/004/005/006/007`: pagination, updated-time/stable-key ordering, marks, serialized tab queries, literal-substring keyword construction, city alliance/no-alliance, resource/monster name-key equality, truck/railway current-goods item membership, dispatch/ghost special-only and truck/railway reindeer-only predicates. Do not send those back for recovery.
 
-**Unanswered:** keyword wildcard escaping and parameter construction; ordinary quality matching; completion-status time source and units; per-kind plunderability; treasure visibility/lucky behavior; remaining derived sort expressions. Several SQL fragments are known, but their predicates/parameters/clock sources are not fully joined up.
+**Unanswered:** ordinary quality matching; completion-status time source and units; per-kind plunderability; treasure visibility/lucky behavior; remaining derived sort expressions. Several SQL fragments are known, but their predicates/parameters/clock sources are not fully joined up.
 
 **Research deliverable:** exact per-kind predicate/sort/parameter/default tables, supported explicit-false/zero/empty/omitted semantics, time/identity dependencies and deterministic boundary examples. Search existing SQL/resources and readable producer code first; classify only unresolved native computation as deep-binary work.
 
