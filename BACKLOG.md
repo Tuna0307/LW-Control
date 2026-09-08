@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-08
 
-Project-manager review 3 audited implementation `04237c2`. PM2-01â€“04 now pass; substantial R3/R4 native-host behavior, R5 producer/ABI recovery and the default R6 persisted-search slice are verified. **Two preference gaps remain (PM3-01/02), and real Overview lifecycle/full Map Data are incomplete.** Use [the current audit](docs/lwbridge-project-status.md) and [review 3 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-3.json). Preserve completed work; do not restart PM2 fixes or the recovered R5 investigations. `task.md` remains the full instructions; this file is the progress checklist.
+Project-manager review 3 audited implementation `04237c2`. PM2-01â€“04 pass; substantial R3/R4 native-host behavior, R5 producer/ABI recovery and the default R6 persisted-search slice are verified. **PM3-01/02 preference feedback and failed-save reconciliation are now closed by the 2026-09-08 preference checkpoint; real Overview lifecycle/full Map Data remain incomplete.** Use [the current audit](docs/lwbridge-project-status.md), [review 3 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-3.json) and [the PM3 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm3-preference-fix.json). Preserve completed work; do not restart PM2/PM3 fixes or the recovered R5 investigations. `task.md` remains the full instructions; this file is the progress checklist.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -35,11 +35,11 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 
 ## R1â€“R4 â€” Finish the foundation first (P0)
 
-### Next batch — review 3 remaining preference requirements
+### Review 3 preference follow-up — completed
 
-- [ ] **PM3-01 / R2/R4:** display rejected-save errors in the login-free single-profile UI and require visible error feedback in the native-host pass gate. The current probe explicitly reports `preferenceRollbackErrorVisible=false` despite `ok:true`.
-- [ ] **PM3-02 / R2/R4:** reconcile failed optimistic saves against the last confirmed persisted value, not another optimistic draft. The [provider reproducer](evidence/lwbridge-implementation/pm-review-3-repro/check-overlap-failures.cjs) shows two failed false-to-true-to-false saves leave UI true while storage stays false. Add both-fail/mixed-failure and recovery cases to real WebView tests.
-- [ ] Add recurring CI coverage for the isolated host interaction matrix/new preference assertions and the three new launch/ABI/query inspectors where their explicit prerequisites are available. Keep live/machine-dependent diagnostics separate.
+- [x] **PM3-01 / R2/R4:** rejected saves are visible in login-free single-profile mode through the existing `profile-error` visual language, and native-host `ok` now requires visible non-empty error feedback.
+- [x] **PM3-02 / R2/R4:** optimistic saves reconcile against the last confirmed persisted value. Both-fail, fail/success, success/fail, all-success and recovery cases pass in the deterministic provider matrix; both-fail/mixed/recovery cases also pass in the real isolated WebView host.
+- [x] Add recurring CI coverage for the isolated host interaction matrix and new preference assertions. The three current-build recovery inspectors remain compile-checked only because their runtime validation depends on reference/current-install artifacts that are not part of game-independent CI.
 
 ### Resolved PM2 defects â€” preserve their regression tests
 
@@ -54,8 +54,8 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 
 - [x] **R1 / profile contracts:** restore original implicit active-profile injection and event-envelope filtering in the generated API/native adapter; classify global commands; validate malformed payloads and profile scope consistently.
 - [x] Test implicit/explicit/foreign profiles, malformed input, wrong-session responses and wrong-profile/late events through the frontend/native boundary.
-- [x] **R2 implemented slice:** durable write-before-memory, isolated storage, backup/owner/schema handling and the specified PM2 recovery cases pass. New UI preference acceptance remains PM3-01/02.
-- [x] Basic single-save rollback and persistent validated server history work. Visible error feedback and failure combinations remain PM3-01/02.
+- [x] **R2 implemented slice:** durable write-before-memory, isolated storage, backup/owner/schema handling and the specified PM2 recovery cases pass. PM3 rejected-save feedback and failed-overlap reconciliation now pass in provider and native-host tests.
+- [x] Single-save rollback, persistent validated server history, visible save errors, rapid failed-save reconciliation and successful recovery work in isolated tests.
 - [x] Inject temporary config roots for checks/capture and prove real user configuration is unchanged. Test denied writes, restart, corrupt JSON, interrupted replacement and competing writers.
 - [x] **R3 implemented slice:** shared executor/registry and allowlisted subscription ownership pass cooperative delayed-service, duplicate-ID and window-close checks. The native-host follow-up also offloads backend work and gives each WebView document its own request/subscription generation.
 - [x] Test browser timeout propagation plus host explicit cancel/close/reload/duplicate IDs/late completion with a controllable delayed backend service; prove cancellation prevents the service commit and success publication.
@@ -64,7 +64,7 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [x] Implement/test real document reload/navigation invalidation: a real WebView2 reload cancels the prior request, clears prior subscriptions, rotates the document session/generation and rejects an invoke carrying the old session ID.
 - [x] **R4 / verification:** split deterministic tests from installed-game diagnostics; run deterministic backend/transport tests in CI.
 - [x] Requested live mode rejects missing native transport in the Node harness; read-only bootstrap suppresses auto-launch and uses isolated storage.
-- [x] Verified R4 slice: actual native-host duplicate/session/reload/slow-storage/picker/close/startup handling, single failed-save rollback and two successful ordered saves. Full preference feedback/failure acceptance remains PM3-01/02; do not treat the current probe ok flag as a complete R4 gate.
+- [x] Verified R4 slice: actual native-host duplicate/session/reload/slow-storage/picker/close/startup handling, visible single failed-save rollback, ordered successful saves, both-fail/mixed-failure reconciliation and post-failure recovery. The host `ok` gate now includes these preference requirements.
 - [x] Check AMD64 COFF machine plus PE32+ for game/xLua; include official-runtime inspector syntax checks. Exact xLua ABI selection is now recovered by `LWB-R5-002`; lifecycle integration remains R5.
 
 ## R5 â€” Overview lifecycle (P0 critical path; research alongside R1â€“R4)
@@ -132,7 +132,7 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 
 ## Verification
 
-Review 3: standard build/backend/Node checks and all four independent PM2 cases pass. The real isolated host probe passes its current aggregate gate but reports hidden save-error feedback (PM3-01); the extra provider test fails for two rejected rapid saves (PM3-02). New R5/R6 inspectors reran successfully. See [current evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-3.json) for exact source hashes, fixture/browser results and limits. No real game operation is proven.
+Review 3 plus PM3 follow-up: standard build/backend/Node checks and all four independent PM2 cases pass. The deterministic preference matrix and real isolated host probe now pass PM3-01/02, including visible rejected-save feedback, both-fail/mixed rapid-save reconciliation and recovery. See [PM3 evidence](evidence/lwbridge-implementation/2026-09-08-pm3-preference-fix.json) and the earlier [review 3 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-3.json). No real game operation is proven.
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check

@@ -505,6 +505,135 @@ internal sealed class LWBridgeWindow : Form
             overlapFinal == overlapLatest && overlapConfig == overlapLatest &&
             overlapStartedAfter >= overlapStartedBefore + 2 && overlapMaxActive == 1;
 
+        async Task<JsonElement> RunPreferenceFailureSequenceAsync(string phase)
+        {
+            string script = """
+                window.__LWBridgeHostProbe = { pending: true, phase: '__PHASE__' };
+                (async () => {
+                  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+                  const toggle = () => document.querySelector('.quick-actions-panel .toggle-row[role="switch"]');
+                  const readVisibleError = () => [...document.querySelectorAll('.profile-error')]
+                    .map(node => node.textContent?.trim() || '').filter(Boolean).join(' ');
+                  try {
+                    for (let attempt = 0; attempt < 100 && !toggle(); attempt++) await sleep(20);
+                    if (!toggle()) throw new Error('auto-launch switch not rendered');
+                    const startState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                    const initialChecked = toggle().getAttribute('aria-checked') === 'true';
+                    toggle().click();
+                    for (let attempt = 0; attempt < 50 && (toggle().getAttribute('aria-checked') === 'true') === initialChecked; attempt++) await sleep(10);
+                    const firstDraftChecked = toggle().getAttribute('aria-checked') === 'true';
+                    toggle().click();
+                    for (let attempt = 0; attempt < 50 && (toggle().getAttribute('aria-checked') === 'true') !== initialChecked; attempt++) await sleep(10);
+                    const secondDraftChecked = toggle().getAttribute('aria-checked') === 'true';
+                    let endState = startState;
+                    for (let attempt = 0; attempt < 150; attempt++) {
+                      await sleep(20);
+                      endState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                      if (endState.configSaveStarted >= startState.configSaveStarted + 2 && endState.configSaveActive === 0) break;
+                    }
+                    await sleep(60);
+                    const finalChecked = toggle().getAttribute('aria-checked') === 'true';
+                    const finalConfig = await window.LWBridgePreview.invoke('local_config_get');
+                    const visibleErrorText = readVisibleError();
+                    window.__LWBridgeHostProbe = {
+                      pending: false, phase: '__PHASE__', initialChecked, firstDraftChecked,
+                      secondDraftChecked, finalChecked, finalConfig, visibleErrorText, startState, endState
+                    };
+                  } catch (error) {
+                    window.__LWBridgeHostProbe = { pending: false, phase: '__PHASE__', error: String(error?.message || error) };
+                  }
+                })();
+                """.Replace("__PHASE__", phase, StringComparison.Ordinal);
+            await core.ExecuteScriptAsync(script);
+            return await ReadHostProbeResultAsync(core, phase);
+        }
+
+        hostProbeService.QueueConfigSave(delayMs: 160, fail: true);
+        hostProbeService.QueueConfigSave(fail: true);
+        JsonElement bothFailed = await RunPreferenceFailureSequenceAsync("preference-both-fail");
+        bool bothFailedInitial = bothFailed.GetProperty("initialChecked").GetBoolean();
+        bool bothFailedFirstDraft = bothFailed.GetProperty("firstDraftChecked").GetBoolean();
+        bool bothFailedSecondDraft = bothFailed.GetProperty("secondDraftChecked").GetBoolean();
+        bool bothFailedFinal = bothFailed.GetProperty("finalChecked").GetBoolean();
+        bool bothFailedConfig = bothFailed.GetProperty("finalConfig").GetProperty("autoLaunchGame").GetBoolean();
+        string bothFailedErrorText = bothFailed.GetProperty("visibleErrorText").GetString() ?? string.Empty;
+        bool preferenceBothFailedReconciled = bothFailedFirstDraft != bothFailedInitial &&
+            bothFailedSecondDraft == bothFailedInitial && bothFailedFinal == bothFailedInitial &&
+            bothFailedConfig == bothFailedInitial && !string.IsNullOrWhiteSpace(bothFailedErrorText);
+
+        hostProbeService.QueueConfigSave(delayMs: 160, fail: true);
+        hostProbeService.QueueConfigSave();
+        JsonElement failThenSuccess = await RunPreferenceFailureSequenceAsync("preference-fail-success");
+        bool failThenSuccessInitial = failThenSuccess.GetProperty("initialChecked").GetBoolean();
+        bool failThenSuccessFirstDraft = failThenSuccess.GetProperty("firstDraftChecked").GetBoolean();
+        bool failThenSuccessSecondDraft = failThenSuccess.GetProperty("secondDraftChecked").GetBoolean();
+        bool failThenSuccessFinal = failThenSuccess.GetProperty("finalChecked").GetBoolean();
+        bool failThenSuccessConfig = failThenSuccess.GetProperty("finalConfig").GetProperty("autoLaunchGame").GetBoolean();
+        string failThenSuccessErrorText = failThenSuccess.GetProperty("visibleErrorText").GetString() ?? string.Empty;
+        bool preferenceFailThenSuccessReconciled = failThenSuccessFirstDraft != failThenSuccessInitial &&
+            failThenSuccessSecondDraft == failThenSuccessInitial && failThenSuccessFinal == failThenSuccessInitial &&
+            failThenSuccessConfig == failThenSuccessInitial && string.IsNullOrWhiteSpace(failThenSuccessErrorText);
+
+        hostProbeService.QueueConfigSave(delayMs: 160);
+        hostProbeService.QueueConfigSave(fail: true);
+        JsonElement successThenFail = await RunPreferenceFailureSequenceAsync("preference-success-fail");
+        bool successThenFailInitial = successThenFail.GetProperty("initialChecked").GetBoolean();
+        bool successThenFailFirstDraft = successThenFail.GetProperty("firstDraftChecked").GetBoolean();
+        bool successThenFailSecondDraft = successThenFail.GetProperty("secondDraftChecked").GetBoolean();
+        bool successThenFailFinal = successThenFail.GetProperty("finalChecked").GetBoolean();
+        bool successThenFailConfig = successThenFail.GetProperty("finalConfig").GetProperty("autoLaunchGame").GetBoolean();
+        string successThenFailErrorText = successThenFail.GetProperty("visibleErrorText").GetString() ?? string.Empty;
+        bool preferenceSuccessThenFailReconciled = successThenFailFirstDraft != successThenFailInitial &&
+            successThenFailSecondDraft == successThenFailInitial && successThenFailFinal == successThenFailFirstDraft &&
+            successThenFailConfig == successThenFailFirstDraft && !string.IsNullOrWhiteSpace(successThenFailErrorText);
+
+        hostProbeService.QueueConfigSave();
+        string preferenceRecoveryPhase = """
+            window.__LWBridgeHostProbe = { pending: true, phase: 'preference-recovery' };
+            (async () => {
+              const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+              const toggle = () => document.querySelector('.quick-actions-panel .toggle-row[role="switch"]');
+              const readVisibleError = () => [...document.querySelectorAll('.profile-error')]
+                .map(node => node.textContent?.trim() || '').filter(Boolean).join(' ');
+              try {
+                const startState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                const initialChecked = toggle().getAttribute('aria-checked') === 'true';
+                const errorBefore = readVisibleError();
+                toggle().click();
+                for (let attempt = 0; attempt < 50 && (toggle().getAttribute('aria-checked') === 'true') === initialChecked; attempt++) await sleep(10);
+                const optimisticChecked = toggle().getAttribute('aria-checked') === 'true';
+                let endState = startState;
+                for (let attempt = 0; attempt < 120; attempt++) {
+                  await sleep(20);
+                  endState = await window.LWBridgePreview.invoke('diagnostic_host_state', {profileId: window.LWBridgePreview.profiles.selectedProfileId});
+                  if (endState.configSaveStarted >= startState.configSaveStarted + 1 && endState.configSaveActive === 0) break;
+                }
+                await sleep(60);
+                const finalChecked = toggle().getAttribute('aria-checked') === 'true';
+                const finalConfig = await window.LWBridgePreview.invoke('local_config_get');
+                const errorAfter = readVisibleError();
+                window.__LWBridgeHostProbe = {
+                  pending: false, phase: 'preference-recovery', initialChecked, optimisticChecked,
+                  finalChecked, finalConfig, errorBefore, errorAfter, startState, endState
+                };
+              } catch (error) {
+                window.__LWBridgeHostProbe = { pending: false, phase: 'preference-recovery', error: String(error?.message || error) };
+              }
+            })();
+            """;
+        await core.ExecuteScriptAsync(preferenceRecoveryPhase);
+        JsonElement preferenceRecovery = await ReadHostProbeResultAsync(core, "preference-recovery");
+        bool preferenceRecoveryInitial = preferenceRecovery.GetProperty("initialChecked").GetBoolean();
+        bool preferenceRecoveryOptimistic = preferenceRecovery.GetProperty("optimisticChecked").GetBoolean();
+        bool preferenceRecoveryFinal = preferenceRecovery.GetProperty("finalChecked").GetBoolean();
+        bool preferenceRecoveryConfig = preferenceRecovery.GetProperty("finalConfig").GetProperty("autoLaunchGame").GetBoolean();
+        string preferenceRecoveryErrorBefore = preferenceRecovery.GetProperty("errorBefore").GetString() ?? string.Empty;
+        string preferenceRecoveryErrorAfter = preferenceRecovery.GetProperty("errorAfter").GetString() ?? string.Empty;
+        bool preferenceRecoveryClearsError = !string.IsNullOrWhiteSpace(preferenceRecoveryErrorBefore) &&
+            preferenceRecoveryOptimistic != preferenceRecoveryInitial &&
+            preferenceRecoveryFinal == preferenceRecoveryOptimistic && preferenceRecoveryConfig == preferenceRecoveryFinal &&
+            string.IsNullOrWhiteSpace(preferenceRecoveryErrorAfter);
+
         hostProbeService.SetForceMissingGameRoot(true);
         Task pickerReloaded = WaitForNextSuccessfulNavigationAsync(core);
         core.Reload();
@@ -609,7 +738,10 @@ internal sealed class LWBridgeWindow : Form
         bool startupAutoLaunchSuppressed = !bootstrapAutoLaunch;
         bool ok = slowStorageUiResponsive && sessionRotated && reloadCancelledOldWork && reloadResetSubscriptions &&
             staleSessionIgnored && structuredError && externalNavigationRejected && startupAutoLaunchSuppressed &&
-            duplicateRequestRejected && preferenceRollbackVisible && overlappingPreferenceSavesOrdered &&
+            duplicateRequestRejected && preferenceRollbackVisible && preferenceRollbackErrorVisible &&
+            overlappingPreferenceSavesOrdered && preferenceBothFailedReconciled &&
+            preferenceFailThenSuccessReconciled && preferenceSuccessThenFailReconciled &&
+            preferenceRecoveryClearsError &&
             pickerCancelAndInvalidHandled && closedWindowLateResponseSuppressed;
 
         var result = new
@@ -652,6 +784,34 @@ internal sealed class LWBridgeWindow : Form
             overlapStartedBefore,
             overlapStartedAfter,
             overlapMaxActive,
+            preferenceBothFailedReconciled,
+            bothFailedInitial,
+            bothFailedFirstDraft,
+            bothFailedSecondDraft,
+            bothFailedFinal,
+            bothFailedConfig,
+            bothFailedErrorText,
+            preferenceFailThenSuccessReconciled,
+            failThenSuccessInitial,
+            failThenSuccessFirstDraft,
+            failThenSuccessSecondDraft,
+            failThenSuccessFinal,
+            failThenSuccessConfig,
+            failThenSuccessErrorText,
+            preferenceSuccessThenFailReconciled,
+            successThenFailInitial,
+            successThenFailFirstDraft,
+            successThenFailSecondDraft,
+            successThenFailFinal,
+            successThenFailConfig,
+            successThenFailErrorText,
+            preferenceRecoveryClearsError,
+            preferenceRecoveryInitial,
+            preferenceRecoveryOptimistic,
+            preferenceRecoveryFinal,
+            preferenceRecoveryConfig,
+            preferenceRecoveryErrorBefore,
+            preferenceRecoveryErrorAfter,
             pickerCancelAndInvalidHandled,
             pickerCancelBusy,
             pickerInvalidBusy,

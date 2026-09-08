@@ -110,7 +110,7 @@ async function main() {
   // Exercise all nested feature tabs by clicking their actual recovered DOM.
   for(const [index,selector] of [[1,'.automation-categories button'],[2,'.map-tabs button'],[3,'.squad-tabs button']]) {
    await page.locator('.side-nav button').nth(index).click();await page.waitForTimeout(350);
-   const tabs=page.locator(selector);const count=await tabs.count();
+   const tabs=page.locator(selector);await tabs.first().waitFor();const count=await tabs.count();
    assert(count>0,`Missing recovered tabs: ${selector}`);
    for(let i=0;i<count;i++) {await tabs.nth(i).click();await page.waitForTimeout(200);assert(await page.locator('.main-view').innerText());}
    results.push({interaction:selector,count});

@@ -899,8 +899,10 @@ Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComp
 Check(generatedApi.Contains("n.profileId!==T()", StringComparison.Ordinal),
     "generated API filters foreign profile event envelopes");
 string localProviders = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "local-providers.js"));
-Check(localProviders.Contains("setAutoLaunch(previous)", StringComparison.Ordinal),
-    "auto-launch preference rolls UI state back after rejected native save");
+Check(localProviders.Contains("autoLaunchCommitted.current", StringComparison.Ordinal) &&
+      localProviders.Contains("setAutoLaunch(autoLaunchCommitted.current)", StringComparison.Ordinal) &&
+      localProviders.Contains("profile-save-error", StringComparison.Ordinal),
+    "auto-launch preference rolls back to confirmed storage and surfaces rejected saves");
 string previewHost = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "preview-host.js"));
 Check(previewHost.Contains("NATIVE_TRANSPORT_MISSING", StringComparison.Ordinal) &&
       previewHost.Contains("liveRequested ? await liveInvoke", StringComparison.Ordinal),

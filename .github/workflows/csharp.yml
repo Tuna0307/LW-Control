@@ -21,6 +21,11 @@ jobs:
         run: dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release
       - name: Run deterministic backend and transport checks
         run: dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release
+      - name: Verify preference save ordering and rollback recovery
+        run: node tools/check_lwbridge_preference_provider.cjs
+      - name: Verify isolated native WebView interaction matrix
+        shell: pwsh
+        run: ./tools/check_lwbridge_host_probe.ps1
       - name: Verify requested live mode never falls through to fixtures
         run: node tools/check_lwbridge_live_transport.cjs
       - name: Verify browser/native session and profile routing boundaries

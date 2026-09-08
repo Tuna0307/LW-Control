@@ -29,7 +29,13 @@ const context = {
     },
     useEffect() { cursor++; }
   },
-  Jt: {Provider: {}}, M: {jsx: (_, props) => props.value}, Promise
+  Jt: {Provider: {}},
+  M: {
+    Fragment: {},
+    jsx: (type, props) => type === context.Jt.Provider ? props.value : {type, props},
+    jsxs: (type, props) => ({type, props})
+  },
+  Promise
 };
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(path.join(root, 'src/LWBridge.Desktop/WebUi/local-providers.js'), 'utf8'), context);

@@ -5,13 +5,15 @@ function Xt({children}) {
     const [autoLaunchGame, setAutoLaunch] = j.useState(() => live
         ? window.__LWBridgeBootstrap?.autoLaunchGame !== false
         : localStorage.getItem('lwbridge.autoLaunchGame') !== 'false');
+    const autoLaunchCommitted = j.useRef(autoLaunchGame);
     const autoLaunchSaveRevision = j.useRef(0);
     const autoLaunchSaveChain = j.useRef(Promise.resolve());
     const [gameLaunchBusy, setGameLaunchBusy] = j.useState(false);
     const [profileLaunchErrors, setProfileLaunchErrors] = j.useState([]);
     const asProfileError = error => ({
         profileId: window.LWBridgePreview.profiles.selectedProfileId,
-        error: error?.code || 'NATIVE_COMMAND_FAILED'
+        error: error?.code || 'NATIVE_COMMAND_FAILED',
+        message: String(error?.message || error?.code || 'NATIVE_COMMAND_FAILED')
     });
     j.useEffect(() => {
         if (!live || !autoLaunchGame) return;
@@ -26,8 +28,8 @@ function Xt({children}) {
         autoLaunchGame,
         setAutoLaunchGame: value => {
             const enabled = !!value;
-            const previous = autoLaunchGame;
             const revision = ++autoLaunchSaveRevision.current;
+            setProfileLaunchErrors([]);
             setAutoLaunch(enabled);
             if (live) {
                 const save = autoLaunchSaveChain.current
@@ -35,17 +37,44 @@ function Xt({children}) {
                     .then(() => window.LWBridgePreview.invoke('local_config_set', {autoLaunchGame: enabled}));
                 autoLaunchSaveChain.current = save;
                 save
+                    .then(result => {
+                        const committed = typeof result?.autoLaunchGame === 'boolean'
+                            ? result.autoLaunchGame
+                            : enabled;
+                        autoLaunchCommitted.current = committed;
+                        if (autoLaunchSaveRevision.current === revision) {
+                            setAutoLaunch(committed);
+                            setProfileLaunchErrors([]);
+                        }
+                    })
                     .catch(error => {
-                        if (autoLaunchSaveRevision.current === revision) setAutoLaunch(previous);
-                        setProfileLaunchErrors([asProfileError(error)]);
+                        if (autoLaunchSaveRevision.current === revision) {
+                            setAutoLaunch(autoLaunchCommitted.current);
+                            setProfileLaunchErrors([asProfileError(error)]);
+                        }
                     });
             } else {
                 localStorage.setItem('lwbridge.autoLaunchGame', String(enabled));
+                autoLaunchCommitted.current = enabled;
             }
         },
         clearActionError() {}, clearProfileLaunchErrors() { setProfileLaunchErrors([]); }
     };
-    return M.jsx(Jt.Provider, {value, children});
+    const visibleSaveError = profileLaunchErrors
+        .map(error => error.message || error.error)
+        .filter(Boolean)
+        .join('\n');
+    return M.jsx(Jt.Provider, {
+        value,
+        children: M.jsxs(M.Fragment, {children: [
+            visibleSaveError ? M.jsx('div', {
+                className: 'profile-error profile-save-error',
+                role: 'alert',
+                children: visibleSaveError
+            }) : null,
+            children
+        ]})
+    });
 }
 
 function sn({children}) {
