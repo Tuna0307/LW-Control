@@ -56,7 +56,6 @@ For mid-run loss, persist active Map Scan state first, stop scheduling new block
 
 - Recover exact launch-proof/ticket generation, child-launcher input decoding and semantic validation. The outer-host envelope serializer itself is recovered below.
 - Recover any stage-specific retry policy beyond the recovered wait constants.
-- Recover the exact xLua export-fingerprint algorithm and descriptor fields used by the secure/plain decision.
 - Implement the staged bootstrap independently.
 - Validate forced failure at every stage, followed by clean recovery.
 - Run repeated cold-start and restart cycles before calling injection stable.
@@ -148,12 +147,85 @@ export-fingerprint strings to the descriptor from two launch-context fields.
 **Validation and limits.** This is static-only recovery against the immutable
 reference. It is not **LIVE-PROVEN**. The exact `launchProof` producer and
 validation semantics, `gameLaunchTicket` producer/representation/reuse rules,
-child profile-launcher input channel, xLua export-fingerprint algorithm and
-secure/plain classification predicate remain **UNKNOWN/BLOCKED**. Simple
-candidate export-name SHA-256 encodings did not match an embedded reference
-constant, so no substitute algorithm is being inferred.
+and child profile-launcher input channel remain **UNKNOWN/BLOCKED**. The xLua
+fingerprint/selector gap from this checkpoint is resolved separately by
+`LWB-R5-002` below.
 
 **Implementation impact.** R5's host-side `LaunchEnvelope` producer item can be
 marked recovered. Production `profile_instance_start` must remain fail-closed
 with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED` until the unresolved proof/ticket,
-child decoding and xLua ABI contracts are recovered and then validated.
+child decoding and remaining launch contracts are recovered and then validated.
+
+## LWB-R5-002 — xLua export ABI fingerprint selector (2026-09-08)
+
+**Scope.** Static recovery now establishes the exact byte stream hashed by the
+profile launcher to classify the original game's `xlua.dll`, plus the
+secure/plain bundle mapping. This closes the R5 selector-recovery item without
+claiming that launch or injection is operational.
+
+**Source identity.** The outer reference is
+`../LW/lwbridge-0.3.1.exe`, SHA-256
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+Its embedded `lwbridge-profile-launcher.exe` is SHA-256
+`8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de`.
+The current official game input used for the current-build correlation is
+`%LOCALAPPDATA%\FunFly\Last War-Survival Game\Game\LastWar_Data\Plugins\x86_64\xlua.dll`,
+SHA-256 `21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f`.
+
+**Exact locator.** Addresses below are preferred launcher VAs with image base
+`0x140000000`. The classifier runtime function is
+`0x140030FD0-0x14003205C`.
+
+- Export `Base` is read from the PE export directory `+0x10` at
+  `0x1400314EA`, with the value retained at `0x140031512`.
+- Each name's `AddressOfNameOrdinals[i]` entry is read at
+  `0x1400317DC`/`0x140031810`; `0x140031817` adds the export `Base`, and
+  `0x14003183D` stores the resulting 32-bit export ordinal in the record.
+- The record vector is sorted by `0x14003187D -> 0x140032720`; the small-sort
+  path fixes each record width at `0x20` bytes (`0x140032745`) and calls the
+  insertion comparator at `0x140034980`. That comparator compares the ordinal
+  dword at `0x140034992-0x140034994` first and uses the export-name bytes as
+  the equal-ordinal tie-break.
+- The canonical buffer begins with six bytes `LWXE1\n`, constructed by
+  `0x1400318F4` (`31 0A`) and `0x1400318FA` (`LWXE`). The formatter loop uses
+  record offset `+0x08` for the export-name string (`0x140031A91`) and formats
+  each record before appending it (`0x140031AD9 -> 0x1400760D0`).
+- SHA-256 initialization begins at `0x140031C35`; the referenced state at RVA
+  `0x89318` is the standard eight-word SHA-256 IV
+  `6a09e667 bb67ae85 3c6ef372 a54ff53a 510e527f 9b05688c 1f83d9ab 5be0cd19`.
+
+**Recovered algorithm.** Build the canonical bytes as:
+
+`LWXE1\n` followed by one line for every named PE export, sorted by ascending
+actual export ordinal (name-byte order breaks an equal-ordinal tie):
+`<decimal export ordinal>:<UTF-8 export name>\n`. The export ordinal is
+`IMAGE_EXPORT_DIRECTORY.Base + AddressOfNameOrdinals[i]`. SHA-256 of the full
+canonical buffer is the ABI fingerprint.
+
+**Reproduction.** Run the deterministic read-only inspector:
+
+`python tools\inspect_lwbridge_xlua_abi.py ..\LW\lwbridge-0.3.1.exe --game-xlua "$env:LOCALAPPDATA\FunFly\Last War-Survival Game\Game\LastWar_Data\Plugins\x86_64\xlua.dll" --game-xlua-label "%LOCALAPPDATA%\FunFly\Last War-Survival Game\Game\LastWar_Data\Plugins\x86_64\xlua.dll" --output evidence\lwbridge-implementation\2026-09-08-r5-xlua-abi-selector.json`
+
+**Result — RECOVERED, with current-build correlation.** The bundle's expected
+fingerprints are:
+
+- secure: `69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9`
+- plain: `dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd`
+
+The embedded legacy xLua and plain proxy both reproduce the plain fingerprint
+exactly. The currently installed official `xlua.dll` reproduces the secure
+fingerprint exactly, so current build `1.0.361 / 1078` classifies as `secure`.
+The secure proxy's own export table hashes differently because it contains
+additional forwarding/wrapper exports; proxy self-exports are not the selector
+input.
+
+**Validation and limits.** The classifier algorithm and current installed ABI
+mapping are byte-for-byte reproduced. This does not establish a successful
+launch, hook load, bridge handshake or heartbeat, and it does not recover the
+remaining proof/ticket or child-input contracts.
+
+**Implementation impact.** R5 xLua secure/plain selector recovery is complete.
+Future lifecycle code can fail closed on any fingerprint other than the two
+bundle values and select `secure` for the identified current client. Production
+`profile_instance_start` remains blocked on the other unresolved launch
+contracts.

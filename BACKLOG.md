@@ -57,13 +57,13 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [x] **R4 / verification:** split deterministic tests from installed-game diagnostics; run deterministic backend/transport tests in CI.
 - [x] Requested live mode rejects missing native transport in the Node harness; read-only bootstrap suppresses auto-launch and uses isolated storage.
 - [x] Complete the production-mode WebView matrix. The isolated native-host probe passes origin rejection, session rotation/stale-session rejection, structured errors, duplicate active request rejection, real reload cancellation/subscription reset, slow-storage responsiveness, actual React preference rollback with ordered overlapping saves, picker busy/cancel/invalid behavior, closed-window late-response suppression and startup auto-launch suppression. This is controlled host proof only; real lifecycle/scan workers remain R5/R7.
-- [x] Check AMD64 COFF machine plus PE32+ for game/xLua; include official-runtime inspector syntax checks. Exact xLua ABI compatibility remains R5.
+- [x] Check AMD64 COFF machine plus PE32+ for game/xLua; include official-runtime inspector syntax checks. Exact xLua ABI selection is now recovered by `LWB-R5-002`; lifecycle integration remains R5.
 
 ## R5 — Overview lifecycle (P0 critical path; research alongside R1–R4)
 
 - [x] Recover the host-side producer for `LaunchEnvelope` (`descriptorJson`, `launchProof`, `gameLaunchTicket`). `LWB-R5-001` locates the outer-host state machine, exact field xrefs/value sources, JSON serialization and handoff clone. This is static recovery only; proof/ticket semantics remain below.
 - [ ] Recover exact descriptor/proof/ticket representation and validation rules.
-- [ ] Recover xLua secure/plain ABI fingerprint selection exactly.
+- [x] Recover xLua secure/plain ABI fingerprint selection exactly. `LWB-R5-002` recovers the `LWXE1\n` prefix, ordinal/name record construction and ordering, SHA-256 digest, bundle values, and exact current-build `secure` match.
 - [ ] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle.
 - [ ] Require matching instance identity, bridge handshake, and fresh heartbeat before reporting connected.
 - [ ] Implement startup launch preference through the same lifecycle service without double-start races.
