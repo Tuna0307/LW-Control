@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-005",
+  "scope": "Map Data backend predicate strings",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file byte offset"
+  },
+  "recovered": {
+    "predicates": {
+      "alliance": "alliance_name = ?",
+      "withoutAlliance": "(alliance_name IS NULL OR alliance_name = '')",
+      "resourceNameKey": "CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT) = ?",
+      "monsterNameKey": "CAST(json_extract(data_json,'$.monsterNameKey') AS TEXT) = ?",
+      "itemKey": {
+        "existsPrefix": "itemKey EXISTS (SELECT 1 FROM json_each(",
+        "valuePredicate": "CAST(json_extract(good.value,'$.key') AS TEXT) = ?",
+        "jsonArray": "$.currentGoods"
+      }
+    },
+    "fileOffsets": {
+      "alliance": "0x00C89B0C",
+      "withoutAlliance": "0x00C89B1D",
+      "resourceNameKey": "0x00C89D59",
+      "monsterNameKey": "0x00C89C68",
+      "itemKeyPrefix": "0x00C89EAF",
+      "itemKeyValue": "0x00C89F04"
+    }
+  },
+  "implementationBoundary": {
+    "implementedOffline": [
+      "city alliance equality",
+      "city no-alliance predicate when the frontend emits withoutAlliance=true",
+      "resource resourceNameKey equality",
+      "monster monsterNameKey equality",
+      "truck/railway currentGoods itemKey membership"
+    ],
+    "stillBlocked": [
+      "keyword escaping and LIKE parameter construction",
+      "quality/special/reindeer semantics",
+      "completionStatus current-time source and units",
+      "plunderableOnly per-kind predicate selection",
+      "treasure visibility/lucky ordering semantics",
+      "alternate sort expression mapping",
+      "map_data_options aggregation and map_summary server selection"
+    ]
+  },
+  "reproduction": "python tools\\inspect_lwbridge_map_query_backend.py ..\\LW\\lwbridge-0.3.1.exe --json",
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "result": "the recovered predicate subset is accepted by map_search and applied to persisted SQLite rows"
+  },
+  "validation": {
+    "status": "RECOVERED static plus IMPLEMENTED/OFFLINE-TESTED",
+    "checks": [
+      "verified reference SHA-256 and marker offsets",
+      "deterministic LWBridge.Desktop.Checks mapContract suite"
+    ],
+    "limits": "no Last War process or LWBridge live feature execution; blocked semantics remain fail-closed"
+  }
+}

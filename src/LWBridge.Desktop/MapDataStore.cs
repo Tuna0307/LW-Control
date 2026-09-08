@@ -248,23 +248,39 @@ internal sealed class MapDataStore : IDisposable
             string join = city
                 ? " LEFT JOIN player_marks mark ON mark.server_id=page.server_id AND mark.owner_uid=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)"
                 : string.Empty;
-            string markedFilter = city && options.MarkedOnly ? " AND mark.owner_uid IS NOT NULL" : string.Empty;
+            var predicates = new List<string>
+            {
+                "page.kind=$kind",
+                "page.server_id=$server",
+            };
+            // LWB-R6-005: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
+            if (city && options.MarkedOnly)
+                predicates.Add("mark.owner_uid IS NOT NULL");
+            if (options.Alliance is not null)
+                predicates.Add("page.alliance_name = $alliance");
+            if (options.WithoutAlliance)
+                predicates.Add("(page.alliance_name IS NULL OR page.alliance_name = '')");
+            if (options.ResourceNameKey is not null)
+                predicates.Add("CAST(json_extract(page.data_json,'$.resourceNameKey') AS TEXT) = $resourceNameKey");
+            if (options.MonsterNameKey is not null)
+                predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) = $monsterNameKey");
+            if (options.ItemKey is not null)
+                predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey)");
+            string where = string.Join(" AND ", predicates);
 
             int total;
             using (SqliteCommand count = connection.CreateCommand())
             {
-                count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE page.kind=$kind AND page.server_id=$server{markedFilter}";
-                count.Parameters.AddWithValue("$kind", options.Kind);
-                count.Parameters.AddWithValue("$server", options.ServerId);
+                count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE {where}";
+                AddSearchParameters(count, options);
                 total = Convert.ToInt32(count.ExecuteScalar());
             }
 
             using SqliteCommand page = connection.CreateCommand();
             page.CommandText = city
-                ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE page.kind=$kind AND page.server_id=$server{markedFilter} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
-                : $"SELECT page.data_json FROM map_records page WHERE page.kind=$kind AND page.server_id=$server ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
-            page.Parameters.AddWithValue("$kind", options.Kind);
-            page.Parameters.AddWithValue("$server", options.ServerId);
+                ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
+                : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
+            AddSearchParameters(page, options);
             page.Parameters.AddWithValue("$limit", options.PageSize);
             page.Parameters.AddWithValue("$offset", offset);
 
@@ -464,6 +480,20 @@ internal sealed class MapDataStore : IDisposable
         command.Parameters.AddWithValue("$shield", (object?)record.ShieldEndTime ?? DBNull.Value);
         command.Parameters.AddWithValue("$updated", record.UpdatedAt);
         command.Parameters.AddWithValue("$json", record.DataJson);
+    }
+
+    private static void AddSearchParameters(SqliteCommand command, MapDataQueryOptions options)
+    {
+        command.Parameters.AddWithValue("$kind", options.Kind);
+        command.Parameters.AddWithValue("$server", options.ServerId);
+        if (options.Alliance is not null)
+            command.Parameters.AddWithValue("$alliance", options.Alliance);
+        if (options.ResourceNameKey is not null)
+            command.Parameters.AddWithValue("$resourceNameKey", options.ResourceNameKey);
+        if (options.MonsterNameKey is not null)
+            command.Parameters.AddWithValue("$monsterNameKey", options.MonsterNameKey);
+        if (options.ItemKey is not null)
+            command.Parameters.AddWithValue("$itemKey", options.ItemKey);
     }
 
     private static MapStoredRecord ReadRecord(SqliteDataReader reader) => new(

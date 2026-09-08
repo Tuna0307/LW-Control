@@ -11,6 +11,11 @@ internal sealed record MapDataQueryOptions(
     int PageSize,
     IReadOnlyList<MapDataSort> Sorts,
     bool MarkedOnly,
+    string? Alliance,
+    bool WithoutAlliance,
+    string? ResourceNameKey,
+    string? MonsterNameKey,
+    string? ItemKey,
     IReadOnlyList<string> UnsupportedFeatures);
 
 internal static class MapDataQueryContract
@@ -60,8 +65,25 @@ internal static class MapDataQueryContract
         int pageSize = OptionalPositiveInt(query, "pageSize", RecoveredPageSize);
         IReadOnlyList<MapDataSort> sorts = NormalizeSorts(query);
         bool markedOnly = OptionalBoolean(query, "markedOnly", false);
+        string? alliance = OptionalString(query, "alliance");
+        bool withoutAlliance = OptionalTrue(query, "withoutAlliance");
+        string? resourceNameKey = OptionalString(query, "resourceNameKey");
+        string? monsterNameKey = OptionalString(query, "monsterNameKey");
+        string? itemKey = OptionalString(query, "itemKey");
         IReadOnlyList<string> unsupported = CollectUnsupportedFeatures(kind, query, sorts, markedOnly);
-        return new MapDataQueryOptions(kind, serverId, page, pageSize, sorts, markedOnly, unsupported);
+        return new MapDataQueryOptions(
+            kind,
+            serverId,
+            page,
+            pageSize,
+            sorts,
+            markedOnly,
+            alliance,
+            withoutAlliance,
+            resourceNameKey,
+            monsterNameKey,
+            itemKey,
+            unsupported);
     }
 
     public static void RequireRecoveredIndexedSearch(MapDataQueryOptions options)
@@ -117,6 +139,7 @@ internal static class MapDataQueryContract
         foreach (string name in FilterFields)
         {
             if (!query.TryGetProperty(name, out JsonElement value) || IsNeutral(value)) continue;
+            if (IsRecoveredFilter(kind, name, value)) continue;
             unsupported.Add(name);
         }
 
@@ -125,6 +148,17 @@ internal static class MapDataQueryContract
             unsupported.Add("sorts");
         return unsupported.Distinct(StringComparer.Ordinal).ToArray();
     }
+
+    private static bool IsRecoveredFilter(string kind, string name, JsonElement value) => name switch
+    {
+        // LWB-R6-005: only frontend-emitted forms backed by verified original predicate strings are accepted.
+        "alliance" => kind == "city" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
+        "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "itemKey" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        _ => false,
+    };
 
     private static bool IsNeutral(JsonElement value) => value.ValueKind switch
     {
@@ -140,6 +174,17 @@ internal static class MapDataQueryContract
         if (value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
             throw new BridgeCommandException("INVALID_MAP_QUERY", $"{name} must be a boolean.");
         return value.GetBoolean();
+    }
+
+    private static bool OptionalTrue(JsonElement payload, string name) =>
+        payload.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.True;
+
+    private static string? OptionalString(JsonElement payload, string name)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) || value.ValueKind != JsonValueKind.String)
+            return null;
+        string? result = value.GetString();
+        return string.IsNullOrEmpty(result) ? null : result;
     }
 
     private static int OptionalPositiveInt(JsonElement payload, string name, int fallback)

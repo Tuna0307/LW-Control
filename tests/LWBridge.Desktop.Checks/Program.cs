@@ -757,11 +757,11 @@ await ExpectBridgeError("INVALID_MAP_QUERY", "invalid map sort order is rejected
 // LWB-R6-004: representative serialized envelopes produced by each real Map Data tab.
 var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)[]
 {
-    ("city", "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"alliance\":\"ONE\",\"markedOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["alliance"]),
-    ("resource", "{\"kind\":\"resource\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"resourceNameKey\":\"iron\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["resourceNameKey"]),
-    ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["monsterNameKey"]),
-    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "itemKey", "plunderableOnly"]),
-    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "itemKey", "plunderableOnly"]),
+    ("city", "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"alliance\":\"ONE\",\"markedOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("resource", "{\"kind\":\"resource\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"resourceNameKey\":\"iron\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
+    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
     ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["specialOnly", "completionStatus", "plunderableOnly", "minLevel", "maxLevel"]),
     ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "completionStatus"]),
     ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["treasureType", "includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
@@ -795,6 +795,30 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "city", 7, "city-c", 13, "uuid-c", "Charlie", null,
         28, null, null, null, null, 1000,
         "{\"serverId\":7,\"ownerUid\":\"10000000000000000003\",\"ownerName\":\"Charlie\",\"updatedAt\":1000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "resource", 7, "resource-iron", 21, "resource-a", "Iron Mine", null,
+        10, null, null, null, null, 2500,
+        "{\"serverId\":7,\"resourceNameKey\":\"iron\",\"level\":10,\"updatedAt\":2500}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "resource", 7, "resource-food", 22, "resource-b", "Food Field", null,
+        10, null, null, null, null, 2400,
+        "{\"serverId\":7,\"resourceNameKey\":\"food\",\"level\":10,\"updatedAt\":2400}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "monster", 7, "monster-doom", 31, "monster-a", "Doom Elite", null,
+        20, null, null, null, null, 2300,
+        "{\"serverId\":7,\"monsterNameKey\":\"doom\",\"level\":20,\"updatedAt\":2300}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "monster", 7, "monster-zombie", 32, "monster-b", "Zombie", null,
+        20, null, null, null, null, 2200,
+        "{\"serverId\":7,\"monsterNameKey\":\"zombie\",\"level\":20,\"updatedAt\":2200}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-item-1", 41, "truck-a", "Truck A", null,
+        null, null, null, null, null, 2100,
+        "{\"serverId\":7,\"uuid\":\"truck-a\",\"currentGoods\":[{\"key\":\"item:1\",\"count\":2}],\"updatedAt\":2100}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-item-2", 42, "truck-b", "Truck B", null,
+        null, null, null, null, null, 2000,
+        "{\"serverId\":7,\"uuid\":\"truck-b\",\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":2000}"));
     indexedSearchStore.UpsertPlayerMark(new MapPlayerMark(
         7, "10000000000000000001", "active", 4000, null,
         "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\"}"));
@@ -879,6 +903,73 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
               rows.GetArrayLength() == 1 && rows[0].GetProperty("marked").GetBoolean(),
             "city markedOnly search uses recovered server/owner mark join");
+    }
+
+    using JsonDocument allianceSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, alliance = "ONE" },
+    }));
+    object? allianceResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", allianceSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(allianceResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty("ownerName").GetString() == "Alpha",
+            "city alliance search uses recovered alliance_name equality predicate");
+    }
+
+    using JsonDocument withoutAllianceSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, withoutAlliance = true },
+    }));
+    object? withoutAllianceResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", withoutAllianceSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(withoutAllianceResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty("ownerName").GetString() == "Charlie",
+            "city no-alliance search uses recovered null/empty alliance predicate");
+    }
+
+    foreach ((string kind, string field, string value) in new[]
+    {
+        ("resource", "resourceNameKey", "iron"),
+        ("monster", "monsterNameKey", "doom"),
+    })
+    {
+        string queryJson = $"{{\"profileId\":\"{indexedSearchBackend.ProfileId}\",\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"{field}\":\"{value}\"}}}}";
+        using JsonDocument filteredSearch = JsonDocument.Parse(queryJson);
+        object? filteredResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", filteredSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(filteredResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty(field).GetString() == value,
+            $"{kind} name-key search uses recovered JSON equality predicate");
+        Check(indexedSearchStore.SearchIndexed(MapDataQueryContract.NormalizeSearch(filteredSearch.RootElement)).Total == 1,
+            $"{kind} name-key predicate is applied by persisted store");
+    }
+
+    using JsonDocument itemSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "truck",
+        query = new { serverId = 7, itemKey = "item:1" },
+    }));
+    object? itemResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", itemSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(itemResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty("uuid").GetString() == "truck-a",
+            "truck itemKey search uses recovered currentGoods membership predicate");
     }
 
     using JsonDocument unrecoveredKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new

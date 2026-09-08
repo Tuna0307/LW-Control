@@ -177,6 +177,16 @@ The frontend also has three independent stale-result guards. `map_search` increm
 
 **Validation and limits.** Reproduce with `python tools\inspect_lwbridge_map_frontend_consumers.py evidence\lwbridge-0.3.1\frontend --json` and `dotnet run --project tests\LWBridge.Desktop.Checks\LWBridge.Desktop.Checks.csproj`. This is **RECOVERED static** plus **IMPLEMENTED/OFFLINE-TESTED** regression coverage, not **LIVE-PROVEN**. Complete `map_data_options` aggregation SQL/order/deduplication, `map_summary` backend server selection, remaining filter/sort SQL, and native city-export writing remain **UNKNOWN/BLOCKED**. Production `map_data_options` therefore remains fail-closed rather than synthesizing plausible option lists from stored rows.
 
+### LWB-R6-005 — backend filter predicates, first verified subset (2026-09-08)
+
+**RECOVERED source identity.** The verified reference is `..\LW\lwbridge-0.3.1.exe`, SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`. `tools/inspect_lwbridge_map_query_backend.py` verifies that hash and locates the following raw PE file offsets: alliance `0x00C89B0C`, no-alliance `0x00C89B1D`, resource name key `0x00C89D59`, monster name key `0x00C89C68`, item-membership prefix `0x00C89EAF`, and item-key comparison `0x00C89F04`. Durable output is `evidence/lwbridge-implementation/2026-09-08-r6-map-query-backend.json`.
+
+**RECOVERED result.** The original backend contains exact predicates `alliance_name = ?`, `(alliance_name IS NULL OR alliance_name = '')`, `CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT) = ?`, and `CAST(json_extract(data_json,'$.monsterNameKey') AS TEXT) = ?`. The retained-item filter is an `EXISTS` over `json_each(...,'$.currentGoods')` whose item comparison is `CAST(json_extract(good.value,'$.key') AS TEXT) = ?`. Combined with the already recovered frontend emission rules, this supports city alliance/no-alliance, resource/monster name selection, and truck/railway retained-item filtering without guessing field meanings.
+
+**IMPLEMENTED/OFFLINE-TESTED.** `MapDataQueryContract` now accepts only the recovered frontend-emitted forms for these filters, preserving mismatched kinds and unrecovered forms as `MAP_QUERY_UNRECOVERED`. `MapDataStore.SearchIndexed` applies the recovered predicates to both count and page SQL. Deterministic tests cover alliance, no-alliance, resource/monster name-key equality and truck `currentGoods` membership while retaining the existing fail-closed cases.
+
+**Validation and limits.** Reproduce static evidence with `python tools\inspect_lwbridge_map_query_backend.py ..\LW\lwbridge-0.3.1.exe --json` and the implementation with `dotnet run --project tests\LWBridge.Desktop.Checks\LWBridge.Desktop.Checks.csproj -c Release`. This is **RECOVERED static** plus **IMPLEMENTED/OFFLINE-TESTED**, not **LIVE-PROVEN**. Keyword escaping and LIKE parameter construction, quality/special/reindeer handling, completion-status time source/units, per-kind plunderability, treasure visibility/lucky ordering, alternate sort mapping, `map_data_options`, `map_summary`, and export remain **UNKNOWN/BLOCKED** and continue to fail closed until separately recovered.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.
