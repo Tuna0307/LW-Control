@@ -754,6 +754,32 @@ using JsonDocument badMapSort = JsonDocument.Parse("{\"kind\":\"city\",\"query\"
 await ExpectBridgeError("INVALID_MAP_QUERY", "invalid map sort order is rejected", () =>
     Task.Run(() => { MapDataQueryContract.NormalizeSearch(badMapSort.RootElement); }));
 
+// LWB-R6-004: representative serialized envelopes produced by each real Map Data tab.
+var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)[]
+{
+    ("city", "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"alliance\":\"ONE\",\"markedOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["alliance"]),
+    ("resource", "{\"kind\":\"resource\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"resourceNameKey\":\"iron\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["resourceNameKey"]),
+    ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["monsterNameKey"]),
+    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "itemKey", "plunderableOnly"]),
+    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "itemKey", "plunderableOnly"]),
+    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["specialOnly", "completionStatus", "plunderableOnly", "minLevel", "maxLevel"]),
+    ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "completionStatus"]),
+    ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["treasureType", "includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
+};
+foreach ((string name, string json, string[] unsupported) in frontendMapQueryCases)
+{
+    using JsonDocument frontendQuery = JsonDocument.Parse(json);
+    MapDataQueryOptions normalized = MapDataQueryContract.NormalizeSearch(frontendQuery.RootElement);
+    Check(normalized.Kind == name && normalized.UnsupportedFeatures.SequenceEqual(unsupported),
+        $"real frontend {name} query envelope preserves recovered fields and fail-closed unsupported set");
+}
+
+using JsonDocument zeroMapFilter = JsonDocument.Parse(
+    "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"minLevel\":0,\"maxLevel\":0}}");
+MapDataQueryOptions zeroMapOptions = MapDataQueryContract.NormalizeSearch(zeroMapFilter.RootElement);
+Check(zeroMapOptions.UnsupportedFeatures.SequenceEqual(new[] { "minLevel", "maxLevel" }),
+    "explicit numeric zero is not collapsed into an omitted/empty Map Data filter");
+
 using (var indexedSearchStore = MapDataStore.CreateInMemory())
 {
     var indexedSearchBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: indexedSearchStore);
