@@ -303,3 +303,91 @@ format. Production `profile_instance_start` still fails closed with
 proof/ticket producer plus ticket ownership/consumption state machine; only
 after those prerequisites are recovered should owned start/status/stop be
 implemented.
+
+## LWB-R5-004 — outer proof response and ticket-source selection (2026-09-08)
+
+**Scope.** Static recovery now narrows the outer-host side of the remaining R5
+launch-material gap. It establishes how the inspected profile-launch state
+receives and propagates `launchProof`, the original ticket-source taxonomy, the
+explicit missing-ticket transition, and the cached launcher-report fields used
+before fallback processing. It does not recover the cryptographic producer,
+ticket ownership/consumption protocol, or child argument channel.
+
+**Source identity.** The source is the verified outer
+`../LW/lwbridge-0.3.1.exe`, SHA-256
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+All addresses below are preferred virtual addresses with image base
+`0x140000000`, in the same profile-launch runtime function
+`0x1401D3F1B-0x1401DCAD1` used by `LWB-R5-001`.
+
+**Exact locators.** At `0x1401DA425-0x1401DA44D`, the state machine pairs the
+field name `launchProof` with the response type name `LeaseActivationResponse`
+(length `0x17`) and calls `0x1402AAEBD`. Success-state material is copied into
+the profile-launch state at `0x1401DA80E-0x1401DA82C`; the returned string value
+is then copied to state `+0x690` at `0x1401DA846-0x1401DA857`. The later
+`LaunchEnvelope` serializer names `launchProof` at `0x1401DA91D`, fixes its
+field-name length to `0x0B` at `0x1401DA92C`, and reads the value from `+0x690`
+at `0x1401DA937`.
+
+The ticket-selection slice starts from the previously identified state
+`+0x4C0`. One branch writes the Rust niche/sentinel value
+`0x8000000000000000` there at `0x1401D67A7-0x1401D67B1`; this checkpoint does
+not assign a semantic meaning to that representation. The alternate candidate
+path calls `0x1401E4910` at `0x1401D67D2`. If that path does not yield the
+reusable candidate, the exact bounded log at `0x1401D67F0`/length `0x4B` is
+`profile launch requesting independent official ticket reason=ticket_missing`.
+The state `+0x4C0` is passed to helper `0x1401E470F` at `0x1401D6824-0x1401D6833`.
+
+Immediately afterward, the host selects/logs one of three exact source labels:
+`primary_official` (`0x1401D6866`, 16 bytes), `independent_official`
+(`0x1401D687D`, 20 bytes), or `cached_reusable` (`0x1401D6884`, 15 bytes).
+The cached/independent selection is visible at `0x1401D6873-0x1401D6893`, and
+the selected-source log is assembled beginning at `0x1401D68CC`.
+
+Later cached launcher-report parsing reads `pid` at `0x1401DB605` (length 3),
+`gameLaunchTicket` at `0x1401DB65E` (length `0x10`), and
+`gameLaunchTicketExpiresAt` at `0x1401DB81E` (length `0x19`). Missing/type/shape
+checks at `0x1401DB658`, `0x1401DB818`, `0x1401DB836`, `0x1401DB83F`,
+`0x1401DB848`, `0x1401DB851`, and `0x1401DB85C` all converge on fallback state
+`0x1401DB993`, which calls `0x14033C51B` at `0x1401DB9B3`. The semantic contract
+of that helper remains unresolved; this finding does not rename it as a ticket
+fetch or producer without evidence.
+
+**Reproduction.** The durable verifier is
+`tools/inspect_lwbridge_launch_material.py`; intended command:
+
+`python tools\inspect_lwbridge_launch_material.py ..\LW\lwbridge-0.3.1.exe --output evidence\lwbridge-implementation\2026-09-08-r5-launch-material.json`
+
+`python -m py_compile tools\inspect_lwbridge_launch_material.py` passes. During
+this checkpoint the environment safety review blocked execution of the new
+fixed-address verifier against the reference binary. The exact locators above
+were nevertheless observed directly in bounded read-only disassembly of the
+verified reference and cross-checked against the existing saved trace under
+`.codex-live/lwbridge-static/proxy-selection-xrefs.txt`. The machine-readable
+checkpoint is persisted at
+`evidence/lwbridge-implementation/2026-09-08-r5-launch-material.json` and records
+that execution limit explicitly.
+
+**Result — RECOVERED.** The inspected outer profile-launch state consumes a
+field named `launchProof` from a value named `LeaseActivationResponse`, carries
+that value into state `+0x690`, and serializes the same state value as
+`LaunchEnvelope.launchProof`. The original host also distinguishes
+`primary_official`, `cached_reusable`, and `independent_official` ticket
+sources, explicitly transitions through `reason=ticket_missing` when the
+reusable path is absent, and parses cached launcher state containing `pid`,
+`gameLaunchTicket`, and `gameLaunchTicketExpiresAt` before its fallback path.
+
+**Validation and limits.** This is **RECOVERED static**, not **LIVE-PROVEN**.
+The producer/service implementation that creates `LeaseActivationResponse`,
+proof signing inputs and complete claim mapping, exact primary/independent
+ticket producer/signing inputs, `LWLT2` extra-field meaning, ticket
+ownership/consumption transitions, helper `0x14033C51B` semantics, exact child
+argument construction/quoting/input channel, and current-client acceptance all
+remain **UNKNOWN/BLOCKED**.
+
+**Implementation impact.** R5 no longer needs to guess whether the envelope
+proof is constructed inline in this state-machine slice or what ticket-source
+classes the original host recognizes. Production `profile_instance_start`
+still remains fail-closed with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`. Continue
+from the identified response/ticket paths into their producers and authoritative
+ownership/consumption checks before implementing owned lifecycle start.
