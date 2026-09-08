@@ -237,6 +237,14 @@ The persisted-search builder separately exposes exact treasure predicates `CAST(
 
 **Validation and limits.** This corrects an overbroad frontend-kind interpretation from `LWB-R6-006`; it does not alter the recovered predicate itself. Ordinary quality filtering remains **UNKNOWN/BLOCKED** because the frontend display mapping proves `UR` covers all numeric qualities `>=5`, while the exact original backend filter/range binding is still unrecovered. The rebuild therefore must not guess `ur` as either equality to `5` or `>=5`. This is recovered frontend evidence plus offline contract verification, not a live-game query proof.
 
+### LWB-R6-011 — schema metadata, future-schema guard and legacy-import markers (2026-09-08)
+
+**RECOVERED source identity and locators.** The verified `..\LW\lwbridge-0.3.1.exe` remains SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`. Bounded raw-PE printable-string inspection recovers `SELECT value FROM metadata WHERE key = 'schema_version'` at `0x00C82CED`, the schema-version metadata upsert beginning at `0x00C82E28`, future-schema message fragments at `0x00C82EDE`/`0x00C82EF4`, and `MAP_SCHEMA_TOO_NEW` at `0x00C82F0F`. The adjacent migration SQL at `0x00C82D50` cancels dispatch-assist rows in `scheduled`, `waiting_connection`, `running` or `retry_wait` with `last_error='legacy assist schedule replaced'`. `legacy_import_completed` appears at `0x00C84846`, and the metadata write with literal value `true` begins at `0x00C848A0`. Durable evidence is `evidence/lwbridge-implementation/2026-09-08-r6-map-schema-metadata.txt` and `.json`.
+
+**RECOVERED result.** The original database has an explicit schema-version read/write path and a distinct future-schema failure branch. It also records completion of the legacy import through metadata and contains a specific dispatch-assist migration update. These are recovered original contracts; they do not by themselves reveal which numeric schema version is supported, which prior version triggers the migration, or the unit/source of the bound `updated_at` values.
+
+**UNKNOWN/BLOCKED implementation boundary.** `MapDataStore` is intentionally unchanged by this finding. Writing a guessed schema number, choosing a guessed migration threshold, or inventing the metadata timestamp clock/unit would violate the recovery rule. A direct read-only query of the existing user-profile `map-data.db` was rejected by the current execution environment's automatic safety review and was not retried through another executor; no value from that database is promoted into this finding. Recover the version constant/migration selection and timestamp producer from permitted evidence before implementing the future-schema gate and versioned migration tests.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

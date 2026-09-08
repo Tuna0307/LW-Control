@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-011",
+  "scope": "Map Data schema metadata, future-schema guard vocabulary, and legacy-import metadata markers",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file byte offset"
+  },
+  "locators": {
+    "schemaVersionRead": "0x00C82CED-0x00C82D3D",
+    "schemaVersionUpsert": "0x00C82E28-0x00C82EC0",
+    "futureSchemaError": "0x00C82EDE-0x00C82F2D",
+    "dispatchAssistMigration": "0x00C82D50-0x00C82E1D",
+    "legacyImportCompletedKey": "0x00C84846",
+    "legacyImportCompletedWrite": "0x00C848A0-0x00C84909"
+  },
+  "recovered": {
+    "schemaVersionRead": "SELECT value FROM metadata WHERE key = 'schema_version'",
+    "schemaVersionUpsert": "INSERT INTO metadata(key, value, updated_at) VALUES ('schema_version', ?1, ?2) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
+    "futureSchemaErrorCode": "MAP_SCHEMA_TOO_NEW",
+    "futureSchemaMessageFragments": ["map database schema ", " is newer than supported "],
+    "dispatchAssistMigration": "UPDATE dispatch_assist_jobs SET status='cancelled',last_error='legacy assist schedule replaced',updated_at=?1 WHERE status IN ('scheduled','waiting_connection','running','retry_wait')",
+    "legacyImportCompletionReadKey": "legacy_import_completed",
+    "legacyImportCompletionWrite": "INSERT INTO metadata(key,value,updated_at) VALUES ('legacy_import_completed','true',?1)"
+  },
+  "blocked": [
+    "verified supported schema-version constant",
+    "migration threshold and ordering",
+    "authoritative metadata.updated_at clock and unit"
+  ],
+  "implementation": {
+    "status": "NOT IMPLEMENTED",
+    "reason": "required behavior-affecting version/timestamp inputs remain unrecovered"
+  },
+  "validation": {
+    "status": "RECOVERED static",
+    "liveProven": false,
+    "environmentRestriction": "A direct read-only query of the existing user-profile map-data.db was rejected by automatic safety review and was not retried through another executor."
+  }
+}

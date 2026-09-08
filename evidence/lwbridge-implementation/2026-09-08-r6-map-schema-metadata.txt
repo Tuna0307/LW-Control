@@ -1,0 +1,56 @@
+LWB-R6-011 focused map schema metadata evidence
+Date: 2026-09-08
+Source: ..\LW\lwbridge-0.3.1.exe
+SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+Coordinate system: raw PE file byte offsets
+
+[0x00C82CED-0x00C82D3D] schema-version read
+SELECT value FROM metadata WHERE key = 'schema_version'
+
+[0x00C82E28-0x00C82EC0] schema-version upsert
+INSERT INTO metadata(key, value, updated_at) VALUES ('schema_version', ?1, ?2)
+ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at
+
+[0x00C82EDE-0x00C82F2D] future-schema error vocabulary
+`map database schema ` (original string has a trailing space)
+` is newer than supported ` (original string has leading and trailing spaces)
+MAP_SCHEMA_TOO_NEW
+
+[0x00C82D50-0x00C82E1D] adjacent dispatch-assist migration SQL
+UPDATE dispatch_assist_jobs
+SET status='cancelled',last_error='legacy assist schedule replaced',updated_at=?1
+WHERE status IN ('scheduled','waiting_connection','running','retry_wait')
+
+[0x00C84846] legacy-import completion read key
+legacy_import_completed
+
+[0x00C848A0-0x00C84909] legacy-import completion write
+INSERT INTO metadata(key,value,updated_at) VALUES ('legacy_import_completed','true',?1)
+
+Adjacent legacy-import vocabulary includes player-marks.json, .jsonl, INVALID_MAP_DATA,
+begin legacy import, read legacy map data, read legacy player marks, and record legacy import.
+
+Result:
+- RECOVERED: the original database reads schema_version from metadata, writes/upserts it with a bound
+  version and updated_at value, has an explicit MAP_SCHEMA_TOO_NEW branch for a database newer than
+  the supported version, and records legacy import completion through metadata.
+- RECOVERED: the binary contains a migration that cancels scheduled/waiting/running/retry-wait
+  dispatch-assist rows with the last_error text `legacy assist schedule replaced`.
+- UNKNOWN/BLOCKED: the verified binary constant for the supported schema version, the migration
+  threshold/order that selects the dispatch-assist update, and the authoritative clock/unit bound to
+  metadata.updated_at remain unrecovered.
+- NOT IMPLEMENTED: MapDataStore must not invent a schema version number, migration threshold, or
+  timestamp unit. Existing schema creation behavior remains unchanged until those inputs are proven.
+
+Environment note:
+A direct read-only query of the existing user-profile map-data.db was rejected by the active execution
+environment's automatic safety review. It was not retried through another executor. No value from that
+database is promoted into this finding.
+
+Reproduction:
+- verify the reference SHA-256;
+- perform bounded printable-ASCII inspection around raw PE offsets 0x00C82CED-0x00C82F80 and
+  0x00C847C7-0x00C84920.
+
+Validation limit:
+Static reference-byte recovery only. No migration was executed and no live Last War state is claimed.
