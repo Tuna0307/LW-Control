@@ -71,6 +71,8 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 
 - [x] Recover the host-side producer for `LaunchEnvelope` (`descriptorJson`, `launchProof`, `gameLaunchTicket`). `LWB-R5-001` locates the outer-host state machine, exact field xrefs/value sources, JSON serialization and handoff clone. This is static recovery only; proof/ticket semantics remain below.
 - [ ] Recover exact descriptor/proof/ticket representation and validation rules.
+  - [x] `LWB-R5-003` recovers the child three-field `LaunchEnvelope` parser, descriptor expiry/shape gates, two-segment `LWPM1|launch|...` proof framing/signature/timing checks, and `LWLT1`/`LWLT2` ticket grammar with 1–300 second span, 32-hex field and 128-hex signature.
+  - [ ] Recover the remaining exact descriptor field semantics, proof producer/claim mapping, ticket producer/signing inputs, `LWLT2` extra-field meaning, ownership/consumption protocol and outer-host child argument construction before closing the parent item.
 - [x] Recover xLua secure/plain ABI fingerprint selection exactly. `LWB-R5-002` recovers the `LWXE1\n` prefix, ordinal/name record construction and ordering, SHA-256 digest, bundle values, and exact current-build `secure` match.
 - [ ] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle.
 - [ ] Require matching instance identity, bridge handshake, and fresh heartbeat before reporting connected.

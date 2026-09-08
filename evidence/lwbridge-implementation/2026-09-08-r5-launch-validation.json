@@ -1,0 +1,102 @@
+{
+  "findingId": "LWB-R5-003",
+  "date": "2026-09-08",
+  "scope": "child LaunchEnvelope parsing plus descriptor/proof/ticket validation",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "outerArtifact": "../LW/lwbridge-0.3.1.exe",
+    "outerSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProfileLauncherSha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de",
+    "embeddedProfileLauncherRva": "0xB72B52",
+    "embeddedProfileLauncherSize": 684544,
+    "preferredImageBase": "0x140000000",
+    "coordinateSystem": "embedded launcher preferred virtual addresses (VA)"
+  },
+  "locators": {
+    "launchEnvelopeParser": "0x1400184B0-0x140019154",
+    "descriptorValidator": "0x14002DB30-0x14002E072",
+    "ticketParser": "0x14002E080-0x14002EB4C",
+    "proofValidator": "0x14002EF70-0x14002F823"
+  },
+  "result": {
+    "launchEnvelope": {
+      "jsonFields": [
+        "descriptorJson",
+        "launchProof",
+        "gameLaunchTicket"
+      ],
+      "childParserRecovered": true
+    },
+    "descriptorValidation": {
+      "expiryFailure": "LAUNCH_EXPIRED",
+      "instanceIdLength": {
+        "min": 1,
+        "max": 96
+      },
+      "launchTokenMinLength": 32,
+      "note": "other path/isolation/mode/proof constraints remain only partially mapped"
+    },
+    "launchProof": {
+      "segments": 2,
+      "separator": ".",
+      "decodedPayloadPrefixFields": [
+        "LWPM1",
+        "launch"
+      ],
+      "numericFieldsParsed": 3,
+      "freshnessAllowanceMs": 30000,
+      "maxTimestampSpanMs": 300000,
+      "signatureVerificationCallPreferredVa": "0x14002F306 -> 0x14004FF20",
+      "failures": [
+        "LAUNCH_PROOF_INVALID",
+        "LAUNCH_PROOF_EXPIRED",
+        "LAUNCH_PROOF_MISMATCH"
+      ]
+    },
+    "gameLaunchTicket": {
+      "delimiter": "|",
+      "versions": {
+        "LWLT1": {
+          "fieldCount": 6
+        },
+        "LWLT2": {
+          "fieldCount": 7,
+          "extraField": "positive decimal value; exact semantic meaning unresolved"
+        }
+      },
+      "product": "lastwar.windows",
+      "timestampSpanSeconds": {
+        "min": 1,
+        "max": 300
+      },
+      "hexFieldLength": 32,
+      "signatureHexLength": 128,
+      "failures": [
+        "LAUNCH_TICKET_INVALID",
+        "LAUNCH_TICKET_OWNERSHIP_CHANGED",
+        "LAUNCH_TICKET_CONSUMPTION_FAILED",
+        "LAUNCH_TICKET_CONSUMPTION_TIMEOUT"
+      ]
+    }
+  },
+  "validationAndLimits": {
+    "validation": "static-only against the immutable verified LWBridge reference",
+    "liveProven": false,
+    "unknownBlocked": [
+      "complete LaunchDescriptor field type/semantic mapping beyond the recovered validation gates",
+      "exact launchProof producer and decoded claim names/order beyond the recovered prefix/numeric/timing/match checks",
+      "exact gameLaunchTicket producer/signing inputs and the semantic meaning of the LWLT2 extra positive decimal field",
+      "ticket ownership and post-launch consumption protocol/state transitions",
+      "outer-host child process argument construction/quoting and current-client live acceptance"
+    ]
+  },
+  "implementationImpact": {
+    "proofTicketValidator": "substantially recovered but producer/consumption prerequisites remain open",
+    "profileInstanceStart": "remains fail-closed with OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED",
+    "nextTrace": "trace outer-host proof/ticket producers and ticket ownership/consumption state machine before lifecycle implementation"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_launch_validation.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_launch_validation.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  ]
+}

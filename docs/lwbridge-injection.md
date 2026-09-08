@@ -229,3 +229,77 @@ Future lifecycle code can fail closed on any fingerprint other than the two
 bundle values and select `secure` for the identified current client. Production
 `profile_instance_start` remains blocked on the other unresolved launch
 contracts.
+
+## LWB-R5-003 — child launch validation checkpoint (2026-09-08)
+
+**Scope.** Static recovery now closes a substantial part of the embedded
+profile-launcher's child-side validation path. It confirms the three-field
+`LaunchEnvelope` parser, recovered descriptor safety gates, the launch-proof
+framing/signature/timing path, and the accepted launch-ticket grammar. This is
+a recovery checkpoint, not a claim that production lifecycle startup works.
+
+**Source identity.** The outer reference is `../LW/lwbridge-0.3.1.exe`, SHA-256
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+The embedded `lwbridge-profile-launcher.exe` is extracted from outer RVA
+`0xB72B52`, size `0xA7200`, and hashes to
+`8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de`.
+Addresses below are embedded-launcher preferred VAs with image base
+`0x140000000`.
+
+**Exact locators.** The child `LaunchEnvelope` parser is
+`0x1400184B0-0x140019154`; its field comparisons at `0x140018625`,
+`0x1400186E3`, and `0x140018655` recover `descriptorJson`, `launchProof`, and
+`gameLaunchTicket`. The descriptor validator is
+`0x14002DB30-0x14002E072`. The launch-ticket parser is
+`0x14002E080-0x14002EB4C`. The launch-proof validator is
+`0x14002EF70-0x14002F823`.
+
+**Result — RECOVERED.** The descriptor validator has an explicit
+`LAUNCH_EXPIRED` gate, constrains the recovered instance identifier to 1–96
+bytes, and requires the launch-token field to be at least 32 bytes. Additional
+path, isolation, mode and proof-path checks exist in the same function, but
+their complete field-to-semantic mapping remains open.
+
+The launch proof is exactly two dot-separated encoded segments: the validator
+reads two segments and rejects a third, decodes both through the same recovered
+decoder helper, then reaches the signature-verification call at
+`0x14002F306 -> 0x14004FF20`. The decoded payload is pipe-delimited and begins
+with `LWPM1|launch|...`. Three numeric fields are parsed; the timing gates use a
+30,000 ms allowance and reject a recovered timestamp span above 300,000 ms.
+After signature/timing checks, recovered claims are compared against the
+deserialized descriptor and failures separate `LAUNCH_PROOF_INVALID`,
+`LAUNCH_PROOF_EXPIRED`, and `LAUNCH_PROOF_MISMATCH`.
+
+The launch ticket is pipe-delimited. `LWLT1` has six fields and `LWLT2` has
+seven. Both require the exact product string `lastwar.windows`. The recovered
+issue/expiry span must be 1–300 seconds. A 32-character hexadecimal field and a
+128-character hexadecimal signature field are required. `LWLT2` adds a
+positive decimal field; its semantic meaning is still **UNKNOWN/BLOCKED**.
+Separate downstream errors prove that ticket validity alone is not completion:
+`LAUNCH_TICKET_OWNERSHIP_CHANGED`, `LAUNCH_TICKET_CONSUMPTION_FAILED`, and
+`LAUNCH_TICKET_CONSUMPTION_TIMEOUT` remain part of the later launch state
+machine.
+
+**Reproduction.** Run:
+
+`python tools\inspect_lwbridge_launch_validation.py ..\LW\lwbridge-0.3.1.exe --output evidence\lwbridge-implementation\2026-09-08-r5-launch-validation.json`
+
+The inspector verifies both source hashes, the runtime-function ranges, exact
+preferred-VA instruction/call locators, grammar constants, timing bounds and
+error markers without executing LWBridge, the embedded launcher, or the game.
+
+**Validation and limits.** This checkpoint is **RECOVERED static**, not
+**LIVE-PROVEN**. Complete descriptor field type/semantic mapping is unfinished.
+The exact host-side proof producer, decoded claim names/order beyond the
+recovered prefix/numeric/timing/match gates, launch-ticket signing inputs,
+`LWLT2` extra-field meaning, ownership/consumption protocol, exact outer-host
+child argument construction/quoting and current-client acceptance remain
+**UNKNOWN/BLOCKED**.
+
+**Implementation impact.** The validator side is now sufficiently bounded that
+future lifecycle code must reproduce these gates rather than invent a token
+format. Production `profile_instance_start` still fails closed with
+`OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`. The next R5 trace is the outer-host
+proof/ticket producer plus ticket ownership/consumption state machine; only
+after those prerequisites are recovered should owned start/status/stop be
+implemented.
