@@ -233,7 +233,13 @@ internal sealed class MapDataStore : IDisposable
         }
     }
 
-    public MapSearchResult SearchIndexed(MapDataQueryOptions options)
+    public MapSearchResult SearchIndexed(MapDataQueryOptions options) =>
+        SearchIndexedCore(options, afterCountObserved: null);
+
+    internal MapSearchResult SearchIndexedForSnapshotTest(MapDataQueryOptions options, Action afterCountObserved) =>
+        SearchIndexedCore(options, afterCountObserved ?? throw new ArgumentNullException(nameof(afterCountObserved)));
+
+    private MapSearchResult SearchIndexedCore(MapDataQueryOptions options, Action? afterCountObserved)
     {
         ValidateKind(options.Kind);
         ValidateServerId(options.ServerId);
@@ -245,6 +251,9 @@ internal sealed class MapDataStore : IDisposable
 
         lock (gate)
         {
+            // IMPLEMENTATION POLICY LWB-R6-008: count and page must describe one SQLite
+            // read snapshot even when another process/connection publishes new rows.
+            using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);
             string join = city
                 ? " LEFT JOIN player_marks mark ON mark.server_id=page.server_id AND mark.owner_uid=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)"
                 : string.Empty;
@@ -277,12 +286,16 @@ internal sealed class MapDataStore : IDisposable
             int total;
             using (SqliteCommand count = connection.CreateCommand())
             {
+                count.Transaction = snapshot;
                 count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE {where}";
                 AddSearchParameters(count, options);
                 total = Convert.ToInt32(count.ExecuteScalar());
             }
 
+            afterCountObserved?.Invoke();
+
             using SqliteCommand page = connection.CreateCommand();
+            page.Transaction = snapshot;
             page.CommandText = city
                 ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
                 : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
@@ -294,6 +307,7 @@ internal sealed class MapDataStore : IDisposable
             using SqliteDataReader reader = page.ExecuteReader();
             while (reader.Read())
                 rows.Add(ReadSearchRow(reader.GetString(0), city ? reader.GetInt32(1) != 0 : null));
+            snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
     }

@@ -587,6 +587,29 @@ try
         Check(mapStore.CountRecords("city", 78) == 1 && mapStore.CountRecords("monster", 77) == 1,
             "same record_key remains distinct across recovered kind/server identity dimensions");
 
+        // IMPLEMENTATION POLICY LWB-R6-008: a search count and page are one read snapshot.
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 79, "snapshot-a", 1, "snapshot-a", "Snapshot A", null,
+            1, null, null, null, null, 1000, "{\"ownerUid\":\"snapshot-a\",\"ownerName\":\"Snapshot A\",\"updatedAt\":1000}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 79, "snapshot-b", 2, "snapshot-b", "Snapshot B", null,
+            1, null, null, null, null, 900, "{\"ownerUid\":\"snapshot-b\",\"ownerName\":\"Snapshot B\",\"updatedAt\":900}"));
+        using (var concurrentWriter = new MapDataStore(mapDatabasePath))
+        using (JsonDocument snapshotQuery = JsonDocument.Parse(
+            "{\"kind\":\"city\",\"query\":{\"serverId\":79,\"page\":1,\"pageSize\":50}}"))
+        {
+            MapSearchResult snapshotResult = mapStore.SearchIndexedForSnapshotTest(
+                MapDataQueryContract.NormalizeSearch(snapshotQuery.RootElement),
+                () => concurrentWriter.UpsertRecord(new MapStoredRecord(
+                    "city", 79, "snapshot-c", 3, "snapshot-c", "Snapshot C", null,
+                    1, null, null, null, null, 1100, "{\"ownerUid\":\"snapshot-c\",\"ownerName\":\"Snapshot C\",\"updatedAt\":1100}")));
+            Check(snapshotResult.Total == 2 && snapshotResult.Rows.Count == 2 &&
+                  snapshotResult.Rows.All(row => row.GetProperty("ownerName").GetString() != "Snapshot C"),
+                "map_search count/page stay on one SQLite snapshot across a concurrent WAL writer");
+        }
+        Check(mapStore.CountRecords("city", 79) == 3,
+            "concurrent writer commits after the search snapshot without losing the new row");
+
         await ExpectBridgeError("INVALID_MAP_RECORD", "map store refuses guessed/missing record identity", () =>
             Task.Run(() => mapStore.UpsertRecord(new MapStoredRecord(
                 "city", 77, "", null, null, null, null, null, null, null, null, null, 1, "{}"))));

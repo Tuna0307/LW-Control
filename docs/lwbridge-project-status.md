@@ -10,7 +10,7 @@ Give the research AI [the deeper binary handoff](deep-binary-handoff.md), togeth
 
 The reported safety-review denials are recorded as **SB-01/02**, with source and evidence limits. They came from the reviewing environment, not permission withheld by the user. No denied operation was retried here; switching models does not authorize replaying it through another executor.
 
-Post-review continuation `LWB-R6-006/007` recovered and offline-tested the parameter-free `specialOnly`/`reindeerOnly` predicates and exact literal-substring keyword construction. This does not change the review's launch, ingestion, options/export or live-proof boundaries.
+Post-review continuation `LWB-R6-006/007` recovered and offline-tested the parameter-free `specialOnly`/`reindeerOnly` predicates and exact literal-substring keyword construction. `LWB-R6-008` then closed the review's count/page consistency gap with an explicitly labelled rebuild read-snapshot policy and a deterministic concurrent-WAL-writer regression. These checkpoints do not change the review's launch, ingestion, options/export or live-proof boundaries.
 
 ## New work reviewed
 
@@ -48,7 +48,7 @@ Restrictions apply to operations, not entire topic names. A missing integration 
 
 ## Ordinary implementation work that can proceed
 
-1. **R6 query integrity:** preserve known predicates and add meaningful combination/profile/server/count/page coverage when changing the implementation. `SearchIndexed` currently issues separate count and page reads under a process-local lock; a second connection can still change the database between them. Introduce and test a consistent read snapshot as **IMPLEMENTATION POLICY**. This is a code-structure limitation identified in review, not a newly reproduced concurrency failure.
+1. **R6 query integrity:** preserve known predicates and add meaningful combination/profile/server/count/page coverage when changing the implementation. `LWB-R6-008` now wraps count and page in one deferred SQLite read transaction and proves snapshot consistency with a second WAL connection that commits between the two reads. Continue combination/profile/server coverage as query semantics expand; do not reinterpret this rebuild policy as recovered original transaction behavior.
 2. **R6 persistence:** implement versioned migration, transactional failure recovery and run/server/profile generation boundaries from the known schema/publication contract. Keep real ingestion gated on DB-03/04. Infrastructure tests must distinguish explicitly synthetic records from current-client proof.
 3. **R6 options/summary/export:** consumers are now known. Locate aggregation/deduplication/order/server-selection and original export column/scope/format semantics in existing evidence before filling them. File dialog/cancel/error and lossless workbook infrastructure can proceed; full filtered export and accurate counts remain feature gates.
 4. **R3/R4 worker integration:** prepare typed ownership/cancellation/event/journal boundaries and durable diagnostics; connect real lifecycle/scan workers only after their contracts are supported. Preserve native document lifetime and the repaired preferences.
