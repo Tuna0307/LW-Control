@@ -154,8 +154,37 @@ internal sealed class LocalConfigStore
     {
         if (path is null) return LWBridgeLocalConfig.CreateDefault();
 
-        if (!File.Exists(path))
+        bool primaryExists = GetFilePresence(
+            path,
+            "CONFIG_READ_FAILED",
+            "LWBridge configuration storage could not be inspected. The existing storage was left in place.");
+        if (!primaryExists)
         {
+            bool backupExists = backupPath is not null && GetFilePresence(
+                backupPath,
+                "CONFIG_RECOVERY_FAILED",
+                "LWBridge configuration recovery storage could not be inspected. The existing storage was left in place.");
+            if (backupExists)
+            {
+                try
+                {
+                    LWBridgeLocalConfig recovered = Read(backupPath!);
+                    RestorePrimaryFromBackup();
+                    return recovered;
+                }
+                catch (LocalConfigStoreException ex) when (IsCompatibilityError(ex))
+                {
+                    throw;
+                }
+                catch (Exception backupError) when (IsRecoverableReadError(backupError))
+                {
+                    throw new LocalConfigStoreException(
+                        "CONFIG_RECOVERY_FAILED",
+                        "LWBridge primary configuration is missing and its recovery copy could not be read. The recovery copy was left in place.",
+                        backupError);
+                }
+            }
+
             LWBridgeLocalConfig created = LWBridgeLocalConfig.CreateDefault();
             Save(created);
             return created;
@@ -165,18 +194,27 @@ internal sealed class LocalConfigStore
         {
             return Read(path);
         }
-        catch (Exception primaryError) when (primaryError is JsonException or IOException or UnauthorizedAccessException or LocalConfigStoreException)
+        catch (LocalConfigStoreException primaryError) when (IsCompatibilityError(primaryError))
         {
-            if (backupPath is not null && File.Exists(backupPath))
+            throw;
+        }
+        catch (Exception primaryError) when (IsRecoverableReadError(primaryError))
+        {
+            bool backupExists = backupPath is not null && GetFilePresence(
+                backupPath,
+                "CONFIG_RECOVERY_FAILED",
+                "LWBridge configuration recovery storage could not be inspected. The existing files were left in place.");
+            if (backupExists)
             {
                 try
                 {
-                    LWBridgeLocalConfig recovered = Read(backupPath);
+                    LWBridgeLocalConfig recovered = Read(backupPath!);
                     PreserveCorruptPrimary();
                     RestorePrimaryFromBackup();
                     return recovered;
                 }
-                catch (Exception backupError) when (backupError is JsonException or IOException or UnauthorizedAccessException or LocalConfigStoreException)
+                catch (Exception backupError) when (IsRecoverableReadError(backupError) ||
+                    backupError is LocalConfigStoreException compatibilityError && IsCompatibilityError(compatibilityError))
                 {
                     throw new LocalConfigStoreException(
                         "CONFIG_RECOVERY_FAILED",
@@ -191,6 +229,34 @@ internal sealed class LocalConfigStore
                 primaryError);
         }
     }
+
+    private static bool GetFilePresence(string filePath, string code, string message)
+    {
+        try
+        {
+            _ = File.GetAttributes(filePath);
+            return true;
+        }
+        catch (FileNotFoundException)
+        {
+            return false;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return false;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new LocalConfigStoreException(code, message, ex);
+        }
+    }
+
+    private static bool IsCompatibilityError(LocalConfigStoreException error) =>
+        error.Code is "CONFIG_OWNER_MISMATCH" or "CONFIG_SCHEMA_UNSUPPORTED";
+
+    private static bool IsRecoverableReadError(Exception error) =>
+        error is JsonException or IOException or UnauthorizedAccessException ||
+        error is LocalConfigStoreException configError && !IsCompatibilityError(configError);
 
     private static LWBridgeLocalConfig Read(string filePath)
     {

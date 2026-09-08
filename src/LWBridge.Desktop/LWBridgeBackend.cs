@@ -244,14 +244,17 @@ internal sealed class LWBridgeBackend
 
     private object SetLocalConfig(JsonElement payload)
     {
-        LWBridgeLocalConfig next = config.Snapshot;
+        bool? autoLaunchGame = null;
         if (payload.TryGetProperty("autoLaunchGame", out JsonElement autoLaunch))
         {
             if (autoLaunch.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
                 throw new BridgeCommandException("INVALID_PAYLOAD", "autoLaunchGame must be a boolean.");
-            next = next with { AutoLaunchGame = autoLaunch.GetBoolean() };
+            autoLaunchGame = autoLaunch.GetBoolean();
         }
-        next = UpdateConfig(_ => next);
+
+        LWBridgeLocalConfig next = UpdateConfig(current => autoLaunchGame.HasValue
+            ? current with { AutoLaunchGame = autoLaunchGame.Value }
+            : current);
         return new { autoLaunchGame = next.AutoLaunchGame, autoReconnect = next.AutoReconnect };
     }
 

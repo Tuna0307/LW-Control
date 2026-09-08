@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for project-manager review 2: verified progress, four reproduced PM2 defects and ordered remaining work. The subject documents below retain technical evidence.
+Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for project-manager review 2, the completed PM2 follow-up repair, and ordered remaining work. The original four PM2 failures remain documented as historical review evidence; current source passes the independent reproducer and expanded deterministic regressions. The subject documents below retain technical evidence.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -27,6 +27,7 @@ Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for projec
 - [`task-reference/`](task-reference/) contains the user-supplied Overview and Map Data visual references.
 - [`../evidence/lwbridge-0.3.1/`](../evidence/lwbridge-0.3.1/) contains immutable recovered frontend evidence.
 - [`../evidence/lwbridge-implementation/`](../evidence/lwbridge-implementation/) contains rebuild milestone evidence.
+- [`../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json`](../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json) records the PM2 repair source hashes, exact locators, commands, results and remaining limits.
 - [`../evidence/official-runtime/`](../evidence/official-runtime/) contains read-only current-client runtime snapshots.
 
 ## Evidence labels

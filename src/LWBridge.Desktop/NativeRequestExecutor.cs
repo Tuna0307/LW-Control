@@ -25,18 +25,23 @@ internal sealed class NativeRequestExecutor : IDisposable
         if (!requests.TryStart(id, out CancellationTokenSource? cancellation) || cancellation is null)
             return new(NativeRequestExecutionStatus.Rejected);
 
+        CancellationToken token = cancellation.Token;
         bool ownershipReleased = false;
         try
         {
-            object? result = await operation(cancellation.Token).ConfigureAwait(true);
-            cancellation.Token.ThrowIfCancellationRequested();
+            object? result = await operation(token).ConfigureAwait(true);
+            token.ThrowIfCancellationRequested();
             bool publishable = requests.Complete(id, cancellation);
             ownershipReleased = true;
             return publishable
                 ? new(NativeRequestExecutionStatus.Success, result)
                 : new(NativeRequestExecutionStatus.Cancelled);
         }
-        catch (OperationCanceledException) when (cancellation.IsCancellationRequested || requests.IsClosed)
+        catch (OperationCanceledException) when (token.IsCancellationRequested || requests.IsClosed)
+        {
+            return new(NativeRequestExecutionStatus.Cancelled);
+        }
+        catch (Exception) when (token.IsCancellationRequested || requests.IsClosed)
         {
             return new(NativeRequestExecutionStatus.Cancelled);
         }

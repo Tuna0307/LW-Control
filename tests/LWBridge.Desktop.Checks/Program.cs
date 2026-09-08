@@ -119,6 +119,94 @@ finally
     catch { }
 }
 
+string backendPartialRoot = Path.Combine(Path.GetTempPath(), "lwbridge-backend-partial-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(backendPartialRoot);
+try
+{
+    var ownerAStore = new LocalConfigStore(backendPartialRoot);
+    var ownerBStore = new LocalConfigStore(backendPartialRoot);
+    var ownerABackend = new LWBridgeBackend(ownerAStore);
+    var ownerBBackend = new LWBridgeBackend(ownerBStore);
+    string originalProfileId = ownerABackend.ProfileId;
+
+    using (JsonDocument reconnectPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = ownerBBackend.ProfileId,
+        name = "autoForceUpdateReload",
+        enabled = true,
+    })))
+    {
+        await ownerBBackend.InvokeAsync("set_automation", reconnectPayload.RootElement.Clone(), CancellationToken.None);
+    }
+    ownerBStore.Update(c => c with { GameRoot = @"C:\LastWar\RecoveredRoot" });
+    using (JsonDocument ownerBHistoryPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = ownerBBackend.ProfileId,
+        history = new[] { 501, 502, 503 },
+    })))
+    {
+        await ownerBBackend.InvokeAsync("server_jump_history_set", ownerBHistoryPayload.RootElement.Clone(), CancellationToken.None);
+    }
+
+    using (JsonDocument partialSave = JsonDocument.Parse("{\"autoLaunchGame\":false}"))
+    {
+        await ownerABackend.InvokeAsync("local_config_set", partialSave.RootElement.Clone(), CancellationToken.None);
+    }
+
+    LWBridgeLocalConfig persisted = new LocalConfigStore(backendPartialRoot).Snapshot;
+    Check(persisted.ProfileId == originalProfileId && !persisted.AutoLaunchGame && persisted.AutoReconnect,
+        "backend partial config save preserves profile identity and another owner's reconnect update");
+    Check(persisted.GameRoot == @"C:\LastWar\RecoveredRoot" &&
+          persisted.ServerJumpHistory.SequenceEqual(new[] { 501, 502, 503 }),
+        "backend partial config save preserves another owner's root and server history updates");
+}
+finally
+{
+    try { Directory.Delete(backendPartialRoot, recursive: true); }
+    catch { }
+}
+
+string missingPrimaryRoot = Path.Combine(Path.GetTempPath(), "lwbridge-missing-primary-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(missingPrimaryRoot);
+try
+{
+    var store = new LocalConfigStore(missingPrimaryRoot);
+    string originalProfileId = store.Snapshot.ProfileId;
+    store.Update(c => c with { AutoReconnect = true });
+    File.Delete(Path.Combine(missingPrimaryRoot, "config.json"));
+
+    var recovered = new LocalConfigStore(missingPrimaryRoot);
+    Check(recovered.Snapshot.ProfileId == originalProfileId,
+        "missing primary recovers stable profile identity from valid owned backup");
+    Check(File.Exists(Path.Combine(missingPrimaryRoot, "config.json")),
+        "missing-primary recovery restores a primary config from the owned backup");
+}
+finally
+{
+    try { Directory.Delete(missingPrimaryRoot, recursive: true); }
+    catch { }
+}
+
+string missingPrimaryIncompatibleBackupRoot = Path.Combine(Path.GetTempPath(), "lwbridge-missing-primary-incompatible-backup-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(missingPrimaryIncompatibleBackupRoot);
+try
+{
+    string backupPath = Path.Combine(missingPrimaryIncompatibleBackupRoot, "config.backup.json");
+    byte[] backupBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"owner\":\"OtherApplication\",\"profileId\":\"foreign-backup\"}");
+    File.WriteAllBytes(backupPath, backupBytes);
+
+    ExpectConfigError("CONFIG_OWNER_MISMATCH", "missing primary does not convert an incompatible backup into a new install", () =>
+        new LocalConfigStore(missingPrimaryIncompatibleBackupRoot));
+    Check(!File.Exists(Path.Combine(missingPrimaryIncompatibleBackupRoot, "config.json")) &&
+          File.ReadAllBytes(backupPath).SequenceEqual(backupBytes),
+        "incompatible backup remains byte-for-byte unchanged when the primary is absent");
+}
+finally
+{
+    try { Directory.Delete(missingPrimaryIncompatibleBackupRoot, recursive: true); }
+    catch { }
+}
+
 string writeFailureRoot = Path.Combine(Path.GetTempPath(), "lwbridge-write-failure-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(writeFailureRoot);
 try
@@ -141,14 +229,72 @@ Directory.CreateDirectory(invalidOwnerRoot);
 try
 {
     string configPath = Path.Combine(invalidOwnerRoot, "config.json");
-    File.WriteAllText(configPath, "{\"schemaVersion\":1,\"owner\":\"OtherApp\",\"profileId\":\"keep-me\"}");
-    ExpectConfigError("CONFIG_READ_FAILED", "foreign config ownership fails closed", () => new LocalConfigStore(invalidOwnerRoot));
-    Check(File.ReadAllText(configPath).Contains("keep-me", StringComparison.Ordinal),
-        "foreign config is left untouched after rejection");
+    byte[] foreignBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"owner\":\"OtherApp\",\"profileId\":\"keep-me\"}");
+    File.WriteAllBytes(configPath, foreignBytes);
+    ExpectConfigError("CONFIG_OWNER_MISMATCH", "foreign config ownership fails closed", () => new LocalConfigStore(invalidOwnerRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(foreignBytes),
+        "foreign config without backup is left byte-for-byte untouched after rejection");
 }
 finally
 {
     try { Directory.Delete(invalidOwnerRoot, recursive: true); }
+    catch { }
+}
+
+string futureSchemaRoot = Path.Combine(Path.GetTempPath(), "lwbridge-future-schema-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(futureSchemaRoot);
+try
+{
+    string configPath = Path.Combine(futureSchemaRoot, "config.json");
+    byte[] futureBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":999,\"owner\":\"LWBridgeRebuild\",\"profileId\":\"future\"}");
+    File.WriteAllBytes(configPath, futureBytes);
+    ExpectConfigError("CONFIG_SCHEMA_UNSUPPORTED", "future config schema fails closed", () => new LocalConfigStore(futureSchemaRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(futureBytes),
+        "future-schema config without backup is left byte-for-byte untouched after rejection");
+}
+finally
+{
+    try { Directory.Delete(futureSchemaRoot, recursive: true); }
+    catch { }
+}
+
+string incompatibleWithBackupRoot = Path.Combine(Path.GetTempPath(), "lwbridge-incompatible-backup-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(incompatibleWithBackupRoot);
+try
+{
+    var store = new LocalConfigStore(incompatibleWithBackupRoot);
+    store.Update(c => c with { AutoReconnect = true });
+    string configPath = Path.Combine(incompatibleWithBackupRoot, "config.json");
+    byte[] foreignBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"owner\":\"OtherApplication\",\"profileId\":\"foreign-with-backup\"}");
+    File.WriteAllBytes(configPath, foreignBytes);
+    ExpectConfigError("CONFIG_OWNER_MISMATCH", "foreign primary is not replaced by valid backup", () => new LocalConfigStore(incompatibleWithBackupRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(foreignBytes),
+        "foreign primary remains byte-for-byte unchanged when a valid owned backup exists");
+
+    byte[] futureBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":999,\"owner\":\"LWBridgeRebuild\",\"profileId\":\"future-with-backup\"}");
+    File.WriteAllBytes(configPath, futureBytes);
+    ExpectConfigError("CONFIG_SCHEMA_UNSUPPORTED", "future-schema primary is not replaced by valid backup", () => new LocalConfigStore(incompatibleWithBackupRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(futureBytes),
+        "future-schema primary remains byte-for-byte unchanged when a valid owned backup exists");
+}
+finally
+{
+    try { Directory.Delete(incompatibleWithBackupRoot, recursive: true); }
+    catch { }
+}
+
+string unreadablePrimaryRoot = Path.Combine(Path.GetTempPath(), "lwbridge-unreadable-primary-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(unreadablePrimaryRoot);
+try
+{
+    string configPath = Path.Combine(unreadablePrimaryRoot, "config.json");
+    Directory.CreateDirectory(configPath);
+    ExpectConfigError("CONFIG_READ_FAILED", "unreadable primary storage is not treated as a new install", () => new LocalConfigStore(unreadablePrimaryRoot));
+    Check(Directory.Exists(configPath), "unreadable primary storage is preserved after read failure");
+}
+finally
+{
+    try { Directory.Delete(unreadablePrimaryRoot, recursive: true); }
     catch { }
 }
 
@@ -218,8 +364,9 @@ using (var requests = new NativeRequestRegistry())
     Check(requests.TryStart("close-owned", out CancellationTokenSource? closeOwned) && closeOwned is not null,
         "request registry owns active request before teardown");
     requests.Close();
-    Check(closeOwned!.IsCancellationRequested, "session teardown cancels owned native work");
+    Check(closeOwned!.Token.IsCancellationRequested, "session teardown cancels owned native work without disposing its token early");
     Check(!requests.TryStart("late", out _), "closed native session rejects late requests");
+    requests.Complete("close-owned", closeOwned);
 }
 
 // Host-integrated async lifetime: the same executor used by LWBridgeWindow owns
@@ -289,6 +436,64 @@ using (var reloadedExecutor = new NativeRequestExecutor())
     NativeRequestExecution reloaded = await reloadedExecutor.ExecuteAsync("after-close", _ => Task.FromResult<object?>(new { ok = true }));
     Check(reloaded.Status == NativeRequestExecutionStatus.Success,
         "new session owner accepts fresh work after prior session teardown");
+}
+
+using (var executor = new NativeRequestExecutor())
+{
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("noncooperative-return", _ => release.Task);
+    executor.Close();
+    release.SetResult(new { late = true });
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status == NativeRequestExecutionStatus.Cancelled && executor.ActiveCount == 0,
+        "noncooperative normal return after close resolves as cancelled and drains ownership");
+}
+
+using (var executor = new NativeRequestExecutor())
+{
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("noncooperative-fault", _ => release.Task);
+    executor.Close();
+    release.SetException(new InvalidOperationException("late closed-session fault"));
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status == NativeRequestExecutionStatus.Cancelled && executor.ActiveCount == 0,
+        "noncooperative late fault after close follows cancelled closed-session policy");
+}
+
+using (var executor = new NativeRequestExecutor())
+{
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("noncooperative-explicit-cancel", _ => release.Task);
+    Check(executor.Cancel("noncooperative-explicit-cancel"), "explicit cancel owns a noncooperative request before late return");
+    release.SetResult(new { late = true });
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status == NativeRequestExecutionStatus.Cancelled && executor.ActiveCount == 0,
+        "noncooperative normal return after explicit cancel cannot publish success");
+}
+
+for (int iteration = 0; iteration < 32; iteration++)
+{
+    using var executor = new NativeRequestExecutor();
+    string requestId = "cancel-complete-race-" + iteration;
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync(requestId, _ => release.Task);
+    using var startRace = new ManualResetEventSlim(false);
+    Task cancel = Task.Run(() =>
+    {
+        startRace.Wait();
+        executor.Cancel(requestId);
+    });
+    Task complete = Task.Run(() =>
+    {
+        startRace.Wait();
+        release.TrySetResult(new { iteration });
+    });
+    startRace.Set();
+    await Task.WhenAll(cancel, complete);
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status is NativeRequestExecutionStatus.Success or NativeRequestExecutionStatus.Cancelled,
+        "cancel/completion race resolves to one valid terminal status");
+    Check(executor.ActiveCount == 0, "cancel/completion race drains request ownership");
 }
 
 var listenerOwners = new NativeSubscriptionRegistry(new[] { "bridge://status", "bridge://map-scan-status" });

@@ -76,7 +76,6 @@ internal sealed class NativeRequestRegistry : IDisposable
         {
             try { cancellation.Cancel(); }
             catch (ObjectDisposedException) { }
-            cancellation.Dispose();
         }
     }
 

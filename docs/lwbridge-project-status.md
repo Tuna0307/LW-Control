@@ -10,15 +10,26 @@ Reviewed: 2026-09-08, base commit `0664e0a0b38bfc37d7ff195a45bf30b56ec93825` plu
 2. Follow [BACKLOG.md](../BACKLOG.md) for the ordered next work and checkboxes. It was previously named `TASKS.md`; the rename removes the confusing pair of near-identical task filenames. Do not recreate that old file.
 3. Use [the feature ledger](lwbridge-feature-ledger.md) for per-feature proof and the existing subject documents for recovered technical contracts.
 
-The next coding batch is **PM2-01 through PM2-04 below**, then remaining host/production-mode verification. Continue R5 bootstrap research and recoverable R6 offline map work in parallel. Do not redo UI reproduction or legacy cleanup.
+The PM2-01 through PM2-04 follow-up checkpoint is now **IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED**. Remaining host/production-mode verification is next. Continue R5 bootstrap research and recoverable R6 offline map work in parallel. Do not redo UI reproduction or legacy cleanup.
+
+## Post-review PM2 foundation fix — 2026-09-08
+
+These fixes are rebuild safety/lifetime policy, not recovered claims about original LWBridge internals. The verified reference remains `lwbridge-0.3.1.exe` SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`; no new original command, value, offset or ABI contract is inferred here. Machine-readable evidence is [2026-09-08-pm2-foundation-fix.json](../evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json).
+
+| Finding | Source identity / locator | Reproduction and result | Validation / limits | Implementation impact |
+|---|---|---|---|---|
+| **PM2-FIX-01** — IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED | `LWBridgeBackend.cs` SHA-256 `fa0c0f9216eb96a7278b1050572fdfa5bde56bf1fdef8c5ee47feb5a827d3cd7`, `SetLocalConfig` around line 245 | Standard checks interleave another owner's reconnect/root/history commits with backend `local_config_set`; reload preserves those fields, the profile ID and the requested auto-launch change. Independent PM2-01 now reports `passed:true`. | Isolated filesystem only; a real overlapping WebView preference interaction is still R4. | Partial config writes now mutate the fresh baseline supplied under the storage lock instead of replacing it with a stale snapshot. |
+| **PM2-FIX-02** — IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED | `LocalConfigStore.cs` SHA-256 `a42dfa8f27d7496fa21d33bb69d0f430d9bf5dfe2c73152ce3c9f72722b4f7c6`, `Load` line 153 and `GetFilePresence` line 233 | Standard checks separately cover corrupt-primary recovery, missing-primary + valid owned backup, missing-primary + incompatible backup and unreadable primary storage. Independent PM2-02 now reports `passed:true`. | No live user config is modified; OS-specific denied-access behavior beyond deterministic directory/read faults remains a production-host test. | A missing primary first validates/reuses an owned backup; unsupported/uncertain storage fails closed rather than silently generating a new profile identity. |
+| **PM2-FIX-03** — IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED | `LocalConfigStore.cs` same hash/locator as PM2-FIX-02 | Owner mismatch and future schema are tested with and without valid backups; exact primary bytes remain unchanged and structured `CONFIG_OWNER_MISMATCH` / `CONFIG_SCHEMA_UNSUPPORTED` errors surface. Independent PM2-03 now reports `passed:true`. | Static isolated storage; no downgrade/migration is implemented for future schemas. | Explicit compatibility rejection is separated from corruption recovery; backups no longer overwrite incompatible primaries. |
+| **PM2-FIX-04** — IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED | `NativeRequestRegistry.cs` SHA-256 `230e9667bad6512ac446aad1d0572e012d82518925812bd5073793ee1ebb3080`, `Close` line 65; `NativeRequestExecutor.cs` SHA-256 `e4182486c2855a09843accbf792ee68af6e0871ac0a164b86e081f390661d9b5`, `ExecuteAsync` line 21 | Standard checks cover cooperative cancel, noncooperative normal return/fault after close, explicit cancel with late return and 32 cancel/completion races. Independent PM2-04 returns `Cancelled` and `passed:true`. | Executor policy suppresses late closed/cancelled faults as `Cancelled`; durable logging remains unavailable because `append_log` is still a no-op. Cancellation cannot undo a service mutation already committed before its cancellation boundary. | Close cancels but request completion owns disposal; a stable token remains usable until late work drains and late success publication stays blocked. |
 
 ## Progress credited in this review
 
 | Area | Verified progress | Remaining limit |
 |---|---|---|
 | R1 profile/transport contract | Generated API restores active-profile injection and envelope filtering; typed native scope checks; Node runtime tests of wrong-session/profile and late responses | The JavaScript harness is a Node VM, not an actual WebView host. Host origin/reload and operation-level identity tests remain. |
-| R2 config foundation | Durable replacement before memory commit; isolated test/capture storage; backups; schema/owner checks; normalized stored history; basic UI rollback | PM2-01–03 expose lost-update and recovery-policy gaps. Rapid overlapping UI saves also need a real interaction test. |
-| R3 request foundation | Shared request executor/registry, cooperative cancellation, duplicate IDs, allowlisted subscription ownership and close cleanup | PM2-04 fails for a noncooperative late return. Current synchronous handlers still run on the UI thread; actual navigation/session invalidation is missing. |
+| R2 config foundation | Durable replacement before memory commit; isolated test/capture storage; backups; schema/owner checks; normalized stored history; basic UI rollback; PM2-01–03 partial-update/recovery/compatibility regressions now pass | Rapid overlapping UI saves still need a real production-WebView interaction test. |
+| R3 request foundation | Shared request executor/registry, cooperative cancellation, duplicate IDs, allowlisted subscription ownership and close cleanup; PM2-04 noncooperative return/fault and cancellation-race regressions now pass | Current synchronous handlers still run on the UI thread; actual navigation/session invalidation and durable late-fault diagnostics are missing. |
 | R4 checks/compatibility | Deterministic suite is now in CI; game installation is an optional diagnostic; missing-native mode rejects; AMD64 plus PE32+ checks added; probe bootstrap disables startup launch | Exact xLua ABI selection and controlled production-WebView tests remain. A class-level simulated reload is not a real WebView reload test. |
 | R6 map foundation | Recovered SQLite tables/indexes, explicit-key upsert/read/count, profile-specific database, mark/unmark, transactionally scoped clear preserving marks; restart/large-ID tests | No real ingestion, query/options/export implementation, generation guard, completed-run publish or job scheduler. Per-kind authoritative key derivation remains unknown. |
 | UI/cleanup | Original assets/generator retained; nine fixture captures pass; current tracked legacy cleanup retained | Fixture rendering is separate from production behavior and current-client outcomes. |
@@ -31,7 +42,7 @@ The standalone [review reproducer](../evidence/lwbridge-implementation/pm-review
 dotnet run --project evidence/lwbridge-implementation/pm-review-2-repro/Audit.csproj --configuration Release
 ```
 
-Its JSON contains a `passed` value for each expected property. It intentionally reports known failures without failing the normal build/CI; **exit code zero is not a passing audit**. Current result: all four expected properties are false. Add corrected cases to the standard regression suite when fixing them; retain this historical evidence.
+Its JSON contains a `passed` value for each expected property. At the review-2 snapshot all four properties were false; retain that historical review evidence. Against the current repaired source, the same reproducer reports all four `passed:true`, and the corrected cases plus additional owner/schema/storage/race branches are now in the standard deterministic suite.
 
 ### PM2-01 — Backend preference save loses another owner's committed value (P0 / R2)
 
@@ -101,15 +112,15 @@ Fresh checks and findings are recorded in [review 2 evidence](../evidence/lwbrid
 - Source/hash generation, Release build and existing deterministic backend checks pass; game/launcher were not running in the diagnostic snapshot.
 - Node missing-native and transport-boundary harnesses pass. These are JavaScript runtime tests, not full native UI tests.
 - Nine fixture desktop captures pass, with real configuration bytes unchanged.
-- The independent edge-case audit above reports four failures; these are release blockers, not build failures.
+- The independent edge-case reproducer now reports four passes against the PM2 repair. This closes those four foundation defects only; remaining R3/R4 host acceptance is still open.
 - Fresh source-reference browser/pixel verification and final post-rename checks are recorded in review 2 evidence.
 - No live launch, injection, travel, scan, claim or message delivery was performed. This commit is a development checkpoint, not a release declaring both pages complete.
 
 ## Instructions for the next AI
 
 1. Read `task.md`, then `BACKLOG.md`, then this audit and relevant evidence. Recheck Git state and changed source; preserve the original recovered assets and completed cleanup.
-2. Fix PM2-01–04 with meaningful regression tests. Preserve the already working foundation. Update only the affected completion claims when their exact exit tests pass.
-3. Complete remaining R3/R4 host verification; progress R5 research and R6 query/export work independently where contracts permit. Do not stop all map work just because live bootstrap is blocked.
+2. Preserve the completed PM2-01–04 regression coverage and the fail-closed compatibility behavior; do not reopen those gates without contradictory evidence.
+3. Complete remaining R3/R4 host verification: move potentially blocking work off the UI thread with owned cancellation, implement real document generation/reload invalidation, and run the controlled production-WebView matrix. Progress R5 research and R6 query/export work independently where contracts permit.
 4. Update the backlog, feature ledger and subject recovery document after each batch. Record exact code revision/file hashes, command results, and remaining unknowns. A checked box needs implementation plus its stated evidence.
 5. Keep `task.md` as requirements/instructions, `BACKLOG.md` as current checkboxes, and this report as the dated review. Do not recreate `TASKS.md` or add another competing task specification.
 6. Preserve unrelated work and exclude local config, databases, captures, binaries, credentials and scratch directories from commits. Commit coherent progress with accurate limits; push without force only to the user-authorized branch/remote.

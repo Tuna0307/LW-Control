@@ -9,7 +9,7 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
 See [the source audit and R1–R10 exit criteria](lwbridge-project-status.md). The tables below credit implemented slices only: no complete Overview lifecycle or production Map Data workflow is LIVE-PROVEN. Milestone A environment hashes below are the earlier recorded baseline, not a fresh runtime fingerprint from this review.
 
-- R1 generated routing and cooperative request/persistence checks pass. R2/R3 are **partial**: independent PM2-01–04 reproduce backend lost updates, missing-primary identity reset, incompatible-primary backup replacement and a disposed-token exception after close. Fix those before closing the foundation gates; actual WebView reload, UI responsiveness and production-mode tests remain R3/R4.
+- R1 generated routing checks pass. The PM2 follow-up repairs backend partial updates, missing-primary recovery, owner/schema preservation and request cancellation-source lifetime; the independent reproducer and expanded deterministic suite pass. R2/R3 remain **partial** because actual WebView reload, UI responsiveness, production-mode tests and lifecycle integration remain R3/R4.
 - O04/O05 currently save preferences only. O02 start rejects; O03 stop rejects; O06 recovery is constant idle state. `profile_instances_reconcile` is a status read, not startup launch.
 - Map start only normalizes/rejects. Map stop returns unavailable state; it has no running service to cancel. Summary zeroes describe unavailable storage, not a successful empty scan.
 - Server-jump history is now validated/persisted per local profile. Localization still returns an empty dictionary and logging is a no-op. Do not mark those dependencies complete based on successful RPC responses.
@@ -75,7 +75,7 @@ See [the source audit and R1–R10 exit criteria](lwbridge-project-status.md). T
 | Command names/payload wrappers | `evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js` | `src/LWBridge.Desktop/LWBridgeBackend.cs` | Recovered wrapper strings inspected; unsupported production commands reject explicitly. |
 | WebView command/event transport | original Tauri invoke/listen wrapper | `LWBridgeWindow.cs` + `WebUi/preview-host.js` + `NativeRequestRegistry.cs` | Active-profile injection/event envelopes restored. Generated-wrapper/browser checks cover implicit/explicit/scalar/null payloads, wrong-session responses/events, switched-profile late-event filtering, timeout cancellation and late-response rejection. Real long-service state-mutation acceptance remains R3. |
 | Fixture/read-only isolation | rebuild requirement | `preview-host.js`, `LocalConfigStore`, bootstrap modes | Fixture commands cannot reach live handlers; capture/read-only modes use nonpersistent config. Requested live without native transport fails visibly. Read-only production bootstrap suppresses startup auto-launch. A real WebView capture preserved the actual user-config SHA-256 byte-for-byte. |
-| Stable local profile | original implicit profile routing | versioned config plus recovered `U/W` routing | Baseline restart/write/corrupt-primary/routing tests pass. PM2-01–03 fail for backend partial saves, missing-primary backup recovery and incompatible-primary replacement; full persistence acceptance remains open. |
+| Stable local profile | original implicit profile routing + rebuild persistence policy | versioned config plus recovered `U/W` routing | Restart/write/corrupt-primary checks plus PM2 backend partial-save, missing-primary backup recovery, owner/schema preservation and unreadable-storage cases pass offline. Real overlapping production-WebView saves remain R4. |
 | Game-root validation | `game_root_status`, `game_root_select` | `GameInstallationService.cs` | Installed/missing-root diagnostics pass. Both installed `LastWar.exe` and `xlua.dll` report AMD64 `0x8664/PE32+`; exact export ABI fingerprint selection remains R5. |
 | Launch safety gate | `profile_instance_start` | `LWBridgeBackend.cs` | Self-check requires `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; no unmanaged launch is attempted. |
 
@@ -94,6 +94,6 @@ node tools/check_lwbridge_transport_boundary.cjs
 Review 2 reran generation/build, deterministic console and Node checks, fixture
 captures and the source-reference browser/pixel comparison. Console tests now use
 isolated storage; installation checks are optional unless `--require-installed`
-is supplied. The independent PM2 reproducer reports four failures despite the
-standard suites passing. No current live-game functionality is proven by these
-checks. See the current audit record for exact results and scope.
+is supplied. The independent PM2 reproducer now reports four passes, with broader
+branches promoted into the standard suite. No current live-game functionality is
+proven by these checks. See the review-2 audit and PM2 fix evidence for exact scope.

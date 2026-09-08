@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-08
 
-Project-manager review 2: audited `0664e0a` plus the new foundation/SQLite work. Standard checks pass, but four independent edge cases fail. **R2/R3 are partial; Overview lifecycle and full Map Data functionality remain incomplete.** Read [the audit](docs/lwbridge-project-status.md) for reproductions and exit criteria. Keep [task.md](task.md) as the detailed instructions/acceptance contract. This checklist was renamed from `TASKS.md` to avoid confusing the two files; do not recreate the old name.
+Project-manager review 2 audited `0664e0a` plus the foundation/SQLite work. The follow-up PM2 checkpoint fixes all four independently reproduced edge cases and promotes them into the deterministic suite. **R2/R3 remain partial because real WebView reload, UI responsiveness, production-mode host tests and lifecycle integration are still open; Overview lifecycle and full Map Data functionality remain incomplete.** Read [the audit](docs/lwbridge-project-status.md) and [PM2 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json). Keep [task.md](task.md) as the detailed instructions/acceptance contract. This checklist was renamed from `TASKS.md` to avoid confusing the two files; do not recreate the old name.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -35,12 +35,12 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 
 ### Next batch — independently reproduced defects
 
-- [ ] **PM2-01 / R2:** fix `SetLocalConfig` partial updates to use the locked fresh baseline; preserve another owner's committed reconnect/root/history fields. Test through the backend command.
-- [ ] **PM2-02 / R2:** recover a valid owned backup when the primary is absent; retain the profile ID and associated map DB. Test missing-primary separately from corrupt-primary recovery.
-- [ ] **PM2-03 / R2:** do not treat owner/schema incompatibility as recoverable corruption; preserve the primary even when a valid backup exists. Test foreign-owner and future-schema branches.
-- [ ] **PM2-04 / R3:** fix cancellation-source lifetime so an operation returning normally after close yields cancellation rather than `ObjectDisposedException`. Test noncooperative return/fault and cancel/completion races.
+- [x] **PM2-01 / R2:** `SetLocalConfig` applies validated partial fields to the locked fresh baseline; deterministic backend tests preserve another owner's reconnect/root/history fields and profile identity.
+- [x] **PM2-02 / R2:** missing primary recovers a valid owned backup and stable profile identity; incompatible backup and unreadable-storage cases fail closed instead of creating a fresh identity.
+- [x] **PM2-03 / R2:** owner/schema incompatibility is not treated as corruption; foreign-owner and future-schema primaries remain byte-for-byte unchanged with and without valid backups.
+- [x] **PM2-04 / R3:** cancellation-source disposal is owned by request completion; noncooperative return/fault after close or cancel resolves as cancelled, cooperative cancellation still passes, and cancel/completion races drain ownership without teardown exceptions.
 
-Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-repro/Program.cs), then migrate corrected expectations into the standard test suite. Its JSON currently records four `passed:false` outcomes; its zero exit code does not mean those expectations passed.
+Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-repro/Program.cs) together with the standard suite. The original review evidence records four historical failures; the current source now reports four `passed:true` outcomes and the corrected expectations are in the standard deterministic checks.
 
 ### Existing foundation and remaining integration
 
@@ -123,7 +123,7 @@ This work can advance while R5 research is blocked. Static/offline proof does no
 
 ## Verification
 
-Review 2: source/hash, Release build, deterministic backend checks, Node transport checks and nine fixture captures passed. Installed-game inspection is an optional diagnostic and deterministic checks are included in CI. Independent PM2-01–04 expectations fail and remain open above. The runtime inspector collects read-only evidence; it does not verify launch/scan functionality. See [current audit evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-2.json).
+Review 2: source/hash, Release build, deterministic backend checks, Node transport checks and nine fixture captures passed. The PM2 follow-up now also passes the independent PM2-01–04 reproducer plus expanded deterministic persistence/request-lifetime regressions. Installed-game inspection remains an optional diagnostic. The runtime inspector collects read-only evidence; it does not verify launch/scan functionality. See [review 2 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-2.json) and [PM2 fix evidence](evidence/lwbridge-implementation/2026-09-08-pm2-foundation-fix.json).
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check
