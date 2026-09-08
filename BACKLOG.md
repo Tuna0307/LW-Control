@@ -49,14 +49,14 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [x] **R2 implemented slice:** commit memory after durable replacement; add schema/owner checks, isolated storage and corrupt-primary backup recovery. Full recovery/ownership acceptance remains PM2-01–03.
 - [x] Roll back rejected preference saves in the UI and make errors visible; persist/validate server-jump history instead of echoing it.
 - [x] Inject temporary config roots for checks/capture and prove real user configuration is unchanged. Test denied writes, restart, corrupt JSON, interrupted replacement and competing writers.
-- [x] **R3 implemented slice:** shared executor/registry and allowlisted subscription ownership pass cooperative delayed-service, duplicate-ID and window-close checks. This does not offload synchronous handlers or establish real WebView reload behavior.
+- [x] **R3 implemented slice:** shared executor/registry and allowlisted subscription ownership pass cooperative delayed-service, duplicate-ID and window-close checks. The native-host follow-up also offloads backend work and gives each WebView document its own request/subscription generation.
 - [x] Test browser timeout propagation plus host explicit cancel/close/reload/duplicate IDs/late completion with a controllable delayed backend service; prove cancellation prevents the service commit and success publication.
 - [ ] Connect the request/event lifetime foundation to the first real lifecycle/scan service and add durable correlated diagnostics when that service exists; `append_log` remains a no-op today.
-- [ ] Move potentially blocking config/installation/SQLite work off the UI thread with deliberate ownership/cancellation; test slow storage while rendering remains responsive.
-- [ ] Implement/test real document reload/navigation invalidation: cancel old work, reset subscriptions, rotate document session/generation and reject late publications. A fresh executor in a console test does not cover this host path.
+- [x] Move potentially blocking config/installation/SQLite work off the UI thread with deliberate ownership/cancellation. The isolated native WebView probe holds the real config lock for ~868 ms while a browser timer fires at ~56 ms, proving rendering remains responsive; folder selection remains UI-owned while root inspection/save run off-thread.
+- [x] Implement/test real document reload/navigation invalidation: a real WebView2 reload cancels the prior request, clears prior subscriptions, rotates the document session/generation and rejects an invoke carrying the old session ID.
 - [x] **R4 / verification:** split deterministic tests from installed-game diagnostics; run deterministic backend/transport tests in CI.
 - [x] Requested live mode rejects missing native transport in the Node harness; read-only bootstrap suppresses auto-launch and uses isolated storage.
-- [ ] Add actual production-mode WebView origin/session/error/busy/picker/save/reload tests, including overlapping preference saves and rollback. Revalidate probe startup suppression in the native host.
+- [ ] Complete the production-mode WebView matrix. The isolated native-host probe now passes origin rejection, session rotation/stale-session rejection, structured errors, real reload cancellation/subscription reset, slow-storage responsiveness and startup auto-launch suppression. Busy state, picker cancel/invalid selection, overlapping preference saves/UI rollback and closed-window late response still need native-host cases.
 - [x] Check AMD64 COFF machine plus PE32+ for game/xLua; include official-runtime inspector syntax checks. Exact xLua ABI compatibility remains R5.
 
 ## R5 — Overview lifecycle (P0 critical path; research alongside R1–R4)

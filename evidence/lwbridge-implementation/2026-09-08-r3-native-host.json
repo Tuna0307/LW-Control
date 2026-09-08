@@ -1,0 +1,93 @@
+{
+  "checkpoint": "R3 native WebView host lifetime and UI scheduling",
+  "date": "2026-09-08",
+  "startingRevision": "6b7efcaa8b4a5288e774f482dcac6f5ae4a06800",
+  "branch": "research/offline-controller",
+  "reference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "useInThisCheckpoint": "identity context only; host scheduling/session teardown are explicit rebuild implementation policy"
+  },
+  "classification": [
+    "IMPLEMENTATION POLICY",
+    "IMPLEMENTED/OFFLINE-TESTED"
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "89a848d5dace7e004d99b4ab68915e4b0583b6c1656d7e263bda37d3106088ed",
+    "src/LWBridge.Desktop/Program.cs": "5929104720fe52eccc70cf146eb52bfc922dfe98420ee3c319031198850b76a8",
+    "src/LWBridge.Desktop/HostProbeCommandService.cs": "92dfd75c1ca898ec2ec105da14b67709890c75a382ae2d11a4018d5d67702e24"
+  },
+  "findings": [
+    {
+      "id": "R3-HOST-01",
+      "scope": "nonblocking native backend scheduling",
+      "locator": "LWBridgeWindow.OnWebMessageReceived line 543; SelectGameRootAsync line 638",
+      "result": "backend operations run outside the WinForms UI thread while UI-owned folder dialog presentation stays on the UI thread",
+      "validation": "real isolated LocalConfigStore config.lock held for about 800 ms; local_config_set completed after 867.5 ms while a 50 ms browser timer fired after 55.8 ms",
+      "limits": "timings are deterministic host-probe policy, not recovered LWBridge thresholds"
+    },
+    {
+      "id": "R3-HOST-02",
+      "scope": "actual WebView document lifetime",
+      "locator": "LWBridgeWindow.OnNavigationStarting line 191; RotateDocumentSession line 216; DocumentSession line 749",
+      "result": "same-origin reload/navigation closes the old document executor/subscriptions and assigns a fresh session ID/generation before the replacement document loads",
+      "validation": "CoreWebView2.Reload reached generation 2; one old active request was cancelled/drained and seven old subscriptions were cleared",
+      "limits": "remaining picker/busy/save interaction cases are R4"
+    },
+    {
+      "id": "R3-HOST-03",
+      "scope": "late/stale document publication rejection",
+      "locator": "LWBridgeWindow.OnWebMessageReceived line 543; IsCurrentDocument line 714",
+      "result": "handlers publish only for their captured current document; an invoke carrying the old session after reload is ignored before service entry",
+      "validation": "diagnostic slowSyncStarted remained 0 before and after the stale-session invoke; structured DIAGNOSTIC_EXPECTED error path also passed",
+      "limits": "closed-window late response remains an R4 interaction case"
+    },
+    {
+      "id": "R3-HOST-04",
+      "scope": "native origin and probe isolation",
+      "locator": "LWBridgeWindow.OnNavigationStarting line 191; Program --host-probe line 11",
+      "result": "external top-level navigation is cancelled without rotating the local document; probe bootstrap suppresses startup auto-launch and uses isolated storage",
+      "validation": "source remained https://lwbridge.local after rejected example.invalid navigation; no temp probe config root remained after shutdown",
+      "limits": "no live-game operation was invoked"
+    }
+  ],
+  "nativeHostProbe": {
+    "command": "dotnet run --project src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release -- --host-probe .codex-live/native-host-probe/storage-result.json",
+    "ok": true,
+    "mode": "isolated-native-host-probe",
+    "slowStorageUiResponsive": true,
+    "timerDelayMs": 55.8,
+    "slowStorageElapsedMs": 867.5,
+    "sessionRotated": true,
+    "documentGeneration": 2,
+    "reloadCancelledOldWork": true,
+    "lastClosedRequestCount": 1,
+    "reloadResetSubscriptions": true,
+    "lastClosedSubscriptionCount": 7,
+    "staleSessionIgnored": true,
+    "structuredError": true,
+    "expectedErrorCode": "DIAGNOSTIC_EXPECTED",
+    "externalNavigationRejected": true,
+    "startupAutoLaunchSuppressed": true,
+    "userConfigTouched": false,
+    "liveGameCommandsPerformed": false
+  },
+  "verification": [
+    "python tools/build_lwbridge_frontend.py --check => pass",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release => pass, 0 warnings, 0 errors",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release => ok:true, failures:[]",
+    "node tools/check_lwbridge_live_transport.cjs => pass",
+    "node tools/check_lwbridge_transport_boundary.cjs => pass",
+    "pwsh -NoProfile -File tools/capture_lwbridge_ui.ps1 -OutputDirectory .codex-live/r3-host-captures => nine views passed",
+    "git diff --check => pass"
+  ],
+  "remainingGates": [
+    "R3 durable correlated diagnostics on first real lifecycle/scan worker",
+    "R4 native busy-state case",
+    "R4 picker cancel and invalid selection cases",
+    "R4 overlapping preference saves and UI rollback",
+    "R4 closed-window late response",
+    "R5 exact launch bootstrap and xLua ABI selection"
+  ],
+  "liveProof": false
+}
