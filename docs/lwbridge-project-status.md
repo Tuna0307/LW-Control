@@ -30,15 +30,15 @@ Review 5 changes emitted metadata to truck-only, links the saved R6-010 finding 
 ## Current functional boundary and next regular-AI work
 
 - **Overview remains incomplete:** start still rejects `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; no owned stop, real startup/reconnect worker or authoritative fresh heartbeat exists. Stored preferences and process presence do not prove these features.
-- **Map Data remains partial:** new filters and snapshot persistence work offline. Complete options/summary/export, native record keys/normalization, production capture/scheduler, generations/publication and automatic jobs still need implementation/evidence. Treasures, completion/plunderability and many real frontend query combinations remain gated on missing contracts.
-- **Next regular task:** hidden/bounded host-probe helper; useful cross-kind quality and combined-query coverage; permitted options/summary/cutoff/migration/export research; independent storage/generation/diagnostic engineering. See the detailed priority/exit criteria in the regular handoff.
+- **Map Data remains partial:** new filters and snapshot persistence work offline. `LWB-R6-014` recovers the precise Unix-ms clock plus frontend completion/plunderability predicates and the reward-option cutoff source/unit. Complete options/summary/export, native record keys/normalization, production capture/scheduler, generations/publication and automatic jobs still need implementation/evidence. Treasure visibility/lucky semantics and alternate sorts remain gated on missing contracts.
+- **Next regular task:** continue permitted options source/run-context and summary-server research, schema/migration/export recovery, then independent storage/generation/diagnostic engineering. See the detailed priority/exit criteria in the regular handoff.
 - **No automatic DB transfer:** launch, native map keys, scheduling and action research stay regular-AI-owned until an ESC packet establishes a specialist need. Missing integration is setup work; tool installation remains pre-authorized within the environment rules.
 
 ## New reported research limits and escalation quality
 
 The regular task reports additional denied operations: an options verifier (SB-03), an existing user-profile database query (SB-04), and completion-context/range reads (SB-05). Sources and exact evidence limits are in the escalation register. No denied operation was rerun by this review.
 
-The completion cutoff and schema prerequisites are candidates, but their packets do not yet establish that all relevant permitted alternatives were exhausted. Some source searches used invalid wildcard paths; a command failure or truncated result does not establish source absence. Preserve the failed attempt, repair the query where permitted, and explain remaining alternatives instead of transferring a whole feature as "blocked."
+The completion/reward cutoff candidate is now resolved by regular-AI static analysis in `LWB-R6-014` and is retained as `ESC-001 NOT_ASSIGNED`; no specialist task is needed for that question. Schema prerequisites remain a candidate only if the ESC-002 packet later demonstrates exhausted permitted alternatives.
 
 The task also reported a profile-only `map_summary` frontend input and further export/sort leads. Those do not establish native server selection, writer behavior or sort/null ordering. Continue from readable consumers and saved excerpts; document a complete locator/source/result before treating a chat lead as a confirmed new contract. No clock or server fallback is approved.
 

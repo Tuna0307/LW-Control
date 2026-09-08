@@ -234,12 +234,18 @@ internal sealed class MapDataStore : IDisposable
     }
 
     public MapSearchResult SearchIndexed(MapDataQueryOptions options) =>
-        SearchIndexedCore(options, afterCountObserved: null);
+        SearchIndexedCore(options, RecoveredWallClock.UnixTimeMilliseconds(), afterCountObserved: null);
 
     internal MapSearchResult SearchIndexedForSnapshotTest(MapDataQueryOptions options, Action afterCountObserved) =>
-        SearchIndexedCore(options, afterCountObserved ?? throw new ArgumentNullException(nameof(afterCountObserved)));
+        SearchIndexedCore(
+            options,
+            RecoveredWallClock.UnixTimeMilliseconds(),
+            afterCountObserved ?? throw new ArgumentNullException(nameof(afterCountObserved)));
 
-    private MapSearchResult SearchIndexedCore(MapDataQueryOptions options, Action? afterCountObserved)
+    internal MapSearchResult SearchIndexedAtForTest(MapDataQueryOptions options, long nowUnixMilliseconds) =>
+        SearchIndexedCore(options, nowUnixMilliseconds, afterCountObserved: null);
+
+    private MapSearchResult SearchIndexedCore(MapDataQueryOptions options, long nowUnixMilliseconds, Action? afterCountObserved)
     {
         ValidateKind(options.Kind);
         ValidateServerId(options.ServerId);
@@ -262,7 +268,9 @@ internal sealed class MapDataStore : IDisposable
                 "page.kind=$kind",
                 "page.server_id=$server",
             };
-            // LWB-R6-005/006/007/013: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
+            // LWB-R6-005/006/007/013/014: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
+            if (options.Kind is "truck" or "railway")
+                predicates.Add("(json_extract(page.data_json,'$.arriveTs') IS NULL OR CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER) > $nowUnixMs)");
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
             if (options.Keyword is not null)
@@ -291,6 +299,22 @@ internal sealed class MapDataStore : IDisposable
                 predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0");
             if (options.ItemKey is not null)
                 predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey)");
+            if (options.CompletionStatus == "pending")
+                predicates.Add("(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) IS NULL OR CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) <= 0 OR CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) > $nowUnixMs)");
+            else if (options.CompletionStatus == "completed")
+                predicates.Add("CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) > 0 AND CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) <= $nowUnixMs");
+            if (options.PlunderableOnly && options.Kind is "truck" or "railway")
+            {
+                predicates.Add("json_extract(page.data_json,'$.arriveTs') IS NOT NULL");
+                predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.remainingLootCount') AS INTEGER),MAX(COALESCE(CAST(json_extract(page.data_json,'$.maxLootCount') AS INTEGER),0)-COALESCE(CAST(json_extract(page.data_json,'$.robTimes') AS INTEGER),0),0)) > 0");
+            }
+            else if (options.PlunderableOnly && options.Kind == "dispatch")
+            {
+                predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER),0) > 0");
+                predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.plunderAt') AS INTEGER),CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER),0) > 0");
+                predicates.Add("(COALESCE(CAST(json_extract(page.data_json,'$.taskExpireTime') AS INTEGER),0) <= 0 OR CAST(json_extract(page.data_json,'$.taskExpireTime') AS INTEGER) > $nowUnixMs)");
+                predicates.Add("(COALESCE(CAST(json_extract(page.data_json,'$.maxStealCount') AS INTEGER),0) <= 0 OR COALESCE(CAST(json_extract(page.data_json,'$.stolenCount') AS INTEGER),0) < CAST(json_extract(page.data_json,'$.maxStealCount') AS INTEGER))");
+            }
             if (options.SpecialOnly)
                 predicates.Add("CAST(json_extract(page.data_json,'$.isSpecial') AS INTEGER) = 1");
             if (options.ReindeerOnly)
@@ -306,7 +330,7 @@ internal sealed class MapDataStore : IDisposable
             {
                 count.Transaction = snapshot;
                 count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE {where}";
-                AddSearchParameters(count, options);
+                AddSearchParameters(count, options, nowUnixMilliseconds);
                 total = Convert.ToInt32(count.ExecuteScalar());
             }
 
@@ -317,7 +341,7 @@ internal sealed class MapDataStore : IDisposable
             page.CommandText = city
                 ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
                 : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
-            AddSearchParameters(page, options);
+            AddSearchParameters(page, options, nowUnixMilliseconds);
             page.Parameters.AddWithValue("$limit", options.PageSize);
             page.Parameters.AddWithValue("$offset", offset);
 
@@ -520,7 +544,7 @@ internal sealed class MapDataStore : IDisposable
         command.Parameters.AddWithValue("$json", record.DataJson);
     }
 
-    private static void AddSearchParameters(SqliteCommand command, MapDataQueryOptions options)
+    private static void AddSearchParameters(SqliteCommand command, MapDataQueryOptions options, long nowUnixMilliseconds)
     {
         command.Parameters.AddWithValue("$kind", options.Kind);
         command.Parameters.AddWithValue("$server", options.ServerId);
@@ -553,6 +577,8 @@ internal sealed class MapDataStore : IDisposable
             });
         if (options.ItemKey is not null)
             command.Parameters.AddWithValue("$itemKey", options.ItemKey);
+        if (options.Kind is "truck" or "railway" || options.CompletionStatus is not null || options.PlunderableOnly)
+            command.Parameters.AddWithValue("$nowUnixMs", nowUnixMilliseconds);
         if (options.MinLevel is not null)
             command.Parameters.AddWithValue("$minLevel", options.MinLevel.Value);
         if (options.MaxLevel is not null)

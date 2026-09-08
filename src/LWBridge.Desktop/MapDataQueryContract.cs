@@ -20,6 +20,8 @@ internal sealed record MapDataQueryOptions(
     int? SuppliesType,
     string? Quality,
     string? ItemKey,
+    string? CompletionStatus,
+    bool PlunderableOnly,
     bool SpecialOnly,
     bool ReindeerOnly,
     int? MinLevel,
@@ -82,6 +84,8 @@ internal static class MapDataQueryContract
         int? suppliesType = OptionalNonNegativeInt(query, "suppliesType");
         string? quality = OptionalString(query, "quality");
         string? itemKey = OptionalString(query, "itemKey");
+        string? completionStatus = OptionalString(query, "completionStatus");
+        bool plunderableOnly = OptionalTrue(query, "plunderableOnly");
         bool specialOnly = OptionalTrue(query, "specialOnly");
         bool reindeerOnly = OptionalTrue(query, "reindeerOnly");
         int? minLevel = OptionalNonNegativeInt(query, "minLevel");
@@ -109,6 +113,8 @@ internal static class MapDataQueryContract
             suppliesType,
             quality,
             itemKey,
+            completionStatus,
+            plunderableOnly,
             specialOnly,
             reindeerOnly,
             minLevel,
@@ -209,6 +215,12 @@ internal static class MapDataQueryContract
                      value.ValueKind == JsonValueKind.String &&
                      value.GetString() is "n" or "r" or "sr" or "ssr" or "ur",
         "itemKey" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        // LWB-R6-014: original map_search compares completionTime to one sampled Unix-ms wall clock.
+        "completionStatus" => kind is "dispatch" or "ghost" &&
+                              value.ValueKind == JsonValueKind.String &&
+                              value.GetString() is "pending" or "completed",
+        // LWB-R6-004 + R6-014: native has a wider internal branch, but the recovered frontend emits true only for these kinds.
+        "plunderableOnly" => kind is "truck" or "railway" or "dispatch" && value.ValueKind == JsonValueKind.True,
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
         "minLevel" => kind == "dispatch" && IsPositiveInteger(value),

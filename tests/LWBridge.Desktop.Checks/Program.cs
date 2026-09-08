@@ -783,10 +783,10 @@ var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)
     ("city", "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"alliance\":\"ONE\",\"markedOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("resource", "{\"kind\":\"resource\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"resourceNameKey\":\"iron\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
-    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["plunderableOnly"]),
-    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["plunderableOnly"]),
-    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus", "plunderableOnly"]),
-    ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus"]),
+    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"suppliesType\":0,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
 };
 foreach ((string name, string json, string[] unsupported) in frontendMapQueryCases)
@@ -1320,6 +1320,104 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
     }));
     await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "alternate map sort stays fail-closed until exact SQL expression is recovered", async () =>
         await indexedSearchBackend.InvokeAsync("map_search", unrecoveredLevelSort.RootElement.Clone(), CancellationToken.None));
+}
+
+// LWB-R6-014: deterministic wall-clock boundaries use an isolated store so the
+// recovered time predicates cannot change the older quality/count fixtures.
+using (var timeFilterStore = MapDataStore.CreateInMemory())
+{
+    const long recoveredNow = 1_800_000_000_000L;
+
+    void SeedTimeRecord(string kind, int serverId, string uuid, long updatedAt, string fields)
+    {
+        string json = $"{{\"serverId\":{serverId},\"uuid\":\"{uuid}\",{fields},\"updatedAt\":{updatedAt}}}";
+        timeFilterStore.UpsertRecord(new MapStoredRecord(
+            kind, serverId, uuid, null, uuid, uuid, null,
+            null, null, null, null, null, updatedAt, json));
+    }
+
+    MapSearchResult SearchAt(string kind, int serverId, string extraQuery = "")
+    {
+        using JsonDocument query = JsonDocument.Parse(
+            $"{{\"kind\":\"{kind}\",\"query\":{{\"serverId\":{serverId}{extraQuery}}}}}");
+        return timeFilterStore.SearchIndexedAtForTest(
+            MapDataQueryContract.NormalizeSearch(query.RootElement), recoveredNow);
+    }
+
+    static HashSet<string> ResultUuids(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("uuid").GetString()!).ToHashSet(StringComparer.Ordinal);
+
+    SeedTimeRecord("truck", 77, "truck-null-arrival", 106, "\"arriveTs\":null,\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-future", 105, $"\"arriveTs\":{recoveredNow + 1},\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-at-now", 104, $"\"arriveTs\":{recoveredNow},\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-expired", 103, $"\"arriveTs\":{recoveredNow - 1},\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-empty", 102, $"\"arriveTs\":{recoveredNow + 10},\"remainingLootCount\":0");
+    SeedTimeRecord("truck", 77, "truck-fallback", 101, $"\"arriveTs\":{recoveredNow + 20},\"maxLootCount\":2,\"robTimes\":1");
+
+    MapSearchResult truckDefault = SearchAt("truck", 77);
+    Check(truckDefault.Total == 4 && ResultUuids(truckDefault).SetEquals(
+            new[] { "truck-null-arrival", "truck-future", "truck-empty", "truck-fallback" }),
+        "truck default search keeps null/future arrivals and excludes arriveTs <= sampled now");
+
+    MapSearchResult truckPlunderable = SearchAt("truck", 77, ",\"plunderableOnly\":true");
+    Check(truckPlunderable.Total == 2 && ResultUuids(truckPlunderable).SetEquals(
+            new[] { "truck-future", "truck-fallback" }),
+        "truck plunderableOnly requires a future non-null arrival and positive direct/fallback remaining loot");
+
+    SeedTimeRecord("railway", 77, "railway-future", 202, $"\"arriveTs\":{recoveredNow + 1},\"remainingLootCount\":1");
+    SeedTimeRecord("railway", 77, "railway-expired", 201, $"\"arriveTs\":{recoveredNow - 1},\"remainingLootCount\":1");
+    MapSearchResult railwayPlunderable = SearchAt("railway", 77, ",\"plunderableOnly\":true");
+    Check(railwayPlunderable.Total == 1 && ResultUuids(railwayPlunderable).SetEquals(new[] { "railway-future" }),
+        "railway plunderableOnly shares the recovered active-arrival and remaining-loot predicates");
+
+    SeedTimeRecord("dispatch", 78, "dispatch-null", 305, "\"completionTime\":null");
+    SeedTimeRecord("dispatch", 78, "dispatch-zero", 304, "\"completionTime\":0");
+    SeedTimeRecord("dispatch", 78, "dispatch-future", 303, $"\"completionTime\":{recoveredNow + 1}");
+    SeedTimeRecord("dispatch", 78, "dispatch-now", 302, $"\"completionTime\":{recoveredNow}");
+    SeedTimeRecord("dispatch", 78, "dispatch-past", 301, $"\"completionTime\":{recoveredNow - 1}");
+
+    MapSearchResult dispatchPending = SearchAt("dispatch", 78, ",\"completionStatus\":\"pending\"");
+    Check(dispatchPending.Total == 3 && ResultUuids(dispatchPending).SetEquals(
+            new[] { "dispatch-null", "dispatch-zero", "dispatch-future" }),
+        "dispatch pending completion includes null/nonpositive/future and excludes completionTime <= sampled now");
+    MapSearchResult dispatchCompleted = SearchAt("dispatch", 78, ",\"completionStatus\":\"completed\"");
+    Check(dispatchCompleted.Total == 2 && ResultUuids(dispatchCompleted).SetEquals(
+            new[] { "dispatch-now", "dispatch-past" }),
+        "dispatch completed completion requires positive completionTime <= sampled now");
+
+    SeedTimeRecord("ghost", 79, "ghost-future", 402, $"\"completionTime\":{recoveredNow + 1}");
+    SeedTimeRecord("ghost", 79, "ghost-past", 401, $"\"completionTime\":{recoveredNow - 1}");
+    Check(SearchAt("ghost", 79, ",\"completionStatus\":\"pending\"").Total == 1 &&
+          SearchAt("ghost", 79, ",\"completionStatus\":\"completed\"").Total == 1,
+        "ghost completionStatus uses the same recovered pending/completed wall-clock boundary");
+
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-valid", 505,
+        $"\"completionTime\":{recoveredNow - 100},\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":2,\"stolenCount\":1");
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-expired", 504,
+        $"\"completionTime\":{recoveredNow - 100},\"taskExpireTime\":{recoveredNow},\"maxStealCount\":2,\"stolenCount\":1");
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-full", 503,
+        $"\"completionTime\":{recoveredNow - 100},\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":2,\"stolenCount\":2");
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-zero", 502,
+        $"\"completionTime\":{recoveredNow - 100},\"plunderAt\":0,\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":0");
+    SeedTimeRecord("dispatch", 80, "dispatch-completion-zero", 501,
+        $"\"completionTime\":0,\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":0");
+    MapSearchResult dispatchPlunderable = SearchAt("dispatch", 80, ",\"plunderableOnly\":true");
+    Check(dispatchPlunderable.Total == 1 && ResultUuids(dispatchPlunderable).SetEquals(new[] { "dispatch-plunder-valid" }),
+        "dispatch plunderableOnly enforces completion, plunderAt fallback, strict expiry and steal-capacity predicates");
+
+    foreach ((string json, string expectedFeature) in new[]
+    {
+        ("{\"kind\":\"truck\",\"query\":{\"serverId\":77,\"completionStatus\":\"pending\"}}", "completionStatus"),
+        ("{\"kind\":\"dispatch\",\"query\":{\"serverId\":78,\"completionStatus\":\"later\"}}", "completionStatus"),
+        ("{\"kind\":\"ghost\",\"query\":{\"serverId\":79,\"plunderableOnly\":true}}", "plunderableOnly"),
+        ("{\"kind\":\"dispatch\",\"query\":{\"serverId\":80,\"plunderableOnly\":false}}", "plunderableOnly"),
+    })
+    {
+        using JsonDocument unsupportedTimeFilter = JsonDocument.Parse(json);
+        Check(MapDataQueryContract.NormalizeSearch(unsupportedTimeFilter.RootElement).UnsupportedFeatures
+                .SequenceEqual(new[] { expectedFeature }),
+            $"unrecovered public time-filter form remains fail-closed for {expectedFeature}");
+    }
 }
 
 using JsonDocument unavailableSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
