@@ -391,3 +391,74 @@ classes the original host recognizes. Production `profile_instance_start`
 still remains fail-closed with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`. Continue
 from the identified response/ticket paths into their producers and authoritative
 ownership/consumption checks before implementing owned lifecycle start.
+
+## LWB-R5-005 — child ticket ownership/consumption polling (2026-09-08)
+
+**Scope.** Static recovery now establishes the embedded profile launcher's
+post-start polling branches for ticket replacement, timeout and consumption
+failure. This checkpoint deliberately keeps the four routine inputs opaque where
+their producer-side identities are not proven; it recovers the comparison and
+error transitions without inventing account/token/owner names or time units.
+
+**Source identity.** The outer reference remains
+`../LW/lwbridge-0.3.1.exe`, SHA-256
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+The embedded `lwbridge-profile-launcher.exe` is SHA-256
+`8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de`.
+Addresses below are embedded-launcher preferred VAs with image base
+`0x140000000`. The focused durable excerpt is
+[`2026-09-08-r5-ticket-consumption-disassembly.txt`](../evidence/lwbridge-implementation/2026-09-08-r5-ticket-consumption-disassembly.txt),
+normalized-text SHA-256
+`66aa1db0dac98117e13e156cec13030bd62ecd1a34ae8eb925bbc3f5db1103c1`.
+
+**Exact locators.** The polling routine is `0x140028870-0x140028A94`.
+Original `rcx`, `rdx`, `r8`, `r9` are preserved in `r15`, `r14`, `rbx`, `rdi`
+at `0x14002888D-0x140028896`. The first two are passed to query helper
+`0x140060B30` at `0x1400288DF-0x1400288E9`. The fourth input is compared with
+the observed result length at `0x1400288FA`; if equal, the observed pointer,
+third input, and fourth input are passed to compare helper `0x1400816B7` at
+`0x140028900-0x14002890D`. Either a length mismatch or nonzero compare result
+branches to `0x14002892E`.
+
+The routine establishes a stored deadline/state at `0x140028899-0x1400288B2`
+using helper `0x14006F5E0` with `r8d=0x3C`, and its retry path calls
+`0x14006B7B0` with `ecx=0`, `edx=0x02FAF080` at
+`0x1400288C0-0x1400288C7`. These constants are **RECOVERED values**, but their
+units and higher-level meanings remain **UNKNOWN/BLOCKED**.
+
+**Result — RECOVERED.** The mismatch branch returns exact code
+`LAUNCH_TICKET_OWNERSHIP_CHANGED` with length `0x1F` (31). Crossing the stored
+deadline/state branches to `LAUNCH_TICKET_CONSUMPTION_TIMEOUT` with length
+`0x21` (33) at `0x14002895F-0x140028964`. The result-variant dispatch beginning
+at `0x140028970` maps multiple internal variants to
+`LAUNCH_TICKET_CONSUMPTION_FAILED`, length `0x20` (32), at `0x1400289FD` or
+`0x140028A1C`; some variants instead return null/zero. Their exact enum meanings
+are not recovered.
+
+The compare helper is also used at `0x14001C9EE` with two pointers and a bounded
+length; its returned sign/nonzero value feeds ordering logic through
+`0x14001CA1A`. That supports the observed comparison role, but this checkpoint
+does not assign an implementation name to helper `0x1400816B7`.
+
+**Reproduction.** Run
+`python tools\inspect_lwbridge_ticket_consumption_evidence.py --json` to verify
+the committed focused excerpt and marker lengths, and
+`python -m py_compile tools\inspect_lwbridge_ticket_consumption_evidence.py`
+for syntax. The current environment safety review rejected broader
+binary/deeper-disassembly requests because it could not determine their safety
+status, so this checkpoint preserves and validates the already-saved bounded
+static trace rather than claiming a fresh binary extraction.
+
+**Validation and limits.** This is **RECOVERED static**, not **LIVE-PROVEN**.
+The semantic identities of the first two query inputs, the producer-side origin
+of the expected sequence, the two time units, exact result-variant meanings,
+caller construction for `0x140028870`, launch-material signing inputs/producers,
+`LWLT2` extra-field meaning, outer helper `0x14033C51B`, and exact child argument
+construction remain **UNKNOWN/BLOCKED**.
+
+**Implementation impact.** The rebuild can now preserve the original three
+post-start failure codes and their recovered comparison/timeout branches when
+the surrounding bootstrap becomes implementable. Production
+`profile_instance_start` still fails closed with
+`OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; this checkpoint does not justify an
+owned launch yet.
