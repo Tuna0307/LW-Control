@@ -4,6 +4,8 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
+Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for project-manager review 2: verified progress, four reproduced PM2 defects and ordered remaining work. The subject documents below retain technical evidence.
+
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
 3. [`lwbridge-architecture.md`](lwbridge-architecture.md) — recovered LWBridge application/runtime architecture.
@@ -14,8 +16,8 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Planning
 
-- [`../task.md`](../task.md) is the detailed implementation and acceptance specification for Overview + Map Data.
-- [`../TASKS.md`](../TASKS.md) is the concise current backlog.
+- [`../task.md`](../task.md) is the primary AI instruction file and full Overview + Map Data acceptance specification.
+- [`../BACKLOG.md`](../BACKLOG.md) is the current progress checklist, renamed from `TASKS.md`. Do not recreate the old name or duplicate the requirements.
 
 ## Visual and machine-readable evidence
 

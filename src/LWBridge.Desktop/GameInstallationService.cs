@@ -11,7 +11,9 @@ internal sealed record GameRootStatus(
     string? LauncherPath,
     string? GamePath,
     string? XluaPath,
-    bool? Is64Bit);
+    bool? Is64Bit,
+    string? GameMachine = null,
+    string? XluaMachine = null);
 
 internal sealed record GameProcessStatus(
     bool GameRunning,
@@ -69,11 +71,33 @@ internal sealed class GameInstallationService
 
         try
         {
-            bool is64 = IsPe64(game) && IsPe64(xlua);
+            PeArchitecture gameArchitecture = ReadArchitecture(game);
+            PeArchitecture xluaArchitecture = ReadArchitecture(xlua);
+            bool is64 = gameArchitecture.IsAmd64 && xluaArchitecture.IsAmd64;
             if (!is64)
-                return new(false, root, source, "GAME_ROOT_ARCH_UNSUPPORTED", launcher, game, xlua, false);
+                return new(
+                    false,
+                    root,
+                    source,
+                    "GAME_ROOT_ARCH_UNSUPPORTED",
+                    launcher,
+                    game,
+                    xlua,
+                    false,
+                    gameArchitecture.Display,
+                    xluaArchitecture.Display);
             using var _ = File.Open(game, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-            return new(true, root, source, null, launcher, game, xlua, true);
+            return new(
+                true,
+                root,
+                source,
+                null,
+                launcher,
+                game,
+                xlua,
+                true,
+                gameArchitecture.Display,
+                xluaArchitecture.Display);
         }
         catch (UnauthorizedAccessException)
         {
@@ -132,12 +156,18 @@ internal sealed class GameInstallationService
         catch { return null; }
     }
 
-    private static bool IsPe64(string path)
+    private static PeArchitecture ReadArchitecture(string path)
     {
         using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
         using var reader = new PEReader(stream, PEStreamOptions.LeaveOpen);
-        return reader.PEHeaders.PEHeader?.Magic == PEMagic.PE32Plus;
+        ushort machine = (ushort)reader.PEHeaders.CoffHeader.Machine;
+        bool pe32Plus = reader.PEHeaders.PEHeader?.Magic == PEMagic.PE32Plus;
+        return new PeArchitecture(
+            pe32Plus && machine == 0x8664,
+            $"0x{machine:X4}/{reader.PEHeaders.CoffHeader.Machine}/{(pe32Plus ? "PE32+" : "PE32")}");
     }
+
+    private sealed record PeArchitecture(bool IsAmd64, string Display);
 
     private static string? Normalize(string? path)
     {

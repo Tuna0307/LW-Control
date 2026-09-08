@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "type": "project-manager-review-2",
+  "baseRevision": "0664e0a0b38bfc37d7ff195a45bf30b56ec93825",
+  "scope": "Current foundation/SQLite work and documentation handoff; development checkpoint, not a release",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationFileSha256": {
+    ".github/workflows/csharp.yml": "d197af96cbb350dbecab79fec9ab2e7a96aba81744e1c8d73c07f78e3eeb245a",
+    "src/LWBridge.Desktop/GameInstallationService.cs": "d6f6ba44b07b39c1e9798b2b2d3eafc3b1e0362a13714a0a3b81dc0813e3e899",
+    "src/LWBridge.Desktop/INativeAsyncCommandService.cs": "fe37c100c450c4d6e03579058952c735c27a433e91850da8887edd14f4a4dbc7",
+    "src/LWBridge.Desktop/LWBridge.Desktop.csproj": "da535aeaa1bf03d5bddbea32eb128c777e745eac77a579ce73a72d64d1723c72",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "0acb3d7d83afba1d3e891badf0f7e9bab82a8782c8816bba5f6a503391e98647",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "64f2c906e46106473d393e052ce68f4cf5ffd474af083e9c23074da254983c7a",
+    "src/LWBridge.Desktop/LocalConfigStore.cs": "cf2b77589b4cf4510c035b76ceda115d79cbeb4f1bc31de6ad4b4430508f8b4b",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "13863a378b6c1d93388ef2a2211b4698e36e5d2ece0e8d77fa60480b6fd2e210",
+    "src/LWBridge.Desktop/MapDataStore.cs": "fc28b658062046350952781db6cf96ea6bb6284e3cdc7318e8ce401cc2cf5146",
+    "src/LWBridge.Desktop/NativeRequestExecutor.cs": "e7c8ee1320f792da6a4f2d68156f941171f4875d85e45117e29e869c2764e8a8",
+    "src/LWBridge.Desktop/NativeRequestRegistry.cs": "a34f4e59303f543f133042f41c63d96a95b29917275ac16e3a09616a0ad67f20",
+    "src/LWBridge.Desktop/NativeSubscriptionRegistry.cs": "09b5fb71edf84c067875e82e4dcf5e1697b715688c829573ab30376a34590c3c",
+    "src/LWBridge.Desktop/WebUi/assets/api-ClPPi2JT.js": "8b978e9fa87f412990be510ca567b1a74d2a1acb14ef637b15d65d1428337064",
+    "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js": "cbc2c2a6b4b9708c2a83133f475ea58c0bfd6fa2880354cb650867efef8c3a3e",
+    "src/LWBridge.Desktop/WebUi/local-providers.js": "d2cd06a32c84be30a83e20d95e3c830542adb15fa0fdd926814fa6b22dca06ea",
+    "src/LWBridge.Desktop/WebUi/preview-host.js": "d2bef937b20b083ee83d078098b0c00c62021b1911c5c96bd356bb33deb42dcd",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "441eebbb174de108719924c64bdb08311d330ea7338fa3c24b1144625303698a",
+    "tools/build_lwbridge_frontend.py": "b5784c24fa0f5be26149bd185383099f05c3fa8d08d835ed5ab2005ed7d6d13e",
+    "tools/check_lwbridge_live_transport.cjs": "50784ccfad4618932dc658dd18569130893a320ba040954b32d8437dc4395a60",
+    "tools/check_lwbridge_transport_boundary.cjs": "e9713e84dead292a6abfbc48d56e64ca85c198b821b73f26921670a82d664695"
+  },
+  "checks": {
+    "frontendIntegrity": "passed",
+    "releaseBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "standardBackendSuite": {
+      "passed": true,
+      "failures": [],
+      "suites": [
+        "profileRouting",
+        "persistence",
+        "requestLifetime",
+        "mapPersistence",
+        "mapContract"
+      ],
+      "postRenameRerun": true,
+      "verifyRealConfigUnchanged": true,
+      "installedDiagnosticOptional": true,
+      "gameRunning": false,
+      "launcherRunning": false
+    },
+    "nodeMissingNative": "passed",
+    "nodeTransportBoundary": "passed",
+    "nodeHarnessLimit": "Node runtime/VM tests do not execute a real WebView host",
+    "fixtureCaptures": [
+      {
+        "view": "overview",
+        "passed": true,
+        "imageSha256": "38ea706407442fcef3bff3f91ad2418b2bb9dd999f8d9ace8cbfd85d46fde8b9"
+      },
+      {
+        "view": "automation",
+        "passed": true,
+        "imageSha256": "4e92c284ca9cd2fe4f42fbea0f9d1e25dfd43a9595687aa0d1eaf036b6480412"
+      },
+      {
+        "view": "map-data",
+        "passed": true,
+        "imageSha256": "cff1b54fda18156d59ea45219f3857fb16cadf8b6ee39db6dbbff4dbb416dbf2"
+      },
+      {
+        "view": "march",
+        "passed": true,
+        "imageSha256": "e691ca7e1df60411ea667b07ab040fbe5705da9a53c8e76c9a49fa67aa225ffb"
+      },
+      {
+        "view": "city-layout",
+        "passed": true,
+        "imageSha256": "302bd363c04f147196332ad9e9bf7f53ade9a0d314eb0131a79610f73574c9d8"
+      },
+      {
+        "view": "hotkeys",
+        "passed": true,
+        "imageSha256": "c075350ace0704165f029a7c7815e9e25dc62d33a76dad643f746a273e1e8c87"
+      },
+      {
+        "view": "mini-games",
+        "passed": true,
+        "imageSha256": "ce578872f12ac90f5c47a62b041852af9e43b0db78534e2baf0dae7d83e25e54"
+      },
+      {
+        "view": "advanced",
+        "passed": true,
+        "imageSha256": "ceab490b38d9e48f3674728ce5c270fd59730cb0aa676878c61b9911fc7165bd"
+      },
+      {
+        "view": "settings",
+        "passed": true,
+        "imageSha256": "c7dbd263f07c52b5b3556db6310c8ee438bc6bd5a81d20eba84a76eb76334446"
+      }
+    ],
+    "captureConfigIsolation": {
+      "before": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9",
+      "unchanged": true,
+      "after": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9"
+    },
+    "sourceReferenceBrowser": {
+      "checksPassed": 35,
+      "syntheticNativeResponses": true,
+      "pixelPairs": 32,
+      "identicalPairs": 32,
+      "maxMae": 0,
+      "maxHighDeltaRate": 0
+    },
+    "pythonInspectorSyntax": {
+      "files": 5,
+      "passed": true,
+      "runtimeInspectorsRerun": false
+    },
+    "independentEdgeCaseAudit": {
+      "command": "dotnet run --project evidence/lwbridge-implementation/pm-review-2-repro/Audit.csproj --configuration Release",
+      "knownFailures": 4,
+      "note": "Standalone diagnostic exit 0 only means report produced; inspect each passed property. These defects remain unresolved.",
+      "results": [
+        {
+          "id": "PM2-01",
+          "scenario": "backend partial save preserves another owner's committed AutoReconnect",
+          "expected": true,
+          "actual": false,
+          "passed": false
+        },
+        {
+          "id": "PM2-02",
+          "scenario": "missing primary with valid backup preserves profile identity",
+          "expected": true,
+          "actual": false,
+          "passed": false
+        },
+        {
+          "id": "PM2-03",
+          "scenario": "foreign-owner primary with valid backup is not automatically replaced",
+          "actual": "loaded-backup-and-replaced-primary",
+          "primaryPreserved": false,
+          "passed": false
+        },
+        {
+          "id": "PM2-04",
+          "scenario": "noncooperative operation returns after close",
+          "actual": "ObjectDisposedException",
+          "passed": false
+        }
+      ]
+    }
+  },
+  "planning": {
+    "primaryInstructions": "task.md",
+    "progressChecklist": "BACKLOG.md",
+    "renamedFrom": "TASKS.md",
+    "fullAcceptanceCases": 47,
+    "fullCasesNewlySignedOff": 0,
+    "next": [
+      "PM2-01",
+      "PM2-02",
+      "PM2-03",
+      "PM2-04",
+      "remaining R3/R4 native-host verification",
+      "R5 launch contract and R6 offline map work"
+    ]
+  },
+  "liveGameSideEffectsPerformed": false,
+  "productionWebViewMatrix": "not run in review 2; remains open",
+  "cleanup": "Prior tracked legacy cleanup retained; no external archive or scratch deletion in this review"
+}

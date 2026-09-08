@@ -19,6 +19,12 @@ jobs:
         run: python tools/build_lwbridge_frontend.py --check
       - name: Build LWBridge desktop application
         run: dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release
+      - name: Run deterministic backend and transport checks
+        run: dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release
+      - name: Verify requested live mode never falls through to fixtures
+        run: node tools/check_lwbridge_live_transport.cjs
+      - name: Verify browser/native session and profile routing boundaries
+        run: node tools/check_lwbridge_transport_boundary.cjs
       - name: Capture all recovered desktop feature pages
         shell: pwsh
         run: ./tools/capture_lwbridge_ui.ps1
@@ -35,4 +41,4 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/compare_lwbridge_frontend.py
       - name: Compile LWBridge recovery inspectors
-        run: python -m py_compile tools/inspect_lwbridge_injection.py tools/inspect_lwbridge_map_scan.py tools/inspect_lwbridge_proxy_map_scan.py
+        run: python -m py_compile tools/build_lwbridge_frontend.py tools/inspect_lwbridge_injection.py tools/inspect_lwbridge_map_scan.py tools/inspect_lwbridge_proxy_map_scan.py tools/inspect_official_runtime.py

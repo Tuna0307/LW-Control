@@ -48,10 +48,14 @@ function Xt({children}) {
         autoLaunchGame,
         setAutoLaunchGame: value => {
             const enabled = !!value;
+            const previous = autoLaunchGame;
             setAutoLaunch(enabled);
             if (live) {
                 window.LWBridgePreview.invoke('local_config_set', {autoLaunchGame: enabled})
-                    .catch(error => setProfileLaunchErrors([String(error?.message || error)]));
+                    .catch(error => {
+                        setAutoLaunch(previous);
+                        setProfileLaunchErrors([String(error?.message || error)]);
+                    });
             } else {
                 localStorage.setItem('lwbridge.autoLaunchGame', String(enabled));
             }

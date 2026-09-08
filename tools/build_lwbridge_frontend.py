@@ -46,9 +46,9 @@ def build(check=False):
         if path.name == 'api-ClPPi2JT.js':
             s = data.decode('utf-8')
             s = replace_between(s, 'function U(e,t){', 'function W(e,t){',
-                'function U(e,t){return window.LWBridgePreview.invoke(e,t)}')
+                'function U(e,t){let n=T(),r=t&&typeof t==`object`&&!Array.isArray(t)?{...t}:t==null?{}:{value:t};return n&&!(`profileId`in r)&&(r.profileId=n),window.LWBridgePreview.invoke(e,r)}')
             s = replace_between(s, 'function W(e,t){', 'function G(e){',
-                'function W(e,t){return window.LWBridgePreview.listen(e,t)}')
+                'function W(e,t){return window.LWBridgePreview.listen(e,e=>{let n=e;if(n&&typeof n==`object`&&`profileId`in n&&`payload`in n){if(n.profileId!==T())return;t(n.payload);return}t(n)})}')
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')

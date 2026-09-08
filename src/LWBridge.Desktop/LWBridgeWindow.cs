@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Text.Json;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -17,7 +16,17 @@ internal sealed class LWBridgeWindow : Form
         "bridge://game-recovery",
         "bridge://update-status",
         "bridge://feedback-export-progress",
+        "bridge://player-mark-changed",
     ];
+    private static readonly HashSet<string> ProfileScopedEvents = new(StringComparer.Ordinal)
+    {
+        "bridge://status",
+        "bridge://map-scan-status",
+        "bridge://automation-status",
+        "bridge://resource-automation-status",
+        "bridge://game-recovery",
+        "bridge://player-mark-changed",
+    };
 
     private readonly string? capturePath;
     private readonly string? liveProbePath;
@@ -25,9 +34,11 @@ internal sealed class LWBridgeWindow : Form
     private readonly string? language;
     private readonly string? theme;
     private readonly string sessionId = Guid.NewGuid().ToString("N");
-    private readonly LWBridgeBackend backend = new();
-    private readonly HashSet<string> subscriptions = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, CancellationTokenSource> activeRequests = new(StringComparer.Ordinal);
+    private readonly LWBridgeBackend backend;
+    private readonly MapDataStore mapData;
+    private readonly NativeSubscriptionRegistry subscriptions = new(EventAllowlist);
+    private readonly NativeRequestExecutor activeRequests = new();
+    private bool sessionClosed;
     private readonly WebView2 webView = new()
     {
         Dock = DockStyle.Fill,
@@ -43,6 +54,14 @@ internal sealed class LWBridgeWindow : Form
         this.initialView = initialView;
         this.language = language;
         this.theme = theme;
+        bool isolated = capturePath is not null || liveProbePath is not null;
+        var config = new LocalConfigStore(persistent: !isolated);
+        mapData = isolated
+            ? MapDataStore.CreateInMemory()
+            : new MapDataStore(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
+        backend = new LWBridgeBackend(config, mapData: mapData);
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
@@ -51,6 +70,7 @@ internal sealed class LWBridgeWindow : Form
         BackColor = Color.FromArgb(245, 245, 247);
         Controls.Add(webView);
         Shown += OnShown;
+        FormClosed += OnFormClosed;
     }
 
     private async void OnShown(object? sender, EventArgs e)
@@ -67,7 +87,8 @@ internal sealed class LWBridgeWindow : Form
             core.Settings.AreDevToolsEnabled = false;
             core.Settings.IsStatusBarEnabled = false;
             string bootstrapJson = JsonSerializer.Serialize(
-                backend.GetBootstrap(capturePath is not null, sessionId), JsonOptions.Default);
+                backend.GetBootstrap(capturePath is not null, sessionId, suppressAutoLaunch: liveProbePath is not null),
+                JsonOptions.Default);
             await core.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.__LWBridgeBootstrap=" + bootstrapJson + ";");
             core.SetVirtualHostNameToFolderMapping("lwbridge.local", Path.Combine(AppContext.BaseDirectory, "WebUi"), CoreWebView2HostResourceAccessKind.DenyCors);
@@ -195,6 +216,7 @@ internal sealed class LWBridgeWindow : Form
 
     private async void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs args)
     {
+        if (sessionClosed) return;
         if (capturePath is not null) return;
         if (!args.Source.StartsWith(UiOrigin + "/", StringComparison.OrdinalIgnoreCase)) return;
 
@@ -220,16 +242,16 @@ internal sealed class LWBridgeWindow : Form
             switch (kind)
             {
                 case "listen":
-                    if (TryGetString(root, "event", out string? eventName) && eventName is not null && EventAllowlist.Contains(eventName))
-                        subscriptions.Add(eventName);
+                    if (TryGetString(root, "event", out string? eventName) && eventName is not null)
+                        subscriptions.Listen(eventName);
                     return;
                 case "unlisten":
                     if (TryGetString(root, "event", out string? removeEvent) && removeEvent is not null)
-                        subscriptions.Remove(removeEvent);
+                        subscriptions.Unlisten(removeEvent);
                     return;
                 case "cancel":
-                    if (TryGetString(root, "id", out string? cancelId) && cancelId is not null && activeRequests.TryGetValue(cancelId, out var request))
-                        request.Cancel();
+                    if (TryGetString(root, "id", out string? cancelId) && cancelId is not null)
+                        activeRequests.Cancel(cancelId);
                     return;
                 case "invoke":
                     break;
@@ -247,27 +269,29 @@ internal sealed class LWBridgeWindow : Form
             JsonElement payload = root.TryGetProperty("payload", out JsonElement supplied)
                 ? supplied.Clone()
                 : EmptyObject();
-            var cts = new CancellationTokenSource();
-            if (!activeRequests.TryAdd(id, cts))
-            {
-                cts.Dispose();
-                SendError(id, "DUPLICATE_REQUEST_ID", "A request with this id is already active.");
-                return;
-            }
-
             try
             {
-                object? result = command == "game_root_select"
-                    ? SelectGameRoot()
-                    : await backend.InvokeAsync(command, payload, cts.Token);
-                cts.Token.ThrowIfCancellationRequested();
-                SendResult(id, result);
+                NativeRequestExecution execution = await activeRequests.ExecuteAsync(id, cancellationToken =>
+                    command == "game_root_select"
+                        ? Task.FromResult(SelectGameRoot())
+                        : backend.InvokeAsync(command, payload, cancellationToken));
+                if (execution.Status == NativeRequestExecutionStatus.Rejected)
+                {
+                    if (!sessionClosed)
+                        SendError(id, "DUPLICATE_REQUEST_ID", "A request with this id is already active or the native session is closing.");
+                    return;
+                }
+                if (execution.Status == NativeRequestExecutionStatus.Cancelled)
+                {
+                    SendError(id, "COMMAND_CANCELLED", "The command was cancelled.");
+                    return;
+                }
+                if (sessionClosed) return;
+                SendResult(id, execution.Result);
+                if (command == "map_player_mark_set")
+                    SendEvent("bridge://player-mark-changed", execution.Result);
                 if (command is "game_root_select" or "set_automation" or "local_config_set")
                     EmitOverviewState();
-            }
-            catch (OperationCanceledException)
-            {
-                SendError(id, "COMMAND_CANCELLED", "The command was cancelled.");
             }
             catch (BridgeCommandException ex)
             {
@@ -276,11 +300,6 @@ internal sealed class LWBridgeWindow : Form
             catch (Exception ex)
             {
                 SendError(id, "NATIVE_COMMAND_FAILED", ex.Message);
-            }
-            finally
-            {
-                activeRequests.TryRemove(id, out _);
-                cts.Dispose();
             }
         }
     }
@@ -310,8 +329,8 @@ internal sealed class LWBridgeWindow : Form
     {
         if (subscriptions.Contains("bridge://status"))
         {
-            using JsonDocument empty = JsonDocument.Parse("{}");
-            object? status = backend.InvokeAsync("get_status", empty.RootElement.Clone(), CancellationToken.None)
+            using JsonDocument scoped = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = backend.ProfileId }, JsonOptions.Default));
+            object? status = backend.InvokeAsync("get_status", scoped.RootElement.Clone(), CancellationToken.None)
                 .GetAwaiter().GetResult();
             SendEvent("bridge://status", status);
         }
@@ -337,18 +356,35 @@ internal sealed class LWBridgeWindow : Form
         error = new { code, message, details },
     });
 
-    private void SendEvent(string eventName, object? payload) => SendMessage(new
+    private void SendEvent(string eventName, object? payload)
     {
-        kind = "event",
-        sessionId,
-        @event = eventName,
-        payload,
-    });
+        object eventPayload = ProfileScopedEvents.Contains(eventName)
+            ? new { profileId = backend.ProfileId, payload }
+            : payload ?? new { };
+        SendMessage(new
+        {
+            kind = "event",
+            sessionId,
+            @event = eventName,
+            payload = eventPayload,
+        });
+    }
 
     private void SendMessage(object message)
     {
+        if (sessionClosed) return;
         if (webView.CoreWebView2 is null) return;
         webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(message, JsonOptions.Default));
+    }
+
+    private void OnFormClosed(object? sender, FormClosedEventArgs e)
+    {
+        sessionClosed = true;
+        subscriptions.Close();
+        activeRequests.Close();
+        mapData.Dispose();
+        if (webView.CoreWebView2 is not null)
+            webView.CoreWebView2.WebMessageReceived -= OnWebMessageReceived;
     }
 
     private static bool TryGetString(JsonElement element, string name, out string? value)

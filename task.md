@@ -1,6 +1,20 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
-Prepared: 2026-09-08. This is the focused implementation and acceptance specification for the current LWBridge Overview + Map Data work. Use `docs/README.md` for the durable evidence reading order and `TASKS.md` for the concise backlog.
+Prepared: 2026-09-08; updated by project-manager review 2. **This is the primary AI instruction and full acceptance file.** Use `docs/README.md` for the evidence reading order and [BACKLOG.md](BACKLOG.md) for current progress/next actions. The checklist was previously called `TASKS.md`; it has been renamed to remove the ambiguity. Do not create another task specification.
+
+## Current project-manager handoff — read before starting
+
+Reviewed implementation: base `0664e0a0b38bfc37d7ff195a45bf30b56ec93825` plus the current foundation/SQLite changes, 2026-09-08. See [review 2 project status](docs/lwbridge-project-status.md) and its source-hash evidence for the exact reviewed snapshot. **Continue the existing implementation; do not restart the UI or repeat completed cleanup.**
+
+- **Completed foundation:** recovered login-free UI and deterministic generation/captures; initial real JS↔C# transport; local profile/preference storage; installation/process inspection; scan-input normalization; static and read-only runtime evidence.
+- **Foundation update:** R1 routing/envelope checks and standard persistence/cooperative request-lifetime suites pass. R2/R3 are still partial: independent PM2-01–04 reproductions found backend lost updates, missing-primary identity reset, incompatible-primary replacement from backup, and `ObjectDisposedException` on a late return after shutdown. Fix these first and add regression coverage. See the audit for exact steps.
+- **Next host work:** synchronous handlers still need nonblocking execution; actual document reload/session invalidation and controlled production-WebView tests remain. Existing Node VM/console checks are not native UI proof. AMD64 machine validation is implemented; exact xLua ABI selection is not.
+- **Critical path:** R5 recovers the exact launch bootstrap and implements owned launch/close, fresh bridge readiness, startup launch and reconnect/recovery. The current start command deliberately rejects; stored preferences are not working lifecycle features.
+- **Parallel map work:** R6 now has a recovered SQLite schema, explicit-key storage, persistent marks, server-scoped clear and restart tests. Preserve this work. Finish queries/options/counts/export and per-kind keys/normalization; add run publication and stale-generation protection. Do not park all Map Data work behind launch research. Real capture/completeness still requires R5/R7 and current-client evidence.
+- **Then:** R7 real manual scan, R8 automatic scanning/server travel, R9 conditional actions/jobs, R10 integrated acceptance. None of the 47 complete acceptance cases below is signed off by this foundation audit; individual subchecks pass, but each full case needs its own evidence/status.
+- **Cleanup accepted:** old tracked implementation was removed. Preserve current LWBridge code/evidence. The external old archive and historical Git/scratch material are excluded authorities, not reasons to restore legacy code.
+
+Standard verification passes; four additional audit expectations fail. Both results must be reported. No complete case in the 47-case matrix is newly signed off by review 2. Follow the ordered unchecked items in [BACKLOG.md](BACKLOG.md); preserve all detailed requirements below.
 
 ## 1. The user's requested outcome
 
@@ -60,12 +74,12 @@ Recheck Git status and the reference hash before modifying code. Preserve the cu
 
 The rebuild now has a real native backend foundation, but the complete game lifecycle and Map Data backend are not finished.
 
-- WebView2 uses a real JS↔C# RPC boundary with request/session IDs, origin validation, structured errors, cancellation, and event subscriptions.
-- Stable local profile/configuration, game-root validation, process inspection, and startup/reconnect preferences are implemented.
+- WebView2 has real profile/session RPC and a shared request executor. Cooperative service and Node transport tests pass, but PM2-04 exposes late-return disposal failure; actual document reload and synchronous UI-thread work remain R3/R4. Do not infer native host lifetime correctness from the console harness.
+- Local profile/preferences and basic installation checks are implemented. Durable writes and isolated storage pass baseline checks; PM2-01–03 reopen backend partial-update and backup/owner-recovery acceptance. Exact bridge ABI compatibility and final production-WebView verification remain R4/R5.
 - Production status distinguishes process existence from bridge readiness; an unmanaged running game is not reported as connected.
 - `profile_instance_start` remains intentionally blocked until the recovered launch-envelope/proof/ticket bootstrap contract is complete.
 - Map Scan request normalization is implemented, but production scan execution remains blocked until a verified bridge-ready session and native capture pipeline exist.
-- Fixture/capture behavior remains separate and cannot fall through to the live backend.
+- Fixture game-command handling does not fall through to the live backend. Capture/read-only verification uses isolated config storage, and requested live mode fails visibly with `NATIVE_TRANSPORT_MISSING` when native transport is absent. Final controlled production-WebView smoke/error coverage remains R4.
 
 Do not convert a fail-closed command into success until the corresponding runtime operation and authoritative post-state are implemented and verified.
 
@@ -82,7 +96,7 @@ All paths below are relative to the workspace root unless explicitly absolute.
 | `docs/lwbridge-artifact-evidence.json` | Supporting static artifact evidence; inspect its actual contents |
 | `docs/official-runtime-architecture.md` | Current installed Last War runtime/launcher baseline and read-only evidence |
 | `docs/README.md` | Documentation reading order and evidence map |
-| `TASKS.md` | Broader recovery backlog; preserve unrelated items |
+| `BACKLOG.md` | Broader recovery backlog; preserve unrelated items |
 | `evidence/lwbridge-0.3.1/frontend/manifest.sha256.txt` | Integrity manifest for immutable extracted UI assets |
 | `evidence/lwbridge-0.3.1/frontend/assets/index-sfL2sT3K.js` | Overview, shared header, navigation, status refresh, profile use, auto-scan orchestration |
 | `evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js` | All Map Data controls, data queries, row actions, conditional states, export, jobs |
@@ -90,8 +104,19 @@ All paths below are relative to the workspace root unless explicitly absolute.
 | `evidence/lwbridge-0.3.1/frontend/assets/index-C5e98iqj.css` | Original visual authority; do not redesign it |
 | `evidence/lwbridge-0.3.1/frontend/assets/en-CglaO9J7.js` and `zh-CN-L1LjMs4w.js` | UI labels, errors, and feature terminology |
 | `src/LWBridge.Desktop/LWBridgeWindow.cs` | Native host integration point, startup, navigation restrictions, capture path |
+| `src/LWBridge.Desktop/LWBridgeBackend.cs` | Current command handlers, deliberate unsupported gates, status placeholders and scope validation |
+| `src/LWBridge.Desktop/LocalConfigStore.cs` | Profile/root/preference persistence; audited save/load recovery gaps |
+| `src/LWBridge.Desktop/GameInstallationService.cs` | Installation/process checks and remaining compatibility/ownership work |
+| `src/LWBridge.Desktop/MapScanContract.cs` | Already implemented selected-type/mode normalization; preserve its recovered behavior |
+| `tests/LWBridge.Desktop.Checks/Program.cs` | Deterministic foundation/map checks now run in CI; optional installed-game diagnostics; extend with PM2 regression cases |
+| `src/LWBridge.Desktop/NativeRequestExecutor.cs` and `NativeRequestRegistry.cs` | Cooperative request lifetime foundation; PM2-04 disposal gap and remaining actual document lifetime work |
+| `src/LWBridge.Desktop/MapDataStore.cs` and `MapDataQueryContract.cs` | Existing SQLite schema, explicit-key records/marks/clear and query-envelope validation; preserve and extend |
+| `tools/check_lwbridge_live_transport.cjs` and `check_lwbridge_transport_boundary.cjs` | Node runtime tests for requested live mode, generated profile wrappers and browser-side protocol behavior |
+| `evidence/lwbridge-implementation/pm-review-2-repro/` | Independent reproducer for the four confirmed PM2 defects; separate from the passing standard suite |
+| `docs/lwbridge-project-status.md` | Dated audit, R1–R10 remaining work, dependencies and exit criteria |
+| `docs/lwbridge-feature-ledger.md` | Current S/O/M implementation and proof status |
 | `src/LWBridge.Desktop/WebUi/local-providers.js` | Current local profile/startup state; production needs genuine stable runtime association |
-| `src/LWBridge.Desktop/WebUi/preview-host.js` | Current mocks and local configuration boundary to isolate from production |
+| `src/LWBridge.Desktop/WebUi/preview-host.js` | Existing live RPC and separate fixture adapter; audit mode selection, profile/event routing and lifetime |
 | `src/LWBridge.Desktop/WebUi/presentation.css` | Existing 54 px header-height adjustment after removing the account button |
 | `tools/build_lwbridge_frontend.py` | Repeatable transformations; generated files must stay reproducible |
 | `tools/inspect_lwbridge_injection.py` | Existing static bootstrap inspector |
@@ -131,9 +156,9 @@ For authorized live work: capture before-state, use a bounded attempt, capture r
 
 ## 5. Production integration required across both pages
 
-### 5.1 Replace the preview transport with a real command/event adapter
+### 5.1 Complete the existing real command/event adapter
 
-Design a typed native service boundary compatible with the recovered frontend contract. Reuse the current .NET/WebView2 shell unless evidence establishes a concrete reason to change hosts. Do not migrate the entire application merely to avoid implementing an adapter.
+Extend the existing native service boundary to satisfy the recovered frontend contract. The transport foundation already exists; use the R1–R4 findings instead of replacing it from scratch. Reuse the current .NET/WebView2 shell unless evidence establishes a concrete reason to change hosts.
 
 The adapter must provide:
 
@@ -503,6 +528,8 @@ Do not mark a whole command family complete because one member works. List each 
 
 ### Milestone A — Inventory and recovery plan
 
+Current status: baseline inventory, UI reproduction, initial matrix, static/runtime evidence and tracked cleanup are complete. Refresh changed state only. Continue missing per-command contracts and the R1–R10 implementation queue; do not spend another batch recreating the inventory.
+
 - Inventory actual workspace/index, current processes, runtime files, reference hash, installed game build, and existing evidence.
 - Read applicable repository guidance. Identify stale documentation and distinguish it from current files.
 - Record baseline build/UI checks before changes that might affect them.
@@ -512,6 +539,8 @@ Do not mark a whole command family complete because one member works. List each 
 This is a checkpoint, not permission to stop after producing a plan.
 
 ### Milestone B — Real host services and Overview lifecycle
+
+Current status: foundation partially implemented; lifecycle remains blocked/unimplemented. Finish R1–R4 and R5. R6 offline map work can proceed in parallel as contracts become available.
 
 - Implement the validated command/event boundary and isolate fixture mode.
 - Implement installation selection, stable local instance identity, owned launch/stop, status, startup preference, and bounded reconnect/repair behavior.
@@ -730,4 +759,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read this file, inspect the actual current workspace and the source map in Section 3, and start Milestone A followed by the real Overview/backend work. Maintain progress toward the full acceptance matrix. Do not ask the user to re-explain which pages are in scope, rebuild the visual shell from scratch, or spend the assignment working on unrelated navigation pages.
+Read this checkpoint, `docs/lwbridge-project-status.md`, and `BACKLOG.md`. Recheck changed workspace/evidence state. First reproduce/fix PM2-01–04 and add regression coverage; then complete remaining R3/R4 host verification. Continue R5 launch-contract research and R6 offline query/export work independently where supported. Update exact checks, feature status and remaining unknowns after each batch. Preserve the 47-case acceptance matrix. Do not recreate `TASKS.md`, restart Milestone A, rebuild the visual shell, restore deleted legacy code, or spend this assignment on unrelated pages.

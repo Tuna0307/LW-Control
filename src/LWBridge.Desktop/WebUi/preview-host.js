@@ -8,7 +8,8 @@
     const query = new URLSearchParams(location.search);
     const bootstrap = window.__LWBridgeBootstrap || {};
     const nativeWebView = window.chrome?.webview;
-    const live = bootstrap.mode === 'live' && !!nativeWebView;
+    const liveRequested = bootstrap.mode === 'live';
+    const live = liveRequested && !!nativeWebView;
     const views = ['overview', 'automation', 'map-data', 'march', 'city-layout', 'hotkeys', 'mini-games', 'advanced', 'settings'];
     const language = query.get('language');
     if (language) localStorage.setItem('lwbridge.language', language);
@@ -74,7 +75,7 @@
         id: `local-${i + 1}`, displayName: `Profile ${i + 1}`, roleName: '', serverId: 0,
         enabled: true, note: '', connectionState: 'offline'
     }));
-    const profiles = live && bootstrap.profiles
+    const profiles = liveRequested && bootstrap.profiles
         ? clone(bootstrap.profiles)
         : {selectedProfileId: syntheticProfiles[0].id, profiles: syntheticProfiles};
 
@@ -117,6 +118,11 @@
     }
 
     function liveInvoke(command, payload) {
+        if (!nativeWebView) {
+            const error = new Error('Native WebView transport is unavailable in live mode.');
+            error.code = 'NATIVE_TRANSPORT_MISSING';
+            return Promise.reject(error);
+        }
         const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
         const timeoutMs = command === 'profile_instance_start' || command === 'profile_instances_update_and_restart'
             ? 360000 : 30000;
@@ -151,7 +157,7 @@
     }
 
     window.LWBridgePreview = {
-        mode: live ? 'live' : 'fixture',
+        mode: liveRequested ? 'live' : 'fixture',
         view: views.includes(query.get('view')) ? query.get('view') : 'overview',
         profiles,
         calls,
@@ -174,9 +180,9 @@
         async invoke(command, payload = {}) {
             recordCall(command);
             try {
-                return live ? await liveInvoke(command, payload) : await fixtureInvoke(command, payload);
+                return liveRequested ? await liveInvoke(command, payload) : await fixtureInvoke(command, payload);
             } catch (error) {
-                if (live) failures.push(`${command}: ${error.code || ''} ${error.message}`.trim());
+                if (liveRequested) failures.push(`${command}: ${error.code || ''} ${error.message}`.trim());
                 throw error;
             }
         }

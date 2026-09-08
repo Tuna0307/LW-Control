@@ -5,6 +5,17 @@ original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
+## Project-manager review 2 — `0664e0a` plus foundation/SQLite changes (2026-09-08)
+
+See [the source audit and R1–R10 exit criteria](lwbridge-project-status.md). The tables below credit implemented slices only: no complete Overview lifecycle or production Map Data workflow is LIVE-PROVEN. Milestone A environment hashes below are the earlier recorded baseline, not a fresh runtime fingerprint from this review.
+
+- R1 generated routing and cooperative request/persistence checks pass. R2/R3 are **partial**: independent PM2-01–04 reproduce backend lost updates, missing-primary identity reset, incompatible-primary backup replacement and a disposed-token exception after close. Fix those before closing the foundation gates; actual WebView reload, UI responsiveness and production-mode tests remain R3/R4.
+- O04/O05 currently save preferences only. O02 start rejects; O03 stop rejects; O06 recovery is constant idle state. `profile_instances_reconcile` is a status read, not startup launch.
+- Map start only normalizes/rejects. Map stop returns unavailable state; it has no running service to cancel. Summary zeroes describe unavailable storage, not a successful empty scan.
+- Server-jump history is now validated/persisted per local profile. Localization still returns an empty dictionary and logging is a no-op. Do not mark those dependencies complete based on successful RPC responses.
+- M03/M05–M09 and durable job-store portions can be recovered/implemented/tested offline during R5 bootstrap research. Their end-to-end/live acceptance remains open; “blocked” must not prevent independent offline work.
+- Fresh review 2 checks: source/hash, Release build, deterministic console checks, Node transport checks, nine fixture captures and 35 source-reference browser checks passed; all 32 pixel pairs were identical. Four additional expected properties failed. See [current audit record](../evidence/lwbridge-implementation/2026-09-08-pm-review-2.json); prior evidence remains historical.
+
 ## Milestone A environment evidence
 
 | Item | Current evidence |
@@ -27,9 +38,9 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 | S03 Refresh Status | status + proxy + recovery calls; recovered frontend also uses allowlisted `call_lua("getStatus", ...)` | PARTIAL IMPLEMENTED | Real local status calls route through native RPC. Current runtime `getStatus` call is BLOCKED on bridge bootstrap. |
 | S04 Theme | original local UI state + `set_window_theme` | IMPLEMENTED/OFFLINE-TESTED | Existing fixture captures remain clean after native adapter integration. |
 | S05 Language | nine recovered bundles + `lastwar_localize` | PARTIAL | Nine UI bundles preserved. Runtime-derived names remain BLOCKED until live bridge/localization path is available. |
-| S06 Cross-server | `server_jump({serverId})`, history commands | RECOVERED API / BLOCKED | UI contract recovered; authoritative current-server travel and conflict handling not implemented. |
+| S06 Cross-server | `server_jump({serverId})`, history commands | PARTIAL IMPLEMENTED / BLOCKED live travel | Recovered history migration/set contract is persisted per local profile: integer server IDs 1–99999, unique, capped at five. Authoritative current-server travel and conflict handling remain unimplemented. |
 | S07 Navigation | recovered React `Activity` views/listeners | IMPLEMENTED/OFFLINE-TESTED foundation | All nine deterministic desktop captures pass after adapter integration. Live scheduler ownership still needs audit. |
-| O01 Game root | `game_root_status()`, `game_root_select()` | IMPLEMENTED/OFFLINE-TESTED | Validates official launcher, game exe, original xLua, PE32+ architecture, readability; detects current installed root; invalid selection is not persisted. UI folder picker is native. |
+| O01 Game root | `game_root_status()`, `game_root_select()` | PARTIAL IMPLEMENTED/OFFLINE-TESTED | Detects installed root and checks required files plus AMD64 (`0x8664`) PE32+ for game/xLua. Native folder picker exists. Exact xLua export ABI/secure-vs-plain compatibility remains R5. |
 | O02 Launch Game | `profile_instance_start({profileId,closeUnmanaged:true})` | RECOVERED API / UNKNOWN-BLOCKED bootstrap | Original staged launcher/hook/proxy sequence recovered. Official `Launcher.log` now independently proves manifest/table/Lua/pack verification precedes current-style game launches and records graceful relaunch preparation. Exact descriptor/proof/ticket decoding and official command-line/environment contract remain open. Rebuild fails closed with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; no shortcut launch. |
 | O03 Close Game | `profile_instance_stop({profileId,instanceId})` | RECOVERED API / BLOCKED | No owned instance exists yet; rebuild refuses to stop an unmanaged game. Ownership/cleanup comes after O02. |
 | O04 Launch at app startup | original default on unless stored false; reconcile/start lifecycle | PARTIAL IMPLEMENTED | Preference is now persisted by native config and fixture mode always ignores live startup. Reconcile currently does not launch until O02 is complete. |
@@ -42,12 +53,12 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 |---|---|---|---|
 | M01 Start/stop/mode/type selection | `map_scan_start(payload)`, `map_scan_stop()` | RECOVERED API / BLOCKED | Bridge-ready runtime and exact scan payload/state ownership. |
 | M02 Native capture | proxy/native map capture path | RECOVERED architecture / BLOCKED | Current-client capture records and handler correlation. |
-| M03 Typed persistent index | map index service | UNKNOWN/BLOCKED | Recover per-kind authoritative schemas and stable identity/removal rules. |
+| M03 Typed persistent index | map index service | RECOVERED SCHEMA / IMPLEMENTED-OFFLINE-TESTED FOUNDATION | Original SQLite tables/indexes and stored identity `(kind,server_id,record_key)` are recovered and reproduced. Restart/upsert/clear tests pass. Per-kind native `record_key` derivation and full normalization remain UNKNOWN/BLOCKED. |
 | M04 Progress/failure/stop/resume | `map_scan_status`, `bridge://map-scan-status` | RECOVERED API / BLOCKED | Current run identity, checkpoint, drain/commit completion gates. |
-| M05 Clear | `map_scan_clear({serverId})` | RECOVERED API / BLOCKED | Transactional per-server store implementation and late-response rejection. |
-| M06 Result tabs/actions | `map_data_options`, `map_search` plus conditional commands | RECOVERED API / BLOCKED | Per-kind column/row semantics and live representative samples. |
-| M07 Search/filter/sort/page/live refresh | `map_search({kind,query})` | RECOVERED API / BLOCKED | Typed query schema, stable sorting and stale-response suppression. |
-| M08 Mark/unmark | `map_player_mark_set` | RECOVERED API / BLOCKED | Persistence identity behavior across rescan/restart/relocate. |
+| M05 Clear | `map_scan_clear({serverId})` | IMPLEMENTED/OFFLINE-TESTED SLICE | Backend/store transaction deletes selected-server scan runs and records, preserving marks and other servers; tests pass. Active-run cancellation, generation/late-response rejection and failure/restart cases remain open. |
+| M06 Result tabs/actions | `map_data_options`, `map_search` plus conditional commands | PARTIAL OFFLINE CONTRACT / BLOCKED index | Expected options/result shapes and visible per-kind field vocabulary are now recorded from the verified frontend. Authoritative persistent row identity/update/removal rules and live representative samples remain open. |
+| M07 Search/filter/sort/page/live refresh | `map_search({kind,query})` | PARTIAL OFFLINE CONTRACT / QUERY UNIMPLEMENTED | Eight kinds, required server scope, page 1 default, frontend page size 50 and ordered sorts are validated. SQLite exists, but options/search handlers still reject `MAP_INDEX_UNAVAILABLE`; filters, real query/sorting/paging and stale-result suppression remain open. |
+| M08 Mark/unmark | `map_player_mark_set`, `bridge://player-mark-changed` | IMPLEMENTED/OFFLINE-TESTED | Original mark key `(server_id,owner_uid)`, upsert/delete, clear-survival and frontend refresh event are recovered and reproduced. Live player-tracker relocation/state transitions remain unproven. |
 | M09 Export | `map_city_export` | RECOVERED API / BLOCKED | Full filtered snapshot export and reopen verification. |
 | M10 Jump/follow | `map_coordinate_jump`, `map_march_follow` | RECOVERED API / BLOCKED | Authoritative game focus/follow outcome. |
 | M11 Auto Scan | recovered frontend orchestration + scan/server-jump calls | RECOVERED frontend / BLOCKED | Single-owner durable scheduler, multi-server travel, return-to-origin. |
@@ -62,10 +73,10 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 | Capability | Original source | Rebuild implementation | Validation |
 |---|---|---|---|
 | Command names/payload wrappers | `evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js` | `src/LWBridge.Desktop/LWBridgeBackend.cs` | Recovered wrapper strings inspected; unsupported production commands reject explicitly. |
-| WebView command/event transport | original Tauri invoke/listen wrapper | `LWBridgeWindow.cs` + `WebUi/preview-host.js` | Request/session IDs, origin validation, structured errors, timeouts/cancellation, event allowlist/listener lifecycle. Release build passes. |
-| Fixture isolation | rebuild requirement | `preview-host.js`, bootstrap `mode=fixture` under `--capture` | Nine desktop captures pass; capture mode ignores WebView native messages and never falls through to live backend. |
-| Stable local profile | original implicit profile routing | persisted local profile ID in `LocalConfigStore.cs`; `Le(selectedProfileId)` remains active in recovered frontend | Foreign profile self-check rejects with `PROFILE_SCOPE_MISMATCH`. |
-| Game-root validation | `game_root_status`, `game_root_select` | `GameInstallationService.cs` | Current install validates; generated missing path fails closed; 64-bit game/xLua confirmed. |
+| WebView command/event transport | original Tauri invoke/listen wrapper | `LWBridgeWindow.cs` + `WebUi/preview-host.js` + `NativeRequestRegistry.cs` | Active-profile injection/event envelopes restored. Generated-wrapper/browser checks cover implicit/explicit/scalar/null payloads, wrong-session responses/events, switched-profile late-event filtering, timeout cancellation and late-response rejection. Real long-service state-mutation acceptance remains R3. |
+| Fixture/read-only isolation | rebuild requirement | `preview-host.js`, `LocalConfigStore`, bootstrap modes | Fixture commands cannot reach live handlers; capture/read-only modes use nonpersistent config. Requested live without native transport fails visibly. Read-only production bootstrap suppresses startup auto-launch. A real WebView capture preserved the actual user-config SHA-256 byte-for-byte. |
+| Stable local profile | original implicit profile routing | versioned config plus recovered `U/W` routing | Baseline restart/write/corrupt-primary/routing tests pass. PM2-01–03 fail for backend partial saves, missing-primary backup recovery and incompatible-primary replacement; full persistence acceptance remains open. |
+| Game-root validation | `game_root_status`, `game_root_select` | `GameInstallationService.cs` | Installed/missing-root diagnostics pass. Both installed `LastWar.exe` and `xlua.dll` report AMD64 `0x8664/PE32+`; exact export ABI fingerprint selection remains R5. |
 | Launch safety gate | `profile_instance_start` | `LWBridgeBackend.cs` | Self-check requires `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; no unmanaged launch is attempted. |
 
 ## Current verification commands
@@ -75,8 +86,14 @@ python tools/build_lwbridge_frontend.py --check
 python tools/inspect_official_runtime.py --output evidence/official-runtime/2026-09-08-official-runtime.json
 dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release
 dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release
+node tools/check_lwbridge_live_transport.cjs
+node tools/check_lwbridge_transport_boundary.cjs
 ./tools/capture_lwbridge_ui.ps1
 ```
 
-At this checkpoint all five complete successfully. The deterministic captures
-cover presentation/fixture behavior only; they are not live-game proof.
+Review 2 reran generation/build, deterministic console and Node checks, fixture
+captures and the source-reference browser/pixel comparison. Console tests now use
+isolated storage; installation checks are optional unless `--require-installed`
+is supplied. The independent PM2 reproducer reports four failures despite the
+standard suites passing. No current live-game functionality is proven by these
+checks. See the current audit record for exact results and scope.

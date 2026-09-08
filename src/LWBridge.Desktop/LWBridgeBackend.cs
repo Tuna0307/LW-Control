@@ -5,22 +5,48 @@ namespace LWBridge.Desktop;
 internal sealed class LWBridgeBackend
 {
     private static readonly string[] MapKinds = MapScanContract.AllTypes;
+    private static readonly HashSet<string> GlobalCommands = new(StringComparer.Ordinal)
+    {
+        "profile_list",
+        "profile_instances_reconcile",
+        "game_root_status",
+        "game_root_select",
+        "update_status",
+        "update_check",
+        "update_download_and_open",
+        "append_log",
+        "set_window_theme",
+        "lastwar_localize",
+        "local_config_get",
+        "local_config_set",
+    };
 
-    private readonly LocalConfigStore config = new();
+    private readonly LocalConfigStore config;
     private readonly GameInstallationService installation;
+    private readonly INativeAsyncCommandService? asyncCommands;
+    private readonly MapDataStore? mapData;
 
-    public LWBridgeBackend() => installation = new(config);
+    public LWBridgeBackend(
+        LocalConfigStore? config = null,
+        INativeAsyncCommandService? asyncCommands = null,
+        MapDataStore? mapData = null)
+    {
+        this.config = config ?? new LocalConfigStore();
+        this.asyncCommands = asyncCommands;
+        this.mapData = mapData;
+        installation = new(this.config);
+    }
 
     public string ProfileId => config.Snapshot.ProfileId;
 
-    public object GetBootstrap(bool fixture, string sessionId)
+    public object GetBootstrap(bool fixture, string sessionId, bool suppressAutoLaunch = false)
     {
         var profile = CreateProfile();
         return new
         {
             mode = fixture ? "fixture" : "live",
             sessionId,
-            autoLaunchGame = fixture ? false : config.Snapshot.AutoLaunchGame,
+            autoLaunchGame = fixture || suppressAutoLaunch ? false : config.Snapshot.AutoLaunchGame,
             profiles = new
             {
                 selectedProfileId = profile.id,
@@ -31,16 +57,33 @@ internal sealed class LWBridgeBackend
 
     public GameRootStatus GetGameRootStatus() => installation.GetStatus();
 
-    public GameRootStatus SaveGameRoot(string path) => installation.SaveSelectedRoot(path);
+    public GameRootStatus SaveGameRoot(string path)
+    {
+        try
+        {
+            return installation.SaveSelectedRoot(path);
+        }
+        catch (LocalConfigStoreException ex)
+        {
+            throw new BridgeCommandException(ex.Code, ex.Message);
+        }
+    }
 
-    public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
+    public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(Invoke(command, payload));
+        if (asyncCommands?.CanHandle(command) == true)
+        {
+            ValidateCommandScope(command, payload);
+            return await asyncCommands.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
+        }
+        return Invoke(command, payload);
     }
 
     private object? Invoke(string command, JsonElement payload)
     {
+        ValidateCommandScope(command, payload);
+
         switch (command)
         {
             case "profile_list":
@@ -80,10 +123,7 @@ internal sealed class LWBridgeBackend
                 return new { state = "idle", error = (string?)null };
             case "server_jump_history_import":
             case "server_jump_history_set":
-                RequireOptionalProfile(payload);
-                return payload.TryGetProperty("history", out JsonElement history)
-                    ? JsonSerializer.Deserialize<object>(history.GetRawText(), JsonOptions.Default)
-                    : Array.Empty<object>();
+                return SaveServerJumpHistory(payload);
             case "update_status":
                 return new
                 {
@@ -125,9 +165,43 @@ internal sealed class LWBridgeBackend
             case "map_scan_stop":
                 return CreateMapScanStatus();
             case "map_scan_clear":
+                {
+                    int serverId = MapDataQueryContract.RequiredServerId(payload);
+                    MapDataStore store = RequireMapDataStore();
+                    store.ClearServer(serverId);
+                    return CreateMapScanStatus(serverId, "idle", null);
+                }
+            case "map_data_options":
+                MapDataQueryContract.RequiredServerId(payload);
                 throw new BridgeCommandException(
                     "MAP_INDEX_UNAVAILABLE",
-                    "Map data cannot be cleared before the production map index is initialized.");
+                    "Map data options are unavailable before the production map index is initialized.");
+            case "map_search":
+                {
+                    MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
+                    throw new BridgeCommandException(
+                        "MAP_INDEX_UNAVAILABLE",
+                        "Map search is unavailable before the production map index is initialized.",
+                        query);
+                }
+            case "map_city_export":
+                {
+                    if (!payload.TryGetProperty("query", out JsonElement exportQuery) || exportQuery.ValueKind != JsonValueKind.Object)
+                        throw new BridgeCommandException("INVALID_MAP_QUERY", "map_city_export query must be an object.");
+                    using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new
+                    {
+                        profileId = ProfileId,
+                        kind = "city",
+                        query = JsonSerializer.Deserialize<object>(exportQuery.GetRawText(), JsonOptions.Default),
+                    }, JsonOptions.Default));
+                    MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(envelope.RootElement);
+                    throw new BridgeCommandException(
+                        "MAP_INDEX_UNAVAILABLE",
+                        "Map export is unavailable before the production map index is initialized.",
+                        query);
+                }
+            case "map_player_mark_set":
+                return SetPlayerMark(payload);
             case "map_summary":
                 RequireOptionalProfile(payload);
                 return new
@@ -164,7 +238,7 @@ internal sealed class LWBridgeBackend
         bool enabled = GetRequiredBoolean(payload, "enabled");
         if (name != "autoForceUpdateReload")
             throw new BridgeCommandException("AUTOMATION_NOT_IMPLEMENTED", $"Automation '{name}' is not implemented yet.");
-        config.Update(c => c with { AutoReconnect = enabled });
+        UpdateConfig(c => c with { AutoReconnect = enabled });
         return new { enabled };
     }
 
@@ -177,8 +251,29 @@ internal sealed class LWBridgeBackend
                 throw new BridgeCommandException("INVALID_PAYLOAD", "autoLaunchGame must be a boolean.");
             next = next with { AutoLaunchGame = autoLaunch.GetBoolean() };
         }
-        config.Update(_ => next);
+        next = UpdateConfig(_ => next);
         return new { autoLaunchGame = next.AutoLaunchGame, autoReconnect = next.AutoReconnect };
+    }
+
+    private IReadOnlyList<int> SaveServerJumpHistory(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("history", out JsonElement history) || history.ValueKind != JsonValueKind.Array)
+            throw new BridgeCommandException("INVALID_PAYLOAD", "history must be an array of server IDs.");
+
+        var seen = new HashSet<int>();
+        var normalized = new List<int>(5);
+        foreach (JsonElement item in history.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Number || !item.TryGetInt32(out int serverId))
+                continue;
+            if (serverId < 1 || serverId > 99999 || !seen.Add(serverId))
+                continue;
+            normalized.Add(serverId);
+            if (normalized.Count == 5) break;
+        }
+
+        LWBridgeLocalConfig saved = UpdateConfig(c => c with { ServerJumpHistory = normalized });
+        return saved.ServerJumpHistory;
     }
 
     private object CreateStatus()
@@ -241,13 +336,16 @@ internal sealed class LWBridgeBackend
         };
     }
 
-    private static object CreateMapScanStatus() => new
+    private static object CreateMapScanStatus(
+        int serverId = 0,
+        string phase = "unavailable",
+        string? lastError = "MAP_BACKEND_NOT_IMPLEMENTED") => new
     {
-        serverId = 0,
+        serverId,
         serverIdSource = "none",
         scanRunId = "",
         isReading = false,
-        phase = "unavailable",
+        phase,
         selectedTypes = MapKinds,
         totalBlocks = 0,
         readBlocks = 0,
@@ -265,15 +363,84 @@ internal sealed class LWBridgeBackend
         homeServerId = 0,
         seasonServerIds = Array.Empty<int>(),
         truckMatchServerIds = Array.Empty<int>(),
-        lastError = "MAP_BACKEND_NOT_IMPLEMENTED",
+        lastError,
     };
 
     private static Dictionary<string, int> EmptyMapCounts() =>
         MapKinds.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
 
+    private MapDataStore RequireMapDataStore() => mapData ?? throw new BridgeCommandException(
+        "MAP_INDEX_UNAVAILABLE",
+        "Map data is unavailable before the profile map index is initialized.");
+
+    private object SetPlayerMark(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("row", out JsonElement row) || row.ValueKind != JsonValueKind.Object)
+            throw new BridgeCommandException("INVALID_PLAYER_MARK", "player mark row must be an object.");
+        if (!payload.TryGetProperty("marked", out JsonElement markedElement) ||
+            markedElement.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw new BridgeCommandException("INVALID_PLAYER_MARK", "marked must be a boolean.");
+
+        int serverId = MapDataQueryContract.RequiredServerId(row);
+        string ownerUid = GetRequiredString(row, "ownerUid");
+        bool marked = markedElement.GetBoolean();
+        MapDataStore store = RequireMapDataStore();
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        if (marked)
+        {
+            store.UpsertPlayerMark(new MapPlayerMark(
+                serverId,
+                ownerUid,
+                "active",
+                now,
+                null,
+                row.GetRawText()));
+        }
+        else
+        {
+            store.DeletePlayerMark(serverId, ownerUid);
+        }
+
+        return new
+        {
+            serverId,
+            ownerUid,
+            marked,
+            state = marked ? "active" : null,
+            markedAt = marked ? now : (long?)null,
+            checkedAt = (long?)null,
+        };
+    }
+
+    private void ValidateCommandScope(string command, JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object)
+            throw new BridgeCommandException("INVALID_PAYLOAD", "Command payload must be a JSON object.");
+        if (!GlobalCommands.Contains(command))
+            RequireProfile(payload);
+    }
+
+    private LWBridgeLocalConfig UpdateConfig(Func<LWBridgeLocalConfig, LWBridgeLocalConfig> update)
+    {
+        try
+        {
+            return config.Update(update);
+        }
+        catch (LocalConfigStoreException ex)
+        {
+            throw new BridgeCommandException(ex.Code, ex.Message);
+        }
+    }
+
     private void RequireProfile(JsonElement payload)
     {
-        string value = GetRequiredString(payload, "profileId");
+        if (!payload.TryGetProperty("profileId", out JsonElement property) ||
+            property.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined ||
+            (property.ValueKind == JsonValueKind.String && string.IsNullOrWhiteSpace(property.GetString())))
+            throw new BridgeCommandException("PROFILE_REQUIRED", "The command requires an active local profile.");
+        if (property.ValueKind != JsonValueKind.String)
+            throw new BridgeCommandException("INVALID_PAYLOAD", "profileId must be a string.");
+        string value = property.GetString()!;
         if (!string.Equals(value, ProfileId, StringComparison.Ordinal))
             throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH", "The command targets a different local profile.");
     }
@@ -283,6 +450,8 @@ internal sealed class LWBridgeBackend
         if (payload.ValueKind != JsonValueKind.Object || !payload.TryGetProperty("profileId", out JsonElement property))
             return;
         if (property.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined) return;
+        if (property.ValueKind != JsonValueKind.String)
+            throw new BridgeCommandException("INVALID_PAYLOAD", "profileId must be a string.");
         string value = property.GetString() ?? string.Empty;
         if (!string.Equals(value, ProfileId, StringComparison.Ordinal))
             throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH", "The command targets a different local profile.");

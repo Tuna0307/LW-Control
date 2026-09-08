@@ -18,9 +18,10 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 - Recovered React/Vite UI is reproduced in WebView2 with the original feature pages, themes, icons, and nine languages.
 - Login/account/license presentation has been removed from the rebuild.
 - A real JavaScript-to-C# command/event boundary exists with request/session correlation, profile scoping, origin validation, cancellation, and structured failures.
-- Game-root discovery/validation, local configuration, process inspection, startup/reconnect preferences, and fixture/live separation are implemented.
+- Game-root discovery/validation, local configuration, process inspection, startup/reconnect preference storage, and fixture/live separation are implemented in part. The current audit records four remaining persistence/request-lifetime defects.
 - Launch remains fail-closed until the recovered bootstrap contract is complete.
 - Map Scan request normalization is implemented for all eight recovered data types, with `normal=8` and `fast=20` concurrency. Production scanning remains gated on a verified bridge-ready game session.
+- SQLite schema, explicit-key storage, persistent player marks and server-scoped clear have offline tests. Search/options/export and real capture are still unfinished.
 - A repeatable read-only official-client inspector records current runtime versions, hashes, PE structure, packaged containers, hot-update state, and launcher lifecycle evidence.
 
 ## Start here
@@ -29,8 +30,10 @@ Read [docs/README.md](docs/README.md) first. It is the documentation index and d
 
 The two active planning files are:
 
-- [task.md](task.md) — detailed Overview + Map Data implementation contract.
-- [TASKS.md](TASKS.md) — concise current recovery backlog.
+- [task.md](task.md) — primary instructions, full Overview + Map Data requirements and acceptance tests.
+- [BACKLOG.md](BACKLOG.md) — current progress checklist and ordered remaining work; formerly `TASKS.md`.
+
+Read [the current project review](docs/lwbridge-project-status.md) for audited progress, reproduced defects and evidence limits. Keep these roles distinct; do not recreate a second similarly named task file.
 
 ## Build and verification
 
