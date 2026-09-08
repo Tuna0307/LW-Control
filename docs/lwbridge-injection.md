@@ -54,7 +54,7 @@ For mid-run loss, persist active Map Scan state first, stop scheduling new block
 
 ## Remaining recovery work
 
-- Recover exact launch descriptor serialization and launch-proof format required by the original profile launcher.
+- Recover exact launch-proof/ticket generation, child-launcher input decoding and semantic validation. The outer-host envelope serializer itself is recovered below.
 - Recover any stage-specific retry policy beyond the recovered wait constants.
 - Recover the exact xLua export-fingerprint algorithm and descriptor fields used by the secure/plain decision.
 - Implement the staged bootstrap independently.
@@ -90,3 +90,70 @@ so exact input decoding plus semantic field types/constraints still require
 recovery. Production `profile_instance_start` therefore remains intentionally
 blocked with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED` instead of falling back to
 an unmanaged `Start-Process` launch.
+
+## LWB-R5-001 — host `LaunchEnvelope` producer (2026-09-08)
+
+**Scope.** Static recovery now identifies the host-side producer and JSON handoff
+for the three-field `LaunchEnvelope`. This closes the first R5 producer item; it
+does not recover the proof/ticket algorithms or the child launcher's input
+decoding contract.
+
+**Source identity.** The source is the verified outer
+`../LW/lwbridge-0.3.1.exe`, SHA-256
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+All addresses below use the preferred virtual-address coordinate system with
+image base `0x140000000`; raw file offsets are stated where the field strings
+reside.
+
+**Exact locator.** PE exception metadata places every recovered field write in
+the same Rust async/profile-launch state-machine function at preferred VA
+`0x1401D3F1B–0x1401DCAD1`.
+
+- `secureExportFingerprint`: raw `0x8341DB`, string VA `0x140834DDB`, name
+  xref `0x1401D8D2C`; its descriptor value comes from the launch context at
+  `+0x60` (`0x1401D8D46`/`0x1401D8D4D`).
+- `plainExportFingerprint`: raw `0x8341F2`, string VA `0x140834DF2`, name xref
+  `0x1401D8DC0`; its descriptor value comes from the launch context at `+0x78`
+  (`0x1401D8DDA`/`0x1401D8DE1`).
+- `descriptorJson`: raw `0x8342AF`, string VA `0x140834EAF`, name xref
+  `0x1401DA895`; value source is profile-launch state `+0x678` at
+  `0x1401DA8AF`.
+- `launchProof`: raw `0x8342D8`, string VA `0x140834ED8`, name xref
+  `0x1401DA91D`; value source is profile-launch state `+0x690` at
+  `0x1401DA937`.
+- `gameLaunchTicket`: raw `0x8342E3`, string VA `0x140834EE3`, name xref
+  `0x1401DA9A5`; value source is profile-launch state `+0x4C0` at
+  `0x1401DA9BF`.
+
+The host completes the object at `0x1401DAA4B` and calls the recovered JSON
+serializer at `0x1401DAA5B -> 0x1401D296D`. The resulting owned JSON text is
+copied into profile-launch state at `0x1401DACC4–0x1401DACD3` (state offset
+`+0x730`). Immediately before the launch task proceeds, that serialized value is
+cloned from `+0x730` at `0x1401DB119`, with clone call
+`0x1401DB12B -> 0x14002A2C0`.
+
+**Reproduction.** Run:
+
+`python tools\inspect_lwbridge_launch_contract.py ..\LW\lwbridge-0.3.1.exe --json`
+
+The deterministic result is persisted at
+`evidence/lwbridge-implementation/2026-09-08-r5-launch-envelope-producer.json`.
+
+**Result — RECOVERED.** The outer LWBridge host constructs an object containing
+`descriptorJson`, `launchProof`, and `gameLaunchTicket`, serializes that object
+to owned JSON text, and hands that serialized value into the profile-launch
+state machine. The same host state machine also supplies distinct secure/plain
+export-fingerprint strings to the descriptor from two launch-context fields.
+
+**Validation and limits.** This is static-only recovery against the immutable
+reference. It is not **LIVE-PROVEN**. The exact `launchProof` producer and
+validation semantics, `gameLaunchTicket` producer/representation/reuse rules,
+child profile-launcher input channel, xLua export-fingerprint algorithm and
+secure/plain classification predicate remain **UNKNOWN/BLOCKED**. Simple
+candidate export-name SHA-256 encodings did not match an embedded reference
+constant, so no substitute algorithm is being inferred.
+
+**Implementation impact.** R5's host-side `LaunchEnvelope` producer item can be
+marked recovered. Production `profile_instance_start` must remain fail-closed
+with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED` until the unresolved proof/ticket,
+child decoding and xLua ABI contracts are recovered and then validated.

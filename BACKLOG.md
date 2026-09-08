@@ -61,7 +61,7 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 
 ## R5 — Overview lifecycle (P0 critical path; research alongside R1–R4)
 
-- [ ] Recover the host-side producer for `LaunchEnvelope` (`descriptorJson`, `launchProof`, `gameLaunchTicket`).
+- [x] Recover the host-side producer for `LaunchEnvelope` (`descriptorJson`, `launchProof`, `gameLaunchTicket`). `LWB-R5-001` locates the outer-host state machine, exact field xrefs/value sources, JSON serialization and handoff clone. This is static recovery only; proof/ticket semantics remain below.
 - [ ] Recover exact descriptor/proof/ticket representation and validation rules.
 - [ ] Recover xLua secure/plain ABI fingerprint selection exactly.
 - [ ] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle.

@@ -1,0 +1,97 @@
+{
+  "findingId": "LWB-R5-001",
+  "date": "2026-09-08",
+  "scope": "host-side LaunchEnvelope producer and JSON handoff",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "artifact": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "preferredImageBase": "0x140000000",
+    "coordinateSystem": "preferred virtual addresses (VA) plus raw PE file offsets"
+  },
+  "producer": {
+    "runtimeFunctionPreferredVa": "0x1401D3F1B-0x1401DCAD1",
+    "fields": [
+      {
+        "name": "secureExportFingerprint",
+        "rawFileOffset": "0x8341DB",
+        "preferredVa": "0x140834DDB",
+        "nameXrefPreferredVa": "0x1401D8D2C",
+        "serializedNameLength": 23,
+        "valueSource": "profile launch context +0x60",
+        "valueLoadPreferredVa": "0x1401D8D46"
+      },
+      {
+        "name": "plainExportFingerprint",
+        "rawFileOffset": "0x8341F2",
+        "preferredVa": "0x140834DF2",
+        "nameXrefPreferredVa": "0x1401D8DC0",
+        "serializedNameLength": 22,
+        "valueSource": "profile launch context +0x78",
+        "valueLoadPreferredVa": "0x1401D8DDA"
+      },
+      {
+        "name": "descriptorJson",
+        "rawFileOffset": "0x8342AF",
+        "preferredVa": "0x140834EAF",
+        "nameXrefPreferredVa": "0x1401DA895",
+        "serializedNameLength": 14,
+        "valueSource": "profile launch state +0x678",
+        "valueLoadPreferredVa": "0x1401DA8AF"
+      },
+      {
+        "name": "launchProof",
+        "rawFileOffset": "0x8342D8",
+        "preferredVa": "0x140834ED8",
+        "nameXrefPreferredVa": "0x1401DA91D",
+        "serializedNameLength": 11,
+        "valueSource": "profile launch state +0x690",
+        "valueLoadPreferredVa": "0x1401DA937"
+      },
+      {
+        "name": "gameLaunchTicket",
+        "rawFileOffset": "0x8342E3",
+        "preferredVa": "0x140834EE3",
+        "nameXrefPreferredVa": "0x1401DA9A5",
+        "serializedNameLength": 16,
+        "valueSource": "profile launch state +0x4c0",
+        "valueLoadPreferredVa": "0x1401DA9BF"
+      }
+    ],
+    "serialization": {
+      "jsonObjectTagWritePreferredVa": "0x1401DAA4B",
+      "jsonSerializerCallPreferredVa": "0x1401DAA5B",
+      "jsonSerializerTargetPreferredVa": "0x1401D296D",
+      "serializedStateCopyPreferredVa": "0x1401DACC4-0x1401DACD3",
+      "serializedStateOffset": "0x730",
+      "handoffCloneSourcePreferredVa": "0x1401DB119",
+      "handoffCloneCallPreferredVa": "0x1401DB12B",
+      "handoffCloneTargetPreferredVa": "0x14002A2C0"
+    }
+  },
+  "result": [
+    "The outer LWBridge host, not only the embedded profile launcher, constructs the LaunchEnvelope object.",
+    "The object contains descriptorJson, launchProof, and gameLaunchTicket and is serialized to owned JSON text before the profile-launch task handoff.",
+    "The launch descriptor receives secureExportFingerprint and plainExportFingerprint from two distinct host launch-context values (+0x60 and +0x78 respectively)."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_launch_contract.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_launch_contract.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  ],
+  "validationAndLimits": {
+    "validation": "static-only against the immutable verified LWBridge reference",
+    "liveProven": false,
+    "unknownBlocked": [
+      "exact launchProof generation and validation semantics",
+      "exact gameLaunchTicket generation, representation, reuse and validation semantics",
+      "exact child profile-launcher input channel/decoding contract",
+      "exact xLua export-fingerprint algorithm and secure/plain classification predicate",
+      "current-client live launch/bootstrap acceptance"
+    ]
+  },
+  "implementationImpact": {
+    "r5HostProducer": "recovered",
+    "profileInstanceStart": "remains fail-closed with OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED",
+    "nextTrace": "trace launchProof/gameLaunchTicket producers and shared xLua ABI fingerprint routine in the same verified outer-host state machine"
+  }
+}
