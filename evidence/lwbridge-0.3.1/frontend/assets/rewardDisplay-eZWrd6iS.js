@@ -1,0 +1,1 @@
+function e(e){let t=Number(e);if(!Number.isFinite(t))return`-`;let n=Math.abs(t),r=t<0?`-`:``;return n>=1e9?`${r}${(n/1e9).toFixed(1)}G`:n>=1e6?`${r}${(n/1e6).toFixed(1)}M`:n>=1e3?`${r}${(n/1e3).toFixed(1)}K`:String(t)}export{e as t};

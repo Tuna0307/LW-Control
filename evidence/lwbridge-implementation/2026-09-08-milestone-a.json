@@ -1,0 +1,46 @@
+{
+  "checkpoint": "2026-09-08-milestone-a",
+  "classification": "IMPLEMENTED/OFFLINE-TESTED",
+  "startingBranch": "research/offline-controller",
+  "startingHead": "cb762a1ad2bb6a856f0834673217ecf8da01e204",
+  "reference": {
+    "path": "external-reference:lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "installedClient": {
+    "root": "%LOCALAPPDATA%\\FunFly\\Last War-Survival Game",
+    "launcherSha256": "B6E29176F64C11A6F203D414FB50EE1E02293BE318EFDA9C33CF221C83D763BC",
+    "gameSha256": "DF5ABCF8618D48500BEFA9F587B509ED4F58373FF34932BB87CE217F0CF267D5",
+    "gameFileVersion": "2019.4.40.16762411",
+    "xluaSha256": "21EB704AFDB7E528F4B90FA1B90BF414C221B06BA990D625AAAAED31B292740F",
+    "rootValidated": true,
+    "pe32PlusValidated": true,
+    "gameRunningDuringCheck": false,
+    "launcherRunningDuringCheck": false
+  },
+  "implemented": [
+    "live-vs-fixture WebView transport split",
+    "session-scoped request/response correlation",
+    "origin validation and event allowlist",
+    "timeouts and cancellation messages",
+    "structured native errors",
+    "stable persisted local profile identity",
+    "real game-root auto-detection and validation",
+    "real read-only game/launcher process inspection",
+    "native persisted auto-launch and auto-reconnect preferences",
+    "fail-closed production launch gate"
+  ],
+  "verification": {
+    "releaseBuild": "pass, 0 warnings, 0 errors",
+    "frontendGenerationCheck": "pass",
+    "backendSelfCheck": "pass",
+    "desktopFixtureCaptures": "9/9 pass"
+  },
+  "blocked": [
+    "exact original LaunchEnvelope input decoding",
+    "launch proof and game launch ticket integrity generation/validation contract",
+    "bridge-ready launch lifecycle",
+    "all live Map Data runtime/index operations"
+  ],
+  "liveSideEffectsPerformed": false
+}

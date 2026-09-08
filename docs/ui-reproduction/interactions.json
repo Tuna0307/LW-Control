@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "interaction": ".automation-categories button",
+      "count": 6
+    },
+    {
+      "interaction": ".map-tabs button",
+      "count": 9
+    },
+    {
+      "interaction": ".squad-tabs button",
+      "count": 2
+    }
+  ],
+  "errors": []
+}

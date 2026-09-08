@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "authority": "external-reference:lwbridge-0.3.1.exe",
+  "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "bridgeScripts": {
+    "magic": "LWBP",
+    "packageVersion": 2,
+    "buildId": "9BupJXpEgm34lybhNhbbcQ",
+    "size": 1172723,
+    "sha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d"
+  },
+  "assets": {
+    "xlua-proxy-secure.dll": {
+      "size": 612352,
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    "xlua-proxy-plain.dll": {
+      "size": 614400,
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+    },
+    "xlua-proxy-bundle.json": {
+      "size": 590,
+      "sha256": "261a54f92e79ccf397544cca30039f1dd7519943da2ba77632b0e6dce98db4da"
+    },
+    "xlua-legacy.dll": {
+      "size": 782736,
+      "sha256": "f4979b11e1990a7c064a937a80231fbb11fa13f5f8a19d2a321569dd6e5b254a"
+    },
+    "lwbridge-profile-launcher.exe": {
+      "size": 684544,
+      "sha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de"
+    },
+    "lwbridge-multi-hook.dll": {
+      "size": 416256,
+      "sha256": "a8b48120bbe3fb125d50c046acbd4f7c440a4d5e5775b8156fc291d01bd69d2d"
+    }
+  },
+  "recoveredContracts": {
+    "injection": {
+      "injectThreadWaitMs": 30000,
+      "hookReadyFailWaitMs": 30000,
+      "officialLauncherHandoffWaitMs": 300000,
+      "cleanupThreadCloseWaitMs": 5000,
+      "proxySelection": "original xlua.dll PE/export ABI fingerprint selects secure/plain proxy; unsupported ABI and failed bundle verification fail closed"
+    },
+    "mapScan": {
+      "mapScanFunctionRva": "0xF9333-0xFB8D8",
+      "selectedTypeFilterFunctionRva": "0x20D26F-0x20D416",
+      "selectedTypesAllowlistTableRva": "0xC81908",
+      "selectedTypesDefaultTableRva": "0x825D98",
+      "selectedTypes": [
+        "city",
+        "resource",
+        "monster",
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "selectedTypesDefault": "all eight values",
+      "selectedTypesFiltering": "string-only exact allowlist; unknown/non-string entries discarded; duplicates removed preserving first occurrence; zero valid entries rejected",
+      "concurrency": {
+        "normal": 8,
+        "fast": 20
+      },
+      "modeStringLengths": {
+        "normal": 6,
+        "fast": 4,
+        "note": "these constants are scanMode string lengths, not scheduler settings"
+      },
+      "startMapScan": {
+        "requestFields": [
+          "scanRunId",
+          "serverId",
+          "worldId",
+          "scanMode",
+          "concurrency",
+          "selectedTypes",
+          "tileWidth",
+          "tileHeight"
+        ],
+        "timeoutMs": 5000,
+        "acceptanceField": "accepted"
+      },
+      "nativeCapture": {
+        "envelopeFields": [
+          "scanRunId",
+          "ready",
+          "points",
+          "marches",
+          "pointRemovals",
+          "marchRemovals",
+          "acks",
+          "error",
+          "dropped",
+          "pendingAcks",
+          "pendingMarchRemovals",
+          "pendingPointRemovals",
+          "pendingMarches",
+          "pendingPoints"
+        ],
+        "runtime": "GameAssembly.dll / IL2CPP world manager hooks",
+        "explicitFailureMarkers": [
+          "native world capture queue overflow run=",
+          "native world capture hooks unavailable: "
+        ],
+        "recordFieldVocabulary": [
+          "ownerUid",
+          "uuid",
+          "serverId",
+          "srcServerId",
+          "worldId",
+          "itemId",
+          "id",
+          "level",
+          "quality",
+          "state",
+          "curHp",
+          "curMaxHp",
+          "allianceId",
+          "playerName",
+          "alAbbr",
+          "name",
+          "power",
+          "specialType",
+          "protectEndTime",
+          "shieldEndTime",
+          "completionTime",
+          "cfgId",
+          "expiredTime",
+          "taskExpireTime",
+          "actEndTime",
+          "gatherMarchUuid",
+          "gatherUid",
+          "gatherAllianceId",
+          "lastHpTime",
+          "unavailableTime",
+          "recoverSpeed",
+          "fireSpeed",
+          "heroList",
+          "memberList",
+          "ownerServer",
+          "eventId",
+          "allianceAbbr",
+          "rewardUserList",
+          "diggingUserList",
+          "complete",
+          "ownerName",
+          "startTime",
+          "expireTime",
+          "createTime",
+          "fromPoint",
+          "multiple",
+          "killerId",
+          "_uuid",
+          "targetPos",
+          "startPos",
+          "homePos",
+          "ownerCurServerId",
+          "allianceUid",
+          "allianceName",
+          "endTime",
+          "status",
+          "_curHp",
+          "monsterId",
+          "monsterType",
+          "monsterSpecialType",
+          "monsterRallyNum",
+          "train",
+          "config",
+          "carriageNum",
+          "pointIds",
+          "isMainPoint",
+          "isSpecial",
+          "resType",
+          "resLevel",
+          "stolenCount",
+          "heroCount",
+          "memberCount",
+          "treasureType",
+          "rewardedCount",
+          "diggingCount",
+          "runtimeClass",
+          "configId",
+          "marchType",
+          "maxHp",
+          "isMonster",
+          "requiresRally",
+          "normalType"
+        ]
+      }
+    }
+  }
+}

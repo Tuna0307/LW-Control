@@ -1,0 +1,3 @@
+/* Removing the two-line account button otherwise shortens the original header
+   by 2px. Preserve its recovered desktop height without retaining auth UI. */
+.top-bar { min-height: 54px; }
