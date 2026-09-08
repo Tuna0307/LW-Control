@@ -275,12 +275,23 @@ internal sealed class MapDataStore : IDisposable
                 predicates.Add("CAST(json_extract(page.data_json,'$.resourceNameKey') AS TEXT) = $resourceNameKey");
             if (options.MonsterNameKey is not null)
                 predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) = $monsterNameKey");
+            if (options.SuppliesType > 0)
+                predicates.Add("CAST(json_extract(page.data_json,'$.suppliesType') AS INTEGER) = $suppliesType");
+            if (options.TreasureType > 0)
+            {
+                predicates.Add("CAST(json_extract(page.data_json,'$.treasureType') AS INTEGER) = $treasureType");
+                predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.suppliesType') AS INTEGER),0) = 0");
+            }
             if (options.ItemKey is not null)
                 predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey)");
             if (options.SpecialOnly)
                 predicates.Add("CAST(json_extract(page.data_json,'$.isSpecial') AS INTEGER) = 1");
             if (options.ReindeerOnly)
                 predicates.Add("CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER) = 1");
+            if (options.MinLevel is not null)
+                predicates.Add("page.level >= $minLevel");
+            if (options.MaxLevel is not null)
+                predicates.Add("page.level <= $maxLevel");
             string where = string.Join(" AND ", predicates);
 
             int total;
@@ -520,8 +531,16 @@ internal sealed class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$resourceNameKey", options.ResourceNameKey);
         if (options.MonsterNameKey is not null)
             command.Parameters.AddWithValue("$monsterNameKey", options.MonsterNameKey);
+        if (options.SuppliesType > 0)
+            command.Parameters.AddWithValue("$suppliesType", options.SuppliesType.Value);
+        if (options.TreasureType > 0)
+            command.Parameters.AddWithValue("$treasureType", options.TreasureType.Value);
         if (options.ItemKey is not null)
             command.Parameters.AddWithValue("$itemKey", options.ItemKey);
+        if (options.MinLevel is not null)
+            command.Parameters.AddWithValue("$minLevel", options.MinLevel.Value);
+        if (options.MaxLevel is not null)
+            command.Parameters.AddWithValue("$maxLevel", options.MaxLevel.Value);
     }
 
     // LWB-R6-007: original order is backslash, percent, underscore, then literal-percent wrapping.

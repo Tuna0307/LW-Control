@@ -16,9 +16,13 @@ internal sealed record MapDataQueryOptions(
     bool WithoutAlliance,
     string? ResourceNameKey,
     string? MonsterNameKey,
+    int? TreasureType,
+    int? SuppliesType,
     string? ItemKey,
     bool SpecialOnly,
     bool ReindeerOnly,
+    int? MinLevel,
+    int? MaxLevel,
     IReadOnlyList<string> UnsupportedFeatures);
 
 internal static class MapDataQueryContract
@@ -73,10 +77,20 @@ internal static class MapDataQueryContract
         bool withoutAlliance = OptionalTrue(query, "withoutAlliance");
         string? resourceNameKey = OptionalString(query, "resourceNameKey");
         string? monsterNameKey = OptionalString(query, "monsterNameKey");
+        int? treasureType = OptionalNonNegativeInt(query, "treasureType");
+        int? suppliesType = OptionalNonNegativeInt(query, "suppliesType");
         string? itemKey = OptionalString(query, "itemKey");
         bool specialOnly = OptionalTrue(query, "specialOnly");
         bool reindeerOnly = OptionalTrue(query, "reindeerOnly");
-        IReadOnlyList<string> unsupported = CollectUnsupportedFeatures(kind, query, sorts, markedOnly);
+        int? minLevel = OptionalNonNegativeInt(query, "minLevel");
+        int? maxLevel = OptionalNonNegativeInt(query, "maxLevel");
+        IReadOnlyList<string> unsupported = CollectUnsupportedFeatures(
+            kind,
+            query,
+            sorts,
+            markedOnly,
+            treasureType,
+            suppliesType);
         return new MapDataQueryOptions(
             kind,
             serverId,
@@ -89,9 +103,13 @@ internal static class MapDataQueryContract
             withoutAlliance,
             resourceNameKey,
             monsterNameKey,
+            treasureType,
+            suppliesType,
             itemKey,
             specialOnly,
             reindeerOnly,
+            minLevel,
+            maxLevel,
             unsupported);
     }
 
@@ -142,7 +160,9 @@ internal static class MapDataQueryContract
         string kind,
         JsonElement query,
         IReadOnlyList<MapDataSort> sorts,
-        bool markedOnly)
+        bool markedOnly,
+        int? treasureType,
+        int? suppliesType)
     {
         var unsupported = new List<string>();
         foreach (string name in FilterFields)
@@ -150,6 +170,19 @@ internal static class MapDataQueryContract
             if (!query.TryGetProperty(name, out JsonElement value) || IsNeutral(value)) continue;
             if (IsRecoveredFilter(kind, name, value)) continue;
             unsupported.Add(name);
+        }
+
+        // LWB-R6-009: a selected recovered treasure option emits both numeric fields,
+        // with exactly one positive dimension and a zero sentinel for the other.
+        bool hasTreasureType = query.TryGetProperty("treasureType", out JsonElement treasureValue) && !IsNeutral(treasureValue);
+        bool hasSuppliesType = query.TryGetProperty("suppliesType", out JsonElement suppliesValue) && !IsNeutral(suppliesValue);
+        bool validTreasureSelection =
+            hasTreasureType && hasSuppliesType &&
+            ((treasureType > 0 && suppliesType == 0) || (treasureType == 0 && suppliesType > 0));
+        if (kind == "treasure" && (hasTreasureType || hasSuppliesType) && !validTreasureSelection)
+        {
+            unsupported.Add("treasureType");
+            unsupported.Add("suppliesType");
         }
 
         if (markedOnly && kind != "city") unsupported.Add("markedOnly");
@@ -166,11 +199,21 @@ internal static class MapDataQueryContract
         "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
         "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "treasureType" => kind == "treasure" && IsNonNegativeInteger(value),
+        "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
         "itemKey" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.True,
+        "minLevel" => kind == "dispatch" && IsPositiveInteger(value),
+        "maxLevel" => kind == "dispatch" && IsPositiveInteger(value),
         _ => false,
     };
+
+    private static bool IsNonNegativeInteger(JsonElement value) =>
+        value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int number) && number >= 0;
+
+    private static bool IsPositiveInteger(JsonElement value) =>
+        value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int number) && number >= 1;
 
     private static bool IsNeutral(JsonElement value) => value.ValueKind switch
     {
@@ -205,6 +248,15 @@ internal static class MapDataQueryContract
             return fallback;
         if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int result) || result < 1)
             throw new BridgeCommandException("INVALID_MAP_QUERY", $"{name} must be a positive integer.");
+        return result;
+    }
+
+    private static int? OptionalNonNegativeInt(JsonElement payload, string name)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+        if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int result) || result < 0)
+            throw new BridgeCommandException("INVALID_MAP_QUERY", $"{name} must be a non-negative integer.");
         return result;
     }
 

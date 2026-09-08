@@ -785,9 +785,9 @@ var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)
     ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
     ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
-    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus", "plunderableOnly", "minLevel", "maxLevel"]),
+    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus", "plunderableOnly"]),
     ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "completionStatus"]),
-    ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["treasureType", "includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
+    ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"suppliesType\":0,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
 };
 foreach ((string name, string json, string[] unsupported) in frontendMapQueryCases)
 {
@@ -848,12 +848,20 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "{\"serverId\":7,\"uuid\":\"truck-c\",\"isSpecialURQuality\":true,\"updatedAt\":1900}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "dispatch", 7, "dispatch-regular", 51, "dispatch-a", "Dispatch A", null,
-        null, null, null, null, null, 1800,
-        "{\"serverId\":7,\"uuid\":\"dispatch-a\",\"isSpecial\":false,\"updatedAt\":1800}"));
+        6, null, null, null, null, 1800,
+        "{\"serverId\":7,\"uuid\":\"dispatch-a\",\"level\":6,\"isSpecial\":false,\"updatedAt\":1800}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "dispatch", 7, "dispatch-special", 52, "dispatch-b", "Dispatch B", null,
-        null, null, null, null, null, 1700,
-        "{\"serverId\":7,\"uuid\":\"dispatch-b\",\"isSpecial\":true,\"updatedAt\":1700}"));
+        5, null, null, null, null, 1700,
+        "{\"serverId\":7,\"uuid\":\"dispatch-b\",\"level\":5,\"isSpecial\":true,\"updatedAt\":1700}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-standard", 53, "treasure-a", "Treasure A", null,
+        null, null, null, null, null, 1650,
+        "{\"serverId\":7,\"uuid\":\"treasure-a\",\"treasureType\":5,\"suppliesType\":0,\"treasureNameKey\":\"standard-five\",\"updatedAt\":1650}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-supplies", 54, "treasure-b", "Treasure B", null,
+        null, null, null, null, null, 1640,
+        "{\"serverId\":7,\"uuid\":\"treasure-b\",\"treasureType\":5,\"suppliesType\":3,\"treasureNameKey\":\"supplies-three\",\"updatedAt\":1640}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "city", 8, "city-literal-wildcards", 61, "literal-a", "A%_\\B", "LIT",
         null, null, null, null, null, 1600,
@@ -1030,6 +1038,55 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
               rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
             $"{kind} {field} search uses recovered JSON boolean predicate");
+    }
+
+    foreach ((int treasureType, int suppliesType, string expectedUuid) in new[]
+    {
+        (5, 0, "treasure-a"),
+        (0, 3, "treasure-b"),
+    })
+    {
+        using JsonDocument treasureSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "treasure",
+            query = new { serverId = 7, treasureType, suppliesType },
+        }));
+        object? treasureResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", treasureSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(treasureResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"treasure option filter preserves recovered treasure/supplies dimension {treasureType}/{suppliesType}");
+    }
+
+    using JsonDocument invalidTreasureSelection = JsonDocument.Parse(
+        "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"treasureType\":5,\"suppliesType\":3}}");
+    Check(MapDataQueryContract.NormalizeSearch(invalidTreasureSelection.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "treasureType", "suppliesType" }),
+        "treasure filter rejects both-positive dimensions outside the recovered option shape");
+
+    using JsonDocument partialTreasureSelection = JsonDocument.Parse(
+        "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"treasureType\":5}}");
+    Check(MapDataQueryContract.NormalizeSearch(partialTreasureSelection.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "treasureType", "suppliesType" }),
+        "treasure filter rejects a partial selection because the frontend emits both dimensions");
+
+    using JsonDocument dispatchLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "dispatch",
+        query = new { serverId = 7, minLevel = 5, maxLevel = 5 },
+    }));
+    object? dispatchLevelResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", dispatchLevelSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(dispatchLevelResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == "dispatch-b",
+            "dispatch exact-level filter uses the recovered level >= / <= predicate pair");
     }
 
     using JsonDocument mismatchedSpecialSearch = JsonDocument.Parse(
