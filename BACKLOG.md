@@ -1,8 +1,8 @@
 # LWBridge implementation backlog
 
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
-Project-manager review 4 audited implementation `5174cf9`. PM3-01/02 now pass fresh provider and real WebView checks; the new R5 findings and R6 filters are credited with their actual evidence limits. Real Overview lifecycle/full Map Data remain incomplete. Use [the current audit](docs/lwbridge-project-status.md), [review 4 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-4.json) and [the deeper research handoff](docs/deep-binary-handoff.md). `task.md` remains the only full specification; this file is its progress checklist.
+Project-manager review 5 audited `d4e9790` and combined both task streams. See [the audit](docs/lwbridge-project-status.md), [review 5 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-5.json), [regular task](docs/implementation-handoff.md), [specialist task](docs/deep-binary-handoff.md) and [ESC register](docs/daybreak-escalations.md). `task.md` remains the full specification. Keyword/boolean/quality/treasure/dispatch filters and count/page snapshots have accepted offline slices; real lifecycle/full Map Data remain incomplete.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -19,20 +19,18 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 - Keep RECOVERED, IMPLEMENTED/OFFLINE-TESTED, LIVE-PROVEN, UNKNOWN/BLOCKED and explicitly labelled IMPLEMENTATION POLICY distinct in every feature record.
 - Document each newly confirmed finding immediately; no recovery/task checkpoint is complete without its durable evidence and GitHub delivery or an explicitly recorded delivery blocker.
 
-## Research/implementation routing — review 4
+## Ownership and escalation — mandatory review 5 rule
 
-The research supplement contains exact questions, known findings and exit criteria. **SB-01/02 are recorded restrictions on particular operations, not permission denied by the user and not a blanket block on all implementation.** Do not rerun the denied verifier or broader disassembly through a different model/executor as a workaround.
+**Regular AI first, including permitted binary analysis.** DB-01–06 are topic labels, not model assignments. Only request Daybreak when relevant permitted methods have been exhausted and recorded with outputs/alternatives/reasons under an ESC ID; the PM reviews the bounded scope. See AGENTS.md section 6. A denial or missing integration alone does not establish a specialist assignment.
 
-| Tag / work | Route | Next result |
-|---|---|---|
-| DEEP-BINARY DB-01/02 | R5, Overview launch/recovery | Remaining launch input/ownership/helper semantics; ticket-poll caller/input/unit/variant meanings. Review saved evidence and respect SB-01/02. |
-| DEEP-BINARY DB-03 | R6, native map records | Per-kind native keys, types, normalization, updates/removals; readable official-client code first where available. |
-| DEEP-BINARY DB-04 | R7, capture/scheduler | Coverage/order/timing, queue/ack/drop, cancel/resume/drain/publication semantics. |
-| ARTIFACT-REVIEW DB-05 | R6, advanced queries | Remaining predicates/sorts/time sources; only opaque native calculations escalate to deeper analysis. |
-| ARTIFACT-REVIEW DB-06 | R3/R5/R8/R9 | Authoritative status/travel/actions/jobs; trace readable handlers before deciding what needs native analysis. |
-| IMPLEMENTATION | R3/R4/R6 | Supported filters, storage consistency/migrations, diagnostics, cancellation/generation infrastructure and isolated tests. |
-| ARTIFACT-REVIEW + IMPLEMENTATION | R6 options/summary/export | Known frontend consumers; resolve backend aggregation/export semantics before implementing unsupported results. |
-| LIVE-VALIDATION | R5/R7–R10 | Real current-client launch, scan, travel/action outcomes and the 47 full acceptance cases; static evidence cannot close them. |
+- [x] Integrate Daybreak R6-006/007 and regular-AI R6-008–013 in the shared branch; no cherry-pick required.
+- [x] PM5-01: correct old boolean inspector's railway/reindeer metadata and identify R6-010 as the saved frontend authority.
+- [ ] Regular AI: add persisted non-truck UR/special-quality and above-five non-special truck boundary tests when extending quality coverage.
+- [ ] Regular AI: complete ESC-001/002 attempt/alternative packets if requesting escalation. Current state NEEDS_INFORMATION; no specialist technical assignment approved.
+- [ ] PM: review each completed packet, record the reason and approve only the specific permitted question; return insufficient requests with concrete missing evidence.
+- [ ] Regular AI: integrate/validate each accepted specialist return; retain all live-proof gates.
+
+All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence method needed; ordinary ownership remains with the regular AI until an ESC is approved. Continue independent work while any request is pending.
 
 ## Completed foundation
 
@@ -162,7 +160,7 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 ## Verification
 
-Review 4: Release build and standard backend checks pass; preference matrix and original PM3 reproducer pass; the actual isolated WebView host passes the strengthened feedback/reconciliation/recovery gates with real configuration unchanged. Nine desktop fixtures and 35 browser checks pass; 30/32 screenshot pairs are identical and the other two have negligible pixel differences. All LWBridge Python inspectors were syntax-parsed only. No denied verifier/disassembly was retried and no live game operation was proven. See [review 4 evidence](evidence/lwbridge-implementation/2026-09-08-pm-review-4.json). The independent PM2 reproducer results remain the earlier audit's evidence; this review reran the standard suite containing the fixes.
+Review 5: Release build, standard backend/map suite, frontend integrity, five preference scenarios and both Node transport checks pass. PM5-01 inspector metadata was checked without binary execution. Native-host/visual matrices were not repeated because those sources are unchanged; their review-4 evidence remains historical. No real game operation or denied verifier/read was attempted. [Review 5 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) records limits and source hashes.
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check

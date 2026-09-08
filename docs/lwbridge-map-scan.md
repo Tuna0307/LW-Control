@@ -2,6 +2,22 @@
 
 Map Scan is the first feature to recover one-for-one.
 
+## Current finding summary — review 5, 2026-09-09
+
+This document preserves dated findings, including superseded interpretations. Use the latest applicable source-backed result below rather than copying an older "remaining unknowns" paragraph as current status.
+
+| Findings | Current interpretation |
+|---|---|
+| R6-003–005 | Default persistence/query/UI consumers plus alliance/name/item filter foundation. |
+| R6-006 → R6-010 | Special-only dispatch/ghost; reindeer-only truck. The R6-006 JSON's railway entry is historical. PM5-01 corrects the old inspector metadata and labels its frontend-gate provenance. |
+| R6-007 | Exact literal keyword escaping/substrings; implemented offline. |
+| R6-008 | Consistent count/page snapshot; implementation policy and meaningful WAL test, not original transaction recovery. |
+| R6-009 | Treasure/supplies and dispatch levels implemented offline; option SQL families partially recovered. Full treasure queries and options remain gated. |
+| R6-011 | Schema metadata/migration markers recovered; supported version/transition/timestamp inputs unresolved. |
+| R6-012 → R6-013 | Ordinary quality equals 1/2/3/4, UR >=5. The special-UR exclusion applies only to ordinary truck UR. |
+
+Current remaining query gaps include completion/reward clocks, plunderability, viewer/foreign-radar/lucky behavior, alternate sort expressions/order, options assembly and summary server selection. Export, native identities and live ingestion/scan remain open. Historical restrictions and escalation reasons are in [the ESC register](daybreak-escalations.md). The regular AI owns further investigation until an exhausted-method request is reviewed; these topics are not automatic Daybreak assignments.
+
 ## RECOVERED control path
 
 Static xrefs tie `enterWorldMap` and `startMapScan` to `src\\services\\map_scan.rs`.

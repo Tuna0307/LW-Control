@@ -64,9 +64,14 @@ def main() -> int:
             "fileOffsets": {name: f"0x{offset:08X}" for name, offset in offsets.items()},
             "frontendKinds": {
                 "specialOnly": ["dispatch", "ghost"],
-                "reindeerOnly": ["truck", "railway"],
+                "reindeerOnly": ["truck"],
             },
-            "correlatedFrontendFinding": "LWB-R6-004",
+            "correlatedFrontendFinding": "LWB-R6-010",
+            "frontendKindEvidence": {
+                "source": "evidence/lwbridge-implementation/2026-09-08-r6-map-quality-selector-kind-gates.json",
+                "scope": "Saved frontend finding; this binary-marker inspector does not independently verify UI kind gates.",
+                "supersedes": "LWB-R6-006 originally included railway for reindeerOnly; LWB-R6-010 corrects it to truck only.",
+            },
         },
         "reproduction": (
             "python tools\\inspect_lwbridge_map_query_boolean_filters.py "
@@ -88,11 +93,11 @@ def main() -> int:
             "checks": [
                 "verified reference SHA-256",
                 "verified each field and predicate occurs once and is byte-adjacent",
-                "deterministic LWBridge.Desktop.Checks mapContract suite",
             ],
+            "implementationValidation": "Run LWBridge.Desktop.Checks separately; this inspector does not execute the backend suite.",
             "limits": (
-                "no live scan or native ingestion; adjacent quality, time, plunder, "
-                "treasure and alternate-sort semantics remain fail-closed"
+                "no live scan or native ingestion; this inspector covers boolean predicates only. "
+                "Consult the latest feature ledger for other filters and their remaining gates."
             ),
         },
     }

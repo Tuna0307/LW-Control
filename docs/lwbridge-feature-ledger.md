@@ -5,25 +5,15 @@ original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
-## Project-manager review 4 — implementation `5174cf9` (2026-09-08)
+## Project-manager review 5 — implementation `d4e9790` (2026-09-09)
 
-See [the source audit and R1–R10 exit criteria](lwbridge-project-status.md). The tables below credit implemented slices only: no complete Overview lifecycle or production Map Data workflow is LIVE-PROVEN. Milestone A environment hashes below are the earlier recorded baseline, not a fresh runtime fingerprint from this review.
+[The current audit](lwbridge-project-status.md) combines both task streams and their actual proof boundaries. Daybreak completed R6-006/007 slices; the regular AI added R6-008–013 and corrected the reindeer gate. Keyword, truck-only reindeer, special, treasure/dispatch and ordinary-quality filters plus count/page snapshots pass fresh offline tests. Native launch/capture/full-tab/live acceptance remains open.
 
-- R1 and independent PM2 checks pass. R3/R4 native-host ownership, responsiveness and preference interaction cases pass, including PM3-01 visible errors and PM3-02 failed-overlap reconciliation/recovery. Real lifecycle/scan worker integration and diagnostics remain open.
-- O04/O05 currently save preferences only. O02 start rejects; O03 stop rejects; O06 recovery is constant idle state. `profile_instances_reconcile` is a status read, not startup launch.
-- Map start only normalizes/rejects. Map stop returns unavailable state; it has no running service to cancel. Summary zeroes describe unavailable storage, not a successful empty scan.
-- Server-jump history is now validated/persisted per local profile. Localization still returns an empty dictionary and logging is a no-op. Do not mark those dependencies complete based on successful RPC responses.
-- M03/M05–M09 and durable job-store portions can be recovered/implemented/tested offline during R5 bootstrap research. Their end-to-end/live acceptance remains open; “blocked” must not prevent independent offline work.
-- Review 4 freshly reran the standard backend suite, preference provider matrix/original PM3 reproducer, actual isolated WebView host, nine fixtures, 35 browser checks and 32 pixel comparisons. PM3 feedback/reconciliation is accepted. See [review 4 evidence](../evidence/lwbridge-implementation/2026-09-08-pm-review-4.json); no new binary extraction or live-game outcome was claimed.
-- `LWB-R6-005` adds offline-tested alliance/no-alliance, resource/monster name-key and truck/railway item predicates to the earlier default search. Remaining filters, native keys, options/summary/export and real ingestion still need work.
-- `LWB-R6-006` adds offline-tested dispatch/ghost `specialOnly` and the recovered `reindeerOnly` predicate. `LWB-R6-010` later corrects the visible frontend kind gate to truck only; railway is fail-closed. Adjacent ordinary quality, clock, plunderability, treasure and alternate-sort semantics remain unresolved.
-- `LWB-R6-007` adds offline-tested case-insensitive literal-substring keyword search across `name`, `alliance_name`, `uuid` and `data_json`, including the original wildcard escape order and four parameter copies.
-- `LWB-R6-008` adds an **IMPLEMENTATION POLICY** read snapshot around count/page SQL; a second WAL connection can commit mid-search without producing mismatched `{rows,total}` generations.
-- `LWB-R6-009` recovers the option aggregation SQL family/latest scan-summary query and adds offline-tested treasure option-pair plus dispatch selected-level filtering. Time-bearing option/query branches remain gated.
-- `LWB-R6-010` audits the original quality selector: ordinary values are `n/r/sr/ssr/ur` on truck/railway/dispatch/ghost, `special` is visible for dispatch/ghost, and `reindeer` is visible only for truck. The contract now rejects railway `reindeerOnly`; ordinary quality remains fail-closed because the backend mapping, especially `UR >=5` versus equality, is not proven.
-- `LWB-R6-011` recovers the original map-database `schema_version` metadata read/upsert, `MAP_SCHEMA_TOO_NEW` error vocabulary, dispatch-assist migration SQL and `legacy_import_completed` metadata marker. The supported version constant, migration threshold/order and metadata timestamp unit are still unknown, so versioned migration remains unimplemented rather than approximated.
-- `LWB-R6-012` records the byte-adjacent ordinary-quality/special-UR guard. `LWB-R6-013` follows its control flow and narrows that guard to truck+ordinary-UR, while recovering and offline-testing the complete selector mapping: `n/r/sr/ssr = 1/2/3/4` and `ur >=5`.
-- `LWB-R5-004` includes prior observed static findings but its new verifier execution was denied; `005` relies on retained bounded disassembly after broader analysis was denied. Preserve those provenance limits. Use [DB-01–06 and SB-01/02](deep-binary-handoff.md) for research routing; do not interpret a model change as permission to replay denied operations.
+Use the current [Map Data finding summary](lwbridge-map-scan.md) to resolve historical contradictions: R6-010 supersedes R6-006's railway kind, and R6-013 narrows R6-012's exclusion to ordinary truck UR. PM5-01 fixes the stale inspector metadata without rewriting the old JSON. Schema/clock/options/summary/export prerequisites remain partial.
+
+**Ownership:** [regular AI](implementation-handoff.md) first, including permitted binary analysis; [Daybreak](deep-binary-handoff.md) only after a documented exhausted-method request and PM review in [the ESC register](daybreak-escalations.md). No new technical specialist assignment is approved. Existing DB labels are not dispatch instructions.
+
+Fresh build/backend/provider/transport checks pass; [review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) distinguishes those from historical WebView/visual and binary recovery checks. O02 start/O03 stop still reject; O04/O05 store preferences, not a functioning lifecycle; status/pending/travel/localization/jobs remain partial. None of the 47 full acceptance cases is newly closed.
 
 ## Milestone A environment evidence
 
@@ -100,11 +90,4 @@ node tools/check_lwbridge_transport_boundary.cjs
 ./tools/capture_lwbridge_ui.ps1
 ```
 
-Review 4 reran generation/build, the standard backend suite, the provider matrix,
-the original PM3 reproducer, actual isolated WebView host, nine fixtures and the
-35-browser/32-pixel comparison matrix. Console storage is isolated; installed-client
-diagnostics are optional unless `--require-installed` is supplied. The standard
-suite covers the PM2 fixes; the standalone PM2 reproducer was last rerun in the
-earlier audit. No live-game functionality is proven by these checks. See
-[review 4 evidence](../evidence/lwbridge-implementation/2026-09-08-pm-review-4.json)
-for current results and the separate recorded binary-analysis restrictions.
+Review 5 reran generation/build, the standard backend/map suite, preference provider and both transport harnesses. It syntax-parsed inspector sources and checked PM5-01 metadata without executing the binary verifier. WebView/visual comparisons remain the prior audit's evidence because those sources are unchanged. See [review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json); no live-game functionality is established by these checks.

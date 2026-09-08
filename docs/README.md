@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for review 4: accepted preference fixes, new R5/R6 findings, fresh checks and the research/implementation split. [`deep-binary-handoff.md`](deep-binary-handoff.md) is the separate research supplement for the user's Daybreak task, including DB-01–06 and the operation-specific SB-01/02 restrictions. It does not replace `task.md` or authorize replaying denied actions. The [review 3/follow-ups](reviews/2026-09-08-review-3-and-followups.md) and [review 2/follow-ups](reviews/2026-09-08-review-2-and-followups.md) are historical only.
+Start with [review 5](lwbridge-project-status.md), which combines both task streams and replaces the [review 4/follow-ups](reviews/2026-09-09-review-4-and-followups.md). Read [the regular-AI task](implementation-handoff.md), [the Daybreak specialist task](deep-binary-handoff.md) and [the escalation register](daybreak-escalations.md). The regular AI owns all work first; specialist assignment requires documented attempted/exhausted permitted methods and PM review. The [prior broad handoff](reviews/2026-09-09-prior-deep-binary-handoff.md) is historical and no longer assigns all deep research to Daybreak.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -21,9 +21,11 @@ Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for review
 - [`../task.md`](../task.md) is the primary AI instruction file and full Overview + Map Data acceptance specification.
 - [`../BACKLOG.md`](../BACKLOG.md) is the current progress checklist, renamed from `TASKS.md`. Do not recreate the old name or duplicate the requirements.
 
-- [`deep-binary-handoff.md`](deep-binary-handoff.md) assigns unresolved research questions and identifies ordinary implementation that can continue independently.
+- [Regular task](implementation-handoff.md) and [specialist task](deep-binary-handoff.md) provide distinct ownership/delivery instructions; [ESC register](daybreak-escalations.md) records requests, reasons and decisions. Both tasks inherit `task.md`.
 
 ## Visual and machine-readable evidence
+
+- [Review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) records combined R6 progress, PM5-01 correction, fresh checks and reported restrictions.
 
 - [`ui-reproduction/`](ui-reproduction/) contains the current deterministic UI regression evidence.
 - [`task-reference/`](task-reference/) contains the user-supplied Overview and Map Data visual references.
