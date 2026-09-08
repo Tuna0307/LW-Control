@@ -262,7 +262,7 @@ internal sealed class MapDataStore : IDisposable
                 "page.kind=$kind",
                 "page.server_id=$server",
             };
-            // LWB-R6-005/006/007: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
+            // LWB-R6-005/006/007/013: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
             if (options.Keyword is not null)
@@ -282,6 +282,13 @@ internal sealed class MapDataStore : IDisposable
                 predicates.Add("CAST(json_extract(page.data_json,'$.treasureType') AS INTEGER) = $treasureType");
                 predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.suppliesType') AS INTEGER),0) = 0");
             }
+            if (options.Quality is "n" or "r" or "sr" or "ssr")
+                predicates.Add("page.quality = $quality");
+            else if (options.Quality == "ur")
+                predicates.Add("page.quality >= 5");
+            // LWB-R6-013: the original applies this extra guard only to ordinary truck UR.
+            if (options.Kind == "truck" && options.Quality == "ur")
+                predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0");
             if (options.ItemKey is not null)
                 predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey)");
             if (options.SpecialOnly)
@@ -535,6 +542,15 @@ internal sealed class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$suppliesType", options.SuppliesType.Value);
         if (options.TreasureType > 0)
             command.Parameters.AddWithValue("$treasureType", options.TreasureType.Value);
+        if (options.Quality is "n" or "r" or "sr" or "ssr")
+            command.Parameters.AddWithValue("$quality", options.Quality switch
+            {
+                "n" => 1,
+                "r" => 2,
+                "sr" => 3,
+                "ssr" => 4,
+                _ => throw new InvalidOperationException("Recovered ordinary quality selector is invalid."),
+            });
         if (options.ItemKey is not null)
             command.Parameters.AddWithValue("$itemKey", options.ItemKey);
         if (options.MinLevel is not null)

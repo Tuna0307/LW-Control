@@ -1,0 +1,48 @@
+LWB-R6-013 — ordinary quality selector mapping and truck UR exclusion
+Date: 2026-09-08
+Scope: verified LWBridge 0.3.1 Map Data backend static query behavior
+
+Source identity
+- Artifact: ..\LW\lwbridge-0.3.1.exe
+- SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+- Coordinate systems: raw PE file offsets and preferred-image virtual addresses
+- Map-search function: 0x140271864-0x140276D7B
+
+Reproduction
+- python tools\inspect_lwbridge_map_quality.py ..\LW\lwbridge-0.3.1.exe --json
+- Required analysis packages already used by the project: capstone 5.0.6 and pefile 2024.8.26.
+
+Exact selector recovery
+- quality field raw offset 0x00C89E59; xref 0x140273E02.
+- n: selector compare at 0x140273F91; ecx=1 at 0x140274027; shared helper call 0x14027402C.
+- r: selector compare at 0x140273F9A; ecx=2 at 0x140273FAD; shared helper call 0x14027402C.
+- sr: selector compare at 0x140273E5E; ecx=3 at 0x140273E73; shared helper call 0x14027402C.
+- ssr: selector compare at 0x140273F61-0x140273F74; ecx=4 at 0x140273F84; shared helper call 0x14027402C.
+- ur: selector compare at 0x140273E53; literal SQL assembled at 0x140273FCD/0x140273FDA as `quality >= 5`.
+
+Shared equality helper
+- Function: 0x14027A129-0x14027A1E3.
+- Reads the `quality` field marker at 0x14027A13B.
+- Uses the ` = ?` format descriptor at raw file offset 0x00C8B3F7.
+- Stores a bound integer parameter from rdi at 0x14027A1CD.
+- Therefore the ordinary selector predicates are exactly:
+  n -> quality = ? with 1
+  r -> quality = ? with 2
+  sr -> quality = ? with 3
+  ssr -> quality = ? with 4
+  ur -> quality >= 5 with no quality parameter
+
+Truck UR special-quality exclusion
+- After the ordinary quality branch, control flow at 0x140274033-0x140274078 checks kind `truck` and selector `ur`.
+- Only that branch references raw predicate 0x00C89E60 at xref 0x140274093:
+  COALESCE(CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0
+- Thus ordinary truck UR excludes special-UR/reindeer rows. Railway/dispatch/ghost UR do not receive this extra guard from this branch.
+
+Refinement of LWB-R6-012
+- LWB-R6-012 correctly recorded the byte adjacency between `quality` and the special-UR exclusion predicate, but its broad interpretation that ordinary quality generally excludes special-UR rows was incomplete.
+- LWB-R6-013 follows the executable control flow and narrows the predicate to kind=truck plus selector=ur. Active documentation should use this narrower result while preserving R6-012 as historical evidence.
+
+Validation and limits
+- RECOVERED static and deterministic verifier-backed; not LIVE-PROVEN.
+- The backend also accepts a numeric quality representation and binds equality, but the recovered frontend emits the five string selectors above. Production reconstruction should admit those recovered frontend forms and keep other forms fail-closed unless separately required/proven.
+- Completion-status clocks, plunderability, treasure visibility/lucky behavior, remaining sorts, public map_data_options assembly and authoritative map_summary selection remain separate DB-05 gaps.

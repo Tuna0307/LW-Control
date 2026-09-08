@@ -783,10 +783,10 @@ var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)
     ("city", "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"alliance\":\"ONE\",\"markedOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("resource", "{\"kind\":\"resource\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"resourceNameKey\":\"iron\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
-    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
-    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
+    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["plunderableOnly"]),
+    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["plunderableOnly"]),
     ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus", "plunderableOnly"]),
-    ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "completionStatus"]),
+    ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus"]),
     ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"suppliesType\":0,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
 };
 foreach ((string name, string json, string[] unsupported) in frontendMapQueryCases)
@@ -836,16 +836,28 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "{\"serverId\":7,\"monsterNameKey\":\"zombie\",\"level\":20,\"updatedAt\":2200}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "truck", 7, "truck-item-1", 41, "truck-a", "Truck A", null,
-        null, null, null, null, null, 2100,
-        "{\"serverId\":7,\"uuid\":\"truck-a\",\"currentGoods\":[{\"key\":\"item:1\",\"count\":2}],\"updatedAt\":2100}"));
+        null, 5, null, null, null, 2100,
+        "{\"serverId\":7,\"uuid\":\"truck-a\",\"quality\":5,\"isSpecialURQuality\":false,\"currentGoods\":[{\"key\":\"item:1\",\"count\":2}],\"updatedAt\":2100}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "truck", 7, "truck-item-2", 42, "truck-b", "Truck B", null,
-        null, null, null, null, null, 2000,
-        "{\"serverId\":7,\"uuid\":\"truck-b\",\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":2000}"));
+        null, 4, null, null, null, 2000,
+        "{\"serverId\":7,\"uuid\":\"truck-b\",\"quality\":4,\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":2000}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "truck", 7, "truck-reindeer", 43, "truck-c", "Truck C", null,
-        null, null, null, null, null, 1900,
-        "{\"serverId\":7,\"uuid\":\"truck-c\",\"isSpecialURQuality\":true,\"updatedAt\":1900}"));
+        null, 6, null, null, null, 1900,
+        "{\"serverId\":7,\"uuid\":\"truck-c\",\"quality\":6,\"isSpecialURQuality\":true,\"updatedAt\":1900}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-n", 44, "truck-d", "Truck D", null,
+        null, 1, null, null, null, 1890,
+        "{\"serverId\":7,\"uuid\":\"truck-d\",\"quality\":1,\"updatedAt\":1890}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-r", 45, "truck-e", "Truck E", null,
+        null, 2, null, null, null, 1880,
+        "{\"serverId\":7,\"uuid\":\"truck-e\",\"quality\":2,\"updatedAt\":1880}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-sr", 46, "truck-f", "Truck F", null,
+        null, 3, null, null, null, 1870,
+        "{\"serverId\":7,\"uuid\":\"truck-f\",\"quality\":3,\"updatedAt\":1870}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "dispatch", 7, "dispatch-regular", 51, "dispatch-a", "Dispatch A", null,
         6, null, null, null, null, 1800,
@@ -1072,6 +1084,56 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
     Check(MapDataQueryContract.NormalizeSearch(partialTreasureSelection.RootElement).UnsupportedFeatures
             .SequenceEqual(new[] { "treasureType", "suppliesType" }),
         "treasure filter rejects a partial selection because the frontend emits both dimensions");
+
+    foreach ((string quality, string expectedUuid) in new[]
+    {
+        ("n", "truck-d"),
+        ("r", "truck-e"),
+        ("sr", "truck-f"),
+        ("ssr", "truck-b"),
+        ("ur", "truck-a"),
+    })
+    {
+        using JsonDocument qualitySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "truck",
+            query = new { serverId = 7, quality },
+        }));
+        object? qualityResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", qualitySearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(qualityResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"truck quality {quality} uses recovered ordinary-quality predicate and binding");
+    }
+
+    foreach (string kind in new[] { "truck", "railway", "dispatch", "ghost" })
+    {
+        using JsonDocument supportedQuality = JsonDocument.Parse(
+            $"{{\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"quality\":\"ur\"}}}}");
+        Check(MapDataQueryContract.NormalizeSearch(supportedQuality.RootElement).UnsupportedFeatures.Count == 0,
+            $"ordinary quality accepts recovered frontend kind {kind}");
+    }
+
+    using JsonDocument mismatchedQuality = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"quality\":\"ur\"}}");
+    Check(MapDataQueryContract.NormalizeSearch(mismatchedQuality.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "quality" }),
+        "ordinary quality remains fail-closed outside the four recovered frontend kinds");
+
+    using JsonDocument unknownQuality = JsonDocument.Parse(
+        "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"quality\":\"legendary\"}}");
+    Check(MapDataQueryContract.NormalizeSearch(unknownQuality.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "quality" }),
+        "unknown quality selector remains fail-closed");
+
+    using JsonDocument numericQuality = JsonDocument.Parse(
+        "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"quality\":5}}");
+    Check(MapDataQueryContract.NormalizeSearch(numericQuality.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "quality" }),
+        "numeric backend quality form remains outside the recovered frontend public contract");
 
     using JsonDocument dispatchLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

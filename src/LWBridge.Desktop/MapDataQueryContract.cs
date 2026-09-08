@@ -18,6 +18,7 @@ internal sealed record MapDataQueryOptions(
     string? MonsterNameKey,
     int? TreasureType,
     int? SuppliesType,
+    string? Quality,
     string? ItemKey,
     bool SpecialOnly,
     bool ReindeerOnly,
@@ -79,6 +80,7 @@ internal static class MapDataQueryContract
         string? monsterNameKey = OptionalString(query, "monsterNameKey");
         int? treasureType = OptionalNonNegativeInt(query, "treasureType");
         int? suppliesType = OptionalNonNegativeInt(query, "suppliesType");
+        string? quality = OptionalString(query, "quality");
         string? itemKey = OptionalString(query, "itemKey");
         bool specialOnly = OptionalTrue(query, "specialOnly");
         bool reindeerOnly = OptionalTrue(query, "reindeerOnly");
@@ -105,6 +107,7 @@ internal static class MapDataQueryContract
             monsterNameKey,
             treasureType,
             suppliesType,
+            quality,
             itemKey,
             specialOnly,
             reindeerOnly,
@@ -201,6 +204,10 @@ internal static class MapDataQueryContract
         "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "treasureType" => kind == "treasure" && IsNonNegativeInteger(value),
         "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
+        // LWB-R6-013: recovered frontend emits only these five string forms.
+        "quality" => kind is "truck" or "railway" or "dispatch" or "ghost" &&
+                     value.ValueKind == JsonValueKind.String &&
+                     value.GetString() is "n" or "r" or "sr" or "ssr" or "ur",
         "itemKey" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
