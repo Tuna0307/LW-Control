@@ -2,6 +2,8 @@
 
 This directory contains current LWBridge reconstruction and official-client evidence. Start here instead of browsing files by date or guessing which notes are authoritative.
 
+**Mandatory before working:** [../AGENTS.md](../AGENTS.md) defines the user's repository-wide reverse-engineer-first, no-invented-values, immediate-finding-documentation and checkpoint commit/push rules. Every AI and contributor must follow them. New findings require source identity/hash, an exact locator, reproduction steps, evidence status and limitations; update this index and the feature ledger when adding durable material.
+
 ## Reading order
 
 Start with [`lwbridge-project-status.md`](lwbridge-project-status.md) for project-manager review 2: verified progress, four reproduced PM2 defects and ordered remaining work. The subject documents below retain technical evidence.

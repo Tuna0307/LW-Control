@@ -26,7 +26,9 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 
 ## Start here
 
-Read [docs/README.md](docs/README.md) first. It is the documentation index and defines the current reading order.
+**Every AI/contributor must first read [AGENTS.md](AGENTS.md).** These are mandatory user rules: reverse-engineer verified LWBridge and current official Last War artifacts before inferring behavior, never invent facts or numbers, document every successful recovery immediately, and commit/push each completed task or checkpoint to GitHub with verification.
+
+Then read [docs/README.md](docs/README.md) for the evidence index and current reading order. Include `AGENTS.md` and `task.md` when handing work to another AI.
 
 The two active planning files are:
 

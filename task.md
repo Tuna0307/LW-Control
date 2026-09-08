@@ -1,5 +1,15 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
+## Mandatory user rules — apply to every AI and every checkpoint
+
+Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements are mandatory and must be included in delegated work/handoffs. Even when this task file is passed alone, the following rules still apply:
+
+1. **Reverse-engineer first.** Prioritize the verified LWBridge executable/recovered assets and the current official Last War files, executables and runtime evidence. Trace original/current contracts before implementing them. Never invent values, defaults, offsets, schemas, timings, formulas or success conditions. Every recovered behavior-affecting value needs source provenance; unknowns remain `UNKNOWN/BLOCKED`, not arbitrary production fallbacks. Explicit rebuild design choices must be labelled `IMPLEMENTATION POLICY` and cannot masquerade as recovered parity.
+2. **Document every successful finding immediately.** Save it in the existing subject document/evidence directory before relying on it or moving on. Include a stable finding ID, source hash/version, exact locator, reproduction command/steps, result/types/units, evidence label, validation/limits, affected feature/code and remaining questions. Chat/scratch output alone is insufficient. Update the evidence index, feature ledger and backlog so the next AI can reproduce and continue the work.
+3. **Commit and push each completed task or coherent checkpoint.** Run applicable checks, document results and open gates, review/stage only the relevant changes, commit and push to the verified working branch on GitHub, then verify/report the remote commit. This is the user's standing project instruction. Do not force-push, silently skip delivery or claim a blocked feature is finished. Record the exact blocker if delivery cannot complete.
+
+Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
+
 Prepared: 2026-09-08; updated by project-manager review 2. **This is the primary AI instruction and full acceptance file.** Use `docs/README.md` for the evidence reading order and [BACKLOG.md](BACKLOG.md) for current progress/next actions. The checklist was previously called `TASKS.md`; it has been renamed to remove the ambiguity. Do not create another task specification.
 
 ## Current project-manager handoff — read before starting

@@ -8,12 +8,14 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 
 ## Project rules
 
+**Mandatory on every task/checkpoint, not one-time checkboxes:** follow [AGENTS.md](AGENTS.md). Prioritize reverse-engineering verified LWBridge and current official Last War artifacts; never invent production facts or numbers. Immediately document every successful recovery with source/hash/locator/reproduction/limits. Update evidence and progress, run applicable checks, then commit and push the completed task/checkpoint to the verified GitHub branch and confirm the remote revision. Report actual blockers rather than silently skipping these requirements.
+
 - [x] LWBridge is the only feature authority for this repository.
 - [x] Active login/account/license UI is excluded from the independent rebuild.
 - [x] Original recovered frontend assets are persisted with an integrity manifest.
 - [x] Fixture/capture mode is isolated from live game actions.
-- [ ] Keep RECOVERED, IMPLEMENTED/OFFLINE-TESTED, LIVE-PROVEN, and UNKNOWN/BLOCKED findings separate in every feature record.
-- [ ] Document each newly confirmed reverse-engineering finding as it is recovered.
+- Keep RECOVERED, IMPLEMENTED/OFFLINE-TESTED, LIVE-PROVEN, UNKNOWN/BLOCKED and explicitly labelled IMPLEMENTATION POLICY distinct in every feature record.
+- Document each newly confirmed finding immediately; no recovery/task checkpoint is complete without its durable evidence and GitHub delivery or an explicitly recorded delivery blocker.
 
 ## Completed foundation
 
