@@ -203,7 +203,7 @@ internal static class MapDataQueryContract
         "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
         "itemKey" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
-        "reindeerOnly" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.True,
+        "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
         "minLevel" => kind == "dispatch" && IsPositiveInteger(value),
         "maxLevel" => kind == "dispatch" && IsPositiveInteger(value),
         _ => false,

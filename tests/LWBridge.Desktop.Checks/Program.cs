@@ -1100,7 +1100,6 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         ("dispatch", "specialOnly"),
         ("ghost", "specialOnly"),
         ("truck", "reindeerOnly"),
-        ("railway", "reindeerOnly"),
     })
     {
         using JsonDocument supportedBoolean = JsonDocument.Parse(
@@ -1108,6 +1107,12 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         Check(MapDataQueryContract.NormalizeSearch(supportedBoolean.RootElement).UnsupportedFeatures.Count == 0,
             $"{field} accepts recovered frontend kind {kind}");
     }
+
+    using JsonDocument mismatchedReindeerSearch = JsonDocument.Parse(
+        "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"reindeerOnly\":true}}");
+    Check(MapDataQueryContract.NormalizeSearch(mismatchedReindeerSearch.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "reindeerOnly" }),
+        "reindeerOnly remains fail-closed on railway because the recovered visible selector only emits it for truck");
 
     using JsonDocument explicitFalseSpecial = JsonDocument.Parse(
         "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"specialOnly\":false}}");
