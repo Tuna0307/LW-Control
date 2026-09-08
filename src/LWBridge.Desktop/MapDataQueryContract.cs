@@ -16,6 +16,8 @@ internal sealed record MapDataQueryOptions(
     string? ResourceNameKey,
     string? MonsterNameKey,
     string? ItemKey,
+    bool SpecialOnly,
+    bool ReindeerOnly,
     IReadOnlyList<string> UnsupportedFeatures);
 
 internal static class MapDataQueryContract
@@ -70,6 +72,8 @@ internal static class MapDataQueryContract
         string? resourceNameKey = OptionalString(query, "resourceNameKey");
         string? monsterNameKey = OptionalString(query, "monsterNameKey");
         string? itemKey = OptionalString(query, "itemKey");
+        bool specialOnly = OptionalTrue(query, "specialOnly");
+        bool reindeerOnly = OptionalTrue(query, "reindeerOnly");
         IReadOnlyList<string> unsupported = CollectUnsupportedFeatures(kind, query, sorts, markedOnly);
         return new MapDataQueryOptions(
             kind,
@@ -83,6 +87,8 @@ internal static class MapDataQueryContract
             resourceNameKey,
             monsterNameKey,
             itemKey,
+            specialOnly,
+            reindeerOnly,
             unsupported);
     }
 
@@ -151,12 +157,14 @@ internal static class MapDataQueryContract
 
     private static bool IsRecoveredFilter(string kind, string name, JsonElement value) => name switch
     {
-        // LWB-R6-005: only frontend-emitted forms backed by verified original predicate strings are accepted.
+        // LWB-R6-005/006: only frontend-emitted forms backed by verified original predicate strings are accepted.
         "alliance" => kind == "city" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
         "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "itemKey" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
+        "reindeerOnly" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.True,
         _ => false,
     };
 

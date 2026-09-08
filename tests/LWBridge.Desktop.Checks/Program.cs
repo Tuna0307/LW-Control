@@ -762,7 +762,7 @@ var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)
     ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
     ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "plunderableOnly"]),
-    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["specialOnly", "completionStatus", "plunderableOnly", "minLevel", "maxLevel"]),
+    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["completionStatus", "plunderableOnly", "minLevel", "maxLevel"]),
     ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["quality", "completionStatus"]),
     ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["treasureType", "includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
 };
@@ -819,6 +819,18 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "truck", 7, "truck-item-2", 42, "truck-b", "Truck B", null,
         null, null, null, null, null, 2000,
         "{\"serverId\":7,\"uuid\":\"truck-b\",\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":2000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-reindeer", 43, "truck-c", "Truck C", null,
+        null, null, null, null, null, 1900,
+        "{\"serverId\":7,\"uuid\":\"truck-c\",\"isSpecialURQuality\":true,\"updatedAt\":1900}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "dispatch", 7, "dispatch-regular", 51, "dispatch-a", "Dispatch A", null,
+        null, null, null, null, null, 1800,
+        "{\"serverId\":7,\"uuid\":\"dispatch-a\",\"isSpecial\":false,\"updatedAt\":1800}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "dispatch", 7, "dispatch-special", 52, "dispatch-b", "Dispatch B", null,
+        null, null, null, null, null, 1700,
+        "{\"serverId\":7,\"uuid\":\"dispatch-b\",\"isSpecial\":true,\"updatedAt\":1700}"));
     indexedSearchStore.UpsertPlayerMark(new MapPlayerMark(
         7, "10000000000000000001", "active", 4000, null,
         "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\"}"));
@@ -971,6 +983,49 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
               rows[0].GetProperty("uuid").GetString() == "truck-a",
             "truck itemKey search uses recovered currentGoods membership predicate");
     }
+
+    foreach ((string kind, string field, string expectedUuid) in new[]
+    {
+        ("dispatch", "specialOnly", "dispatch-b"),
+        ("truck", "reindeerOnly", "truck-c"),
+    })
+    {
+        string queryJson = $"{{\"profileId\":\"{indexedSearchBackend.ProfileId}\",\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"{field}\":true}}}}";
+        using JsonDocument booleanSearch = JsonDocument.Parse(queryJson);
+        object? booleanResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", booleanSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(booleanResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"{kind} {field} search uses recovered JSON boolean predicate");
+    }
+
+    using JsonDocument mismatchedSpecialSearch = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"specialOnly\":true}}");
+    Check(MapDataQueryContract.NormalizeSearch(mismatchedSpecialSearch.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "specialOnly" }),
+        "specialOnly remains fail-closed outside recovered dispatch/ghost kinds");
+
+    foreach ((string kind, string field) in new[]
+    {
+        ("dispatch", "specialOnly"),
+        ("ghost", "specialOnly"),
+        ("truck", "reindeerOnly"),
+        ("railway", "reindeerOnly"),
+    })
+    {
+        using JsonDocument supportedBoolean = JsonDocument.Parse(
+            $"{{\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"{field}\":true}}}}");
+        Check(MapDataQueryContract.NormalizeSearch(supportedBoolean.RootElement).UnsupportedFeatures.Count == 0,
+            $"{field} accepts recovered frontend kind {kind}");
+    }
+
+    using JsonDocument explicitFalseSpecial = JsonDocument.Parse(
+        "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"specialOnly\":false}}");
+    Check(MapDataQueryContract.NormalizeSearch(explicitFalseSpecial.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "specialOnly" }),
+        "explicit false specialOnly stays fail-closed because the recovered frontend omits that form");
 
     using JsonDocument unrecoveredKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

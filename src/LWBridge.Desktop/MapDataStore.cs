@@ -253,7 +253,7 @@ internal sealed class MapDataStore : IDisposable
                 "page.kind=$kind",
                 "page.server_id=$server",
             };
-            // LWB-R6-005: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
+            // LWB-R6-005/006: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
             if (options.Alliance is not null)
@@ -266,6 +266,10 @@ internal sealed class MapDataStore : IDisposable
                 predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) = $monsterNameKey");
             if (options.ItemKey is not null)
                 predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey)");
+            if (options.SpecialOnly)
+                predicates.Add("CAST(json_extract(page.data_json,'$.isSpecial') AS INTEGER) = 1");
+            if (options.ReindeerOnly)
+                predicates.Add("CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER) = 1");
             string where = string.Join(" AND ", predicates);
 
             int total;
