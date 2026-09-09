@@ -1,6 +1,6 @@
 # Daybreak task — specialist escalation only
 
-Updated 2026-09-09 by project-manager review 6 against `3138fe9`. Read [AGENTS.md](../AGENTS.md) section 6, [task.md](../task.md), [the current audit](lwbridge-project-status.md) and [the escalation register](daybreak-escalations.md). This replaces the earlier broad binary-research assignment; its [historical catalog](reviews/2026-09-09-prior-deep-binary-handoff.md) remains a source map, not an active queue.
+Updated 2026-09-09 by project-manager review 7 against `0273569`. Read [AGENTS.md](../AGENTS.md) section 6, [task.md](../task.md), [the current audit](lwbridge-project-status.md) and [the escalation register](daybreak-escalations.md). This replaces the earlier broad binary-research assignment; its [historical catalog](reviews/2026-09-09-prior-deep-binary-handoff.md) remains a source map, not an active queue.
 
 ## What your previous task actually completed
 
@@ -8,7 +8,9 @@ The task **Start deep binary handoff** delivered `6e1d80f` (R6-006 boolean filte
 
 ## Assignment gate
 
-**No new technical Daybreak escalation is approved.** ESC-001 was resolved by regular-AI R6-014 and is CLOSED. The regular AI also resolved treasure option key formatting in R6-023. ESC-002 (schema), ESC-003 (public options source/assembly) and ESC-004 (export semantics) remain NEEDS_INFORMATION. Their gaps are real, but the request packets do not yet establish exhaustion of relevant permitted methods or a concrete specialist scope. Do not revive resolved work or infer an assignment from an SB number.
+**No technical Daybreak assignment is approved in review 7.** ESC-001 is CLOSED. The regular AI has also resolved option keys, source/run selection, no-alliance assembly and the summary envelope/error-propagation subquestions. Do not redo them.
+
+ESC-003 is **NOT_ASSIGNED after PM review**. Its method history is now detailed enough for this decision; the remaining serializer question is real, but no specific permissible specialist method has been identified beyond an operation already denied, and a supported observation target was unavailable. Do not attempt that operation through this task. Reopening requires a concrete permissible approach or new evidence/target, its expected value and bounded return criteria. ESC-002 (schema) and ESC-004 (export) remain NEEDS_INFORMATION for their method/alternative inventories. See the register for exact gaps.
 
 When an ESC entry is `APPROVED` and specifically assigned to you, take only that entry's bounded question. Confirm its reviewed commit, ownership, source hashes, attempted methods and restrictions. If the packet is insufficient, return exactly what is missing to the PM; do not expand your own assignment to all remaining research.
 
@@ -30,9 +32,9 @@ No live launch/injection, travel, claim, plunder, ticket fabrication or messagin
 | DB-01/02 launch | Remaining inputs/helper/ownership/caller/unit/variant semantics and external service boundaries; regular AI first. Historical SB-01/02 remain operation-specific restrictions. |
 | DB-03 native maps | Per-kind keys/types/normalization/update/removal; regular AI first. |
 | DB-04 scheduler/capture | Coverage/order/timing, queue/drop/ack, cancellation/resume/completion; regular AI first. |
-| DB-05 queries | Public options source/assembly, treasure visibility/lucky, alternate sorts; do not redo implemented keywords, boolean gates, treasure selectors, levels or quality. |
+| DB-05 queries | Exact option progress serialization/integration, treasure visibility/lucky, complete alternate sorts; source/run and no-alliance are recovered; do not redo implemented keywords, boolean gates, treasure selectors, levels or quality. |
 | DB-06 status/actions | Authoritative pending/status/travel/actions/job semantics; regular AI first and future live proof remains separate. |
 
 The user wants specialist time spent only where documented regular-AI attempts have reached a real research/capability limit. If there is no approved request, do not manufacture a technical assignment merely to keep the specialist busy.
 
-The [review-6 outcome dashboard](daybreak-escalations.md) separates resolved questions, remaining contracts and historical delivery/documentation restrictions. No denial should be converted into an instruction to bypass it.
+The [review-7 outcome dashboard](daybreak-escalations.md) separates resolved questions, remaining contracts and historical delivery/documentation restrictions. No denial should be converted into an instruction to bypass it.

@@ -11,20 +11,18 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 6. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 7. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `3138fe9`, 2026-09-09, `research/offline-controller`. [Review 6](docs/lwbridge-project-status.md) credits regular-AI R6-014–023 and distinguishes solved questions from remaining restrictions. The UI/game integration is still incomplete; the [PM planning estimate](docs/lwbridge-completion-estimate.md) is approximately 25–30% combined engineering completion, not a live pass rate or time forecast.
+Reviewed implementation: `0273569`, 2026-09-09, `research/offline-controller`. [Review 7](docs/lwbridge-project-status.md) audits 15 commits since the previous PM checkpoint: PM6-001 and R6-024–037. The [planning estimate](docs/lwbridge-completion-estimate.md) remains approximately 25–30% combined engineering completion; no new full acceptance case is signed off.
 
-- **Accepted:** prior foundation plus clock/completion/plunderability search implementation, cross-kind quality regressions, normal hidden-host checks, persisted-only option/count/key helpers, staged publication/rollback tests, and partial export contract recovery.
-- **Resolved questions:** ESC-001 clock/source/unit closed by R6-014; treasure key suffix closed by R6-023. SB-10 delivery failure is historical; GitHub was verified at the reviewed implementation.
-- **Post-review test-hygiene fix:** `LWB-PM6-001` closes PM6-01 by bounding owned host-probe cleanup, preserving termination failures and adding a deterministic CI self-test. It changes no production Overview/Map Data capability.
-- **Still open:** public options source/full assembly and summary selection, full export semantics, schema migrations, owned launch/stop/reconnect/heartbeat, native keys/capture/scans/travel/jobs/actions. Test-only helpers do not complete these commands.
-- **Two owners:** [regular AI](docs/implementation-handoff.md) first; [Daybreak](docs/deep-binary-handoff.md) only on a specific approved specialist question. ESC-002/003/004 in [the register](docs/daybreak-escalations.md) need complete method/alternative packets, not a replay of denied actions. No new technical specialist assignment is approved.
-- **Next checkpoint:** advance a production-blocking contract or complete its escalation packet. Report which public behavior now works; otherwise label the result research/test-only and name the remaining gate. Continue independent supported work while a request is pending.
+- **Accepted:** bounded host cleanup; recovered source/run selection, alliance/no-alliance assembly and summary flow/errors; offline block checkpoint persistence; current-client state ownership and LWBridge producer/error findings. See the audit for exact limits.
+- **Still open:** exact public progress serialization, production source/state integration, complete sorts/export/schema migrations, owned launch/stop/reconnect/heartbeat, native keys/capture/scans/travel/jobs/actions. Static findings and test-only helpers do not complete these commands.
+- **Regular AI:** start [PM7-A](docs/implementation-handoff.md), then the handler/readiness and native-ingestion critical paths. Each task has explicit scope, deliverables and proof boundaries.
+- **Daybreak:** no approved assignment. ESC-001 CLOSED; ESC-003 NOT_ASSIGNED after PM review because no specific permissible specialist method is identified for the remaining serializer; ESC-002/004 still require method/alternative evidence. Follow [the register](docs/daybreak-escalations.md) and [specialist handoff](docs/deep-binary-handoff.md). A denial is not an automatic model transfer.
 
-Fresh checks and provenance limits are recorded in [review 6 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-6.json). All 47 acceptance cases and the login-free UI remain required.
+Fresh checks and provenance limits are in [review 7 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-7.json). All 47 acceptance cases and the login-free UI remain required.
 
 ## 1. The user's requested outcome
 
@@ -771,4 +769,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md` and the appropriate regular/specialist handoff. ESC-001, treasure keys and PM6-01 host cleanup are resolved; do not repeat them. Complete method/result/alternative evidence for still-open ESC-002/003/004 or close those questions through permitted evidence. A denied operation is not an automatic Daybreak assignment. Prioritize a production-blocking launch/options/ingestion contract; label test-only progress honestly. Save every confirmed finding, run relevant checks, commit/push the coherent checkpoint and verify GitHub. Preserve all 47 acceptance cases and completed cleanup.
+Read `AGENTS.md`, the current audit, `BACKLOG.md` and the appropriate handoff. Inspect the latest HEAD/worktree before edits. The regular AI starts PM7-A's bounded integration of recovered option/count scopes, then PM7-B/C or a concrete R5 blocker. Do not re-recover resolved selector/no-alliance/clock/key/cleanup work. Observe ESC-003's reviewed NOT_ASSIGNED decision and ESC-002/004's specific missing evidence; no denied operation is transferred to another model. Save findings immediately, run relevant checks, update progress, commit/push each coherent checkpoint and verify GitHub. Preserve all 47 acceptance cases and completed cleanup.

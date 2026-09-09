@@ -296,7 +296,7 @@ internal sealed class MapDataStore : IDisposable
         // only while a scan is reading the requested server and scanRunId is a
         // nonempty string. Otherwise the option/count path has no run scope and
         // uses the published map_records source. Keep this internal until the
-        // remaining native response/no-alliance/scan-progress assembly is proven.
+        // remaining exact scan-progress serialization and production state integration are proven.
         return isReading &&
                scanStateServerId == requestedServerId &&
                scanRunId is { Length: > 0 }
@@ -315,7 +315,7 @@ internal sealed class MapDataStore : IDisposable
             // IMPLEMENTATION POLICY LWB-R6-015: this helper deliberately evaluates
             // only the known persisted map_records source and one server scope. R6-030
             // now recovers the public source/run selector itself, but the complete
-            // native response/no-alliance/scan-progress assembly is still incomplete.
+            // scan-progress serialization and production state integration are still incomplete.
             // Keep one read snapshot so this offline aggregate set is internally
             // coherent while its recovered SQL families are validated.
             using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);

@@ -2,7 +2,9 @@
 
 Map Scan is the first feature to recover one-for-one.
 
-## Current finding summary — review 6, 2026-09-09
+## Current finding summary — review 7, 2026-09-09
+
+Use [PM7-A–D](implementation-handoff.md) for current work and [ESC decisions](daybreak-escalations.md) for ownership. R6-030/031 resolve source/no-alliance subquestions; ESC-003 now tracks only the remaining serializer with PM status NOT_ASSIGNED. Earlier finding limits below describe their own checkpoints and do not supersede later recovery.
 
 This document preserves dated findings, including superseded interpretations. Use the latest applicable source-backed result below rather than copying an older "remaining unknowns" paragraph as current status.
 

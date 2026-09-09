@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [review 6](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 5/follow-up narrative](reviews/2026-09-09-review-5-and-followups.md) is historical. ESC-001, treasure keys, and post-review PM6-01 host cleanup are resolved; options/export/schema gaps still require tracked work.
+Start with [review 7](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 6/follow-up narrative](reviews/2026-09-09-review-6-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -24,6 +24,8 @@ Start with [review 6](lwbridge-project-status.md), [restriction outcomes and req
 - [Regular task](implementation-handoff.md) and [specialist task](deep-binary-handoff.md) provide distinct ownership/delivery instructions; [ESC register](daybreak-escalations.md) records requests, reasons and decisions. Both tasks inherit `task.md`.
 
 ## Visual and machine-readable evidence
+
+- [Review 7 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-7.json) records the 15-commit audit, fresh checks, source hashes, limits and PM7 task/escalation decisions.
 
 - [Review 6 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-6.json) records R6-014–023 audit results, current restriction outcomes and the estimate basis.
 

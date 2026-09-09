@@ -920,7 +920,7 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         profileId = mapBackend.ProfileId,
         serverId = 91,
     }));
-    await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "public map_data_options stays fail-closed until original source/run selection is recovered", async () =>
+    await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "public map_data_options stays fail-closed until exact progress serialization and production state integration are established", async () =>
         await mapBackend.InvokeAsync("map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
