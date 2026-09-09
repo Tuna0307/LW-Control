@@ -652,6 +652,119 @@ finally
     catch { }
 }
 
+// LWB-R6-015 IMPLEMENTATION POLICY: validate the recovered option SQL families
+// against the already-published map_records source without enabling the public
+// map_data_options source/run selector, which remains unrecovered.
+using (var persistedOptionsStore = MapDataStore.CreateInMemory())
+{
+    const int optionServerId = 120;
+    const long optionNowUnixMilliseconds = 5_000;
+
+    void SeedOptionRecord(
+        string kind,
+        int serverId,
+        string recordKey,
+        string dataJson,
+        string? allianceName = null,
+        int? level = null,
+        long updatedAt = 1_000)
+    {
+        persistedOptionsStore.UpsertRecord(new MapStoredRecord(
+            kind, serverId, recordKey, null, null, null, allianceName,
+            level, null, null, null, null, updatedAt, dataJson));
+    }
+
+    SeedOptionRecord("city", optionServerId, "city-alpha-1", "{\"ownerUid\":\"a1\"}", "Alpha");
+    SeedOptionRecord("city", optionServerId, "city-alpha-2", "{\"ownerUid\":\"a2\"}", "Alpha");
+    SeedOptionRecord("city", optionServerId, "city-empty", "{\"ownerUid\":\"empty\"}", "");
+    SeedOptionRecord("city", optionServerId, "city-null", "{\"ownerUid\":\"null\"}");
+    SeedOptionRecord("city", optionServerId + 1, "city-other-server", "{\"ownerUid\":\"other\"}", "Other");
+
+    SeedOptionRecord("resource", optionServerId, "resource-wood-1", "{\"resourceNameKey\":\"wood\"}");
+    SeedOptionRecord("resource", optionServerId, "resource-wood-2", "{\"resourceNameKey\":\"wood\"}");
+    SeedOptionRecord("resource", optionServerId, "resource-empty", "{\"resourceNameKey\":\"\"}");
+    SeedOptionRecord("monster", optionServerId, "monster-zombie", "{\"monsterNameKey\":\"zombie\"}");
+
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-3-a", "{}", level: 3);
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-1", "{}", level: 1);
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-3-b", "{}", level: 3);
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-0", "{}", level: 0);
+
+    SeedOptionRecord("treasure", optionServerId, "treasure-ordinary-1",
+        "{\"suppliesType\":0,\"treasureType\":8,\"treasureNameKey\":\"treasure-8\"}");
+    SeedOptionRecord("treasure", optionServerId, "treasure-ordinary-2",
+        "{\"suppliesType\":0,\"treasureType\":8,\"treasureNameKey\":\"treasure-8-new\"}");
+    SeedOptionRecord("treasure", optionServerId, "treasure-supplies",
+        "{\"suppliesType\":4,\"treasureType\":99,\"treasureNameKey\":\"supplies-4\"}");
+    SeedOptionRecord("treasure", optionServerId, "treasure-zero",
+        "{\"suppliesType\":0,\"treasureType\":0,\"treasureNameKey\":\"zero\"}");
+
+    SeedOptionRecord("truck", optionServerId, "truck-future",
+        "{\"arriveTs\":6000,\"currentGoods\":[{\"key\":\"iron\",\"name\":\"Iron\",\"iconPath\":\"iron.png\"},{\"key\":\"iron\",\"name\":\"Iron\",\"iconPath\":\"iron.png\"}]}");
+    SeedOptionRecord("truck", optionServerId, "truck-past",
+        "{\"arriveTs\":4000,\"currentGoods\":[{\"key\":\"past\",\"name\":\"Past\",\"iconPath\":\"past.png\"}]}");
+    SeedOptionRecord("railway", optionServerId, "railway-no-arrival",
+        "{\"currentGoods\":[{\"key\":\"food\",\"name\":\"Food\"},{\"key\":\"missing-name\"}]}");
+    SeedOptionRecord("truck", optionServerId + 1, "truck-other-server",
+        "{\"arriveTs\":6000,\"currentGoods\":[{\"key\":\"other\",\"name\":\"Other\"}]}");
+
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-run-old", optionServerId, "[\"city\"]", "completed", 100, 100, 0, 500, 1_000, null));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-run-new", optionServerId, "[\"city\",\"truck\"]", "running", 100, 40, 1, 1_500, 3_000, "one failed block"));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-run-discarded", optionServerId, "[\"city\"]", "discarded", 100, 100, 0, 2_000, 4_000, null));
+
+    MapPersistedOptionAggregates persistedOptions =
+        persistedOptionsStore.ReadPersistedOptionAggregatesAtForTest(
+            optionServerId, optionNowUnixMilliseconds);
+
+    Check(persistedOptions.Alliances.Count == 3 &&
+          persistedOptions.Alliances.Single(item => item.Name == "Alpha").Count == 2 &&
+          persistedOptions.Alliances.Single(item => item.Name == "").Count == 1 &&
+          persistedOptions.Alliances.Single(item => item.Name is null).Count == 1 &&
+          persistedOptions.Alliances.All(item => item.Name != "Other"),
+        "persisted option alliance aggregation keeps recovered grouping/order source semantics and server scope");
+    Check(persistedOptions.Names.Count == 2 &&
+          persistedOptions.Names.Any(item => item.Kind == "resource" && item.Key == "wood" && item.Count == 2) &&
+          persistedOptions.Names.Any(item => item.Kind == "monster" && item.Key == "zombie" && item.Count == 1) &&
+          persistedOptions.Names.All(item => item.Key.Length > 0),
+        "persisted resource/monster option aggregation excludes empty keys and preserves counts");
+    Check(persistedOptions.DispatchLevels.SequenceEqual(new[] { 1, 3 }),
+        "persisted dispatch option levels are distinct positive integers ordered ascending");
+    Check(persistedOptions.TreasureTypes.Count == 2 &&
+          persistedOptions.TreasureTypes[0].SuppliesType == 0 &&
+          persistedOptions.TreasureTypes[0].TreasureType == 8 &&
+          persistedOptions.TreasureTypes[0].Count == 2 &&
+          persistedOptions.TreasureTypes[0].TreasureNameKey == "treasure-8-new" &&
+          persistedOptions.TreasureTypes[1].SuppliesType == 4 &&
+          persistedOptions.TreasureTypes[1].TreasureType == 0 &&
+          persistedOptions.TreasureTypes[1].Count == 1,
+        "persisted treasure options preserve recovered ordinary/supplies normalization, grouping and ordering");
+    Check(persistedOptions.RewardItems.Count == 2 &&
+          persistedOptions.RewardItems[0].Kind == "railway" && persistedOptions.RewardItems[0].Key == "food" &&
+          persistedOptions.RewardItems[1].Kind == "truck" && persistedOptions.RewardItems[1].Key == "iron" &&
+          persistedOptions.RewardItems.All(item => item.Key != "past" && item.Key != "other"),
+        "persisted reward options deduplicate current goods, apply recovered Unix-ms arrival cutoff and isolate server scope");
+    Check(persistedOptions.ScanProgress?.Id == "options-run-new" &&
+          persistedOptions.ScanProgress.ServerId == optionServerId &&
+          persistedOptions.ScanProgress.Status == "running" &&
+          persistedOptions.ScanProgress.CompletedBlocks == 40 &&
+          persistedOptions.ScanProgress.FailedBlocks == 1 &&
+          persistedOptions.ScanProgress.Error == "one failed block",
+        "persisted option scan progress selects newest non-discarded run for the requested server");
+
+    MapPersistedOptionAggregates otherServerOptions =
+        persistedOptionsStore.ReadPersistedOptionAggregatesAtForTest(
+            optionServerId + 1, optionNowUnixMilliseconds);
+    Check(otherServerOptions.Alliances.Count == 1 &&
+          otherServerOptions.Alliances[0].Name == "Other" &&
+          otherServerOptions.RewardItems.Count == 1 &&
+          otherServerOptions.RewardItems[0].Key == "other" &&
+          otherServerOptions.ScanProgress is null,
+        "persisted option aggregation does not mix rows or scan progress across servers");
+}
+
 using (var backendMapStore = MapDataStore.CreateInMemory())
 {
     var mapBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: backendMapStore);
@@ -661,6 +774,14 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         "{\"serverId\":91,\"ownerUid\":\"12345678901234567890\",\"ownerName\":\"Backend City\"}"));
     backendMapStore.InsertScanRun(new MapScanRunSeed(
         "backend-run", 91, "[\"city\"]", "running", 100, 0, 0, 1000, 1000, null));
+
+    using JsonDocument optionsPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 91,
+    }));
+    await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "public map_data_options stays fail-closed until original source/run selection is recovered", async () =>
+        await mapBackend.InvokeAsync("map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument markPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

@@ -40,8 +40,9 @@ Options/count/no-alliance assembly, profile-to-summary-server selection, alterna
 | SB-03 | [R6-009](../evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.json), convenience executable verifier | Recorded denied after earlier successful bounded observations; exact rejected invocation is not reproduced in the metadata. Preserve that limit. |
 | SB-04 | [R6-011](../evidence/lwbridge-implementation/2026-09-08-r6-map-schema-metadata.json), read-only existing user-profile database query | Recorded automatic-review denial; no database contents accepted as evidence. |
 | SB-05 | Task **Read Map Scan Recovery Docs**, turn `01a081a6-77cb-7893-974c-af50f0104e7b`, completion-status context/range reads | Task reports reviewer could not determine safety status. Review 5 preserves the report in its evidence; it did not retry either operation or acquire raw rejection telemetry. |
+| SB-06 | Regular-AI R6 options continuation, 2026-09-09, creation of a new hash-locked bounded PE xref inspector for the `map_data_options` dynamic source/run selector | Automatic review rejected the operation because it could not determine safety status. The tool was not created/executed and the operation was not retried or rerouted. R6-015 instead continues with the already recovered SQL families in an explicitly persisted-only offline helper; the original dynamic source selector remains UNKNOWN/BLOCKED and no Daybreak assignment is requested. |
 
-No new denial occurred in review 5. Restrictions describe operations, not every analysis of the executable. Missing tools, unresolved contracts, external services and unavailable live targets must be labelled separately. Do not reroute denied operations to Daybreak or CI.
+Review 5 itself recorded no new denial; SB-06 occurred in the post-review regular-AI continuation. Restrictions describe operations, not every analysis of the executable. Missing tools, unresolved contracts, external services and unavailable live targets must be labelled separately. Do not reroute denied operations to Daybreak or CI.
 
 ## Required request template — copy for each new ESC entry
 
