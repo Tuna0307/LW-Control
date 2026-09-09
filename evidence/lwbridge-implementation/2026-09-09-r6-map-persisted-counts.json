@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-021",
+  "scope": "Persisted-only Map Data count and no-alliance option infrastructure",
+  "evidenceStatus": "IMPLEMENTATION POLICY/OFFLINE-TESTED infrastructure",
+  "sourceBoundary": {
+    "recoveredFrontend": "LWB-R6-016 proves the exact eight count keys city/resource/monster/truck/railway/dispatch/ghost/treasure and the consumer rule for noAllianceCount",
+    "recoveredPredicate": "LWB-R6-005 proves the city no-alliance predicate (alliance_name IS NULL OR alliance_name = '')",
+    "notRecovered": "the original public map_data_options persisted-vs-run source selector and exact count/noAllianceCount producer SQL remain unknown"
+  },
+  "implementation": {
+    "file": "src\\LWBridge.Desktop\\MapDataStore.cs",
+    "method": "ReadPersistedOptionAggregatesAtForTest",
+    "policy": "within the existing persisted-only test snapshot, count map_records by recovered kind key and compute no-alliance city rows with the recovered null/empty predicate; do not expose this helper as the public command",
+    "countKeys": ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
+    "snapshot": "counts/noAllianceCount share the same SQLite read transaction as alliances, names, dispatchLevels, treasureTypes, rewardItems and scanProgress"
+  },
+  "validation": {
+    "testFile": "tests\\LWBridge.Desktop.Checks\\Program.cs",
+    "cases": [
+      "all eight count keys are returned even when ghost has no rows",
+      "server 120 counts city=4 resource=3 monster=1 truck=2 railway=1 dispatch=4 ghost=0 treasure=4",
+      "noAllianceCount=2 for one empty-string and one NULL city alliance",
+      "server 121 exposes only its one city and one truck count, zeroes every other key and keeps noAllianceCount=0"
+    ],
+    "commands": [
+      "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+    ],
+    "result": "build succeeded with 0 warnings/0 errors; deterministic suite ok=true with mapPersistence=true and mapContract=true",
+    "liveProven": false
+  },
+  "unknownBlocked": [
+    "original public persisted-vs-run source selection",
+    "exact native count/noAllianceCount assembly SQL and any source-dependent empty/null policy",
+    "authoritative map_summary profile-to-server/scan-state producer",
+    "public response serialization/source ownership during active scan"
+  ],
+  "implementationImpact": {
+    "unblocked": "offline persisted-option testing now includes the exact frontend count key set and a server-scoped no-alliance value in the same snapshot",
+    "stillFailClosed": "map_data_options and map_summary remain unavailable until original source/assembly/server-selection contracts are recovered"
+  }
+}

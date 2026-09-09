@@ -814,6 +814,18 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.RewardItems[1].Kind == "truck" && persistedOptions.RewardItems[1].Key == "iron" &&
           persistedOptions.RewardItems.All(item => item.Key != "past" && item.Key != "other"),
         "persisted reward options deduplicate current goods, apply recovered Unix-ms arrival cutoff and isolate server scope");
+    Check(persistedOptions.Counts.Count == 8 &&
+          persistedOptions.Counts["city"] == 4 &&
+          persistedOptions.Counts["resource"] == 3 &&
+          persistedOptions.Counts["monster"] == 1 &&
+          persistedOptions.Counts["truck"] == 2 &&
+          persistedOptions.Counts["railway"] == 1 &&
+          persistedOptions.Counts["dispatch"] == 4 &&
+          persistedOptions.Counts["ghost"] == 0 &&
+          persistedOptions.Counts["treasure"] == 4,
+        "persisted option test kernel returns the exact eight frontend count keys with zero for an absent kind");
+    Check(persistedOptions.NoAllianceCount == 2,
+        "persisted option test kernel counts null and empty city alliance values with the recovered no-alliance predicate");
     Check(persistedOptions.ScanProgress?.Id == "options-run-new" &&
           persistedOptions.ScanProgress.ServerId == optionServerId &&
           persistedOptions.ScanProgress.Status == "running" &&
@@ -829,8 +841,12 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           otherServerOptions.Alliances[0].Name == "Other" &&
           otherServerOptions.RewardItems.Count == 1 &&
           otherServerOptions.RewardItems[0].Key == "other" &&
+          otherServerOptions.Counts["city"] == 1 &&
+          otherServerOptions.Counts["truck"] == 1 &&
+          otherServerOptions.Counts.Where(item => item.Key is not "city" and not "truck").All(item => item.Value == 0) &&
+          otherServerOptions.NoAllianceCount == 0 &&
           otherServerOptions.ScanProgress is null,
-        "persisted option aggregation does not mix rows or scan progress across servers");
+        "persisted option aggregation does not mix rows, counts, no-alliance state or scan progress across servers");
 }
 
 using (var backendMapStore = MapDataStore.CreateInMemory())

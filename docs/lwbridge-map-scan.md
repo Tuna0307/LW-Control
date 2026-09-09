@@ -22,6 +22,7 @@ This document preserves dated findings, including superseded interpretations. Us
 | R6-018 | Native city-export structure is partially recovered from bounded raw PE evidence: dialog/default/error vocabulary, embedded A-L OOXML package/worksheet/styles, frozen header, exact column widths, autofilter/margins and partial row-field adjacency. Full scope, A-C mapping, protect/shield fallback and per-column types remain blocked. |
 | R6-019 | Test-only staging/publication infrastructure now reproduces the recovered one-kind/server `map_records` delete + matching `scan_records` copy in one transaction and proves run/kind/server isolation. Completion eligibility and native record-key derivation remain blocked. |
 | R6-020 | The test-only publication slice now proves transactional rollback under an injected failure between delete and staged copy: the previous published kind/server survives intact and no replacement row leaks through. Production failure/retry semantics remain blocked. |
+| R6-021 | The persisted-only options test kernel now returns all eight recovered frontend count keys plus a server-scoped no-alliance count in the same snapshot as the existing option families. Public source/run selection and native count assembly remain blocked. |
 
 Current remaining query gaps include viewer/foreign-radar/lucky behavior, alternate sort expressions/order, the original options source/run-context and backend counts/no-alliance/full assembly, and authoritative summary server/scan-state production. `LWB-R6-014` closes the recovered frontend completion/plunderability clocks and reward-option cutoff source/unit; `LWB-R6-015` validates the known persisted-source aggregation kernel without promoting it to the public command; `LWB-R6-016` closes the frontend count propagation/reset/fallback rules without inventing their backend producers. Export, native identities and live ingestion/scan remain open. Historical restrictions and escalation reasons are in [the ESC register](daybreak-escalations.md). The regular AI owns further investigation until an exhausted-method request is reviewed; these topics are not automatic Daybreak assignments.
 
@@ -331,6 +332,16 @@ Deterministic file-backed tests begin with two published city rows, stage two re
 **OFFLINE-TESTED result.** A deterministic case seeds two published city rows for one server plus one staged replacement, injects an exception after the delete statement and before `INSERT ... SELECT`, then verifies both original rows are still present and the staged row is absent. The Release build completes with zero warnings/errors and the full deterministic backend suite returns `ok=true`, `mapPersistence=true` and `mapContract=true`. Durable metadata is `evidence/lwbridge-implementation/2026-09-09-r6-map-publish-rollback.json`.
 
 **Limits.** This establishes atomic rebuild behavior only. It does not recover the native completion gate, retry policy, error code, session/generation ownership or per-kind `record_key` derivation, and no public command invokes the test-only path.
+
+### LWB-R6-021 — persisted-only counts and no-alliance option slice (2026-09-09)
+
+**Recovered boundary.** `LWB-R6-016` proves the exact frontend count keys `city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost` and `treasure`; `LWB-R6-005` proves the city no-alliance predicate `(alliance_name IS NULL OR alliance_name = '')`. Neither finding proves the original public `map_data_options` source selector or its exact count/noAllianceCount producer SQL.
+
+**IMPLEMENTATION POLICY / OFFLINE-TESTED.** The existing `ReadPersistedOptionAggregatesAtForTest` helper now counts persisted `map_records` for all eight recovered keys and computes a persisted-source no-alliance value with the recovered null/empty predicate. Missing kinds are explicitly zero. These reads use the same deferred SQLite snapshot as alliances, names, dispatch levels, treasure types, reward items and scan progress, so the offline aggregate object is internally coherent while another connection could publish.
+
+Deterministic tests verify server 120 counts `4/3/1/2/1/4/0/4` in the recovered key order, `noAllianceCount=2` for one empty and one NULL alliance, and complete server isolation for server 121. Release build and the deterministic backend suite pass with zero warnings/errors and `ok=true`. Durable metadata is `evidence/lwbridge-implementation/2026-09-09-r6-map-persisted-counts.json`.
+
+**Limits.** This remains test-only persisted-source infrastructure. It does not authorize public `map_data_options`, infer active-run/staging selection, prove native response assembly, or establish authoritative `map_summary` server selection.
 
 ## Remaining unknowns
 

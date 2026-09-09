@@ -74,6 +74,8 @@ internal sealed record MapPersistedOptionAggregates(
     IReadOnlyList<int> DispatchLevels,
     IReadOnlyList<MapPersistedTreasureTypeOption> TreasureTypes,
     IReadOnlyList<MapPersistedRewardItemOption> RewardItems,
+    IReadOnlyDictionary<string, int> Counts,
+    int NoAllianceCount,
     MapPersistedScanProgress? ScanProgress);
 
 internal sealed class MapDataStore : IDisposable
@@ -392,6 +394,41 @@ internal sealed class MapDataStore : IDisposable
                         reader.IsDBNull(3) ? null : reader.GetString(3)));
             }
 
+            // IMPLEMENTATION POLICY LWB-R6-021: R6-016 proves the exact eight
+            // frontend count keys but not the original public producer/source branch.
+            // This test-only persisted-source kernel counts map_records in the same
+            // snapshot as the already recovered option families; it must not be exposed
+            // as map_data_options until the native source/run selector is recovered.
+            var counts = MapScanContract.AllTypes.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
+            using (SqliteCommand command = connection.CreateCommand())
+            {
+                command.Transaction = snapshot;
+                command.CommandText = """
+                    SELECT kind,COUNT(*) FROM map_records
+                    WHERE server_id=$server GROUP BY kind
+                    """;
+                command.Parameters.AddWithValue("$server", serverId);
+                using SqliteDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    string kind = reader.GetString(0);
+                    if (counts.ContainsKey(kind)) counts[kind] = reader.GetInt32(1);
+                }
+            }
+
+            int noAllianceCount;
+            using (SqliteCommand command = connection.CreateCommand())
+            {
+                command.Transaction = snapshot;
+                command.CommandText = """
+                    SELECT COUNT(*) FROM map_records
+                    WHERE server_id=$server AND kind='city'
+                      AND (alliance_name IS NULL OR alliance_name='')
+                    """;
+                command.Parameters.AddWithValue("$server", serverId);
+                noAllianceCount = Convert.ToInt32(command.ExecuteScalar());
+            }
+
             MapPersistedScanProgress? scanProgress = null;
             using (SqliteCommand command = connection.CreateCommand())
             {
@@ -418,7 +455,8 @@ internal sealed class MapDataStore : IDisposable
 
             snapshot.Commit();
             return new MapPersistedOptionAggregates(
-                alliances, names, dispatchLevels, treasureTypes, rewardItems, scanProgress);
+                alliances, names, dispatchLevels, treasureTypes, rewardItems,
+                counts, noAllianceCount, scanProgress);
         }
     }
 
