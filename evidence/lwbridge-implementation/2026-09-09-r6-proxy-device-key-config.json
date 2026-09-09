@@ -1,0 +1,119 @@
+{
+  "findingId": "LWB-R6-042",
+  "date": "2026-09-09",
+  "scope": "PM7-B proxy device-key configuration vocabulary",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw file offsets in the host and embedded proxy images"
+  },
+  "proxies": [
+    {
+      "name": "xlua-proxy-secure.dll",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "markers": {
+        "DEVICE_KEY_PROVIDER": {
+          "proxyRawOffset": "0x730E0",
+          "hostRawOffset": "0x9FA454"
+        },
+        "DEVICE_KEY_EXPORT": {
+          "proxyRawOffset": "0x730F8",
+          "hostRawOffset": "0x9FA46C"
+        },
+        "DEVICE_KEY_FORMAT": {
+          "proxyRawOffset": "0x73110",
+          "hostRawOffset": "0x9FA484"
+        },
+        "DEVICE_KEY_MISSING": {
+          "proxyRawOffset": "0x73128",
+          "hostRawOffset": "0x9FA49C"
+        }
+      }
+    },
+    {
+      "name": "xlua-proxy-plain.dll",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "markers": {
+        "DEVICE_KEY_PROVIDER": {
+          "proxyRawOffset": "0x730E0",
+          "hostRawOffset": "0xA8FC54"
+        },
+        "DEVICE_KEY_EXPORT": {
+          "proxyRawOffset": "0x730F8",
+          "hostRawOffset": "0xA8FC6C"
+        },
+        "DEVICE_KEY_FORMAT": {
+          "proxyRawOffset": "0x73110",
+          "hostRawOffset": "0xA8FC84"
+        },
+        "DEVICE_KEY_MISSING": {
+          "proxyRawOffset": "0x73128",
+          "hostRawOffset": "0xA8FC9C"
+        }
+      }
+    }
+  ],
+  "hostExactMarkerOccurrences": {
+    "DEVICE_KEY_PROVIDER": [
+      "0x9FA454",
+      "0xA8FC54"
+    ],
+    "DEVICE_KEY_EXPORT": [
+      "0x9FA46C",
+      "0xA8FC6C"
+    ],
+    "DEVICE_KEY_FORMAT": [
+      "0x9FA484",
+      "0xA8FC84"
+    ],
+    "DEVICE_KEY_MISSING": [
+      "0x825D70",
+      "0x9FA49C",
+      "0xA8FC9C",
+      "0xC7F71B"
+    ]
+  },
+  "hostOutsideEmbeddedProxies": {
+    "DEVICE_KEY_PROVIDER": [],
+    "DEVICE_KEY_EXPORT": [],
+    "DEVICE_KEY_FORMAT": [],
+    "DEVICE_KEY_MISSING": [
+      "0x825D70",
+      "0xC7F71B"
+    ]
+  },
+  "hostUtf16Occurrences": {
+    "DEVICE_KEY_PROVIDER": [],
+    "DEVICE_KEY_EXPORT": [],
+    "DEVICE_KEY_FORMAT": [],
+    "DEVICE_KEY_MISSING": []
+  },
+  "result": [
+    "Both verified proxies contain DEVICE_KEY_PROVIDER, DEVICE_KEY_EXPORT, DEVICE_KEY_FORMAT, and DEVICE_KEY_MISSING at the same proxy raw offsets 0x730E0/0x730F8/0x73110/0x73128.",
+    "DEVICE_KEY_PROVIDER, DEVICE_KEY_EXPORT, and DEVICE_KEY_FORMAT occur in the host executable only as bytes inside the two embedded proxy images; DEVICE_KEY_MISSING also has host auth-service occurrences and is therefore a shared state/error label rather than proxy-only configuration vocabulary.",
+    "These markers establish proxy-side configuration vocabulary only. They do not recover the provider value, persisted key/container name, export blob format value, key format value, or how the host/proxy supplies them at runtime."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_device_key_config.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_proxy_device_key_config.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-proxy-device-key-config.json",
+    "python -m py_compile tools\\inspect_lwbridge_proxy_device_key_config.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "notProven": [
+      "the runtime value of DEVICE_KEY_PROVIDER",
+      "the persisted device-key/container name",
+      "the runtime values of DEVICE_KEY_EXPORT and DEVICE_KEY_FORMAT",
+      "the mechanism that supplies these values to the proxy",
+      "the proxy package-key open/read/decrypt call graph and crypto parameters",
+      "protected bridge handler plaintext and readiness/error mapping"
+    ],
+    "interpretationRule": "Exact marker ownership narrows the configuration boundary; marker names are not treated as their runtime values or as proof of a specific crypto primitive."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "pm7B": "continue from exact proxy configuration names to a source-attributed value/provisioning path or supported live environment correlation",
+    "mapSummary": "remains fail-closed"
+  }
+}
