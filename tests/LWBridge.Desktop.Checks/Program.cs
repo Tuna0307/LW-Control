@@ -321,6 +321,9 @@ using JsonDocument profilePayload = JsonDocument.Parse(JsonSerializer.Serialize(
 await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "launch remains fail-closed until bootstrap is recovered", async () =>
     await backend.InvokeAsync("profile_instance_start", profilePayload.RootElement.Clone(), CancellationToken.None));
 
+await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "map summary remains fail-closed until native summary state is recovered", async () =>
+    await backend.InvokeAsync("map_summary", profilePayload.RootElement.Clone(), CancellationToken.None));
+
 using JsonDocument scalarPayload = JsonDocument.Parse("\"bad\"");
 await ExpectBridgeError("INVALID_PAYLOAD", "native boundary rejects non-object payloads", async () =>
     await backend.InvokeAsync("profile_list", scalarPayload.RootElement.Clone(), CancellationToken.None));

@@ -18,9 +18,10 @@ A rejected operation is not automatically a Daybreak assignment. Some associated
 | `0187bb5`, `55788fb` / R6-017/018 | City-export frontend envelope and partial native workbook/package/column structure | No native writer enabled. Full pagination, row typing/A–C/J semantics, filename/cancel details and large-ID behavior remain open. |
 | `3ee6d20`, `3720b3f` / R6-019/020 | Test-only kind/server staged replacement and deterministic rollback after delete | Good transaction proof; no production eligibility, generation ownership, native keys or scan completion service. |
 | `3c3c2c1`, `3138fe9` / R6-022/023 | Prefix/xref negative results then exact positive-decimal treasure/supplies option-key finding | Key formatting added only to persisted-option test helper. This resolves the key question, not public option source selection. |
+| `159db1a` / R6-024 and R6-025 continuation | Native option source candidates plus native summary envelope/server/count flow | R6-025 removes the synthetic production `map_summary` success path and keeps it fail-closed. Internal run-scope selection, complete options assembly, native ingestion and live proof remain open. |
 | `297b63d`, `f41c06a` | Delivery/schema restriction documentation | These are records of limits, not newly working page features. |
 
-Static evidence was audited from committed source/locators/findings; no binary disassembly or denied verifier was rerun. Tests verify the rebuilt code against its fixtures, not independent current-client parity.
+Review 6 itself audited committed source/locators/findings without rerunning binary disassembly. The later R6-025 continuation used the existing hash-locked bounded inspector on the verified LWBridge reference for the `map_summary`, shared scan-state and count-helper functions; deeper helper dumps denied as SB-17 were not retried or rerouted. Tests verify the rebuilt code against its fixtures, not independent current-client parity.
 
 ## Which reported restrictions are resolved?
 
@@ -30,7 +31,8 @@ Static evidence was audited from committed source/locators/findings; no binary d
 | Treasure key suffix, SB-13/15 | R6-023 records exact key formatting; tests pass | Resolved question; no transfer. This is only one option field. |
 | GitHub push, SB-10 | Later delivery succeeded; remote independently matches `3138fe9` | Historical delivery failure, not a binary-research task. |
 | Frontend count/context reading, SB-07/14 | Existing evidence/recorded subsequent reads support limited consumer/documentation work | No open specialist request just to repeat those commands. Native count assembly is a separate unresolved contract. |
-| Public option source/run/full response, SB-06/11 | Still open despite persisted-only helper progress | ESC-003 created NEEDS_INFORMATION; complete the method/alternative packet before requesting PM assignment. |
+| Public option source/run/full response, SB-06/11 | R6-024 narrows source/scope inputs but selector/full assembly remain open | ESC-003 is READY_FOR_PM_REVIEW; no specialist assigned. |
+| Summary server/count/scan-state flow, SB-17/18 | R6-025 recovers the successful envelope and server/count path; optional run-scope producer still open | Continue regular permitted investigation; no new specialist request from the restrictions alone. |
 | Full export mapping/pagination/typing, SB-08/09 | Still open despite partial workbook structure | ESC-004 created NEEDS_INFORMATION. Do not repeat the denied operations or pretend a complete writer exists. |
 | Schema/migrations, SB-04/12 | Version/transition/timestamp prerequisites still unknown | ESC-002 still NEEDS_INFORMATION. No evidence that a different model may perform the denied database/range read. |
 

@@ -202,14 +202,9 @@ internal sealed class LWBridgeBackend
                 return SetPlayerMark(payload);
             case "map_summary":
                 RequireOptionalProfile(payload);
-                return new
-                {
-                    serverId = 0,
-                    counts = EmptyMapCounts(),
-                    scanState = CreateMapScanStatus(),
-                    available = false,
-                    unavailableReason = "MAP_BACKEND_NOT_IMPLEMENTED",
-                };
+                throw new BridgeCommandException(
+                    "MAP_INDEX_UNAVAILABLE",
+                    "Map summary is unavailable before the production map index and scan state are initialized.");
             case "append_log":
             case "set_window_theme":
                 return null;
@@ -366,9 +361,6 @@ internal sealed class LWBridgeBackend
         truckMatchServerIds = Array.Empty<int>(),
         lastError,
     };
-
-    private static Dictionary<string, int> EmptyMapCounts() =>
-        MapKinds.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
 
     private MapDataStore RequireMapDataStore() => mapData ?? throw new BridgeCommandException(
         "MAP_INDEX_UNAVAILABLE",
