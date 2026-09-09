@@ -8,9 +8,9 @@ You own research, permitted binary analysis, implementation and validation by de
 
 The [current audit](lwbridge-project-status.md) accepts R6-038's bounded integration and R6-039–046's recorded research with explicit limits. Preserve earlier recovered source/count/query/clock contracts and R6-043's correction of R6-042's label interpretation. Use [Map Scan findings](lwbridge-map-scan.md) for locators, not an ever-growing copied list of offsets in this handoff.
 
-## PM8-0 — official launcher update health first
+## PM8-0 — official launcher recovery complete
 
-**Owner: regular AI. Status: OPEN; diagnosis complete, recovery unproven.** Follow [the incident/recovery task](lastwar-update-incident.md). The September 10 patch download and old active base pass their recorded checks, but the produced temporary output fails CRC. The main build remains 1078 and 14 sampled anchors are unchanged; the latest table changed. Preserve failed evidence, use supported official recovery, and prove update completion plus normal game startup before any live acceptance. Do not edit CRC/version metadata or promote the failing file. Refresh script/table and changed-binary applicability after recovery. Continue independent offline work if official recovery cannot progress.
+**Owner: regular AI. Status: COMPLETE through LWB-PM8-004.** Follow [the incident/recovery task](lastwar-update-incident.md) for the preserved seven-failure history and recovery evidence. At 01:13 the official launcher executed its cleanup/reinstall flow, applied Lua version 14 successfully, started ordinary `LastWar.exe`, and produced a fresh initialized `Player.log`. All 14 sampled build-1078 anchors remain unchanged, including `Assembly-CSharp.rdl` and original xLua; the table is unchanged from the failure snapshot while Lua advances from 12 to 14. PM7-B/PM7-C may now use this client for live validation, but rebuilt-app launch/bridge/scan readiness remains independently gated.
 
 ## PM7-A — completed; do not repeat
 

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-10
 
-Project-manager review 8 audited `4ec7ef8` (nine commits since the previous PM checkpoint). PM7-A is complete as bounded service integration; PM8-0 official-update recovery is now first for live readiness. See [the current audit](docs/lwbridge-project-status.md), [outcome/ESC register](docs/daybreak-escalations.md), [regular handoff](docs/implementation-handoff.md), [Daybreak handoff](docs/deep-binary-handoff.md) and [rough completion estimate](docs/lwbridge-completion-estimate.md). Clock and treasure-key questions are resolved; public options/export/schema/launch/capture remain incomplete. Test-only helper checkpoints are not finished page functions.
+Project-manager review 8 audited `4ec7ef8` (nine commits since the previous PM checkpoint). PM7-A is complete as bounded service integration; PM8-0 is now recovered through `LWB-PM8-004`, restoring a valid live client. See [the current audit](docs/lwbridge-project-status.md), [outcome/ESC register](docs/daybreak-escalations.md), [regular handoff](docs/implementation-handoff.md), [Daybreak handoff](docs/deep-binary-handoff.md) and [rough completion estimate](docs/lwbridge-completion-estimate.md). Clock and treasure-key questions are resolved; public options/export/schema/launch/capture remain incomplete. Test-only helper checkpoints are not finished page functions.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -45,10 +45,10 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 ## Immediate priorities — review 8
 
 - [x] **LWB-PM8-001 diagnosis:** patch size/CRC and intact old script verified; failed temporary output reproduces screenshot/log mismatch. All 14 sampled runtime anchors unchanged; latest data table changed.
-- [ ] **PM8-0 / regular AI / FIRST:** `LWB-PM8-002` reproduced the same verified `14 <- 12` patch failure on a fresh normal launcher start and recovered the launcher's official **Super Cleanup** / integrity-repair surface. `LWB-PM8-003` confirms the later 00:31 retry is a seventh identical failure at log lines 39719-39720, with no later normal game-start record. `LastWarSync` has no script-only repair command. Executing the launcher recovery control is currently blocked by the environment's UI-automation safety review, so normal launch is still unproven. Follow [incident/recovery acceptance](docs/lastwar-update-incident.md); no integrity bypass or arbitrary cache/profile deletion.
+- [x] **PM8-0 / regular AI:** `LWB-PM8-004` observes the official launcher cleanup/reinstall at 01:13, accepted Lua version 14 at line 39869 and ordinary game start at line 39874. Fresh `Player.log` reaches Unity/Application/GameEntry/StartGame initialization. All 14 sampled build-1078 anchors remain unchanged; Lua advances 12 -> 14 and the current table hash is unchanged. Failure history and the earlier UI-automation restriction remain preserved.
 - [x] **PM7-A accepted:** source-aware option/count service implemented/offline-tested; no public options command enabled.
 - [ ] **PM7-B / ESC-005:** advance one permissible handler/provider-blocking question or complete the narrow specialist packet. Do not repeat SB-79 or claim the loader complete from helper signatures.
-- [ ] **PM7-C/R5:** supported connection plus smallest real scan/result path; live validation depends on PM8-0. PM7-D remains independent backlog.
+- [ ] **PM7-C/R5:** supported connection plus smallest real scan/result path. PM8-0 no longer blocks live validation; launch/bridge readiness, current-client capture mapping, scan completion and displayed results remain open. PM7-D remains independent backlog.
 
 ## Completed foundation
 

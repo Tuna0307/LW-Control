@@ -6,7 +6,7 @@ client facts from recovered LWBridge behavior.
 
 ## Current observation — 2026-09-10
 
-[LWB-PM8-001 update incident](lastwar-update-incident.md) records a failed official Lua patch output. Build 1078 and all 14 sampled PE/container/protected-runtime anchors still match this baseline, including Assembly-CSharp/xLua; active Lua version 12 and data hash also match. The latest data table changed. Do not infer a healthy updated game from those unchanged anchors: the new temporary Lua output fails CRC and ordinary startup has not been re-proven. [Comparison evidence](../evidence/official-runtime/2026-09-10-runtime-baseline-comparison.json) identifies exactly what was checked. Revalidate changed script/table facts after successful recovery; preserve unchanged static evidence by hash.
+[LWB-PM8-004 recovery](lastwar-update-incident.md) supersedes the failed-update state for current live readiness. After the seven preserved `14 <- 12` CRC failures, the official launcher ran its cleanup/reinstall path, accepted Lua version 14 and started the ordinary game. All 14 sampled PE/container/protected-runtime anchors still match the pre-recovery build-1078 snapshot, including Assembly-CSharp/xLua; the current table hash is also unchanged from the failure snapshot. Active Lua is now version 14 with SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`. [Recovery comparison](../evidence/official-runtime/2026-09-10-pm8-004-runtime-comparison.json) identifies exactly what stayed stable and changed.
 
 Historical evidence is reproducible with (choose a new dated output for a fresh observation):
 

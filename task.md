@@ -17,9 +17,9 @@ Prepared: 2026-09-08; current project-manager review 8. **This is the primary AI
 
 Reviewed implementation: `4ec7ef8`, 2026-09-10, `research/offline-controller`. [Review 8](docs/lwbridge-project-status.md) accepts PM7-A/R6-038 service integration and recorded R6-039–046 research. Public game functions remain incomplete; the [planning estimate](docs/lwbridge-completion-estimate.md) stays roughly 25–30%.
 
-- **First task — PM8-0:** diagnose/recover the official launcher Lua-update CRC failure under [the incident task](docs/lastwar-update-incident.md). Diagnosis confirms a matching downloaded patch and intact old script but a mismatched produced temporary file. Recovery and successful ordinary game launch remain unproven. Refresh changed script/table applicability before live work.
+- **PM8-0 complete:** [LWB-PM8-004](docs/lastwar-update-incident.md) records official cleanup/reinstall, successful Lua version 14 application, ordinary game start and fresh initialized `Player.log`. All 14 sampled build-1078 anchors remain unchanged; the table is unchanged from the failure snapshot while Lua advances from 12 to 14.
 - **Completed:** PM7-A reusable published/staged option/count service, tested offline. Do not repeat it or claim public options are enabled.
-- **Next:** [regular AI handoff](docs/implementation-handoff.md) PM7-B handler/readiness, then PM7-C/R5's smallest real connection/scan/result path; PM7-D independent gaps.
+- **Next:** [regular AI handoff](docs/implementation-handoff.md) PM7-B handler/readiness and PM7-C/R5's smallest real connection/scan/result path using the recovered current client; PM7-D independent gaps.
 - **Daybreak:** no approved assignment. ESC-001 CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004/005 NEEDS_INFORMATION. Follow the [register](docs/daybreak-escalations.md); a denial or launcher update failure is not an automatic model transfer.
 
 [Review 8 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
@@ -769,4 +769,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md` and the relevant handoff; inspect latest HEAD/worktree. Start PM8-0's official-update recovery and baseline validation before live acceptance. PM7-A is complete; continue PM7-B or independent PM7-C/R5 offline work where supported. Use ESC-005 for the remaining loader/handler packet without rerouting denied operations. Preserve evidence and unknowns, document results, run relevant checks, commit/push each coherent checkpoint and verify GitHub. Preserve all 47 cases and completed cleanup.
+Read `AGENTS.md`, the current audit, `BACKLOG.md` and the relevant handoff; inspect latest HEAD/worktree. PM8-0 is complete through LWB-PM8-004 and the recovered current client is available for live validation. PM7-A is complete; continue PM7-B or PM7-C/R5 toward a supported rebuilt connection, smallest real scan and displayed results. Use ESC-005 for the remaining loader/handler packet without rerouting denied operations. Preserve evidence and unknowns, document results, run relevant checks, commit/push each coherent checkpoint and verify GitHub. Preserve all 47 cases and completed cleanup.
