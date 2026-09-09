@@ -843,12 +843,10 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
         persistedOptionsStore.ReadPersistedOptionAggregatesAtForTest(
             optionServerId, optionNowUnixMilliseconds);
 
-    Check(persistedOptions.Alliances.Count == 3 &&
+    Check(persistedOptions.Alliances.Count == 1 &&
           persistedOptions.Alliances.Single(item => item.Name == "Alpha").Count == 2 &&
-          persistedOptions.Alliances.Single(item => item.Name == "").Count == 1 &&
-          persistedOptions.Alliances.Single(item => item.Name is null).Count == 1 &&
           persistedOptions.Alliances.All(item => item.Name != "Other"),
-        "persisted option alliance aggregation keeps recovered grouping/order source semantics and server scope");
+        "persisted option alliance aggregation emits only nonempty alliance names while keeping recovered ordering and server scope");
     Check(persistedOptions.Names.Count == 2 &&
           persistedOptions.Names.Any(item => item.Kind == "resource" && item.Key == "wood" && item.Count == 2) &&
           persistedOptions.Names.Any(item => item.Kind == "monster" && item.Key == "zombie" && item.Count == 1) &&
@@ -883,7 +881,7 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.Counts["treasure"] == 4,
         "persisted option test kernel returns the exact eight frontend count keys with zero for an absent kind");
     Check(persistedOptions.NoAllianceCount == 2,
-        "persisted option test kernel counts null and empty city alliance values with the recovered no-alliance predicate");
+        "persisted option test kernel accumulates null and empty alliance groups into native noAllianceCount instead of alliances[]");
     Check(persistedOptions.ScanProgress?.Id == "options-run-new" &&
           persistedOptions.ScanProgress.ServerId == optionServerId &&
           persistedOptions.ScanProgress.Status == "running" &&

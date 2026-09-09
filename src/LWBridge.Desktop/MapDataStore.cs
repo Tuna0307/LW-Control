@@ -321,6 +321,7 @@ internal sealed class MapDataStore : IDisposable
             using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);
 
             var alliances = new List<MapPersistedAllianceOption>();
+            int noAllianceCount = 0;
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
@@ -332,9 +333,21 @@ internal sealed class MapDataStore : IDisposable
                 command.Parameters.AddWithValue("$server", serverId);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
-                    alliances.Add(new MapPersistedAllianceOption(
-                        reader.IsDBNull(0) ? null : reader.GetString(0),
-                        reader.GetInt32(1)));
+                {
+                    string allianceName = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                    int count = reader.GetInt32(1);
+                    if (allianceName.Length == 0)
+                    {
+                        // RECOVERED LWB-R6-031: native option assembly decodes the
+                        // nullable alliance_name column, tests the resulting string
+                        // length, and adds COUNT(*) to noAllianceCount when length is
+                        // zero. Null and empty groups therefore never enter alliances[].
+                        noAllianceCount += count;
+                        continue;
+                    }
+
+                    alliances.Add(new MapPersistedAllianceOption(allianceName, count));
+                }
             }
 
             var names = new List<MapPersistedNameOption>();
@@ -441,10 +454,10 @@ internal sealed class MapDataStore : IDisposable
             }
 
             // IMPLEMENTATION POLICY LWB-R6-021: R6-016 proves the exact eight
-            // frontend count keys but not the original public producer/source branch.
-            // This test-only persisted-source kernel counts map_records in the same
-            // snapshot as the already recovered option families; it must not be exposed
-            // as map_data_options until the native source/run selector is recovered.
+            // frontend count keys. R6-024/R6-030 later recover the native source/run
+            // branch, but this helper deliberately remains persisted-only while the
+            // remaining public scanProgress serialization/empty-state boundary is open.
+            // Keep counts in the same snapshot as the recovered option families.
             var counts = MapScanContract.AllTypes.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
             using (SqliteCommand command = connection.CreateCommand())
             {
@@ -460,19 +473,6 @@ internal sealed class MapDataStore : IDisposable
                     string kind = reader.GetString(0);
                     if (counts.ContainsKey(kind)) counts[kind] = reader.GetInt32(1);
                 }
-            }
-
-            int noAllianceCount;
-            using (SqliteCommand command = connection.CreateCommand())
-            {
-                command.Transaction = snapshot;
-                command.CommandText = """
-                    SELECT COUNT(*) FROM map_records
-                    WHERE server_id=$server AND kind='city'
-                      AND (alliance_name IS NULL OR alliance_name='')
-                    """;
-                command.Parameters.AddWithValue("$server", serverId);
-                noAllianceCount = Convert.ToInt32(command.ExecuteScalar());
             }
 
             MapPersistedScanProgress? scanProgress = null;
