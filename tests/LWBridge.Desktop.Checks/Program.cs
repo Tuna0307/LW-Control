@@ -783,6 +783,24 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
     await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "public map_data_options stays fail-closed until original source/run selection is recovered", async () =>
         await mapBackend.InvokeAsync("map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None));
 
+    using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        query = new
+        {
+            serverId = 91,
+            page = 1,
+            pageSize = 200,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+        headers = new[] { "Server", "X", "Y", "Player", "UID", "UUID", "Alliance", "Level", "HP", "Shield Ends", "Marked", "Updated At" },
+        sheetName = "City",
+        yesLabel = "Yes",
+        noLabel = "No",
+    }));
+    await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "recovered city export envelope reaches the explicit writer gate without enabling guessed export behavior", async () =>
+        await mapBackend.InvokeAsync("map_city_export", exportPayload.RootElement.Clone(), CancellationToken.None));
+
     using JsonDocument markPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = mapBackend.ProfileId,
