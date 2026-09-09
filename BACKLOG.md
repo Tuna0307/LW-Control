@@ -45,7 +45,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 ## Immediate priorities — review 8
 
 - [x] **LWB-PM8-001 diagnosis:** patch size/CRC and intact old script verified; failed temporary output reproduces screenshot/log mismatch. All 14 sampled runtime anchors unchanged; latest data table changed.
-- [ ] **PM8-0 / regular AI / FIRST:** complete supported official-update recovery and prove normal launch; save a fresh dated baseline and revalidate changed script/table contracts. Follow [incident/recovery acceptance](docs/lastwar-update-incident.md). No integrity bypass or arbitrary cache/profile deletion.
+- [ ] **PM8-0 / regular AI / FIRST:** `LWB-PM8-002` reproduced the same verified `14 <- 12` patch failure on a fresh normal launcher start and recovered the launcher's official **Super Cleanup** / integrity-repair surface. `LastWarSync` has no script-only repair command. Executing the launcher recovery control is currently blocked by the environment's UI-automation safety review, so normal launch is still unproven. Follow [incident/recovery acceptance](docs/lastwar-update-incident.md); no integrity bypass or arbitrary cache/profile deletion.
 - [x] **PM7-A accepted:** source-aware option/count service implemented/offline-tested; no public options command enabled.
 - [ ] **PM7-B / ESC-005:** advance one permissible handler/provider-blocking question or complete the narrow specialist packet. Do not repeat SB-79 or claim the loader complete from helper signatures.
 - [ ] **PM7-C/R5:** supported connection plus smallest real scan/result path; live validation depends on PM8-0. PM7-D remains independent backlog.

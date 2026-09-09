@@ -22,7 +22,7 @@ Evidence locators, hashes and reproducible commands remain in [Map Scan findings
 
 ## Audit corrections and next tasks
 
-- **PM8-0 / first:** recover a healthy official launcher update and establish a fresh script/table/runtime baseline. The [incident document](lastwar-update-incident.md) defines bounded steps and success evidence. Diagnosis is complete; repair and successful launch remain open.
+- **PM8-0 / first:** recover a healthy official launcher update and establish a fresh script/table/runtime baseline. `LWB-PM8-002` reproduced the same verified patch/output CRC mismatch on a fresh launcher run and recovered the official Super Cleanup/integrity-repair surface. The current UI-automation safety restriction blocks selecting that launcher control, so repair and successful normal launch remain open. The [incident document](lastwar-update-incident.md) carries exact evidence and limits.
 - **PM7-A / closed:** do not repeat source/count integration. Tests now pass for one shared service; public progress serialization and authoritative state remain prerequisites.
 - **PM7-B / continue:** actual handler/current-runtime linkage and a usable state provider. Keep the research focused on what unlocks this result, with named remaining contracts. The loader gap is now explicitly tracked as **ESC-005 NEEDS_INFORMATION**, not silently buried in SB entries.
 - **PM7-C / next critical path:** supported launch/handshake plus native identity/normalization and the smallest real scan. Offline recovery may proceed while launcher repair is pending; live acceptance waits for a valid client.

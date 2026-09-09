@@ -2,7 +2,7 @@
 
 ## Result
 
-**The official launcher failed while producing the updated Lua script file. The download itself matches the launcher advertisement; the old active script is intact.** The exact fault is not yet established. The game has not been repaired or proven to launch by this audit. No installed game, launcher, script, metadata or configuration file was changed. The five script/update files were also copied to ignored local `.codex-live/pm-review-8/failed-update-backup/` and verified against the recorded hashes; no script binaries are committed.
+**The official launcher fails deterministically while producing the updated Lua script file. The download itself matches the launcher advertisement; the old active script is intact.** `LWB-PM8-002` reproduced the same output CRC on a fresh normal launcher start and recovered the launcher's official recovery surface. Recovery and a normal game start are still unproven because the available Windows UI-automation path was rejected by the environment's automatic safety review before the launcher control could be selected. No installed game, launcher, script, metadata or configuration file was changed. The five script/update files were copied again to ignored local `.codex-live/pm-review-8/failed-update-backup/2026-09-10-001451/` and verified against the recorded hashes; no script binaries are committed.
 
 This is **LWB-PM8-001**, an observed local update failure with reproducible file/log evidence, separate from LWBridge reconstruction and from its encrypted bridge package. Do not conflate the official `LWScripts.data.tmp` with LWBridge `bridge-scripts.dat` or `package-key.envelope`.
 
@@ -37,9 +37,23 @@ python tools/inspect_official_runtime.py --output evidence/official-runtime/2026
 
 The first inspector records file hashes, raw CRC-32, sizes, read stability and only structured relevant log fields. It does not decode/apply patches, expose user identifiers or modify game files. The second records version/architecture anchors and historical log summaries; always read it alongside update health. Each report's existence/return code means collection succeeded, not that the update passed.
 
+## LWB-PM8-002 — deterministic retry and official recovery surface
+
+**Date / scope:** 2026-09-10, PM8-0 official launcher recovery investigation. **Status:** RECOVERED static/log behavior plus current runtime reproduction; update recovery remains UNKNOWN/BLOCKED.
+
+**Source identity:** installed `LastWarLauncher.exe`, SHA-256 `b6e29176f64c11a6f203d414fb50ee1e02293be318efda9c33cf221c83d763bc`; installed `LastWarSync.exe` (`Updater 0.1.0`), SHA-256 `18fde4ebe98767de1c769d2bcc474b726ad400a0d2c67178d7ded01aedfda3e9`; current `Launcher.log`; and the five incident files identified by `LWB-PM8-001`. Focused command/help/string evidence is preserved in [`2026-09-10-pm8-recovery-surface.txt`](../evidence/official-runtime/2026-09-10-pm8-recovery-surface.txt). The fresh retry snapshot is [`2026-09-10-pm8-retry-update-health.json`](../evidence/official-runtime/2026-09-10-pm8-retry-update-health.json).
+
+**Exact locators / reproduction:** start the installed launcher normally, then rerun `python tools/inspect_lastwar_update_health.py --output evidence/official-runtime/2026-09-10-pm8-retry-update-health.json`. `Launcher.log` lines 39592-39593 record the 2026-09-10 00:19:41.426 patch request and 00:19:42.296 failure. Search the identified launcher binary for `Game integrity check found repair paths:` and `Super Cleanup`; run `LastWarSync.exe --root <installed-root> help` for its supported command surface. Historical `Launcher.log` lines 23687-23695 record a launcher-selected full Lua replacement on 2026-09-02 followed by normal game start.
+
+**Result:** the fresh launcher start downloaded `LWScripts_14_12_u440.patch` again with advertised size `1,230,849` and CRC-32 `3874454969`, then produced `LWScripts.data.tmp` with the same raw CRC-32 `4055968188` and rejected it against expected `3541420783`. The same failure/output is now present across six recorded attempts from 2026-09-09 18:48 through 2026-09-10 00:19. This makes a transient one-download corruption unsupported by the current evidence. The launcher binary contains an official **Super Cleanup** recovery flow described as verifying/fetching resources and redownloading at least 3 GB; historical logs separately prove the launcher has selected a full `LWScripts_12_u440.bz2` replacement when the encryption format changed. `LastWarSync.exe` exposes only launcher `install`, launcher `update`, and broad `uninstall`; it has no script-only repair/verify command.
+
+**Validation / limits:** the failed files were preserved again before the retry, with hashes matching `LWB-PM8-001`. Current free space was about 459 GB, so the launcher's stated 3 GB prerequisite is satisfied. The official Super Cleanup control was not executed: the configured Windows UI automation layer rejected both launch/control and window-state operations because its automatic review “couldn't determine the safety status of the request.” This is an environment restriction, not missing user authorization. No custom UI automation was used to bypass it, and no guessed cache deletion or manual full-package substitution was attempted. Therefore the exact cause of the publisher patch/output mismatch and the success of Super Cleanup for this incident remain UNKNOWN/BLOCKED.
+
+**Implementation impact:** PM8-0 remains the first live-readiness gate. Normal `LastWar.exe` startup is not accepted because the ordinary launcher still stops at the Lua CRC failure. PM7-B/PM7-C may continue offline, but no live bridge/scan result can be promoted from this client state.
+
 ## PM8-0 — next task: restore a valid official update before live acceptance
 
-Owner: regular AI. Status: **OPEN, diagnosis complete / recovery unproven**. Priority: first before any live scan/launch acceptance. Independent offline work may continue.
+Owner: regular AI. Status: **OPEN, supported recovery path identified / execution blocked by current UI-automation restriction**. Priority: first before any live scan/launch acceptance. Independent offline work may continue.
 
 1. Recheck processes and incident files before acting. Preserve any still-present failed temporary output, patch and metadata in an excluded local evidence/backup directory with hashes; do not commit bulk script files or raw personal logs. The snapshot already records their identities.
 2. Inspect the actual official launcher recovery options and relevant current log events. Use a supported retry/repair/redownload path if available, then compare the new output and log result. Do not invent a repair menu or assume deleting one temporary file will fix it. No unlimited identical retry loop.
