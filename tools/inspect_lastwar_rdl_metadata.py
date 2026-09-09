@@ -497,12 +497,42 @@ def _print_member_matches(image: MetadataImage, query: str) -> None:
         )
 
 
+def _print_type_references(image: MetadataImage, query: str) -> None:
+    method_owners, field_owners = image.owner_maps()
+    lowered = query.lower()
+    for index, row in enumerate(image.tables.Field.rows, 1):
+        field_type = image.decode_field_signature(bytes(row.Signature.value))
+        if lowered not in field_type.lower():
+            continue
+        print(
+            f"FIELD {index}: {field_type} "
+            f"{field_owners.get(index, '?')}::{row.Name}"
+        )
+    for index, row in enumerate(image.tables.MethodDef.rows, 1):
+        ret, args = image.decode_method_signature(bytes(row.Signature.value))
+        if lowered not in ret.lower() and not any(lowered in arg.lower() for arg in args):
+            continue
+        names = {p.row.Sequence: str(p.row.Name) for p in row.ParamList}
+        rendered_args = [
+            f"{arg} {names.get(i + 1, f'arg{i + 1}')}" for i, arg in enumerate(args)
+        ]
+        print(
+            f"METHOD {index} RVA 0x{row.Rva:x}: {ret} "
+            f"{method_owners.get(index, '?')}::{row.Name}({', '.join(rendered_args)})"
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("rdl", type=Path)
     parser.add_argument("--type", dest="type_query")
     parser.add_argument("--method", dest="method_spec")
     parser.add_argument("--member", dest="member_query")
+    parser.add_argument(
+        "--references-to-type",
+        dest="type_reference_query",
+        help="print fields and method signatures whose decoded type references this name",
+    )
     args = parser.parse_args()
 
     image = MetadataImage.load(args.rdl)
@@ -517,8 +547,12 @@ def main() -> int:
         _print_method(image, args.method_spec)
     if args.member_query:
         _print_member_matches(image, args.member_query)
-    if not args.type_query and not args.method_spec and not args.member_query:
-        parser.error("provide --type, --method, or --member")
+    if args.type_reference_query:
+        _print_type_references(image, args.type_reference_query)
+    if not any(
+        (args.type_query, args.method_spec, args.member_query, args.type_reference_query)
+    ):
+        parser.error("provide --type, --method, --member, or --references-to-type")
     return 0
 
 
