@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-029",
+  "scope": "Current-runtime readable-evidence search for native per-kind map record_key derivation",
+  "evidenceStatus": "UNKNOWN/BLOCKED; negative readable-evidence result with next sources identified",
+  "officialRuntimeSnapshot": {
+    "path": "evidence/official-runtime/2026-09-08-official-runtime.json",
+    "build": "1.0.361 / 1078",
+    "observedAtUtc": "2026-09-08T00:44:54.719450+00:00",
+    "candidateArtifacts": [
+      {
+        "path": "%LOCALAPPDATA%/FunFly/Last War-Survival Game/Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+        "snapshotName": "Assembly-CSharp.rdl",
+        "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+        "outerFormat": "RG wrapper"
+      },
+      {
+        "path": "%USERPROFILE%/AppData/LocalLow/FunFly/Last War-Survival Game/lwScripts/LWScripts.data",
+        "sha256": "bc10cda45528ef82adb1439b0cac5b08265c7a11770430e7484a27a7031c485c",
+        "contentVersion": 12,
+        "launcherReportedFormat": "Lenc"
+      }
+    ]
+  },
+  "attempts": [
+    {
+      "method": "tracked current-runtime exact-term search",
+      "command": "git grep -n -I -e record_key -e scanRunId -e scan_records -e XluaBridgeMapScan HEAD -- evidence/official-runtime docs/official-runtime-architecture.md docs/lwbridge-map-scan.md",
+      "result": "all matches were in docs/lwbridge-map-scan.md; there were no matches in evidence/official-runtime or docs/official-runtime-architecture.md",
+      "interpretation": "the tracked official-runtime snapshot/architecture text does not expose the LWBridge record identity or scan bridge vocabulary"
+    },
+    {
+      "method": "tracked current-runtime known-row-vocabulary search",
+      "command": "git grep -n -I -e ownerUid -e ownerName -e monsterNameKey -e resourceNameKey -e treasureType -e suppliesType -e marchUuid -e pointIndex -e protectEndTime -e shieldEndTime HEAD -- evidence/official-runtime docs/official-runtime-architecture.md",
+      "result": "zero matches",
+      "interpretation": "the current tracked snapshot is an artifact/version inventory rather than decoded gameplay payload evidence"
+    },
+    {
+      "method": "read current official-runtime snapshot and architecture",
+      "result": "identified Assembly-CSharp.rdl and the active LWScripts.data as concrete build-1078 candidate sources for further current-contract recovery; no record_key derivation is claimed from their inventory metadata"
+    },
+    {
+      "method": "direct current-file identity verification",
+      "result": "located Assembly-CSharp.rdl at Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl, size 15640576, SHA-256 871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd; active LocalLow LWScripts.data is size 42030332, SHA-256 bc10cda45528ef82adb1439b0cac5b08265c7a11770430e7484a27a7031c485c. Both match the maintained official-runtime snapshot."
+    },
+    {
+      "method": "supported live-target availability check",
+      "result": "no LastWar, LWBridge or LastWarControl process was running during this checkpoint"
+    }
+  ],
+  "environmentRestrictions": [
+    "SB-28: one combined command intended to inventory repository RDL/RGMD/LWScripts/Lua recovery tooling and search references to the current LWScripts hash/format was rejected by automatic review because safety status could not be determined. It did not execute and was not retried or rerouted; it contributes no tooling or decoder finding."
+  ],
+  "result": {
+    "recovered": [],
+    "negativeEvidence": [
+      "tracked official-runtime readable evidence contains no direct record_key/scan bridge vocabulary",
+      "tracked official-runtime readable evidence contains none of the selected known LWBridge map-row field names"
+    ],
+    "unknownBlocked": [
+      "per-kind native record_key derivation for city/resource/monster/truck/railway/dispatch/ghost/treasure",
+      "current-client typed normalization/update/removal rules",
+      "current-client correlation from native capture payload to staged/published SQLite identity"
+    ]
+  },
+  "nextMethod": "If permitted, reuse an existing repository-supported decoder/loader for the identified build-1078 Assembly-CSharp.rdl or active LWScripts.data and search decoded symbols/payload builders for the eight map kinds. Otherwise use a future supported live capture/observation target. Do not infer record keys from frontend row-key fallbacks.",
+  "implementationImpact": {
+    "publicCapability": "none",
+    "classification": "research-only negative checkpoint",
+    "productionGate": "native scan ingestion remains fail-closed until per-kind authoritative record_key derivation is recovered"
+  }
+}

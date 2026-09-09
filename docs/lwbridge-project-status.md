@@ -25,6 +25,8 @@ Review 6 itself audited committed source/locators/findings without rerunning bin
 
 **Post-review regular-AI continuation — `LWB-R6-028`, 2026-09-09:** the recovered `scan_blocks(run_id,block_index)` schema now has internal test-only checkpoint read/write infrastructure. Deterministic coverage proves same-key replacement, file-backed reopen durability and cascade deletion when the owning `scan_run` is cleared. This removes one storage prerequisite for future interrupted-scan resume/reconciliation, but it does not recover scheduling, acknowledgement, retry/status transitions, completion eligibility or native record keys and enables no public scan command. The Release build and deterministic backend suite pass. SB-25 through SB-27 record three new automatic-review rejections from combined research reads; none was retried/rerouted or used as technical evidence. A separate process-only check found no running LastWar/LWBridge target.
 
+**Post-review DB-03 continuation — `LWB-R6-029`, 2026-09-09:** tracked current-runtime readable evidence was searched for the missing record identity and selected known map-row vocabulary. It contains no direct hit beyond the LWBridge recovery document itself. The current build-1078 snapshot identifies `Assembly-CSharp.rdl` and active `LWScripts.data` as concrete next sources, but their contents were not decoded in this checkpoint and no `record_key` rule is claimed. SB-28 records a rejected combined repository tooling/reference search; it was not retried/rerouted. Native ingestion remains fail-closed.
+
 ## Which reported restrictions are resolved?
 
 | Subject | Current state | PM action |
