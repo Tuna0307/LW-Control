@@ -2,6 +2,8 @@
 
 Reviewed 2026-09-09 against `d4e97903122372378ce324edf8d1444d6ccdc0e6` on `research/offline-controller`. Worktree clean at start. This review combines both completed task streams, updates ownership/escalation instructions, and fixes stale evidence-tool metadata. Production code is unchanged by the PM checkpoint. [Review 4 and follow-ups](reviews/2026-09-09-review-4-and-followups.md) are historical.
 
+**Post-review continuation:** regular-AI checkpoints through `LWB-R6-023` now add persisted-only option aggregation/count infrastructure, staged publication/rollback tests and exact native treasure-option key formatting. These do not change the review's production boundary: public `map_data_options`, native capture/record-key derivation and live acceptance remain incomplete. See [the current Map Data findings](lwbridge-map-scan.md), [ledger](lwbridge-feature-ledger.md) and [handoff](implementation-handoff.md) for the superseding details.
+
 ## Decision
 
 **Both AIs completed useful checkpoints; neither completed the full Overview/Map Data project or all DB research.** Their eight commits are already integrated in the same branch. Fresh build/backend/provider/transport checks pass. Preserve the repaired preferences, snapshot transaction, exact filters and corrected kind gates.

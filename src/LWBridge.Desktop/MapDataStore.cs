@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Data.Sqlite;
@@ -51,6 +52,7 @@ internal sealed record MapPersistedNameOption(string Kind, string Key, int Count
 internal sealed record MapPersistedRewardItemOption(string Kind, string Key, string Name, string? IconPath);
 
 internal sealed record MapPersistedTreasureTypeOption(
+    string Key,
     int SuppliesType,
     int TreasureType,
     string TreasureNameKey,
@@ -359,11 +361,19 @@ internal sealed class MapDataStore : IDisposable
                 command.Parameters.AddWithValue("$server", serverId);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
+                {
+                    int suppliesType = reader.GetInt32(0);
+                    int treasureType = reader.GetInt32(1);
+                    int keyValue = suppliesType > 0 ? suppliesType : treasureType;
+                    string keyPrefix = suppliesType > 0 ? "supplies:" : "treasure:";
+                    string key = keyPrefix + keyValue.ToString(CultureInfo.InvariantCulture);
                     treasureTypes.Add(new MapPersistedTreasureTypeOption(
-                        reader.GetInt32(0),
-                        reader.GetInt32(1),
+                        key,
+                        suppliesType,
+                        treasureType,
                         reader.GetString(2),
                         reader.GetInt32(3)));
+                }
             }
 
             var rewardItems = new List<MapPersistedRewardItemOption>();

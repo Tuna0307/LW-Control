@@ -759,9 +759,9 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
     SeedOptionRecord("dispatch", optionServerId, "dispatch-level-0", "{}", level: 0);
 
     SeedOptionRecord("treasure", optionServerId, "treasure-ordinary-1",
-        "{\"suppliesType\":0,\"treasureType\":8,\"treasureNameKey\":\"treasure-8\"}");
+        "{\"suppliesType\":0,\"treasureType\":12,\"treasureNameKey\":\"treasure-12\"}");
     SeedOptionRecord("treasure", optionServerId, "treasure-ordinary-2",
-        "{\"suppliesType\":0,\"treasureType\":8,\"treasureNameKey\":\"treasure-8-new\"}");
+        "{\"suppliesType\":0,\"treasureType\":12,\"treasureNameKey\":\"treasure-12-new\"}");
     SeedOptionRecord("treasure", optionServerId, "treasure-supplies",
         "{\"suppliesType\":4,\"treasureType\":99,\"treasureNameKey\":\"supplies-4\"}");
     SeedOptionRecord("treasure", optionServerId, "treasure-zero",
@@ -801,14 +801,16 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
     Check(persistedOptions.DispatchLevels.SequenceEqual(new[] { 1, 3 }),
         "persisted dispatch option levels are distinct positive integers ordered ascending");
     Check(persistedOptions.TreasureTypes.Count == 2 &&
+          persistedOptions.TreasureTypes[0].Key == "treasure:12" &&
           persistedOptions.TreasureTypes[0].SuppliesType == 0 &&
-          persistedOptions.TreasureTypes[0].TreasureType == 8 &&
+          persistedOptions.TreasureTypes[0].TreasureType == 12 &&
           persistedOptions.TreasureTypes[0].Count == 2 &&
-          persistedOptions.TreasureTypes[0].TreasureNameKey == "treasure-8-new" &&
+          persistedOptions.TreasureTypes[0].TreasureNameKey == "treasure-12-new" &&
+          persistedOptions.TreasureTypes[1].Key == "supplies:4" &&
           persistedOptions.TreasureTypes[1].SuppliesType == 4 &&
           persistedOptions.TreasureTypes[1].TreasureType == 0 &&
           persistedOptions.TreasureTypes[1].Count == 1,
-        "persisted treasure options preserve recovered ordinary/supplies normalization, grouping and ordering");
+        "persisted treasure options preserve recovered key formatting, ordinary/supplies normalization, grouping and ordering");
     Check(persistedOptions.RewardItems.Count == 2 &&
           persistedOptions.RewardItems[0].Kind == "railway" && persistedOptions.RewardItems[0].Key == "food" &&
           persistedOptions.RewardItems[1].Kind == "truck" && persistedOptions.RewardItems[1].Key == "iron" &&
