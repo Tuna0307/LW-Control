@@ -53,20 +53,20 @@ internal sealed record MapClearResult(int ServerId, int DeletedRuns, int Deleted
 
 internal sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total);
 
-internal sealed record MapPersistedAllianceOption(string? Name, int Count);
+internal sealed record MapAllianceOptionAggregate(string? Name, int Count);
 
-internal sealed record MapPersistedNameOption(string Kind, string Key, int Count);
+internal sealed record MapNameOptionAggregate(string Kind, string Key, int Count);
 
-internal sealed record MapPersistedRewardItemOption(string Kind, string Key, string Name, string? IconPath);
+internal sealed record MapRewardItemOptionAggregate(string Kind, string Key, string Name, string? IconPath);
 
-internal sealed record MapPersistedTreasureTypeOption(
+internal sealed record MapTreasureTypeOptionAggregate(
     string Key,
     int SuppliesType,
     int TreasureType,
     string TreasureNameKey,
     int Count);
 
-internal sealed record MapPersistedScanProgress(
+internal sealed record MapScanProgressAggregateRow(
     string Id,
     int ServerId,
     string SelectedTypesJson,
@@ -78,15 +78,15 @@ internal sealed record MapPersistedScanProgress(
     long UpdatedAt,
     string? Error);
 
-internal sealed record MapPersistedOptionAggregates(
-    IReadOnlyList<MapPersistedAllianceOption> Alliances,
-    IReadOnlyList<MapPersistedNameOption> Names,
+internal sealed record MapOptionAggregates(
+    IReadOnlyList<MapAllianceOptionAggregate> Alliances,
+    IReadOnlyList<MapNameOptionAggregate> Names,
     IReadOnlyList<int> DispatchLevels,
-    IReadOnlyList<MapPersistedTreasureTypeOption> TreasureTypes,
-    IReadOnlyList<MapPersistedRewardItemOption> RewardItems,
+    IReadOnlyList<MapTreasureTypeOptionAggregate> TreasureTypes,
+    IReadOnlyList<MapRewardItemOptionAggregate> RewardItems,
     IReadOnlyDictionary<string, int> Counts,
     int NoAllianceCount,
-    MapPersistedScanProgress? ScanProgress);
+    MapScanProgressAggregateRow? ScanProgress);
 
 internal sealed record MapOptionSourceSelection(
     int ServerId,
@@ -284,7 +284,7 @@ internal sealed class MapDataStore : IDisposable
         }
     }
 
-    internal static MapOptionSourceSelection SelectOptionSourceForTest(
+    internal static MapOptionSourceSelection SelectOptionSource(
         int requestedServerId,
         bool isReading,
         int scanStateServerId,
@@ -304,33 +304,64 @@ internal sealed class MapDataStore : IDisposable
             : new MapOptionSourceSelection(requestedServerId, null);
     }
 
-    internal MapPersistedOptionAggregates ReadPersistedOptionAggregatesAtForTest(
-        int serverId,
-        long nowUnixMilliseconds)
+    internal MapOptionAggregates ReadOptionAggregatesAt(
+        MapOptionSourceSelection source,
+        long nowUnixMilliseconds) =>
+        ReadOptionAggregatesCore(source, nowUnixMilliseconds, afterFirstAggregateRead: null);
+
+    internal MapOptionAggregates ReadOptionAggregatesAtForSnapshotTest(
+        MapOptionSourceSelection source,
+        long nowUnixMilliseconds,
+        Action afterFirstAggregateRead) =>
+        ReadOptionAggregatesCore(
+            source,
+            nowUnixMilliseconds,
+            afterFirstAggregateRead ?? throw new ArgumentNullException(nameof(afterFirstAggregateRead)));
+
+    private MapOptionAggregates ReadOptionAggregatesCore(
+        MapOptionSourceSelection source,
+        long nowUnixMilliseconds,
+        Action? afterFirstAggregateRead)
     {
-        ValidateServerId(serverId);
+        ValidateServerId(source.ServerId);
+
+        // RECOVERED LWB-R6-024/R6-030: only these two internal source/scope
+        // shapes exist. Values remain bound parameters; only the recovered SQL
+        // structure is selected here.
+        string sourceTable = source.UsesStagingRecords ? "scan_records" : "map_records";
+        string sourceScope = source.UsesStagingRecords
+            ? "server_id=$server AND run_id=$run"
+            : "server_id=$server";
+        string qualifiedSourceScope = source.UsesStagingRecords
+            ? "source.server_id=$server AND source.run_id=$run"
+            : "source.server_id=$server";
+
+        void BindSource(SqliteCommand command)
+        {
+            command.Parameters.AddWithValue("$server", source.ServerId);
+            if (source.UsesStagingRecords)
+                command.Parameters.AddWithValue("$run", source.ScanRunId!);
+        }
 
         lock (gate)
         {
-            // IMPLEMENTATION POLICY LWB-R6-015: this helper deliberately evaluates
-            // only the known persisted map_records source and one server scope. R6-030
-            // now recovers the public source/run selector itself, but the complete
-            // scan-progress serialization and production state integration are still incomplete.
-            // Keep one read snapshot so this offline aggregate set is internally
-            // coherent while its recovered SQL families are validated.
+            // IMPLEMENTATION POLICY PM7-A / LWB-R6-038: evaluate every recovered
+            // option/count family from one SQLite read snapshot so staged options and
+            // published counts can never describe different database generations.
+            // This does not claim original LWBridge transaction parity.
             using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);
 
-            var alliances = new List<MapPersistedAllianceOption>();
+            var alliances = new List<MapAllianceOptionAggregate>();
             int noAllianceCount = 0;
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
-                    SELECT alliance_name,COUNT(*) FROM map_records
-                    WHERE kind='city' AND server_id=$server
+                command.CommandText = $"""
+                    SELECT alliance_name,COUNT(*) FROM {sourceTable}
+                    WHERE kind='city' AND {sourceScope}
                     GROUP BY alliance_name ORDER BY alliance_name COLLATE NOCASE,alliance_name
                     """;
-                command.Parameters.AddWithValue("$server", serverId);
+                BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -346,31 +377,33 @@ internal sealed class MapDataStore : IDisposable
                         continue;
                     }
 
-                    alliances.Add(new MapPersistedAllianceOption(allianceName, count));
+                    alliances.Add(new MapAllianceOptionAggregate(allianceName, count));
                 }
             }
 
-            var names = new List<MapPersistedNameOption>();
+            afterFirstAggregateRead?.Invoke();
+
+            var names = new List<MapNameOptionAggregate>();
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
+                command.CommandText = $"""
                     SELECT kind,
                       CASE kind
                         WHEN 'resource' THEN CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT)
                         ELSE CAST(json_extract(data_json,'$.monsterNameKey') AS TEXT)
                       END AS name_key,
                       COUNT(*)
-                    FROM map_records
-                    WHERE server_id=$server AND kind IN ('resource','monster')
+                    FROM {sourceTable}
+                    WHERE {sourceScope} AND kind IN ('resource','monster')
                     GROUP BY kind,name_key
                     HAVING name_key IS NOT NULL AND name_key<>''
                     ORDER BY kind,name_key COLLATE NOCASE
                     """;
-                command.Parameters.AddWithValue("$server", serverId);
+                BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
-                    names.Add(new MapPersistedNameOption(
+                    names.Add(new MapNameOptionAggregate(
                         reader.GetString(0), reader.GetString(1), reader.GetInt32(2)));
             }
 
@@ -378,20 +411,20 @@ internal sealed class MapDataStore : IDisposable
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
-                    SELECT DISTINCT CAST(level AS INTEGER) FROM map_records
-                    WHERE server_id=$server AND kind='dispatch' AND level>=1 ORDER BY 1
+                command.CommandText = $"""
+                    SELECT DISTINCT CAST(level AS INTEGER) FROM {sourceTable}
+                    WHERE {sourceScope} AND kind='dispatch' AND level>=1 ORDER BY 1
                     """;
-                command.Parameters.AddWithValue("$server", serverId);
+                BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read()) dispatchLevels.Add(reader.GetInt32(0));
             }
 
-            var treasureTypes = new List<MapPersistedTreasureTypeOption>();
+            var treasureTypes = new List<MapTreasureTypeOptionAggregate>();
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
+                command.CommandText = $"""
                     WITH treasure_options AS (
                       SELECT
                         CASE WHEN COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0)>0
@@ -399,7 +432,7 @@ internal sealed class MapDataStore : IDisposable
                         CASE WHEN COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0)>0
                           THEN 0 ELSE COALESCE(CAST(json_extract(data_json,'$.treasureType') AS INTEGER),0) END AS treasure_type,
                         COALESCE(CAST(json_extract(data_json,'$.treasureNameKey') AS TEXT),'') AS name_key
-                      FROM map_records WHERE server_id=$server AND kind='treasure'
+                      FROM {sourceTable} WHERE {sourceScope} AND kind='treasure'
                     )
                     SELECT supplies_type,treasure_type,MAX(name_key),COUNT(*)
                     FROM treasure_options
@@ -407,7 +440,7 @@ internal sealed class MapDataStore : IDisposable
                     GROUP BY supplies_type,treasure_type
                     ORDER BY CASE WHEN supplies_type>0 THEN 1 ELSE 0 END,treasure_type,supplies_type
                     """;
-                command.Parameters.AddWithValue("$server", serverId);
+                BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -416,7 +449,7 @@ internal sealed class MapDataStore : IDisposable
                     int keyValue = suppliesType > 0 ? suppliesType : treasureType;
                     string keyPrefix = suppliesType > 0 ? "supplies:" : "treasure:";
                     string key = keyPrefix + keyValue.ToString(CultureInfo.InvariantCulture);
-                    treasureTypes.Add(new MapPersistedTreasureTypeOption(
+                    treasureTypes.Add(new MapTreasureTypeOptionAggregate(
                         key,
                         suppliesType,
                         treasureType,
@@ -425,48 +458,45 @@ internal sealed class MapDataStore : IDisposable
                 }
             }
 
-            var rewardItems = new List<MapPersistedRewardItemOption>();
+            var rewardItems = new List<MapRewardItemOptionAggregate>();
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
-                    SELECT map_records.kind,
+                command.CommandText = $"""
+                    SELECT source.kind,
                       CAST(json_extract(good.value,'$.key') AS TEXT),
                       CAST(json_extract(good.value,'$.name') AS TEXT),
                       CAST(json_extract(good.value,'$.iconPath') AS TEXT)
-                    FROM map_records,json_each(map_records.data_json,'$.currentGoods') AS good
-                    WHERE map_records.server_id=$server AND map_records.kind IN ('truck','railway')
-                      AND (json_extract(map_records.data_json,'$.arriveTs') IS NULL
-                        OR CAST(json_extract(map_records.data_json,'$.arriveTs') AS INTEGER)>$nowUnixMs)
+                    FROM {sourceTable} AS source,json_each(source.data_json,'$.currentGoods') AS good
+                    WHERE {qualifiedSourceScope} AND source.kind IN ('truck','railway')
+                      AND (json_extract(source.data_json,'$.arriveTs') IS NULL
+                        OR CAST(json_extract(source.data_json,'$.arriveTs') AS INTEGER)>$nowUnixMs)
                       AND json_extract(good.value,'$.key') IS NOT NULL
                       AND json_extract(good.value,'$.name') IS NOT NULL
-                    GROUP BY map_records.kind,2,3,4 ORDER BY 3 COLLATE NOCASE,2
+                    GROUP BY source.kind,2,3,4 ORDER BY 3 COLLATE NOCASE,2
                     """;
-                command.Parameters.AddWithValue("$server", serverId);
+                BindSource(command);
                 command.Parameters.AddWithValue("$nowUnixMs", nowUnixMilliseconds);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
-                    rewardItems.Add(new MapPersistedRewardItemOption(
+                    rewardItems.Add(new MapRewardItemOptionAggregate(
                         reader.GetString(0),
                         reader.GetString(1),
                         reader.GetString(2),
                         reader.IsDBNull(3) ? null : reader.GetString(3)));
             }
 
-            // IMPLEMENTATION POLICY LWB-R6-021: R6-016 proves the exact eight
-            // frontend count keys. R6-024/R6-030 later recover the native source/run
-            // branch, but this helper deliberately remains persisted-only while the
-            // remaining public scanProgress serialization/empty-state boundary is open.
-            // Keep counts in the same snapshot as the recovered option families.
+            // RECOVERED LWB-R6-024/R6-030: count aggregation uses the same source and
+            // optional exact run scope as the option families.
             var counts = MapScanContract.AllTypes.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
-                    SELECT kind,COUNT(*) FROM map_records
-                    WHERE server_id=$server GROUP BY kind
+                command.CommandText = $"""
+                    SELECT kind,COUNT(*) FROM {sourceTable}
+                    WHERE {sourceScope} GROUP BY kind
                     """;
-                command.Parameters.AddWithValue("$server", serverId);
+                BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -475,18 +505,26 @@ internal sealed class MapDataStore : IDisposable
                 }
             }
 
-            MapPersistedScanProgress? scanProgress = null;
+            MapScanProgressAggregateRow? scanProgress = null;
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
-                command.CommandText = """
-                    SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error
-                    FROM scan_runs WHERE server_id=$server AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1
-                    """;
-                command.Parameters.AddWithValue("$server", serverId);
+                command.CommandText = source.UsesStagingRecords
+                    ? """
+                        SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error
+                        FROM scan_runs WHERE id=$run
+                        """
+                    : """
+                        SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error
+                        FROM scan_runs WHERE server_id=$server AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1
+                        """;
+                if (source.UsesStagingRecords)
+                    command.Parameters.AddWithValue("$run", source.ScanRunId!);
+                else
+                    command.Parameters.AddWithValue("$server", source.ServerId);
                 using SqliteDataReader reader = command.ExecuteReader();
                 if (reader.Read())
-                    scanProgress = new MapPersistedScanProgress(
+                    scanProgress = new MapScanProgressAggregateRow(
                         reader.GetString(0),
                         reader.GetInt32(1),
                         reader.GetString(2),
@@ -500,7 +538,7 @@ internal sealed class MapDataStore : IDisposable
             }
 
             snapshot.Commit();
-            return new MapPersistedOptionAggregates(
+            return new MapOptionAggregates(
                 alliances, names, dispatchLevels, treasureTypes, rewardItems,
                 counts, noAllianceCount, scanProgress);
         }

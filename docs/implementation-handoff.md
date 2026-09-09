@@ -10,17 +10,17 @@ The [current audit](lwbridge-project-status.md) accepts PM6-001 and R6-024–037
 
 ## PM7-A — integrate the known option/count source contract first
 
-**Owner: regular AI. Status: TODO. Scope: R6/M07; bounded integration, not a full public-options completion claim.**
+**Owner: regular AI. Status: DONE as `LWB-R6-038`. Scope: R6/M07; bounded integration, not a full public-options completion claim.**
 
-Current code has a selector and published-only aggregate kernel called only by tests. Use R6-024/030/031 to implement one source-aware service over the recovered `map_records` and `scan_records` scopes. Reuse the existing SQL families, recovered clock and per-kind counts; avoid a second independent implementation that can drift. Inspect `MapDataStore.cs`, `LWBridgeBackend.cs` and their existing checks before editing.
+`LWB-R6-038` replaces the former test-only selector/published-only aggregate split with `MapDataStore.SelectOptionSource` + `ReadOptionAggregatesAt`. The service uses the recovered `map_records`/`scan_records` source scopes, exact raw run identity, recovered clock, option SQL families and all eight counts under one read snapshot. Published/staged, same-server other-run, other-server and concurrent-WAL cases pass. `LWBridgeBackend.map_data_options` intentionally remains `MAP_INDEX_UNAVAILABLE`; `MapScanProgressAggregateRow` is not promoted to public JSON.
 
-Required results:
+Completed acceptance results:
 
 1. One validated source context carries requested server and the optional exact run ID to every count/option query. Use staging only for reading state + same server + raw nonempty run ID; preserve the native no-trimming rule. Bind values; select SQL structure only from the two known internal sources.
 2. Support both source scopes for known aggregate fields. Preserve NULL/empty alliance exclusion and summed `noAllianceCount`, option keys, recovered ordering and reward cutoff. Keep a coherent read snapshot as explicitly documented rebuild policy. Do not silently read published counts alongside staged options.
 3. Prove the integration using conflicting published/staged records and two servers/runs. Check active, idle, server-mismatch, empty/null/whitespace run IDs, isolation and same-snapshot count/option consistency. Keep test inputs explicitly synthetic. Reuse existing tests where sufficient; do not add endless variations that mirror code.
 4. Keep the exact public `scanProgress` serializer and real state-provider prerequisites visible. Do not use `MapPersistedScanProgress`'s convenient test shape as recovered JSON, substitute live-event fields, fabricate an empty response, or enable public `map_data_options` merely because aggregates pass. Missing prerequisites must still return the explicit existing unavailable boundary.
-5. At delivery, name the service/call path ready for production integration, what previously duplicated/test-only logic was replaced, the exact public gate still present and the next evidence needed. This is one integration checkpoint. After it, take PM7-B/C or a concrete R5 blocker, not another unrelated test-only extension.
+5. Delivery is recorded as `LWB-R6-038` with durable evidence. The next task is PM7-B: recover authoritative state/bridge-handler linkage and integrate only the supported provider. Exact public `scanProgress` serialization remains an independent ESC-003 NOT_ASSIGNED gap.
 
 ## PM7-B — establish the bridge handler and authoritative state seam
 

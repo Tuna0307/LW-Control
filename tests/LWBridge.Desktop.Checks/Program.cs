@@ -613,6 +613,32 @@ try
         Check(mapStore.CountRecords("city", 79) == 3,
             "concurrent writer commits after the search snapshot without losing the new row");
 
+        // PM7-A / LWB-R6-038 IMPLEMENTATION POLICY: all option/count families in
+        // one source context observe one read snapshot while a WAL writer commits.
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 84, "option-snapshot-a", 1, "option-snapshot-a", "Option Snapshot A", "Alpha",
+            1, null, null, null, null, 1000,
+            "{\"ownerUid\":\"option-snapshot-a\",\"ownerName\":\"Option Snapshot A\"}"));
+        MapOptionSourceSelection optionSnapshotSource =
+            MapDataStore.SelectOptionSource(84, isReading: false, scanStateServerId: 84, scanRunId: null);
+        using (var optionConcurrentWriter = new MapDataStore(mapDatabasePath))
+        {
+            MapOptionAggregates optionSnapshot = mapStore.ReadOptionAggregatesAtForSnapshotTest(
+                optionSnapshotSource,
+                nowUnixMilliseconds: 5_000,
+                () => optionConcurrentWriter.UpsertRecord(new MapStoredRecord(
+                    "city", 84, "option-snapshot-b", 2, "option-snapshot-b", "Option Snapshot B", "Beta",
+                    1, null, null, null, null, 1100,
+                    "{\"ownerUid\":\"option-snapshot-b\",\"ownerName\":\"Option Snapshot B\"}")));
+            Check(optionSnapshot.Alliances.Count == 1 && optionSnapshot.Alliances[0].Name == "Alpha" &&
+                  optionSnapshot.Counts["city"] == 1,
+                "option alliances and counts stay on one SQLite snapshot across a concurrent WAL writer");
+        }
+        MapOptionAggregates optionAfterWriter =
+            mapStore.ReadOptionAggregatesAt(optionSnapshotSource, nowUnixMilliseconds: 5_000);
+        Check(optionAfterWriter.Alliances.Count == 2 && optionAfterWriter.Counts["city"] == 2,
+            "option aggregate snapshot releases cleanly and exposes the committed concurrent row on the next read");
+
         // LWB-R6-019: exercise only the recovered completed-kind delete/copy transaction.
         // The helper remains test-only because the original scan-completeness eligibility
         // gate and native record-key derivation are separate UNKNOWN/BLOCKED contracts.
@@ -760,25 +786,26 @@ finally
 // LWB-R6-030 RECOVERED / OFFLINE-TESTED: validate the recovered native source/run
 // decision without enabling the still-incomplete public map_data_options response.
 MapOptionSourceSelection activeOptionSource =
-    MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: "active-run-120");
+    MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: "active-run-120");
 Check(activeOptionSource.UsesStagingRecords &&
       activeOptionSource.ServerId == 120 &&
       activeOptionSource.ScanRunId == "active-run-120",
     "map option source selector uses the active scan run only for a matching reading server with nonempty scanRunId");
 
-Check(!MapDataStore.SelectOptionSourceForTest(120, isReading: false, scanStateServerId: 120, scanRunId: "active-run-120").UsesStagingRecords,
+Check(!MapDataStore.SelectOptionSource(120, isReading: false, scanStateServerId: 120, scanRunId: "active-run-120").UsesStagingRecords,
     "map option source selector falls back to published rows when scan state is not reading");
-Check(!MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 121, scanRunId: "active-run-120").UsesStagingRecords,
+Check(!MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 121, scanRunId: "active-run-120").UsesStagingRecords,
     "map option source selector falls back to published rows when scan-state server differs from the requested server");
-Check(!MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: null).UsesStagingRecords &&
-      !MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: "").UsesStagingRecords,
+Check(!MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: null).UsesStagingRecords &&
+      !MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: "").UsesStagingRecords,
     "map option source selector requires a present nonempty scanRunId for staging rows");
-Check(MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: " ").UsesStagingRecords,
+Check(MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: " ").UsesStagingRecords,
     "map option source selector preserves the recovered raw nonempty-string test without trimming scanRunId");
 
-// LWB-R6-015 IMPLEMENTATION POLICY: validate the recovered option SQL families
-// against the already-published map_records source. R6-030 recovers the selector,
-// but public assembly remains fail-closed until the remaining native fields are proven.
+// PM7-A / LWB-R6-038 IMPLEMENTED/OFFLINE-TESTED: one source-aware aggregate
+// service now evaluates the recovered option/count SQL families against either the
+// published map_records scope or the exact active scan_records run scope. Public
+// assembly remains fail-closed until exact scanProgress serialization/state is proven.
 using (var persistedOptionsStore = MapDataStore.CreateInMemory())
 {
     const int optionServerId = 120;
@@ -794,6 +821,21 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
         long updatedAt = 1_000)
     {
         persistedOptionsStore.UpsertRecord(new MapStoredRecord(
+            kind, serverId, recordKey, null, null, null, allianceName,
+            level, null, null, null, null, updatedAt, dataJson));
+    }
+
+    void SeedStagedOptionRecord(
+        string runId,
+        string kind,
+        int serverId,
+        string recordKey,
+        string dataJson,
+        string? allianceName = null,
+        int? level = null,
+        long updatedAt = 1_000)
+    {
+        persistedOptionsStore.StageRecordForPublishTest(runId, new MapStoredRecord(
             kind, serverId, recordKey, null, null, null, allianceName,
             level, null, null, null, null, updatedAt, dataJson));
     }
@@ -838,10 +880,39 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
         "options-run-new", optionServerId, "[\"city\",\"truck\"]", "running", 100, 40, 1, 1_500, 3_000, "one failed block"));
     persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
         "options-run-discarded", optionServerId, "[\"city\"]", "discarded", 100, 100, 0, 2_000, 4_000, null));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-active-run", optionServerId,
+        "[\"city\",\"resource\",\"truck\",\"dispatch\",\"treasure\"]",
+        "running", 200, 75, 2, 2_100, 2_500, "synthetic active failure"));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-other-run", optionServerId, "[\"city\"]", "running", 50, 10, 0, 2_200, 2_600, null));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-other-server-run", optionServerId + 1, "[\"city\"]", "running", 50, 10, 0, 2_300, 2_700, null));
 
-    MapPersistedOptionAggregates persistedOptions =
-        persistedOptionsStore.ReadPersistedOptionAggregatesAtForTest(
-            optionServerId, optionNowUnixMilliseconds);
+    SeedStagedOptionRecord("options-active-run", "city", optionServerId,
+        "staged-city-alpha", "{\"ownerUid\":\"stage-alpha\"}", "StageAlpha");
+    SeedStagedOptionRecord("options-active-run", "city", optionServerId,
+        "staged-city-no-alliance", "{\"ownerUid\":\"stage-none\"}", "");
+    SeedStagedOptionRecord("options-active-run", "resource", optionServerId,
+        "staged-resource-stone", "{\"resourceNameKey\":\"stone\"}");
+    SeedStagedOptionRecord("options-active-run", "dispatch", optionServerId,
+        "staged-dispatch-level-7", "{}", level: 7);
+    SeedStagedOptionRecord("options-active-run", "treasure", optionServerId,
+        "staged-treasure-21", "{\"suppliesType\":0,\"treasureType\":21,\"treasureNameKey\":\"treasure-21\"}");
+    SeedStagedOptionRecord("options-active-run", "truck", optionServerId,
+        "staged-truck", "{\"arriveTs\":6000,\"currentGoods\":[{\"key\":\"stage-iron\",\"name\":\"Stage Iron\"}]}");
+
+    SeedStagedOptionRecord("options-other-run", "city", optionServerId,
+        "wrong-run-city", "{\"ownerUid\":\"wrong-run\"}", "WrongRun");
+    SeedStagedOptionRecord("options-other-run", "resource", optionServerId,
+        "wrong-run-resource", "{\"resourceNameKey\":\"wrong-run\"}");
+    SeedStagedOptionRecord("options-other-server-run", "city", optionServerId + 1,
+        "wrong-server-city", "{\"ownerUid\":\"wrong-server\"}", "WrongServer");
+
+    MapOptionSourceSelection publishedOptionSource =
+        MapDataStore.SelectOptionSource(optionServerId, isReading: false, scanStateServerId: optionServerId, scanRunId: null);
+    MapOptionAggregates persistedOptions =
+        persistedOptionsStore.ReadOptionAggregatesAt(publishedOptionSource, optionNowUnixMilliseconds);
 
     Check(persistedOptions.Alliances.Count == 1 &&
           persistedOptions.Alliances.Single(item => item.Name == "Alpha").Count == 2 &&
@@ -890,9 +961,11 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.ScanProgress.Error == "one failed block",
         "persisted option scan progress selects newest non-discarded run for the requested server");
 
-    MapPersistedOptionAggregates otherServerOptions =
-        persistedOptionsStore.ReadPersistedOptionAggregatesAtForTest(
-            optionServerId + 1, optionNowUnixMilliseconds);
+    MapOptionAggregates otherServerOptions =
+        persistedOptionsStore.ReadOptionAggregatesAt(
+            MapDataStore.SelectOptionSource(
+                optionServerId + 1, isReading: false, scanStateServerId: optionServerId + 1, scanRunId: null),
+            optionNowUnixMilliseconds);
     Check(otherServerOptions.Alliances.Count == 1 &&
           otherServerOptions.Alliances[0].Name == "Other" &&
           otherServerOptions.RewardItems.Count == 1 &&
@@ -901,8 +974,35 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           otherServerOptions.Counts["truck"] == 1 &&
           otherServerOptions.Counts.Where(item => item.Key is not "city" and not "truck").All(item => item.Value == 0) &&
           otherServerOptions.NoAllianceCount == 0 &&
-          otherServerOptions.ScanProgress is null,
+          otherServerOptions.ScanProgress?.Id == "options-other-server-run" &&
+          otherServerOptions.ScanProgress.ServerId == optionServerId + 1,
         "persisted option aggregation does not mix rows, counts, no-alliance state or scan progress across servers");
+
+    MapOptionAggregates stagedOptions = persistedOptionsStore.ReadOptionAggregatesAt(
+        MapDataStore.SelectOptionSource(
+            optionServerId, isReading: true, scanStateServerId: optionServerId, scanRunId: "options-active-run"),
+        optionNowUnixMilliseconds);
+    Check(stagedOptions.Alliances.Count == 1 &&
+          stagedOptions.Alliances[0].Name == "StageAlpha" && stagedOptions.Alliances[0].Count == 1 &&
+          stagedOptions.NoAllianceCount == 1,
+        "active option aggregation reads alliance/no-alliance groups only from the exact staged run");
+    Check(stagedOptions.Names.Count == 1 &&
+          stagedOptions.Names[0].Kind == "resource" && stagedOptions.Names[0].Key == "stone" &&
+          stagedOptions.DispatchLevels.SequenceEqual(new[] { 7 }),
+        "active option aggregation reads names and dispatch levels from the staged source without published/run leakage");
+    Check(stagedOptions.TreasureTypes.Count == 1 && stagedOptions.TreasureTypes[0].Key == "treasure:21" &&
+          stagedOptions.RewardItems.Count == 1 && stagedOptions.RewardItems[0].Key == "stage-iron",
+        "active option aggregation applies recovered treasure keys and reward cutoff within the exact staged run");
+    Check(stagedOptions.Counts["city"] == 2 && stagedOptions.Counts["resource"] == 1 &&
+          stagedOptions.Counts["truck"] == 1 && stagedOptions.Counts["dispatch"] == 1 &&
+          stagedOptions.Counts["treasure"] == 1 &&
+          stagedOptions.Counts.Where(item => item.Key is not "city" and not "resource" and not "truck" and not "dispatch" and not "treasure")
+              .All(item => item.Value == 0),
+        "active option counts use the same exact staged run as every option family");
+    Check(stagedOptions.ScanProgress?.Id == "options-active-run" &&
+          stagedOptions.ScanProgress.ServerId == optionServerId &&
+          stagedOptions.ScanProgress.CompletedBlocks == 75 && stagedOptions.ScanProgress.FailedBlocks == 2,
+        "active option progress record selection uses the exact staged scanRunId rather than the newest run");
 }
 
 using (var backendMapStore = MapDataStore.CreateInMemory())
