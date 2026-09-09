@@ -1,0 +1,184 @@
+{
+  "findingId": "LWB-R6-039",
+  "date": "2026-09-09",
+  "scope": "PM7-B package-key envelope and bridge runtime-material boundary",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "artifact": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "preferredImageBase": "0x140000000",
+    "coordinateSystem": "preferred virtual addresses (VA) for host code; raw offsets within embedded assets"
+  },
+  "authorizationResponse": {
+    "runtimeFunctionPreferredVa": "0x14023C7EC-0x14023CB51",
+    "fields": [
+      {
+        "name": "authorizationTicket",
+        "length": 19,
+        "xrefPreferredVa": "0x14023C802",
+        "stringPreferredVa": "0x140C800A6",
+        "extractCallPreferredVa": "0x14023C81A",
+        "extractHelperPreferredVa": "0x14023F10C"
+      },
+      {
+        "name": "authorizationTicketExpiresAt",
+        "length": 28,
+        "xrefPreferredVa": "0x14023C81F",
+        "stringPreferredVa": "0x140C800B9",
+        "extractCallPreferredVa": "0x14023C834",
+        "extractHelperPreferredVa": "0x14023F10C"
+      },
+      {
+        "name": "packageKeyEnvelope",
+        "length": 18,
+        "xrefPreferredVa": "0x14023C95E",
+        "stringPreferredVa": "0x140C80114",
+        "extractCallPreferredVa": "0x14023C976",
+        "extractHelperPreferredVa": "0x14023F10C"
+      },
+      {
+        "name": "packageKeyEnvelopeExpiresAt",
+        "length": 27,
+        "xrefPreferredVa": "0x14023C97B",
+        "stringPreferredVa": "0x140C80126",
+        "extractCallPreferredVa": "0x14023C990",
+        "extractHelperPreferredVa": "0x14023F10C"
+      }
+    ],
+    "keyEnvelopeInvalidBranches": [
+      {
+        "xrefPreferredVa": "0x14023CA27",
+        "stringPreferredVa": "0x140C80141",
+        "errorCallPreferredVa": "0x14023CA37",
+        "errorHelperPreferredVa": "0x1402361FE"
+      },
+      {
+        "xrefPreferredVa": "0x14023CA70",
+        "stringPreferredVa": "0x140C80141",
+        "errorCallPreferredVa": "0x14023CA80",
+        "errorHelperPreferredVa": "0x1402361FE"
+      }
+    ]
+  },
+  "runtimeMaterialPaths": {
+    "runtimeFunctionPreferredVa": "0x14023CC15-0x14023D5B8",
+    "files": [
+      {
+        "name": "authorization.challenge",
+        "length": 23,
+        "xrefPreferredVa": "0x14023D0F2",
+        "stringPreferredVa": "0x140C80215",
+        "pathJoinCallPreferredVa": "0x14023D107",
+        "pathJoinHelperPreferredVa": "0x1405C6750"
+      },
+      {
+        "name": "authorization.ticket",
+        "length": 20,
+        "xrefPreferredVa": "0x14023D111",
+        "stringPreferredVa": "0x140C8022C",
+        "pathJoinCallPreferredVa": "0x14023D126",
+        "pathJoinHelperPreferredVa": "0x1405C6750"
+      },
+      {
+        "name": "package-key.envelope",
+        "length": 20,
+        "xrefPreferredVa": "0x14023D130",
+        "stringPreferredVa": "0x140C80240",
+        "pathJoinCallPreferredVa": "0x14023D145",
+        "pathJoinHelperPreferredVa": "0x1405C6750"
+      },
+      {
+        "name": "build.manifest",
+        "length": 14,
+        "xrefPreferredVa": "0x14023D153",
+        "stringPreferredVa": "0x140C80254",
+        "pathJoinCallPreferredVa": "0x14023D168",
+        "pathJoinHelperPreferredVa": "0x1405C6750"
+      }
+    ]
+  },
+  "bridgePackage": {
+    "sha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d",
+    "size": 1172723,
+    "magic": "LWBP",
+    "version": 2,
+    "buildIdLength": 22,
+    "buildId": "9BupJXpEgm34lybhNhbbcQ",
+    "headerLength": 34,
+    "containsLwke1Marker": false
+  },
+  "proxies": [
+    {
+      "name": "xlua-proxy-secure.dll",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "utf16Markers": {
+        "LWBRIDGE_PROFILE_RUNTIME_ROOT": "0x71828",
+        "\\bridge-runtime\\package-key.envelope": "0x70B70",
+        "\\bridge-runtime\\build.manifest": "0x70BC0",
+        "\\LastWar-xLua-Bridge\\bridge-scripts.dat": "0x70670"
+      },
+      "asciiMarkers": {
+        "LWKE1": "0x72D4C",
+        "key envelope missing": "0x70E00",
+        "key envelope expired": "0x70E18",
+        "key envelope invalid": "0x70E30",
+        "key envelope agreement failed": "0x72E60",
+        "key envelope decrypt failed": "0x72EE0",
+        "package decrypt failed": "0x70E48",
+        "package integrity invalid": "0x72F08",
+        "package build mismatch": "0x72F28",
+        "LWBP2|": "0x72F40"
+      }
+    },
+    {
+      "name": "xlua-proxy-plain.dll",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "utf16Markers": {
+        "LWBRIDGE_PROFILE_RUNTIME_ROOT": "0x71828",
+        "\\bridge-runtime\\package-key.envelope": "0x70B70",
+        "\\bridge-runtime\\build.manifest": "0x70BC0",
+        "\\LastWar-xLua-Bridge\\bridge-scripts.dat": "0x70670"
+      },
+      "asciiMarkers": {
+        "LWKE1": "0x72D4C",
+        "key envelope missing": "0x70E00",
+        "key envelope expired": "0x70E18",
+        "key envelope invalid": "0x70E30",
+        "key envelope agreement failed": "0x72E60",
+        "key envelope decrypt failed": "0x72EE0",
+        "package decrypt failed": "0x70E48",
+        "package integrity invalid": "0x72F08",
+        "package build mismatch": "0x72F28",
+        "LWBP2|": "0x72F40"
+      }
+    }
+  ],
+  "result": [
+    "The verified host authorization-response parser extracts authorizationTicket, authorizationTicketExpiresAt, packageKeyEnvelope, and packageKeyEnvelopeExpiresAt through the same field-extraction helper.",
+    "The same host parser has two exact KEY_ENVELOPE_INVALID construction branches after the package-key fields are reached.",
+    "A separate verified host runtime-material function constructs sibling authorization.challenge, authorization.ticket, package-key.envelope, and build.manifest paths through one path helper.",
+    "Both embedded xLua proxies contain LWBRIDGE_PROFILE_RUNTIME_ROOT, the bridge-runtime package-key/build-manifest relative paths, LWKE1/key-envelope/package-decrypt vocabulary, and the bridge-scripts.dat path.",
+    "The embedded bridge-scripts.dat is LWBP v2 with build ID 9BupJXpEgm34lybhNhbbcQ and contains no LWKE1 marker, so the key-envelope marker is not part of the embedded package bytes."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_bridge_runtime_material.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_bridge_runtime_material.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-bridge-runtime-material.json"
+  ],
+  "validationAndLimits": {
+    "validation": "static-only against the immutable verified LWBridge reference; no live Last War/LWBridge process was present during the checkpoint",
+    "liveProven": false,
+    "unknownBlocked": [
+      "direct dataflow/call linkage from the parsed packageKeyEnvelope value into the package-key.envelope runtime-file contents",
+      "the exact proxy function/dataflow that combines LWBRIDGE_PROFILE_RUNTIME_ROOT with the bridge-runtime package-key path and opens/reads it",
+      "key-envelope agreement/decrypt algorithm inputs and protected bridge-scripts.dat plaintext",
+      "the plaintext getWorldMapState/getCurrentServerId handler implementation and its linkage to current-client R6-034/R6-035 callables",
+      "propagated bridge transport errors, readiness/null/source semantics, and the exact map scan state is unavailable condition",
+      "live authoritative correlation against the current client"
+    ]
+  },
+  "implementationImpact": {
+    "pm7B": "narrows the handler boundary to an external runtime key-envelope artifact plus the protected LWBP package; handler semantics remain unavailable",
+    "mapSummary": "remains fail-closed; no production provider is enabled by this static checkpoint",
+    "nextTrace": "continue permitted call/data-flow analysis around the runtime-material producer or use a future available live bridge target for authoritative handler/result correlation; do not infer protected script plaintext"
+  }
+}
