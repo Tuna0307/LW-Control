@@ -41,6 +41,8 @@ Review 6 itself audited committed source/locators/findings without rerunning bin
 
 Resumed validation for R6-035 passes Python compile, evidence JSON checks, recovered frontend integrity, the Release build and the deterministic backend suite with real-config preservation; the installed diagnostic reports no running game/launcher. SB-46/47 record rejected combined validation reads and contribute no technical finding.
 
+**Post-review shared-state-producer continuation — `LWB-R6-036`, 2026-09-09:** a permitted hash-locked dump of the already identified LWBridge producer `0x1400F7F47-0x1400F9333` now proves its bridge request order: `getWorldMapState`, then `getCurrentServerId`, each through dispatcher `0x1400E4FAD` with the recovered 5,000 ms bridge timeout. The producer also normalizes missing/non-boolean `isInWorld` to false, keeps only positive `homeServerId`, and filters/deduplicates/sorts season/truck-match server IDs within `1..99999`. R6-035's managed current-server chain remains a separate current-client fact: exact command-handler linkage, complete `serverIdSource` selection and the original named-error mapping remain UNKNOWN/BLOCKED, so production summary/status stay fail-closed. SB-48 records a rejected filtered follow-up and contributes no evidence.
+
 ## Which reported restrictions are resolved?
 
 | Subject | Current state | PM action |

@@ -83,6 +83,24 @@
         "timeoutMs": 5000,
         "acceptanceField": "accepted"
       },
+      "sharedScanState": {
+        "producerRva": "0xF7F47-0xF9333",
+        "bridgeRequestOrder": [
+          "getWorldMapState",
+          "getCurrentServerId"
+        ],
+        "bridgeRequestTimeoutMs": 5000,
+        "normalizedFields": [
+          "serverId",
+          "isInWorld",
+          "homeServerId",
+          "seasonServerIds",
+          "truckMatchServerIds",
+          "serverIdSource",
+          "isReading"
+        ],
+        "limits": "exact bridge-command handlers, complete serverIdSource selection and named public error mapping remain unrecovered"
+      },
       "nativeCapture": {
         "envelopeFields": [
           "scanRunId",
