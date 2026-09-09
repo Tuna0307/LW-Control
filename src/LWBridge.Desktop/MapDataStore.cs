@@ -573,6 +573,80 @@ internal sealed class MapDataStore : IDisposable
         }
     }
 
+    internal void StageRecordForPublishTest(string runId, MapStoredRecord record)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
+        ValidateRecord(record);
+
+        lock (gate)
+        {
+            // IMPLEMENTATION POLICY LWB-R6-019: this is offline/test infrastructure for
+            // the recovered scan_records identity and publish transaction. It accepts an
+            // already-derived recordKey and does not recover native ingestion identity.
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO scan_records(run_id,kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)
+                VALUES ($run,$kind,$server,$key,$point,$uuid,$name,$alliance,$level,$quality,$power,$distance,$shield,$updated,$json)
+                ON CONFLICT(run_id,kind,server_id,record_key) DO UPDATE SET
+                  point_index=excluded.point_index,uuid=excluded.uuid,name=excluded.name,
+                  alliance_name=excluded.alliance_name,level=excluded.level,
+                  quality=excluded.quality,power=excluded.power,distance=excluded.distance,
+                  shield_end_time=excluded.shield_end_time,updated_at=excluded.updated_at,
+                  data_json=excluded.data_json
+                """;
+            command.Parameters.AddWithValue("$run", runId);
+            AddRecordParameters(command, record);
+            command.ExecuteNonQuery();
+        }
+    }
+
+    internal int ReplacePublishedKindFromStagingForTest(string runId, string kind, int serverId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
+        ValidateKind(kind);
+        ValidateServerId(serverId);
+
+        lock (gate)
+        {
+            // RECOVERED transaction slice: completed direct-scan publication deletes one
+            // kind/server from map_records and copies the matching scan_records rows.
+            // IMPLEMENTATION POLICY LWB-R6-019: this test-only helper deliberately does
+            // not decide whether a run is complete/eligible. The production completion
+            // gate remains UNKNOWN/BLOCKED and must execute before this transaction.
+            using SqliteTransaction transaction = connection.BeginTransaction();
+
+            using (SqliteCommand delete = connection.CreateCommand())
+            {
+                delete.Transaction = transaction;
+                delete.CommandText = "DELETE FROM map_records WHERE kind=$kind AND server_id=$server";
+                delete.Parameters.AddWithValue("$kind", kind);
+                delete.Parameters.AddWithValue("$server", serverId);
+                delete.ExecuteNonQuery();
+            }
+
+            int inserted;
+            using (SqliteCommand copy = connection.CreateCommand())
+            {
+                copy.Transaction = transaction;
+                copy.CommandText = """
+                    INSERT INTO map_records(kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)
+                    SELECT kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json
+                    FROM scan_records
+                    WHERE run_id=$run AND kind=$kind AND server_id=$server
+                    """;
+                copy.Parameters.AddWithValue("$run", runId);
+                copy.Parameters.AddWithValue("$kind", kind);
+                copy.Parameters.AddWithValue("$server", serverId);
+                inserted = copy.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+            return inserted;
+        }
+    }
+
     public int CountScanRuns(int serverId)
     {
         ValidateServerId(serverId);

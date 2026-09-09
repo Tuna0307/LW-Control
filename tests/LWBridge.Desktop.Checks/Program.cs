@@ -610,6 +610,46 @@ try
         Check(mapStore.CountRecords("city", 79) == 3,
             "concurrent writer commits after the search snapshot without losing the new row");
 
+        // LWB-R6-019: exercise only the recovered completed-kind delete/copy transaction.
+        // The helper remains test-only because the original scan-completeness eligibility
+        // gate and native record-key derivation are separate UNKNOWN/BLOCKED contracts.
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 80, "publish-old-a", 1, "publish-old-a", "Old A", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"publish-old-a\",\"ownerName\":\"Old A\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 80, "publish-old-b", 2, "publish-old-b", "Old B", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"publish-old-b\",\"ownerName\":\"Old B\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "monster", 80, "publish-monster", 3, null, "Keep Monster", null,
+            2, null, null, null, null, 100, "{\"monsterNameKey\":\"keep\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 81, "publish-other-server", 4, null, "Keep Other Server", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"other-server\",\"updatedAt\":100}"));
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "publish-run-80", 80, "[\"city\"]", "completed", 2, 2, 0, 100, 200, null));
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "publish-other-run-80", 80, "[\"city\"]", "completed", 1, 1, 0, 100, 200, null));
+        mapStore.StageRecordForPublishTest("publish-run-80", new MapStoredRecord(
+            "city", 80, "publish-new-a", 10, "publish-new-a", "New A", "NEW",
+            10, null, null, null, null, 300, "{\"ownerUid\":\"publish-new-a\",\"ownerName\":\"New A\",\"updatedAt\":300}"));
+        mapStore.StageRecordForPublishTest("publish-run-80", new MapStoredRecord(
+            "city", 80, "publish-new-b", 11, "publish-new-b", "New B", "NEW",
+            11, null, null, null, null, 301, "{\"ownerUid\":\"publish-new-b\",\"ownerName\":\"New B\",\"updatedAt\":301}"));
+        mapStore.StageRecordForPublishTest("publish-other-run-80", new MapStoredRecord(
+            "city", 80, "publish-wrong-run", 12, "publish-wrong-run", "Wrong Run", null,
+            12, null, null, null, null, 302, "{\"ownerUid\":\"publish-wrong-run\",\"updatedAt\":302}"));
+
+        int publishedRows = mapStore.ReplacePublishedKindFromStagingForTest("publish-run-80", "city", 80);
+        Check(publishedRows == 2 && mapStore.CountRecords("city", 80) == 2 &&
+              mapStore.GetRecord("city", 80, "publish-new-a")?.Name == "New A" &&
+              mapStore.GetRecord("city", 80, "publish-new-b")?.Name == "New B" &&
+              mapStore.GetRecord("city", 80, "publish-old-a") is null &&
+              mapStore.GetRecord("city", 80, "publish-old-b") is null &&
+              mapStore.GetRecord("city", 80, "publish-wrong-run") is null,
+            "recovered publish slice atomically replaces one kind/server from only the selected scan run");
+        Check(mapStore.CountRecords("monster", 80) == 1 && mapStore.CountRecords("city", 81) == 1,
+            "recovered publish slice leaves other kinds and servers unchanged");
+
         await ExpectBridgeError("INVALID_MAP_RECORD", "map store refuses guessed/missing record identity", () =>
             Task.Run(() => mapStore.UpsertRecord(new MapStoredRecord(
                 "city", 77, "", null, null, null, null, null, null, null, null, null, 1, "{}"))));
