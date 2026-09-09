@@ -42,12 +42,14 @@ Static evidence was audited from committed source/locators/findings; no binary d
 
 The normal isolated probe passes all required gates in this audit. Retain that credit. The regular AI should use a bounded cleanup wait, preserve/report a failed termination, and test the timeout/termination-failure path with an isolated controllable child or test seam. Do not use an arbitrary new timeout as a recovered game constant; it is test orchestration policy. Do not terminate unrelated processes. This test-tool issue does not explain the missing game launch/capture implementation.
 
+**Post-review resolution — `LWB-PM6-001`, 2026-09-09:** the helper now uses `Stop-OwnedProcessBounded` for its owned child, with a separately documented five-second cleanup orchestration bound and no parameterless `WaitForExit()` path. Primary probe failures and cleanup failures are both retained in the surfaced error. A deterministic self-test launches an isolated PowerShell child, injects a termination-command failure, verifies the failure is reported within a bounded observation window, and then cleans up only that child. The self-test completed in 184 ms and the normal native-host probe remained `ok=true`, `userConfigTouched=false`, `liveGameCommandsPerformed=false`. This closes PM6-01 only; no production Overview/Map Data capability is implied. Evidence: [PM6 host cleanup](../evidence/lwbridge-implementation/2026-09-09-pm6-host-cleanup.json).
+
 ## What to prioritize next
 
 1. **Public capability blockers first:** choose a concrete options-source/full-response, summary-server, owned-launch or native-capture/identity contract and advance its evidence. At each checkpoint, state which real UI operation became usable; if none, say "research/test-only checkpoint" and name the remaining production gate.
 2. **Complete reviewable requests for stalled work:** regular AI fills ESC-002/003/004 with exact attempted methods/results, alternatives and why a specialist could help. If it resolves one itself, link the new finding and close the request. A denied command alone does not satisfy the escalation rule. Continue independent work whose contracts are known.
 3. **Do not endlessly substitute more fixture helpers for the same unresolved public contract.** Retain useful R6-015/019/021 infrastructure, but another helper addition must explain what integration dependency it removes. Keep the R5 launch and R7 capture critical path visible alongside R6.
-4. **Fix PM6-01 and preserve passing regression cases.** UI-only refinements and further synthetic variations are not the highest completion priorities.
+4. **Preserve the completed PM6-01 regression.** `LWB-PM6-001` closes the unbounded cleanup defect. Do not spend the next checkpoint adding more host-test variations unless a new failure appears; production blockers remain higher priority.
 
 ## Fresh verification
 

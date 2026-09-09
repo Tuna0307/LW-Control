@@ -34,7 +34,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 
 - [x] Review 6 accepts R6-014 clock/time search and R6-023 treasure option keys; close those specific research gaps.
 - [x] Verify previously delayed delivery: GitHub contains `3138fe9`; SB-10 is historical.
-- [ ] **PM6-01 / regular AI:** bound host-probe timeout/finally cleanup; failed Stop-Process currently leads to unbounded WaitForExit. Test the termination-failure path; normal host probe passes.
+- [x] **PM6-01 / regular AI:** `LWB-PM6-001` replaces unbounded host-probe cleanup waits with a bounded owned-process cleanup helper, preserves termination errors, and adds a deterministic termination-failure self-test to CI. Both the self-test and normal isolated host probe pass; this is test-orchestration hygiene only, not a live feature. See `evidence/lwbridge-implementation/2026-09-09-pm6-host-cleanup.json`.
 - [ ] Next checkpoint: advance a public options/summary, owned-launch or native-ingestion blocker, or supply its complete ESC attempt/reason packet. Explain the integration value of any additional test-only work.
 
 ## Completed foundation
@@ -176,7 +176,7 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 ## Verification
 
-Review 6: Release build/backend suite, frontend integrity, five preference scenarios, both transport harnesses and the normal isolated hidden WebView host all pass. No binary verifier or denied operation rerun. Host cleanup failure remains PM6-01; live game features remain unproven. See [review 6 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-6.json). All 47 full acceptance cases remain unsigned despite passing local/offline subchecks.
+Review 6: Release build/backend suite, frontend integrity, five preference scenarios, both transport harnesses and the normal isolated hidden WebView host all pass. No binary verifier or denied operation rerun. Post-review `LWB-PM6-001` closes PM6-01 with bounded owned-process cleanup plus a deterministic termination-failure regression; live game features remain unproven. See [review 6 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-6.json) and [PM6 cleanup evidence](evidence/lwbridge-implementation/2026-09-09-pm6-host-cleanup.json). All 47 full acceptance cases remain unsigned despite passing local/offline subchecks.
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check

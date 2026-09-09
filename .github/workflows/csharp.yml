@@ -25,7 +25,9 @@ jobs:
         run: node tools/check_lwbridge_preference_provider.cjs
       - name: Verify isolated native WebView interaction matrix
         shell: pwsh
-        run: ./tools/check_lwbridge_host_probe.ps1
+        run: |
+          ./tools/check_lwbridge_host_probe.ps1 -RunTerminationFailureSelfTest
+          ./tools/check_lwbridge_host_probe.ps1
       - name: Verify requested live mode never falls through to fixtures
         run: node tools/check_lwbridge_live_transport.cjs
       - name: Verify browser/native session and profile routing boundaries

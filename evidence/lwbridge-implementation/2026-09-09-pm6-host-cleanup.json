@@ -1,0 +1,75 @@
+{
+  "findingId": "LWB-PM6-001",
+  "date": "2026-09-09",
+  "scope": "PM6-01 isolated native-host probe cleanup bound and termination-failure regression",
+  "evidenceLabel": "IMPLEMENTED/OFFLINE-TESTED",
+  "startingRevision": "ff36e6fa0cd662224f963472843c8256ca0806bf",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "sourceIdentity": {
+    "tool": "PowerShell 7.6.5",
+    "implementationPath": "tools/check_lwbridge_host_probe.ps1",
+    "implementationSha256": "97ca66efa2e77c041775569c82d7fb18e9a2cf4fae1e6056424b25bdf9a431b9",
+    "workflowPath": ".github/workflows/csharp.yml",
+    "workflowSha256": "bd0f4832978bcf7173de4a936b019b566215b2f582a007cf0a0d19d6d39daef9"
+  },
+  "locators": [
+    "tools/check_lwbridge_host_probe.ps1:7 Stop-OwnedProcessBounded",
+    "tools/check_lwbridge_host_probe.ps1:48 cleanupWaitTimeoutMs implementation policy",
+    "tools/check_lwbridge_host_probe.ps1:50 RunTerminationFailureSelfTest",
+    "tools/check_lwbridge_host_probe.ps1:164 bounded finally cleanup",
+    "tools/check_lwbridge_host_probe.ps1:175 primary plus cleanup error reporting",
+    ".github/workflows/csharp.yml isolated native WebView interaction matrix step"
+  ],
+  "implementationPolicy": {
+    "cleanupWaitTimeoutMs": 5000,
+    "meaning": "Bound applied only to this test helper after requesting forced termination. It is test orchestration policy and is not a recovered LWBridge or Last War runtime timeout."
+  },
+  "reproduction": [
+    {
+      "command": "./tools/check_lwbridge_host_probe.ps1 -RunTerminationFailureSelfTest",
+      "result": {
+        "ok": true,
+        "terminationFailureReported": true,
+        "bounded": true,
+        "elapsedMs": 184
+      }
+    },
+    {
+      "command": "./tools/check_lwbridge_host_probe.ps1",
+      "result": {
+        "ok": true,
+        "mode": "isolated-native-host-probe",
+        "startupAutoLaunchSuppressed": true,
+        "isolatedPersistentConfig": true,
+        "userConfigTouched": false,
+        "liveGameCommandsPerformed": false
+      }
+    }
+  ],
+  "result": [
+    "The host-probe helper no longer contains a parameterless WaitForExit cleanup path.",
+    "A failed termination request is preserved in the surfaced error while the wait for the owned child remains bounded.",
+    "The timeout path records its primary failure and combines it with any cleanup failure instead of suppressing either condition.",
+    "CI now runs the deterministic termination-failure self-test before the normal isolated native-host matrix."
+  ],
+  "validationAndLimits": [
+    "The regression uses an owned, controllable PowerShell child and injects a deterministic simulated termination-command failure; it does not rely on or terminate a Last War process.",
+    "The normal native-host probe still passes and reports no user-config mutation or live-game command.",
+    "This checkpoint fixes test-orchestration hygiene only. It does not implement Overview lifecycle, native transport, Map Scan, or any live game feature."
+  ],
+  "implementationImpact": {
+    "resolved": [
+      "PM6-01"
+    ],
+    "remainingProductionGates": [
+      "public map_data_options source/run and complete response assembly",
+      "owned launch/stop/reconnect/heartbeat lifecycle",
+      "native record keys/capture/scan ingestion",
+      "full export writer semantics",
+      "all live acceptance cases"
+    ]
+  }
+}
