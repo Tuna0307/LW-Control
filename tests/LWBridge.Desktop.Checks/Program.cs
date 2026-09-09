@@ -757,9 +757,28 @@ finally
     catch { }
 }
 
+// LWB-R6-030 RECOVERED / OFFLINE-TESTED: validate the recovered native source/run
+// decision without enabling the still-incomplete public map_data_options response.
+MapOptionSourceSelection activeOptionSource =
+    MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: "active-run-120");
+Check(activeOptionSource.UsesStagingRecords &&
+      activeOptionSource.ServerId == 120 &&
+      activeOptionSource.ScanRunId == "active-run-120",
+    "map option source selector uses the active scan run only for a matching reading server with nonempty scanRunId");
+
+Check(!MapDataStore.SelectOptionSourceForTest(120, isReading: false, scanStateServerId: 120, scanRunId: "active-run-120").UsesStagingRecords,
+    "map option source selector falls back to published rows when scan state is not reading");
+Check(!MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 121, scanRunId: "active-run-120").UsesStagingRecords,
+    "map option source selector falls back to published rows when scan-state server differs from the requested server");
+Check(!MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: null).UsesStagingRecords &&
+      !MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: "").UsesStagingRecords,
+    "map option source selector requires a present nonempty scanRunId for staging rows");
+Check(MapDataStore.SelectOptionSourceForTest(120, isReading: true, scanStateServerId: 120, scanRunId: " ").UsesStagingRecords,
+    "map option source selector preserves the recovered raw nonempty-string test without trimming scanRunId");
+
 // LWB-R6-015 IMPLEMENTATION POLICY: validate the recovered option SQL families
-// against the already-published map_records source without enabling the public
-// map_data_options source/run selector, which remains unrecovered.
+// against the already-published map_records source. R6-030 recovers the selector,
+// but public assembly remains fail-closed until the remaining native fields are proven.
 using (var persistedOptionsStore = MapDataStore.CreateInMemory())
 {
     const int optionServerId = 120;

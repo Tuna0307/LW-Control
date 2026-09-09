@@ -88,6 +88,13 @@ internal sealed record MapPersistedOptionAggregates(
     int NoAllianceCount,
     MapPersistedScanProgress? ScanProgress);
 
+internal sealed record MapOptionSourceSelection(
+    int ServerId,
+    string? ScanRunId)
+{
+    public bool UsesStagingRecords => ScanRunId is { Length: > 0 };
+}
+
 internal sealed class MapDataStore : IDisposable
 {
     private static readonly HashSet<string> AllowedKinds = new(MapScanContract.AllTypes, StringComparer.Ordinal);
@@ -277,6 +284,26 @@ internal sealed class MapDataStore : IDisposable
         }
     }
 
+    internal static MapOptionSourceSelection SelectOptionSourceForTest(
+        int requestedServerId,
+        bool isReading,
+        int scanStateServerId,
+        string? scanRunId)
+    {
+        ValidateServerId(requestedServerId);
+
+        // RECOVERED LWB-R6-030: the original helper returns an active run scope
+        // only while a scan is reading the requested server and scanRunId is a
+        // nonempty string. Otherwise the option/count path has no run scope and
+        // uses the published map_records source. Keep this internal until the
+        // remaining native response/no-alliance/scan-progress assembly is proven.
+        return isReading &&
+               scanStateServerId == requestedServerId &&
+               scanRunId is { Length: > 0 }
+            ? new MapOptionSourceSelection(requestedServerId, scanRunId)
+            : new MapOptionSourceSelection(requestedServerId, null);
+    }
+
     internal MapPersistedOptionAggregates ReadPersistedOptionAggregatesAtForTest(
         int serverId,
         long nowUnixMilliseconds)
@@ -286,10 +313,11 @@ internal sealed class MapDataStore : IDisposable
         lock (gate)
         {
             // IMPLEMENTATION POLICY LWB-R6-015: this helper deliberately evaluates
-            // only the known persisted map_records source and one server scope. It is
-            // not the public map_data_options source/run selector, which remains
-            // UNKNOWN/BLOCKED. Keep one read snapshot so the offline aggregate set is
-            // internally coherent while its recovered SQL families are validated.
+            // only the known persisted map_records source and one server scope. R6-030
+            // now recovers the public source/run selector itself, but the complete
+            // native response/no-alliance/scan-progress assembly is still incomplete.
+            // Keep one read snapshot so this offline aggregate set is internally
+            // coherent while its recovered SQL families are validated.
             using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);
 
             var alliances = new List<MapPersistedAllianceOption>();
