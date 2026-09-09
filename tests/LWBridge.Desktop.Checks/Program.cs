@@ -681,6 +681,30 @@ try
                 "staged publication rollback preserves the prior published kind/server on mid-transaction failure");
         }
 
+        // LWB-R6-028 IMPLEMENTATION POLICY: exercise restart-safe persistence over
+        // the recovered scan_blocks schema without claiming original scheduling,
+        // acknowledgement, retry or status-transition behavior.
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "checkpoint-run-83", 83, "[\"city\"]", "synthetic-running", 3, 0, 0, 100, 100, null));
+        mapStore.UpsertScanBlockCheckpointForTest(
+            "checkpoint-run-83",
+            new MapScanBlockCheckpoint(0, "{\"block\":0}", "synthetic-pending", 0, null, 110));
+        mapStore.UpsertScanBlockCheckpointForTest(
+            "checkpoint-run-83",
+            new MapScanBlockCheckpoint(1, "{\"block\":1}", "synthetic-failed", 2, "synthetic failure", 120));
+        mapStore.UpsertScanBlockCheckpointForTest(
+            "checkpoint-run-83",
+            new MapScanBlockCheckpoint(1, "{\"block\":1,\"retry\":true}", "synthetic-retry", 3, null, 130));
+
+        IReadOnlyList<MapScanBlockCheckpoint> checkpointRows =
+            mapStore.ReadScanBlockCheckpointsForTest("checkpoint-run-83");
+        Check(checkpointRows.Count == 2 &&
+              checkpointRows[0].BlockIndex == 0 && checkpointRows[0].Attempts == 0 &&
+              checkpointRows[1].BlockIndex == 1 && checkpointRows[1].Attempts == 3 &&
+              checkpointRows[1].Status == "synthetic-retry" && checkpointRows[1].Error is null &&
+              checkpointRows[1].PayloadJson.Contains("retry", StringComparison.Ordinal),
+              "scan block checkpoint upsert is keyed by recovered run/block identity and preserves the latest durable state");
+
         await ExpectBridgeError("INVALID_MAP_RECORD", "map store refuses guessed/missing record identity", () =>
             Task.Run(() => mapStore.UpsertRecord(new MapStoredRecord(
                 "city", 77, "", null, null, null, null, null, null, null, null, null, 1, "{}"))));
@@ -713,6 +737,16 @@ try
             "player mark identity/state survives database restart after map-data clear");
         Check(reopenedMapStore.CountRecords("city", 78) == 1,
             "unrelated server map records survive database restart");
+        IReadOnlyList<MapScanBlockCheckpoint> reopenedCheckpoints =
+            reopenedMapStore.ReadScanBlockCheckpointsForTest("checkpoint-run-83");
+        Check(reopenedCheckpoints.Count == 2 &&
+              reopenedCheckpoints[1].BlockIndex == 1 && reopenedCheckpoints[1].Attempts == 3 &&
+              reopenedCheckpoints[1].Status == "synthetic-retry" && reopenedCheckpoints[1].Error is null,
+            "scan block checkpoints survive database restart for later resume/reconciliation");
+        MapClearResult checkpointClear = reopenedMapStore.ClearServer(83);
+        Check(checkpointClear.DeletedRuns == 1 &&
+              reopenedMapStore.ReadScanBlockCheckpointsForTest("checkpoint-run-83").Count == 0,
+            "server-scoped scan clear cascades recovered scan-run deletion to persisted block checkpoints");
         Check(reopenedMapStore.DeletePlayerMark(77, largeOwnerUid) && reopenedMapStore.GetPlayerMark(77, largeOwnerUid) is null,
             "player mark delete uses recovered server/owner UID identity");
     }

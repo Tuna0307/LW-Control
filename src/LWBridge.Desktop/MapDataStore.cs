@@ -41,6 +41,14 @@ internal sealed record MapScanRunSeed(
     long UpdatedAt,
     string? Error);
 
+internal sealed record MapScanBlockCheckpoint(
+    int BlockIndex,
+    string PayloadJson,
+    string Status,
+    int Attempts,
+    string? Error,
+    long UpdatedAt);
+
 internal sealed record MapClearResult(int ServerId, int DeletedRuns, int DeletedRecords);
 
 internal sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total);
@@ -618,6 +626,73 @@ internal sealed class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$updated", run.UpdatedAt);
             command.Parameters.AddWithValue("$error", (object?)run.Error ?? DBNull.Value);
             command.ExecuteNonQuery();
+        }
+    }
+
+    internal void UpsertScanBlockCheckpointForTest(
+        string runId,
+        MapScanBlockCheckpoint checkpoint)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
+        if (checkpoint.BlockIndex < 0)
+            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block index cannot be negative.");
+        if (string.IsNullOrWhiteSpace(checkpoint.PayloadJson))
+            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block payload is required.");
+        if (string.IsNullOrWhiteSpace(checkpoint.Status))
+            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block status is required.");
+        if (checkpoint.Attempts < 0)
+            throw new BridgeCommandException("INVALID_SCAN_BLOCK", "scan block attempts cannot be negative.");
+
+        lock (gate)
+        {
+            // IMPLEMENTATION POLICY LWB-R6-028: this is restart/checkpoint
+            // infrastructure over the recovered scan_blocks schema. The original
+            // scheduling, acknowledgement, retry and status-transition rules remain
+            // UNKNOWN/BLOCKED, so no public scan command calls this helper.
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO scan_blocks(run_id,block_index,payload_json,status,attempts,error,updated_at)
+                VALUES ($run,$block,$payload,$status,$attempts,$error,$updated)
+                ON CONFLICT(run_id,block_index) DO UPDATE SET
+                  payload_json=excluded.payload_json,status=excluded.status,
+                  attempts=excluded.attempts,error=excluded.error,updated_at=excluded.updated_at
+                """;
+            command.Parameters.AddWithValue("$run", runId);
+            command.Parameters.AddWithValue("$block", checkpoint.BlockIndex);
+            command.Parameters.AddWithValue("$payload", checkpoint.PayloadJson);
+            command.Parameters.AddWithValue("$status", checkpoint.Status);
+            command.Parameters.AddWithValue("$attempts", checkpoint.Attempts);
+            command.Parameters.AddWithValue("$error", (object?)checkpoint.Error ?? DBNull.Value);
+            command.Parameters.AddWithValue("$updated", checkpoint.UpdatedAt);
+            command.ExecuteNonQuery();
+        }
+    }
+
+    internal IReadOnlyList<MapScanBlockCheckpoint> ReadScanBlockCheckpointsForTest(string runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
+
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT block_index,payload_json,status,attempts,error,updated_at
+                FROM scan_blocks WHERE run_id=$run ORDER BY block_index
+                """;
+            command.Parameters.AddWithValue("$run", runId);
+            using SqliteDataReader reader = command.ExecuteReader();
+            var result = new List<MapScanBlockCheckpoint>();
+            while (reader.Read())
+                result.Add(new MapScanBlockCheckpoint(
+                    reader.GetInt32(0),
+                    reader.GetString(1),
+                    reader.GetString(2),
+                    reader.GetInt32(3),
+                    reader.IsDBNull(4) ? null : reader.GetString(4),
+                    reader.GetInt64(5)));
+            return result;
         }
     }
 

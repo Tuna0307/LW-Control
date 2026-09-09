@@ -23,6 +23,8 @@ A rejected operation is not automatically a Daybreak assignment. Some associated
 
 Review 6 itself audited committed source/locators/findings without rerunning binary disassembly. The later R6-025 continuation used the existing hash-locked bounded inspector on the verified LWBridge reference for the `map_summary`, shared scan-state and count-helper functions; deeper helper dumps denied as SB-17 were not retried or rerouted. Tests verify the rebuilt code against its fixtures, not independent current-client parity.
 
+**Post-review regular-AI continuation — `LWB-R6-028`, 2026-09-09:** the recovered `scan_blocks(run_id,block_index)` schema now has internal test-only checkpoint read/write infrastructure. Deterministic coverage proves same-key replacement, file-backed reopen durability and cascade deletion when the owning `scan_run` is cleared. This removes one storage prerequisite for future interrupted-scan resume/reconciliation, but it does not recover scheduling, acknowledgement, retry/status transitions, completion eligibility or native record keys and enables no public scan command. The Release build and deterministic backend suite pass. SB-25 through SB-27 record three new automatic-review rejections from combined research reads; none was retried/rerouted or used as technical evidence. A separate process-only check found no running LastWar/LWBridge target.
+
 ## Which reported restrictions are resolved?
 
 | Subject | Current state | PM action |
@@ -52,7 +54,7 @@ The normal isolated probe passes all required gates in this audit. Retain that c
 
 1. **Public capability blockers first:** choose a concrete options-source/full-response, summary-server, owned-launch or native-capture/identity contract and advance its evidence. At each checkpoint, state which real UI operation became usable; if none, say "research/test-only checkpoint" and name the remaining production gate.
 2. **Complete reviewable requests for stalled work:** regular AI fills ESC-002/003/004 with exact attempted methods/results, alternatives and why a specialist could help. If it resolves one itself, link the new finding and close the request. A denied command alone does not satisfy the escalation rule. Continue independent work whose contracts are known.
-3. **Do not endlessly substitute more fixture helpers for the same unresolved public contract.** Retain useful R6-015/019/021 infrastructure, but another helper addition must explain what integration dependency it removes. Keep the R5 launch and R7 capture critical path visible alongside R6.
+3. **Do not endlessly substitute more fixture helpers for the same unresolved public contract.** Retain useful R6-015/019/021/028 infrastructure; R6-028 specifically removes the restart-persistence prerequisite for future block reconciliation. The next checkpoint should return to a public options/summary, owned-launch or native-capture/identity contract unless another infrastructure slice removes a comparably concrete integration dependency. Keep the R5 launch and R7 capture critical path visible alongside R6.
 4. **Preserve the completed PM6-01 regression.** `LWB-PM6-001` closes the unbounded cleanup defect. Do not spend the next checkpoint adding more host-test variations unless a new failure appears; production blockers remain higher priority.
 
 ## Fresh verification
