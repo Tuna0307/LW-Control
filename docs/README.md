@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Immediate current-client issue
 
-Read [the September 10 official Lua update incident / PM8-0](lastwar-update-incident.md) before live work. `LWB-PM8-002` confirms the failure is deterministic across fresh retries and identifies the launcher's official Super Cleanup recovery surface; executing that UI recovery is currently environment-blocked, so recovery/normal launch remain unproven. PM7-A is accepted as offline integration; PM7-B/C remain the main rebuild tasks. ESC-005 is a tracking request, not a Daybreak assignment.
+Read [the September 10 official Lua update incident / PM8-0](lastwar-update-incident.md) before live work. `LWB-PM8-002` confirms the failure is deterministic across fresh retries and identifies the launcher's official Super Cleanup recovery surface; `LWB-PM8-003` confirms the later 00:31 attempt is a seventh identical failure with no later normal start. Executing that UI recovery is currently environment-blocked, so recovery/normal launch remain unproven. PM7-A is accepted as offline integration; PM7-B/C remain the main rebuild tasks. ESC-005 is a tracking request, not a Daybreak assignment.
 
 ## Reading order
 
@@ -30,7 +30,7 @@ Start with [review 8](lwbridge-project-status.md), [restriction outcomes and req
 ## Visual and machine-readable evidence
 
 - [Review 8](../evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) — nine-commit audit, fresh checks and task decisions.
-- [Update health](../evidence/official-runtime/2026-09-10-lua-update-health.json), [retry health](../evidence/official-runtime/2026-09-10-pm8-retry-update-health.json), [recovery surface](../evidence/official-runtime/2026-09-10-pm8-recovery-surface.txt), [runtime snapshot](../evidence/official-runtime/2026-09-10-official-runtime.json) and [baseline comparison](../evidence/official-runtime/2026-09-10-runtime-baseline-comparison.json) — LWB-PM8-001/002 source hashes, deterministic CRC failure, official recovery-surface evidence and exact unchanged/changed observations.
+- [Update health](../evidence/official-runtime/2026-09-10-lua-update-health.json), [retry health](../evidence/official-runtime/2026-09-10-pm8-retry-update-health.json), [seventh-retry health](../evidence/official-runtime/2026-09-10-pm8-003-update-health.json), [recovery surface](../evidence/official-runtime/2026-09-10-pm8-recovery-surface.txt), [runtime snapshot](../evidence/official-runtime/2026-09-10-official-runtime.json) and [baseline comparison](../evidence/official-runtime/2026-09-10-runtime-baseline-comparison.json) — LWB-PM8-001/002/003 source hashes, deterministic CRC failure, official recovery-surface evidence and exact unchanged/changed observations.
 
 - [Review 7 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-7.json) records the 15-commit audit, fresh checks, source hashes, limits and PM7 task/escalation decisions.
 
