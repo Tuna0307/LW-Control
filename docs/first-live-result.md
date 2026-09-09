@@ -21,6 +21,28 @@ The user authorizes opening, closing and restarting the game/launcher whenever n
 5. Verify the displayed point against the actual source/game: identify the session and server/context, source record identity, acquisition time, supported coordinates/type and the displayed values. Preserve sanitized correlated input/result evidence plus an app screenshot; screenshots alone are not dataflow proof. Verify refresh does not silently fall back to fixture data.
 6. Run the checks appropriate to changed behavior. Deliver a runnable build/path and concise reproduction steps. State whether game startup was manual/official or performed by the rebuilt app, and whether repeated acquisition was tested. No single-point success closes all 47 acceptance cases or proves full-map scanning/reconnect.
 
+## Checkpoint LWB-R7-001 — one current-game resource row is visibly reproduced (2026-09-10)
+
+**LIVE-PROVEN source acquisition.** The official launcher started build `1.0.361 / 1078` at `2026-09-10 03:01:45.343` after reporting Lua v14, size `41301710`, CRC `2371889527`. The instrumented v14 candidate used for this bounded read has SHA-256 `028e32ca71cf318758ab696ca05628ec30a28b429646e8bd6834dc0287bfffa0` and the same size/CRC/version. At `03:02:27` Singapore time, the in-game probe captured `15,293` accumulated world records from the running client, including `8,000` `resource_point` rows on server `2212`. The selected source record is point `1006`, coordinates `5,1`, level `3`, from `WorldPointManager._pointInfos`. The full capture SHA-256 is `6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce`. Fresh post-test diagnostics show the installed Lua v14 payload restored to its normal `41269242`-byte file, SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`; the instrumented package was temporary. Focused provenance is in [the source evidence](../evidence/lwbridge-implementation/2026-09-10-first-live-resource-source.json) and [programmatically extracted record](../evidence/lwbridge-implementation/2026-09-10-first-live-resource-capture.json).
+
+**IMPLEMENTATION POLICY / IMPLEMENTED-OFFLINE-TESTED display adapter.** `--first-live-result <diagnostics.json>` imports exactly one source-backed `resource_point` into an isolated in-memory `MapDataStore`, adapts only its proven identity/scalars to the recovered public `resource` row, and exposes the minimum recovered summary envelope needed for the Map Data page to select server `2212`. Normal production `map_summary`, `map_data_options`, `map_scan_start`, and `profile_instance_start` remain fail-closed. The mode is isolated from the normal profile database and suppresses auto-launch.
+
+The captured record contains `resourceType=wood`, but the mapping to LWBridge's original `resourceNameKey` is not recovered, so the page deliberately shows **Unknown resource**. The source says `gatherTimeStatus=occupied_time_unavailable`; because the recovered frontend otherwise turns missing gather identifiers into **Idle**, this bounded mode replaces only that row's status with `—`. It does not claim Idle or Gathering. [The screenshot](../evidence/lwbridge-implementation/2026-09-10-first-live-resource.png) and [WebView diagnostics](../evidence/lwbridge-implementation/2026-09-10-first-live-resource-ui.json) show server `2212`, Resource `1`, `1 items`, coordinates `5,1`, level `3`, unknown resource/status, and capture time `9/10/2026 3:02:27 AM`.
+
+This is a visible real-game result, but it is not yet a production connection. The game-side acquisition ran through the bounded current-client probe and the rebuilt app replays the source-backed capture through its real Map Data store/query/UI path. The rebuilt application still lacks a supported owned bridge/session that can perform a fresh `map_scan_start` itself. The earlier guarded v14 scanner attempt proved load/update registration but produced no terminal scan-status result, so production scan lifecycle/completion remains **UNKNOWN/BLOCKED**. Computer Use initialization was also rejected by the environment's automatic review before any UI action; it was not rerouted.
+
+Reproduce the durable replay after building Release:
+
+```powershell
+src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.exe `
+  --view map-data `
+  --language en `
+  --theme light `
+  --first-live-result evidence\lwbridge-implementation\2026-09-10-first-live-resource-capture.json
+```
+
+That command displays the previously captured real point; it does not reacquire it from the game. Fresh acquisition remains the next R5/R7 integration step.
+
 ## If a link remains blocked
 
 Name the first missing link in the actual connection -> acquisition -> normalization -> display path. Record the exact question, source/build, attempts/results, permitted alternatives and next method or external condition. Do not replace it with unrelated research. Prepare/revise an ESC entry only under AGENTS.md's method/exhaustion rules; an old ESC or denial is not a Daybreak assignment. Continue directly relevant permitted work and report honestly if no live result was achieved.

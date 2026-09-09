@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "sourceCaptureSha256": "6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce",
+  "capturedAt": "2026-09-09T19:02:27Z",
+  "probeVersion": "lwcontrol-world-full-scan-probe-9",
+  "accumulated_record_count": 15293,
+  "resource_point_count": 8000,
+  "point_records": [
+    {
+      "gatherTimeStatus": "occupied_time_unavailable",
+      "id": 1006,
+      "kind": "resource_point",
+      "level": 3,
+      "name": "",
+      "playerId": "",
+      "pointId": 1006,
+      "pointType": 7,
+      "resourceGettersObserved": true,
+      "resourcePointType": 0,
+      "resourceType": "wood",
+      "resourceTypeId": 2,
+      "serverId": 2212,
+      "shield": {
+        "active": false,
+        "known": false,
+        "remainingSeconds": 0,
+        "source": "recovered_original_point_alias"
+      },
+      "source": "WorldPointManager._pointInfos",
+      "srcServerId": 2212,
+      "uuid": 0,
+      "worldId": 0,
+      "x": 5,
+      "y": 1
+    }
+  ]
+}

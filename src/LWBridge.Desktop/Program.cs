@@ -9,12 +9,16 @@ internal static class Program
         string? capturePath = ReadPathOption(args, "--capture");
         string? liveProbePath = ReadPathOption(args, "--live-probe");
         string? hostProbePath = ReadPathOption(args, "--host-probe");
+        string? firstLiveResultPath = ReadPathOption(args, "--first-live-result");
         if (new[] { capturePath, liveProbePath, hostProbePath }.Count(path => path is not null) > 1)
             throw new ArgumentException("--capture, --live-probe and --host-probe are mutually exclusive.");
+        if (firstLiveResultPath is not null && (liveProbePath is not null || hostProbePath is not null))
+            throw new ArgumentException("--first-live-result cannot be combined with --live-probe or --host-probe.");
         string initialView = ReadValueOption(args, "--view") ?? "overview";
         string? language = ReadValueOption(args, "--language");
         string? theme = ReadValueOption(args, "--theme");
-        var window = new LWBridgeWindow(capturePath, liveProbePath, hostProbePath, initialView, language, theme);
+        var window = new LWBridgeWindow(
+            capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath);
         if (hostProbePath is null)
         {
             Application.Run(window);

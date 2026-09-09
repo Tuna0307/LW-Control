@@ -25,15 +25,18 @@ internal sealed class LWBridgeBackend
     private readonly GameInstallationService installation;
     private readonly INativeAsyncCommandService? asyncCommands;
     private readonly MapDataStore? mapData;
+    private readonly int? firstLiveResultServerId;
 
     public LWBridgeBackend(
         LocalConfigStore? config = null,
         INativeAsyncCommandService? asyncCommands = null,
-        MapDataStore? mapData = null)
+        MapDataStore? mapData = null,
+        int? firstLiveResultServerId = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
         this.mapData = mapData;
+        this.firstLiveResultServerId = firstLiveResultServerId;
         installation = new(this.config);
     }
 
@@ -153,7 +156,7 @@ internal sealed class LWBridgeBackend
                     },
                 };
             case "map_scan_status":
-                return CreateMapScanStatus();
+                return CreateCurrentMapScanStatus();
             case "map_scan_start":
                 {
                     MapScanStartOptions options = MapScanContract.NormalizeStart(payload);
@@ -163,7 +166,7 @@ internal sealed class LWBridgeBackend
                         options);
                 }
             case "map_scan_stop":
-                return CreateMapScanStatus();
+                return CreateCurrentMapScanStatus();
             case "map_scan_clear":
                 {
                     int serverId = MapDataQueryContract.RequiredServerId(payload);
@@ -202,6 +205,29 @@ internal sealed class LWBridgeBackend
                 return SetPlayerMark(payload);
             case "map_summary":
                 RequireOptionalProfile(payload);
+                if (firstLiveResultServerId is int firstLiveServerId)
+                {
+                    // IMPLEMENTATION POLICY: the bounded first-live mode exposes the
+                    // recovered R6-025 {serverId,counts,scanState} envelope only for
+                    // the source-backed imported server. Counts come from the same
+                    // persisted/public map_records scope as map_search. Normal public
+                    // summary remains fail-closed below.
+                    MapDataStore store = RequireMapDataStore();
+                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
+                        firstLiveServerId,
+                        isReading: false,
+                        scanStateServerId: firstLiveServerId,
+                        scanRunId: null);
+                    MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
+                        source,
+                        RecoveredWallClock.UnixTimeMilliseconds());
+                    return new
+                    {
+                        serverId = firstLiveServerId,
+                        counts = aggregates.Counts,
+                        scanState = CreateCurrentMapScanStatus(),
+                    };
+                }
                 throw new BridgeCommandException(
                     "MAP_INDEX_UNAVAILABLE",
                     "Map summary is unavailable before the production map index and scan state are initialized.");
@@ -332,13 +358,18 @@ internal sealed class LWBridgeBackend
         };
     }
 
+    private object CreateCurrentMapScanStatus() => firstLiveResultServerId is int serverId
+        ? CreateMapScanStatus(serverId, "idle", null, "first_live_result_capture")
+        : CreateMapScanStatus();
+
     private static object CreateMapScanStatus(
         int serverId = 0,
         string phase = "unavailable",
-        string? lastError = "MAP_BACKEND_NOT_IMPLEMENTED") => new
+        string? lastError = "MAP_BACKEND_NOT_IMPLEMENTED",
+        string serverIdSource = "none") => new
     {
         serverId,
-        serverIdSource = "none",
+        serverIdSource,
         scanRunId = "",
         isReading = false,
         phase,

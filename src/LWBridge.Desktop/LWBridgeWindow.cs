@@ -31,6 +31,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly string? capturePath;
     private readonly string? liveProbePath;
     private readonly string? hostProbePath;
+    private readonly FirstLiveResultImport? firstLiveResult;
     private readonly string initialView;
     private readonly string? language;
     private readonly string? theme;
@@ -54,7 +55,14 @@ internal sealed class LWBridgeWindow : Form
 
     public event EventHandler? HostProbeFinished;
 
-    public LWBridgeWindow(string? capturePath, string? liveProbePath, string? hostProbePath, string initialView, string? language, string? theme)
+    public LWBridgeWindow(
+        string? capturePath,
+        string? liveProbePath,
+        string? hostProbePath,
+        string initialView,
+        string? language,
+        string? theme,
+        string? firstLiveResultPath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
@@ -64,7 +72,7 @@ internal sealed class LWBridgeWindow : Form
         this.initialView = initialView;
         this.language = language;
         this.theme = theme;
-        bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null;
+        bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null;
         LocalConfigStore config;
         if (hostProbePath is not null)
         {
@@ -80,8 +88,15 @@ internal sealed class LWBridgeWindow : Form
             : new MapDataStore(Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
+        firstLiveResult = firstLiveResultPath is null
+            ? null
+            : FirstLiveResultImporter.ImportOneResource(mapData, firstLiveResultPath);
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
-        backend = new LWBridgeBackend(config, asyncCommands: hostProbeService, mapData: mapData);
+        backend = new LWBridgeBackend(
+            config,
+            asyncCommands: hostProbeService,
+            mapData: mapData,
+            firstLiveResultServerId: firstLiveResult?.ServerId);
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
@@ -102,7 +117,8 @@ internal sealed class LWBridgeWindow : Form
                 "LWBridgeRebuild",
                 capturePath is not null ? "Capture" :
                 liveProbePath is not null ? "LiveProbe" :
-                hostProbePath is not null ? "HostProbe" : "Presentation");
+                hostProbePath is not null ? "HostProbe" :
+                firstLiveResult is not null ? "FirstLiveResult" : "Presentation");
             var environment = await CoreWebView2Environment.CreateAsync(userDataFolder: userDataDirectory);
             await webView.EnsureCoreWebView2Async(environment);
             var core = webView.CoreWebView2;
@@ -111,13 +127,42 @@ internal sealed class LWBridgeWindow : Form
             core.Settings.IsStatusBarEnabled = false;
             string bootstrapJson = JsonSerializer.Serialize(
                 backend.GetBootstrap(
-                    capturePath is not null,
+                    capturePath is not null && firstLiveResult is null,
                     documentSession.Id,
-                    suppressAutoLaunch: liveProbePath is not null || hostProbePath is not null),
+                    suppressAutoLaunch: liveProbePath is not null || hostProbePath is not null || firstLiveResult is not null),
                 JsonOptions.Default);
             await core.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.__LWBridgeBootstrap=" + bootstrapJson + ";" +
                 "(()=>{try{const s=new URL(location.href).searchParams.get('nativeSession');if(s)window.__LWBridgeBootstrap.sessionId=s;}catch{}})();");
+            if (firstLiveResult is not null)
+            {
+                string expectedCoordinate = JsonSerializer.Serialize($"{firstLiveResult.X},{firstLiveResult.Y}");
+                await core.AddScriptToExecuteOnDocumentCreatedAsync($$"""
+                    (() => {
+                      const expectedCoordinate = {{expectedCoordinate}};
+                      const applyTruthfulResourceStatus = () => {
+                        for (const row of document.querySelectorAll('.map-table--resource tbody tr.map-row')) {
+                          const cells = row.querySelectorAll('td');
+                          if (cells.length < 5 || !cells[0].innerText.includes(expectedCoordinate)) continue;
+                          // IMPLEMENTATION POLICY: the current live probe proves the
+                          // resource row but not its gathering occupancy. The recovered
+                          // frontend otherwise renders missing gather IDs as "Idle".
+                          // In this bounded evidence mode only, render an unknown marker
+                          // rather than turning absence of evidence into a live-state claim.
+                          if (cells[3].textContent !== '—') cells[3].textContent = '—';
+                          cells[3].title = 'Gathering occupancy unavailable in the captured live source';
+                          cells[3].dataset.firstLiveStatus = 'unknown';
+                        }
+                      };
+                      new MutationObserver(applyTruthfulResourceStatus).observe(document, {
+                        childList: true,
+                        subtree: true,
+                        characterData: true
+                      });
+                      document.addEventListener('DOMContentLoaded', applyTruthfulResourceStatus);
+                    })();
+                    """);
+            }
             core.SetVirtualHostNameToFolderMapping("lwbridge.local", Path.Combine(AppContext.BaseDirectory, "WebUi"), CoreWebView2HostResourceAccessKind.DenyCors);
             core.NavigationStarting += OnNavigationStarting;
             core.NewWindowRequested += (_, args) => args.Handled = true;
@@ -168,6 +213,23 @@ internal sealed class LWBridgeWindow : Form
                     await Task.Delay(100);
                 }
                 if (!rendered) throw new InvalidOperationException("The recovered feature page did not render.");
+                if (firstLiveResult is not null && string.Equals(initialView, "map-data", StringComparison.Ordinal))
+                {
+                    await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
+                    bool resourceRendered = false;
+                    string expectedCoordinate = JsonSerializer.Serialize($"{firstLiveResult.X},{firstLiveResult.Y}");
+                    for (int attempt = 0; attempt < 120; attempt++)
+                    {
+                        if (await core.ExecuteScriptAsync($"document.body.innerText.includes({expectedCoordinate})") == "true")
+                        {
+                            resourceRendered = true;
+                            break;
+                        }
+                        await Task.Delay(100);
+                    }
+                    if (!resourceRendered)
+                        throw new InvalidOperationException("The first-live resource row did not render in Map Data.");
+                }
                 await Task.Delay(600);
                 string diagnostics = await core.ExecuteScriptAsync("JSON.stringify({view:window.LWBridgePreview.view,errors:window.LWBridgePreview.failures,commands:window.LWBridgePreview.calls,text:document.body.innerText})");
                 Directory.CreateDirectory(Path.GetDirectoryName(capturePath)!);
@@ -972,7 +1034,7 @@ internal sealed class LWBridgeWindow : Form
     private async void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs args)
     {
         if (sessionClosed) return;
-        if (capturePath is not null) return;
+        if (capturePath is not null && firstLiveResult is null) return;
         if (!args.Source.StartsWith(UiOrigin + "/", StringComparison.OrdinalIgnoreCase)) return;
 
         DocumentSession session = documentSession;
