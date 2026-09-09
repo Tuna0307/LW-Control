@@ -1,0 +1,255 @@
+{
+  "findingId": "LWB-R6-041",
+  "date": "2026-09-09",
+  "scope": "PM7-B device-key/package-envelope prerequisite boundary",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "hostCoordinateSystem": "raw file offsets for marker locations"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26"
+  },
+  "hostAuthCluster": {
+    "sourceMarker": "src\\services\\auth.rs",
+    "window": "0xC7F253-0xC7F853",
+    "markerOffsets": {
+      "HKLM\\SOFTWARE\\Microsoft\\Cryptography/vMachineGuid": [
+        "0xC7F3BA"
+      ],
+      "DEVICE_KEY_CLEANUP_PENDING": [
+        "0xC7F364"
+      ],
+      "packageKeyEnvelope": [
+        "0xC7F514",
+        "0xC7F526"
+      ],
+      "packageKeyEnvelopeExpiresAt": [
+        "0xC7F526"
+      ],
+      "KEY_ENVELOPE_INVALID": [
+        "0xC7F541"
+      ],
+      "LWKE1": [
+        "0xC7F580"
+      ],
+      "device-key-cleanup.pending": [
+        "0xC7F5FB"
+      ],
+      "authorization.challenge": [
+        "0xC7F615"
+      ],
+      "authorization.ticket": [
+        "0xC7F62C"
+      ],
+      "package-key.envelope": [
+        "0xC7F640"
+      ],
+      "build.manifest": [
+        "0xC7F654"
+      ],
+      "DEVICE_KEY_MISSING": [
+        "0xC7F71B"
+      ],
+      "DEVICE_KEY_MISMATCH": [
+        "0xC7F72D"
+      ],
+      "DEVICE_KEY_UNAVAILABLE": [
+        "0xC7F740"
+      ],
+      "KEY_ENVELOPE_EXPIRED": [
+        "0xC7F756"
+      ]
+    },
+    "requiredImports": {
+      "ncrypt.dll": [
+        "NCryptCreatePersistedKey",
+        "NCryptDeleteKey",
+        "NCryptExportKey",
+        "NCryptFinalizeKey",
+        "NCryptOpenKey",
+        "NCryptOpenStorageProvider"
+      ],
+      "crypt32.dll": [
+        "CryptProtectData",
+        "CryptUnprotectData"
+      ]
+    }
+  },
+  "proxies": [
+    {
+      "name": "xlua-proxy-secure.dll",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "asciiMarkers": {
+        "LWKE1": [
+          "0x72D4C"
+        ],
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_": [
+          "0x70740",
+          "0x72D60"
+        ],
+        "device key missing": [
+          "0x72DF0"
+        ],
+        "device key unavailable": [
+          "0x72EB0"
+        ],
+        "device key mismatch": [
+          "0x72EC8"
+        ],
+        "key envelope agreement failed": [
+          "0x72E60"
+        ],
+        "key envelope decrypt failed": [
+          "0x72EE0"
+        ],
+        "package decrypt failed": [
+          "0x70E48"
+        ],
+        "package integrity invalid": [
+          "0x72F08"
+        ],
+        "package build mismatch": [
+          "0x72F28"
+        ],
+        "LWBP2|": [
+          "0x72F40"
+        ]
+      },
+      "utf16Markers": {
+        "LWBRIDGE_PROFILE_RUNTIME_ROOT": "0x71828",
+        "\\bridge-runtime\\package-key.envelope": "0x70B70",
+        "\\bridge-runtime\\build.manifest": "0x70BC0",
+        "\\LastWar-xLua-Bridge\\bridge-scripts.dat": "0x70670"
+      },
+      "requiredImports": {
+        "ncrypt.dll": [
+          "NCryptDeriveKey",
+          "NCryptExportKey",
+          "NCryptImportKey",
+          "NCryptOpenKey",
+          "NCryptOpenStorageProvider",
+          "NCryptSecretAgreement"
+        ],
+        "bcrypt.dll": [
+          "BCryptCreateHash",
+          "BCryptDecrypt",
+          "BCryptFinishHash",
+          "BCryptGenerateSymmetricKey",
+          "BCryptHashData",
+          "BCryptImportKeyPair",
+          "BCryptOpenAlgorithmProvider",
+          "BCryptVerifySignature"
+        ],
+        "kernel32.dll": [
+          "CreateFileW",
+          "GetEnvironmentVariableW",
+          "GetFileSizeEx",
+          "ReadFile"
+        ]
+      }
+    },
+    {
+      "name": "xlua-proxy-plain.dll",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "asciiMarkers": {
+        "LWKE1": [
+          "0x72D4C"
+        ],
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_": [
+          "0x70740",
+          "0x72D60"
+        ],
+        "device key missing": [
+          "0x72DF0"
+        ],
+        "device key unavailable": [
+          "0x72EB0"
+        ],
+        "device key mismatch": [
+          "0x72EC8"
+        ],
+        "key envelope agreement failed": [
+          "0x72E60"
+        ],
+        "key envelope decrypt failed": [
+          "0x72EE0"
+        ],
+        "package decrypt failed": [
+          "0x70E48"
+        ],
+        "package integrity invalid": [
+          "0x72F08"
+        ],
+        "package build mismatch": [
+          "0x72F28"
+        ],
+        "LWBP2|": [
+          "0x72F40"
+        ]
+      },
+      "utf16Markers": {
+        "LWBRIDGE_PROFILE_RUNTIME_ROOT": "0x71828",
+        "\\bridge-runtime\\package-key.envelope": "0x70B70",
+        "\\bridge-runtime\\build.manifest": "0x70BC0",
+        "\\LastWar-xLua-Bridge\\bridge-scripts.dat": "0x70670"
+      },
+      "requiredImports": {
+        "ncrypt.dll": [
+          "NCryptDeriveKey",
+          "NCryptExportKey",
+          "NCryptImportKey",
+          "NCryptOpenKey",
+          "NCryptOpenStorageProvider",
+          "NCryptSecretAgreement"
+        ],
+        "bcrypt.dll": [
+          "BCryptCreateHash",
+          "BCryptDecrypt",
+          "BCryptFinishHash",
+          "BCryptGenerateSymmetricKey",
+          "BCryptHashData",
+          "BCryptImportKeyPair",
+          "BCryptOpenAlgorithmProvider",
+          "BCryptVerifySignature"
+        ],
+        "kernel32.dll": [
+          "CreateFileW",
+          "GetEnvironmentVariableW",
+          "GetFileSizeEx",
+          "ReadFile"
+        ]
+      }
+    }
+  ],
+  "result": [
+    "The host auth-service marker cluster contains the Windows MachineGuid fingerprint path, device-key cleanup/error vocabulary, packageKeyEnvelope fields, LWKE1, and all four bridge-runtime material filenames.",
+    "The verified host imports persistent Windows CNG-key primitives plus DPAPI protect/unprotect primitives; import presence does not by itself prove which primitive implements each auth-service branch.",
+    "Both embedded proxies contain the same LWKE1/device-key/key-envelope/package-decrypt vocabulary and URL-safe Base64 alphabet together with the runtime-root/package-key/build-manifest/script-package paths.",
+    "Both proxies import Windows CNG secret-agreement/derive-key functions, BCrypt key/decrypt/hash/signature functions, and file/environment functions needed by a runtime loader; the exact call graph, parameters, algorithms, and file-open/read function remain unrecovered."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_device_key_boundary.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_device_key_boundary.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-device-key-boundary.json",
+    "python -m py_compile tools\\inspect_lwbridge_device_key_boundary.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "notProven": [
+      "the proxy function that combines LWBRIDGE_PROFILE_RUNTIME_ROOT with package-key.envelope and opens/reads it",
+      "the exact device-key storage name/provider and whether DPAPI or persistent CNG storage is authoritative for the proxy path",
+      "the exact package-key envelope grammar, public-key/nonce/tag layout, key-agreement KDF parameters, and package cipher parameters",
+      "bridge-scripts.dat plaintext or getWorldMapState/getCurrentServerId handler implementation",
+      "propagated transport/readiness errors and the exact map scan state is unavailable trigger",
+      "live correlation against a running current Last War/LWBridge target"
+    ],
+    "interpretationRule": "Imports and adjacent marker vocabulary establish available primitives and a shared auth/device-key boundary; they are not treated as proof of the exact runtime call graph or algorithm selection."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "pm7B": "continue from the now-narrowed device-key/envelope loader seam to a permitted exact read/decrypt call trace or live authoritative correlation",
+    "mapSummary": "remains fail-closed until the protected handler/readiness/error mapping is recovered"
+  }
+}
