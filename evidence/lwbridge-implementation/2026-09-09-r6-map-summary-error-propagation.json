@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-033",
+  "scope": "Native map_summary scan-state/count error propagation and production fail-closed boundary",
+  "evidenceStatus": "RECOVERED static orchestration; exact shared-producer error-code/condition mapping and production integration remain UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "preferred-image virtual addresses from the verified PE"
+  },
+  "nativeFlow": {
+    "mapSummaryFutureVaRange": [
+      "0x0000000140151509",
+      "0x0000000140152388"
+    ],
+    "sharedScanStateProducerVaRange": [
+      "0x00000001400F7F47",
+      "0x00000001400F9333"
+    ],
+    "locators": {
+      "scanStateProducerCall": "0x0000000140151A26",
+      "readyResultDiscriminant": "0x0000000140151AC8-0x0000000140151ACE",
+      "scanStateErrorBranch": "0x0000000140151B55-0x0000000140151BA5",
+      "serverIdFieldLookupCall": "0x0000000140151B0D",
+      "optionalScopeProducerCall": "0x0000000140151B26",
+      "countHelperCall": "0x0000000140151BC0",
+      "countResultDiscriminant": "0x0000000140151BC5-0x0000000140151BF0",
+      "countErrorBranch": "0x0000000140151E5A-0x0000000140151ED4",
+      "responseAssemblyStart": "0x0000000140151C2C",
+      "responseServerIdKey": "0x0000000140151C59",
+      "responseCountsKey": "0x0000000140151CD6",
+      "responseScanStateKey": "0x0000000140151D74",
+      "commonCompletion": "0x0000000140151ED4"
+    },
+    "recovered": [
+      "after the shared scan-state future is ready, map_summary tests the returned result before reading serverId or selecting a count source",
+      "the non-success ready-result branch at 0x140151ACE jumps to 0x140151B55, preserves the returned error payload and then joins the command's common completion path at 0x140151ED4",
+      "that shared-state error branch bypasses the serverId lookup at 0x140151B0D, optional run-scope helper at 0x140151B26, count helper at 0x140151BC0 and all three success-envelope key insertions",
+      "after the count helper returns, map_summary performs a second result discriminant; the non-success branch reaches 0x140151E5A, preserves the count error payload and joins the same common completion path without assembling a success response",
+      "the public success object is assembled only after both the shared scan-state result and count result take their success paths; the original does not replace either failure with an empty or zero-filled summary"
+    ],
+    "unknownBlocked": [
+      "the exact original public error code/message emitted for each shared scan-state failure condition",
+      "the exact condition-to-error mapping for the known shared-state vocabulary such as SERVER_UNAVAILABLE/current server id unavailable and map scan state is unavailable",
+      "production integration of the original shared scan-state producer/current-server source in the rebuild",
+      "live current-client validation"
+    ]
+  },
+  "sharedStateContext": {
+    "producerMarkers": [
+      "getWorldMapState",
+      "getCurrentServerId",
+      "serverId",
+      "isInWorld",
+      "homeServerId",
+      "seasonServerIds"
+    ],
+    "knownErrorVocabulary": [
+      "SERVER_UNAVAILABLE / current server id unavailable",
+      "map scan state is unavailable"
+    ],
+    "limit": "the strings exist in the verified reference, but the bounded producer body does not provide a direct source-attributed mapping from each named error to a specific branch; no condition is assigned from string proximity"
+  },
+  "implementation": {
+    "classification": "no production code change required",
+    "currentBehavior": "LWBridgeBackend already rejects public map_summary with MAP_INDEX_UNAVAILABLE before a production map index and scan-state source are initialized",
+    "reason": "the recovered orchestration proves propagation rather than fallback, but the rebuild still lacks the original shared scan-state/current-server producer needed to propagate the original error faithfully",
+    "publicCapability": "no new public or live Map Data command is enabled"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x151509",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x0F7F47",
+    "inspect the returned map_summary range at 0x140151A26-0x140151E5A and verify the reference SHA-256 printed by the hash-locked inspector",
+    "inspect src\\LWBridge.Desktop\\LWBridgeBackend.cs map_summary handling to confirm the existing fail-closed MAP_INDEX_UNAVAILABLE boundary"
+  ],
+  "environmentRestrictions": [
+    "SB-36: the resumed session's initial combined attachment/memory/repository command was rejected by automatic safety review and contributed no evidence",
+    "SB-37: a standalone codex_exec git status/log command was rejected by automatic safety review; a distinct read-only Node tool path subsequently established the clean branch state",
+    "SB-38: a combined repository context search/read was rejected by automatic safety review and contributed no evidence",
+    "SB-39: a combined multi-document tracking read was rejected by automatic safety review and contributed no evidence",
+    "SB-40: the first combined implementation-handoff keyword/range read was rejected by automatic safety review; a narrower single-string read later succeeded and supplied the accepted handoff context"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "runtimeTarget": "no LastWar/LWBridge process entries were present during this checkpoint",
+    "validation": "the hash-locked bounded inspector reproduced the map_summary and shared scan-state functions from the verified reference; the recovered branch locators are recorded above; the evidence JSON parses successfully and git diff --check is clean; repository production behavior remains fail-closed",
+    "limit": "this closes command-level failure propagation, not the producer's exact named error mapping or production scan-state integration"
+  },
+  "implementationImpact": {
+    "productionSourceChanged": false,
+    "trackingFiles": [
+      "docs/lwbridge-map-scan.md",
+      "docs/lwbridge-feature-ledger.md",
+      "docs/lwbridge-project-status.md",
+      "docs/daybreak-escalations.md",
+      "docs/implementation-handoff.md",
+      "docs/README.md",
+      "BACKLOG.md"
+    ],
+    "backlog": "summary orchestration-level unavailable/error behavior is recovered; exact shared-producer error-code/condition mapping and production scan-state integration remain regular-AI work",
+    "nextMethod": "continue a concrete independent public blocker; for summary, use source-attributed shared-producer/current-runtime evidence rather than assigning error conditions from string proximity"
+  }
+}
