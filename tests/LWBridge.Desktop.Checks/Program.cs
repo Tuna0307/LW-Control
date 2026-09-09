@@ -650,6 +650,34 @@ try
         Check(mapStore.CountRecords("monster", 80) == 1 && mapStore.CountRecords("city", 81) == 1,
             "recovered publish slice leaves other kinds and servers unchanged");
 
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 82, "rollback-old-a", 1, "rollback-old-a", "Rollback Old A", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"rollback-old-a\",\"ownerName\":\"Rollback Old A\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 82, "rollback-old-b", 2, "rollback-old-b", "Rollback Old B", null,
+            1, null, null, null, null, 101, "{\"ownerUid\":\"rollback-old-b\",\"ownerName\":\"Rollback Old B\",\"updatedAt\":101}"));
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "rollback-run-82", 82, "[\"city\"]", "completed", 1, 1, 0, 100, 200, null));
+        mapStore.StageRecordForPublishTest("rollback-run-82", new MapStoredRecord(
+            "city", 82, "rollback-new", 10, "rollback-new", "Rollback New", null,
+            10, null, null, null, null, 300, "{\"ownerUid\":\"rollback-new\",\"ownerName\":\"Rollback New\",\"updatedAt\":300}"));
+
+        try
+        {
+            mapStore.ReplacePublishedKindFromStagingForTest(
+                "rollback-run-82", "city", 82,
+                () => throw new InvalidOperationException("deterministic publish failure"));
+            failures.Add("staged publication rollback preserves the prior published kind/server on mid-transaction failure");
+        }
+        catch (InvalidOperationException error) when (error.Message == "deterministic publish failure")
+        {
+            Check(mapStore.CountRecords("city", 82) == 2 &&
+                  mapStore.GetRecord("city", 82, "rollback-old-a")?.Name == "Rollback Old A" &&
+                  mapStore.GetRecord("city", 82, "rollback-old-b")?.Name == "Rollback Old B" &&
+                  mapStore.GetRecord("city", 82, "rollback-new") is null,
+                "staged publication rollback preserves the prior published kind/server on mid-transaction failure");
+        }
+
         await ExpectBridgeError("INVALID_MAP_RECORD", "map store refuses guessed/missing record identity", () =>
             Task.Run(() => mapStore.UpsertRecord(new MapStoredRecord(
                 "city", 77, "", null, null, null, null, null, null, null, null, null, 1, "{}"))));

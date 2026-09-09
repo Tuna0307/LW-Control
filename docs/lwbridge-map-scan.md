@@ -21,6 +21,7 @@ This document preserves dated findings, including superseded interpretations. Us
 | R6-017 | City export frontend contract is hash-locked: city-only/positive-server eligibility, shared query page 1/pageSize 200, exact 12-column localized option envelope, `{canceled,rowCount,path}` result handling and busy/scan button gate. Native writer/pagination/row mapping remain blocked. |
 | R6-018 | Native city-export structure is partially recovered from bounded raw PE evidence: dialog/default/error vocabulary, embedded A-L OOXML package/worksheet/styles, frozen header, exact column widths, autofilter/margins and partial row-field adjacency. Full scope, A-C mapping, protect/shield fallback and per-column types remain blocked. |
 | R6-019 | Test-only staging/publication infrastructure now reproduces the recovered one-kind/server `map_records` delete + matching `scan_records` copy in one transaction and proves run/kind/server isolation. Completion eligibility and native record-key derivation remain blocked. |
+| R6-020 | The test-only publication slice now proves transactional rollback under an injected failure between delete and staged copy: the previous published kind/server survives intact and no replacement row leaks through. Production failure/retry semantics remain blocked. |
 
 Current remaining query gaps include viewer/foreign-radar/lucky behavior, alternate sort expressions/order, the original options source/run-context and backend counts/no-alliance/full assembly, and authoritative summary server/scan-state production. `LWB-R6-014` closes the recovered frontend completion/plunderability clocks and reward-option cutoff source/unit; `LWB-R6-015` validates the known persisted-source aggregation kernel without promoting it to the public command; `LWB-R6-016` closes the frontend count propagation/reset/fallback rules without inventing their backend producers. Export, native identities and live ingestion/scan remain open. Historical restrictions and escalation reasons are in [the ESC register](daybreak-escalations.md). The regular AI owns further investigation until an exhausted-method request is reviewed; these topics are not automatic Daybreak assignments.
 
@@ -322,6 +323,14 @@ The raw row metadata sequence is `serverId A B C; D ownerName; E ownerUid; F uui
 Deterministic file-backed tests begin with two published city rows, stage two replacements plus a third row under another run, and verify the selected run replaces exactly the target city/server while the other staged run, another kind on the same server and the same kind on another server remain untouched. The Release build passes with zero warnings/errors; the deterministic backend suite reports `ok=true`, `mapPersistence=true` and `mapContract=true`. Durable metadata is `evidence/lwbridge-implementation/2026-09-09-r6-map-staged-publish.json`.
 
 **Limits.** This is not a production scan worker and is not **LIVE-PROVEN**. Native per-kind `record_key` derivation, exact completion/failed-batch eligibility, block scheduling/ack/retry behavior and session/generation publication ownership remain **UNKNOWN/BLOCKED**. No public command calls the test-only helpers.
+
+### LWB-R6-020 — staged publication rollback reliability (2026-09-09)
+
+**IMPLEMENTATION POLICY.** This checkpoint adds no new original behavior claim. It strengthens the `LWB-R6-019` test-only transaction with the rebuild reliability rule that an exception after the recovered kind/server delete but before the staged-row copy must roll back the entire publication attempt. `ReplacePublishedKindFromStagingForTest` therefore exposes an internal deterministic callback only for failure injection; production scan eligibility, failure classification and retry behavior remain unrecovered.
+
+**OFFLINE-TESTED result.** A deterministic case seeds two published city rows for one server plus one staged replacement, injects an exception after the delete statement and before `INSERT ... SELECT`, then verifies both original rows are still present and the staged row is absent. The Release build completes with zero warnings/errors and the full deterministic backend suite returns `ok=true`, `mapPersistence=true` and `mapContract=true`. Durable metadata is `evidence/lwbridge-implementation/2026-09-09-r6-map-publish-rollback.json`.
+
+**Limits.** This establishes atomic rebuild behavior only. It does not recover the native completion gate, retry policy, error code, session/generation ownership or per-kind `record_key` derivation, and no public command invokes the test-only path.
 
 ## Remaining unknowns
 

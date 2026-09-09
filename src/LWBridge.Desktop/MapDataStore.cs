@@ -601,7 +601,11 @@ internal sealed class MapDataStore : IDisposable
         }
     }
 
-    internal int ReplacePublishedKindFromStagingForTest(string runId, string kind, int serverId)
+    internal int ReplacePublishedKindFromStagingForTest(
+        string runId,
+        string kind,
+        int serverId,
+        Action? afterDeleteBeforeCopy = null)
     {
         if (string.IsNullOrWhiteSpace(runId))
             throw new BridgeCommandException("INVALID_SCAN_RUN", "scan run id is required.");
@@ -625,6 +629,12 @@ internal sealed class MapDataStore : IDisposable
                 delete.Parameters.AddWithValue("$server", serverId);
                 delete.ExecuteNonQuery();
             }
+
+            // IMPLEMENTATION POLICY LWB-R6-020: deterministic test hook used only to
+            // prove the recovered delete/copy transaction rolls back as one unit when
+            // publication fails between its two statements. Production eligibility and
+            // failure classification remain separately unrecovered.
+            afterDeleteBeforeCopy?.Invoke();
 
             int inserted;
             using (SqliteCommand copy = connection.CreateCommand())
