@@ -99,7 +99,12 @@
           "serverIdSource",
           "isReading"
         ],
-        "limits": "exact bridge-command handlers, complete serverIdSource selection and named public error mapping remain unrecovered"
+        "currentServerUnavailable": {
+          "condition": "the src/commands/map.rs getCurrentServerId extraction branch yields serverId <= 0",
+          "code": "SERVER_UNAVAILABLE",
+          "message": "current server id unavailable"
+        },
+        "limits": "encrypted bridge-command handlers, complete serverIdSource selection, propagated transport errors and the map scan state is unavailable condition remain unrecovered"
       },
       "nativeCapture": {
         "envelopeFields": [
