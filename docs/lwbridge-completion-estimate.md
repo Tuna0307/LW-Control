@@ -1,8 +1,8 @@
-# Two-page completion estimate — PM review 7
+# Two-page completion estimate — PM review 8
 
-Date: 2026-09-09. Reviewed implementation: `0273569`. **Rough engineering assessment: about one quarter complete toward fully working Overview + Map Data.** Overview is approximately **20–25%**, Map Data **25–35%**, combined approximately **25–30%**. These are PM planning judgments, not recovered application constants, measured percentages of buttons, or elapsed-time forecasts.
+Date: 2026-09-10. Reviewed implementation: `4ec7ef8`. **Rough engineering assessment: about one quarter complete toward fully working Overview + Map Data.** Overview is approximately **20–25%**, Map Data **25–35%**, combined approximately **25–30%**. These are PM planning judgments, not recovered application constants, measured percentages of buttons, or elapsed-time forecasts.
 
-Review 7 retains the same broad range: new source/response/runtime findings reduce uncertainty, but production launch, scan ingestion, options/summary/export and full acceptance have not been enabled. This is useful research progress without a justified increase in page-completion credit.
+Review 8 retains this broad range. R6-038 advances service integration and R6-039–046 reduce research uncertainty, but no production connection/scan/options/summary/export is enabled. The official Lua update failure is an additional live-validation blocker under PM8-0, not a loss of completed source work or a reason to invent a new percentage.
 
 ## What the estimate measures
 
@@ -40,4 +40,4 @@ The UI looking close to finished must not be reported as the whole project being
 3. Public option-source/count/summary assembly and fully filtered, correctly typed Excel export.
 4. Automatic scan/travel/jobs/actions and integrated current-client failure/restart acceptance.
 
-Update this estimate only with evidence-backed changes in those packages. Do not increase it just because another test-only helper or restriction entry was added. See [review 7](lwbridge-project-status.md) for accepted changes and open requests.
+Update this estimate only with evidence-backed changes in those packages. Do not increase it just because another test-only helper or restriction entry was added. See [review 8](lwbridge-project-status.md) for accepted changes and open requests.

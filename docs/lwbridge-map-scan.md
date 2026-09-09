@@ -2,7 +2,9 @@
 
 Map Scan is the first feature to recover one-for-one.
 
-## Current finding summary — review 7, 2026-09-09
+## Current finding summary — review 8, 2026-09-10
+
+PM7-A/R6-038 integration is complete as a reusable service; R6-039–046 remain static research. Read [the current audit](lwbridge-project-status.md) and [PM8-0 official update incident](lastwar-update-incident.md) before current-client/live work. ESC-005 tracks remaining loader/handler gaps; no specialist assigned. Later confirmed findings supersede earlier interpretations, including R6-043 correcting R6-042.
 
 Use [PM7-A–D](implementation-handoff.md) for current work and [ESC decisions](daybreak-escalations.md) for ownership. R6-038 completes PM7-A's bounded source-aware option/count integration behind the existing public gate; PM7-B is the next production-blocking state/handler seam. ESC-003 still tracks only the remaining serializer with PM status NOT_ASSIGNED. Earlier finding limits below describe their own checkpoints and do not supersede later recovery.
 

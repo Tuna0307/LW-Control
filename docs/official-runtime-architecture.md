@@ -1,10 +1,14 @@
 # Official Last War PC runtime architecture
 
-Checkpoint: 2026-09-08. This document records read-only findings from the
-currently installed official PC client. It deliberately separates official
+Historical baseline: 2026-09-08. This document records read-only findings from the
+then-installed official PC client. It deliberately separates official
 client facts from recovered LWBridge behavior.
 
-Evidence is reproducible with:
+## Current observation — 2026-09-10
+
+[LWB-PM8-001 update incident](lastwar-update-incident.md) records a failed official Lua patch output. Build 1078 and all 14 sampled PE/container/protected-runtime anchors still match this baseline, including Assembly-CSharp/xLua; active Lua version 12 and data hash also match. The latest data table changed. Do not infer a healthy updated game from those unchanged anchors: the new temporary Lua output fails CRC and ordinary startup has not been re-proven. [Comparison evidence](../evidence/official-runtime/2026-09-10-runtime-baseline-comparison.json) identifies exactly what was checked. Revalidate changed script/table facts after successful recovery; preserve unchanged static evidence by hash.
+
+Historical evidence is reproducible with (choose a new dated output for a fresh observation):
 
 ```powershell
 python tools/inspect_official_runtime.py --output evidence/official-runtime/2026-09-08-official-runtime.json
@@ -14,7 +18,7 @@ The inspector hashes and parses files and summarizes the existing launcher log.
 It does not start the game, change installed files, inspect user identifiers, or
 alter protected runtime components.
 
-## LIVE-PROVEN current installed baseline
+## Observed installed baseline — 2026-09-08 (not gameplay proof)
 
 The official install is `%LOCALAPPDATA%\FunFly\Last War-Survival Game`.
 Independent version anchors agree:

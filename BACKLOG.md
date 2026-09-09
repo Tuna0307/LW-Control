@@ -1,8 +1,8 @@
 # LWBridge implementation backlog
 
-Last updated: 2026-09-09
+Last updated: 2026-09-10
 
-Project-manager review 7 audited `0273569` (15 commits since the previous PM checkpoint). See [the current audit](docs/lwbridge-project-status.md), [outcome/ESC register](docs/daybreak-escalations.md), [regular handoff](docs/implementation-handoff.md), [Daybreak handoff](docs/deep-binary-handoff.md) and [rough completion estimate](docs/lwbridge-completion-estimate.md). Clock and treasure-key questions are resolved; public options/export/schema/launch/capture remain incomplete. Test-only helper checkpoints are not finished page functions.
+Project-manager review 8 audited `4ec7ef8` (nine commits since the previous PM checkpoint). PM7-A is complete as bounded service integration; PM8-0 official-update recovery is now first for live readiness. See [the current audit](docs/lwbridge-project-status.md), [outcome/ESC register](docs/daybreak-escalations.md), [regular handoff](docs/implementation-handoff.md), [Daybreak handoff](docs/deep-binary-handoff.md) and [rough completion estimate](docs/lwbridge-completion-estimate.md). Clock and treasure-key questions are resolved; public options/export/schema/launch/capture remain incomplete. Test-only helper checkpoints are not finished page functions.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -19,14 +19,14 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 - Keep RECOVERED, IMPLEMENTED/OFFLINE-TESTED, LIVE-PROVEN, UNKNOWN/BLOCKED and explicitly labelled IMPLEMENTATION POLICY distinct in every feature record.
 - Document each newly confirmed finding immediately; no recovery/task checkpoint is complete without its durable evidence and GitHub delivery or an explicitly recorded delivery blocker.
 
-## Ownership and escalation — review 7 outcomes
+## Ownership and escalation — review 8 outcomes
 
 **Regular AI first, including permitted binary analysis.** DB-01–06 are topic labels, not model assignments. Only request Daybreak when relevant permitted methods have been exhausted and recorded with outputs/alternatives/reasons under an ESC ID; the PM reviews the bounded scope. See AGENTS.md section 6. A denial or missing integration alone does not establish a specialist assignment.
 
 - [x] Integrate Daybreak R6-006/007 and regular-AI R6-008–013 in the shared branch; no cherry-pick required.
 - [x] PM5-01: correct old boolean inspector's railway/reindeer metadata and identify R6-010 as the saved frontend authority.
 - [x] Regular AI: persisted quality regressions now cover railway/dispatch/ghost UR rows with `isSpecialURQuality=true`, a non-special truck quality above five, truck UR page/count consistency, and server isolation. Railway also combines recovered UR + retained-item predicates.
-- [ ] Regular AI: complete ESC-002/004 method/alternative packets or resolve their questions. ESC-001 is CLOSED. ESC-003 is NOT_ASSIGNED after PM review; reopen only with a specific permissible approach or new evidence/target. No specialist is assigned.
+- [ ] Regular AI: complete ESC-002/004/005 method/alternative packets or resolve their questions. ESC-001 is CLOSED. ESC-003 is NOT_ASSIGNED after PM review; reopen only with a specific permissible approach or new evidence/target. No specialist is assigned.
 - [ ] PM: review each completed packet, record the reason and approve only the specific permitted question; return insufficient requests with concrete missing evidence.
 - [ ] Regular AI: integrate/validate each accepted specialist return; retain all live-proof gates.
 
@@ -41,6 +41,14 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [ ] **PM7-B / regular AI:** recover bridge-handler linkage and complete authoritative readiness/error semantics; integrate only the supported summary provider. `LWB-R6-040` closes the host parsed-`packageKeyEnvelope` → `package-key.envelope` persistence/cleanup gap. `LWB-R6-041` narrows the host auth/device-key plus proxy CNG/BCrypt/file-loader boundary; `LWB-R6-042` preserves the exact proxy `DEVICE_KEY_PROVIDER/EXPORT/FORMAT/MISSING` labels; `LWB-R6-043` corrects their interpretation and recovers the secure proxy's hardcoded Microsoft Software Key Storage Provider, persisted GUID key name, `ECCPUBLICBLOB`/65-byte public format, `TRUNCATE` 32-byte derivation and AES-GCM 32/12/16-byte input contract. `LWB-R6-044` closes the shared producer's `serverIdSource` live/none fallbacks and active-read server-change guard. `LWB-R6-045` source-attributes secure-proxy package validation/decrypt function `RVA 0x3D260-0x3DCF5` as a direct consumer of the R6-043 AES helper and pins its `LWBP2|` plus package integrity/build diagnostics. `LWB-R6-046` recovers exact `\bridge-runtime\package-key.envelope` construction, its `0x1000`-byte bounded reader with trailing CR/LF trimming, and direct opaque path-consumer call `0x1C8E2 -> 0x3F8E0`. The exact envelope field grammar/agreement ownership, package-file caller and key/nonce/tag callsite ownership, host create/finalize provisioning dataflow, plain-proxy parity, protected handler plaintext, dispatcher failures and separate `map scan state is unavailable` emitter remain open.
 - [ ] **PM7-C / regular AI:** native identity/normalization and smallest scan path, alongside R5 launch/handshake prerequisites; no frontend fallback keys or fixture completion.
 - [ ] **PM7-D / regular AI:** remaining schema/export/sort evidence and specific ESC-002/004 packets when independent work is appropriate.
+
+## Immediate priorities — review 8
+
+- [x] **LWB-PM8-001 diagnosis:** patch size/CRC and intact old script verified; failed temporary output reproduces screenshot/log mismatch. All 14 sampled runtime anchors unchanged; latest data table changed.
+- [ ] **PM8-0 / regular AI / FIRST:** complete supported official-update recovery and prove normal launch; save a fresh dated baseline and revalidate changed script/table contracts. Follow [incident/recovery acceptance](docs/lastwar-update-incident.md). No integrity bypass or arbitrary cache/profile deletion.
+- [x] **PM7-A accepted:** source-aware option/count service implemented/offline-tested; no public options command enabled.
+- [ ] **PM7-B / ESC-005:** advance one permissible handler/provider-blocking question or complete the narrow specialist packet. Do not repeat SB-79 or claim the loader complete from helper signatures.
+- [ ] **PM7-C/R5:** supported connection plus smallest real scan/result path; live validation depends on PM8-0. PM7-D remains independent backlog.
 
 ## Completed foundation
 
@@ -204,6 +212,6 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 ## Verification
 
-Review 7: Release build (0 warnings/errors), deterministic backend suite, recovered frontend integrity, five preference scenarios, both transport harnesses, normal isolated WebView host and termination-failure self-test all pass. Inspector sources were syntax-parsed; no binary verifier/disassembly, installed-client decoder reproduction or live game action was rerun. See [review 7 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-7.json). All 47 full acceptance cases remain unsigned despite passing local/offline subchecks.
+Review 8: Release build (0 warnings/errors), all five deterministic backend groups, frontend integrity, five preference scenarios and both transport checks pass. Update-health diagnostics reproduce the output CRC failure; the official launcher is not certified healthy. No new live/screenshot/host-probe/reference-disassembly run. [Review 8 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) separates tests, current-client health and all 47 unsigned full acceptance cases.
 
 See [the regular handoff](docs/implementation-handoff.md) for current verification commands, [docs/README.md](docs/README.md) for evidence and [task.md](task.md) for full acceptance. Run visual/current-runtime captures when applicable using new dated outputs; do not overwrite a historical runtime snapshot.

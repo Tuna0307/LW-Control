@@ -4,9 +4,13 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 **Mandatory before working:** [../AGENTS.md](../AGENTS.md) defines the user's repository-wide reverse-engineer-first, no-invented-values, immediate-finding-documentation and checkpoint commit/push rules. Every AI and contributor must follow them. New findings require source identity/hash, an exact locator, reproduction steps, evidence status and limitations; update this index and the feature ledger when adding durable material.
 
+## Immediate current-client issue
+
+Read [the September 10 official Lua update incident / PM8-0](lastwar-update-incident.md) before live work. Diagnosis is complete; recovery is unproven. PM7-A is accepted as offline integration; PM7-B/C remain the main rebuild tasks. ESC-005 is a tracking request, not a Daybreak assignment.
+
 ## Reading order
 
-Start with [review 7](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 6/follow-up narrative](reviews/2026-09-09-review-6-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
+Start with [review 8](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 7/follow-up narrative](reviews/2026-09-10-review-7-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -24,6 +28,9 @@ Start with [review 7](lwbridge-project-status.md), [restriction outcomes and req
 - [Regular task](implementation-handoff.md) and [specialist task](deep-binary-handoff.md) provide distinct ownership/delivery instructions; [ESC register](daybreak-escalations.md) records requests, reasons and decisions. Both tasks inherit `task.md`.
 
 ## Visual and machine-readable evidence
+
+- [Review 8](../evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) — nine-commit audit, fresh checks and task decisions.
+- [Update health](../evidence/official-runtime/2026-09-10-lua-update-health.json), [runtime snapshot](../evidence/official-runtime/2026-09-10-official-runtime.json) and [baseline comparison](../evidence/official-runtime/2026-09-10-runtime-baseline-comparison.json) — LWB-PM8-001 source hashes, CRC failure and exact unchanged/changed observations.
 
 - [Review 7 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-7.json) records the 15-commit audit, fresh checks, source hashes, limits and PM7 task/escalation decisions.
 

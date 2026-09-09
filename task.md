@@ -11,18 +11,18 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 7. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 8. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `0273569`, 2026-09-09, `research/offline-controller`. [Review 7](docs/lwbridge-project-status.md) audits 15 commits since the previous PM checkpoint: PM6-001 and R6-024–037. The [planning estimate](docs/lwbridge-completion-estimate.md) remains approximately 25–30% combined engineering completion; no new full acceptance case is signed off.
+Reviewed implementation: `4ec7ef8`, 2026-09-10, `research/offline-controller`. [Review 8](docs/lwbridge-project-status.md) accepts PM7-A/R6-038 service integration and recorded R6-039–046 research. Public game functions remain incomplete; the [planning estimate](docs/lwbridge-completion-estimate.md) stays roughly 25–30%.
 
-- **Accepted:** bounded host cleanup; recovered source/run selection, alliance/no-alliance assembly and summary flow/errors; offline block checkpoint persistence; current-client state ownership and LWBridge producer/error findings. See the audit for exact limits.
-- **Still open:** exact public progress serialization, production source/state integration, complete sorts/export/schema migrations, owned launch/stop/reconnect/heartbeat, native keys/capture/scans/travel/jobs/actions. Static findings and test-only helpers do not complete these commands.
-- **Regular AI:** start [PM7-A](docs/implementation-handoff.md), then the handler/readiness and native-ingestion critical paths. Each task has explicit scope, deliverables and proof boundaries.
-- **Daybreak:** no approved assignment. ESC-001 CLOSED; ESC-003 NOT_ASSIGNED after PM review because no specific permissible specialist method is identified for the remaining serializer; ESC-002/004 still require method/alternative evidence. Follow [the register](docs/daybreak-escalations.md) and [specialist handoff](docs/deep-binary-handoff.md). A denial is not an automatic model transfer.
+- **First task — PM8-0:** diagnose/recover the official launcher Lua-update CRC failure under [the incident task](docs/lastwar-update-incident.md). Diagnosis confirms a matching downloaded patch and intact old script but a mismatched produced temporary file. Recovery and successful ordinary game launch remain unproven. Refresh changed script/table applicability before live work.
+- **Completed:** PM7-A reusable published/staged option/count service, tested offline. Do not repeat it or claim public options are enabled.
+- **Next:** [regular AI handoff](docs/implementation-handoff.md) PM7-B handler/readiness, then PM7-C/R5's smallest real connection/scan/result path; PM7-D independent gaps.
+- **Daybreak:** no approved assignment. ESC-001 CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004/005 NEEDS_INFORMATION. Follow the [register](docs/daybreak-escalations.md); a denial or launcher update failure is not an automatic model transfer.
 
-Fresh checks and provenance limits are in [review 7 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-7.json). All 47 acceptance cases and the login-free UI remain required.
+[Review 8 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
 
 ## 1. The user's requested outcome
 
@@ -769,4 +769,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md` and the appropriate handoff. Inspect the latest HEAD/worktree before edits. PM7-A is completed by `LWB-R6-038`; the regular AI starts PM7-B's bridge-handler/authoritative-readiness seam next, with PM7-C or a concrete R5 blocker as independent critical-path work. Do not re-recover resolved selector/no-alliance/clock/key/cleanup work. Observe ESC-003's reviewed NOT_ASSIGNED decision and ESC-002/004's specific missing evidence; no denied operation is transferred to another model. Save findings immediately, run relevant checks, update progress, commit/push each coherent checkpoint and verify GitHub. Preserve all 47 acceptance cases and completed cleanup.
+Read `AGENTS.md`, the current audit, `BACKLOG.md` and the relevant handoff; inspect latest HEAD/worktree. Start PM8-0's official-update recovery and baseline validation before live acceptance. PM7-A is complete; continue PM7-B or independent PM7-C/R5 offline work where supported. Use ESC-005 for the remaining loader/handler packet without rerouting denied operations. Preserve evidence and unknowns, document results, run relevant checks, commit/push each coherent checkpoint and verify GitHub. Preserve all 47 cases and completed cleanup.
