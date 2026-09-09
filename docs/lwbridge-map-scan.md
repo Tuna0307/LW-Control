@@ -23,6 +23,7 @@ This document preserves dated findings, including superseded interpretations. Us
 | R6-019 | Test-only staging/publication infrastructure now reproduces the recovered one-kind/server `map_records` delete + matching `scan_records` copy in one transaction and proves run/kind/server isolation. Completion eligibility and native record-key derivation remain blocked. |
 | R6-020 | The test-only publication slice now proves transactional rollback under an injected failure between delete and staged copy: the previous published kind/server survives intact and no replacement row leaks through. Production failure/retry semantics remain blocked. |
 | R6-021 | The persisted-only options test kernel now returns all eight recovered frontend count keys plus a server-scoped no-alliance count in the same snapshot as the existing option families. Public source/run selection and native count assembly remain blocked. |
+| R6-022 | Native Map Data option strings prove `treasure:` and `supplies:` key prefixes inside the option-result cluster. Direct RIP xrefs and absolute-pointer string metadata searches find no route to the formatter, so the numeric suffix formula remains UNKNOWN and no key is synthesized. |
 
 Current remaining query gaps include viewer/foreign-radar/lucky behavior, alternate sort expressions/order, the original options source/run-context and backend counts/no-alliance/full assembly, and authoritative summary server/scan-state production. `LWB-R6-014` closes the recovered frontend completion/plunderability clocks and reward-option cutoff source/unit; `LWB-R6-015` validates the known persisted-source aggregation kernel without promoting it to the public command; `LWB-R6-016` closes the frontend count propagation/reset/fallback rules without inventing their backend producers. Export, native identities and live ingestion/scan remain open. Historical restrictions and escalation reasons are in [the ESC register](daybreak-escalations.md). The regular AI owns further investigation until an exhausted-method request is reviewed; these topics are not automatic Daybreak assignments.
 
@@ -342,6 +343,14 @@ Deterministic file-backed tests begin with two published city rows, stage two re
 Deterministic tests verify server 120 counts `4/3/1/2/1/4/0/4` in the recovered key order, `noAllianceCount=2` for one empty and one NULL alliance, and complete server isolation for server 121. Release build and the deterministic backend suite pass with zero warnings/errors and `ok=true`. Durable metadata is `evidence/lwbridge-implementation/2026-09-09-r6-map-persisted-counts.json`.
 
 **Limits.** This remains test-only persisted-source infrastructure. It does not authorize public `map_data_options`, infer active-run/staging selection, prove native response assembly, or establish authoritative `map_summary` server selection.
+
+### LWB-R6-022 — treasure option key prefixes and xref exhaustion (2026-09-09)
+
+**RECOVERED source identity and locators.** The verified `..\LW\lwbridge-0.3.1.exe` remains SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`. The Map Data option-result cluster at raw offsets `0x00C83AE5-0x00C83B61` contains `key`, `iconPath`, `treasure:`, `treasureNameKey`, `count` and `supplies:`. Exact prefix offsets are `treasure:` at `0x00C83B21` and `supplies:` at `0x00C83B59`. A second `treasure:` at `0x00C883D1` is adjacent to season-supply treasure-claim error/query text and is excluded from this option-key interpretation.
+
+**Attempted methods and result.** `tools/inspect_lwbridge_map_treasure_option_keys.py` hash-locks the reference, verifies the cluster offsets, inventories all prefix occurrences, scans executable sections with Capstone 5.0.6 for direct RIP-relative references, and searches the PE bytes with pefile 2024.8.26 for absolute-pointer metadata slots before checking code references to any such slots. Neither option-cluster prefix has a direct code xref or an absolute-pointer metadata slot. This is a useful negative result because those ordinary xref routes need not be repeated.
+
+**UNKNOWN/BLOCKED.** Prefix adjacency does not prove whether `treasureTypes[].key` is `treasure:<decimal treasureType>`, `supplies:<decimal suppliesType>` or another formatting/encoding. Because the recovered frontend consumes that opaque `key`, the rebuild still does not assemble a public treasure option or expose `map_data_options`. Durable evidence is `evidence/lwbridge-implementation/2026-09-09-r6-map-treasure-option-key-prefixes.json`.
 
 ## Remaining unknowns
 
