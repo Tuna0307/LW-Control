@@ -16,7 +16,7 @@ import struct
 
 import pefile
 from capstone import CS_ARCH_X86, CS_MODE_64, Cs
-from capstone.x86_const import X86_OP_IMM
+from capstone.x86_const import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
 
 EXPECTED_SHA256 = "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
@@ -81,6 +81,29 @@ def _expect(
         raise InspectError(
             f"unexpected instruction at RVA 0x{rva:X}: {actual[0]} {actual[1]}"
         )
+
+
+def _rip_ascii(pe: pefile.PE, data: bytes, rva: int, length: int) -> str:
+    offset = int(pe.get_offset_from_rva(rva))
+    md = Cs(CS_ARCH_X86, CS_MODE_64)
+    md.detail = True
+    ins = next(
+        md.disasm(
+            data[offset : offset + 16],
+            int(pe.OPTIONAL_HEADER.ImageBase) + rva,
+        ),
+        None,
+    )
+    if ins is None or ins.mnemonic != "lea":
+        raise InspectError(f"expected LEA at RVA 0x{rva:X}")
+    for operand in ins.operands:
+        if operand.type != X86_OP_MEM or operand.mem.base != X86_REG_RIP:
+            continue
+        target_va = int(ins.address + ins.size + operand.mem.disp)
+        target_rva = target_va - int(pe.OPTIONAL_HEADER.ImageBase)
+        target_offset = int(pe.get_offset_from_rva(target_rva))
+        return data[target_offset : target_offset + length].decode("ascii")
+    raise InspectError(f"expected RIP-relative memory operand at RVA 0x{rva:X}")
 
 
 def _decode_rust_str_table(
@@ -193,6 +216,62 @@ def inspect(path: Path) -> dict[str, object]:
     _expect(builder, 0x279223, "movaps", "xmm0, xmmword ptr [rsp + 0xc0]")
     _expect(builder, 0x27922B, "movups", "xmmword ptr [rbx + 0x78], xmm0")
 
+    # Generic normalized scalar columns are sourced from exact record fields.
+    # These are shared by every kind that supplies the fields; this does not
+    # establish which current-client capture serializer supplies them.
+    field_sources = {
+        "level": _rip_ascii(pe, data, 0x27902D, 5),
+        "quality": _rip_ascii(pe, data, 0x27904E, 7),
+        "power": _rip_ascii(pe, data, 0x27906F, 5),
+        "distance": _rip_ascii(pe, data, 0x279091, 8),
+        "distanceFallback": _rip_ascii(pe, data, 0x2790C2, 16),
+        "shieldEndTime": _rip_ascii(pe, data, 0x2790E4, 13),
+        "shieldEndTimeFallback": _rip_ascii(pe, data, 0x279108, 14),
+    }
+    expected_field_sources = {
+        "level": "level",
+        "quality": "quality",
+        "power": "power",
+        "distance": "distance",
+        "distanceFallback": "distanceFromHome",
+        "shieldEndTime": "shieldEndTime",
+        "shieldEndTimeFallback": "protectEndTime",
+    }
+    if field_sources != expected_field_sources:
+        raise InspectError(f"unexpected normalized field source strings: {field_sources!r}")
+
+    for rva, key_length in (
+        (0x279034, 5),
+        (0x279055, 7),
+        (0x279076, 5),
+        (0x279098, 8),
+        (0x2790C9, 16),
+    ):
+        _expect(builder, rva, "mov", f"r8d, {key_length:#x}" if key_length >= 10 else f"r8d, {key_length}")
+    for rva in (0x27903D, 0x27905E, 0x27907F, 0x2790A1, 0x2790D2):
+        _expect(builder, rva, "call", "0x14027ba17")
+    _expect(builder, 0x2790F4, "call", "0x14027bab9")
+    _expect(builder, 0x2790F9, "test", "al, 1")
+    _expect(builder, 0x279118, "call", "0x14027bab9")
+
+    normalized_stores = {
+        "level": "+0x10/+0x18",
+        "quality": "+0x20/+0x28",
+        "power": "+0x30/+0x38",
+        "distance": "+0x40/+0x48",
+        "shieldEndTime": "+0x50/+0x58",
+    }
+    _expect(builder, 0x27925C, "mov", "qword ptr [rbx + 0x10], rax")
+    _expect(builder, 0x279260, "movsd", "qword ptr [rbx + 0x18], xmm6")
+    _expect(builder, 0x27926D, "mov", "qword ptr [rbx + 0x20], rax")
+    _expect(builder, 0x279271, "movsd", "qword ptr [rbx + 0x28], xmm7")
+    _expect(builder, 0x27927E, "mov", "qword ptr [rbx + 0x30], rax")
+    _expect(builder, 0x279282, "movsd", "qword ptr [rbx + 0x38], xmm8")
+    _expect(builder, 0x279290, "mov", "qword ptr [rbx + 0x40], rax")
+    _expect(builder, 0x279294, "movsd", "qword ptr [rbx + 0x48], xmm9")
+    _expect(builder, 0x27929A, "mov", "qword ptr [rbx + 0x50], r13")
+    _expect(builder, 0x27929E, "mov", "qword ptr [rbx + 0x58], rbp")
+
     # 0x285410 is a signed decimal formatter: it adds '-' for negatives and
     # its digit core uses the canonical 00..99 table plus /10000 and /100 steps.
     _expect(formatter, 0x285423, "test", "r14, r14")
@@ -213,6 +292,7 @@ def inspect(path: Path) -> dict[str, object]:
 
     return {
         "findingId": "LWB-R6-049",
+        "additionalFindingId": "LWB-R6-051",
         "classification": "RECOVERED static",
         "source": {
             "path": str(path),
@@ -238,6 +318,15 @@ def inspect(path: Path) -> dict[str, object]:
             "pointCoordinateSeparation": "coordinate fallback decrements a copy of pointIndex; record key formatting receives the original extracted value",
             "destination": "normalized record String at +0x78 with length at +0x88",
         },
+        "genericNormalizedColumns": {
+            "fieldSources": field_sources,
+            "destinationSlots": normalized_stores,
+            "fallbacks": {
+                "distance": "distance when present; otherwise distanceFromHome",
+                "shieldEndTime": "shieldEndTime when present; otherwise protectEndTime",
+            },
+            "scope": "original shared normalized-record builder only; current-client capture ownership is not established",
+        },
         "validationAndLimits": {
             "liveProven": False,
             "publicCapabilityEnabled": False,
@@ -246,7 +335,7 @@ def inspect(path: Path) -> dict[str, object]:
                 "typed current-client field normalization and removal behavior",
                 "scan scheduling/completion and live bridge readiness",
             ],
-            "restriction": "a separate raw string-cluster follow-up was rejected by automatic review and was not replayed or rerouted; it contributed no finding",
+            "restriction": "separate raw string-cluster and current secure-proxy field-xref follow-ups were rejected by automatic review and were not replayed or rerouted; they contributed no finding",
         },
     }
 

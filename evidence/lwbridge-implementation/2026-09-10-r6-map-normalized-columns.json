@@ -1,0 +1,80 @@
+{
+  "findingId": "LWB-R6-049",
+  "additionalFindingId": "LWB-R6-051",
+  "classification": "RECOVERED static",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "locators": {
+    "normalizedRecordBuilderRva": "0x2785BA-0x2793BE",
+    "sharedUpsertRva": "0x27A1E3-0x27AA73",
+    "signedDecimalFormatterRva": "0x285410-0x285556",
+    "decimalDigitCoreRva": "0x394C0-0x3968E",
+    "pointFieldTableRva": "0xC8BC70",
+    "recordKeyFinalStoreRva": "0x279214-0x27922B",
+    "recordKeyDecisionRva": "0x278C47-0x278CEF"
+  },
+  "directUpsertCallers": [
+    {
+      "callRva": "0x25767E",
+      "functionRva": "0x2574CD-0x2577E2"
+    },
+    {
+      "callRva": "0x25F368",
+      "functionRva": "0x25F01D-0x25F5C8"
+    },
+    {
+      "callRva": "0x270863",
+      "functionRva": "0x26EC06-0x271056"
+    }
+  ],
+  "pointIndexCandidatesInOrder": [
+    "pointIndex",
+    "mainIndex",
+    "pointId",
+    "index"
+  ],
+  "recordKeyRule": {
+    "truckOrRailway": "uuid when nonempty, otherwise marchUuid",
+    "otherKindWithNonemptyMarchUuid": "uuid when nonempty, otherwise marchUuid",
+    "otherKindWithEmptyMarchUuidAndPointIndex": "signed decimal text of the original extracted point index",
+    "otherKindWithoutPointIndex": "uuid when nonempty, otherwise marchUuid",
+    "pointCoordinateSeparation": "coordinate fallback decrements a copy of pointIndex; record key formatting receives the original extracted value",
+    "destination": "normalized record String at +0x78 with length at +0x88"
+  },
+  "genericNormalizedColumns": {
+    "fieldSources": {
+      "level": "level",
+      "quality": "quality",
+      "power": "power",
+      "distance": "distance",
+      "distanceFallback": "distanceFromHome",
+      "shieldEndTime": "shieldEndTime",
+      "shieldEndTimeFallback": "protectEndTime"
+    },
+    "destinationSlots": {
+      "level": "+0x10/+0x18",
+      "quality": "+0x20/+0x28",
+      "power": "+0x30/+0x38",
+      "distance": "+0x40/+0x48",
+      "shieldEndTime": "+0x50/+0x58"
+    },
+    "fallbacks": {
+      "distance": "distance when present; otherwise distanceFromHome",
+      "shieldEndTime": "shieldEndTime when present; otherwise protectEndTime"
+    },
+    "scope": "original shared normalized-record builder only; current-client capture ownership is not established"
+  },
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCapabilityEnabled": false,
+    "unknownBlocked": [
+      "capture payload producer to this normalized-record builder",
+      "typed current-client field normalization and removal behavior",
+      "scan scheduling/completion and live bridge readiness"
+    ],
+    "restriction": "separate raw string-cluster and current secure-proxy field-xref follow-ups were rejected by automatic review and were not replayed or rerouted; they contributed no finding"
+  }
+}
