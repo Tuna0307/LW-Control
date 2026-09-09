@@ -22,6 +22,8 @@ Only request Daybreak after exhausting the relevant permitted approaches you can
 
 Both completed task streams are already committed on the same branch. No cherry-pick or duplicate reimplementation is needed. None of these results establishes production capture, owned game launch or complete Map Data functionality. For example, the real treasure query still includes unresolved viewer/visibility/lucky flags; an isolated selector test does not make the whole tab usable.
 
+Post-review continuation has also produced local `LWB-R6-018` commit `55788fbc8ebddf3171ebbea5b264dd8e22b397bc`, recovering the bounded native city-export workbook structure described below. Its GitHub push/remote-verification command was automatically rejected by the active environment and was not retried or rerouted; see SB-10. Treat the checkout as ahead of the remote until a permitted future environment can deliver that local commit.
+
 ## Next work in priority order
 
 1. **Completed 2026-09-09 — inherited host-probe hygiene.** `tools/check_lwbridge_host_probe.ps1` launches hidden, quotes its path-valued output argument, uses the review-4 55-second wait as explicit test orchestration policy, fails on timeout/nonzero exit, and cleans up only its own process. The isolated configuration and existing required gates remain intact. Preserve review 5's explicit distinction between saved frontend evidence and binary marker verification.
