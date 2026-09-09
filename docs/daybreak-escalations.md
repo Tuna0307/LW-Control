@@ -2,6 +2,8 @@
 
 Updated 2026-09-09, PM review 7 against `0273569`, with post-review regular-AI recovery through `LWB-R6-041`. This is the decision/attempt log shared by [the regular task](implementation-handoff.md), [the specialist task](deep-binary-handoff.md) and the project manager. Mandatory rules are in [AGENTS.md](../AGENTS.md) section 6.
 
+Review 9: PM8-0 is closed by the user's reinstall, verified through logs/files. The original record-key formula is resolved by R6-049; R6-051 resolves a bounded scalar-source slice. Current capture-to-builder mapping remains open and SB-84 stays operation-specific. No new specialist method/exhaustion packet is approved. PM9-A update readiness is standard-AI implementation work, not a Daybreak assignment.
+
 ## State and ownership rules
 
 `NEEDS_INFORMATION` → `READY_FOR_PM_REVIEW` → `APPROVED` → `ASSIGNED` → `RETURNED_FOR_INTEGRATION` → `CLOSED`. `NOT_ASSIGNED` records work retained by the regular AI or a request declined with a reason. PM approval is a workflow decision, not permission to evade platform restrictions.
@@ -62,7 +64,7 @@ The regular AI fills the packet and continues independent work. The PM checks wh
 - **Environment distinction:** the official Lua update CRC incident is a separate validation-target/recovery issue. It neither invalidates the immutable LWBridge reference nor grants permission for restricted loader analysis. After official recovery, re-fingerprint changed script/table sources before using them as current-client evidence.
 - **Return criteria if later approved:** exact source-attributed fields/types/conditions for the chosen question, reproduction, limits and implementation impact; regular AI integrates/tests. No guessed package contents, keys, identities, success responses or live-proof claims.
 
-## Review 8 outcome dashboard — a restriction is not a contract status
+## Review 9 outcome dashboard — a restriction is not a contract status
 
 | Question / restriction | Current contract or delivery outcome | Escalation outcome |
 |---|---|---|

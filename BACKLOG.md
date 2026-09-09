@@ -19,7 +19,7 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 - Keep RECOVERED, IMPLEMENTED/OFFLINE-TESTED, LIVE-PROVEN, UNKNOWN/BLOCKED and explicitly labelled IMPLEMENTATION POLICY distinct in every feature record.
 - Document each newly confirmed finding immediately; no recovery/task checkpoint is complete without its durable evidence and GitHub delivery or an explicitly recorded delivery blocker.
 
-## Ownership and escalation — review 8 outcomes
+## Ownership and escalation — review 9 outcomes
 
 **Regular AI first, including permitted binary analysis.** DB-01–06 are topic labels, not model assignments. Only request Daybreak when relevant permitted methods have been exhausted and recorded with outputs/alternatives/reasons under an ESC ID; the PM reviews the bounded scope. See AGENTS.md section 6. A denial or missing integration alone does not establish a specialist assignment.
 
@@ -42,13 +42,15 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [ ] **PM7-C / regular AI:** native identity/normalization and smallest scan path, alongside R5 launch/handshake prerequisites; `LWB-R6-049` recovers the original normalized `record_key` formula and its write into the R6-047 `+0x78` slot. `LWB-R6-050` pins current `PointInfo.pointIndex/mainIndex/uuid`, their generated xLua backing tokens, constructor stores, and `ResPointInfo.gatherMarchUuid`/resource getters. `LWB-R6-051` additionally pins the original normalized `level`, `quality`, `power`, distance fallback, and shield/protect fallback field sources. Native capture/serializer ownership into R6-049/R6-051, remaining resource normalization/removal and live scan prerequisites remain open; no frontend fallback keys or fixture completion.
 - [ ] **PM7-D / regular AI:** remaining schema/export/sort evidence and specific ESC-002/004 packets when independent work is appropriate.
 
-## Immediate priorities — review 8
+## Immediate priorities — review 9
 
-- [x] **LWB-PM8-001 diagnosis:** patch size/CRC and intact old script verified; failed temporary output reproduces screenshot/log mismatch. All 14 sampled runtime anchors unchanged; latest data table changed.
-- [x] **PM8-0 / regular AI:** `LWB-PM8-004` observes the official launcher cleanup/reinstall at 01:13, accepted Lua version 14 at line 39869 and ordinary game start at line 39874. Fresh `Player.log` reaches Unity/Application/GameEntry/StartGame initialization. All 14 sampled build-1078 anchors remain unchanged; Lua advances 12 -> 14 and the current table hash is unchanged. Failure history and the earlier UI-automation restriction remain preserved.
-- [x] **PM7-A accepted:** source-aware option/count service implemented/offline-tested; no public options command enabled.
-- [ ] **PM7-B / ESC-005:** advance one permissible handler/provider-blocking question or complete the narrow specialist packet. Do not repeat SB-79 or claim the loader complete from helper signatures.
-- [ ] **PM7-C/R5:** supported connection plus smallest real scan/result path. PM8-0 no longer blocks live validation; R6-050 closes only the current managed/xLua identity ownership slice. Rebuilt launch/bridge readiness, native capture/serializer mapping into R6-049, remaining normalization/removal, scan completion and displayed results remain open. PM7-D remains independent backlog.
+- [x] **PM8-0 recovery:** user deleted data/reinstalled; AI verified successful official update/startup. Current scripts v14; sampled core binaries unchanged. Preserve failed-delta evidence; do not repair again.
+- [x] **LWB-PM9-001 comparison:** fresh core/script/table hashes and failed-versus-accepted output comparison documented. Exact gameplay changes/defect cause still unknown.
+- [ ] **PM9-A / standard AI / FIRST bounded checkpoint:** reusable update-readiness/compatibility service and actual status integration. Track composite fingerprints, ordered failures/freshness, unknown inputs and affected contracts; do not automatically delete data or accept a new baseline. Follow [complete acceptance](docs/lastwar-update-readiness.md).
+- [x] **PM7-A:** source-aware counts/options service implemented and tested; public options remain unavailable.
+- [x] **R6-047–051 research accepted:** upsert layout, original identity/scalars and current managed field ownership. These do not deliver capture/scan integration.
+- [ ] **PM7-C/R5 / NEXT:** direct capture-to-builder mapping for one resource path, supported connection and smallest real scan/display result; implement only proven input normalization.
+- [ ] **PM7-B / ESC-005:** remaining provider/handler readiness and a specific permissible method packet; PM7-D remains independent backlog.
 
 ## Completed foundation
 
@@ -121,7 +123,7 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 - [ ] Trace every Map Data payload/result/conditional control in the original frontend and backend evidence; record unknowns explicitly.
 - [x] Recover the original SQLite map-index tables/indexes, stored record identity `(kind,server_id,record_key)`, scan staging identity `(run_id,kind,server_id,record_key)`, player-mark identity `(server_id,owner_uid)`, server-clear scope and completed-kind publish transaction.
-- [ ] **DEEP-BINARY DB-03:** recover exact per-kind native `record_key` derivation plus remaining typed normalization/update/removal rules for city, resource, monster, truck, railway, dispatch, ghost and treasure records.
+- [ ] **DEEP-BINARY DB-03:** integrate the recovered R6-049 native `record_key` rule only after current capture/typed-input mapping is established; recover remaining normalization/update/removal rules for city, resource, monster, truck, railway, dispatch, ghost and treasure records.
   - [x] `LWB-R6-029` exhausts the currently tracked official-runtime readable snapshot for direct `record_key`/scan-bridge and known row-vocabulary clues: no current-runtime text hits were present. The build-1078 `Assembly-CSharp.rdl` and active `LWScripts.data` are identified as the next concrete current-contract sources; derivation remains UNKNOWN/BLOCKED.
   - [x] `LWB-R6-047` recovers the original native map-record upsert boundary at RVA `0x27A1E3-0x27AA73`: exact 12-byte `scan_records` selects staging, staging prepends `run_id`, and the shared record layout binds `record_key` from offset `+0x78` with the same 14 record fields used by `map_records`. This narrows the upstream producer target but does not recover any per-kind key derivation or enable production ingestion.
   - [x] `LWB-R6-048` recovers the current build-1078 world-point identity surface for one resource path: protobuf world points carry separate `Id`/`Uuid`/server/world fields, `GetWorldTileInfo(int32 pointIndex)` and `GetPointInfoByUuid(int64 uuid)` are distinct lookup paths, and `GetResourcePointInfoByIndex(int32 pointIndex)` reaches `ResPointInfo`. Neither current-client identity is promoted to native `record_key`; the direct producer into R6-047 `+0x78` is still UNKNOWN/BLOCKED.
@@ -215,6 +217,6 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 ## Verification
 
-Review 8: Release build (0 warnings/errors), all five deterministic backend groups, frontend integrity, five preference scenarios and both transport checks pass. Update-health diagnostics reproduce the output CRC failure; the official launcher is not certified healthy. No new live/screenshot/host-probe/reference-disassembly run. [Review 8 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) separates tests, current-client health and all 47 unsigned full acceptance cases.
+Review 9: Release build (0 warnings/errors), all five backend groups with real-config preservation, frontend integrity, five preference scenarios and both transport checks pass. Fresh active script CRC/version match accepted update; sampled core hashes unchanged. No new game action, native analysis or UI/host capture. [Review evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-9.json) distinguishes ordinary game recovery from all 47 unsigned rebuild acceptance cases.
 
 See [the regular handoff](docs/implementation-handoff.md) for current verification commands, [docs/README.md](docs/README.md) for evidence and [task.md](task.md) for full acceptance. Run visual/current-runtime captures when applicable using new dated outputs; do not overwrite a historical runtime snapshot.

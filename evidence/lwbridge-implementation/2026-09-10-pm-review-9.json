@@ -1,0 +1,112 @@
+{
+  "findingId": "LWB-PM-REVIEW-009",
+  "dateLocal": "2026-09-10",
+  "reviewedCommit": "b83987b81d33065298512ecaf74a294cd93ddbde",
+  "previousPmCommit": "8ab6b8127c33b0fa30452bc05046a09d4e2e8f1c",
+  "branch": "research/offline-controller",
+  "startingWorktreeClean": true,
+  "commits": [
+    {
+      "commit": "714b9450eb9814224e2863863b9772c267461ac7",
+      "subject": "Document PM8 launcher recovery blocker"
+    },
+    {
+      "commit": "53e0e24b60b5193bb893d17c1360a4a65835c90f",
+      "subject": "Document native map record upsert boundary"
+    },
+    {
+      "commit": "7725dcb1b83b48a5ef1f2c3b09b2a0a2198673eb",
+      "subject": "Document current world point identity surface"
+    },
+    {
+      "commit": "81d04b6511ef831ef8e4abcc1aa6a167b670ae3c",
+      "subject": "Document seventh PM8 launcher failure"
+    },
+    {
+      "commit": "c2ed99104f73be16dbded409672f6b98a5091f53",
+      "subject": "Recover LWBridge map record identity"
+    },
+    {
+      "commit": "64d5d31a4a2b400bb1506976a96cf728193bc72e",
+      "subject": "Record successful launcher recovery"
+    },
+    {
+      "commit": "a7e37633772e5f22a1440989f0879dd26a48c9f2",
+      "subject": "Recover current PointInfo identity surface"
+    },
+    {
+      "commit": "b83987b81d33065298512ecaf74a294cd93ddbde",
+      "subject": "Recover normalized map scalar fields"
+    }
+  ],
+  "sourceEvidenceHashes": {
+    "evidence/lwbridge-implementation/2026-09-10-r6-current-point-identity-surface.json": "c566343f22c78994022830c6f4607f205362b38a200c76e834692bf71591d020",
+    "evidence/lwbridge-implementation/2026-09-10-r6-current-world-point-identities.json": "543af505c9e347d19cec5e51d89e39198f82f31551947003dd67b2a172a54f42",
+    "evidence/lwbridge-implementation/2026-09-10-r6-map-normalized-columns.json": "943ed72e0de823fcc49e0b3109da937e006885d15c9b7c14bf68b708760fa4da",
+    "evidence/lwbridge-implementation/2026-09-10-r6-map-record-identity.json": "802195783a0280f25b64d841eb729bbbb196646b29ba3b17d79659949baf44ad",
+    "evidence/lwbridge-implementation/2026-09-10-r6-map-record-upsert-boundary.json": "41a569e453730cf1a4c3c106a6d684be069690fd3d056b6e4f5be331be5b359b",
+    "evidence/official-runtime/2026-09-10-pm8-003-update-health.json": "d12f90e8219af8f2a1511549580bea344cc470a995af2d175647c3dff80016eb",
+    "evidence/official-runtime/2026-09-10-pm8-004-official-runtime.json": "eed00f67ef9862ba15461837cd0c79d66847c0aee2a149ebc0a0de8fabc42f02",
+    "evidence/official-runtime/2026-09-10-pm8-004-recovered-update-health.json": "40fd1d8b9cbd75c0ff4c25d87ed90d7bc5f4091e6168d2d83c517444db8069f3",
+    "evidence/official-runtime/2026-09-10-pm8-004-runtime-comparison.json": "d86aacd6cab169b9b6de4c409935ddc785982e5acb1a5a2ceb27db942f63cd79",
+    "evidence/official-runtime/2026-09-10-pm8-retry-update-health.json": "6311fce211afd232201baf843d1a8a5ff4b90c848a06c3133288368d344be6ef"
+  },
+  "desktopOrBackendTestFilesChangedSincePreviousPm": [],
+  "accepted": "R6-047\u2013051 static slices and PM8 recovered official game observations; user performed deletion/reinstall",
+  "currentRuntimeFinding": "LWB-PM9-001; three dated PM9 official-runtime/health/comparison JSON files",
+  "checks": {
+    "releaseBuild": {
+      "pass": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "backend": {
+      "ok": true,
+      "allFiveGroups": true,
+      "realConfigPreserved": true,
+      "failures": [],
+      "gameRunning": false,
+      "launcherRunning": false
+    },
+    "frontendIntegrity": true,
+    "preferenceScenarios": 5,
+    "missingNativeTransport": true,
+    "transportBoundary": true,
+    "pythonInspectorsSyntaxParsed": 33,
+    "evidenceJsonParsed": 10,
+    "acceptanceRowsPreserved": 47,
+    "localMarkdownLinkTargets": 300,
+    "brokenLinks": [],
+    "gitDiffCheck": "PASS"
+  },
+  "pmFindings": [
+    "User recovery attribution clarified; PM8-0 closed",
+    "Historical collector flags not a complete future automatic readiness gate; PM9-A defines the needed integration",
+    "R6-049/051 original identity/scalars no longer described as wholly unknown; capture mapping remains open",
+    "Prior audit evidence ID collision corrected with old alias preserved"
+  ],
+  "regularQueue": [
+    "PM9-A one bounded update readiness/compatibility integration checkpoint",
+    "PM7-C/R5 capture-to-builder mapping and supported connection/scan/display",
+    "PM7-B remaining authoritative provider/handler readiness",
+    "PM7-D independent export/schema/sort gaps"
+  ],
+  "daybreak": "No assignment; ESC-001 CLOSED, ESC-003 NOT_ASSIGNED, ESC-002/004/005 NEEDS_INFORMATION",
+  "completion": {
+    "roughEngineeringRange": [
+      25,
+      30
+    ],
+    "fullCasesSignedOff": 0,
+    "totalCases": 47
+  },
+  "limits": [
+    "No game file mutation, reinstall or launch in this audit",
+    "No native reference analysis/decoder/restricted operation rerun",
+    "No new rebuilt-app end-to-end feature or live scan proven",
+    "14 sampled core hashes only, not full installation equality",
+    "No decoded Lua/table gameplay diff or failed-delta root cause established",
+    "No new screenshot or host matrix; desktop/UI code unchanged"
+  ],
+  "delivery": "Commit/push this PM checkpoint and verify existing GitHub branch; report final delivery hash separately."
+}

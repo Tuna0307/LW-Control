@@ -2,7 +2,9 @@
 
 Map Scan is the first feature to recover one-for-one.
 
-## Current finding summary — review 8, 2026-09-10
+## Current finding summary — review 9, 2026-09-10
+
+Review 9 accepts R6-047–051: the original record identity formula and scalar source/fallback rules are recovered; current capture/serializer ownership and complete typed normalization remain unresolved. PM8-0 is closed by user-operated recovery; [PM9-A](lastwar-update-readiness.md) handles readiness before returning to real connection/scan work. Earlier per-finding limits retain their dates and do not supersede later recovery.
 
 PM7-A/R6-038 integration is complete as a reusable service; R6-039–046 remain static research. Read [the current audit](lwbridge-project-status.md) and [PM8-0 official update incident](lastwar-update-incident.md) before current-client/live work. ESC-005 tracks remaining loader/handler gaps; no specialist assigned. Later confirmed findings supersede earlier interpretations, including R6-043 correcting R6-042.
 

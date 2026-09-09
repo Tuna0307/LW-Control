@@ -11,18 +11,18 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 8. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 9. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `4ec7ef8`, 2026-09-10, `research/offline-controller`. [Review 8](docs/lwbridge-project-status.md) accepts PM7-A/R6-038 service integration and recorded R6-039–046 research. Public game functions remain incomplete; the [planning estimate](docs/lwbridge-completion-estimate.md) stays roughly 25–30%.
+Reviewed implementation: `b83987b`, 2026-09-10, `research/offline-controller`. [Review 9](docs/lwbridge-project-status.md) accepts R6-047–051 map research and verifies the user's recovery. No new desktop function is enabled; the planning estimate remains roughly 25–30%.
 
-- **PM8-0 complete:** [LWB-PM8-004](docs/lastwar-update-incident.md) records official cleanup/reinstall, successful Lua version 14 application, ordinary game start and fresh initialized `Player.log`. All 14 sampled build-1078 anchors remain unchanged; the table is unchanged from the failure snapshot while Lua advances from 12 to 14.
-- **Completed:** PM7-A reusable published/staged option/count service, tested offline. Do not repeat it or claim public options are enabled.
-- **Next:** [regular AI handoff](docs/implementation-handoff.md) PM7-B handler/readiness and PM7-C/R5's smallest real connection/scan/result path using the recovered current client; PM7-D independent gaps.
-- **Daybreak:** no approved assignment. ESC-001 CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004/005 NEEDS_INFORMATION. Follow the [register](docs/daybreak-escalations.md); a denial or launcher update failure is not an automatic model transfer.
+- **PM8-0 CLOSED:** the user deleted data/reinstalled; AI verified accepted script version 14 and startup. Do not instruct another reinstall or attribute the recovery action to the AI.
+- **First bounded task — PM9-A:** implement [update readiness/compatibility](docs/lastwar-update-readiness.md), tracking scripts/tables/binaries rather than only the unchanged main build. Historical success must not hide later failures. No automatic deletion/reinstall or baseline promotion.
+- **Then:** [standard AI handoff](docs/implementation-handoff.md) PM7-C/R5 and PM7-B toward supported connection, smallest real scan and displayed result. Original identity/scalar rules are now recovered; current capture mapping and live integration remain open. PM7-A is already complete as bounded aggregate integration.
+- **Daybreak:** none assigned. Follow [the register](docs/daybreak-escalations.md); a denied operation is not an automatic transfer.
 
-[Review 8 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
+[Review 9 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-9.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
 
 ## 1. The user's requested outcome
 
@@ -769,4 +769,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md` and the relevant handoff; inspect latest HEAD/worktree. PM8-0 is complete through LWB-PM8-004 and the recovered current client is available for live validation. PM7-A is complete; continue PM7-B or PM7-C/R5 toward a supported rebuilt connection, smallest real scan and displayed results. Use ESC-005 for the remaining loader/handler packet without rerouting denied operations. Preserve evidence and unknowns, document results, run relevant checks, commit/push each coherent checkpoint and verify GitHub. Preserve all 47 cases and completed cleanup.
+Read `AGENTS.md`, the current audit, `BACKLOG.md`, the standard handoff and `docs/lastwar-update-readiness.md`; inspect latest HEAD/worktree. PM8-0 is closed by the user's reinstall, PM7-A is complete. Deliver PM9-A as one bounded readiness/compatibility checkpoint, then resume PM7-C/R5 and PM7-B toward a real connection/scan/result. Do not repeat recovered original identity/scalar work, invent capture mapping, automate whole-data deletion or bypass denied operations. Save findings, run meaningful checks, update docs, commit/push every coherent checkpoint and verify GitHub. Preserve all 47 cases and completed cleanup.

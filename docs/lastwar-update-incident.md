@@ -2,7 +2,7 @@
 
 ## Result
 
-**The deterministic Lua patch failure was recovered through the official launcher's cleanup/reinstall path, and normal game startup is now verified.** `LWB-PM8-002` and `LWB-PM8-003` preserve the seven matching `14 <- 12` failures. `LWB-PM8-004` records the later official cleanup/reinstall beginning at 2026-09-10 01:13, successful Lua version 14 application at launcher-log line 39869, ordinary `LastWar.exe` start at line 39874, and a fresh `Player.log` that reaches Unity initialization, Application Awake, `GameEntry Init Begin/End`, and `XLuaManager:StartGame()`. The failed evidence remains preserved; no failed temporary output was promoted and no CRC/version metadata was edited by this recovery work.
+**The user deleted data and reinstalled; the resulting official-launcher recovery and normal startup are verified.** The user explicitly clarified recovery ownership in the review-9 request. The AI inspected the results; it did not implement or execute an automatic reinstall. `LWB-PM8-002` and `LWB-PM8-003` preserve the seven matching `14 <- 12` failures. `LWB-PM8-004` records the later official cleanup/reinstall beginning at 2026-09-10 01:13, successful Lua version 14 application at launcher-log line 39869, ordinary `LastWar.exe` start at line 39874, and a fresh `Player.log` that reaches Unity initialization, Application Awake, `GameEntry Init Begin/End`, and `XLuaManager:StartGame()`. The failed evidence remains preserved; no failed temporary output was promoted and no CRC/version metadata was edited by this recovery work.
 
 This is **LWB-PM8-001**, an observed local update failure with reproducible file/log evidence, separate from LWBridge reconstruction and from its encrypted bridge package. Do not conflate the official `LWScripts.data.tmp` with LWBridge `bridge-scripts.dat` or `package-key.envelope`.
 
@@ -75,9 +75,13 @@ The first inspector records file hashes, raw CRC-32, sizes, read stability and o
 
 **Implementation impact:** PM8-0 is complete. The current official client is again a valid live-validation target for PM7-B/PM7-C. This does not prove the rebuilt app's launch bootstrap, bridge handshake/readiness, scan ingestion, or live Map Data output; those gates remain separate.
 
+## Review 9 continuation
+
+[Fresh before/after comparison and PM9-A](lastwar-update-readiness.md) identify unchanged core files, script version 12 -> 14 and the earlier table update. Exact Lua gameplay changes and the failed-delta defect mechanism remain unknown. Do not replay the historical cleanup steps below as a current task; implement bounded future update readiness, then continue connection/scan work.
+
 ## PM8-0 — recovered baseline
 
-Owner: regular AI. Status: **COMPLETE through LWB-PM8-004**. The official launcher completed a supported cleanup/reinstall, applied Lua version 14, started the ordinary game, and produced a fresh initialized `Player.log`. Preserve the failure history and recovered baseline when later live work changes client files.
+Recovery actor: **user**. Evidence verification: regular AI and PM. Status: **COMPLETE through LWB-PM8-004**, reaffirmed by review 9. The official launcher completed a supported cleanup/reinstall, applied Lua version 14, started the ordinary game, and produced a fresh initialized `Player.log`. Preserve the failure history and recovered baseline when later live work changes client files.
 
 1. Recheck processes and incident files before acting. Preserve any still-present failed temporary output, patch and metadata in an excluded local evidence/backup directory with hashes; do not commit bulk script files or raw personal logs. The snapshot already records their identities.
 2. Inspect the actual official launcher recovery options and relevant current log events. Use a supported retry/repair/redownload path if available, then compare the new output and log result. Do not invent a repair menu or assume deleting one temporary file will fix it. No unlimited identical retry loop.

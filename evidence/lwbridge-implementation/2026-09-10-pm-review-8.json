@@ -1,5 +1,5 @@
 {
-  "findingId": "LWB-PM8-002",
+  "findingId": "LWB-PM-REVIEW-008",
   "dateLocal": "2026-09-10",
   "reviewedCommit": "4ec7ef8d1bb3c70f816265b1d2328143b6e3c7de",
   "previousPmCommit": "fe975429c85299ee6228bd2c647a81172781aeca",
@@ -116,5 +116,7 @@
   "githubBeforePmCommit": {
     "command": "git ls-remote --heads origin research/offline-controller",
     "commit": "4ec7ef8d1bb3c70f816265b1d2328143b6e3c7de"
-  }
+  },
+  "previousFindingId": "LWB-PM8-002",
+  "idCorrection": "Review 9 disambiguates this PM audit from the later incident retry finding using LWB-PM8-002. Technical observations unchanged; the incident retains its ID."
 }

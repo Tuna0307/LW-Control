@@ -5,13 +5,13 @@ original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
-## Project-manager review 8 — implementation `4ec7ef8` (2026-09-10)
+## Project-manager review 9 — implementation `b83987b` (2026-09-10)
 
-[Current audit](lwbridge-project-status.md): PM7-A/R6-038 is accepted as reusable option/count service integration, with offline tests and no public caller. R6-039–046 are recorded static loader/device-key/state findings; R6-043 supersedes R6-042's diagnostic-label interpretation. `LWB-PM8-004` closes the official-update incident with launcher-controlled cleanup/reinstall, accepted Lua version 14, ordinary game start and fresh initialized `Player.log`; all 14 sampled build-1078 anchors remain unchanged. Public options/summary/export and rebuilt-app connection/scan/actions remain incomplete. [Current task](implementation-handoff.md) moves active work to PM7-B/C.
+[Current audit](lwbridge-project-status.md): R6-047–051 are bounded static map-upsert/identity/scalar/current-field findings, with no new desktop implementation. Original identity is recovered; current capture/typed normalization and live scan still open. PM7-A remains an offline integration service without a public options caller.
 
-[Update incident](lastwar-update-incident.md): seven `14 <- 12` patch attempts produced the same bad temporary CRC; a later official cleanup/reinstall succeeded through a clean-base `14 <- 11` patch, restored Lua version 14 and normal startup. The defect mechanism remains unknown, while the client recovery itself is LIVE-PROVEN.
+**PM8-0 closed by the user's reinstall**; AI verified the resulting official update/startup. [PM9-A](lastwar-update-readiness.md) is TODO for future update-readiness/compatibility integration. Main build/sampled core hashes unchanged; scripts 12 -> 14; table changed earlier. No rebuilt feature is LIVE-PROVEN by official-game recovery.
 
-[ESC decisions](daybreak-escalations.md): ESC-001 CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004/005 NEEDS_INFORMATION; no specialist assigned. [Planning estimate](lwbridge-completion-estimate.md) remains 25–30%; **0/47 full acceptance cases signed off**.
+[ESC decisions](daybreak-escalations.md) unchanged: none assigned. [Estimate](lwbridge-completion-estimate.md) roughly 25–30%; **0/47 full acceptance cases signed off**.
 
 ## Milestone A environment evidence
 
@@ -88,4 +88,4 @@ node tools/check_lwbridge_transport_boundary.cjs
 ./tools/capture_lwbridge_ui.ps1
 ```
 
-Review 8 reran build/backend, frontend integrity and preference/transport checks. Update-health and baseline diagnostics are new; no live acceptance, screenshot/host matrix or native binary analysis was rerun. See [review 8 evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-8.json).
+Review 9 reran build/backend and frontend/preference/transport checks; refreshed read-only runtime/health comparison. No new binary-analysis/game action/host screenshot matrix. See [review evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-9.json).

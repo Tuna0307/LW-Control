@@ -4,13 +4,13 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 **Mandatory before working:** [../AGENTS.md](../AGENTS.md) defines the user's repository-wide reverse-engineer-first, no-invented-values, immediate-finding-documentation and checkpoint commit/push rules. Every AI and contributor must follow them. New findings require source identity/hash, an exact locator, reproduction steps, evidence status and limitations; update this index and the feature ledger when adding durable material.
 
-## Immediate current-client issue
+## Current priorities
 
-Read [the September 10 official Lua update incident / PM8-0](lastwar-update-incident.md) before live work. `LWB-PM8-004` records successful official cleanup/reinstall, Lua version 14 application and normal game initialization after the seven preserved CRC failures. PM8-0 is complete; PM7-A remains accepted and PM7-B/C are now the main rebuild tasks. ESC-005 is a tracking request, not a Daybreak assignment.
+The user reinstalled and official recovery is verified; PM8-0 is closed. Start [PM9-A update readiness and the before/after comparison](lastwar-update-readiness.md), then return to connection/scan integration. [The incident](lastwar-update-incident.md) is historical evidence, not an instruction to reinstall again. R6-049/051 original map identity/scalars are recovered; actual capture mapping remains open.
 
 ## Reading order
 
-Start with [review 8](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 7/follow-up narrative](reviews/2026-09-10-review-7-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
+Start with [review 9](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -28,6 +28,9 @@ Start with [review 8](lwbridge-project-status.md), [restriction outcomes and req
 - [Regular task](implementation-handoff.md) and [specialist task](deep-binary-handoff.md) provide distinct ownership/delivery instructions; [ESC register](daybreak-escalations.md) records requests, reasons and decisions. Both tasks inherit `task.md`.
 
 ## Visual and machine-readable evidence
+
+- [Review 9 evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-9.json): eight-commit audit, fresh validation, attribution corrections and next tasks.
+- [PM9 update comparison](../evidence/official-runtime/2026-09-10-pm9-update-comparison.json), [fresh runtime](../evidence/official-runtime/2026-09-10-pm9-official-runtime.json), [fresh update health](../evidence/official-runtime/2026-09-10-pm9-update-health.json): LWB-PM9-001 unchanged/changed source facts and limits.
 
 - [Review 8](../evidence/lwbridge-implementation/2026-09-10-pm-review-8.json) — nine-commit audit, fresh checks and task decisions.
 - [Update health](../evidence/official-runtime/2026-09-10-lua-update-health.json), [retry health](../evidence/official-runtime/2026-09-10-pm8-retry-update-health.json), [seventh-retry health](../evidence/official-runtime/2026-09-10-pm8-003-update-health.json), [recovered health](../evidence/official-runtime/2026-09-10-pm8-004-recovered-update-health.json), [recovery surface](../evidence/official-runtime/2026-09-10-pm8-recovery-surface.txt), [recovered runtime](../evidence/official-runtime/2026-09-10-pm8-004-official-runtime.json) and [recovery comparison](../evidence/official-runtime/2026-09-10-pm8-004-runtime-comparison.json) — LWB-PM8-001/002/003/004 failure history, official recovery surface, successful cleanup/reinstall/startup and exact unchanged/changed observations.
