@@ -11,19 +11,19 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 5. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 6. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `d4e9790` on `research/offline-controller`, 2026-09-09. [Review 5](docs/lwbridge-project-status.md) combines the completed Daybreak and regular-AI checkpoints. All changes are already in this branch.
+Reviewed implementation: `3138fe9`, 2026-09-09, `research/offline-controller`. [Review 6](docs/lwbridge-project-status.md) credits regular-AI R6-014–023 and distinguishes solved questions from remaining restrictions. The UI/game integration is still incomplete; the [PM planning estimate](docs/lwbridge-completion-estimate.md) is approximately 25–30% combined engineering completion, not a live pass rate or time forecast.
 
-- **Accepted:** repaired PM2/PM3 foundation; R6-006/007 keyword/boolean work corrected by R6-010 truck-only reindeer; R6-008 count/page snapshot; R6-009 paired treasure/dispatch filters; R6-013 ordinary quality mapping and truck-UR-only exclusion. R6-011 schema prerequisites are recovered only in part.
-- **Two task handoffs:** [regular AI](docs/implementation-handoff.md) owns research, reverse-engineering, implementation and integration by default; [Daybreak](docs/deep-binary-handoff.md) handles only approved specialist requests. DB labels are subjects, not automatic assignments.
-- **Mandatory escalation rule:** follow AGENTS.md section 6. Exhaust relevant permitted methods, document exact attempts/results/alternatives and why specialist work could help in [the ESC register](docs/daybreak-escalations.md), then request PM review. Never use a model change to bypass an operation restriction. ESC-001/002 currently need more information; no new technical Daybreak assignment is approved.
-- **Next regular work:** host-test hygiene, supported-query regressions, options/summary/clock/migration/export research and independent storage/generation/diagnostic implementation. Do not redo completed quality/keyword/snapshot work.
-- **Open live gates:** owned launch/stop/startup/reconnect/heartbeat, native keys/capture/full scans, travel/actions/jobs and full Map Data queries/options/summary/export remain incomplete. Preserve all 47 complete acceptance cases and the login-free recovered UI.
+- **Accepted:** prior foundation plus clock/completion/plunderability search implementation, cross-kind quality regressions, normal hidden-host checks, persisted-only option/count/key helpers, staged publication/rollback tests, and partial export contract recovery.
+- **Resolved questions:** ESC-001 clock/source/unit closed by R6-014; treasure key suffix closed by R6-023. SB-10 delivery failure is historical; GitHub was verified at the reviewed implementation.
+- **Still open:** public options source/full assembly and summary selection, full export semantics, schema migrations, owned launch/stop/reconnect/heartbeat, native keys/capture/scans/travel/jobs/actions. Test-only helpers do not complete these commands.
+- **Two owners:** [regular AI](docs/implementation-handoff.md) first; [Daybreak](docs/deep-binary-handoff.md) only on a specific approved specialist question. ESC-002/003/004 in [the register](docs/daybreak-escalations.md) need complete method/alternative packets, not a replay of denied actions. No new technical specialist assignment is approved.
+- **Next checkpoint:** advance a production-blocking contract or complete its escalation packet. Report which public behavior now works; otherwise label the result research/test-only and name the remaining gate. Continue independent supported work while a request is pending.
 
-Fresh checks and actual limits are in [review 5 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-5.json). Passing offline query tests does not make the full frontend tab or a live game operation complete.
+Fresh checks and provenance limits are recorded in [review 6 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-6.json). All 47 acceptance cases and the login-free UI remain required.
 
 ## 1. The user's requested outcome
 
@@ -770,4 +770,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, this checkpoint, the current audit and `BACKLOG.md`. Use `docs/implementation-handoff.md` for the regular task; use `docs/deep-binary-handoff.md` only for a bounded approved specialist assignment. Preserve the now-integrated R6-006–013 slices and superseding corrections. The regular AI must document exhausted permitted methods and the reason in `docs/daybreak-escalations.md` before requesting Daybreak; a deep-binary tag or missing tool is insufficient. Continue independent work while requests are reviewed. Document every confirmed finding, validate/integrate it, commit/push each coherent checkpoint and verify the remote. Preserve all 47 acceptance cases and completed cleanup.
+Read `AGENTS.md`, the current audit, `BACKLOG.md` and the appropriate regular/specialist handoff. ESC-001 and treasure keys are resolved; do not repeat them. Complete method/result/alternative evidence for still-open ESC-002/003/004 or close those questions through permitted evidence. A denied operation is not an automatic Daybreak assignment. Prioritize a production-blocking launch/options/ingestion contract and fix PM6-01 host cleanup; label test-only progress honestly. Save every confirmed finding, run relevant checks, commit/push the coherent checkpoint and verify GitHub. Preserve all 47 acceptance cases and completed cleanup.

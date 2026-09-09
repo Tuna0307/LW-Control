@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "type": "project-manager-review-6",
+  "implementationRevision": "3138fe996ab87211ee328edf9cedee88c8c71026",
+  "branch": "research/offline-controller",
+  "scope": "Post-review-5 source/evidence audit, restriction-outcome triage, task updates and rough completion estimate; no production code changed.",
+  "startingWorktreeClean": true,
+  "sourceCommits": [
+    "3138fe996ab87211ee328edf9cedee88c8c71026 Recover treasure option key formatting",
+    "3c3c2c1e5fe54647289a289317aa4c3df4c574a6 Trace treasure option key prefixes",
+    "897414b084217092bca2aba9e34dbcd93ae1891f Extend persisted map option counts",
+    "3720b3f528f7a98a037820cbd234342e63e55d11 Prove staged map publication rollback",
+    "3ee6d20c80332e025041570c0da74d1900103b87 Add test-only staged map publication",
+    "f41c06af1b69b2f4fac8cf5984c59a76009dfc3c Record blocked schema follow-up",
+    "297b63d9fb1d2a4187eb89f950d67ac5d6971229 Record R6-018 delivery restrictions",
+    "55788fbc8ebddf3171ebbea5b264dd8e22b397bc Recover native city export workbook structure",
+    "0187bb51720b258e8b8a92834019b4f0a84d72f9 Recover city export frontend contract",
+    "127ad58c6d49444c32c6b488b0e9e721e8f0de53 Recover Map Data count consumer semantics",
+    "b9f73c2a988e4d00248d6e67c92c2a8f2beedade Validate persisted Map Data option aggregates",
+    "f54346d172973689d9e7cb9858cc5dbe10098fbf Recover Map Data time filters",
+    "b36e52dc21e13417a553c89c6b0295081f7d0e88 Expand persisted Map Data quality regressions",
+    "e09a875a671948d82fdca6ed6c700cf05f3357e4 Harden isolated LWBridge host probe helper"
+  ],
+  "implementationRemoteVerifiedBeforeAuditCommit": "3138fe996ab87211ee328edf9cedee88c8c71026",
+  "sourceFileSha256": {
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "1be4c1afbf514912999cd26d74b15ddc89c2bce3523313cd0e13c637f79b0fa4",
+    "src/LWBridge.Desktop/MapDataStore.cs": "bed056a97b261410ad260d4db574c03a034ccee576307c14a6df7981ca316d4f",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "75e399fc303bb558db9d1081f81247afd8a1daa4b569f1eba0073cb1e7935f09",
+    "src/LWBridge.Desktop/RecoveredWallClock.cs": "4b043f30e4aa46dc300429cc4c476223b90ca69d3bd783e8b9e1f65f847782ea",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "f316ffb63f9cd163bfb00df2c17e418c92c41a2938eef340dc03288a7429f69c",
+    "tools/check_lwbridge_host_probe.ps1": "7a2f1cac9fefb6a238d9e4e18db8dea0864995209cf3852215440eaf28df6ae4",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-time-filters.json": "4060aaec38c1cbfe3654eb9ca4bc20845fd3a1bc7187254d57a5f7808e0cb88f",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-persisted-options.json": "f18b20acfd5c56cf694228382d606e662c7aea88f7e91153d720cdecf84e18c2",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-count-consumers.json": "288aea3ba779f12cff0b833f0738c1f72af2c836fa38d9efb1a12accf1e7c4eb",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-export-frontend.json": "d38c5052d6193e0982fda6f2e6d5c9247595e3e5136f50b5939512a833242fda",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-export-native-structure.json": "63c245be954828b33e7209e7562f30343472646e80ee6d2d3c8bc2ea61e97a7d",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-staged-publish.json": "dd31b3a44bbffaef157c7c352546c630ff2e5980abde498b21772babff3d454d",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-publish-rollback.json": "dc889832b84c81e57ed097e324f26a83248deb1b83ddbb98acab5e5ab8c22219",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-persisted-counts.json": "a825c57c4ce696a20aaf92a24bb1e0c255f76eb23162902decf2c1153ded24b5",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-treasure-option-key-prefixes.json": "49022e9f285c1ca8ed5cfce79f14174e17f2b6b1dc39ad600501221393958cd8",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-treasure-option-descriptors.json": "da837ee407ec978905852e7f6c83ab66d9acc43d3af638522eb0ef514ab7c8c0",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-treasure-option-key-implementation.json": "4d8b68a321e61caf890a8ded04459055a61dcecad408483230dc53c18f4ea187"
+  },
+  "referenceIdentity": {
+    "source": "existing R6-014-023 evidence",
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "freshReferenceExecutionExtractionOrDisassembly": false
+  },
+  "checks": {
+    "build": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0,
+      "command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release"
+    },
+    "backend": {
+      "passed": true,
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "deterministic": {
+        "profileRouting": true,
+        "persistence": true,
+        "requestLifetime": true,
+        "mapPersistence": true,
+        "mapContract": true
+      },
+      "failures": [],
+      "realConfigPreservationFlag": true,
+      "installedDiagnosticValid": true,
+      "gameRunning": false,
+      "launcherRunning": false
+    },
+    "frontendIntegrity": {
+      "passed": true,
+      "command": "python tools/build_lwbridge_frontend.py --check"
+    },
+    "preferenceProvider": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_preference_provider.cjs",
+      "bothFail": true,
+      "failThenSuccess": true,
+      "successThenFail": true,
+      "bothSuccess": true,
+      "recovery": true
+    },
+    "missingNativeTransport": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_live_transport.cjs"
+    },
+    "transportBoundary": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_transport_boundary.cjs"
+    },
+    "nativeHost": {
+      "passed": true,
+      "command": "./tools/check_lwbridge_host_probe.ps1",
+      "exitCode": 0,
+      "ok": true,
+      "requiredPreferenceAndLateCloseGatesPassed": true,
+      "userConfigTouched": false,
+      "liveGameCommandsPerformed": false,
+      "scope": "normal isolated path; timeout/failed-termination branch not exercised"
+    },
+    "inspectorSyntax": {
+      "passed": true,
+      "count": 18,
+      "method": "ast.parse UTF-8 sources, without module execution/binary access"
+    },
+    "testOnlyBoundary": {
+      "passed": true,
+      "method": "read backend and source call-site search across src/tests",
+      "helpersAbsentFromProductionBackend": [
+        "ReadPersistedOptionAggregatesAtForTest",
+        "StageRecordForPublishTest",
+        "ReplacePublishedKindFromStagingForTest"
+      ]
+    },
+    "documentation": {
+      "passed": true,
+      "markdownFiles": 22,
+      "missingTargets": [],
+      "acceptanceRowsPreserved": 47,
+      "formerTASKSAbsent": true
+    },
+    "visualMatrix": {
+      "run": false,
+      "reason": "No recovered frontend layout/assets changes in audited implementation; earlier fixture evidence remains historical."
+    }
+  },
+  "acceptedSlices": {
+    "R6-014": "static clock/time contracts plus implemented/offline-tested map_search predicates",
+    "R6-015_016_021": "persisted-only option/count helper and frontend consumers; public source/assembly unresolved",
+    "R6-017_018": "export frontend/native structure partial recovery; no writer enabled",
+    "R6-019_020": "test-only publication and rollback; no scan completion eligibility",
+    "R6-022_023": "negative prefix/xref history superseded by exact option keys; implemented only in persisted helper"
+  },
+  "restrictionOutcomes": [
+    {
+      "subject": "clock/completion/reward cutoff",
+      "restrictionIds": [
+        "SB-05"
+      ],
+      "finding": "LWB-R6-014",
+      "outcome": "resolved question in recorded regular-AI evidence; offline implementation tests pass",
+      "escalation": "ESC-001 CLOSED"
+    },
+    {
+      "subject": "treasure option key suffix",
+      "restrictionIds": [
+        "SB-13",
+        "SB-15"
+      ],
+      "finding": "LWB-R6-023",
+      "outcome": "resolved question in recorded evidence; persisted-helper tests pass",
+      "escalation": "not needed for resolved key question"
+    },
+    {
+      "subject": "delivery",
+      "restrictionIds": [
+        "SB-10"
+      ],
+      "outcome": "historical failure; GitHub independently observed at reviewed HEAD",
+      "escalation": "not a binary research task"
+    },
+    {
+      "subject": "frontend count/context reads",
+      "restrictionIds": [
+        "SB-07",
+        "SB-14"
+      ],
+      "outcome": "limited consumer/documentation evidence exists; native assembly separate",
+      "escalation": "no replay assignment"
+    },
+    {
+      "subject": "public options source/full assembly",
+      "restrictionIds": [
+        "SB-06",
+        "SB-11"
+      ],
+      "outcome": "still unresolved despite helpers",
+      "escalation": "ESC-003 NEEDS_INFORMATION"
+    },
+    {
+      "subject": "complete city export",
+      "restrictionIds": [
+        "SB-08",
+        "SB-09"
+      ],
+      "outcome": "still unresolved beyond partial structure",
+      "escalation": "ESC-004 NEEDS_INFORMATION"
+    },
+    {
+      "subject": "schema/migrations",
+      "restrictionIds": [
+        "SB-04",
+        "SB-12"
+      ],
+      "outcome": "version/transition/timestamp prerequisites unresolved",
+      "escalation": "ESC-002 NEEDS_INFORMATION"
+    }
+  ],
+  "restrictionEvidenceLimits": "Prior task/repository reports were reviewed. No prior denied operation retried, no new denial, and no assertion that every historical alternative was permitted merely because another task reported it worked.",
+  "pmFinding": {
+    "id": "PM6-01",
+    "status": "OPEN/source-confirmed limitation",
+    "path": "tools/check_lwbridge_host_probe.ps1",
+    "locator": "timeout and finally blocks: suppressed Stop-Process failure followed by parameterless WaitForExit()",
+    "impact": "cleanup can remain unbounded if child termination fails",
+    "validationLimit": "normal host passes; failure-path hang not reproduced",
+    "owner": "regular AI",
+    "next": "bounded cleanup with truthful termination error and isolated failure-path verification"
+  },
+  "completionEstimate": {
+    "classification": "SUBJECTIVE PM PLANNING RUBRIC, not recovered behavior or measured feature-pass percentage",
+    "document": "docs/lwbridge-completion-estimate.md",
+    "overviewRangePercent": [
+      20,
+      25
+    ],
+    "mapDataRangePercent": [
+      25,
+      35
+    ],
+    "combinedRangePercent": [
+      25,
+      30
+    ],
+    "basis": "weighted engineering packages; UI/config/store groundwork credited, test-only/static work partial, missing production lifecycle/capture/actions weighted heavily",
+    "formalAcceptanceCasesSignedOff": 0,
+    "formalAcceptanceCaseTotal": 47,
+    "timeForecast": null,
+    "limitations": "Uncertain research effort; arithmetic does not imply precision. Formal acceptance count is not number of functioning local controls."
+  },
+  "nextOwnership": {
+    "regular": "production-blocking contract progress, ESC-002/003/004 method packets, PM6-01; independent supported work continues",
+    "daybreak": "no newly approved technical assignment; denial alone does not qualify",
+    "newThreadsCreatedOrMessagesDispatched": false
+  },
+  "limits": [
+    "No live game launch/injection/scan/travel/claim/plunder/messages performed.",
+    "No binary verifier re-executed; static findings accepted with committed provenance limits.",
+    "All 47 acceptance rows unchanged; no full case newly signed off.",
+    "No current public options/summary/export/scan completion inferred from test helper success."
+  ]
+}

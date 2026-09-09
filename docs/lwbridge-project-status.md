@@ -1,60 +1,65 @@
-# Project-manager checkpoint — review 5
+# Project-manager checkpoint — review 6
 
-Reviewed 2026-09-09 against `d4e97903122372378ce324edf8d1444d6ccdc0e6` on `research/offline-controller`. Worktree clean at start. This review combines both completed task streams, updates ownership/escalation instructions, and fixes stale evidence-tool metadata. Production code is unchanged by the PM checkpoint. [Review 4 and follow-ups](reviews/2026-09-09-review-4-and-followups.md) are historical.
-
-**Post-review continuation:** regular-AI checkpoints through `LWB-R6-023` now add persisted-only option aggregation/count infrastructure, staged publication/rollback tests and exact native treasure-option key formatting. These do not change the review's production boundary: public `map_data_options`, native capture/record-key derivation and live acceptance remain incomplete. See [the current Map Data findings](lwbridge-map-scan.md), [ledger](lwbridge-feature-ledger.md) and [handoff](implementation-handoff.md) for the superseding details.
+Reviewed 2026-09-09 against `3138fe996ab87211ee328edf9cedee88c8c71026`, branch `research/offline-controller`; worktree clean at start. All 14 post-review-5 commits are already integrated. GitHub was independently observed at the same revision in this audit. [Review 5 and follow-ups](reviews/2026-09-09-review-5-and-followups.md) are historical. This PM checkpoint updates planning/evidence only.
 
 ## Decision
 
-**Both AIs completed useful checkpoints; neither completed the full Overview/Map Data project or all DB research.** Their eight commits are already integrated in the same branch. Fresh build/backend/provider/transport checks pass. Preserve the repaired preferences, snapshot transaction, exact filters and corrected kind gates.
+**Accept the new time-filter implementation and the useful offline option/publication/export research. Do not call the two pages close to complete.** The rough engineering estimate is **about 25–30% combined**, with Overview approximately 20–25% and Map Data 25–35%; see [the explicit planning rubric](lwbridge-completion-estimate.md). No full case in the 47-case acceptance matrix is newly signed off.
 
-The user now requires regular-AI ownership first, including permitted binary analysis. Daybreak receives only a bounded escalation after the regular AI documents relevant exhausted methods and the PM reviews the reason. This is mandatory in AGENTS.md section 6. Deliver the [regular task](implementation-handoff.md) and [Daybreak task](deep-binary-handoff.md) separately; both inherit the one `task.md` specification. [ESC-001/002](daybreak-escalations.md) need information; no new specialist technical assignment is approved yet.
+A rejected operation is not automatically a Daybreak assignment. Some associated questions were subsequently answered, some denials concerned documentation or delivery, and some contracts remain unresolved. Current outcomes are recorded explicitly in [the escalation register](daybreak-escalations.md). A model switch is not a way to bypass a denied operation, and this audit does not certify that every historical alternative was permitted merely because a prior task reported success.
 
-## Combined accepted progress
+## Accepted changes since review 5
 
-| Owner / commit | Finding and verified slice | Boundary / correction |
+| Commits / finding | Accepted result | Production boundary |
 |---|---|---|
-| Daybreak task Start deep binary handoff / `6e1d80f` | R6-006 special/reindeer SQL predicates and initial implementation | Railway kind interpretation was overbroad; use regular-AI R6-010 correction. Predicate recovery survives. |
-| Same / `d5be1d8` | R6-007 literal keyword escaping and search over name/alliance/UUID/JSON | Fresh offline tests pass; no live ingestion/query proof. This completes two slices of DB-05, not all DB-01–06. |
-| Regular task Read Map Scan Recovery Docs / `e69c8e4` | R6-008 deferred count/page snapshot | Meaningful two-connection WAL test passes. Closes the review-4 structural limitation as IMPLEMENTATION POLICY. |
-| Same / `dc797df` | R6-009 option SQL evidence, paired treasure/supplies and dispatch-level filters | Isolated filter tests pass. Real treasure envelopes still contain unresolved viewer/visibility/lucky fields; complete options/summary/export remain unavailable. |
-| Same / `cffe8ed` | R6-010 truck-only reindeer correction | Railway requests now reject; fresh regression passes. Historical R6-006 JSON retains its original superseded claim. |
-| Same / `8ed4b4b` | R6-011 schema metadata/future-schema/import markers | Static partial recovery; supported version, migration order/threshold and timestamp producer remain open. No migration implemented. |
-| Same / `cfe43ff` | R6-012 adjacency evidence beside ordinary quality | Superseded interpretation: exclusion is not universal ordinary quality behavior. Preserve its historical scope. |
-| Same / `d4e9790` | R6-013 equality selectors 1/2/3/4, UR >=5, special-UR exclusion only for truck UR | Fresh offline suite passes; persisted result coverage is strongest for truck. Other kinds have envelope acceptance tests but need persisted exclusion-boundary regressions. |
+| `e09a875`, `b36e52d` | Hidden/quoted host probe with primary wait limit; persisted cross-kind quality/above-five/combination tests | Fresh normal host run and backend checks pass. The helper still has unbounded waits in its cleanup path; PM6-01 below. |
+| `f54346d` / R6-014 | Recorded precise Unix-ms clock producer; completion/plunderability predicates and default truck/railway arrival filtering wired into `map_search` | Fresh deterministic boundary tests pass. ESC-001's clock contract is resolved by regular-AI findings; live ingestion/gameplay is not proven. |
+| `b9f73c2`, `127ad58`, `897414b` / R6-015/016/021 | Persisted-only option SQL/aggregate/count helpers and frontend count propagation/fallback contracts | Helper call sites are test-only. `map_data_options` still rejects `MAP_INDEX_UNAVAILABLE`; native source/count assembly remains unknown. |
+| `0187bb5`, `55788fb` / R6-017/018 | City-export frontend envelope and partial native workbook/package/column structure | No native writer enabled. Full pagination, row typing/A–C/J semantics, filename/cancel details and large-ID behavior remain open. |
+| `3ee6d20`, `3720b3f` / R6-019/020 | Test-only kind/server staged replacement and deterministic rollback after delete | Good transaction proof; no production eligibility, generation ownership, native keys or scan completion service. |
+| `3c3c2c1`, `3138fe9` / R6-022/023 | Prefix/xref negative results then exact positive-decimal treasure/supplies option-key finding | Key formatting added only to persisted-option test helper. This resolves the key question, not public option source selection. |
+| `297b63d`, `f41c06a` | Delivery/schema restriction documentation | These are records of limits, not newly working page features. |
 
-## PM5-01 — stale boolean inspector metadata, corrected
+Static evidence was audited from committed source/locators/findings; no binary disassembly or denied verifier was rerun. Tests verify the rebuilt code against its fixtures, not independent current-client parity.
 
-`tools/inspect_lwbridge_map_query_boolean_filters.py` still emitted `reindeerOnly: [truck, railway]` after production correctly changed to truck-only. Its binary marker checks cannot establish frontend kind gates. This could mislead the next AI into restoring the old bug.
+## Which reported restrictions are resolved?
 
-Review 5 changes emitted metadata to truck-only, links the saved R6-010 finding and explicitly says the tool does not independently verify frontend gates. The original R6-006 JSON remains historical; the current subject summary identifies the supersession. Inspector source syntax/static metadata checks pass; the verifier was not executed against the binary in this audit. This is evidence-tool maintenance, not new recovery or a production fix.
+| Subject | Current state | PM action |
+|---|---|---|
+| Completion/reward clock, earlier SB-05 / ESC-001 | R6-014 records source/unit recovery and offline implementation | Close ESC-001 as resolved by regular AI; do not assign it to Daybreak. Historical operation denial remains recorded. |
+| Treasure key suffix, SB-13/15 | R6-023 records exact key formatting; tests pass | Resolved question; no transfer. This is only one option field. |
+| GitHub push, SB-10 | Later delivery succeeded; remote independently matches `3138fe9` | Historical delivery failure, not a binary-research task. |
+| Frontend count/context reading, SB-07/14 | Existing evidence/recorded subsequent reads support limited consumer/documentation work | No open specialist request just to repeat those commands. Native count assembly is a separate unresolved contract. |
+| Public option source/run/full response, SB-06/11 | Still open despite persisted-only helper progress | ESC-003 created NEEDS_INFORMATION; complete the method/alternative packet before requesting PM assignment. |
+| Full export mapping/pagination/typing, SB-08/09 | Still open despite partial workbook structure | ESC-004 created NEEDS_INFORMATION. Do not repeat the denied operations or pretend a complete writer exists. |
+| Schema/migrations, SB-04/12 | Version/transition/timestamp prerequisites still unknown | ESC-002 still NEEDS_INFORMATION. No evidence that a different model may perform the denied database/range read. |
 
-## Current functional boundary and next regular-AI work
+**No new technical Daybreak assignment is approved.** The reason is not that every gap is solved; it is that the remaining records lack a completed permitted-method exhaustion/capability packet. The regular AI must stop using an unqualified "no escalation needed" for unfinished contracts: state solved, still investigating, or request pending, with the next concrete action.
 
-- **Overview remains incomplete:** start still rejects `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; no owned stop, real startup/reconnect worker or authoritative fresh heartbeat exists. Stored preferences and process presence do not prove these features.
-- **Map Data remains partial:** new filters and snapshot persistence work offline. `LWB-R6-014` recovers the precise Unix-ms clock plus frontend completion/plunderability predicates and the reward-option cutoff source/unit. Complete options/summary/export, native record keys/normalization, production capture/scheduler, generations/publication and automatic jobs still need implementation/evidence. Treasure visibility/lucky semantics and alternate sorts remain gated on missing contracts.
-- **Next regular task:** continue permitted options source/run-context and summary-server research, schema/migration/export recovery, then independent storage/generation/diagnostic engineering. See the detailed priority/exit criteria in the regular handoff.
-- **No automatic DB transfer:** launch, native map keys, scheduling and action research stay regular-AI-owned until an ESC packet establishes a specialist need. Missing integration is setup work; tool installation remains pre-authorized within the environment rules.
+## PM6-01 — host timeout cleanup still contains unbounded waits
 
-## New reported research limits and escalation quality
+**Source-confirmed limitation, not a reproduced runtime hang.** `tools/check_lwbridge_host_probe.ps1` uses `WaitForExit(55000)` for the main process wait, but its timeout and `finally` paths suppress `Stop-Process` errors and call parameterless `WaitForExit()`. If termination fails, cleanup can wait indefinitely; the overall helper is not strictly bounded.
 
-The regular task reports additional denied operations: an options verifier (SB-03), an existing user-profile database query (SB-04), and completion-context/range reads (SB-05). Sources and exact evidence limits are in the escalation register. No denied operation was rerun by this review.
+The normal isolated probe passes all required gates in this audit. Retain that credit. The regular AI should use a bounded cleanup wait, preserve/report a failed termination, and test the timeout/termination-failure path with an isolated controllable child or test seam. Do not use an arbitrary new timeout as a recovered game constant; it is test orchestration policy. Do not terminate unrelated processes. This test-tool issue does not explain the missing game launch/capture implementation.
 
-The completion/reward cutoff candidate is now resolved by regular-AI static analysis in `LWB-R6-014` and is retained as `ESC-001 NOT_ASSIGNED`; no specialist task is needed for that question. Schema prerequisites remain a candidate only if the ESC-002 packet later demonstrates exhausted permitted alternatives.
+## What to prioritize next
 
-The task also reported a profile-only `map_summary` frontend input and further export/sort leads. Those do not establish native server selection, writer behavior or sort/null ordering. Continue from readable consumers and saved excerpts; document a complete locator/source/result before treating a chat lead as a confirmed new contract. No clock or server fallback is approved.
+1. **Public capability blockers first:** choose a concrete options-source/full-response, summary-server, owned-launch or native-capture/identity contract and advance its evidence. At each checkpoint, state which real UI operation became usable; if none, say "research/test-only checkpoint" and name the remaining production gate.
+2. **Complete reviewable requests for stalled work:** regular AI fills ESC-002/003/004 with exact attempted methods/results, alternatives and why a specialist could help. If it resolves one itself, link the new finding and close the request. A denied command alone does not satisfy the escalation rule. Continue independent work whose contracts are known.
+3. **Do not endlessly substitute more fixture helpers for the same unresolved public contract.** Retain useful R6-015/019/021 infrastructure, but another helper addition must explain what integration dependency it removes. Keep the R5 launch and R7 capture critical path visible alongside R6.
+4. **Fix PM6-01 and preserve passing regression cases.** UI-only refinements and further synthetic variations are not the highest completion priorities.
 
-## Fresh verification and evidence limits
+## Fresh verification
 
-See [review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) for source hashes, task attribution and check results.
+[Review 6 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-6.json) records the scope, source hashes and check results.
 
-- Release build: passed, zero warnings/errors.
-- Standard backend suite with real-config preservation flag: `ok=true`, profile/persistence/request/map suites true, no failures. Optional installed-client diagnostic valid; game/launcher absent in that snapshot.
-- Recovered frontend integrity/generation check, five-scenario preference provider matrix, missing-native transport and transport-boundary checks: passed.
-- All LWBridge inspector sources were syntax-parsed; PM5-01 emitted metadata was checked from AST/source only. No new binary extraction or verifier execution.
-- No native-host/screenshot matrix rerun: those files/behaviors were unchanged by the audited source commits; review 4 retains the prior host/nine-fixture/35-browser/32-pixel results as historical proof. No live game command was performed.
-- All 47 acceptance rows are preserved unchanged. No complete live feature or full acceptance case is newly signed off.
+- Release build: zero warnings/errors; backend/profile/persistence/request/map suites all pass with the real-config preservation flag and no reported failures.
+- Optional installed-client diagnostic valid; no game/launcher process in that snapshot.
+- Frontend integrity, five preference-provider scenarios and both transport harnesses pass.
+- The changed hidden host-probe helper was run: `ok=true`, preference/session/picker/late-close gates pass, isolated configuration and no live-game commands reported. This exercises the normal path, not failed termination.
+- Syntax-only parsing of LWBridge inspector sources; production backend/source call-site inspection confirms options/publication helpers remain test-only. No binary verifier, new extraction, live game action or prior denied operation executed.
+- No screenshot matrix rerun because recovered frontend assets/layout were unchanged; prior visual evidence remains historical. All 47 full acceptance rows are preserved.
 
-## Management cleanup and delivery
+## Cleanup
 
-Archived the prior mixed narrative and broad research handoff, consolidated R6-006–013 with explicit supersessions, added two scoped task handoffs and a durable ESC template, and corrected the evidence tool. Keep every successful recovery in subject docs/evidence and commit/push each coherent checkpoint with remote verification. Do not merge unrelated unfinished changes or run competing builds into the same outputs.
+Replaced stale review-5/ESC-001 instructions, reconciled restriction outcomes against current code/evidence and remote state, added missing open-gap request records, kept historical findings intact, and updated both handoffs/backlog/ledger. The completion estimate is explicitly a planning judgment, not a claim of live feature success or a delivery date.

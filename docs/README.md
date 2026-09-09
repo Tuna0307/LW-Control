@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [review 5](lwbridge-project-status.md), which combines both task streams and replaces the [review 4/follow-ups](reviews/2026-09-09-review-4-and-followups.md). Read [the regular-AI task](implementation-handoff.md), [the Daybreak specialist task](deep-binary-handoff.md) and [the escalation register](daybreak-escalations.md). The regular AI owns all work first; specialist assignment requires documented attempted/exhausted permitted methods and PM review. The [prior broad handoff](reviews/2026-09-09-prior-deep-binary-handoff.md) is historical and no longer assigns all deep research to Daybreak.
+Start with [review 6](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 5/follow-up narrative](reviews/2026-09-09-review-5-and-followups.md) is historical. ESC-001 and treasure keys are resolved; options/export/schema gaps still require tracked work.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
@@ -24,6 +24,8 @@ Start with [review 5](lwbridge-project-status.md), which combines both task stre
 - [Regular task](implementation-handoff.md) and [specialist task](deep-binary-handoff.md) provide distinct ownership/delivery instructions; [ESC register](daybreak-escalations.md) records requests, reasons and decisions. Both tasks inherit `task.md`.
 
 ## Visual and machine-readable evidence
+
+- [Review 6 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-6.json) records R6-014–023 audit results, current restriction outcomes and the estimate basis.
 
 - [Review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) records combined R6 progress, PM5-01 correction, fresh checks and reported restrictions.
 

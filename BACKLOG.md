@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-09
 
-Project-manager review 5 audited `d4e9790` and combined both task streams. See [the audit](docs/lwbridge-project-status.md), [review 5 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-5.json), [regular task](docs/implementation-handoff.md), [specialist task](docs/deep-binary-handoff.md) and [ESC register](docs/daybreak-escalations.md). `task.md` remains the full specification. Keyword/boolean/quality/treasure/dispatch filters and count/page snapshots have accepted offline slices; real lifecycle/full Map Data remain incomplete.
+Project-manager review 6 audited `3138fe9`. See [the current audit](docs/lwbridge-project-status.md), [outcome/ESC register](docs/daybreak-escalations.md), [regular handoff](docs/implementation-handoff.md), [Daybreak handoff](docs/deep-binary-handoff.md) and [rough completion estimate](docs/lwbridge-completion-estimate.md). Clock and treasure-key questions are resolved; public options/export/schema/launch/capture remain incomplete. Test-only helper checkpoints are not finished page functions.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -19,18 +19,23 @@ Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855
 - Keep RECOVERED, IMPLEMENTED/OFFLINE-TESTED, LIVE-PROVEN, UNKNOWN/BLOCKED and explicitly labelled IMPLEMENTATION POLICY distinct in every feature record.
 - Document each newly confirmed finding immediately; no recovery/task checkpoint is complete without its durable evidence and GitHub delivery or an explicitly recorded delivery blocker.
 
-## Ownership and escalation — mandatory review 5 rule
+## Ownership and escalation — review 6 outcomes
 
 **Regular AI first, including permitted binary analysis.** DB-01–06 are topic labels, not model assignments. Only request Daybreak when relevant permitted methods have been exhausted and recorded with outputs/alternatives/reasons under an ESC ID; the PM reviews the bounded scope. See AGENTS.md section 6. A denial or missing integration alone does not establish a specialist assignment.
 
 - [x] Integrate Daybreak R6-006/007 and regular-AI R6-008–013 in the shared branch; no cherry-pick required.
 - [x] PM5-01: correct old boolean inspector's railway/reindeer metadata and identify R6-010 as the saved frontend authority.
 - [x] Regular AI: persisted quality regressions now cover railway/dispatch/ghost UR rows with `isSpecialURQuality=true`, a non-special truck quality above five, truck UR page/count consistency, and server isolation. Railway also combines recovered UR + retained-item predicates.
-- [ ] Regular AI: complete ESC-001/002 attempt/alternative packets if requesting escalation. Current state NEEDS_INFORMATION; no specialist technical assignment approved.
+- [ ] Regular AI: complete ESC-002/003/004 method/alternative packets or close their questions with supported evidence. ESC-001 is CLOSED via R6-014; no specialist technical assignment approved.
 - [ ] PM: review each completed packet, record the reason and approve only the specific permitted question; return insufficient requests with concrete missing evidence.
 - [ ] Regular AI: integrate/validate each accepted specialist return; retain all live-proof gates.
 
 All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence method needed; ordinary ownership remains with the regular AI until an ESC is approved. Continue independent work while any request is pending.
+
+- [x] Review 6 accepts R6-014 clock/time search and R6-023 treasure option keys; close those specific research gaps.
+- [x] Verify previously delayed delivery: GitHub contains `3138fe9`; SB-10 is historical.
+- [ ] **PM6-01 / regular AI:** bound host-probe timeout/finally cleanup; failed Stop-Process currently leads to unbounded WaitForExit. Test the termination-failure path; normal host probe passes.
+- [ ] Next checkpoint: advance a public options/summary, owned-launch or native-ingestion blocker, or supply its complete ESC attempt/reason packet. Explain the integration value of any additional test-only work.
 
 ## Completed foundation
 
@@ -171,7 +176,7 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 ## Verification
 
-Review 5: Release build, standard backend/map suite, frontend integrity, five preference scenarios and both Node transport checks pass. PM5-01 inspector metadata was checked without binary execution. Native-host/visual matrices were not repeated because those sources are unchanged; their review-4 evidence remains historical. No real game operation or denied verifier/read was attempted. [Review 5 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) records limits and source hashes.
+Review 6: Release build/backend suite, frontend integrity, five preference scenarios, both transport harnesses and the normal isolated hidden WebView host all pass. No binary verifier or denied operation rerun. Host cleanup failure remains PM6-01; live game features remain unproven. See [review 6 evidence](evidence/lwbridge-implementation/2026-09-09-pm-review-6.json). All 47 full acceptance cases remain unsigned despite passing local/offline subchecks.
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check

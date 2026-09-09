@@ -1,6 +1,6 @@
 # Daybreak escalation register
 
-Updated 2026-09-09, PM review 5, implementation `d4e9790`. This is the decision/attempt log shared by [the regular task](implementation-handoff.md), [the specialist task](deep-binary-handoff.md) and the project manager. Mandatory rules are in [AGENTS.md](../AGENTS.md) section 6.
+Updated 2026-09-09, PM review 6, implementation `3138fe9`. This is the decision/attempt log shared by [the regular task](implementation-handoff.md), [the specialist task](deep-binary-handoff.md) and the project manager. Mandatory rules are in [AGENTS.md](../AGENTS.md) section 6.
 
 ## State and ownership rules
 
@@ -10,7 +10,7 @@ The regular AI fills the packet and continues independent work. The PM checks wh
 
 ## ESC-001 — completion/reward cutoff source and units
 
-- **Status/owner:** NOT_ASSIGNED; resolved by the regular AI on 2026-09-09. DB-05/R6. No Daybreak task requested.
+- **Status/owner:** CLOSED by PM review 6; resolved by the regular AI through R6-014. DB-05/R6. No Daybreak task required for this resolved contract; live feature gates remain separate.
 - **Question:** what produces the bound cutoff for completion-status comparisons and reward-option `arriveTs` filtering, with what units and server/profile context? Do not assume both use one clock.
 - **Sources:** LWBridge 0.3.1 SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`; [R6-009 option evidence](../evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.json), [R6-004 frontend consumers](../evidence/lwbridge-implementation/2026-09-08-r6-map-frontend-consumers.json), and [R6-014 clock/time-filter evidence](../evidence/lwbridge-implementation/2026-09-09-r6-map-time-filters.json).
 - **Observed attempts/results:** repository/evidence searches and saved R6-009/R6-004 review narrowed the unresolved producer; bounded `pefile 2024.8.26` + `Capstone 5.0.6` disassembly then traced the options call at preferred-image VA `0x14025A1B5` and `map_search` call at `0x140272353` to helper `0x14023F1C0-0x14023F244`. Import-table resolution identifies IAT `0x1407B94B0` as `kernel32.dll!GetSystemTimePreciseAsFileTime`. The helper subtracts FILETIME epoch `116444736000000000` and converts 100-ns ticks to Unix milliseconds. Exact predicate/xref and parameter-append checks are reproducible with `python tools\inspect_lwbridge_map_time_filters.py ..\LW\lwbridge-0.3.1.exe --json`.
@@ -22,10 +22,45 @@ The regular AI fills the packet and continues independent work. The PM checks wh
 - **Status/owner:** NEEDS_INFORMATION; regular AI prepares, PM reviews. R6 storage. Not assigned to Daybreak.
 - **Question:** supported schema-version constant, migration thresholds/order and metadata timestamp producer/unit. A version found in one database would not alone prove all supported transitions.
 - **Sources/known:** same verified reference identity as ESC-001; [R6-011 metadata](../evidence/lwbridge-implementation/2026-09-08-r6-map-schema-metadata.json) and [excerpt](../evidence/lwbridge-implementation/2026-09-08-r6-map-schema-metadata.txt) establish schema metadata/future-schema/legacy-import markers. Production migration is not implemented.
-- **Observed attempts:** repository/schema/store/test searches, bounded printable-string observations and saved-evidence review are recorded in the regular task. A read-only query of the existing user-profile database was denied (SB-04); do not retry it via Daybreak. The current evidence does not list every relevant permitted alternative or establish a specialist-only capability gap.
+- **Observed attempts:** repository/schema/store/test searches, bounded printable-string observations and saved-evidence review are recorded in the regular task. A read-only query of the existing user-profile database and a later bounded schema-range read were denied (SB-04/SB-12); do not retry it via Daybreak. The current evidence does not list every relevant permitted alternative or establish a specialist-only capability gap.
 - **Missing before PM approval:** method/tool/locator/output inventory, readable artifacts/import/migration producer search results, why remaining permitted approaches cannot resolve the constant/branch, and the narrow permitted question for the specialist. Retain unknown version/timing values.
 - **Why consider specialist:** a genuinely unresolved native version/branch transformation may benefit from specialist analysis after that packet is complete; model choice alone is not justification.
 - **Return criteria if approved:** exact constants/transition gates/timestamp source with provenance and limits, plus deterministic migration test requirements. The regular AI implements/tests the supported contract.
+
+## ESC-003 — public options source/run and native response assembly
+
+- **Status/owner:** NEEDS_INFORMATION, PM-seeded in review 6; regular AI prepares. DB-05/R6; no specialist assignment yet.
+- **Exact gap:** how public `map_data_options` chooses persisted versus active-run/staged data, applies server/run context, and builds complete native counts/no-alliance/option response. Latest-scan SQL and persisted helper output do not establish that branch.
+- **Sources:** verified reference identity above; [R6-015](../evidence/lwbridge-implementation/2026-09-09-r6-map-persisted-options.json), [R6-016](../evidence/lwbridge-implementation/2026-09-09-r6-map-count-consumers.json), [R6-021](../evidence/lwbridge-implementation/2026-09-09-r6-map-persisted-counts.json), [R6-023](../evidence/lwbridge-implementation/2026-09-09-r6-map-treasure-option-key-implementation.json).
+- **Attempts known:** recovered SQL families and frontend consumers reviewed; persisted aggregates/counts tested; exact treasure keys recovered. A proposed hash-locked source-selector xref inspector was rejected before creation/execution (SB-06); a saved-evidence search was rejected (SB-11). These did not answer the source branch.
+- **Why unresolved:** helper always uses `map_records`, while the public native source selection/full assembly is unknown. Public command remains `MAP_INDEX_UNAVAILABLE`.
+- **Required next record:** inventory actual permitted source/caller/data-flow/readable-asset/current-client approaches, tools/versions/locators/outputs, what each ruled out, remaining alternatives and why unavailable or insufficient. State the specific specialist insight needed. Do not manufacture an exhaustion claim or ask Daybreak to rerun SB-06/11.
+- **Potential specialist scope after review:** interpret identified permitted saved evidence to resolve an opaque selection/assembly contract; any additional analysis must be within the receiving environment's allowed scope, not a workaround for a denial. PM approval requires a concrete plan and actual capability/research gap.
+- **Return/acceptance:** exact source/run/server decision table, fields/count behavior/empty states and conflicts, reproducible evidence and which public implementation is now supported. Regular AI integrates/tests; native ingestion/live accuracy remains separate.
+
+## ESC-004 — city-export writer semantics
+
+- **Status/owner:** NEEDS_INFORMATION, PM-seeded in review 6; regular AI prepares. R6/M09; no specialist assignment yet.
+- **Exact gap:** complete A–C/J row mapping, protect/shield fallback, per-column string/numeric/date typing, internal pagination/full-filter scope, filename/directory/cancellation semantics and large-ID preservation.
+- **Sources:** verified reference identity above; [R6-017 frontend contract](../evidence/lwbridge-implementation/2026-09-09-r6-map-export-frontend.json), [R6-018 native structure](../evidence/lwbridge-implementation/2026-09-09-r6-map-export-native-structure.json) and [saved excerpt](../evidence/lwbridge-implementation/2026-09-09-r6-map-export-native-structure.txt).
+- **Attempts known:** frontend envelope recovered; raw OOXML/package/default/field-adjacency reads succeeded. A template-to-helper xref/disassembly pass and a bounded frontend field snippet were denied (SB-08/09). Original workbook output and complete runtime mapping were not proven.
+- **Why unresolved:** static package templates are not sufficient for the writer's per-row data flow or pagination; no production writer enabled.
+- **Required next record:** permitted methods tried, tools/locators/output and why existing readable assets/templates/saved traces cannot answer each remaining field; alternatives considered and exact specialist value. Do not repeat SB-08/09 under another executor/model.
+- **Return/acceptance if later approved:** source-attributed per-column mapping/typing and full-filter writer behavior with unknowns preserved. Regular AI then implements isolated workbook round-trip/large-ID/cancel/failure tests before enabling export.
+
+## Review 6 outcome dashboard — a restriction is not a contract status
+
+| Question / restriction | Current contract or delivery outcome | Escalation outcome |
+|---|---|---|
+| Clock/completion/reward cutoff; SB-05 | Resolved in recorded R6-014; backend boundary tests pass | ESC-001 CLOSED; no Daybreak needed for this fact. |
+| Treasure option key suffix; SB-13/15 | Resolved in recorded R6-023; persisted-helper tests pass | No open key-format request. Other option contracts remain unresolved. |
+| Delivery; SB-10 | Resolved; review 6 independently saw GitHub at `3138fe9` | Not a binary-specialist task. |
+| Frontend count/context reading; SB-07/14 | Limited consumer/documentation result exists | No transfer of the denied command; native assembly handled separately in ESC-003. |
+| Public options source/full assembly; SB-06/11 | Still open; test-only helper does not solve it | ESC-003 NEEDS_INFORMATION. |
+| Complete export mapping/typing/pagination; SB-08/09 | Still open; partial structure only | ESC-004 NEEDS_INFORMATION. |
+| Schema/migrations; SB-04/12 | Still open | ESC-002 NEEDS_INFORMATION. |
+
+The regular AI must report **resolved by finding X**, **still investigating with next method Y**, or **ESC request pending with missing packet fields Z**. "No Daybreak request created" says nothing about whether a feature is solved. A restriction remains historical evidence even if a separate permitted result later resolves its associated question. Review 6 records prior outcomes without endorsing rerouting denied operations.
 
 ## Retained regular-AI work — NOT_ASSIGNED
 
@@ -66,4 +101,4 @@ Review 5 itself recorded no new denial; SB-06 through SB-15 occurred in post-rev
 9. **Acceptance and return:** provenance/type/unit/state requirements, what code is unblocked, validation still needed, file ownership and integration owner.
 10. **PM decision and return log:** rationale, approved bounded scope or missing evidence, assigned task if any, findings/commit/push verification, integration tests and closure reason.
 
-The PM-seeded entries above are deliberately incomplete requests, not a claim the regular AI has exhausted all methods. Complete them honestly before requesting assignment.
+ESC-001 is closed as a resolved contract. ESC-002/003/004 are deliberately incomplete request packets, not a claim that every permitted method was exhausted. The regular AI must complete the attempt/alternative/reason fields or close a question with new supported findings; the PM then decides assignment. No technical Daybreak request is currently approved.

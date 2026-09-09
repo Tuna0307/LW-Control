@@ -5,15 +5,13 @@ original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
-## Project-manager review 5 — implementation `d4e9790` (2026-09-09)
+## Project-manager review 6 — implementation `3138fe9` (2026-09-09)
 
-[The current audit](lwbridge-project-status.md) combines both task streams and their actual proof boundaries. Daybreak completed R6-006/007 slices; the regular AI added R6-008–014 and corrected the reindeer gate. Keyword, truck-only reindeer, special, treasure/dispatch, ordinary-quality, completion-status and recovered public plunderability filters plus count/page snapshots pass fresh offline tests. Native launch/capture/full-tab/live acceptance remains open.
+[Current audit](lwbridge-project-status.md): R6-014 clock/completion/plunderability search is implemented/offline-tested; R6-015/019/020/021/023 options/count/key/publication work remains test-only; R6-016/017/018 add consumer/export structure evidence. Public options/summary/export, native ingestion, owned lifecycle and live acceptance remain incomplete. Normal host and backend checks pass; PM6-01 flags unbounded termination-cleanup waits.
 
-Use the current [Map Data finding summary](lwbridge-map-scan.md) to resolve historical contradictions: R6-010 supersedes R6-006's railway kind, R6-013 narrows R6-012's exclusion to ordinary truck UR, and R6-014 closes the earlier clock/cutoff/completion/plunderability gaps for recovered frontend forms. Post-review `LWB-R6-015` validates the recovered option SQL families against a deliberately persisted-only `map_records` helper while keeping the public source/run selector fail-closed; `LWB-R6-016` pins the frontend eight-kind counts, no-alliance fallback and same-server summary count propagation without inventing backend aggregation; `LWB-R6-023` closes R6-022's treasure-option key suffix gap with bounded native data flow. PM5-01 fixes the stale inspector metadata without rewriting the old JSON. Schema, options public source/assembly, summary and export prerequisites remain partial.
+[ESC outcomes](daybreak-escalations.md): ESC-001 and treasure keys resolved by regular AI; delivery current; schema/options/export ESC-002/003/004 still need request details. No denial is an automatic specialist assignment. [Regular task](implementation-handoff.md) and [Daybreak task](deep-binary-handoff.md) inherit the one task specification.
 
-**Ownership:** [regular AI](implementation-handoff.md) first, including permitted binary analysis; [Daybreak](deep-binary-handoff.md) only after a documented exhausted-method request and PM review in [the ESC register](daybreak-escalations.md). No new technical specialist assignment is approved. Existing DB labels are not dispatch instructions.
-
-Fresh build/backend/provider/transport checks pass; [review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json) distinguishes those from historical WebView/visual and binary recovery checks. O02 start/O03 stop still reject; O04/O05 store preferences, not a functioning lifecycle; status/pending/travel/localization/jobs remain partial. None of the 47 full acceptance cases is newly closed.
+[Planning estimate](lwbridge-completion-estimate.md): roughly 25–30% combined engineering completion, explicitly a subjective work-package estimate. **0/47 full acceptance cases formally signed off**; local test passes and research progress are distinct.
 
 ## Milestone A environment evidence
 
@@ -90,4 +88,4 @@ node tools/check_lwbridge_transport_boundary.cjs
 ./tools/capture_lwbridge_ui.ps1
 ```
 
-Review 5 reran generation/build, the standard backend/map suite, preference provider and both transport harnesses. It syntax-parsed inspector sources and checked PM5-01 metadata without executing the binary verifier. WebView/visual comparisons remain the prior audit's evidence because those sources are unchanged. See [review 5 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-5.json); no live-game functionality is established by these checks.
+Review 6 reran generation/build, the standard backend/map suite, preference provider, both transport harnesses and the changed host-probe helper's normal path. Inspector sources were syntax-parsed only. No binary verifier, denied operation, screenshot matrix or live game action was rerun. [Review 6 evidence](../evidence/lwbridge-implementation/2026-09-09-pm-review-6.json) preserves the limits, including PM6-01 cleanup risk.

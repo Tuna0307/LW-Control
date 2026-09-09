@@ -2,7 +2,7 @@
 
 Map Scan is the first feature to recover one-for-one.
 
-## Current finding summary — review 5, 2026-09-09
+## Current finding summary — review 6, 2026-09-09
 
 This document preserves dated findings, including superseded interpretations. Use the latest applicable source-backed result below rather than copying an older "remaining unknowns" paragraph as current status.
 
@@ -23,7 +23,7 @@ This document preserves dated findings, including superseded interpretations. Us
 | R6-019 | Test-only staging/publication infrastructure now reproduces the recovered one-kind/server `map_records` delete + matching `scan_records` copy in one transaction and proves run/kind/server isolation. Completion eligibility and native record-key derivation remain blocked. |
 | R6-020 | The test-only publication slice now proves transactional rollback under an injected failure between delete and staged copy: the previous published kind/server survives intact and no replacement row leaks through. Production failure/retry semantics remain blocked. |
 | R6-021 | The persisted-only options test kernel now returns all eight recovered frontend count keys plus a server-scoped no-alliance count in the same snapshot as the existing option families. Public source/run selection and native count assembly remain blocked. |
-| R6-022 | Native Map Data option strings prove `treasure:` and `supplies:` key prefixes inside the option-result cluster. Direct RIP xrefs and absolute-pointer string metadata searches find no route to the formatter, so the numeric suffix formula remains UNKNOWN and no key is synthesized. |
+| R6-022 → R6-023 | Prefix/xref negative evidence is preserved. R6-023 subsequently resolves the suffix as positive decimal treasureType/suppliesType and adds exact keys to the persisted-only helper. Public options source/full assembly is still unresolved. |
 
 Current remaining query gaps include viewer/foreign-radar/lucky behavior, alternate sort expressions/order, the original options source/run-context and backend counts/no-alliance/full assembly, and authoritative summary server/scan-state production. `LWB-R6-014` closes the recovered frontend completion/plunderability clocks and reward-option cutoff source/unit; `LWB-R6-015` validates the known persisted-source aggregation kernel without promoting it to the public command; `LWB-R6-016` closes the frontend count propagation/reset/fallback rules without inventing their backend producers. Export, native identities and live ingestion/scan remain open. Historical restrictions and escalation reasons are in [the ESC register](daybreak-escalations.md). The regular AI owns further investigation until an exhausted-method request is reviewed; these topics are not automatic Daybreak assignments.
 
