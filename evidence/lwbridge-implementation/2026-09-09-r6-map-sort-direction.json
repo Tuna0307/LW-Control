@@ -1,0 +1,76 @@
+{
+  "findingId": "LWB-R6-027",
+  "date": "2026-09-09",
+  "scope": "Map Data native sort direction literals and distance-desc override",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "lwbridge": {
+      "path": "..\\LW\\lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    }
+  },
+  "locators": {
+    "fixedBranchBytes": {
+      "directionLengthThreeGate": {
+        "preferredImageVa": "0x14027525c",
+        "expectedHex": "488b8424100200004883f803752c"
+      },
+      "ascComparisonAndReference": {
+        "preferredImageVa": "0x14027526a",
+        "expectedHex": "488b8424080200000fb70881f1617300000fb6400283f06341bf040000006609c8488d2d6865a100742aeb35"
+      },
+      "descReferenceAndValidation": {
+        "preferredImageVa": "0x140275296",
+        "expectedHex": "4c89e94883f10841bf04000000488d2d5065a1004809c1751c"
+      },
+      "distanceDescOverride": {
+        "preferredImageVa": "0x1402752af",
+        "expectedHex": "48b864697374616e6365483906750d41bf03000000488d2d655ea100"
+      }
+    },
+    "ascLiteral": {
+      "rawPeOffset": "0xc8a530",
+      "text": "ASC",
+      "length": 3
+    },
+    "descLiteral": {
+      "rawPeOffset": "0xc8abfa",
+      "text": "DESC",
+      "length": 4
+    },
+    "rdataMapping": {
+      "rawPeOffset": "0x7b8400",
+      "rva": "0x7b9000"
+    }
+  },
+  "publicFrontendOrders": [
+    "desc",
+    "asc"
+  ],
+  "recoveredResult": {
+    "asc": "the public asc path selects the three-byte ASC literal",
+    "ordinaryDesc": "the public desc path selects the four-byte DESC literal",
+    "distanceDesc": "after the desc literal is selected, an exact inline comparison against distance overrides the direction to the three-byte ASC literal"
+  },
+  "implementationImpact": {
+    "productionChange": "none",
+    "reason": "the distance expression/value source and complete ordered multi-sort/null-order assembly remain unrecovered, so the recovered physical direction rule is not sufficient to enable alternate sorts",
+    "failClosed": "non-updatedAt production sorts remain MAP_QUERY_UNRECOVERED"
+  },
+  "validationAndLimits": {
+    "validation": "hash-locked fixed-byte and immutable-frontend verification",
+    "liveProven": false,
+    "unknownBlocked": [
+      "reason/mechanism for distance physical ASC beyond the recovered branch itself",
+      "distance computed expression/value source",
+      "complete ordered multi-sort/null-order/tie-break assembly"
+    ]
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_sort_direction.py ..\\LW\\lwbridge-0.3.1.exe evidence\\lwbridge-0.3.1\\frontend --json"
+  ]
+}
