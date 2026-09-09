@@ -2,6 +2,10 @@
 
 Reviewed 2026-09-10 against `b83987b81d33065298512ecaf74a294cd93ddbde`, branch `research/offline-controller`, clean at start. Eight commits follow review 8 (`8ab6b81`). [Review 8 and follow-ups](reviews/2026-09-10-review-8-and-followups.md) are historical.
 
+## Later user-approved delivery correction
+
+The active priority is now [one real resource point displayed in the rebuilt app](first-live-result.md), across the necessary R5/R6/R7 dependencies. PM9-A automatic-update readiness is deferred. Further research must unblock that demonstration. The user explicitly authorizes opening/closing/restarting the game and launcher and project-related Computer Use control for testing; permission is durable in AGENTS.md. This changes the work order, not the audited completion evidence below.
+
 ## Result for the owner
 
 **The user fixed the official launcher by deleting data/reinstalling. We verified the recovery; the standard AI did not implement an automatic repair.** The active scripts advanced 12 -> 14 while the main build and 14 sampled core hashes stayed unchanged. The table change preceded reinstall. See [the verified comparison and future update task](lastwar-update-readiness.md).
@@ -24,7 +28,7 @@ Original/static findings were reviewed from committed source/evidence and their 
 ## Corrections and next tasks
 
 - **PM8-0 CLOSED:** user-operated recovery, independently recorded. Stop giving the standard AI stale instructions to repair/reinstall again.
-- **PM9-A TODO / first bounded checkpoint:** implement an update-readiness/comparison service with ordered failure handling and explicit compatibility gates under [the detailed task](lastwar-update-readiness.md). Existing collectors are not sufficient as an automatic success gate; old successes and stale Player signals must not mask later failures. This is readiness integration, not a new updater engine.
+- **PM9-A DEFERRED by the subsequent user priority correction:** implement an update-readiness/comparison service with ordered failure handling and explicit compatibility gates under [the detailed task](lastwar-update-readiness.md). Existing collectors are not sufficient as an automatic success gate; old successes and stale Player signals must not mask later failures. This is readiness integration, not a new updater engine.
 - **PM7-C/R5 next:** trace one current resource record through the actual capture/serializer into the recovered builder, then integrate supported normalization/ingestion. PM7-B's owned connection/readiness remains required for a real scan. Deliver the smallest supported connection/scan/display path; do not infer capture field mapping just because names resemble each other.
 - **PM7-A remains DONE:** source-aware aggregate service is still behind public progress/provider prerequisites. PM7-D/export/sort/schema remain open.
 - **Documentation hygiene:** archive the prior audit, correct recovery ownership and stale unknowns, preserve all 47 acceptance rows. The prior PM review evidence reused `LWB-PM8-002`, also used by a later incident finding; the audit JSON now uses unique `LWB-PM-REVIEW-008` with its old label preserved as an alias. The incident finding retains its ID. This metadata correction changes no technical observation.

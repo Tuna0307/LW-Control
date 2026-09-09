@@ -67,6 +67,14 @@ The user has not withheld permission for the project-related technical work desc
 
 User consent does not change system/developer policy, OS permissions or unavailable tool capabilities. Do not claim otherwise or repackage a denied operation through another executor merely to evade a restriction. Use the permissions actually available and explain the precise remaining requirement only when it genuinely prevents progress. Do not repeatedly request authorization already granted here.
 
+### Standing live-testing and Computer Use authorization — 2026-09-10
+
+The user explicitly authorizes every AI working on this project to **open, close and restart the official game and launcher whenever needed for testing**, including the user's already-open game session, and to **control the computer through the Computer Use plugin for project testing**. This includes navigating the game and rebuilt app, observing their state, running the bounded scan/data-read demonstration, and capturing relevant verification evidence. Do not repeatedly ask the user to launch/close the game or reconfirm routine project-related computer control.
+
+Identify the actual target session/process/window before controlling it; do not stop unrelated applications or another task's tools. Prefer normal close/restart and coordinate shared computer access. User permission to control an existing game session does not prove the rebuild owns that session or has established its bridge connection; preserve those distinct production acceptance gates.
+
+Use the Computer Use skill/plugin when available and follow its tool instructions. Missing integration may be addressed under the standing tool-setup authorization, but permission does not create unavailable native-control capabilities or override system/developer rules. Record actual capability/restriction failures accurately, continue independent permitted work, and never reroute a denied operation. Existing explicit messaging/spending boundaries still apply; this grant is project testing permission, not unrestricted unrelated computer activity.
+
 ## 4. Completion requires evidence, documentation and GitHub delivery
 
 The user explicitly requires **commit and push to GitHub after each completed task or coherent checkpoint**. This is standing project authorization for the relevant work; do not ask for the same routine commit/push permission again.
@@ -110,3 +118,11 @@ Always start from the saved checkpoint, inspect the current code/evidence and co
 For each unresolved contract associated with a denied operation, report whether the **question was resolved by identified permitted evidence**, **remains under investigation with a concrete next method**, or **has an ESC request pending with specified missing fields**. A historical denial remains recorded even when the question is subsequently answered. "No Daybreak request created" is not a resolution status.
 
 Keep unresolved production-blocking questions in the escalation register as NEEDS_INFORMATION when a request is not yet complete; this is a tracking record, not an automatic assignment or a claim of exhaustion. Include method/alternative/result evidence before requesting PM approval. Do not indefinitely replace investigation of the same missing public contract with unrelated test-only checkpoints without explaining their integration value. Research/test-only progress must be labelled separately from an enabled UI command and from live acceptance.
+
+## 7. Current delivery priority — first real result
+
+The user accepted the project-management correction: **first establish a supported real-game connection, acquire one real resource point and display it in the rebuilt Map Data page**. Follow [the bounded live-result task](docs/first-live-result.md). This is the active priority across R5, R6 and R7; those labels are work areas, not evidence that prerequisite functionality is complete.
+
+Defer PM9-A/future automatic updates, broad export/migration completion and unrelated research unless a named part directly blocks this demonstration. Keep a minimal current-client fingerprint/integrity check before live work. Every further research checkpoint must name the exact missing fact, why it blocks this demonstration, its evidence-producing method and the code/test it would unlock. Reuse established findings; stop substituting unrelated research, markers or fixture tests for the real connection/data/display path.
+
+The demonstration is not full acceptance of both pages. Preserve all 47 acceptance cases, unknowns and provenance. Report a demonstrated real result or the exact unresolved blocker with attempted approaches and next action; never claim success from a running process, mocked/manual row, command send or screenshot alone. Commit/push each coherent checkpoint under section 4.

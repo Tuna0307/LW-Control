@@ -6,6 +6,14 @@ Project-manager review 8 audited `4ec7ef8` (nine commits since the previous PM c
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
+## Active delivery priority — user correction after review 9
+
+1. **R5 / connection:** establish a supported connection to the real game.
+2. **Necessary R6/R7 slice:** acquire one real resource point and display it in the rebuilt Map Data page, with source-correlated proof.
+3. **After that result:** expand scanning, filters, export and automation.
+
+Follow [the bounded live-result task](docs/first-live-result.md). R labels describe work areas, not completed prerequisites. New research must directly unblock this demonstration. PM9-A/future automatic updates and unrelated migration/export completion are deferred. Game launch/close/restart and project Computer Use testing are pre-authorized under AGENTS.md; actual environment restrictions remain separate.
+
 ## Project rules
 
 **Mandatory on every task/checkpoint, not one-time checkboxes:** follow [AGENTS.md](AGENTS.md). Prioritize reverse-engineering verified LWBridge and current official Last War artifacts; never invent production facts or numbers. Immediately document every successful recovery with source/hash/locator/reproduction/limits. Update evidence and progress, run applicable checks, then commit and push the completed task/checkpoint to the verified GitHub branch and confirm the remote revision. Report actual blockers rather than silently skipping these requirements.
@@ -46,10 +54,10 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 
 - [x] **PM8-0 recovery:** user deleted data/reinstalled; AI verified successful official update/startup. Current scripts v14; sampled core binaries unchanged. Preserve failed-delta evidence; do not repair again.
 - [x] **LWB-PM9-001 comparison:** fresh core/script/table hashes and failed-versus-accepted output comparison documented. Exact gameplay changes/defect cause still unknown.
-- [ ] **PM9-A / standard AI / FIRST bounded checkpoint:** reusable update-readiness/compatibility service and actual status integration. Track composite fingerprints, ordered failures/freshness, unknown inputs and affected contracts; do not automatically delete data or accept a new baseline. Follow [complete acceptance](docs/lastwar-update-readiness.md).
+- [ ] **PM9-A / standard AI / DEFERRED until first live result:** reusable update-readiness/compatibility service and actual status integration. Track composite fingerprints, ordered failures/freshness, unknown inputs and affected contracts; do not automatically delete data or accept a new baseline. Follow [complete acceptance](docs/lastwar-update-readiness.md).
 - [x] **PM7-A:** source-aware counts/options service implemented and tested; public options remain unavailable.
 - [x] **R6-047–051 research accepted:** upsert layout, original identity/scalars and current managed field ownership. These do not deliver capture/scan integration.
-- [ ] **PM7-C/R5 / NEXT:** direct capture-to-builder mapping for one resource path, supported connection and smallest real scan/display result; implement only proven input normalization.
+- [ ] **PM7-C/R5 / ACTIVE first-result path:** direct capture-to-builder mapping for one resource path, supported connection and smallest real scan/display result; implement only proven input normalization.
 - [ ] **PM7-B / ESC-005:** remaining provider/handler readiness and a specific permissible method packet; PM7-D remains independent backlog.
 
 ## Completed foundation

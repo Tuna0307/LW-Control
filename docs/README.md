@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-The user reinstalled and official recovery is verified; PM8-0 is closed. Start [PM9-A update readiness and the before/after comparison](lastwar-update-readiness.md), then return to connection/scan integration. [The incident](lastwar-update-incident.md) is historical evidence, not an instruction to reinstall again. R6-049/051 original map identity/scalars are recovered; actual capture mapping remains open.
+The user reinstalled and official recovery is verified; PM8-0 is closed. Start [the first real resource point demonstration](first-live-result.md). [PM9-A/readiness](lastwar-update-readiness.md) is deferred; its before/after evidence remains useful for minimal current-client checks. [The incident](lastwar-update-incident.md) is historical evidence, not an instruction to reinstall again. R6-049/051 original map identity/scalars are recovered; actual capture mapping remains open.
 
 ## Reading order
 

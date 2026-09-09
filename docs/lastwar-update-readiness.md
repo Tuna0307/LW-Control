@@ -1,5 +1,7 @@
 # Update comparison and future automatic-update readiness
 
+**Priority correction after review 9:** PM9-A and future automatic-update implementation are deferred until [the first real resource point demonstration](first-live-result.md). This document preserves the comparison and future requirements. Existing minimal current-client integrity/fingerprint checks still apply before live tests.
+
 ## LWB-PM9-001 — verified result, 2026-09-10
 
 The **user performed the data deletion/reinstall**. The AI observed and checked the resulting files/logs. PM8-0 recovery is closed; do not repeat the destructive cleanup or describe it as an AI-delivered updater.
@@ -30,7 +32,7 @@ Compare named SHA-256/size/version fields in the JSON against the pre-failure an
 
 ## PM9-A — implement bounded update readiness, not an automatic reinstall
 
-**Owner: standard AI. Status: TODO. One coherent integration checkpoint.** This is a new rebuild **IMPLEMENTATION POLICY**, not recovered original updater behavior. Its purpose is to stop stale contracts being used after an official update and provide a clear next action. It must not become a long diversion from PM7-B/C's connection and scan milestone.
+**Owner: standard AI. Status: DEFERRED until first live result, except an explicitly necessary prerequisite.** This is a new rebuild **IMPLEMENTATION POLICY**, not recovered original updater behavior. Its purpose is to stop stale contracts being used after an official update and provide a clear next action. It must not become a long diversion from PM7-B/C's connection and scan milestone.
 
 The collector currently reports historical observations, not a complete readiness verdict. In particular, `latestGameStartFollowsLatestAppliedUpdate` only compares start and applied-update lines; it does not ensure a later failure is absent. Player-log substring presence alone does not correlate the log to that startup. Existing manual recovery evidence is valid for its identified sequence, but blindly combining those booleans into future automatic success would be wrong.
 

@@ -13,6 +13,8 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
 [ESC decisions](daybreak-escalations.md) unchanged: none assigned. [Estimate](lwbridge-completion-estimate.md) roughly 25–30%; **0/47 full acceptance cases signed off**.
 
+Current delivery order was changed by the user after review 9: [first real connection/resource/display demonstration](first-live-result.md); PM9-A is deferred. Standing game/process/Computer Use testing permission is recorded in AGENTS.md. No feature is marked complete by this instruction change.
+
 ## Milestone A environment evidence
 
 | Item | Current evidence |

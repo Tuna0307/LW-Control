@@ -2,6 +2,12 @@
 
 Start from the latest worktree/HEAD; PM reviewed `b83987b` on 2026-09-10. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [the current audit](lwbridge-project-status.md), [BACKLOG.md](../BACKLOG.md) and the relevant findings indexed in [README](README.md). All 47 acceptance cases remain required. Preserve the login-free recovered UI and completed legacy cleanup.
 
+## Active priority — supersedes PM9-A-first instructions
+
+Follow [display one real resource point](first-live-result.md). Connect to the real game, acquire one real resource point and display it in the rebuilt Map Data page. Research is limited to missing prerequisites for that demonstration. PM9-A/future automatic updates and unrelated export/migration research are deferred; retain minimal current-file checks.
+
+The user grants standing permission to open/close/restart the game and launcher, including an existing session, and control the computer via Computer Use for testing. See AGENTS.md section 3; do not ask repeatedly. Use only capabilities permitted in the active environment, and preserve production session-ownership/readiness distinctions.
+
 ## Ownership and evidence rules
 
 You own research, permitted binary analysis, implementation and validation by default. Tool discovery/installation and checkpoint commit/push are pre-authorized under AGENTS.md. Verify original/current source identities before new recovery; do not guess behavior, constants or live success. Save each finding immediately with reproducible evidence. Work on one named item per coherent checkpoint; avoid another task's files and concurrent builds in the same output directory.
@@ -12,11 +18,9 @@ The [current audit](lwbridge-project-status.md) accepts R6-047–051's bounded r
 
 The user deleted data and reinstalled. The AI verified resulting logs/files under PM8-004; it did not deliver an automatic repair. Active scripts are version 14, all 14 sampled core anchors are unchanged, and the current table is unchanged from the pre-reinstall failure snapshot. Do not repeat reinstall. The repaired official client is available subject to fresh checks; rebuilt connection/scan readiness remains independently gated.
 
-## PM9-A — first: update readiness and compatibility integration
+## PM9-A — deferred until the first live result
 
-**TODO, one bounded checkpoint.** Implement [all PM9-A deliverables](lastwar-update-readiness.md): track main build plus script/table/binary fingerprints, distinguish old success from a later failure, validate log/session freshness, report changed dependencies, and prevent silent baseline acceptance or action resumption on unverified changes. Use existing collectors, which currently expose observations rather than a complete automatic health verdict. Label rebuild design choices as IMPLEMENTATION POLICY. Keep unknown original timings/commands and unsupported game operations unavailable.
-
-Deliver the reusable service and its actual app status/call path with meaningful partial-update, stale-log and changed-script tests. Do not write a downloader, automatically delete game data, or expand this into unrelated tooling. After this checkpoint return to PM7-C/R5 and PM7-B toward one real scan/display result. See the detailed task for exact done gates.
+The [update-readiness task](lastwar-update-readiness.md) remains useful future work, but it is no longer the next checkpoint. Use existing read-only diagnostics for the minimal current-client checks required by the demonstration. Implement only an indispensable named subset if it directly blocks that test; do not build an updater as a substitute for connecting to the game.
 
 ## PM7-A — completed; do not repeat
 

@@ -18,7 +18,7 @@ Prepared: 2026-09-08; current project-manager review 9. **This is the primary AI
 Reviewed implementation: `b83987b`, 2026-09-10, `research/offline-controller`. [Review 9](docs/lwbridge-project-status.md) accepts R6-047–051 map research and verifies the user's recovery. No new desktop function is enabled; the planning estimate remains roughly 25–30%.
 
 - **PM8-0 CLOSED:** the user deleted data/reinstalled; AI verified accepted script version 14 and startup. Do not instruct another reinstall or attribute the recovery action to the AI.
-- **First bounded task — PM9-A:** implement [update readiness/compatibility](docs/lastwar-update-readiness.md), tracking scripts/tables/binaries rather than only the unchanged main build. Historical success must not hide later failures. No automatic deletion/reinstall or baseline promotion.
+- **ACTIVE PRIORITY:** [connect and display one real resource point](docs/first-live-result.md). This user-approved correction supersedes PM9-A-first planning. Defer future automatic updates and unrelated research; retain minimal current-file checks. Game launch/close/restart and project-related Computer Use are explicitly pre-authorized in AGENTS.md.
 - **Then:** [standard AI handoff](docs/implementation-handoff.md) PM7-C/R5 and PM7-B toward supported connection, smallest real scan and displayed result. Original identity/scalar rules are now recovered; current capture mapping and live integration remain open. PM7-A is already complete as bounded aggregate integration.
 - **Daybreak:** none assigned. Follow [the register](docs/daybreak-escalations.md); a denied operation is not an automatic transfer.
 
@@ -156,7 +156,7 @@ Some old notes refer to files that have since been removed. Verify existence ins
 
 ### Live testing and authorization
 
-This handoff's creation did not itself authorize or perform a live game run. When executing the assignment, use the authorization actually present in the receiving conversation. Do not treat synthetic-test auth responses as credentials or as live authorization.
+The user explicitly grants standing permission to open, close and restart the official game/launcher whenever needed for testing, including an already-open session, and to control the computer through the Computer Use plugin for project tests. Bounded scanning/data reads for the first live-result demonstration are authorized. Do not repeatedly ask for those routine actions; follow AGENTS.md and active tool instructions. This does not turn a manually opened session into a proven rebuild-owned bridge session or override environment restrictions. Synthetic auth responses remain fixtures, not credentials.
 
 Proceed autonomously with authorized implementation, static research, builds, read-only inspection, and offline tests. Reuse valid standing authorization rather than asking repeatedly. Before a live action, verify that its concrete scope is covered: game/process changes, cross-server travel, scanning, actual claims/plunder, paid resources, and messages are distinct effects. If required authorization or a suitable test target is missing, finish the independent work and present a concrete bounded test plan and the exact remaining need.
 
@@ -769,4 +769,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md`, the standard handoff and `docs/lastwar-update-readiness.md`; inspect latest HEAD/worktree. PM8-0 is closed by the user's reinstall, PM7-A is complete. Deliver PM9-A as one bounded readiness/compatibility checkpoint, then resume PM7-C/R5 and PM7-B toward a real connection/scan/result. Do not repeat recovered original identity/scalar work, invent capture mapping, automate whole-data deletion or bypass denied operations. Save findings, run meaningful checks, update docs, commit/push every coherent checkpoint and verify GitHub. Preserve all 47 cases and completed cleanup.
+Read `AGENTS.md`, the current audit, `BACKLOG.md`, the standard handoff and `docs/first-live-result.md`; inspect HEAD/worktree. The active goal is a supported real-game connection, acquisition of one real resource point and its display in the rebuilt Map Data page. PM9-A automatic-update work is deferred; PM8 recovery and PM7-A are already complete in their stated scopes. Use standing permission for game launch/close/restart and Computer Use testing. Research only the missing links for this demonstration, document exact blockers rather than guessing, and commit/push/verify each coherent checkpoint. Preserve all 47 cases and the login-free UI.
