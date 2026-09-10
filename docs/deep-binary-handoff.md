@@ -8,7 +8,7 @@ The task **Start deep binary handoff** delivered `6e1d80f` (R6-006 boolean filte
 
 ## Current queue — review 11
 
-No specialist assigned. ESC-005 now tracks the unresolved runtime-material/handler question and required narrow permissible-method packet; it is NEEDS_INFORMATION alongside ESC-002/004. ESC-003 retains its NOT_ASSIGNED decision. Official recovery is complete through the user's reinstall; PM9-A readiness is standard-AI work. R6-049 original identity is recovered, but current capture mapping remains open. None authorizes a previously denied target. Follow [the register](daybreak-escalations.md); old resolved finding lists remain historical context.
+No specialist is assigned. After R5-007, ESC-005's narrow `hello.ack`/heartbeat/request-result grammar subquestion is **READY_FOR_PM_REVIEW** with a metadata-only permitted specialist method; broader runtime-material/handler questions remain unassigned. ESC-002/004 remain NEEDS_INFORMATION and ESC-003 retains its NOT_ASSIGNED decision. Official recovery is complete through the user's reinstall; PM9-A readiness is standard-AI work. R6-049 original identity is recovered, but current capture mapping remains open. None authorizes a previously denied target. Follow [the register](daybreak-escalations.md); old resolved finding lists remain historical context.
 
 ## Assignment gate
 

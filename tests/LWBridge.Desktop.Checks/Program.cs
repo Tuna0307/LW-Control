@@ -81,6 +81,48 @@ Check(
         StringComparison.Ordinal),
     "current-user LWBridge control pipe name uses recovered prefix");
 
+// LWB-R5-007: protocol framing and proxy hello parsing are recovered from the
+// secure proxy/original host. These checks do not construct hello.ack or a
+// command request because those host-side contracts remain gated.
+byte[] helloPayload = System.Text.Encoding.UTF8.GetBytes(
+    "{\"version\":1,\"type\":\"hello\",\"profileId\":\"profile-a\",\"instanceId\":\"instance-b\",\"requestId\":\"\",\"timestamp\":123456789,\"payload\":{\"token\":\"token-c\",\"pid\":4321,\"buildId\":\"build-d\"}}");
+byte[] helloFrame = LWBridgeControlPipeProtocol.EncodeFrame(helloPayload);
+Check(
+    System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(helloFrame) == helloPayload.Length,
+    "recovered control-pipe frame uses a four-byte little-endian payload length");
+Check(
+    LWBridgeControlPipeProtocol.TryDecodeFrame(helloFrame, out byte[] decodedHelloPayload, out int helloBytesConsumed) &&
+    helloBytesConsumed == helloFrame.Length && decodedHelloPayload.SequenceEqual(helloPayload),
+    "recovered control-pipe frame round-trips one complete payload");
+Check(
+    !LWBridgeControlPipeProtocol.TryDecodeFrame(helloFrame.AsSpan(0, helloFrame.Length - 1), out _, out _),
+    "incomplete recovered control-pipe frame remains pending");
+bool rejectedZeroLengthFrame = false;
+try
+{
+    LWBridgeControlPipeProtocol.TryDecodeFrame([0, 0, 0, 0], out _, out _);
+}
+catch (InvalidDataException)
+{
+    rejectedZeroLengthFrame = true;
+}
+Check(rejectedZeroLengthFrame, "zero-length recovered control-pipe frame fails closed");
+
+LWBridgeProxyHello hello = LWBridgeControlPipeProtocol.ParseProxyHello(decodedHelloPayload);
+Check(
+    hello.Version == 1 && hello.Type == "hello" && hello.ProfileId == "profile-a" &&
+    hello.InstanceId == "instance-b" && hello.RequestId.Length == 0 &&
+    hello.Timestamp.ValueKind == JsonValueKind.Number && hello.Timestamp.GetRawText() == "123456789" &&
+    hello.Token == "token-c" && hello.Pid.ValueKind == JsonValueKind.Number && hello.Pid.GetRawText() == "4321" &&
+    hello.BuildId == "build-d",
+    "recovered proxy hello schema preserves version, identity, timestamp and nested token/pid/build fields");
+Check(
+    LWBridgeControlPipeProtocol.MatchesExpectedIdentity(hello, "profile-a", "instance-b", "token-c", "build-d"),
+    "recovered proxy hello identity fields match the expected profile/instance/token/build tuple");
+Check(
+    !LWBridgeControlPipeProtocol.MatchesExpectedIdentity(hello, "profile-a", "foreign-instance", "token-c", "build-d"),
+    "identity comparison policy rejects a foreign proxy hello tuple");
+
 // Deterministic config/persistence checks use isolated temporary storage.
 string configRoot = Path.Combine(Path.GetTempPath(), "lwbridge-checks-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(configRoot);

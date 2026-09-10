@@ -52,12 +52,13 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 
 ## Immediate priorities — review 11
 
-- [ ] **PM10-01 / connection next checkpoint:** R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming. Deliver evidence for the minimum accepted handshake/request framing and implementation unlocked, fresh app acquisition, or a complete bounded ESC-005 packet. Fresh acquisition and its second repeat remain open; no more pipe-name/replay-only checkpoints.
+- [ ] **PM10-01 / connection next checkpoint:** R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming; R5-007 recovers endpoint roles, the 4-byte little-endian frame and exact proxy `hello` shape. The remaining blocker is exact host `hello.ack`/heartbeat readiness plus host-to-proxy command/result correlation. Fresh acquisition and its second repeat remain open; no more pipe-name/replay-only checkpoints.
 - [ ] **PM11-02 / validation pending:** verify the new replay banner, initial Resource selection and disabled acquisition controls through a permitted method; prior capture denial remains in force. Not a substitute for the connection task.
 - [x] **PM11-01 / PM:** corrected the unsupported inference that keyword-history searches proved no reusable prior session implementation exists.
 
 
 - [x] **LWB-R5-006 / PM10-01 connection slice:** recover and live-correlate the original per-user control-pipe path. Rebuild derivation is offline-tested; pipe presence is not bridge readiness.
+- [x] **LWB-R5-007 / PM10-01 connection slice:** recover the control-pipe endpoint roles, 4-byte little-endian frame (`1..0x800000` payload), exact secure-proxy `hello` schema and host handshake/error boundary; implement the frame codec/hello parser without enabling readiness or requests.
 - [x] **PM10-02 / regular AI / IMPLEMENTED, visual proof pending under PM11-02:** `LWB-R7-002` clearly labels saved replay with capture provenance, isolates it in its own in-memory store, auto-selects Resource, disables acquisition controls and reports unavailable/replay scan state.
 - [x] **PM10-03 / regular AI:** `LWB-R7-002` adds source-to-row, invalid timestamp/record, optional-unknown, recovered server-range, demo-only ID/coordinate-boundary, isolation and normal-production-gate regression checks.
 
@@ -69,8 +70,8 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [x] **LWB-R7-001 bounded real-row checkpoint:** current build-1078 game probe captured point `1006` at `5,1`, server `2212`, level `3`; isolated rebuild replay displays it as one Resource row with unsupported name/gather state left unknown. This is real-source evidence, not production scan ownership.
 - [x] **LWB-R7-002 PM10 replay/recipe checkpoint:** historical acquisition source/recipe is durable; replay presentation and storage are explicitly isolated and focused regressions pass. No new live acquisition is claimed.
 - [ ] **PM7-C/R5 / ACTIVE production path:** make the rebuilt app establish the supported bridge/session and acquire the next resource row freshly through production `map_scan_start`; recover only the missing serializer/lifecycle contracts needed for that result.
-- [ ] **R5 / ACTIVE next contract:** recover exact accepted hello/session message framing/validation and the host-to-proxy request envelope needed for a production `INativeAsyncCommandService`; require strict current session/request identity and fail closed on disconnect before enabling map acquisition.
-- [ ] **PM7-B / ESC-005:** remaining provider/handler readiness and a specific permissible method packet; PM7-D remains deferred backlog.
+- [ ] **R5 / ACTIVE next contract:** recover exact host `hello.ack` serialization and heartbeat readiness, then the host-to-proxy request envelope/result correlation needed for a production `INativeAsyncCommandService`; require strict current session/request identity and fail closed on disconnect before enabling map acquisition.
+- [ ] **PM7-B / ESC-005:** narrow request/result grammar packet is now `READY_FOR_PM_REVIEW`; no specialist is assigned. Remaining broader provider/handler questions stay separate; PM7-D remains deferred backlog.
 
 ## Completed foundation
 

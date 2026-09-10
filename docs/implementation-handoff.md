@@ -4,12 +4,12 @@ Start from the latest worktree/HEAD; PM reviewed `37a1dac` on 2026-09-10. Read [
 
 ## Review 11 — one connection question before more features
 
-PM10-03 tests pass; PM10-02 is implemented but its new visual behavior remains unverified. R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming. Stop repeating those slices. The active gap is the minimum supported connection handshake and request/result framing needed for fresh app-initiated acquisition.
+PM10-03 tests pass; PM10-02 is implemented but its new visual behavior remains unverified. R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming; R5-007 now resolves endpoint roles, the 4-byte little-endian frame and exact secure-proxy hello shape. Stop repeating those slices. The active gap is the host `hello.ack`/heartbeat readiness contract and host-to-proxy request/result correlation needed for fresh app-initiated acquisition.
 
 1. Name the next exact missing fact and a permitted evidence path. Reuse saved findings; distinguish host/proxy roles, framing, identity/validation and readiness from strings alone. State why this fact blocks the real-resource demonstration and which service/code it unlocks.
 2. Recover and document only that supported contract, then implement the connection. If a supported current-client route can independently deliver the bounded result, justify it from evidence and label rebuild design choices; do not assume every original protected handler is prerequisite. Preserve all denied-operation boundaries.
 3. Acquire and display a real point from the app, then repeat with correlated request/session/time evidence. Test disconnected, stale/foreign and failed responses without falling back to replay. Existing disconnected-backend fixture tests do not prove these connected behaviors.
-4. If the remaining relevant permitted methods are exhausted, complete ESC-005 with exact attempts/results/alternatives, a permitted specialist method and bounded return criteria. Do not self-assign Daybreak or deliver another generic denial-only checkpoint. If no permitted method is available, identify the actual environmental requirement; model switching is not a remedy.
+4. ESC-005's narrow request/result question is now `READY_FOR_PM_REVIEW` with exact attempts/results/alternatives and a metadata-only specialist method. Do not self-assign Daybreak. Continue independent production integration only when the missing ack/readiness/request grammar is source-backed; model switching is not a remedy.
 
 Follow [the review](lwbridge-project-status.md) and [live-result task](first-live-result.md). PM11-02 UI verification can be completed when a permitted capability is available, without repeating the denied app-capture operation or replacing connection work. Updater/export and further replay expansion remain deferred.
 
@@ -49,7 +49,7 @@ Success means a source-attributed trigger → handler → current-runtime respon
 
 ## PM7-C — native identities and the smallest real scan path
 
-**Owner: regular AI. Status: IN PROGRESS through LWB-R7-002 / LWB-R5-006; progress independently when B cannot proceed.** R5 launch/owned process/bridge handshake remains a critical dependency; read [injection findings](lwbridge-injection.md) before changing launch code. Production start remains gated until its inputs, ownership and authoritative readiness/outcomes are established.
+**Owner: regular AI. Status: IN PROGRESS through LWB-R7-002 / LWB-R5-007; progress independently when B cannot proceed.** R5 launch/owned process/bridge handshake remains a critical dependency; read [injection findings](lwbridge-injection.md) before changing launch code. Production start remains gated until its inputs, ownership and authoritative readiness/outcomes are established.
 
 R6-047 gives the original shared upsert layout; R6-049 gives the original identity decision; R6-051 gives scalar source/fallback mappings. R6-048/050 independently establish current PointInfo/resource identity fields and xLua ownership in hash-identical Assembly-CSharp. Do not re-recover these or keep the original identity formula marked entirely unknown.
 
@@ -69,7 +69,7 @@ ESC-002 and ESC-004 need per-method tool/version/locator/output records, conside
 
 ## Daybreak decisions and restriction reporting
 
-No specialist is assigned. ESC-001 is CLOSED. ESC-003 is **NOT_ASSIGNED by PM review 7**: the recorded attempts support review, but no specific permitted specialist method is identified for the remaining progress serializer. Do not keep requesting the same generic packet, repeat resolved source/no-alliance work, or reroute the denied callback. Reopen with a concrete permissible approach or newly available evidence/target and exact benefit/return criteria. ESC-002/004/005 remain NEEDS_INFORMATION. ESC-005 tracks the remaining loader/handler gap; PM8-0 is closed by user-operated recovery; PM9-A is readiness integration, not a specialist assignment. All decisions and operation-specific restrictions are in [the register](daybreak-escalations.md).
+No specialist is assigned. ESC-001 is CLOSED. ESC-003 is **NOT_ASSIGNED by PM review 7**: the recorded attempts support review, but no specific permitted specialist method is identified for the remaining progress serializer. Do not keep requesting the same generic packet, repeat resolved source/no-alliance work, or reroute the denied callback. Reopen with a concrete permissible approach or newly available evidence/target and exact benefit/return criteria. ESC-002/004 remain NEEDS_INFORMATION. ESC-005's narrow request/result-grammar subquestion is now **READY_FOR_PM_REVIEW** after R5-007; broader protected-loader/handler questions remain unresolved and unassigned. PM8-0 is closed by user-operated recovery; PM9-A is readiness integration, not a specialist assignment. All decisions and operation-specific restrictions are in [the register](daybreak-escalations.md).
 
 For every affected unresolved contract, say: resolved by identified evidence; investigating with a specific next permitted method; unavailable target; or ESC status with the exact outstanding requirement. A restriction record is not a claim that the whole executable or all saved evidence is prohibited. Equally, later success is not proof a prior restriction was waived. Do not self-approve specialist scope.
 

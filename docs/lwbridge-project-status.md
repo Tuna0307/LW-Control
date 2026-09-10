@@ -6,6 +6,12 @@ Reviewed 2026-09-10 against `37a1dac724def9eb6635764cdda12573736abc65`, branch `
 
 **The AI finished useful supporting work, but the app still cannot fetch fresh game data.** Saved replay now has explicit labeling and stronger input/isolation tests. A helper can construct the original communication-pipe name. There is still no production connection service, accepted handshake or fresh resource acquisition, and no second fresh read. Normal Launch/Start Scan remain gated. No full acceptance case is newly signed off.
 
+### Post-review implementation continuation — LWB-R5-007
+
+After this PM audit, the regular implementation task recovered a further bounded connection slice from the same immutable reference. The original host is the named-pipe server; the secure xLua proxy is the client. The proxy uses a 4-byte little-endian payload-length prefix with recovered payload range `1..0x800000`, and its exact `hello` builder is version `1`/type `hello` with `profileId`, `instanceId`, empty `requestId`, numeric `timestamp`, and payload `token`, numeric `pid`, `buildId`. The rebuild now contains an offline frame codec and hello parser only. This continuation has not been PM-reviewed and does not supersede the audit's acceptance decisions.
+
+The remaining PM10-01 blocker is now narrower: exact host `hello.ack` serialization, heartbeat freshness/readiness and host-to-proxy request/result correlation. No production `INativeAsyncCommandService`, fresh acquisition or second fresh read is claimed. ESC-005 has been completed for PM review around that specific grammar question; no specialist is assigned.
+
 ## Accepted work
 
 | Commit / item | PM decision and evidence limit |
@@ -28,7 +34,7 @@ The next checkpoint must return either an evidenced connection contract with the
 
 ## Specialist decision
 
-No Daybreak task is approved. ESC-005 remains NEEDS_INFORMATION: it identifies the immediate handshake gap and records several attempts, but does not yet specify a concrete permitted specialist method with tool/version/locator/results, relevant alternatives and precise return criteria. Missing fields are listed in its review-11 decision. ESC-001 remains CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004 NEEDS_INFORMATION and deferred. Restrictions are not user refusals and cannot be bypassed by changing model.
+No Daybreak task is approved. **At the time of review 11**, ESC-005 remained NEEDS_INFORMATION because it lacked a concrete permitted specialist method with tool/version/locator/results, relevant alternatives and precise return criteria. The post-review R5-007 continuation has since filled those fields and marks the narrow request/result-grammar packet `READY_FOR_PM_REVIEW`; that is not a PM approval or assignment. ESC-001 remains CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004 NEEDS_INFORMATION and deferred. Restrictions are not user refusals and cannot be bypassed by changing model.
 
 ## Fresh verification and limits
 
