@@ -136,10 +136,19 @@ internal static class FirstLiveResultImporter
         normalized["recordKey"] = recordKey;
         normalized["pointIndex"] = pointIndex;
         normalized["updatedAt"] = updatedAt;
-        // IMPLEMENTATION POLICY: the bounded current-view probe does not recover
-        // gather occupancy. Mark that absence explicitly so the generated UI does
-        // not turn missing gather IDs into the original row formatter's Idle state.
-        normalized["rebuildGatherOccupancyKnown"] = false;
+        // IMPLEMENTATION POLICY: the bounded current-view route marks occupancy
+        // known only when its current ResPointInfo source successfully exposes both
+        // recovered gatherMarchUuid and gatherUid fields and the probe records the
+        // derived occupied boolean. Older captures and incomplete source reads stay
+        // unknown rather than inheriting the original formatter's Idle fallback.
+        bool sourceGatherOccupied = false;
+        bool gatherOccupancyKnown =
+            TryReadBool(point, "gatherOccupancyKnown", out bool sourceOccupancyKnown) &&
+            sourceOccupancyKnown &&
+            TryReadBool(point, "gatherOccupied", out sourceGatherOccupied);
+        normalized["rebuildGatherOccupancyKnown"] = gatherOccupancyKnown;
+        if (gatherOccupancyKnown)
+            normalized["rebuildGatherOccupied"] = sourceGatherOccupied;
         string dataJson = normalized.ToJsonString(JsonOptions.Default);
 
         int? level = TryReadInt(point, "level", out int parsedLevel) ? parsedLevel : null;
@@ -194,6 +203,21 @@ internal static class FirstLiveResultImporter
         return value.TryGetProperty(propertyName, out JsonElement property) &&
                property.ValueKind == JsonValueKind.Number &&
                property.TryGetInt32(out result);
+    }
+
+    private static bool TryReadBool(JsonElement value, string propertyName, out bool result)
+    {
+        result = false;
+        if (!value.TryGetProperty(propertyName, out JsonElement property))
+            return false;
+        if (property.ValueKind == JsonValueKind.True)
+        {
+            result = true;
+            return true;
+        }
+        if (property.ValueKind == JsonValueKind.False)
+            return true;
+        return false;
     }
 
     private static string? ReadNonEmptyString(JsonElement value, string propertyName)

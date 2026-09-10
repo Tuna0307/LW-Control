@@ -72,12 +72,12 @@ def build(check=False):
             data = s.encode('utf-8')
         elif path.name == 'MapDataPanel-C1HVeNHr.js':
             s = data.decode('utf-8')
-            # IMPLEMENTATION POLICY: bounded current-view resource captures do not
-            # prove gathering occupancy. Preserve the recovered formatter for every
-            # original row, but show an unknown marker for rows carrying the rebuild-
-            # only evidence flag emitted by FirstLiveResultImporter.
+            # IMPLEMENTATION POLICY: bounded current-view rows use the source-backed
+            # occupancy boolean only after the importer proves both recovered gather
+            # fields were readable. Preserve the recovered formatter for original
+            # rows and show an unknown marker for incomplete bounded captures.
             original_status = 'value:e=>{let n=Ge(e);return j(r,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}'
-            bounded_status = 'value:e=>{if(k(e,`rebuildGatherOccupancyKnown`)===!1)return`—`;let n=Ge(e);return j(r,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}'
+            bounded_status = 'value:e=>{let a=k(e,`rebuildGatherOccupancyKnown`);if(a===!1)return`—`;let n=a===!0?k(e,`rebuildGatherOccupied`)===!0:Ge(e);return j(r,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}'
             s = replace_once(s, original_status, bounded_status)
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)

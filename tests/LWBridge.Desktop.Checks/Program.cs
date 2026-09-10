@@ -77,7 +77,7 @@ string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int 
         time.sleep({{delayMilliseconds}} / 1000.0)
         result = {
             "schemaVersion": 1,
-            "probeVersion": "lwbridge-live-resource-probe-1",
+            "probeVersion": "lwbridge-live-resource-probe-2",
             "requestId": args.request_id,
             "state": "proven",
             "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
@@ -98,7 +98,7 @@ string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int 
             json.dump(result, stream)
         print(json.dumps({
             "ok": True,
-            "probeVersion": "lwbridge-live-resource-probe-1",
+            "probeVersion": "lwbridge-live-resource-probe-2",
             "requestId": args.request_id,
             "resultPath": {{resultLiteral}}
         }))
@@ -122,7 +122,7 @@ string WriteCorrelatedLiveResult(
     File.WriteAllText(resultPath, JsonSerializer.Serialize(new
     {
         schemaVersion = 1,
-        probeVersion = "lwbridge-live-resource-probe-1",
+        probeVersion = "lwbridge-live-resource-probe-2",
         requestId,
         profileId,
         launchSessionId,
@@ -571,6 +571,62 @@ try
             })).RootElement.Clone(), CancellationToken.None));
     }
 
+    string knownIdlePath = Path.Combine(firstLiveReplayRoot, "known-idle.json");
+    File.WriteAllText(knownIdlePath, """
+        {
+          "capturedAt": "2026-09-10T07:39:22Z",
+          "probeVersion": "lwbridge-live-resource-probe-2",
+          "point_records": [
+            {
+              "kind": "resource_point",
+              "serverId": 2212,
+              "pointId": 32482,
+              "x": 481,
+              "y": 32,
+              "gatherOccupancyKnown": true,
+              "gatherOccupied": false,
+              "source": "WorldPointManager._pointInfos"
+            }
+          ]
+        }
+        """);
+    using (MapDataStore knownIdleStore = MapDataStore.CreateInMemory())
+    {
+        FirstLiveResultImport knownIdle = FirstLiveResultImporter.ImportOneResource(knownIdleStore, knownIdlePath);
+        using JsonDocument knownIdleData = JsonDocument.Parse(knownIdle.DataJson);
+        Check(knownIdleData.RootElement.GetProperty("rebuildGatherOccupancyKnown").ValueKind == JsonValueKind.True &&
+              knownIdleData.RootElement.GetProperty("rebuildGatherOccupied").ValueKind == JsonValueKind.False,
+            "bounded live importer preserves source-backed known idle occupancy");
+    }
+
+    string knownGatheringPath = Path.Combine(firstLiveReplayRoot, "known-gathering.json");
+    File.WriteAllText(knownGatheringPath, """
+        {
+          "capturedAt": "2026-09-10T07:39:50Z",
+          "probeVersion": "lwbridge-live-resource-probe-2",
+          "point_records": [
+            {
+              "kind": "resource_point",
+              "serverId": 2212,
+              "pointId": 32483,
+              "x": 482,
+              "y": 32,
+              "gatherOccupancyKnown": true,
+              "gatherOccupied": true,
+              "source": "WorldPointManager._pointInfos"
+            }
+          ]
+        }
+        """);
+    using (MapDataStore knownGatheringStore = MapDataStore.CreateInMemory())
+    {
+        FirstLiveResultImport knownGathering = FirstLiveResultImporter.ImportOneResource(knownGatheringStore, knownGatheringPath);
+        using JsonDocument knownGatheringData = JsonDocument.Parse(knownGathering.DataJson);
+        Check(knownGatheringData.RootElement.GetProperty("rebuildGatherOccupancyKnown").ValueKind == JsonValueKind.True &&
+              knownGatheringData.RootElement.GetProperty("rebuildGatherOccupied").ValueKind == JsonValueKind.True,
+            "bounded live importer preserves source-backed known gathering occupancy");
+    }
+
     using (var productionMapStore = MapDataStore.CreateInMemory())
     {
         var productionMapBackend = new LWBridgeBackend(
@@ -635,7 +691,7 @@ try
         File.WriteAllText(foreignLiveResultPath, """
             {
               "schemaVersion": 1,
-              "probeVersion": "lwbridge-live-resource-probe-1",
+              "probeVersion": "lwbridge-live-resource-probe-2",
               "requestId": "foreign-request",
               "state": "proven",
               "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
@@ -664,7 +720,7 @@ try
         File.WriteAllText(immutableResultPath, """
             {
               "schemaVersion": 1,
-              "probeVersion": "lwbridge-live-resource-probe-1",
+              "probeVersion": "lwbridge-live-resource-probe-2",
               "requestId": "immutable-request",
               "state": "proven",
               "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",

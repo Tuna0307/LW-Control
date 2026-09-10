@@ -5,7 +5,7 @@
 -- build-1078 R6 findings.  The command/result files and time bounds are rebuild
 -- IMPLEMENTATION POLICY and are not claimed as original LWBridge protocol.
 
-local M = { VERSION = "lwbridge-live-resource-probe-1" }
+local M = { VERSION = "lwbridge-live-resource-probe-2" }
 local root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\live-resource]]
 local heartbeat_path = root .. [[\heartbeat.json]]
 local command_path = root .. [[\command.txt]]
@@ -109,6 +109,33 @@ local function reflected_value(component, key)
         if ok_value then return value end
     end
     return nil
+end
+
+local function reflected_field_value(component, key)
+    if component == nil then return false, nil end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return false, nil end
+    local flags = reflection_flags()
+    local ok_field, field = pcall(function() return reflected_type:GetField(tostring(key), flags) end)
+    if not ok_field or field == nil then return false, nil end
+    local ok_value, value = pcall(function() return field:GetValue(component) end)
+    if not ok_value then return false, nil end
+    return true, value
+end
+
+local function reflected_type_name(component)
+    if component == nil then return nil end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return nil end
+    local full_name = safe_get(reflected_type, "FullName") or safe_get(reflected_type, "Name")
+    local text = full_name ~= nil and tostring(full_name) or ""
+    return text ~= "" and text or nil
+end
+
+local function occupancy_value_present(value)
+    if value == nil then return false end
+    local text = tostring(value):match("^%s*(.-)%s*$")
+    return text ~= "" and text ~= "0"
 end
 
 local function reflected_set_value(component, key, value)
@@ -345,6 +372,13 @@ local function resource_record(world, point_manager)
         local resource_source = info
         local ok_resource, loaded_resource = call(point_manager, "GetResourcePointInfoByIndex", id)
         if ok_resource and loaded_resource ~= nil then resource_source = loaded_resource end
+        local gather_march_found, gather_march_uuid = reflected_field_value(resource_source, "gatherMarchUuid")
+        local gather_uid_found, gather_uid = reflected_field_value(resource_source, "gatherUid")
+        local gather_occupancy_known = gather_march_found and gather_uid_found
+        local gather_occupied = nil
+        if gather_occupancy_known then
+            gather_occupied = occupancy_value_present(gather_march_uuid) or occupancy_value_present(gather_uid)
+        end
         local level = resource_info and scalar_field(resource_info, { "level", "Level" }) or nil
         if level == nil then
             local ok_level, observed_level = call(resource_source, "GetResLevel")
@@ -367,6 +401,9 @@ local function resource_record(world, point_manager)
             y = tile.y,
             level = level,
             resourceTypeId = resource_type,
+            resourceSourceType = reflected_type_name(resource_source),
+            gatherOccupancyKnown = gather_occupancy_known,
+            gatherOccupied = gather_occupied,
             source = "WorldPointManager._pointInfos",
         }
         return true

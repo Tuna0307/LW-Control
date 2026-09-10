@@ -25,7 +25,7 @@ import uuid
 import zlib
 
 
-PROBE_VERSION = "lwbridge-live-resource-probe-1"
+PROBE_VERSION = "lwbridge-live-resource-probe-2"
 LUA_ENTRY = "DataCenter/Global/LuaEntry.luac"
 ORIGINAL_LUA_ENTRY = "DataCenter/Global/LuaEntry_original.luac"
 EXPECTED_FILE_VERSION = 3

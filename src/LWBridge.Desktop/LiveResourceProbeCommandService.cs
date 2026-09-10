@@ -9,7 +9,7 @@ namespace LWBridge.Desktop;
 // It deliberately does not masquerade as the unrecovered LWBridge pipe grammar.
 internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandService
 {
-    private const string ExpectedProbeVersion = "lwbridge-live-resource-probe-1";
+    private const string ExpectedProbeVersion = "lwbridge-live-resource-probe-2";
     private const string ExpectedPackageSha256 = "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace";
     private const string ExpectedXluaSha256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f";
     private const string ExpectedAssemblyCSharpSha256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd";
@@ -109,7 +109,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                 using JsonDocument heartbeat = JsonDocument.Parse(File.ReadAllBytes(heartbeatPath));
                 return heartbeat.RootElement.TryGetProperty("probeVersion", out JsonElement version) &&
                     version.ValueKind == JsonValueKind.String &&
-                    version.GetString() == "lwbridge-live-resource-probe-1";
+                    version.GetString() == ExpectedProbeVersion;
             }
             catch
             {
