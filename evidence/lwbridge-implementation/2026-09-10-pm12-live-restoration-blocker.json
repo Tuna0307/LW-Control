@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-005",
+  "date": "2026-09-10",
+  "scope": "live validation of PM12-A/C exact selected-installation launch identity and restoration behavior",
+  "status": {
+    "freshCurrentClientRead": "LIVE-PROVEN at helper/source boundary",
+    "helperOwnedIdentity": "LIVE-PROVEN at helper/source boundary",
+    "desktopImmutableImport": "BLOCKED because helper restoration failed before success return",
+    "pm12A": "PARTIAL; live restoration requires scoped normal close of the exact owned game PID when files are locked",
+    "pm12C": "PARTIAL; live profile/launchSessionId/gamePid tuple reached the request-owned result, but desktop post-restore cross-check did not run",
+    "pm12D": "BLOCKED normal-window proof; native computer APIs remain unavailable"
+  },
+  "sourceIdentity": {
+    "repoCommitBeforeFinding": "9ab43500a3e23290812e7da54416d2c09f6cf1fb",
+    "branch": "research/offline-controller",
+    "implementation": {
+      "tools/run_live_resource_probe.py": {
+        "sha256": "76bd64a5ce746a6dec9cbab5037c1aef5d8f7afdc6b3bcd628c6f24cbd3539fa"
+      },
+      "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs": {
+        "sha256": "00475a36e25efc71688316b7e30c2dc45964b43defcaae2cae978cc3d78d5048"
+      },
+      "Release/LWBridge.Desktop.exe": {
+        "sha256": "03e892a0fcd401b7292c6ab5a3c4db924fa174670e1243de24e04f74858f476c"
+      }
+    },
+    "officialClientOriginal": {
+      "LWScripts.data": {
+        "size": 41269242,
+        "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+      },
+      "LWScripts.txt": {
+        "size": 19,
+        "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48"
+      },
+      "version.txt": {
+        "size": 2,
+        "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61"
+      }
+    }
+  },
+  "reproduction": {
+    "precondition": "selected installation valid; no LastWar or launcher process running",
+    "offlineChecks": [
+      "python tools/build_lwbridge_frontend.py --check",
+      "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+      "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+    ],
+    "liveCommand": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe --live-resource-proof evidence/lwbridge-implementation/2026-09-10-pm12-live-session-validation.json",
+    "resultArtifact": "evidence/lwbridge-implementation/2026-09-10-pm12-live-restoration-blocker-result.json",
+    "resultSha256": "f4983e7524589f6a03c9d9b90edfcc02fcccd54426148b46841fba3f3d77738f"
+  },
+  "liveObservation": {
+    "requestId": "cb854633e81043e4992289fe6ef77da3",
+    "capturedAt": "2026-09-10T07:17:21Z",
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "launchSessionId": "28d5dc84326540b7a8e42fceb159042d",
+    "gamePid": 42332,
+    "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+    "responseEvidence": "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+    "source": "WorldPointManager._pointInfos",
+    "loadedPointCount": 11,
+    "resourcePointCount": 9,
+    "selectedRecord": {
+      "id": 32482,
+      "kind": "resource_point",
+      "level": 3,
+      "pointId": 32482,
+      "pointType": 7,
+      "resourceTypeId": 14,
+      "serverId": 2212,
+      "source": "WorldPointManager._pointInfos",
+      "srcServerId": 2212,
+      "worldId": 0,
+      "x": 481,
+      "y": 32
+    },
+    "state": "proven"
+  },
+  "restorationFailure": {
+    "appProofOutcome": {
+      "findingId": "LWB-R7-003",
+      "stage": "failed",
+      "errorType": "LWBridge.Desktop.BridgeCommandException",
+      "error": "The bounded current-game resource acquisition failed.",
+      "desktopFirstResult": null
+    },
+    "recoveryStageObserved": "restoring_after_failure",
+    "temporaryInstalledStateObservedBeforeRecovery": {
+      "LWScripts.data": {
+        "size": 41275381,
+        "sha256": "5fa36d7719e8378c5a0919c60e217092b417222a11d0977a5c543d9b6a60693e"
+      },
+      "LWScripts.txt": {
+        "size": 18,
+        "sha256": "3c7e60bd8ea51a1c7a4ecabea1d506c6ee4c2e779c7fac1c6b1951ed8dd243d7"
+      },
+      "version.txt": {
+        "size": 2,
+        "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61"
+      }
+    },
+    "meaning": "the fresh read succeeded, but exact restoration could not replace locked data/metadata while the helper-owned game PID remained open; helper therefore failed closed and retained durable recovery ownership instead of publishing/importing success"
+  },
+  "operationalRecovery": {
+    "productionClaim": false,
+    "close": {
+      "method": "one-time exact-PID Process.CloseMainWindow() from the operator shell",
+      "pid": 42332,
+      "accepted": true,
+      "processExited": true
+    },
+    "recovery": {
+      "method": "existing tools/run_live_resource_probe.py recover_pending(paths())",
+      "restored": true,
+      "recoveryRecordCleared": true,
+      "postRecoveryFiles": {
+        "LWScripts.data": {
+          "size": 41269242,
+          "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+        },
+        "LWScripts.txt": {
+          "size": 19,
+          "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48"
+        },
+        "version.txt": {
+          "size": 2,
+          "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61"
+        }
+      }
+    }
+  },
+  "validation": {
+    "frontendIntegrity": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicDesktopChecks": "PASS; six groups true, failures=[]; installed diagnostic valid",
+    "postRecoveryOriginalHashes": "PASS",
+    "currentProcessesAfterRecovery": "no LastWar/launcher/LWBridge/helper process"
+  },
+  "restrictionsAndLimits": [
+    "The available Computer Use tool explicitly reports Native computer APIs are disabled, so it cannot supply normal Last War/LWBridge window interaction or screenshots in this environment.",
+    "The previously denied process-control source patch was not repeated or rerouted. The one-time exact-PID normal close above was operational recovery of an already armed backup and is not production functionality.",
+    "Because the helper exited on restoration failure, LiveResourceProbeCommandService did not accept helper success and did not run the desktop immutable-result/session-tuple import path for this request.",
+    "This does not prove continuous bridge readiness, full-world scanning, other map kinds, original LWBridge pipe parity, or any full task.md acceptance case."
+  ],
+  "implementationImpact": {
+    "resolved": "live helper launch binds selected installation, selected profile, generated launchSessionId and exact newly created game PID into a real request-owned resource result",
+    "blocked": "production restoration needs a permitted scoped normal-close primitive for that exact owned PID when file replacement is locked; after that, rerun the same app path to exercise desktop post-restore import, then perform PM12-D normal-window proof",
+    "exactNextAction": "Provide or enable a permitted production exact-PID normal-close primitive for the helper-owned LastWar process, integrate it before retrying restoration, then rerun one fresh app acquisition and verify desktop import."
+  }
+}
