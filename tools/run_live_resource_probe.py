@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import msvcrt
 import os
 from pathlib import Path
 import shutil
@@ -44,6 +45,71 @@ LENC_MAGIC = b"LENC"
 
 class LiveResourceError(RuntimeError):
     pass
+
+
+def write_json_atomic(path: Path, value: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(path.name + ".tmp-" + uuid.uuid4().hex)
+    temp.write_text(json.dumps(value, indent=2, sort_keys=True), encoding="utf-8")
+    os.replace(temp, path)
+
+
+class OperationLease:
+    """Serialize all helpers that share the live-resource files.
+
+    IMPLEMENTATION POLICY: a one-byte Windows file lock is used as the rebuild's
+    process-wide operation lease. It protects both install/restore files and the
+    shared command/result directory without claiming original LWBridge behavior.
+    """
+
+    def __init__(self, runtime: Path, owner: dict[str, object]):
+        runtime.mkdir(parents=True, exist_ok=True)
+        self.path = runtime / "operation.lock"
+        self.owner_path = runtime / "operation-owner.json"
+        self.stream = self.path.open("a+b")
+        self.stream.seek(0, os.SEEK_END)
+        if self.stream.tell() == 0:
+            self.stream.write(b"0")
+            self.stream.flush()
+        self.stream.seek(0)
+        try:
+            msvcrt.locking(self.stream.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as exc:
+            self.stream.close()
+            raise LiveResourceError(
+                "another LWBridge live-resource operation owns the shared operation lease"
+            ) from exc
+        write_json_atomic(self.owner_path, owner)
+
+    def close(self) -> None:
+        if self.stream.closed:
+            return
+        try:
+            self.stream.seek(0)
+            msvcrt.locking(self.stream.fileno(), msvcrt.LK_UNLCK, 1)
+        finally:
+            self.stream.close()
+            try:
+                self.owner_path.unlink()
+            except FileNotFoundError:
+                pass
+
+    def __enter__(self) -> "OperationLease":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close()
+
+
+def snapshot_triplet(p: dict[str, Path]) -> dict[str, dict[str, object]]:
+    return {
+        key: {
+            "path": str(p[key]),
+            "sha256": sha256_file(p[key]),
+            "size": p[key].stat().st_size,
+        }
+        for key in ("data", "metadata", "version")
+    }
 
 
 def sha256_file(path: Path) -> str:
@@ -315,21 +381,106 @@ def make_backup(p: dict[str, Path]) -> Path:
     p["backup_root"].mkdir(parents=True, exist_ok=True)
     backup = p["backup_root"] / (time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + "-" + uuid.uuid4().hex)
     backup.mkdir()
+    originals = snapshot_triplet(p)
     for key in ("data", "metadata", "version"):
         shutil.copy2(p[key], backup / p[key].name)
+        if sha256_file(backup / p[key].name) != originals[key]["sha256"]:
+            raise LiveResourceError(f"backup verification failed for {p[key].name}")
+    write_json_atomic(backup / "manifest.json", {
+        "schemaVersion": 1,
+        "originalFiles": originals,
+        "state": "backup_ready",
+    })
     return backup
 
 
-def restore_backup(p: dict[str, Path], backup: Path) -> dict[str, object]:
+def backup_originals(p: dict[str, Path], backup: Path) -> dict[str, dict[str, object]]:
+    value = read_json(backup / "manifest.json")
+    originals = value.get("originalFiles") if value else None
+    if not isinstance(originals, dict):
+        raise LiveResourceError("backup manifest is missing exact original file hashes")
     for key in ("data", "metadata", "version"):
+        entry = originals.get(key)
+        if not isinstance(entry, dict) or not isinstance(entry.get("sha256"), str):
+            raise LiveResourceError(f"backup manifest is missing the {key} SHA-256")
+        if sha256_file(backup / p[key].name) != entry["sha256"]:
+            raise LiveResourceError(f"backup bytes no longer match the recorded {key} SHA-256")
+    return originals
+
+
+def restore_backup(p: dict[str, Path], backup: Path, on_stage=None) -> dict[str, object]:
+    originals = backup_originals(p, backup)
+    for index, key in enumerate(("data", "metadata", "version"), start=1):
         copy_atomic(backup / p[key].name, p[key])
+        if sha256_file(p[key]) != originals[key]["sha256"]:
+            raise LiveResourceError(f"restored bytes do not match the original {key} SHA-256")
+        if on_stage is not None:
+            on_stage(index, key)
     current = verify_current(p)
-    return {"restored": True, "packageSha256": current["packageSha256"]}
+    return {
+        "restored": True,
+        "packageSha256": current["packageSha256"],
+        "originalFiles": originals,
+        "restoredFiles": snapshot_triplet(p),
+    }
 
 
-def install_candidate(p: dict[str, Path], candidate: Path) -> None:
-    for key in ("data", "metadata", "version"):
+def install_candidate(p: dict[str, Path], candidate: Path, on_stage=None) -> None:
+    for index, key in enumerate(("data", "metadata", "version"), start=1):
         copy_atomic(candidate / p[key].name, p[key])
+        if on_stage is not None:
+            on_stage(index, key)
+
+
+def recovery_path(p: dict[str, Path]) -> Path:
+    return p["runtime"] / "recovery.json"
+
+
+def arm_recovery(p: dict[str, Path], backup: Path, request_id: str) -> dict[str, object]:
+    state: dict[str, object] = {
+        "schemaVersion": 1,
+        "requestId": request_id,
+        "backupPath": str(backup),
+        "originalFiles": backup_originals(p, backup),
+        "stage": "backup_ready",
+        "updatedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+    write_json_atomic(recovery_path(p), state)
+    return state
+
+
+def update_recovery_stage(p: dict[str, Path], state: dict[str, object], stage: str) -> None:
+    state["stage"] = stage
+    state["updatedAtUtc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    write_json_atomic(recovery_path(p), state)
+
+
+def clear_recovery(p: dict[str, Path], state: dict[str, object]) -> None:
+    completed = dict(state)
+    completed["stage"] = "restored"
+    completed["updatedAtUtc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    write_json_atomic(Path(str(state["backupPath"])) / "manifest.json", completed)
+    try:
+        recovery_path(p).unlink()
+    except FileNotFoundError:
+        pass
+
+
+def recover_pending(p: dict[str, Path]) -> dict[str, object] | None:
+    state = read_json(recovery_path(p))
+    if state is None:
+        return None
+    backup_path = state.get("backupPath")
+    if not isinstance(backup_path, str) or not isinstance(state.get("originalFiles"), dict):
+        raise LiveResourceError("pending recovery state is incomplete; refusing a new operation")
+    update_recovery_stage(p, state, "restoring_interrupted_operation")
+    restored = restore_backup(
+        p,
+        Path(backup_path),
+        lambda index, key: update_recovery_stage(p, state, f"restored_{index}_{key}"),
+    )
+    clear_recovery(p, state)
+    return restored
 
 
 def read_json(path: Path) -> dict[str, object] | None:
@@ -380,6 +531,23 @@ def await_result(p: dict[str, Path], request_id: str, timeout_seconds: int) -> d
 def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[str, object]:
     p = paths()
     p["runtime"].mkdir(parents=True, exist_ok=True)
+    owner = {
+        "schemaVersion": 1,
+        "requestId": request_id,
+        "helperPid": os.getpid(),
+        "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+    with OperationLease(p["runtime"], owner):
+        return run_owned(p, request_id, timeout_seconds, restart_unmanaged)
+
+
+def run_owned(
+    p: dict[str, Path],
+    request_id: str,
+    timeout_seconds: int,
+    restart_unmanaged: bool,
+) -> dict[str, object]:
+    interrupted_recovery = recover_pending(p)
 
     if process_running("LastWar.exe") and loaded_probe_is_fresh(p):
         write_command(p, request_id)
@@ -393,6 +561,7 @@ def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[
             "result": result,
             "gameRunning": True,
             "installedFilesChanged": False,
+            "interruptedRecovery": interrupted_recovery,
         }
 
     if process_running("LastWar.exe"):
@@ -402,13 +571,17 @@ def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[
 
     current = verify_current(p)
     backup = make_backup(p)
+    recovery_state = arm_recovery(p, backup, request_id)
     candidate_root = Path(tempfile.mkdtemp(prefix="lwbridge-live-resource-"))
-    installed = False
+    recovery_armed = True
     candidate_info: dict[str, object] | None = None
     try:
         candidate_info = make_candidate(p, candidate_root)
-        install_candidate(p, candidate_root)
-        installed = True
+        install_candidate(
+            p,
+            candidate_root,
+            lambda index, key: update_recovery_stage(p, recovery_state, f"installed_{index}_{key}"),
+        )
         for stale_name in ("heartbeat.json", "result.json", "command.txt"):
             try:
                 (p["runtime"] / stale_name).unlink()
@@ -420,8 +593,10 @@ def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[
 
         restore_while_running_error = None
         try:
+            update_recovery_stage(p, recovery_state, "restoring_while_running")
             restored = restore_backup(p, backup)
-            installed = False
+            clear_recovery(p, recovery_state)
+            recovery_armed = False
         except Exception as first_restore_error:
             # The R7 live run proved that same-process disk restoration can work,
             # but Windows file sharing is an environmental condition, not a
@@ -430,8 +605,10 @@ def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[
             # restore exactly, and preserve the successful acquisition.
             restore_while_running_error = str(first_restore_error)
             stop_game()
+            update_recovery_stage(p, recovery_state, "restoring_after_game_stop")
             restored = restore_backup(p, backup)
-            installed = False
+            clear_recovery(p, recovery_state)
+            recovery_armed = False
             restored["requiredGameStop"] = True
             restored["restoreWhileRunningError"] = restore_while_running_error
 
@@ -447,15 +624,21 @@ def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[
             "restore": restored,
             "gameRunning": process_running("LastWar.exe"),
             "installedFilesChanged": False,
+            "interruptedRecovery": interrupted_recovery,
         }
-    except Exception:
-        if installed:
+    except Exception as run_error:
+        if recovery_armed:
             try:
-                stop_game()
+                if process_running("LastWar.exe"):
+                    stop_game()
+                update_recovery_stage(p, recovery_state, "restoring_after_failure")
                 restore_backup(p, backup)
-                installed = False
+                clear_recovery(p, recovery_state)
+                recovery_armed = False
             except Exception as restore_error:
-                raise LiveResourceError(f"live-resource run failed and restore also failed: {restore_error}")
+                raise LiveResourceError(
+                    f"live-resource run failed: {run_error}; restore also failed: {restore_error}"
+                ) from run_error
         raise
     finally:
         shutil.rmtree(candidate_root, ignore_errors=True)

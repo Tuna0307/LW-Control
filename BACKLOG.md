@@ -53,7 +53,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 ## Immediate priorities — review 12
 
 - [x] **PM route decision:** accept R7-003's two recorded current-client acquisitions and backend ingestion as a bounded PM10-01 slice. Full milestone and full-case acceptance stay open.
-- [ ] **PM12-A / FIRST:** fix partial-install rollback (reproduced on dummy files), cross-process ownership/backup recovery and exact installation/PID targeting before more installed-file live tests.
+- [ ] **PM12-A / FIRST:** `LWB-PM12-001` fixes and isolated-tests partial-install rollback, exact backup/recovery state, interrupted recovery, dual-error preservation and cross-process helper ownership. Exact production installation/session/PID targeting remains open because the environment rejected that process-control patch; do not run more installed-file mutation tests until that targeting prerequisite is resolved through an allowed path.
 - [ ] **PM12-B:** duplicate Start, Stop/cancel, timeout, late persistence and window/store cleanup; validate with fake helpers.
 - [ ] **PM12-C:** immutable same-bytes validation/import; per-request output and current session/profile/server/build/freshness checks; unknown fields preserved.
 - [ ] **PM12-D:** normal window Start Scan to displayed fresh resource, truthful unknown occupancy, second read/refresh and accurate bounded-read scope. Existing native UI restriction remains a proof limitation, not permission to reroute.

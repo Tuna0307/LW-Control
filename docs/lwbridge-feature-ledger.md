@@ -9,6 +9,8 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
 [Current audit](lwbridge-project-status.md): accept R7-003 bounded two-read/backend acquisition evidence; original pipe is not prerequisite for this slice. PM10-01 remains partial for PM12-A–C reliability defects and PM12-D normal UI proof. No new full acceptance case is signed off. Existing historical successful restoration does not cover partial-install failure, which PM reproduced on isolated dummy files.
 
+Post-audit `LWB-PM12-001` is **IMPLEMENTED/OFFLINE-TESTED** for PM12-A's partial-install restoration and shared helper ownership: exact verified backups are armed before replacement, interrupted recovery is durable, install/restore stage faults recover on disposable files, dual failures preserve both errors, and a separate helper process is rejected by the shared lease. Exact production installation/session/PID targeting is still **UNKNOWN/BLOCKED** because the environment rejected the attempted process-control patch; no installed-file mutation test was run after that rejection.
+
 **PM8-0 closed by the user's reinstall**; AI verified the resulting official update/startup. [PM9-A](lastwar-update-readiness.md) is TODO for future update-readiness/compatibility integration. Main build/sampled core hashes unchanged; scripts 12 -> 14; table changed earlier. No rebuilt feature is LIVE-PROVEN by official-game recovery.
 
 [ESC decisions](daybreak-escalations.md): ESC-005 reviewed NOT_ASSIGNED/deferred; no specialist assigned. The [25–30% estimate](lwbridge-completion-estimate.md) is the historical review-9 planning baseline, not a newly measured score. **0/47 full acceptance cases signed off**.

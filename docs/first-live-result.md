@@ -8,6 +8,8 @@ PM accepts R7-003's independent current-client route for the bounded fresh-acqui
 
 Continue [PM12-A–D](implementation-handoff.md) in order. The old wait-for-PM-route-decision instruction is superseded. Complete and deliver supported checkpoints without asking again. Original-pipe parity/ESC-005 is NOT_ASSIGNED and deferred; the contract remains unknown. [The audit](lwbridge-project-status.md) includes the isolated partial-install failure reproduction and exact validation limits. Do not repeat denied operations or call backend JSON proof a UI screenshot.
 
+`LWB-PM12-001` now passes isolated recovery/ownership fault testing: rollback is armed before the first candidate replacement, exact original triplet hashes are verified during restoration, interrupted recovery is durable, and separate helper processes contend on one shared operation lease. PM12-A still has one prerequisite before another installed-file mutation run: exact installation/session/PID targeting. The environment rejected the attempted process-control patch, so that denied operation was not rerouted; PM12-B/C isolated work remains independent and can continue.
+
 ## Historical review 10 — continue beyond saved replay
 
 PM reviewed `01f139d`, verified the full local capture against the committed excerpt, and reproduced its display. The active outcome below is **still open**: `--first-live-result` only replays a saved file and does not connect to the game. Deferred work stays deferred until fresh app-initiated acquisition is demonstrated.
