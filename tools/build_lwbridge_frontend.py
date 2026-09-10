@@ -70,6 +70,16 @@ def build(check=False):
             s = replace_once(s, 'new Set([`overview`])',
                             'new Set([window.LWBridgePreview.view])')
             data = s.encode('utf-8')
+        elif path.name == 'MapDataPanel-C1HVeNHr.js':
+            s = data.decode('utf-8')
+            # IMPLEMENTATION POLICY: bounded current-view resource captures do not
+            # prove gathering occupancy. Preserve the recovered formatter for every
+            # original row, but show an unknown marker for rows carrying the rebuild-
+            # only evidence flag emitted by FirstLiveResultImporter.
+            original_status = 'value:e=>{let n=Ge(e);return j(r,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}'
+            bounded_status = 'value:e=>{if(k(e,`rebuildGatherOccupancyKnown`)===!1)return`—`;let n=Ge(e);return j(r,n?`300039`:`372138`,t(n?`map.resourceGathering`:`map.resourceIdle`))}'
+            s = replace_once(s, original_status, bounded_status)
+            data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')
     html = replace_once(html, '<script type="module"', '<script src="./preview-host.js"></script>\n    <script type="module"')

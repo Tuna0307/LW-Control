@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-004",
+  "date": "2026-09-10",
+  "baseCommit": "3a2ad435f2fffac705ae561aaf610c8d99fba8ca",
+  "branch": "research/offline-controller",
+  "status": {
+    "pm12D": "PARTIAL IMPLEMENTED/OFFLINE-TESTED",
+    "normalWindowProof": "UNKNOWN/BLOCKED LIVE UI PROOF"
+  },
+  "scope": "Prevent the bounded current-view resource adapter from displaying an unsupported Idle gathering state when the live source does not contain gathering occupancy. This checkpoint changes no installed game file, starts/stops no game process, and performs no fresh live acquisition.",
+  "sourceIdentity": {
+    "lwbridgeReference": {
+      "path": "../LW/lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "recoveredMapDataAsset": {
+      "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "generatedMapDataAssetSha256": "9d31a3134db6c0627c898f2482ed5152c51624d0a8cec472d01b1e2fbf346cde",
+    "importerSha256": "c5e7e363b5348eaf2cdf01c446893f8c1a06e4c000442805383ab26dbc502ddb",
+    "frontendBuilderSha256": "c6a510a2fdf23fabc6645a909deb1afdcd16f63a292b0eb5770bbb47ecf70b14",
+    "windowSha256": "d7311692eb401bc40b27440151f7b2e06f01fc9826663053f657d3755043d8d4"
+  },
+  "locators": [
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js: minified resource status formatter calls Ge(row); Ge checks only gatherMarchUuid/gatherUid and the formatter selects localization 300039/map.resourceGathering when present, otherwise 372138/map.resourceIdle",
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs:128-143 normalizes the bounded resource_point row and now emits rebuildGatherOccupancyKnown=false as an IMPLEMENTATION POLICY field",
+    "tools/build_lwbridge_frontend.py:73-82 rewrites exactly one recovered resource-status formatter so only rows with rebuildGatherOccupancyKnown=false render an em dash; ordinary rows retain the recovered formatter",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs:156-202 saved-capture replay keeps only its replay banner/control disabling; the old row-cell occupancy mutation is removed",
+    "tests/LWBridge.Desktop.Checks/Program.cs:539-546 verifies bounded import preserves missing resourceNameKey/level and explicitly marks occupancy unknown"
+  ],
+  "reproduction": [
+    "python tools/build_lwbridge_frontend.py",
+    "python tools/build_lwbridge_frontend.py --check",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj",
+    "$env:NODE_PATH=(npm root -g).Trim(); node tools/check_lwbridge_frontend.cjs"
+  ],
+  "result": {
+    "recoveredFact": "The recovered LWBridge Map Data resource renderer derives Gathering versus Idle solely from nonempty/nonzero gatherMarchUuid or gatherUid. If both are absent, it renders Idle.",
+    "sourceLimit": "The bounded current_live_resource_probe.lua resource_point capture does not acquire gatherMarchUuid, gatherUid or another authoritative occupancy field. Their absence therefore cannot prove Idle.",
+    "implementationPolicy": [
+      "FirstLiveResultImporter adds rebuildGatherOccupancyKnown=false only to bounded imported current-view resource rows.",
+      "The generated frontend renders an em dash for resource status only when that explicit rebuild-only flag is false.",
+      "Rows without the rebuild-only flag keep the recovered original Idle/Gathering behavior.",
+      "The saved replay no longer relies on a coordinate-specific DOM mutation for occupancy; replay and normal bounded live rows now share the same data-driven unknown-state handling."
+    ]
+  },
+  "validation": [
+    {
+      "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "result": "PASS: 0 warnings, 0 errors"
+    },
+    {
+      "command": "python tools\\build_lwbridge_frontend.py --check",
+      "result": "PASS: recovered asset hashes verified and generated frontend is current"
+    },
+    {
+      "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj",
+      "result": "PASS: deterministic groups true; failures=[]; installed diagnostic valid; game and launcher stopped"
+    },
+    {
+      "command": "$env:NODE_PATH=(npm root -g).Trim(); node tools\\check_lwbridge_frontend.cjs",
+      "result": "PASS: 35 browser checks; screenshot pairs written under .codex-live/lwbridge-ui-verification"
+    }
+  ],
+  "restrictions": [
+    "One combined read-only repository inspection was automatically rejected before execution because safety status could not be determined. It was not replayed as a bundle; narrower repository-local reads succeeded and the rejection contributes no technical finding.",
+    "The first browser-check invocation failed because the shell did not expose the globally installed playwright module. Repository documentation requires Playwright; npm root -g confirmed it was already installed, and the check passed after setting NODE_PATH to that existing location.",
+    "The current Computer Use registry explicitly reports native computer APIs disabled. Browser control is available, but it cannot click or capture the native LWBridge.Desktop window for PM12-D. No denied native-control operation was rerouted."
+  ],
+  "limits": [
+    "This checkpoint fixes the unsupported Idle display claim only. It does not recover actual gather occupancy, resource-name localization, quantity/ownership, or full resource schema.",
+    "No normal-window live Start Scan was performed, so PM12-D remains partial and has no new live UI screenshot/interaction proof.",
+    "PM12-A/C still require fresh live exercise of the selected path/profile/launch-session/PID chain; scoped native close remains required only if exact restoration fails while the owned PID is open.",
+    "Original bridge readiness, continuous connection, full-world scan scheduling, Normal/Fast semantic parity and non-resource kinds remain UNKNOWN/BLOCKED. No task.md full acceptance case is newly signed off."
+  ],
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/FirstLiveResultImporter.cs",
+      "tools/build_lwbridge_frontend.py",
+      "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+      "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "backlog": "Advances PM12-D truthful-unknown rendering. Normal native-window fresh-row proof remains the exact user-visible gate."
+  }
+}

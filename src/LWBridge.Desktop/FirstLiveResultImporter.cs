@@ -136,6 +136,10 @@ internal static class FirstLiveResultImporter
         normalized["recordKey"] = recordKey;
         normalized["pointIndex"] = pointIndex;
         normalized["updatedAt"] = updatedAt;
+        // IMPLEMENTATION POLICY: the bounded current-view probe does not recover
+        // gather occupancy. Mark that absence explicitly so the generated UI does
+        // not turn missing gather IDs into the original row formatter's Idle state.
+        normalized["rebuildGatherOccupancyKnown"] = false;
         string dataJson = normalized.ToJsonString(JsonOptions.Default);
 
         int? level = TryReadInt(point, "level", out int parsedLevel) ? parsedLevel : null;

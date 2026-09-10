@@ -541,8 +541,9 @@ try
             Check(replayData.RootElement.GetProperty("kind").GetString() == "resource" &&
                   replayData.RootElement.GetProperty("sourceKind").GetString() == "resource_point" &&
                   !replayData.RootElement.TryGetProperty("resourceNameKey", out _) &&
-                  !replayData.RootElement.TryGetProperty("level", out _),
-                "first-live replay maps only the bounded public kind and does not fabricate optional resource fields");
+                  !replayData.RootElement.TryGetProperty("level", out _) &&
+                  replayData.RootElement.GetProperty("rebuildGatherOccupancyKnown").ValueKind == JsonValueKind.False,
+                "first-live replay maps only the bounded public kind, preserves optional resource unknowns, and marks gathering occupancy unknown");
         }
         Check(replay.Store.CountRecords("resource", 2212) == 1,
             "first-live replay stores exactly one imported resource in its isolated map index");

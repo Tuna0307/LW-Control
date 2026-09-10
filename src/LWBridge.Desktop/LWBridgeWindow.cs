@@ -155,7 +155,6 @@ internal sealed class LWBridgeWindow : Form
                 "(()=>{try{const s=new URL(location.href).searchParams.get('nativeSession');if(s)window.__LWBridgeBootstrap.sessionId=s;}catch{}})();");
             if (firstLiveResult is not null)
             {
-                string expectedCoordinate = JsonSerializer.Serialize($"{firstLiveResult.X},{firstLiveResult.Y}");
                 string capturedAt = JsonSerializer.Serialize(
                     DateTimeOffset.FromUnixTimeMilliseconds(firstLiveResult.CapturedAtUnixMilliseconds)
                         .UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'"));
@@ -164,7 +163,6 @@ internal sealed class LWBridgeWindow : Form
                 string probeVersion = JsonSerializer.Serialize(firstLiveResult.ProbeVersion ?? "unknown");
                 await core.AddScriptToExecuteOnDocumentCreatedAsync($$"""
                     (() => {
-                      const expectedCoordinate = {{expectedCoordinate}};
                       const capturedAt = {{capturedAt}};
                       const replaySource = {{replaySource}};
                       const captureSha256 = {{captureSha256}};
@@ -192,18 +190,6 @@ internal sealed class LWBridgeWindow : Form
                           control.disabled = true;
                           control.setAttribute('aria-disabled', 'true');
                           control.title = 'Disabled in saved capture replay mode';
-                        }
-                        for (const row of document.querySelectorAll('.map-table--resource tbody tr.map-row')) {
-                          const cells = row.querySelectorAll('td');
-                          if (cells.length < 5 || !cells[0].innerText.includes(expectedCoordinate)) continue;
-                          // IMPLEMENTATION POLICY: the current live probe proves the
-                          // resource row but not its gathering occupancy. The recovered
-                          // frontend otherwise renders missing gather IDs as "Idle".
-                          // In this bounded evidence mode only, render an unknown marker
-                          // rather than turning absence of evidence into a live-state claim.
-                          if (cells[3].textContent !== '—') cells[3].textContent = '—';
-                          cells[3].title = 'Gathering occupancy unavailable in the captured live source';
-                          cells[3].dataset.firstLiveStatus = 'unknown';
                         }
                       };
                       new MutationObserver(applyReplayMode).observe(document, {
