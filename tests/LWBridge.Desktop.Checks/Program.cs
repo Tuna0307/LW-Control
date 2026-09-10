@@ -34,6 +34,20 @@ void ExpectConfigError(string expectedCode, string name, Action action)
     }
 }
 
+void ExpectInvalidData(string expectedMessageFragment, string name, Action action)
+{
+    try
+    {
+        action();
+        failures.Add(name);
+    }
+    catch (InvalidDataException error)
+    {
+        Check(error.Message.Contains(expectedMessageFragment, StringComparison.OrdinalIgnoreCase),
+            name + $" (expected message containing {expectedMessageFragment}, got {error.Message})");
+    }
+}
+
 string FindRepoRoot()
 {
     DirectoryInfo? current = new(Directory.GetCurrentDirectory());
@@ -323,6 +337,164 @@ await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "launch remains
 
 await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "map summary remains fail-closed until native summary state is recovered", async () =>
     await backend.InvokeAsync("map_summary", profilePayload.RootElement.Clone(), CancellationToken.None));
+
+// PM10-03: saved-capture replay is a bounded importer with its own in-memory
+// store. Invalid or out-of-slice resource identities fail closed instead of
+// silently selecting a later record, and normal production gates stay closed.
+string firstLiveReplayRoot = Path.Combine(Path.GetTempPath(), "lwbridge-first-live-replay-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(firstLiveReplayRoot);
+try
+{
+    string validReplayPath = Path.Combine(firstLiveReplayRoot, "valid.json");
+    File.WriteAllText(validReplayPath, """
+        {
+          "sourceCaptureSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "probeVersion": "lwcontrol-world-full-scan-probe-9",
+          "point_records": [
+            {
+              "kind": "resource_point",
+              "serverId": 2212,
+              "pointId": 1006,
+              "x": 5,
+              "y": 1,
+              "source": "WorldPointManager._pointInfos"
+            }
+          ]
+        }
+        """);
+
+    FirstLiveReplay replay = FirstLiveResultImporter.CreateIsolatedReplay(validReplayPath);
+    using (replay.Store)
+    {
+        Check(replay.Import.ServerId == 2212 && replay.Import.PointIndex == 1006 &&
+              replay.Import.X == 5 && replay.Import.Y == 1,
+            "first-live replay imports the source-backed resource identity and coordinates");
+        Check(replay.Import.Level is null && replay.Import.ProbeVersion == "lwcontrol-world-full-scan-probe-9" &&
+              replay.Import.DeclaredSourceCaptureSha256 == "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "first-live replay preserves capture provenance while optional unsupported fields remain unknown");
+        using (JsonDocument replayData = JsonDocument.Parse(replay.Import.DataJson))
+        {
+            Check(replayData.RootElement.GetProperty("kind").GetString() == "resource" &&
+                  replayData.RootElement.GetProperty("sourceKind").GetString() == "resource_point" &&
+                  !replayData.RootElement.TryGetProperty("resourceNameKey", out _) &&
+                  !replayData.RootElement.TryGetProperty("level", out _),
+                "first-live replay maps only the bounded public kind and does not fabricate optional resource fields");
+        }
+        Check(replay.Store.CountRecords("resource", 2212) == 1,
+            "first-live replay stores exactly one imported resource in its isolated map index");
+
+        var replayBackend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            mapData: replay.Store,
+            firstLiveResultServerId: replay.Import.ServerId);
+        using JsonDocument replayProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = replayBackend.ProfileId }));
+        object? replaySummary = await replayBackend.InvokeAsync("map_summary", replayProfile.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument replaySummaryJson = JsonDocument.Parse(JsonSerializer.Serialize(replaySummary, JsonOptions.Default)))
+        {
+            JsonElement scanState = replaySummaryJson.RootElement.GetProperty("scanState");
+            Check(scanState.GetProperty("phase").GetString() == "unavailable" &&
+                  scanState.GetProperty("serverIdSource").GetString() == "saved_capture_replay" &&
+                  scanState.GetProperty("isReading").ValueKind == JsonValueKind.False,
+                "saved-capture summary explicitly reports replay data without an active fresh scan");
+        }
+        await ExpectBridgeError("BRIDGE_NOT_READY", "saved-capture replay cannot start a production map scan", async () =>
+            await replayBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+            {
+                profileId = replayBackend.ProfileId,
+                serverId = 2212,
+                selectedTypes = new[] { "resource" },
+            })).RootElement.Clone(), CancellationToken.None));
+    }
+
+    using (var productionMapStore = MapDataStore.CreateInMemory())
+    {
+        var productionMapBackend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            mapData: productionMapStore);
+        Check(productionMapStore.CountRecords("resource", 2212) == 0,
+            "saved replay import never writes into a separate production map index");
+        using JsonDocument productionProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = productionMapBackend.ProfileId }));
+        await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "production map summary remains closed after a replay import", async () =>
+            await productionMapBackend.InvokeAsync("map_summary", productionProfile.RootElement.Clone(), CancellationToken.None));
+        await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "production launch gate remains closed after a replay import", async () =>
+            await productionMapBackend.InvokeAsync("profile_instance_start", productionProfile.RootElement.Clone(), CancellationToken.None));
+    }
+
+    string missingTimestampPath = Path.Combine(firstLiveReplayRoot, "missing-timestamp.json");
+    File.WriteAllText(missingTimestampPath, "{\"point_records\":[]}");
+    ExpectInvalidData("capturedAt", "first-live replay rejects a missing capture timestamp", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(missingTimestampPath));
+
+    string invalidTimestampPath = Path.Combine(firstLiveReplayRoot, "invalid-timestamp.json");
+    File.WriteAllText(invalidTimestampPath, "{\"capturedAt\":\"not-a-time\",\"point_records\":[]}");
+    ExpectInvalidData("capturedAt", "first-live replay rejects an invalid capture timestamp", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(invalidTimestampPath));
+
+    string missingRecordsPath = Path.Combine(firstLiveReplayRoot, "missing-records.json");
+    File.WriteAllText(missingRecordsPath, "{\"capturedAt\":\"2026-09-09T19:02:27Z\"}");
+    ExpectInvalidData("point_records", "first-live replay rejects missing point records", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(missingRecordsPath));
+
+    string invalidFirstResourcePath = Path.Combine(firstLiveReplayRoot, "invalid-first-resource.json");
+    File.WriteAllText(invalidFirstResourcePath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":2212,"pointId":1006,"x":0,"y":1},
+            {"kind":"resource_point","serverId":2212,"pointId":1007,"x":6,"y":2}
+          ]
+        }
+        """);
+    ExpectInvalidData("x", "first-live replay fails on the first out-of-slice resource instead of silently choosing a later record", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(invalidFirstResourcePath));
+
+    string overflowCoordinatePath = Path.Combine(firstLiveReplayRoot, "overflow-coordinate.json");
+    File.WriteAllText(overflowCoordinatePath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":2212,"pointId":1006,"x":2147483648,"y":1}
+          ]
+        }
+        """);
+    ExpectInvalidData("x", "first-live replay rejects coordinates outside the documented Int32 demo boundary", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(overflowCoordinatePath));
+
+    string invalidServerPath = Path.Combine(firstLiveReplayRoot, "invalid-server.json");
+    File.WriteAllText(invalidServerPath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":100000,"pointId":1006,"x":5,"y":1}
+          ]
+        }
+        """);
+    ExpectInvalidData("1 through 99999", "first-live replay enforces the recovered public Map Data server boundary before storage", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(invalidServerPath));
+
+    string maxBoundaryPath = Path.Combine(firstLiveReplayRoot, "max-boundary.json");
+    File.WriteAllText(maxBoundaryPath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":99999,"pointId":2147483647,"x":2147483647,"y":2147483647}
+          ]
+        }
+        """);
+    FirstLiveReplay maxBoundaryReplay = FirstLiveResultImporter.CreateIsolatedReplay(maxBoundaryPath);
+    using (maxBoundaryReplay.Store)
+    {
+        Check(maxBoundaryReplay.Import.ServerId == 99999 && maxBoundaryReplay.Import.PointIndex == int.MaxValue &&
+              maxBoundaryReplay.Import.X == int.MaxValue && maxBoundaryReplay.Import.Y == int.MaxValue,
+            "first-live replay accepts the documented positive Int32 upper boundary");
+    }
+}
+finally
+{
+    try { Directory.Delete(firstLiveReplayRoot, recursive: true); }
+    catch { }
+}
 
 using JsonDocument scalarPayload = JsonDocument.Parse("\"bad\"");
 await ExpectBridgeError("INVALID_PAYLOAD", "native boundary rejects non-object payloads", async () =>

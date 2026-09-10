@@ -359,7 +359,10 @@ internal sealed class LWBridgeBackend
     }
 
     private object CreateCurrentMapScanStatus() => firstLiveResultServerId is int serverId
-        ? CreateMapScanStatus(serverId, "idle", null, "first_live_result_capture")
+        // IMPLEMENTATION POLICY: saved-capture replay has no active acquisition
+        // session. Keep scan state unavailable and identify the source explicitly
+        // so UI/status consumers cannot mistake the replay for a fresh idle scan.
+        ? CreateMapScanStatus(serverId, "unavailable", null, "saved_capture_replay")
         : CreateMapScanStatus();
 
     private static object CreateMapScanStatus(

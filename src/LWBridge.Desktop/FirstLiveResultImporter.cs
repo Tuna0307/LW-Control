@@ -15,10 +15,28 @@ internal sealed record FirstLiveResultImport(
     long CapturedAtUnixMilliseconds,
     string CaptureSha256,
     string SourcePath,
+    string? ProbeVersion,
+    string? DeclaredSourceCaptureSha256,
     string DataJson);
+
+internal sealed record FirstLiveReplay(MapDataStore Store, FirstLiveResultImport Import);
 
 internal static class FirstLiveResultImporter
 {
+    public static FirstLiveReplay CreateIsolatedReplay(string diagnosticsPath)
+    {
+        MapDataStore store = MapDataStore.CreateInMemory();
+        try
+        {
+            return new FirstLiveReplay(store, ImportOneResource(store, diagnosticsPath));
+        }
+        catch
+        {
+            store.Dispose();
+            throw;
+        }
+    }
+
     public static FirstLiveResultImport ImportOneResource(MapDataStore store, string diagnosticsPath)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -63,13 +81,20 @@ internal static class FirstLiveResultImporter
                 continue;
             }
 
-            if (!TryReadPositiveInt(candidate, "serverId", out _) ||
-                !TryReadPositiveInt(candidate, "pointId", out _) ||
-                !TryReadPositiveInt(candidate, "x", out _) ||
-                !TryReadPositiveInt(candidate, "y", out _))
+            // IMPLEMENTATION POLICY: this bounded replay importer currently
+            // accepts only the positive Int32 identity/coordinate slice already
+            // exercised by LWB-R7-001. Do not silently skip an out-of-slice
+            // resource and present a later row as though the whole source had
+            // been accepted.
+            int candidateServerId = RequirePositiveInt32(candidate, "serverId");
+            if (candidateServerId > 99999)
             {
-                continue;
+                throw new InvalidDataException(
+                    "First-live replay resource serverId must be within the recovered public Map Data range 1 through 99999.");
             }
+            RequirePositiveInt32(candidate, "pointId");
+            RequirePositiveInt32(candidate, "x");
+            RequirePositiveInt32(candidate, "y");
 
             selected = candidate.Clone();
             break;
@@ -127,7 +152,19 @@ internal static class FirstLiveResultImporter
             updatedAt,
             captureSha256,
             sourcePath,
+            ReadNonEmptyString(root, "probeVersion"),
+            ReadNonEmptyString(root, "sourceCaptureSha256"),
             dataJson);
+    }
+
+    private static int RequirePositiveInt32(JsonElement value, string propertyName)
+    {
+        if (!TryReadPositiveInt(value, propertyName, out int result))
+        {
+            throw new InvalidDataException(
+                $"First-live replay resource {propertyName} must be a positive Int32 in the bounded LWB-R7-001 importer.");
+        }
+        return result;
     }
 
     private static bool TryReadPositiveInt(JsonElement value, string propertyName, out int result) =>

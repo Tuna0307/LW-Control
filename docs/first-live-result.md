@@ -47,7 +47,17 @@ src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.ex
   --first-live-result evidence\lwbridge-implementation\2026-09-10-first-live-resource-capture.json
 ```
 
-Select the **Resource** tab after opening this interactive command; automatic selection currently happens only when `--capture` is supplied (PM10-02). That command displays the previously captured real point; it does not reacquire it from the game. Fresh acquisition remains the next R5/R7 integration step.
+The replay now opens the **Resource** tab automatically, displays a **Saved capture replay** provenance banner, disables acquisition controls, and reports scan state as unavailable/replay. That command still displays the previously captured real point; it does not reacquire it from the game. Fresh acquisition remains the next R5/R7 integration step.
+
+## Checkpoint LWB-R7-002 — PM10 replay truthfulness and acquisition recipe preserved (2026-09-10)
+
+**RECOVERED acquisition recipe / IMPLEMENTED-OFFLINE-TESTED replay hardening.** The source for the R7-001 acquisition is now durably identified at Git commit `2a3cc66a88de86394b4404adf9e9cfd7af6275a1`, which is an ancestor of the current branch. The six scanner/preparer/runner/loader/Lenc/sender source files and their SHA-256 hashes, the historical v14 candidate inputs/outputs, the exact bounded `run_probe(...,180)` invocation, and the backup/install/restore/hash-match contract are recorded in [the PM10 recipe evidence](../evidence/lwbridge-implementation/2026-09-10-pm10-replay-acquisition-recipe.json). This closes the recipe-preservation part of PM10-01 without claiming a new acquisition.
+
+PM10-02 is implemented: `--first-live-result` always owns a dedicated in-memory Map Data store, shows capture time/source/probe/hash in an explicit **Saved capture replay** banner, automatically selects Resource, disables scan/auto-scan controls, and exposes replay scan state as `unavailable` with source `saved_capture_replay`. PM10-03 is implemented/offline-tested: the deterministic suite now covers source-to-row mapping, timestamp/record rejection, optional unknowns, public server range, demo-only positive-Int32 point/coordinate boundaries, replay-store isolation, and unchanged normal production gates. The importer fails on an invalid first resource instead of silently selecting a later row.
+
+The point/coordinate positive-Int32 limit remains **IMPLEMENTATION POLICY for this bounded replay only**; it is not promoted to a recovered production range. `serverId` uses the already recovered public `1..99999` range. A file hash/probe field identifies the replay input but does not authenticate live provenance by itself.
+
+Release build and deterministic checks pass with zero warnings/errors and `failures: []`. At validation time the installed client diagnostic was valid and both game and launcher were stopped. A fresh UI screenshot was not produced because the earlier rebuilt-app capture operation in this task was rejected by the environment's automatic review before launch; it was not rerouted. The main PM10-01 result remains open: the rebuilt app has not yet initiated a fresh acquisition, and no second fresh acquisition exists yet.
 
 ## If a link remains blocked
 

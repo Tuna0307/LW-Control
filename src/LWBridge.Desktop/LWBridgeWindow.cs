@@ -83,14 +83,20 @@ internal sealed class LWBridgeWindow : Form
         {
             config = new LocalConfigStore(persistent: !isolated);
         }
-        mapData = isolated
-            ? MapDataStore.CreateInMemory()
-            : new MapDataStore(Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
-        firstLiveResult = firstLiveResultPath is null
-            ? null
-            : FirstLiveResultImporter.ImportOneResource(mapData, firstLiveResultPath);
+        if (firstLiveResultPath is not null)
+        {
+            FirstLiveReplay replay = FirstLiveResultImporter.CreateIsolatedReplay(firstLiveResultPath);
+            mapData = replay.Store;
+            firstLiveResult = replay.Import;
+        }
+        else
+        {
+            mapData = isolated
+                ? MapDataStore.CreateInMemory()
+                : new MapDataStore(Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
+        }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
         backend = new LWBridgeBackend(
             config,
@@ -137,10 +143,43 @@ internal sealed class LWBridgeWindow : Form
             if (firstLiveResult is not null)
             {
                 string expectedCoordinate = JsonSerializer.Serialize($"{firstLiveResult.X},{firstLiveResult.Y}");
+                string capturedAt = JsonSerializer.Serialize(
+                    DateTimeOffset.FromUnixTimeMilliseconds(firstLiveResult.CapturedAtUnixMilliseconds)
+                        .UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'"));
+                string replaySource = JsonSerializer.Serialize(Path.GetFileName(firstLiveResult.SourcePath));
+                string captureSha256 = JsonSerializer.Serialize(firstLiveResult.CaptureSha256);
+                string probeVersion = JsonSerializer.Serialize(firstLiveResult.ProbeVersion ?? "unknown");
                 await core.AddScriptToExecuteOnDocumentCreatedAsync($$"""
                     (() => {
                       const expectedCoordinate = {{expectedCoordinate}};
-                      const applyTruthfulResourceStatus = () => {
+                      const capturedAt = {{capturedAt}};
+                      const replaySource = {{replaySource}};
+                      const captureSha256 = {{captureSha256}};
+                      const probeVersion = {{probeVersion}};
+                      const applyReplayMode = () => {
+                        const panel = document.querySelector('.panel.map-panel');
+                        if (!panel) return;
+                        let banner = panel.querySelector('.first-live-replay-banner');
+                        if (!banner) {
+                          banner = document.createElement('div');
+                          banner.className = 'first-live-replay-banner';
+                          banner.setAttribute('role', 'status');
+                          banner.style.cssText = 'margin:0 0 12px;padding:10px 12px;border:1px solid currentColor;border-radius:8px;line-height:1.45;';
+                          const title = document.createElement('strong');
+                          title.textContent = 'Saved capture replay';
+                          const detail = document.createElement('div');
+                          detail.textContent = `Captured ${capturedAt} · ${replaySource} · probe ${probeVersion} · SHA-256 ${captureSha256}`;
+                          const warning = document.createElement('div');
+                          warning.textContent = 'This view replays saved data. Scan controls are disabled and do not reacquire the game.';
+                          banner.append(title, detail, warning);
+                          panel.prepend(banner);
+                        }
+                        for (const control of panel.querySelectorAll(
+                          '.map-scan-tabs button, .map-header .map-actions button, .map-header .map-actions input, .map-header .map-actions select, .map-auto-scan-card button, .map-auto-scan-card input, .map-auto-scan-card select, .panel.map-panel > .map-controls input')) {
+                          control.disabled = true;
+                          control.setAttribute('aria-disabled', 'true');
+                          control.title = 'Disabled in saved capture replay mode';
+                        }
                         for (const row of document.querySelectorAll('.map-table--resource tbody tr.map-row')) {
                           const cells = row.querySelectorAll('td');
                           if (cells.length < 5 || !cells[0].innerText.includes(expectedCoordinate)) continue;
@@ -154,12 +193,12 @@ internal sealed class LWBridgeWindow : Form
                           cells[3].dataset.firstLiveStatus = 'unknown';
                         }
                       };
-                      new MutationObserver(applyTruthfulResourceStatus).observe(document, {
+                      new MutationObserver(applyReplayMode).observe(document, {
                         childList: true,
                         subtree: true,
                         characterData: true
                       });
-                      document.addEventListener('DOMContentLoaded', applyTruthfulResourceStatus);
+                      document.addEventListener('DOMContentLoaded', applyReplayMode);
                     })();
                     """);
             }
@@ -190,6 +229,8 @@ internal sealed class LWBridgeWindow : Form
             if (theme is not null) url += "&theme=" + Uri.EscapeDataString(theme);
             core.Navigate(WithDocumentSession(url, documentSession.Id));
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            if (firstLiveResult is not null && string.Equals(initialView, "map-data", StringComparison.Ordinal))
+                await SelectFirstLiveResourceAsync(core);
             if (hostProbePath is not null)
             {
                 await RunHostProbeAsync(core, hostProbePath);
@@ -213,23 +254,6 @@ internal sealed class LWBridgeWindow : Form
                     await Task.Delay(100);
                 }
                 if (!rendered) throw new InvalidOperationException("The recovered feature page did not render.");
-                if (firstLiveResult is not null && string.Equals(initialView, "map-data", StringComparison.Ordinal))
-                {
-                    await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
-                    bool resourceRendered = false;
-                    string expectedCoordinate = JsonSerializer.Serialize($"{firstLiveResult.X},{firstLiveResult.Y}");
-                    for (int attempt = 0; attempt < 120; attempt++)
-                    {
-                        if (await core.ExecuteScriptAsync($"document.body.innerText.includes({expectedCoordinate})") == "true")
-                        {
-                            resourceRendered = true;
-                            break;
-                        }
-                        await Task.Delay(100);
-                    }
-                    if (!resourceRendered)
-                        throw new InvalidOperationException("The first-live resource row did not render in Map Data.");
-                }
                 await Task.Delay(600);
                 string diagnostics = await core.ExecuteScriptAsync("JSON.stringify({view:window.LWBridgePreview.view,errors:window.LWBridgePreview.failures,commands:window.LWBridgePreview.calls,text:document.body.innerText})");
                 Directory.CreateDirectory(Path.GetDirectoryName(capturePath)!);
@@ -254,6 +278,33 @@ internal sealed class LWBridgeWindow : Form
             if (hostProbePath is not null)
                 HostProbeFinished?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    private async Task SelectFirstLiveResourceAsync(CoreWebView2 core)
+    {
+        if (firstLiveResult is null) return;
+        bool resourceTabReady = false;
+        for (int attempt = 0; attempt < 120; attempt++)
+        {
+            if (await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button').length > 1") == "true")
+            {
+                resourceTabReady = true;
+                break;
+            }
+            await Task.Delay(100);
+        }
+        if (!resourceTabReady)
+            throw new InvalidOperationException("The Map Data resource tab did not render for saved capture replay.");
+
+        await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
+        string expectedCoordinate = JsonSerializer.Serialize($"{firstLiveResult.X},{firstLiveResult.Y}");
+        for (int attempt = 0; attempt < 120; attempt++)
+        {
+            if (await core.ExecuteScriptAsync($"document.body.innerText.includes({expectedCoordinate})") == "true")
+                return;
+            await Task.Delay(100);
+        }
+        throw new InvalidOperationException("The saved-capture resource row did not render in Map Data.");
     }
 
     private void OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs args)

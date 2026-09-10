@@ -52,9 +52,9 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 
 ## Immediate priorities — review 10
 
-- [ ] **PM10-01 / regular AI / FIRST:** preserve the exact supported capture source/tool recipe and restoration proof, then integrate fresh app-initiated resource acquisition. Do not mistake the existing capture replay for this result.
-- [ ] **PM10-02 / regular AI:** make replay mode/source time explicit and correct interactive Resource-tab instructions; keep normal recovered UI separate.
-- [ ] **PM10-03 / regular AI:** add importer/provenance-limit, boundary, isolation and production-gate regression checks as part of the integration checkpoint.
+- [ ] **PM10-01 / regular AI / FIRST:** `LWB-R7-002` preserves the exact historical source commit/file hashes, v14 candidate identity, bounded run invocation and protected-file restoration/hash contract. Fresh app-initiated acquisition and the required second fresh acquisition remain open; do not mistake replay or historical executability for this result.
+- [x] **PM10-02 / regular AI:** `LWB-R7-002` clearly labels saved replay with capture provenance, isolates it in its own in-memory store, auto-selects Resource, disables acquisition controls and reports unavailable/replay scan state.
+- [x] **PM10-03 / regular AI:** `LWB-R7-002` adds source-to-row, invalid timestamp/record, optional-unknown, recovered server-range, demo-only ID/coordinate-boundary, isolation and normal-production-gate regression checks.
 
 - [x] **PM8-0 recovery:** user deleted data/reinstalled; AI verified successful official update/startup. Current scripts v14; sampled core binaries unchanged. Preserve failed-delta evidence; do not repair again.
 - [x] **LWB-PM9-001 comparison:** fresh core/script/table hashes and failed-versus-accepted output comparison documented. Exact gameplay changes/defect cause still unknown.
@@ -62,6 +62,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [x] **PM7-A:** source-aware counts/options service implemented and tested; public options remain unavailable.
 - [x] **R6-047–051 research accepted:** upsert layout, original identity/scalars and current managed field ownership. These do not deliver capture/scan integration.
 - [x] **LWB-R7-001 bounded real-row checkpoint:** current build-1078 game probe captured point `1006` at `5,1`, server `2212`, level `3`; isolated rebuild replay displays it as one Resource row with unsupported name/gather state left unknown. This is real-source evidence, not production scan ownership.
+- [x] **LWB-R7-002 PM10 replay/recipe checkpoint:** historical acquisition source/recipe is durable; replay presentation and storage are explicitly isolated and focused regressions pass. No new live acquisition is claimed.
 - [ ] **PM7-C/R5 / ACTIVE production path:** make the rebuilt app establish the supported bridge/session and acquire the next resource row freshly through production `map_scan_start`; recover only the missing serializer/lifecycle contracts needed for that result.
 - [ ] **PM7-B / ESC-005:** remaining provider/handler readiness and a specific permissible method packet; PM7-D remains independent backlog.
 
