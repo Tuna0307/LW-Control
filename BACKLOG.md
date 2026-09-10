@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-10
 
-Project-manager review 11 audited `37a1dac`: replay hardening/tests and pipe discovery are accepted. Post-review `LWB-R7-003` now has two rebuild-initiated fresh current-client resource reads through a bounded implementation-policy route, pending PM review; original LWBridge pipe parity and normal-window visual proof remain open. See [the audit](docs/lwbridge-project-status.md), [regular handoff](docs/implementation-handoff.md) and [escalation register](docs/daybreak-escalations.md). No new full acceptance case is signed off without PM review.
+Project-manager review 12 audited `749b8e3`: two bounded fresh app reads/backend ingestion accepted, original-pipe parity not required for that slice. PM10-01 remains partial; regular AI continues PM12-A–D without another route-decision gate. See [the audit](docs/lwbridge-project-status.md) and [ordered handoff](docs/implementation-handoff.md).
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -50,29 +50,21 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [ ] **PM7-C / regular AI:** native identity/normalization and smallest scan path, alongside R5 launch/handshake prerequisites; `LWB-R6-049` recovers the original normalized `record_key` formula and its write into the R6-047 `+0x78` slot. `LWB-R6-050` pins current `PointInfo.pointIndex/mainIndex/uuid`, their generated xLua backing tokens, constructor stores, and `ResPointInfo.gatherMarchUuid`/resource getters. `LWB-R6-051` additionally pins the original normalized `level`, `quality`, `power`, distance fallback, and shield/protect fallback field sources. `LWB-R7-001` adds a bounded current-game acquisition/display checkpoint: an instrumented v14 run captured one real server-2212 resource row and isolated `--first-live-result` displays it through the rebuilt store/query/UI without guessing resource-name or gather state. Production capture/serializer ownership, bridge/session connection, remaining resource normalization/removal and live scan lifecycle remain open.
 - [ ] **PM7-D / regular AI / DEFERRED:** remaining schema/export/sort evidence and specific ESC-002/004 packets after the fresh app-initiated result, unless a named prerequisite directly blocks it.
 
-## Immediate priorities — review 11
+## Immediate priorities — review 12
 
-- [ ] **PM10-01 / PM REVIEW REQUIRED:** post-review `LWB-R7-003` now proves two rebuild-initiated fresh resource reads through the bounded current-client route, including distinct request/capture correlation, normal `MapDataStore` ingestion/query and exact package restoration. PM must decide whether this satisfies the supported-connection milestone. Original `hello.ack`/heartbeat/request-result parity and normal-window visual proof remain separate open gates.
-- [ ] **PM11-02 / validation pending:** verify the new replay banner, initial Resource selection and disabled acquisition controls through a permitted method; prior capture denial remains in force. Not a substitute for the connection task.
-- [x] **PM11-01 / PM:** corrected the unsupported inference that keyword-history searches proved no reusable prior session implementation exists.
+- [x] **PM route decision:** accept R7-003's two recorded current-client acquisitions and backend ingestion as a bounded PM10-01 slice. Full milestone and full-case acceptance stay open.
+- [ ] **PM12-A / FIRST:** fix partial-install rollback (reproduced on dummy files), cross-process ownership/backup recovery and exact installation/PID targeting before more installed-file live tests.
+- [ ] **PM12-B:** duplicate Start, Stop/cancel, timeout, late persistence and window/store cleanup; validate with fake helpers.
+- [ ] **PM12-C:** immutable same-bytes validation/import; per-request output and current session/profile/server/build/freshness checks; unknown fields preserved.
+- [ ] **PM12-D:** normal window Start Scan to displayed fresh resource, truthful unknown occupancy, second read/refresh and accurate bounded-read scope. Existing native UI restriction remains a proof limitation, not permission to reroute.
+- [ ] **PM10-01 overall:** finish A–D and demonstrate the fresh row in the real UI; do not equate backend proof or two restarts with persistent bridge readiness.
+- [x] **PM10-03:** isolated importer/gate tests implemented; these do not cover PM12-A–C.
+- [x] **R5-006/007, R7-001/002/003:** credit only recorded naming/framing/hello, replay and bounded fresh acquisition slices. PM10-02 visual proof remains pending under PM12-D.
+- [x] **PM8-0 / PM7-A:** user-operated official recovery verified; bounded count/option service implemented. Do not repeat either.
+- [ ] **ESC-005 original-pipe parity / NOT_ASSIGNED:** reviewed and deferred; reopen for a concrete feature dependency and permitted scope. No Daybreak assignment.
+- [ ] **PM9-A / PM7-D:** updater, broad export/schema/sort work deferred while this user-visible milestone is open.
 
-
-- [x] **LWB-R5-006 / PM10-01 connection slice:** recover and live-correlate the original per-user control-pipe path. Rebuild derivation is offline-tested; pipe presence is not bridge readiness.
-- [x] **LWB-R5-007 / PM10-01 connection slice:** recover the control-pipe endpoint roles, 4-byte little-endian frame (`1..0x800000` payload), exact secure-proxy `hello` schema and host handshake/error boundary; implement the frame codec/hello parser without enabling readiness or requests.
-- [x] **PM10-02 / regular AI / IMPLEMENTED, visual proof pending under PM11-02:** `LWB-R7-002` clearly labels saved replay with capture provenance, isolates it in its own in-memory store, auto-selects Resource, disables acquisition controls and reports unavailable/replay scan state.
-- [x] **PM10-03 / regular AI:** `LWB-R7-002` adds source-to-row, invalid timestamp/record, optional-unknown, recovered server-range, demo-only ID/coordinate-boundary, isolation and normal-production-gate regression checks.
-
-- [x] **PM8-0 recovery:** user deleted data/reinstalled; AI verified successful official update/startup. Current scripts v14; sampled core binaries unchanged. Preserve failed-delta evidence; do not repair again.
-- [x] **LWB-PM9-001 comparison:** fresh core/script/table hashes and failed-versus-accepted output comparison documented. Exact gameplay changes/defect cause still unknown.
-- [ ] **PM9-A / standard AI / DEFERRED until first live result:** reusable update-readiness/compatibility service and actual status integration. Track composite fingerprints, ordered failures/freshness, unknown inputs and affected contracts; do not automatically delete data or accept a new baseline. Follow [complete acceptance](docs/lastwar-update-readiness.md).
-- [x] **PM7-A:** source-aware counts/options service implemented and tested; public options remain unavailable.
-- [x] **R6-047–051 research accepted:** upsert layout, original identity/scalars and current managed field ownership. These do not deliver capture/scan integration.
-- [x] **LWB-R7-001 bounded real-row checkpoint:** current build-1078 game probe captured point `1006` at `5,1`, server `2212`, level `3`; isolated rebuild replay displays it as one Resource row with unsupported name/gather state left unknown. This is real-source evidence, not production scan ownership.
-- [x] **LWB-R7-002 PM10 replay/recipe checkpoint:** historical acquisition source/recipe is durable; replay presentation and storage are explicitly isolated and focused regressions pass. No new live acquisition is claimed.
-- [x] **LWB-R7-003 / post-review bounded live path:** normal non-isolated resource-only `map_scan_start` initiates a fresh hash-gated current-client read, correlates the response, imports it into the normal profile store and repeats successfully with a newer capture time. Unsupported kinds and unrelated online-gated actions remain fail-closed; PM acceptance and live-window visual proof are pending.
-- [ ] **PM7-C/R5 / NEXT AFTER PM DECISION:** if R7-003 is accepted for PM10-01, continue the next user-visible live Map Data lifecycle/normalization gap after visual verification; if not, resume the exact original-pipe prerequisite identified by PM. Do not broaden unrelated scan/export work before that decision.
-- [ ] **R5 / original-pipe parity contract:** recover exact host `hello.ack` serialization and heartbeat readiness, then host-to-proxy request/result correlation. ESC-005 remains `READY_FOR_PM_REVIEW`; R7-003 does not claim or infer these semantics.
-- [ ] **PM7-B / ESC-005:** narrow request/result grammar packet is now `READY_FOR_PM_REVIEW`; no specialist is assigned. Remaining broader provider/handler questions stay separate; PM7-D remains deferred backlog.
+The regular AI may continue the ordered supported work after each committed/pushed checkpoint. The review-12 route decision supersedes earlier 'wait for PM' instructions. Keep source evidence and all 47 acceptance cases intact.
 
 ## Completed foundation
 

@@ -6,11 +6,14 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
+[Review 12](lwbridge-project-status.md) accepts the two R7-003 current-client reads/backend path as a bounded slice. Regular AI now fixes PM12-A–C reliability defects and completes PM12-D normal UI proof; it need not wait for the same route decision. Original-pipe parity is deferred, not resolved. The [dummy-file fault reproduction](../evidence/lwbridge-implementation/2026-09-10-pm12-partial-install-repro.py) demonstrates why passing the existing suite is insufficient.
+
+
 The user reinstalled and official recovery is verified; PM8-0 is closed. `LWB-R7-001` gave the first real-source replay/display checkpoint, and post-review `LWB-R7-003` now gives [two rebuild-initiated fresh current-client resource reads](first-live-result.md) through a bounded implementation-policy route: resource-only `map_scan_start` triggers a fresh view request, imports the correlated source row into the normal profile Map Data store and repeats with a newer capture time. PM review is still required; original LWBridge pipe parity and a normal live-window screenshot remain open. [PM9-A/readiness](lastwar-update-readiness.md) remains deferred until that decision. [The incident](lastwar-update-incident.md) is historical evidence, not an instruction to reinstall again.
 
 ## Reading order
 
-Start with [review 11](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
+Start with [review 12](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.

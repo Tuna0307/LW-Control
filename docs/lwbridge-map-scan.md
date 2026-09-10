@@ -693,3 +693,7 @@ This direct command-file/helper transport is **IMPLEMENTATION POLICY**, not reco
 ## Reliability design to implement
 
 Persist progress before acknowledgement. Treat inflight blocks as uncertain after a disconnect and replay them idempotently. Freeze scheduling on bridge loss, save state, perform a clean injection bootstrap, then resume only unresolved work. Completion must require zero unresolved failed/unread blocks, no pending acknowledgements, no dropped native capture, and a stable final commit.
+
+## PM review 12 — R7-003 acceptance boundaries
+
+At `749b8e3`, the two correlated recorded current-client reads and normal-store search/summary are accepted as a bounded acquisition slice. Original-pipe ack/request parity is not required for that slice. Normal UI display and reliable production lifecycle remain open: [PM12-A–D](implementation-handoff.md) address reproduced partial-install rollback failure, shared ownership, cancellation/Stop/timeout, immutable result ingestion and truthful rendered scope/unknown occupancy. The proof runner does not instantiate a window, and both saved successful runs required game stop during restoration. Do not label this full-world scanning, continuous bridge readiness or completed PM10-01. [Review evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-12.json) separates historical live proof from fresh offline validation.

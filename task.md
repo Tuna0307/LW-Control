@@ -11,18 +11,18 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 11. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 12. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `37a1dac`, 2026-09-10, `research/offline-controller`. [Review 11](docs/lwbridge-project-status.md) accepts replay hardening/tests and control-pipe discovery within their stated limits. Post-review `LWB-R7-003` now adds two rebuild-initiated fresh current-client resource reads through a bounded implementation-policy route; that continuation has not yet been PM-reviewed. PM10-01 therefore remains open pending PM acceptance, original LWBridge pipe parity remains unresolved, and normal-window visual proof is pending. No full acceptance case is newly signed off.
+Reviewed implementation: `749b8e3`, 2026-09-10, `research/offline-controller`. [Review 12](docs/lwbridge-project-status.md) accepts the current-client route for two bounded fresh acquisitions/backend ingestion. Original-pipe parity is not required for that slice. PM10-01 remains partial: restoration/lifecycle/correlation defects and normal-window display proof are open.
 
-- **PM8-0 CLOSED:** the user deleted data/reinstalled; AI verified accepted script version 14 and startup. Do not instruct another reinstall or attribute the recovery action to the AI.
-- **ACTIVE PRIORITY:** [connect and display one real resource point](docs/first-live-result.md). Post-review R7-003 now supplies the bounded fresh current-client acquisition twice and normal-store query/summary proof. The exact next action is PM review of whether that supported direct route satisfies PM10-01. Defer future automatic updates and unrelated research; retain minimal current-file checks. Game launch/close/restart and project-related Computer Use are explicitly pre-authorized in AGENTS.md, but native Computer Use is unavailable in the current environment.
-- **Then:** follow [standard AI handoff](docs/implementation-handoff.md). If PM accepts R7-003 for PM10-01, complete permitted normal-window visual verification and continue the next user-visible live Map Data gap. If PM requires original-pipe parity, resume only the exact `hello.ack`/heartbeat/request-result contract under the existing ESC-005 status; do not self-assign Daybreak.
-- **Daybreak:** none assigned. Follow [the register](docs/daybreak-escalations.md); a denied operation is not an automatic transfer.
+- **ACTIVE:** regular AI completes [PM12-A through PM12-D](docs/implementation-handoff.md): restoration/ownership, lifecycle, immutable scoped ingestion, then normal Map Data verification. The PM route decision is made; do not wait for it again.
+- **Preserve:** user-repaired PM8 client, PM7-A bounded aggregate service, recovered login-free UI and prior source evidence. No invented contracts or full-scan success from a current-view read.
+- **Deferred:** updater/export/migration expansion and original-pipe parity until their concrete dependencies are prioritized. ESC-005 is reviewed **NOT_ASSIGNED**; no Daybreak task is approved.
+- **Continue autonomously:** complete supported queue items across delivered checkpoints without new routine PM approval. Actual restrictions and full acceptance decisions remain separate.
 
-[Review 11 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-11.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
+[Review 12 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-12.json) records fresh checks and the reproduced partial-install failure. Preserve all 47 acceptance cases.
 
 ## 1. The user's requested outcome
 
@@ -769,4 +769,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md`, the standard handoff and `docs/first-live-result.md`; inspect HEAD/worktree. Post-review R7-003 now has the bounded fresh resource acquisition twice through the normal app service, with current-client correlation, normal-store query/summary and exact restoration evidence. Do not self-close PM10-01: the exact next action is PM review of that checkpoint. If accepted, complete permitted normal-window visual verification and continue the next user-visible live Map Data gap; if original-pipe parity is required, return to the exact ESC-005 grammar question without inventing it or self-assigning Daybreak. PM9-A automatic-update work is deferred; PM8 recovery and PM7-A are already complete in their stated scopes. Preserve all 47 cases and the login-free UI, and commit/push/verify each coherent checkpoint.
+Read `AGENTS.md`, the current audit, `BACKLOG.md`, the standard handoff and `docs/first-live-result.md`; inspect HEAD/worktree. Review 12 accepts R7-003 for the bounded two-read/backend slice; original pipe parity is not required for that portion. PM10-01 remains partial for reliability and normal UI proof. Continue PM12-A–D in order without waiting again for the same route decision. First reproduce/fix partial-install rollback and ownership using isolated targets; then lifecycle, immutable scoped ingestion and the normal displayed resource. ESC-005 is reviewed NOT_ASSIGNED/deferred. Preserve all 47 cases, the login-free UI and prior evidence, and commit/push/verify coherent checkpoints. Do not reroute restricted operations or label the milestone complete before its remaining proof exists.
