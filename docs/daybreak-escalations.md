@@ -1,5 +1,12 @@
 # Daybreak escalation register
 
+## PM review 13 — current outcome (2026-09-10, `b16fb9a`)
+
+No Daybreak assignment. PM13 normal resource display/context, error feedback, cancellation/ownership races and proof validation are regular-AI work. ESC-005 stays NOT_ASSIGNED/deferred; a future monster blocker requires an exact contract and permitted method history, not a category label.
+
+**Capability correction:** PM successfully used installed native Computer Use via `mcp__node_repl__js` / `@oai/sky` for ordinary app launch/navigation and non-acquiring button checks. Earlier browser-only capability reports remain historical facts about those environments. **SB-97 is not cleared**: the rejected live proof was not repeated; fresh normal-window acquisition remains unverified. **SB-98 remains unresolved** for numeric resource-name mapping; no denied disassembly was retried. PM13 direct display/context repairs are the next permitted method, so no unrelated naming/binary checkpoint should displace them. See [audit](lwbridge-project-status.md) and [native observations](../evidence/lwbridge-implementation/pm-review-13/README.md).
+
+
 Updated 2026-09-10, PM review 12 against `749b8e3`; historical attempts and decisions remain below. This is the decision/attempt log shared by [the regular task](implementation-handoff.md), [the specialist task](deep-binary-handoff.md) and the project manager. Mandatory rules are in [AGENTS.md](../AGENTS.md) section 6.
 
 Review 10 addendum: `01f139d` supplies a verified saved real-resource replay, not a production session. PM10-01–03 remain regular-AI work. No new specialist packet was submitted or approved. PM9-A is deferred until fresh app-initiated acquisition.

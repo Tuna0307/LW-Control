@@ -11,18 +11,19 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 12. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 13. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `749b8e3`, 2026-09-10, `research/offline-controller`. [Review 12](docs/lwbridge-project-status.md) accepts the current-client route for two bounded fresh acquisitions/backend ingestion. Original-pipe parity is not required for that slice. PM10-01 remains partial: restoration/lifecycle/correlation defects and normal-window display proof are open.
+Reviewed implementation: `b16fb9a`, 2026-09-10, `research/offline-controller`. [Review 13](docs/lwbridge-project-status.md) accepts the bounded saved live acquisition/restoration/correlation evidence but reproduces normal UI defects. One real resource is saved; the reopened app cannot yet display it through Resource Search. Monster acquisition is not implemented.
 
-- **ACTIVE:** regular AI completes [PM12-A through PM12-D](docs/implementation-handoff.md): restoration/ownership, lifecycle, immutable scoped ingestion, then normal Map Data verification. The PM route decision is made; do not wait for it again.
-- **Preserve:** user-repaired PM8 client, PM7-A bounded aggregate service, recovered login-free UI and prior source evidence. No invented contracts or full-scan success from a current-view read.
-- **Deferred:** updater/export/migration expansion and original-pipe parity until their concrete dependencies are prioritized. ESC-005 is reviewed **NOT_ASSIGNED**; no Daybreak task is approved.
-- **Continue autonomously:** complete supported queue items across delivered checkpoints without new routine PM approval. Actual restrictions and full acceptance decisions remain separate.
+- **ACTIVE FUNCTION:** finish resource scan -> storage -> normal Resource Search/display -> second fresh refresh -> reopen. Follow [PM13-01/01b, PM13-03, PM13-02, PM13-04](docs/implementation-handoff.md) in order. Do not skip a failing step to begin unrelated research. PM12-A/C retain bounded acceptance; PM12-B is reopened for the new race, and PM12-D remains open.
+- **NEXT FUNCTION:** monster acquisition/search, only after the resource exit criteria pass. A real external blocker remains recorded and does not count as completion.
+- **Native verification:** PM used installed Computer Use/sky to operate the real rebuilt app. Verify your own tools; do not copy a blanket unavailable-capability claim. Recorded operation restrictions remain separate.
+- **Preserve:** recovered login-free UI, evidence and repaired client. No guessed values, synthetic production data or saved-server-as-live claims. Original pipe parity, updater/export expansion remain deferred; no Daybreak assignment.
+- **Delivery:** complete each coherent checkpoint with checks, durable findings and verified GitHub push; continue within the same function without another routine PM gate.
 
-[Review 12 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-12.json) records fresh checks and the reproduced partial-install failure. Preserve all 47 acceptance cases.
+[Review 13 evidence](evidence/lwbridge-implementation/pm-review-13/README.md) records direct native observations, persisted-row verification and false-positive proof reproduction. All 47 acceptance cases below remain required.
 
 ## 1. The user's requested outcome
 
@@ -769,4 +770,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read `AGENTS.md`, the current audit, `BACKLOG.md`, the standard handoff and `docs/first-live-result.md`; inspect HEAD/worktree. Review 12 accepts R7-003 for the bounded current-client route, and `LWB-PM12-001` through `006` now complete PM12-A–C reliability for that bounded resource path: two final-byte reads normally close only their exact owned PID, restore all original hashes and reach desktop immutable import/search. PM10-01 remains partial because PM12-D normal-window Start Scan -> rendered fresh resource -> second refresh interaction/screenshot proof is still unavailable while native Computer Use APIs are disabled. Do not repeat PM12-A/C, the denied process-control patch or the denied `--check-only` operation. ESC-005 remains NOT_ASSIGNED/deferred. Preserve all 47 cases, the login-free UI and prior evidence, and commit/push/verify coherent checkpoints. If native desktop-control/visual proof remains unavailable, continue only the next directly dependent evidence-backed Map Data task rather than filler research.
+Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md and docs/first-live-result.md. Inspect HEAD/worktree. Follow review 13's current resource function: begin with PM13-01, the real saved row missing from normal Resource Search after reopening. Fix context/feedback, then cancellation/ownership and proof-correlation gaps before the permitted fresh normal-window test. Retain bounded PM12-A/C acceptance; PM12-B is reopened by PM13-03 and PM12-D stays open. Native sky worked for PM; verify your own tools without rerouting SB-97 or other denied operations. No Daybreak assignment. Preserve all 47 cases; commit/push/verify each coherent checkpoint and remain on this function until its exit criteria pass. Reusable main and continuation prompts are in the regular handoff.
