@@ -8,7 +8,7 @@ Project-manager review 13 audited `b16fb9a`: real bounded acquisition/restoratio
 
 **One active function: resource scan -> store -> normal search/display -> fresh refresh -> reopen.** No unrelated checkpoint or monster implementation until its exit criteria pass. An external blocker keeps this function open; only direct permitted dependencies may continue. Full 47-case scope is unchanged.
 
-- [ ] **PM13-01 / first:** show the existing source-backed saved resource after reopening, preserving saved/live distinction and profile/server scope; trace and fix missing browsing context.
+- [ ] **PM13-01 / first:** show the existing source-backed saved resource after reopening, preserving saved/live distinction and profile/server scope; trace and fix missing browsing context. `LWB-PM13-001` implements/offline-tests unambiguous saved-profile context with zero/multi-server/profile/reopen guards, but the exact review-13 saved production DB is currently absent at its recorded path, so the ordinary-window proof gate stays open.
 - [ ] **PM13-01b:** replace generic unsupported-scan feedback with accurate localized guidance; do not silently discard selected categories.
 - [ ] **PM13-03:** close cancellation-versus-store-commit and helper-start/ownership races with deterministic boundary tests; final PM12-B closure reopened.
 - [ ] **PM13-02:** reject empty/loading/stale rows in the proof harness; correlate source/result/query/render for both fresh acquisitions and prepare screenshot output paths.

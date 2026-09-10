@@ -250,9 +250,44 @@ internal sealed class LWBridgeBackend
                         scanState = CreateCurrentMapScanStatus(),
                     };
                 }
+                MapDataStore savedStore = RequireMapDataStore();
+                IReadOnlyList<int> savedServerIds = savedStore.ReadPublishedServerIds();
+                if (savedServerIds.Count == 1)
+                {
+                    int savedServerId = savedServerIds[0];
+                    // IMPLEMENTATION POLICY PM13-01: after process restart the bounded
+                    // live adapter has no current-server observation. A profile-local
+                    // index containing exactly one server is safe to expose as saved
+                    // browsing context only. It is never promoted to live readiness.
+                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
+                        savedServerId,
+                        isReading: false,
+                        scanStateServerId: savedServerId,
+                        scanRunId: null);
+                    MapOptionAggregates aggregates = savedStore.ReadOptionAggregatesAt(
+                        source,
+                        RecoveredWallClock.UnixTimeMilliseconds());
+                    return new
+                    {
+                        serverId = savedServerId,
+                        counts = aggregates.Counts,
+                        scanState = CreateMapScanStatus(
+                            savedServerId,
+                            phase: "unavailable",
+                            lastError: null,
+                            serverIdSource: "saved_profile_index"),
+                    };
+                }
+                if (savedServerIds.Count > 1)
+                {
+                    throw new BridgeCommandException(
+                        "MAP_SAVED_CONTEXT_AMBIGUOUS",
+                        "Saved map data spans multiple servers; choose or establish a server context before browsing it.",
+                        new { serverIds = savedServerIds });
+                }
                 throw new BridgeCommandException(
                     "MAP_INDEX_UNAVAILABLE",
-                    "Map summary is unavailable before the production map index and scan state are initialized.");
+                    "Map summary is unavailable because this profile has no saved map server and no current live server context.");
             case "append_log":
             case "set_window_theme":
                 return null;

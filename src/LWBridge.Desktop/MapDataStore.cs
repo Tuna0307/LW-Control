@@ -284,6 +284,24 @@ internal sealed class MapDataStore : IDisposable
         }
     }
 
+    public IReadOnlyList<int> ReadPublishedServerIds()
+    {
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT DISTINCT server_id FROM map_records ORDER BY server_id";
+            using SqliteDataReader reader = command.ExecuteReader();
+            var serverIds = new List<int>();
+            while (reader.Read())
+            {
+                int serverId = reader.GetInt32(0);
+                ValidateServerId(serverId);
+                serverIds.Add(serverId);
+            }
+            return serverIds;
+        }
+    }
+
     internal static MapOptionSourceSelection SelectOptionSource(
         int requestedServerId,
         bool isReading,

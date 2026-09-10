@@ -8,6 +8,8 @@ Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.m
 
 Accepted: bounded current-client acquisition, PM12-A restoration/ownership, PM12-C immutable result/session correlation, and source-backed idle for the observed point. Do not repeat those recoveries. PM12-B is reopened only for the newly identified PM13-03 races. PM12-D normal-window completion remains open. Read the audit before treating contributor checkbox claims as full acceptance.
 
+Post-review checkpoint LWB-PM13-001 implements and offline-tests the saved-context repair: exactly one published server in the selected profile store can seed browsing as saved_profile_index/unavailable; zero or multiple saved servers fail explicitly. The historical production DB used by review 13 is not currently present at its recorded path, so PM13-01 remains open at the ordinary-window reopen proof gate. Do not recreate that row from fixtures or historical JSON.
+
 ## Execute in this order within the resource function
 
 1. **PM13-01: make the existing real saved row visible on reopen.** PM verified one persisted resource in the selected profile but the normal UI shows zero. Trace UI query -> missing server context -> summary/storage and fix saved-context browsing without pretending the game is connected. Preserve provenance, profile/server isolation, saved versus live state, unknown fields and explicit errors. Verify ordinary Resource Search after app restart; no fixture/manual record or new scan may substitute for the saved row.
