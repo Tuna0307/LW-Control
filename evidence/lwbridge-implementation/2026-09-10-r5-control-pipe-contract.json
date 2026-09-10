@@ -68,7 +68,9 @@
       "A wider secure-proxy string-window follow-up was automatically rejected and was not rerouted.",
       "A black-box invalid-message attempt connected but yielded insufficient framing evidence; no framing claim is accepted from it.",
       "A follow-up raw-byte framing capture was automatically rejected before execution and was not rerouted.",
-      "At delivery, one combined frontend/build/deterministic/transport validation command was automatically rejected before execution and was not rerouted. The same code slice had already passed Release build with zero warnings/errors and deterministic checks with ok=true/failures=[] before the documentation edits; documentation-only edits do not upgrade that earlier result to a fresh rerun."
+      "At delivery, one combined frontend/build/deterministic/transport validation command was automatically rejected before execution and was not rerouted. The same code slice had already passed Release build with zero warnings/errors and deterministic checks with ok=true/failures=[] before the documentation edits; documentation-only edits do not upgrade that earlier result to a fresh rerun.",
+      "A later broad current-repository/AppData/runtime protocol-text search was automatically rejected before execution and was not split or rerouted.",
+      "A distinct Git-history -S search was permitted. hello.ack, lwbridge-control-v1- and XluaBridgeHandlePipeMessage had no pre-R5-006 history hit; LWBRIDGE_PIPE_TOKEN had only earlier evidence/cleanup hits, and INativeAsyncCommandService had only foundation/current implementation hits. A follow-up git-show inspection of those historical commits was automatically rejected before execution and was not rerouted."
     ]
   },
   "implementationImpact": {
