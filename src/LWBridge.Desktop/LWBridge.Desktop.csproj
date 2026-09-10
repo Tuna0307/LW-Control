@@ -11,6 +11,10 @@
 
   <ItemGroup>
     <Content Include="WebUi\index.html;WebUi\preview-host.js;WebUi\presentation.css;WebUi\assets\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\tools\run_live_resource_probe.py;..\..\tools\current_live_resource_probe.lua"
+             Link="LiveResourceProbe\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

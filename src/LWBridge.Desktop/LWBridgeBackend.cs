@@ -205,6 +205,28 @@ internal sealed class LWBridgeBackend
                 return SetPlayerMark(payload);
             case "map_summary":
                 RequireOptionalProfile(payload);
+                if (asyncCommands is LiveResourceProbeCommandService liveResource &&
+                    liveResource.CurrentServerId is int liveServerId)
+                {
+                    // IMPLEMENTATION POLICY: the bounded first-live adapter uses
+                    // the recovered summary envelope over the same persisted
+                    // MapDataStore that received the correlated current-game row.
+                    MapDataStore store = RequireMapDataStore();
+                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
+                        liveServerId,
+                        isReading: false,
+                        scanStateServerId: liveServerId,
+                        scanRunId: null);
+                    MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
+                        source,
+                        RecoveredWallClock.UnixTimeMilliseconds());
+                    return new
+                    {
+                        serverId = liveServerId,
+                        counts = aggregates.Counts,
+                        scanState = liveResource.CreateStatus(),
+                    };
+                }
                 if (firstLiveResultServerId is int firstLiveServerId)
                 {
                     // IMPLEMENTATION POLICY: the bounded first-live mode exposes the
@@ -302,6 +324,9 @@ internal sealed class LWBridgeBackend
     {
         return new
         {
+            // The recovered public field describes bridge/session availability.
+            // A bounded direct probe heartbeat is not evidence of that session,
+            // so keep unrelated online-gated actions fail-closed.
             xluaOnline = false,
             pending = (int?)null,
             config = new

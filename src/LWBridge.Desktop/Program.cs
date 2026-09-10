@@ -10,6 +10,14 @@ internal static class Program
         string? liveProbePath = ReadPathOption(args, "--live-probe");
         string? hostProbePath = ReadPathOption(args, "--host-probe");
         string? firstLiveResultPath = ReadPathOption(args, "--first-live-result");
+        string? liveResourceProofPath = ReadPathOption(args, "--live-resource-proof");
+        if (liveResourceProofPath is not null)
+        {
+            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null)
+                throw new ArgumentException("--live-resource-proof cannot be combined with other probe/capture modes.");
+            LiveResourceProofRunner.RunTwiceAsync(liveResourceProofPath).GetAwaiter().GetResult();
+            return;
+        }
         if (new[] { capturePath, liveProbePath, hostProbePath }.Count(path => path is not null) > 1)
             throw new ArgumentException("--capture, --live-probe and --host-probe are mutually exclusive.");
         if (firstLiveResultPath is not null && (liveProbePath is not null || hostProbePath is not null))

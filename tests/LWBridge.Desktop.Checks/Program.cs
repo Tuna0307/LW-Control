@@ -486,6 +486,62 @@ try
             })).RootElement.Clone(), CancellationToken.None));
         await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "production launch gate remains closed after a replay import", async () =>
             await productionMapBackend.InvokeAsync("profile_instance_start", productionProfile.RootElement.Clone(), CancellationToken.None));
+
+        var boundedLiveService = new LiveResourceProbeCommandService(
+            productionMapStore,
+            Path.Combine(firstLiveReplayRoot, "helper-must-not-run.py"));
+        using (JsonDocument boundedStatus = JsonDocument.Parse(JsonSerializer.Serialize(boundedLiveService.CreateStatus(), JsonOptions.Default)))
+        {
+            JsonElement root = boundedStatus.RootElement;
+            Check(root.GetProperty("totalBlocks").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("progressPercent").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("nativeCaptureReady").ValueKind == JsonValueKind.Null,
+                "bounded live status preserves unmeasured full-scan metrics as unknown");
+        }
+        var boundedLiveBackend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            asyncCommands: boundedLiveService,
+            mapData: productionMapStore);
+        using JsonDocument boundedProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = boundedLiveBackend.ProfileId }));
+        object? boundedStatusEnvelope = await boundedLiveBackend.InvokeAsync("get_status", boundedProfile.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument boundedStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(boundedStatusEnvelope, JsonOptions.Default)))
+        {
+            Check(boundedStatusJson.RootElement.GetProperty("xluaOnline").ValueKind == JsonValueKind.False,
+                "bounded direct resource probe never promotes its heartbeat to original bridge online state");
+        }
+        await ExpectBridgeError("LIVE_RESOURCE_TYPES_UNSUPPORTED", "bounded live route rejects unsupported scan kinds before helper launch", async () =>
+            await boundedLiveBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+            {
+                profileId = boundedLiveBackend.ProfileId,
+                selectedTypes = new[] { "city" },
+                scanMode = "normal",
+            })).RootElement.Clone(), CancellationToken.None));
+
+        string foreignLiveResultPath = Path.Combine(firstLiveReplayRoot, "foreign-live-resource-result.json");
+        File.WriteAllText(foreignLiveResultPath, """
+            {
+              "requestId": "foreign-request",
+              "state": "proven",
+              "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+              "capturedAt": "2026-09-10T05:00:00Z",
+              "point_records": [
+                {
+                  "kind": "resource_point",
+                  "serverId": 2212,
+                  "pointId": 9999,
+                  "x": 10,
+                  "y": 20,
+                  "source": "WorldPointManager._pointInfos"
+                }
+              ]
+            }
+            """);
+        int recordsBeforeForeignResult = productionMapStore.CountRecords("resource", 2212);
+        ExpectInvalidData("correlation contract", "bounded live route rejects a foreign result before persistence", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore, foreignLiveResultPath, "expected-request", out _));
+        Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeForeignResult,
+            "foreign live result cannot mutate the normal map index before correlation succeeds");
     }
 
     string missingTimestampPath = Path.Combine(firstLiveReplayRoot, "missing-timestamp.json");

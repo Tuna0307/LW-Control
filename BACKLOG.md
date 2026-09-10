@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-10
 
-Project-manager review 11 audited `37a1dac`: replay hardening/tests and pipe discovery are accepted; there is still no production connection or fresh app-initiated acquisition. See [the audit](docs/lwbridge-project-status.md), [regular handoff](docs/implementation-handoff.md) and [escalation register](docs/daybreak-escalations.md). No new full acceptance case is signed off.
+Project-manager review 11 audited `37a1dac`: replay hardening/tests and pipe discovery are accepted. Post-review `LWB-R7-003` now has two rebuild-initiated fresh current-client resource reads through a bounded implementation-policy route, pending PM review; original LWBridge pipe parity and normal-window visual proof remain open. See [the audit](docs/lwbridge-project-status.md), [regular handoff](docs/implementation-handoff.md) and [escalation register](docs/daybreak-escalations.md). No new full acceptance case is signed off without PM review.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -52,7 +52,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 
 ## Immediate priorities — review 11
 
-- [ ] **PM10-01 / connection next checkpoint:** R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming; R5-007 recovers endpoint roles, the 4-byte little-endian frame and exact proxy `hello` shape. The remaining blocker is exact host `hello.ack`/heartbeat readiness plus host-to-proxy command/result correlation. Fresh acquisition and its second repeat remain open; no more pipe-name/replay-only checkpoints.
+- [ ] **PM10-01 / PM REVIEW REQUIRED:** post-review `LWB-R7-003` now proves two rebuild-initiated fresh resource reads through the bounded current-client route, including distinct request/capture correlation, normal `MapDataStore` ingestion/query and exact package restoration. PM must decide whether this satisfies the supported-connection milestone. Original `hello.ack`/heartbeat/request-result parity and normal-window visual proof remain separate open gates.
 - [ ] **PM11-02 / validation pending:** verify the new replay banner, initial Resource selection and disabled acquisition controls through a permitted method; prior capture denial remains in force. Not a substitute for the connection task.
 - [x] **PM11-01 / PM:** corrected the unsupported inference that keyword-history searches proved no reusable prior session implementation exists.
 
@@ -69,8 +69,9 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [x] **R6-047–051 research accepted:** upsert layout, original identity/scalars and current managed field ownership. These do not deliver capture/scan integration.
 - [x] **LWB-R7-001 bounded real-row checkpoint:** current build-1078 game probe captured point `1006` at `5,1`, server `2212`, level `3`; isolated rebuild replay displays it as one Resource row with unsupported name/gather state left unknown. This is real-source evidence, not production scan ownership.
 - [x] **LWB-R7-002 PM10 replay/recipe checkpoint:** historical acquisition source/recipe is durable; replay presentation and storage are explicitly isolated and focused regressions pass. No new live acquisition is claimed.
-- [ ] **PM7-C/R5 / ACTIVE production path:** make the rebuilt app establish the supported bridge/session and acquire the next resource row freshly through production `map_scan_start`; recover only the missing serializer/lifecycle contracts needed for that result.
-- [ ] **R5 / ACTIVE next contract:** recover exact host `hello.ack` serialization and heartbeat readiness, then the host-to-proxy request envelope/result correlation needed for a production `INativeAsyncCommandService`; require strict current session/request identity and fail closed on disconnect before enabling map acquisition.
+- [x] **LWB-R7-003 / post-review bounded live path:** normal non-isolated resource-only `map_scan_start` initiates a fresh hash-gated current-client read, correlates the response, imports it into the normal profile store and repeats successfully with a newer capture time. Unsupported kinds and unrelated online-gated actions remain fail-closed; PM acceptance and live-window visual proof are pending.
+- [ ] **PM7-C/R5 / NEXT AFTER PM DECISION:** if R7-003 is accepted for PM10-01, continue the next user-visible live Map Data lifecycle/normalization gap after visual verification; if not, resume the exact original-pipe prerequisite identified by PM. Do not broaden unrelated scan/export work before that decision.
+- [ ] **R5 / original-pipe parity contract:** recover exact host `hello.ack` serialization and heartbeat readiness, then host-to-proxy request/result correlation. ESC-005 remains `READY_FOR_PM_REVIEW`; R7-003 does not claim or infer these semantics.
 - [ ] **PM7-B / ESC-005:** narrow request/result grammar packet is now `READY_FOR_PM_REVIEW`; no specialist is assigned. Remaining broader provider/handler questions stay separate; PM7-D remains deferred backlog.
 
 ## Completed foundation

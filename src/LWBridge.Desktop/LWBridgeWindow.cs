@@ -38,6 +38,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LWBridgeBackend backend;
     private readonly MapDataStore mapData;
     private readonly HostProbeCommandService? hostProbeService;
+    private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly string? isolatedConfigRoot;
     private long documentGeneration = 1;
     private DocumentSession documentSession = new(1, EventAllowlist);
@@ -98,9 +99,10 @@ internal sealed class LWBridgeWindow : Form
                     "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
+        liveResourceService = !isolated ? new LiveResourceProbeCommandService(mapData) : null;
         backend = new LWBridgeBackend(
             config,
-            asyncCommands: hostProbeService,
+            asyncCommands: hostProbeService ?? (INativeAsyncCommandService?)liveResourceService,
             mapData: mapData,
             firstLiveResultServerId: firstLiveResult?.ServerId);
         Text = "lwbridge";

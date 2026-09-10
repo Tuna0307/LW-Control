@@ -2,6 +2,12 @@
 
 Start from the latest worktree/HEAD; PM reviewed `37a1dac` on 2026-09-10. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [the current audit](lwbridge-project-status.md), [BACKLOG.md](../BACKLOG.md) and the relevant findings indexed in [README](README.md). All 47 acceptance cases remain required. Preserve the login-free recovered UI and completed legacy cleanup.
 
+## Post-review checkpoint — LWB-R7-003 awaiting PM review
+
+The regular implementation continuation now has two correlated rebuild-initiated fresh current-client resource reads through the review-11-permitted independent route. The normal non-isolated app wires `LiveResourceProbeCommandService` to resource-only `map_scan_start`; the hash-gated helper launches the official client, requires a fresh `StartViewRequest` + `UpdateViewRequest(true)` response, reads `WorldPointManager._pointInfos`, validates request/state/route before persistence, imports one source row into the normal profile `MapDataStore`, and returns it through `map_search`/`map_summary`. The final evidence has distinct request IDs and capture times (`2026-09-10T05:14:45Z`, `2026-09-10T05:15:09Z`) and exact post-run package restoration. A foreign-result regression proves correlation failure cannot write a stale row. See [R7-003](first-live-result.md) and [machine proof](../evidence/lwbridge-implementation/2026-09-10-fresh-resource-live-proof.json).
+
+Do not self-close PM10-01. **Exact next action:** PM reviews LWB-R7-003 and decides whether this supported current-client route satisfies the first-live-result connection criterion. If accepted, the next regular task is normal-window visual verification when a permitted native UI capability exists, followed by the next user-visible live Map Data gap; if PM requires original-pipe parity for PM10-01, continue that exact `hello.ack`/heartbeat/request-result question under the existing ESC-005 status without self-assigning Daybreak. Until that decision, do not add filler research or broaden replay/updater/export work.
+
 ## Review 11 — one connection question before more features
 
 PM10-03 tests pass; PM10-02 is implemented but its new visual behavior remains unverified. R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming; R5-007 now resolves endpoint roles, the 4-byte little-endian frame and exact secure-proxy hello shape. Stop repeating those slices. The active gap is the host `hello.ack`/heartbeat readiness contract and host-to-proxy request/result correlation needed for fresh app-initiated acquisition.
