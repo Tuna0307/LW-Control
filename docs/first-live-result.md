@@ -59,6 +59,12 @@ The point/coordinate positive-Int32 limit remains **IMPLEMENTATION POLICY for th
 
 Release build and deterministic checks pass with zero warnings/errors and `failures: []`. At validation time the installed client diagnostic was valid and both game and launcher were stopped. A fresh UI screenshot was not produced because the earlier rebuilt-app capture operation in this task was rejected by the environment's automatic review before launch; it was not rerouted. The main PM10-01 result remains open: the rebuilt app has not yet initiated a fresh acquisition, and no second fresh acquisition exists yet.
 
+## Checkpoint LWB-R5-006 — original control-pipe discovery is recovered (2026-09-10)
+
+The earliest connection gap is narrower. The secure proxy and a bounded run of the verified original LWBridge host prove that its per-user control pipe is `\\\\.\\pipe\\lwbridge-control-v1-` plus the first 16 lowercase SHA-256 hex characters of the UTF-8 Windows user SID. The current-user correlation observed `lwbridge-control-v1-d5eb15a8845a45f2`; the raw SID is not committed. The rebuild now has a deterministic helper for that proven pipe path and a focused regression check.
+
+This does **not** establish the required production session. The current rebuild still has no production implementation of `INativeAsyncCommandService`; only the isolated `HostProbeCommandService` exists. Exact accepted hello/session framing and host-to-proxy request grammar remain **UNKNOWN/BLOCKED**, so `map_scan_start` is still `BRIDGE_NOT_READY` and no fresh or second fresh acquisition is claimed. The same code slice passed Release build and deterministic checks before these documentation edits; one later combined delivery-validation command was automatically rejected before execution and was not rerouted. The next integration work is limited to those session/request contracts, then strict freshness/session identity, acquisition, normalization and display.
+
 ## If a link remains blocked
 
 Name the first missing link in the actual connection -> acquisition -> normalization -> display path. Record the exact question, source/build, attempts/results, permitted alternatives and next method or external condition. Do not replace it with unrelated research. Prepare/revise an ESC entry only under AGENTS.md's method/exhaustion rules; an old ESC or denial is not a Daybreak assignment. Continue directly relevant permitted work and report honestly if no live result was achieved.

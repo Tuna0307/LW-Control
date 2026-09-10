@@ -1,0 +1,84 @@
+{
+  "findingId": "LWB-R5-006",
+  "date": "2026-09-10",
+  "scope": "original LWBridge per-user control-pipe name derivation and bounded live host correlation",
+  "evidenceStatus": "RECOVERED + IMPLEMENTED/OFFLINE-TESTED",
+  "sourceIdentity": {
+    "outerArtifact": "../LW/lwbridge-0.3.1.exe",
+    "outerSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "secureProxyArtifact": "%LOCALAPPDATA%/LastWar-xLua-Bridge/runtime/9BupJXpEgm34lybhNhbbcQ/xlua-proxy-secure.dll",
+    "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "plainProxySha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+    "profileLauncherSha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de",
+    "multiHookSha256": "a8b48120bbe3fb125d50c046acbd4f7c440a4d5e5775b8156fc291d01bd69d2d"
+  },
+  "locators": {
+    "secureProxyUtf16PipePrefixRawFileOffset": "0x6F1B8",
+    "secureProxyPipeBuilderPreferredImageRva": "approximately 0xA9A0-0xAD58",
+    "secureProxySha256HexHelperPreferredImageRva": "approximately 0xCB40-0xD159",
+    "coordinateSystems": "pipe prefix is a raw file offset; function locators are preferred-image RVAs in the extracted secure proxy"
+  },
+  "result": {
+    "fullPathPrefix": "\\\\.\\pipe\\lwbridge-control-v1-",
+    "suffixDerivation": "SHA-256 over UTF-8 Windows user SID text, lowercase hexadecimal, first 16 characters only",
+    "currentObservedSuffix": "d5eb15a8845a45f2",
+    "currentObservedPipeName": "lwbridge-control-v1-d5eb15a8845a45f2",
+    "privacy": "The raw current-user SID and full digest are intentionally omitted from committed evidence; the recipe recomputes them locally.",
+    "nearbyRecoveredTransportVocabulary": [
+      "version",
+      "type",
+      "profileId",
+      "instanceId",
+      "requestId",
+      "hello.ack",
+      "timestamp",
+      "payload",
+      "heartbeat",
+      "result",
+      "LWBRIDGE_PROFILE_ID",
+      "LWBRIDGE_INSTANCE_ID",
+      "LWBRIDGE_PIPE_TOKEN",
+      "__XluaBridgePipeSend",
+      "XluaBridgeHandlePipeMessage",
+      "XluaBridgeNativeStart",
+      "XluaBridgeMapScanTick"
+    ],
+    "requestGrammarLimit": "No exact plaintext type=request contract was recovered. Absence of that literal is not evidence for a different grammar."
+  },
+  "reproduction": {
+    "referenceHash": "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256",
+    "secureProxyHash": "Get-FileHash $env:LOCALAPPDATA\\LastWar-xLua-Bridge\\runtime\\9BupJXpEgm34lybhNhbbcQ\\xlua-proxy-secure.dll -Algorithm SHA256",
+    "prefixCheck": "Read the secure-proxy bytes, encode \\\\.\\pipe\\lwbridge-control-v1- as UTF-16LE, and locate the first exact byte match; expected raw offset 0x6F1B8.",
+    "pipeRecipe": "Read WindowsIdentity.GetCurrent().User.Value, SHA-256 hash its UTF-8 bytes, lowercase the hex digest, and append the first 16 hex characters to the recovered prefix.",
+    "liveCorrelation": "Start only the verified original lwbridge-0.3.1.exe, enumerate \\\\.\\pipe\\ entries matching lwbridge-control-v1-*, observe lwbridge-control-v1-d5eb15a8845a45f2, then close that exact started process. Correlation on 2026-09-10 started PID 33748 and confirmed it was closed afterward."
+  },
+  "validationAndLimits": {
+    "liveCorrelation": true,
+    "liveGameConnected": false,
+    "implementedOfflineTest": "LWBridgeControlPipeContract derives a deterministic known-SID fixture and the current-user prefix; release deterministic checks report bridgeControlPipeContract=true.",
+    "unknownBlocked": [
+      "exact accepted hello/session message framing and validation",
+      "host-to-proxy command request envelope/grammar",
+      "request/result correlation semantics beyond recovered field vocabulary",
+      "authoritative ready/disconnect lifecycle required before map requests",
+      "protected map-state/scan handler linkage and production current-client acceptance"
+    ],
+    "restrictionOutcomes": [
+      "A prior host-side xref disassembly request for this control-pipe investigation was automatically rejected before execution and was not rerouted.",
+      "A wider secure-proxy string-window follow-up was automatically rejected and was not rerouted.",
+      "A black-box invalid-message attempt connected but yielded insufficient framing evidence; no framing claim is accepted from it.",
+      "A follow-up raw-byte framing capture was automatically rejected before execution and was not rerouted.",
+      "At delivery, one combined frontend/build/deterministic/transport validation command was automatically rejected before execution and was not rerouted. The same code slice had already passed Release build with zero warnings/errors and deterministic checks with ok=true/failures=[] before the documentation edits; documentation-only edits do not upgrade that earlier result to a fresh rerun."
+    ]
+  },
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/LWBridgeControlPipeContract.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "enabled": "Only deterministic construction of the proven per-user control-pipe path.",
+    "notEnabled": "No production INativeAsyncCommandService/session or map command is enabled from this finding.",
+    "productionGate": "profile_instance_start and map_scan_start remain fail-closed until exact session/framing/request contracts are recovered.",
+    "nextTrace": "Recover the minimum accepted original session framing and host-to-proxy request envelope needed to establish a rebuild-owned session and issue authoritative current-server/map-state/scan work."
+  }
+}

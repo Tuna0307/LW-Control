@@ -462,3 +462,17 @@ the surrounding bootstrap becomes implementable. Production
 `profile_instance_start` still fails closed with
 `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; this checkpoint does not justify an
 owned launch yet.
+
+## LWB-R5-006 — per-user control-pipe name derivation (2026-09-10)
+
+**Scope.** The original LWBridge control-pipe path is now recovered and live-correlated against the verified reference host. This closes pipe discovery only; message framing, session acceptance and command request grammar remain deliberately unresolved.
+
+**Source identity.** The outer reference is `../LW/lwbridge-0.3.1.exe`, SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`. The extracted secure proxy is SHA-256 `481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400`. Focused durable metadata is in [`2026-09-10-r5-control-pipe-contract.json`](../evidence/lwbridge-implementation/2026-09-10-r5-control-pipe-contract.json).
+
+**Exact locators and result — RECOVERED.** The UTF-16LE prefix `\\\\.\\pipe\\lwbridge-control-v1-` begins at raw secure-proxy file offset `0x6F1B8`. The previously accepted proxy trace places the pipe builder at preferred-image RVA approximately `0xA9A0-0xAD58` and its SHA-256/lowercase-hex helper chain around `0xCB40-0xD159`. The suffix is the first 16 lowercase hex characters of SHA-256 over the current Windows user SID encoded as UTF-8. The raw SID is intentionally not committed. On the current account the derived suffix is `d5eb15a8845a45f2`.
+
+**Reproduction and validation.** Re-hashing the immutable reference and extracted secure proxy reproduced their expected hashes. A bounded original-host correlation started only `lwbridge-0.3.1.exe`, enumerated `\\\\.\\pipe\\lwbridge-control-v1-*`, observed exactly `lwbridge-control-v1-d5eb15a8845a45f2`, then closed that exact started process. `LWBridgeControlPipeContract` implements only this proven derivation; the same code slice passed Release build with zero warnings/errors and deterministic checks with `ok:true`, `failures:[]` before the documentation edits. A later combined delivery-validation command was automatically rejected before execution and was not rerouted, so it is not claimed as a fresh rerun.
+
+**Validation and limits.** This is **RECOVERED** pipe naming plus **IMPLEMENTED/OFFLINE-TESTED** rebuild derivation, with one live original-host pipe-name correlation. It is not a live game bridge/session. Recovered nearby proxy vocabulary includes `version`, `type`, `profileId`, `instanceId`, `requestId`, `hello.ack`, `timestamp`, `payload`, `heartbeat`, `result`, the three `LWBRIDGE_*` identity/token environment variables and generic xLua pipe entry points. No exact plaintext `type=request` contract was recovered, and that absence does not establish another grammar. Exact accepted message framing, hello/session validation, command envelope, result correlation and authoritative ready/disconnect transitions remain **UNKNOWN/BLOCKED**.
+
+**Restriction outcome and implementation impact.** Earlier host-side xref and raw framing follow-ups were automatically rejected as recorded in the evidence and were not rerouted. The pipe-name gap is resolved by permitted evidence; the first production blocker is now the exact accepted session/message framing and request envelope needed to implement a real `INativeAsyncCommandService`. Production `profile_instance_start` and `map_scan_start` remain fail-closed.

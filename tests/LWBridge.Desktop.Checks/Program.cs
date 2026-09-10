@@ -71,6 +71,16 @@ byte[]? realConfigBefore = verifyRealConfigUnchanged && File.Exists(realConfigPa
     : null;
 bool realConfigExistedBefore = verifyRealConfigUnchanged && File.Exists(realConfigPath);
 
+Check(
+    LWBridgeControlPipeContract.GetFullPathForSid("S-1-5-21-1-2-3-1001") ==
+    @"\\.\pipe\lwbridge-control-v1-c169ebe52e9c0ba4",
+    "recovered LWBridge control pipe name uses first 16 lowercase SHA-256 hex characters of UTF-8 user SID");
+Check(
+    LWBridgeControlPipeContract.GetCurrentUserFullPath().StartsWith(
+        LWBridgeControlPipeContract.FullPathPrefix,
+        StringComparison.Ordinal),
+    "current-user LWBridge control pipe name uses recovered prefix");
+
 // Deterministic config/persistence checks use isolated temporary storage.
 string configRoot = Path.Combine(Path.GetTempPath(), "lwbridge-checks-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(configRoot);
@@ -414,9 +424,24 @@ try
             mapData: productionMapStore);
         Check(productionMapStore.CountRecords("resource", 2212) == 0,
             "saved replay import never writes into a separate production map index");
+        // Synthetic stale-row fixture: even when the production index already contains
+        // older data, a disconnected backend must not promote it to a fresh scan result.
+        productionMapStore.UpsertRecord(new MapStoredRecord(
+            "resource", 2212, "synthetic-stale-resource", 1005, null, null, null,
+            3, null, null, null, null, 1,
+            "{\"serverId\":2212,\"pointIndex\":1005,\"x\":4,\"y\":1,\"updatedAt\":1}"));
+        Check(productionMapStore.CountRecords("resource", 2212) == 1,
+            "synthetic stale production row exists before disconnected freshness-gate checks");
         using JsonDocument productionProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = productionMapBackend.ProfileId }));
         await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "production map summary remains closed after a replay import", async () =>
             await productionMapBackend.InvokeAsync("map_summary", productionProfile.RootElement.Clone(), CancellationToken.None));
+        await ExpectBridgeError("BRIDGE_NOT_READY", "disconnected production scan never presents a stale indexed row as fresh", async () =>
+            await productionMapBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+            {
+                profileId = productionMapBackend.ProfileId,
+                serverId = 2212,
+                selectedTypes = new[] { "resource" },
+            })).RootElement.Clone(), CancellationToken.None));
         await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "production launch gate remains closed after a replay import", async () =>
             await productionMapBackend.InvokeAsync("profile_instance_start", productionProfile.RootElement.Clone(), CancellationToken.None));
     }
@@ -2043,6 +2068,7 @@ var report = new
         requestLifetime = true,
         mapPersistence = true,
         mapContract = true,
+        bridgeControlPipeContract = true,
     },
     installedDiagnostic = new
     {

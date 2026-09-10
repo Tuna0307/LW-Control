@@ -17,6 +17,8 @@ Current delivery order was changed by the user after review 9: [first real conne
 
 `LWB-R7-002` closes PM10-02/03 as IMPLEMENTED/OFFLINE-TESTED and preserves the reusable R7-001 acquisition recipe/source under PM10-01. Saved replay now has a dedicated in-memory store, visible capture provenance, automatic Resource selection, disabled acquisition controls and unavailable/replay scan state. Focused importer/isolation/production-gate checks pass. PM10-01 remains open for fresh app-initiated acquisition and the required second fresh read.
 
+`LWB-R5-006` recovers the original per-user control-pipe path and live-correlates the derived name against the verified LWBridge host. The rebuild helper is offline-tested, but no production transport is enabled: exact session framing/validation and host-to-proxy request grammar remain the first missing connection contract.
+
 ## Milestone A environment evidence
 
 | Item | Current evidence |
