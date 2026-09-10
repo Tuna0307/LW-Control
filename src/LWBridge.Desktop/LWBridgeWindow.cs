@@ -32,6 +32,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly string? liveProbePath;
     private readonly string? hostProbePath;
     private readonly FirstLiveResultImport? firstLiveResult;
+    private readonly string? normalUiLiveResourceProofPath;
     private readonly string initialView;
     private readonly string? language;
     private readonly string? theme;
@@ -63,11 +64,13 @@ internal sealed class LWBridgeWindow : Form
         string initialView,
         string? language,
         string? theme,
-        string? firstLiveResultPath = null)
+        string? firstLiveResultPath = null,
+        string? normalUiLiveResourceProofPath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
         this.hostProbePath = hostProbePath;
+        this.normalUiLiveResourceProofPath = normalUiLiveResourceProofPath;
         string[] views = ["overview", "automation", "map-data", "march", "city-layout", "hotkeys", "mini-games", "advanced", "settings"];
         if (!views.Contains(initialView)) throw new ArgumentException("Unknown --view: " + initialView);
         this.initialView = initialView;
@@ -228,6 +231,14 @@ internal sealed class LWBridgeWindow : Form
             if (theme is not null) url += "&theme=" + Uri.EscapeDataString(theme);
             core.Navigate(WithDocumentSession(url, documentSession.Id));
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            if (normalUiLiveResourceProofPath is not null)
+            {
+                if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
+                    throw new InvalidOperationException("--normal-ui-live-resource-proof requires --view map-data.");
+                await RunNormalUiLiveResourceProofAsync(core, normalUiLiveResourceProofPath);
+                Close();
+                return;
+            }
             if (firstLiveResult is not null && string.Equals(initialView, "map-data", StringComparison.Ordinal))
                 await SelectFirstLiveResourceAsync(core);
             if (hostProbePath is not null)
@@ -264,11 +275,11 @@ internal sealed class LWBridgeWindow : Form
         }
         catch (Exception ex)
         {
-            if (capturePath is null && liveProbePath is null && hostProbePath is null)
+            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null)
                 MessageBox.Show(this, ex.Message, "LWBridge", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
             {
-                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath!;
+                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath!;
                 Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
                 await File.WriteAllTextAsync(artifactPath + ".error.txt", ex.ToString());
             }
@@ -278,6 +289,178 @@ internal sealed class LWBridgeWindow : Form
                 HostProbeFinished?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    // IMPLEMENTATION POLICY LWB-PM12-008: diagnostic-only orchestration that drives
+    // the recovered manual Map Data controls and records correlated rendered proof.
+    // It does not change map scan semantics or make this bounded route a full scan.
+    private async Task RunNormalUiLiveResourceProofAsync(CoreWebView2 core, string outputPath)
+    {
+        if (liveResourceService is null)
+            throw new InvalidOperationException("The normal Map Data window does not have the bounded live resource service.");
+
+        string fullOutputPath = Path.GetFullPath(outputPath);
+
+        bool controlsReady = false;
+        for (int attempt = 0; attempt < 150; attempt++)
+        {
+            if (await core.ExecuteScriptAsync(
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 8 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+            {
+                controlsReady = true;
+                break;
+            }
+            await Task.Delay(100);
+        }
+        if (!controlsReady)
+            throw new InvalidOperationException("The normal Map Data manual scan controls did not render.");
+
+        string selectionResult = await core.ExecuteScriptAsync("""
+            (() => {
+              const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
+              if (boxes.length !== 8) return false;
+              boxes.forEach((box, index) => {
+                const shouldBeChecked = index === 1;
+                if (box.checked !== shouldBeChecked) box.click();
+              });
+              return boxes.every((box, index) => box.checked === (index === 1));
+            })()
+            """);
+        if (selectionResult != "true")
+            throw new InvalidOperationException("The normal Map Data resource-only scan selection could not be established.");
+
+        JsonElement initialStatus = JsonSerializer.SerializeToElement(liveResourceService.CreateStatus(), JsonOptions.Default);
+        string initialRunId = ReadStatusString(initialStatus, "scanRunId") ?? "";
+        long initialCapturedAt = ReadStatusInt64(initialStatus, "liveResourceCapturedAt") ?? 0;
+
+        UiLiveAcquisitionProof first = await RunUiLiveAcquisitionAsync(core, initialRunId, initialCapturedAt, "first");
+        UiLiveAcquisitionProof second = await RunUiLiveAcquisitionAsync(core, first.ScanRunId, first.CapturedAtUnixMilliseconds, "second");
+
+        if (string.Equals(first.ScanRunId, second.ScanRunId, StringComparison.Ordinal) ||
+            second.CapturedAtUnixMilliseconds <= first.CapturedAtUnixMilliseconds)
+        {
+            throw new InvalidDataException("The second normal-window scan did not produce a distinct fresh acquisition.");
+        }
+
+        string directory = Path.GetDirectoryName(fullOutputPath)!;
+        Directory.CreateDirectory(directory);
+        await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            findingId = "LWB-PM12-008",
+            state = "proven",
+            proof = "normal_window_start_scan_render_refresh",
+            windowMode = "persistent_normal_map_data",
+            selectedTypes = new[] { "resource" },
+            startButtonClicks = 2,
+            first,
+            second,
+            generatedAt = DateTimeOffset.UtcNow,
+        }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    }
+
+    private async Task<UiLiveAcquisitionProof> RunUiLiveAcquisitionAsync(
+        CoreWebView2 core,
+        string previousRunId,
+        long previousCapturedAt,
+        string label)
+    {
+        string clickResult = await core.ExecuteScriptAsync("""
+            (() => {
+              const button = document.querySelector('.map-header .map-actions button.primary');
+              if (!button || button.disabled) return false;
+              button.click();
+              return true;
+            })()
+            """);
+        if (clickResult != "true")
+            throw new InvalidOperationException($"The {label} normal-window Start Reading button could not be clicked.");
+
+        JsonElement completedStatus = default;
+        bool completed = false;
+        for (int attempt = 0; attempt < 1600; attempt++)
+        {
+            JsonElement status = JsonSerializer.SerializeToElement(liveResourceService!.CreateStatus(), JsonOptions.Default);
+            string runId = ReadStatusString(status, "scanRunId") ?? "";
+            long capturedAt = ReadStatusInt64(status, "liveResourceCapturedAt") ?? 0;
+            bool isReading = status.TryGetProperty("isReading", out JsonElement readingValue) && readingValue.ValueKind == JsonValueKind.True;
+            string phase = ReadStatusString(status, "phase") ?? "";
+            string? error = ReadStatusString(status, "lastError");
+            if (!string.IsNullOrWhiteSpace(error))
+                throw new InvalidOperationException($"The {label} normal-window acquisition failed: {error}");
+            if (!isReading && phase == "idle" && runId.Length > 0 && runId != previousRunId && capturedAt > previousCapturedAt)
+            {
+                completedStatus = status;
+                completed = true;
+                break;
+            }
+            await Task.Delay(100);
+        }
+        if (!completed)
+            throw new TimeoutException($"The {label} normal-window live resource acquisition did not complete within the proof bound.");
+
+        bool resourceTabReady = false;
+        for (int attempt = 0; attempt < 150; attempt++)
+        {
+            if (await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button').length > 1") == "true")
+            {
+                resourceTabReady = true;
+                break;
+            }
+            await Task.Delay(100);
+        }
+        if (!resourceTabReady)
+            throw new InvalidOperationException("The normal Map Data resource tab did not render.");
+        await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
+
+        string? rowText = null;
+        for (int attempt = 0; attempt < 200; attempt++)
+        {
+            string encoded = await core.ExecuteScriptAsync(
+                "(()=>document.querySelector('.map-table--resource tbody tr')?.innerText ?? null)()");
+            rowText = JsonSerializer.Deserialize<string?>(encoded);
+            if (!string.IsNullOrWhiteSpace(rowText))
+                break;
+            await Task.Delay(100);
+        }
+        if (string.IsNullOrWhiteSpace(rowText))
+            throw new InvalidOperationException($"The {label} fresh resource row did not render in the normal Map Data window.");
+
+        await Task.Delay(350);
+        string proofPath = Path.GetFullPath(normalUiLiveResourceProofPath!);
+        string stem = Path.GetFileNameWithoutExtension(proofPath);
+        string screenshotPath = Path.Combine(Path.GetDirectoryName(proofPath)!, $"{stem}-{label}.png");
+        await using (var output = File.Create(screenshotPath))
+            await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, output);
+
+        return new UiLiveAcquisitionProof(
+            ReadStatusString(completedStatus, "scanRunId")!,
+            ReadStatusInt64(completedStatus, "liveResourceCapturedAt")!.Value,
+            ReadStatusInt32(completedStatus, "liveResourceAcquisitionOrdinal"),
+            rowText,
+            screenshotPath);
+    }
+
+    private static string? ReadStatusString(JsonElement status, string name) =>
+        status.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    private static long? ReadStatusInt64(JsonElement status, string name) =>
+        status.TryGetProperty(name, out JsonElement value) && value.TryGetInt64(out long parsed)
+            ? parsed
+            : null;
+
+    private static int? ReadStatusInt32(JsonElement status, string name) =>
+        status.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed)
+            ? parsed
+            : null;
+
+    private sealed record UiLiveAcquisitionProof(
+        string ScanRunId,
+        long CapturedAtUnixMilliseconds,
+        int? AcquisitionOrdinal,
+        string RowText,
+        string ScreenshotPath);
 
     private async Task SelectFirstLiveResourceAsync(CoreWebView2 core)
     {

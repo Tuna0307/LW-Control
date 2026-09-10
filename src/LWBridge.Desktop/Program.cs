@@ -11,12 +11,18 @@ internal static class Program
         string? hostProbePath = ReadPathOption(args, "--host-probe");
         string? firstLiveResultPath = ReadPathOption(args, "--first-live-result");
         string? liveResourceProofPath = ReadPathOption(args, "--live-resource-proof");
+        string? normalUiLiveResourceProofPath = ReadPathOption(args, "--normal-ui-live-resource-proof");
         if (liveResourceProofPath is not null)
         {
-            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null)
+            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null)
                 throw new ArgumentException("--live-resource-proof cannot be combined with other probe/capture modes.");
             LiveResourceProofRunner.RunTwiceAsync(liveResourceProofPath).GetAwaiter().GetResult();
             return;
+        }
+        if (normalUiLiveResourceProofPath is not null &&
+            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null))
+        {
+            throw new ArgumentException("--normal-ui-live-resource-proof cannot be combined with other probe/capture modes.");
         }
         if (new[] { capturePath, liveProbePath, hostProbePath }.Count(path => path is not null) > 1)
             throw new ArgumentException("--capture, --live-probe and --host-probe are mutually exclusive.");
@@ -26,7 +32,8 @@ internal static class Program
         string? language = ReadValueOption(args, "--language");
         string? theme = ReadValueOption(args, "--theme");
         var window = new LWBridgeWindow(
-            capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath);
+            capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
+            normalUiLiveResourceProofPath);
         if (hostProbePath is null)
         {
             Application.Run(window);

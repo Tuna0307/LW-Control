@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-008",
+  "date": "2026-09-10",
+  "scope": "PM12-D normal-window proof harness and resource-name evidence boundary",
+  "status": {
+    "normalWindowProofHarness": "IMPLEMENTED/OFFLINE-TESTED",
+    "normalWindowLiveProof": "UNKNOWN/BLOCKED",
+    "resourceNameMapping": "UNKNOWN/BLOCKED"
+  },
+  "sourceIdentity": {
+    "lwbridgeReference": {
+      "path": "../LW/lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "originalMapDataFrontend": {
+      "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "program": {
+      "path": "src/LWBridge.Desktop/Program.cs",
+      "sha256": "5982dbc501834a91bb9f68d56f724c49fa0172ebb9e4416d260fcec902a56afe"
+    },
+    "window": {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "sha256": "6b701ada9f54902e441633a0b5207758a78c9edc89a6b806c383bb95c74ace24"
+    },
+    "savedQueryEvidence": {
+      "path": "evidence/lwbridge-implementation/2026-09-08-r6-map-query-backend.json",
+      "sha256": "c0b29f2652a7d80c4bcbcb73c2d0280d4ef9c5b63da5a215819faaec060e642d"
+    },
+    "savedNormalizedBuilderDump": {
+      "path": "evidence/lwbridge-implementation/2026-09-10-r6-map-record-identity-builder.txt",
+      "sha256": "2bf393d9752c32dbc9c63518430ac4890f40a70d746b3d28d96377fd86be3f4d"
+    }
+  },
+  "recoveredUiEvidence": {
+    "locator": "MapDataPanel-C1HVeNHr.js character offset 5526, Ne array",
+    "typeOrder": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "result": "The recovered type array establishes resource as index 1. The generated manual Map Data controls render their type checkboxes and result tabs from that same ordered array; the manual primary action is the map.startReading action.",
+    "validation": "python tools/build_lwbridge_frontend.py --check verified the recovered frontend hashes before the generated UI was inspected."
+  },
+  "implementation": {
+    "policy": "Diagnostic-only orchestration. It drives the existing persistent normal Map Data window and existing bounded LiveResourceProbeCommandService; it does not change scan semantics or claim a full-world Normal/Fast scan.",
+    "locators": [
+      "Program.cs: --normal-ui-live-resource-proof option and probe-mode exclusion",
+      "LWBridgeWindow.cs: RunNormalUiLiveResourceProofAsync",
+      "LWBridgeWindow.cs: RunUiLiveAcquisitionAsync"
+    ],
+    "behavior": [
+      "Requires --view map-data and waits for the eight recovered manual type controls plus the normal Start Reading action.",
+      "Selects only the recovered resource type through the rendered checkbox controls.",
+      "Clicks the normal Start Reading action twice through the rendered UI.",
+      "For each click, requires a new nonempty scanRunId, a strictly newer liveResourceCapturedAt value, idle/non-reading completion and no lastError.",
+      "Selects the recovered Resource result tab, requires a rendered resource row, records its visible text and captures a WebView PNG.",
+      "A successful run writes one JSON proof with findingId LWB-PM12-008 and two screenshot paths."
+    ]
+  },
+  "resourceNameEvidence": {
+    "originalRawRecordEndpoint": {
+      "source": "evidence/lwbridge-implementation/2026-09-10-r6-map-record-identity-builder.txt",
+      "locator": "RVA 0x278C0D",
+      "observedString": "marchUuidownerNameresourceName",
+      "result": "resourceName is present in the original normalized-builder raw-record vocabulary."
+    },
+    "publicQueryEndpoint": {
+      "source": "evidence/lwbridge-implementation/2026-09-08-r6-map-query-backend.json",
+      "locator": "file offset 0x00C89D59",
+      "predicate": "CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT) = ?",
+      "result": "resourceNameKey is the recovered public resource-name query field."
+    },
+    "frontendConsumer": {
+      "source": "evidence/lwbridge-implementation/2026-09-08-r6-map-frontend-consumers.json",
+      "result": "The resource query emits resourceNameKey from the selected resource-name option key."
+    },
+    "limit": "No identified evidence directly links original raw resourceName, current numeric resourceTypeId, and public resourceNameKey. No numeric-ID-to-key mapping is promoted. Bounded rows therefore continue to render Unknown resource when resourceNameKey is absent."
+  },
+  "validation": {
+    "releaseBuild": "PASS: dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release; 0 warnings, 0 errors.",
+    "desktopChecks": "PASS: dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release -- --verify-real-config-unchanged; ok=true, all six deterministic groups true, failures=[], gameRunning=false, launcherRunning=false.",
+    "frontendIntegrity": "PASS: python tools/build_lwbridge_frontend.py --check.",
+    "browserChecks": "PASS: NODE_PATH set to the existing global npm module root; node tools/check_lwbridge_frontend.cjs; 35 browser checks passed. The first invocation lacked module resolution for the already-installed global Playwright 1.62.1; no repo dependency or product code change was required.",
+    "preferenceChecks": "PASS: node tools/check_lwbridge_preference_provider.cjs; ok=true for all five scenarios.",
+    "liveTransportCheck": "PASS: node tools/check_lwbridge_live_transport.cjs; missing-native check passed.",
+    "transportBoundaryCheck": "PASS: node tools/check_lwbridge_transport_boundary.cjs; boundary check passed."
+  },
+  "restrictionsAndLimits": [
+    "The prior PM12-D attempt to execute the live normal-window proof launch was rejected by automatic approval review before execution. No live window proof, interaction JSON or new screenshot was produced, and the operation was not replayed or rerouted.",
+    "A follow-up exact original-artifact disassembly/poll intended to close the resource-name mapping was also recorded as rejected before execution. It contributes no absence finding and was not replayed or rerouted.",
+    "Native Computer Use remains browser-only in the recorded environment, so it cannot independently operate the Windows desktop Map Data window.",
+    "No live Gathering resource is proven by this checkpoint. Persistent original bridge readiness, full-world scheduling and Normal/Fast parity remain outside this bounded harness."
+  ],
+  "implementationImpact": {
+    "enabled": "A deterministic diagnostic entry point is ready to collect PM12-D proof through the normal persistent Map Data UI when the permitted execution environment can run it.",
+    "notEnabled": "No production feature gate is broadened. Resource naming remains unknown and unsupported values remain fail-closed/unknown.",
+    "nextAction": "When native normal-window proof execution is permitted, run the Release desktop with --view map-data --normal-ui-live-resource-proof evidence/lwbridge-implementation/2026-09-10-pm12-normal-ui-live-proof.json, then verify the two generated PNGs and correlated JSON. While that execution remains unavailable, continue only an identified source-backed current-client resource-name mapping trace; do not infer resourceTypeId -> resourceNameKey."
+  }
+}
