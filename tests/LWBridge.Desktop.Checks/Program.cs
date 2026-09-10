@@ -113,7 +113,10 @@ string WriteCorrelatedLiveResult(
     int serverId = 2212,
     string capturedAt = "2026-09-10T05:20:00Z",
     string source = "WorldPointManager._pointInfos",
-    string pointSource = "WorldPointManager._pointInfos")
+    string pointSource = "WorldPointManager._pointInfos",
+    string? profileId = null,
+    string? launchSessionId = null,
+    int? gamePid = null)
 {
     string resultPath = Path.Combine(root, name + ".json");
     File.WriteAllText(resultPath, JsonSerializer.Serialize(new
@@ -121,6 +124,9 @@ string WriteCorrelatedLiveResult(
         schemaVersion = 1,
         probeVersion = "lwbridge-live-resource-probe-1",
         requestId,
+        profileId,
+        launchSessionId,
+        gamePid,
         state = "proven",
         requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
         source,
@@ -742,6 +748,47 @@ try
                 productionMapStore, wrongPointSourcePath, "wrong-point-source-request", out _));
         Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeScopeRejections,
             "stale, foreign-server and mismatched-source results are rejected before persistence");
+
+        using (var identityStore = MapDataStore.CreateInMemory())
+        {
+            string identityPath = WriteCorrelatedLiveResult(
+                firstLiveReplayRoot,
+                "owned-session-live-result",
+                "owned-session-request",
+                profileId: "profile-a",
+                launchSessionId: "launch-session-a",
+                gamePid: 4321);
+            FirstLiveResultImport identityImport = LiveResourceProbeCommandService.ImportCorrelatedResult(
+                identityStore,
+                identityPath,
+                "owned-session-request",
+                out _,
+                expectedProfileId: "profile-a",
+                expectedLaunchSessionId: "launch-session-a",
+                expectedGamePid: 4321);
+            Check(identityImport.ServerId == 2212 && identityStore.CountRecords("resource", 2212) == 1,
+                "bounded live route accepts a result only when app profile, helper launch session and exact game PID identity match");
+            ExpectInvalidData("profile identity", "bounded live route rejects a foreign app profile identity", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore, identityPath, "owned-session-request", out _, expectedProfileId: "profile-b"));
+            ExpectInvalidData("launch session identity", "bounded live route rejects a foreign helper launch session", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore, identityPath, "owned-session-request", out _, expectedLaunchSessionId: "launch-session-b"));
+            ExpectInvalidData("game PID identity", "bounded live route rejects a foreign game PID", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore, identityPath, "owned-session-request", out _, expectedGamePid: 9876));
+            string missingIdentityPath = WriteCorrelatedLiveResult(
+                firstLiveReplayRoot, "missing-owned-session-live-result", "missing-owned-session-request");
+            ExpectInvalidData("profile identity", "bounded live route rejects missing first-session identity when production requires it", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore,
+                    missingIdentityPath,
+                    "missing-owned-session-request",
+                    out _,
+                    expectedProfileId: "profile-a",
+                    expectedLaunchSessionId: "launch-session-a",
+                    expectedGamePid: 4321));
+        }
     }
 
     using JsonDocument lifecycleStartPayload = JsonDocument.Parse("""

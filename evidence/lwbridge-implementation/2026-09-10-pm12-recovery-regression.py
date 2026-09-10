@@ -73,14 +73,14 @@ for fail_at in (1, 2, 3):
     nonlocal_calls = [0]
     try:
         with patch.object(helper, "paths", return_value=p), \
-             patch.object(helper, "process_running", return_value=False), \
+             patch.object(helper, "selected_game_processes", return_value=[]), \
              patch.object(helper, "verify_current", side_effect=fake_verify), \
              patch.object(helper, "make_candidate", return_value={"dummy": True}), \
              patch.object(helper.tempfile, "mkdtemp", return_value=str(candidate)), \
              patch.object(helper, "copy_atomic", side_effect=failing_copy), \
              patch.object(helper.subprocess, "Popen", side_effect=AssertionError("must not launch")):
             try:
-                helper.run(f"install-fail-{fail_at}", 10, False)
+                helper.run(f"install-fail-{fail_at}", 10, profile_id="pm12-test-profile")
                 error = None
             except OSError as exc:
                 error = str(exc)
@@ -195,12 +195,12 @@ finally:
 root, p, candidate, originals = make_dummy()
 try:
     with patch.object(helper, "paths", return_value=p), \
-         patch.object(helper, "process_running", return_value=False), \
+         patch.object(helper, "selected_game_processes", return_value=[]), \
          patch.object(helper, "verify_current", side_effect=fake_verify), \
          patch.object(helper, "make_candidate", side_effect=RuntimeError("primary failure")), \
          patch.object(helper, "restore_backup", side_effect=OSError("cleanup failure")):
         try:
-            helper.run("dual-error", 10, False)
+            helper.run("dual-error", 10, profile_id="pm12-test-profile")
             dual_error = None
         except helper.LiveResourceError as exc:
             dual_error = str(exc)

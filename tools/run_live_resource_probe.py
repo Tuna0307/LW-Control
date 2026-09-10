@@ -274,23 +274,86 @@ def paths(game_root: str | Path | None = None) -> dict[str, Path]:
     }
 
 
-def process_running(image: str) -> bool:
-    result = subprocess.run(
-        ["tasklist", "/FI", f"IMAGENAME eq {image}", "/FO", "CSV", "/NH"],
-        capture_output=True, text=True, check=False,
+def _normalized_process_path(value: str | Path) -> str:
+    return os.path.normcase(os.path.abspath(os.fspath(value)))
+
+
+def parse_selected_game_processes(stdout: str, expected_game: Path) -> list[dict[str, object]]:
+    """Retain only LastWar processes from the selected installation.
+
+    IMPLEMENTATION POLICY: exact executable path + PID scope this bounded
+    adapter. This is rebuild ownership evidence, not original LWBridge process
+    ownership semantics.
+    """
+    text = stdout.strip()
+    if not text:
+        return []
+    try:
+        value = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise LiveResourceError("could not parse selected LastWar process inventory") from exc
+    items = value if isinstance(value, list) else [value]
+    expected = _normalized_process_path(expected_game)
+    matched: list[dict[str, object]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        process_path = item.get("path")
+        pid = item.get("pid")
+        if not isinstance(process_path, str) or not isinstance(pid, int) or pid <= 0:
+            continue
+        if _normalized_process_path(process_path) != expected:
+            continue
+        matched.append({
+            "pid": pid,
+            "path": os.path.abspath(process_path),
+            "startedAtUtc": item.get("startedAtUtc") if isinstance(item.get("startedAtUtc"), str) else None,
+        })
+    return matched
+
+
+def selected_game_processes(p: dict[str, Path]) -> list[dict[str, object]]:
+    # Read-only Windows process inspection. Unrelated LastWar installations are
+    # excluded by full executable path before a PID is accepted.
+    script = (
+        "$ErrorActionPreference='SilentlyContinue';"
+        "@(Get-Process -Name LastWar -ErrorAction SilentlyContinue | ForEach-Object {"
+        "try {[pscustomobject]@{pid=$_.Id;path=$_.Path;"
+        "startedAtUtc=$_.StartTime.ToUniversalTime().ToString('o')}} catch {}"
+        "}) | ConvertTo-Json -Compress"
     )
-    return f'"{image}"' in result.stdout
+    result = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise LiveResourceError("could not inspect the selected LastWar process")
+    return parse_selected_game_processes(result.stdout, p["game"])
 
 
-def stop_game() -> None:
-    if not process_running("LastWar.exe"):
-        return
-    subprocess.run(["taskkill", "/F", "/IM", "LastWar.exe"], capture_output=True, check=False)
-    deadline = time.monotonic() + 12
-    while process_running("LastWar.exe") and time.monotonic() < deadline:
+def require_no_selected_game_process(p: dict[str, Path]) -> None:
+    processes = selected_game_processes(p)
+    if processes:
+        pids = ",".join(str(item["pid"]) for item in processes)
+        raise LiveResourceError(
+            "the selected LastWar installation is already running "
+            f"(pid {pids}); bounded acquisition requires a helper-owned launch session"
+        )
+
+
+def await_owned_game_process(p: dict[str, Path], deadline: float) -> dict[str, object]:
+    # IMPLEMENTATION POLICY: reuse the helper's existing bounded deadline while
+    # waiting for exactly one game process at the selected executable path.
+    while time.monotonic() < deadline:
+        processes = selected_game_processes(p)
+        if len(processes) > 1:
+            raise LiveResourceError("multiple LastWar processes match the selected installation")
+        if len(processes) == 1:
+            return processes[0]
         time.sleep(0.25)
-    if process_running("LastWar.exe"):
-        raise LiveResourceError("LastWar.exe did not stop for the bounded probe install")
+    raise LiveResourceError("the selected launcher did not create a matching LastWar process before timeout")
 
 
 def verify_current(p: dict[str, Path]) -> dict[str, object]:
@@ -495,25 +558,36 @@ def read_json(path: Path) -> dict[str, object] | None:
         return None
 
 
-def loaded_probe_is_fresh(p: dict[str, Path]) -> bool:
-    heartbeat = p["runtime"] / "heartbeat.json"
-    value = read_json(heartbeat)
-    if value is None or value.get("probeVersion") != PROBE_VERSION:
-        return False
-    try:
-        age = time.time() - heartbeat.stat().st_mtime
-    except OSError:
-        return False
-    # IMPLEMENTATION POLICY: a five-second heartbeat age is only a local liveness
-    # guard for this bounded adapter; it is not original LWBridge readiness.
-    return -1 <= age <= 5
+def _require_command_token(value: str | None, field: str) -> str:
+    text = value or ""
+    if not text or len(text) > 128 or any(not (ch.isalnum() or ch in "_-") for ch in text):
+        raise LiveResourceError(f"{field} is not valid for the bounded command envelope")
+    return text
 
 
-def write_command(p: dict[str, Path], request_id: str) -> None:
+def write_command(
+    p: dict[str, Path],
+    request_id: str,
+    launch_session_id: str,
+    profile_id: str,
+    game_pid: int,
+) -> None:
     p["runtime"].mkdir(parents=True, exist_ok=True)
     command = p["runtime"] / "command.txt"
     temp = p["runtime"] / ("command-" + uuid.uuid4().hex + ".tmp")
-    temp.write_text(f"schema=1\nrequestId={request_id}\n", encoding="utf-8")
+    request_id = _require_command_token(request_id, "requestId")
+    launch_session_id = _require_command_token(launch_session_id, "launchSessionId")
+    profile_id = _require_command_token(profile_id, "profileId")
+    if not isinstance(game_pid, int) or game_pid <= 0:
+        raise LiveResourceError("gamePid must be a positive process identifier")
+    temp.write_text(
+        "schema=1\n"
+        f"requestId={request_id}\n"
+        f"launchSessionId={launch_session_id}\n"
+        f"profileId={profile_id}\n"
+        f"gamePid={game_pid}\n",
+        encoding="utf-8",
+    )
     os.replace(temp, command)
 
 
@@ -556,48 +630,34 @@ def await_result(
 def run(
     request_id: str,
     timeout_seconds: int,
-    restart_unmanaged: bool,
     game_root: str | Path | None = None,
+    profile_id: str | None = None,
 ) -> dict[str, object]:
     p = paths(game_root)
     p["runtime"].mkdir(parents=True, exist_ok=True)
     owner = {
         "schemaVersion": 1,
         "requestId": request_id,
+        "profileId": profile_id,
         "helperPid": os.getpid(),
         "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     with OperationLease(p["runtime"], owner):
-        return run_owned(p, request_id, timeout_seconds, restart_unmanaged)
+        return run_owned(p, request_id, timeout_seconds, profile_id)
 
 
 def run_owned(
     p: dict[str, Path],
     request_id: str,
     timeout_seconds: int,
-    restart_unmanaged: bool,
+    profile_id: str | None,
 ) -> dict[str, object]:
     interrupted_recovery = recover_pending(p)
-
-    if process_running("LastWar.exe") and loaded_probe_is_fresh(p):
-        write_command(p, request_id)
-        result, immutable_result_path = await_result(p, request_id, timeout_seconds)
-        return {
-            "ok": True,
-            "mode": "reuse_loaded_probe",
-            "requestId": request_id,
-            "probeVersion": PROBE_VERSION,
-            "resultPath": str(immutable_result_path),
-            "result": result,
-            "gameRunning": True,
-            "installedFilesChanged": False,
-            "interruptedRecovery": interrupted_recovery,
-        }
-
-    if process_running("LastWar.exe"):
-        if not restart_unmanaged:
-            raise LiveResourceError("LastWar.exe is running without this bounded probe loaded")
-        stop_game()
+    # PM12-C: process-name + heartbeat reuse is insufficient session identity.
+    # A fresh run only begins when the selected installation has no game process.
+    require_no_selected_game_process(p)
+    profile_id = _require_command_token(profile_id, "profileId")
+    launch_session_id = uuid.uuid4().hex
 
     current = verify_current(p)
     backup = make_backup(p)
@@ -617,50 +677,52 @@ def run_owned(
                 (p["runtime"] / stale_name).unlink()
             except FileNotFoundError:
                 pass
-        write_command(p, request_id)
-        subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
-        result, immutable_result_path = await_result(p, request_id, timeout_seconds)
+        launch_started = time.monotonic()
+        launcher_process = subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
+        deadline = launch_started + timeout_seconds
+        owned_game = await_owned_game_process(p, deadline)
+        write_command(p, request_id, launch_session_id, profile_id, int(owned_game["pid"]))
+        remaining = max(1, int(deadline - time.monotonic()))
+        result, immutable_result_path = await_result(p, request_id, remaining)
 
-        restore_while_running_error = None
         try:
             update_recovery_stage(p, recovery_state, "restoring_while_running")
             restored = restore_backup(p, backup)
             clear_recovery(p, recovery_state)
             recovery_armed = False
         except Exception as first_restore_error:
-            # The R7 live run proved that same-process disk restoration can work,
-            # but Windows file sharing is an environmental condition, not a
-            # recovered protocol requirement. If this run cannot replace the
-            # package while LastWar has it open, close the authorized game,
-            # restore exactly, and preserve the successful acquisition.
-            restore_while_running_error = str(first_restore_error)
-            stop_game()
-            update_recovery_stage(p, recovery_state, "restoring_after_game_stop")
-            restored = restore_backup(p, backup)
-            clear_recovery(p, recovery_state)
-            recovery_armed = False
-            restored["requiredGameStop"] = True
-            restored["restoreWhileRunningError"] = restore_while_running_error
+            # Native scoped close control is unavailable in the current task.
+            # Preserve recovery ownership instead of terminating every process
+            # named LastWar.exe or pretending that image-name scope proves PID
+            # ownership.
+            raise LiveResourceError(
+                "exact restoration could not complete while the helper-owned "
+                f"LastWar pid {owned_game['pid']} remained open; scoped native close is required"
+            ) from first_restore_error
 
         return {
             "ok": True,
             "mode": "install_launch_restore",
             "requestId": request_id,
+            "profileId": profile_id,
+            "launchSessionId": launch_session_id,
+            "gamePid": owned_game["pid"],
+            "gamePath": owned_game["path"],
+            "gameStartedAtUtc": owned_game.get("startedAtUtc"),
+            "launcherPid": launcher_process.pid,
             "probeVersion": PROBE_VERSION,
             "resultPath": str(immutable_result_path),
             "result": result,
             "currentClient": current,
             "candidate": candidate_info,
             "restore": restored,
-            "gameRunning": process_running("LastWar.exe"),
+            "gameRunning": bool(selected_game_processes(p)),
             "installedFilesChanged": False,
             "interruptedRecovery": interrupted_recovery,
         }
     except Exception as run_error:
         if recovery_armed:
             try:
-                if process_running("LastWar.exe"):
-                    stop_game()
                 update_recovery_stage(p, recovery_state, "restoring_after_failure")
                 restore_backup(p, backup)
                 clear_recovery(p, recovery_state)
@@ -678,8 +740,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--request-id")
     parser.add_argument("--timeout-seconds", type=int, default=120)
-    parser.add_argument("--restart-unmanaged", action="store_true")
     parser.add_argument("--game-root")
+    parser.add_argument("--profile-id")
     parser.add_argument(
         "--check-only",
         action="store_true",
@@ -705,7 +767,12 @@ def main() -> int:
         print(json.dumps({"ok": False, "error": "timeout must be 10..180 seconds"}))
         return 2
     try:
-        result = run(args.request_id, args.timeout_seconds, args.restart_unmanaged, args.game_root)
+        result = run(
+            args.request_id,
+            args.timeout_seconds,
+            args.game_root,
+            args.profile_id,
+        )
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc), "errorType": type(exc).__name__}))
         return 2

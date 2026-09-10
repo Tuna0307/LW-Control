@@ -17,6 +17,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
     private readonly string helperPath;
     private readonly TimeSpan helperSupervisionTimeout;
     private readonly string? gameRoot;
+    private readonly string? profileId;
     private readonly bool requireCurrentClientEvidence;
     private readonly object stateGate = new();
     private int? currentServerId;
@@ -38,6 +39,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         string? helperPath = null,
         TimeSpan? helperSupervisionTimeout = null,
         string? gameRoot = null,
+        string? profileId = null,
         bool? requireCurrentClientEvidence = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
@@ -45,6 +47,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             AppContext.BaseDirectory, "LiveResourceProbe", "run_live_resource_probe.py");
         this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(135);
         this.gameRoot = string.IsNullOrWhiteSpace(gameRoot) ? null : Path.GetFullPath(gameRoot);
+        this.profileId = string.IsNullOrWhiteSpace(profileId) ? null : profileId;
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         if (this.helperSupervisionTimeout <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(helperSupervisionTimeout));
@@ -63,9 +66,32 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             bool gameRunning;
             try
             {
+                if (gameRoot is null) return false;
+                string expectedGamePath = Path.GetFullPath(Path.Combine(gameRoot, "Game", "LastWar.exe"));
                 Process[] processes = Process.GetProcessesByName("LastWar");
-                gameRunning = processes.Length > 0;
-                foreach (Process process in processes) process.Dispose();
+                gameRunning = false;
+                foreach (Process process in processes)
+                {
+                    try
+                    {
+                        string? actualPath = process.MainModule?.FileName;
+                        if (actualPath is not null && string.Equals(
+                                Path.GetFullPath(actualPath),
+                                expectedGamePath,
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            gameRunning = true;
+                        }
+                    }
+                    catch
+                    {
+                        // An unreadable process is not accepted as identity proof.
+                    }
+                    finally
+                    {
+                        process.Dispose();
+                    }
+                }
             }
             catch
             {
@@ -154,7 +180,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         {
             try
             {
-                string resultPath = await RunHelperAsync(operationId).ConfigureAwait(false);
+                LiveResourceHelperRun helperRun = await RunHelperAsync(operationId).ConfigureAwait(false);
                 operationCancellation.Token.ThrowIfCancellationRequested();
                 lock (stateGate)
                 {
@@ -164,11 +190,14 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
 
                 FirstLiveResultImport imported = ImportCorrelatedResult(
                     store,
-                    resultPath,
+                    helperRun.ResultPath,
                     operationId,
                     out int? parsedOrdinal,
                     expectedServerId: expectedServerId,
-                    operationStartedAtUtc: operationStartedAtUtc);
+                    operationStartedAtUtc: operationStartedAtUtc,
+                    expectedProfileId: helperRun.ProfileId,
+                    expectedLaunchSessionId: helperRun.LaunchSessionId,
+                    expectedGamePid: helperRun.GamePid);
                 operationCancellation.Token.ThrowIfCancellationRequested();
 
                 lock (stateGate)
@@ -234,7 +263,10 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         Func<string, byte[]>? readAllBytes = null,
         int? expectedServerId = null,
         DateTimeOffset? operationStartedAtUtc = null,
-        DateTimeOffset? nowUtc = null)
+        DateTimeOffset? nowUtc = null,
+        string? expectedProfileId = null,
+        string? expectedLaunchSessionId = null,
+        int? expectedGamePid = null)
     {
         byte[] resultBytes = (readAllBytes ?? File.ReadAllBytes)(resultPath);
         using JsonDocument resultDocument = JsonDocument.Parse(resultBytes);
@@ -255,6 +287,26 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             stateValue.GetString() != "proven")
         {
             throw new InvalidDataException("Live resource result did not match the app request correlation contract.");
+        }
+        if (expectedProfileId is not null &&
+            (!root.TryGetProperty("profileId", out JsonElement profileValue) ||
+             profileValue.ValueKind != JsonValueKind.String ||
+             !string.Equals(profileValue.GetString(), expectedProfileId, StringComparison.Ordinal)))
+        {
+            throw new InvalidDataException("Live resource result did not match the selected app profile identity.");
+        }
+        if (expectedLaunchSessionId is not null &&
+            (!root.TryGetProperty("launchSessionId", out JsonElement sessionValue) ||
+             sessionValue.ValueKind != JsonValueKind.String ||
+             !string.Equals(sessionValue.GetString(), expectedLaunchSessionId, StringComparison.Ordinal)))
+        {
+            throw new InvalidDataException("Live resource result did not match the helper-owned launch session identity.");
+        }
+        if (expectedGamePid.HasValue &&
+            (!root.TryGetProperty("gamePid", out JsonElement pidValue) ||
+             !pidValue.TryGetInt32(out int resultPid) || resultPid != expectedGamePid.Value))
+        {
+            throw new InvalidDataException("Live resource result did not match the helper-owned game PID identity.");
         }
         if (!root.TryGetProperty("requestRoute", out JsonElement routeValue) ||
             routeValue.ValueKind != JsonValueKind.String ||
@@ -398,12 +450,14 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         catch (ObjectDisposedException) { }
     }
 
-    private async Task<string> RunHelperAsync(string requestId)
+    private async Task<LiveResourceHelperRun> RunHelperAsync(string requestId)
     {
         if (!File.Exists(helperPath))
             throw new FileNotFoundException("Live resource helper was not deployed with LWBridge.Desktop.", helperPath);
         if (requireCurrentClientEvidence && gameRoot is null)
             throw new InvalidOperationException("No validated Last War installation is selected for the bounded live resource acquisition.");
+        if (requireCurrentClientEvidence && profileId is null)
+            throw new InvalidOperationException("No selected LWBridge profile is available for the bounded live resource acquisition.");
 
         var start = new ProcessStartInfo
         {
@@ -421,11 +475,15 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         // IMPLEMENTATION POLICY: outer launch/acquisition bound; the in-game
         // response itself has its separately documented eight-second bound.
         start.ArgumentList.Add("120");
-        start.ArgumentList.Add("--restart-unmanaged");
         if (gameRoot is not null)
         {
             start.ArgumentList.Add("--game-root");
             start.ArgumentList.Add(gameRoot);
+        }
+        if (profileId is not null)
+        {
+            start.ArgumentList.Add("--profile-id");
+            start.ArgumentList.Add(profileId);
         }
 
         Process process = Process.Start(start)
@@ -488,8 +546,19 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                     helperProbeVersion.ValueKind != JsonValueKind.String ||
                     helperProbeVersion.GetString() != ExpectedProbeVersion)
                     throw new InvalidDataException("Live resource helper response probeVersion did not match the supported build.");
+                string? ownedProfileId = null;
+                string? launchSessionId = null;
+                int? gamePid = null;
                 if (requireCurrentClientEvidence)
+                {
                     ValidateCurrentClientHelperEvidence(root);
+                    ownedProfileId = RequiredString(root, "profileId", "selected app profile identity");
+                    launchSessionId = RequiredString(root, "launchSessionId", "helper-owned launch session identity");
+                    if (!root.TryGetProperty("gamePid", out JsonElement gamePidValue) ||
+                        !gamePidValue.TryGetInt32(out int parsedGamePid) || parsedGamePid <= 0)
+                        throw new InvalidDataException("Live resource helper did not return a positive helper-owned game PID.");
+                    gamePid = parsedGamePid;
+                }
                 if (!root.TryGetProperty("resultPath", out JsonElement pathValue) || pathValue.ValueKind != JsonValueKind.String)
                     throw new InvalidDataException("Live resource helper did not return its correlated result path.");
                 string? resultPath = pathValue.GetString();
@@ -509,7 +578,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                     lastHelperResult = root.Clone();
                     lastResultPath = fullResultPath;
                 }
-                return fullResultPath;
+                return new LiveResourceHelperRun(fullResultPath, ownedProfileId, launchSessionId, gamePid);
             }
         }
         finally
@@ -518,7 +587,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         }
     }
 
-    private static void ValidateCurrentClientHelperEvidence(JsonElement root)
+    private void ValidateCurrentClientHelperEvidence(JsonElement root)
     {
         if (!root.TryGetProperty("mode", out JsonElement mode) ||
             mode.ValueKind != JsonValueKind.String || mode.GetString() != "install_launch_restore")
@@ -539,6 +608,30 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         {
             throw new InvalidDataException("Live resource helper did not prove exact post-acquisition restoration before import.");
         }
+        string helperProfile = RequiredString(root, "profileId", "selected app profile identity");
+        if (!string.Equals(helperProfile, profileId, StringComparison.Ordinal))
+            throw new InvalidDataException("Live resource helper did not match the selected app profile.");
+        _ = RequiredString(root, "launchSessionId", "helper-owned launch session identity");
+        if (!root.TryGetProperty("gamePid", out JsonElement gamePid) ||
+            !gamePid.TryGetInt32(out int parsedPid) || parsedPid <= 0)
+            throw new InvalidDataException("Live resource helper did not prove a positive helper-owned game PID.");
+        string helperGamePath = RequiredString(root, "gamePath", "selected game executable path");
+        string expectedGamePath = Path.Combine(gameRoot!, "Game", "LastWar.exe");
+        if (!string.Equals(
+                Path.GetFullPath(helperGamePath),
+                Path.GetFullPath(expectedGamePath),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidDataException("Live resource helper game path did not match the selected installation.");
+        }
+    }
+
+    private static string RequiredString(JsonElement root, string propertyName, string description)
+    {
+        if (!root.TryGetProperty(propertyName, out JsonElement value) ||
+            value.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(value.GetString()))
+            throw new InvalidDataException($"Live resource helper did not return its {description}.");
+        return value.GetString()!;
     }
 
     private static bool MatchesString(JsonElement value, string propertyName, string expected) =>
@@ -581,4 +674,10 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             process.Dispose();
         }
     }
+
+    private sealed record LiveResourceHelperRun(
+        string ResultPath,
+        string? ProfileId,
+        string? LaunchSessionId,
+        int? GamePid);
 }

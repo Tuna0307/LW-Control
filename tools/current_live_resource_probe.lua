@@ -12,6 +12,9 @@ local command_path = root .. [[\command.txt]]
 local result_path = root .. [[\result.json]]
 local phase = "idle"
 local active_request_id = nil
+local active_launch_session_id = nil
+local active_profile_id = nil
+local active_game_pid = nil
 local request_started_at = nil
 local response_started_at = nil
 local transition_requested = false
@@ -285,6 +288,9 @@ local function write_heartbeat(now)
         updatedAt = now,
         phase = phase,
         requestId = active_request_id,
+        launchSessionId = active_launch_session_id,
+        profileId = active_profile_id,
+        gamePid = active_game_pid,
         acquisitionOrdinal = acquisition_ordinal,
     })
 end
@@ -303,12 +309,16 @@ local function fail_request(now, message, world, point_manager)
         schemaVersion = 1,
         probeVersion = M.VERSION,
         requestId = active_request_id,
+        launchSessionId = active_launch_session_id,
+        profileId = active_profile_id,
+        gamePid = active_game_pid,
         acquisitionOrdinal = acquisition_ordinal,
         state = "failed",
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", now),
         error = tostring(message or "live_resource_failed"),
     })
-    active_request_id = nil; phase = "idle"; response_started_at = nil
+    active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil
+    phase = "idle"; response_started_at = nil
 end
 
 local function resource_record(world, point_manager)
@@ -381,10 +391,23 @@ local function read_command()
         if key ~= nil then values[key] = value end
     end
     local request_id = tostring(values.requestId or "")
-    if values.schema ~= "1" or not string.match(request_id, "^[%w_-]+$") or #request_id > 128 then
+    local launch_session_id = tostring(values.launchSessionId or "")
+    local profile_id = tostring(values.profileId or "")
+    local game_pid = tonumber(values.gamePid)
+    local valid_token = function(value)
+        return #value > 0 and #value <= 128 and string.match(value, "^[%w_-]+$") ~= nil
+    end
+    if values.schema ~= "1" or not valid_token(request_id) or
+       not valid_token(launch_session_id) or not valid_token(profile_id) or
+       game_pid == nil or game_pid <= 0 or game_pid ~= math.floor(game_pid) then
         return false, "invalid_command"
     end
-    return request_id, nil
+    return {
+        requestId = request_id,
+        launchSessionId = launch_session_id,
+        profileId = profile_id,
+        gamePid = game_pid,
+    }, nil
 end
 
 local function begin_refresh(world, point_manager)
@@ -414,14 +437,17 @@ end
 function M.Pump()
     local now = tonumber(os.time()) or 0
     if active_request_id == nil then
-        local request_id, command_error = read_command()
-        if request_id == false then
+        local command, command_error = read_command()
+        if command == false then
             write_json(result_path, {
                 schemaVersion = 1, probeVersion = M.VERSION, requestId = "", state = "failed",
                 capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", now), error = command_error,
             })
-        elseif request_id ~= nil then
-            active_request_id = request_id
+        elseif command ~= nil then
+            active_request_id = command.requestId
+            active_launch_session_id = command.launchSessionId
+            active_profile_id = command.profileId
+            active_game_pid = command.gamePid
             request_started_at = runtime_clock()
             acquisition_ordinal = acquisition_ordinal + 1
             transition_requested = false
@@ -464,6 +490,9 @@ function M.Pump()
                 schemaVersion = 1,
                 probeVersion = M.VERSION,
                 requestId = active_request_id,
+                launchSessionId = active_launch_session_id,
+                profileId = active_profile_id,
+                gamePid = active_game_pid,
                 acquisitionOrdinal = acquisition_ordinal,
                 state = "proven",
                 capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", now),
@@ -475,7 +504,8 @@ function M.Pump()
                 selectedResourceIndex = selected_index,
                 point_records = { point },
             })
-            active_request_id = nil; phase = "idle"; response_started_at = nil
+            active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil
+            phase = "idle"; response_started_at = nil
         elseif response_started_at ~= nil and runtime_clock() - response_started_at >= RESPONSE_TIMEOUT_SECONDS then
             fail_request(now, "fresh view response timeout", world, point_manager)
         end

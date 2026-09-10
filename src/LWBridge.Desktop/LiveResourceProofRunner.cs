@@ -24,7 +24,8 @@ internal static class LiveResourceProofRunner
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
             var service = new LiveResourceProbeCommandService(
                 mapData,
-                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null);
+                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
+                profileId: config.Snapshot.ProfileId);
             var backend = new LWBridgeBackend(config, asyncCommands: service, mapData: mapData);
 
             using JsonDocument startPayload = JsonDocument.Parse(JsonSerializer.Serialize(new

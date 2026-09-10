@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-003",
+  "date": "2026-09-10",
+  "baseCommit": "ff12040a605e350f3761dbe05ed5be3c7c988524",
+  "branch": "research/offline-controller",
+  "status": {
+    "pm12A": "PARTIAL IMPLEMENTED/OFFLINE-TESTED",
+    "pm12C": "PARTIAL IMPLEMENTED/OFFLINE-TESTED",
+    "pm12D": "UNKNOWN/BLOCKED LIVE UI PROOF"
+  },
+  "scope": "Exact selected-installation process/PID scoping and request-owned launch-session/profile/PID correlation for the bounded resource adapter. No installed game file was modified, no game or launcher was started/stopped, and no new live acquisition was performed for this checkpoint.",
+  "sourceIdentity": {
+    "implementationBase": "ff12040a605e350f3761dbe05ed5be3c7c988524",
+    "helperSha256": "76bd64a5ce746a6dec9cbab5037c1aef5d8f7afdc6b3bcd628c6f24cbd3539fa",
+    "probeLuaSha256": "47464649a7929c106749f03c394cbdd402f9596792ea1f951c009adba41700a2",
+    "desktopServiceSha256": "00475a36e25efc71688316b7e30c2dc45964b43defcaae2cae978cc3d78d5048",
+    "currentClientEvidenceReused": {
+      "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "limit": "These are the already accepted R7-003/PM12-002 current-client fingerprints. This checkpoint did not rerun the previously blocked --check-only refresh and makes no new current-client hash claim."
+    }
+  },
+  "locators": [
+    "tools/run_live_resource_probe.py:281 parse_selected_game_processes exact executable-path/PID filter",
+    "tools/run_live_resource_probe.py:336 require_no_selected_game_process fail-closed pre-launch gate",
+    "tools/run_live_resource_probe.py:346 await_owned_game_process selected-path PID observation",
+    "tools/run_live_resource_probe.py:568 write_command request/profile/launch-session/PID envelope",
+    "tools/run_live_resource_probe.py:658-685 helper-owned fresh launch sequence",
+    "tools/current_live_resource_probe.lua:394-409 command identity validation",
+    "tools/current_live_resource_probe.lua:493-495 proven-result identity fields",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:290-309 immutable result profile/session/PID identity checks",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:453 RunHelperAsync production helper invocation/provenance",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:611-625 selected profile/PID/game-path checks",
+    "tests/LWBridge.Desktop.Checks/Program.cs:753-791 profile/session/PID acceptance and rejection regressions",
+    "evidence/lwbridge-implementation/2026-09-10-pm12-session-identity-regression.py isolated process-scope/owned-launch regression"
+  ],
+  "result": {
+    "implementationPolicy": [
+      "A bounded production acquisition starts only when no LastWar process exists at the selected installation's exact Game\\LastWar.exe path.",
+      "After the selected launcher is started, the helper accepts exactly one newly observed process at that exact executable path and records its positive PID and start time.",
+      "The helper generates a per-run launchSessionId and writes launchSessionId, selected profileId and exact gamePid into the request-owned command; the injected probe copies those fields into heartbeat/failure/proven result data.",
+      "The desktop validates helper profileId, launchSessionId, positive gamePid and exact selected game path, then requires the immutable result bytes to match that same profile/session/PID tuple before persistence.",
+      "Loaded-probe reuse and image-name-wide restart/termination were removed from this bounded production helper path. If the selected game is already running, the operation fails closed.",
+      "If restoration cannot complete while the helper-owned game remains open, recovery state is retained and the helper reports that scoped native close is required instead of terminating every LastWar.exe process."
+    ],
+    "offlineRegression": {
+      "foreignInstallationExcluded": true,
+      "exactSelectedPidPropagated": true,
+      "profilePropagated": true,
+      "launchSessionPropagated": true,
+      "alreadyRunningSelectedInstallRejected": true,
+      "broadStopRemoved": true,
+      "originalTripletRestored": true
+    }
+  },
+  "validation": [
+    {
+      "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "result": "PASS: 0 warnings, 0 errors"
+    },
+    {
+      "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "result": "PASS: six deterministic groups true; failures=[]; selected installation diagnostic valid; game and launcher stopped"
+    },
+    {
+      "command": "python evidence\\lwbridge-implementation\\2026-09-10-pm12-recovery-regression.py",
+      "result": "PASS: LWB-PM12-001 recovery/shared-lease/dual-error regression remains ok=true"
+    },
+    {
+      "command": "python evidence\\lwbridge-implementation\\2026-09-10-pm12-session-identity-regression.py",
+      "result": "PASS: LWB-PM12-003 process scope and helper-owned launch identity report ok=true"
+    },
+    {
+      "command": "python -m py_compile tools\\run_live_resource_probe.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python tools\\build_lwbridge_frontend.py --check",
+      "result": "PASS: recovered hashes verified and login-free frontend regenerated consistently"
+    },
+    {
+      "command": "NODE_PATH=<global npm root> node tools\\check_lwbridge_frontend.cjs",
+      "result": "PASS: 35 browser checks"
+    },
+    {
+      "command": "node tools\\check_lwbridge_preference_provider.cjs",
+      "result": "PASS: five preference scenarios"
+    },
+    {
+      "command": "node tools\\check_lwbridge_transport_boundary.cjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tools\\check_lwbridge_live_transport.cjs",
+      "result": "PASS: missing-native gate"
+    }
+  ],
+  "restrictions": [
+    "One bundled offline validation command was automatically rejected before execution because safety status could not be determined. It was not replayed as a bundle; separate single-purpose validation commands passed and the rejection contributes no technical finding.",
+    "The current Computer Use registry exposes browser control only and explicitly reports native computer APIs disabled. No native Last War/LWBridge UI action was attempted through it.",
+    "The prior run_live_resource_probe.py --check-only rejection and prior process-control patch denial were not repeated or rerouted."
+  ],
+  "limits": [
+    "This checkpoint establishes the rebuild's exact-path/PID/profile/session correlation mechanism only as IMPLEMENTED/OFFLINE-TESTED. It does not prove those identity fields in a fresh live acquisition.",
+    "PM12-A remains partial because an actual locked-file restoration may still require a scoped normal close of the exact owned PID, and native app control is unavailable in this task.",
+    "PM12-C remains partial until a fresh acquisition demonstrates this identity chain against the current game session.",
+    "PM12-D normal-window Start Scan, rendered fresh row, second refresh and screenshot/interaction proof remain open because native app UI control is unavailable here.",
+    "Original LWBridge pipe/session readiness, full-world scan scheduling and all unsupported map kinds remain UNKNOWN/BLOCKED. No full task.md acceptance case is newly signed off."
+  ]
+}

@@ -104,7 +104,8 @@ internal sealed class LWBridgeWindow : Form
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
             liveResourceService = new LiveResourceProbeCommandService(
                 mapData,
-                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null);
+                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
+                profileId: config.Snapshot.ProfileId);
         }
         else
         {
