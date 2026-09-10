@@ -864,7 +864,7 @@ try
     {
         var emptySavedBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: emptySavedStore);
         using JsonDocument profile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = emptySavedBackend.ProfileId }));
-        await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "empty saved profile has no fabricated browse server", async () =>
+        await ExpectBridgeError("MAP_SAVED_CONTEXT_UNAVAILABLE", "empty saved profile has no fabricated browse server", async () =>
             await emptySavedBackend.InvokeAsync("map_summary", profile.RootElement.Clone(), CancellationToken.None));
     }
 

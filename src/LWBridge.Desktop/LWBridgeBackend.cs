@@ -286,7 +286,7 @@ internal sealed class LWBridgeBackend
                         new { serverIds = savedServerIds });
                 }
                 throw new BridgeCommandException(
-                    "MAP_INDEX_UNAVAILABLE",
+                    "MAP_SAVED_CONTEXT_UNAVAILABLE",
                     "Map summary is unavailable because this profile has no saved map server and no current live server context.");
             case "append_log":
             case "set_window_theme":
