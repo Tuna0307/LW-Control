@@ -356,6 +356,80 @@ def await_owned_game_process(p: dict[str, Path], deadline: float) -> dict[str, o
     raise LiveResourceError("the selected launcher did not create a matching LastWar process before timeout")
 
 
+def close_owned_game_process_for_restore(
+    p: dict[str, Path],
+    owned_game: dict[str, object],
+    wait_milliseconds: int = 10000,
+) -> dict[str, object]:
+    """Normally close only the helper-owned LastWar process before restoration.
+
+    IMPLEMENTATION POLICY: the rebuild uses the same exact-PID
+    Process.CloseMainWindow() primitive that succeeded in the PM12-005
+    operational recovery. It revalidates the selected installation path and
+    PID immediately before the close, waits a bounded ten seconds for normal
+    exit, and has no force-kill fallback.
+    """
+    pid = owned_game.get("pid")
+    process_path = owned_game.get("path")
+    if not isinstance(pid, int) or pid <= 0 or not isinstance(process_path, str):
+        raise LiveResourceError("helper-owned LastWar identity is incomplete; refusing normal close")
+    if _normalized_process_path(process_path) != _normalized_process_path(p["game"]):
+        raise LiveResourceError("helper-owned LastWar path no longer matches the selected installation")
+    if wait_milliseconds < 1:
+        raise LiveResourceError("normal-close wait must be positive")
+
+    selected = selected_game_processes(p)
+    if len(selected) != 1 or selected[0].get("pid") != pid:
+        raise LiveResourceError("selected LastWar process identity changed before normal close")
+    if _normalized_process_path(str(selected[0].get("path", ""))) != _normalized_process_path(p["game"]):
+        raise LiveResourceError("selected LastWar path changed before normal close")
+
+    close_env = os.environ.copy()
+    close_env["LWBRIDGE_OWNED_GAME_PID"] = str(pid)
+    close_env["LWBRIDGE_OWNED_GAME_PATH"] = os.path.abspath(process_path)
+    close_env["LWBRIDGE_NORMAL_CLOSE_WAIT_MS"] = str(wait_milliseconds)
+    script = (
+        "$ErrorActionPreference='Stop';"
+        "$ownedPid=[int]$env:LWBRIDGE_OWNED_GAME_PID;"
+        "$expected=[IO.Path]::GetFullPath($env:LWBRIDGE_OWNED_GAME_PATH);"
+        "$waitMs=[int]$env:LWBRIDGE_NORMAL_CLOSE_WAIT_MS;"
+        "$process=[Diagnostics.Process]::GetProcessById($ownedPid);"
+        "$actual=[IO.Path]::GetFullPath($process.Path);"
+        "if(-not [StringComparer]::OrdinalIgnoreCase.Equals($actual,$expected)){exit 43};"
+        "if(-not $process.CloseMainWindow()){exit 41};"
+        "if(-not $process.WaitForExit($waitMs)){exit 42}"
+    )
+    result = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=close_env,
+    )
+    if result.returncode == 41:
+        raise LiveResourceError(f"LastWar pid {pid} did not accept a normal main-window close")
+    if result.returncode == 42:
+        raise LiveResourceError(f"LastWar pid {pid} did not exit within the bounded normal-close wait")
+    if result.returncode == 43:
+        raise LiveResourceError(f"LastWar pid {pid} path changed before Process.CloseMainWindow")
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip()
+        suffix = f": {detail}" if detail else ""
+        raise LiveResourceError(f"normal close failed for helper-owned LastWar pid {pid}{suffix}")
+
+    remaining = selected_game_processes(p)
+    if any(item.get("pid") == pid for item in remaining):
+        raise LiveResourceError(f"LastWar pid {pid} remained present after normal close")
+    return {
+        "method": "Process.CloseMainWindow",
+        "pid": pid,
+        "path": os.path.abspath(process_path),
+        "waitMilliseconds": wait_milliseconds,
+        "accepted": True,
+        "processExited": True,
+    }
+
+
 def verify_current(p: dict[str, Path]) -> dict[str, object]:
     for key in ("launcher", "game", "xlua", "assembly", "data", "metadata", "version"):
         if not p[key].is_file():
@@ -685,20 +759,31 @@ def run_owned(
         remaining = max(1, int(deadline - time.monotonic()))
         result, immutable_result_path = await_result(p, request_id, remaining)
 
+        update_recovery_stage(p, recovery_state, "restoring_while_running")
         try:
-            update_recovery_stage(p, recovery_state, "restoring_while_running")
             restored = restore_backup(p, backup)
-            clear_recovery(p, recovery_state)
-            recovery_armed = False
+            normal_close = None
         except Exception as first_restore_error:
-            # Native scoped close control is unavailable in the current task.
-            # Preserve recovery ownership instead of terminating every process
-            # named LastWar.exe or pretending that image-name scope proves PID
-            # ownership.
-            raise LiveResourceError(
-                "exact restoration could not complete while the helper-owned "
-                f"LastWar pid {owned_game['pid']} remained open; scoped native close is required"
-            ) from first_restore_error
+            update_recovery_stage(p, recovery_state, "closing_owned_game_for_restore")
+            try:
+                normal_close = close_owned_game_process_for_restore(p, owned_game)
+            except Exception as close_error:
+                raise LiveResourceError(
+                    "exact restoration failed while the helper-owned LastWar process remained open; "
+                    f"exact-PID normal close also failed: {close_error}"
+                ) from first_restore_error
+            update_recovery_stage(p, recovery_state, "restoring_after_owned_game_close")
+            try:
+                restored = restore_backup(p, backup)
+            except Exception as retry_restore_error:
+                raise LiveResourceError(
+                    "exact restoration failed before normal close and the retry after the exact-PID "
+                    f"normal close also failed: {retry_restore_error}"
+                ) from first_restore_error
+        restored = dict(restored)
+        restored["normalClose"] = normal_close
+        clear_recovery(p, recovery_state)
+        recovery_armed = False
 
         return {
             "ok": True,

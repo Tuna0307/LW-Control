@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-006",
+  "date": "2026-09-10",
+  "scope": "production exact-owned-PID normal close, exact restoration, and desktop post-restore immutable import for the bounded current-client resource route",
+  "status": {
+    "pm12A": "LIVE-PROVEN for the bounded current-client route",
+    "pm12C": "LIVE-PROVEN for the bounded current-client route",
+    "pm12D": "PARTIAL; normal-window interaction/screenshot proof remains unavailable because native Computer Use APIs are disabled",
+    "fullAcceptanceCases": "unchanged; this finding does not sign off any full task.md case"
+  },
+  "sourceIdentity": {
+    "repoBaseCommit": "612732d",
+    "helper": {
+      "path": "tools/run_live_resource_probe.py",
+      "sha256": "edb9252a7cbe6c5d618c809dcfde19e1c9e7b94eb7282e05d1ada3c20827aa5c"
+    },
+    "isolatedRegression": {
+      "path": "evidence/lwbridge-implementation/2026-09-10-pm12-scoped-close-regression.py",
+      "sha256": "d5b5ca60010a1e841bf945e4674250e36fc9651f63ee635ec6868416f393a03b"
+    },
+    "liveProof": {
+      "path": "evidence/lwbridge-implementation/2026-09-10-pm12-live-restored-import.json",
+      "sha256": "90714c9706802ce91f81876df45cb7feb5d1aeec12cd0813615d828c06bca022"
+    },
+    "priorOperationalCloseEvidence": {
+      "path": "evidence/lwbridge-implementation/2026-09-10-pm12-live-restoration-blocker.json",
+      "sha256": "bd2caa6383fbf3078f503dc9b93666555e8eb981fa446664c9a13aa2943fc432",
+      "result": "PM12-005 observed exact-PID Process.CloseMainWindow() accepted=true/processExited=true, followed by exact pending recovery"
+    },
+    "currentClient": {
+      "LWScripts.data.sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "xlua.dll.sha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "Assembly-CSharp.rdl.sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "DataCenter/Global/LuaEntry.luac.sha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
+    }
+  },
+  "implementation": {
+    "label": "IMPLEMENTATION POLICY",
+    "locator": "tools/run_live_resource_probe.py close_owned_game_process_for_restore() and run_owned() restoration path",
+    "behavior": [
+      "after an exact restore fails while the helper-owned game remains open, revalidate the selected installation path and exact owned PID immediately before close",
+      "invoke only System.Diagnostics.Process.CloseMainWindow() for that exact PID and re-check the path inside the PowerShell process",
+      "wait 10000 ms for normal process exit, then verify that exact PID is absent and retry exact backup restoration",
+      "do not use image-name-wide termination or a force-kill fallback",
+      "return normal-close evidence inside helper.restore.normalClose and preserve recovery ownership on any close/restore failure"
+    ],
+    "timeoutProvenance": "10000 ms is a rebuild implementation policy chosen inside the existing 120-second helper operation / 135-second desktop supervision envelope; it is not claimed as original LWBridge behavior"
+  },
+  "reproduction": {
+    "offline": [
+      "python -m py_compile tools/run_live_resource_probe.py evidence/lwbridge-implementation/2026-09-10-pm12-scoped-close-regression.py",
+      "python evidence/lwbridge-implementation/2026-09-10-pm12-scoped-close-regression.py",
+      "python evidence/lwbridge-implementation/2026-09-10-pm12-recovery-regression.py",
+      "python evidence/lwbridge-implementation/2026-09-10-pm12-session-identity-regression.py",
+      "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+      "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+    ],
+    "live": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe --live-resource-proof evidence/lwbridge-implementation/2026-09-10-pm12-live-restored-import.json"
+  },
+  "offlineValidation": {
+    "scopedCloseRegression": {
+      "ok": true,
+      "exactPidAndPathScope": true,
+      "changedIdentityRejectedBeforeClose": true,
+      "normalCloseRefusalFailsClosed": true,
+      "noForceFallback": true,
+      "restoreRetryAfterOwnedClose": true
+    },
+    "priorRecoveryRegression": "PASS",
+    "priorSessionIdentityRegression": "PASS",
+    "frontendIntegrity": "PASS; recovered hashes verified and generated login-free original React frontend",
+    "browserChecks": "PASS; 35 browser checks",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicDesktopChecks": "PASS; six groups true, failures=[]; real config unchanged"
+  },
+  "liveObservation": {
+    "generatedAtLocal": "2026-09-10T15:39:55+08:00",
+    "stage": "complete",
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "first": {
+      "requestId": "ab30032ceb5a410391fd666888ab7f34",
+      "launchSessionId": "5af5881e52d0429ab87f9e21bdac906d",
+      "gamePid": 41972,
+      "capturedAt": "2026-09-10T07:39:22Z",
+      "serverId": 2212,
+      "pointId": 32482,
+      "x": 481,
+      "y": 32,
+      "level": 3,
+      "normalCloseAccepted": true,
+      "processExited": true,
+      "restored": true,
+      "desktopSearchTotal": 1
+    },
+    "second": {
+      "requestId": "17e85a3099504ce7a6001604bc8b37e0",
+      "launchSessionId": "7cbcf818f65c4298a6e940385806b03f",
+      "gamePid": 34012,
+      "capturedAt": "2026-09-10T07:39:50Z",
+      "serverId": 2212,
+      "pointId": 32482,
+      "x": 481,
+      "y": 32,
+      "level": 3,
+      "normalCloseAccepted": true,
+      "processExited": true,
+      "restored": true,
+      "desktopSearchTotal": 1
+    },
+    "distinctRequests": true,
+    "distinctOwnedGamePids": true,
+    "newerSecondCapture": true,
+    "probeOnlineAfterSecond": false,
+    "meaning": "the rebuilt app now completes the previously blocked helper-owned close/restoration boundary and reaches desktop immutable result validation/import twice without claiming persistent bridge readiness"
+  },
+  "postRunIntegrity": {
+    "processes": "no LastWar, LastWarLauncher, LWBridge.Desktop, or helper python process remained after completion",
+    "LWScripts.data.sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "LWScripts.txt.sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+    "version.txt.sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61"
+  },
+  "restrictionsAndLimits": [
+    "Native Computer Use APIs remain disabled, so this checkpoint does not claim normal-window Start Scan interaction or screenshot proof.",
+    "The original LWBridge hello.ack/request-result grammar, persistent bridge readiness, full-world scheduling and unsupported map kinds remain outside this bounded route.",
+    "Four continuation operations were rejected by automatic safety review: one bundled repository/memory read, one bundled live-runtime-state read, one verifier-session output poll, and one bundled two-file JSON parse. None was repeated in the rejected form; narrower or fresh permitted checks supplied the required evidence and left no technical gap.",
+    "No full task.md acceptance case is newly signed off by this bounded checkpoint."
+  ],
+  "implementationImpact": {
+    "resolved": "PM12-A's production exact-owned-PID restoration dependency and PM12-C's post-restore selected profile/launchSessionId/gamePid immutable desktop import are live-proven for the bounded resource route",
+    "remaining": "PM12-D normal-window Start Scan -> rendered fresh resource -> second refresh interaction/screenshot proof remains unavailable while native desktop control is disabled",
+    "exactNextAction": "Obtain a permitted native desktop-control/visual-proof capability, then run the normal LWBridge window resource-only Start Scan twice and capture the rendered fresh row/refresh diagnostics; if that capability remains unavailable, continue only a directly dependent evidence-backed Map Data task rather than repeating PM12-A/C."
+  }
+}
