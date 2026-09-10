@@ -21,7 +21,10 @@ internal static class LiveResourceProofRunner
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db");
             using var mapData = new MapDataStore(mapPath);
-            var service = new LiveResourceProbeCommandService(mapData);
+            GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
+            var service = new LiveResourceProbeCommandService(
+                mapData,
+                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null);
             var backend = new LWBridgeBackend(config, asyncCommands: service, mapData: mapData);
 
             using JsonDocument startPayload = JsonDocument.Parse(JsonSerializer.Serialize(new

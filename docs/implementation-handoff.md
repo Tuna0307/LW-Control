@@ -8,6 +8,8 @@ R7-003 is accepted for the bounded fresh-acquisition/backend portion of PM10-01,
 
 Regular AI owns the ordered queue below. After a coherent checkpoint is tested, documented, committed, pushed and verified, continue the next supported item when asked to continue; no new PM permission is needed for those routine steps. Keep one active owner and preserve concurrent work. Specialist assignment, genuinely unavailable capabilities and full feature sign-off remain distinct.
 
+Post-review progress: `LWB-PM12-001` completes the isolated recovery/shared-lease portion of PM12-A; exact live installation/session/PID targeting remains blocked by the recorded environment denial. `LWB-PM12-002` completes PM12-B as **IMPLEMENTED/OFFLINE-TESTED** and closes PM12-C's immutable-byte/request-owned-result/source/time/established-server checks. PM12-C remains partial until the first acquisition has independently verified game-session/profile/PID identity. Do not repeat the denied process-control or read-only helper-probe operations; resume from that exact identity gap when an allowed evidence path is available, then proceed to PM12-D normal-window proof.
+
 ## Ordered work and acceptance
 
 ### PM12-A — recover reliably from partial install; own the actual target

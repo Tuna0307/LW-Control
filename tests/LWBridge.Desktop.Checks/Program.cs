@@ -61,6 +61,111 @@ string FindRepoRoot()
     throw new InvalidOperationException("Could not locate repository root for deterministic source checks.");
 }
 
+string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int pointId)
+{
+    string helperPath = Path.Combine(root, name + ".py");
+    string resultPath = Path.Combine(root, name + "-result.json");
+    string resultLiteral = JsonSerializer.Serialize(resultPath);
+    File.WriteAllText(helperPath, $$"""
+        import argparse
+        import json
+        import time
+
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument("--request-id", required=True)
+        args, _ = parser.parse_known_args()
+        time.sleep({{delayMilliseconds}} / 1000.0)
+        result = {
+            "schemaVersion": 1,
+            "probeVersion": "lwbridge-live-resource-probe-1",
+            "requestId": args.request_id,
+            "state": "proven",
+            "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+            "source": "WorldPointManager._pointInfos",
+            "capturedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "acquisitionOrdinal": 1,
+            "point_records": [{
+                "kind": "resource_point",
+                "serverId": 2212,
+                "pointId": {{pointId}},
+                "x": 481,
+                "y": 32,
+                "level": 3,
+                "source": "WorldPointManager._pointInfos"
+            }]
+        }
+        with open({{resultLiteral}}, "w", encoding="utf-8") as stream:
+            json.dump(result, stream)
+        print(json.dumps({
+            "ok": True,
+            "probeVersion": "lwbridge-live-resource-probe-1",
+            "requestId": args.request_id,
+            "resultPath": {{resultLiteral}}
+        }))
+        """);
+    return helperPath;
+}
+
+string WriteCorrelatedLiveResult(
+    string root,
+    string name,
+    string requestId,
+    int serverId = 2212,
+    string capturedAt = "2026-09-10T05:20:00Z",
+    string source = "WorldPointManager._pointInfos",
+    string pointSource = "WorldPointManager._pointInfos")
+{
+    string resultPath = Path.Combine(root, name + ".json");
+    File.WriteAllText(resultPath, JsonSerializer.Serialize(new
+    {
+        schemaVersion = 1,
+        probeVersion = "lwbridge-live-resource-probe-1",
+        requestId,
+        state = "proven",
+        requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+        source,
+        capturedAt,
+        acquisitionOrdinal = 1,
+        point_records = new[]
+        {
+            new
+            {
+                kind = "resource_point",
+                serverId,
+                pointId = 1009,
+                x = 481,
+                y = 32,
+                level = 3,
+                source = pointSource,
+            },
+        },
+    }, JsonOptions.Default));
+    return resultPath;
+}
+
+(bool IsReading, string Phase) ReadLiveStatus(LiveResourceProbeCommandService service)
+{
+    using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(service.CreateStatus(), JsonOptions.Default));
+    JsonElement root = document.RootElement;
+    return (
+        root.GetProperty("isReading").GetBoolean(),
+        root.GetProperty("phase").GetString() ?? string.Empty);
+}
+
+async Task<bool> WaitForLiveState(
+    LiveResourceProbeCommandService service,
+    Func<(bool IsReading, string Phase), bool> predicate,
+    int timeoutMilliseconds = 4000)
+{
+    DateTime deadline = DateTime.UtcNow.AddMilliseconds(timeoutMilliseconds);
+    while (DateTime.UtcNow < deadline)
+    {
+        if (predicate(ReadLiveStatus(service))) return true;
+        await Task.Delay(20);
+    }
+    return predicate(ReadLiveStatus(service));
+}
+
 string repoRoot = FindRepoRoot();
 bool verifyRealConfigUnchanged = args.Contains("--verify-real-config-unchanged", StringComparer.OrdinalIgnoreCase);
 string realConfigPath = Path.Combine(
@@ -493,10 +598,12 @@ try
         using (JsonDocument boundedStatus = JsonDocument.Parse(JsonSerializer.Serialize(boundedLiveService.CreateStatus(), JsonOptions.Default)))
         {
             JsonElement root = boundedStatus.RootElement;
-            Check(root.GetProperty("totalBlocks").ValueKind == JsonValueKind.Null &&
+            Check(root.GetProperty("serverId").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("liveResourceAcquisitionOrdinal").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("totalBlocks").ValueKind == JsonValueKind.Null &&
                   root.GetProperty("progressPercent").ValueKind == JsonValueKind.Null &&
                   root.GetProperty("nativeCaptureReady").ValueKind == JsonValueKind.Null,
-                "bounded live status preserves unmeasured full-scan metrics as unknown");
+                "bounded live status preserves unavailable identity and unmeasured full-scan metrics as unknown");
         }
         var boundedLiveBackend = new LWBridgeBackend(
             new LocalConfigStore(persistent: false),
@@ -520,9 +627,12 @@ try
         string foreignLiveResultPath = Path.Combine(firstLiveReplayRoot, "foreign-live-resource-result.json");
         File.WriteAllText(foreignLiveResultPath, """
             {
+              "schemaVersion": 1,
+              "probeVersion": "lwbridge-live-resource-probe-1",
               "requestId": "foreign-request",
               "state": "proven",
               "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+              "source": "WorldPointManager._pointInfos",
               "capturedAt": "2026-09-10T05:00:00Z",
               "point_records": [
                 {
@@ -542,6 +652,176 @@ try
                 productionMapStore, foreignLiveResultPath, "expected-request", out _));
         Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeForeignResult,
             "foreign live result cannot mutate the normal map index before correlation succeeds");
+
+        string immutableResultPath = Path.Combine(firstLiveReplayRoot, "immutable-live-resource-result.json");
+        File.WriteAllText(immutableResultPath, """
+            {
+              "schemaVersion": 1,
+              "probeVersion": "lwbridge-live-resource-probe-1",
+              "requestId": "immutable-request",
+              "state": "proven",
+              "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+              "source": "WorldPointManager._pointInfos",
+              "capturedAt": "2026-09-10T05:20:00Z",
+              "acquisitionOrdinal": 7,
+              "point_records": [
+                {
+                  "kind": "resource_point",
+                  "serverId": 2212,
+                  "pointId": 1008,
+                  "x": 481,
+                  "y": 32,
+                  "level": 3,
+                  "source": "WorldPointManager._pointInfos"
+                }
+              ]
+            }
+            """);
+        int immutableReadCount = 0;
+        FirstLiveResultImport immutableImport = LiveResourceProbeCommandService.ImportCorrelatedResult(
+            productionMapStore,
+            immutableResultPath,
+            "immutable-request",
+            out int? immutableOrdinal,
+            path =>
+            {
+                immutableReadCount++;
+                byte[] bytes = File.ReadAllBytes(path);
+                File.WriteAllText(path, File.ReadAllText(foreignLiveResultPath));
+                return bytes;
+            });
+        Check(immutableReadCount == 1 && immutableOrdinal == 7 && immutableImport.PointIndex == 1008,
+            "correlated live import validates, hashes and persists one immutable byte snapshot even if the shared path is replaced after the read");
+        Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeForeignResult + 1,
+            "immutable correlated import persists only the row from the validated byte snapshot");
+
+        int recordsBeforeScopeRejections = productionMapStore.CountRecords("resource", 2212);
+        string wrongServerPath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot, "wrong-server-live-result", "wrong-server-request", serverId: 2213);
+        ExpectInvalidData("different server", "bounded live route rejects a result from a different established server", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore,
+                wrongServerPath,
+                "wrong-server-request",
+                out _,
+                expectedServerId: 2212,
+                operationStartedAtUtc: DateTimeOffset.Parse("2026-09-10T05:10:00Z"),
+                nowUtc: DateTimeOffset.Parse("2026-09-10T05:30:00Z")));
+
+        string staleLiveResultPath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot,
+            "stale-live-result",
+            "stale-request",
+            capturedAt: "2026-09-10T05:00:00Z");
+        ExpectInvalidData("stale", "bounded live route rejects a result predating the active acquisition", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore,
+                staleLiveResultPath,
+                "stale-request",
+                out _,
+                expectedServerId: 2212,
+                operationStartedAtUtc: DateTimeOffset.Parse("2026-09-10T05:10:00Z"),
+                nowUtc: DateTimeOffset.Parse("2026-09-10T05:30:00Z")));
+
+        string wrongSourcePath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot,
+            "wrong-source-live-result",
+            "wrong-source-request",
+            source: "OtherSource");
+        ExpectInvalidData("WorldPointManager._pointInfos source", "bounded live route rejects a mismatched top-level source", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore, wrongSourcePath, "wrong-source-request", out _));
+
+        string wrongPointSourcePath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot,
+            "wrong-point-source-live-result",
+            "wrong-point-source-request",
+            pointSource: "OtherPointSource");
+        ExpectInvalidData("WorldPointManager._pointInfos source", "bounded live route rejects a mismatched point source", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore, wrongPointSourcePath, "wrong-point-source-request", out _));
+        Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeScopeRejections,
+            "stale, foreign-server and mismatched-source results are rejected before persistence");
+    }
+
+    using JsonDocument lifecycleStartPayload = JsonDocument.Parse("""
+        {"selectedTypes":["resource"],"scanMode":"normal"}
+        """);
+    using JsonDocument lifecycleStopPayload = JsonDocument.Parse("{}");
+
+    using (var lifecycleStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-cancel", 500, 2001);
+        var service = new LiveResourceProbeCommandService(lifecycleStore, helper, TimeSpan.FromSeconds(3));
+        Task<object?> firstStart = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(await WaitForLiveState(service, state => state.IsReading && state.Phase == "reading"),
+            "fake live helper enters reading state before lifecycle cancellation checks");
+        await ExpectBridgeError("MAP_SCAN_ALREADY_RUNNING", "duplicate live Start rejects immediately instead of queueing", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+
+        object? stopStatus = await service.InvokeAsync(
+            "map_scan_stop", lifecycleStopPayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument stopStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(stopStatus, JsonOptions.Default)))
+        {
+            Check(stopStatusJson.RootElement.GetProperty("isReading").GetBoolean() &&
+                  stopStatusJson.RootElement.GetProperty("phase").GetString() == "cancelling",
+                "map_scan_stop targets the active acquisition and reports cancelling while helper cleanup continues");
+        }
+        bool firstCancelled = false;
+        try { await firstStart; }
+        catch (OperationCanceledException) { firstCancelled = true; }
+        Check(firstCancelled && lifecycleStore.CountRecords("resource", 2212) == 0,
+            "cancelled live acquisition cannot publish the helper's later successful result");
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "idle"),
+            "cancelled helper completion releases operation ownership back to idle");
+
+        object? retryStatus = await service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument retryStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(retryStatus, JsonOptions.Default)))
+        {
+            Check(retryStatusJson.RootElement.GetProperty("isReading").ValueKind == JsonValueKind.False &&
+                  retryStatusJson.RootElement.GetProperty("phase").GetString() == "idle" &&
+                  retryStatusJson.RootElement.GetProperty("serverId").GetInt32() == 2212,
+                "a new Start returns a truthful completed status after cancelled helper cleanup has completed");
+        }
+        Check(lifecycleStore.CountRecords("resource", 2212) == 1,
+            "successful retry imports exactly one fake-helper resource row");
+    }
+
+    using (var timeoutStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-timeout", 900, 2002);
+        var service = new LiveResourceProbeCommandService(timeoutStore, helper, TimeSpan.FromMilliseconds(120));
+        await ExpectBridgeError("LIVE_RESOURCE_ACQUISITION_FAILED", "hung fake helper is bounded by process supervision", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+        (bool IsReading, string Phase) stuck = ReadLiveStatus(service);
+        Check(stuck.IsReading && stuck.Phase == "helper_stuck",
+            "timed-out helper retains operation ownership while its cleanup process is still running");
+        await ExpectBridgeError("MAP_SCAN_ALREADY_RUNNING", "duplicate Start remains rejected while timed-out helper is still owned", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "error", 4000),
+            "late fake-helper exit releases ownership without importing its result");
+        Check(timeoutStore.CountRecords("resource", 2212) == 0,
+            "supervised timeout never persists a late helper result");
+    }
+
+    using (var closeStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-close", 500, 2003);
+        var service = new LiveResourceProbeCommandService(closeStore, helper, TimeSpan.FromSeconds(3));
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(await WaitForLiveState(service, state => state.IsReading),
+            "fake helper is active before application-close lifecycle check");
+        service.Close();
+        bool closeCancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { closeCancelled = true; }
+        Check(closeCancelled && closeStore.CountRecords("resource", 2212) == 0,
+            "application close cancels publication and leaves the store untouched after helper completion");
+        await ExpectBridgeError("MAP_SCAN_CLOSED", "closed service rejects any later Start", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
     }
 
     string missingTimestampPath = Path.Combine(firstLiveReplayRoot, "missing-timestamp.json");

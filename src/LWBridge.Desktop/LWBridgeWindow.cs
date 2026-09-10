@@ -99,7 +99,17 @@ internal sealed class LWBridgeWindow : Form
                     "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
-        liveResourceService = !isolated ? new LiveResourceProbeCommandService(mapData) : null;
+        if (!isolated)
+        {
+            GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
+            liveResourceService = new LiveResourceProbeCommandService(
+                mapData,
+                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null);
+        }
+        else
+        {
+            liveResourceService = null;
+        }
         backend = new LWBridgeBackend(
             config,
             asyncCommands: hostProbeService ?? (INativeAsyncCommandService?)liveResourceService,
@@ -1287,6 +1297,7 @@ internal sealed class LWBridgeWindow : Form
     {
         sessionClosed = true;
         documentSession.Close();
+        liveResourceService?.Close();
         mapData.Dispose();
         if (isolatedConfigRoot is not null)
         {

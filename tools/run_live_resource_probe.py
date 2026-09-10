@@ -252,10 +252,14 @@ def decode_lenc(entry: bytes) -> bytes:
     return zlib.decompress(transformed) if transformed.startswith(b"\x78\xDA") else transformed
 
 
-def paths() -> dict[str, Path]:
+def paths(game_root: str | Path | None = None) -> dict[str, Path]:
     local = Path(os.environ["LOCALAPPDATA"]).resolve()
     profile = Path(os.environ["USERPROFILE"]).resolve()
-    install = local / "FunFly" / "Last War-Survival Game"
+    install = (
+        Path(game_root).expanduser().resolve()
+        if game_root is not None
+        else (local / "FunFly" / "Last War-Survival Game").resolve()
+    )
     scripts = profile / "AppData" / "LocalLow" / "FunFly" / "Last War-Survival Game" / "lwScripts"
     return {
         "launcher": install / "LastWarLauncher.exe",
@@ -513,23 +517,49 @@ def write_command(p: dict[str, Path], request_id: str) -> None:
     os.replace(temp, command)
 
 
-def await_result(p: dict[str, Path], request_id: str, timeout_seconds: int) -> dict[str, object]:
+def persist_request_result(p: dict[str, Path], request_id: str, result_bytes: bytes) -> Path:
+    results = p["runtime"] / "results"
+    results.mkdir(parents=True, exist_ok=True)
+    destination = results / f"{request_id}.json"
+    temp = results / f"{request_id}.{uuid.uuid4().hex}.tmp"
+    temp.write_bytes(result_bytes)
+    os.replace(temp, destination)
+    if destination.read_bytes() != result_bytes:
+        raise LiveResourceError("request-owned result bytes changed while being persisted")
+    return destination
+
+
+def await_result(
+    p: dict[str, Path], request_id: str, timeout_seconds: int
+) -> tuple[dict[str, object], Path]:
     result_path = p["runtime"] / "result.json"
     deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
-        value = read_json(result_path)
+        try:
+            result_bytes = result_path.read_bytes()
+            value = json.loads(result_bytes)
+            if not isinstance(value, dict):
+                value = None
+        except (OSError, json.JSONDecodeError):
+            value = None
         if value is not None and value.get("requestId") == request_id:
             state = value.get("state")
             if state == "proven":
-                return value
+                immutable_path = persist_request_result(p, request_id, result_bytes)
+                return value, immutable_path
             if state == "failed":
                 raise LiveResourceError(f"live-resource probe failed: {value.get('error')}")
         time.sleep(0.2)
     raise LiveResourceError("live-resource result did not arrive within the bounded helper timeout")
 
 
-def run(request_id: str, timeout_seconds: int, restart_unmanaged: bool) -> dict[str, object]:
-    p = paths()
+def run(
+    request_id: str,
+    timeout_seconds: int,
+    restart_unmanaged: bool,
+    game_root: str | Path | None = None,
+) -> dict[str, object]:
+    p = paths(game_root)
     p["runtime"].mkdir(parents=True, exist_ok=True)
     owner = {
         "schemaVersion": 1,
@@ -551,13 +581,13 @@ def run_owned(
 
     if process_running("LastWar.exe") and loaded_probe_is_fresh(p):
         write_command(p, request_id)
-        result = await_result(p, request_id, timeout_seconds)
+        result, immutable_result_path = await_result(p, request_id, timeout_seconds)
         return {
             "ok": True,
             "mode": "reuse_loaded_probe",
             "requestId": request_id,
             "probeVersion": PROBE_VERSION,
-            "resultPath": str(p["runtime"] / "result.json"),
+            "resultPath": str(immutable_result_path),
             "result": result,
             "gameRunning": True,
             "installedFilesChanged": False,
@@ -589,7 +619,7 @@ def run_owned(
                 pass
         write_command(p, request_id)
         subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
-        result = await_result(p, request_id, timeout_seconds)
+        result, immutable_result_path = await_result(p, request_id, timeout_seconds)
 
         restore_while_running_error = None
         try:
@@ -617,7 +647,7 @@ def run_owned(
             "mode": "install_launch_restore",
             "requestId": request_id,
             "probeVersion": PROBE_VERSION,
-            "resultPath": str(p["runtime"] / "result.json"),
+            "resultPath": str(immutable_result_path),
             "result": result,
             "currentClient": current,
             "candidate": candidate_info,
@@ -649,6 +679,7 @@ def main() -> int:
     parser.add_argument("--request-id")
     parser.add_argument("--timeout-seconds", type=int, default=120)
     parser.add_argument("--restart-unmanaged", action="store_true")
+    parser.add_argument("--game-root")
     parser.add_argument(
         "--check-only",
         action="store_true",
@@ -674,7 +705,7 @@ def main() -> int:
         print(json.dumps({"ok": False, "error": "timeout must be 10..180 seconds"}))
         return 2
     try:
-        result = run(args.request_id, args.timeout_seconds, args.restart_unmanaged)
+        result = run(args.request_id, args.timeout_seconds, args.restart_unmanaged, args.game_root)
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc), "errorType": type(exc).__name__}))
         return 2

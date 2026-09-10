@@ -47,11 +47,25 @@ internal static class FirstLiveResultImporter
         if (!File.Exists(sourcePath))
             throw new FileNotFoundException("First-live diagnostics file was not found.", sourcePath);
 
-        string captureSha256;
-        using (FileStream hashStream = File.OpenRead(sourcePath))
-            captureSha256 = Convert.ToHexString(SHA256.HashData(hashStream)).ToLowerInvariant();
+        byte[] bytes = File.ReadAllBytes(sourcePath);
+        return ImportOneResource(store, bytes, sourcePath);
+    }
 
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllBytes(sourcePath));
+    public static FirstLiveResultImport ImportOneResource(
+        MapDataStore store,
+        ReadOnlyMemory<byte> diagnosticsBytes,
+        string sourcePath)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        if (diagnosticsBytes.IsEmpty)
+            throw new InvalidDataException("First-live diagnostics bytes are empty.");
+        if (string.IsNullOrWhiteSpace(sourcePath))
+            throw new ArgumentException("First-live diagnostics source path is required.", nameof(sourcePath));
+
+        string normalizedSourcePath = Path.GetFullPath(sourcePath);
+        string captureSha256 = Convert.ToHexString(SHA256.HashData(diagnosticsBytes.Span)).ToLowerInvariant();
+
+        using JsonDocument document = JsonDocument.Parse(diagnosticsBytes);
         JsonElement root = document.RootElement;
         if (root.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("First-live diagnostics root must be a JSON object.");
@@ -151,7 +165,7 @@ internal static class FirstLiveResultImporter
             level,
             updatedAt,
             captureSha256,
-            sourcePath,
+            normalizedSourcePath,
             ReadNonEmptyString(root, "probeVersion"),
             ReadNonEmptyString(root, "sourceCaptureSha256"),
             dataJson);
