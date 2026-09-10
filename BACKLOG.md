@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-10
 
-Project-manager review 10 audited `01f139d`: saved real-resource replay is reproduced, while fresh app-initiated acquisition remains blocked. See [the audit](docs/lwbridge-project-status.md), [regular handoff](docs/implementation-handoff.md) and [escalation register](docs/daybreak-escalations.md). The replay does not complete the active live-connection goal.
+Project-manager review 11 audited `37a1dac`: replay hardening/tests and pipe discovery are accepted; there is still no production connection or fresh app-initiated acquisition. See [the audit](docs/lwbridge-project-status.md), [regular handoff](docs/implementation-handoff.md) and [escalation register](docs/daybreak-escalations.md). No new full acceptance case is signed off.
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -50,11 +50,15 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [ ] **PM7-C / regular AI:** native identity/normalization and smallest scan path, alongside R5 launch/handshake prerequisites; `LWB-R6-049` recovers the original normalized `record_key` formula and its write into the R6-047 `+0x78` slot. `LWB-R6-050` pins current `PointInfo.pointIndex/mainIndex/uuid`, their generated xLua backing tokens, constructor stores, and `ResPointInfo.gatherMarchUuid`/resource getters. `LWB-R6-051` additionally pins the original normalized `level`, `quality`, `power`, distance fallback, and shield/protect fallback field sources. `LWB-R7-001` adds a bounded current-game acquisition/display checkpoint: an instrumented v14 run captured one real server-2212 resource row and isolated `--first-live-result` displays it through the rebuilt store/query/UI without guessing resource-name or gather state. Production capture/serializer ownership, bridge/session connection, remaining resource normalization/removal and live scan lifecycle remain open.
 - [ ] **PM7-D / regular AI / DEFERRED:** remaining schema/export/sort evidence and specific ESC-002/004 packets after the fresh app-initiated result, unless a named prerequisite directly blocks it.
 
-## Immediate priorities — review 10
+## Immediate priorities — review 11
 
-- [ ] **PM10-01 / regular AI / FIRST:** `LWB-R7-002` preserves the exact historical source commit/file hashes, v14 candidate identity, bounded run invocation and protected-file restoration/hash contract. Fresh app-initiated acquisition and the required second fresh acquisition remain open; do not mistake replay or historical executability for this result.
+- [ ] **PM10-01 / connection next checkpoint:** R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming. Deliver evidence for the minimum accepted handshake/request framing and implementation unlocked, fresh app acquisition, or a complete bounded ESC-005 packet. Fresh acquisition and its second repeat remain open; no more pipe-name/replay-only checkpoints.
+- [ ] **PM11-02 / validation pending:** verify the new replay banner, initial Resource selection and disabled acquisition controls through a permitted method; prior capture denial remains in force. Not a substitute for the connection task.
+- [x] **PM11-01 / PM:** corrected the unsupported inference that keyword-history searches proved no reusable prior session implementation exists.
+
+
 - [x] **LWB-R5-006 / PM10-01 connection slice:** recover and live-correlate the original per-user control-pipe path. Rebuild derivation is offline-tested; pipe presence is not bridge readiness.
-- [x] **PM10-02 / regular AI:** `LWB-R7-002` clearly labels saved replay with capture provenance, isolates it in its own in-memory store, auto-selects Resource, disables acquisition controls and reports unavailable/replay scan state.
+- [x] **PM10-02 / regular AI / IMPLEMENTED, visual proof pending under PM11-02:** `LWB-R7-002` clearly labels saved replay with capture provenance, isolates it in its own in-memory store, auto-selects Resource, disables acquisition controls and reports unavailable/replay scan state.
 - [x] **PM10-03 / regular AI:** `LWB-R7-002` adds source-to-row, invalid timestamp/record, optional-unknown, recovered server-range, demo-only ID/coordinate-boundary, isolation and normal-production-gate regression checks.
 
 - [x] **PM8-0 recovery:** user deleted data/reinstalled; AI verified successful official update/startup. Current scripts v14; sampled core binaries unchanged. Preserve failed-delta evidence; do not repair again.
@@ -66,7 +70,7 @@ All existing DEEP-BINARY/ARTIFACT-REVIEW labels below describe the evidence meth
 - [x] **LWB-R7-002 PM10 replay/recipe checkpoint:** historical acquisition source/recipe is durable; replay presentation and storage are explicitly isolated and focused regressions pass. No new live acquisition is claimed.
 - [ ] **PM7-C/R5 / ACTIVE production path:** make the rebuilt app establish the supported bridge/session and acquire the next resource row freshly through production `map_scan_start`; recover only the missing serializer/lifecycle contracts needed for that result.
 - [ ] **R5 / ACTIVE next contract:** recover exact accepted hello/session message framing/validation and the host-to-proxy request envelope needed for a production `INativeAsyncCommandService`; require strict current session/request identity and fail closed on disconnect before enabling map acquisition.
-- [ ] **PM7-B / ESC-005:** remaining provider/handler readiness and a specific permissible method packet; PM7-D remains independent backlog.
+- [ ] **PM7-B / ESC-005:** remaining provider/handler readiness and a specific permissible method packet; PM7-D remains deferred backlog.
 
 ## Completed foundation
 

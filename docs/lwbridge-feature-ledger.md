@@ -5,9 +5,9 @@ original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
-## Project-manager review 10 — implementation `01f139d` (2026-09-10)
+## Project-manager review 11 — implementation `37a1dac` (2026-09-10)
 
-[Current audit](lwbridge-project-status.md) verifies the captured resource source and reproduces its isolated store/query/UI replay. New application code exists; app-initiated acquisition and production ownership remain blocked. PM10-01–03 track acquisition reproducibility, replay labeling and missing targeted tests. PM7-A remains an offline service without a normal public options caller.
+[Current audit](lwbridge-project-status.md) accepts R7-002 replay hardening and fresh passing tests, plus R5-006 pipe-path construction. The new replay UI has pending visual proof (PM11-02). PM10-01 remains active: no production session service or fresh app acquisition. No full case is newly signed off; do not repeat accepted replay or pipe-name work.
 
 **PM8-0 closed by the user's reinstall**; AI verified the resulting official update/startup. [PM9-A](lastwar-update-readiness.md) is TODO for future update-readiness/compatibility integration. Main build/sampled core hashes unchanged; scripts 12 -> 14; table changed earlier. No rebuilt feature is LIVE-PROVEN by official-game recovery.
 
@@ -15,7 +15,7 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
 Current delivery order was changed by the user after review 9: [first real connection/resource/display demonstration](first-live-result.md); PM9-A is deferred. `LWB-R7-001` now proves a bounded current-game resource acquisition plus isolated rebuilt display for one row. Production bridge/session ownership and fresh `map_scan_start` remain open. Standing game/process/Computer Use testing permission is recorded in AGENTS.md.
 
-`LWB-R7-002` closes PM10-02/03 as IMPLEMENTED/OFFLINE-TESTED and preserves the reusable R7-001 acquisition recipe/source under PM10-01. Saved replay now has a dedicated in-memory store, visible capture provenance, automatic Resource selection, disabled acquisition controls and unavailable/replay scan state. Focused importer/isolation/production-gate checks pass. PM10-01 remains open for fresh app-initiated acquisition and the required second fresh read.
+`LWB-R7-002` implements PM10-02 (visual verification pending) and closes PM10-03 as IMPLEMENTED/OFFLINE-TESTED and preserves the reusable R7-001 acquisition recipe/source under PM10-01. Saved replay now has a dedicated in-memory store, visible capture provenance, automatic Resource selection, disabled acquisition controls and unavailable/replay scan state. Focused importer/isolation/production-gate checks pass. PM10-01 remains open for fresh app-initiated acquisition and the required second fresh read.
 
 `LWB-R5-006` recovers the original per-user control-pipe path and live-correlates the derived name against the verified LWBridge host. The rebuild helper is offline-tested, but no production transport is enabled: exact session framing/validation and host-to-proxy request grammar remain the first missing connection contract.
 

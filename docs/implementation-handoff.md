@@ -1,10 +1,17 @@
-# Regular AI task — review 10
+# Regular AI task — review 11
 
-Start from the latest worktree/HEAD; PM reviewed `01f139d` on 2026-09-10. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [the current audit](lwbridge-project-status.md), [BACKLOG.md](../BACKLOG.md) and the relevant findings indexed in [README](README.md). All 47 acceptance cases remain required. Preserve the login-free recovered UI and completed legacy cleanup.
+Start from the latest worktree/HEAD; PM reviewed `37a1dac` on 2026-09-10. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [the current audit](lwbridge-project-status.md), [BACKLOG.md](../BACKLOG.md) and the relevant findings indexed in [README](README.md). All 47 acceptance cases remain required. Preserve the login-free recovered UI and completed legacy cleanup.
 
-## Review 10 outcome and required next step
+## Review 11 — one connection question before more features
 
-PM reproduced the saved resource replay and checked its original capture/excerpt hashes. Continue from it; do not recapture the same artifact merely to claim another milestone. Resolve [PM10-01–03](lwbridge-project-status.md): durable acquisition recipe, honest replay UI and focused regression coverage. The main deliverable is app-initiated fresh acquisition, followed by another fresh read with no replay fallback. The prior game-side probe is not a production bridge. No new Daybreak task is assigned.
+PM10-03 tests pass; PM10-02 is implemented but its new visual behavior remains unverified. R7-002 preserves the historical acquisition recipe; R5-006 resolves pipe naming. Stop repeating those slices. The active gap is the minimum supported connection handshake and request/result framing needed for fresh app-initiated acquisition.
+
+1. Name the next exact missing fact and a permitted evidence path. Reuse saved findings; distinguish host/proxy roles, framing, identity/validation and readiness from strings alone. State why this fact blocks the real-resource demonstration and which service/code it unlocks.
+2. Recover and document only that supported contract, then implement the connection. If a supported current-client route can independently deliver the bounded result, justify it from evidence and label rebuild design choices; do not assume every original protected handler is prerequisite. Preserve all denied-operation boundaries.
+3. Acquire and display a real point from the app, then repeat with correlated request/session/time evidence. Test disconnected, stale/foreign and failed responses without falling back to replay. Existing disconnected-backend fixture tests do not prove these connected behaviors.
+4. If the remaining relevant permitted methods are exhausted, complete ESC-005 with exact attempts/results/alternatives, a permitted specialist method and bounded return criteria. Do not self-assign Daybreak or deliver another generic denial-only checkpoint. If no permitted method is available, identify the actual environmental requirement; model switching is not a remedy.
+
+Follow [the review](lwbridge-project-status.md) and [live-result task](first-live-result.md). PM11-02 UI verification can be completed when a permitted capability is available, without repeating the denied app-capture operation or replacing connection work. Updater/export and further replay expansion remain deferred.
 
 ## Active priority — supersedes PM9-A-first instructions
 
@@ -42,7 +49,7 @@ Success means a source-attributed trigger → handler → current-runtime respon
 
 ## PM7-C — native identities and the smallest real scan path
 
-**Owner: regular AI. Status: IN PROGRESS through LWB-R7-001; progress independently when B cannot proceed.** R5 launch/owned process/bridge handshake remains a critical dependency; read [injection findings](lwbridge-injection.md) before changing launch code. Production start remains gated until its inputs, ownership and authoritative readiness/outcomes are established.
+**Owner: regular AI. Status: IN PROGRESS through LWB-R7-002 / LWB-R5-006; progress independently when B cannot proceed.** R5 launch/owned process/bridge handshake remains a critical dependency; read [injection findings](lwbridge-injection.md) before changing launch code. Production start remains gated until its inputs, ownership and authoritative readiness/outcomes are established.
 
 R6-047 gives the original shared upsert layout; R6-049 gives the original identity decision; R6-051 gives scalar source/fallback mappings. R6-048/050 independently establish current PointInfo/resource identity fields and xLua ownership in hash-identical Assembly-CSharp. Do not re-recover these or keep the original identity formula marked entirely unknown.
 

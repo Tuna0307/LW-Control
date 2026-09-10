@@ -11,18 +11,18 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 10. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 11. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Current project-manager handoff — read before starting
 
-Reviewed implementation: `01f139d`, 2026-09-10, `research/offline-controller`. [Review 10](docs/lwbridge-project-status.md) reproduces the saved real-resource display and verifies its source excerpt. This is new display code, but fresh app-initiated acquisition and production connection remain blocked. Follow PM10-01–03 and the bounded task; no full acceptance case is newly signed off.
+Reviewed implementation: `37a1dac`, 2026-09-10, `research/offline-controller`. [Review 11](docs/lwbridge-project-status.md) accepts replay hardening/tests and control-pipe discovery within their stated limits. Fresh app acquisition and the production connection remain unavailable. PM10-01 is active; PM10-03 is offline-tested and PM10-02 visual proof is pending. No full acceptance case is newly signed off.
 
 - **PM8-0 CLOSED:** the user deleted data/reinstalled; AI verified accepted script version 14 and startup. Do not instruct another reinstall or attribute the recovery action to the AI.
 - **ACTIVE PRIORITY:** [connect and display one real resource point](docs/first-live-result.md). This user-approved correction supersedes PM9-A-first planning. Defer future automatic updates and unrelated research; retain minimal current-file checks. Game launch/close/restart and project-related Computer Use are explicitly pre-authorized in AGENTS.md.
 - **Then:** [standard AI handoff](docs/implementation-handoff.md) PM7-C/R5 and PM7-B toward supported connection, smallest real scan and displayed result. Original identity/scalar rules are now recovered; current capture mapping and live integration remain open. PM7-A is already complete as bounded aggregate integration.
 - **Daybreak:** none assigned. Follow [the register](docs/daybreak-escalations.md); a denied operation is not an automatic transfer.
 
-[Review 10 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-10.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
+[Review 11 evidence](evidence/lwbridge-implementation/2026-09-10-pm-review-11.json) records fresh checks and limitations. Preserve all 47 acceptance cases and the login-free UI.
 
 ## 1. The user's requested outcome
 

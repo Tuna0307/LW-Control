@@ -2,7 +2,13 @@
 
 User-approved priority correction, 2026-09-10, after review 9. This supersedes the earlier instruction to implement PM9-A first. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md) and [the standard handoff](implementation-handoff.md). No new model/task is dispatched by this document.
 
-## Review 10 — continue beyond saved replay
+## Review 11 — active connection task
+
+PM reviewed `37a1dac`: PM10-03 passes fresh offline tests; PM10-02 is implemented with visual validation still pending; historical acquisition recipe preservation and pipe discovery are accepted within their stated limits. Do not repeat those completed slices. PM10-01 remains open: no production session service or app-initiated fresh point exists.
+
+Next: recover the minimum accepted handshake and request/result framing from a named permitted evidence path, establish its endpoint roles and readiness/identity conditions, then implement that supported connection and fresh acquisition. Existing strings are not a schema. Return the evidenced contract and code unlocked, a working fresh result, or a complete bounded ESC-005 packet if the relevant permitted methods are exhausted. Follow [review 11](lwbridge-project-status.md); do not reroute prior denials. A second fresh acquisition and no-stale-fallback validation remain required after integration.
+
+## Historical review 10 — continue beyond saved replay
 
 PM reviewed `01f139d`, verified the full local capture against the committed excerpt, and reproduced its display. The active outcome below is **still open**: `--first-live-result` only replays a saved file and does not connect to the game. Deferred work stays deferred until fresh app-initiated acquisition is demonstrated.
 
@@ -65,7 +71,7 @@ The earliest connection gap is narrower. The secure proxy and a bounded run of t
 
 This does **not** establish the required production session. The current rebuild still has no production implementation of `INativeAsyncCommandService`; only the isolated `HostProbeCommandService` exists. Exact accepted hello/session framing and host-to-proxy request grammar remain **UNKNOWN/BLOCKED**, so `map_scan_start` is still `BRIDGE_NOT_READY` and no fresh or second fresh acquisition is claimed. The same code slice passed Release build and deterministic checks before these documentation edits; one later combined delivery-validation command was automatically rejected before execution and was not rerouted. The next integration work is limited to those session/request contracts, then strict freshness/session identity, acquisition, normalization and display.
 
-A permitted Git-history search also found no earlier recovered implementation containing `hello.ack`, the control-pipe prefix or `XluaBridgeHandlePipeMessage`; follow-up inspection of candidate historical commits was automatically rejected. The repository therefore has no earlier production session implementation that can simply be restored. ESC-005 records this method/result and the still-open narrow session/request question.
+A permitted Git-history search also found no earlier recovered implementation containing `hello.ack`, the control-pipe prefix or `XluaBridgeHandlePipeMessage`; follow-up inspection of candidate historical commits was automatically rejected. No reusable earlier production session implementation was identified by those specific searches. Because candidate inspection was denied, this does not establish that no such implementation exists in repository history. ESC-005 records this method/result and the still-open narrow session/request question.
 
 ## If a link remains blocked
 

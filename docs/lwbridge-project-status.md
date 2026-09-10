@@ -1,38 +1,37 @@
-# Project-manager checkpoint — review 10
+# Project-manager checkpoint — review 11
 
-Reviewed 2026-09-10 against `01f139d59f0301a92bf27dba70a3ac5c9ebb6aea`, branch `research/offline-controller`, clean at start; GitHub matched this revision. [Review 9](reviews/2026-09-10-review-9.md) is historical.
+Reviewed 2026-09-10 against `37a1dac724def9eb6635764cdda12573736abc65`, branch `research/offline-controller`. Three commits follow PM delivery `5e3af2a`; the working tree was clean and GitHub matched HEAD. [Review 10 with contributor follow-ups](reviews/2026-09-10-review-10-and-followups.md) is historical; the follow-up implementation claims were reviewed here.
 
 ## Result for the owner
 
-**There is now working display code, not just research.** The rebuilt Map Data page displays one saved resource record acquired by a separate game-side probe. PM reproduced the replay with the current Release build: server 2212, coordinates 5,1, level 3, unknown resource name and gathering state. The app itself still cannot connect and acquire a fresh point. Neither page is complete; no additional full acceptance case is signed off.
+**The AI finished useful supporting work, but the app still cannot fetch fresh game data.** Saved replay now has explicit labeling and stronger input/isolation tests. A helper can construct the original communication-pipe name. There is still no production connection service, accepted handshake or fresh resource acquisition, and no second fresh read. Normal Launch/Start Scan remain gated. No full acceptance case is newly signed off.
 
-The active goal remains **fresh acquisition initiated by the rebuilt app and displayed in Map Data**, followed by a second fresh acquisition with correlated session/source evidence. A saved-capture demo does not satisfy that goal or release deferred updater/export work.
+## Accepted work
 
-## Accepted evidence and limits
+| Commit / item | PM decision and evidence limit |
+|---|---|
+| `b102423` / R7-002 / PM10-01 recipe | Historical source commit, six source identities and run/restoration recipe are durably indexed. Accept preservation; not independently reproduced fresh acquisition. Candidate staging still includes a historical-session narrative, so do not promise that one command in today's checkout recreates the package. |
+| `b102423` / PM10-02 | Replay banner, Resource selection, disabled acquisition controls, dedicated store and unavailable/replay status are implemented in reviewed code. Backend state/isolation pass; new banner/control behavior has no current runtime UI proof. Keep this visual validation pending rather than calling the old screenshot proof of the new UI. |
+| `b102423` / PM10-03 | Accept focused importer and production-gate regressions after a fresh passing deterministic run. They exercise offline fixtures, not a connected session, fresh-response correlation or disconnection recovery. |
+| `3208bf2` / R5-006 | Pipe-path helper agrees with the documented derivation and its deterministic check passes. The reported original-host pipe observation is historical evidence, not a game connection. PM did not repeat binary analysis or pipe interrogation. |
+| `37a1dac` / session blocker | Correctly leaves session/request grammar unknown. Corrected the unsupported inference that a keyword history search proved no older implementation exists. |
 
-- `01f139d` / LWB-R7-001 adds `FirstLiveResultImporter`, isolated in-memory storage, a replay-only summary adapter, CLI wiring and unknown-status rendering. Normal launch/scan/options/summary gates are preserved in reviewed code.
-- PM hashed the original full local capture: `6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce`. Its first resource record and timestamp exactly match the committed excerpt; counts are 15,293 records including 8,000 resources. The committed excerpt, screenshot and UI diagnostics match their recorded hashes. This corroborates the saved acquisition evidence; PM did not independently repeat game-side acquisition.
-- The committed screenshot and fresh replay show one real-source record. The database is in-memory in this mode: this demonstrates insertion/query/display, not durable production persistence, fresh refresh, native bridge ownership or scan completion.
-- Resource naming/occupancy remain unknown. The documented post-test restoration belongs to R7-001's evidence; this audit did not modify or freshly hash the installed Lua package.
-- `LWB-R7-002` preserves the exact historical acquisition source at ancestor commit `2a3cc66a88de86394b4404adf9e9cfd7af6275a1`, six source SHA-256s, the v14 staging/run/restoration contract and the historical `run_probe(...,180)` invocation. This makes the R7-001 acquisition recipe durable without claiming that the active environment currently permits replaying the same protected-file operation.
-- `LWB-R7-002` also makes saved replay explicit and isolated: its own in-memory store, provenance banner, automatic Resource selection, disabled acquisition controls and `unavailable/saved_capture_replay` scan state. Focused tests preserve normal production launch/scan/summary gates.
+## Findings and next work
 
-## Required follow-ups — regular AI owns all three
+- **PM11-01 — documentation corrected:** the history search establishes no reusable session implementation was identified by those particular searches. Candidate inspection was denied, so neither absence nor complete search coverage is proven. Corrections are in the live-result task and ESC-005. No new history inspection was performed.
+- **PM11-02 — visual proof pending:** no post-R7-002 screenshot or interaction result demonstrates the new replay banner, initial Resource selection or disabled controls. The earlier app-capture operation was reported rejected by automatic review; PM did not retry or reroute it. Preserve this verification gap and only use a permitted validation method when available. It must not displace the connection task.
+- **PM10-01 — active main task:** identify the minimum accepted connection handshake and request/result framing, then implement the supported production connection and acquire a real point from the app. The pipe-name helper has no production caller; current source has only the isolated host-probe command service. Finding the pipe cannot establish readiness.
 
-| ID | Finding | Required result |
-|---|---|---|
-| PM10-01 | **PARTIAL — recipe preserved; control-pipe discovery recovered; fresh integration open.** `LWB-R7-002` pins the historical source commit/file hashes, v14 candidate identity, exact bounded run invocation, extraction and protected-file restoration/hash contract. `LWB-R5-006` proves the original per-user control-pipe derivation and live-correlates its name against the verified LWBridge host. | Recover the exact accepted session/message framing and request envelope, implement strict rebuild-owned production transport, initiate a new acquisition from the rebuilt app, display it, then repeat it with a second correlated capture time. Do not treat pipe presence, replay or historical executability as a fresh result. |
-| PM10-02 | **DONE / IMPLEMENTED-OFFLINE-TESTED.** Replay is explicitly labeled with capture provenance, uses its own in-memory store, auto-selects Resource, disables acquisition controls and reports unavailable/replay scan state. | Keep the replay-only presentation isolated while production acquisition is implemented. |
-| PM10-03 | **DONE / IMPLEMENTED-OFFLINE-TESTED.** Dedicated tests cover source mapping, invalid/missing timestamp/records, optional unknowns, recovered server range, demo-only point/coordinate boundaries, isolation and unchanged production gates. | Production ranges/provenance remain separate recovery work; file hashes alone are not live provenance. |
+Follow [the standard handoff](implementation-handoff.md) and [bounded live-result task](first-live-result.md). Do not reopen completed importer/replay work or defer to updater/export research. First state the exact missing connection fact and a permitted evidence-producing method. Distinguish endpoint roles, accepted framing and identity/readiness conditions from nearby string vocabulary. If the supported current-client route can deliver the bounded demonstration independently, document its evidence and deliberate design choices; do not assume full protected original-runtime recovery is automatically required. Never use an alternative route to repeat a denied operation.
 
-## Next checkpoint and specialist decision
+The next checkpoint must return either an evidenced connection contract with the exact implementation it unlocks, working fresh app acquisition, or a completed bounded ESC-005 request explaining why the remaining permitted methods cannot answer that same question. A denial list, another pipe-name test or generic 'continue researching' is insufficient. No arbitrary attempt count is imposed.
 
-Follow [the bounded task](first-live-result.md). The known acquisition is reproducible and `LWB-R5-006` resolves control-pipe naming. The earliest missing supported connection link is now exact accepted session/message framing plus host-to-proxy request grammar. Recover only that minimum, wire fresh data into the app, then test a second fresh acquisition, failure/disconnection, and no saved-capture fallback. Stop expanding replay infrastructure once it provides the needed regression coverage. Optional resource-name recovery must not replace connection work.
+## Specialist decision
 
-No Daybreak assignment: ESC-001 CLOSED, ESC-003 NOT_ASSIGNED, ESC-002/004/005 NEEDS_INFORMATION. The R7-001 evidence reports Computer Use initialization rejected by automatic review; its exact tool invocation/error transcript is not included. The register tracks that documentation gap. This is an environment restriction, not withheld user permission or automatic specialist work. No denied operation was retried during this audit.
+No Daybreak task is approved. ESC-005 remains NEEDS_INFORMATION: it identifies the immediate handshake gap and records several attempts, but does not yet specify a concrete permitted specialist method with tool/version/locator/results, relevant alternatives and precise return criteria. Missing fields are listed in its review-11 decision. ESC-001 remains CLOSED; ESC-003 NOT_ASSIGNED; ESC-002/004 NEEDS_INFORMATION and deferred. Restrictions are not user refusals and cannot be bypassed by changing model.
 
-## Validation
+## Fresh verification and limits
 
-Current PM10 implementation validation: Release build has zero warnings/errors. Deterministic desktop suite reports `ok: true`, all five groups true and `failures: []`; the installed diagnostic is valid and game/launcher were stopped at test time. Review-10's earlier frontend/transport/replay validation remains the most recent UI proof. No second fresh scan was performed. An earlier rebuilt-app UI-capture attempt in this task was rejected by the environment's automatic review before launch and was not rerouted.
+Release build: zero warnings/errors. Deterministic suite: `ok=true`, six groups true including `bridgeControlPipeContract`, no failures; run with `--verify-real-config-unchanged`. Frontend integrity, five preference scenarios and both transport checks passed. Read-only installed diagnostic was valid; game and launcher were stopped at test time. No game launch, fresh capture, current UI capture, historical source inspection or binary analysis was performed. Passing these checks does not close the first fresh-result goal.
 
-[Machine-readable audit evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-10.json) records checks and limits. All 47 acceptance rows are preserved. Delivery is a documentation/audit checkpoint, not a production feature implementation.
+[Review evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-11.json) records the audited source and checks. All 47 acceptance cases remain unchanged. This is a PM audit/instruction checkpoint; implementation credit belongs to the three reviewed commits.

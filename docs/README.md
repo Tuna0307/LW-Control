@@ -10,7 +10,7 @@ The user reinstalled and official recovery is verified; PM8-0 is closed. `LWB-R7
 
 ## Reading order
 
-Start with [review 10](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
+Start with [review 11](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`official-runtime-architecture.md`](official-runtime-architecture.md) — current installed Last War runtime baseline and official launcher observations.
