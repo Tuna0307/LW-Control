@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-003",
+  "date": "2026-09-11",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "scope": "bounded live-resource adapter lifecycle only; fake helper and isolated map stores; no installed game launch or mutation",
+  "reference": {
+    "lwbridgeExeSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "reviewFinding": "PM13-03"
+  },
+  "defect": {
+    "lateCommit": "InvokeAsync previously called ImportCorrelatedResult, which executed store.UpsertRecord before the next cancellation/closed check; Stop or Close could therefore win after persistence and still return cancellation.",
+    "helperOwnership": "RunHelperAsync previously started the Python helper before taking stateGate and registering activeHelperProcess, leaving a process-start/Close ownership window."
+  },
+  "implementationPolicy": {
+    "prepareThenCommit": "result parsing/correlation now produces FirstLivePreparedResource without mutating SQLite; public replay/import behavior still commits through the existing importer API",
+    "completionDecision": "under stateGate, reading transitions to committing only if the same operation is active, open and not cancelled; cancellation that reaches the gate first wins and no row is written",
+    "commitWinner": "after the committing transition, Stop/Close do not cancel that operation; the validated store write completes and status returns success rather than a contradictory cancelled result",
+    "helperOwnership": "helperStartPending reserves cleanup ownership before Process.Start; any started helper is registered as activeHelperProcess and remains owned until normal or late-exit cleanup"
+  },
+  "sourceHashes": {
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs": "62bcca6ee2c2b483002321447fa7bdd346e661e304842e375483e04b9dbf7706",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs": "6172ae9e7c7647dc5333f93d03f24c86d0fe7949c453593bff14379f2ac79401",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "30ea70c6c27573c6374f5dcda28abde7b0a3c0c5c214eb995e1c89757011f758"
+  },
+  "deterministicRaceCases": {
+    "stopBeforeCommit": "validation reaches a pre-commit barrier; Stop wins; request cancels; server 2212 row count remains zero; ownership returns idle",
+    "closeBeforeCommit": "validation reaches the same boundary; Close wins; request cancels; no row is persisted and later Start is rejected as closed",
+    "stopAfterCommitDecision": "committing state wins first; Stop reports committing without cancelling; exactly one row persists and the request returns idle/server 2212 success",
+    "closeDuringHelperRegistration": "a helper-start barrier holds after Process.Start and before active registration; Close observes reserved cleanup ownership, result publication is cancelled, and ownership clears only after child exit"
+  },
+  "preservedCases": [
+    "duplicate Start rejection",
+    "Stop while helper is still running",
+    "helper supervision timeout and late-exit cleanup",
+    "Close while helper is active",
+    "immutable correlated result validation/import",
+    "PM12 recovery, selected-session identity and scoped-close regressions"
+  ],
+  "verification": [
+    {"command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -- --verify-real-config-unchanged", "result": "passed; ok=true, all six deterministic groups true, failures empty, game/launcher not running"},
+    {"command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release", "result": "passed; 0 warnings, 0 errors"},
+    {"command": "python tools/build_lwbridge_frontend.py --check", "result": "passed recovered frontend integrity"},
+    {"command": "node tools/check_pm13_resource_feedback.cjs", "result": "passed PM13-01b feedback regression"},
+    {"command": "node tools/check_lwbridge_preference_provider.cjs", "result": "passed all five scenarios"},
+    {"command": "node tools/check_lwbridge_live_transport.cjs && node tools/check_lwbridge_transport_boundary.cjs", "result": "passed both transport checks"},
+    {"command": "node tools/check_lwbridge_frontend.cjs", "result": "passed 35 browser checks with Edge channel"},
+    {"command": "python evidence/lwbridge-implementation/2026-09-10-pm12-recovery-regression.py", "result": "passed"},
+    {"command": "python evidence/lwbridge-implementation/2026-09-10-pm12-session-identity-regression.py", "result": "passed"},
+    {"command": "python evidence/lwbridge-implementation/2026-09-10-pm12-scoped-close-regression.py", "result": "passed"}
+  ],
+  "limits": [
+    "This checkpoint injects deterministic fake-helper race boundaries; it is not a new live-game acquisition.",
+    "It does not change the recovered/original LWBridge pipe contract or claim original cancellation wording/ordering.",
+    "PM13-02 proof-harness correlation and PM13-04 permitted normal-window two-read/display/reopen proof remain open.",
+    "Monster acquisition/search remains queued until the resource function exits."
+  ]
+}

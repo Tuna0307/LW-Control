@@ -7,14 +7,14 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
 ## Project-manager review 13 — implementation `b16fb9a` (2026-09-10)
 
-[Current audit](lwbridge-project-status.md) credits PM12-A/C bounded restoration/correlation and PM12-007 saved real idle evidence. **PM12-B final closure is reopened by PM13-03. PM12-D and the resource function remain partial.** No full acceptance case is newly signed off.
+[Current audit](lwbridge-project-status.md) credits PM12-A/C bounded restoration/correlation and PM12-007 saved real idle evidence. **`LWB-PM13-003` closes the reopened PM12-B bounded-route lifecycle races. PM12-D and the resource function remain partial.** No full acceptance case is newly signed off.
 
 | Slice | Evidence and current status |
 |---|---|
 | Bounded resource acquire/restore/import | Saved two-read proof and final probe source hashes/correlations rechecked by PM; one real row remains in selected profile DB. LIVE-PROVEN historical bounded result; no new PM acquisition. |
 | Ordinary reopened Resource Search | `LWB-PM13-001` implements unambiguous selected-profile saved context; `LWB-PM13-001B` NORMAL-WINDOW SAVED-ROW PROVEN: the exact review-13 package-local DB (one server-2212 resource row) was copied byte-identically into the direct desktop default root for a bounded test, shown through Resource + explicit Search, closed normally, shown again after restart, then the temporary direct-root files were removed. Historical live-row provenance is preserved; this is not a new acquisition or bridge-readiness claim. |
 | Default all-category Start / monster acquisition | `LWB-PM13-002` IMPLEMENTED/OFFLINE-TESTED: structured unsupported-type errors now reach nine-language Resource-only guidance; no-records, missing-context and query failures are distinct, with no silent category fallback. Connected normal-window confirmation remains PM13-04. Monster acquisition remains queued next. |
-| Lifecycle | Existing fake-helper suite passes; pre-commit/ownership races source-reviewed. PM13-03 OPEN; no claim all cancellation cases are closed. |
+| Lifecycle | `LWB-PM13-003` IMPLEMENTED/OFFLINE-TESTED: validation is separated from persistence, `reading -> committing` decides completion versus cancellation atomically, and cleanup ownership is reserved before helper start. Deterministic pre-commit Stop/Close, post-decision Stop and helper-registration Close races pass; PM12-B bounded-route closure is restored. |
 | Normal-window fresh proof | Harness accepts placeholder/loading/stale row text in isolated counterexamples. PM13-02/04 OPEN; SB-97 preserved. Native sky access available to PM, not blanket unavailable. |
 | Resource occupancy/name | Known idle observed; live Gathering and type-to-name-key mapping remain open. Chat-only enum lead is not mapping proof. |
 

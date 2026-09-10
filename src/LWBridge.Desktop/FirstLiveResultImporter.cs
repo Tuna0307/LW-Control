@@ -21,6 +21,10 @@ internal sealed record FirstLiveResultImport(
 
 internal sealed record FirstLiveReplay(MapDataStore Store, FirstLiveResultImport Import);
 
+internal sealed record FirstLivePreparedResource(
+    FirstLiveResultImport Import,
+    MapStoredRecord Record);
+
 internal static class FirstLiveResultImporter
 {
     public static FirstLiveReplay CreateIsolatedReplay(string diagnosticsPath)
@@ -57,6 +61,15 @@ internal static class FirstLiveResultImporter
         string sourcePath)
     {
         ArgumentNullException.ThrowIfNull(store);
+        FirstLivePreparedResource prepared = PrepareOneResource(diagnosticsBytes, sourcePath);
+        store.UpsertRecord(prepared.Record);
+        return prepared.Import;
+    }
+
+    internal static FirstLivePreparedResource PrepareOneResource(
+        ReadOnlyMemory<byte> diagnosticsBytes,
+        string sourcePath)
+    {
         if (diagnosticsBytes.IsEmpty)
             throw new InvalidDataException("First-live diagnostics bytes are empty.");
         if (string.IsNullOrWhiteSpace(sourcePath))
@@ -153,7 +166,7 @@ internal static class FirstLiveResultImporter
 
         int? level = TryReadInt(point, "level", out int parsedLevel) ? parsedLevel : null;
         string? name = ReadNonEmptyString(point, "name");
-        store.UpsertRecord(new MapStoredRecord(
+        MapStoredRecord record = new(
             "resource",
             serverId,
             recordKey,
@@ -167,9 +180,9 @@ internal static class FirstLiveResultImporter
             Distance: null,
             ShieldEndTime: null,
             updatedAt,
-            dataJson));
+            dataJson);
 
-        return new FirstLiveResultImport(
+        FirstLiveResultImport import = new(
             serverId,
             recordKey,
             pointIndex,
@@ -182,6 +195,7 @@ internal static class FirstLiveResultImporter
             ReadNonEmptyString(root, "probeVersion"),
             ReadNonEmptyString(root, "sourceCaptureSha256"),
             dataJson);
+        return new FirstLivePreparedResource(import, record);
     }
 
     private static int RequirePositiveInt32(JsonElement value, string propertyName)

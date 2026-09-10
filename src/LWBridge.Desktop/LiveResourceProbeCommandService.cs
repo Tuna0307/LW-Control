@@ -7,6 +7,13 @@ namespace LWBridge.Desktop;
 // IMPLEMENTATION POLICY: this is a bounded first-live-result adapter that
 // starts the already-proven current-client resource probe from the rebuilt app.
 // It deliberately does not masquerade as the unrecovered LWBridge pipe grammar.
+internal sealed class LiveResourceProbeTestHooks
+{
+    public Action? BeforeCommitDecision { get; init; }
+    public Action? AfterCommitDecisionBeforeStore { get; init; }
+    public Action? HelperStartedBeforeOwnershipRegistration { get; init; }
+}
+
 internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandService
 {
     private const string ExpectedProbeVersion = "lwbridge-live-resource-probe-2";
@@ -19,6 +26,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
     private readonly string? gameRoot;
     private readonly string? profileId;
     private readonly bool requireCurrentClientEvidence;
+    private readonly LiveResourceProbeTestHooks? testHooks;
     private readonly object stateGate = new();
     private int? currentServerId;
     private string scanRunId = string.Empty;
@@ -32,6 +40,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
     private string? lastResultPath;
     private CancellationTokenSource? activeCancellation;
     private Process? activeHelperProcess;
+    private bool helperStartPending;
     private bool closed;
 
     public LiveResourceProbeCommandService(
@@ -40,7 +49,8 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         TimeSpan? helperSupervisionTimeout = null,
         string? gameRoot = null,
         string? profileId = null,
-        bool? requireCurrentClientEvidence = null)
+        bool? requireCurrentClientEvidence = null,
+        LiveResourceProbeTestHooks? testHooks = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.helperPath = helperPath ?? Path.Combine(
@@ -49,6 +59,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         this.gameRoot = string.IsNullOrWhiteSpace(gameRoot) ? null : Path.GetFullPath(gameRoot);
         this.profileId = string.IsNullOrWhiteSpace(profileId) ? null : profileId;
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
+        this.testHooks = testHooks;
         if (this.helperSupervisionTimeout <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(helperSupervisionTimeout));
     }
@@ -58,6 +69,11 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
     public string LiveResultPath => lastResultPath ?? Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "LWBridgeRebuild", "live-resource", "result.json");
+
+    internal bool HasHelperCleanupOwnership
+    {
+        get { lock (stateGate) return helperStartPending || activeHelperProcess is not null; }
+    }
 
     public bool IsProbeOnline
     {
@@ -188,8 +204,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                         throw new OperationCanceledException(operationCancellation.Token);
                 }
 
-                FirstLiveResultImport imported = ImportCorrelatedResult(
-                    store,
+                FirstLivePreparedResource prepared = PrepareCorrelatedResult(
                     helperRun.ResultPath,
                     operationId,
                     out int? parsedOrdinal,
@@ -198,12 +213,27 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                     expectedProfileId: helperRun.ProfileId,
                     expectedLaunchSessionId: helperRun.LaunchSessionId,
                     expectedGamePid: helperRun.GamePid);
-                operationCancellation.Token.ThrowIfCancellationRequested();
+
+                testHooks?.BeforeCommitDecision?.Invoke();
+                lock (stateGate)
+                {
+                    if (closed || !ReferenceEquals(activeCancellation, operationCancellation) ||
+                        phase != "reading" || operationCancellation.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException(operationCancellation.Token);
+                    }
+                    // PM13-03 IMPLEMENTATION POLICY: this transition is the atomic
+                    // completion-versus-cancel decision. Cancellation that acquires
+                    // stateGate first changes phase away from reading and wins; once
+                    // committing is set, the validated store commit is allowed to finish.
+                    phase = "committing";
+                }
+                testHooks?.AfterCommitDecisionBeforeStore?.Invoke();
+                store.UpsertRecord(prepared.Record);
+                FirstLiveResultImport imported = prepared.Import;
 
                 lock (stateGate)
                 {
-                    if (closed || !ReferenceEquals(activeCancellation, operationCancellation))
-                        throw new OperationCanceledException(operationCancellation.Token);
                     currentServerId = imported.ServerId;
                     lastCapturedAt = imported.CapturedAtUnixMilliseconds;
                     acquisitionOrdinal = parsedOrdinal;
@@ -212,10 +242,13 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                 }
                 return CreateStatus();
             }
-            catch (OperationCanceledException) when (operationCancellation.IsCancellationRequested)
+            catch (OperationCanceledException)
             {
                 lock (stateGate)
                 {
+                    bool expectedCancellation = closed || operationCancellation.IsCancellationRequested || phase == "cancelling";
+                    if (!expectedCancellation)
+                        throw;
                     if (activeHelperProcess is null && ReferenceEquals(activeCancellation, operationCancellation))
                     {
                         phase = "idle";
@@ -257,6 +290,26 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
 
     internal static FirstLiveResultImport ImportCorrelatedResult(
         MapDataStore store,
+        string resultPath,
+        string requestId,
+        out int? acquisitionOrdinal,
+        Func<string, byte[]>? readAllBytes = null,
+        int? expectedServerId = null,
+        DateTimeOffset? operationStartedAtUtc = null,
+        DateTimeOffset? nowUtc = null,
+        string? expectedProfileId = null,
+        string? expectedLaunchSessionId = null,
+        int? expectedGamePid = null)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        FirstLivePreparedResource prepared = PrepareCorrelatedResult(
+            resultPath, requestId, out acquisitionOrdinal, readAllBytes, expectedServerId,
+            operationStartedAtUtc, nowUtc, expectedProfileId, expectedLaunchSessionId, expectedGamePid);
+        store.UpsertRecord(prepared.Record);
+        return prepared.Import;
+    }
+
+    internal static FirstLivePreparedResource PrepareCorrelatedResult(
         string resultPath,
         string requestId,
         out int? acquisitionOrdinal,
@@ -366,7 +419,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
 
         acquisitionOrdinal = root.TryGetProperty("acquisitionOrdinal", out JsonElement ordinalValue) &&
             ordinalValue.TryGetInt32(out int parsedOrdinal) && parsedOrdinal > 0 ? parsedOrdinal : null;
-        return FirstLiveResultImporter.ImportOneResource(store, resultBytes, resultPath);
+        return FirstLiveResultImporter.PrepareOneResource(resultBytes, resultPath);
     }
 
     public object CreateStatus()
@@ -429,8 +482,9 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         lock (stateGate)
         {
             closed = true;
-            cancellation = activeCancellation;
-            if (isReading)
+            bool cancelActive = isReading && phase != "committing";
+            cancellation = cancelActive ? activeCancellation : null;
+            if (cancelActive && phase == "reading")
                 phase = "cancelling";
         }
         try { cancellation?.Cancel(); }
@@ -442,8 +496,9 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         CancellationTokenSource? cancellation;
         lock (stateGate)
         {
-            cancellation = activeCancellation;
-            if (isReading)
+            bool cancelActive = isReading && phase != "committing";
+            cancellation = cancelActive ? activeCancellation : null;
+            if (cancelActive && phase == "reading")
                 phase = "cancelling";
         }
         try { cancellation?.Cancel(); }
@@ -486,20 +541,43 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             start.ArgumentList.Add(profileId);
         }
 
-        Process process = Process.Start(start)
-            ?? throw new InvalidOperationException("Python live-resource helper could not be started.");
         lock (stateGate)
         {
-            if (closed)
-            {
-                process.Dispose();
+            if (closed || !isReading || phase != "reading")
                 throw new OperationCanceledException();
-            }
+            // Reserve cleanup ownership before the external process start. Close/Stop
+            // can now win cancellation without creating an untracked child process.
+            helperStartPending = true;
+        }
+
+        Process process;
+        try
+        {
+            process = Process.Start(start)
+                ?? throw new InvalidOperationException("Python live-resource helper could not be started.");
+        }
+        catch
+        {
+            lock (stateGate) helperStartPending = false;
+            throw;
+        }
+
+        Exception? hookFailure = null;
+        try { testHooks?.HelperStartedBeforeOwnershipRegistration?.Invoke(); }
+        catch (Exception ex) { hookFailure = ex; }
+        lock (stateGate)
+        {
+            helperStartPending = false;
             activeHelperProcess = process;
         }
         Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
         Task<string> stderrTask = process.StandardError.ReadToEndAsync();
         Task exitTask = process.WaitForExitAsync();
+        if (hookFailure is not null)
+        {
+            _ = ObserveLateHelperExitAsync(process, exitTask, stdoutTask, stderrTask);
+            throw hookFailure;
+        }
         Task completed = await Task.WhenAny(exitTask, Task.Delay(helperSupervisionTimeout)).ConfigureAwait(false);
         if (!ReferenceEquals(completed, exitTask))
         {

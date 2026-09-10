@@ -986,6 +986,150 @@ try
             await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
     }
 
+    using (var cancelCommitStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-precommit-cancel", 20, 2010);
+        using var beforeCommitReached = new ManualResetEventSlim(false);
+        using var releaseCommitDecision = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            cancelCommitStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                BeforeCommitDecision = () =>
+                {
+                    beforeCommitReached.Set();
+                    if (!releaseCommitDecision.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("pre-commit test barrier timed out");
+                },
+            });
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(beforeCommitReached.Wait(TimeSpan.FromSeconds(3)),
+            "PM13-03 pre-commit barrier is reached after result validation and before store mutation");
+        await service.InvokeAsync("map_scan_stop", lifecycleStopPayload.RootElement.Clone(), CancellationToken.None);
+        releaseCommitDecision.Set();
+        bool cancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { cancelled = true; }
+        Check(cancelled && cancelCommitStore.CountRecords("resource", 2212) == 0,
+            "PM13-03 cancellation that wins before commit leaves no late persisted resource row");
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "idle"),
+            "PM13-03 cancellation winner releases operation ownership to idle");
+    }
+
+    using (var closeCommitStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-precommit-close", 20, 2013);
+        using var beforeCommitReached = new ManualResetEventSlim(false);
+        using var releaseCommitDecision = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            closeCommitStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                BeforeCommitDecision = () =>
+                {
+                    beforeCommitReached.Set();
+                    if (!releaseCommitDecision.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("pre-commit close test barrier timed out");
+                },
+            });
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(beforeCommitReached.Wait(TimeSpan.FromSeconds(3)),
+            "PM13-03 close pre-commit barrier is reached before store mutation");
+        service.Close();
+        releaseCommitDecision.Set();
+        bool cancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { cancelled = true; }
+        Check(cancelled && closeCommitStore.CountRecords("resource", 2212) == 0,
+            "PM13-03 Close that wins before commit leaves no late persisted resource row");
+        await ExpectBridgeError("MAP_SCAN_CLOSED", "PM13-03 pre-commit Close permanently rejects later Start", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+    }
+
+    using (var commitWinnerStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-commit-wins", 20, 2011);
+        using var commitWon = new ManualResetEventSlim(false);
+        using var releaseStoreCommit = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            commitWinnerStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                AfterCommitDecisionBeforeStore = () =>
+                {
+                    commitWon.Set();
+                    if (!releaseStoreCommit.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("post-decision test barrier timed out");
+                },
+            });
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(commitWon.Wait(TimeSpan.FromSeconds(3)),
+            "PM13-03 commit decision can be observed before the SQLite mutation begins");
+        object? stopDuringCommit = await service.InvokeAsync(
+            "map_scan_stop", lifecycleStopPayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument stopJson = JsonDocument.Parse(JsonSerializer.Serialize(stopDuringCommit, JsonOptions.Default)))
+        {
+            Check(stopJson.RootElement.GetProperty("isReading").GetBoolean() &&
+                  stopJson.RootElement.GetProperty("phase").GetString() == "committing",
+                "PM13-03 Stop arriving after the commit decision does not retroactively cancel the winning commit");
+        }
+        releaseStoreCommit.Set();
+        object? completed = await start;
+        using (JsonDocument completedJson = JsonDocument.Parse(JsonSerializer.Serialize(completed, JsonOptions.Default)))
+        {
+            Check(completedJson.RootElement.GetProperty("phase").GetString() == "idle" &&
+                  completedJson.RootElement.GetProperty("serverId").GetInt32() == 2212,
+                "PM13-03 commit winner returns a truthful completed status");
+        }
+        Check(commitWinnerStore.CountRecords("resource", 2212) == 1,
+            "PM13-03 commit winner persists exactly one resource row");
+    }
+
+    using (var helperOwnershipStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-helper-ownership", 600, 2012);
+        using var helperStarted = new ManualResetEventSlim(false);
+        using var releaseOwnershipRegistration = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            helperOwnershipStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                HelperStartedBeforeOwnershipRegistration = () =>
+                {
+                    helperStarted.Set();
+                    if (!releaseOwnershipRegistration.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("helper ownership test barrier timed out");
+                },
+            });
+        Task<object?> start = Task.Run(() => service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+        Check(helperStarted.Wait(TimeSpan.FromSeconds(3)) && service.HasHelperCleanupOwnership,
+            "PM13-03 helper cleanup ownership is reserved before the started child can be registered");
+        service.Close();
+        Check(service.HasHelperCleanupOwnership,
+            "PM13-03 Close during process-start/registration cannot orphan the already-started helper");
+        releaseOwnershipRegistration.Set();
+        bool cancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { cancelled = true; }
+        Check(cancelled && helperOwnershipStore.CountRecords("resource", 2212) == 0,
+            "PM13-03 close during helper registration cancels publication after owned helper cleanup");
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "idle") &&
+              !service.HasHelperCleanupOwnership,
+            "PM13-03 helper ownership is released only after the child exits and cleanup drains");
+    }
+
     string missingTimestampPath = Path.Combine(firstLiveReplayRoot, "missing-timestamp.json");
     File.WriteAllText(missingTimestampPath, "{\"point_records\":[]}");
     ExpectInvalidData("capturedAt", "first-live replay rejects a missing capture timestamp", () =>
