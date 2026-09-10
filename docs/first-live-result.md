@@ -2,6 +2,12 @@
 
 User-approved priority correction, 2026-09-10, after review 9. This supersedes the earlier instruction to implement PM9-A first. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md) and [the standard handoff](implementation-handoff.md). No new model/task is dispatched by this document.
 
+## Review 10 — continue beyond saved replay
+
+PM reviewed `01f139d`, verified the full local capture against the committed excerpt, and reproduced its display. The active outcome below is **still open**: `--first-live-result` only replays a saved file and does not connect to the game. Deferred work stays deferred until fresh app-initiated acquisition is demonstrated.
+
+Next checkpoint: address [PM10-01–03](lwbridge-project-status.md). Preserve the reusable acquisition recipe/source and restore checks, resolve the first missing supported connection link, and wire fresh data into the app. Show a second acquisition with a new correlated request/capture time (the point values need not change). Verify failure/disconnection never substitutes the old saved row as a fresh result. Add focused importer/isolation/gate tests and a clear replay label; do not spend successive checkpoints extending the replay mode.
+
 ## One concrete outcome
 
 **Establish a supported connection to the running official game, acquire one real resource point, and display that automatically acquired record in the rebuilt Map Data page.** Reuse the current application and valid research. Research only the specific contracts still needed to deliver this result.
@@ -41,7 +47,7 @@ src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.ex
   --first-live-result evidence\lwbridge-implementation\2026-09-10-first-live-resource-capture.json
 ```
 
-That command displays the previously captured real point; it does not reacquire it from the game. Fresh acquisition remains the next R5/R7 integration step.
+Select the **Resource** tab after opening this interactive command; automatic selection currently happens only when `--capture` is supplied (PM10-02). That command displays the previously captured real point; it does not reacquire it from the game. Fresh acquisition remains the next R5/R7 integration step.
 
 ## If a link remains blocked
 
@@ -49,6 +55,6 @@ Name the first missing link in the actual connection -> acquisition -> normaliza
 
 ## Deferred work and reporting
 
-PM9-A automatic-update readiness, full export/migrations, broad alternative sorting and other features remain in the backlog until the first result, unless a narrowly identified prerequisite is essential. The user wants a working demonstration, not a larger research inventory.
+PM9-A automatic-update readiness, full export/migrations, broad alternative sorting and other features remain in the backlog until the first app-initiated fresh result, unless a narrowly identified prerequisite is essential. The user wants a working demonstration, not a larger research inventory.
 
 At each checkpoint report: **what visibly works; whether the sample is genuinely live; what prevents the next step; the next action; checks and delivered commit**. Save confirmed findings immediately, update the feature ledger/backlog, commit/push and verify the existing GitHub branch. Do not stop with a claim that offline tests prove the game integration.

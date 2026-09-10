@@ -1,18 +1,18 @@
 # Daybreak task — specialist escalation only
 
-Updated 2026-09-10 by project-manager review 9 against `b83987b`. Read [AGENTS.md](../AGENTS.md) section 6, [task.md](../task.md), [the current audit](lwbridge-project-status.md) and [the escalation register](daybreak-escalations.md). This replaces the earlier broad binary-research assignment; its [historical catalog](reviews/2026-09-09-prior-deep-binary-handoff.md) remains a source map, not an active queue.
+Updated 2026-09-10 by project-manager review 10 against `01f139d`. R7-001 replay is verified; PM10-01–03 and fresh app acquisition stay with the regular AI. No specialist assignment was added. Read [AGENTS.md](../AGENTS.md) section 6, [task.md](../task.md), [the current audit](lwbridge-project-status.md) and [the escalation register](daybreak-escalations.md). This replaces the earlier broad binary-research assignment; its [historical catalog](reviews/2026-09-09-prior-deep-binary-handoff.md) remains a source map, not an active queue.
 
 ## What your previous task actually completed
 
 The task **Start deep binary handoff** delivered `6e1d80f` (R6-006 boolean filters) and `d5be1d8` (R6-007 keyword escaping/search). Those checkpoints are integrated. The regular AI subsequently corrected the reindeer UI kind gate to truck-only (R6-010) and added R6-008/009/011/012/013. Credit the exact slices; DB-01–06 as a whole and live game functionality are not complete.
 
-## Current queue — review 9
+## Current queue — review 10
 
 No specialist assigned. ESC-005 now tracks the unresolved runtime-material/handler question and required narrow permissible-method packet; it is NEEDS_INFORMATION alongside ESC-002/004. ESC-003 retains its NOT_ASSIGNED decision. Official recovery is complete through the user's reinstall; PM9-A readiness is standard-AI work. R6-049 original identity is recovered, but current capture mapping remains open. None authorizes a previously denied target. Follow [the register](daybreak-escalations.md); old resolved finding lists remain historical context.
 
 ## Assignment gate
 
-**No technical Daybreak assignment is approved in review 9.** ESC-001 is CLOSED. The regular AI has also resolved option keys, source/run selection, no-alliance assembly and the summary envelope/error-propagation subquestions. Do not redo them.
+**No technical Daybreak assignment is approved in review 10.** ESC-001 is CLOSED. The regular AI has also resolved option keys, source/run selection, no-alliance assembly and the summary envelope/error-propagation subquestions. Do not redo them.
 
 ESC-003 is **NOT_ASSIGNED after PM review**. Its method history is now detailed enough for this decision; the remaining serializer question is real, but no specific permissible specialist method has been identified beyond an operation already denied, and a supported observation target was unavailable. Do not attempt that operation through this task. Reopening requires a concrete permissible approach or new evidence/target, its expected value and bounded return criteria. ESC-002 (schema) and ESC-004 (export) remain NEEDS_INFORMATION for their method/alternative inventories. See the register for exact gaps.
 

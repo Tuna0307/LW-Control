@@ -1,17 +1,17 @@
 # LWBridge Overview and Map Data feature ledger
 
-Checkpoint: 2026-09-08. Status vocabulary follows `task.md`: **RECOVERED** is
+Checkpoint: 2026-09-10. Status vocabulary follows `task.md`: **RECOVERED** is
 original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client
 before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
-## Project-manager review 9 — implementation `b83987b` (2026-09-10)
+## Project-manager review 10 — implementation `01f139d` (2026-09-10)
 
-[Current audit](lwbridge-project-status.md): R6-047–051 are bounded static map-upsert/identity/scalar/current-field findings, with no new desktop implementation. Original identity is recovered; current capture/typed normalization and live scan still open. PM7-A remains an offline integration service without a public options caller.
+[Current audit](lwbridge-project-status.md) verifies the captured resource source and reproduces its isolated store/query/UI replay. New application code exists; app-initiated acquisition and production ownership remain blocked. PM10-01–03 track acquisition reproducibility, replay labeling and missing targeted tests. PM7-A remains an offline service without a normal public options caller.
 
 **PM8-0 closed by the user's reinstall**; AI verified the resulting official update/startup. [PM9-A](lastwar-update-readiness.md) is TODO for future update-readiness/compatibility integration. Main build/sampled core hashes unchanged; scripts 12 -> 14; table changed earlier. No rebuilt feature is LIVE-PROVEN by official-game recovery.
 
-[ESC decisions](daybreak-escalations.md) unchanged: none assigned. [Estimate](lwbridge-completion-estimate.md) roughly 25–30%; **0/47 full acceptance cases signed off**.
+[ESC decisions](daybreak-escalations.md) unchanged: none assigned. The [25–30% estimate](lwbridge-completion-estimate.md) is the historical review-9 planning baseline, not a newly measured score. **0/47 full acceptance cases signed off**.
 
 Current delivery order was changed by the user after review 9: [first real connection/resource/display demonstration](first-live-result.md); PM9-A is deferred. `LWB-R7-001` now proves a bounded current-game resource acquisition plus isolated rebuilt display for one row. Production bridge/session ownership and fresh `map_scan_start` remain open. Standing game/process/Computer Use testing permission is recorded in AGENTS.md.
 

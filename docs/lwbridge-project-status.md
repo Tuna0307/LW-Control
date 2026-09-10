@@ -1,44 +1,36 @@
-# Project-manager checkpoint — review 9
+# Project-manager checkpoint — review 10
 
-Reviewed 2026-09-10 against `b83987b81d33065298512ecaf74a294cd93ddbde`, branch `research/offline-controller`, clean at start. Eight commits follow review 8 (`8ab6b81`). [Review 8 and follow-ups](reviews/2026-09-10-review-8-and-followups.md) are historical.
-
-## Later user-approved delivery correction
-
-The active priority is now [one real resource point displayed in the rebuilt app](first-live-result.md), across the necessary R5/R6/R7 dependencies. PM9-A automatic-update readiness is deferred. Further research must unblock that demonstration. The user explicitly authorizes opening/closing/restarting the game and launcher and project-related Computer Use control for testing; permission is durable in AGENTS.md. This changes the work order, not the audited completion evidence below.
+Reviewed 2026-09-10 against `01f139d59f0301a92bf27dba70a3ac5c9ebb6aea`, branch `research/offline-controller`, clean at start; GitHub matched this revision. [Review 9](reviews/2026-09-10-review-9.md) is historical.
 
 ## Result for the owner
 
-**The user fixed the official launcher by deleting data/reinstalling. We verified the recovery; the standard AI did not implement an automatic repair.** The active scripts advanced 12 -> 14 while the main build and 14 sampled core hashes stayed unchanged. The table change preceded reinstall. See [the verified comparison and future update task](lastwar-update-readiness.md).
+**There is now working display code, not just research.** The rebuilt Map Data page displays one saved resource record acquired by a separate game-side probe. PM reproduced the replay with the current Release build: server 2212, coordinates 5,1, level 3, unknown resource name and gathering state. The app itself still cannot connect and acquire a fresh point. Neither page is complete; no additional full acceptance case is signed off.
 
-The standard AI also recovered important original map identity and scalar-field rules. However, the eight commits change **no desktop application or backend-test source**: five are map research/tooling and three document/verify the launcher incident/recovery. No rebuilt connection or live scan is newly working. Completion stays roughly **25–30% engineering progress**, with **0/47 full acceptance cases signed off**. Official-game recovery removes a blocker but does not complete the rebuild.
+The active goal remains **fresh acquisition initiated by the rebuilt app and displayed in Map Data**, followed by a second fresh acquisition with correlated session/source evidence. A saved-capture demo does not satisfy that goal or release deferred updater/export work.
 
-## Accepted work
+## Accepted evidence and limits
 
-| Commit / finding | Accepted slice and remaining gate |
-|---|---|
-| `714b945`, `81d04b6`, `64d5d31` / PM8 incident continuations | Preserve seven repeated failures and later successful reinstall/update/startup observations; collector now includes applied/start/Player signals. User performed recovery. No automated readiness or updater implemented. |
-| `53e0e24` / R6-047 | Native map/staging upsert selector, bind layout and identity slot recovered. Not a current-client capture path. |
-| `7725dcb` / R6-048 | Current managed resource/world-point lookup identity dimensions recovered from the fingerprinted build. No implicit equivalence to original capture JSON. |
-| `c2ed991` / R6-049 | Original builder's point-versus-UUID/march record-key decision recovered. Do not keep listing that formula as wholly unknown or substitute frontend fallback identity. Capture-to-builder types/dataflow remain open. |
-| `a7e3763` / R6-050 | Current PointInfo field ownership, xLua backing and related resource getters recovered; current RDL hash still matches. No proof of bridge serializer ownership. |
-| `b83987b` / R6-051 | Original normalized level/quality/power/distance/shield source fields and fallback order recovered. Complete typed normalization, resource-specific mapping and removal remain open. |
+- `01f139d` / LWB-R7-001 adds `FirstLiveResultImporter`, isolated in-memory storage, a replay-only summary adapter, CLI wiring and unknown-status rendering. Normal launch/scan/options/summary gates are preserved in reviewed code.
+- PM hashed the original full local capture: `6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce`. Its first resource record and timestamp exactly match the committed excerpt; counts are 15,293 records including 8,000 resources. The committed excerpt, screenshot and UI diagnostics match their recorded hashes. This corroborates the saved acquisition evidence; PM did not independently repeat game-side acquisition.
+- The committed screenshot and fresh replay show one real-source record. The database is in-memory in this mode: this demonstrates insertion/query/display, not durable production persistence, fresh refresh, native bridge ownership or scan completion.
+- Resource naming/occupancy remain unknown. The documented post-test restoration belongs to R7-001's evidence; this audit did not modify or freshly hash the installed Lua package.
 
-Original/static findings were reviewed from committed source/evidence and their limits; this audit did not rerun reference disassembly or current-client decoder investigations. [Map Scan](lwbridge-map-scan.md) preserves exact source/hash/locators and corrections. Passing maintained inspectors would reproduce only their claimed slices, not live success.
+## Required follow-ups — regular AI owns all three
 
-## Corrections and next tasks
+| ID | Finding | Required result |
+|---|---|---|
+| PM10-01 | Fresh acquisition is not durably reproducible from R7-001's recipe. It names a probe version and temporary package/full-capture paths, but reproduction commands cover diagnostics/build/replay, not versioned capture source, exact capture invocation or restoration procedure. | Locate and preserve the minimal reusable capture source or a stable existing source reference, tool versions, source hashes, exact permitted invocation, extraction and restoration checks. Connect its supported contract to the app; do not add another unrelated snapshot. Preserve restrictions and do not assume a formerly executed operation is permitted now. |
+| PM10-02 | Replay UI has no explicit saved-snapshot label; its normal-looking scan controls and stopped/idle status can confuse users. Resource auto-selection currently occurs only with `--capture`; the documented interactive command needs the Resource tab selected manually. | Clearly label capture time/source and replay mode, avoid implying refresh reacquires data, and make the documented demo open the intended tab or document the step. Keep this isolated from the recovered normal UI; never use a cosmetic label to claim integration. |
+| PM10-03 | No dedicated importer/replay tests were added or found in the deterministic suite. Importer hashes arbitrary input but does not authenticate its live provenance, and silently skips records unless coordinates and IDs are positive Int32 values. These restrictions are not recovered general map semantics. | Add focused source-to-row, invalid/missing timestamp/record, optional-unknown, ID/coordinate boundary, isolation and normal-production-gate checks. Document demo-only limits; recover actual production ranges before generalizing. A computed input hash or fixture never establishes LIVE-PROVEN provenance. |
 
-- **PM8-0 CLOSED:** user-operated recovery, independently recorded. Stop giving the standard AI stale instructions to repair/reinstall again.
-- **PM9-A DEFERRED by the subsequent user priority correction:** implement an update-readiness/comparison service with ordered failure handling and explicit compatibility gates under [the detailed task](lastwar-update-readiness.md). Existing collectors are not sufficient as an automatic success gate; old successes and stale Player signals must not mask later failures. This is readiness integration, not a new updater engine.
-- **PM7-C/R5 next:** trace one current resource record through the actual capture/serializer into the recovered builder, then integrate supported normalization/ingestion. PM7-B's owned connection/readiness remains required for a real scan. Deliver the smallest supported connection/scan/display path; do not infer capture field mapping just because names resemble each other.
-- **PM7-A remains DONE:** source-aware aggregate service is still behind public progress/provider prerequisites. PM7-D/export/sort/schema remain open.
-- **Documentation hygiene:** archive the prior audit, correct recovery ownership and stale unknowns, preserve all 47 acceptance rows. The prior PM review evidence reused `LWB-PM8-002`, also used by a later incident finding; the audit JSON now uses unique `LWB-PM-REVIEW-008` with its old label preserved as an alias. The incident finding retains its ID. This metadata correction changes no technical observation.
+## Next checkpoint and specialist decision
 
-## Specialist decision
+Follow [the bounded task](first-live-result.md). First make the known acquisition reproducible, then resolve the earliest missing supported connection/acquisition link and wire fresh data into the app. Test a second fresh acquisition, failure/disconnection, and no saved-capture fallback. Stop expanding replay infrastructure once it provides the needed regression coverage. Optional resource-name recovery must not replace connection work.
 
-No new Daybreak assignment. ESC-001 CLOSED; ESC-003 retains NOT_ASSIGNED; ESC-002/004/005 NEEDS_INFORMATION. R6-049 resolves the original identity formula, not the remaining capture-linkage question. The latest denied SB-84 query is preserved; no denied operation is rerouted. Current-client availability is improved after the user's repair, but no specialist method/exhaustion packet has newly justified assignment. Regular AI owns permitted research and integration.
+No Daybreak assignment: ESC-001 CLOSED, ESC-003 NOT_ASSIGNED, ESC-002/004/005 NEEDS_INFORMATION. The R7-001 evidence reports Computer Use initialization rejected by automatic review; its exact tool invocation/error transcript is not included. The register tracks that documentation gap. This is an environment restriction, not withheld user permission or automatic specialist work. No denied operation was retried during this audit.
 
-## Validation and delivery
+## Validation
 
-Fresh Release build: 0 warnings/errors. Backend deterministic checks: all five groups true, no failures, real configuration preserved, no game or launcher running at check time. Frontend integrity, five preference scenarios and both transport checks pass. Fresh read-only runtime/health snapshots match accepted version 14, metadata and the logged successful startup; all 14 sampled core hashes match the pre-reinstall baseline. Raw failed/accepted output comparison establishes differing bytes only, not changed gameplay or patch root cause.
+Fresh Release build: zero warnings/errors. Deterministic suite: all five groups true, no failures. Recovered frontend generation/hash check, preference matrix and both transport checks passed. Fresh isolated replay exited zero and displayed the expected record. Its two reported errors remain expected open features: `MAP_INDEX_UNAVAILABLE` for options and `COMMAND_NOT_IMPLEMENTED` for plunder jobs. No fresh scan, game launch/control or original-binary analysis was performed. Source-review findings above remain open; passing existing checks does not cover them.
 
-No installed game file was modified, game launched, reference binary analyzer rerun, or new screenshot/host matrix captured. Python syntax, JSON/link validation and exact preservation of the acceptance matrix are part of this checkpoint. [Review evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-9.json) records provenance and limits. Commit/push the PM checkpoint to the existing branch and verify the remote; report delivery revision separately from the implementation reviewed here.
+[Machine-readable audit evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-10.json) records checks and limits. All 47 acceptance rows are preserved. Delivery is a documentation/audit checkpoint, not a production feature implementation.

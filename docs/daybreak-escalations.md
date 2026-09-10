@@ -1,8 +1,10 @@
 # Daybreak escalation register
 
-Updated 2026-09-09, PM review 7 against `0273569`, with post-review regular-AI recovery through `LWB-R6-041`. This is the decision/attempt log shared by [the regular task](implementation-handoff.md), [the specialist task](deep-binary-handoff.md) and the project manager. Mandatory rules are in [AGENTS.md](../AGENTS.md) section 6.
+Updated 2026-09-10, PM review 10 against `01f139d`; historical attempts and decisions remain below. This is the decision/attempt log shared by [the regular task](implementation-handoff.md), [the specialist task](deep-binary-handoff.md) and the project manager. Mandatory rules are in [AGENTS.md](../AGENTS.md) section 6.
 
-Review 9: PM8-0 is closed by the user's reinstall, verified through logs/files. The original record-key formula is resolved by R6-049; R6-051 resolves a bounded scalar-source slice. Current capture-to-builder mapping remains open and SB-84 stays operation-specific. No new specialist method/exhaustion packet is approved. PM9-A update readiness is standard-AI implementation work, not a Daybreak assignment.
+Review 10 addendum: `01f139d` supplies a verified saved real-resource replay, not a production session. PM10-01–03 remain regular-AI work. No new specialist packet was submitted or approved. PM9-A is deferred until fresh app-initiated acquisition.
+
+Historical review 9: PM8-0 is closed by the user's reinstall, verified through logs/files. The original record-key formula is resolved by R6-049; R6-051 resolves a bounded scalar-source slice. Current capture-to-builder mapping remains open and SB-84 stays operation-specific. No new specialist method/exhaustion packet is approved. PM9-A update readiness is standard-AI implementation work, not a Daybreak assignment.
 
 ## State and ownership rules
 
@@ -175,6 +177,10 @@ Exact scan-progress JSON conversion/empty/error behavior, exact shared scan-stat
 | SB-84 | PM7-C/R6-051 current capture-linkage follow-up, 2026-09-10, one hash-gated secure-proxy xref query for exact field names `pointIndex`, `mainIndex`, `uuid`, `gatherMarchUuid`, `resType`, and `resLevel` using the existing read-only proxy inspector | Automatic review rejected the operation because it could not determine safety status. It was not replayed or rerouted and contributes no technical finding. The current-client/native serializer ownership question therefore remains **UNKNOWN/BLOCKED**; R6-051 instead advances the independently permitted original normalized-builder field/fallback mapping. |
 
 Review 5 itself recorded no new denial; SB-06 through SB-24 occurred in post-review regular-AI continuation. Restrictions describe operations, not every analysis of the executable or saved frontend. Missing tools, unresolved contracts, external services and unavailable live targets must be labelled separately. Do not reroute denied operations to Daybreak or CI.
+
+## R7-001 restriction follow-up — review 10
+
+The committed R7-001 source evidence reports that Computer Use initialization was rejected by the environment's automatic safety review before UI action. It does not contain the exact invocation/error transcript; do not fabricate one or declare all Computer Use unavailable. Regular AI must preserve that specific restriction, recover the original diagnostic record if available, and record the remaining capability/alternative outcome with the fresh-acquisition attempt. Source: `evidence/lwbridge-implementation/2026-09-10-first-live-resource-source.json`, `validationAndLimits`. Status: documentation/capability question open; no new ESC approval or specialist assignment. PM did not retry initialization. The separate saved replay succeeds, but does not resolve live control or bridge readiness.
 
 ## Required request template — copy for each new ESC entry
 

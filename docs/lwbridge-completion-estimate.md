@@ -1,8 +1,12 @@
-# Two-page completion estimate — PM review 9
+# Two-page completion estimate — historical review 9 baseline
 
 Date: 2026-09-10. Reviewed implementation: `b83987b`. **Rough engineering assessment: about one quarter complete toward fully working Overview + Map Data.** Overview is approximately **20–25%**, Map Data **25–35%**, combined approximately **25–30%**. These are PM planning judgments, not recovered application constants, measured percentages of buttons, or elapsed-time forecasts.
 
 Review 9 retains this broad range. The user restored the official client; the AI verified the result and recovered more map contracts (R6-047–051). These remove uncertainty/validation obstacles but enable no new desktop game function. PM9-A update readiness is planned, not implemented. A reinstall is not a completed rebuild lifecycle or scan.
+
+## Review 10 qualification
+
+`01f139d` adds a reproduced saved real-resource display. This is progress beyond research, but no app-initiated live scan/connection is accepted. The percentages above remain the historical review-9 planning estimate, not a newly measured review-10 completion score. Full acceptance remains 0/47 signed off. PM9-A is deferred until fresh app-initiated acquisition. See [the current audit](lwbridge-project-status.md).
 
 ## What the estimate measures
 

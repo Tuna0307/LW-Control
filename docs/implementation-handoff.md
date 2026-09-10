@@ -1,6 +1,10 @@
-# Regular AI task — review 9
+# Regular AI task — review 10
 
-Start from the latest worktree/HEAD; PM reviewed `b83987b` on 2026-09-10. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [the current audit](lwbridge-project-status.md), [BACKLOG.md](../BACKLOG.md) and the relevant findings indexed in [README](README.md). All 47 acceptance cases remain required. Preserve the login-free recovered UI and completed legacy cleanup.
+Start from the latest worktree/HEAD; PM reviewed `01f139d` on 2026-09-10. Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [the current audit](lwbridge-project-status.md), [BACKLOG.md](../BACKLOG.md) and the relevant findings indexed in [README](README.md). All 47 acceptance cases remain required. Preserve the login-free recovered UI and completed legacy cleanup.
+
+## Review 10 outcome and required next step
+
+PM reproduced the saved resource replay and checked its original capture/excerpt hashes. Continue from it; do not recapture the same artifact merely to claim another milestone. Resolve [PM10-01–03](lwbridge-project-status.md): durable acquisition recipe, honest replay UI and focused regression coverage. The main deliverable is app-initiated fresh acquisition, followed by another fresh read with no replay fallback. The prior game-side probe is not a production bridge. No new Daybreak task is assigned.
 
 ## Active priority — supersedes PM9-A-first instructions
 
@@ -52,7 +56,7 @@ Tie each checkpoint to the missing ingestion contract. Before enabling scan comp
 
 ## PM7-D — schema, export and remaining query gaps
 
-**Owner: regular AI. Status: BACKLOG, or independent work while a prerequisite is unavailable.** Preserve R6-011 schema metadata, R6-017/018 export structure and R6-026/027 sort findings. Resolve exact migration thresholds/timestamps; workbook row mapping/typing/full-filter pagination/filename/cancel semantics; and ordered multi-sort expressions/null/tie-break behavior before enabling dependent operations. Do not invent schema versions, export limits or distance semantics.
+**Owner: regular AI. Status: DEFERRED while the first app-initiated live result is open.** Preserve R6-011 schema metadata, R6-017/018 export structure and R6-026/027 sort findings. Resolve exact migration thresholds/timestamps; workbook row mapping/typing/full-filter pagination/filename/cancel semantics; and ordered multi-sort expressions/null/tie-break behavior before enabling dependent operations. Do not invent schema versions, export limits or distance semantics.
 
 ESC-002 and ESC-004 need per-method tool/version/locator/output records, considered alternatives and a narrow permissible specialist question. A negative search should state exactly which sources it covered. Complete each packet only when its evidence supports the claim; no arbitrary attempt count or unrelated tool collection is required.
 
