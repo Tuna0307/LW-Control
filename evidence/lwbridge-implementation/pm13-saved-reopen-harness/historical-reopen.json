@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "proof": "normal_window_saved_reopen",
+  "proofSource": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-expected.json",
+  "expected": {
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "serverId": 2212,
+    "recordKey": "32482",
+    "pointIndex": 32482,
+    "x": 481,
+    "y": 32,
+    "level": 3,
+    "updatedAt": 1789033099000
+  },
+  "searchPayload": {
+    "kind": "resource",
+    "query": {
+      "serverId": 2212,
+      "keyword": "",
+      "page": 1,
+      "pageSize": 50,
+      "sorts": [
+        {
+          "sortBy": "updatedAt",
+          "sortOrder": "desc"
+        }
+      ]
+    },
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2"
+  },
+  "searchRow": {
+    "gatherOccupancyKnown": true,
+    "gatherOccupied": false,
+    "id": 32482,
+    "kind": "resource",
+    "level": 3,
+    "pointId": 32482,
+    "pointIndex": 32482,
+    "pointType": 7,
+    "rebuildGatherOccupancyKnown": true,
+    "rebuildGatherOccupied": false,
+    "recordKey": "32482",
+    "resourceSourceType": "ResPointInfo",
+    "resourceTypeId": 14,
+    "serverId": 2212,
+    "source": "WorldPointManager._pointInfos",
+    "sourceKind": "resource_point",
+    "srcServerId": 2212,
+    "updatedAt": 1789033099000,
+    "worldId": 0,
+    "x": 481,
+    "y": 32
+  },
+  "renderedCoordinateText": "481,32",
+  "renderedCells": [
+    "481,32\nJump",
+    "Unknown resource",
+    "3",
+    "Idle",
+    "9/10/2026, 5:38:19 PM"
+  ],
+  "screenshotPath": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-reopen-reopen.png",
+  "pageUrl": "https://lwbridge.local/index.html?view=map-data&language=en&nativeSession=4555e7a54baa4e12b30726022aff7780",
+  "verifiedAt": "2026-09-11T01:17:22.288Z"
+}

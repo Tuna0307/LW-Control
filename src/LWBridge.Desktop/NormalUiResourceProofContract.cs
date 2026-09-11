@@ -50,7 +50,7 @@ internal static class NormalUiResourceProofContract
             busy: table.getAttribute('aria-busy') === 'true',
             rows: [...table.querySelectorAll('tbody tr')].map(row => ({
               isEmpty: !!row.querySelector('td.map-empty'),
-              cells: [...row.querySelectorAll('td')].map(cell => (cell.innerText || '').trim())
+              cells: [...row.querySelectorAll('td')].map((cell, index) => (index === 0 ? (cell.querySelector('.map-coordinate-button span:not(.map-coordinate-icon)')?.textContent || cell.innerText || '') : (cell.innerText || '')).trim())
             }))
           };
         })()

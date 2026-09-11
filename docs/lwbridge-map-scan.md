@@ -748,6 +748,16 @@ Deterministic cases reject loading, empty state, unrelated stale rows, same-poin
 
 Current capability discovery enumerated the connected Remote Desktop Commander 0.2.50 surface as filesystem/terminal/process/configuration only; it exposes no native screen/click primitive. Plugin discovery found no separate installed Computer Use/sky integration. The exact fresh resource-only two-read normal-window acquisition remains the SB-97-rejected operation and was **not replayed or rerouted** through terminal or WebView automation. PM13-04 therefore remains ACTIVE/BLOCKED until a permitted session exposes the approved native capability or the platform/PM explicitly clears a new non-rerouted live attempt. No monster work starts from this checkpoint.
 
+### LWB-PM13-006 — coordinate-cell proof correction and saved-reopen verifier (2026-09-11)
+
+**RECOVERED.** The hash-locked `MapDataPanel-C1HVeNHr.js` Resource coordinate renderer uses `.map-coordinate-button` containing an icon span, a coordinate span, and a bold Jump label. Therefore the real first td `innerText` is not only `x,y`; the observed saved row is `481,32\nJump`. PM13-004's proof snapshot compared the complete td with `481,32`, so a valid normal-window result could be falsely rejected.
+
+**IMPLEMENTED/OFFLINE-TESTED.** `NormalUiResourceProofContract.ResourceTableSnapshotScript` now extracts the coordinate span from that recovered button shape while preserving fallback behavior for isolated test markup. The PM13 browser regression renders the actual button/Jump structure for stale-time and exact-row cases. New `check_pm13_saved_reopen.cjs` and `run_pm13_saved_reopen_proof.ps1` launch the ordinary Release app after an acquisition, select Resource, click normal Search, capture the real `map_search` payload/result, and require exact profile/server/record/point/x/y/level/`updatedAt` plus rendered coordinate/level/localized-time agreement.
+
+**NORMAL-WINDOW SAVED-REOPEN PROVEN / FRESH LIVE STILL BLOCKED.** The verifier passed with the exact historical LWB-PM13-001B bytes (config SHA-256 `b3792e7004f562e9d090720eae9b714eee2f7d692aa480d45adeb99b3d5ca459`, DB SHA-256 `29ddb3f162b45d2899d8e89f7241f568b5099f4a8e1aafc36460fcc0ae5c4ff6`). Normal Search returned server 2212 / record `32482` / point 32482 / `481,32` / level 3 / `updatedAt=1789033099000`; the row rendered `481,32\nJump`, Unknown resource, 3, Idle and the localized timestamp. The app closed and temporary direct-desktop config/profile data was removed, leaving only pre-existing Presentation data; no game/launcher/helper ran. Evidence: `evidence/lwbridge-implementation/2026-09-11-pm13-reopen-proof-correction.json` and `pm13-saved-reopen-harness/`.
+
+This does **not** satisfy PM13-04's two fresh acquisitions. SB-97 was not replayed or rerouted. The remaining gate is exactly a permitted fresh Start #1 -> correlated Search/render -> newer Start #2 -> correlated Search/render, followed by this saved-reopen verifier after app restart.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

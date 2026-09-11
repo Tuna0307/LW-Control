@@ -14,8 +14,8 @@ const cases = [
   ['empty-state', false, '<tr><td class="map-empty" colspan="5">No saved data of this type.</td></tr>'],
   ['loading-state', true, '<tr><td class="map-empty" colspan="5">Processing</td></tr>'],
   ['stale-unrelated', false, '<tr><td>9,9</td><td>Unknown resource</td><td>3</td><td>Idle</td><td>Yesterday</td></tr>'],
-  ['same-point-stale-time', false, '<tr><td>481,32</td><td>Unknown resource</td><td>3</td><td>Idle</td><td>9/10/2026, 1:13:45 PM</td></tr>'],
-  ['exact-row', false, '<tr><td>481,32</td><td>Unknown resource</td><td>3</td><td>Idle</td><td>9/10/2026, 1:14:45 PM</td></tr>'],
+  ['same-point-stale-time', false, '<tr><td><button class="map-coordinate-button"><span class="map-coordinate-icon"></span><span>481,32</span><strong>Jump</strong></button></td><td>Unknown resource</td><td>3</td><td>Idle</td><td>9/10/2026, 1:13:45 PM</td></tr>'],
+  ['exact-row', false, '<tr><td><button class="map-coordinate-button"><span class="map-coordinate-icon"></span><span>481,32</span><strong>Jump</strong></button></td><td>Unknown resource</td><td>3</td><td>Idle</td><td>9/10/2026, 1:14:45 PM</td></tr>'],
 ];
 
 async function main() {
