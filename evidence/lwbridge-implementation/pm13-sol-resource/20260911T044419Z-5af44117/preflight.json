@@ -1,0 +1,19 @@
+{
+  "observedUtc": "2026-09-11T04:44:21.0269646Z",
+  "branch": "research/offline-controller",
+  "head": "9c20896b64b32580c5c4a0d29a52bc7a2e968b04",
+  "origin": "9c20896b64b32580c5c4a0d29a52bc7a2e968b04",
+  "headMatchesOrigin": true,
+  "executable": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+  "executableSha256": "5af44117052b12beb0a34ff1f13effb63f313669890202c0b36d99ffb1eb206f",
+  "executableSize": 163328,
+  "expectedExecutableSha256": "5af44117052b12beb0a34ff1f13effb63f313669890202c0b36d99ffb1eb206f",
+  "executableHashMatches": true,
+  "runtimeEvidence": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-implementation\\pm13-sol-resource\\20260911T044419Z-5af44117\\official-runtime.json",
+  "runtimeEvidenceSha256": "9f3ec8eb42eacdd9af93ecb25a7d7670e00a183a72431460be1572f831bbaac1",
+  "selectedInstallRoot": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+  "lwbridgeDataRoot": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild",
+  "recoveryExists": false,
+  "operationOwnerExists": false,
+  "selectedProcesses": []
+}

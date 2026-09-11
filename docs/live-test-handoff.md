@@ -3,8 +3,8 @@
 ## Coordination status
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
-- Current owner: **ChatGPT Web** until this preparation checkpoint is pushed; next owner is **Codex Sol 5.6**.
-- Packet state: **READY_FOR_SOL** for the concrete build/preflight and any independently permitted normal-window checks below. This means preparation is complete; it is **not** live success and does **not** clear SB-97.
+- Current owner: **Codex Sol 5.6 completed the bounded attempt below; next owner is ChatGPT Web for the first blocked step/evidence, with PM decision still required for the external restriction.**
+- Packet state: Web's packet was **READY_FOR_SOL**. Sol attempt `20260911T044419Z-5af44117` is **BLOCKED / SB-97** before any fresh Resource Start was sent. This is **not** live success.
 - Application implementation: `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d` on `research/offline-controller`. Review-14/team-workflow commits after it are documentation-only; `git diff 7ca6d5c..2799212 -- src tests tools` was empty before this preparation.
 - Preparation base inspected by Web: `2799212480e2dac0b681bce46578f924ae17c099`, synchronized with `origin/research/offline-controller` at entry. The final packet commit is reported in Web's completion message; do not amend only to self-reference it here.
 - PM acceptance: **OPEN**. Sol records PASS/FAIL/BLOCKED per step; PM alone accepts the live result.
@@ -157,26 +157,26 @@ Record attempt ID/date, packet/build commit, executable/hash, refreshed current 
 
 | Step | Result | Evidence / first failure |
 |---|---|---|
-| Exact build hash, current-client fingerprint, process/recovery prestate verified | NOT_RUN | |
-| Supported native Computer Use available and target window uniquely identified | NOT_RUN | Setup only; not feature success |
-| SB-97 / actual environment permits this concrete fresh normal-window Resource Start | NOT_RUN | If not, mark BLOCKED and do not reroute |
-| First real resource Start -> explicit normal Search -> matching rendered row | NOT_RUN | Require source/request/store/query/render correlation |
-| Second distinct newer acquisition -> Search -> matching rendered row | NOT_RUN | Same point/count allowed; newer time/request required |
-| Same-profile app reopen -> explicit Search -> second result retained | NOT_RUN | No new scan, replay, copy, or manually seeded row |
-| Restoration/process/helper/profile integrity verified | NOT_RUN | Record remaining cleanup owner if interrupted |
+| Exact build hash, current-client fingerprint, process/recovery prestate verified | PASS | Attempt `20260911T044419Z-5af44117`; `preflight.json`, `official-runtime.json`. HEAD/origin `9c20896b64b32580c5c4a0d29a52bc7a2e968b04`; candidate SHA-256 `5af44117052b12beb0a34ff1f13effb63f313669890202c0b36d99ffb1eb206f`; client gates still match. |
+| Supported native Computer Use available and target window uniquely identified | PASS | `@oai/sky` through `node_repl`; one `lwbridge` window from the exact candidate. Normal Map Data navigation worked. Accessibility-index click reported `coordinate input geometry is unavailable`, so the supported screenshot-coordinate path was used for non-acquiring navigation/selection. |
+| SB-97 / actual environment permits this concrete fresh normal-window Resource Start | BLOCKED | Automatic approval review rejected the native `get_window_state` immediately before Start with: `This tool call was blocked by OpenAI because we couldn't determine the safety status of the request.` No Start action was sent and no reroute was attempted. See `attempt.json` / `blocked-poststate.json`. |
+| First real resource Start -> explicit normal Search -> matching rendered row | NOT_RUN | Stopped at the first BLOCKED step. No fresh request/source/store/query/render correlation exists. |
+| Second distinct newer acquisition -> Search -> matching rendered row | NOT_RUN | First fresh acquisition did not run. |
+| Same-profile app reopen -> explicit Search -> second result retained | NOT_RUN | No second acquisition existed to reopen. |
+| Restoration/process/helper/profile integrity verified | PASS | Candidate closed normally through Computer Use `Alt+F4`; no candidate/game/launcher process, `recovery.json`, or `operation-owner.json` remained. `LWScripts.data` SHA/size/CRC/version plus xLua and Assembly hashes still match preflight. |
 
 Allowed outcomes: PASS, FAIL, BLOCKED, NOT_RUN. Unknown resource naming and unobserved live Gathering remain explicit limitations and are not inferred from numeric types or historical rows.
 
 ## Return / resume record
 
-- Last completed step and durable evidence: Web preparation only; no fresh live attempt performed by this packet.
-- Next exact action: Sol verifies the exact build/client/profile/prestate, then determines whether its environment independently permits the fresh normal-window Resource Start.
-- Processes/files/cleanup obligations owned by Web preparation: none. Web left no candidate app/game/launcher process and the direct LWBridge root at its pre-test `Presentation`-only state.
-- First failure or external blocker: SB-97 remains unresolved for the previously prepared live proof. No reroute is packaged here. Actual Sol execution must independently pass its environment restriction check.
-- Candidate known limitations: resource name mapping remains unknown; live Gathering is not proven; this route is one bounded current-view resource read, not full-world/all-category/Normal-vs-Fast acceptance.
-- Next owner: **Codex Sol 5.6** after this packet commit is pushed and verified. A reproducible code/product failure returns to Web; complete evidence or an external restriction goes to PM.
-- Fix commit and required retest: none at Web preparation; reuse accepted PM13 repairs unless Sol reproduces a regression.
-- Packet checkpoint commit/push verification: Web reports the final delivery commit in its completion message rather than amending solely to embed its own hash.
-- PM decision: OPEN. READY_FOR_SOL is preparation state only and does not count as LIVE-PROVEN.
+- Last completed step and durable evidence: Sol attempt `20260911T044419Z-5af44117`. Evidence directory: `evidence/lwbridge-implementation/pm13-sol-resource/20260911T044419Z-5af44117/`. Step 0/build-client-profile and native Computer Use setup passed; the fresh-Start permission gate is BLOCKED.
+- Actual profile/store: `local-bd7b2533b1a146bca0aba9efb193a4a2` at `%LOCALAPPDATA%\LWBridgeRebuild\profiles\local-bd7b2533b1a146bca0aba9efb193a4a2\map-data.db`. `config.json` had `gameRoot: null`; the app detected the official `%LOCALAPPDATA%\FunFly\Last War-Survival Game` install. A read-only pre-Start DB check contained zero `resource_point` rows; the visible `Resource 1` badge was therefore not accepted as fresh evidence.
+- First failure / blocker: automatic approval review rejected the native Computer Use observation immediately before the normal Resource Start because it could not determine the request's safety status. No Start was sent. This is recorded as **BLOCKED / SB-97**; it is an environment/platform restriction, not user-withheld permission and not a reproduced application defect.
+- No reroute: Sol did not run the proof switches, helper directly, DevTools, Remote Desktop Commander, replay, historical-row seeding, or another executor.
+- Cleanup/restoration: candidate closed normally with Computer Use. No candidate/game/launcher process, `recovery.json`, or `operation-owner.json` remained. Official `LWScripts.data` remained SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`, size `41269242`, CRC32 `3541420783`, version `14`; xLua and Assembly hashes also remained at the preflight values.
+- Candidate known limitations: no fresh resource acquisition was executed; no first/second request IDs or Search/render proof exist. Resource name mapping remains unknown; live Gathering remains unproven.
+- Next owner: **ChatGPT Web** receives this first blocked step and evidence per the owner instruction. Because the failure is an external restriction rather than a code defect, PM must decide the next permitted validation condition; Web should not guess a code fix for this attempt.
+- Required retest: only after the concrete normal-window fresh Resource Start is independently permitted. Resume from Step 1 using the same build/client/profile identity or prepare a new packet if any identity changes.
+- PM decision: OPEN. This attempt does not count as LIVE-PROVEN.
 
 Preserve completed attempt evidence under a distinct durable path before beginning another attempt. Do not edit previous failures into passes; link a newer retest instead.
