@@ -1,4 +1,4 @@
-﻿-- LWBridge Overview-only in-game readiness bridge for the verified current client.
+-- LWBridge Overview-only in-game readiness bridge for the verified current client.
 --
 -- The loader/install mechanics are reused from the already live-proven v14
 -- LuaEntry path.  The control files, challenge correlation, host lease and UI
@@ -332,5 +332,8 @@ function M.Register()
     return registration_method ~= nil
 end
 
-M.Register()
+-- Registration is deliberately lazy. LuaEntry is loaded before all current-client
+-- update/timer surfaces are guaranteed to exist; the preserved LuaEntry lifecycle
+-- wrapper retries Register after original lifecycle calls without making module load
+-- depend on early UpdateManager availability.
 return M

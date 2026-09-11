@@ -554,7 +554,7 @@ try
                 return Task.FromResult(JsonSerializer.SerializeToElement(new
                 {
                     ok = true,
-                    mode = "overview_install_launch_ready_restore",
+                    mode = "overview_install_launch_ready_deferred_restore",
                     bridgeVersion = OverviewLifecycleService.BridgeVersion,
                     profileId = overviewProfile,
                     sessionId = invocation.SessionId,
@@ -575,20 +575,26 @@ try
                         messageVisible = true,
                         messageText = OverviewLifecycleService.ReadyMessage,
                     },
-                    restore = new { restored = true },
+                    restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
                     gameRunning = true,
-                    installedFilesChanged = false,
+                    installedFilesChanged = true,
                 }));
             }
+            bool wasAlive = overviewProcessAlive;
             overviewProcessAlive = false;
             return Task.FromResult(JsonSerializer.SerializeToElement(new
             {
                 ok = true,
-                mode = "overview_exact_pid_normal_close",
+                mode = "overview_exact_pid_close_restore",
                 bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = overviewProfile,
+                sessionId = invocation.SessionId,
                 gamePid = overviewPid,
                 gamePath = overviewGamePath,
-                close = new { accepted = true, processExited = true },
+                close = wasAlive
+                    ? new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false }
+                    : new { method = "already_exited", accepted = false, processExited = true, alreadyExited = true },
+                restore = new { restored = true },
                 gameRunning = false,
                 installedFilesChanged = false,
             }));
@@ -644,6 +650,14 @@ try
     Check(secondStart is not null && activeOverviewSession != firstOverviewSession && activeOverviewChallenge != firstOverviewChallenge,
         "a second Overview launch receives a new session and challenge so stale prior evidence cannot match");
     string secondOverviewSession = activeOverviewSession!;
+    overviewProcessAlive = false;
+    using (JsonDocument exitedStatus = JsonDocument.Parse(JsonSerializer.Serialize(overviewLifecycle.CreateInstanceStatus(), JsonOptions.Default)))
+    {
+        Check(exitedStatus.RootElement.GetProperty("phase").GetString() == "error" &&
+              exitedStatus.RootElement.GetProperty("instanceId").GetString() == secondOverviewSession &&
+              exitedStatus.RootElement.GetProperty("connectionState").GetString() == "recovering",
+            "an already-exited owned game preserves its session until deferred restoration completes");
+    }
     using JsonDocument secondStop = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = overviewProfile,

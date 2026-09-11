@@ -40,6 +40,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
     private readonly string? gameRoot;
     private readonly string profileId;
     private readonly string runtimeRoot;
+    private readonly string evidenceRoot;
     private readonly TimeSpan helperSupervisionTimeout;
     private readonly OverviewLifecycleTestHooks? testHooks;
     private readonly bool requireCurrentClientEvidence;
@@ -71,9 +72,9 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(190);
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         this.testHooks = testHooks;
-        runtimeRoot = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "LWBridgeRebuild", "overview-bridge");
+        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
+        evidenceRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence");
     }
 
     public bool CanHandle(string command) =>
@@ -210,6 +211,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
                 new OverviewHelperInvocation("start", profileId, newSession, newChallenge, null, null),
                 cancellationToken).ConfigureAwait(false);
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, gameRoot, requireCurrentClientEvidence);
+            if (testHooks is null) WriteHostStartEvidence(newSession, start);
             lock (stateGate)
             {
                 if (closed)
@@ -283,7 +285,8 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
             JsonElement result = await RunHelperAsync(
                 new OverviewHelperInvocation("stop", profileId, snapshot.InstanceId, snapshot.Challenge, snapshot.GamePid, snapshot.GamePath),
                 cancellationToken).ConfigureAwait(false);
-            ValidateStopResult(result, snapshot.GamePid, snapshot.GamePath);
+            ValidateStopResult(result, profileId, snapshot.InstanceId, snapshot.GamePid, snapshot.GamePath, requireCurrentClientEvidence);
+            if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
             StopLeaseTimer(deleteLease: true);
             ClearRuntimeSessionFiles();
             lock (stateGate)
@@ -351,6 +354,8 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         }
         else
         {
+            start.ArgumentList.Add("--profile-id"); start.ArgumentList.Add(invocation.ProfileId);
+            start.ArgumentList.Add("--session-id"); start.ArgumentList.Add(invocation.SessionId!);
             start.ArgumentList.Add("--game-pid"); start.ArgumentList.Add(invocation.GamePid!.Value.ToString(CultureInfo.InvariantCulture));
             start.ArgumentList.Add("--game-path"); start.ArgumentList.Add(invocation.GamePath!);
         }
@@ -406,7 +411,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         string expectedGameRoot,
         bool requireCurrentClientEvidence)
     {
-        RequireString(root, "mode", "overview_install_launch_ready_restore");
+        RequireString(root, "mode", "overview_install_launch_ready_deferred_restore");
         RequireString(root, "bridgeVersion", BridgeVersion);
         RequireString(root, "profileId", expectedProfileId);
         RequireString(root, "sessionId", expectedSessionId);
@@ -420,11 +425,13 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
             throw new InvalidDataException("Overview helper returned a different game executable path.");
         if (!root.TryGetProperty("gameRunning", out JsonElement running) || running.ValueKind != JsonValueKind.True)
             throw new InvalidDataException("Overview helper did not leave the owned game running.");
-        if (!root.TryGetProperty("installedFilesChanged", out JsonElement changed) || changed.ValueKind != JsonValueKind.False)
-            throw new InvalidDataException("Overview helper did not prove exact installed-file restoration.");
+        if (!root.TryGetProperty("installedFilesChanged", out JsonElement changed) || changed.ValueKind != JsonValueKind.True)
+            throw new InvalidDataException("Overview helper did not preserve the active candidate package while the owned game is running.");
         if (!root.TryGetProperty("restore", out JsonElement restore) || restore.ValueKind != JsonValueKind.Object ||
-            !restore.TryGetProperty("restored", out JsonElement restored) || restored.ValueKind != JsonValueKind.True)
-            throw new InvalidDataException("Overview helper did not prove exact script restoration.");
+            !restore.TryGetProperty("restored", out JsonElement restored) || restored.ValueKind != JsonValueKind.False ||
+            !restore.TryGetProperty("deferred", out JsonElement deferred) || deferred.ValueKind != JsonValueKind.True ||
+            !MatchesString(restore, "stage", "active_ready_deferred_restore"))
+            throw new InvalidDataException("Overview helper did not return a durable deferred-restoration journal state.");
         if (!root.TryGetProperty("ready", out JsonElement ready) || ready.ValueKind != JsonValueKind.Object ||
             !HeartbeatMatches(ready, expectedProfileId, expectedSessionId, expectedChallenge, pid, long.MaxValue, requireFreshness: false))
             throw new InvalidDataException("Overview helper did not return the exact same-session game-side readiness response.");
@@ -441,10 +448,18 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         return new(pid, launcher, Path.GetFullPath(gamePath), readyAt);
     }
 
-    internal static void ValidateStopResult(JsonElement root, int expectedGamePid, string expectedGamePath)
+    internal static void ValidateStopResult(
+        JsonElement root,
+        string expectedProfileId,
+        string expectedSessionId,
+        int expectedGamePid,
+        string expectedGamePath,
+        bool requireCurrentClientEvidence)
     {
-        RequireString(root, "mode", "overview_exact_pid_normal_close");
+        RequireString(root, "mode", "overview_exact_pid_close_restore");
         RequireString(root, "bridgeVersion", BridgeVersion);
+        RequireString(root, "profileId", expectedProfileId);
+        RequireString(root, "sessionId", expectedSessionId);
         if (RequirePositiveInt(root, "gamePid") != expectedGamePid)
             throw new InvalidDataException("Overview stop helper returned a different game PID.");
         string path = RequiredString(root, "gamePath");
@@ -455,9 +470,17 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         if (!root.TryGetProperty("installedFilesChanged", out JsonElement changed) || changed.ValueKind != JsonValueKind.False)
             throw new InvalidDataException("Overview stop helper reported changed installed files.");
         if (!root.TryGetProperty("close", out JsonElement close) || close.ValueKind != JsonValueKind.Object ||
-            !close.TryGetProperty("accepted", out JsonElement accepted) || accepted.ValueKind != JsonValueKind.True ||
             !close.TryGetProperty("processExited", out JsonElement exited) || exited.ValueKind != JsonValueKind.True)
-            throw new InvalidDataException("Overview stop helper did not prove accepted normal close and process exit.");
+            throw new InvalidDataException("Overview stop helper did not prove owned process exit.");
+        bool accepted = close.TryGetProperty("accepted", out JsonElement acceptedElement) && acceptedElement.ValueKind == JsonValueKind.True;
+        bool alreadyExited = close.TryGetProperty("alreadyExited", out JsonElement alreadyExitedElement) && alreadyExitedElement.ValueKind == JsonValueKind.True;
+        if (!accepted && !alreadyExited)
+            throw new InvalidDataException("Overview stop helper proved neither normal close acceptance nor an already-exited owned process.");
+        if (!root.TryGetProperty("restore", out JsonElement restore) || restore.ValueKind != JsonValueKind.Object ||
+            !restore.TryGetProperty("restored", out JsonElement restored) || restored.ValueKind != JsonValueKind.True)
+            throw new InvalidDataException("Overview stop helper did not prove exact script restoration after game exit.");
+        if (requireCurrentClientEvidence && !MatchesString(restore, "packageSha256", ExpectedPackageSha256))
+            throw new InvalidDataException("Overview stop helper did not restore the supported current-client script package identity.");
     }
 
     internal static bool HeartbeatMatches(
@@ -549,15 +572,11 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         {
             if (gamePid == snapshot.GamePid && instanceId == snapshot.InstanceId)
             {
-                phase = "stopped";
-                connectionState = "offline";
-                instanceId = null;
-                challenge = null;
-                gamePid = null;
-                launcherPid = null;
-                gamePath = null;
-                lastError = null;
-                readyAtUnix = null;
+                // Preserve exact ownership until the stop helper restores the journaled
+                // original script triplet. A game that exited on its own is not clean yet.
+                phase = "error";
+                connectionState = "recovering";
+                lastError = "GAME_EXITED_RESTORE_REQUIRED";
             }
         }
     }
@@ -605,6 +624,58 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
             $"challenge={nonce}\n" +
             $"updatedAt={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)}\n");
         File.Move(temp, path, overwrite: true);
+    }
+
+    private void WriteHostStartEvidence(string session, OverviewStartResult start)
+    {
+        try
+        {
+            string directory = Path.Combine(evidenceRoot, session);
+            Directory.CreateDirectory(directory);
+            string? processPath = Environment.ProcessPath;
+            string assemblyPath = typeof(OverviewLifecycleService).Assembly.Location;
+            File.WriteAllText(Path.Combine(directory, "host-start.json"), JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                recordedAtUtc = DateTimeOffset.UtcNow,
+                profileId,
+                sessionId = session,
+                gamePid = start.GamePid,
+                gamePath = start.GamePath,
+                readyAt = start.ReadyAtUnix,
+                hostProcess = FileIdentity(processPath),
+                desktopAssembly = FileIdentity(assemblyPath),
+                overviewHelper = FileIdentity(helperPath),
+            }, JsonOptions.Default));
+        }
+        catch { }
+    }
+
+    private void WriteHostStopEvidence(string session, JsonElement helperResult)
+    {
+        try
+        {
+            string directory = Path.Combine(evidenceRoot, session);
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(Path.Combine(directory, "host-stop.json"), JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                recordedAtUtc = DateTimeOffset.UtcNow,
+                profileId,
+                sessionId = session,
+                helper = helperResult,
+            }, JsonOptions.Default));
+        }
+        catch { }
+    }
+
+    private static object? FileIdentity(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+        using FileStream stream = File.OpenRead(path);
+        string sha256 = Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
+        var info = new FileInfo(path);
+        return new { path = info.FullName, size = info.Length, sha256 };
     }
 
     private void ClearRuntimeSessionFiles()

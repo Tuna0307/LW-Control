@@ -41,16 +41,20 @@ def overview_paths(game_root: str | Path | None = None) -> dict[str, Path]:
     local = Path(os.environ["LOCALAPPDATA"]).resolve()
     p["runtime"] = local / "LWBridgeRebuild" / "overview-bridge"
     p["backup_root"] = local / "LWBridgeRebuild" / "overview-bridge-backups"
+    p["evidence_root"] = local / "LWBridgeRebuild" / "overview-evidence"
     return p
 
 
 def bridge_source() -> bytes:
-    return (HERE / "current_overview_bridge.lua").read_bytes()
+    data = (HERE / "current_overview_bridge.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("Overview bridge source must not contain a UTF-8 BOM")
+    return data
 
 
 def wrapper_source() -> bytes:
-    prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
-    suffix = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nif type(bridge.Register) == "function" and bridge.Register() ~= true then error("overview bridge registration failed") end\nreturn original\n'''
+    prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
+    suffix = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal function pump_bridge()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_bridge()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\npump_bridge()\nreturn original\n'''
     return prefix + bridge_source() + suffix
 
 
@@ -98,6 +102,30 @@ def require_token(value: str | None, field: str) -> str:
         raise OverviewBridgeError(f"{field} is invalid")
     return text
 
+
+
+
+def sanitize_evidence(value):
+    if isinstance(value, dict):
+        result = {}
+        for key, item in value.items():
+            if key == "challenge" and isinstance(item, str):
+                result["challengeSha256"] = hashlib.sha256(item.encode("utf-8")).hexdigest()
+            else:
+                result[key] = sanitize_evidence(item)
+        return result
+    if isinstance(value, list):
+        return [sanitize_evidence(item) for item in value]
+    return value
+
+
+def write_session_evidence(p: dict[str, Path], session_id: str, name: str, payload: dict[str, object]) -> str:
+    session = require_token(session_id, "sessionId")
+    directory = p["evidence_root"] / session
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / name
+    lr.write_json_atomic(path, sanitize_evidence(payload))
+    return str(path)
 
 def write_kv_atomic(path: Path, values: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -192,8 +220,10 @@ def run_start(
     }
     p["runtime"].mkdir(parents=True, exist_ok=True)
     with lr.OperationLease(p["runtime"], owner):
-        interrupted_recovery = lr.recover_pending(p)
+        # Never attempt to overwrite a journaled candidate while the selected game
+        # still owns the script files. Recovery is safe only after no selected game exists.
         lr.require_no_selected_game_process(p)
+        interrupted_recovery = lr.recover_pending(p)
         current = lr.verify_current(p)
         backup = lr.make_backup(p)
         recovery_state = lr.arm_recovery(p, backup, session_id)
@@ -215,31 +245,22 @@ def run_start(
             write_control(p, profile_id, session_id, challenge, int(owned_game["pid"]))
             ready = await_ready(p, profile_id, session_id, challenge, int(owned_game["pid"]), deadline)
 
-            lr.update_recovery_stage(p, recovery_state, "restoring_while_running")
-            try:
-                restored = lr.restore_backup(p, backup)
-                normal_close = None
-            except Exception as first_restore_error:
-                lr.update_recovery_stage(p, recovery_state, "closing_owned_game_for_restore")
-                try:
-                    normal_close = lr.close_owned_game_process_for_restore(p, owned_game)
-                except Exception as close_error:
-                    raise OverviewBridgeError(
-                        "exact restoration failed while the Overview-owned game remained open; "
-                        f"exact-PID normal close also failed: {close_error}"
-                    ) from first_restore_error
-                lr.update_recovery_stage(p, recovery_state, "restoring_after_owned_game_close")
-                restored = lr.restore_backup(p, backup)
-                raise OverviewBridgeError(
-                    "Overview bridge reached game-side readiness but exact file restoration required closing the owned game; start failed closed"
-                ) from first_restore_error
-            restored = dict(restored)
-            restored["normalClose"] = normal_close
-            lr.clear_recovery(p, recovery_state)
+            # IMPLEMENTATION POLICY: Windows keeps the active script package locked while
+            # LastWar is running. Preserve the exact originals in the recovery journal and
+            # defer restoration until Overview Close has released that exact owned process.
+            recovery_state.update({
+                "profileId": profile_id,
+                "sessionId": session_id,
+                "challengeSha256": hashlib.sha256(challenge.encode("utf-8")).hexdigest(),
+                "gamePid": int(owned_game["pid"]),
+                "gamePath": os.path.abspath(str(owned_game["path"])),
+                "candidate": candidate_info,
+            })
+            lr.update_recovery_stage(p, recovery_state, "active_ready_deferred_restore")
             recovery_armed = False
-            return {
+            result = {
                 "ok": True,
-                "mode": "overview_install_launch_ready_restore",
+                "mode": "overview_install_launch_ready_deferred_restore",
                 "bridgeVersion": BRIDGE_VERSION,
                 "profileId": profile_id,
                 "sessionId": session_id,
@@ -254,12 +275,33 @@ def run_start(
                 "ready": ready,
                 "currentClient": current,
                 "candidate": candidate_info,
-                "restore": restored,
+                "restore": {
+                    "restored": False,
+                    "deferred": True,
+                    "stage": "active_ready_deferred_restore",
+                    "backupPath": str(backup),
+                    "originalFiles": recovery_state["originalFiles"],
+                },
                 "gameRunning": any(item.get("pid") == owned_game["pid"] for item in lr.selected_game_processes(p)),
-                "installedFilesChanged": False,
+                "installedFilesChanged": True,
                 "interruptedRecovery": interrupted_recovery,
             }
+            result["evidencePath"] = write_session_evidence(p, session_id, "helper-start.json", result)
+            return result
         except Exception as run_error:
+            try:
+                write_session_evidence(p, session_id, "helper-start-error.json", {
+                    "ok": False,
+                    "mode": "overview_start_error",
+                    "bridgeVersion": BRIDGE_VERSION,
+                    "profileId": profile_id,
+                    "sessionId": session_id,
+                    "error": str(run_error),
+                    "errorType": type(run_error).__name__,
+                    "recordedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                })
+            except Exception:
+                pass
             if recovery_armed:
                 first_restore_error: Exception | None = None
                 try:
@@ -306,36 +348,111 @@ def run_start(
             shutil.rmtree(candidate_root, ignore_errors=True)
 
 
-def run_stop(game_pid: int, game_path: str, game_root: str | Path | None) -> dict[str, object]:
+def run_stop(
+    profile_id: str,
+    session_id: str,
+    game_pid: int,
+    game_path: str,
+    game_root: str | Path | None,
+) -> dict[str, object]:
     p = overview_paths(game_root)
     expected = os.path.abspath(os.fspath(p["game"]))
     supplied = os.path.abspath(game_path)
+    profile_id = require_token(profile_id, "profileId")
+    session_id = require_token(session_id, "sessionId")
     if os.path.normcase(expected) != os.path.normcase(supplied):
         raise OverviewBridgeError("owned game path does not match the selected installation")
     owner = {
         "schemaVersion": 1,
         "operation": "overview_stop",
+        "profileId": profile_id,
+        "sessionId": session_id,
         "gamePid": game_pid,
         "helperPid": os.getpid(),
         "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     with lr.OperationLease(p["runtime"], owner):
-        close = lr.close_owned_game_process_for_restore(p, {"pid": game_pid, "path": supplied})
+        state = lr.read_json(lr.recovery_path(p))
+        if not isinstance(state, dict):
+            raise OverviewBridgeError("active Overview recovery journal is missing")
+        allowed_stages = {
+            "active_ready_deferred_restore",
+            "closing_owned_game_for_restore",
+            "restoring_after_owned_game_exit",
+        }
+        if state.get("stage") not in allowed_stages:
+            raise OverviewBridgeError("Overview recovery journal is not an active/retryable ready session")
+        if state.get("requestId") != session_id or state.get("sessionId") != session_id or state.get("profileId") != profile_id:
+            raise OverviewBridgeError("Overview recovery journal does not match the requested session/profile")
+        if state.get("gamePid") != game_pid:
+            raise OverviewBridgeError("Overview recovery journal does not match the requested game PID")
+        recorded_path = state.get("gamePath")
+        if not isinstance(recorded_path, str) or os.path.normcase(os.path.abspath(recorded_path)) != os.path.normcase(supplied):
+            raise OverviewBridgeError("Overview recovery journal does not match the requested game path")
+        backup_path = state.get("backupPath")
+        if not isinstance(backup_path, str) or not backup_path:
+            raise OverviewBridgeError("Overview recovery journal is missing its exact backup path")
+
+        selected = lr.selected_game_processes(p)
+        if len(selected) > 1:
+            raise OverviewBridgeError("multiple selected LastWar processes exist during Overview Close")
+        if len(selected) == 1:
+            current = selected[0]
+            if current.get("pid") != game_pid or os.path.normcase(os.path.abspath(str(current.get("path", "")))) != os.path.normcase(supplied):
+                raise OverviewBridgeError("selected LastWar identity changed before Overview Close")
+            lr.update_recovery_stage(p, state, "closing_owned_game_for_restore")
+            close = lr.close_owned_game_process_for_restore(p, {"pid": game_pid, "path": supplied})
+            already_exited = False
+        else:
+            close = {
+                "method": "already_exited",
+                "pid": game_pid,
+                "path": supplied,
+                "accepted": False,
+                "processExited": True,
+                "alreadyExited": True,
+            }
+            already_exited = True
+
+        lr.update_recovery_stage(p, state, "restoring_after_owned_game_exit")
+        restored = lr.restore_backup(p, Path(backup_path))
+        lr.clear_recovery(p, state)
         for name in ("lease.txt", "control.txt", "ready.json", "heartbeat.json"):
             try:
                 (p["runtime"] / name).unlink()
             except FileNotFoundError:
                 pass
-        return {
+        result = {
             "ok": True,
-            "mode": "overview_exact_pid_normal_close",
+            "mode": "overview_exact_pid_close_restore",
             "bridgeVersion": BRIDGE_VERSION,
+            "profileId": profile_id,
+            "sessionId": session_id,
             "gamePid": game_pid,
             "gamePath": supplied,
             "close": close,
+            "alreadyExited": already_exited,
+            "restore": restored,
             "gameRunning": any(item.get("pid") == game_pid for item in lr.selected_game_processes(p)),
             "installedFilesChanged": False,
         }
+        result["evidencePath"] = write_session_evidence(p, session_id, "helper-stop.json", result)
+        summary = {
+            "schemaVersion": 1,
+            "status": "COMPLETE",
+            "bridgeVersion": BRIDGE_VERSION,
+            "profileId": profile_id,
+            "sessionId": session_id,
+            "gamePid": game_pid,
+            "gamePath": supplied,
+            "close": result["close"],
+            "restore": restored,
+            "gameRunning": result["gameRunning"],
+            "installedFilesChanged": False,
+            "completedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        result["summaryPath"] = write_session_evidence(p, session_id, "attempt-summary.json", summary)
+        return result
 
 
 def run_check_only(game_root: str | Path | None) -> dict[str, object]:
@@ -368,6 +485,8 @@ def main() -> int:
     start.add_argument("--timeout-seconds", type=int, default=120)
     start.add_argument("--game-root")
     stop = sub.add_parser("stop")
+    stop.add_argument("--profile-id", required=True)
+    stop.add_argument("--session-id", required=True)
     stop.add_argument("--game-pid", type=int, required=True)
     stop.add_argument("--game-path", required=True)
     stop.add_argument("--game-root")
@@ -388,7 +507,7 @@ def main() -> int:
         else:
             if args.game_pid <= 0:
                 raise OverviewBridgeError("gamePid must be positive")
-            result = run_stop(args.game_pid, args.game_path, args.game_root)
+            result = run_stop(args.profile_id, args.session_id, args.game_pid, args.game_path, args.game_root)
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc), "errorType": type(exc).__name__}, separators=(",", ":")))
         return 2
