@@ -6,8 +6,8 @@ Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle
 
 ## Current owners — 2026-09-11 clarification
 
-- [ ] **WEB / first:** deliver the candidate build identity, checks and complete [test packet](docs/live-test-handoff.md), with readiness and restriction scope explicit.
-- [ ] **SOL / after Web:** perform permitted normal-window resource verification; save per-step evidence and return the first failure to Web.
+- [x] **WEB / first:** candidate build identity, current-client preflight, offline checks and the complete [test packet](docs/live-test-handoff.md) are prepared as `READY_FOR_SOL`; this is preparation only and SB-97 remains unresolved.
+- [ ] **SOL / next:** verify the exact handed-off build/client/profile and perform only independently permitted normal-window resource verification; save per-step evidence and return the first failure to Web.
 - [ ] **WEB -> SOL / if needed:** repair the reproduced failure and retest; stay on this resource function.
 - [ ] **PM / after evidence:** combine findings and accept/reject the live deliverable; select the next function only after acceptance.
 - **DAYBREAK:** no assignment; a complete reviewed ESC is required.
