@@ -1,12 +1,10 @@
 # LWBridge implementation backlog
 
-## Authoritative owner priority — Overview only, 2026-09-11
+## Authoritative owner priority - Overview startup + automatic reconnect, 2026-09-11
 
-**Accepted result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. The owner verified this normal UI sequence in `LWB-OVL-003`. **STOP: wait for the owner to explicitly choose the next feature.**
+**Active feature:** preserve the owner-accepted `LWB-OVL-003` manual Launch/message/Close lifecycle and now implement the two adjacent original Overview controls: **Open games at startup** (O04) and **Automatic Reconnection** (O05). Recover original behavior first; do not invent retry counts, delays, eligibility, update/maintenance handling, or success conditions. No Resource/Monster work.
 
-The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
-
-The owner supplies only simple UI actions, descriptions and screenshots. Web must automatically collect technical evidence and deliver an actual tested script/entry point and beginner guide; no commands, logs, hashes or database inspection are assigned to the owner. PM plans/audits only. No separate Sol or Daybreak task.
+**Acceptance target:** startup ON performs the original one scoped startup reconcile/launch behavior through the proven lifecycle; startup OFF leaves the game untouched. Automatic Reconnection ON recovers only the original eligible unexpected-loss/update/maintenance cases and OFF suppresses future recovery. Manual Close must remain intentional and must not relaunch. Owner-visible live verification is required before this feature is accepted.
 
 ### OVL current checkpoint
 
