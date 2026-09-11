@@ -1018,6 +1018,60 @@ try
             new NormalUiResourceProofSearchObservation(
                 5, "proof-search-wrong-profile", proofWrongProfilePayload, proofSearchResult)));
 
+    Check(OwnerEvidenceResourceContract.IsResourceSearch(proofSearchPayload),
+        "owner evidence recognizes normal Resource Search without triggering it");
+    Check(OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_scan_start") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_scan_clear") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_treasure_claim") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("profile_instance_start") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("call_lua") &&
+          !OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_search"),
+        "owner evidence mode blocks scan/state-changing Map Data commands while allowing Search");
+    OwnerEvidenceResourceTarget? ownerTarget = OwnerEvidenceResourceContract.TryGetFirstTarget(proofSearchResult);
+    Check(ownerTarget is { ServerId: 2212, RecordKey: "32482", X: 481, Y: 32, Level: 3, UpdatedAt: 1789017285000 },
+        "owner evidence derives render target only from the actual Search result");
+    Check(OwnerEvidenceResourceContract.IsCorrelated(ownerTarget, false, proofGoodSnapshot, proofRenderedTime),
+        "owner evidence accepts exact settled render for the Search result");
+    Check(!OwnerEvidenceResourceContract.IsCorrelated(ownerTarget, false,
+            new NormalUiResourceProofTableSnapshot(false,
+                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "481,32", "Unknown resource", "3", "Idle", "9/10/2026, 1:13:45 PM" }) }),
+            proofRenderedTime),
+        "owner evidence rejects stale rendered timestamp");
+    JsonElement ownerEmptyResult = JsonSerializer.SerializeToElement(new { rows = Array.Empty<object>(), total = 0 }, JsonOptions.Default);
+    Check(OwnerEvidenceResourceContract.TryGetFirstTarget(ownerEmptyResult) is null &&
+          OwnerEvidenceResourceContract.IsEmptyResult(ownerEmptyResult) &&
+          OwnerEvidenceResourceContract.IsCorrelated(null, true,
+              new NormalUiResourceProofTableSnapshot(false,
+                  new[] { new NormalUiResourceProofTableRow(true, new[] { "No saved data of this type." }) }), null),
+        "owner evidence correlates an actual empty Search result only to settled empty-state rendering");
+    JsonElement ownerMalformedNonempty = JsonSerializer.SerializeToElement(new { rows = new[] { new { serverId = 2212 } }, total = 1 }, JsonOptions.Default);
+    Check(OwnerEvidenceResourceContract.TryGetFirstTarget(ownerMalformedNonempty) is null &&
+          !OwnerEvidenceResourceContract.IsEmptyResult(ownerMalformedNonempty) &&
+          !OwnerEvidenceResourceContract.IsCorrelated(null, false,
+              new NormalUiResourceProofTableSnapshot(false,
+                  new[] { new NormalUiResourceProofTableRow(true, new[] { "No saved data of this type." }) }), null),
+        "owner evidence cannot treat a malformed nonempty Search result as an empty result");
+
+    string ownerRecorderRoot = Path.Combine(Path.GetTempPath(), "lwbridge-owner-recorder-" + Guid.NewGuid().ToString("N"));
+    try
+    {
+        using (var recorder = new OwnerEvidenceRecorder(ownerRecorderRoot))
+        {
+            recorder.RecordSearch("owner-request-1", proofSearchPayload, JsonSerializer.Deserialize<object>(proofSearchResult.GetRawText(), JsonOptions.Default));
+            recorder.RecordRender("owner-request-1", proofSearchPayload, proofSearchResult, proofGoodSnapshot,
+                true, null, ownerTarget, proofRenderedTime);
+        }
+        string ownerJsonl = Directory.GetFiles(ownerRecorderRoot, "ui-session-*.jsonl").Single();
+        string[] ownerLines = File.ReadAllLines(ownerJsonl);
+        Check(ownerLines.Length == 2 && ownerLines.All(line => line.Contains("owner-request-1", StringComparison.Ordinal)),
+            "owner evidence recorder durably appends actual Search/render request identity");
+    }
+    finally
+    {
+        try { Directory.Delete(ownerRecorderRoot, recursive: true); } catch { }
+    }
+
     using JsonDocument lifecycleStartPayload = JsonDocument.Parse("""
         {"selectedTypes":["resource"],"scanMode":"normal"}
         """);

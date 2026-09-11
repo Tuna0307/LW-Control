@@ -33,6 +33,8 @@ internal sealed class LWBridgeWindow : Form
     private readonly string? hostProbePath;
     private readonly FirstLiveResultImport? firstLiveResult;
     private readonly string? normalUiLiveResourceProofPath;
+    private readonly OwnerEvidenceRecorder? ownerEvidence;
+    private CancellationTokenSource? ownerEvidenceRenderCapture;
     private readonly string initialView;
     private readonly string? language;
     private readonly string? theme;
@@ -68,12 +70,14 @@ internal sealed class LWBridgeWindow : Form
         string? language,
         string? theme,
         string? firstLiveResultPath = null,
-        string? normalUiLiveResourceProofPath = null)
+        string? normalUiLiveResourceProofPath = null,
+        string? ownerEvidencePath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
         this.hostProbePath = hostProbePath;
         this.normalUiLiveResourceProofPath = normalUiLiveResourceProofPath;
+        ownerEvidence = ownerEvidencePath is null ? null : new OwnerEvidenceRecorder(ownerEvidencePath);
         string[] views = ["overview", "automation", "map-data", "march", "city-layout", "hotkeys", "mini-games", "advanced", "settings"];
         if (!views.Contains(initialView)) throw new ArgumentException("Unknown --view: " + initialView);
         this.initialView = initialView;
@@ -129,6 +133,7 @@ internal sealed class LWBridgeWindow : Form
         MinimumSize = new Size(900, 640);
         BackColor = Color.FromArgb(245, 245, 247);
         Controls.Add(webView);
+        ownerEvidence?.Record("session-start", new { processId = Environment.ProcessId, profileId = config.Snapshot.ProfileId, initialView });
         Shown += OnShown;
         FormClosed += OnFormClosed;
     }
@@ -1451,6 +1456,64 @@ internal sealed class LWBridgeWindow : Form
         await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(pretty.RootElement, JsonOptions.Indented));
     }
 
+    private void BeginOwnerEvidenceRenderCapture(string requestId, JsonElement payload, object? result)
+    {
+        if (ownerEvidence is null || webView.CoreWebView2 is null) return;
+        JsonElement resultElement = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
+        if (!OwnerEvidenceResourceContract.IsResourceSearch(payload)) return;
+
+        ownerEvidenceRenderCapture?.Cancel();
+        ownerEvidenceRenderCapture?.Dispose();
+        ownerEvidenceRenderCapture = new CancellationTokenSource();
+        _ = CaptureOwnerEvidenceRenderAsync(requestId, payload.Clone(), resultElement.Clone(), ownerEvidenceRenderCapture.Token);
+    }
+
+    private async Task CaptureOwnerEvidenceRenderAsync(
+        string requestId, JsonElement payload, JsonElement result, CancellationToken cancellationToken)
+    {
+        if (ownerEvidence is null || webView.CoreWebView2 is not { } core) return;
+        NormalUiResourceProofTableSnapshot? lastSnapshot = null;
+        string? expectedUpdatedText = null;
+        OwnerEvidenceResourceTarget? target = OwnerEvidenceResourceContract.TryGetFirstTarget(result);
+        bool resultIsEmpty = OwnerEvidenceResourceContract.IsEmptyResult(result);
+        try
+        {
+            if (target is not null)
+            {
+                string renderedTimeJson = await core.ExecuteScriptAsync(
+                    $"new Date({target.UpdatedAt.ToString(System.Globalization.CultureInfo.InvariantCulture)}).toLocaleString(document.documentElement.lang || undefined)");
+                expectedUpdatedText = JsonSerializer.Deserialize<string?>(renderedTimeJson);
+            }
+
+            // IMPLEMENTATION POLICY: passive owner evidence polls only the already-rendering
+            // Resource table for up to five seconds. It never clicks, searches or starts a scan.
+            for (int attempt = 0; attempt < 50; attempt++)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    ownerEvidence.RecordRender(requestId, payload, result, lastSnapshot, false, "superseded-by-new-resource-search", target, expectedUpdatedText);
+                    return;
+                }
+                string snapshotJson = await core.ExecuteScriptAsync(NormalUiResourceProofContract.ResourceTableSnapshotScript);
+                if (snapshotJson != "null")
+                {
+                    lastSnapshot = JsonSerializer.Deserialize<NormalUiResourceProofTableSnapshot>(snapshotJson, JsonOptions.Default);
+                    if (lastSnapshot is not null && OwnerEvidenceResourceContract.IsCorrelated(target, resultIsEmpty, lastSnapshot, expectedUpdatedText))
+                    {
+                        ownerEvidence.RecordRender(requestId, payload, result, lastSnapshot, true, null, target, expectedUpdatedText);
+                        return;
+                    }
+                }
+                await Task.Delay(100, CancellationToken.None);
+            }
+            ownerEvidence.RecordRender(requestId, payload, result, lastSnapshot, false, "render-not-correlated-within-passive-observation-bound", target, expectedUpdatedText);
+        }
+        catch (Exception ex)
+        {
+            ownerEvidence.Record("resource-render-capture-error", new { requestId, error = ex.GetType().Name, ex.Message });
+        }
+    }
+
     private async void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs args)
     {
         if (sessionClosed) return;
@@ -1508,6 +1571,13 @@ internal sealed class LWBridgeWindow : Form
             JsonElement payload = root.TryGetProperty("payload", out JsonElement supplied)
                 ? supplied.Clone()
                 : EmptyObject();
+            if (ownerEvidence is not null && OwnerEvidenceResourceContract.IsBlockedOwnerCommand(command))
+            {
+                ownerEvidence.Record("owner-command-blocked", new { requestId = id, command });
+                SendError(session, id, "OWNER_EVIDENCE_READ_ONLY",
+                    "This owner evidence session is read-only. Do not use scan or state-changing Map Data actions.");
+                return;
+            }
             try
             {
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>
@@ -1538,7 +1608,11 @@ internal sealed class LWBridgeWindow : Form
                 if (sessionClosed) return;
                 if (command == "map_search" && normalUiLiveResourceProofPath is not null)
                     RecordNormalUiProofSearch(id, payload, execution.Result);
+                if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
+                    ownerEvidence.RecordSearch(id, payload, execution.Result);
                 SendResult(session, id, execution.Result);
+                if (command == "map_search" && ownerEvidence is not null)
+                    BeginOwnerEvidenceRenderCapture(id, payload, execution.Result);
                 if (command == "map_player_mark_set")
                     SendEvent(session, "bridge://player-mark-changed", execution.Result);
                 if (command is "game_root_select" or "set_automation" or "local_config_set")
@@ -1657,6 +1731,10 @@ internal sealed class LWBridgeWindow : Form
         sessionClosed = true;
         documentSession.Close();
         liveResourceService?.Close();
+        ownerEvidenceRenderCapture?.Cancel();
+        ownerEvidenceRenderCapture?.Dispose();
+        ownerEvidence?.Record("session-end", new { processId = Environment.ProcessId });
+        ownerEvidence?.Dispose();
         mapData.Dispose();
         if (isolatedConfigRoot is not null)
         {

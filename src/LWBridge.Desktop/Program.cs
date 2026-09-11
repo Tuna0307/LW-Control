@@ -12,15 +12,16 @@ internal static class Program
         string? firstLiveResultPath = ReadPathOption(args, "--first-live-result");
         string? liveResourceProofPath = ReadPathOption(args, "--live-resource-proof");
         string? normalUiLiveResourceProofPath = ReadPathOption(args, "--normal-ui-live-resource-proof");
+        string? ownerEvidencePath = ReadPathOption(args, "--owner-evidence");
         if (liveResourceProofPath is not null)
         {
-            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null)
+            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || ownerEvidencePath is not null)
                 throw new ArgumentException("--live-resource-proof cannot be combined with other probe/capture modes.");
             LiveResourceProofRunner.RunTwiceAsync(liveResourceProofPath).GetAwaiter().GetResult();
             return;
         }
         if (normalUiLiveResourceProofPath is not null &&
-            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null))
+            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || ownerEvidencePath is not null))
         {
             throw new ArgumentException("--normal-ui-live-resource-proof cannot be combined with other probe/capture modes.");
         }
@@ -28,12 +29,14 @@ internal static class Program
             throw new ArgumentException("--capture, --live-probe and --host-probe are mutually exclusive.");
         if (firstLiveResultPath is not null && (liveProbePath is not null || hostProbePath is not null))
             throw new ArgumentException("--first-live-result cannot be combined with --live-probe or --host-probe.");
+        if (ownerEvidencePath is not null && (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null))
+            throw new ArgumentException("--owner-evidence is passive normal-app instrumentation and cannot be combined with capture/probe/replay modes.");
         string initialView = ReadValueOption(args, "--view") ?? "overview";
         string? language = ReadValueOption(args, "--language");
         string? theme = ReadValueOption(args, "--theme");
         var window = new LWBridgeWindow(
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
-            normalUiLiveResourceProofPath);
+            normalUiLiveResourceProofPath, ownerEvidencePath);
         if (hostProbePath is null)
         {
             Application.Run(window);

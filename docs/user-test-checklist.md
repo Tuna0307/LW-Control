@@ -1,36 +1,42 @@
-# Owner test guide — preparation pending
+# Owner resource check — PM review package
 
-Updated 2026-09-11. **Do not start a fresh scan from this document.** Web must first deliver and verify automatic evidence collection and complete the ready-to-use instructions. The resource feature is partial and SB-97 unresolved; this guide does not authorize a rejected automated workflow through manual execution.
+Updated 2026-09-11. **Do not start this check until PM/ChatGPT explicitly says the package has been reviewed.** This guide covers only the permitted saved Resource Search/reopen check. It does not authorize a fresh scan and does not clear SB-97.
 
-## Your part
+## What you need to do
 
-You only need to follow clearly described app steps, tell us what appeared and take screenshots. You do not need to enter commands, copy terminal output, find databases, check hashes or understand logs. Web handles technical preparation, recording and diagnosis.
+You only click normal app buttons, describe what you see, and send screenshots. You do **not** need Command Prompt, PowerShell, JSON, database files, hashes, logs, or technical diagnosis. ChatGPT handles all technical recording and interpretation automatically.
 
-The ordinary saved-data check is Map Data -> Resource results -> Search, followed by closing/reopening the same app and searching again. A saved row confirms browsing, not a fresh scan. An empty result may mean the profile has no saved data; Web must check that for you.
+Before starting, close any open **LWBridge** and **Last War** windows normally. If a hidden launcher/process is still active, the recorder will detect it and tell you to stop; you do not need to find it yourself.
 
-## Web must complete this before asking you to test
+## First check
 
-| Instruction | Readiness |
-|---|---|
-| Exact app or tested shortcut to open | Web must verify the candidate in the technical packet |
-| How technical recording starts | NOT_READY: Web must implement/verify automatic collection and operate it itself or supply a tested double-click entry point |
-| What should already be open/closed | Web must explain the permitted test conditions without asking you to inspect processes |
-| Numbered UI actions and button names | Web must fill the applicable sequence and expected visible result at each step |
-| How to recognize completion/failure | Web must explain visible states; no guessed original waiting limits |
-| Screenshots and when to stop | Web must name each checkpoint and first-failure stop condition |
-| Where technical results go | The actual collector must save automatically; Web reads the results |
-| Close/restart or interrupted-test instructions | Web must give simple UI actions and handle technical recovery |
+1. Open `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control` and double-click **`Start Owner Resource Check.cmd`**. Do not open the LWBridge `.exe` directly.
+2. A message titled **“LWBridge owner check”** should say **“Technical recording is ready.”** Click **OK**. If it instead says the recorder is not ready, take a screenshot of that message and stop.
+3. LWBridge opens directly on **Map Data** (`地图数据`). Click the **Resource** tab (`资源`) once.
+4. Click **Search** (`搜索`) once. **Do not click Start / Start Reading / Start Scan.**
+5. Wait until the Resource table stops visibly changing and either a Resource row or the normal no-saved-data message is visible. Take one screenshot showing the whole LWBridge window.
+6. Close LWBridge normally with the **X** button. Do not reopen it yourself yet.
+7. The recorder shows a result message. If it says **no saved Resource rows**, stop: do not run the shortcut again. If it says **saved Resource data** was recorded, continue to the reopen check below only if this PM-reviewed guide is the instruction you were given.
 
-This PM update has not supplied a new working collection script or shortcut. Pending entries must be replaced with actual tested instructions, not commands for you to construct.
+## Reopen check — only when the first result contained a saved Resource row
 
-## How to report what you see
+1. Double-click **`Start Owner Resource Check.cmd`** a second time.
+2. When the recorder says **“Reopen recording is ready”**, click **OK**.
+3. In LWBridge, click **Resource** (`资源`) once, then click **Search** (`搜索`) once.
+4. Wait for the table to settle. Take one screenshot showing the whole LWBridge window.
+5. Close LWBridge normally with the **X** button.
+6. The recorder should say either that the same saved Resource row was verified or that the reopen did not match. Stop either way and send ChatGPT the screenshot plus what the message said. Do not run the shortcut a third time.
 
-> I reached step __. I clicked __. I saw __. Here is the screenshot.
+## Stop immediately if anything differs
 
-If the result differs from the guide, stop and send that description. You do not have to diagnose it. Do not delete data, reinstall the game or repeatedly press Start to make the test pass.
+Stop and send a screenshot/description if the recorder says it is not ready, LWBridge shows an unexpected error, Last War opens unexpectedly, the page is not Map Data, you accidentally press a Start/Scan button, or any instruction above does not match what is on screen. In recorder mode a Start/Scan or other state-changing Map Data action is blocked with a read-only error; still stop immediately if you see that message. Do not retry, delete anything, reinstall anything, or press Start repeatedly.
 
-## Evidence and remaining work — handled by Web and PM
+## What ChatGPT records automatically
 
-Web must automatically collect the permitted source/request/store/actual Search result/render evidence and cleanup results. Your screenshots complement it. The eventual fresh-resource acceptance requires a first fresh result, a second newer result and retention after reopen; it remains BLOCKED/NOT_RUN, not an instruction to execute those steps now.
+The shortcut saves a separate attempt bundle under `%LOCALAPPDATA%\LWBridgeRebuild\owner-evidence\...`. It records the exact app build, current-client compatibility, profile/store identity, read-only stored Resource rows, the actual normal Resource `map_search` request/result, passive rendered-table correlation, process/recovery state, and pre/post official-runtime fingerprints. It also verifies cleanup before calling a recorded session complete.
 
-The complete pages remain unfinished. Monster acquisition and other pending functions do not pass because saved-data browsing works. [Technical packet](live-test-handoff.md) and [worker instructions](team-workflow.md) preserve remaining requirements.
+Your screenshot is complementary visual evidence. A screenshot, saved database row, or empty table by itself is **not** fresh acquisition proof. The required first/second fresh Resource Start remains BLOCKED/NOT_RUN under SB-97 and is not part of this owner check.
+
+## How to report back
+
+Use one simple message such as: **“I reached step 5. I clicked Resource and Search. I saw [what was visible]. Here is the screenshot.”** ChatGPT will read the technical bundle directly and do the diagnosis.

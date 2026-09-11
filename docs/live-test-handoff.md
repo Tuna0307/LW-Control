@@ -3,47 +3,46 @@
 ## Coordination status
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
-- Current owner: **ChatGPT Web — prepare tested automatic evidence collection and the beginner-friendly owner guide.** No separate Sol assignment.
-- Packet state: Web's packet was **READY_FOR_SOL**. Sol attempt `20260911T044419Z-5af44117` is **BLOCKED / SB-97** before any fresh Resource Start was sent. This is **not** live success.
-- Application implementation: `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d` on `research/offline-controller`. Review-14/team-workflow commits after it are documentation-only; `git diff 7ca6d5c..2799212 -- src tests tools` was empty before this preparation.
-- Preparation base inspected by Web: `2799212480e2dac0b681bce46578f924ae17c099`, synchronized with `origin/research/offline-controller` at entry. The final packet commit is reported in Web's completion message; do not amend only to self-reference it here.
-- PM acceptance: **OPEN**. Web collects/interprets technical results; the owner supplies descriptions/screenshots only. No new owner-testing package is ready yet.
-- No Daybreak assignment. Monster acquisition/search remains queued and must not be started by this packet.
+- Current owner: **ChatGPT Web** as the single implementation/technical-verification worker. No separate Sol assignment.
+- Package state: **READY_FOR_PM_REVIEW**. The passive owner-assisted saved Resource Search/reopen collector and beginner guide exist and have been verified. Do **not** dispatch the owner until PM reviews this checkpoint.
+- Permitted owner scope after PM review: ordinary saved Resource Search and, only when a saved row exists, same-profile reopen/Search. This is **READY_FOR_OWNER_CHECKS only for that passive scope**, not for fresh acquisition.
+- Fresh Resource Start remains **BLOCKED / SB-97**. No new Start, rejected observation retry, proof-switch replay, helper-direct run, DevTools/Remote-Desktop-Commander desktop reroute, or owner-run scan was performed while preparing this package.
+- PM acceptance of the resource function remains **OPEN**. Monster work remains queued.
 
-Follow [team-workflow.md](team-workflow.md), [user-test-checklist.md](user-test-checklist.md), [first-live-result.md](first-live-result.md), and the review-14 audit. Keep all 47 acceptance cases unchanged.
+## Delivered automatic collection package
 
-## Current package requirements — preparation pending
-
-The former Web-to-Sol packet and its attempt below are retained as technical/historical evidence. They are not a current dispatch to Sol or an owner instruction to execute fresh scans. Web must verify candidate applicability and deliver the new package before requesting a manual test. The app implementation has not changed merely because testing ownership changed.
-
-| Item | Current status / required result |
+| Item | Delivered value |
 |---|---|
-| Technical capture script and simple entry point | NOT_READY: Web must identify/reuse or implement and verify actual files; no new script is delivered by this PM update |
-| Owner setup | Web handles build/client/profile/preflight; owner does not paste commands or copy output |
-| Automatic evidence | Web saves scoped identity, logs/result references, actual permitted query/result/render correlation and cleanup in durable per-attempt bundles |
-| Capture gaps | Mark actual missing telemetry UNKNOWN/BLOCKED; never substitute SQLite/screenshots for the actual Search response |
-| Failure/interruption | Save partial results, explain failure plainly, preserve previous attempts and journals; Web handles diagnosis |
-| Beginner guide | Web fills [user-test-checklist.md](user-test-checklist.md) with exact ready-to-use actions, expected screens, screenshot points and stop conditions |
-| Owner feedback | Plain description and screenshot only; Web reads the technical bundle directly |
-| Readiness | Pending Web implementation/validation, then PM package review; READY_FOR_OWNER_CHECKS applies only to named permitted checks |
-| Restriction | SB-97 unchanged; no collector/shortcut may replay a denied action or ask the owner to run a rejected harness |
+| Owner entry point | repo-root `Start Owner Resource Check.cmd` |
+| Collector | `tools/collect_owner_resource_evidence.py` |
+| Passive app instrumentation | normal app option `--owner-evidence <directory>` implemented by `OwnerEvidenceRecorder.cs` / `LWBridgeWindow.cs` |
+| Evidence root | `%LOCALAPPDATA%\LWBridgeRebuild\owner-evidence\<UTC>-<exeSha8>-<dllSha8>\` |
+| Per-session UI evidence | `ui\ui-session-<pid>.jsonl`, containing actual normal Resource `map_search` request/result and passive Resource-table observation |
+| Technical snapshots | `preflight.json`, `official-runtime-pre.json`, `postflight-session-1.json`, optional `postflight-session-2.json`, `attempt-summary.json` |
+| Reopen state | `active-owner-check.json` exists only while a first session with saved data is awaiting the permitted reopen check |
 
-Use [the current Web prompt](team-workflow.md). Collection should be passive and scoped where feasible; new collection policy must not be presented as original recovered behavior. Do not force a scan or modify stored rows to produce evidence.
+**IMPLEMENTATION POLICY:** `--owner-evidence` is passive instrumentation added for owner-assisted verification. It records only already-occurring normal Resource Search traffic and polls the already-rendering Resource table for correlation; it does not click Search, start a scan, modify stored rows, clear recovery journals, drive the desktop, or invoke the live helper. Direct SQLite evidence is recorded only as supplementary store state and never substitutes for the captured actual Search response.
 
-## Exact candidate build — previously prepared reference
+The collector automatically refuses a normal owner session when LWBridge/Last War/launcher is already active or a recovery/operation-owner journal is pending. It fingerprints the exact app/current client, runs the existing read-only helper `--check-only` compatibility gate, discovers the active profile/store, reads Resource rows read-only, captures same-request Search/render evidence, compares official-runtime fingerprints before/after, and requires clean process/recovery state. Partial/incomplete attempts are preserved; session 2 does not overwrite session-1 preflight evidence, the latest Search must have same-request render correlation, UI evidence files carry SHA-256/size metadata, and a changed/missing pending-reopen build is blocked instead of silently starting a replacement attempt. The owner is told to stop rather than retry.
 
-| Field | Web-prepared value |
+If the first Search returns zero rows, the collector records `COMPLETE_EMPTY`, removes any reopen pointer and tells the owner not to repeat the shortcut. If a row exists, it records `AWAITING_REOPEN`; the second session must use the same executable + managed-DLL hashes/profile and return the same first-row server/record/point/x/y/level/updatedAt signature before the bundle is `COMPLETE`.
+
+## Exact candidate build for this package
+
+| Field | Value |
 |---|---|
 | Build command | `dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release` |
-| Web build result | PASS, 2026-09-11 04:22 UTC; 0 warnings, 0 errors |
+| Build result | PASS; 0 warnings, 0 errors |
 | Executable | `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.exe` |
 | Executable size | 163,328 bytes |
-| Executable SHA-256 | `5af44117052b12beb0a34ff1f13effb63f313669890202c0b36d99ffb1eb206f` |
-| Deployed helper | `...\LiveResourceProbe\run_live_resource_probe.py`, SHA-256 `5997bcabaf44e7b40d0eb66a03a784c39442ed4cbc1a02a2f2b3218ca4966d15` |
-| Deployed probe | `...\LiveResourceProbe\current_live_resource_probe.lua`, SHA-256 `a9808f28d43134cdc20171d38de833ac27580b185d18f90bb2f4cef1aa0cd8ac` |
-| Reference executable | `..\LW\lwbridge-0.3.1.exe`, SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff` |
+| Executable SHA-256 | `dcfcc37ace77299a881fe09daae664c4e352b69341f9a6aaff0f059cbffae294` |
+| Managed DLL | `LWBridge.Desktop.dll`, 442,880 bytes, SHA-256 `9501ed388dbe34d770afcb6ab7d6faf7f57f100736e99e9e9e33201850698bc2` |
+| Collector self-test | PASS through the real repo-root `.cmd` entry point; no app/game/process operation |
+| Collector read-only preflight | PASS through the same `.cmd` entry point; attempt bundle created automatically and compatibility gate passed |
+| Native Search/render contract tests | PASS in deterministic desktop suite, including exact row, stale timestamp, empty-result and durable request-id recording cases |
+| Passive host wiring smoke | PASS: exact Release app launched on Map Data with `--owner-evidence`, wrote `session-start` / `session-end` through the real host, and closed without any Search/scan/game action |
 
-Use this exact Release executable. Do **not** use the LWBridge reference executable, a package-local historical preview, or a rebuilt binary with a different hash without returning ownership to Web for a new packet.
+The build is a controlled test candidate. The `bin/` output is intentionally not committed; the hash above identifies the exact runnable output produced from this checkpoint. PM should review [the owner guide](user-test-checklist.md) and the durable `LWB-PM13-008` evidence before authorizing the passive owner check.
 
 ## Current-client identity and compatibility preflight
 
@@ -66,7 +65,7 @@ Evidence SHA-256: `9ae2b9cb8ef5c9d9cd447bef72f912c1a311929c7ed077d9f1ae92b5eb804
 
 `python tools/run_live_resource_probe.py --check-only` passed against these installed bytes and built/round-tripped the temporary candidate without changing installed files. The package/xLua/Assembly fingerprints exactly match the bounded helper's enforced production gates. The current table is recorded as runtime identity but is **not** part of that bounded helper gate; resource-name mapping remains unknown, so this packet does not claim table-semantic/full-client parity.
 
-Sol must refresh/compare this fingerprint immediately before a fresh acquisition. If the enforced package, xLua, Assembly-CSharp, LuaEntry/version/CRC values differ, stop with **BLOCKED/CLIENT_CHANGED** and return to Web; do not relax the gates.
+The automatic collector refreshes/compares this fingerprint before any permitted owner session. If the enforced package, xLua, Assembly-CSharp, LuaEntry/version/CRC values differ, it stops before opening the test app. A future fresh acquisition must independently repeat the same gate; do not relax it.
 
 ## Offline/build checks applied to this candidate
 
@@ -77,33 +76,33 @@ Sol must refresh/compare this fingerprint immediately before a fresh acquisition
 - PASS: five preference-provider scenarios, requested-live missing-native boundary, and transport boundary checks.
 - PASS: PM12 recovery, selected-session identity, and scoped-close regressions; all isolated/no-game-operation.
 - PASS: full current browser/reference run produced `.codex-live/lwbridge-ui-verification/report.json` with 32 paired view cases plus nested interactions and `errors: []` (report SHA-256 `e65e8362bcd5f4b0146679a1f86eda83e9208c35078178698161bb9f1668e12d`). The first browser attempt hit Edge's random unsafe port 3659; rerun completed the report. This is UI/fixture evidence, not live proof.
-- PASS: final Release rebuild above after normally closing the exact stale candidate process that had locked the executable; 0 warnings/errors. At build completion no `LWBridge.Desktop`, selected `LastWar`, or `LastWarLauncher` process remained.
+- PASS: final Release rebuild after the stale candidate lock was removed; 0 warnings/errors. The latest read-only owner preflight subsequently observed no LWBridge/LastWar/launcher process and no recovery/operation-owner journal.
 
 ## Prerequisites and profile/data-root discovery
 
-1. One worker owns the shared build/game. Web has released build ownership with this pushed packet; Sol must not rebuild or replace the executable while testing it.
+1. One worker owns the shared build/game. Once PM approves an owner check, Web must not rebuild/replace the executable or mutate the active profile/store until that owner attempt is finished or explicitly abandoned.
 2. Python must resolve as `python`; Web's helper check passed with the installed Python. WebView2 and .NET 10 Windows Desktop runtime are already sufficient for the prepared build on this machine.
 3. Before **each fresh Resource Start**, there must be no `LastWar.exe` from the selected official installation. The bounded helper deliberately requires a helper-owned launch session. Do not use Overview Launch Game as a prerequisite; Overview bootstrap is incomplete.
 4. Do not start with a launcher/game process left by an interrupted attempt. Identify exact paths/PIDs first. Never broad-kill by process name; normal close only when the documented helper owns the exact selected PID/path.
-5. Current direct desktop prestate after Web preparation is `%LOCALAPPDATA%\LWBridgeRebuild` containing only the existing `Presentation` WebView directory. No direct `config.json`, `profiles` directory, `live-resource` recovery state, game, launcher, or candidate app process is present. Do not copy the historical package-local server-2212 database into this root.
+5. Latest read-only collector preflight (`20260911T074448Z-dcfcc37a-9501ed38`) found the normal direct root already initialized with `config.json`, profile `local-9370d887d93e4475a8d4fee049b50632`, and its `map-data.db`; that store currently contained zero Resource rows. No `recovery.json` or `operation-owner.json` was present, and no LWBridge/LastWar/launcher process was active at that preflight. Do not copy the historical package-local server-2212 database into this root.
 6. Normal first launch may create `%LOCALAPPDATA%\LWBridgeRebuild\config.json`. Record its `profileId` after launch. The normal store is `%LOCALAPPDATA%\LWBridgeRebuild\profiles\<profileId>\map-data.db`; this exact profile/store must be reused for first read, second read, and reopen.
 7. `GameInstallationService` may detect `%LOCALAPPDATA%\FunFly\Last War-Survival Game` even when `gameRoot` is not persisted. Record the actual detected/configured root; do not assume another package/desktop root is the same profile.
 8. Before any acquisition, check `%LOCALAPPDATA%\LWBridgeRebuild\live-resource\recovery.json`. If it exists, do not delete it or start another run blindly; report the interrupted state and let the supported recovery path/Web diagnose it.
 
 ## Permitted normal-window test scope and SB-97 boundary
 
-SB-97 remains an environment/platform restriction on execution of the previously prepared live persistent-window proof. This packet does **not** clear it and does not transfer permission by assigning Sol.
+SB-97 remains an environment/platform restriction on execution of the previously prepared live persistent-window proof. This package does **not** clear it, and owner assistance is not a workaround.
 
-- Sol may verify this exact build, current-client fingerprint, profile/store identity, native Computer Use availability, ordinary Resource Search/reopen behavior, and the non-acquiring unsupported-selection feedback when those actions are permitted.
-- A **fresh** acquisition may run only if Sol's actual environment independently permits that concrete normal-window Resource Start. If not, record **BLOCKED / SB-97** at that step and stop the acquisition path.
+- Web may automatically verify build/client/profile/store/process/recovery evidence, and the owner may perform only the PM-approved ordinary saved Resource Search/reopen UI steps in the beginner guide.
+- A **fresh** acquisition is not part of this owner package. It remains **BLOCKED / SB-97** until an independently permitted condition exists; do not send that action to the owner or another executor.
 - Do **not** run `--normal-ui-live-resource-proof`, `--live-resource-proof`, the live helper directly, WebView DevTools, ordinary Node, Remote Desktop Commander, another model, or a custom helper protocol to recreate the denied operation.
 - Do **not** use `--first-live-result` replay or copy/seed historical rows as fresh evidence.
-- The normal executable with no diagnostic/proof switch is the only build handed off here. Native UI actions must be state-derived through Sol's supported Computer Use path.
+- The owner package launches the normal executable only with passive `--owner-evidence` recording. It never uses a proof/replay/capture switch and never synthesizes a UI action. In this mode the native host also fails closed with `OWNER_EVIDENCE_READ_ONLY` for scan/state-changing Map Data commands, so an accidental Start/Clear/action cannot become a live operation.
 - Resource-only is the bounded scope. Do not start monster/other categories, auto scan, export, cross-server travel, claims, plunder, messaging, spending, or unrelated game actions.
 
-Historical packet status: READY_FOR_SOL meant preparation, not authorization or feature success. The recorded attempt remained BLOCKED. There is no current Sol dispatch; Web must satisfy the new package requirements above, and PM13-04 remains open.
+Historical READY_FOR_SOL material and the blocked former Sol-labelled attempt are retained below only as immutable history. There is no current Sol dispatch. The current package above is the authoritative owner-assisted preparation, and PM13-04 remains open.
 
-## Sol actions and expected results
+## Historical fresh-acquisition actions and expected results — NOT CURRENT OWNER INSTRUCTIONS
 
 Use short resumable segments. After every action that can change app/game state, re-observe before acting again. Stop at the first FAIL/BLOCKED result and save the evidence already obtained.
 
@@ -154,7 +153,7 @@ Read the SQLite store **read-only** and record the exact resource row. The autho
 
 For the normal Search/render step, record the Search action, visible five-cell Resource row (coordinates, resource label, level, occupancy/status, updated time), and a screenshot/window observation when available. The first coordinate cell legitimately contains the visible **Jump** action in addition to `x,y`; compare the coordinate span, not raw td text. The rendered update time must correspond to that acquisition's exact `updatedAt` in the active UI locale.
 
-Acceptance still requires source/request/storage/**actual Search query/result**/render correlation. The historical `--normal-ui-live-resource-proof` diagnostic could record that chain but is within the SB-97 boundary and must not be used or repackaged. If Sol has no independently permitted observer for the actual normal `map_search` request/result, mark that evidence requirement **BLOCKED** rather than substituting a direct SQLite query or screenshot as equivalent proof. The non-acquiring saved-reopen verifier from PM13-006 may only be used if its specific observation method is independently permitted; it cannot be used to trigger or reconstruct a denied fresh acquisition.
+Acceptance still requires source/request/storage/**actual Search query/result**/render correlation. The historical `--normal-ui-live-resource-proof` diagnostic could record that chain but is within the SB-97 boundary and must not be used or repackaged. If a future independently permitted fresh-acquisition path lacks an observer for the actual normal `map_search` request/result, mark that evidence requirement **BLOCKED** rather than substituting a direct SQLite query or screenshot as equivalent proof. The non-acquiring saved-reopen verifier from PM13-006 may only be used if its specific observation method is independently permitted; it cannot be used to trigger or reconstruct a denied fresh acquisition.
 
 A suggested sanitized `attempt.json` should include per-step `PASS|FAIL|BLOCKED|NOT_RUN`, build/client/profile identities, the two request identities/times/source hashes, stored-row snapshots, Search/render evidence references, cleanup status, limitations, and first failure. This packet does not prescribe guessed fields beyond the recovered/evidenced values above.
 
@@ -169,7 +168,7 @@ A suggested sanitized `attempt.json` should include per-step `PASS|FAIL|BLOCKED|
 - Temporary candidate directories under the system temp directory should be removed by the helper. Record any leftover `lwbridge-live-resource-*` directory as cleanup failure rather than deleting evidence first.
 - After a disconnect, inspect `recovery.json`, operation owner, exact processes, config/profile, immutable results and game-file hashes before resuming. Never replay Start blindly.
 
-## Sol execution — fill during each attempt
+## Historical former Sol-labelled execution record
 
 Record attempt ID/date, packet/build commit, executable/hash, refreshed current client, actual profile/store, exact tested scope and available tool capability. Save each completed segment before continuing. A pending step must never inherit PASS from an earlier build.
 

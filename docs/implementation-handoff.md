@@ -8,6 +8,8 @@ Web now owns implementation and all technical verification/capture. There is no 
 
 **Immediate deliverable:** tested automatic evidence collection plus complete beginner-friendly instructions for the explicitly permitted scope. Read [team-workflow.md](team-workflow.md), fill [live-test-handoff.md](live-test-handoff.md) and [user-test-checklist.md](user-test-checklist.md). Never ask the owner to obtain command output, inspect JSON/SQLite, calculate hashes or debug recovery. Web implements the scripts, validates actual collection and handles interpretation.
 
+**Current delivery:** `LWB-PM13-008` now implements and offline-verifies that passive saved Resource Search/reopen package. The repo-root `.cmd` entry point, collector, passive native-host Search/render recorder and owner guide are ready for PM review only; the owner has not been asked to start. Fresh acquisition remains SB-97 BLOCKED/NOT_RUN and is not part of the package.
+
 The diagnosis at `537a5b9` is complete within saved-log limits. Navigation worked; an observation was rejected before local execution and no fresh Start was sent. Do not repeat closed work, guess a code defect or use an owner-run collector to reroute the restriction.
 
 ## One active function
