@@ -1,6 +1,6 @@
 # Owner guide ? Overview Launch, bridge message and Close
 
-Updated 2026-09-11. **The technical lifecycle is live-proven and the normal Overview owner test is ready.** You only use the app UI and send screenshots/descriptions; ChatGPT reads all technical evidence automatically.
+Updated 2026-09-11. **OWNER ACCEPTED (`LWB-OVL-003`).** The owner completed the normal Overview Launch -> in-game message -> Close sequence, supplied a screenshot showing **LWbridge is running** near the top centre, and reported ?yup all working?. This file now preserves the tested sequence; do not ask for another run unless a future change specifically requires regression testing.
 
 ## Before you start
 
@@ -26,4 +26,4 @@ The normal app and deployed helper write one session-correlated evidence bundle 
 
 Use this simple report: **I reached step __. I clicked __. I saw __. Here is the screenshot.**
 
-After you confirm this normal visible sequence works, Overview is owner-accepted for this milestone. Then work stops until **you explicitly choose the next feature**; Resource/Monster work does not resume automatically.
+Owner acceptance is complete for this milestone. Work now stops until **the owner explicitly chooses the next feature**; Resource/Monster work does not resume automatically.

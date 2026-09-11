@@ -1,18 +1,18 @@
 # Project-manager priority reset — Overview-only delivery
 
-2026-09-11, Overview implementation commit `dc82bc9` with passing CI run `34603661402`. **The technical lifecycle is live-proven; owner-visible normal Overview acceptance remains pending.** [Active Overview plan](overview-live-delivery.md).
+2026-09-11, Overview implementation commit `dc82bc9` with passing CI run `34603661402`. **The selected Overview Launch/message/Close milestone is owner-accepted (`LWB-OVL-003`). Stop and wait for the owner to choose the next feature.** [Active Overview plan](overview-live-delivery.md).
 
 ## Owner's acceptance target
 
 Normal Overview Launch -> actual game with verified injected/loaded bridge -> exact **LWbridge is running** message top-centre inside the game -> normal Overview Close ends the owned game/bridge with cleanup. The owner verifies it and explicitly chooses the next feature.
 
-Current live acceptance: **NOT DELIVERED**. Launch/Close remain unaccepted; bridge readiness and the requested game-side message are not proven by the old resource helper. Auto-launch/reconnect and all Map Data expansion are deferred.
+Current selected-feature acceptance: **OWNER ACCEPTED**. The normal Overview run opened the real game, the owner screenshot shows **LWbridge is running** top-centre, automatic evidence correlates that run to a fresh ready session, and Overview Close restored the official package. Auto-launch/reconnect and all Map Data expansion remain deferred.
 
 ## Assignment and pending work
 
 Web owns OVL-00–06 and may continue through their direct dependencies without a PM stop after every checkpoint. PM coordinates/audits only; the owner supplies descriptions/screenshots, while Web captures technical evidence automatically. No separate Sol or Daybreak task.
 
-`LWB-OVL-002` now supersedes the earlier offline-only Overview checkpoint: two distinct current-client sessions reached correlated game-side readiness for **LWbridge is running**, exact owned normal Close succeeded, and the official script package was restored byte-for-byte after each run. `Start Overview Verification.cmd` is self-tested and the normal app/helper now record per-session evidence automatically. The remaining gate is the owner-visible normal Overview Launch/message/Close confirmation; do not mark owner acceptance before that screenshot/observation.
+`LWB-OVL-002` now supersedes the earlier offline-only Overview checkpoint: two distinct current-client sessions reached correlated game-side readiness for **LWbridge is running**, exact owned normal Close succeeded, and the official script package was restored byte-for-byte after each run. `Start Overview Verification.cmd` is self-tested and the normal app/helper now record per-session evidence automatically. Owner-visible confirmation is complete in `LWB-OVL-003`; the correlated normal-app session is `61732f78f03e4643bb5329b40012c89a`. Do not start the next feature until the owner explicitly chooses it.
 
 The user reports PM15-01/02 implemented and pushed at `1e9af6e`. At inspection six tracked handoff/evidence-index documents plus new PM15 evidence remain uncommitted. Preserve and finalize that coherent handoff under OVL-00; this priority reset does not re-audit or certify its regression claims. Do not request another resource check or expand the old recorder project. PM commits only its priority changes, leaving Web's unfinished evidence changes for Web.
 

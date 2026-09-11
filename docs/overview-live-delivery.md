@@ -18,11 +18,11 @@ Owner: Web for research, implementation and technical validation. PM plans/audit
 
 OVL-00 is delivered as `cc4bc7788c2502681546cede187a4daee6c0c26a`; its GitHub Actions run `34590097938` passed. The prior PM15 evidence/handoff cleanup is closed without reopening resource work.
 
-The exact original protected launch/bootstrap/session contract is still incomplete: launch-proof/ticket production plus final `hello.ack`/request-result readiness grammar remain UNKNOWN/BLOCKED. OVL-01 therefore selected an explicit independent rebuild policy instead of inventing those fields. OVL-02/03/04 are now **TECHNICAL LIVE-PROVEN** on that independent current-v14 LuaEntry route: two fresh helper-driven current-client sessions reached correlated game-side readiness/message evidence and exact owned Close/restoration. The remaining gate is the owner-visible normal Overview button sequence; this does not claim recovery of the original protected protocol.
+The exact original protected launch/bootstrap/session contract is still incomplete: launch-proof/ticket production plus final `hello.ack`/request-result readiness grammar remain UNKNOWN/BLOCKED. OVL-01 therefore selected an explicit independent rebuild policy instead of inventing those fields. OVL-02/03/04 are now **TECHNICAL LIVE-PROVEN** on that independent current-v14 LuaEntry route: two fresh helper-driven current-client sessions reached correlated game-side readiness/message evidence and exact owned Close/restoration. The owner-visible normal Overview button sequence has now passed as `LWB-OVL-003`; this still does not claim recovery of the original protected protocol.
 
 Deferred: Map Data fresh scans, saved Search/reopen, monsters, exports, automatic scanning, automatic reconnect, launch-at-app-startup, updater expansion and broad parity work. Reuse their existing infrastructure only when it directly supports this Overview delivery. Do not restore resource-first ownership after a generic continuation prompt.
 
-### Current OVL-01 through OVL-05 checkpoint - `LWB-OVL-002`
+### Current accepted checkpoint - `LWB-OVL-003`
 
 Implementation commit `dc82bc9bebd9e1b56c56621edd18e905a7e3ee23` is pushed with GitHub Actions run `34603661402` passing. The exact rebuilt owner-test package is EXE SHA-256 `0435223634a7804a442c5f499db80fb2df6552075263ee738b03cc848accb473` and DLL SHA-256 `ecb43f8084a145f8839185c7b6b7f0398b1bb1481df222c62d087f533958e872`. `Start Overview Verification.cmd --self-test` passes, and its deployed Overview helper/Lua hashes match the source files.
 
@@ -30,7 +30,7 @@ The initial live attempt exposed a UTF-8 BOM embedded into the generated Lua wra
 
 Two fresh current-client cycles then passed with distinct sessions/PIDs. Both produced exact same-session readiness with `messageVisible=true`, text **LWbridge is running**, `registrationMethod=UpdateManager.AddUpdate`, and render path `GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message`. Both Close operations used `Process.CloseMainWindow()` on the exact owned PID, proved process exit, restored the v14 package to SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`, and left no recovery journal. The second cycle used the deployed Release helper and wrote a `COMPLETE` automatic attempt bundle. Durable evidence is [`2026-09-11-ovl-live-lifecycle.json`](../evidence/lwbridge-implementation/2026-09-11-ovl-live-lifecycle.json).
 
-This is **LIVE-PROVEN for the technical launch/injection/readiness/close/restore path** and **READY_FOR_OWNER_VISIBLE_VERIFICATION for the normal Overview UI**. The two successful Web cycles invoked the deployed helper directly; owner verification remains required for the normal Overview button wiring and actual visual placement. Do not call the feature owner-accepted until that visible sequence succeeds. No Resource/Monster operation was started.
+This is **OWNER ACCEPTED for the selected Overview Launch/message/Close milestone**. In the normal Overview run, session `61732f78f03e4643bb5329b40012c89a` produced correlated automatic start/ready/Close/restore evidence, and the owner supplied a 1920x1080 screenshot visibly showing the exact **LWbridge is running** text near the top centre, then reported "yup all working". Durable owner-acceptance evidence is [`2026-09-11-ovl-owner-acceptance.json`](../evidence/lwbridge-implementation/2026-09-11-ovl-owner-acceptance.json). No Resource/Monster operation was started; **stop and wait for the owner to choose the next feature**.
 
 ## Ordered tasks for Web — continue without a PM stop after each checkpoint
 
@@ -93,13 +93,13 @@ User authorization covers ordinary project tools, installation and game testing 
 ## Exit checklist — all required for this delivery
 
 - [x] OVL-00: prior pending evidence delivered without restarting deferred work (`cc4bc77`, CI passed).
-- [x] Technical path: current game launch establishes a fresh same-session injected bridge in two live cycles; normal Overview button still awaits owner-visible confirmation.
+- [x] Normal Overview Launch opened the identified current game and established fresh same-session bridge session `61732f78f03e4643bb5329b40012c89a`.
 - [x] Readiness is supported by current game-side execution/response, not process presence or an overlay alone.
-- [x] Game-side renderer reports exact **LWbridge is running** at the current in-game UI render path only for the correlated ready session; owner screenshot of actual placement remains pending.
-- [x] Technical path: exact owned Close ends the game and restores exact originals in two live cycles; normal Overview button still awaits owner-visible confirmation.
+- [x] Exact **LWbridge is running** was visibly confirmed by the owner near the top centre inside the real game, correlated to the same automatic ready session.
+- [x] Normal Overview Close ended the exact owned game session and automatic evidence proved byte-exact restoration/cleanup.
 - [x] Failed/duplicate/stale/disconnected lifecycle paths are truthful; a repeat start/close does not reuse old success.
-- [x] Automatic technical capture and the verified beginner entry point/guide are delivered; owner-visible run will populate the normal-app session bundle.
-- [x] Web's applicable checks, durable evidence and implementation GitHub delivery are verified; PM audit does not substitute for owner verification.
-- [ ] **Owner explicitly confirms the live result works. Wait for owner selection of the next feature.**
+- [x] Automatic technical capture and the verified beginner entry point/guide are delivered; the owner-visible run populated the correlated normal-app session bundle.
+- [x] Web's applicable checks, durable evidence and GitHub delivery are verified; owner verification is complete for this selected milestone.
+- [x] **Owner explicitly confirmed "yup all working". Selected Overview milestone accepted. STOP and wait for owner selection of the next feature.**
 
 For progress reports use: which of Launch / bridge readiness / in-game text / Close works live, exact remaining broken step, next action, and whether owner input is required. Research, builds and script work are supporting progress, not additional delivered live features.

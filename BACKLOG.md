@@ -2,7 +2,7 @@
 
 ## Authoritative owner priority — Overview only, 2026-09-11
 
-**Active result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. Follow [OVL-00–06](docs/overview-live-delivery.md) and [the current Web prompt](docs/team-workflow.md). Web continues those assigned dependencies across checkpoints; the owner must verify this live result and explicitly choose the next feature.
+**Accepted result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. The owner verified this normal UI sequence in `LWB-OVL-003`. **STOP: wait for the owner to explicitly choose the next feature.**
 
 The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
 
@@ -12,10 +12,10 @@ The owner supplies only simple UI actions, descriptions and screenshots. Web mus
 
 - [x] OVL-00 PM15 handoff cleanup delivered at `cc4bc77`; CI passed.
 - [x] OVL-01 exact dependency chain bounded. Original proof/ticket/final pipe grammar stays open; independent current-v14 route is explicitly policy.
-- [x] OVL-02/03/04 technical lifecycle is live-proven in `LWB-OVL-002`: two fresh current-client cycles reached exact same-session game-side readiness/message evidence, then exact-PID normal Close and byte-exact deferred restoration. Normal Overview button/visual placement still awaits owner verification.
-- [ ] Live current-game Launch -> **LWbridge is running** -> Close proof. Do not promote the offline candidate before this run.
+- [x] OVL-02/03/04 technical lifecycle is live-proven in `LWB-OVL-002`: two fresh current-client cycles reached exact same-session game-side readiness/message evidence, then exact-PID normal Close and byte-exact deferred restoration. Normal Overview button/visual placement is owner-verified in `LWB-OVL-003`.
+- [x] Normal Overview owner run completed: Launch opened the real game, **LWbridge is running** was visible top-centre, and Close completed with automatic cleanup evidence (`LWB-OVL-003`).
 - [x] OVL-05 automatic per-session evidence + tested `Start Overview Verification.cmd` + beginner owner guide delivered.
-- [ ] OVL-06 owner-visible normal Overview verification and explicit acceptance; then wait for the owner to choose the next feature.
+- [x] OVL-06 owner-visible normal Overview verification and explicit acceptance recorded as `LWB-OVL-003`. **STOP: wait for the owner to choose the next feature.**
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

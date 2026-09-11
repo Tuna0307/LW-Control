@@ -2,7 +2,7 @@
 
 ## Authoritative owner priority — Overview only, 2026-09-11
 
-**Active result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. Follow [OVL-00–06](overview-live-delivery.md) and [the current Web prompt](team-workflow.md). Web continues those assigned dependencies across checkpoints; the owner must verify this live result and explicitly choose the next feature.
+**Accepted result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. The owner verified this normal UI sequence in `LWB-OVL-003`. **STOP: wait for the owner to explicitly choose the next feature.**
 
 The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
 
@@ -20,7 +20,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. [Current prompts](team-workflow.md) and [active Overview plan](overview-live-delivery.md). `LWB-OVL-002` records two successful technical current-client Launch -> same-session ready/message -> exact Close/restore cycles, implementation commit `dc82bc9`, passing CI run `34603661402`, and a verified owner entry point. The current gate is the owner-visible normal Overview button/message/Close sequence. Deferred resource/monster work and its restrictions are unchanged. Daybreak is unassigned.
+**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. `LWB-OVL-003` records owner acceptance of the normal Overview Launch -> same-session ready/message -> exact Close/restore sequence, correlated to automatic session evidence and the owner screenshot. **No feature is active now; wait for the owner to explicitly choose the next one.** Deferred resource/monster work and its restrictions are unchanged. Daybreak is unassigned.
 
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 
@@ -46,6 +46,8 @@ Start with [review 14](lwbridge-project-status.md), [restriction outcomes and re
 - [Regular task](implementation-handoff.md) and [specialist task](deep-binary-handoff.md) provide distinct ownership/delivery instructions; [ESC register](daybreak-escalations.md) records requests, reasons and decisions. Both tasks inherit `task.md`.
 
 ## Visual and machine-readable evidence
+
+- [Overview owner acceptance evidence](../evidence/lwbridge-implementation/2026-09-11-ovl-owner-acceptance.json) records `LWB-OVL-003`: the normal Overview owner session, exact tested package identity, automatic readiness/Close/restoration bundle hashes, owner screenshot digest/dimensions, and explicit "yup all working" acceptance. This closes only the selected Launch/message/Close milestone; wait for the owner to choose the next feature.
 
 - [Overview live lifecycle evidence](../evidence/lwbridge-implementation/2026-09-11-ovl-live-lifecycle.json) records `LWB-OVL-002`: implementation `dc82bc9`, CI `34603661402`, two distinct technical live Launch/ready/message/Close/restore cycles, exact current-client/package/build hashes, automatic per-session capture, and the remaining owner-visible normal Overview gate.
 - [PM13 saved-browse context evidence](../evidence/lwbridge-implementation/2026-09-10-pm13-saved-browse-context.json) records `LWB-PM13-001`: the recovered frontend summary -> scanState -> search server flow, the single-server saved-context implementation policy and zero/multiple-server/profile-isolation/reopen tests. Its original direct-root absence blocker is superseded by `LWB-PM13-001B`.
