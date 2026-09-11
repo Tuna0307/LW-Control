@@ -1,66 +1,48 @@
-# Team workflow and current prompts
+# Team workflow — one live Overview delivery
 
-Updated 2026-09-11. This replaces the Web/Sol split. [AGENTS.md](../AGENTS.md) governs every worker; [task.md](../task.md) retains all 47 acceptance cases.
+Owner priority reset, 2026-09-11. [AGENTS.md](../AGENTS.md) is mandatory; [task.md](../task.md) retains all 47 cases. [overview-live-delivery.md](overview-live-delivery.md) is the active bounded plan and overrides old resource-first/monster-next instructions.
 
-## Roles and current task
+## Roles
 
-| Role | Responsibility |
-|---|---|
-| Owner | Sets priorities and judges results. Follows plain permitted UI steps, describes visible results and supplies screenshots. No commands or technical diagnosis. |
-| PM | Audits findings/evidence and maintains tasks/instructions. Does not implement scripts/app code or operate the game. |
-| ChatGPT Web | Single primary research, implementation and technical verification worker. Builds/fixes, automates evidence collection, prepares the owner guide and interprets results. |
-| Separate Sol worker | No active assignment. Historical contributions remain credited. |
-| Daybreak | No task until a specific reviewed research escalation is assigned. |
+- Owner sets priorities, verifies actual live results, and explicitly selects the next feature. The owner supplies only guided UI actions, descriptions and screenshots.
+- PM combines findings, audits evidence and maintains tasks. PM does not implement application code/scripts or operate the game.
+- Web is the single implementation/research/technical-verification worker. It automatically collects all needed technical evidence and provides a simple actual entry point/guide. Never ask the owner for commands, terminal output, JSON/database inspection, hashes or recovery diagnosis.
+- No separate Sol role. Daybreak is unassigned unless a specific reviewed escalation is assigned.
 
-Web delivered preparation at `9c20896`; the former Sol-labelled worker delivered its blocked attempt at `ccb74b0` and existing-log diagnosis at `537a5b9`. That route was codex-chatgpt-web 5.0.6 / chatgpt-web/high. Native navigation worked, but a get_window_state call was rejected upstream before local dispatch; no fresh Start was sent. Reviewer-specific cause remains unknown. Do not repeat diagnosis without new evidence or invent an application fix.
+## Current result required
 
-Current Web reports files/shell/existing-log access but no native screenshot/click tool. **Current task: Web fixes PM15-01/02 in the implemented recorder.** The owner already completed the no-saved-context check; no repeat is needed. The collector exists but future saved-reopen readiness is withheld. Read [review 15](reviews/2026-09-11-review-15-owner-evidence.md). Resource live acceptance remains open; no monster work follows from this role change.
+Normal Overview **Launch Game** opens the current official game, establishes a verified injected/loaded bridge, displays exactly **LWbridge is running** at the top centre inside the game, and Overview **Close Game** closes the correct game/session with clean state. A process or overlay alone cannot prove injection readiness. The owner must verify this complete sequence before any next feature is started.
 
-## Required owner-testing package
+## Ordered work and continuity
 
-Use [live-test-handoff.md](live-test-handoff.md) for technical identity/results and [user-test-checklist.md](user-test-checklist.md) for plain UI instructions.
+Web owns all OVL-00–06 in [the plan](overview-live-delivery.md): finish the interrupted PM15 evidence commit, trace only necessary launch/session contracts, implement normal launch and bridge readiness, render the truthful in-game message, implement close/cleanup, prepare automatic capture and the beginner guide, then verify the complete current-game outcome with the owner when permitted.
 
-Web must provide:
+Do not return after every subtask merely to ask whether to continue. Commit/push/verify coherent checkpoints, save exact resume state and continue the next direct dependency. CI success and research completion do not equal live acceptance. Report meaningful results rather than checkpoint volume. Stop for a real blocking external condition or necessary owner observation, not because a small commit ended.
 
-1. An identified runnable build and current-client compatibility result. Web checks hashes, dependencies, selected profile/store and process/recovery state; the owner does not.
-2. Tested scripts that automatically collect the required permitted evidence. Prefer Web starting collection itself; if local user initiation is necessary, provide an actual tested double-click entry point with understandable status. Never ask the owner to paste commands, install runtimes, copy output, inspect JSON or find databases.
-3. One UI action per step, exact Chinese/English labels as applicable, expected visible result, completion/failure indication, screenshot checkpoint and stop condition. Explain what must be open/closed; do not assume Overview Launch is implemented.
-4. A durable bundle per attempt: actual app/client/profile identity, timestamps, scoped logs/result references and hashes, actual request/query/result evidence when available, errors, and cleanup/restoration results. Save partial failures and preserve earlier attempts. Do not fabricate missing fields.
-5. Meaningful verification for missing prerequisites, changed identities, incomplete evidence, interruption/resume and cleanup reporting. Collection must not silently trigger scans, modify stored records, clear journals or overwrite prior proof.
-6. An explicit readiness decision for the permitted scope. READY_FOR_OWNER_CHECKS means actual scripts and instructions work; it does not clear restrictions or imply live success.
+Map Data work, monsters, exports, automatic reconnect/startup and updater work are deferred. Preserve the already-written PM15 evidence and finish its delivery housekeeping without extending that project. Web must inspect actual dirty/staged files and preserve the PM's priority changes. The owner chooses what comes after this Overview feature.
 
-If normal Search request/result or render correlation is unavailable, document the instrumentation gap. Implement only independently permitted passive collection if feasible, label new instrumentation IMPLEMENTATION POLICY and validate it without replaying the denied workflow. SQLite reads are not the actual UI Search request/result. Screenshots complement technical evidence; do not ask the owner for developer-console or network traces.
-
-Web interprets automatically collected evidence with owner screenshots/descriptions and records PASS/FAIL/BLOCKED/NOT_RUN. A screenshot or saved row alone is not fresh acquisition proof. Fix the first demonstrated failure and prepare a focused retest. PM audits combined evidence before accepting the function.
-
-## Restrictions and alternative methods
-
-- Missing capability: discover supported tools. An available documented API/CLI or read-only log inspection may help only within environment/tool/skill rules. Terminal access is not automatic permission for custom desktop control.
-- Technical error: diagnose and use supported recovery without duplicating side effects.
-- Explicit rejection: preserve exact call/time/reason. Do not recreate it through shell clicks, helpers, another tool/model or an owner-run script. Do not disable safeguards. Use existing diagnostics or an independent materially safer permitted action; otherwise record the required external condition.
-
-SB-97 remains unresolved. Owner assistance is not a workaround for the rejected automated operation. Keep available saved-data/UI checks separate from blocked fresh acquisition. PM cannot waive platform restrictions. Do not disguise a live-action trigger as an evidence collector.
-
-## Coordination and interruption
-
-During an owner test Web must not rebuild/replace the app, edit its profile/store or unexpectedly control the same session. Save each completed step and cleanup obligations. After interruption Web inspects actual/saved state before giving further instructions; the owner is not asked to diagnose recovery. Keep secrets and unrelated private data out of shared evidence. Commit/push/verify coherent checkpoints under AGENTS.md.
-
-## Prompt to send Web now
+## Main prompt — send Web now
 
 ```text
-Work in LW-Control. Read AGENTS.md, task.md, BACKLOG.md, docs/reviews/2026-09-11-review-15-owner-evidence.md and docs/live-test-handoff.md. Inspect HEAD/worktree and preserve other work.
+Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control. Read AGENTS.md, the priority banner in task.md/BACKLOG.md, docs/overview-live-delivery.md and docs/lwbridge-project-status.md. Inspect actual HEAD/worktree and preserve pending work.
 
-PM accepts the owner's no-saved-context observation and the bounded LWB-PM13-009 repair. Do not ask the owner to repeat the empty-profile check.
+The owner has explicitly replaced resource-first work. Your only active feature is the normal Overview sequence: Launch Game opens the current game, the bridge is successfully injected/loaded and genuinely ready, the exact text "LWbridge is running" appears top-centre inside the game, and Close Game closes that owned session with verified cleanup. No fake overlay, process-only success or guessed protocol.
 
-Fix PM15-01: reopen evidence must belong to the current app session. Session one must never satisfy session two's Search/result/render gate. Add isolated tests for no second Search, stale/uncorrelated/mismatching second evidence, file/PID ordering or reuse, and a valid distinct second session with the same saved row.
+All OVL-00–06 subtasks in the plan are assigned to you. First finish the already-prepared PM15 evidence/handoff commit and verify delivery without expanding recorder work. Then proceed through the Overview dependency chain, implementation, in-game message, close/cleanup, automatic evidence collection and beginner-friendly test guide. Reuse established findings; research only direct blockers. Continue through coherent commit/push checkpoints without waiting for PM after each subtask.
 
-Fix PM15-02: process-query failure/invalid output is UNKNOWN, not an empty process list or clean cleanup. Carry evidence-health failures into incomplete/blocked status, preserving partial logs. Test command failure, malformed output, legitimate empty output, and app/evidence failures after an earlier successful session.
+You own technical capture and diagnosis. The owner can only follow clearly explained UI actions, describe what appears and supply screenshots. Provide actual tested scripts/entry points; never ask the owner for commands/logs/hashes/JSON/database inspection. Preserve operation-specific restrictions; do not recreate rejected actions through another executor or the owner. Assess new Overview operations by their actual scope. Document exact external blockers and permitted next actions rather than generating filler.
 
-Use offline isolated regressions; do not run a fresh scan, reroute SB-97, seed owner data, request an owner retest or start unrelated work. Keep collection automatic and owner instructions beginner-friendly. Update the exact build/evidence/handoff, run relevant checks, commit/push/verify, and return to PM. A collector fix is not live resource acceptance.
+Keep resources/monsters and other features deferred. No Daybreak assignment unless an exact reviewed ESC is assigned. Do not claim this feature complete until the owner verifies Launch -> real bridge/message -> Close works live. After owner acceptance, wait for the owner's next feature instruction. Save resumable checkpoints and report which of those four visible outcomes works, the remaining broken step and the next direct action.
 ```
 
-## Repeat prompt after owner feedback
+## Repeat prompt — use after interruption or a partial checkpoint
 
 ```text
-Continue the same resource function in LW-Control. Read AGENTS.md, docs/team-workflow.md and the current technical packet. Collect and interpret automatic evidence with the owner's screenshots/description; do not ask for command output or technical diagnosis. Fix only the first demonstrated supported defect, verify it and update the exact build, collection scripts and simple retest instructions. Preserve previous evidence and restrictions, commit/push/verify and return to PM. If evidence is missing, repair permitted collection before asking the owner to repeat work. No Sol or Daybreak assignment.
+Continue the Overview-only delivery in docs/overview-live-delivery.md. Read AGENTS.md and the latest saved checkpoint; inspect HEAD/worktree, current state and cleanup obligations before resuming. Preserve concurrent work. Finish the next incomplete OVL step and continue direct dependencies without a routine PM stop after every commit. No resource/monster detour or repeated empty-profile test. Collect technical evidence automatically, fix the first failed step and keep owner instructions simple. Commit/push/verify checkpoints. Do not replay completed live actions blindly or bypass restrictions. Only the owner's verified Launch -> injected bridge with "LWbridge is running" top-centre -> Close result closes this feature; wait for the owner's next instruction afterward.
 ```
+
+## Handling blockers
+
+Unknown contracts require bounded source-led recovery. Missing tools require discovery/setup of permitted tools. Explicit denials require precise scope/reason and no reroute. Daybreak is not an automatic destination for a denied action. A complete reviewed question can be escalated; continue direct permitted Overview dependencies while waiting. Do not repeatedly request permissions already granted or claim the owner withheld access.
+
+During an owner test, do not replace the running build or unexpectedly control/edit its session/profile. Capture partial results, preserve journals and inspect state after interruption. A record of failure is useful; changing evidence to turn it into success is not.

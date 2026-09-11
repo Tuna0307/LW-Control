@@ -1,4 +1,6 @@
-# Active function — resource scan, search and display
+# Deferred resource scan, search and display contract
+
+> Owner priority reset, 2026-09-11: this resource task is DEFERRED, not complete or active. Follow [Overview launch/bridge-message/close](overview-live-delivery.md). Do not use the historical active/next wording below to restart map work. The owner chooses the next feature only after verifying Overview.
 
 > Review 15 at `154ce35`: owner no-context check accepted; do not repeat it. Web must fix PM15-01 session evidence isolation and PM15-02 failed-observation handling before future owner use. The recorder exists; live acquisition remains blocked. No Daybreak task. [Current review](reviews/2026-09-11-review-15-owner-evidence.md) and [Web prompt](team-workflow.md).
 

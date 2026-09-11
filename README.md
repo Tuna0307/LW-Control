@@ -1,5 +1,7 @@
 # LWBridge 0.3.1 recovery
 
+**Only active delivery:** Overview Launch Game -> real injected/loaded bridge ready -> **LWbridge is running** top-centre inside the game -> Overview Close Game closes that session. [Active plan](docs/overview-live-delivery.md) and [Web prompts](docs/team-workflow.md). The owner must verify this live result and select the next feature. Maps/monsters and other settings are deferred; the earlier resource recorder findings below remain historical supporting work.
+
 This repository is now **LWBridge-only**. Treat the directory and remote repository name as historical naming; they do not define the product or feature authority.
 
 The reference application is `lwbridge-0.3.1.exe` with SHA-256:

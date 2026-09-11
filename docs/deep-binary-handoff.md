@@ -1,5 +1,7 @@
 # Daybreak task — specialist escalation only
 
+> Current owner priority: [Overview launch, injected bridge message and close](overview-live-delivery.md), 2026-09-11. Web owns its recovery/implementation. ESC-005 session/bootstrap findings may now directly matter again; re-evaluate only the exact missing dependency and permitted methods. Its old resource-based deferral is historical, but no specialist assignment/denied-operation approval follows automatically. No Daybreak task is currently dispatched. The owner chooses the next feature after live verification.
+
 > Review 15 at `154ce35`: owner no-context check accepted; do not repeat it. Web must fix PM15-01 session evidence isolation and PM15-02 failed-observation handling before future owner use. The recorder exists; live acquisition remains blocked. No Daybreak task. [Current review](reviews/2026-09-11-review-15-owner-evidence.md) and [Web prompt](team-workflow.md).
 
 

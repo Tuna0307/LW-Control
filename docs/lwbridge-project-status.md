@@ -1,4 +1,33 @@
-# Project-manager checkpoint — review 15
+# Project-manager priority reset — Overview-only delivery
+
+2026-09-11, implementation HEAD `1e9af6e`. **This is an owner-directed change of delivery, not a claim that new game functionality is complete.** [Active Overview plan](overview-live-delivery.md).
+
+## Owner's acceptance target
+
+Normal Overview Launch -> actual game with verified injected/loaded bridge -> exact **LWbridge is running** message top-centre inside the game -> normal Overview Close ends the owned game/bridge with cleanup. The owner verifies it and explicitly chooses the next feature.
+
+Current live acceptance: **NOT DELIVERED**. Launch/Close remain unaccepted; bridge readiness and the requested game-side message are not proven by the old resource helper. Auto-launch/reconnect and all Map Data expansion are deferred.
+
+## Assignment and pending work
+
+Web owns OVL-00–06 and may continue through their direct dependencies without a PM stop after every checkpoint. PM coordinates/audits only; the owner supplies descriptions/screenshots, while Web captures technical evidence automatically. No separate Sol or Daybreak task.
+
+The user reports PM15-01/02 implemented and pushed at `1e9af6e`. At inspection six tracked handoff/evidence-index documents plus new PM15 evidence remain uncommitted. Preserve and finalize that coherent handoff under OVL-00; this priority reset does not re-audit or certify its regression claims. Do not request another resource check or expand the old recorder project. PM commits only its priority changes, leaving Web's unfinished evidence changes for Web.
+
+## Current order
+
+1. Finish the existing PM15 evidence delivery housekeeping.
+2. Recover/implement only direct normal Overview launch and bridge-session dependencies.
+3. Display the requested in-game text only for a genuinely ready same-session bridge.
+4. Close the correct game and verify session/cleanup state.
+5. Deliver automatic technical capture and a clear beginner guide; fix the first failed live step when permitted.
+6. Wait for explicit owner verification and next-feature instruction.
+
+Existing restrictions remain operation-specific and are not cleared. The old resource-first/monster-next queue below is historical and must not override this instruction. All 47 full-scope acceptance cases remain; this is the first selected feature, not full product completion.
+
+## Historical review 15 — deferred resource recorder work
+
+### Project-manager checkpoint — review 15
 
 Reviewed 2026-09-11 at `154ce35`, branch `research/offline-controller`, clean at entry. This review covers the three owner-evidence commits after `3a9278a`. [Detailed source findings and acceptance criteria](reviews/2026-09-11-review-15-owner-evidence.md).
 

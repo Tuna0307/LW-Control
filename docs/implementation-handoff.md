@@ -1,5 +1,16 @@
 # ChatGPT Web implementation task — review 15
 
+## Authoritative owner priority — Overview only, 2026-09-11
+
+**Active result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. Follow [OVL-00–06](overview-live-delivery.md) and [the current Web prompt](team-workflow.md). Web continues those assigned dependencies across checkpoints; the owner must verify this live result and explicitly choose the next feature.
+
+The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
+
+The owner supplies only simple UI actions, descriptions and screenshots. Web must automatically collect technical evidence and deliver an actual tested script/entry point and beginner guide; no commands, logs, hashes or database inspection are assigned to the owner. PM plans/audits only. No separate Sol or Daybreak task.
+
+### Retained earlier resource/PM15 checkpoint — not the active assignment
+
+
 Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md), [current audit](lwbridge-project-status.md), [first-live-result contract](first-live-result.md) and the relevant evidence. Audit base: `7ca6d5c`; inspect actual HEAD/worktree before editing. Preserve concurrent work. All 47 acceptance cases remain required.
 
 ## Current assignment — PM15-01/02

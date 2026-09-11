@@ -1,5 +1,9 @@
 # Daybreak escalation register
 
+## Current priority reset — 2026-09-11
+
+[Overview launch/verified bridge/message/close](overview-live-delivery.md) is now the only active feature. Resource work is deferred. ESC-005's remaining bootstrap/session grammar may be relevant to this new dependency chain; Web must check applicability and prior permitted attempts before submitting a focused updated request. Preserve existing restrictions and historical statuses below. No specialist is assigned by this priority change, and no denied operation is transferred to Daybreak. The owner, not an automatic queue, selects what follows successful Overview verification.
+
 ## Current outcome after diagnosis and owner clarification — 2026-09-11
 
 No Daybreak assignment and no separate Sol role. The saved diagnosis at `537a5b9` supports an upstream rejection before local Computer Use dispatch; no Start was sent. Reviewer-specific cause remains unknown. The diagnosis is not an application defect or reason to transfer the denied operation. Web now prepares automatic permitted evidence collection and the owner guide; the owner supplies screenshots/descriptions only. [Current workflow](team-workflow.md), [packet](live-test-handoff.md). SB-97 remains recorded; no new live acceptance.
