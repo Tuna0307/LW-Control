@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-007",
+  "date": "2026-09-11",
+  "state": "TOOL/SESSION-GAP / PM13-04 STILL BLOCKED",
+  "baseCommit": "3d7b457624f255bff40a1e7efba71f23720aadb0",
+  "scope": "Clarify the current session's native Computer Use capability without executing or rerouting SB-97.",
+  "localComputerUseSkill": {
+    "path": "C:/Users/chimw/.codex/plugins/cache/openai-bundled/computer-use/26.903.71938/skills/computer-use/SKILL.md",
+    "versionDirectory": "26.903.71938",
+    "sha256": "8211e4b11a19a0dc4f0ace91096c74c5b36037ca4cb2c8988f0f535bb209e951",
+    "guidancePath": "C:/Users/chimw/.codex/plugins/cache/openai-bundled/computer-use/26.903.71938/docs/guidance.md",
+    "guidanceSha256": "b171b26bc19f49226bb594bf3ed3f36666e5dd063a996c297986b2b461ac8efd"
+  },
+  "recoveredToolRequirements": [
+    "SKILL.md says the bundled cua_node @oai/sky package is the core Computer Use entry point.",
+    "SKILL.md says to import @oai/sky directly from a JavaScript session and not spawn codex-computer-use.exe or build a custom helper protocol client.",
+    "guidance.md says to use node_repl JavaScript for all Computer Use actions."
+  ],
+  "currentSessionObservation": {
+    "chatToolSurface": "No node_repl / mcp__node_repl__js recipient is exposed in this session; Remote Desktop Commander exposes filesystem/terminal/process tooling only.",
+    "pluginDirectorySearch": "No additional desktop-control plugin was available beyond the already-installed Remote Desktop Commander.",
+    "globalNpmCheck": "npm.cmd ls -g @oai/sky --depth=0 returned an empty global dependency tree.",
+    "classification": "The Computer Use skill is installed locally, but the required node_repl tool bridge is not exposed to this chat session. This is a session/tool-surface gap, not a missing user permission and not proof that the local skill package is absent."
+  },
+  "restrictionOutcome": {
+    "sb97": "Not cleared. No live persistent-window proof was executed.",
+    "noReroute": "@oai/sky was not invoked through Remote Desktop Commander, ordinary node, a helper executable or a custom helper protocol.",
+    "remainingExternalCondition": "A session must expose the supported node_repl Computer Use bridge for a permitted new attempt, or the platform/PM must explicitly clear another non-rerouted method."
+  },
+  "reproduction": [
+    "Read the installed computer-use SKILL.md and bundled guidance.md from the versioned Codex plugin cache.",
+    "Run `npm.cmd ls -g @oai/sky --depth=0`; observe `(empty)`.",
+    "Inspect this session's callable tool surface; node_repl is absent while Remote Desktop Commander is present."
+  ],
+  "limits": [
+    "This finding establishes only local skill installation plus the current session's missing supported node_repl bridge.",
+    "It does not establish whether another ChatGPT/Codex session exposes node_repl.",
+    "It does not change SB-97, prove any live resource acquisition, or authorize terminal/WebView rerouting."
+  ],
+  "implementationImpact": {
+    "documentation": "Correct prior wording that could be read as the Computer Use skill itself being absent; retain PM13-04 as ACTIVE/BLOCKED.",
+    "code": "No product code change is justified by this capability finding.",
+    "nextStep": "When a supported node_repl bridge is exposed and the live attempt is permitted, run PM13-04's two fresh Resource reads and then the existing saved-reopen verifier."
+  }
+}
