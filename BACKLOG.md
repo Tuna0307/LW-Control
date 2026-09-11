@@ -4,15 +4,17 @@ Last updated: 2026-09-11
 
 Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle and proof-correlation repairs are accepted at their documented scopes. The resource implementation is a test candidate; fresh normal-window completion remains unverified and subject to SB-97. [Current audit](docs/lwbridge-project-status.md) and [test checklist](docs/user-test-checklist.md) define the next deliverable.
 
-## Current owners — 2026-09-11 clarification
+## Current owners and evidence package — 2026-09-11
 
-- [x] **WEB / first:** candidate build identity, current-client preflight, offline checks and the complete [test packet](docs/live-test-handoff.md) are prepared as `READY_FOR_SOL`; this is preparation only and SB-97 remains unresolved.
-- [ ] **SOL / next:** verify the exact handed-off build/client/profile and perform only independently permitted normal-window resource verification; save per-step evidence and return the first failure to Web.
-- [ ] **WEB -> SOL / if needed:** repair the reproduced failure and retest; stay on this resource function.
-- [ ] **PM / after evidence:** combine findings and accept/reject the live deliverable; select the next function only after acceptance.
-- **DAYBREAK:** no assignment; a complete reviewed ESC is required.
+- [x] **WEB:** prepared build/test packet at `9c20896`; preparation only.
+- [x] **HISTORICAL ATTEMPT/DIAGNOSIS:** `ccb74b0` / `537a5b9` record native navigation, upstream rejection before dispatch, no Start sent and completed saved-log diagnosis. Reviewer-specific cause remains unknown; live gate stays open.
+- [ ] **WEB / next:** implement/reuse and verify automatic technical capture for the explicitly permitted test scope. Deliver an actual tested entry point and durable per-attempt/partial-failure results.
+- [ ] **WEB / next:** complete the beginner-friendly [owner guide](docs/user-test-checklist.md), including exact clicks, expected visible results, screenshot checkpoints and stop/recovery guidance. Owner provides no commands or technical logs manually.
+- [ ] **PM:** review package readiness and later combined evidence. No new collection script or owner-test readiness is claimed by this documentation update.
+- [ ] **OWNER / after ready permitted scope:** follow simple steps and provide descriptions/screenshots; Web collects and interprets technical evidence.
+- **SOL:** no separate active role. **DAYBREAK:** no assignment.
 
-[Team roles and prompts](docs/team-workflow.md) govern ownership. This split changes no technical completion claim or restriction.
+[Current workflow/prompts](docs/team-workflow.md) and [technical packet](docs/live-test-handoff.md) govern the same resource function. Do not send blocked actions to the owner or another executor.
 
 ## Current function and ordered repairs — review 14
 

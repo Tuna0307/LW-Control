@@ -1,5 +1,8 @@
 # LWBridge Overview and Map Data feature ledger
 
+> Current ownership, 2026-09-11: Web implements and automatically captures technical evidence; the owner supplies guided permitted UI observations/screenshots only; PM audits. No separate Sol role. See [workflow](team-workflow.md) and [packet](live-test-handoff.md). New capture package is pending; SB-97 and fresh-resource acceptance remain open. Historical observations below retain their original scope.
+
+
 Checkpoint: 2026-09-11. Status vocabulary follows `task.md`: **RECOVERED** is
 original static behavior, **IMPLEMENTED/OFFLINE-TESTED** is rebuild behavior
 proved without a live state change, **LIVE-PROVEN** requires current-client

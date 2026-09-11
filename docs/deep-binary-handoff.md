@@ -6,9 +6,9 @@ Updated 2026-09-11 by project-manager review 14 against `7ca6d5c`. R7-001 replay
 
 The task **Start deep binary handoff** delivered `6e1d80f` (R6-006 boolean filters) and `d5be1d8` (R6-007 keyword escaping/search). Those checkpoints are integrated. The regular AI subsequently corrected the reindeer UI kind gate to truck-only (R6-010) and added R6-008/009/011/012/013. Credit the exact slices; DB-01–06 as a whole and live game functionality are not complete.
 
-## Owner clarification — 2026-09-11
+## Owner clarification — current, 2026-09-11
 
-Web owns primary research/implementation and Sol owns live/native verification. PM audits their findings. Read [team-workflow.md](team-workflow.md). **Daybreak has no current task**; the current resource need is an exact test handoff and live validation, not an assigned new binary question. The Web/Sol role split does not change existing restrictions or authorize a denied operation on another model.
+Web is the single primary implementation/technical verification worker; no separate Sol role. The owner supplies only guided permitted UI observations/screenshots. Web must automate technical capture and prepare the beginner guide. PM audits. [Current workflow](team-workflow.md). **Daybreak has no task**: preparation and collection gaps are Web work, not a new binary assignment. Existing restrictions remain in force.
 
 ## Current queue — review 14
 

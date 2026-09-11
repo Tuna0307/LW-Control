@@ -1,18 +1,36 @@
-# Current Web -> Sol resource test packet
+# Current Web technical packet and owner-test preparation
 
 ## Coordination status
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
-- Current owner: **Codex Sol 5.6 completed the bounded attempt below; next owner is ChatGPT Web for the first blocked step/evidence, with PM decision still required for the external restriction.**
+- Current owner: **ChatGPT Web — prepare tested automatic evidence collection and the beginner-friendly owner guide.** No separate Sol assignment.
 - Packet state: Web's packet was **READY_FOR_SOL**. Sol attempt `20260911T044419Z-5af44117` is **BLOCKED / SB-97** before any fresh Resource Start was sent. This is **not** live success.
 - Application implementation: `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d` on `research/offline-controller`. Review-14/team-workflow commits after it are documentation-only; `git diff 7ca6d5c..2799212 -- src tests tools` was empty before this preparation.
 - Preparation base inspected by Web: `2799212480e2dac0b681bce46578f924ae17c099`, synchronized with `origin/research/offline-controller` at entry. The final packet commit is reported in Web's completion message; do not amend only to self-reference it here.
-- PM acceptance: **OPEN**. Sol records PASS/FAIL/BLOCKED per step; PM alone accepts the live result.
+- PM acceptance: **OPEN**. Web collects/interprets technical results; the owner supplies descriptions/screenshots only. No new owner-testing package is ready yet.
 - No Daybreak assignment. Monster acquisition/search remains queued and must not be started by this packet.
 
 Follow [team-workflow.md](team-workflow.md), [user-test-checklist.md](user-test-checklist.md), [first-live-result.md](first-live-result.md), and the review-14 audit. Keep all 47 acceptance cases unchanged.
 
-## Exact candidate build
+## Current package requirements — preparation pending
+
+The former Web-to-Sol packet and its attempt below are retained as technical/historical evidence. They are not a current dispatch to Sol or an owner instruction to execute fresh scans. Web must verify candidate applicability and deliver the new package before requesting a manual test. The app implementation has not changed merely because testing ownership changed.
+
+| Item | Current status / required result |
+|---|---|
+| Technical capture script and simple entry point | NOT_READY: Web must identify/reuse or implement and verify actual files; no new script is delivered by this PM update |
+| Owner setup | Web handles build/client/profile/preflight; owner does not paste commands or copy output |
+| Automatic evidence | Web saves scoped identity, logs/result references, actual permitted query/result/render correlation and cleanup in durable per-attempt bundles |
+| Capture gaps | Mark actual missing telemetry UNKNOWN/BLOCKED; never substitute SQLite/screenshots for the actual Search response |
+| Failure/interruption | Save partial results, explain failure plainly, preserve previous attempts and journals; Web handles diagnosis |
+| Beginner guide | Web fills [user-test-checklist.md](user-test-checklist.md) with exact ready-to-use actions, expected screens, screenshot points and stop conditions |
+| Owner feedback | Plain description and screenshot only; Web reads the technical bundle directly |
+| Readiness | Pending Web implementation/validation, then PM package review; READY_FOR_OWNER_CHECKS applies only to named permitted checks |
+| Restriction | SB-97 unchanged; no collector/shortcut may replay a denied action or ask the owner to run a rejected harness |
+
+Use [the current Web prompt](team-workflow.md). Collection should be passive and scoped where feasible; new collection policy must not be presented as original recovered behavior. Do not force a scan or modify stored rows to produce evidence.
+
+## Exact candidate build — previously prepared reference
 
 | Field | Web-prepared value |
 |---|---|
@@ -83,7 +101,7 @@ SB-97 remains an environment/platform restriction on execution of the previously
 - The normal executable with no diagnostic/proof switch is the only build handed off here. Native UI actions must be state-derived through Sol's supported Computer Use path.
 - Resource-only is the bounded scope. Do not start monster/other categories, auto scan, export, cross-server travel, claims, plunder, messaging, spending, or unrelated game actions.
 
-If SB-97 remains applicable in Sol's session, the packet is still successfully handed off but PM13-04 remains **BLOCKED**. READY_FOR_SOL means preparation, not authorization or feature success.
+Historical packet status: READY_FOR_SOL meant preparation, not authorization or feature success. The recorded attempt remained BLOCKED. There is no current Sol dispatch; Web must satisfy the new package requirements above, and PM13-04 remains open.
 
 ## Sol actions and expected results
 
@@ -178,7 +196,7 @@ Sol performed a follow-up diagnosis using existing saved logs/configuration only
 - **UNKNOWN:** the sanitized local logs do not expose the upstream reviewer identity, availability, timeout state, or reviewer-specific quota/capacity. Whether reviewer availability/quota contributed cannot be proven from current saved diagnostics.
 - **HYPOTHESIS ONLY:** the upstream review path either returned an indeterminate safety result or failed to produce a determinate verdict. Do not convert timeout, reviewer unavailability, or reviewer quota exhaustion into fact without new upstream telemetry.
 
-PM disposition: keep **BLOCKED / SB-97**. There is no evidence-backed LWBridge code defect from this attempt, so Web should not make a guessed application fix. The next owner is **PM** for acceptance of this diagnosis and selection of a future independently permitted validation condition.
+PM disposition: diagnosis accepted at its documented saved-log scope; keep **BLOCKED / SB-97**. No evidence-backed LWBridge defect was reproduced. Current owner is **Web** for automatic capture and owner-guide preparation for permitted checks; reviewer-specific cause remains unknown.
 
 ## Return / resume record
 
@@ -188,7 +206,7 @@ PM disposition: keep **BLOCKED / SB-97**. There is no evidence-backed LWBridge c
 - No reroute: Sol did not run the proof switches, helper directly, DevTools, Remote Desktop Commander, replay, historical-row seeding, or another executor.
 - Cleanup/restoration: candidate closed normally with Computer Use. No candidate/game/launcher process, `recovery.json`, or `operation-owner.json` remained. Official `LWScripts.data` remained SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`, size `41269242`, CRC32 `3541420783`, version `14`; xLua and Assembly hashes also remained at the preflight values.
 - Candidate known limitations: no fresh resource acquisition was executed; no first/second request IDs or Search/render proof exist. Resource name mapping remains unknown; live Gathering remains unproven.
-- Next owner: **PM** receives the completed log-only rejection diagnosis. Because the failure is an external restriction rather than a reproduced application defect, Web should not guess a code fix for this attempt. PM decides the next independently permitted validation condition.
+- Next owner: **Web**, automatic evidence collection and simple owner-guide preparation under the current requirements above. No separate Sol task; fresh acquisition stays open.
 - Required retest: only after the concrete normal-window fresh Resource Start is independently permitted. Resume from Step 1 using the same build/client/profile identity or prepare a new packet if any identity changes.
 - PM decision: OPEN. This attempt does not count as LIVE-PROVEN.
 

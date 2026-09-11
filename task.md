@@ -13,9 +13,11 @@ Send `AGENTS.md` with this file when handing work to another AI. The full rules,
 
 Prepared: 2026-09-08; current project-manager review 14. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
-## Team ownership — owner instruction, 2026-09-11
+## Team ownership — updated owner instruction, 2026-09-11
 
-PM combines/audits findings and assigns work; ChatGPT Web owns research/code/offline checks; Codex Sol 5.6 owns native Computer Use/live verification; Daybreak takes only a reviewed assigned research question. Follow AGENTS.md section 8 and [team workflow/prompts](docs/team-workflow.md). Send Web first to complete [the test packet](docs/live-test-handoff.md), then Sol to verify it. PM reviews their evidence rather than performing implementation or live tests. No Daybreak assignment now.
+ChatGPT Web is the single primary implementation and technical verification worker; no separate Sol role remains. The owner performs only clearly guided permitted UI actions and supplies descriptions/screenshots. Web must implement/reuse and verify scripts for all needed technical capture, preferably operating them directly, or supply a tested double-click entry point. Never ask the owner for commands, terminal output, hashes, JSON/database inspection or recovery diagnosis.
+
+PM audits and assigns work; Daybreak takes only a reviewed specialist question. Follow AGENTS.md section 8, [workflow/prompts](docs/team-workflow.md), [technical packet](docs/live-test-handoff.md) and [owner guide](docs/user-test-checklist.md). The next deliverable is the automatic collection package and beginner-friendly instructions, currently NOT_READY. SB-97 remains unresolved and manual testing is not a workaround for a denied operation.
 
 ## Current project-manager handoff — read before starting
 
@@ -772,4 +774,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/first-live-result.md. Inspect HEAD/worktree. Follow review 14: PM13-01/01b/03/02 are closed at their documented scopes; begin with PM13-04's final resource verification, subject to actual execution restrictions. Computer Use setup alone is not a delivery. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until the normal-window fresh test passes. Do not reroute SB-97. No Daybreak assignment. Keep all 47 cases; commit/push/verify each checkpoint. Role-specific main and repeatable prompts are in docs/team-workflow.md. Web prepares docs/live-test-handoff.md; Sol executes its permitted verification; PM audits the evidence.
+Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/team-workflow.md. Inspect HEAD/worktree. PM13-01/01b/03/02 are closed at their documented scopes. Web's first task now is tested automatic evidence collection and a beginner-friendly owner guide for the permitted resource checks; do not start another live attempt from the older packet. The owner supplies only descriptions/screenshots, never command output or technical diagnosis. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until complete live evidence exists. Do not reroute SB-97. No Sol or Daybreak assignment. Keep all 47 cases; commit/push/verify and return the actual package readiness to PM. Current prompts are in docs/team-workflow.md.

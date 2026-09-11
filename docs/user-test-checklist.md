@@ -1,42 +1,36 @@
-# Resource function: test readiness and acceptance
+# Owner test guide — preparation pending
 
-Review 14, 2026-09-11; implementation audited at `7ca6d5c`.
+Updated 2026-09-11. **Do not start a fresh scan from this document.** Web must first deliver and verify automatic evidence collection and complete the ready-to-use instructions. The resource feature is partial and SB-97 unresolved; this guide does not authorize a rejected automated workflow through manual execution.
 
-## Assigned execution
+## Your part
 
-ChatGPT Web prepares the exact build/prerequisites/evidence instructions in [live-test-handoff.md](live-test-handoff.md). Codex Sol 5.6 performs the permitted checks and records results. PM audits their evidence; the owner need not perform the technical test personally. See [team-workflow.md](team-workflow.md) for prompts and order.
+You only need to follow clearly described app steps, tell us what appeared and take screenshots. You do not need to enter commands, copy terminal output, find databases, check hashes or understand logs. Web handles technical preparation, recording and diagnosis.
 
-## What is ready
+The ordinary saved-data check is Map Data -> Resource results -> Search, followed by closing/reopening the same app and searching again. A saved row confirms browsing, not a fresh scan. An empty result may mean the profile has no saved data; Web must check that for you.
 
-The resource-only implementation is ready for controlled validation **subject to current-client integrity and a permitted live test path**. It is not release-ready, and the complete Overview/Map Data feature set is not ready. Computer Use setup can be checked by the standard AI separately; that setup is not evidence of game functionality.
+## Web must complete this before asking you to test
 
-Use the latest Release rebuild, not the LWBridge reference or an old preview:
+| Instruction | Readiness |
+|---|---|
+| Exact app or tested shortcut to open | Web must verify the candidate in the technical packet |
+| How technical recording starts | NOT_READY: Web must implement/verify automatic collection and operate it itself or supply a tested double-click entry point |
+| What should already be open/closed | Web must explain the permitted test conditions without asking you to inspect processes |
+| Numbered UI actions and button names | Web must fill the applicable sequence and expected visible result at each step |
+| How to recognize completion/failure | Web must explain visible states; no guessed original waiting limits |
+| Screenshots and when to stop | Web must name each checkpoint and first-failure stop condition |
+| Where technical results go | The actual collector must save automatically; Web reads the results |
+| Close/restart or interrupted-test instructions | Web must give simple UI actions and handle technical recovery |
 
-`C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.exe`
+This PM update has not supplied a new working collection script or shortcut. Pending entries must be replaced with actual tested instructions, not commands for you to construct.
 
-Use the same profile and launch context across tests. Packaged Codex and standalone desktop launches may expose different data roots. The AI must identify the actual selected store before diagnosing missing saved data; do not seed a test row or copy historical data to manufacture a fresh success.
+## How to report what you see
 
-## Checks available without a new game acquisition
+> I reached step __. I clicked __. I saw __. Here is the screenshot.
 
-1. Open Map Data, select the Resource result tab, and press Search. If this profile already contains a real saved resource, it should display its stored coordinates, level and acquisition time. Historical evidence has server 2212 / coordinates 481,32 / level 3. An old timestamp is expected for saved data; it is not a fresh scan.
-2. Close and reopen the same app, select Resource, and press Search again. The same saved result should remain. With no saved server in this profile, expect a clear missing-context message instead; that state alone is not a reopen regression.
-3. With the default multi-category scan selection, Start should explain that live scanning currently supports Resource Point only. It must not pretend monsters or other categories were scanned. This guard check should not start a game/helper.
+If the result differs from the guide, stop and send that description. You do not have to diagnose it. Do not delete data, reinstall the game or repeatedly press Start to make the test pass.
 
-## The real-game test that still needs to pass
+## Evidence and remaining work — handled by Web and PM
 
-This is the acceptance specification, not authorization to rerun a denied operation. SB-97's prepared live proof remains restricted. The AI must establish an independently permitted test path or record the required environment change before performing live acquisition; do not switch executors/models or ask the owner to run that rejected harness.
+Web must automatically collect the permitted source/request/store/actual Search result/render evidence and cleanup results. Your screenshots complement it. The eventual fresh-resource acceptance requires a first fresh result, a second newer result and retention after reopen; it remains BLOCKED/NOT_RUN, not an instruction to execute those steps now.
 
-For a permitted test, first fingerprint the actual installed client and verify the documented restoration/preflight requirements. Preserve unrelated processes and profile data. Do not tell the owner to use Overview Launch Game as a prerequisite: its bridge bootstrap is incomplete. Use only the documented supported bounded resource lifecycle.
-
-1. In the normal rebuilt Map Data window, select only Resource Point and start a scan. Select the Resource results tab and Search. A real resource must appear with coordinates, level and a new acquisition time. Progress reaching 100% is insufficient.
-2. Repeat a fresh resource scan and Search. The new acquisition time must advance. The same point may return and the count may remain one; those facts alone are not failures or proof of freshness.
-3. Close/reopen the rebuilt app in the same profile and Search again. The second result and its saved time must remain visible without another scan.
-4. The AI must correlate the real source/session/request, stored row, actual Search request/result and rendered row, then verify documented cleanup/restoration. Screenshots alone are insufficient. Do not force-kill processes or delete/reinstall game data to turn a failed test into a pass.
-
-Report the first failed step, exact visible error, and screenshot if available. The AI records build/client identity and detailed correlation; the owner need not interpret protocol logs. Stop at the first failure, diagnose and fix it, and retest that step before moving on. A missing permitted execution path means BLOCKED, not passed.
-
-## What not to expect yet
-
-Monster/other-category acquisition, full-world/automatic scanning, complete Normal/Fast behavior, Overview launch/close/reconnect integration, complete export/filter/action parity, and every conditional treasure/plunder workflow are unfinished. Unknown resource names and unproven live Gathering remain explicit limitations. Do not treat successful saved-data search as completion of these features.
-
-Once the resource gate passes, the next user-visible delivery is real monster acquisition and search. It is not assigned to Daybreak unless a specific unresolved contract receives a reviewed escalation.
+The complete pages remain unfinished. Monster acquisition and other pending functions do not pass because saved-data browsing works. [Technical packet](live-test-handoff.md) and [worker instructions](team-workflow.md) preserve remaining requirements.

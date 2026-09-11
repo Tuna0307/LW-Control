@@ -6,7 +6,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-**Team dispatch:** [roles and prompts](team-workflow.md) — Web prepares first, Sol tests next, Web fixes/Sol retests, PM audits. [Current test packet](live-test-handoff.md). Daybreak has no task until a specific escalation is assigned.
+**Current team:** Web handles implementation and automatic technical capture; the owner follows plain permitted UI steps and supplies screenshots/descriptions; PM audits. No separate Sol task. [Current prompts](team-workflow.md) and [package preparation](live-test-handoff.md). New collection scripts/owner readiness remain pending; Daybreak is unassigned.
 
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 

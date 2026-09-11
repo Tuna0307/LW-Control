@@ -2,9 +2,13 @@
 
 Audited 2026-09-11 at `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d`, branch `research/offline-controller`, clean and synchronized at entry. Eight commits since `d4571bd` were reviewed. [Review 13 and contributor follow-ups](reviews/2026-09-11-review-13-and-followups.md) are historical.
 
-## Owner-directed delivery split — 2026-09-11
+## Current coordination and diagnosis — 2026-09-11
 
-PM now performs coordination/evidence audit only; no new PM implementation or game testing is assigned. Web prepares/fixes the resource build; Sol verifies it through native Computer Use/live testing; Daybreak has no current assignment. [Team workflow/prompts](team-workflow.md) and [current test packet](live-test-handoff.md) define Web-first dispatch and resumable Sol results. This documentation update does not advance live acceptance or reopen completed repairs. The historical PM checks below remain evidence of that earlier audit.
+Web preparation `9c20896`, attempt `ccb74b0` and diagnosis `537a5b9` are recorded. Native navigation worked in the former adapter session; a get_window_state was rejected upstream before local dispatch, and no fresh Start was sent. The diagnosed route was codex-chatgpt-web 5.0.6 / chatgpt-web/high. Ordinary quota/spend exhaustion is not indicated; reviewer-specific cause remains UNKNOWN. [Saved diagnosis](../evidence/lwbridge-implementation/pm13-sol-resource/20260911T044419Z-5af44117/rejection-diagnostics.md).
+
+The owner removed the separate Sol role. Web is the single primary implementation/technical verification worker. Its current session reports files/shell access but no native UI observation/control. The owner can provide guided permitted UI actions, descriptions and screenshots only. **Web must now deliver tested automatic technical evidence collection and a beginner-friendly guide before requesting tests.** The PM updates instructions/audits evidence, not scripts/app code or game operation.
+
+[Workflow/prompts](team-workflow.md), [technical packet](live-test-handoff.md) and [owner guide](user-test-checklist.md) define the assignment. Collection/scripts are pending, not live acceptance. SB-97 is not cleared and owner assistance is not a reroute. No Daybreak assignment. Prior PM/native checks below are historical, not an instruction for PM to resume testing.
 
 ## Result for the owner
 

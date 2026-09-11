@@ -2,9 +2,13 @@
 
 Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md), [current audit](lwbridge-project-status.md), [first-live-result contract](first-live-result.md) and the relevant evidence. Audit base: `7ca6d5c`; inspect actual HEAD/worktree before editing. Preserve concurrent work. All 47 acceptance cases remain required.
 
-## Owner clarification — 2026-09-11
+## Owner clarification — current, 2026-09-11
 
-ChatGPT Web owns research, application fixes and the exact build/test handoff. Codex Sol 5.6 owns native Computer Use and real-game verification. PM owns evidence audit/task allocation only. Read [team-workflow.md](team-workflow.md) for roles and copyable prompts. **Web's immediate task is to complete [live-test-handoff.md](live-test-handoff.md); Sol then performs PM13-04 when permitted.** Earlier instructions to the undifferentiated regular AI are now split by these roles. Do not make Web wait for unavailable native UI control or make PM duplicate Sol's execution.
+Web now owns implementation and all technical verification/capture. There is no separate Sol task. The owner can only follow plain UI steps, describe visible outcomes and provide screenshots. PM audits rather than implementing or testing.
+
+**Immediate deliverable:** tested automatic evidence collection plus complete beginner-friendly instructions for the explicitly permitted scope. Read [team-workflow.md](team-workflow.md), fill [live-test-handoff.md](live-test-handoff.md) and [user-test-checklist.md](user-test-checklist.md). Never ask the owner to obtain command output, inspect JSON/SQLite, calculate hashes or debug recovery. Web implements the scripts, validates actual collection and handles interpretation.
+
+The diagnosis at `537a5b9` is complete within saved-log limits. Navigation worked; an observation was rejected before local execution and no fresh Start was sent. Do not repeat closed work, guess a code defect or use an owner-run collector to reroute the restriction.
 
 ## One active function
 
@@ -53,4 +57,4 @@ At each checkpoint report: current function; what the user can actually do; what
 
 ## Role-specific prompts and continuation
 
-Use [team-workflow.md](team-workflow.md) as the single current prompt source: Web first, Sol after the packet, then Web repair/Sol retest as needed. [live-test-handoff.md](live-test-handoff.md) records the current owner, build identity, pending step and results so disconnects do not erase progress. No Daybreak task is currently assigned.
+Use [team-workflow.md](team-workflow.md) as the single current prompt source: Web prepares verified automatic collection and the owner guide, the owner supplies permitted UI observations/screenshots, Web diagnoses/fixes and PM audits. [live-test-handoff.md](live-test-handoff.md) records the current owner, build identity, pending step and results so disconnects do not erase progress. No Daybreak task is currently assigned.

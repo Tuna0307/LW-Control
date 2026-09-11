@@ -1,61 +1,66 @@
-# Team roles, current assignments and prompts
+# Team workflow and current prompts
 
-Owner-approved division of responsibility, 2026-09-11. This is a coordination supplement to [AGENTS.md](../AGENTS.md) and [task.md](../task.md); it does not replace the full 47 acceptance cases. The current technical audit remains review 14. No new live acceptance is implied by this role change.
+Updated 2026-09-11. This replaces the Web/Sol split. [AGENTS.md](../AGENTS.md) governs every worker; [task.md](../task.md) retains all 47 acceptance cases.
 
-## Current dispatch order
+## Roles and current task
 
-| Order | Worker | Assigned deliverable | Return to |
-|---|---|---|---|
-| 1 — send now | ChatGPT Web | Prepare the exact latest resource-only build and complete the live test packet. Reuse verified repairs; fix only a concrete prerequisite. State READY_FOR_SOL or the precise preparation blocker. | Owner forwards completion to Sol; PM review is not needed just to start a ready test. |
-| 2 — after Web's packet | Codex Sol 5.6 | Verify the exact handed-off build through the normal app against the current game when permitted. Capture first fresh result, newer second result, reopen persistence and cleanup. Return PASS/FAIL/BLOCKED per step. | Web for a reproducible defect; PM for complete evidence or an external blocker requiring a decision. |
-| 3 — if a step fails | ChatGPT Web, then Sol | Web diagnoses/fixes that specific failure and delivers a new build; Sol retests the affected step and relevant resource exit criteria. | Repeat without fresh PM permission; keep the resource function active. |
-| No current task | Codex Daybreak | Wait for an explicitly assigned, reviewed ESC question. Tool availability, missing live proof or an automatic-review rejection alone is not a specialist research assignment. | PM. |
-| After test evidence | Project manager | Audit combined findings and test proof; accept/reject the bounded resource result and assign the next function. | Owner: what works live, what fails, next owner/deliverable. |
+| Role | Responsibility |
+|---|---|
+| Owner | Sets priorities and judges results. Follows plain permitted UI steps, describes visible results and supplies screenshots. No commands or technical diagnosis. |
+| PM | Audits findings/evidence and maintains tasks/instructions. Does not implement scripts/app code or operate the game. |
+| ChatGPT Web | Single primary research, implementation and technical verification worker. Builds/fixes, automates evidence collection, prepares the owner guide and interprets results. |
+| Separate Sol worker | No active assignment. Historical contributions remain credited. |
+| Daybreak | No task until a specific reviewed research escalation is assigned. |
 
-The owner can relay the prompts and completion messages; nothing here claims cross-task messaging is automatic. Do not create tasks or send messages on the owner's behalf without the relevant request. Workers may complete the Web/Sol loop via the committed packet and user-forwarded messages without requesting routine permission again.
+Web delivered preparation at `9c20896`; the former Sol-labelled worker delivered its blocked attempt at `ccb74b0` and existing-log diagnosis at `537a5b9`. That route was codex-chatgpt-web 5.0.6 / chatgpt-web/high. Native navigation worked, but a get_window_state call was rejected upstream before local dispatch; no fresh Start was sent. Reviewer-specific cause remains unknown. Do not repeat diagnosis without new evidence or invent an application fix.
 
-## Handoff discipline
+Current Web reports files/shell/existing-log access but no native screenshot/click tool. **Web's immediate task is automatic evidence collection plus a beginner-friendly owner guide for the permitted scope.** The new scripts/package are NOT_READY until implemented and verified. Resource live acceptance remains open; no monster work follows from this role change.
 
-Use [live-test-handoff.md](live-test-handoff.md). Web fills its preparation section, including the exact tested build identity. Sol fills the result section and saves sanitized evidence under an identified evidence directory. Keep previous run evidence immutable; summarize/link it rather than overwriting failure history. On each attempt record the app build, actual client fingerprint, profile/data root and step status so an old row cannot pass as a fresh scan.
+## Required owner-testing package
 
-During Sol testing, Web must not rebuild the shared output, replace the executable, change the tested source, edit the profile/database or operate the game. Release ownership explicitly on return. Do not stage another worker's unfinished work. This coordination rule does not require destructive resets or discarding local changes.
+Use [live-test-handoff.md](live-test-handoff.md) for technical identity/results and [user-test-checklist.md](user-test-checklist.md) for plain UI instructions.
 
-Before a potentially interruptible segment, save next action and cleanup ownership. After each observation, save the result promptly. After reconnection, inspect actual state before deciding whether to continue or clean up. An incomplete attempt stays incomplete; do not invent PASS to resume quickly.
+Web must provide:
 
-SB-97 remains an operation-specific restriction on the prepared live proof. Capability discovery and the owner-approved role split do not clear it. Neither Web nor Sol nor Daybreak may reproduce a denied operation through a different executor merely to evade the restriction. Report exact scope and any genuinely independent permitted path; otherwise retain BLOCKED and identify the required external change. This is not a blanket claim that all ordinary UI checks are prohibited. PM cannot waive platform restrictions.
+1. An identified runnable build and current-client compatibility result. Web checks hashes, dependencies, selected profile/store and process/recovery state; the owner does not.
+2. Tested scripts that automatically collect the required permitted evidence. Prefer Web starting collection itself; if local user initiation is necessary, provide an actual tested double-click entry point with understandable status. Never ask the owner to paste commands, install runtimes, copy output, inspect JSON or find databases.
+3. One UI action per step, exact Chinese/English labels as applicable, expected visible result, completion/failure indication, screenshot checkpoint and stop condition. Explain what must be open/closed; do not assume Overview Launch is implemented.
+4. A durable bundle per attempt: actual app/client/profile identity, timestamps, scoped logs/result references and hashes, actual request/query/result evidence when available, errors, and cleanup/restoration results. Save partial failures and preserve earlier attempts. Do not fabricate missing fields.
+5. Meaningful verification for missing prerequisites, changed identities, incomplete evidence, interruption/resume and cleanup reporting. Collection must not silently trigger scans, modify stored records, clear journals or overwrite prior proof.
+6. An explicit readiness decision for the permitted scope. READY_FOR_OWNER_CHECKS means actual scripts and instructions work; it does not clear restrictions or imply live success.
 
-## Prompt 1 — ChatGPT Web, send first
+If normal Search request/result or render correlation is unavailable, document the instrumentation gap. Implement only independently permitted passive collection if feasible, label new instrumentation IMPLEMENTATION POLICY and validate it without replaying the denied workflow. SQLite reads are not the actual UI Search request/result. Screenshots complement technical evidence; do not ask the owner for developer-console or network traces.
 
-```text
-Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control as the main implementation/research worker. Read AGENTS.md, task.md, BACKLOG.md, docs/team-workflow.md, docs/implementation-handoff.md, docs/lwbridge-project-status.md, docs/user-test-checklist.md and docs/live-test-handoff.md. Inspect actual HEAD/worktree and preserve other work.
+Web interprets automatically collected evidence with owner screenshots/descriptions and records PASS/FAIL/BLOCKED/NOT_RUN. A screenshot or saved row alone is not fresh acquisition proof. Fix the first demonstrated failure and prepare a focused retest. PM audits combined evidence before accepting the function.
 
-Your current task is to prepare PM13-04 for Sol's real-game validation, not repeat completed research. PM13-01/01b/02/03 repairs are already accepted at their recorded scopes. Verify the latest runnable resource-only build and necessary offline checks; complete docs/live-test-handoff.md with exact implementation commit, executable path/hash, current-client compatibility evidence, profile/data-root discovery, prerequisites, steps/expected results, evidence collection and cleanup instructions. Record all actual restrictions, including SB-97; do not package a denied operation for another executor. Mark READY_FOR_SOL only for a concrete test packet with a permitted executable test scope; otherwise identify the precise blocker and useful permitted checks.
+## Restrictions and alternative methods
 
-You own code fixes and research. Sol owns native Computer Use/live verification. Do not start monsters, exports or unrelated research. Commit/push and verify each coherent checkpoint. End with readiness, what Sol must test, remaining restrictions, packet path and commit. Do not call this live success.
-```
+- Missing capability: discover supported tools. An available documented API/CLI or read-only log inspection may help only within environment/tool/skill rules. Terminal access is not automatic permission for custom desktop control.
+- Technical error: diagnose and use supported recovery without duplicating side effects.
+- Explicit rejection: preserve exact call/time/reason. Do not recreate it through shell clicks, helpers, another tool/model or an owner-run script. Do not disable safeguards. Use existing diagnostics or an independent materially safer permitted action; otherwise record the required external condition.
 
-## Prompt 2 — Codex Sol 5.6, send after Web finishes its packet
+SB-97 remains unresolved. Owner assistance is not a workaround for the rejected automated operation. Keep available saved-data/UI checks separate from blocked fresh acquisition. PM cannot waive platform restrictions. Do not disguise a live-action trigger as an evidence collector.
 
-```text
-Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control as the live-testing and Computer Use worker. Read AGENTS.md, docs/team-workflow.md, task.md, docs/lwbridge-project-status.md, docs/user-test-checklist.md and docs/live-test-handoff.md. Use Web's committed packet and verify the actual build/client/profile identities. Do not test an obsolete preview or replace Web's build silently.
+## Coordination and interruption
 
-Check your supported Computer Use capability, then perform the packet's permitted real-game resource test through the normal rebuilt app: first fresh scan and Search/display; second newer scan and Search/display; close/reopen and saved result. Correlate source/request/storage/query/render evidence and verify cleanup. Computer Use setup, an old saved row, a screenshot or 100% progress alone is not success. Preserve SB-97 and other actual restrictions; do not reroute a denied operation. If the packet is incomplete or execution is restricted, report the exact missing requirement instead of guessing.
+During an owner test Web must not rebuild/replace the app, edit its profile/store or unexpectedly control the same session. Save each completed step and cleanup obligations. After interruption Web inspects actual/saved state before giving further instructions; the owner is not asked to diagnose recovery. Keep secrets and unrelated private data out of shared evidence. Commit/push/verify coherent checkpoints under AGENTS.md.
 
-Use short resumable segments. Save each completed step, evidence and cleanup state; after a disconnect inspect current state before resuming. Stop at the first failed step, reproduce/diagnose it as permitted and return exact evidence to Web. Do not undertake broad code changes. Fill the result section of docs/live-test-handoff.md with PASS/FAIL/BLOCKED per step, commit/push/verify, and identify the next owner. All passing steps go to PM for acceptance; a code failure goes to Web for repair.
-```
-
-## Repeat prompt — Web after Sol finds a failure
-
-```text
-Continue as ChatGPT Web in LW-Control. Read AGENTS.md, docs/team-workflow.md and the latest docs/live-test-handoff.md plus Sol's evidence. Verify HEAD and diagnose the first failed resource step. Recover any missing contract rather than guess, implement the smallest supported fix, run relevant checks and prepare a new exact build for Sol. Do not repeat closed research or switch functions. Update the packet with the fix, new build identity and required retest; retain prior evidence. Commit/push/verify. If the issue is external or restricted, record that accurately rather than claiming a code fix or sending a denied operation elsewhere.
-```
-
-## Repeat prompt — Sol after a fix or disconnect
+## Prompt to send Web now
 
 ```text
-Continue as Codex Sol 5.6 in LW-Control. Read AGENTS.md, docs/team-workflow.md and the latest docs/live-test-handoff.md. Check actual HEAD/build/client/process state and saved cleanup obligations. Resume the first unverified step or retest Web's specific fix using supported Computer Use and permitted actions. Do not replay a completed live action blindly. Save per-step evidence and PASS/FAIL/BLOCKED, commit/push/verify, and return the first failure to Web or complete evidence to PM. Do not claim overall completion from tool setup or saved data alone.
+Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control as the single primary implementation and verification worker. Read AGENTS.md, task.md, BACKLOG.md, docs/team-workflow.md, docs/implementation-handoff.md, docs/live-test-handoff.md and docs/user-test-checklist.md. Inspect HEAD/worktree and preserve other work.
+
+There is no separate Sol worker. The owner has no technical knowledge and can only follow clear UI steps, describe visible results and supply screenshots. Automatically collect all needed technical evidence; do not ask for commands, terminal output, JSON/database inspection, hashes or recovery diagnosis.
+
+Prepare the exact build, implement/reuse and test scripts for permitted automatic evidence collection, and complete the beginner-friendly guide. Prefer operating collection yourself through permitted tools; if local user initiation is necessary, provide a tested double-click entry point with clear status. Preserve separate attempt bundles, partial failures and cleanup evidence. Report missing actual Search/query/render correlation rather than substituting SQLite or screenshots.
+
+Reuse the completed diagnosis and accepted repairs. Preserve SB-97; do not replay or route rejected operations through scripts, alternate executors or the owner. Separate permitted checks from blocked fresh acquisition. Do not run another live test or claim live acceptance to prepare this package. Stay on the resource function.
+
+Update the packet/guide with exact delivered paths, tested scope, restrictions and gaps. Run relevant checks, commit/push/verify, and report READY_FOR_OWNER_CHECKS for the explicit permitted scope or the exact blocker. Scripts/shortcuts must exist and be verified before being called ready. Return to PM before asking the owner to begin the new package.
 ```
 
-## Daybreak — do not send a task now
+## Repeat prompt after owner feedback
 
-There is no assigned specialist question. If Web exhausts relevant permitted methods for a specific missing contract, it must complete an ESC packet with the evidence, attempts, alternatives, scope and return criteria. PM reviews it and supplies a question-specific prompt if assigned. [deep-binary-handoff.md](deep-binary-handoff.md) is the specialist's standing guide, not an instruction to begin unassigned work.
+```text
+Continue the same resource function in LW-Control. Read AGENTS.md, docs/team-workflow.md and the current technical packet. Collect and interpret automatic evidence with the owner's screenshots/description; do not ask for command output or technical diagnosis. Fix only the first demonstrated supported defect, verify it and update the exact build, collection scripts and simple retest instructions. Preserve previous evidence and restrictions, commit/push/verify and return to PM. If evidence is missing, repair permitted collection before asking the owner to repeat work. No Sol or Daybreak assignment.
+```

@@ -1,5 +1,8 @@
 # Active function — resource scan, search and display
 
+> Current ownership, 2026-09-11: Web implements and automatically captures technical evidence; the owner supplies guided permitted UI observations/screenshots only; PM audits. No separate Sol role. See [workflow](team-workflow.md) and [packet](live-test-handoff.md). New capture package is pending; SB-97 and fresh-resource acceptance remain open. Historical observations below retain their original scope.
+
+
 ## Review 13 decision
 
 The accepted bounded current-client route remains valid; original LWBridge pipe parity is not required for this resource slice. PM12-A/C restoration/correlation and saved two-read/idle evidence are credited. `LWB-PM13-003` restores PM12-B bounded-route lifecycle closure with deterministic commit/cancel and helper-ownership race coverage; `LWB-PM13-004` hardens the weak proof predicate offline. PM12-D remains open for the real normal-window outcome under PM13-04.
