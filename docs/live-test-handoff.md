@@ -20,7 +20,7 @@ Record the exact Overview build/client/profile, allowed lifecycle preconditions,
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
 - Current owner: **Web — PM15-01/02 recorder repairs and isolated regressions.** No owner test or separate Sol assignment.
-- Package state: **REVIEW 15 COMPLETE: NO-CONTEXT RESULT ACCEPTED; FUTURE REOPEN PACKAGE RETURNED FOR PM15-01/02 FIXES**. Owner attempt `20260911T085114Z-eb1cd35e-7f21ad24` used the PM-reviewed `2d3915d` build, showed the normal no-saved-map-server state, closed cleanly, and triggered no scan/game operation. The original collector misclassified that legitimate branch as `INCOMPLETE`; the repaired package now records it as `COMPLETE_NO_SAVED_CONTEXT`.
+- Package state: **LWB-PM15-001 READY_FOR_PM_REVIEW**. Review 15 accepted the historical no-context owner result and returned the future saved-row collector for PM15-01/02. Web implemented both bounded fixes at `1e9af6e`: every launch now has distinct session/PID-owned evidence, and failed app/process/UI/runtime/store observation cannot become clean success. Seven isolated regressions pass. No owner repeat or live acquisition was run.
 - Owner action status: the permitted passive check has already been performed for the current empty profile. **Do not ask the owner to repeat it.** A future saved-row Search/reopen check is relevant only after a saved server context legitimately exists and is separately dispatched.
 - Fresh Resource Start remains **BLOCKED / SB-97**. No new Start, rejected observation retry, proof-switch replay, helper-direct run, DevTools/Remote-Desktop-Commander desktop reroute, or owner-run scan was performed while preparing this package.
 - PM acceptance of the resource function remains **OPEN**. Monster work remains queued.
@@ -35,11 +35,16 @@ Record the exact Overview build/client/profile, allowed lifecycle preconditions,
 - Two read-only safeguard errors at startup (`server_jump_history_import`, `profile_instances_reconcile`) explain the red owner-evidence banner in the screenshot; they were background initialization calls blocked before backend mutation, not owner scan clicks.
 - Durable interpretation/repair finding: `evidence/lwbridge-implementation/2026-09-11-pm13-owner-no-saved-context.json` (`LWB-PM13-009`). The original attempt files are preserved unchanged; a supplementary local `web-interpretation.json` was added beside them.
 
-## PM review 15 — fix before future owner use
+## PM review 15 repair return — `LWB-PM15-001`
 
-[Detailed review](reviews/2026-09-11-review-15-owner-evidence.md) confirms the original owner result and identifies two source-level acceptance flaws in the collector at `154ce35`. Web must isolate each session's evidence so the first session cannot satisfy reopen, and keep failed/unknown process/evidence queries distinct from a clean result. The fixes need isolated regressions, not another owner run or live game action.
+[Detailed review](reviews/2026-09-11-review-15-owner-evidence.md) identified PM15-01 and PM15-02 at `154ce35`. Implementation commit `1e9af6e87bfbff6155ad4b9b4340b2f6928c5fd0` fixes both without a game/owner run.
 
-The previous description of same-request correlation below is a within-aggregate check; it does not yet establish current-session ownership. Passing Web-reported tests did not cover the PM15 counterexamples. Source findings are not claims of a newly executed reproduction. Do not use the package for another owner test before review.
+- **PM15-01:** each collector launch gets `session-<index>-<uuid>` under the attempt's `ui` directory. LWBridge is launched with `Popen`; only the exact `ui-session-<launchedPid>.jsonl` inside that launch-owned directory is read. A healthy session requires matching `session-start` / `session-end` PID evidence, no parse/unexpected-file errors, and its own Search followed by same-request correlated render. Reopen separately validates both sessions plus same profile/row signature.
+- **PM15-02:** process observation is now `{ok,rows,error,diagnostic}`. Nonzero CIM query exit, malformed JSON or invalid shape is UNKNOWN, not `[]`; preflight blocks it. Postflight cleanup requires successful process observation, and nonzero app exit, missing/malformed current-session logs, failed process/runtime observation or unreadable store makes the attempt INCOMPLETE.
+- Isolated regression script `tools/check_owner_resource_evidence_collector.py` covers all required negative/positive cases and is wired into CI. Durable output: `evidence/lwbridge-implementation/pm15-owner-evidence/isolated-regressions.json`.
+- Durable finding/package: `evidence/lwbridge-implementation/2026-09-11-pm15-owner-evidence-hardening.json` and `pm15-owner-evidence/package-identity.json`.
+
+This is an offline collector repair, not live resource acceptance. PM audit is the next step; do not dispatch another owner check from this return.
 
 ## Delivered automatic collection package
 
@@ -49,32 +54,32 @@ The previous description of same-request correlation below is a within-aggregate
 | Collector | `tools/collect_owner_resource_evidence.py` |
 | Passive app instrumentation | normal app option `--owner-evidence <directory>` implemented by `OwnerEvidenceRecorder.cs` / `LWBridgeWindow.cs` |
 | Evidence root | `%LOCALAPPDATA%\LWBridgeRebuild\owner-evidence\<UTC>-<exeSha8>-<dllSha8>\` |
-| Per-session UI evidence | `ui\ui-session-<pid>.jsonl`; with saved context it contains actual normal Resource `map_search` request/result + passive table observation, and without saved context it records the normal `map_summary` `MAP_SAVED_CONTEXT_UNAVAILABLE` error |
+| Per-session UI evidence | `ui\session-<index>-<uuid>\ui-session-<launchedPid>.jsonl`; collector reads only that current launch-owned file and verifies matching `session-start`/`session-end` PID ownership |
 | Technical snapshots | `preflight.json`, `official-runtime-pre.json`, `postflight-session-1.json`, optional `postflight-session-2.json`, `attempt-summary.json` |
 | Reopen state | `active-owner-check.json` exists only while a first session with saved data is awaiting the permitted reopen check |
 
 **IMPLEMENTATION POLICY:** `--owner-evidence` is passive instrumentation added for owner-assisted verification. With saved context it records only already-occurring normal Resource Search traffic and polls the already-rendering Resource table for correlation. With no saved context it records the already-occurring normal `map_summary` error and verifies read-only published-server state; it does not fabricate a Search call/result. It never clicks Search, starts a scan, modifies stored rows, clears recovery journals, drives the desktop, or invokes the live helper. Direct SQLite evidence remains supplementary and cannot substitute for an actual Search response when one should exist.
 
-The collector automatically refuses a normal owner session when LWBridge/Last War/launcher is already active or a recovery/operation-owner journal is pending. It fingerprints the exact app/current client, runs the existing read-only helper `--check-only` compatibility gate, discovers the active profile/store, reads published server IDs and Resource rows read-only, captures same-request Search/render evidence when a server exists, records normal `map_summary` missing-context errors when none exists, compares official-runtime fingerprints before/after, and requires clean process/recovery state. Partial/incomplete attempts are preserved; session 2 does not overwrite session-1 preflight evidence, a saved-context Search still requires same-request render correlation, UI evidence files carry SHA-256/size metadata, and a changed/missing pending-reopen build is blocked instead of silently starting a replacement attempt. The owner is told to stop rather than retry.
+The collector automatically refuses a normal owner session when LWBridge/Last War/launcher is already active or a recovery/operation-owner journal is pending. Process observation is explicit evidence: failed/invalid observation blocks preflight and cannot be treated as empty. Each app launch has a collector-generated evidence session directory and exact launched PID; postflight reads only that file, requires matching start/end ownership and healthy parsing, then evaluates Search/render or no-context evidence. App exit, process observation, runtime inspection and profile-store read health are all part of the completion gate. Partial/incomplete attempts are preserved; session 2 can never consume session-1 UI files, and a changed/missing pending-reopen build is blocked instead of silently starting a replacement attempt. The owner is told to stop rather than retry.
 
-If normal `map_summary` reports `MAP_SAVED_CONTEXT_UNAVAILABLE` and read-only pre/post `publishedServerIds` are both empty, the collector records `COMPLETE_NO_SAVED_CONTEXT`; no `map_search` is expected or fabricated. If a real Search returns zero rows, it records `COMPLETE_EMPTY`. If a row exists, it records `AWAITING_REOPEN`; the second session must use the same executable + managed-DLL hashes/profile and return the same first-row server/record/point/x/y/level/updatedAt signature before the bundle is `COMPLETE`.
+If current-session `map_summary` reports `MAP_SAVED_CONTEXT_UNAVAILABLE`, the current-session log is healthy, and read-only pre/post `publishedServerIds` are both empty, the collector can record `COMPLETE_NO_SAVED_CONTEXT`; no `map_search` is expected or fabricated. If a real current-session Search returns zero rows, it records `COMPLETE_EMPTY`. If a row exists, it records `AWAITING_REOPEN`; session 2 must independently provide its own healthy Search/result/render for the same profile and first-row server/record/point/x/y/level/updatedAt signature before `COMPLETE`.
 
-## Exact repaired build after owner feedback
+## Exact PM15 implementation package
 
 | Field | Value |
 |---|---|
+| Implementation commit used to build | `1e9af6e87bfbff6155ad4b9b4340b2f6928c5fd0` |
 | Build command | `dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release` |
-| Build result | PASS; 0 warnings, 0 errors |
+| Build result | PASS twice; 0 warnings, 0 errors; identical hashes across both builds |
 | Executable | `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.exe` |
-| Executable size | 163,328 bytes |
-| Executable SHA-256 | `1709356983a31d003b602a97af36669497ae6e8c8bc8f022b275ee44a0d7a334` |
-| Managed DLL | `LWBridge.Desktop.dll`, 444,928 bytes, SHA-256 `0a52ec07650ad49758596260a758a91e4a9af0ce8599f0232c02a07a77492b8c` |
-| Collector self-test | PASS through the real repo-root `.cmd` entry point; no app/game/process operation |
-| Collector read-only preflight | PASS through the same `.cmd` entry point; attempt bundle created automatically and compatibility gate passed |
-| Native evidence contract tests | PASS in deterministic desktop suite, including exact row, stale timestamp, empty-result, durable request-id recording and normal `map_summary` command-error recording |
-| Passive host wiring smoke | PASS: exact Release app launched on Map Data with `--owner-evidence`, wrote `session-start` / `session-end` through the real host, and closed without any Search/scan/game action |
+| Executable size / SHA-256 | 163,328 bytes / `9f4f4857453139094279866ea85b3b2c95a53ef5fa2d87caa566c3c96dfe220b` |
+| Managed DLL size / SHA-256 | 444,928 bytes / `5c859de9cf25c2fbc68b4e80abb7f1abfc6243a466b76778e2dfb9f297155848` |
+| Collector SHA-256 | `0c30afad67308e2ef40f2b9bc039734cb087a4c9879b5a4925925d4545fbfe67` |
+| PM15 isolated regression SHA-256 | `acd6a2041dee28f371c69f4e27c00032304cfebfbd41db55e59b4761485c3f59` |
+| Repo-root shortcut SHA-256 | `9354f5b3d99362ac5e4b7d629b870c0aa01ae6afc70efe0c455ffd16e8993d90` |
+| Owner action | **None.** No empty-profile repeat and no live test requested. |
 
-The repaired build is an offline-verified post-owner diagnostic checkpoint. The `bin/` output is intentionally not committed; the hashes above identify the exact output used for repair verification. **It has not been sent back to the owner and no repeat is requested.** The actual owner observation remains tied to the reviewed `2d3915d` EXE/DLL hashes recorded above.
+The binary hashes are pinned to the clean implementation revision above; later documentation/evidence commits do not change the implemented collector source. `pm15-owner-evidence/package-identity.json` records the same package. The actual historical owner observation remains tied to the reviewed `2d3915d` build and is not rewritten.
 
 ## Current-client identity and compatibility preflight
 
@@ -101,6 +106,8 @@ The automatic collector refreshes/compares this fingerprint before any permitted
 
 ## Offline/build checks applied to this candidate
 
+- PASS: PM15 isolated collector regression: second session without Search rejected; uncorrelated/mismatching second evidence rejected; PID/file reuse cannot select old proof; distinct valid second session accepted; process-query failure/malformed/empty separated; missing/malformed current-session log rejected; app/evidence failure after prior success rejected.
+- PASS: repo-root `Start Owner Resource Check.cmd --self-test` exit 0; no leftover LWBridge/LastWar/pythonw process.
 - PASS: recovered frontend/hash regeneration check (`python tools/build_lwbridge_frontend.py --check`).
 - PASS: current-client resource-helper `--check-only` preflight above; no installed-file mutation.
 - PASS: desktop deterministic suite with `--verify-real-config-unchanged`; all six groups true, installed game diagnostic valid.

@@ -18,9 +18,9 @@ Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle
 ## Review 15 — current queue at `154ce35`
 
 - [x] PM audited LWB-PM13-009 source and original owner files; no-context interpretation accepted, no owner repeat.
-- [ ] **WEB / PM15-01 / P1:** isolate each app session's Search/result/render proof; prevent prior-session evidence from passing reopen.
-- [ ] **WEB / PM15-02 / P2:** retain failed/unknown process/evidence observation state; do not convert it into clean/success.
-- [ ] **PM:** review Web's isolated regressions and updated exact package after repair.
+- [x] **WEB / PM15-01 / P1:** implementation `1e9af6e` isolates each app launch in a collector-generated session directory, binds evidence to the exact launched PID/session start/end, and requires session-two Search/result/render proof; prior-session evidence cannot satisfy reopen.
+- [x] **WEB / PM15-02 / P2:** implementation `1e9af6e` preserves process observation `ok/error/diagnostic`, blocks unknown preflight state, and makes failed app/UI/process/runtime/store evidence INCOMPLETE instead of clean/success.
+- [ ] **PM:** audit `LWB-PM15-001`, the seven isolated regressions, exact package identity and final CI; no owner task is requested.
 - **OWNER:** no task now. **SOL/DAYBREAK:** no assignment. Fresh acquisition remains SB-97 blocked.
 
 [Detailed review and exit criteria](docs/reviews/2026-09-11-review-15-owner-evidence.md). Historical checked repairs below retain their stated scope; recorder future-use readiness is withheld by PM15-01/02.

@@ -32,7 +32,7 @@ PM audits and assigns work; Daybreak takes only a reviewed specialist question. 
 
 ## Review 15 — immediate task
 
-Web fixes PM15-01/02 from [the source audit](docs/reviews/2026-09-11-review-15-owner-evidence.md): session-scoped reopen evidence and truthful failed-observation handling. Collector scripts now exist; the owner already completed the no-context check and must not repeat it. Future saved-reopen package readiness is withheld pending those bounded offline fixes. PM13-04 fresh acquisition remains blocked; no new live acceptance.
+Web delivered the bounded PM15-01/02 repairs at implementation commit `1e9af6e`: each owner-app launch has a distinct collector session/PID-owned log set, and failed process/app/evidence observations remain UNKNOWN/INCOMPLETE instead of clean. `LWB-PM15-001` records seven isolated regressions and the exact package identity. **Return to PM for audit; do not ask the owner to repeat the accepted no-context check.** PM13-04 fresh acquisition remains blocked; no new live acceptance.
 
 ## Current project-manager handoff — earlier accepted scope
 
