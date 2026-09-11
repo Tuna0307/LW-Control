@@ -8,6 +8,14 @@ The resource-first/monster-next queue and PM15 next-task wording below are super
 
 The owner supplies only simple UI actions, descriptions and screenshots. Web must automatically collect technical evidence and deliver an actual tested script/entry point and beginner guide; no commands, logs, hashes or database inspection are assigned to the owner. PM plans/audits only. No separate Sol or Daybreak task.
 
+### OVL current checkpoint
+
+- [x] OVL-00 PM15 handoff cleanup delivered at `cc4bc77`; CI passed.
+- [x] OVL-01 exact dependency chain bounded. Original proof/ticket/final pipe grammar stays open; independent current-v14 route is explicitly policy.
+- [x] OVL-02/03/04 implementation candidate is offline-tested in `LWB-OVL-001`: normal command wiring, exact session/challenge/PID ready evidence, internal current-client TMP/Canvas renderer, exact-PID normal Close, failed-start restoration/close and repeat-session isolation.
+- [ ] Live current-game Launch -> **LWbridge is running** -> Close proof. Do not promote the offline candidate before this run.
+- [ ] OVL-05 automatic attempt bundle + beginner owner guide, then OVL-06 owner-visible verification.
+
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
 

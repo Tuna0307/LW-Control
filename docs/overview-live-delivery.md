@@ -16,11 +16,19 @@ The message is an explicit new owner requirement. Any rebuild-specific rendering
 
 Owner: Web for research, implementation and technical validation. PM plans/audits only. The user can perform clearly guided permitted UI steps, describe results and supply screenshots; Web automatically captures technical evidence. No separate Sol role. No Daybreak assignment by default.
 
-At this priority change HEAD is `1e9af6e`; the recorder fix is pushed, while six tracked documentation files and PM15 evidence are unfinished in the working tree. Preserve them. This plan does not certify those uncommitted results or require further recorder expansion.
+OVL-00 is delivered as `cc4bc7788c2502681546cede187a4daee6c0c26a`; its GitHub Actions run `34590097938` passed. The prior PM15 evidence/handoff cleanup is closed without reopening resource work.
 
-Overview `profile_instance_start` currently rejects with `OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED`; `profile_instance_stop` rejects with `INSTANCE_NOT_OWNED`. The recovered original launch/bootstrap/session contracts are incomplete. No successful normal Overview launch/injection/message/close is accepted yet. Historical bounded resource reads are not a substitute for this persistent Overview session.
+The exact original protected launch/bootstrap/session contract is still incomplete: launch-proof/ticket production plus final `hello.ack`/request-result readiness grammar remain UNKNOWN/BLOCKED. OVL-01 therefore selected an explicit independent rebuild policy instead of inventing those fields. OVL-02/03/04 are now IMPLEMENTED/OFFLINE-TESTED on top of the already live-proven current-v14 LuaEntry execution mechanics, but **not yet LIVE-PROVEN**: the normal Overview command is wired to a profile/session/challenge/PID-correlated game-side heartbeat, the exact owner text is rendered through the current client UI surface only after that correlation, and Close uses exact owned PID/path normal close. The first live current-game run remains the gate.
 
 Deferred: Map Data fresh scans, saved Search/reopen, monsters, exports, automatic scanning, automatic reconnect, launch-at-app-startup, updater expansion and broad parity work. Reuse their existing infrastructure only when it directly supports this Overview delivery. Do not restore resource-first ownership after a generic continuation prompt.
+
+### Current OVL-01/02/03/04 offline checkpoint - `LWB-OVL-001`
+
+Current build `1.0.361 / 1078`, active v14 package, xLua and `Assembly-CSharp.rdl` still match the hash gates already used by the bounded live helper. Read-only decoding/decompilation of current v14 UI chunks recovered `GameFramework/UI -> UIContainer`, current `RectTransform`/nested `Canvas` sorting use, and current `TextMeshProUGUIEx`/`TextMeshProEx` text setters. The client Lua chunks are format-1 Lua 5.3 with the standard `size_t` header byte omitted; scratch-only normalization to a standard format-0 header enabled decompilation. Exact source hashes, locators, tool identity and limitations are recorded in [`2026-09-11-ovl-current-ui-contract.txt`](../evidence/lwbridge-implementation/2026-09-11-ovl-current-ui-contract.txt).
+
+The implementation uses `tools/run_overview_bridge.py`, `tools/current_overview_bridge.lua` and `OverviewLifecycleService`. Start temporarily installs a hash-gated LuaEntry wrapper, launches the official launcher, binds the one selected game path/PID to a new profile/session/random challenge, requires an exact game-side ready response with the real message rendered, restores the original script triplet, then keeps a one-second host lease. The game module removes the indication when that lease becomes stale. The renderer requires a live `TextMeshProUGUIEx` donor/font under `UIContainer`, creates a top-centre nested Canvas as rebuild policy, and never reports ready if the text/font path is unavailable. Close revalidates the owned PID/path and uses `Process.CloseMainWindow()` with a bounded wait; failed starts restore exact files and normally close any helper-owned game before returning failure.
+
+Release build has zero warnings/errors, the deployed helper `check-only` round-trips the candidate without changing installed files, and deterministic regressions reject stale/foreign heartbeat evidence, duplicate starts and foreign instance closes while proving a new session/challenge after Close. Machine-readable scope/result is [`2026-09-11-ovl-offline-lifecycle.json`](../evidence/lwbridge-implementation/2026-09-11-ovl-offline-lifecycle.json). These are **IMPLEMENTED/OFFLINE-TESTED** results only. Launch / ready / visible text / Close all remain unchecked for live acceptance until the next controlled run.
 
 ## Ordered tasks for Web — continue without a PM stop after each checkpoint
 
@@ -82,7 +90,7 @@ User authorization covers ordinary project tools, installation and game testing 
 
 ## Exit checklist — all required for this delivery
 
-- [ ] OVL-00: prior pending evidence delivered without restarting deferred work.
+- [x] OVL-00: prior pending evidence delivered without restarting deferred work (`cc4bc77`, CI passed).
 - [ ] Actual Overview Launch opens the identified current game and establishes a same-session bridge.
 - [ ] Readiness is supported by current game-side execution/response, not process presence or an overlay alone.
 - [ ] Exact **LWbridge is running** text is visible top-centre inside the real game only for that ready session.

@@ -15,6 +15,10 @@
              Link="LiveResourceProbe\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\tools\run_overview_bridge.py;..\..\tools\current_overview_bridge.lua;..\..\tools\run_live_resource_probe.py"
+             Link="OverviewBridge\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

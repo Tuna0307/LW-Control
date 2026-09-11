@@ -24,6 +24,7 @@ internal sealed class LWBridgeBackend
     private readonly LocalConfigStore config;
     private readonly GameInstallationService installation;
     private readonly INativeAsyncCommandService? asyncCommands;
+    private readonly OverviewLifecycleService? overviewLifecycle;
     private readonly MapDataStore? mapData;
     private readonly int? firstLiveResultServerId;
 
@@ -31,10 +32,12 @@ internal sealed class LWBridgeBackend
         LocalConfigStore? config = null,
         INativeAsyncCommandService? asyncCommands = null,
         MapDataStore? mapData = null,
-        int? firstLiveResultServerId = null)
+        int? firstLiveResultServerId = null,
+        OverviewLifecycleService? overviewLifecycle = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
+        this.overviewLifecycle = overviewLifecycle;
         this.mapData = mapData;
         this.firstLiveResultServerId = firstLiveResultServerId;
         installation = new(this.config);
@@ -359,10 +362,9 @@ internal sealed class LWBridgeBackend
     {
         return new
         {
-            // The recovered public field describes bridge/session availability.
-            // A bounded direct probe heartbeat is not evidence of that session,
-            // so keep unrelated online-gated actions fail-closed.
-            xluaOnline = false,
+            // OVL-02: only the current owned Overview session's fresh, exact
+            // game-side heartbeat is authoritative bridge readiness.
+            xluaOnline = overviewLifecycle?.IsReady ?? false,
             pending = (int?)null,
             config = new
             {
@@ -383,7 +385,7 @@ internal sealed class LWBridgeBackend
             gameRunning = process.GameRunning,
             launcherRunning = process.LauncherRunning,
             repairRequired = false,
-            bridgeOnline = false,
+            bridgeOnline = overviewLifecycle?.IsReady ?? false,
             gamePid = process.GamePid,
             launcherPid = process.LauncherPid,
         };
@@ -391,6 +393,7 @@ internal sealed class LWBridgeBackend
 
     private object CreateInstanceStatus()
     {
+        if (overviewLifecycle is not null) return overviewLifecycle.CreateInstanceStatus();
         GameProcessStatus process = installation.GetProcessStatus();
         if (!process.GameRunning)
             return new { phase = "stopped", pid = (int?)null, instanceId = (string?)null, error = (string?)null };
@@ -414,7 +417,7 @@ internal sealed class LWBridgeBackend
             serverId = 0,
             enabled = true,
             note = "",
-            connectionState = process.GameRunning ? "offline" : "offline",
+            connectionState = overviewLifecycle?.CurrentConnectionState ?? "offline",
         };
     }
 

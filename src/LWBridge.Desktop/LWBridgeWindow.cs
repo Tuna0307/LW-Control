@@ -41,6 +41,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LWBridgeBackend backend;
     private readonly MapDataStore mapData;
     private readonly HostProbeCommandService? hostProbeService;
+    private readonly OverviewLifecycleService? overviewLifecycleService;
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly string? isolatedConfigRoot;
     private long documentGeneration = 1;
@@ -112,6 +113,9 @@ internal sealed class LWBridgeWindow : Form
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
+            overviewLifecycleService = new OverviewLifecycleService(
+                config.Snapshot.ProfileId,
+                liveGameRoot.Valid ? liveGameRoot.Path : null);
             liveResourceService = new LiveResourceProbeCommandService(
                 mapData,
                 gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
@@ -119,13 +123,20 @@ internal sealed class LWBridgeWindow : Form
         }
         else
         {
+            overviewLifecycleService = null;
             liveResourceService = null;
         }
+        INativeAsyncCommandService? productionCommands = hostProbeService;
+        if (productionCommands is null && overviewLifecycleService is not null && liveResourceService is not null)
+            productionCommands = new CompositeAsyncCommandService(overviewLifecycleService, liveResourceService);
+        else if (productionCommands is null)
+            productionCommands = (INativeAsyncCommandService?)overviewLifecycleService ?? liveResourceService;
         backend = new LWBridgeBackend(
             config,
-            asyncCommands: hostProbeService ?? (INativeAsyncCommandService?)liveResourceService,
+            asyncCommands: productionCommands,
             mapData: mapData,
-            firstLiveResultServerId: firstLiveResult?.ServerId);
+            firstLiveResultServerId: firstLiveResult?.ServerId,
+            overviewLifecycle: overviewLifecycleService);
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
@@ -1615,7 +1626,7 @@ internal sealed class LWBridgeWindow : Form
                     BeginOwnerEvidenceRenderCapture(id, payload, execution.Result);
                 if (command == "map_player_mark_set")
                     SendEvent(session, "bridge://player-mark-changed", execution.Result);
-                if (command is "game_root_select" or "set_automation" or "local_config_set")
+                if (command is "game_root_select" or "profile_instance_start" or "profile_instance_stop" or "set_automation" or "local_config_set")
                     await EmitOverviewStateAsync(session);
             }
             catch (BridgeCommandException ex)
@@ -1734,6 +1745,7 @@ internal sealed class LWBridgeWindow : Form
     {
         sessionClosed = true;
         documentSession.Close();
+        overviewLifecycleService?.Close();
         liveResourceService?.Close();
         ownerEvidenceRenderCapture?.Cancel();
         ownerEvidenceRenderCapture?.Dispose();

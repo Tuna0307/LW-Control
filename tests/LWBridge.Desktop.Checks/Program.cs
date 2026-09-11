@@ -498,6 +498,167 @@ using JsonDocument profilePayload = JsonDocument.Parse(JsonSerializer.Serialize(
 await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "launch remains fail-closed until bootstrap is recovered", async () =>
     await backend.InvokeAsync("profile_instance_start", profilePayload.RootElement.Clone(), CancellationToken.None));
 
+// OVL-02/03/04: the normal production window now supplies an explicit
+// OverviewLifecycleService. The bare backend above intentionally stays fail-closed;
+// exercise the lifecycle independently with a same-session game-side response.
+string overviewLifecycleRoot = Path.Combine(Path.GetTempPath(), "lwbridge-overview-lifecycle-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(overviewLifecycleRoot);
+try
+{
+    const string overviewProfile = "overview-test-profile";
+    const int overviewPid = 42420;
+    const int overviewLauncherPid = 42421;
+    string overviewGamePath = Path.Combine(overviewLifecycleRoot, "Game", "LastWar.exe");
+    bool overviewProcessAlive = false;
+    string heartbeatMode = "fresh";
+    string? activeOverviewSession = null;
+    string? activeOverviewChallenge = null;
+    var overviewInvocations = new List<OverviewHelperInvocation>();
+
+    byte[] OverviewHeartbeatBytes()
+    {
+        string challenge = heartbeatMode == "foreign" ? "foreign_challenge" : activeOverviewChallenge!;
+        long updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - (heartbeatMode == "stale" ? 30 : 0);
+        return JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = overviewProfile,
+            sessionId = activeOverviewSession,
+            challenge,
+            gamePid = overviewPid,
+            updatedAt,
+            ready = true,
+            messageVisible = true,
+            messageText = OverviewLifecycleService.ReadyMessage,
+        });
+    }
+
+    var overviewHooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (pid, path) => overviewProcessAlive && pid == overviewPid &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(overviewGamePath), StringComparison.OrdinalIgnoreCase),
+        ReadAllBytes = _ => OverviewHeartbeatBytes(),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        RunHelperAsync = (invocation, _) =>
+        {
+            overviewInvocations.Add(invocation);
+            if (invocation.Operation == "start")
+            {
+                activeOverviewSession = invocation.SessionId;
+                activeOverviewChallenge = invocation.Challenge;
+                overviewProcessAlive = true;
+                string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_install_launch_ready_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = invocation.SessionId,
+                    challengeSha256,
+                    gamePid = overviewPid,
+                    gamePath = overviewGamePath,
+                    launcherPid = overviewLauncherPid,
+                    ready = new
+                    {
+                        schemaVersion = 1,
+                        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId = overviewProfile,
+                        sessionId = invocation.SessionId,
+                        challenge = invocation.Challenge,
+                        gamePid = overviewPid,
+                        readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        ready = true,
+                        messageVisible = true,
+                        messageText = OverviewLifecycleService.ReadyMessage,
+                    },
+                    restore = new { restored = true },
+                    gameRunning = true,
+                    installedFilesChanged = false,
+                }));
+            }
+            overviewProcessAlive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_exact_pid_normal_close",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                gamePid = overviewPid,
+                gamePath = overviewGamePath,
+                close = new { accepted = true, processExited = true },
+                gameRunning = false,
+                installedFilesChanged = false,
+            }));
+        },
+    };
+
+    using var overviewLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        overviewLifecycleRoot,
+        helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        testHooks: overviewHooks);
+    using JsonDocument overviewProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
+    object? overviewStart = await overviewLifecycle.InvokeAsync(
+        "profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument status = JsonDocument.Parse(JsonSerializer.Serialize(overviewStart, JsonOptions.Default)))
+    {
+        Check(status.RootElement.GetProperty("phase").GetString() == "running" &&
+              status.RootElement.GetProperty("pid").GetInt32() == overviewPid &&
+              status.RootElement.GetProperty("connectionState").GetString() == "connected",
+            "Overview lifecycle reports running only after correlated game-side readiness");
+    }
+    string firstOverviewSession = activeOverviewSession!;
+    string firstOverviewChallenge = activeOverviewChallenge!;
+    Check(overviewLifecycle.IsReady, "fresh exact-session Overview heartbeat is authoritative ready evidence");
+    heartbeatMode = "stale";
+    Check(!overviewLifecycle.IsReady, "stale Overview heartbeat cannot keep the bridge ready");
+    heartbeatMode = "foreign";
+    Check(!overviewLifecycle.IsReady, "foreign challenge heartbeat cannot green the active Overview session");
+    heartbeatMode = "fresh";
+    Check(overviewLifecycle.IsReady, "matching fresh heartbeat restores current-session readiness");
+    await ExpectBridgeError("GAME_RUNNING", "duplicate Overview start is rejected while owned game is active", async () =>
+        await overviewLifecycle.InvokeAsync("profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None));
+    using JsonDocument wrongOverviewStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = overviewProfile,
+        instanceId = "wrong-instance",
+    }));
+    await ExpectBridgeError("INSTANCE_NOT_OWNED", "Overview stop rejects a foreign instance id", async () =>
+        await overviewLifecycle.InvokeAsync("profile_instance_stop", wrongOverviewStop.RootElement.Clone(), CancellationToken.None));
+    using JsonDocument overviewStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = overviewProfile,
+        instanceId = firstOverviewSession,
+    }));
+    await overviewLifecycle.InvokeAsync("profile_instance_stop", overviewStop.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument status = JsonDocument.Parse(JsonSerializer.Serialize(overviewLifecycle.CreateInstanceStatus(), JsonOptions.Default)))
+        Check(status.RootElement.GetProperty("phase").GetString() == "stopped",
+            "Overview normal close clears owned lifecycle state after exact-PID exit proof");
+
+    object? secondStart = await overviewLifecycle.InvokeAsync(
+        "profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None);
+    Check(secondStart is not null && activeOverviewSession != firstOverviewSession && activeOverviewChallenge != firstOverviewChallenge,
+        "a second Overview launch receives a new session and challenge so stale prior evidence cannot match");
+    string secondOverviewSession = activeOverviewSession!;
+    using JsonDocument secondStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = overviewProfile,
+        instanceId = secondOverviewSession,
+    }));
+    await overviewLifecycle.InvokeAsync("profile_instance_stop", secondStop.RootElement.Clone(), CancellationToken.None);
+    Check(overviewInvocations.Count(i => i.Operation == "start") == 2 && overviewInvocations.Count(i => i.Operation == "stop") == 2,
+        "Overview lifecycle owns exactly the expected start/close helper operations");
+}
+finally
+{
+    try { Directory.Delete(overviewLifecycleRoot, recursive: true); }
+    catch { }
+}
+
 await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "map summary remains fail-closed until native summary state is recovered", async () =>
     await backend.InvokeAsync("map_summary", profilePayload.RootElement.Clone(), CancellationToken.None));
 
