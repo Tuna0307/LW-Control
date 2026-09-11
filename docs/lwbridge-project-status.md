@@ -1,6 +1,6 @@
 # Project-manager priority reset — Overview-only delivery
 
-2026-09-11, implementation HEAD `1e9af6e`. **This is an owner-directed change of delivery, not a claim that new game functionality is complete.** [Active Overview plan](overview-live-delivery.md).
+2026-09-11, Overview implementation commit `dc82bc9` with passing CI run `34603661402`. **The technical lifecycle is live-proven; owner-visible normal Overview acceptance remains pending.** [Active Overview plan](overview-live-delivery.md).
 
 ## Owner's acceptance target
 
@@ -11,6 +11,8 @@ Current live acceptance: **NOT DELIVERED**. Launch/Close remain unaccepted; brid
 ## Assignment and pending work
 
 Web owns OVL-00–06 and may continue through their direct dependencies without a PM stop after every checkpoint. PM coordinates/audits only; the owner supplies descriptions/screenshots, while Web captures technical evidence automatically. No separate Sol or Daybreak task.
+
+`LWB-OVL-002` now supersedes the earlier offline-only Overview checkpoint: two distinct current-client sessions reached correlated game-side readiness for **LWbridge is running**, exact owned normal Close succeeded, and the official script package was restored byte-for-byte after each run. `Start Overview Verification.cmd` is self-tested and the normal app/helper now record per-session evidence automatically. The remaining gate is the owner-visible normal Overview Launch/message/Close confirmation; do not mark owner acceptance before that screenshot/observation.
 
 The user reports PM15-01/02 implemented and pushed at `1e9af6e`. At inspection six tracked handoff/evidence-index documents plus new PM15 evidence remain uncommitted. Preserve and finalize that coherent handoff under OVL-00; this priority reset does not re-audit or certify its regression claims. Do not request another resource check or expand the old recorder project. PM commits only its priority changes, leaving Web's unfinished evidence changes for Web.
 

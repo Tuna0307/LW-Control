@@ -4,6 +4,8 @@
 
 **Active result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. Follow [OVL-00–06](overview-live-delivery.md) and [the current Web prompt](team-workflow.md). Web continues those assigned dependencies across checkpoints; the owner must verify this live result and explicitly choose the next feature.
 
+Current Overview implementation checkpoint: `dc82bc9bebd9e1b56c56621edd18e905a7e3ee23`, CI run `34603661402` success. `LWB-OVL-002` records two technical live cycles with exact same-session game-side readiness/message evidence, exact-PID normal Close and byte-exact deferred restoration. The tested `Start Overview Verification.cmd` and owner guide are ready; normal Overview UI owner acceptance is still pending. Evidence: [`2026-09-11-ovl-live-lifecycle.json`](../evidence/lwbridge-implementation/2026-09-11-ovl-live-lifecycle.json).
+
 The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
 
 The owner supplies only simple UI actions, descriptions and screenshots. Web must automatically collect technical evidence and deliver an actual tested script/entry point and beginner guide; no commands, logs, hashes or database inspection are assigned to the owner. PM plans/audits only. No separate Sol or Daybreak task.

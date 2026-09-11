@@ -12,9 +12,10 @@ The owner supplies only simple UI actions, descriptions and screenshots. Web mus
 
 - [x] OVL-00 PM15 handoff cleanup delivered at `cc4bc77`; CI passed.
 - [x] OVL-01 exact dependency chain bounded. Original proof/ticket/final pipe grammar stays open; independent current-v14 route is explicitly policy.
-- [x] OVL-02/03/04 implementation candidate is offline-tested in `LWB-OVL-001`: normal command wiring, exact session/challenge/PID ready evidence, internal current-client TMP/Canvas renderer, exact-PID normal Close, failed-start restoration/close and repeat-session isolation.
+- [x] OVL-02/03/04 technical lifecycle is live-proven in `LWB-OVL-002`: two fresh current-client cycles reached exact same-session game-side readiness/message evidence, then exact-PID normal Close and byte-exact deferred restoration. Normal Overview button/visual placement still awaits owner verification.
 - [ ] Live current-game Launch -> **LWbridge is running** -> Close proof. Do not promote the offline candidate before this run.
-- [ ] OVL-05 automatic attempt bundle + beginner owner guide, then OVL-06 owner-visible verification.
+- [x] OVL-05 automatic per-session evidence + tested `Start Overview Verification.cmd` + beginner owner guide delivered.
+- [ ] OVL-06 owner-visible normal Overview verification and explicit acceptance; then wait for the owner to choose the next feature.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
