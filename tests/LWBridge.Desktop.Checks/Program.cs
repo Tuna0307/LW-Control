@@ -601,15 +601,29 @@ try
         },
     };
 
+    var overviewConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config"));
+    overviewConfig.Update(c => c with { AutoLaunchGame = true });
     using var overviewLifecycle = new OverviewLifecycleService(
         overviewProfile,
         overviewLifecycleRoot,
         helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
         requireCurrentClientEvidence: false,
+        config: overviewConfig,
         testHooks: overviewHooks);
     using JsonDocument overviewProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
-    object? overviewStart = await overviewLifecycle.InvokeAsync(
-        "profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None);
+    using JsonDocument startupReconcilePayload = JsonDocument.Parse("{}");
+    object? startupReconcile = await overviewLifecycle.InvokeAsync(
+        "profile_instances_reconcile", startupReconcilePayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument startup = JsonDocument.Parse(JsonSerializer.Serialize(startupReconcile, JsonOptions.Default)))
+        Check(startup.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
+              overviewInvocations.Count(i => i.Operation == "start") == 1,
+            "Overview startup reconcile defaults autoLaunchAll on and uses the proven lifecycle exactly once");
+    using JsonDocument repeatedReconcilePayload = JsonDocument.Parse("{\"autoLaunchAll\":true}");
+    await overviewLifecycle.InvokeAsync(
+        "profile_instances_reconcile", repeatedReconcilePayload.RootElement.Clone(), CancellationToken.None);
+    Check(overviewInvocations.Count(i => i.Operation == "start") == 1,
+        "repeated Overview startup reconcile cannot double-start the owned game");
+    object? overviewStart = overviewLifecycle.CreateInstanceStatus();
     using (JsonDocument status = JsonDocument.Parse(JsonSerializer.Serialize(overviewStart, JsonOptions.Default)))
     {
         Check(status.RootElement.GetProperty("phase").GetString() == "running" &&
@@ -666,6 +680,42 @@ try
     await overviewLifecycle.InvokeAsync("profile_instance_stop", secondStop.RootElement.Clone(), CancellationToken.None);
     Check(overviewInvocations.Count(i => i.Operation == "start") == 2 && overviewInvocations.Count(i => i.Operation == "stop") == 2,
         "Overview lifecycle owns exactly the expected start/close helper operations");
+
+    int startsBeforeSuppressedReconcile = overviewInvocations.Count(i => i.Operation == "start");
+    var startupOffConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-startup-off"));
+    startupOffConfig.Update(c => c with { AutoLaunchGame = false });
+    using (var startupOffLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        overviewLifecycleRoot,
+        helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: startupOffConfig,
+        testHooks: overviewHooks))
+    {
+        object? suppressed = await startupOffLifecycle.InvokeAsync(
+            "profile_instances_reconcile", startupReconcilePayload.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument suppressedJson = JsonDocument.Parse(JsonSerializer.Serialize(suppressed, JsonOptions.Default));
+        Check(suppressedJson.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
+              overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
+            "Overview startup OFF leaves the game untouched");
+    }
+
+    var payloadFalseConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-payload-false"));
+    payloadFalseConfig.Update(c => c with { AutoLaunchGame = true });
+    using (var payloadFalseLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        overviewLifecycleRoot,
+        helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: payloadFalseConfig,
+        testHooks: overviewHooks))
+    using (JsonDocument reconcileFalsePayload = JsonDocument.Parse("{\"autoLaunchAll\":false}"))
+    {
+        await payloadFalseLifecycle.InvokeAsync(
+            "profile_instances_reconcile", reconcileFalsePayload.RootElement.Clone(), CancellationToken.None);
+        Check(overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
+            "Overview reconcile autoLaunchAll=false suppresses launch even when the saved startup preference is ON");
+    }
 }
 finally
 {

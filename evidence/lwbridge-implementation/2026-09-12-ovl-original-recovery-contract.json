@@ -1,0 +1,125 @@
+{
+  "defaults": {
+    "autoForceUpdateReload": false,
+    "autoLaunchAll": true
+  },
+  "gates": {
+    "autoReconnectSetting": "auto_force_update_reload",
+    "desiredRunningSetting": "game_desired_running",
+    "processExitConsecutiveMissingObservations": 2
+  },
+  "ok": true,
+  "processWatcher": [
+    {
+      "name": "LastWarLauncher.exe",
+      "preferredVa": "0x140C9A373"
+    },
+    {
+      "name": "LastWarUpdater.exe",
+      "preferredVa": "0x140C9A386"
+    },
+    {
+      "name": "LastWarSync.exe",
+      "preferredVa": "0x140C9A398"
+    }
+  ],
+  "reasons": [
+    "processExit",
+    "hang",
+    "disconnect",
+    "forceUpdate",
+    "crossDisconnect",
+    "exitPrompt"
+  ],
+  "reference": {
+    "imageBase": "0x140000000",
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "retryTables": [
+    {
+      "milliseconds": [
+        120000,
+        300000,
+        600000
+      ],
+      "preferredVa": "0x140C9A3C0",
+      "xrefPreferredVas": [
+        "0x1400E5E12",
+        "0x1400E6275",
+        "0x1400E6545",
+        "0x1400E66B0",
+        "0x1400E671D"
+      ]
+    },
+    {
+      "milliseconds": [
+        15000,
+        30000,
+        60000,
+        120000,
+        300000
+      ],
+      "preferredVa": "0x140C99D10",
+      "xrefPreferredVas": [
+        "0x1400E5B42",
+        "0x1400E5F41",
+        "0x1400E5FEC",
+        "0x1400E675E",
+        "0x1400E6835",
+        "0x1400E69F8"
+      ]
+    }
+  ],
+  "scope": "static original LWBridge startup/game-recovery contract; no process execution",
+  "states": [
+    "waiting",
+    "updating",
+    "repairing",
+    "launching",
+    "verifying",
+    "maintenance"
+  ],
+  "thresholds": [
+    {
+      "immediateMs": 30000,
+      "preferredVa": "0x140338B92"
+    },
+    {
+      "immediateMs": 29999,
+      "preferredVa": "0x140338BA5"
+    },
+    {
+      "immediateMs": 59999,
+      "preferredVa": "0x140338BCE"
+    },
+    {
+      "immediateMs": 180000,
+      "preferredVa": "0x140338BED"
+    },
+    {
+      "immediateMs": 899999,
+      "preferredVa": "0x1400E5FAE"
+    },
+    {
+      "immediateMs": 15000,
+      "preferredVa": "0x1400E619D"
+    },
+    {
+      "immediateMs": 179999,
+      "preferredVa": "0x1400E6225"
+    },
+    {
+      "immediateMs": 60000,
+      "preferredVa": "0x1400E6467"
+    }
+  ],
+  "findingId": "LWB-OVL-005",
+  "evidenceLabel": "RECOVERED STATIC ORIGINAL CONTRACT",
+  "sourceVersion": "lwbridge 0.3.1",
+  "validationLimits": [
+    "Static native evidence only; does not prove rebuild recovery behavior.",
+    "Retry-table xrefs and thresholds are build-specific to the pinned executable hash."
+  ],
+  "affectedFeature": "Overview Automatic Reconnection (O05)"
+}

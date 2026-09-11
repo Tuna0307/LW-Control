@@ -42,6 +42,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
     private readonly string runtimeRoot;
     private readonly string evidenceRoot;
     private readonly TimeSpan helperSupervisionTimeout;
+    private readonly LocalConfigStore? config;
     private readonly OverviewLifecycleTestHooks? testHooks;
     private readonly bool requireCurrentClientEvidence;
     private System.Threading.Timer? leaseTimer;
@@ -56,6 +57,8 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
     private string? gamePath;
     private string? lastError;
     private long? readyAtUnix;
+    private bool startupReconcileConsumed;
+    private IReadOnlyList<OverviewStartupError> startupReconcileErrors = Array.Empty<OverviewStartupError>();
 
     public OverviewLifecycleService(
         string profileId,
@@ -63,6 +66,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         string? helperPath = null,
         TimeSpan? helperSupervisionTimeout = null,
         bool? requireCurrentClientEvidence = null,
+        LocalConfigStore? config = null,
         OverviewLifecycleTestHooks? testHooks = null)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
@@ -71,6 +75,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         this.helperPath = helperPath ?? Path.Combine(AppContext.BaseDirectory, "OverviewBridge", "run_overview_bridge.py");
         this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(190);
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
+        this.config = config;
         this.testHooks = testHooks;
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
@@ -78,7 +83,8 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
     }
 
     public bool CanHandle(string command) =>
-        command is "profile_instance_start" or "profile_instance_stop" or "profile_instance_status";
+        command is "profile_instance_start" or "profile_instance_stop" or "profile_instance_status" or
+            "profile_instances_reconcile";
 
     public bool IsReady
     {
@@ -108,6 +114,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         "profile_instance_start" => StartAsync(cancellationToken),
         "profile_instance_stop" => StopAsync(payload, cancellationToken),
         "profile_instance_status" => Task.FromResult<object?>(CreateInstanceStatus()),
+        "profile_instances_reconcile" => ReconcileStartupAsync(payload, cancellationToken),
         _ => throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", $"Overview lifecycle cannot handle '{command}'."),
     };
 
@@ -174,6 +181,36 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
     }
 
     public void Dispose() => Close();
+
+    private async Task<object?> ReconcileStartupAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        bool autoLaunchAll = !payload.TryGetProperty("autoLaunchAll", out JsonElement requested) ||
+            requested.ValueKind is not (JsonValueKind.True or JsonValueKind.False) || requested.GetBoolean();
+        bool shouldAttempt;
+        lock (stateGate)
+        {
+            if (startupReconcileConsumed)
+                return new { errors = startupReconcileErrors };
+            startupReconcileConsumed = true;
+            shouldAttempt = autoLaunchAll && (config?.Snapshot.AutoLaunchGame ?? true);
+            startupReconcileErrors = Array.Empty<OverviewStartupError>();
+            if (!shouldAttempt || phase is "starting" or "running" || gamePid is not null)
+                return new { errors = startupReconcileErrors };
+        }
+
+        try
+        {
+            await StartAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (BridgeCommandException ex)
+        {
+            lock (stateGate)
+                startupReconcileErrors = [new OverviewStartupError(profileId, ex.Code, ex.Message)];
+        }
+
+        lock (stateGate)
+            return new { errors = startupReconcileErrors };
+    }
 
     private async Task<object?> StartAsync(CancellationToken cancellationToken)
     {
@@ -755,3 +792,4 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
 }
 
 internal sealed record OverviewStartResult(int GamePid, int LauncherPid, string GamePath, long ReadyAtUnix);
+internal sealed record OverviewStartupError(string ProfileId, string Error, string Message);

@@ -180,7 +180,7 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [ ] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle.
 - [x] Recover the original per-user control-pipe name derivation. `LWB-R5-006` proves prefix + first 16 lowercase SHA-256 hex characters of UTF-8 Windows user SID and live-correlates the result against the verified reference host; session framing/request grammar remain open.
 - [ ] Require matching instance identity, bridge handshake, and fresh heartbeat before reporting connected.
-- [ ] Implement startup launch preference through the same lifecycle service without double-start races.
+- [x] Implement startup launch preference through the same lifecycle service without double-start races (`LWB-OVL-004` technical live proof; owner-visible combined O04/O05 acceptance still pending).
 - [ ] Implement automatic reconnect/recovery with explicit eligibility, cancellation, and bounded retry behavior.
 - [ ] Recover and implement repair/update/restart presentation and state transitions.
 - [ ] **LIVE-VALIDATION:** validate repeated cold start, restart, disconnect, and stop cycles against the current client after supported lifecycle implementation.

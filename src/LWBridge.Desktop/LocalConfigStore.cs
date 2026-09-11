@@ -16,6 +16,10 @@ internal sealed record LWBridgeLocalConfig
     public string? GameRoot { get; init; }
     public bool AutoLaunchGame { get; init; } = true;
     public bool AutoReconnect { get; init; }
+    // OVL-05 rebuild persistence for the recovered native game_desired_running gate.
+    // This preserves the original boolean contract without claiming the original
+    // Rust store's on-disk representation.
+    public bool GameDesiredRunning { get; init; }
     public IReadOnlyList<int> ServerJumpHistory { get; init; } = Array.Empty<int>();
 
     public static LWBridgeLocalConfig CreateDefault() => new()

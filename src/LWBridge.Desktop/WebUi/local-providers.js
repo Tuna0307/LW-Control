@@ -19,6 +19,10 @@ function Xt({children}) {
         if (!live || !autoLaunchGame) return;
         setGameLaunchBusy(true);
         window.LWBridgePreview.invoke('profile_instances_reconcile', {autoLaunchAll: true})
+            .then(result => {
+                if (Array.isArray(result?.errors) && result.errors.length)
+                    setProfileLaunchErrors(result.errors);
+            })
             .catch(error => setProfileLaunchErrors([asProfileError(error)]))
             .finally(() => setGameLaunchBusy(false));
     }, []);

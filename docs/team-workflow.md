@@ -14,4 +14,4 @@ Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control. Read AGENTS.md, task.
 
 ## Continuity
 
-Continue direct dependencies across checkpoints without routine PM stops. Stop only for necessary owner-visible verification, a real external blocker, or an evidence-backed specialist escalation. Do not rerun the accepted manual Overview test unless required by a changed lifecycle path.
+Continue direct dependencies across checkpoints without routine PM stops. The owner explicitly defined `ok continue` as permission to advance through the agreed queue. Finish O04/O05, then after required Overview owner-visible verification proceed directly to Map Data in strict type order: `city` → `resource` → `monster` → `truck` → `railway` → `dispatch` → `ghost` → `treasure`. Do not advance from one Map Data type until that type works end-to-end and has durable evidence. Stop only for necessary owner-visible verification, a real external blocker, or an evidence-backed specialist escalation. Do not rerun the accepted manual Overview test unless required by a changed lifecycle path. Existing operation-specific restrictions remain in force.

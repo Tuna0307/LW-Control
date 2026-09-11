@@ -20,7 +20,7 @@ OVL-00 is delivered as `cc4bc7788c2502681546cede187a4daee6c0c26a`; its GitHub Ac
 
 The exact original protected launch/bootstrap/session contract is still incomplete: launch-proof/ticket production plus final `hello.ack`/request-result readiness grammar remain UNKNOWN/BLOCKED. OVL-01 therefore selected an explicit independent rebuild policy instead of inventing those fields. OVL-02/03/04 are now **TECHNICAL LIVE-PROVEN** on that independent current-v14 LuaEntry route: two fresh helper-driven current-client sessions reached correlated game-side readiness/message evidence and exact owned Close/restoration. The owner-visible normal Overview button sequence has now passed as `LWB-OVL-003`; this still does not claim recovery of the original protected protocol.
 
-Deferred: Map Data fresh scans, saved Search/reopen, monsters, exports, automatic scanning, automatic reconnect, launch-at-app-startup, updater expansion and broad parity work. Reuse their existing infrastructure only when it directly supports this Overview delivery. Do not restore resource-first ownership after a generic continuation prompt.
+Current extension, 2026-09-12: the owner selected O04/O05 next. `LWB-OVL-004` now technically live-proves launch-at-app-startup through the same accepted lifecycle. `LWB-OVL-005` pins the original automatic-reconnection gates/timings/retry tables statically; the rebuild recovery worker remains in progress. After combined owner-visible O04/O05 verification, continue directly to Map Data in the owner-defined per-type order recorded in `task.md`.
 
 ### Current accepted checkpoint - `LWB-OVL-003`
 
