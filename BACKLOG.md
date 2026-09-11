@@ -4,7 +4,17 @@ Last updated: 2026-09-11
 
 Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle and proof-correlation repairs are accepted at their documented scopes. The resource implementation is a test candidate; fresh normal-window completion remains unverified and subject to SB-97. [Current audit](docs/lwbridge-project-status.md) and [test checklist](docs/user-test-checklist.md) define the next deliverable.
 
-## Current owners and evidence package — 2026-09-11
+## Review 15 — current queue at `154ce35`
+
+- [x] PM audited LWB-PM13-009 source and original owner files; no-context interpretation accepted, no owner repeat.
+- [ ] **WEB / PM15-01 / P1:** isolate each app session's Search/result/render proof; prevent prior-session evidence from passing reopen.
+- [ ] **WEB / PM15-02 / P2:** retain failed/unknown process/evidence observation state; do not convert it into clean/success.
+- [ ] **PM:** review Web's isolated regressions and updated exact package after repair.
+- **OWNER:** no task now. **SOL/DAYBREAK:** no assignment. Fresh acquisition remains SB-97 blocked.
+
+[Detailed review and exit criteria](docs/reviews/2026-09-11-review-15-owner-evidence.md). Historical checked repairs below retain their stated scope; recorder future-use readiness is withheld by PM15-01/02.
+
+## Previous owner-package checkpoints — 2026-09-11
 
 - [x] **WEB:** prepared build/test packet at `9c20896`; preparation only.
 - [x] **HISTORICAL ATTEMPT/DIAGNOSIS:** `ccb74b0` / `537a5b9` record native navigation, upstream rejection before dispatch, no Start sent and completed saved-log diagnosis. Reviewer-specific cause remains unknown; live gate stays open.
@@ -13,7 +23,7 @@ Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle
 - [x] **PM review:** `LWB-PM13-008` was independently re-audited on 2026-09-11. The owner-evidence gate blocks state-changing commands before backend dispatch, the collector preserves the SB-97 boundary, and a stale duplicate source-hash section in the durable evidence was corrected. **Approved only for the passive saved Search/reopen owner check; fresh acquisition remains blocked.**
 - [x] **OWNER:** completed the first permitted passive check in attempt `20260911T085114Z-eb1cd35e-7f21ad24`. The normal page reported no saved map server; no game/scan action ran. The original collector returned a false `INCOMPLETE` because the frontend intentionally suppresses `map_search` when no saved server exists.
 - [x] **WEB:** `LWB-PM13-009` diagnoses that no-context branch, preserves the original failed recorder bundle, and repairs passive collection to record normal `map_summary` `MAP_SAVED_CONTEXT_UNAVAILABLE` plus empty published-server state as `COMPLETE_NO_SAVED_CONTEXT`. The owner guide now branches before Search. No owner repeat is required for the current empty profile.
-- [ ] **PM / next:** audit `LWB-PM13-009` owner-result interpretation and collector repair. Fresh acquisition remains blocked by SB-97; the passive check did not and cannot create the missing server context.
+- [x] **PM / review 15:** audited LWB-PM13-009 and original owner evidence. Accepted no-context interpretation; returned the wider collector for PM15-01/02 above. No fresh context was created.
 - **SOL:** no separate active role. **DAYBREAK:** no assignment.
 
 [Current workflow/prompts](docs/team-workflow.md) and [technical packet](docs/live-test-handoff.md) govern the same resource function. Do not send blocked actions to the owner or another executor.

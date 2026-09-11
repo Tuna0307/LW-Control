@@ -1,5 +1,8 @@
 # Active function — resource scan, search and display
 
+> Review 15 at `154ce35`: owner no-context check accepted; do not repeat it. Web must fix PM15-01 session evidence isolation and PM15-02 failed-observation handling before future owner use. The recorder exists; live acquisition remains blocked. No Daybreak task. [Current review](reviews/2026-09-11-review-15-owner-evidence.md) and [Web prompt](team-workflow.md).
+
+
 > Current ownership, 2026-09-11: Web implements and automatically captures technical evidence; the owner supplies guided permitted UI observations/screenshots only; PM audits. No separate Sol role. See [workflow](team-workflow.md) and [packet](live-test-handoff.md). New capture package is pending; SB-97 and fresh-resource acceptance remain open. Historical observations below retain their original scope.
 
 

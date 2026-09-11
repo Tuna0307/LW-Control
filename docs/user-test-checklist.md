@@ -1,6 +1,6 @@
-# Owner resource check — PM review package
+# Owner resource check — no action needed now
 
-Updated 2026-09-11. **Do not start this check until PM/ChatGPT explicitly says the package has been reviewed.** This guide covers only the permitted saved Resource Search/reopen check. It does not authorize a fresh scan and does not clear SB-97.
+Updated 2026-09-11. **Your empty-profile check is already complete. Do not repeat it.** Web is fixing two recorder validation issues found in PM review 15. The instructions below are retained for a future separately reviewed saved-data check; they are not a current request to test. **Do not start this check until PM/ChatGPT explicitly says the package has been reviewed.** This guide covers only the permitted saved Resource Search/reopen check. It does not authorize a fresh scan and does not clear SB-97.
 
 ## What you need to do
 

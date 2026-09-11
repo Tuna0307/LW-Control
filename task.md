@@ -11,7 +11,7 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 14. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 15. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Team ownership — updated owner instruction, 2026-09-11
 
@@ -19,7 +19,11 @@ ChatGPT Web is the single primary implementation and technical verification work
 
 PM audits and assigns work; Daybreak takes only a reviewed specialist question. Follow AGENTS.md section 8, [workflow/prompts](docs/team-workflow.md), [technical packet](docs/live-test-handoff.md) and [owner guide](docs/user-test-checklist.md). `LWB-PM13-008` delivered the reviewed passive owner package. The owner then completed attempt `20260911T085114Z-eb1cd35e-7f21ad24`, which showed the normal no-saved-map-server state and no scan/game action. `LWB-PM13-009` fixes the collector's false `INCOMPLETE` classification for that frontend short-circuit and records the branch as `COMPLETE_NO_SAVED_CONTEXT` without inventing `map_search`. **Do not ask the owner to repeat the current passive check.** This work does not authorize fresh acquisition; SB-97 remains unresolved and manual testing is not a workaround for a denied operation.
 
-## Current project-manager handoff — read before starting
+## Review 15 — immediate task
+
+Web fixes PM15-01/02 from [the source audit](docs/reviews/2026-09-11-review-15-owner-evidence.md): session-scoped reopen evidence and truthful failed-observation handling. Collector scripts now exist; the owner already completed the no-context check and must not repeat it. Future saved-reopen package readiness is withheld pending those bounded offline fixes. PM13-04 fresh acquisition remains blocked; no new live acceptance.
+
+## Current project-manager handoff — earlier accepted scope
 
 Reviewed implementation base: `7ca6d5c`, 2026-09-11, `research/offline-controller`. [Review 14](docs/lwbridge-project-status.md) accepts the saved-browsing, feedback, lifecycle and proof-correlation repairs at their stated scopes. **PM13-04 is the only active final resource gate; the complete pages are not finished.**
 
@@ -774,4 +778,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/team-workflow.md. Inspect HEAD/worktree. PM13-01/01b/03/02 are closed at their documented scopes. Web's first task now is tested automatic evidence collection and a beginner-friendly owner guide for the permitted resource checks; do not start another live attempt from the older packet. The owner supplies only descriptions/screenshots, never command output or technical diagnosis. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until complete live evidence exists. Do not reroute SB-97. No Sol or Daybreak assignment. Keep all 47 cases; commit/push/verify and return the actual package readiness to PM. Current prompts are in docs/team-workflow.md.
+Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/team-workflow.md. Inspect HEAD/worktree. PM13-01/01b/03/02 are closed at their documented scopes. Web's first task now is PM15-01/02 from docs/reviews/2026-09-11-review-15-owner-evidence.md. Do not start another owner/live attempt; the empty-profile result is already recorded. The owner supplies only descriptions/screenshots, never command output or technical diagnosis. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until complete live evidence exists. Do not reroute SB-97. No Sol or Daybreak assignment. Keep all 47 cases; commit/push/verify and return the actual package readiness to PM. Current prompts are in docs/team-workflow.md.

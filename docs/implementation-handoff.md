@@ -1,12 +1,16 @@
-# ChatGPT Web implementation task — review 14
+# ChatGPT Web implementation task — review 15
 
 Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md), [current audit](lwbridge-project-status.md), [first-live-result contract](first-live-result.md) and the relevant evidence. Audit base: `7ca6d5c`; inspect actual HEAD/worktree before editing. Preserve concurrent work. All 47 acceptance cases remain required.
+
+## Current assignment — PM15-01/02
+
+Read [review 15](reviews/2026-09-11-review-15-owner-evidence.md). The collector exists and the owner's no-saved-context check is accepted; no repeat is required. Fix only its current-session evidence selection and failed-observation handling using isolated regressions. Do not prepare another empty-profile run, replay the rejected live workflow or switch to monster research. Preserve all old evidence. Commit/push/verify the repaired package and return to PM.
 
 ## Owner clarification — current, 2026-09-11
 
 Web now owns implementation and all technical verification/capture. There is no separate Sol task. The owner can only follow plain UI steps, describe visible outcomes and provide screenshots. PM audits rather than implementing or testing.
 
-**Immediate deliverable:** tested automatic evidence collection plus complete beginner-friendly instructions for the explicitly permitted scope. Read [team-workflow.md](team-workflow.md), fill [live-test-handoff.md](live-test-handoff.md) and [user-test-checklist.md](user-test-checklist.md). Never ask the owner to obtain command output, inspect JSON/SQLite, calculate hashes or debug recovery. Web implements the scripts, validates actual collection and handles interpretation.
+**Delivered foundation:** automatic collection and the beginner guide exist. The immediate deliverable is the two review-15 collector fixes above. Read [team-workflow.md](team-workflow.md), fill [live-test-handoff.md](live-test-handoff.md) and [user-test-checklist.md](user-test-checklist.md). Never ask the owner to obtain command output, inspect JSON/SQLite, calculate hashes or debug recovery. Web implements the scripts, validates actual collection and handles interpretation.
 
 **Current delivery:** the owner completed the first permitted passive check against reviewed build `2d3915d` in attempt `20260911T085114Z-eb1cd35e-7f21ad24`. The selected profile had no published map server and the normal UI showed `MAP_SAVED_CONTEXT_UNAVAILABLE`; no scan/game action ran. `LWB-PM13-009` fixes the package defect exposed by that attempt: the frontend deliberately does not send `map_search` when no saved server exists, so the old collector incorrectly returned `INCOMPLETE`. The repaired collector records the normal `map_summary` error plus empty published-server state as `COMPLETE_NO_SAVED_CONTEXT`, and the guide now tells the owner to screenshot/close before Search on that branch. **Do not ask the owner to repeat the current check.** Fresh acquisition remains SB-97 BLOCKED/NOT_RUN and is not part of this repair.
 

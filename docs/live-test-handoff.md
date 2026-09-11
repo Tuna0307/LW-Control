@@ -3,8 +3,8 @@
 ## Coordination status
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
-- Current owner: **ChatGPT Web** as the single implementation/technical-verification worker. No separate Sol assignment.
-- Package state: **OWNER PASSIVE CHECK COMPLETED: NO SAVED CONTEXT / LWB-PM13-009 READY FOR PM AUDIT**. Owner attempt `20260911T085114Z-eb1cd35e-7f21ad24` used the PM-reviewed `2d3915d` build, showed the normal no-saved-map-server state, closed cleanly, and triggered no scan/game operation. The original collector misclassified that legitimate branch as `INCOMPLETE`; the repaired package now records it as `COMPLETE_NO_SAVED_CONTEXT`.
+- Current owner: **Web — PM15-01/02 recorder repairs and isolated regressions.** No owner test or separate Sol assignment.
+- Package state: **REVIEW 15 COMPLETE: NO-CONTEXT RESULT ACCEPTED; FUTURE REOPEN PACKAGE RETURNED FOR PM15-01/02 FIXES**. Owner attempt `20260911T085114Z-eb1cd35e-7f21ad24` used the PM-reviewed `2d3915d` build, showed the normal no-saved-map-server state, closed cleanly, and triggered no scan/game operation. The original collector misclassified that legitimate branch as `INCOMPLETE`; the repaired package now records it as `COMPLETE_NO_SAVED_CONTEXT`.
 - Owner action status: the permitted passive check has already been performed for the current empty profile. **Do not ask the owner to repeat it.** A future saved-row Search/reopen check is relevant only after a saved server context legitimately exists and is separately dispatched.
 - Fresh Resource Start remains **BLOCKED / SB-97**. No new Start, rejected observation retry, proof-switch replay, helper-direct run, DevTools/Remote-Desktop-Commander desktop reroute, or owner-run scan was performed while preparing this package.
 - PM acceptance of the resource function remains **OPEN**. Monster work remains queued.
@@ -18,6 +18,12 @@
 - Runtime fingerprint matched preflight, cleanup was clean, no recovery/operation-owner journal remained, and no fresh Resource Start/game/helper action ran.
 - Two read-only safeguard errors at startup (`server_jump_history_import`, `profile_instances_reconcile`) explain the red owner-evidence banner in the screenshot; they were background initialization calls blocked before backend mutation, not owner scan clicks.
 - Durable interpretation/repair finding: `evidence/lwbridge-implementation/2026-09-11-pm13-owner-no-saved-context.json` (`LWB-PM13-009`). The original attempt files are preserved unchanged; a supplementary local `web-interpretation.json` was added beside them.
+
+## PM review 15 — fix before future owner use
+
+[Detailed review](reviews/2026-09-11-review-15-owner-evidence.md) confirms the original owner result and identifies two source-level acceptance flaws in the collector at `154ce35`. Web must isolate each session's evidence so the first session cannot satisfy reopen, and keep failed/unknown process/evidence queries distinct from a clean result. The fixes need isolated regressions, not another owner run or live game action.
+
+The previous description of same-request correlation below is a within-aggregate check; it does not yet establish current-session ownership. Passing Web-reported tests did not cover the PM15 counterexamples. Source findings are not claims of a newly executed reproduction. Do not use the package for another owner test before review.
 
 ## Delivered automatic collection package
 

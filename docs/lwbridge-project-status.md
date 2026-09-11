@@ -1,4 +1,41 @@
-# Project-manager checkpoint — review 14
+# Project-manager checkpoint — review 15
+
+Reviewed 2026-09-11 at `154ce35`, branch `research/offline-controller`, clean at entry. This review covers the three owner-evidence commits after `3a9278a`. [Detailed source findings and acceptance criteria](reviews/2026-09-11-review-15-owner-evidence.md).
+
+## Result for the owner
+
+**Automatic collection has been implemented, and the owner already completed the permitted empty-profile check. No repeat is needed.** There was no saved map server/resource in that profile; Search cannot display a resource that has never been acquired there. This is not owner error. The no-context recorder repair is supported by the reviewed source and Web's offline report.
+
+**The recorder is not yet accepted for a future saved-row reopen test.** Two source-level defects need Web fixes: session-two validation can reuse session-one proof, and a failed process observation can be mistaken for no running processes. These flaws concern how the recorder decides a test passed. They do not prove the app's saved-data feature itself is broken.
+
+The live resource feature remains incomplete: no fresh scan was performed in these owner checks. SB-97 remains unresolved; monster acquisition and the remaining two-page scope remain unfinished.
+
+## Review decisions
+
+| Item | Decision |
+|---|---|
+| Owner attempt `20260911T085114Z-eb1cd35e-7f21ad24` | Accept the documented no-saved-context observation; four original evidence hashes verified. No new live success. |
+| LWB-PM13-009 no-context diagnosis/repair | Accept interpretation and source-backed offline repair scope; five current source/guide hashes verified. Repaired build was not retested by the owner. |
+| PM15-01 / P1 | OPEN: bind reopen proof to its own app session; prior-session Search/render must not pass the new session. |
+| PM15-02 / P2 | OPEN: failed/unknown process and evidence observations must not count as clean/success. |
+| PM13-04 / PM12-D | ACTIVE/BLOCKED: recorder fixes do not clear fresh acquisition or full acceptance. |
+| Next owner | Web, two bounded recorder fixes with isolated regressions. No owner, Sol or Daybreak task. |
+
+## Evidence and validation scope
+
+PM reviewed the collector, host recorder/command gate, normal map_summary error capture, worker check reports and original stored attempt. The original postflight has exit code 0, matching runtime fingerprints, cleanupClean=true, zero rows and zero Search responses. The old INCOMPLETE result remains preserved rather than rewritten as live success.
+
+Web reports Release build, collector/preflight, deterministic/native/browser checks passing. This PM audit did **not** run those suites, launch the app/game, interact with the desktop or implement repairs. PM15-01/02 are source-confirmed findings with offline reproduction assigned to Web; they are not newly executed live reproductions. All 47 acceptance cases remain required; none is newly signed off.
+
+## Next instruction
+
+Read [the detailed review](reviews/2026-09-11-review-15-owner-evidence.md), [Web prompt](team-workflow.md), [technical packet](live-test-handoff.md) and [owner guide](user-test-checklist.md). Preserve the owner's evidence and do not ask for another empty-profile check. Fix PM15-01/02, verify the collector offline, document/build/commit/push/verify and return to PM. No repeated rejection diagnosis, speculative application fix, new acquisition attempt or unrelated research is assigned.
+
+## Historical review 14 and contributor follow-ups
+
+The following is retained historical context. Review 15 above supersedes its readiness and next-task statements.
+
+### Project-manager checkpoint — review 14
 
 Audited 2026-09-11 at `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d`, branch `research/offline-controller`, clean and synchronized at entry. Eight commits since `d4571bd` were reviewed. [Review 13 and contributor follow-ups](reviews/2026-09-11-review-13-and-followups.md) are historical.
 

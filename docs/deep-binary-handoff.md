@@ -1,5 +1,8 @@
 # Daybreak task — specialist escalation only
 
+> Review 15 at `154ce35`: owner no-context check accepted; do not repeat it. Web must fix PM15-01 session evidence isolation and PM15-02 failed-observation handling before future owner use. The recorder exists; live acquisition remains blocked. No Daybreak task. [Current review](reviews/2026-09-11-review-15-owner-evidence.md) and [Web prompt](team-workflow.md).
+
+
 Updated 2026-09-11 by project-manager review 14 against `7ca6d5c`. R7-001 replay is verified; PM10-01–03 and fresh app acquisition stay with the regular AI. No specialist assignment was added. Read [AGENTS.md](../AGENTS.md) section 6, [task.md](../task.md), [the current audit](lwbridge-project-status.md) and [the escalation register](daybreak-escalations.md). This replaces the earlier broad binary-research assignment; its [historical catalog](reviews/2026-09-09-prior-deep-binary-handoff.md) remains a source map, not an active queue.
 
 ## What your previous task actually completed

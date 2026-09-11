@@ -14,7 +14,7 @@ Updated 2026-09-11. This replaces the Web/Sol split. [AGENTS.md](../AGENTS.md) g
 
 Web delivered preparation at `9c20896`; the former Sol-labelled worker delivered its blocked attempt at `ccb74b0` and existing-log diagnosis at `537a5b9`. That route was codex-chatgpt-web 5.0.6 / chatgpt-web/high. Native navigation worked, but a get_window_state call was rejected upstream before local dispatch; no fresh Start was sent. Reviewer-specific cause remains unknown. Do not repeat diagnosis without new evidence or invent an application fix.
 
-Current Web reports files/shell/existing-log access but no native screenshot/click tool. **Web's immediate task is automatic evidence collection plus a beginner-friendly owner guide for the permitted scope.** The new scripts/package are NOT_READY until implemented and verified. Resource live acceptance remains open; no monster work follows from this role change.
+Current Web reports files/shell/existing-log access but no native screenshot/click tool. **Current task: Web fixes PM15-01/02 in the implemented recorder.** The owner already completed the no-saved-context check; no repeat is needed. The collector exists but future saved-reopen readiness is withheld. Read [review 15](reviews/2026-09-11-review-15-owner-evidence.md). Resource live acceptance remains open; no monster work follows from this role change.
 
 ## Required owner-testing package
 
@@ -48,15 +48,15 @@ During an owner test Web must not rebuild/replace the app, edit its profile/stor
 ## Prompt to send Web now
 
 ```text
-Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control as the single primary implementation and verification worker. Read AGENTS.md, task.md, BACKLOG.md, docs/team-workflow.md, docs/implementation-handoff.md, docs/live-test-handoff.md and docs/user-test-checklist.md. Inspect HEAD/worktree and preserve other work.
+Work in LW-Control. Read AGENTS.md, task.md, BACKLOG.md, docs/reviews/2026-09-11-review-15-owner-evidence.md and docs/live-test-handoff.md. Inspect HEAD/worktree and preserve other work.
 
-There is no separate Sol worker. The owner has no technical knowledge and can only follow clear UI steps, describe visible results and supply screenshots. Automatically collect all needed technical evidence; do not ask for commands, terminal output, JSON/database inspection, hashes or recovery diagnosis.
+PM accepts the owner's no-saved-context observation and the bounded LWB-PM13-009 repair. Do not ask the owner to repeat the empty-profile check.
 
-Prepare the exact build, implement/reuse and test scripts for permitted automatic evidence collection, and complete the beginner-friendly guide. Prefer operating collection yourself through permitted tools; if local user initiation is necessary, provide a tested double-click entry point with clear status. Preserve separate attempt bundles, partial failures and cleanup evidence. Report missing actual Search/query/render correlation rather than substituting SQLite or screenshots.
+Fix PM15-01: reopen evidence must belong to the current app session. Session one must never satisfy session two's Search/result/render gate. Add isolated tests for no second Search, stale/uncorrelated/mismatching second evidence, file/PID ordering or reuse, and a valid distinct second session with the same saved row.
 
-Reuse the completed diagnosis and accepted repairs. Preserve SB-97; do not replay or route rejected operations through scripts, alternate executors or the owner. Separate permitted checks from blocked fresh acquisition. Do not run another live test or claim live acceptance to prepare this package. Stay on the resource function.
+Fix PM15-02: process-query failure/invalid output is UNKNOWN, not an empty process list or clean cleanup. Carry evidence-health failures into incomplete/blocked status, preserving partial logs. Test command failure, malformed output, legitimate empty output, and app/evidence failures after an earlier successful session.
 
-Update the packet/guide with exact delivered paths, tested scope, restrictions and gaps. Run relevant checks, commit/push/verify, and report READY_FOR_OWNER_CHECKS for the explicit permitted scope or the exact blocker. Scripts/shortcuts must exist and be verified before being called ready. Return to PM before asking the owner to begin the new package.
+Use offline isolated regressions; do not run a fresh scan, reroute SB-97, seed owner data, request an owner retest or start unrelated work. Keep collection automatic and owner instructions beginner-friendly. Update the exact build/evidence/handoff, run relevant checks, commit/push/verify, and return to PM. A collector fix is not live resource acceptance.
 ```
 
 ## Repeat prompt after owner feedback

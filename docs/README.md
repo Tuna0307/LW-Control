@@ -1,5 +1,8 @@
 # LWBridge documentation index
 
+> Review 15 at `154ce35`: owner no-context check accepted; do not repeat it. Web must fix PM15-01 session evidence isolation and PM15-02 failed-observation handling before future owner use. The recorder exists; live acquisition remains blocked. No Daybreak task. [Current review](reviews/2026-09-11-review-15-owner-evidence.md) and [Web prompt](team-workflow.md).
+
+
 This directory contains current LWBridge reconstruction and official-client evidence. Start here instead of browsing files by date or guessing which notes are authoritative.
 
 **Mandatory before working:** [../AGENTS.md](../AGENTS.md) defines the user's repository-wide reverse-engineer-first, no-invented-values, immediate-finding-documentation and checkpoint commit/push rules. Every AI and contributor must follow them. New findings require source identity/hash, an exact locator, reproduction steps, evidence status and limitations; update this index and the feature ledger when adding durable material.
