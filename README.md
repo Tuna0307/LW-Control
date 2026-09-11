@@ -18,10 +18,11 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 - Recovered React/Vite UI is reproduced in WebView2 with the original feature pages, themes, icons, and nine languages.
 - Login/account/license presentation has been removed from the rebuild.
 - A real JavaScript-to-C# command/event boundary exists with request/session correlation, profile scoping, origin validation, cancellation, and structured failures.
-- Installation validation, isolated config, profile routing and the four PM2 fixes are verified. Native-host interaction coverage is substantial; review 3 still identifies two preference feedback/failure gaps.
-- Launch remains fail-closed until the recovered bootstrap contract is complete.
-- Map Scan request normalization is implemented for all eight recovered data types, with `normal=8` and `fast=20` concurrency. Production scanning remains gated on a verified bridge-ready game session.
-- SQLite schema, explicit-key storage, marks, scoped clear and default persisted search have offline tests. Remaining filters/options/counts/export and real capture are unfinished.
+- Selected-profile saved-resource browsing and reopen have recorded normal-window proof, distinct from live readiness.
+- A bounded resource-only acquisition route has historical real-client evidence. The latest normal-window two-read/Search/render/reopen acceptance remains open; see [current readiness and tests](docs/user-test-checklist.md).
+- Cancellation/cleanup ownership and exact result/query/render correlation repairs pass focused offline checks.
+- Overview Launch remains fail-closed until its bootstrap contract is complete. Other-category acquisition, automatic/full-world scanning and complete export/action parity are unfinished.
+- SQLite persistence, marks, scoped clear and supported search contracts have offline coverage; this is not full Map Data acceptance.
 - A repeatable read-only official-client inspector records current runtime versions, hashes, PE structure, packaged containers, hot-update state, and launcher lifecycle evidence.
 
 ## Start here

@@ -1,5 +1,11 @@
 # Daybreak escalation register
 
+## PM review 14 — current outcome (2026-09-11, `7ca6d5c`)
+
+No Daybreak assignment. PM13-01/01b/03/02 are closed at recorded scope; PM13-04 is the resource final verification gate. Computer Use setup can be checked by the standard AI; availability does not resolve SB-97 or prove live functionality. The PM cannot waive platform/environment restrictions or dispatch a denied operation to another executor/model. Preserve SB-97; establish an independently permitted test path or record the necessary external change. See [test checklist](user-test-checklist.md).
+
+The following review-13 outcomes are historical; their references to next display repairs have been superseded by the closures above.
+
 ## PM review 13 — current outcome (2026-09-10, `b16fb9a`)
 
 No Daybreak assignment. PM13 normal resource display/context, error feedback, cancellation/ownership races and proof validation are regular-AI work. ESC-005 stays NOT_ASSIGNED/deferred; a future monster blocker requires an exact contract and permitted method history, not a category label.
