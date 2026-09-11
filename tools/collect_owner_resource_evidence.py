@@ -102,7 +102,7 @@ def relevant_running(processes: list[dict]) -> list[dict]:
 
 
 def inspect_profile_store() -> dict:
-    result: dict = {"configRoot": str(CONFIG_ROOT), "configExists": False, "profileId": None, "database": None, "resourceRows": []}
+    result: dict = {"configRoot": str(CONFIG_ROOT), "configExists": False, "profileId": None, "database": None, "publishedServerIds": [], "resourceRows": []}
     config_path = CONFIG_ROOT / "config.json"
     config = read_json(config_path)
     if isinstance(config, dict):
@@ -121,6 +121,9 @@ def inspect_profile_store() -> dict:
     try:
         con = sqlite3.connect(uri, uri=True)
         con.row_factory = sqlite3.Row
+        result["publishedServerIds"] = [
+            int(row[0]) for row in con.execute("SELECT DISTINCT server_id FROM map_records ORDER BY server_id").fetchall()
+        ]
         rows = con.execute(
             "SELECT server_id, record_key, point_index, level, updated_at, data_json FROM map_records WHERE kind='resource' ORDER BY updated_at DESC LIMIT 100"
         ).fetchall()
@@ -167,6 +170,10 @@ def collect_ui_events(ui_dir: Path) -> dict:
             errors.append({"path": str(path), "error": f"{type(exc).__name__}: {exc}"})
     searches = [e for e in events if e.get("eventType") == "resource-search-response"]
     renders = [e for e in events if e.get("eventType") == "resource-render-observation"]
+    map_summary_errors = [
+        e for e in events
+        if e.get("eventType") == "command-error" and e.get("command") == "map_summary"
+    ]
     search_ids = [e.get("requestId") for e in searches if e.get("requestId")]
     correlated_ids = [e.get("requestId") for e in renders if e.get("correlated") is True and e.get("requestId")]
     correlated_set = set(correlated_ids)
@@ -191,8 +198,21 @@ def collect_ui_events(ui_dir: Path) -> dict:
         "latestRequestId": latest_request_id,
         "latestSearchCorrelated": latest_request_id is not None and latest_request_id in correlated_set,
         "latestResultTotal": latest_total, "latestSearchSignature": latest_signature,
+        "mapSummaryErrorCount": len(map_summary_errors),
+        "latestMapSummaryErrorCode": map_summary_errors[-1].get("code") if map_summary_errors else None,
+        "latestMapSummaryErrorRequestId": map_summary_errors[-1].get("requestId") if map_summary_errors else None,
         "errors": errors,
     }
+
+
+def is_complete_no_saved_context(ui: dict, pre_store: dict, post_store: dict) -> bool:
+    return (
+        ui.get("latestMapSummaryErrorCode") == "MAP_SAVED_CONTEXT_UNAVAILABLE"
+        and pre_store.get("publishedServerIds") == []
+        and post_store.get("publishedServerIds") == []
+        and not pre_store.get("databaseReadError")
+        and not post_store.get("databaseReadError")
+    )
 
 
 def run_runtime_inspector(output: Path) -> dict:
@@ -298,6 +318,9 @@ def postflight(attempt: Path, exe: Path, session_index: int, exit_code: int) -> 
     value["runtimeIntegrityMatchesPreflight"] = value["runtimeFingerprint"] == pre.get("runtimeFingerprint")
     value["cleanupClean"] = not relevant_running(processes) and not recovery["recoveryExists"] and not recovery["operationOwnerExists"]
     value["completeSearchRender"] = ui["latestSearchCorrelated"] is True
+    pre_store = pre.get("profileStore") if isinstance(pre.get("profileStore"), dict) else {}
+    post_store = value.get("profileStore") if isinstance(value.get("profileStore"), dict) else {}
+    value["completeNoSavedContext"] = is_complete_no_saved_context(ui, pre_store, post_store)
     write_json(attempt / f"postflight-session-{session_index}.json", value)
     return value
 
@@ -327,11 +350,12 @@ def run_owner_session(exe: Path) -> int:
     cp = subprocess.run([str(exe), "--owner-evidence", str(ui_dir), "--view", "map-data"], cwd=str(REPO))
     post = postflight(attempt, exe, session_index, cp.returncode)
     profile = post.get("profileStore", {}).get("profileId")
-    if not post["completeSearchRender"] or not post["runtimeIntegrityMatchesPreflight"] or not post["cleanupClean"]:
+    evidence_complete = post["completeSearchRender"] or post["completeNoSavedContext"]
+    if not evidence_complete or not post["runtimeIntegrityMatchesPreflight"] or not post["cleanupClean"]:
         ACTIVE_POINTER.unlink(missing_ok=True)
         reasons = []
-        if not post["completeSearchRender"]:
-            reasons.append("no same-request Resource Search/render correlation was recorded")
+        if not evidence_complete:
+            reasons.append("neither same-request Resource Search/render correlation nor the normal no-saved-context branch was recorded")
         if not post["runtimeIntegrityMatchesPreflight"]:
             reasons.append("official runtime fingerprint changed during the permitted check")
         if not post["cleanupClean"]:
@@ -342,6 +366,11 @@ def run_owner_session(exe: Path) -> int:
         return 3
 
     if session_index == 1:
+        if post["completeNoSavedContext"]:
+            ACTIVE_POINTER.unlink(missing_ok=True)
+            write_json(attempt / "attempt-summary.json", {"status": "COMPLETE_NO_SAVED_CONTEXT", "attemptDirectory": str(attempt), "profileId": profile, "session1": post})
+            message("LWBridge owner check", "This profile has no saved map server, so normal Search cannot send a map_search request yet.\n\nThe permitted passive check is complete. Do not press Start Scan and do not run the shortcut again. Send ChatGPT your screenshot and what you saw.")
+            return 0
         latest_total = post.get("uiEvidence", {}).get("latestResultTotal")
         if latest_total == 0:
             ACTIVE_POINTER.unlink(missing_ok=True)
@@ -392,6 +421,14 @@ def self_test() -> int:
             f.write(json.dumps({"eventType": "resource-render-observation", "requestId": "r2", "correlated": True}) + "\n")
         summary = collect_ui_events(ui)
         assert summary["latestSearchCorrelated"] is True
+        with (ui / "ui-session-1.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps({"eventType": "command-error", "requestId": "summary-1", "command": "map_summary", "code": "MAP_SAVED_CONTEXT_UNAVAILABLE"}) + "\n")
+        summary = collect_ui_events(ui)
+        assert summary["mapSummaryErrorCount"] == 1
+        assert summary["latestMapSummaryErrorCode"] == "MAP_SAVED_CONTEXT_UNAVAILABLE"
+        assert summary["latestMapSummaryErrorRequestId"] == "summary-1"
+        assert is_complete_no_saved_context(summary, {"publishedServerIds": []}, {"publishedServerIds": []})
+        assert not is_complete_no_saved_context(summary, {"publishedServerIds": [2212]}, {"publishedServerIds": [2212]})
         assert relevant_running([{"name": "LastWar.exe"}]) and not relevant_running([{"name": "pythonw.exe"}])
         target = base / "atomic.json"
         write_json(target, {"ok": True})

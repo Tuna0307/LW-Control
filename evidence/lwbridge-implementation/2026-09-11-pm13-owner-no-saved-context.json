@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-009",
+  "date": "2026-09-11",
+  "scope": "Owner-assisted passive Resource check: no-saved-context result and false-INCOMPLETE collector repair",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; OWNER-OBSERVED NO-SAVED-CONTEXT",
+  "sourceIdentity": {
+    "ownerAttempt": {
+      "attemptId": "20260911T085114Z-eb1cd35e-7f21ad24",
+      "branch": "research/offline-controller",
+      "head": "2d3915de4c0ece5e8cb822c2bce4a04f0fd00fd0",
+      "exeSha256": "eb1cd35eebe28bd7853a79ec5709257ce29f0b2cc2eca71d9d44ab4f7913f4d8",
+      "managedDllSha256": "7f21ad24d8852deb4ed57afed81473a99054e44f0e04a0c88f0992c2daa935ec"
+    },
+    "repairedBuild": {
+      "exeSha256": "1709356983a31d003b602a97af36669497ae6e8c8bc8f022b275ee44a0d7a334",
+      "exeSize": 163328,
+      "managedDllSha256": "0a52ec07650ad49758596260a758a91e4a9af0ce8599f0232c02a07a77492b8c",
+      "managedDllSize": 444928
+    }
+  },
+  "exactLocators": {
+    "frontendShortCircuit": "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js: Search onClick checks dataServerId <= 0, sets MAP_SAVED_CONTEXT_UNAVAILABLE and returns before normal map_search invocation",
+    "backendNoContext": "src/LWBridge.Desktop/LWBridgeBackend.cs:253-290 ReadPublishedServerIds; zero servers throws MAP_SAVED_CONTEXT_UNAVAILABLE from map_summary",
+    "nativeRecorder": "src/LWBridge.Desktop/LWBridgeWindow.cs: BridgeCommandException catch now records normal map_summary errors in owner-evidence mode",
+    "recorderMethod": "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs: RecordCommandError",
+    "collector": "tools/collect_owner_resource_evidence.py: inspect_profile_store, collect_ui_events, is_complete_no_saved_context, postflight, run_owner_session",
+    "guide": "docs/user-test-checklist.md: First check no-saved-map-server branch"
+  },
+  "reproduction": [
+    "Owner ran reviewed repo-root Start Owner Resource Check.cmd against commit 2d3915d, opened Resource, pressed Search once and closed normally.",
+    "Inspect %LOCALAPPDATA%\\LWBridgeRebuild\\owner-evidence\\20260911T085114Z-eb1cd35e-7f21ad24\\attempt-summary.json and postflight-session-1.json.",
+    "Inspect recovered frontend Search handler: when dataServerId <= 0 it displays MAP_SAVED_CONTEXT_UNAVAILABLE and returns without invoking map_search.",
+    "Run Start Owner Resource Check.cmd --self-test after repair.",
+    "Run Start Owner Resource Check.cmd --preflight-only after repair.",
+    "Run dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release -- --verify-real-config-unchanged."
+  ],
+  "result": {
+    "ownerAttempt": {
+      "preflightBlockers": [],
+      "profileId": "local-9370d887d93e4475a8d4fee049b50632",
+      "resourceRowsBefore": 0,
+      "resourceRowsAfter": 0,
+      "normalVisibleState": "MAP_SAVED_CONTEXT_UNAVAILABLE / No saved map server is available for this profile. Run a Resource Point scan first, then search again.",
+      "actualMapSearchResponsesRecorded": 0,
+      "runtimeIntegrityMatchesPreflight": true,
+      "cleanupClean": true,
+      "originalCollectorStatus": "INCOMPLETE",
+      "interpretation": "false negative in the evidence collector, not owner misuse and not a Search/backend failure"
+    },
+    "repair": [
+      "Owner-evidence mode records normal map_summary command errors before returning them to the recovered frontend.",
+      "Read-only profile inspection records DISTINCT published server IDs using the same map_records server scope as MapDataStore.ReadPublishedServerIds.",
+      "A normal MAP_SAVED_CONTEXT_UNAVAILABLE observation plus empty pre/post publishedServerIds can complete as COMPLETE_NO_SAVED_CONTEXT; it never fabricates a map_search request/result.",
+      "When a saved server exists, the existing same-request map_search/result/render correlation requirement is unchanged.",
+      "Owner guide branches before Search on the visible no-saved-map-server message and requires no repeat for the current empty profile."
+    ]
+  },
+  "sourceHashes": {
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "64a6f5b72187b549676f6e7d53a2d2a74a68cc9dbe0b6d00800724e3e654a837",
+    "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs": "0a791d7aff46df85eb54c0cc73b9ab232c4effb03a1c94f2f2f4f950c4a53b7e",
+    "tools/collect_owner_resource_evidence.py": "8e17f0213c3cb08fc74ddd02ae40e31cce43de127c8609269b33adecc4db8da8",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "fc22148f1de195cce3859ae0aefc2eaa5ebe80059007bd63e80a9089192b9371",
+    "docs/user-test-checklist.md": "3c9fd0f8a088490807979526a5aada87dcb9b90f9f68976b003a58698ede8c7d"
+  },
+  "originalAttemptEvidenceHashes": {
+    "attempt-summary.json": "87b4d78f2f26abcf668e31909843c4111c1feceb7c6dfdc765f6923af3af31e2",
+    "preflight-session-1.json": "acbb2f7662e1085f75012e0980c3c8e1d58cb953dcad3977eaac538e84e48c2b",
+    "postflight-session-1.json": "95799930570bb1687909791cafe084c94d317be9d2a65e024a33510b39a65656",
+    "ui/ui-session-32960.jsonl": "594f482cbd1d95bc76fce2371f91b9be3ec90812631dbd078de95831b055fbbb"
+  },
+  "validation": [
+    "python -m py_compile tools/collect_owner_resource_evidence.py = PASS",
+    "python tools/collect_owner_resource_evidence.py --self-test = PASS including map_summary unavailable collection and no-saved-context predicate",
+    "repo-root Start Owner Resource Check.cmd --self-test = PASS",
+    "repo-root Start Owner Resource Check.cmd --preflight-only = PASS; blockers=0; publishedServerIds=[]; resourceRows=0; no recovery/owner journal",
+    "python tools/build_lwbridge_frontend.py --check = PASS",
+    "desktop deterministic suite --verify-real-config-unchanged = PASS, six groups true, no failures",
+    "Release build = PASS, 0 warnings/errors",
+    "preference provider = PASS",
+    "native host termination self-test and isolated WebView matrix = PASS (rerun with one-process PowerShell ExecutionPolicy Bypass after local execution-policy refusal)",
+    "requested-live missing-native check = PASS",
+    "transport boundary check = PASS",
+    "PM13 resource feedback browser check = PASS",
+    "PM13 five-case resource proof browser check = PASS",
+    "full browser verifier = PASS 35 checks"
+  ],
+  "limits": [
+    "The original owner attempt cannot contain a map_search request/result because the recovered frontend intentionally suppresses that call when no saved server is available.",
+    "The owner screenshot/description is complementary evidence of the visible no-saved-context branch; it is not fresh acquisition proof.",
+    "The repaired collector was not used to repeat the owner's attempt; no repeat is required or requested.",
+    "Fresh Resource Start #1/#2 remain SB-97 BLOCKED/NOT_RUN. No game/helper scan was triggered by this finding or repair.",
+    "Resource-name mapping and live Gathering remain unresolved."
+  ],
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs",
+      "tools/collect_owner_resource_evidence.py",
+      "tests/LWBridge.Desktop.Checks/Program.cs",
+      "docs/user-test-checklist.md",
+      "docs/live-test-handoff.md",
+      "docs/implementation-handoff.md",
+      "docs/lwbridge-feature-ledger.md",
+      "docs/lwbridge-project-status.md",
+      "docs/README.md",
+      "BACKLOG.md",
+      "task.md"
+    ],
+    "pmDefect": "PM13-04 direct permitted dependency / owner-evidence no-context branch",
+    "next": "PM audits LWB-PM13-009. Do not repeat the owner passive check for the current empty profile. Fresh acquisition remains separately blocked by SB-97."
+  }
+}

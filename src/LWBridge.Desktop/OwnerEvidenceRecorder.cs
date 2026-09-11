@@ -120,6 +120,17 @@ internal sealed class OwnerEvidenceRecorder : IDisposable
         result
     });
 
+    public void RecordCommandError(string requestId, string command, string code, string message, object? details) => Write(new
+    {
+        timestampUtc = DateTimeOffset.UtcNow,
+        eventType = "command-error",
+        requestId,
+        command,
+        code,
+        message,
+        details
+    });
+
     public void RecordRender(
         string requestId,
         JsonElement payload,

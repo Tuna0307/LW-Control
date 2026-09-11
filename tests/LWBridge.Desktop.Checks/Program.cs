@@ -1061,11 +1061,17 @@ try
             recorder.RecordSearch("owner-request-1", proofSearchPayload, JsonSerializer.Deserialize<object>(proofSearchResult.GetRawText(), JsonOptions.Default));
             recorder.RecordRender("owner-request-1", proofSearchPayload, proofSearchResult, proofGoodSnapshot,
                 true, null, ownerTarget, proofRenderedTime);
+            recorder.RecordCommandError("owner-summary-1", "map_summary", "MAP_SAVED_CONTEXT_UNAVAILABLE",
+                "No saved map server context.", new { serverIds = Array.Empty<int>() });
         }
         string ownerJsonl = Directory.GetFiles(ownerRecorderRoot, "ui-session-*.jsonl").Single();
         string[] ownerLines = File.ReadAllLines(ownerJsonl);
-        Check(ownerLines.Length == 2 && ownerLines.All(line => line.Contains("owner-request-1", StringComparison.Ordinal)),
-            "owner evidence recorder durably appends actual Search/render request identity");
+        Check(ownerLines.Length == 3 &&
+              ownerLines[0].Contains("owner-request-1", StringComparison.Ordinal) &&
+              ownerLines[1].Contains("owner-request-1", StringComparison.Ordinal) &&
+              ownerLines[2].Contains("owner-summary-1", StringComparison.Ordinal) &&
+              ownerLines[2].Contains("MAP_SAVED_CONTEXT_UNAVAILABLE", StringComparison.Ordinal),
+            "owner evidence recorder durably appends Search/render identity and normal map-summary errors");
     }
     finally
     {

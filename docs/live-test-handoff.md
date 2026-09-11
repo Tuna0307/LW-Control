@@ -4,10 +4,20 @@
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
 - Current owner: **ChatGPT Web** as the single implementation/technical-verification worker. No separate Sol assignment.
-- Package state: **PM_REVIEWED / READY_FOR_OWNER_CHECKS for the passive scope only**. The 2026-09-11 independent checkpoint audit verified the read-only command gate and collector boundary and corrected stale duplicate provenance hashes in the durable evidence. The owner may now be dispatched only for the saved Resource Search/reopen steps in the beginner guide.
-- Permitted owner scope after PM review: ordinary saved Resource Search and, only when a saved row exists, same-profile reopen/Search. This is **READY_FOR_OWNER_CHECKS only for that passive scope**, not for fresh acquisition.
+- Package state: **OWNER PASSIVE CHECK COMPLETED: NO SAVED CONTEXT / LWB-PM13-009 READY FOR PM AUDIT**. Owner attempt `20260911T085114Z-eb1cd35e-7f21ad24` used the PM-reviewed `2d3915d` build, showed the normal no-saved-map-server state, closed cleanly, and triggered no scan/game operation. The original collector misclassified that legitimate branch as `INCOMPLETE`; the repaired package now records it as `COMPLETE_NO_SAVED_CONTEXT`.
+- Owner action status: the permitted passive check has already been performed for the current empty profile. **Do not ask the owner to repeat it.** A future saved-row Search/reopen check is relevant only after a saved server context legitimately exists and is separately dispatched.
 - Fresh Resource Start remains **BLOCKED / SB-97**. No new Start, rejected observation retry, proof-switch replay, helper-direct run, DevTools/Remote-Desktop-Commander desktop reroute, or owner-run scan was performed while preparing this package.
 - PM acceptance of the resource function remains **OPEN**. Monster work remains queued.
+
+## Owner passive result - 2026-09-11
+
+- Attempt: `%LOCALAPPDATA%\LWBridgeRebuild\owner-evidence\20260911T085114Z-eb1cd35e-7f21ad24\`.
+- Reviewed owner-attempt build: commit `2d3915de4c0ece5e8cb822c2bce4a04f0fd00fd0`; EXE SHA-256 `eb1cd35eebe28bd7853a79ec5709257ce29f0b2cc2eca71d9d44ab4f7913f4d8`; managed DLL SHA-256 `7f21ad24d8852deb4ed57afed81473a99054e44f0e04a0c88f0992c2daa935ec`.
+- Pre/post store: profile `local-9370d887d93e4475a8d4fee049b50632`, zero Resource rows; the page displayed **"No saved map server is available for this profile. Run a Resource Point scan first, then search again."**
+- The owner clicked Resource and Search once, supplied screenshots, and closed LWBridge normally. The recovered Search handler intentionally returns before invoking `map_search` when its data-server id is nonpositive, so the bundle correctly contains `searchCount=0`; the old collector's requirement for a successful Search/render pair made this branch impossible to pass.
+- Runtime fingerprint matched preflight, cleanup was clean, no recovery/operation-owner journal remained, and no fresh Resource Start/game/helper action ran.
+- Two read-only safeguard errors at startup (`server_jump_history_import`, `profile_instances_reconcile`) explain the red owner-evidence banner in the screenshot; they were background initialization calls blocked before backend mutation, not owner scan clicks.
+- Durable interpretation/repair finding: `evidence/lwbridge-implementation/2026-09-11-pm13-owner-no-saved-context.json` (`LWB-PM13-009`). The original attempt files are preserved unchanged; a supplementary local `web-interpretation.json` was added beside them.
 
 ## Delivered automatic collection package
 
@@ -17,17 +27,17 @@
 | Collector | `tools/collect_owner_resource_evidence.py` |
 | Passive app instrumentation | normal app option `--owner-evidence <directory>` implemented by `OwnerEvidenceRecorder.cs` / `LWBridgeWindow.cs` |
 | Evidence root | `%LOCALAPPDATA%\LWBridgeRebuild\owner-evidence\<UTC>-<exeSha8>-<dllSha8>\` |
-| Per-session UI evidence | `ui\ui-session-<pid>.jsonl`, containing actual normal Resource `map_search` request/result and passive Resource-table observation |
+| Per-session UI evidence | `ui\ui-session-<pid>.jsonl`; with saved context it contains actual normal Resource `map_search` request/result + passive table observation, and without saved context it records the normal `map_summary` `MAP_SAVED_CONTEXT_UNAVAILABLE` error |
 | Technical snapshots | `preflight.json`, `official-runtime-pre.json`, `postflight-session-1.json`, optional `postflight-session-2.json`, `attempt-summary.json` |
 | Reopen state | `active-owner-check.json` exists only while a first session with saved data is awaiting the permitted reopen check |
 
-**IMPLEMENTATION POLICY:** `--owner-evidence` is passive instrumentation added for owner-assisted verification. It records only already-occurring normal Resource Search traffic and polls the already-rendering Resource table for correlation; it does not click Search, start a scan, modify stored rows, clear recovery journals, drive the desktop, or invoke the live helper. Direct SQLite evidence is recorded only as supplementary store state and never substitutes for the captured actual Search response.
+**IMPLEMENTATION POLICY:** `--owner-evidence` is passive instrumentation added for owner-assisted verification. With saved context it records only already-occurring normal Resource Search traffic and polls the already-rendering Resource table for correlation. With no saved context it records the already-occurring normal `map_summary` error and verifies read-only published-server state; it does not fabricate a Search call/result. It never clicks Search, starts a scan, modifies stored rows, clears recovery journals, drives the desktop, or invokes the live helper. Direct SQLite evidence remains supplementary and cannot substitute for an actual Search response when one should exist.
 
-The collector automatically refuses a normal owner session when LWBridge/Last War/launcher is already active or a recovery/operation-owner journal is pending. It fingerprints the exact app/current client, runs the existing read-only helper `--check-only` compatibility gate, discovers the active profile/store, reads Resource rows read-only, captures same-request Search/render evidence, compares official-runtime fingerprints before/after, and requires clean process/recovery state. Partial/incomplete attempts are preserved; session 2 does not overwrite session-1 preflight evidence, the latest Search must have same-request render correlation, UI evidence files carry SHA-256/size metadata, and a changed/missing pending-reopen build is blocked instead of silently starting a replacement attempt. The owner is told to stop rather than retry.
+The collector automatically refuses a normal owner session when LWBridge/Last War/launcher is already active or a recovery/operation-owner journal is pending. It fingerprints the exact app/current client, runs the existing read-only helper `--check-only` compatibility gate, discovers the active profile/store, reads published server IDs and Resource rows read-only, captures same-request Search/render evidence when a server exists, records normal `map_summary` missing-context errors when none exists, compares official-runtime fingerprints before/after, and requires clean process/recovery state. Partial/incomplete attempts are preserved; session 2 does not overwrite session-1 preflight evidence, a saved-context Search still requires same-request render correlation, UI evidence files carry SHA-256/size metadata, and a changed/missing pending-reopen build is blocked instead of silently starting a replacement attempt. The owner is told to stop rather than retry.
 
-If the first Search returns zero rows, the collector records `COMPLETE_EMPTY`, removes any reopen pointer and tells the owner not to repeat the shortcut. If a row exists, it records `AWAITING_REOPEN`; the second session must use the same executable + managed-DLL hashes/profile and return the same first-row server/record/point/x/y/level/updatedAt signature before the bundle is `COMPLETE`.
+If normal `map_summary` reports `MAP_SAVED_CONTEXT_UNAVAILABLE` and read-only pre/post `publishedServerIds` are both empty, the collector records `COMPLETE_NO_SAVED_CONTEXT`; no `map_search` is expected or fabricated. If a real Search returns zero rows, it records `COMPLETE_EMPTY`. If a row exists, it records `AWAITING_REOPEN`; the second session must use the same executable + managed-DLL hashes/profile and return the same first-row server/record/point/x/y/level/updatedAt signature before the bundle is `COMPLETE`.
 
-## Exact candidate build for this package
+## Exact repaired build after owner feedback
 
 | Field | Value |
 |---|---|
@@ -35,14 +45,14 @@ If the first Search returns zero rows, the collector records `COMPLETE_EMPTY`, r
 | Build result | PASS; 0 warnings, 0 errors |
 | Executable | `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.exe` |
 | Executable size | 163,328 bytes |
-| Executable SHA-256 | `eb1cd35eebe28bd7853a79ec5709257ce29f0b2cc2eca71d9d44ab4f7913f4d8` |
-| Managed DLL | `LWBridge.Desktop.dll`, 442,880 bytes, SHA-256 `7f21ad24d8852deb4ed57afed81473a99054e44f0e04a0c88f0992c2daa935ec` |
+| Executable SHA-256 | `1709356983a31d003b602a97af36669497ae6e8c8bc8f022b275ee44a0d7a334` |
+| Managed DLL | `LWBridge.Desktop.dll`, 444,928 bytes, SHA-256 `0a52ec07650ad49758596260a758a91e4a9af0ce8599f0232c02a07a77492b8c` |
 | Collector self-test | PASS through the real repo-root `.cmd` entry point; no app/game/process operation |
 | Collector read-only preflight | PASS through the same `.cmd` entry point; attempt bundle created automatically and compatibility gate passed |
-| Native Search/render contract tests | PASS in deterministic desktop suite, including exact row, stale timestamp, empty-result and durable request-id recording cases |
+| Native evidence contract tests | PASS in deterministic desktop suite, including exact row, stale timestamp, empty-result, durable request-id recording and normal `map_summary` command-error recording |
 | Passive host wiring smoke | PASS: exact Release app launched on Map Data with `--owner-evidence`, wrote `session-start` / `session-end` through the real host, and closed without any Search/scan/game action |
 
-The build is a controlled test candidate. The `bin/` output is intentionally not committed; the hash above identifies the exact runnable output produced from this checkpoint. The owner guide and durable `LWB-PM13-008` evidence have now passed the 2026-09-11 checkpoint review. Authorization is limited to the passive saved Resource Search/reopen check.
+The repaired build is an offline-verified post-owner diagnostic checkpoint. The `bin/` output is intentionally not committed; the hashes above identify the exact output used for repair verification. **It has not been sent back to the owner and no repeat is requested.** The actual owner observation remains tied to the reviewed `2d3915d` EXE/DLL hashes recorded above.
 
 ## Current-client identity and compatibility preflight
 
@@ -76,7 +86,9 @@ The automatic collector refreshes/compares this fingerprint before any permitted
 - PASS: five preference-provider scenarios, requested-live missing-native boundary, and transport boundary checks.
 - PASS: PM12 recovery, selected-session identity, and scoped-close regressions; all isolated/no-game-operation.
 - PASS: full current browser/reference run produced `.codex-live/lwbridge-ui-verification/report.json` with 32 paired view cases plus nested interactions and `errors: []` (report SHA-256 `e65e8362bcd5f4b0146679a1f86eda83e9208c35078178698161bb9f1668e12d`). The first browser attempt hit Edge's random unsafe port 3659; rerun completed the report. This is UI/fixture evidence, not live proof.
-- PASS: final Release rebuild after the stale candidate lock was removed; 0 warnings/errors. The latest read-only owner preflight subsequently observed no LWBridge/LastWar/launcher process and no recovery/operation-owner journal.
+- PASS: repaired Release build; 0 warnings/errors. Collector Python compile/direct self-test and the real repo-root shortcut self-test pass, including the no-saved-context predicate.
+- PASS: isolated native-host termination self-test and WebView interaction matrix. The first local invocation was refused by Windows PowerShell execution policy; the same checked-in script passed via one-process `powershell.exe -ExecutionPolicy Bypass`, matching the CI-intended script execution rather than changing product state.
+- PASS: latest read-only owner preflight `20260911T091158Z-17093569-0a52ec07` observed `publishedServerIds=[]`, zero Resource rows, no LWBridge/LastWar/launcher process, no recovery/operation-owner journal, and a passing compatibility check.
 
 ## Prerequisites and profile/data-root discovery
 
@@ -84,7 +96,7 @@ The automatic collector refreshes/compares this fingerprint before any permitted
 2. Python must resolve as `python`; Web's helper check passed with the installed Python. WebView2 and .NET 10 Windows Desktop runtime are already sufficient for the prepared build on this machine.
 3. Before **each fresh Resource Start**, there must be no `LastWar.exe` from the selected official installation. The bounded helper deliberately requires a helper-owned launch session. Do not use Overview Launch Game as a prerequisite; Overview bootstrap is incomplete.
 4. Do not start with a launcher/game process left by an interrupted attempt. Identify exact paths/PIDs first. Never broad-kill by process name; normal close only when the documented helper owns the exact selected PID/path.
-5. Latest read-only collector preflight (`20260911T083848Z-eb1cd35e-7f21ad24`) found the normal direct root already initialized with `config.json`, profile `local-9370d887d93e4475a8d4fee049b50632`, and its `map-data.db`; that store currently contained zero Resource rows. No `recovery.json` or `operation-owner.json` was present, and no LWBridge/LastWar/launcher process was active at that preflight. Do not copy the historical package-local server-2212 database into this root.
+5. Latest repaired read-only collector preflight (`20260911T091158Z-17093569-0a52ec07`) found the normal direct root initialized with `config.json`, profile `local-9370d887d93e4475a8d4fee049b50632`, and its `map-data.db`; `publishedServerIds=[]` and Resource rows were zero. No `recovery.json` or `operation-owner.json` was present, and no LWBridge/LastWar/launcher process was active. Do not copy the historical package-local server-2212 database into this root.
 6. Normal first launch may create `%LOCALAPPDATA%\LWBridgeRebuild\config.json`. Record its `profileId` after launch. The normal store is `%LOCALAPPDATA%\LWBridgeRebuild\profiles\<profileId>\map-data.db`; this exact profile/store must be reused for first read, second read, and reopen.
 7. `GameInstallationService` may detect `%LOCALAPPDATA%\FunFly\Last War-Survival Game` even when `gameRoot` is not persisted. Record the actual detected/configured root; do not assume another package/desktop root is the same profile.
 8. Before any acquisition, check `%LOCALAPPDATA%\LWBridgeRebuild\live-resource\recovery.json`. If it exists, do not delete it or start another run blindly; report the interrupted state and let the supported recovery path/Web diagnose it.
@@ -93,7 +105,7 @@ The automatic collector refreshes/compares this fingerprint before any permitted
 
 SB-97 remains an environment/platform restriction on execution of the previously prepared live persistent-window proof. This package does **not** clear it, and owner assistance is not a workaround.
 
-- Web may automatically verify build/client/profile/store/process/recovery evidence, and the owner may perform only the PM-approved ordinary saved Resource Search/reopen UI steps in the beginner guide.
+- Web may automatically verify build/client/profile/store/process/recovery evidence. The current owner passive check is complete for the empty profile and must not be repeated merely to exercise the repaired collector. A future owner saved Search/reopen step requires a legitimate saved server context and a new explicit dispatch.
 - A **fresh** acquisition is not part of this owner package. It remains **BLOCKED / SB-97** until an independently permitted condition exists; do not send that action to the owner or another executor.
 - Do **not** run `--normal-ui-live-resource-proof`, `--live-resource-proof`, the live helper directly, WebView DevTools, ordinary Node, Remote Desktop Commander, another model, or a custom helper protocol to recreate the denied operation.
 - Do **not** use `--first-live-result` replay or copy/seed historical rows as fresh evidence.

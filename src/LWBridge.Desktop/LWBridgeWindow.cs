@@ -1621,7 +1621,11 @@ internal sealed class LWBridgeWindow : Form
             catch (BridgeCommandException ex)
             {
                 if (IsCurrentDocument(session))
+                {
+                    if (ownerEvidence is not null && command == "map_summary")
+                        ownerEvidence.RecordCommandError(id, command, ex.Code, ex.Message, ex.Details);
                     SendError(session, id, ex.Code, ex.Message, ex.Details);
+                }
             }
             catch (Exception ex)
             {
