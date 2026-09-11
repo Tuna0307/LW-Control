@@ -167,6 +167,19 @@ Record attempt ID/date, packet/build commit, executable/hash, refreshed current 
 
 Allowed outcomes: PASS, FAIL, BLOCKED, NOT_RUN. Unknown resource naming and unobserved live Gathering remain explicit limitations and are not inferred from numeric types or historical rows.
 
+### SB-97 log-only rejection diagnosis — 2026-09-11
+
+Sol performed a follow-up diagnosis using existing saved logs/configuration only. The rejected observation and Resource Start were not retried; approval settings/safeguards were not changed and no alternate executor was used. Full evidence and source paths are in `evidence/lwbridge-implementation/pm13-sol-resource/20260911T044419Z-5af44117/rejection-diagnostics.md`.
+
+- **CONFIRMED:** installed `codex-chatgpt-web` is `5.0.6`; adapter mode is `full` with automatic browser interaction. The affected Codex task selected `chatgpt-web/high` through provider `openai`, reasoning `high`, collaboration mode `Default`; the turn recorded `approval_policy=never` and `approvals_reviewer=user`.
+- **CONFIRMED:** the last successful immediate pre-Start check completed at `2026-09-11T04:47:36.999Z` (`observedUtc=2026-09-11T04:47:36.2978222Z`). The rejection was reported at `2026-09-11T04:48:14.276Z` with `This tool call was blocked by OpenAI because we couldn't determine the safety status of the request.` There is no local dispatch timestamp for the rejected `get_window_state` because normal Computer Use dispatch/execution logging never occurred for that call.
+- **CONFIRMED:** the failure boundary is upstream of local `node_repl` / `@oai/sky` Computer Use execution. It is not an LWBridge application error or a Windows/Computer Use handler failure. The model bridge request itself had returned HTTP 200 before the blocker was reported.
+- **CONFIRMED:** ordinary Codex rate-limit/spend telemetry immediately before the rejection showed `rate_limit_reached_type=null` and `spend_control_reached=null`; ordinary Codex quota exhaustion is therefore not indicated by the available telemetry.
+- **UNKNOWN:** the sanitized local logs do not expose the upstream reviewer identity, availability, timeout state, or reviewer-specific quota/capacity. Whether reviewer availability/quota contributed cannot be proven from current saved diagnostics.
+- **HYPOTHESIS ONLY:** the upstream review path either returned an indeterminate safety result or failed to produce a determinate verdict. Do not convert timeout, reviewer unavailability, or reviewer quota exhaustion into fact without new upstream telemetry.
+
+PM disposition: keep **BLOCKED / SB-97**. There is no evidence-backed LWBridge code defect from this attempt, so Web should not make a guessed application fix. The next owner is **PM** for acceptance of this diagnosis and selection of a future independently permitted validation condition.
+
 ## Return / resume record
 
 - Last completed step and durable evidence: Sol attempt `20260911T044419Z-5af44117`. Evidence directory: `evidence/lwbridge-implementation/pm13-sol-resource/20260911T044419Z-5af44117/`. Step 0/build-client-profile and native Computer Use setup passed; the fresh-Start permission gate is BLOCKED.
@@ -175,7 +188,7 @@ Allowed outcomes: PASS, FAIL, BLOCKED, NOT_RUN. Unknown resource naming and unob
 - No reroute: Sol did not run the proof switches, helper directly, DevTools, Remote Desktop Commander, replay, historical-row seeding, or another executor.
 - Cleanup/restoration: candidate closed normally with Computer Use. No candidate/game/launcher process, `recovery.json`, or `operation-owner.json` remained. Official `LWScripts.data` remained SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`, size `41269242`, CRC32 `3541420783`, version `14`; xLua and Assembly hashes also remained at the preflight values.
 - Candidate known limitations: no fresh resource acquisition was executed; no first/second request IDs or Search/render proof exist. Resource name mapping remains unknown; live Gathering remains unproven.
-- Next owner: **ChatGPT Web** receives this first blocked step and evidence per the owner instruction. Because the failure is an external restriction rather than a code defect, PM must decide the next permitted validation condition; Web should not guess a code fix for this attempt.
+- Next owner: **PM** receives the completed log-only rejection diagnosis. Because the failure is an external restriction rather than a reproduced application defect, Web should not guess a code fix for this attempt. PM decides the next independently permitted validation condition.
 - Required retest: only after the concrete normal-window fresh Resource Start is independently permitted. Resume from Step 1 using the same build/client/profile identity or prepare a new packet if any identity changes.
 - PM decision: OPEN. This attempt does not count as LIVE-PROVEN.
 
