@@ -4,7 +4,7 @@
   "date": "2026-09-11",
   "scope": "Passive owner-assisted saved Resource Search/reopen evidence package; no fresh scan trigger",
   "status": "IMPLEMENTED/OFFLINE-TESTED",
-  "readiness": "READY_FOR_PM_REVIEW",
+  "readiness": "PM_REVIEWED_READY_FOR_OWNER_CHECK",
   "implementationPolicy": "--owner-evidence is rebuild-only passive instrumentation. It records already-occurring normal Resource map_search request/result and polls the already-rendering Resource table. It also rejects scan/state-changing commands with OWNER_EVIDENCE_READ_ONLY. It never clicks, searches, starts scans, drives the desktop, invokes the live helper, modifies map rows, or clears recovery state.",
   "sourceIdentity": {
     "branch": "research/offline-controller",
@@ -19,7 +19,7 @@
     },
     "window": {
       "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
-      "sha256": "8acdeafe258497c4e68cbd43be20db4f067aa739840ea3c76c703bae52b3088b",
+      "sha256": "4abb5cad625bab5e63ec02a153d58aa05ec6d74fbac8e2a2f8ab8853e477f3f3",
       "locator": "OnWebMessageReceived; BeginOwnerEvidenceRenderCapture; CaptureOwnerEvidenceRenderAsync; OnFormClosed"
     },
     "recorder": {
@@ -29,12 +29,12 @@
     },
     "collector": {
       "path": "tools/collect_owner_resource_evidence.py",
-      "sha256": "dcc475d8ddd23622b6e76dcd43f5c2ef07b3a99170201e08205ddd371c9c702a",
+      "sha256": "1f34e591b419547a496cd3c4443dc322d8049f7cc59b63f970d2669212cdbff9",
       "locator": "app_identity, preflight, postflight, run_owner_session, self_test"
     },
     "shortcut": {
       "path": "Start Owner Resource Check.cmd",
-      "sha256": "f6f5c937ca97a3fd40709a18782de5487b3ae83a47d724b391b28613ab63da16",
+      "sha256": "9354f5b3d99362ac5e4b7d629b870c0aa01ae6afc70efe0c455ffd16e8993d90",
       "locator": "repo-root double-click entry point"
     },
     "tests": {
@@ -51,12 +51,12 @@
   "build": {
     "exe": {
       "path": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe",
-      "sha256": "dcfcc37ace77299a881fe09daae664c4e352b69341f9a6aaff0f059cbffae294",
+      "sha256": "eb1cd35eebe28bd7853a79ec5709257ce29f0b2cc2eca71d9d44ab4f7913f4d8",
       "size": 163328
     },
     "managedDll": {
       "path": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.dll",
-      "sha256": "9501ed388dbe34d770afcb6ab7d6faf7f57f100736e99e9e9e33201850698bc2",
+      "sha256": "7f21ad24d8852deb4ed57afed81473a99054e44f0e04a0c88f0992c2daa935ec",
       "size": 442880
     },
     "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
@@ -75,7 +75,7 @@
   "entryPointVerification": {
     "selfTest": "PASS",
     "preflightOnly": "PASS",
-    "latestPreflightBundle": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\owner-evidence\\20260911T074448Z-dcfcc37a-9501ed38",
+    "latestPreflightBundle": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\owner-evidence\\20260911T083848Z-eb1cd35e-7f21ad24",
     "latestPreflightSummary": "PREFLIGHT_ONLY; blockers=[]; no LWBridge/LastWar/launcher; no recovery/operation-owner journal",
     "activeReopenPointer": false
   },
@@ -113,6 +113,19 @@
     "Resource-name mapping and live Gathering remain unresolved.",
     "This checkpoint is preparation/offline verification, not LIVE-PROVEN feature acceptance."
   ],
+  "pmReview": {
+    "date": "2026-09-11",
+    "result": "APPROVED_FOR_PASSIVE_OWNER_CHECK",
+    "scope": "Saved Resource Search/render and conditional same-profile reopen only; no fresh acquisition",
+    "audit": [
+      "Verified branch/HEAD/remote synchronization and clean worktree before review.",
+      "Verified owner-evidence state-changing command gate executes before backend dispatch and blocks map_scan_start with OWNER_EVIDENCE_READ_ONLY.",
+      "Verified collector launches only --owner-evidence normal app mode after read-only preflight and preserves SB-97 prohibition.",
+      "Corrected stale duplicate provenance hashes for LWBridgeWindow.cs, collector and shortcut so both source-hash sections match the committed files.",
+      "Clean rebuild exposed that the previously recorded EXE/DLL pair was stale relative to the final committed source; rebuilt twice to stable hashes and replaced the candidate identity before owner dispatch.",
+      "Approval does not change PM13-04 fresh-acquisition status: Start #1/#2 remain SB-97 BLOCKED/NOT_RUN."
+    ]
+  },
   "implementationImpact": {
     "files": [
       "src/LWBridge.Desktop/Program.cs",

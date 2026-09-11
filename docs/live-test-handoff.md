@@ -4,7 +4,7 @@
 
 - Function: PM13-04 / PM12-D — resource scan -> normal Search/display -> newer refresh -> saved reopen.
 - Current owner: **ChatGPT Web** as the single implementation/technical-verification worker. No separate Sol assignment.
-- Package state: **READY_FOR_PM_REVIEW**. The passive owner-assisted saved Resource Search/reopen collector and beginner guide exist and have been verified. Do **not** dispatch the owner until PM reviews this checkpoint.
+- Package state: **PM_REVIEWED / READY_FOR_OWNER_CHECKS for the passive scope only**. The 2026-09-11 independent checkpoint audit verified the read-only command gate and collector boundary and corrected stale duplicate provenance hashes in the durable evidence. The owner may now be dispatched only for the saved Resource Search/reopen steps in the beginner guide.
 - Permitted owner scope after PM review: ordinary saved Resource Search and, only when a saved row exists, same-profile reopen/Search. This is **READY_FOR_OWNER_CHECKS only for that passive scope**, not for fresh acquisition.
 - Fresh Resource Start remains **BLOCKED / SB-97**. No new Start, rejected observation retry, proof-switch replay, helper-direct run, DevTools/Remote-Desktop-Commander desktop reroute, or owner-run scan was performed while preparing this package.
 - PM acceptance of the resource function remains **OPEN**. Monster work remains queued.
@@ -35,14 +35,14 @@ If the first Search returns zero rows, the collector records `COMPLETE_EMPTY`, r
 | Build result | PASS; 0 warnings, 0 errors |
 | Executable | `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\LWBridge.Desktop.exe` |
 | Executable size | 163,328 bytes |
-| Executable SHA-256 | `dcfcc37ace77299a881fe09daae664c4e352b69341f9a6aaff0f059cbffae294` |
-| Managed DLL | `LWBridge.Desktop.dll`, 442,880 bytes, SHA-256 `9501ed388dbe34d770afcb6ab7d6faf7f57f100736e99e9e9e33201850698bc2` |
+| Executable SHA-256 | `eb1cd35eebe28bd7853a79ec5709257ce29f0b2cc2eca71d9d44ab4f7913f4d8` |
+| Managed DLL | `LWBridge.Desktop.dll`, 442,880 bytes, SHA-256 `7f21ad24d8852deb4ed57afed81473a99054e44f0e04a0c88f0992c2daa935ec` |
 | Collector self-test | PASS through the real repo-root `.cmd` entry point; no app/game/process operation |
 | Collector read-only preflight | PASS through the same `.cmd` entry point; attempt bundle created automatically and compatibility gate passed |
 | Native Search/render contract tests | PASS in deterministic desktop suite, including exact row, stale timestamp, empty-result and durable request-id recording cases |
 | Passive host wiring smoke | PASS: exact Release app launched on Map Data with `--owner-evidence`, wrote `session-start` / `session-end` through the real host, and closed without any Search/scan/game action |
 
-The build is a controlled test candidate. The `bin/` output is intentionally not committed; the hash above identifies the exact runnable output produced from this checkpoint. PM should review [the owner guide](user-test-checklist.md) and the durable `LWB-PM13-008` evidence before authorizing the passive owner check.
+The build is a controlled test candidate. The `bin/` output is intentionally not committed; the hash above identifies the exact runnable output produced from this checkpoint. The owner guide and durable `LWB-PM13-008` evidence have now passed the 2026-09-11 checkpoint review. Authorization is limited to the passive saved Resource Search/reopen check.
 
 ## Current-client identity and compatibility preflight
 
@@ -84,7 +84,7 @@ The automatic collector refreshes/compares this fingerprint before any permitted
 2. Python must resolve as `python`; Web's helper check passed with the installed Python. WebView2 and .NET 10 Windows Desktop runtime are already sufficient for the prepared build on this machine.
 3. Before **each fresh Resource Start**, there must be no `LastWar.exe` from the selected official installation. The bounded helper deliberately requires a helper-owned launch session. Do not use Overview Launch Game as a prerequisite; Overview bootstrap is incomplete.
 4. Do not start with a launcher/game process left by an interrupted attempt. Identify exact paths/PIDs first. Never broad-kill by process name; normal close only when the documented helper owns the exact selected PID/path.
-5. Latest read-only collector preflight (`20260911T074448Z-dcfcc37a-9501ed38`) found the normal direct root already initialized with `config.json`, profile `local-9370d887d93e4475a8d4fee049b50632`, and its `map-data.db`; that store currently contained zero Resource rows. No `recovery.json` or `operation-owner.json` was present, and no LWBridge/LastWar/launcher process was active at that preflight. Do not copy the historical package-local server-2212 database into this root.
+5. Latest read-only collector preflight (`20260911T083848Z-eb1cd35e-7f21ad24`) found the normal direct root already initialized with `config.json`, profile `local-9370d887d93e4475a8d4fee049b50632`, and its `map-data.db`; that store currently contained zero Resource rows. No `recovery.json` or `operation-owner.json` was present, and no LWBridge/LastWar/launcher process was active at that preflight. Do not copy the historical package-local server-2212 database into this root.
 6. Normal first launch may create `%LOCALAPPDATA%\LWBridgeRebuild\config.json`. Record its `profileId` after launch. The normal store is `%LOCALAPPDATA%\LWBridgeRebuild\profiles\<profileId>\map-data.db`; this exact profile/store must be reused for first read, second read, and reopen.
 7. `GameInstallationService` may detect `%LOCALAPPDATA%\FunFly\Last War-Survival Game` even when `gameRoot` is not persisted. Record the actual detected/configured root; do not assume another package/desktop root is the same profile.
 8. Before any acquisition, check `%LOCALAPPDATA%\LWBridgeRebuild\live-resource\recovery.json`. If it exists, do not delete it or start another run blindly; report the interrupted state and let the supported recovery path/Web diagnose it.
