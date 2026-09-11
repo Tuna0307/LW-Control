@@ -2,7 +2,7 @@
 
 ## Review 13 decision
 
-The accepted bounded current-client route remains valid; original LWBridge pipe parity is not required for this resource slice. PM12-A/C restoration/correlation and saved two-read/idle evidence are credited. `LWB-PM13-003` restores PM12-B bounded-route lifecycle closure with deterministic commit/cancel and helper-ownership race coverage; PM12-D remains open for the real normal-window outcome and the weak proof predicate.
+The accepted bounded current-client route remains valid; original LWBridge pipe parity is not required for this resource slice. PM12-A/C restoration/correlation and saved two-read/idle evidence are credited. `LWB-PM13-003` restores PM12-B bounded-route lifecycle closure with deterministic commit/cancel and helper-ownership race coverage; `LWB-PM13-004` hardens the weak proof predicate offline. PM12-D remains open for the real normal-window outcome under PM13-04.
 
 PM operated the normal app using native Computer Use/sky: default Start returns a generic failure; Monster Search is empty; Resource Search on reopen displays no saved data despite one resource in the same profile database. Finish this function via [the ordered review-13 handoff](implementation-handoff.md); do not substitute another research checkpoint for fixing these failures. Native capability availability is distinct from the prior SB-97 operation restriction. No previously denied acquisition was rerouted during this audit.
 
@@ -29,7 +29,7 @@ The user authorizes opening, closing and restarting the game/launcher whenever n
 
 ## Function completion and blocked work
 
-In addition to the fresh two-read demonstration, verify normal Resource Search and saved display after closing/reopening the app. Separate saved server context from live readiness and current server identity. Match rendered data to source/result/query evidence; exclude loading/empty/stale rows. Cancellation/commit/helper-ownership races are now closed offline by `LWB-PM13-003`; repair PM13-02 proof correlation before further live acceptance. Known resource-name/occupancy limits remain explicit.
+In addition to the fresh two-read demonstration, verify normal Resource Search and saved display after closing/reopening the app. Separate saved server context from live readiness and current server identity. Match rendered data to source/result/query evidence; exclude loading/empty/stale rows. Cancellation/commit/helper-ownership races are closed offline by `LWB-PM13-003`, and PM13-02 proof correlation is closed offline by `LWB-PM13-004`; PM13-04 is the remaining live normal-window acceptance gate. Known resource-name/occupancy limits remain explicit.
 
 An external blocker must state the exact denied or unavailable operation, evidence, attempted permitted methods and the required external condition. It keeps this function open. Continue only direct permitted prerequisites; no rerouting, filler research or automatic Daybreak transfer. The next queued function is monster acquisition/search after this function's exit criteria pass.
 

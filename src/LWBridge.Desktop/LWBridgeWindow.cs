@@ -49,6 +49,9 @@ internal sealed class LWBridgeWindow : Form
     private int lastClosedSubscriptionCount;
     private int lastClosedRequestCount;
     private int postedWebMessageCount;
+    private readonly object normalUiProofGate = new();
+    private long normalUiProofSearchSequence;
+    private NormalUiResourceProofSearchObservation? normalUiProofSearchObservation;
     private readonly WebView2 webView = new()
     {
         Dock = DockStyle.Fill,
@@ -299,6 +302,8 @@ internal sealed class LWBridgeWindow : Form
             throw new InvalidOperationException("The normal Map Data window does not have the bounded live resource service.");
 
         string fullOutputPath = Path.GetFullPath(outputPath);
+        string directory = Path.GetDirectoryName(fullOutputPath)!;
+        Directory.CreateDirectory(directory);
 
         bool controlsReady = false;
         for (int attempt = 0; attempt < 150; attempt++)
@@ -341,8 +346,6 @@ internal sealed class LWBridgeWindow : Form
             throw new InvalidDataException("The second normal-window scan did not produce a distinct fresh acquisition.");
         }
 
-        string directory = Path.GetDirectoryName(fullOutputPath)!;
-        Directory.CreateDirectory(directory);
         await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
         {
             schemaVersion = 1,
@@ -398,6 +401,8 @@ internal sealed class LWBridgeWindow : Form
         if (!completed)
             throw new TimeoutException($"The {label} normal-window live resource acquisition did not complete within the proof bound.");
 
+        NormalUiResourceProofExpected expected = ReadNormalUiProofExpected(completedStatus);
+
         bool resourceTabReady = false;
         for (int attempt = 0; attempt < 150; attempt++)
         {
@@ -412,18 +417,75 @@ internal sealed class LWBridgeWindow : Form
             throw new InvalidOperationException("The normal Map Data resource tab did not render.");
         await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
 
-        string? rowText = null;
+        bool resourceSearchSettled = false;
         for (int attempt = 0; attempt < 200; attempt++)
         {
-            string encoded = await core.ExecuteScriptAsync(
-                "(()=>document.querySelector('.map-table--resource tbody tr')?.innerText ?? null)()");
-            rowText = JsonSerializer.Deserialize<string?>(encoded);
-            if (!string.IsNullOrWhiteSpace(rowText))
+            if (await core.ExecuteScriptAsync(
+                "(()=>{const table=document.querySelector('.map-table--resource');return !!table && table.getAttribute('aria-busy') !== 'true';})()") == "true")
+            {
+                resourceSearchSettled = true;
                 break;
+            }
             await Task.Delay(100);
         }
-        if (string.IsNullOrWhiteSpace(rowText))
-            throw new InvalidOperationException($"The {label} fresh resource row did not render in the normal Map Data window.");
+        if (!resourceSearchSettled)
+            throw new TimeoutException($"The {label} Resource tab did not settle before the explicit Search proof action.");
+
+        long beforeSearchSequence = GetNormalUiProofSearchSequence();
+        string searchClick = await core.ExecuteScriptAsync("""
+            (() => {
+              const button = document.querySelector('.map-searchbar > button');
+              if (!button || button.disabled) return false;
+              button.click();
+              return true;
+            })()
+            """);
+        if (searchClick != "true")
+            throw new InvalidOperationException($"The {label} normal-window Resource Search button could not be clicked.");
+
+        NormalUiResourceProofSearchObservation? observation = null;
+        for (int attempt = 0; attempt < 200; attempt++)
+        {
+            observation = ReadNormalUiProofSearchAfter(beforeSearchSequence);
+            if (observation is not null) break;
+            await Task.Delay(100);
+        }
+        if (observation is null)
+            throw new TimeoutException($"The {label} normal-window Resource Search did not produce a native map_search response.");
+
+        JsonElement queryRow = NormalUiResourceProofContract.RequireCorrelatedSearchRow(expected, observation);
+        string renderedTimeJson = await core.ExecuteScriptAsync(
+            $"new Date({expected.UpdatedAt.ToString(System.Globalization.CultureInfo.InvariantCulture)}).toLocaleString(document.documentElement.lang || undefined)");
+        string? expectedUpdatedText = JsonSerializer.Deserialize<string?>(renderedTimeJson);
+
+        NormalUiResourceProofMatch? rendered = null;
+        string? lastRenderRejection = null;
+        for (int attempt = 0; attempt < 200; attempt++)
+        {
+            string snapshotJson = await core.ExecuteScriptAsync(NormalUiResourceProofContract.ResourceTableSnapshotScript);
+            if (snapshotJson != "null")
+            {
+                try
+                {
+                    NormalUiResourceProofTableSnapshot? snapshot = JsonSerializer.Deserialize<NormalUiResourceProofTableSnapshot>(
+                        snapshotJson, JsonOptions.Default);
+                    if (snapshot is not null)
+                    {
+                        rendered = NormalUiResourceProofContract.RequireRenderedRow(
+                            expected, queryRow, snapshot, expectedUpdatedText ?? string.Empty);
+                        break;
+                    }
+                }
+                catch (InvalidDataException ex)
+                {
+                    lastRenderRejection = ex.Message;
+                }
+            }
+            await Task.Delay(100);
+        }
+        if (rendered is null)
+            throw new InvalidOperationException(
+                $"The {label} normal-window resource table never rendered the exact acquired/query row. {lastRenderRejection}");
 
         await Task.Delay(350);
         string proofPath = Path.GetFullPath(normalUiLiveResourceProofPath!);
@@ -436,9 +498,116 @@ internal sealed class LWBridgeWindow : Form
             ReadStatusString(completedStatus, "scanRunId")!,
             ReadStatusInt64(completedStatus, "liveResourceCapturedAt")!.Value,
             ReadStatusInt32(completedStatus, "liveResourceAcquisitionOrdinal"),
-            rowText,
+            expected.ServerId,
+            expected.RecordKey,
+            expected.PointIndex,
+            expected.X,
+            expected.Y,
+            expected.Level,
+            expected.ResultPath,
+            expected.ResultSha256,
+            expected.ProbeVersion,
+            expected.ProfileId,
+            expected.LaunchSessionId,
+            expected.GamePid,
+            expected.DeclaredSourceCaptureSha256,
+            observation.Sequence,
+            observation.RequestId,
+            observation.Payload.Clone(),
+            queryRow.Clone(),
+            rendered.RowText,
+            rendered.Cells.ToArray(),
             screenshotPath);
     }
+
+    private NormalUiResourceProofExpected ReadNormalUiProofExpected(JsonElement completedStatus)
+    {
+        string runId = ReadStatusString(completedStatus, "scanRunId")
+            ?? throw new InvalidDataException("Completed resource status is missing scanRunId.");
+        long capturedAt = ReadStatusInt64(completedStatus, "liveResourceCapturedAt")
+            ?? throw new InvalidDataException("Completed resource status is missing liveResourceCapturedAt.");
+        int? statusOrdinal = ReadStatusInt32(completedStatus, "liveResourceAcquisitionOrdinal");
+
+        JsonElement helper = liveResourceService!.LastHelperResult
+            ?? throw new InvalidDataException("Completed resource status has no correlated helper result.");
+        string helperProfileId = ReadRequiredProofString(helper, "profileId", "profile identity");
+        string helperLaunchSessionId = ReadRequiredProofString(helper, "launchSessionId", "launch session identity");
+        if (!helper.TryGetProperty("gamePid", out JsonElement helperPidValue) ||
+            !helperPidValue.TryGetInt32(out int helperGamePid) || helperGamePid <= 0)
+            throw new InvalidDataException("Completed resource helper result has no positive game PID identity.");
+
+        string resultPath = liveResourceService.LiveResultPath;
+        FirstLivePreparedResource prepared = LiveResourceProbeCommandService.PrepareCorrelatedResult(
+            resultPath,
+            runId,
+            out int? resultOrdinal,
+            expectedServerId: liveResourceService.CurrentServerId,
+            nowUtc: DateTimeOffset.UtcNow,
+            expectedProfileId: helperProfileId,
+            expectedLaunchSessionId: helperLaunchSessionId,
+            expectedGamePid: helperGamePid);
+        FirstLiveResultImport import = prepared.Import;
+        if (import.CapturedAtUnixMilliseconds != capturedAt || import.ServerId != liveResourceService.CurrentServerId)
+            throw new InvalidDataException("Immutable live resource result does not match the completed service server/time identity.");
+        if (resultOrdinal != statusOrdinal)
+            throw new InvalidDataException("Immutable live resource result acquisition ordinal does not match completed service status.");
+
+        return new NormalUiResourceProofExpected(
+            import.ServerId,
+            import.RecordKey,
+            import.PointIndex,
+            import.X,
+            import.Y,
+            import.Level,
+            import.CapturedAtUnixMilliseconds,
+            resultPath,
+            import.CaptureSha256,
+            import.ProbeVersion,
+            helperProfileId,
+            helperLaunchSessionId,
+            helperGamePid,
+            import.DeclaredSourceCaptureSha256);
+    }
+
+    private long GetNormalUiProofSearchSequence()
+    {
+        lock (normalUiProofGate) return normalUiProofSearchSequence;
+    }
+
+    private NormalUiResourceProofSearchObservation? ReadNormalUiProofSearchAfter(long sequence)
+    {
+        lock (normalUiProofGate)
+        {
+            return normalUiProofSearchObservation is { } observation && observation.Sequence > sequence
+                ? observation
+                : null;
+        }
+    }
+
+    private void RecordNormalUiProofSearch(string requestId, JsonElement payload, object? result)
+    {
+        if (normalUiLiveResourceProofPath is null) return;
+        JsonElement resultElement = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
+        lock (normalUiProofGate)
+        {
+            normalUiProofSearchSequence++;
+            normalUiProofSearchObservation = new NormalUiResourceProofSearchObservation(
+                normalUiProofSearchSequence,
+                requestId,
+                payload.Clone(),
+                resultElement.Clone());
+        }
+    }
+
+    private static string ReadRequiredProofString(JsonElement value, string name, string description) =>
+        ReadOptionalString(value, name) is { Length: > 0 } text
+            ? text
+            : throw new InvalidDataException($"Completed resource helper result has no {description}.");
+
+    private static string? ReadOptionalString(JsonElement value, string name) =>
+        value.TryGetProperty(name, out JsonElement property) && property.ValueKind == JsonValueKind.String
+            ? property.GetString()
+            : null;
 
     private static string? ReadStatusString(JsonElement status, string name) =>
         status.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
@@ -459,7 +628,25 @@ internal sealed class LWBridgeWindow : Form
         string ScanRunId,
         long CapturedAtUnixMilliseconds,
         int? AcquisitionOrdinal,
+        int ServerId,
+        string RecordKey,
+        int PointIndex,
+        int X,
+        int Y,
+        int? Level,
+        string ResultPath,
+        string ResultSha256,
+        string? ProbeVersion,
+        string? ProfileId,
+        string? LaunchSessionId,
+        int? GamePid,
+        string? DeclaredSourceCaptureSha256,
+        long SearchSequence,
+        string SearchRequestId,
+        JsonElement SearchPayload,
+        JsonElement SearchRow,
         string RowText,
+        IReadOnlyList<string> RenderedCells,
         string ScreenshotPath);
 
     private async Task SelectFirstLiveResourceAsync(CoreWebView2 core)
@@ -1349,6 +1536,8 @@ internal sealed class LWBridgeWindow : Form
                     return;
                 }
                 if (sessionClosed) return;
+                if (command == "map_search" && normalUiLiveResourceProofPath is not null)
+                    RecordNormalUiProofSearch(id, payload, execution.Result);
                 SendResult(session, id, execution.Result);
                 if (command == "map_player_mark_set")
                     SendEvent(session, "bridge://player-mark-changed", execution.Result);

@@ -7,7 +7,7 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 
 ## Project-manager review 13 — implementation `b16fb9a` (2026-09-10)
 
-[Current audit](lwbridge-project-status.md) credits PM12-A/C bounded restoration/correlation and PM12-007 saved real idle evidence. **`LWB-PM13-003` closes the reopened PM12-B bounded-route lifecycle races. PM12-D and the resource function remain partial.** No full acceptance case is newly signed off.
+[Current audit](lwbridge-project-status.md) credits PM12-A/C bounded restoration/correlation and PM12-007 saved real idle evidence. **`LWB-PM13-003` closes the reopened PM12-B bounded-route lifecycle races and `LWB-PM13-004` closes the false-positive proof predicate offline. PM12-D and the resource function remain partial pending PM13-04.** No full acceptance case is newly signed off.
 
 | Slice | Evidence and current status |
 |---|---|
@@ -15,7 +15,7 @@ before/after evidence, and **UNKNOWN/BLOCKED** remains open.
 | Ordinary reopened Resource Search | `LWB-PM13-001` implements unambiguous selected-profile saved context; `LWB-PM13-001B` NORMAL-WINDOW SAVED-ROW PROVEN: the exact review-13 package-local DB (one server-2212 resource row) was copied byte-identically into the direct desktop default root for a bounded test, shown through Resource + explicit Search, closed normally, shown again after restart, then the temporary direct-root files were removed. Historical live-row provenance is preserved; this is not a new acquisition or bridge-readiness claim. |
 | Default all-category Start / monster acquisition | `LWB-PM13-002` IMPLEMENTED/OFFLINE-TESTED: structured unsupported-type errors now reach nine-language Resource-only guidance; no-records, missing-context and query failures are distinct, with no silent category fallback. Connected normal-window confirmation remains PM13-04. Monster acquisition remains queued next. |
 | Lifecycle | `LWB-PM13-003` IMPLEMENTED/OFFLINE-TESTED: validation is separated from persistence, `reading -> committing` decides completion versus cancellation atomically, and cleanup ownership is reserved before helper start. Deterministic pre-commit Stop/Close, post-decision Stop and helper-registration Close races pass; PM12-B bounded-route closure is restored. |
-| Normal-window fresh proof | Harness accepts placeholder/loading/stale row text in isolated counterexamples. PM13-02/04 OPEN; SB-97 preserved. Native sky access available to PM, not blanket unavailable. |
+| Normal-window fresh proof | `LWB-PM13-004` IMPLEMENTED/OFFLINE-TESTED: each acquisition must revalidate its immutable tuple, trigger an explicit normal Resource Search, capture that native request/result, match exact server/record/point/coordinates/level/updatedAt, then match the five rendered cells and localized update time. Empty/loading/unrelated-stale/same-point-stale cases fail. PM13-04 remains OPEN; SB-97 preserved. |
 | Resource occupancy/name | Known idle observed; live Gathering and type-to-name-key mapping remain open. Chat-only enum lead is not mapping proof. |
 
 [Review 13 evidence](../evidence/lwbridge-implementation/pm-review-13/README.md) and [review 12/follow-ups](reviews/2026-09-10-review-12-and-followups.md) preserve detailed findings. The historical 25–30% planning estimate is not a newly measured percentage. **0/47 full cases signed off** remains unchanged. User-repaired PM8 recovery remains closed; updater/exports/original-pipe expansion deferred. ESC-005 NOT_ASSIGNED; no Daybreak task.

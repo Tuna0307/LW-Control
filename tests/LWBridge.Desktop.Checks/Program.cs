@@ -906,6 +906,118 @@ try
             "saved browse context remains isolated to each selected profile store");
     }
 
+    var proofExpected = new NormalUiResourceProofExpected(
+        2212, "32482", 32482, 481, 32, 3, 1789017285000,
+        "result.json", "proof-sha", "lwbridge-live-resource-probe-2",
+        "profile-proof", "session-proof", 4242, "source-sha");
+    JsonElement proofSearchPayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "profile-proof",
+        kind = "resource",
+        query = new { serverId = 2212, page = 1, pageSize = 50 }
+    }, JsonOptions.Default);
+    JsonElement proofSearchResult = JsonSerializer.SerializeToElement(new
+    {
+        rows = new[]
+        {
+            new
+            {
+                serverId = 2212, recordKey = "32482", pointIndex = 32482,
+                x = 481, y = 32, level = 3, updatedAt = 1789017285000
+            }
+        },
+        total = 1
+    }, JsonOptions.Default);
+    var proofSearchObservation = new NormalUiResourceProofSearchObservation(
+        1, "proof-search-request", proofSearchPayload, proofSearchResult);
+    JsonElement proofQueryRow = NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+        proofExpected, proofSearchObservation);
+    Check(proofQueryRow.GetProperty("recordKey").GetString() == "32482",
+        "PM13-02 exact Resource Search row correlates to acquisition identity");
+    const string proofRenderedTime = "9/10/2026, 1:14:45 PM";
+    var proofGoodSnapshot = new NormalUiResourceProofTableSnapshot(false,
+        new[] { new NormalUiResourceProofTableRow(false,
+            new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }) });
+    NormalUiResourceProofMatch proofMatch = NormalUiResourceProofContract.RequireRenderedRow(
+        proofExpected, proofQueryRow, proofGoodSnapshot, proofRenderedTime);
+    Check(proofMatch.Cells.SequenceEqual(
+            new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }),
+        "PM13-02 exact rendered Resource cells are accepted");
+
+    ExpectInvalidData("still loading", "PM13-02 loading row is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(true,
+                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }) }),
+            proofRenderedTime));
+    ExpectInvalidData("did not render", "PM13-02 empty-state row is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(false,
+                new[] { new NormalUiResourceProofTableRow(true,
+                    new[] { "No saved data of this type." }) }),
+            proofRenderedTime));
+    ExpectInvalidData("did not render", "PM13-02 unrelated stale row is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(false,                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "9,9", "Unknown resource", "3", "Idle", "Yesterday" }) }),
+            proofRenderedTime));
+    ExpectInvalidData("did not render", "PM13-02 same-point stale timestamp is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(false,
+                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "481,32", "Unknown resource", "3", "Idle", "9/10/2026, 1:13:45 PM" }) }),
+            proofRenderedTime));
+
+    JsonElement proofStaleSearchResult = JsonSerializer.SerializeToElement(new
+    {
+        rows = new[]
+        {
+            new
+            {
+                serverId = 2212, recordKey = "32482", pointIndex = 32482,
+                x = 481, y = 32, level = 3, updatedAt = 1789017225000
+            }
+        },
+        total = 1
+    }, JsonOptions.Default);
+    ExpectInvalidData("exact newly acquired", "PM13-02 stale same-point query row is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                2, "proof-search-stale", proofSearchPayload, proofStaleSearchResult)));
+    JsonElement proofWrongServerPayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "profile-proof",
+        kind = "resource",
+        query = new { serverId = 2213, page = 1, pageSize = 50 }
+    }, JsonOptions.Default);
+    ExpectInvalidData("expected page-1", "PM13-02 wrong-server Search query is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                3, "proof-search-wrong-server", proofWrongServerPayload, proofSearchResult)));
+    ExpectInvalidData("request id", "PM13-02 missing Search request id is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                4, "", proofSearchPayload, proofSearchResult)));
+
+    JsonElement proofWrongProfilePayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "profile-other",
+        kind = "resource",
+        query = new { serverId = 2212, page = 1, pageSize = 50 }
+    }, JsonOptions.Default);
+    ExpectInvalidData("profile identity", "PM13-02 wrong-profile Search query is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                5, "proof-search-wrong-profile", proofWrongProfilePayload, proofSearchResult)));
+
     using JsonDocument lifecycleStartPayload = JsonDocument.Parse("""
         {"selectedTypes":["resource"],"scanMode":"normal"}
         """);

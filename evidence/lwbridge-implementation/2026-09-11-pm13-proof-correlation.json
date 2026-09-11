@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-004",
+  "date": "2026-09-11",
+  "state": "IMPLEMENTED/OFFLINE-TESTED",
+  "baseCommit": "4665fd5454ccda5dfbcef160e4d017b2ebfb6e36",
+  "scope": "PM13-02 normal-window resource proof-correlation repair; no game/helper live acquisition",
+  "referenceFrontend": {
+    "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "recoveredFacts": [
+      "resource table has coordinates/resource/level/status/updated columns",
+      "Search is the direct button in .map-searchbar",
+      "map_search rows retain serverId/recordKey/pointIndex/x/y/level/updatedAt"
+    ]
+  },
+  "implementation": {
+    "LWBridgeWindow.cs": "658712998302edb91a6b3971d80e092f2b36f5b0cdb72e2199e1791747c5edaa",
+    "NormalUiResourceProofContract.cs": "bf7e1942bad519fc47315df282f09151a3a575ec3d7775e6c3dddfc4abbb6205",
+    "DesktopChecks.Program.cs": "8f5f64e9d375c46760cb40ef231525004cfcfdac2c27e5f37597e9871b11eaa7",
+    "check_pm13_resource_proof.cjs": "21a12d7629585e44b7b8d076142995787cd606ba3c24b7934de7dcdee57ca7dd"
+  },
+  "locators": {
+    "normalHarness": "src/LWBridge.Desktop/LWBridgeWindow.cs:299-630,1540",
+    "proofContract": "src/LWBridge.Desktop/NormalUiResourceProofContract.cs:45-142",
+    "deterministicCases": "tests/LWBridge.Desktop.Checks/Program.cs:909-1006",
+    "browserCases": "tools/check_pm13_resource_proof.cjs"
+  },
+  "repair": [
+    "create screenshot/evidence directory before either PNG write",
+    "after each distinct acquisition wait for Resource table to settle and click the real Search button",
+    "capture the browser-originated native map_search request id, payload and result",
+    "revalidate request-owned immutable result against request/profile/launch-session/game-PID/server/source/probe/timestamp/ordinal",
+    "require map_search row identity to equal the new acquisition including exact updatedAt",
+    "require rendered five-cell Resource row to match coordinates, level and localized exact updatedAt",
+    "require second scanRunId and capture timestamp to be newer than the first"
+  ],
+  "adversarialCoverage": {
+    "emptyStateRejected": true,
+    "loadingStateRejected": true,
+    "unrelatedStaleRowRejected": true,
+    "samePointOlderTimestampRejected": true,
+    "samePointStaleQueryResultRejected": true,
+    "wrongServerQueryRejected": true,
+    "wrongProfileQueryRejected": true,
+    "missingNativeSearchRequestIdRejected": true,
+    "exactCorrelatedRowAccepted": true
+  },
+  "verification": {
+    "releaseBuild": "passed; 0 warnings, 0 errors",
+    "desktopChecks": "passed; ok=true, all six deterministic groups true, real config unchanged",
+    "pm12RecoveryRegression": true,
+    "pm12SessionIdentityRegression": true,
+    "pm12ScopedCloseRegression": true,
+    "frontendRecoveredHashCheck": true,
+    "preferenceProviderFiveScenarios": true,
+    "liveTransportCheck": true,
+    "transportBoundaryCheck": true,
+    "pm13FeedbackBrowserCheck": true,
+    "pm13ProofBrowserCheck": true,
+    "standardBrowserChecks": "35/35 passed with Edge channel"
+  },
+  "runtimeStateDuringOfflineChecks": {
+    "gameRunning": false,
+    "launcherRunning": false
+  },
+  "limits": [
+    "No fresh normal-window acquisition was executed for PM13-02.",
+    "PM13-04 remains the live final gate for two real Start/Search/render acquisitions plus reopen/cleanup evidence.",
+    "SB-97 was not replayed or rerouted.",
+    "Unknown resource naming and unobserved live Gathering remain explicit limits.",
+    "This proof harness does not establish full-world scan or persistent bridge readiness."
+  ]
+}

@@ -1,8 +1,8 @@
 # LWBridge implementation backlog
 
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 
-Project-manager review 13 audited `b16fb9a`: real bounded acquisition/restoration/import is credited, but native UI Resource Search on reopen shows zero despite one saved row. PM12-B is reopened for a commit/cancel race; PM12-D proof remains open. Follow the single-function queue below and [current audit](docs/lwbridge-project-status.md).
+Project-manager review 13 audited `b16fb9a`: real bounded acquisition/restoration/import is credited, but native UI Resource Search on reopen shows zero despite one saved row. PM12-B was reopened for a commit/cancel race and is now closed by PM13-03; PM12-D proof remains open. Follow the single-function queue below and [current audit](docs/lwbridge-project-status.md).
 
 ## Current function and ordered repairs — review 13
 
@@ -11,7 +11,7 @@ Project-manager review 13 audited `b16fb9a`: real bounded acquisition/restoratio
 - [x] **PM13-01:** existing source-backed saved resource now reopens through ordinary Resource Search with saved/live distinction and profile/server scope preserved. `LWB-PM13-001` implements the unambiguous saved-profile context; `LWB-PM13-001B` rediscovered the exact review-13 store in the Codex package-local cache, verified byte-identical normal-window search across an app restart, and restored the direct-desktop test root afterward. No new acquisition was claimed.
 - [x] **PM13-01b:** `LWB-PM13-002` preserves structured Start errors, adds nine-language Resource-only guidance, distinguishes empty/missing-context/query failures, and keeps unsupported categories fail-closed without silently discarding them. Connected normal-window revalidation remains part of PM13-04.
 - [x] **PM13-03:** `LWB-PM13-003` separates validation from store mutation, adds an atomic `reading -> committing` completion/cancel decision, and reserves helper cleanup ownership before process start. Deterministic Stop/Close boundary tests pass; final PM12-B lifecycle closure is restored for this bounded route.
-- [ ] **PM13-02:** reject empty/loading/stale rows in the proof harness; correlate source/result/query/render for both fresh acquisitions and prepare screenshot output paths.
+- [x] **PM13-02:** `LWB-PM13-004` rejects empty/loading/unrelated-stale and same-point-stale rows, explicitly clicks normal Resource Search after each acquisition, and binds immutable result -> native request/query -> exact returned row -> rendered five-cell row including the acquisition timestamp. Screenshot directories are prepared before either PNG write.
 - [ ] **PM13-04 / PM12-D:** permitted normal-window resource Start -> exact rendered row -> second fresh refresh -> saved reopen, with cleanup evidence. Native Computer Use worked for PM; SB-97 remains a separate restriction.
 - [ ] **NEXT FUNCTION / not started:** monster acquisition -> persisted index -> ordinary Monster Search with real positive/negative query proof. Regular AI owns research and implementation; no Daybreak assignment.
 
