@@ -126,7 +126,8 @@ internal sealed class LWBridgeBackend
                 return installation.GetStatus();
             case "game_recovery_status":
                 RequireOptionalProfile(payload);
-                return new { state = "idle", error = (string?)null };
+                return overviewLifecycle?.CurrentRecoveryStatus ?? new OverviewRecoveryStatus(
+                    "idle", null, false, false, null, null, 0, null, null, null, false);
             case "server_jump_history_import":
             case "server_jump_history_set":
                 return SaveServerJumpHistory(payload);
@@ -318,6 +319,7 @@ internal sealed class LWBridgeBackend
         if (name != "autoForceUpdateReload")
             throw new BridgeCommandException("AUTOMATION_NOT_IMPLEMENTED", $"Automation '{name}' is not implemented yet.");
         UpdateConfig(c => c with { AutoReconnect = enabled });
+        overviewLifecycle?.NotifyAutomationChanged(enabled);
         return new { enabled };
     }
 

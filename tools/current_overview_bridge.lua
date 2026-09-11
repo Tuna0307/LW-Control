@@ -235,10 +235,44 @@ local function ensure_message()
     return message_text ~= nil and safe_get(message_text, "font") ~= nil, nil
 end
 
+local function observe_game_connection()
+    local cs = rawget(_G, "CS")
+    local entry = rawget(_G, "GameEntry")
+    if entry == nil and cs ~= nil then entry = safe_get(cs, "GameEntry") end
+    if entry == nil then return { observed = false } end
+
+    local network = safe_get(entry, "Network")
+    local data = safe_get(entry, "Data")
+    local player = data and safe_get(data, "Player") or nil
+    if network == nil or player == nil then return { observed = false } end
+
+    local logged_in = safe_get(network, "Logined")
+    local connected = safe_get(network, "IsConnected")
+    local connecting = safe_get(network, "IsConnecting")
+    local ok_uid, uid = call(player, "GetUid")
+    local ok_server, server_id = call(player, "GetCurServerId")
+    local world_pos = safe_get(player, "PlayerWorldPointId")
+    if type(logged_in) ~= "boolean" or type(connected) ~= "boolean" or
+       type(connecting) ~= "boolean" or not ok_uid or not ok_server then
+        return { observed = false }
+    end
+    return {
+        observed = true,
+        ready = player ~= nil,
+        loggedIn = logged_in,
+        connected = connected,
+        connecting = connecting,
+        gameUid = type(uid) == "string" and uid or nil,
+        serverId = tonumber(server_id),
+        worldPos = tonumber(world_pos),
+    }
+end
+
 local function write_heartbeat(now, ready, error)
     local clock = runtime_clock()
     if clock - last_heartbeat_clock < 0.75 then return end
     last_heartbeat_clock = clock
+    local game = observe_game_connection()
     write_json(heartbeat_path, {
         schemaVersion = 1,
         bridgeVersion = M.VERSION,
@@ -251,6 +285,14 @@ local function write_heartbeat(now, ready, error)
         messageVisible = ready == true,
         messageText = ready == true and MESSAGE or nil,
         error = error,
+        gameStateObserved = game.observed == true,
+        gameReady = game.ready,
+        loggedIn = game.loggedIn,
+        connected = game.connected,
+        connecting = game.connecting,
+        gameUid = game.gameUid,
+        serverId = game.serverId,
+        worldPos = game.worldPos,
     })
 end
 

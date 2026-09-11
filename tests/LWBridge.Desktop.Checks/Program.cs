@@ -609,7 +609,8 @@ try
         helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
         requireCurrentClientEvidence: false,
         config: overviewConfig,
-        testHooks: overviewHooks);
+        testHooks: overviewHooks,
+        startRecoveryMonitor: false);
     using JsonDocument overviewProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
     using JsonDocument startupReconcilePayload = JsonDocument.Parse("{}");
     object? startupReconcile = await overviewLifecycle.InvokeAsync(
@@ -665,6 +666,8 @@ try
         "a second Overview launch receives a new session and challenge so stale prior evidence cannot match");
     string secondOverviewSession = activeOverviewSession!;
     overviewProcessAlive = false;
+    await overviewLifecycle.RunRecoveryObservationForTestAsync();
+    await overviewLifecycle.RunRecoveryObservationForTestAsync();
     using (JsonDocument exitedStatus = JsonDocument.Parse(JsonSerializer.Serialize(overviewLifecycle.CreateInstanceStatus(), JsonOptions.Default)))
     {
         Check(exitedStatus.RootElement.GetProperty("phase").GetString() == "error" &&
@@ -715,6 +718,374 @@ try
             "profile_instances_reconcile", reconcileFalsePayload.RootElement.Clone(), CancellationToken.None);
         Check(overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
             "Overview reconcile autoLaunchAll=false suppresses launch even when the saved startup preference is ON");
+    }
+
+    // OVL-05: deterministic recovery tests preserve the original two-gate contract,
+    // two-observation process-exit classifier, retry tables, and intentional-stop semantics.
+    string recoveryRoot = Path.Combine(overviewLifecycleRoot, "recovery-case");
+    Directory.CreateDirectory(Path.Combine(recoveryRoot, "Game"));
+    string recoveryGamePath = Path.Combine(recoveryRoot, "Game", "LastWar.exe");
+    const int recoveryLauncherPid = 43421;
+    int recoveryPid = 43420;
+    int recoveryPidSequence = 0;
+    bool recoveryProcessAlive = false;
+    bool recoveryHeartbeatAvailable = true;
+    bool recoveryGameStateObserved = true;
+    bool recoveryGameHealthy = true;
+    bool recoveryProcessHung = false;
+    long recoveryClockMilliseconds = 0;
+    bool updateProcessRunning = false;
+    bool clearUpdateAfterMaintenanceDelay = false;
+    bool failNextRecoveryLaunch = false;
+    bool disableReconnectOnNormalRetry = false;
+    string? recoverySession = null;
+    string? recoveryChallenge = null;
+    var recoveryInvocations = new List<OverviewHelperInvocation>();
+    var recoveryDelays = new List<TimeSpan>();
+    var recoveryEvents = new List<OverviewRecoveryStatus>();
+    var recoveryTerminations = new List<(int Pid, string Path)>();
+    var recoveryConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-recovery"));
+    recoveryConfig.Update(c => c with { ProfileId = overviewProfile, AutoLaunchGame = false, AutoReconnect = true });
+    OverviewLifecycleService? recoveryLifecycle = null;
+    LWBridgeBackend? recoveryBackend = null;
+
+    byte[] RecoveryHeartbeatBytes() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+        profileId = overviewProfile,
+        sessionId = recoverySession,
+        challenge = recoveryChallenge,
+        gamePid = recoveryPid,
+        updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ready = true,
+        messageVisible = true,
+        messageText = OverviewLifecycleService.ReadyMessage,
+        gameStateObserved = recoveryGameStateObserved,
+        gameReady = recoveryGameHealthy,
+        loggedIn = recoveryGameHealthy,
+        connected = recoveryGameHealthy,
+        connecting = false,
+        gameUid = recoveryGameHealthy ? "player-test" : "",
+        serverId = recoveryGameHealthy ? 2212 : 0,
+        worldPos = recoveryGameHealthy ? 12345 : 0,
+    });
+
+    var recoveryHooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (pid, path) => recoveryProcessAlive && pid == recoveryPid &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
+        ReadAllBytes = _ => recoveryHeartbeatAvailable
+            ? RecoveryHeartbeatBytes()
+            : throw new IOException("synthetic missing heartbeat"),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        UtcNow = () => DateTimeOffset.UtcNow,
+        MonotonicMilliseconds = () => recoveryClockMilliseconds,
+        UpdateProcessRunning = () => updateProcessRunning,
+        ProcessHung = (pid, path) => recoveryProcessHung && recoveryProcessAlive && pid == recoveryPid &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
+        TerminateOwnedProcessAsync = (pid, path, _) =>
+        {
+            Check(recoveryProcessAlive && pid == recoveryPid &&
+                  string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
+                "recovery force-termination hook receives only the exact owned PID/path");
+            recoveryTerminations.Add((pid, Path.GetFullPath(path)));
+            recoveryProcessAlive = false;
+            recoveryHeartbeatAvailable = false;
+            recoveryProcessHung = false;
+            return Task.CompletedTask;
+        },
+        DelayAsync = async (delay, token) =>
+        {
+            recoveryDelays.Add(delay);
+            if (clearUpdateAfterMaintenanceDelay && delay == OverviewRecoveryPolicy.MaintenanceRetryDelays[0])
+            {
+                clearUpdateAfterMaintenanceDelay = false;
+                updateProcessRunning = false;
+            }
+            if (disableReconnectOnNormalRetry && delay == OverviewRecoveryPolicy.NormalRetryDelays[0])
+            {
+                disableReconnectOnNormalRetry = false;
+                using JsonDocument disablePayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+                {
+                    profileId = overviewProfile,
+                    name = "autoForceUpdateReload",
+                    enabled = false,
+                }));
+                await recoveryBackend!.InvokeAsync("set_automation", disablePayload.RootElement.Clone(), CancellationToken.None);
+            }
+            token.ThrowIfCancellationRequested();
+        },
+        RunHelperAsync = (invocation, _) =>
+        {
+            recoveryInvocations.Add(invocation);
+            if (invocation.Operation == "start")
+            {
+                if (failNextRecoveryLaunch)
+                {
+                    failNextRecoveryLaunch = false;
+                    throw new BridgeCommandException("LAUNCH_FAILED", "synthetic recovery launch failure");
+                }
+                recoverySession = invocation.SessionId;
+                recoveryChallenge = invocation.Challenge;
+                recoveryPid = 43420 + ++recoveryPidSequence;
+                recoveryProcessAlive = true;
+                recoveryHeartbeatAvailable = true;
+                recoveryGameStateObserved = true;
+                recoveryGameHealthy = true;
+                recoveryProcessHung = false;
+                string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_install_launch_ready_deferred_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = invocation.SessionId,
+                    challengeSha256,
+                    gamePid = recoveryPid,
+                    gamePath = recoveryGamePath,
+                    launcherPid = recoveryLauncherPid,
+                    ready = new
+                    {
+                        schemaVersion = 1,
+                        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId = overviewProfile,
+                        sessionId = invocation.SessionId,
+                        challenge = invocation.Challenge,
+                        gamePid = recoveryPid,
+                        readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        ready = true,
+                        messageVisible = true,
+                        messageText = OverviewLifecycleService.ReadyMessage,
+                    },
+                    restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                    gameRunning = true,
+                    installedFilesChanged = true,
+                }));
+            }
+
+            bool wasAlive = recoveryProcessAlive;
+            recoveryProcessAlive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_exact_pid_close_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = overviewProfile,
+                sessionId = invocation.SessionId,
+                gamePid = invocation.GamePid,
+                gamePath = invocation.GamePath,
+                close = wasAlive
+                    ? new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false }
+                    : new { method = "already_exited", accepted = false, processExited = true, alreadyExited = true },
+                restore = new { restored = true },
+                gameRunning = false,
+                installedFilesChanged = false,
+            }));
+        },
+    };
+
+    recoveryLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        recoveryRoot,
+        helperPath: Path.Combine(recoveryRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: recoveryConfig,
+        testHooks: recoveryHooks,
+        startRecoveryMonitor: false);
+    using (recoveryLifecycle)
+    {
+        recoveryLifecycle.RecoveryStatusChanged += recoveryEvents.Add;
+        recoveryBackend = new LWBridgeBackend(recoveryConfig, asyncCommands: recoveryLifecycle, overviewLifecycle: recoveryLifecycle);
+        using JsonDocument recoveryProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
+        await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        Check(recoveryConfig.Snapshot.GameDesiredRunning,
+            "manual Overview launch persists desired-running true for reconnect eligibility");
+
+        recoveryProcessAlive = false;
+        int startsBeforeRecovery = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == startsBeforeRecovery &&
+              recoveryInvocations.Count(i => i.Operation == "stop") == 0,
+            "one missing-process observation does not trigger recovery");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "stop") == 1 &&
+              recoveryInvocations.Count(i => i.Operation == "start") == startsBeforeRecovery + 1,
+            "second missing-process observation restores the exited session and relaunches through the proven lifecycle");
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryLifecycle.CurrentRecoveryStatus.Restarted &&
+              recoveryEvents.Any(e => e.State == "repairing") &&
+              recoveryEvents.Any(e => e.State == "launching") &&
+              recoveryEvents.Any(e => e.State == "verifying"),
+            "successful recovery publishes repairing-launching-verifying states then returns idle");
+        Check(recoveryDelays.Contains(OverviewRecoveryPolicy.StableVerification),
+            "successful recovery requires the recovered 15-second stable verification window");
+
+        int terminationsBeforeHang = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 1_000_000;
+        recoveryHeartbeatAvailable = false;
+        recoveryProcessHung = true;
+        updateProcessRunning = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 29_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeHang,
+            "hung owned game is not terminated before the recovered 30-second boundary");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeHang + 1 &&
+              recoveryEvents.Any(e => e.Reason == "hang" && e.State == "repairing"),
+            "30-second offline+hung condition terminates only the exact owned process and enters hang recovery");
+
+        int terminationsBeforeDisconnect = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 2_000_000;
+        recoveryHeartbeatAvailable = false;
+        recoveryProcessHung = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 59_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeDisconnect,
+            "offline owned game is not terminated before the recovered 60-second disconnect boundary");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeDisconnect + 1 &&
+              recoveryEvents.Any(e => e.Reason == "disconnect" && e.State == "repairing"),
+            "60-second bridge-offline condition terminates the exact owned process and enters disconnect recovery");
+
+        int terminationsBeforeUpdater = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 3_000_000;
+        recoveryHeartbeatAvailable = false;
+        updateProcessRunning = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 120_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeUpdater,
+            "official launcher/updater/sync activity suppresses running-process disconnect termination");
+        updateProcessRunning = false;
+        recoveryHeartbeatAvailable = true;
+        recoveryGameStateObserved = true;
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        int terminationsBeforeUnknown = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 4_000_000;
+        recoveryHeartbeatAvailable = true;
+        recoveryGameStateObserved = false;
+        recoveryGameHealthy = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 300_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeUnknown,
+            "unknown current-client game state is not converted into a disconnect recovery");
+
+        recoveryGameStateObserved = true;
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        int terminationsBeforeLoginUnavailable = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 5_000_000;
+        recoveryGameHealthy = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 179_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeLoginUnavailable,
+            "observed unhealthy game state is not terminated before the recovered 180-second boundary");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeLoginUnavailable + 1 &&
+              recoveryEvents.Any(e => e.Reason == "disconnect" && e.State == "repairing"),
+            "180-second observed login/connection failure terminates the exact owned process and enters disconnect recovery");
+
+        recoveryHeartbeatAvailable = true;
+        recoveryGameStateObserved = true;
+        recoveryGameHealthy = true;
+        recoveryProcessHung = false;
+        updateProcessRunning = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        string recoveredSession = recoverySession!;
+        using JsonDocument recoveredStopPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            instanceId = recoveredSession,
+        }));
+        await recoveryLifecycle.InvokeAsync("profile_instance_stop", recoveredStopPayload.RootElement.Clone(), CancellationToken.None);
+        int startsAfterIntentionalClose = recoveryInvocations.Count(i => i.Operation == "start");
+        Check(!recoveryConfig.Snapshot.GameDesiredRunning,
+            "intentional Overview Close clears desired-running before cleanup");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == startsAfterIntentionalClose,
+            "intentional Overview Close cannot be resurrected by Automatic Reconnection");
+
+        using JsonDocument enableReconnectPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            name = "autoForceUpdateReload",
+            enabled = true,
+        }));
+        await recoveryBackend.InvokeAsync("set_automation", enableReconnectPayload.RootElement.Clone(), CancellationToken.None);
+        await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        failNextRecoveryLaunch = true;
+        disableReconnectOnNormalRetry = true;
+        recoveryProcessAlive = false;
+        recoveryDelays.Clear();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(!recoveryConfig.Snapshot.AutoReconnect && recoveryConfig.Snapshot.GameDesiredRunning,
+            "disabling Automatic Reconnection cancels recovery without erasing desired-running intent");
+        Check(recoveryDelays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]) &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "idle",
+            "active normal recovery uses the original 15-second first retry and cancels cleanly when reconnect is disabled");
+        int startsAfterDisable = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == startsAfterDisable,
+            "Automatic Reconnection OFF suppresses all later recovery launches");
+
+        await recoveryBackend.InvokeAsync("set_automation", enableReconnectPayload.RootElement.Clone(), CancellationToken.None);
+        await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        updateProcessRunning = true;
+        clearUpdateAfterMaintenanceDelay = true;
+        recoveryDelays.Clear();
+        recoveryProcessAlive = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryDelays.Count >= 2 &&
+              recoveryDelays[0] == OverviewRecoveryPolicy.MaintenanceRetryDelays[0] &&
+              recoveryDelays.Contains(OverviewRecoveryPolicy.StableVerification),
+            "update-process recovery uses the original two-minute maintenance delay before relaunch verification");
+        Check(recoveryEvents.Any(e => e.State == "updating" && e.UpdateDetected),
+            "update-process recovery publishes the recovered updating state");
+
+        object? recoveryStatusResult = await recoveryBackend.InvokeAsync(
+            "game_recovery_status", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument recoveryStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(recoveryStatusResult, JsonOptions.Default)))
+            Check(recoveryStatusJson.RootElement.GetProperty("state").GetString() == "idle" &&
+                  recoveryStatusJson.RootElement.GetProperty("restarted").ValueKind == JsonValueKind.True,
+                "game_recovery_status exposes the live recovery lifecycle instead of the old idle placeholder");
+
+        using JsonDocument finalRecoveryStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            instanceId = recoverySession,
+        }));
+        await recoveryLifecycle.InvokeAsync("profile_instance_stop", finalRecoveryStop.RootElement.Clone(), CancellationToken.None);
+        Check(!recoveryConfig.Snapshot.GameDesiredRunning,
+            "final deterministic recovery cleanup leaves desired-running false");
+
+        failNextRecoveryLaunch = true;
+        try
+        {
+            await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+            Check(false, "failed manual Overview launch must throw");
+        }
+        catch (BridgeCommandException) { }
+        Check(!recoveryConfig.Snapshot.GameDesiredRunning,
+            "failed manual Overview launch does not arm desired-running recovery intent");
     }
 }
 finally

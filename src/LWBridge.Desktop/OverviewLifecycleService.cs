@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -16,6 +16,12 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<string, byte[]>? ReadAllBytes { get; init; }
     public Action<string, string, string>? WriteLease { get; init; }
     public Action<string>? DeleteFile { get; init; }
+    public Func<DateTimeOffset>? UtcNow { get; init; }
+    public Func<long>? MonotonicMilliseconds { get; init; }
+    public Func<bool>? UpdateProcessRunning { get; init; }
+    public Func<int, string, bool>? ProcessHung { get; init; }
+    public Func<int, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
+    public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
 }
 
 internal sealed record OverviewHelperInvocation(
@@ -26,7 +32,7 @@ internal sealed record OverviewHelperInvocation(
     int? GamePid,
     string? GamePath);
 
-internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDisposable
+internal sealed partial class OverviewLifecycleService : INativeAsyncCommandService, IDisposable
 {
     internal const string BridgeVersion = "lwbridge-overview-bridge-1";
     internal const string ReadyMessage = "LWbridge is running";
@@ -67,7 +73,8 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         TimeSpan? helperSupervisionTimeout = null,
         bool? requireCurrentClientEvidence = null,
         LocalConfigStore? config = null,
-        OverviewLifecycleTestHooks? testHooks = null)
+        OverviewLifecycleTestHooks? testHooks = null,
+        bool startRecoveryMonitor = true)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -80,6 +87,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
         evidenceRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence");
+        if (startRecoveryMonitor) StartRecoveryMonitor();
     }
 
     public bool CanHandle(string command) =>
@@ -177,6 +185,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
     public void Close()
     {
         lock (stateGate) closed = true;
+        StopRecoveryMonitor();
         StopLeaseTimer(deleteLease: true);
     }
 
@@ -266,6 +275,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
             StartLeaseTimer();
             if (!IsReady)
                 throw new BridgeCommandException("BRIDGE_START_TIMEOUT", "The game started, but the current Overview bridge response is not fresh.");
+            SetDesiredRunning(true);
             return CreateInstanceStatus();
         }
         catch (BridgeCommandException)
@@ -312,6 +322,7 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
                 supplied.ValueKind != JsonValueKind.String ||
                 !string.Equals(supplied.GetString(), instanceId, StringComparison.Ordinal))
                 throw new BridgeCommandException("INSTANCE_NOT_OWNED", "The requested game instance is not owned by this LWBridge session.");
+            SetDesiredRunning(false);
             phase = "stopping";
             connectionState = "recovering";
             snapshot = SnapshotLocked();
@@ -604,18 +615,11 @@ internal sealed class OverviewLifecycleService : INativeAsyncCommandService, IDi
         OwnedSnapshot? snapshot = GetOwnedSnapshot();
         if (snapshot is null || snapshot.Phase is "starting" or "stopping") return;
         if (ProcessMatches(snapshot.GamePid, snapshot.GamePath)) return;
-        StopLeaseTimer(deleteLease: true);
-        lock (stateGate)
-        {
-            if (gamePid == snapshot.GamePid && instanceId == snapshot.InstanceId)
-            {
-                // Preserve exact ownership until the stop helper restores the journaled
-                // original script triplet. A game that exited on its own is not clean yet.
-                phase = "error";
-                connectionState = "recovering";
-                lastError = "GAME_EXITED_RESTORE_REQUIRED";
-            }
-        }
+        // OVL-05: the original classifier requires more than one consecutive
+        // missing-process observation. The recovery monitor owns that counter;
+        // synchronous status reads must not turn one miss into an immediate exit.
+        if (Volatile.Read(ref missingProcessObservations) > 1)
+            MarkUnexpectedExit(snapshot);
     }
 
     private void StartLeaseTimer()

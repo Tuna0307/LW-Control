@@ -1,0 +1,204 @@
+{
+  "currentClient": {
+    "appVersion": "1.0.361",
+    "assemblyCSharpRdl": {
+      "path": "%LOCALAPPDATA%/FunFly/Last War-Survival Game/Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+      "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "size": 15640576
+    },
+    "build": 1078,
+    "luaPackage": {
+      "path": "%LOCALAPPDATA%/../LocalLow/FunFly/Last War-Survival Game/lwScripts/LWScripts.data",
+      "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "size": 41269242
+    },
+    "networkSurface": {
+      "CustomDataManager.get_Player": "method row 5419 RVA 0xA6FB2",
+      "DCPlayer.GetCurServerId": "method row 3426 RVA 0x4B3D8",
+      "DCPlayer.GetUid": "method row 3418 RVA 0x4B352",
+      "DCPlayer.PlayerWorldPointId": "field row 2239",
+      "GameEntry.get_Data": "method row 3736 RVA 0x502EE",
+      "GameEntry.get_Network": "method row 3726 RVA 0x502A3",
+      "NetworkManager.get_IsConnected": "method row 5742 RVA 0xACD60",
+      "NetworkManager.get_IsConnecting": "method row 5743 RVA 0xACD77",
+      "NetworkManager.get_Logined": "method row 5740 RVA 0xACD4F"
+    },
+    "windowSources": {
+      "UICrossDisconnect": "UI/UIDisconnect/CrossConfig.luac -> Assets/Main/Prefabs/UI/DisconnectView.prefab",
+      "UIDisconnect": "UI/UIDisconnect/Config.luac -> Assets/Main/Prefabs/UI/DisconnectView.prefab",
+      "UIForceUpdateTip": "UI/UIForceUpdateTip/Config.luac -> Assets/Main/Prefabs/UI/UIForceUpdateTip.prefab"
+    }
+  },
+  "date": "2026-09-12",
+  "findingIds": [
+    "LWB-OVR-005",
+    "LWB-OVR-006",
+    "LWB-OVR-007",
+    "LWB-OVR-008"
+  ],
+  "limits": [
+    "event-driven forceUpdate/crossDisconnect/disconnect/exitPrompt worker integration is not yet implemented in production",
+    "real-game O05 recovery has not yet been executed",
+    "owner-visible combined O04/O05 acceptance remains pending"
+  ],
+  "offlineValidation": {
+    "covered": [
+      "two-observation processExit",
+      "manual Close suppression",
+      "reconnect disable cancellation",
+      "normal and maintenance retry families",
+      "15-second stable verification",
+      "30-second hang threshold",
+      "60-second bridge-offline threshold",
+      "180-second observed game-health threshold",
+      "unknown game-state fail-safe",
+      "launcher/updater/sync suppression",
+      "exact PID/path recovery termination hook"
+    ],
+    "desktopChecks": {
+      "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "result": "PASS, ok=true, failures=[]"
+    },
+    "releaseBuild": {
+      "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "result": "PASS, 0 warnings, 0 errors"
+    }
+  },
+  "originalRecovery": {
+    "defaults": {
+      "autoForceUpdateReload": false,
+      "autoLaunchAll": true
+    },
+    "eventRecovery": {
+      "crossDisconnectSetsUpdateDetected": false,
+      "disconnectSetsUpdateDetected": false,
+      "exitPromptSetsUpdateDetected": false,
+      "forceUpdateSetsUpdateDetected": true,
+      "initialState": "waiting",
+      "runningDisconnectWaitMs": 60000,
+      "windowFallbacks": {
+        "UICrossDisconnect": "crossDisconnect",
+        "UIDisconnect": "disconnect",
+        "UIForceUpdateTip": "forceUpdate"
+      }
+    },
+    "gates": {
+      "autoReconnectSetting": "auto_force_update_reload",
+      "desiredRunningSetting": "game_desired_running",
+      "processExitConsecutiveMissingObservations": 2
+    },
+    "ok": true,
+    "processWatcher": [
+      {
+        "name": "LastWarLauncher.exe",
+        "preferredVa": "0x140C9A373"
+      },
+      {
+        "name": "LastWarUpdater.exe",
+        "preferredVa": "0x140C9A386"
+      },
+      {
+        "name": "LastWarSync.exe",
+        "preferredVa": "0x140C9A398"
+      }
+    ],
+    "reasons": [
+      "processExit",
+      "hang",
+      "disconnect",
+      "forceUpdate",
+      "crossDisconnect",
+      "exitPrompt"
+    ],
+    "reference": {
+      "imageBase": "0x140000000",
+      "path": "..\\LW\\lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "retryTables": [
+      {
+        "milliseconds": [
+          120000,
+          300000,
+          600000
+        ],
+        "preferredVa": "0x140C9A3C0",
+        "xrefPreferredVas": [
+          "0x1400E5E12",
+          "0x1400E6275",
+          "0x1400E6545",
+          "0x1400E66B0",
+          "0x1400E671D"
+        ]
+      },
+      {
+        "milliseconds": [
+          15000,
+          30000,
+          60000,
+          120000,
+          300000
+        ],
+        "preferredVa": "0x140C99D10",
+        "xrefPreferredVas": [
+          "0x1400E5B42",
+          "0x1400E5F41",
+          "0x1400E5FEC",
+          "0x1400E675E",
+          "0x1400E6835",
+          "0x1400E69F8"
+        ]
+      }
+    ],
+    "scope": "static original LWBridge startup/game-recovery contract; no process execution",
+    "states": [
+      "waiting",
+      "updating",
+      "repairing",
+      "launching",
+      "verifying",
+      "maintenance"
+    ],
+    "thresholds": [
+      {
+        "immediateMs": 30000,
+        "preferredVa": "0x140338B92"
+      },
+      {
+        "immediateMs": 29999,
+        "preferredVa": "0x140338BA5"
+      },
+      {
+        "immediateMs": 59999,
+        "preferredVa": "0x140338BCE"
+      },
+      {
+        "immediateMs": 180000,
+        "preferredVa": "0x140338BED"
+      },
+      {
+        "immediateMs": 899999,
+        "preferredVa": "0x1400E5FAE"
+      },
+      {
+        "immediateMs": 15000,
+        "preferredVa": "0x1400E619D"
+      },
+      {
+        "immediateMs": 179999,
+        "preferredVa": "0x1400E6225"
+      },
+      {
+        "immediateMs": 60000,
+        "preferredVa": "0x1400E6467"
+      }
+    ]
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_game_recovery.py ..\\LW\\lwbridge-0.3.1.exe --pretty",
+    "python tools\\inspect_lastwar_rdl_metadata.py \"%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl\" --type NetworkManager",
+    "python tools\\inspect_lastwar_rdl_metadata.py \"%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl\" --type DCPlayer"
+  ],
+  "schemaVersion": 1,
+  "scope": "Overview Automatic Reconnection static recovery plus rebuild offline tests; no live O05 acceptance"
+}

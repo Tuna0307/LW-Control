@@ -138,6 +138,8 @@ internal sealed class LWBridgeWindow : Form
             mapData: mapData,
             firstLiveResultServerId: firstLiveResult?.ServerId,
             overviewLifecycle: overviewLifecycleService);
+        if (overviewLifecycleService is not null)
+            overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
@@ -1696,7 +1698,25 @@ internal sealed class LWBridgeWindow : Form
             SendEvent(session, "bridge://status", status);
         }
         if (session.Subscriptions.Contains("bridge://game-recovery"))
-            SendEvent(session, "bridge://game-recovery", new { state = "idle", error = (string?)null });
+            SendEvent(session, "bridge://game-recovery", overviewLifecycleService?.CurrentRecoveryStatus ??
+                new OverviewRecoveryStatus("idle", null, false, false, null, null, 0, null, null, null, false));
+    }
+
+    private void OnOverviewRecoveryStatusChanged(OverviewRecoveryStatus status)
+    {
+        if (sessionClosed || IsDisposed) return;
+        void Publish()
+        {
+            DocumentSession session = documentSession;
+            if (IsCurrentDocument(session) && session.Subscriptions.Contains("bridge://game-recovery"))
+                SendEvent(session, "bridge://game-recovery", status);
+        }
+        try
+        {
+            if (InvokeRequired) BeginInvoke(Publish);
+            else Publish();
+        }
+        catch (InvalidOperationException) { }
     }
 
     private void SendResult(DocumentSession session, string id, object? result) => SendMessage(session, new
@@ -1746,6 +1766,8 @@ internal sealed class LWBridgeWindow : Form
     {
         sessionClosed = true;
         documentSession.Close();
+        if (overviewLifecycleService is not null)
+            overviewLifecycleService.RecoveryStatusChanged -= OnOverviewRecoveryStatusChanged;
         overviewLifecycleService?.Close();
         liveResourceService?.Close();
         ownerEvidenceRenderCapture?.Cancel();

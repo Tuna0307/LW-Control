@@ -43,6 +43,10 @@ Post-review checkpoints `LWB-PM13-001` and `LWB-PM13-001B` close PM13-01 saved b
 
 If a required operation is actually restricted, document its exact tool/reason/target and the permitted alternative or required external change. Keep the function ACTIVE/BLOCKED and continue only its direct permitted dependencies. Do not endlessly generate unrelated research checkpoints, self-approve an escalation, or reroute a denied action through another executor/model. Existing user permissions do not need renewal.
 
+## Current Overview continuation — 2026-09-12
+
+O04 startup is technically live-proven and CI-clean. O05 recovery core is now IMPLEMENTED/OFFLINE-TESTED under `LWB-OVR-008`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, updater suppression, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. `LWB-OVR-007` recovers the original event-driven waiting entry for `forceUpdate`, `crossDisconnect`, `disconnect` and `exitPrompt`; production wiring for the remaining event triggers plus bounded live/owner-visible O05 verification are still required. Do not start Player City until Overview acceptance.
+
 ## Readiness decision and test plan
 
 Read [the resource test checklist](user-test-checklist.md). The implementation is ready as a controlled-test candidate, not a proven live release. The standard AI may test Computer Use availability, but must deliver the resource result or an exact unresolved execution blocker. Check the current installed client before acquisition. SB-97 remains a distinct restriction; neither tool discovery nor PM approval clears it. Never ask the owner to execute the rejected harness as a workaround. An independently permitted live method or an applicable environment change is required.

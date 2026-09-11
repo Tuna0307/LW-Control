@@ -22,10 +22,12 @@ EXPECTED_SHA256 = "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855c
 EXPECTED_IMAGE_BASE = 0x140000000
 STARTUP_RECONCILE = (0x1402022FA, 0x140204AB5)
 RECOVERY_CLASSIFIER = (0x14033883A, 0x140338CB0)
+RECOVERY_START = (0x140338FD4, 0x140339356)
 RECOVERY_GATE = (0x140339789, 0x140339839)
 DESIRED_RUNNING = (0x140339DD6, 0x14033A045)
 RECOVERY_EVENT = (0x14033A045, 0x14033A19B)
 RECOVERY_WORKER = (0x1400E579C, 0x1400E6B0F)
+RECOVERY_REQUEST_HANDLER = (0x1403450C2, 0x140345708)
 PROCESS_WATCHER = (0x14033BF89, 0x14033C37A)
 STRINGS = {
     "autoLaunchAll": (0x1408352E8, b"autoLaunchAll"),
@@ -35,6 +37,10 @@ STRINGS = {
     "hang": (0x140C9A06F, b"hang"),
     "disconnect": (0x140C99D65, b"disconnect"),
     "forceUpdate": (0x140C99D6F, b"forceUpdate"),
+    "crossDisconnect": (0x140C99D56, b"crossDisconnect"),
+    "exitPrompt": (0x140C99D80, b"exitPrompt"),
+    "uiCrossDisconnectPrefix": (0x140C96FE0, b"UICrossDisconnec"),
+    "uiForceUpdateTip": (0x140C96FF0, b"UIForceUpdateTip"),
     "gameRecoveryEvent": (0x140C9A189, b"bridge://game-recovery"),
 }
 XREFS = {
@@ -44,6 +50,11 @@ XREFS = {
     "processExit": 0x140338AA1,
     "hang": 0x140338BAE,
     "disconnect": 0x140338BFF,
+    "crossDisconnect": 0x1403455A8,
+    "forceUpdate": 0x140345569,
+    "exitPrompt": 0x1403456B5,
+    "uiCrossDisconnectPrefix": 0x140345580,
+    "uiForceUpdateTip": 0x14034554B,
     "gameRecoveryEvent": 0x14033A171,
 }
 THRESHOLDS = {
@@ -158,14 +169,15 @@ def inspect(path: Path) -> dict[str, Any]:
         raise InspectError("unexpected preferred image base")
 
     funcs = runtime_functions(pe)
-    required_funcs = [STARTUP_RECONCILE, RECOVERY_CLASSIFIER, RECOVERY_GATE,
-                      DESIRED_RUNNING, RECOVERY_EVENT, RECOVERY_WORKER, PROCESS_WATCHER]
+    required_funcs = [STARTUP_RECONCILE, RECOVERY_CLASSIFIER, RECOVERY_START, RECOVERY_GATE,
+                      DESIRED_RUNNING, RECOVERY_EVENT, RECOVERY_WORKER, PROCESS_WATCHER,
+                      RECOVERY_REQUEST_HANDLER]
     for fn in required_funcs:
         if fn not in funcs:
             raise InspectError(f"missing runtime function 0x{fn[0]:X}-0x{fn[1]:X}")
 
     maps = [instruction_map(pe, data, *fn) for fn in required_funcs]
-    startup, classifier, gate, desired, event_emitter, worker, watcher = maps
+    startup, classifier, recovery_start, gate, desired, event_emitter, worker, watcher, request_handler = maps
     for key, (va, raw) in STRINGS.items():
         verify_string(pe, data, va, raw)
         if key in XREFS:
@@ -189,6 +201,21 @@ def inspect(path: Path) -> dict[str, Any]:
     process_counter = require_instruction(classifier, 0x140338A98, "cmp")
     if immediate(process_counter) != 1:
         raise InspectError("process-exit consecutive-observation threshold changed")
+
+    # Every event-driven recovery enters the native worker as "waiting" first.
+    wait_lo = require_instruction(recovery_start, 0x140339123, "mov")
+    wait_hi = require_instruction(recovery_start, 0x14033911B, "mov")
+    if immediate(wait_lo) != 0x74696177 or immediate(wait_hi) != 0x676E6974:
+        raise InspectError("event-driven recovery no longer initializes state to waiting")
+
+    # Only forceUpdate sets the recovered update-detected input flag.
+    force_flag = require_instruction(request_handler, 0x140345562, "mov")
+    if immediate(force_flag) != 1:
+        raise InspectError("forceUpdate no longer sets update-detected true")
+    for va in (0x1403455DE, 0x1403456B3):
+        ins = require_instruction(request_handler, va, "xor")
+        if "ebx" not in ins.op_str:
+            raise InspectError(f"event reason update flag changed at 0x{va:X}")
 
     threshold_rows = []
     for va, expected in THRESHOLDS.items():
@@ -236,6 +263,19 @@ def inspect(path: Path) -> dict[str, Any]:
         "processWatcher": process_rows,
         "states": ["waiting", "updating", "repairing", "launching", "verifying", "maintenance"],
         "reasons": ["processExit", "hang", "disconnect", "forceUpdate", "crossDisconnect", "exitPrompt"],
+        "eventRecovery": {
+            "initialState": "waiting",
+            "forceUpdateSetsUpdateDetected": True,
+            "crossDisconnectSetsUpdateDetected": False,
+            "disconnectSetsUpdateDetected": False,
+            "exitPromptSetsUpdateDetected": False,
+            "windowFallbacks": {
+                "UIForceUpdateTip": "forceUpdate",
+                "UICrossDisconnect": "crossDisconnect",
+                "UIDisconnect": "disconnect",
+            },
+            "runningDisconnectWaitMs": 60_000,
+        },
     }
 
 
