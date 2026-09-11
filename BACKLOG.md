@@ -4,6 +4,16 @@ Last updated: 2026-09-11
 
 Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle and proof-correlation repairs are accepted at their documented scopes. The resource implementation is a test candidate; fresh normal-window completion remains unverified and subject to SB-97. [Current audit](docs/lwbridge-project-status.md) and [test checklist](docs/user-test-checklist.md) define the next deliverable.
 
+## Current owners — 2026-09-11 clarification
+
+- [ ] **WEB / first:** deliver the candidate build identity, checks and complete [test packet](docs/live-test-handoff.md), with readiness and restriction scope explicit.
+- [ ] **SOL / after Web:** perform permitted normal-window resource verification; save per-step evidence and return the first failure to Web.
+- [ ] **WEB -> SOL / if needed:** repair the reproduced failure and retest; stay on this resource function.
+- [ ] **PM / after evidence:** combine findings and accept/reject the live deliverable; select the next function only after acceptance.
+- **DAYBREAK:** no assignment; a complete reviewed ESC is required.
+
+[Team roles and prompts](docs/team-workflow.md) govern ownership. This split changes no technical completion claim or restriction.
+
 ## Current function and ordered repairs — review 14
 
 **One active function: resource scan -> store -> normal search/display -> fresh refresh -> reopen.** No unrelated checkpoint or monster implementation until its exit criteria pass. An external blocker keeps this function open; only direct permitted dependencies may continue. Full 47-case scope is unchanged.

@@ -6,6 +6,8 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
+**Team dispatch:** [roles and prompts](team-workflow.md) — Web prepares first, Sol tests next, Web fixes/Sol retests, PM audits. [Current test packet](live-test-handoff.md). Daybreak has no task until a specific escalation is assigned.
+
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 
 [Review 13 and contributor follow-ups](reviews/2026-09-11-review-13-and-followups.md) preserve prior findings. PM12-A/B/C bounded acceptance remains; PM12-D is open. Monster acquisition/search is next only after resource acceptance. No Daybreak task; original-pipe/updater/export expansion remains deferred.

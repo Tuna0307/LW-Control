@@ -27,6 +27,8 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 
 ## Start here
 
+**Team dispatch:** [roles and prompts](docs/team-workflow.md) — Web prepares first, Sol tests next, Web fixes/Sol retests, PM audits. [Current test packet](docs/live-test-handoff.md). Daybreak has no task until a specific escalation is assigned.
+
 **Every AI/contributor must first read [AGENTS.md](AGENTS.md).** These are mandatory user rules: reverse-engineer verified LWBridge and current official Last War artifacts before inferring behavior, never invent facts or numbers, document every successful recovery immediately, and commit/push each completed task or checkpoint to GitHub with verification.
 
 Then read [docs/README.md](docs/README.md) for the evidence index and current reading order. Include `AGENTS.md` and `task.md` when handing work to another AI.

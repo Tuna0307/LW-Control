@@ -2,6 +2,10 @@
 
 Review 14, 2026-09-11; implementation audited at `7ca6d5c`.
 
+## Assigned execution
+
+ChatGPT Web prepares the exact build/prerequisites/evidence instructions in [live-test-handoff.md](live-test-handoff.md). Codex Sol 5.6 performs the permitted checks and records results. PM audits their evidence; the owner need not perform the technical test personally. See [team-workflow.md](team-workflow.md) for prompts and order.
+
 ## What is ready
 
 The resource-only implementation is ready for controlled validation **subject to current-client integrity and a permitted live test path**. It is not release-ready, and the complete Overview/Map Data feature set is not ready. Computer Use setup can be checked by the standard AI separately; that setup is not evidence of game functionality.

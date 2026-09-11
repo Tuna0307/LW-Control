@@ -1,6 +1,10 @@
-# Regular AI task — review 14
+# ChatGPT Web implementation task — review 14
 
 Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md), [current audit](lwbridge-project-status.md), [first-live-result contract](first-live-result.md) and the relevant evidence. Audit base: `7ca6d5c`; inspect actual HEAD/worktree before editing. Preserve concurrent work. All 47 acceptance cases remain required.
+
+## Owner clarification — 2026-09-11
+
+ChatGPT Web owns research, application fixes and the exact build/test handoff. Codex Sol 5.6 owns native Computer Use and real-game verification. PM owns evidence audit/task allocation only. Read [team-workflow.md](team-workflow.md) for roles and copyable prompts. **Web's immediate task is to complete [live-test-handoff.md](live-test-handoff.md); Sol then performs PM13-04 when permitted.** Earlier instructions to the undifferentiated regular AI are now split by these roles. Do not make Web wait for unavailable native UI control or make PM duplicate Sol's execution.
 
 ## One active function
 
@@ -35,7 +39,7 @@ On review 13 the PM successfully used the installed `computer-use` skill via `mc
 - Stop/timeout/Close/duplicate Start tests cover late commit and cleanup ownership, not only request cancellation.
 - A permitted fresh Start and a second fresh read reach the normal table with durable source/request/result/query/render correlation. The second read may return the same point; its acquisition time and query/render evidence must be newer.
 - Required cleanup/integrity checks pass; missing names and unobserved Gathering remain explicit limitations. No full-map or all-category claim follows from this bounded result.
-- Documentation, focused checks, coherent commit, push and remote verification complete. Only then select the next user function. An external blocker is recorded, not counted as passing this gate.
+- Documentation, focused checks, coherent commit, push and remote verification complete. Only then submit the evidence to PM for acceptance and selection of the next user function. An external blocker is recorded, not counted as passing this gate.
 
 ## Next function, queued only: monster scan and search
 
@@ -47,18 +51,6 @@ Run checks appropriate to changes. Sequence builds sharing output. Baseline: Rel
 
 At each checkpoint report: current function; what the user can actually do; what changed; live versus offline evidence; precise remaining failure; next action within this same function; commit and verified remote. Save confirmed findings immediately. Commit/push coherent checkpoints without a fresh PM permission gate; a research checkpoint does not close the function.
 
-## Main prompt to give the regular AI
+## Role-specific prompts and continuation
 
-```text
-Work in LW-Control. Read AGENTS.md, task.md, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/first-live-result.md. Inspect current HEAD/worktree and resume the current function from saved evidence.
-
-Follow review 14: finish the resource scan/search/display function one step at a time. PM13-01 saved browsing, PM13-01b feedback, PM13-03 cancellation/ownership and PM13-02 proof correlation are complete; start now with PM13-04 normal-window two-read/Search/render/reopen verification when permitted. Do not replace missing results with fixtures or move to monsters/unrelated research before this function passes its exit criteria. If externally blocked, document the exact cause and continue only this function's permitted prerequisites.
-
-Use available tools and the installed Computer Use skill; native sky worked for the PM but you must verify your own capabilities. Preserve actual restrictions and never reroute denied operations. Reverse-engineer missing contracts, document each confirmed finding, run meaningful checks, and commit/push/verify each coherent checkpoint. Report results in plain language. No Daybreak task is assigned unless a complete escalation receives PM review.
-```
-
-## Repeatable continuation prompt
-
-```text
-Continue from the latest committed checkpoint in LW-Control. Re-read AGENTS.md and the current audit, backlog and implementation handoff; inspect HEAD/worktree so you preserve other work. Stay on the current user-visible function and fix its next failed step. Reproduce the cause before changing it, verify the actual result, document evidence and remaining limits, then commit/push and verify GitHub. Do not repeat completed research or jump to another function because a research checkpoint ended. Move to the next queued function only after the current exit criteria pass. If an external restriction prevents completion, retain the open gate, record the exact condition and permitted next action, and avoid filler work or rerouting. End with what now works, what still fails, and the next step.
-```
+Use [team-workflow.md](team-workflow.md) as the single current prompt source: Web first, Sol after the packet, then Web repair/Sol retest as needed. [live-test-handoff.md](live-test-handoff.md) records the current owner, build identity, pending step and results so disconnects do not erase progress. No Daybreak task is currently assigned.

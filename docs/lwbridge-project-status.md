@@ -2,6 +2,10 @@
 
 Audited 2026-09-11 at `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d`, branch `research/offline-controller`, clean and synchronized at entry. Eight commits since `d4571bd` were reviewed. [Review 13 and contributor follow-ups](reviews/2026-09-11-review-13-and-followups.md) are historical.
 
+## Owner-directed delivery split — 2026-09-11
+
+PM now performs coordination/evidence audit only; no new PM implementation or game testing is assigned. Web prepares/fixes the resource build; Sol verifies it through native Computer Use/live testing; Daybreak has no current assignment. [Team workflow/prompts](team-workflow.md) and [current test packet](live-test-handoff.md) define Web-first dispatch and resumable Sol results. This documentation update does not advance live acceptance or reopen completed repairs. The historical PM checks below remain evidence of that earlier audit.
+
 ## Result for the owner
 
 **Resource scanning is an implemented test candidate, not a completed live feature. The two pages are not fully working.** The latest work includes real implementation repairs, not just research. Saved resource browsing/reopening has recorded normal-window proof; fresh acquisition through the latest ordinary window still lacks its final two-read/Search/render/reopen proof.

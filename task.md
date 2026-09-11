@@ -13,6 +13,10 @@ Send `AGENTS.md` with this file when handing work to another AI. The full rules,
 
 Prepared: 2026-09-08; current project-manager review 14. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
+## Team ownership — owner instruction, 2026-09-11
+
+PM combines/audits findings and assigns work; ChatGPT Web owns research/code/offline checks; Codex Sol 5.6 owns native Computer Use/live verification; Daybreak takes only a reviewed assigned research question. Follow AGENTS.md section 8 and [team workflow/prompts](docs/team-workflow.md). Send Web first to complete [the test packet](docs/live-test-handoff.md), then Sol to verify it. PM reviews their evidence rather than performing implementation or live tests. No Daybreak assignment now.
+
 ## Current project-manager handoff — read before starting
 
 Reviewed implementation base: `7ca6d5c`, 2026-09-11, `research/offline-controller`. [Review 14](docs/lwbridge-project-status.md) accepts the saved-browsing, feedback, lifecycle and proof-correlation repairs at their stated scopes. **PM13-04 is the only active final resource gate; the complete pages are not finished.**
@@ -768,4 +772,4 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/first-live-result.md. Inspect HEAD/worktree. Follow review 14: PM13-01/01b/03/02 are closed at their documented scopes; begin with PM13-04's final resource verification, subject to actual execution restrictions. Computer Use setup alone is not a delivery. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until the normal-window fresh test passes. Do not reroute SB-97. No Daybreak assignment. Keep all 47 cases; commit/push/verify each checkpoint. Main and repeatable prompts are in the regular handoff.
+Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/first-live-result.md. Inspect HEAD/worktree. Follow review 14: PM13-01/01b/03/02 are closed at their documented scopes; begin with PM13-04's final resource verification, subject to actual execution restrictions. Computer Use setup alone is not a delivery. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until the normal-window fresh test passes. Do not reroute SB-97. No Daybreak assignment. Keep all 47 cases; commit/push/verify each checkpoint. Role-specific main and repeatable prompts are in docs/team-workflow.md. Web prepares docs/live-test-handoff.md; Sol executes its permitted verification; PM audits the evidence.
