@@ -29,6 +29,8 @@ RECOVERY_EVENT = (0x14033A045, 0x14033A19B)
 RECOVERY_WORKER = (0x1400E579C, 0x1400E6B0F)
 RECOVERY_REQUEST_HANDLER = (0x1403450C2, 0x140345708)
 PROCESS_WATCHER = (0x14033BF89, 0x14033C37A)
+UPDATE_ACTIVITY = (0x14033BAB0, 0x14033BE2D)
+UPDATE_TERMINATOR = (0x14033C5EB, 0x14033C8DF)
 STRINGS = {
     "autoLaunchAll": (0x1408352E8, b"autoLaunchAll"),
     "auto_force_update_reload": (0x140C9A132, b"auto_force_update_reload"),
@@ -42,6 +44,13 @@ STRINGS = {
     "uiCrossDisconnectPrefix": (0x140C96FE0, b"UICrossDisconnec"),
     "uiForceUpdateTip": (0x140C96FF0, b"UIForceUpdateTip"),
     "gameRecoveryEvent": (0x140C9A189, b"bridge://game-recovery"),
+    "manifestJson": (0x140C9A32B, b"manifest.json"),
+    "tempDir": (0x140C9A338, b"Temp"),
+    "gameDir": (0x140C98522, b"Game"),
+    "lastWarData": (0x140C98543, b"LastWar_Data"),
+    "pluginsDir": (0x140C9854F, b"Plugins"),
+    "x86_64Dir": (0x140C98556, b"x86_64"),
+    "xluaDll": (0x140C9A33C, b"xlua.dll"),
 }
 XREFS = {
     "autoLaunchAll": 0x140202802,
@@ -56,6 +65,13 @@ XREFS = {
     "uiCrossDisconnectPrefix": 0x140345580,
     "uiForceUpdateTip": 0x14034554B,
     "gameRecoveryEvent": 0x14033A171,
+    "manifestJson": 0x14033BADF,
+    "tempDir": 0x14033BB21,
+    "gameDir": 0x14033BB65,
+    "lastWarData": 0x14033BBB3,
+    "pluginsDir": 0x14033BBF3,
+    "x86_64Dir": 0x14033BC33,
+    "xluaDll": 0x14033BC73,
 }
 THRESHOLDS = {
     0x140338B92: 30_000,
@@ -171,13 +187,13 @@ def inspect(path: Path) -> dict[str, Any]:
     funcs = runtime_functions(pe)
     required_funcs = [STARTUP_RECONCILE, RECOVERY_CLASSIFIER, RECOVERY_START, RECOVERY_GATE,
                       DESIRED_RUNNING, RECOVERY_EVENT, RECOVERY_WORKER, PROCESS_WATCHER,
-                      RECOVERY_REQUEST_HANDLER]
+                      RECOVERY_REQUEST_HANDLER, UPDATE_ACTIVITY, UPDATE_TERMINATOR]
     for fn in required_funcs:
         if fn not in funcs:
             raise InspectError(f"missing runtime function 0x{fn[0]:X}-0x{fn[1]:X}")
 
     maps = [instruction_map(pe, data, *fn) for fn in required_funcs]
-    startup, classifier, recovery_start, gate, desired, event_emitter, worker, watcher, request_handler = maps
+    startup, classifier, recovery_start, gate, desired, event_emitter, worker, watcher, request_handler, update_activity, update_terminator = maps
     for key, (va, raw) in STRINGS.items():
         verify_string(pe, data, va, raw)
         if key in XREFS:
@@ -238,6 +254,24 @@ def inspect(path: Path) -> dict[str, Any]:
             "xrefPreferredVas": [f"0x{x:X}" for x in TABLE_XREFS[table_va]],
         })
 
+    if immediate(require_instruction(worker, 0x1400E5A7E, "call")) != UPDATE_ACTIVITY[0] or \
+       immediate(require_instruction(worker, 0x1400E5C91, "call")) != UPDATE_ACTIVITY[0]:
+        raise InspectError("recovery worker update-activity fingerprint calls changed")
+    if immediate(require_instruction(worker, 0x1400E5FCD, "call")) != UPDATE_TERMINATOR[0]:
+        raise InspectError("15-minute stalled-update termination call changed")
+    activity_reset = require_instruction(worker, 0x1400E5CB8, "mov")
+    if "[rbx + 0x70]" not in activity_reset.op_str:
+        raise InspectError("update activity-change timestamp reset changed")
+
+    terminator_targets = {rip_target(ins) for ins in update_terminator.values()}
+    update_terminator_rows = []
+    for raw in PROCESS_NAMES:
+        candidates = locate_ascii_all(pe, data, raw)
+        va = next((candidate for candidate in candidates if candidate in terminator_targets), None)
+        if va is None:
+            raise InspectError(f"stalled-update terminator no longer scopes {raw.decode()}")
+        update_terminator_rows.append({"name": raw.decode(), "preferredVa": f"0x{va:X}"})
+
     process_rows = []
     watcher_targets = {rip_target(ins) for ins in watcher.values()}
     for raw in PROCESS_NAMES:
@@ -261,6 +295,21 @@ def inspect(path: Path) -> dict[str, Any]:
         "thresholds": threshold_rows,
         "retryTables": retry_rows,
         "processWatcher": process_rows,
+        "updateActivity": {
+            "fingerprintFunctionPreferredVa": "0x14033BAB0-0x14033BE2D",
+            "paths": [
+                "manifest.json",
+                "Temp",
+                "Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+            ],
+            "activityChangeResetsWorkerTimestampPreferredVa": "0x1400E5CB8",
+            "noActivityThresholdMs": 900_000,
+            "stalledUpdateTerminatorFunctionPreferredVa": "0x14033C5EB-0x14033C8DF",
+            "stalledUpdateProcesses": update_terminator_rows,
+            "stalledUpdateTerminationCallPreferredVa": "0x1400E5FCD",
+            "postStallRetryFamily": "normal",
+            "postStallRetryTablePreferredVa": "0x140C99D10",
+        },
         "states": ["waiting", "updating", "repairing", "launching", "verifying", "maintenance"],
         "reasons": ["processExit", "hang", "disconnect", "forceUpdate", "crossDisconnect", "exitPrompt"],
         "eventRecovery": {

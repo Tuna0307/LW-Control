@@ -19,6 +19,8 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<long>? MonotonicMilliseconds { get; init; }
     public Func<bool>? UpdateProcessRunning { get; init; }
+    public Func<string?>? UpdateActivityFingerprint { get; init; }
+    public Func<CancellationToken, Task>? TerminateUpdateProcessesAsync { get; init; }
     public Func<int, string, bool>? ProcessHung { get; init; }
     public Func<int, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }

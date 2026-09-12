@@ -733,8 +733,15 @@ try
     bool recoveryGameStateObserved = true;
     bool recoveryGameHealthy = true;
     bool recoveryProcessHung = false;
+    bool recoveryRequestObserved = false;
+    bool recoveryRequestConfirmed = false;
+    bool recoveryRequestAmbiguous = false;
+    string? recoveryRequestReason = null;
+    bool recoveryRequestUpdateDetected = false;
     long recoveryClockMilliseconds = 0;
     bool updateProcessRunning = false;
+    string updateActivityFingerprint = "activity-a";
+    int updateTerminationCalls = 0;
     bool clearUpdateAfterMaintenanceDelay = false;
     bool failNextRecoveryLaunch = false;
     bool disableReconnectOnNormalRetry = false;
@@ -769,6 +776,11 @@ try
         gameUid = recoveryGameHealthy ? "player-test" : "",
         serverId = recoveryGameHealthy ? 2212 : 0,
         worldPos = recoveryGameHealthy ? 12345 : 0,
+        recoveryObserved = recoveryRequestObserved,
+        recoveryConfirmed = recoveryRequestConfirmed,
+        recoveryAmbiguous = recoveryRequestAmbiguous,
+        recoveryReason = recoveryRequestReason,
+        recoveryUpdateDetected = recoveryRequestUpdateDetected,
     });
 
     var recoveryHooks = new OverviewLifecycleTestHooks
@@ -783,6 +795,13 @@ try
         UtcNow = () => DateTimeOffset.UtcNow,
         MonotonicMilliseconds = () => recoveryClockMilliseconds,
         UpdateProcessRunning = () => updateProcessRunning,
+        UpdateActivityFingerprint = () => updateActivityFingerprint,
+        TerminateUpdateProcessesAsync = _ =>
+        {
+            updateTerminationCalls++;
+            updateProcessRunning = false;
+            return Task.CompletedTask;
+        },
         ProcessHung = (pid, path) => recoveryProcessHung && recoveryProcessAlive && pid == recoveryPid &&
             string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
         TerminateOwnedProcessAsync = (pid, path, _) =>
@@ -835,6 +854,11 @@ try
                 recoveryGameStateObserved = true;
                 recoveryGameHealthy = true;
                 recoveryProcessHung = false;
+                recoveryRequestObserved = false;
+                recoveryRequestConfirmed = false;
+                recoveryRequestAmbiguous = false;
+                recoveryRequestReason = null;
+                recoveryRequestUpdateDetected = false;
                 string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
                     System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
                 return Task.FromResult(JsonSerializer.SerializeToElement(new
@@ -923,6 +947,188 @@ try
             "successful recovery publishes repairing-launching-verifying states then returns idle");
         Check(recoveryDelays.Contains(OverviewRecoveryPolicy.StableVerification),
             "successful recovery requires the recovered 15-second stable verification window");
+
+        // Original game.recovery_requested requires confirmed=true; current-client
+        // window observation alone is deliberately fail-closed.
+        int eventTermsBefore = recoveryTerminations.Count;
+        int eventStartsBefore = recoveryInvocations.Count(i => i.Operation == "start");
+        recoveryClockMilliseconds = 500_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = false;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "disconnect";
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryTerminations.Count == eventTermsBefore,
+            "unconfirmed recovery-window observation cannot arm event recovery");
+
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryTerminations.Count == eventTermsBefore,
+            "ambiguous confirmed recovery observation fails closed");
+
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "unsupported";
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle",
+            "unknown confirmed recovery reason is rejected");
+
+        recoveryRequestReason = "crossDisconnect";
+        recoveryEvents.Clear();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryEvents.Any(e => e.State == "waiting" && e.Reason == "crossDisconnect") &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "verifying",
+            "confirmed crossDisconnect enters waiting then verifies an in-place recovery");
+        recoveryClockMilliseconds += 14_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "verifying" &&
+              recoveryTerminations.Count == eventTermsBefore,
+            "in-place recovery is not accepted before the recovered 15-second stable window");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              !recoveryLifecycle.CurrentRecoveryStatus.Restarted &&
+              recoveryTerminations.Count == eventTermsBefore &&
+              recoveryInvocations.Count(i => i.Operation == "start") == eventStartsBefore,
+            "stable confirmed event can recover in place without restarting the game");
+
+        // A confirmed action may quit/reload before the next one-second host tick.
+        // The fresh exact-session heartbeat must preserve its event reason across
+        // the original two-missing-process classifier.
+        recoveryClockMilliseconds = 550_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "exitPrompt";
+        recoveryRequestUpdateDetected = false;
+        recoveryGameHealthy = false;
+        recoveryProcessAlive = false;
+        int immediateExitStartsBefore = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == immediateExitStartsBefore,
+            "confirmed exit action still respects the first missing-process observation");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == immediateExitStartsBefore + 1 &&
+              recoveryEvents.Any(e => e.State == "repairing" && e.Reason == "exitPrompt"),
+            "fresh confirmed heartbeat preserves exitPrompt reason when the game exits before host observation");
+
+        recoveryClockMilliseconds = 600_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "disconnect";
+        recoveryRequestUpdateDetected = false;
+        recoveryGameHealthy = false;
+        eventTermsBefore = recoveryTerminations.Count;
+        eventStartsBefore = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 59_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "waiting",
+            "confirmed disconnect waits while the existing game has not recovered");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore + 1 &&
+              recoveryInvocations.Count(i => i.Operation == "start") == eventStartsBefore + 1 &&
+              recoveryEvents.Any(e => e.Reason == "disconnect" && e.State == "repairing"),
+            "confirmed disconnect escalates after 60 seconds to exact-PID recovery");
+
+        recoveryClockMilliseconds = 700_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestReason = "forceUpdate";
+        recoveryRequestUpdateDetected = true;
+        recoveryGameHealthy = false;
+        updateProcessRunning = true;
+        eventTermsBefore = recoveryTerminations.Count;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "updating" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
+            "confirmed forceUpdate preserves update-detected state while updater activity is present");
+        recoveryClockMilliseconds += 70_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore,
+            "active official updater suppresses event-driven process termination");
+        updateProcessRunning = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore + 1 &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
+            "forceUpdate recovery retains update-detected provenance through relaunch verification");
+
+        recoveryClockMilliseconds = 9_000_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "forceUpdate";
+        recoveryRequestUpdateDetected = true;
+        recoveryGameHealthy = false;
+        updateProcessRunning = true;
+        updateActivityFingerprint = "activity-a";
+        int updaterStopsBeforeStall = updateTerminationCalls;
+        eventTermsBefore = recoveryTerminations.Count;
+        recoveryDelays.Clear();
+        recoveryEvents.Clear();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 899_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(updateTerminationCalls == updaterStopsBeforeStall,
+            "active updater is not stopped before 15 minutes without activity");
+
+        updateActivityFingerprint = "activity-b";
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 899_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(updateTerminationCalls == updaterStopsBeforeStall,
+            "manifest/temp/xlua activity fingerprint change resets the updater inactivity clock");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(updateTerminationCalls == updaterStopsBeforeStall + 1 &&
+              recoveryTerminations.Count == eventTermsBefore + 1 &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
+            "15 minutes without original updater activity stops the scoped updater family and recovers the game");
+        Check(recoveryEvents.Any(e => e.State == "waiting" &&
+                    e.Error == "game update had no activity for 15 minutes") &&
+              recoveryDelays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]),
+            "stalled update reports the recovered inactivity error and returns to the normal 15-second retry family");
+
+        recoveryClockMilliseconds = 800_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestReason = "exitPrompt";
+        recoveryRequestUpdateDetected = false;
+        recoveryGameHealthy = false;
+        eventTermsBefore = recoveryTerminations.Count;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        using (JsonDocument disablePendingEvent = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            name = "autoForceUpdateReload",
+            enabled = false,
+        })))
+            await recoveryBackend!.InvokeAsync("set_automation", disablePendingEvent.RootElement.Clone(), CancellationToken.None);
+        recoveryClockMilliseconds += 120_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryConfig.Snapshot.GameDesiredRunning,
+            "disabling reconnect cancels a pending confirmed event without clearing desired-running intent");
+        using (JsonDocument reenablePendingEvent = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            name = "autoForceUpdateReload",
+            enabled = true,
+        })))
+            await recoveryBackend.InvokeAsync("set_automation", reenablePendingEvent.RootElement.Clone(), CancellationToken.None);
+        recoveryRequestObserved = recoveryRequestConfirmed = recoveryRequestAmbiguous = false;
+        recoveryRequestReason = null;
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
 
         int terminationsBeforeHang = recoveryTerminations.Count;
         recoveryClockMilliseconds = 1_000_000;

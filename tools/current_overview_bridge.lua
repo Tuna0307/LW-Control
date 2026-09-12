@@ -23,6 +23,9 @@ local timer_handle = nil
 local update_callback = nil
 local last_heartbeat_clock = -1000
 local last_ready_session = nil
+local pending_recovery_signal = nil
+local pending_recovery_signal_until_clock = nil
+local recovery_action_hooks = {}
 
 local function safe_get(target, key)
     if target == nil then return nil end
@@ -268,11 +271,55 @@ local function observe_game_connection()
     }
 end
 
+local RECOVERY_WINDOWS = {
+    { windowName = "UIForceUpdateTip", reason = "forceUpdate", updateDetected = true },
+    { windowName = "UICrossDisconnect", reason = "crossDisconnect", updateDetected = false },
+    { windowName = "UIDisconnect", reason = "disconnect", updateDetected = false },
+    { windowName = "UIExitGameTip", reason = "exitPrompt", updateDetected = false },
+}
+
+local function observe_recovery_request()
+    if pending_recovery_signal ~= nil and pending_recovery_signal_until_clock ~= nil and runtime_clock() > pending_recovery_signal_until_clock then
+        pending_recovery_signal = nil
+        pending_recovery_signal_until_clock = nil
+    end
+    if pending_recovery_signal ~= nil then
+        return {
+            observed = true, confirmed = true, ambiguous = false,
+            windowName = pending_recovery_signal.windowName,
+            reason = pending_recovery_signal.reason,
+            updateDetected = pending_recovery_signal.updateDetected == true,
+        }
+    end
+    local manager = rawget(_G, "UIManager")
+    if manager == nil then return { observed = false } end
+    local instance = manager
+    if type(safe_get(manager, "GetInstance")) == "function" then
+        local ok_instance, value = call(manager, "GetInstance")
+        if not ok_instance or value == nil then return { observed = false } end
+        instance = value
+    end
+    local match = nil
+    local count = 0
+    for _, spec in ipairs(RECOVERY_WINDOWS) do
+        local ok_open, is_open = call(instance, "IsWindowOpen", spec.windowName)
+        if not ok_open or type(is_open) ~= "boolean" then return { observed = false } end
+        if is_open then match = spec; count = count + 1 end
+    end
+    if count ~= 1 then return { observed = true, ambiguous = count > 1 } end
+    return {
+        observed = true, confirmed = false, ambiguous = false,
+        windowName = match.windowName, reason = match.reason,
+        updateDetected = match.updateDetected,
+    }
+end
+
 local function write_heartbeat(now, ready, error)
     local clock = runtime_clock()
-    if clock - last_heartbeat_clock < 0.75 then return end
+    if clock - last_heartbeat_clock < 0.75 and pending_recovery_signal == nil then return end
     last_heartbeat_clock = clock
     local game = observe_game_connection()
+    local recovery = observe_recovery_request()
     write_json(heartbeat_path, {
         schemaVersion = 1,
         bridgeVersion = M.VERSION,
@@ -293,7 +340,75 @@ local function write_heartbeat(now, ready, error)
         gameUid = game.gameUid,
         serverId = game.serverId,
         worldPos = game.worldPos,
+        recoveryObserved = recovery.observed == true,
+        recoveryConfirmed = recovery.confirmed == true,
+        recoveryAmbiguous = recovery.ambiguous == true,
+        recoveryWindowName = recovery.windowName,
+        recoveryReason = recovery.reason,
+        recoveryUpdateDetected = recovery.updateDetected == true,
     })
+end
+
+local RECOVERY_ACTION_HOOKS = {
+    { module = "UI.UIForceUpdateTip.Controller.UIForceUpdateTipCtrl", className = "UIForceUpdateTipCtrl", method = "CloseSelf", windowName = "UIForceUpdateTip", reason = "forceUpdate", updateDetected = true },
+    { module = "UI.UIDisconnect.View.UIDisconnectView", className = "UIDisconnectView", method = "GotoLoadingView", windowName = "UIDisconnect", reason = "disconnect", updateDetected = false },
+    { module = "UI.UIDisconnect.View.UICrossDisconnectView", className = "UICrossDisconnectView", method = "OnReconnectTimeOut", windowName = "UICrossDisconnect", reason = "crossDisconnect", updateDetected = false },
+    { module = "UI.UIExitGameTip.View.UIExitGameTipView", className = "UIExitGameTipView", method = "ExitGame", windowName = "UIExitGameTip", reason = "exitPrompt", updateDetected = false },
+}
+
+local function recovery_window_is_open(window_name)
+    local manager = rawget(_G, "UIManager")
+    if manager == nil then return false end
+    local instance = manager
+    if type(safe_get(manager, "GetInstance")) == "function" then
+        local ok_instance, value = call(manager, "GetInstance")
+        if not ok_instance or value == nil then return false end
+        instance = value
+    end
+    local ok_open, is_open = call(instance, "IsWindowOpen", window_name)
+    return ok_open and is_open == true
+end
+
+-- CURRENT-CLIENT IMPLEMENTATION POLICY: the protected original producer of
+-- game.recovery_requested is unavailable.  Confirm only source-backed current
+-- client actions that actually enter reload/quit or cross reconnect timeout;
+-- mere window visibility remains unconfirmed.
+local function confirm_recovery_action(spec)
+    local now = tonumber(os.time()) or 0
+    if active == nil or not lease_is_fresh(active, now) then return end
+    if not recovery_window_is_open(spec.windowName) then return end
+    pending_recovery_signal = {
+        windowName = spec.windowName,
+        reason = spec.reason,
+        updateDetected = spec.updateDetected == true,
+    }
+    -- IMPLEMENTATION POLICY: retain a confirmed action for the host heartbeat
+    -- freshness window so the 1-second monitor cannot miss an immediate reload.
+    pending_recovery_signal_until_clock = runtime_clock() + 5.0
+    local ready = root_object ~= nil and message_text ~= nil and last_ready_session == active.sessionId
+    write_heartbeat(now, ready, nil)
+end
+
+local function install_recovery_action_hooks()
+    local loaded = package and package.loaded or nil
+    for _, spec in ipairs(RECOVERY_ACTION_HOOKS) do
+        local key = spec.module .. ":" .. spec.method
+        if not recovery_action_hooks[key] then
+            local target = loaded and loaded[spec.module] or nil
+            if target == nil then target = rawget(_G, spec.className) end
+            local original = safe_get(target, spec.method)
+            if type(original) == "function" then
+                local hook_spec, hook_original = spec, original
+                local ok = pcall(function()
+                    target[hook_spec.method] = function(...)
+                        confirm_recovery_action(hook_spec)
+                        return hook_original(...)
+                    end
+                end)
+                if ok then recovery_action_hooks[key] = true end
+            end
+        end
+    end
 end
 
 function M.Pump()
@@ -312,6 +427,7 @@ function M.Pump()
         active = control
     end
 
+    install_recovery_action_hooks()
     local rendered, render_error = ensure_message()
     if rendered then
         if last_ready_session ~= active.sessionId then

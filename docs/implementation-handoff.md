@@ -45,7 +45,7 @@ If a required operation is actually restricted, document its exact tool/reason/t
 
 ## Current Overview continuation — 2026-09-12
 
-O04 startup is technically live-proven and CI-clean. O05 recovery core is now IMPLEMENTED/OFFLINE-TESTED under `LWB-OVR-008`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, updater suppression, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. `LWB-OVR-007` recovers the original event-driven waiting entry for `forceUpdate`, `crossDisconnect`, `disconnect` and `exitPrompt`; production wiring for the remaining event triggers plus bounded live/owner-visible O05 verification are still required. Do not start Player City until Overview acceptance.
+O04 startup is technically live-proven and CI-clean. O05 is now IMPLEMENTED/OFFLINE-TESTED through `LWB-OVR-009`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, confirmed `forceUpdate`/`crossDisconnect`/`disconnect`/`exitPrompt` waiting and in-place/escalation behavior, updater activity/stall handling, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. Bounded live/owner-visible O05 verification is still required. Do not start Player City until Overview acceptance.
 
 ## Readiness decision and test plan
 

@@ -34,10 +34,11 @@
     "LWB-OVR-005",
     "LWB-OVR-006",
     "LWB-OVR-007",
-    "LWB-OVR-008"
+    "LWB-OVR-008",
+    "LWB-OVR-009"
   ],
   "limits": [
-    "event-driven forceUpdate/crossDisconnect/disconnect/exitPrompt worker integration is not yet implemented in production",
+    "current-client event confirmation adapter is IMPLEMENTED/OFFLINE-TESTED but not live-proven",
     "real-game O05 recovery has not yet been executed",
     "owner-visible combined O04/O05 acceptance remains pending"
   ],
@@ -53,7 +54,13 @@
       "180-second observed game-health threshold",
       "unknown game-state fail-safe",
       "launcher/updater/sync suppression",
-      "exact PID/path recovery termination hook"
+      "exact PID/path recovery termination hook",
+      "confirmed event waiting/in-place verification/60-second escalation",
+      "event ambiguity and unconfirmed fail-closed behavior",
+      "15-minute updater inactivity fingerprint reset/stall boundary",
+      "stalled updater exact-family termination and normal retry transition",
+      "confirmed immediate-exit reason preservation across two missing observations",
+      "selected-root path scoping for updater detection/termination"
     ],
     "desktopChecks": {
       "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
@@ -192,7 +199,35 @@
         "immediateMs": 60000,
         "preferredVa": "0x1400E6467"
       }
-    ]
+    ],
+    "updateActivity": {
+      "activityChangeResetsWorkerTimestampPreferredVa": "0x1400E5CB8",
+      "fingerprintFunctionPreferredVa": "0x14033BAB0-0x14033BE2D",
+      "noActivityThresholdMs": 900000,
+      "paths": [
+        "manifest.json",
+        "Temp",
+        "Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll"
+      ],
+      "postStallRetryFamily": "normal",
+      "postStallRetryTablePreferredVa": "0x140C99D10",
+      "stalledUpdateProcesses": [
+        {
+          "name": "LastWarLauncher.exe",
+          "preferredVa": "0x140C9A373"
+        },
+        {
+          "name": "LastWarUpdater.exe",
+          "preferredVa": "0x140C9A386"
+        },
+        {
+          "name": "LastWarSync.exe",
+          "preferredVa": "0x140C9A398"
+        }
+      ],
+      "stalledUpdateTerminationCallPreferredVa": "0x1400E5FCD",
+      "stalledUpdateTerminatorFunctionPreferredVa": "0x14033C5EB-0x14033C8DF"
+    }
   },
   "reproduction": [
     "python tools\\inspect_lwbridge_game_recovery.py ..\\LW\\lwbridge-0.3.1.exe --pretty",

@@ -28,7 +28,7 @@ This document records the evidence used for O04 **Open games at startup** and O0
 
 ## LWB-OVR-007 — original event-driven recovery entry contract — 2026-09-12
 
-**Status:** RECOVERED (original static; production event watcher not yet integrated). **Source:** the same verified `lwbridge-0.3.1.exe` SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+**Status:** RECOVERED (original static); production mapping is IMPLEMENTED/OFFLINE-TESTED under `LWB-OVR-009`. **Source:** the same verified `lwbridge-0.3.1.exe` SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
 
 **Locators.** Event parser/dispatcher `0x1403450C2-0x140345708` references `forceUpdate` at `0x140345569`, `crossDisconnect` at `0x1403455A8`, and `exitPrompt` at `0x1403456B5`; `disconnect` shares the event reason vocabulary adjacent to preferred VA `0x140C99D65`. Recovery start `0x140338FD4-0x140339356` initializes state text `waiting`. The worker comparison at `0x1400E6467` is `60,000 ms` before its disconnected-process action branch.
 
@@ -36,7 +36,7 @@ This document records the evidence used for O04 **Open games at startup** and O0
 
 **Reproduction.** The event assertions are part of `python tools\inspect_lwbridge_game_recovery.py ..\LW\lwbridge-0.3.1.exe --pretty`; current-package presence is reproduced by bounded string enumeration of the three named `LWScripts.data` entries. Durable original output remains `evidence/lwbridge-implementation/2026-09-12-overview-recovery-static.json`.
 
-**Limits/impact.** The exact in-place-versus-terminate worker transition for every event reason is still under investigation. Production must not route these event reasons through the immediate hang termination path until that transition is source-attributed.
+**Limits/impact.** The original host-side event contract is recovered. The current-client confirmation producer is not available as protected original source, so the rebuild adapter is explicitly an IMPLEMENTATION POLICY documented in `LWB-OVR-009`; live current-client verification remains required.
 
 ## LWB-OVR-008 — rebuild recovery core — 2026-09-12
 
@@ -47,3 +47,19 @@ This document records the evidence used for O04 **Open games at startup** and O0
 **Validation.** `dotnet build src\LWBridge.Desktop\LWBridge.Desktop.csproj -c Release` succeeds with zero warnings/errors. `dotnet run --project tests\LWBridge.Desktop.Checks\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged` returns `ok:true` and no failures. Fake-clock tests cover 30s/60s/180s boundaries, unknown-state fail-safe, updater suppression, process-exit recovery, manual-Close non-resurrection, reconnect-disable cancellation, normal/maintenance retry families and stable verification. Durable offline result: evidence/lwbridge-implementation/2026-09-12-overview-recovery-core-offline.json.
 
 **Limits/impact.** This checkpoint intentionally excludes production event-driven handling for `forceUpdate`, `crossDisconnect`, and `exitPrompt` until the remaining original worker transition is mapped. It is not LIVE-PROVEN. A bounded real-game crash/disconnect/reconnect test and owner-visible O04/O05 verification remain required before Overview is accepted.
+
+
+## LWB-OVR-009 — event confirmation and stalled-updater recovery completion — 2026-09-12
+
+**Status:** IMPLEMENTED/OFFLINE-TESTED; bounded real-game and owner-visible acceptance still pending. **Original source:** `../LW/lwbridge-0.3.1.exe`, SHA-256 `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`, preferred image base `0x140000000`. **Current-client source:** build `1.0.361 / 1078` Lua package `LWScripts.data`, SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`.
+
+**Original locators.** Recovery worker `0x1400E579C-0x1400E6B0F`; update metadata fingerprint `0x14033BAB0-0x14033BE2D`; activity-change timestamp reset at `0x1400E5CB8`; no-activity comparison `0x1400E5FAE`; stalled updater-family termination call `0x1400E5FCD` into `0x14033C5EB-0x14033C8DF`; post-stall normal retry table xref `0x1400E5FEC` to `0x140C99D10`. The fingerprint function constructs `manifest.json`, `Temp`, and `Game\LastWar_Data\Plugins\x86_64\xlua.dll`; the scoped process helper uses `LastWarLauncher.exe`, `LastWarUpdater.exe`, and `LastWarSync.exe`.
+
+**Current-client confirmation mapping.** The rebuild does not equate recovery-window visibility with the original `confirmed:true` event. `tools/current_overview_bridge.lua` treats plain `UIForceUpdateTip`, `UICrossDisconnect`, `UIDisconnect`, and `UIExitGameTip` visibility as unconfirmed. Its explicitly labelled IMPLEMENTATION POLICY hooks only source-backed current-client actions that enter reload/quit or reconnect-timeout paths: forced-update controller action, `UIDisconnectView.GotoLoadingView`, `UICrossDisconnectView.OnReconnectTimeOut`, and `UIExitGameTipView.ExitGame`. Ambiguous or unavailable observations fail closed.
+
+**Result.** Confirmed `disconnect`, `crossDisconnect`, `forceUpdate`, and `exitPrompt` now enter `waiting`; an already-running game can recover in place only after the recovered 15-second stable verification window. A still-unhealthy confirmed event waits 60 seconds before exact-PID/path game recovery. `forceUpdate` preserves update-detected provenance. While the official updater family is active, the rebuild monitors the same recovered three installation targets for metadata changes. A change resets the activity clock. At 900,000 ms without change it stops only the selected-root updater family, surfaces `game update had no activity for 15 minutes`, and returns to the normal retry family beginning at 15 seconds.
+
+
+**Reproduction/validation.** `python tools\inspect_lwbridge_game_recovery.py ..\LW\lwbridge-0.3.1.exe --pretty` verifies the hash-locked original updater fingerprint/stall contract. `dotnet build src\LWBridge.Desktop\LWBridge.Desktop.csproj -c Release` succeeds with zero warnings/errors. `dotnet run --project tests\LWBridge.Desktop.Checks\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged` returns `ok:true`; fake-clock coverage proves unconfirmed/ambiguous fail-closed behavior, in-place 15-second verification, 60-second escalation, updater-activity reset, 899,999-ms no-op, 900,000-ms scoped updater termination, and normal 15-second retry transition. Durable evidence: `evidence/lwbridge-implementation/2026-09-12-overview-recovery-static.json` plus `evidence/lwbridge-implementation/2026-09-12-overview-recovery-event-update-offline.json`.
+
+**Implementation mapping and limits.** The original fingerprint aggregate representation is not claimed to be reproduced byte-for-byte. The C# rebuild maps the recovered same-target/change semantics to last-write metadata plus file size where applicable. That representation is an IMPLEMENTATION POLICY; the monitored paths, inactivity threshold, scoped updater family and retry transition are recovered original contracts. The current-client action adapter also retains a confirmed signal for the existing 5-second heartbeat-freshness window so the 1-second host monitor cannot miss an immediate reload/quit; the host still requires fresh exact-session correlation and preserves that reason across the original two-missing-process gate. Event and updater recovery are not LIVE-PROVEN until the bounded current-client test. Owner-visible combined O04/O05 acceptance remains the gate before Player City.
