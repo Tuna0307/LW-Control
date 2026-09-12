@@ -509,6 +509,7 @@ try
     const string overviewProfile = "overview-test-profile";
     const int overviewPid = 42420;
     const int overviewLauncherPid = 42421;
+    const string overviewStartedAtUtc = "2026-09-12T01:00:00.0000000Z";
     string overviewGamePath = Path.Combine(overviewLifecycleRoot, "Game", "LastWar.exe");
     bool overviewProcessAlive = false;
     string heartbeatMode = "fresh";
@@ -537,7 +538,7 @@ try
 
     var overviewHooks = new OverviewLifecycleTestHooks
     {
-        ProcessMatches = (pid, path) => overviewProcessAlive && pid == overviewPid &&
+        ProcessMatches = (pid, path, startedAtUtc) => overviewProcessAlive && startedAtUtc == overviewStartedAtUtc && pid == overviewPid &&
             string.Equals(Path.GetFullPath(path), Path.GetFullPath(overviewGamePath), StringComparison.OrdinalIgnoreCase),
         ReadAllBytes = _ => OverviewHeartbeatBytes(),
         WriteLease = (_, _, _) => { },
@@ -562,6 +563,7 @@ try
                     challengeSha256,
                     gamePid = overviewPid,
                     gamePath = overviewGamePath,
+                    gameStartedAtUtc = overviewStartedAtUtc,
                     launcherPid = overviewLauncherPid,
                     ready = new
                     {
@@ -592,6 +594,7 @@ try
                 sessionId = invocation.SessionId,
                 gamePid = overviewPid,
                 gamePath = overviewGamePath,
+                gameStartedAtUtc = overviewStartedAtUtc,
                 close = wasAlive
                     ? new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false }
                     : new { method = "already_exited", accepted = false, processExited = true, alreadyExited = true },
@@ -730,6 +733,10 @@ try
     const int repairOldPid = 45210;
     const int repairNewPid = 45211;
     const int repairLauncherPid = 45212;
+    const string repairOldStartedAtUtc = "2026-09-12T02:00:00.0000000Z";
+    const string repairNewStartedAtUtc = "2026-09-12T03:00:00.0000000Z";
+    string? repairCurrentStartedAtUtc = repairOldStartedAtUtc;
+    bool repairJournalIncludesStartedAt = true;
     bool repairOldAlive = true;
     bool repairNewAlive = false;
     bool repairStopFails = false;
@@ -745,23 +752,28 @@ try
     string? repairLaunchChallenge = null;
     var repairInvocations = new List<OverviewHelperInvocation>();
 
-    byte[] RepairJournalBytes() => JsonSerializer.SerializeToUtf8Bytes(new
+    byte[] RepairJournalBytes()
     {
-        schemaVersion = 1,
-        requestId = repairInterruptedSession,
-        profileId = repairJournalProfile,
-        sessionId = repairInterruptedSession,
-        stage = repairJournalStage,
-        gamePid = repairJournalPid,
-        gamePath = repairJournalGamePath,
-        backupPath = repairJournalBackupPath,
-        originalFiles = new
+        var journal = new Dictionary<string, object?>
         {
-            data = new { sha256 = "test-data" },
-            metadata = new { sha256 = "test-metadata" },
-            version = new { sha256 = "test-version" },
-        },
-    });
+            ["schemaVersion"] = 1,
+            ["requestId"] = repairInterruptedSession,
+            ["profileId"] = repairJournalProfile,
+            ["sessionId"] = repairInterruptedSession,
+            ["stage"] = repairJournalStage,
+            ["gamePid"] = repairJournalPid,
+            ["gamePath"] = repairJournalGamePath,
+            ["backupPath"] = repairJournalBackupPath,
+            ["originalFiles"] = new
+            {
+                data = new { sha256 = "test-data" },
+                metadata = new { sha256 = "test-metadata" },
+                version = new { sha256 = "test-version" },
+            },
+        };
+        if (repairJournalIncludesStartedAt) journal["gameStartedAtUtc"] = repairOldStartedAtUtc;
+        return JsonSerializer.SerializeToUtf8Bytes(journal);
+    }
 
     byte[] RepairHeartbeatBytes() => JsonSerializer.SerializeToUtf8Bytes(new
     {
@@ -779,7 +791,8 @@ try
 
     var repairHooks = new OverviewLifecycleTestHooks
     {
-        ProcessMatches = (pid, path) =>
+        ProcessMatches = (pid, path, startedAtUtc) =>
+            startedAtUtc == repairCurrentStartedAtUtc &&
             (repairOldAlive && pid == repairOldPid || repairNewAlive && pid == repairNewPid) &&
             string.Equals(Path.GetFullPath(path), Path.GetFullPath(repairGamePath), StringComparison.OrdinalIgnoreCase),
         ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
@@ -803,6 +816,7 @@ try
                     sessionId = repairInterruptedSession,
                     gamePid = repairOldPid,
                     gamePath = repairGamePath,
+                    gameStartedAtUtc = repairOldStartedAtUtc,
                     close = new
                     {
                         method = "Process.CloseMainWindow",
@@ -819,6 +833,7 @@ try
             repairLaunchSession = invocation.SessionId;
             repairLaunchChallenge = invocation.Challenge;
             repairNewAlive = true;
+            repairCurrentStartedAtUtc = repairNewStartedAtUtc;
             string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
                 System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
             return Task.FromResult(JsonSerializer.SerializeToElement(new
@@ -831,6 +846,7 @@ try
                 challengeSha256,
                 gamePid = repairNewPid,
                 gamePath = repairGamePath,
+                gameStartedAtUtc = repairNewStartedAtUtc,
                 launcherPid = repairLauncherPid,
                 ready = new
                 {
@@ -891,8 +907,16 @@ try
     Check(!repairLifecycle.RepairRequired,
         "Overview repair refuses a backup path outside the Overview backup root");
     repairJournalBackupPath = repairBackupPath;
+    repairCurrentStartedAtUtc = repairNewStartedAtUtc;
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair rejects a reused PID/path whose process creation identity differs");
+    repairCurrentStartedAtUtc = repairOldStartedAtUtc;
+    repairJournalIncludesStartedAt = false;
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair fails closed when the live journal has no process creation identity");
+    repairJournalIncludesStartedAt = true;
     Check(repairLifecycle.RepairRequired,
-        "Overview repair activates only for an exact profile/session/PID/path journal");
+        "Overview repair activates only for an exact profile/session/PID/path/creation journal");
     object? repairReconcile = await repairLifecycle.InvokeAsync(
         "profile_instances_reconcile", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
     using (JsonDocument reconciled = JsonDocument.Parse(JsonSerializer.Serialize(repairReconcile, JsonOptions.Default)))
@@ -931,7 +955,7 @@ try
           repairInvocations.Count(i => i.Operation == "start") == 1 &&
           repairInvocations.Where(i => i.Operation == "stop").All(i =>
               i.ProfileId == overviewProfile && i.SessionId == repairInterruptedSession &&
-              i.GamePid == repairOldPid &&
+              i.GamePid == repairOldPid && i.GameStartedAtUtc == repairOldStartedAtUtc &&
               string.Equals(Path.GetFullPath(i.GamePath!), Path.GetFullPath(repairGamePath), StringComparison.OrdinalIgnoreCase)),
         "Overview repair uses only the exact journaled session/PID/path for cleanup before relaunch");
     Check(repairLifecycle.IsReady && !repairLifecycle.RepairRequired &&
@@ -947,6 +971,7 @@ try
     const int recoveryLauncherPid = 43421;
     int recoveryPid = 43420;
     int recoveryPidSequence = 0;
+    string recoveryStartedAtUtc = "2026-09-12T04:00:00.0000000Z";
     bool recoveryProcessAlive = false;
     bool recoveryHeartbeatAvailable = true;
     bool recoveryGameStateObserved = true;
@@ -1004,7 +1029,7 @@ try
 
     var recoveryHooks = new OverviewLifecycleTestHooks
     {
-        ProcessMatches = (pid, path) => recoveryProcessAlive && pid == recoveryPid &&
+        ProcessMatches = (pid, path, startedAtUtc) => recoveryProcessAlive && startedAtUtc == recoveryStartedAtUtc && pid == recoveryPid &&
             string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
         ReadAllBytes = _ => recoveryHeartbeatAvailable
             ? RecoveryHeartbeatBytes()
@@ -1023,9 +1048,9 @@ try
         },
         ProcessHung = (pid, path) => recoveryProcessHung && recoveryProcessAlive && pid == recoveryPid &&
             string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
-        TerminateOwnedProcessAsync = (pid, path, _) =>
+        TerminateOwnedProcessAsync = (pid, path, startedAtUtc, _) =>
         {
-            Check(recoveryProcessAlive && pid == recoveryPid &&
+            Check(recoveryProcessAlive && pid == recoveryPid && startedAtUtc == recoveryStartedAtUtc &&
                   string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
                 "recovery force-termination hook receives only the exact owned PID/path");
             recoveryTerminations.Add((pid, Path.GetFullPath(path)));
@@ -1068,6 +1093,7 @@ try
                 recoverySession = invocation.SessionId;
                 recoveryChallenge = invocation.Challenge;
                 recoveryPid = 43420 + ++recoveryPidSequence;
+                recoveryStartedAtUtc = $"2026-09-12T04:{recoveryPidSequence:00}:00.0000000Z";
                 recoveryProcessAlive = true;
                 recoveryHeartbeatAvailable = true;
                 recoveryGameStateObserved = true;
@@ -1090,6 +1116,7 @@ try
                     challengeSha256,
                     gamePid = recoveryPid,
                     gamePath = recoveryGamePath,
+                    gameStartedAtUtc = recoveryStartedAtUtc,
                     launcherPid = recoveryLauncherPid,
                     ready = new
                     {
@@ -1121,6 +1148,7 @@ try
                 sessionId = invocation.SessionId,
                 gamePid = invocation.GamePid,
                 gamePath = invocation.GamePath,
+                gameStartedAtUtc = invocation.GameStartedAtUtc,
                 close = wasAlive
                     ? new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false }
                     : new { method = "already_exited", accepted = false, processExited = true, alreadyExited = true },

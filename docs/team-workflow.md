@@ -6,7 +6,7 @@ PM audited `0758006` and returned two source-confirmed defects. Successful live 
 
 Web is the single implementer/researcher/technical verification owner. PM audits and maintains instructions; the owner chooses features and supplies only simple UI observations/screenshots. Web captures all technical evidence automatically. No separate Sol assignment. No Daybreak assignment: these are implementation defects, not exhausted binary-analysis questions or a transfer of restricted operations.
 
-**Do not begin Player City or any Map Data work.** Fix PM16-02, then PM16-01, reconcile evidence under PM16-03 and return to PM/owner. No automatic transition to cross-server, other shared controls or the historical queue. Whole Overview remains incomplete while S02/S03/S06 are unfinished; S05 runtime-name scope depends on actual visible consumers.
+**Do not begin Player City or any Map Data work.** PM16-02 is corrected/offline-tested as `LWB-PM16-001`; complete PM16-01 next, reconcile evidence under PM16-03 and return to PM/owner. No automatic transition to cross-server, other shared controls or the historical queue. Whole Overview remains incomplete while S02/S03/S06 are unfinished; S05 runtime-name scope depends on actual visible consumers.
 
 ## Main prompt for ChatGPT Web
 

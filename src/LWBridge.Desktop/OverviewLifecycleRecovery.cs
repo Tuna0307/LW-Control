@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -112,7 +113,7 @@ internal sealed partial class OverviewLifecycleService
                 return;
             }
 
-            if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath))
+            if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc))
             {
                 ResetRunningFailureObservations();
                 // A confirmed reload/quit action can exit the game before the next
@@ -162,7 +163,7 @@ internal sealed partial class OverviewLifecycleService
             if (!heartbeat.BridgeOnline)
             {
                 bridgeOfflineSinceMilliseconds ??= now;
-                bool hung = IsOwnedProcessHung(snapshot.GamePid, snapshot.GamePath);
+                bool hung = IsOwnedProcessHung(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc);
                 if (hung) hungSinceMilliseconds ??= now;
                 else hungSinceMilliseconds = null;
                 gameUnhealthySinceMilliseconds = null;
@@ -313,7 +314,7 @@ internal sealed partial class OverviewLifecycleService
             // journal restoration is cleanup, not a retry, and must finish even if
             // Automatic Reconnection is disabled concurrently.
             if (terminateFirst)
-                await TerminateOwnedProcessAsync(snapshot.GamePid, snapshot.GamePath, CancellationToken.None).ConfigureAwait(false);
+                await TerminateOwnedProcessAsync(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, CancellationToken.None).ConfigureAwait(false);
             await CleanupExitedOwnedSessionAsync(snapshot, CancellationToken.None).ConfigureAwait(false);
 
             while (RecoveryEnabledAndDesired())
@@ -355,7 +356,7 @@ internal sealed partial class OverviewLifecycleService
                         startedAt, null, attempts, null, null, null, false));
                     await RecoveryDelayAsync(OverviewRecoveryPolicy.StableVerification, token).ConfigureAwait(false);
                     OwnedSnapshot? current = GetOwnedSnapshot();
-                    if (current is not null && ProcessMatches(current.GamePid, current.GamePath) && IsReady)
+                    if (current is not null && ProcessMatches(current.GamePid, current.GamePath, current.GameStartedAtUtc) && IsReady)
                     {
                         SetRecoveryStatus(IdleRecoveryStatus(reason, updateDetected, true,
                             startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts));
@@ -409,9 +410,9 @@ internal sealed partial class OverviewLifecycleService
     {
         JsonElement result = await RunHelperAsync(
             new OverviewHelperInvocation("stop", profileId, snapshot.InstanceId,
-                snapshot.Challenge, snapshot.GamePid, snapshot.GamePath), token).ConfigureAwait(false);
+                snapshot.Challenge, snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc), token).ConfigureAwait(false);
         ValidateStopResult(result, profileId, snapshot.InstanceId,
-            snapshot.GamePid, snapshot.GamePath, requireCurrentClientEvidence);
+            snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, requireCurrentClientEvidence);
         if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
         StopLeaseTimer(deleteLease: true);
         ClearRuntimeSessionFiles();
@@ -425,6 +426,7 @@ internal sealed partial class OverviewLifecycleService
             gamePid = null;
             launcherPid = null;
             gamePath = null;
+            gameStartedAtUtc = null;
             lastError = null;
             readyAtUnix = null;
         }
@@ -483,10 +485,10 @@ internal sealed partial class OverviewLifecycleService
         }
     }
 
-    private bool IsOwnedProcessHung(int pid, string expectedPath)
+    private bool IsOwnedProcessHung(int pid, string expectedPath, string expectedStartedAtUtc)
     {
         if (testHooks?.ProcessHung is { } test) return test(pid, expectedPath);
-        if (!ValidateExactProcessPath(pid, expectedPath, out Process? verified) || verified is null) return false;
+        if (!ValidateExactProcessIdentity(pid, expectedPath, expectedStartedAtUtc, out Process? verified) || verified is null) return false;
         verified.Dispose();
         bool hung = false;
         EnumWindows((window, parameter) =>
@@ -613,15 +615,15 @@ internal sealed partial class OverviewLifecycleService
         ResetUpdateActivity();
     }
 
-    private async Task TerminateOwnedProcessAsync(int pid, string expectedPath, CancellationToken cancellationToken)
+    private async Task TerminateOwnedProcessAsync(int pid, string expectedPath, string expectedStartedAtUtc, CancellationToken cancellationToken)
     {
         if (testHooks?.TerminateOwnedProcessAsync is { } test)
         {
-            await test(pid, expectedPath, cancellationToken).ConfigureAwait(false);
+            await test(pid, expectedPath, expectedStartedAtUtc, cancellationToken).ConfigureAwait(false);
             return;
         }
-        if (!ValidateExactProcessPath(pid, expectedPath, out Process? process) || process is null)
-            throw new BridgeCommandException("PROCESS_QUERY_FAILED", "Unable to verify the target process path.");
+        if (!ValidateExactProcessIdentity(pid, expectedPath, expectedStartedAtUtc, out Process? process) || process is null)
+            throw new BridgeCommandException("PROCESS_IDENTITY_CHANGED", "Unable to verify the exact owned game process incarnation.");
         using (process)
         {
             IntPtr handle = OpenProcess(0x0001, false, pid); // PROCESS_TERMINATE
@@ -635,6 +637,27 @@ internal sealed partial class OverviewLifecycleService
             finally { _ = CloseHandle(handle); }
             await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
         }
+    }
+
+
+    private static bool ValidateExactProcessIdentity(int pid, string expectedPath, string expectedStartedAtUtc, out Process? process)
+    {
+        process = null;
+        Process? candidate = null;
+        try
+        {
+            candidate = Process.GetProcessById(pid);
+            if (candidate.HasExited) return false;
+            string? actual = candidate.MainModule?.FileName;
+            string actualStartedAtUtc = candidate.StartTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+            if (actual is null || !PathEquals(actual, expectedPath) ||
+                !string.Equals(actualStartedAtUtc, expectedStartedAtUtc, StringComparison.Ordinal)) return false;
+            process = candidate;
+            candidate = null;
+            return true;
+        }
+        catch { return false; }
+        finally { candidate?.Dispose(); }
     }
 
     private static bool ValidateExactProcessPath(int pid, string expectedPath, out Process? process)

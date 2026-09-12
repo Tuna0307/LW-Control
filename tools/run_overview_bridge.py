@@ -242,6 +242,7 @@ def run_start(
             launcher_process = lr.subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
             deadline = launch_started + timeout_seconds
             owned_game = lr.await_owned_game_process(p, deadline)
+            game_started_at_utc = lr.require_process_started_at(owned_game.get("startedAtUtc"), "owned game startedAtUtc")
             write_control(p, profile_id, session_id, challenge, int(owned_game["pid"]))
             ready = await_ready(p, profile_id, session_id, challenge, int(owned_game["pid"]), deadline)
 
@@ -254,6 +255,7 @@ def run_start(
                 "challengeSha256": hashlib.sha256(challenge.encode("utf-8")).hexdigest(),
                 "gamePid": int(owned_game["pid"]),
                 "gamePath": os.path.abspath(str(owned_game["path"])),
+                "gameStartedAtUtc": game_started_at_utc,
                 "candidate": candidate_info,
             })
             lr.update_recovery_stage(p, recovery_state, "active_ready_deferred_restore")
@@ -267,7 +269,7 @@ def run_start(
                 "challengeSha256": hashlib.sha256(challenge.encode("utf-8")).hexdigest(),
                 "gamePid": owned_game["pid"],
                 "gamePath": owned_game["path"],
-                "gameStartedAtUtc": owned_game.get("startedAtUtc"),
+                "gameStartedAtUtc": game_started_at_utc,
                 "launcherPid": launcher_process.pid,
                 "readyPath": str(p["runtime"] / "ready.json"),
                 "heartbeatPath": str(p["runtime"] / "heartbeat.json"),
@@ -354,6 +356,7 @@ def run_stop(
     game_pid: int,
     game_path: str,
     game_root: str | Path | None,
+    game_started_at_utc: str | None = None,
 ) -> dict[str, object]:
     p = overview_paths(game_root)
     expected = os.path.abspath(os.fspath(p["game"]))
@@ -389,6 +392,9 @@ def run_stop(
         recorded_path = state.get("gamePath")
         if not isinstance(recorded_path, str) or os.path.normcase(os.path.abspath(recorded_path)) != os.path.normcase(supplied):
             raise OverviewBridgeError("Overview recovery journal does not match the requested game path")
+        recorded_started_at = state.get("gameStartedAtUtc")
+        if game_started_at_utc is not None and isinstance(recorded_started_at, str) and game_started_at_utc != recorded_started_at:
+            raise OverviewBridgeError("Overview recovery journal does not match the requested game creation identity")
         backup_path = state.get("backupPath")
         if not isinstance(backup_path, str) or not backup_path:
             raise OverviewBridgeError("Overview recovery journal is missing its exact backup path")
@@ -400,8 +406,13 @@ def run_stop(
             current = selected[0]
             if current.get("pid") != game_pid or os.path.normcase(os.path.abspath(str(current.get("path", "")))) != os.path.normcase(supplied):
                 raise OverviewBridgeError("selected LastWar identity changed before Overview Close")
+            expected_started_at = lr.require_process_started_at(recorded_started_at, "journal gameStartedAtUtc")
+            requested_started_at = lr.require_process_started_at(game_started_at_utc, "requested gameStartedAtUtc")
+            current_started_at = lr.require_process_started_at(current.get("startedAtUtc"), "current game startedAtUtc")
+            if requested_started_at != expected_started_at or current_started_at != expected_started_at:
+                raise OverviewBridgeError("selected LastWar process creation identity changed before Overview Close")
             lr.update_recovery_stage(p, state, "closing_owned_game_for_restore")
-            close = lr.close_owned_game_process_for_restore(p, {"pid": game_pid, "path": supplied})
+            close = lr.close_owned_game_process_for_restore(p, {"pid": game_pid, "path": supplied, "startedAtUtc": expected_started_at})
             already_exited = False
         else:
             close = {
@@ -430,6 +441,7 @@ def run_stop(
             "sessionId": session_id,
             "gamePid": game_pid,
             "gamePath": supplied,
+            "gameStartedAtUtc": recorded_started_at if isinstance(recorded_started_at, str) else game_started_at_utc,
             "close": close,
             "alreadyExited": already_exited,
             "restore": restored,
@@ -489,6 +501,7 @@ def main() -> int:
     stop.add_argument("--session-id", required=True)
     stop.add_argument("--game-pid", type=int, required=True)
     stop.add_argument("--game-path", required=True)
+    stop.add_argument("--game-started-at-utc")
     stop.add_argument("--game-root")
     args = parser.parse_args()
     try:
@@ -507,7 +520,7 @@ def main() -> int:
         else:
             if args.game_pid <= 0:
                 raise OverviewBridgeError("gamePid must be positive")
-            result = run_stop(args.profile_id, args.session_id, args.game_pid, args.game_path, args.game_root)
+            result = run_stop(args.profile_id, args.session_id, args.game_pid, args.game_path, args.game_root, args.game_started_at_utc)
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc), "errorType": type(exc).__name__}, separators=(",", ":")))
         return 2

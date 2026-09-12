@@ -318,8 +318,9 @@ def selected_game_processes(p: dict[str, Path]) -> list[dict[str, object]]:
     script = (
         "$ErrorActionPreference='SilentlyContinue';"
         "@(Get-Process -Name LastWar -ErrorAction SilentlyContinue | ForEach-Object {"
-        "try {[pscustomobject]@{pid=$_.Id;path=$_.Path;"
-        "startedAtUtc=$_.StartTime.ToUniversalTime().ToString('o')}} catch {}"
+        "$p=$null;$s=$null;try{$p=$_.Path}catch{};"
+        "try{$s=$_.StartTime.ToUniversalTime().ToString('o')}catch{};"
+        "[pscustomobject]@{pid=$_.Id;path=$p;startedAtUtc=$s}"
         "}) | ConvertTo-Json -Compress"
     )
     result = subprocess.run(
@@ -356,6 +357,12 @@ def await_owned_game_process(p: dict[str, Path], deadline: float) -> dict[str, o
     raise LiveResourceError("the selected launcher did not create a matching LastWar process before timeout")
 
 
+def require_process_started_at(value: object, field: str = "startedAtUtc") -> str:
+    if not isinstance(value, str) or not value or len(value) > 80 or any(ch in "\r\n" for ch in value):
+        raise LiveResourceError(f"{field} is missing or invalid; refusing process ownership")
+    return value
+
+
 def close_owned_game_process_for_restore(
     p: dict[str, Path],
     owned_game: dict[str, object],
@@ -371,6 +378,7 @@ def close_owned_game_process_for_restore(
     """
     pid = owned_game.get("pid")
     process_path = owned_game.get("path")
+    started_at_utc = require_process_started_at(owned_game.get("startedAtUtc"), "helper-owned game startedAtUtc")
     if not isinstance(pid, int) or pid <= 0 or not isinstance(process_path, str):
         raise LiveResourceError("helper-owned LastWar identity is incomplete; refusing normal close")
     if _normalized_process_path(process_path) != _normalized_process_path(p["game"]):
@@ -383,19 +391,26 @@ def close_owned_game_process_for_restore(
         raise LiveResourceError("selected LastWar process identity changed before normal close")
     if _normalized_process_path(str(selected[0].get("path", ""))) != _normalized_process_path(p["game"]):
         raise LiveResourceError("selected LastWar path changed before normal close")
+    current_started_at = require_process_started_at(selected[0].get("startedAtUtc"), "selected game startedAtUtc")
+    if current_started_at != started_at_utc:
+        raise LiveResourceError("selected LastWar process creation identity changed before normal close")
 
     close_env = os.environ.copy()
     close_env["LWBRIDGE_OWNED_GAME_PID"] = str(pid)
     close_env["LWBRIDGE_OWNED_GAME_PATH"] = os.path.abspath(process_path)
     close_env["LWBRIDGE_NORMAL_CLOSE_WAIT_MS"] = str(wait_milliseconds)
+    close_env["LWBRIDGE_OWNED_GAME_STARTED_AT_UTC"] = started_at_utc
     script = (
         "$ErrorActionPreference='Stop';"
         "$ownedPid=[int]$env:LWBRIDGE_OWNED_GAME_PID;"
         "$expected=[IO.Path]::GetFullPath($env:LWBRIDGE_OWNED_GAME_PATH);"
         "$waitMs=[int]$env:LWBRIDGE_NORMAL_CLOSE_WAIT_MS;"
+        "$expectedStarted=$env:LWBRIDGE_OWNED_GAME_STARTED_AT_UTC;"
         "$process=[Diagnostics.Process]::GetProcessById($ownedPid);"
         "$actual=[IO.Path]::GetFullPath($process.Path);"
         "if(-not [StringComparer]::OrdinalIgnoreCase.Equals($actual,$expected)){exit 43};"
+        "$actualStarted=$process.StartTime.ToUniversalTime().ToString('o');"
+        "if(-not [StringComparer]::Ordinal.Equals($actualStarted,$expectedStarted)){exit 44};"
         "if(-not $process.CloseMainWindow()){exit 41};"
         "if(-not $process.WaitForExit($waitMs)){exit 42}"
     )
@@ -412,6 +427,8 @@ def close_owned_game_process_for_restore(
         raise LiveResourceError(f"LastWar pid {pid} did not exit within the bounded normal-close wait")
     if result.returncode == 43:
         raise LiveResourceError(f"LastWar pid {pid} path changed before Process.CloseMainWindow")
+    if result.returncode == 44:
+        raise LiveResourceError(f"LastWar pid {pid} creation identity changed before Process.CloseMainWindow")
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip()
         suffix = f": {detail}" if detail else ""
@@ -424,6 +441,7 @@ def close_owned_game_process_for_restore(
         "method": "Process.CloseMainWindow",
         "pid": pid,
         "path": os.path.abspath(process_path),
+        "startedAtUtc": started_at_utc,
         "waitMilliseconds": wait_milliseconds,
         "accepted": True,
         "processExited": True,

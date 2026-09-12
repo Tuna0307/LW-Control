@@ -12,7 +12,7 @@ namespace LWBridge.Desktop;
 internal sealed class OverviewLifecycleTestHooks
 {
     public Func<OverviewHelperInvocation, CancellationToken, Task<JsonElement>>? RunHelperAsync { get; init; }
-    public Func<int, string, bool>? ProcessMatches { get; init; }
+    public Func<int, string, string?, bool>? ProcessMatches { get; init; }
     public Func<string, byte[]>? ReadAllBytes { get; init; }
     public Action<string, string, string>? WriteLease { get; init; }
     public Action<string>? DeleteFile { get; init; }
@@ -22,7 +22,7 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<string?>? UpdateActivityFingerprint { get; init; }
     public Func<CancellationToken, Task>? TerminateUpdateProcessesAsync { get; init; }
     public Func<int, string, bool>? ProcessHung { get; init; }
-    public Func<int, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
+    public Func<int, string, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
 }
 
@@ -32,7 +32,8 @@ internal sealed record OverviewHelperInvocation(
     string? SessionId,
     string? Challenge,
     int? GamePid,
-    string? GamePath);
+    string? GamePath,
+    string? GameStartedAtUtc);
 
 internal sealed partial class OverviewLifecycleService : INativeAsyncCommandService, IDisposable
 {
@@ -65,6 +66,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private int? gamePid;
     private int? launcherPid;
     private string? gamePath;
+    private string? gameStartedAtUtc;
     private string? lastError;
     private long? readyAtUnix;
     private bool startupReconcileConsumed;
@@ -253,9 +255,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         try
         {
             JsonElement result = await RunHelperAsync(
-                new OverviewHelperInvocation("stop", profileId, repair.SessionId, null, repair.GamePid, repair.GamePath),
+                new OverviewHelperInvocation("stop", profileId, repair.SessionId, null, repair.GamePid, repair.GamePath, repair.GameStartedAtUtc),
                 cancellationToken).ConfigureAwait(false);
-            ValidateStopResult(result, profileId, repair.SessionId, repair.GamePid, repair.GamePath, requireCurrentClientEvidence);
+            ValidateStopResult(result, profileId, repair.SessionId, repair.GamePid, repair.GamePath, repair.GameStartedAtUtc, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStopEvidence(repair.SessionId, result);
             StopLeaseTimer(deleteLease: true);
             ClearRuntimeSessionFiles();
@@ -268,6 +270,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 gamePid = null;
                 launcherPid = null;
                 gamePath = null;
+                gameStartedAtUtc = null;
                 lastError = null;
                 readyAtUnix = null;
             }
@@ -345,8 +348,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (!PathIsWithin(backupPath, backupRoot)) return false;
             if (!root.TryGetProperty("originalFiles", out JsonElement originals) || originals.ValueKind != JsonValueKind.Object)
                 return false;
-            if (!ProcessMatches(pid, expectedPath)) return false;
-            repair = new OverviewRepairSnapshot(sessionId, pid, expectedPath, backupPath, stage);
+            string startedAtUtc = RequiredProcessStartedAtUtc(root, "gameStartedAtUtc");
+            if (!ProcessMatches(pid, expectedPath, startedAtUtc)) return false;
+            repair = new OverviewRepairSnapshot(sessionId, pid, expectedPath, startedAtUtc, backupPath, stage);
             return true;
         }
         catch
@@ -396,7 +400,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         try
         {
             JsonElement helper = await RunHelperAsync(
-                new OverviewHelperInvocation("start", profileId, newSession, newChallenge, null, null),
+                new OverviewHelperInvocation("start", profileId, newSession, newChallenge, null, null, null),
                 cancellationToken).ConfigureAwait(false);
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, gameRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
@@ -411,6 +415,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 gamePid = start.GamePid;
                 launcherPid = start.LauncherPid;
                 gamePath = start.GamePath;
+                gameStartedAtUtc = start.GameStartedAtUtc;
                 readyAtUnix = start.ReadyAtUnix;
                 lastError = null;
             }
@@ -473,9 +478,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         try
         {
             JsonElement result = await RunHelperAsync(
-                new OverviewHelperInvocation("stop", profileId, snapshot.InstanceId, snapshot.Challenge, snapshot.GamePid, snapshot.GamePath),
+                new OverviewHelperInvocation("stop", profileId, snapshot.InstanceId, snapshot.Challenge, snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc),
                 cancellationToken).ConfigureAwait(false);
-            ValidateStopResult(result, profileId, snapshot.InstanceId, snapshot.GamePid, snapshot.GamePath, requireCurrentClientEvidence);
+            ValidateStopResult(result, profileId, snapshot.InstanceId, snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
             StopLeaseTimer(deleteLease: true);
             ClearRuntimeSessionFiles();
@@ -488,6 +493,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 gamePid = null;
                 launcherPid = null;
                 gamePath = null;
+                gameStartedAtUtc = null;
                 lastError = null;
                 readyAtUnix = null;
             }
@@ -548,6 +554,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             start.ArgumentList.Add("--session-id"); start.ArgumentList.Add(invocation.SessionId!);
             start.ArgumentList.Add("--game-pid"); start.ArgumentList.Add(invocation.GamePid!.Value.ToString(CultureInfo.InvariantCulture));
             start.ArgumentList.Add("--game-path"); start.ArgumentList.Add(invocation.GamePath!);
+            if (!string.IsNullOrWhiteSpace(invocation.GameStartedAtUtc))
+            {
+                start.ArgumentList.Add("--game-started-at-utc"); start.ArgumentList.Add(invocation.GameStartedAtUtc);
+            }
         }
 
         Process process = Process.Start(start)
@@ -635,7 +645,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 !MatchesString(current, "assemblyCSharpSha256", ExpectedAssemblyCSharpSha256))
                 throw new InvalidDataException("Overview helper did not prove the supported current-client identity.");
         }
-        return new(pid, launcher, Path.GetFullPath(gamePath), readyAt);
+        string gameStartedAtUtc = RequiredProcessStartedAtUtc(root, "gameStartedAtUtc");
+        return new(pid, launcher, Path.GetFullPath(gamePath), gameStartedAtUtc, readyAt);
     }
 
     internal static void ValidateStopResult(
@@ -644,6 +655,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         string expectedSessionId,
         int expectedGamePid,
         string expectedGamePath,
+        string expectedGameStartedAtUtc,
         bool requireCurrentClientEvidence)
     {
         RequireString(root, "mode", "overview_exact_pid_close_restore");
@@ -655,6 +667,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         string path = RequiredString(root, "gamePath");
         if (!PathEquals(path, expectedGamePath))
             throw new InvalidDataException("Overview stop helper returned a different game path.");
+        string startedAtUtc = RequiredProcessStartedAtUtc(root, "gameStartedAtUtc");
+        if (!string.Equals(startedAtUtc, expectedGameStartedAtUtc, StringComparison.Ordinal))
+            throw new InvalidDataException("Overview stop helper returned a different game process creation identity.");
         if (!root.TryGetProperty("gameRunning", out JsonElement running) || running.ValueKind != JsonValueKind.False)
             throw new InvalidDataException("Overview stop helper did not prove owned game exit.");
         if (!root.TryGetProperty("installedFilesChanged", out JsonElement changed) || changed.ValueKind != JsonValueKind.False)
@@ -701,7 +716,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private bool IsSnapshotReady(OwnedSnapshot snapshot)
     {
-        if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath)) return false;
+        if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc)) return false;
         string heartbeatPath = Path.Combine(runtimeRoot, "heartbeat.json");
         try
         {
@@ -721,15 +736,18 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
     }
 
-    private bool ProcessMatches(int pid, string expectedPath)
+    private bool ProcessMatches(int pid, string expectedPath, string? expectedStartedAtUtc)
     {
-        if (testHooks?.ProcessMatches is { } test) return test(pid, expectedPath);
+        if (testHooks?.ProcessMatches is { } test) return test(pid, expectedPath, expectedStartedAtUtc);
+        if (string.IsNullOrWhiteSpace(expectedStartedAtUtc)) return false;
         try
         {
             using Process process = Process.GetProcessById(pid);
             if (process.HasExited) return false;
             string? actual = process.MainModule?.FileName;
-            return actual is not null && PathEquals(actual, expectedPath);
+            string actualStartedAtUtc = process.StartTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+            return actual is not null && PathEquals(actual, expectedPath) &&
+                string.Equals(actualStartedAtUtc, expectedStartedAtUtc, StringComparison.Ordinal);
         }
         catch { return false; }
     }
@@ -756,7 +774,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         OwnedSnapshot? snapshot = GetOwnedSnapshot();
         if (snapshot is null || snapshot.Phase is "starting" or "stopping") return;
-        if (ProcessMatches(snapshot.GamePid, snapshot.GamePath)) return;
+        if (ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc)) return;
         // OVL-05: the original classifier requires more than one consecutive
         // missing-process observation. The recovery monitor owns that counter;
         // synchronous status reads must not turn one miss into an immediate exit.
@@ -848,6 +866,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 sessionId = session,
                 gamePid = start.GamePid,
                 gamePath = start.GamePath,
+                gameStartedAtUtc = start.GameStartedAtUtc,
                 readyAt = start.ReadyAtUnix,
                 hostProcess = FileIdentity(processPath),
                 desktopAssembly = FileIdentity(assemblyPath),
@@ -910,13 +929,21 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private OwnedSnapshot SnapshotLocked() => new(
         phase, connectionState, instanceId!, challenge!, gamePid!.Value,
-        launcherPid, gamePath!, lastError, readyAtUnix);
+        launcherPid, gamePath!, gameStartedAtUtc!, lastError, readyAtUnix);
 
     private static string RequiredString(JsonElement root, string name)
     {
         if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(value.GetString()))
             throw new InvalidDataException($"Overview helper field '{name}' is missing or invalid.");
         return value.GetString()!;
+    }
+
+    private static string RequiredProcessStartedAtUtc(JsonElement root, string name)
+    {
+        string value = RequiredString(root, name);
+        if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset parsed))
+            throw new InvalidDataException($"Overview helper field '{name}' is not a valid process creation timestamp.");
+        return parsed.UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
     }
 
     private static int RequirePositiveInt(JsonElement root, string name)
@@ -954,12 +981,13 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         int GamePid,
         int? LauncherPid,
         string GamePath,
+        string GameStartedAtUtc,
         string? Error,
         long? ReadyAtUnix);
 
     private sealed record GameProcessIdentity(int Pid, string Path);
-    private sealed record OverviewRepairSnapshot(string SessionId, int GamePid, string GamePath, string BackupPath, string Stage);
+    private sealed record OverviewRepairSnapshot(string SessionId, int GamePid, string GamePath, string GameStartedAtUtc, string BackupPath, string Stage);
 }
 
-internal sealed record OverviewStartResult(int GamePid, int LauncherPid, string GamePath, long ReadyAtUnix);
+internal sealed record OverviewStartResult(int GamePid, int LauncherPid, string GamePath, string GameStartedAtUtc, long ReadyAtUnix);
 internal sealed record OverviewStartupError(string ProfileId, string Error, string Message);
