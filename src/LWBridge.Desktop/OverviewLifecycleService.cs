@@ -44,6 +44,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private static readonly TimeSpan HeartbeatFreshness = TimeSpan.FromSeconds(5);
 
     private readonly object stateGate = new();
+    private readonly object leaseWriteGate = new();
     private readonly string helperPath;
     private readonly string? gameRoot;
     private readonly string profileId;
@@ -54,6 +55,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly OverviewLifecycleTestHooks? testHooks;
     private readonly bool requireCurrentClientEvidence;
     private System.Threading.Timer? leaseTimer;
+    private long leaseGeneration;
     private Process? activeHelperProcess;
     private bool closed;
     private string phase = "stopped";
@@ -627,13 +629,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private void StartLeaseTimer()
     {
         StopLeaseTimer(deleteLease: false);
+        long generation = Interlocked.Increment(ref leaseGeneration);
         leaseTimer = new System.Threading.Timer(_ =>
         {
             try
             {
                 OwnedSnapshot? snapshot = GetOwnedSnapshot();
                 if (snapshot is null || snapshot.Phase != "running") return;
-                WriteLease(snapshot.InstanceId, snapshot.Challenge);
+                WriteLease(snapshot.InstanceId, snapshot.Challenge, generation);
             }
             catch { }
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
@@ -641,32 +644,54 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private void StopLeaseTimer(bool deleteLease)
     {
+        Interlocked.Increment(ref leaseGeneration);
         System.Threading.Timer? timer = Interlocked.Exchange(ref leaseTimer, null);
         timer?.Dispose();
-        if (deleteLease)
+        if (!deleteLease) return;
+        lock (leaseWriteGate)
         {
-            try { DeleteFile(Path.Combine(runtimeRoot, "lease.txt")); }
+            try { DeleteFile(Path.Combine(runtimeRoot, "lease.txt")); } catch { }
+            try
+            {
+                if (Directory.Exists(runtimeRoot))
+                    foreach (string temp in Directory.EnumerateFiles(runtimeRoot, "lease.txt.tmp-*"))
+                        try { DeleteFile(temp); } catch { }
+            }
             catch { }
         }
     }
 
-    private void WriteLease(string session, string nonce)
+    private void WriteLease(string session, string nonce, long generation)
     {
-        if (testHooks?.WriteLease is { } test)
+        lock (leaseWriteGate)
         {
-            test(session, nonce, runtimeRoot);
-            return;
+            if (generation != Volatile.Read(ref leaseGeneration)) return;
+            if (testHooks?.WriteLease is { } test)
+            {
+                test(session, nonce, runtimeRoot);
+                return;
+            }
+            Directory.CreateDirectory(runtimeRoot);
+            string path = Path.Combine(runtimeRoot, "lease.txt");
+            string temp = path + ".tmp-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+            try
+            {
+                File.WriteAllText(temp,
+                    "schema=1\n" +
+                    $"bridgeVersion={BridgeVersion}\n" +
+                    $"sessionId={session}\n" +
+                    $"challenge={nonce}\n" +
+                    $"updatedAt={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)}\n");
+                if (generation != Volatile.Read(ref leaseGeneration)) return;
+                File.Move(temp, path, overwrite: true);
+                if (generation != Volatile.Read(ref leaseGeneration))
+                    try { DeleteFile(path); } catch { }
+            }
+            finally
+            {
+                try { if (File.Exists(temp)) DeleteFile(temp); } catch { }
+            }
         }
-        Directory.CreateDirectory(runtimeRoot);
-        string path = Path.Combine(runtimeRoot, "lease.txt");
-        string temp = path + ".tmp-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-        File.WriteAllText(temp,
-            "schema=1\n" +
-            $"bridgeVersion={BridgeVersion}\n" +
-            $"sessionId={session}\n" +
-            $"challenge={nonce}\n" +
-            $"updatedAt={DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)}\n");
-        File.Move(temp, path, overwrite: true);
     }
 
     private void WriteHostStartEvidence(string session, OverviewStartResult start)

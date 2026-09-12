@@ -45,7 +45,7 @@ If a required operation is actually restricted, document its exact tool/reason/t
 
 ## Current Overview continuation — 2026-09-12
 
-O04 startup is technically live-proven and CI-clean. O05 is now IMPLEMENTED/OFFLINE-TESTED through `LWB-OVR-009`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, confirmed `forceUpdate`/`crossDisconnect`/`disconnect`/`exitPrompt` waiting and in-place/escalation behavior, updater activity/stall handling, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. Bounded live/owner-visible O05 verification is still required. Do not start Player City until Overview acceptance.
+O04 startup is technically live-proven and CI-clean. O05 is TECHNICAL LIVE-PROVEN for the bounded process-exit recovery cycle under `LWB-OVR-010`, after offline completion through `LWB-OVR-009`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, confirmed `forceUpdate`/`crossDisconnect`/`disconnect`/`exitPrompt` waiting and in-place/escalation behavior, updater activity/stall handling, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. The bounded normal-app live recovery/intentional-Close run passed; only combined owner-visible O04/O05 verification remains. Do not start Player City until that acceptance.
 
 ## Readiness decision and test plan
 
