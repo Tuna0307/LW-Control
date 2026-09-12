@@ -23,11 +23,22 @@ internal sealed record GameProcessStatus(
     string? GamePath,
     string? LauncherPath);
 
+internal sealed class GameInstallationTestHooks
+{
+    public string? DefaultRoot { get; init; }
+    public Func<string, Stream>? OpenRead { get; init; }
+}
+
 internal sealed class GameInstallationService
 {
     private readonly LocalConfigStore config;
+    private readonly GameInstallationTestHooks? testHooks;
 
-    public GameInstallationService(LocalConfigStore config) => this.config = config;
+    public GameInstallationService(LocalConfigStore config, GameInstallationTestHooks? testHooks = null)
+    {
+        this.config = config;
+        this.testHooks = testHooks;
+    }
 
     public GameRootStatus GetStatus()
     {
@@ -38,7 +49,7 @@ internal sealed class GameInstallationService
             if (saved.Valid) return saved;
         }
 
-        string defaultRoot = Path.Combine(
+        string defaultRoot = testHooks?.DefaultRoot ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "FunFly", "Last War-Survival Game");
         var detected = Validate(defaultRoot, "detected");
@@ -86,7 +97,7 @@ internal sealed class GameInstallationService
                     false,
                     gameArchitecture.Display,
                     xluaArchitecture.Display);
-            using var _ = File.Open(game, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var _ = OpenRead(game);
             return new(
                 true,
                 root,
@@ -156,9 +167,9 @@ internal sealed class GameInstallationService
         catch { return null; }
     }
 
-    private static PeArchitecture ReadArchitecture(string path)
+    private PeArchitecture ReadArchitecture(string path)
     {
-        using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        using var stream = OpenRead(path);
         using var reader = new PEReader(stream, PEStreamOptions.LeaveOpen);
         ushort machine = (ushort)reader.PEHeaders.CoffHeader.Machine;
         bool pe32Plus = reader.PEHeaders.PEHeader?.Magic == PEMagic.PE32Plus;
@@ -168,6 +179,9 @@ internal sealed class GameInstallationService
     }
 
     private sealed record PeArchitecture(bool IsAmd64, string Display);
+
+    private Stream OpenRead(string path) => testHooks?.OpenRead?.Invoke(path) ??
+        File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
     private static string? Normalize(string? path)
     {

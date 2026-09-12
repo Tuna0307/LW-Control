@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Diagnostics;
 using LWBridge.Desktop;
 
 var failures = new List<string>();
@@ -719,6 +720,224 @@ try
         Check(overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
             "Overview reconcile autoLaunchAll=false suppresses launch even when the saved startup preference is ON");
     }
+
+    // OVL-06: interrupted active Overview sessions are repairable only when the
+    // durable journal, selected executable, profile, and live PID all correlate.
+    string repairRoot = Path.Combine(overviewLifecycleRoot, "repair-case");
+    Directory.CreateDirectory(Path.Combine(repairRoot, "Game"));
+    string repairGamePath = Path.Combine(repairRoot, "Game", "LastWar.exe");
+    const string repairInterruptedSession = "repair-session-old";
+    const int repairOldPid = 45210;
+    const int repairNewPid = 45211;
+    const int repairLauncherPid = 45212;
+    bool repairOldAlive = true;
+    bool repairNewAlive = false;
+    bool repairStopFails = false;
+    string repairJournalProfile = overviewProfile;
+    int repairJournalPid = repairOldPid;
+    string repairJournalGamePath = repairGamePath;
+    string repairJournalStage = "active_ready_deferred_restore";
+    string repairBackupPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "LWBridgeRebuild", "overview-bridge-backups", "repair-test");
+    string repairJournalBackupPath = repairBackupPath;
+    string? repairLaunchSession = null;
+    string? repairLaunchChallenge = null;
+    var repairInvocations = new List<OverviewHelperInvocation>();
+
+    byte[] RepairJournalBytes() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        requestId = repairInterruptedSession,
+        profileId = repairJournalProfile,
+        sessionId = repairInterruptedSession,
+        stage = repairJournalStage,
+        gamePid = repairJournalPid,
+        gamePath = repairJournalGamePath,
+        backupPath = repairJournalBackupPath,
+        originalFiles = new
+        {
+            data = new { sha256 = "test-data" },
+            metadata = new { sha256 = "test-metadata" },
+            version = new { sha256 = "test-version" },
+        },
+    });
+
+    byte[] RepairHeartbeatBytes() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+        profileId = overviewProfile,
+        sessionId = repairLaunchSession,
+        challenge = repairLaunchChallenge,
+        gamePid = repairNewPid,
+        updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ready = true,
+        messageVisible = true,
+        messageText = OverviewLifecycleService.ReadyMessage,
+    });
+
+    var repairHooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (pid, path) =>
+            (repairOldAlive && pid == repairOldPid || repairNewAlive && pid == repairNewPid) &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(repairGamePath), StringComparison.OrdinalIgnoreCase),
+        ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+            ? RepairJournalBytes()
+            : RepairHeartbeatBytes(),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        RunHelperAsync = (invocation, _) =>
+        {
+            repairInvocations.Add(invocation);
+            if (invocation.Operation == "stop")
+            {
+                if (repairStopFails) throw new InvalidOperationException("simulated repair stop failure");
+                repairOldAlive = false;
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_exact_pid_close_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = repairInterruptedSession,
+                    gamePid = repairOldPid,
+                    gamePath = repairGamePath,
+                    close = new
+                    {
+                        method = "Process.CloseMainWindow",
+                        accepted = true,
+                        processExited = true,
+                        alreadyExited = false,
+                    },
+                    restore = new { restored = true },
+                    gameRunning = false,
+                    installedFilesChanged = false,
+                }));
+            }
+
+            repairLaunchSession = invocation.SessionId;
+            repairLaunchChallenge = invocation.Challenge;
+            repairNewAlive = true;
+            string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_install_launch_ready_deferred_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = overviewProfile,
+                sessionId = invocation.SessionId,
+                challengeSha256,
+                gamePid = repairNewPid,
+                gamePath = repairGamePath,
+                launcherPid = repairLauncherPid,
+                ready = new
+                {
+                    schemaVersion = 1,
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = invocation.SessionId,
+                    challenge = invocation.Challenge,
+                    gamePid = repairNewPid,
+                    readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    ready = true,
+                    messageVisible = true,
+                    messageText = OverviewLifecycleService.ReadyMessage,
+                },
+                restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                gameRunning = true,
+                installedFilesChanged = true,
+            }));
+        },
+    };
+
+    var repairConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-repair"));
+    repairConfig.Update(c => c with { ProfileId = overviewProfile, AutoLaunchGame = true });
+    using var repairLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        repairRoot,
+        helperPath: Path.Combine(repairRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: repairConfig,
+        testHooks: repairHooks,
+        startRecoveryMonitor: false);
+    var repairBackend = new LWBridgeBackend(
+        repairConfig,
+        repairLifecycle,
+        overviewLifecycle: repairLifecycle);
+    using JsonDocument repairEmptyPayload = JsonDocument.Parse("{}");
+
+    repairJournalProfile = "foreign-profile";
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a recovery journal for another profile");
+    object? noRepairResult = await repairBackend.InvokeAsync(
+        "profile_instances_update_and_restart", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument result = JsonDocument.Parse(JsonSerializer.Serialize(noRepairResult, JsonOptions.Default)))
+        Check(result.RootElement.GetProperty("restarted").GetArrayLength() == 0 &&
+              result.RootElement.GetProperty("errors").GetArrayLength() == 0,
+            "Overview update-and-restart is a no-op when no correlated repair is required");
+
+    repairJournalProfile = overviewProfile;
+    repairJournalPid = repairOldPid + 1;
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a journal whose live PID does not correlate");
+    repairJournalPid = repairOldPid;
+    repairJournalGamePath = Path.Combine(repairRoot, "Game", "Other.exe");
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a journal for a different executable path");
+    repairJournalGamePath = repairGamePath;
+    repairJournalBackupPath = Path.Combine(repairRoot, "outside-backup");
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a backup path outside the Overview backup root");
+    repairJournalBackupPath = repairBackupPath;
+    Check(repairLifecycle.RepairRequired,
+        "Overview repair activates only for an exact profile/session/PID/path journal");
+    object? repairReconcile = await repairLifecycle.InvokeAsync(
+        "profile_instances_reconcile", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument reconciled = JsonDocument.Parse(JsonSerializer.Serialize(repairReconcile, JsonOptions.Default)))
+        Check(reconciled.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
+              repairInvocations.Count == 0,
+            "startup reconcile leaves a correlated repair-required game untouched without a false unmanaged-game error");
+
+    using JsonDocument repairProfilePayload = JsonDocument.Parse(
+        JsonSerializer.Serialize(new { profileId = overviewProfile }));
+    object? repairProxyStatus = await repairBackend.InvokeAsync(
+        "proxy_status", repairProfilePayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument proxy = JsonDocument.Parse(JsonSerializer.Serialize(repairProxyStatus, JsonOptions.Default)))
+        Check(proxy.RootElement.GetProperty("repairRequired").ValueKind == JsonValueKind.True,
+            "proxy_status exposes correlated Overview repairRequired state");
+
+    repairStopFails = true;
+    object? failedRepair = await repairBackend.InvokeAsync(
+        "profile_instances_update_and_restart", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument failed = JsonDocument.Parse(JsonSerializer.Serialize(failedRepair, JsonOptions.Default)))
+        Check(failed.RootElement.GetProperty("restarted").GetArrayLength() == 0 &&
+              failed.RootElement.GetProperty("errors").GetArrayLength() == 1 &&
+              failed.RootElement.GetProperty("errors")[0].GetProperty("error").GetString() == "GAME_CLOSE_FAILED",
+            "Overview repair reports close/restore failure through the recovered errors[].error envelope");
+    Check(repairLifecycle.RepairRequired &&
+          repairInvocations.Count(i => i.Operation == "start") == 0,
+        "failed Overview repair preserves the correlated repair state and does not relaunch");
+
+    repairStopFails = false;
+    object? successfulRepair = await repairBackend.InvokeAsync(
+        "profile_instances_update_and_restart", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument repaired = JsonDocument.Parse(JsonSerializer.Serialize(successfulRepair, JsonOptions.Default)))
+        Check(repaired.RootElement.GetProperty("restarted").GetArrayLength() == 1 &&
+              repaired.RootElement.GetProperty("errors").GetArrayLength() == 0,
+            "Overview repair returns one restarted entry after exact restoration and fresh relaunch");
+    Check(repairInvocations.Count(i => i.Operation == "stop") == 2 &&
+          repairInvocations.Count(i => i.Operation == "start") == 1 &&
+          repairInvocations.Where(i => i.Operation == "stop").All(i =>
+              i.ProfileId == overviewProfile && i.SessionId == repairInterruptedSession &&
+              i.GamePid == repairOldPid &&
+              string.Equals(Path.GetFullPath(i.GamePath!), Path.GetFullPath(repairGamePath), StringComparison.OrdinalIgnoreCase)),
+        "Overview repair uses only the exact journaled session/PID/path for cleanup before relaunch");
+    Check(repairLifecycle.IsReady && !repairLifecycle.RepairRequired &&
+          repairConfig.Snapshot.GameDesiredRunning &&
+          repairLaunchSession is not null && repairLaunchSession != repairInterruptedSession,
+        "successful Overview repair owns a fresh ready session and restores desired-running intent");
 
     // OVL-05: deterministic recovery tests preserve the original two-gate contract,
     // two-observation process-exit classifier, retry tables, and intentional-stop semantics.
@@ -3683,6 +3902,111 @@ Check(previewHost.Contains("NATIVE_TRANSPORT_MISSING", StringComparison.Ordinal)
 Check(previewHost.Contains("command === 'profile_instances_reconcile'", StringComparison.Ordinal) &&
       previewHost.Contains("? 360000 : 30000", StringComparison.Ordinal),
     "startup reconcile receives the long-running native timeout because it can launch the game");
+
+// OVL-01: deterministic game-root matrix covers selection, relocation, permissions,
+// Unicode/space paths, architecture/image validation, and exact-path process ownership.
+string o01Root = Path.Combine(Path.GetTempPath(), "lwbridge-o01-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(o01Root);
+string systemCmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "cmd.exe");
+string systemKernel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "kernel32.dll");
+string CreateValidGameRoot(string path)
+{
+    Directory.CreateDirectory(Path.Combine(path, "Game", "LastWar_Data", "Plugins", "x86_64"));
+    File.Copy(systemCmd, Path.Combine(path, "LastWarLauncher.exe"), overwrite: true);
+    File.Copy(systemCmd, Path.Combine(path, "Game", "LastWar.exe"), overwrite: true);
+    File.Copy(systemKernel, Path.Combine(path, "Game", "LastWar_Data", "Plugins", "x86_64", "xlua.dll"), overwrite: true);
+    return path;
+}
+
+string o01ValidRoot = CreateValidGameRoot(Path.Combine(o01Root, "valid root 测试 Ω"));
+var o01Config = new LocalConfigStore(Path.Combine(o01Root, "config"));
+var o01Installation = new GameInstallationService(o01Config);
+GameRootStatus o01Valid = o01Installation.Validate(o01ValidRoot, "self-check");
+Check(o01Valid.Valid && o01Valid.Is64Bit == true && Path.GetFullPath(o01Valid.Path) == Path.GetFullPath(o01ValidRoot),
+    "Game Root accepts a valid AMD64 install under spaces/non-ASCII path characters");
+GameRootStatus o01Saved = o01Installation.SaveSelectedRoot(o01ValidRoot);
+Check(o01Saved.Valid && string.Equals(o01Config.Snapshot.GameRoot, Path.GetFullPath(o01ValidRoot), StringComparison.OrdinalIgnoreCase),
+    "valid Game Root selection persists the normalized install path");
+string savedRootBeforeInvalid = o01Config.Snapshot.GameRoot!;
+string o01MissingRoot = Path.Combine(o01Root, "moved-away-old-root");
+GameRootStatus invalidSelection = o01Installation.SaveSelectedRoot(o01MissingRoot);
+Check(!invalidSelection.Valid && o01Config.Snapshot.GameRoot == savedRootBeforeInvalid,
+    "invalid/cancel-equivalent Game Root selection cannot overwrite the previous valid configuration");
+
+var movedConfig = new LocalConfigStore(Path.Combine(o01Root, "moved-config"));
+movedConfig.Update(c => c with { GameRoot = o01MissingRoot });
+var movedInstallation = new GameInstallationService(movedConfig, new GameInstallationTestHooks { DefaultRoot = o01ValidRoot });
+GameRootStatus movedStatus = movedInstallation.GetStatus();
+Check(movedStatus.Valid && movedStatus.Source == "detected" &&
+      string.Equals(Path.GetFullPath(movedStatus.Path), Path.GetFullPath(o01ValidRoot), StringComparison.OrdinalIgnoreCase),
+    "moved installation falls back from a stale configured root to the currently detected valid root");
+
+var deniedInstallation = new GameInstallationService(new LocalConfigStore(persistent: false),
+    new GameInstallationTestHooks { OpenRead = _ => throw new UnauthorizedAccessException("synthetic denied read") });
+GameRootStatus deniedStatus = deniedInstallation.Validate(o01ValidRoot, "self-check");
+Check(!deniedStatus.Valid && deniedStatus.Error == "GAME_ROOT_PERMISSION_DENIED",
+    "Game Root permission failure is reported explicitly and fails closed");
+var unreadableInstallation = new GameInstallationService(new LocalConfigStore(persistent: false),
+    new GameInstallationTestHooks { OpenRead = _ => throw new IOException("synthetic unreadable file") });
+GameRootStatus unreadableStatus = unreadableInstallation.Validate(o01ValidRoot, "self-check");
+Check(!unreadableStatus.Valid && unreadableStatus.Error == "GAME_ROOT_UNREADABLE",
+    "Game Root unreadable-file failure is reported explicitly and fails closed");
+
+string invalidPeRoot = CreateValidGameRoot(Path.Combine(o01Root, "invalid-pe"));
+File.WriteAllText(Path.Combine(invalidPeRoot, "Game", "LastWar.exe"), "not-a-pe");
+GameRootStatus invalidPeStatus = o01Installation.Validate(invalidPeRoot, "self-check");
+Check(!invalidPeStatus.Valid && invalidPeStatus.Error == "GAME_ROOT_PE_INVALID",
+    "Game Root rejects malformed executable images");
+
+string sysWowCmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "SysWOW64", "cmd.exe");
+if (File.Exists(sysWowCmd))
+{
+    string unsupportedRoot = CreateValidGameRoot(Path.Combine(o01Root, "unsupported-architecture"));
+    File.Copy(sysWowCmd, Path.Combine(unsupportedRoot, "Game", "LastWar.exe"), overwrite: true);
+    GameRootStatus unsupported = o01Installation.Validate(unsupportedRoot, "self-check");
+    Check(!unsupported.Valid && unsupported.Error == "GAME_ROOT_ARCH_UNSUPPORTED" && unsupported.Is64Bit == false,
+        "Game Root rejects a non-AMD64 game executable");
+}
+string foreignRoot = CreateValidGameRoot(Path.Combine(o01Root, "foreign-root"));
+var processConfig = new LocalConfigStore(Path.Combine(o01Root, "process-config"));
+processConfig.Update(c => c with { GameRoot = o01ValidRoot });
+var processInstallation = new GameInstallationService(processConfig);
+Process StartTemporaryLastWar(string executable, int pingCount)
+{
+    var startInfo = new ProcessStartInfo
+    {
+        FileName = executable,
+        UseShellExecute = false,
+        CreateNoWindow = true,
+    };
+    startInfo.ArgumentList.Add("/c");
+    startInfo.ArgumentList.Add($"ping 127.0.0.1 -n {pingCount} > nul");
+    return Process.Start(startInfo) ?? throw new InvalidOperationException("temporary LastWar process did not start");
+}
+
+using (Process foreignGame = StartTemporaryLastWar(Path.Combine(foreignRoot, "Game", "LastWar.exe"), 4))
+{
+    await Task.Delay(250);
+    GameProcessStatus foreignStatus = processInstallation.GetProcessStatus();
+    Check(!foreignStatus.GameRunning,
+        "same-named LastWar process from a different path is never treated as the selected game");
+    await foreignGame.WaitForExitAsync();
+}
+using (Process selectedGame = StartTemporaryLastWar(Path.Combine(o01ValidRoot, "Game", "LastWar.exe"), 4))
+{
+    await Task.Delay(250);
+    GameProcessStatus selectedStatus = processInstallation.GetProcessStatus();
+    Check(selectedStatus.GameRunning && selectedStatus.GamePid == selectedGame.Id &&
+          string.Equals(Path.GetFullPath(selectedStatus.GamePath!), Path.GetFullPath(Path.Combine(o01ValidRoot, "Game", "LastWar.exe")), StringComparison.OrdinalIgnoreCase),
+        "selected-path LastWar process is recognized with its exact PID/path");
+    await selectedGame.WaitForExitAsync();
+    await Task.Delay(100);
+    GameProcessStatus staleStatus = processInstallation.GetProcessStatus();
+    Check(!staleStatus.GameRunning && staleStatus.GamePid is null,
+        "exited selected-path process cannot remain as stale Game Root process state");
+}
+
+try { Directory.Delete(o01Root, recursive: true); } catch { }
 
 // Installed-game checks are diagnostics by default and become a gate only when requested.
 bool requireInstalled = args.Contains("--require-installed", StringComparer.OrdinalIgnoreCase);

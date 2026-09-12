@@ -1,10 +1,10 @@
 # LWBridge implementation backlog
 
-## Authoritative owner priority - Overview startup + automatic reconnect, 2026-09-11
+## Authoritative owner priority - Overview zero-open checkpoint for PM audit, 2026-09-12
 
-**Active feature:** Overview O04/O05 is owner-accepted under `LWB-OVR-011`. Begin **Map Data → Player City (`city`)** only. Reverse-engineer the original/current-city acquisition, schema, indexing, search/filter/mark/export and applicable row semantics before implementation; do not begin Resource Point, Monster, or later types until Player City works end-to-end with durable evidence. Existing operation-specific restrictions remain in force.
+**Active feature:** **Overview O01-O06 ZERO-OPEN CANDIDATE; PM audit next.** `LWB-OVR-013` closes O01 functional validation and `LWB-OVR-014` live-proves O06 repair/update/relaunch. **Do not start Player City** until the owner returns the PM audit and explicitly resumes implementation. Existing operation-specific restrictions remain in force.
 
-**Overview status:** OWNER-ACCEPTED under `LWB-OVR-011`. The active acceptance target is now Player City: recover the authoritative `city` acquisition/schema/index/query behavior and prove real city rows, filtering/mark persistence, and city export semantics end-to-end before advancing to Resource Point.
+**Overview status:** O04/O05 owner-visible accepted under `LWB-OVR-011`; O01 functional edge cases are closed by `LWB-OVR-013`; O06 repair presentation/update-relaunch is LIVE-PROVEN by `LWB-OVR-014`. The O01-O06 functional matrix is zero-open for PM audit. This does not claim protected original launch-proof/ticket parity or all 47 release cases.
 
 ### OVL current checkpoint
 
@@ -13,7 +13,7 @@
 - [x] OVL-02/03/04 technical lifecycle is live-proven in `LWB-OVL-002`: two fresh current-client cycles reached exact same-session game-side readiness/message evidence, then exact-PID normal Close and byte-exact deferred restoration. Normal Overview button/visual placement is owner-verified in `LWB-OVL-003`.
 - [x] Normal Overview owner run completed: Launch opened the real game, **LWbridge is running** was visible top-centre, and Close completed with automatic cleanup evidence (`LWB-OVL-003`).
 - [x] OVL-05 automatic per-session evidence + tested `Start Overview Verification.cmd` + beginner owner guide delivered.
-- [x] OVL-06 owner-visible normal Overview verification and explicit acceptance recorded as `LWB-OVL-003`. **STOP: wait for the owner to choose the next feature.**
+- [x] OVL-06 owner-visible normal Overview verification and explicit acceptance recorded as `LWB-OVL-003`; later O01/O06 closure is recorded by `LWB-OVR-013/014`. **STOP: PM audit the zero-open Overview checkpoint before any Map Data work.**
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -177,13 +177,13 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
   - [x] `LWB-R5-005` recovers the child post-start polling branches: observed-length/sequence mismatch -> `LAUNCH_TICKET_OWNERSHIP_CHANGED`, stored-deadline crossing -> `LAUNCH_TICKET_CONSUMPTION_TIMEOUT`, and mapped internal result variants -> `LAUNCH_TICKET_CONSUMPTION_FAILED`. Opaque input identities, time units and exact result-variant meanings remain unresolved.
   - [ ] **DEEP-BINARY DB-01/02:** resolve remaining descriptor semantics, producer/consumer and external trust-service boundaries, `LWLT2` extra-field meaning, poll caller/input identities, units/result variants, unresolved outer-helper semantics and child argument/input construction. Respect SB-01/02; do not fabricate credentials, proofs or signatures to bypass an unresolved dependency.
 - [x] Recover xLua secure/plain ABI fingerprint selection exactly. `LWB-R5-002` recovers the `LWXE1\n` prefix, ordinal/name record construction and ordering, SHA-256 digest, bundle values, and exact current-build `secure` match.
-- [ ] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle.
+- [x] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle for the independent current-v14 route; technical live proof/owner verification are preserved under `LWB-OVL-002/003`.
 - [x] Recover the original per-user control-pipe name derivation. `LWB-R5-006` proves prefix + first 16 lowercase SHA-256 hex characters of UTF-8 Windows user SID and live-correlates the result against the verified reference host; session framing/request grammar remain open.
-- [ ] Require matching instance identity, bridge handshake, and fresh heartbeat before reporting connected.
+- [x] Require matching profile/session/challenge/PID readiness plus fresh heartbeat before reporting connected on the independent current-v14 route; protected original handshake parity remains separately open under DB-01/02.
 - [x] Implement startup launch preference through the same lifecycle service without double-start races (`LWB-OVL-004` technical live proof; owner-visible combined O04/O05 acceptance passed under `LWB-OVR-011`).
 - [x] Implement automatic reconnect/recovery with explicit eligibility, cancellation, and bounded retry behavior. `LWB-OVR-008/009` cover offline recovery/event/update behavior, `LWB-OVR-010` technically live-proves the bounded recovery cycle, and `LWB-OVR-011` records owner-visible startup/reconnect/intentional-Close acceptance plus the corrected startup-reconcile UI timeout.
-- [ ] Recover and implement repair/update/restart presentation and state transitions.
-- [ ] **LIVE-VALIDATION:** validate repeated cold start, restart, disconnect, and stop cycles against the current client after supported lifecycle implementation.
+- [x] Recover and implement repair/update/restart presentation and state transitions (`LWB-OVR-012` original contract; `LWB-OVR-014` production live proof).
+- [ ] **EXTENDED PARITY/STRESS VALIDATION — not an O01-O06 functional blocker:** event-driven disconnect/update families retain their documented offline-tested scope; process-exit restart, app restart/repair, startup, normal Close and non-resurrection are live-proven/owner-accepted. Preserve this line for future broader 47-case release validation.
 
 ## R6 — Offline map contracts, index and result services (P0 parallel work)
 

@@ -96,7 +96,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public bool CanHandle(string command) =>
         command is "profile_instance_start" or "profile_instance_stop" or "profile_instance_status" or
-            "profile_instances_reconcile";
+            "profile_instances_reconcile" or "profile_instances_update_and_restart";
 
     public bool IsReady
     {
@@ -121,12 +121,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
     }
 
+    public bool RepairRequired => TryGetRepairSnapshot(out _);
+
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken) => command switch
     {
         "profile_instance_start" => StartAsync(cancellationToken),
         "profile_instance_stop" => StopAsync(payload, cancellationToken),
         "profile_instance_status" => Task.FromResult<object?>(CreateInstanceStatus()),
         "profile_instances_reconcile" => ReconcileStartupAsync(payload, cancellationToken),
+        "profile_instances_update_and_restart" => UpdateAndRestartAsync(cancellationToken),
         _ => throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", $"Overview lifecycle cannot handle '{command}'."),
     };
 
@@ -211,6 +214,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 return new { errors = startupReconcileErrors };
         }
 
+        // A correlated interrupted Overview session is intentionally left running for
+        // the recovered repair/update-and-restart path. Startup auto-launch must not
+        // reclassify that exact owned journal as a generic unmanaged-game error.
+        if (TryGetRepairSnapshot(out _))
+            return new { errors = startupReconcileErrors };
+
         try
         {
             await StartAsync(cancellationToken).ConfigureAwait(false);
@@ -223,6 +232,135 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
         lock (stateGate)
             return new { errors = startupReconcileErrors };
+    }
+
+    private async Task<object?> UpdateAndRestartAsync(CancellationToken cancellationToken)
+    {
+        if (!TryGetRepairSnapshot(out OverviewRepairSnapshot? repair) || repair is null)
+            return CreateUpdateRestartResult(restarted: false);
+
+        lock (stateGate)
+        {
+            if (closed)
+                return CreateUpdateRestartResult(false, "GAME_OPERATION_CANCELLED", "LWBridge is closing.");
+            if (phase is "starting" or "stopping" || gamePid is not null || instanceId is not null)
+                return CreateUpdateRestartResult(false, "GAME_OPERATION_IN_PROGRESS", "A game lifecycle operation is already in progress.");
+            phase = "stopping";
+            connectionState = "recovering";
+            lastError = null;
+        }
+
+        try
+        {
+            JsonElement result = await RunHelperAsync(
+                new OverviewHelperInvocation("stop", profileId, repair.SessionId, null, repair.GamePid, repair.GamePath),
+                cancellationToken).ConfigureAwait(false);
+            ValidateStopResult(result, profileId, repair.SessionId, repair.GamePid, repair.GamePath, requireCurrentClientEvidence);
+            if (testHooks is null) WriteHostStopEvidence(repair.SessionId, result);
+            StopLeaseTimer(deleteLease: true);
+            ClearRuntimeSessionFiles();
+            lock (stateGate)
+            {
+                phase = "stopped";
+                connectionState = "offline";
+                instanceId = null;
+                challenge = null;
+                gamePid = null;
+                launcherPid = null;
+                gamePath = null;
+                lastError = null;
+                readyAtUnix = null;
+            }
+            await StartAsync(cancellationToken).ConfigureAwait(false);
+            return CreateUpdateRestartResult(restarted: true);
+        }
+        catch (OperationCanceledException)
+        {
+            SetRepairFailureState("GAME_OPERATION_CANCELLED");
+            return CreateUpdateRestartResult(false, "GAME_OPERATION_CANCELLED", "The repair/relaunch operation was cancelled.");
+        }
+        catch (BridgeCommandException ex)
+        {
+            SetRepairFailureState(ex.Code);
+            return CreateUpdateRestartResult(false, ex.Code, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            SetRepairFailureState("GAME_CLOSE_FAILED");
+            return CreateUpdateRestartResult(false, "GAME_CLOSE_FAILED", ex.Message);
+        }
+    }
+
+    private object CreateUpdateRestartResult(bool restarted, string? error = null, string? message = null) => new
+    {
+        // IMPLEMENTATION POLICY: the recovered frontend only consumes the successful array length.
+        restarted = restarted ? new[] { profileId } : Array.Empty<string>(),
+        errors = error is null ? Array.Empty<OverviewStartupError>() : new[] { new OverviewStartupError(profileId, error, message ?? error) },
+    };
+
+    private void SetRepairFailureState(string error)
+    {
+        lock (stateGate)
+        {
+            if (gamePid is null)
+            {
+                phase = "error";
+                connectionState = "error";
+                lastError = error;
+            }
+        }
+    }
+
+    private bool TryGetRepairSnapshot(out OverviewRepairSnapshot? repair)
+    {
+        repair = null;
+        if (gameRoot is null) return false;
+        lock (stateGate)
+        {
+            if (closed || phase is "starting" or "stopping" or "running" || gamePid is not null || instanceId is not null)
+                return false;
+        }
+
+        try
+        {
+            string journalPath = Path.Combine(runtimeRoot, "recovery.json");
+            byte[] bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(journalPath);
+            using JsonDocument document = JsonDocument.Parse(bytes);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object || !MatchesInt(root, "schemaVersion", 1)) return false;
+            if (!MatchesString(root, "profileId", profileId)) return false;
+            string requestId = RequiredString(root, "requestId");
+            string sessionId = RequiredString(root, "sessionId");
+            if (!string.Equals(requestId, sessionId, StringComparison.Ordinal)) return false;
+            string stage = RequiredString(root, "stage");
+            if (stage is not ("active_ready_deferred_restore" or "closing_owned_game_for_restore" or "restoring_after_owned_game_exit"))
+                return false;
+            int pid = RequirePositiveInt(root, "gamePid");
+            string recordedPath = RequiredString(root, "gamePath");
+            string expectedPath = Path.GetFullPath(Path.Combine(gameRoot, "Game", "LastWar.exe"));
+            if (!PathEquals(recordedPath, expectedPath)) return false;
+            string backupPath = RequiredString(root, "backupPath");
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string backupRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge-backups");
+            if (!PathIsWithin(backupPath, backupRoot)) return false;
+            if (!root.TryGetProperty("originalFiles", out JsonElement originals) || originals.ValueKind != JsonValueKind.Object)
+                return false;
+            if (!ProcessMatches(pid, expectedPath)) return false;
+            repair = new OverviewRepairSnapshot(sessionId, pid, expectedPath, backupPath, stage);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool PathIsWithin(string candidate, string root)
+    {
+        string fullRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+        string fullCandidate = Path.TrimEndingDirectorySeparator(Path.GetFullPath(candidate));
+        string prefix = fullRoot + Path.DirectorySeparatorChar;
+        return fullCandidate.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<object?> StartAsync(CancellationToken cancellationToken)
@@ -820,6 +958,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         long? ReadyAtUnix);
 
     private sealed record GameProcessIdentity(int Pid, string Path);
+    private sealed record OverviewRepairSnapshot(string SessionId, int GamePid, string GamePath, string BackupPath, string Stage);
 }
 
 internal sealed record OverviewStartResult(int GamePid, int LauncherPid, string GamePath, long ReadyAtUnix);

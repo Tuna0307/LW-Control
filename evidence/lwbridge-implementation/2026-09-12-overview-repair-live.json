@@ -1,0 +1,71 @@
+{
+  "findingId": "LWB-OVR-014",
+  "date": "2026-09-12",
+  "scope": "Overview O06 repair-required presentation and Update-and-Relaunch live closure",
+  "status": "LIVE-PROVEN",
+  "rebuildIdentity": {
+    "exeSha256": "6971b08550840774bbaf5d472be3d5ac506a0e74939fef0539106a99d21a3e6d",
+    "dllSha256": "c56785a9429b6857e50a9b85eea148dde1c23ee47c1dc6018a9c5e2bdfffd4c0",
+    "parentGitHead": "a8aef29360d6cc4466c9d501615c3fff8a6f745a",
+    "branch": "research/offline-controller"
+  },
+  "currentClient": {
+    "root": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+    "launcherSha256": "b6e29176f64c11a6f203d414fb50ee1e02293be318efda9c33cf221c83d763bc",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "originalPackageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+  },
+  "interruptedSession": {
+    "sessionId": "c49e4c763c4f48dc931a1525fff28d63",
+    "gamePid": 26224,
+    "readyMessage": "LWbridge is running",
+    "journalStage": "active_ready_deferred_restore"
+  },
+  "restartObservation": {
+    "gameRemainedRunningAfterNormalLWBridgeClose": true,
+    "repairRequired": true,
+    "visibleText": [
+      "Game connection needs repair",
+      "Update and restart game"
+    ],
+    "startupReconcileFalseUnmanagedErrorFound": true,
+    "startupReconcileFalseUnmanagedErrorFixedAndRerun": true,
+    "correctedRunHadNoFalseUnmanagedToast": true
+  },
+  "repairAction": {
+    "trigger": "production Overview Update and restart game button",
+    "oldPidClosed": 26224,
+    "oldSessionRestoreEvidence": "%LOCALAPPDATA%\\LWBridgeRebuild\\overview-evidence\\c49e4c763c4f48dc931a1525fff28d63\\host-stop.json",
+    "originalFilesRestoredBeforeRelaunch": true,
+    "freshSessionId": "fb3384bfdaef4c948de86d67430b36fa",
+    "freshGamePid": 7256,
+    "freshReadyMessage": "LWbridge is running",
+    "freshUiState": "Connected / Game running"
+  },
+  "restoredOriginalHashes": {
+    "data": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "metadata": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+    "version": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61"
+  },
+  "finalCleanup": {
+    "normalCloseGameUsed": true,
+    "gameDesiredRunning": false,
+    "autoReconnectStillEnabled": true,
+    "noLastWarLauncherUpdaterSyncOrLWBridgeProcessAfterAppClose": true,
+    "runtimeRecoveryResidue": false,
+    "originalFilesExact": true
+  },
+  "validation": {
+    "releaseBuild": "0 warnings / 0 errors",
+    "desktopDeterministicSuite": "ok=true; failures=[]",
+    "repairMismatchAndFailureEnvelopeTests": true,
+    "startupReconcileSuppressesRepairableUnmanagedError": true
+  },
+  "limits": [
+    "This proves the rebuild's documented journal-correlated repair analogue, not the original proxy-bundle installation mechanism itself.",
+    "Original successful restarted[] element payload details unused by the recovered frontend remain intentionally unclaimed.",
+    "Protected original launch-proof/ticket parity and broader 47-case project acceptance remain separate research/release gates."
+  ],
+  "implementationImpact": "O06 repair-required presentation and Update-and-Relaunch are live-proven. Together with LWB-OVR-013, the O01-O06 Overview functional matrix has no remaining functional item marked partial/pending; next action is PM audit, not Map Data."
+}

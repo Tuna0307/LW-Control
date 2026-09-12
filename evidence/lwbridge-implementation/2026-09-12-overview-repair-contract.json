@@ -1,0 +1,36 @@
+{
+  "findingId": "LWB-OVR-012",
+  "date": "2026-09-12",
+  "status": "RECOVERED",
+  "scope": "Overview repair-required status and profile_instances_update_and_restart envelope",
+  "source": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "locators": {
+    "componentStatusBuilder": "0x1403E3AB1-0x1403E48A8",
+    "componentPathBuilder": "0x1403E37A2-0x1403E3A08",
+    "fileMetadataPredicate": "0x1405C6A40",
+    "updateRestartCommand": "0x1401FFCDC-0x14020165F",
+    "bridgeUpdateReason": "0x140200A8E -> 0x140835440",
+    "responseRestartedKey": "0x14020117C-0x1402011F8",
+    "responseErrorsKey": "0x14020121C-0x1402012A7",
+    "errorEntryKey": "0x140200FE2-0x14020106D"
+  },
+  "reproduction": [
+    "Capstone/pefile disassembly of the verified original at the locators above",
+    "Recovered frontend api-ClPPi2JT.js wrapper ge() invokes profile_instances_update_and_restart with no arguments",
+    "Recovered frontend handler reads result.restarted.length, result.errors.length and result.errors[0].error"
+  ],
+  "result": {
+    "componentStates": ["resourceMissing", "targetMissing", "needsRepair", "installed"],
+    "componentPaths": ["Game/LastWar_Data/Plugins/x86_64/xlua-proxy-bundle.json", "Game/LastWar_Data/Plugins/x86_64/xlua.dll", "Game/LastWar_Data/Plugins/x86_64/xlua_.dll", "bridge-runtime/backups"],
+    "needsRepairMeaning": "bridge/proxy installation components are present enough to identify the target, but the proxy bundle manifest is missing; this is not a generic network disconnect state",
+    "command": "profile_instances_update_and_restart",
+    "commandArguments": "none from recovered frontend",
+    "response": {"restarted": "array", "errors": "array", "errorsElementRequiredField": "error"}
+  },
+  "limits": "The recovered frontend does not inspect restarted element contents or error-entry fields other than error. Those unused element details are not claimed here.",
+  "implementationImpact": "The rebuild may expose repairRequired only for its evidence-backed analogous incomplete bridge-install state. A correlated deferred-restoration journal plus exact selected PID/path may be repaired; an unrelated unmanaged game must remain fail-closed."
+}

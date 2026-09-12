@@ -2,11 +2,11 @@
 
 ## Authoritative owner priority - Overview, then Map Data sequentially, 2026-09-12
 
-**Active feature:** Overview O04/O05 is owner-accepted under `LWB-OVR-011`. Begin **Map Data → Player City (`city`)** only. Recover and verify the exact city acquisition/index/query/mark/export contract before implementation, and do not advance to the next Map Data type until Player City works end-to-end with durable evidence.
+**Active feature:** **Overview O01-O06 functional matrix is ZERO-OPEN CANDIDATE** under `LWB-OVR-013/014`. **STOP for PM audit. Do not begin Map Data / Player City** until the owner returns the PM audit and explicitly resumes implementation. Protected-original bootstrap parity, extended event/update live validation and the wider 47-case project release gate remain separately tracked and are not being relabelled complete.
 
-**Owner continuation rule:** future `ok continue` messages mean continue the agreed queue without stopping for another feature selection. After Overview O04/O05 is implemented, technically verified and owner-visible verified, proceed directly to **Map Data**. Implement and verify Map Data functions one at a time in this order: **Player City (`city`) → Resource Point (`resource`) → Monster (`monster`) → Truck → Railway/Train → Dispatch/Secret Task → Ghost → Treasure**. Do not begin the next type until the current type works end-to-end and has durable evidence. Existing operation-specific safety restrictions still apply; they are not waived by this sequencing instruction.
+**Owner audit gate (latest instruction, 2026-09-12):** after Overview reaches zero open functional items, stop and hand the checkpoint to PM for audit. **Do not start Player City first.** The previously agreed Map Data type order remains queued for later: **Player City (`city`) → Resource Point (`resource`) → Monster (`monster`) → Truck → Railway/Train → Dispatch/Secret Task → Ghost → Treasure**. Existing operation-specific safety restrictions remain in force.
 
-**Overview acceptance:** PASSED under `LWB-OVR-011`. Startup ON, Automatic Reconnection unexpected-loss recovery, and intentional Close non-resurrection are owner-visible verified; the startup reconcile false-timeout discovered during that run was corrected and live-checked before moving to Map Data.
+**Overview acceptance:** O04/O05 owner-visible acceptance remains `LWB-OVR-011`. `LWB-OVR-013` closes the O01 Game Root functional edge-case matrix, and `LWB-OVR-014` live-proves O06 interrupted-session **Repair required → Update and restart game** including the startup-reconcile repair race fix, exact restoration, fresh ready session and final clean Close. O01-O06 therefore has no open functional item; this checkpoint now waits for PM audit before Map Data.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

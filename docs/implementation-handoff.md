@@ -1,10 +1,10 @@
 # ChatGPT Web implementation task — review 15
 
-## Authoritative owner priority - Overview startup + automatic reconnect, 2026-09-11
+## Authoritative owner priority - Overview zero-open checkpoint for PM audit, 2026-09-12
 
-**Active feature:** Overview O04/O05 is owner-accepted under `LWB-OVR-011`. Begin **Map Data → Player City (`city`)** only. Reverse-engineer the original/current-city acquisition, schema, indexing, search/filter/mark/export and applicable row semantics before implementation; do not begin Resource Point, Monster, or later types until Player City works end-to-end with durable evidence. Existing operation-specific restrictions remain in force.
+**Active feature:** **Overview O01-O06 ZERO-OPEN CANDIDATE; PM audit next. Do not start Player City.** O01 closure is `LWB-OVR-013`; O06 repair/update-relaunch live closure is `LWB-OVR-014`. Protected-original parity and broader project release gates remain separately tracked.
 
-**Overview status:** OWNER-ACCEPTED under `LWB-OVR-011`. The active acceptance target is now Player City: recover the authoritative `city` acquisition/schema/index/query behavior and prove real city rows, filtering/mark persistence, and city export semantics end-to-end before advancing to Resource Point.
+**Overview status:** O04/O05 owner-visible accepted under `LWB-OVR-011`; O01 is functionally closed under `LWB-OVR-013`; O06 is LIVE-PROVEN under `LWB-OVR-014`. O01-O06 has no open functional item. **Handoff this exact checkpoint to PM for audit before any Map Data work.**
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -45,7 +45,7 @@ If a required operation is actually restricted, document its exact tool/reason/t
 
 ## Current Overview continuation — 2026-09-12
 
-O04 startup is technically live-proven and CI-clean. O05 is TECHNICAL LIVE-PROVEN for the bounded process-exit recovery cycle under `LWB-OVR-010`, after offline completion through `LWB-OVR-009`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, confirmed `forceUpdate`/`crossDisconnect`/`disconnect`/`exitPrompt` waiting and in-place/escalation behavior, updater activity/stall handling, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. The bounded normal-app live recovery/intentional-Close run and the combined owner-visible O04/O05 verification both passed under `LWB-OVR-011`. The startup-reconcile false timeout discovered by the owner was corrected and live-checked. Begin Player City now; do not advance to Resource Point until Player City works end-to-end with durable evidence.
+O04/O05 remain technically live-proven/owner-visible accepted under `LWB-OVR-010/011`. `LWB-OVR-013` closes O01's functional validation matrix. `LWB-OVR-012` recovers the original repair-required/update-restart contract, and `LWB-OVR-014` live-proves the rebuild's journal-correlated interrupted-session repair flow, including the startup reconcile suppression fix, exact old-session restoration, fresh ready relaunch, and final clean Close. **Overview O01-O06 is now zero-open for PM audit. Stop here; do not begin Player City until the owner returns that audit.**
 
 ## Readiness decision and test plan
 

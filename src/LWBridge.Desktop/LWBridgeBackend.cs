@@ -9,6 +9,7 @@ internal sealed class LWBridgeBackend
     {
         "profile_list",
         "profile_instances_reconcile",
+        "profile_instances_update_and_restart",
         "game_root_status",
         "game_root_select",
         "update_status",
@@ -386,7 +387,7 @@ internal sealed class LWBridgeBackend
         {
             gameRunning = process.GameRunning,
             launcherRunning = process.LauncherRunning,
-            repairRequired = false,
+            repairRequired = overviewLifecycle?.RepairRequired ?? false,
             bridgeOnline = overviewLifecycle?.IsReady ?? false,
             gamePid = process.GamePid,
             launcherPid = process.LauncherPid,

@@ -1,0 +1,43 @@
+{
+  "findingId": "LWB-OVR-013",
+  "date": "2026-09-12",
+  "scope": "Overview O01 game-root functional closure",
+  "status": "IMPLEMENTED/OFFLINE-TESTED with installed-current-client diagnostic",
+  "implementation": [
+    "src/LWBridge.Desktop/GameInstallationService.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "currentInstalledRoot": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+  "sourceIdentity": {
+    "launcherSha256": "b6e29176f64c11a6f203d414fb50ee1e02293be318efda9c33cf221c83d763bc",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "originalPackageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+  },
+  "reproduction": {
+    "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-build -- --verify-real-config-unchanged",
+    "result": "ok=true; failures=[]; installed diagnostic valid=true; game/xlua AMD64 PE32+"
+  },
+  "tests": {
+    "validAmd64Root": true,
+    "spacesAndNonAsciiPath": true,
+    "validSelectionPersistsNormalizedPath": true,
+    "invalidSelectionPreservesPreviousValidConfig": true,
+    "missingRootFailsClosed": true,
+    "movedConfiguredRootFallsBackToDetectedValidRoot": true,
+    "permissionDeniedFailsClosed": true,
+    "unreadableFileFailsClosed": true,
+    "malformedPeFailsClosed": true,
+    "unsupportedArchitectureFailsClosedWhenSysWOW64FixtureAvailable": true,
+    "foreignSameNamedGameProcessRejected": true,
+    "selectedExactPidPathRecognized": true,
+    "exitedProcessCannotRemainStale": true,
+    "realUserConfigBytesUnchanged": true
+  },
+  "validationLimits": [
+    "Permission and unreadable-file branches are deterministic injected I/O failures; the user's real installation permissions were not mutated.",
+    "Temporary AMD64/process fixtures are isolated under the system temp directory and removed after the check.",
+    "Exact original secure/plain xLua ABI selection remains separately source-attributed under LWB-R5-002; this finding closes the rebuild O01 functional validation matrix, not protected original bootstrap parity."
+  ],
+  "implementationImpact": "O01 no longer has an open functional validation edge-case gate. Production behavior is unchanged except for injectable test seams for default-root/read failures."
+}
