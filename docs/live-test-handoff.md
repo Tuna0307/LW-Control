@@ -1,6 +1,6 @@
 # Current Web technical packet and owner-test preparation
 
-**Current PM review 16:** [audit and corrections](reviews/2026-09-12-review-16-overview-zero-open.md) returned O01 selected-root integration and O06/shared-close process-incarnation ownership. Both are now corrected/offline-tested (`LWB-PM16-002`, `LWB-PM16-001`), and PM16-03 reconciliation is recorded as `LWB-PM16-003`. Corrected code revision `c3d77e2` is remote-verified with CI `34696597174` successful. No new live run is requested; return to PM/owner and do not start Player City/Map Data/cross-server implementation.
+**Current PM review 17:** [correction audit](reviews/2026-09-13-review-17-pm16-return.md) accepts PM16-02/03 within scope; PM16-01 still needs PM17-02/01 failure-state fixes. Web must deliver those first, then prepare one corrected-build normal Overview Launch/message/Close packet with automatic collection and simple owner actions. The packet is NOT READY from this audit alone. No new live run is claimed or executed; no Map Data/new-feature work.
 
 ## Authoritative owner priority — Overview only, 2026-09-11
 

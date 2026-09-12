@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 recovery
 
-**Current delivery:** [PM review 16](docs/reviews/2026-09-12-review-16-overview-zero-open.md) returned selected-root and process-incarnation defects. Both are now corrected/offline-tested as `LWB-PM16-002` and `LWB-PM16-001`; PM16-03 evidence reconciliation is recorded as `LWB-PM16-003`. Corrected code revision `c3d77e2` is pushed and GitHub Actions `34696597174` passed on that exact SHA. The whole page remains incomplete because S02 pending semantics, S03 full runtime Refresh Status and S06 actual cross-server travel are still open. **Do not start Player City, Map Data or another feature; return this package to PM/owner and wait for the owner to resume scope.**
+**Current delivery:** [review 17](docs/reviews/2026-09-13-review-17-pm16-return.md) accepts PM16 process-identity/evidence corrections and returns two folder-selection failure cases. Web fixes PM17-02 then PM17-01 and prepares corrected-build validation; [prompts](docs/team-workflow.md). Prior live Overview successes remain credited, but this corrected build has no new live run. The whole page is unfinished (S02/S03/S06). **No Player City, Map Data or another feature until the owner resumes scope.**
 
 This repository is now **LWBridge-only**. Treat the directory and remote repository name as historical naming; they do not define the product or feature authority.
 

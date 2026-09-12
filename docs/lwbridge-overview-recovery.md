@@ -1,6 +1,6 @@
 # Overview startup and automatic-reconnection recovery
 
-**Current PM review 16:** [audit and corrections](reviews/2026-09-12-review-16-overview-zero-open.md) reopened O01 selected-root integration and O06/shared-close process-incarnation ownership while preserving successful live evidence. Both are now corrected/offline-tested as `LWB-PM16-002` and `LWB-PM16-001`; PM16-03 reconciliation is `LWB-PM16-003`. No new live run was requested. Whole Overview remains incomplete because S02/S03/S06 are still open; no Player City/Map Data/cross-server implementation begins from this checkpoint.
+**Current PM review 17:** [audit](reviews/2026-09-13-review-17-pm16-return.md) accepts the PM16-02 process-identity correction and PM16-03 evidence reconciliation within their offline/source scope. Root-selection failure cases PM17-01/02 remain open. Preserve historical live successes and the findings below; do not promote them to new-build live acceptance or begin Map Data.
 
 This document records the evidence used for O04 **Open games at startup** and O05 **Automatic Reconnection**. It supplements the accepted manual Overview lifecycle; it does not replace `LWB-OVL-003` or claim the still-unrecovered original protected launch proof/ticket protocol.
 

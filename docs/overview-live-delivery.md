@@ -1,6 +1,6 @@
 # Active delivery: Overview launch, injected bridge message, and close
 
-**Current review-16 return:** [audit](reviews/2026-09-12-review-16-overview-zero-open.md) preserved the successful Overview paths and returned PM16-02 process identity plus PM16-01 selected-root integration. Both are now corrected/offline-tested as `LWB-PM16-001/002`; PM16-03 reconciliation is recorded as `LWB-PM16-003`. Corrected code revision `c3d77e2` is remote-verified and CI `34696597174` passed. Return to PM/owner; Map Data, Player City and cross-server implementation remain on hold.
+**Current review 17:** [audit](reviews/2026-09-13-review-17-pm16-return.md) accepts process-identity and documentation corrections but returns two folder-selection failure cases: PM17-02 unknown/pending journal classification, then PM17-01 abandoned launch identity. Web fixes/tests these and prepares the bounded normal-path regression packet. Preserve the accepted earlier OVL milestone below; do not redo it from scratch or begin Map Data/cross-server implementation.
 
 Owner-directed priority change, 2026-09-11. This is the only active user-visible feature. It supersedes resource-first and monster-next instructions elsewhere. The full 47-case specification in task.md remains future scope; this milestone does not claim all Overview settings or both pages are complete.
 

@@ -1,20 +1,20 @@
-# Project-manager status — review 16, 2026-09-12
+# Project-manager status — review 17, 2026-09-13
 
-**Working live paths exist; the review-16 correction return is now prepared, but the whole page is not complete.** [Detailed audit](reviews/2026-09-12-review-16-overview-zero-open.md) reviewed `0758006`; PM16-02 and PM16-01 are now delivered/offline-tested, and PM16-03 reconciliation is recorded as `LWB-PM16-003`.
+**Real working live paths remain credited. Two folder-selection failure cases prevent closing this correction package.** [Detailed audit](reviews/2026-09-13-review-17-pm16-return.md) verified `7e1bee7` against GitHub and final CI `34705461170`, inspected code/tests and matched the local build/helper/excerpt hashes.
 
-- Preserve recorded owner acceptance of Launch -> in-game **LWbridge is running** -> Close and startup/process-exit reconnect.
-- Credit the successful interrupted-session repair -> original restoration -> fresh ready relaunch -> final clean Close path.
-- **PM16-02 / P1 CORRECTED/OFFLINE-TESTED (`LWB-PM16-001`):** repair/close/recovery ownership now includes durable process-incarnation identity and fails closed on replacement/unknown identity.
-- **PM16-01 / P1 CORRECTED/OFFLINE-TESTED (`LWB-PM16-002`):** validated root changes rebind only at a stopped, journal-free boundary; status and next Launch agree, active/repair ownership stays on the original root, and invalid-root foreign same-named processes remain unmatched.
-- **PM16-03 RECONCILED (`LWB-PM16-003`):** O01/O06 successor conclusions, saved `LWB-OVR-012` disassembly excerpts/tool versions, corrected build/helper hashes, focused validation and exact corrected-code CI are recorded.
+- PM16-02 process-incarnation checks: accepted as implemented/offline-tested.
+- PM16-03 evidence reconciliation: accepted; historical disassembly generator command remains explicitly unavailable.
+- PM16-01 stopped-folder selection integration: accepted within tested scope; failure-state closure remains open.
+- **PM17-02 / P2:** unfinished/unknown journals must block retargeting rather than count as no pending recovery.
+- **PM17-01 / P2:** after a verified clean failed launch, stale attempt identity must not prevent selecting another folder.
 
-Web has completed all assigned review-16 corrections. Corrected code revision `c3d77e2` equals the remote branch and GitHub Actions `34696597174` succeeded on that exact SHA. Return this successor documentation/evidence checkpoint to PM/owner and stop; no separate Sol or Daybreak task.
+Web fixes PM17-02 then PM17-01 with isolated regressions, preserves successful work, delivers checks/evidence and prepares one corrected-build normal Launch/message/Close regression packet. No real PID-reuse, damaged-install or second-install experiment is requested. PM did not run the app/game or application tests in this audit.
 
-Whole-page shared gaps are S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel. UI language bundles exist; S05 game-derived names require consumer-specific scoping and are not an excuse to begin Map Data. Protected-original bootstrap parity, event/update live coverage and the 47-case release matrix stay separate.
+The correction package has no new live test; previous live evidence remains tied to its original builds. Shared S02 pending counter, S03 complete runtime Refresh and S06 actual travel remain unfinished. S05 runtime names are consumer-scoped, and broader parity/event/47-case coverage remains separate.
 
-**Do not start Player City, Map Data or cross-server implementation.** Only the owner resumes the next scope after this correction/audit return. [Current workflow](team-workflow.md). PM16-03 requests no new owner live test; prior owner/live evidence remains credited only within its recorded scope.
+**No Player City, Map Data, cross-server implementation or other new feature.** No Daybreak task. [Current Web prompts](team-workflow.md). The owner chooses subsequent feature scope after the audit return.
 
-Previous priority/status text is superseded. The historical reviews below preserve their original baseline and are not the current task queue.
+Historical reviews below preserve their original baseline; they are not the active queue.
 
 ## Historical review 15 — deferred resource recorder work
 

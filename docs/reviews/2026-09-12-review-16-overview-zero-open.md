@@ -1,5 +1,7 @@
 # PM review 16 — Overview zero-open checkpoint
 
+**Follow-up, 2026-09-13:** [review 17](2026-09-13-review-17-pm16-return.md) audits the correction package at `7e1bee7`: PM16-02/03 accepted within offline/source scope; PM16-01 partially accepted with PM17-01/02 failure cases returned. This original review remains unchanged below as historical evidence; use review 17 for current tasks.
+
 Date: 2026-09-12. Reviewed commit: `0758006fb0ece52abdf4aa0e5698da1163a526bb`, `research/offline-controller`, **Close Overview functional matrix for PM audit**. Worktree was clean. Local HEAD, origin tracking ref and GitHub branch all equalled this revision before PM documentation edits.
 
 **Decision: RETURN FOR CORRECTION.** Accept the recorded successful live lifecycle paths, but do not approve O01–O06 as zero-open. PM found two source-confirmed functional/ownership defects. The whole Overview page is also not complete: shared header S02, S03 and S06 are still unfinished. Player City and all Map Data implementation remain on hold until the owner explicitly resumes them after the audit/repair return.

@@ -1,21 +1,24 @@
 # LWBridge implementation backlog
 
-## Current PM decision — review 16, 2026-09-12
+## Current PM decision — review 17, 2026-09-13
 
-**REVIEW-16 CORRECTION RETURN PREPARED.** [PM audit](docs/reviews/2026-09-12-review-16-overview-zero-open.md) reviewed `0758006` and returned PM16-02/PM16-01 while preserving the recorded live Launch/message/Close, startup/reconnect and repair success paths. Both returned code defects are now corrected and the PM16-03 successor evidence is prepared; the audit remains the source of the return criteria.
+[PM audit of `7e1bee7`](docs/reviews/2026-09-13-review-17-pm16-return.md) verifies final Git delivery and CI. **PM16-02 process identity and PM16-03 reconciliation are accepted within their offline/source scope. PM16-01 is only partially accepted:** its stopped-folder changes work in isolated tests, but two failure cases remain.
 
-**Current Web execution:** `LWB-PM16-001` (PM16-02), `LWB-PM16-002` (PM16-01) and `LWB-PM16-003` (PM16-03 reconciliation) are prepared for PM/owner review. Corrected code revision `c3d77e2` is remote-verified and GitHub Actions `34696597174` passed on that exact SHA. No separate Sol or Daybreak task; no new owner live run is requested by PM16-03.
+**Only Web assignment:** **PM17-02** must block retargeting on unfinished/unknown journals; then **PM17-01** must release abandoned launch identity only after confirmed cleanup so a clean failed launch does not block changing folders. Preserve accepted PM16 work; add targeted isolated regressions and return exact corrected-build evidence/CI. [Main and continuation prompts](docs/team-workflow.md).
 
-**Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
+The corrected package has no new live-game run. Preserve historical owner/live successes without promoting them to this build. After the fixes, prepare one normal Launch/message/Close regression packet with automatic evidence and simple owner actions; no adverse real-game experiments are requested.
 
-**STOP on new features. Do not start Player City, any Map Data work, cross-server implementation or another feature.** All assigned review-16 corrections are prepared for PM/owner audit; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical.
+**No Player City, Map Data, cross-server implementation or other new feature. No Daybreak task.** Whole Overview is not complete: S02/S03/S06 and consumer-scoped S05 remain unfinished; parity/event coverage and all 47 release cases stay separate. Only the owner resumes subsequent feature scope. Older all-corrections-complete/zero-open/automatic-next instructions below are superseded by this review.
 
-### Review 16 — only active Web queue
+### Review 17 — only active Web queue
 
-- [x] PM16-02 / P1: process incarnation is persisted/revalidated at repair/close/recovery boundaries; PID reuse and unknown identity fail closed (`LWB-PM16-001`, READY_FOR_PM_REVIEW).
-- [x] PM16-01 / P1: selected-root changes now coordinate with the lifecycle at a stopped, journal-free boundary; status/Launch agree, active/repair ownership cannot retarget, and invalid-root foreign-process fallback fails closed (`LWB-PM16-002`, READY_FOR_PM_REVIEW).
-- [x] PM16-03: reconciled O01/O06 conclusions, strengthened `LWB-OVR-012` with hashed saved-disassembly excerpts/tool versions, recorded corrected build/helper identity and exact `c3d77e2` CI (`34696597174`) as `LWB-PM16-003`; return to PM/owner.
-- [ ] Owner explicitly resumes the next scope. S02/S03/S06 and Map Data are unfinished, not automatically assigned.
+- [x] PM16-02: PM accepts process-incarnation correction as implemented/offline-tested under LWB-PM16-001.
+- [x] PM16-03: PM accepts durable evidence reconciliation, with historical generator command unavailable.
+- [ ] PM16-01: stopped selection integration accepted, full failure-state closure pending PM17-01/02.
+- [ ] PM17-02 / P2: unfinished/unknown journal classification must prevent retargeting and preserve evidence.
+- [ ] PM17-01 / P2: release abandoned launch identity after verified cleanup; failed launch -> select B -> Launch works without restarting the app.
+- [ ] Corrected-build checks, automatic normal-path regression packet and return to PM/owner.
+- [ ] Owner explicitly resumes the next feature. No Map Data/new-feature implementation.
 
 ### Preserved delivered OVL milestone
 
