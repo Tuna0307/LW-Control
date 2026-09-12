@@ -1,6 +1,6 @@
 # Current Web technical packet and owner-test preparation
 
-**Current transition, 2026-09-13:** PM17-02/01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`. Finish their commit/push/exact remote-CI verification, then Web proceeds directly to [Player City Map Data](map-data-delivery.md). S03/S06 remain deferred.
+**Current transition, 2026-09-13:** PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS. Web is now working directly on [Player City Map Data](map-data-delivery.md). S03/S06 remain deferred.
 
 ### Corrected-build Overview regression packet — PREPARED / NOT RUN
 
@@ -8,9 +8,9 @@ The existing repo-root `Start Overview Verification.cmd` remains the bounded nor
 
 No PM17 real-game/owner run was performed. Do not promote the earlier Launch/message/Close, startup/reconnect or repair successes to this corrected build. If the normal Overview regression is later dispatched, the owner performs only the existing simple UI actions while Web captures and interprets the technical evidence automatically.
 
-### Player City packet — NOT YET TESTABLE
+### Player City packet - ACTIVE IMPLEMENTATION / NOT YET OWNER-TESTABLE
 
-No Player City live package or success is claimed yet. After PM17 delivery verification, Web traces and fixes the first missing link in fresh city acquisition -> persistence -> normal Search/display -> newer acquisition -> same-profile reopen, then updates this packet when an exact tested city build exists.
+No Player City live package or success is claimed yet. Web is tracing and fixing the first missing link in fresh city acquisition -> persistence -> normal Search/display -> newer acquisition -> same-profile reopen. This packet will be updated when an exact tested city build exists.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

@@ -1,13 +1,13 @@
-# Team workflow — PM17 delivery, then Player City
+# Team workflow — Player City active
 
-The owner's 2026-09-13 instruction authorizes Map Data immediately after PM17 correction delivery. PM17-02/01 are implemented/offline-tested under `LWB-PM17-001/002`; finish commit/push/exact remote-CI verification first, then continue directly to Player City. The corrected-build Overview live regression remains prepared but unperformed. S03/S06 are deferred. No separate Sol or Daybreak assignment.
+PM17 is delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS on the exact revision. The active assignment is now Player City Map Data. S03/S06 remain deferred; corrected-build Overview live regression remains prepared but unperformed. No separate Sol or Daybreak assignment.
 
 ## Main prompt for Web
 
 ```text
 Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control on research/offline-controller. Read AGENTS.md, docs/map-data-delivery.md, docs/reviews/2026-09-13-review-17-pm16-return.md, task.md and BACKLOG.md. Inspect actual HEAD/worktree and preserve completed work.
 
-PM17-02/01 are implemented/offline-tested with the specified isolated regressions. Finish their durable evidence plus commit/push and exact remote/CI verification. Keep the corrected-build normal Overview regression packet and its unperformed live proof explicit.
+PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS on the exact revision. Keep the corrected-build normal Overview regression packet and its unperformed live proof explicit; do not redo the correction work.
 
 Then continue directly to Map Data, Player City first, without waiting for another PM audit or asking permission to begin. Work until fresh real city acquisition -> normal Search/display -> a newer result -> same-profile reopen works with correlated automatic evidence. Reuse valid findings, recover direct missing contracts and fix the first broken link. Passing builds or saved/fixture rows do not establish fresh live success.
 
@@ -19,5 +19,5 @@ Continue through coherent checkpoints; commit/push/verify each. Prepare automati
 ## Repeatable continuation prompt
 
 ```text
-Resume the saved checkpoint using AGENTS.md and docs/map-data-delivery.md. If PM17 delivery verification is unfinished, complete commit/push/exact remote-CI verification first. Otherwise continue the next unresolved step of the real Player City Map Data workflow directly; no further permission to start is needed. Keep S03/S06 deferred, preserve evidence/restrictions, automate technical capture, and commit/push/verify coherent progress. Do not replace a failed city step with unrelated research or another category.
+Resume the saved checkpoint using AGENTS.md and docs/map-data-delivery.md. PM17 is delivered; continue the next unresolved step of the real Player City Map Data workflow directly. Keep S03/S06 deferred, preserve evidence/restrictions, automate technical capture, and commit/push/verify coherent progress. Do not replace a failed city step with unrelated research or another category.
 ```

@@ -1,6 +1,6 @@
 # Active delivery: Overview launch, injected bridge message, and close
 
-**Owner update, 2026-09-13:** finish/verify PM17-02/01, then continue directly to [Map Data, Player City first](map-data-delivery.md). Review 17's previous stop-before-Map-Data gate is superseded. S03 full Refresh Status and S06 travel are deferred. Preserve the accepted Overview milestone and any corrected-build validation still outstanding.
+**Owner update, 2026-09-13:** PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with CI `34711920482` SUCCESS; Web has continued directly to [Map Data, Player City first](map-data-delivery.md). S03 full Refresh Status and S06 travel are deferred. Preserve the accepted Overview milestone and the still-unperformed corrected-build live regression.
 
 Owner-directed priority change, 2026-09-11. This is the only active user-visible feature. It supersedes resource-first and monster-next instructions elsewhere. The full 47-case specification in task.md remains future scope; this milestone does not claim all Overview settings or both pages are complete.
 

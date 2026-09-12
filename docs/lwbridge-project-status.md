@@ -1,12 +1,12 @@
 # Project-manager status — PM17 implementation return, 2026-09-13
 
-**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The deterministic review-17 matrix is green together with the broader Release/frontend/lifecycle/collector/preference/native-host/transport gates. Commit/push and exact remote/CI delivery verification are the remaining correction-delivery step before Web proceeds directly to Map Data, Player City first.
+**PM17-02 and PM17-01 are delivered under `LWB-PM17-001/002` at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`.** The deterministic review-17 matrix and broader gates are green; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact revision. Player City is now the active Map Data assignment.
 
 The corrected-build normal Overview Launch -> exact in-game **LWbridge is running** -> Close/restoration regression is prepared through the existing tested entry point but has NOT been run. Historical live Overview evidence remains credited only to its recorded build/scope.
 
 **S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. The whole Overview page is not marked complete.
 
-The selected next result is fresh real Player City acquisition -> normal Search/display -> a distinct later result -> same-profile reopen persistence, with automatic source/session/store/query/render evidence. No additional PM permission is required merely to start after PM17 delivery verification.
+The active result is fresh real Player City acquisition -> normal Search/display -> a distinct later result -> same-profile reopen persistence, with automatic source/session/store/query/render evidence. No additional PM permission is required.
 
 The historical reviews below preserve their original baselines and proof limits.
 

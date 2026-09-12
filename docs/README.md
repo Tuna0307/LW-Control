@@ -1,14 +1,12 @@
 # LWBridge documentation index
 
-## Current owner priority — PM17 fixes implemented; deliver, then Player City, 2026-09-13
+## Current owner priority — Player City active, 2026-09-13
 
-**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The shared recovery journal now fails closed for pending/unknown state, and a failed-before-launch attempt can release only after helper/process/journal ownership is proven clear. The deterministic PM17 matrix and broader offline gates pass. The correction still needs commit/push/remote-CI delivery verification before the already-authorized Player City implementation begins.
+**PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
 
-**The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN.** Historical live Overview results stay tied to their recorded builds; passing offline checks do not promote them to the corrected build.
+**Active assignment: Map Data, Player City first.** Work one end-to-end path: fresh real city acquisition -> correct profile/server persistence -> normal Search/display -> a distinct newer acquisition/result -> same-profile reopen. Reuse existing recovered contracts and current-client evidence, fix the first broken link, and capture source/session/store/query/render evidence automatically.
 
-**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. Do not turn those gaps into prerequisites for Player City or claim the whole Overview page complete.
-
-After correction delivery verification, continue directly with one feature: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. No additional PM approval is required merely to start.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Do not expand those areas unless a minimal evidence-backed dependency is directly required by Player City, and do not claim the whole Overview or Map Data feature complete.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

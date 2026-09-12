@@ -67,7 +67,7 @@
     "diffCheck": "git diff --check -> PASS"
   },
   "correctedBuildIdentity": {
-    "scope": "Fresh local Release build from the uncommitted PM17 corrected working tree; final Git revision and CI are recorded by the delivery successor.",
+    "scope": "Fresh local Release build from the PM17 corrected source now delivered at f24fef39bbe41a8655595da2c9c9da1bcb9e9811; GitHub Actions 34711920482 verifies that exact source revision. No byte-identity claim is made for CI artifacts.",
     "exeSha256": "e5a5bbb6c200590061deaa3deb721ee6ee743fa00579a697d53bb7ea7295c666",
     "dllSha256": "234d745e13b21e50533a79c4d3aaba637c6a525fff22900e858decc2bc585f99",
     "overviewHelperSha256": "103224b89fb972ff82b75c6be925ce40054a5d1a197d045d51c7d7bfba79410e",
@@ -79,5 +79,13 @@
     "The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but unperformed.",
     "S03 complete Refresh Status and S06 actual cross-server travel remain deferred; S02 remains unfinished/unassigned.",
     "No additional full 47-case acceptance item is signed off by these offline fixes."
-  ]
+  ],
+  "delivery": {
+    "implementationRevision": "f24fef39bbe41a8655595da2c9c9da1bcb9e9811",
+    "branch": "research/offline-controller",
+    "remoteRevisionVerified": true,
+    "githubActionsRun": 34711920482,
+    "githubActionsConclusion": "success",
+    "githubActionsHeadSha": "f24fef39bbe41a8655595da2c9c9da1bcb9e9811"
+  }
 }

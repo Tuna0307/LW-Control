@@ -119,17 +119,15 @@ For each unresolved contract associated with a denied operation, report whether 
 
 Keep unresolved production-blocking questions in the escalation register as NEEDS_INFORMATION when a request is not yet complete; this is a tracking record, not an automatic assignment or a claim of exhaustion. Include method/alternative/result evidence before requesting PM approval. Do not indefinitely replace investigation of the same missing public contract with unrelated test-only checkpoints without explaining their integration value. Research/test-only progress must be labelled separately from an enabled UI command and from live acceptance.
 
-## 7. Current delivery — complete PM17 checkpoint, then Player City
+## 7. Current delivery — Player City Map Data
 
-**Latest explicit owner instruction, 2026-09-13:** PM17-02 and PM17-01 are now IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`. Finish their repository delivery with evidence, commit/push and exact remote/CI verification, then **continue directly to Map Data, Player City first**. No additional PM audit or whole-Overview signoff is required merely to begin that already-authorized work. Review 17 remains the historical acceptance source for the two fixes.
+**Latest explicit owner instruction, 2026-09-13:** PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` and GitHub Actions `34711920482` succeeded on that exact source revision. Continue directly to **Map Data, Player City first**; no additional PM audit or whole-Overview signoff is required merely to begin this authorized work.
 
-**S03 complete runtime Refresh Status and S06 actual cross-server travel are PENDING/DEFERRED at the owner's request.** S02 pending-task semantics remains unfinished and unassigned. Recover only a minimal evidence-backed current-session/server dependency if Player City actually requires it; do not expand into the deferred header features or travel.
+The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression packet is prepared but NOT RUN. Historical live Overview successes remain tied to their recorded builds/scopes. **S03 complete Refresh Status and S06 actual cross-server travel remain PENDING/DEFERRED; S02 remains unfinished/unassigned.**
 
-The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression packet is prepared and its entry point self-tests successfully, but that real-game regression has NOT been performed. Historical live Overview successes remain tied to their recorded builds and scopes.
+Player City proceeds one complete user-visible path at a time: fresh real city acquisition -> correct profile/server persistence -> normal Search/display -> distinct newer acquisition/result -> same-profile reopen. Trace the actual UI trigger, backend/runtime request/result, normalization, store/query and rendered row; recover missing contracts rather than guessing and fix the first broken link before broad filters/export/actions or another category.
 
-After correction delivery verification, Map Data proceeds one user-visible function at a time: fresh Player City acquisition -> normal Search/display -> newer result -> same-profile reopen persistence. Reuse valid findings and existing connection/store/query/UI, recover missing contracts instead of guessing, and fix the first broken link before moving elsewhere. The full task.md requirements and 47 acceptance cases remain; this selected city result is not all-Map-Data completion.
-
-Web continues direct research/implementation/verification checkpoints without routine PM permission requests. The owner supplies only plain UI observations/screenshots; Web automates technical capture. Existing operation-specific restrictions, exact process/session ownership and restoration requirements remain in force. Daybreak still requires the reviewed escalation process.
+Web continues direct research/implementation/verification checkpoints and automates technical capture. The owner supplies only plain UI observations/screenshots when needed. Existing operation-specific restrictions, exact process/session ownership and restoration requirements remain in force. The 47 acceptance cases remain; this selected city result is not all-Map-Data completion.
 
 ## 8. Mandatory delivery hierarchy and owner-assisted testing — updated 2026-09-11
 
