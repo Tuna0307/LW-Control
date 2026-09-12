@@ -3946,7 +3946,7 @@ string CreateValidGameRoot(string path)
     return path;
 }
 
-string o01ValidRoot = CreateValidGameRoot(Path.Combine(o01Root, "valid root 测试 Ω"));
+string o01ValidRoot = CreateValidGameRoot(Path.Combine(o01Root, "valid root æµ‹è¯• Î©"));
 var o01Config = new LocalConfigStore(Path.Combine(o01Root, "config"));
 var o01Installation = new GameInstallationService(o01Config);
 GameRootStatus o01Valid = o01Installation.Validate(o01ValidRoot, "self-check");
@@ -4218,6 +4218,312 @@ using (var repairLifecycle = new OverviewLifecycleService(
     Check(sameRepairRoot.Valid &&
           string.Equals(pm16RepairConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
         "re-selecting the same repair-owned root is a harmless persistence-only no-op");
+}
+// PM17-02: recovery.json belongs to the shared Overview runtime. Only an absent
+// journal or an explicitly restored journal whose backup manifest confirms the
+// same completed cleanup may permit installation retargeting.
+void RunPm17JournalRebindCase(string label, byte[]? recoveryBytes, byte[]? manifestBytes, bool unreadable, bool shouldAllow)
+{
+    var cfg = new LocalConfigStore(Path.Combine(o01Root, "pm17-journal-" + label));
+    cfg.Update(c => c with { GameRoot = o01RootA });
+    int recoveryReads = 0;
+    var hooks = new OverviewLifecycleTestHooks
+    {
+        ReadAllBytes = path =>
+        {
+            if (path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase))
+            {
+                recoveryReads++;
+                if (unreadable) throw new IOException("synthetic unreadable recovery journal");
+                if (recoveryBytes is null) throw new FileNotFoundException(path);
+                return recoveryBytes.ToArray();
+            }
+            if (path.EndsWith("manifest.json", StringComparison.OrdinalIgnoreCase) && manifestBytes is not null)
+                return manifestBytes.ToArray();
+            throw new FileNotFoundException(path);
+        },
+    };
+    using var lifecycle = new OverviewLifecycleService(cfg.Snapshot.ProfileId, o01RootA,
+        helperPath: Path.Combine(o01Root, "fake-overview-helper.py"), requireCurrentClientEvidence: false,
+        config: cfg, testHooks: hooks, startRecoveryMonitor: false);
+    var backend = new LWBridgeBackend(cfg, lifecycle, overviewLifecycle: lifecycle);
+    bool allowed = true;
+    string? code = null;
+    try { backend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { allowed = false; code = ex.Code; }
+    Check(recoveryReads > 0, $"PM17-02 {label}: root selection inspects the shared recovery journal");
+    Check(allowed == shouldAllow, $"PM17-02 {label}: journal classification {(shouldAllow ? "permits" : "blocks")} retargeting");
+    Check(shouldAllow
+            ? string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase)
+            : string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase) && code == "GAME_REPAIR_REQUIRED",
+        $"PM17-02 {label}: selection preserves the correct configuration/root outcome");
+}
+byte[] Pm17Journal(string stage, string? profile = null, int schema = 1) => JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = schema,
+    profileId = profile,
+    requestId = "pm17-request",
+    sessionId = "pm17-request",
+    backupPath = Path.Combine(o01Root, "pm17-backup"),
+    originalFiles = new { scripts = "sha256" },
+    stage,
+});
+foreach (string stage in new[]
+{
+    "backup_ready", "installed_0_scripts", "restoring_after_failure", "closing_failed_owned_game",
+    "restoring_after_failed_owned_game_close", "active_ready_deferred_restore", "closing_owned_game_for_restore",
+    "restoring_after_owned_game_exit", "restoring_interrupted_operation", "restored_0_scripts",
+    "restoring_while_running", "restoring_after_owned_game_close",
+})
+    RunPm17JournalRebindCase("pending-" + stage, Pm17Journal(stage, pm16RepairConfig.Snapshot.ProfileId), null, false, false);
+RunPm17JournalRebindCase("unknown-stage", Pm17Journal("future_unknown_stage", pm16RepairConfig.Snapshot.ProfileId), null, false, false);
+RunPm17JournalRebindCase("foreign-profile", Pm17Journal("active_ready_deferred_restore", "foreign-profile"), null, false, false);
+RunPm17JournalRebindCase("missing-profile", JsonSerializer.SerializeToUtf8Bytes(new { schemaVersion = 1, stage = "backup_ready" }), null, false, false);
+RunPm17JournalRebindCase("missing-schema", JsonSerializer.SerializeToUtf8Bytes(new { profileId = pm16RepairConfig.Snapshot.ProfileId, stage = "backup_ready" }), null, false, false);
+RunPm17JournalRebindCase("unsupported-schema", Pm17Journal("backup_ready", pm16RepairConfig.Snapshot.ProfileId, 2), null, false, false);
+RunPm17JournalRebindCase("json-null", JsonSerializer.SerializeToUtf8Bytes<object?>(null), null, false, false);
+RunPm17JournalRebindCase("json-array", JsonSerializer.SerializeToUtf8Bytes(new[] { "backup_ready" }), null, false, false);
+RunPm17JournalRebindCase("unreadable", Pm17Journal("backup_ready", pm16RepairConfig.Snapshot.ProfileId), null, true, false);
+RunPm17JournalRebindCase("absent", null, null, false, true);
+byte[] restoredRecovery = Pm17Journal("restored", pm16RepairConfig.Snapshot.ProfileId);
+byte[] restoredManifest = Pm17Journal("restored", pm16RepairConfig.Snapshot.ProfileId);
+RunPm17JournalRebindCase("verified-completed", restoredRecovery, restoredManifest, false, true);
+RunPm17JournalRebindCase("unverified-completed", restoredRecovery, null, false, false);
+
+// PM17-01: a failed-before-launch attempt may be released only after there is no
+// helper, selected-root process or pending/unknown restoration obligation.
+var pm17LaunchConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-abandoned-launch"));
+pm17LaunchConfig.Update(c => c with { GameRoot = o01RootA });
+string? pm17Session = null;
+string? pm17Challenge = null;
+const int pm17Pid = 46601;
+const int pm17LauncherPid = 46602;
+const string pm17Started = "2026-09-13T00:10:00.0000000Z";
+bool pm17Alive = false;
+int pm17StartCalls = 0;
+byte[] Pm17Heartbeat() => JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+    profileId = pm17LaunchConfig.Snapshot.ProfileId, sessionId = pm17Session, challenge = pm17Challenge,
+    gamePid = pm17Pid, updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(), ready = true,
+    messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+});
+var pm17LaunchHooks = new OverviewLifecycleTestHooks
+{
+    ProcessMatches = (pid, _, started) => pm17Alive && pid == pm17Pid && started == pm17Started,
+    ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+        ? throw new FileNotFoundException(path) : Pm17Heartbeat(),
+    WriteLease = (_, _, _) => { }, DeleteFile = _ => { },
+    RunHelperAsync = (invocation, _) =>
+    {
+        if (invocation.Operation == "stop")
+        {
+            pm17Alive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true, mode = "overview_exact_pid_close_restore", bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = pm17LaunchConfig.Snapshot.ProfileId, sessionId = invocation.SessionId, gamePid = pm17Pid,
+                gamePath = invocation.GamePath, gameStartedAtUtc = pm17Started,
+                close = new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false },
+                restore = new { restored = true }, gameRunning = false, installedFilesChanged = false,
+            }));
+        }
+        pm17StartCalls++;
+        if (pm17StartCalls == 1) throw new InvalidOperationException("synthetic failure before game launch");
+        pm17Session = invocation.SessionId; pm17Challenge = invocation.Challenge; pm17Alive = true;
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(pm17Challenge!))).ToLowerInvariant();
+        return Task.FromResult(JsonSerializer.SerializeToElement(new
+        {
+            ok = true, mode = "overview_install_launch_ready_deferred_restore", bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = pm17LaunchConfig.Snapshot.ProfileId, sessionId = pm17Session, challengeSha256 = hash,
+            gamePid = pm17Pid, gamePath = Path.Combine(pm17LaunchConfig.Snapshot.GameRoot!, "Game", "LastWar.exe"),
+            gameStartedAtUtc = pm17Started, launcherPid = pm17LauncherPid,
+            ready = new { schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = pm17LaunchConfig.Snapshot.ProfileId,
+                sessionId = pm17Session, challenge = pm17Challenge, gamePid = pm17Pid, readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                ready = true, messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage },
+            restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+            gameRunning = true, installedFilesChanged = true,
+        }));
+    },
+};
+using (var pm17LaunchLifecycle = new OverviewLifecycleService(pm17LaunchConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17LaunchConfig, testHooks: pm17LaunchHooks, startRecoveryMonitor: false))
+{
+    var pm17LaunchBackend = new LWBridgeBackend(pm17LaunchConfig, pm17LaunchLifecycle, overviewLifecycle: pm17LaunchLifecycle);
+    using JsonDocument pm17ActivePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17LaunchConfig.Snapshot.ProfileId }));
+    try { await pm17LaunchLifecycle.InvokeAsync("profile_instance_start", pm17ActivePayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    JsonElement failedStatus = JsonSerializer.SerializeToElement(pm17LaunchLifecycle.CreateInstanceStatus());
+    string? abandonedInstance = failedStatus.GetProperty("instanceId").GetString();
+    Check(failedStatus.GetProperty("phase").GetString() == "error" && !string.IsNullOrWhiteSpace(abandonedInstance),
+        "PM17-01 failed-before-launch retains useful error state and attempt identity until cleanup is verified");
+    GameRootStatus sameRootAfterFailure = pm17LaunchBackend.SaveGameRoot(o01RootA);
+    Check(sameRootAfterFailure.Valid && string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 same-root persistence remains available after a failed launch attempt");
+    string invalidPm17Root = Path.Combine(o01Root, "pm17-invalid-after-failure");
+    Directory.CreateDirectory(invalidPm17Root);
+    GameRootStatus invalidAfterFailure = pm17LaunchBackend.SaveGameRoot(invalidPm17Root);
+    JsonElement afterInvalidStatus = JsonSerializer.SerializeToElement(pm17LaunchLifecycle.CreateInstanceStatus());
+    Check(!invalidAfterFailure.Valid && afterInvalidStatus.GetProperty("instanceId").GetString() == abandonedInstance &&
+          string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 invalid selection preserves the old root and abandoned-attempt identity");
+    string pm17ConfigBackup = Path.Combine(o01Root, "pm17-abandoned-launch", "config.backup.json");
+    if (File.Exists(pm17ConfigBackup)) File.Delete(pm17ConfigBackup);
+    Directory.CreateDirectory(pm17ConfigBackup);
+    bool pm17WriteFailed = false;
+    try { pm17LaunchBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { pm17WriteFailed = ex.Code == "CONFIG_WRITE_FAILED"; }
+    Directory.Delete(pm17ConfigBackup);
+    JsonElement afterWriteFailure = JsonSerializer.SerializeToElement(pm17LaunchLifecycle.CreateInstanceStatus());
+    Check(pm17WriteFailed && afterWriteFailure.GetProperty("instanceId").GetString() == abandonedInstance &&
+          string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 persistence failure preserves the old root and abandoned-attempt identity");
+    bool reboundAfterFailure = true;
+    try { pm17LaunchBackend.SaveGameRoot(o01RootB); } catch (BridgeCommandException) { reboundAfterFailure = false; }
+    Check(reboundAfterFailure && string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 failed-before-launch A -> B releases abandoned attempt identity without app restart");
+    bool secondLaunchWorked = true;
+    try { await pm17LaunchLifecycle.InvokeAsync("profile_instance_start", pm17ActivePayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { secondLaunchWorked = false; }
+    Check(secondLaunchWorked && pm17StartCalls == 2,
+        "PM17-01 newly selected B launches successfully through the existing lifecycle after abandoned A attempt");
+    if (secondLaunchWorked)
+    {
+        using JsonDocument stop = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17LaunchConfig.Snapshot.ProfileId, instanceId = pm17Session }));
+        await pm17LaunchLifecycle.InvokeAsync("profile_instance_stop", stop.RootElement.Clone(), CancellationToken.None);
+    }
+
+
+// PM17-01: an in-flight fake helper keeps the lifecycle in starting ownership
+// until it exits; root changes cannot clear that state early.
+var pm17ActiveConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-active-helper"));
+pm17ActiveConfig.Update(c => c with { GameRoot = o01RootA });
+var pm17ActiveEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+var pm17ActiveRelease = new TaskCompletionSource<JsonElement>(TaskCreationOptions.RunContinuationsAsynchronously);
+var pm17ActiveHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => throw new FileNotFoundException(path),
+    RunHelperAsync = async (_, _) =>
+    {
+        pm17ActiveEntered.TrySetResult();
+        return await pm17ActiveRelease.Task.ConfigureAwait(false);
+    },
+};
+using (var pm17ActiveLifecycle = new OverviewLifecycleService(pm17ActiveConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-active-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17ActiveConfig, testHooks: pm17ActiveHooks, startRecoveryMonitor: false))
+{
+    var pm17ActiveBackend = new LWBridgeBackend(pm17ActiveConfig, pm17ActiveLifecycle, overviewLifecycle: pm17ActiveLifecycle);
+    using JsonDocument pm17TimeoutPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17ActiveConfig.Snapshot.ProfileId }));
+    Task<object?> activeStart = pm17ActiveLifecycle.InvokeAsync("profile_instance_start", pm17TimeoutPayload.RootElement.Clone(), CancellationToken.None);
+    await pm17ActiveEntered.Task;
+    bool activeBlocked = false;
+    try { pm17ActiveBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { activeBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+    Check(activeBlocked && string.Equals(pm17ActiveConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 active helper prevents installation retargeting");
+    pm17ActiveRelease.TrySetException(new InvalidOperationException("synthetic active helper failure"));
+    try { await activeStart; } catch (BridgeCommandException) { }
+    GameRootStatus afterActiveExit = pm17ActiveBackend.SaveGameRoot(o01RootB);
+    Check(afterActiveExit.Valid && string.Equals(pm17ActiveConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 failed helper may release abandoned identity after the helper exits and no cleanup obligation exists");
+}
+
+// PM17-01: a supervised real helper timeout must retain helper ownership until
+// that exact helper exits, even though StartAsync has already returned an error.
+string timeoutHelper = Path.Combine(o01Root, "pm17-timeout-helper.py");
+File.WriteAllText(timeoutHelper, "import time, json\ntime.sleep(0.35)\nprint(json.dumps({'ok': False, 'error': 'late synthetic helper'}))\n");
+var pm17TimeoutConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-timeout-helper-config"));
+pm17TimeoutConfig.Update(c => c with { GameRoot = o01RootA });
+var pm17TimeoutHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => throw new FileNotFoundException(path),
+};
+using (var pm17TimeoutLifecycle = new OverviewLifecycleService(pm17TimeoutConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: timeoutHelper, helperSupervisionTimeout: TimeSpan.FromMilliseconds(50), requireCurrentClientEvidence: false,
+    config: pm17TimeoutConfig, testHooks: pm17TimeoutHooks, startRecoveryMonitor: false))
+{
+    var pm17TimeoutBackend = new LWBridgeBackend(pm17TimeoutConfig, pm17TimeoutLifecycle, overviewLifecycle: pm17TimeoutLifecycle);
+    using JsonDocument pm17PendingPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17TimeoutConfig.Snapshot.ProfileId }));
+    try { await pm17TimeoutLifecycle.InvokeAsync("profile_instance_start", pm17PendingPayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    bool timeoutBlocked = false;
+    try { pm17TimeoutBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { timeoutBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+    Check(timeoutBlocked && string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 timed-out helper retains ownership and blocks retargeting while it is still alive");
+    await Task.Delay(600);
+    GameRootStatus afterTimeoutExit = pm17TimeoutBackend.SaveGameRoot(o01RootB);
+    Check(afterTimeoutExit.Valid && string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 timed-out helper ownership releases only after the helper actually exits and no cleanup obligation remains");
+}
+
+// PM17-01 + PM17-02: a failed attempt with a pending shared recovery journal
+// must remain pinned to the old root even after the helper itself is gone.
+var pm17PendingConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-pending-after-failure"));
+pm17PendingConfig.Update(c => c with { GameRoot = o01RootA });
+byte[] pm17PendingJournal = JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = 1, requestId = "pm17-pending", backupPath = Path.Combine(o01Root, "pm17-pending-backup"),
+    originalFiles = new { scripts = "sha256" }, stage = "backup_ready",
+});
+var pm17PendingHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+        ? pm17PendingJournal : throw new FileNotFoundException(path),
+    RunHelperAsync = (_, _) => throw new InvalidOperationException("synthetic failure with pending restoration"),
+};
+using (var pm17PendingLifecycle = new OverviewLifecycleService(pm17PendingConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-pending-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17PendingConfig, testHooks: pm17PendingHooks, startRecoveryMonitor: false))
+{
+    var pm17PendingBackend = new LWBridgeBackend(pm17PendingConfig, pm17PendingLifecycle, overviewLifecycle: pm17PendingLifecycle);
+    using JsonDocument pm17PartialPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17PendingConfig.Snapshot.ProfileId }));
+    try { await pm17PendingLifecycle.InvokeAsync("profile_instance_start", pm17PartialPayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    bool pendingBlocked = false;
+    try { pm17PendingBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { pendingBlocked = ex.Code == "GAME_REPAIR_REQUIRED"; }
+    Check(pendingBlocked && string.Equals(pm17PendingConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 pending restoration keeps the failed attempt pinned to installation A");
+}
+
+// PM17-01: if the helper fails after a same-path LastWar process appears,
+// retargeting stays blocked until that exact process is gone.
+var pm17PartialConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-partial-launch"));
+pm17PartialConfig.Update(c => c with { GameRoot = o01RootA });
+Process? pm17PartialProcess = null;
+var pm17PartialHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => throw new FileNotFoundException(path),
+    RunHelperAsync = (_, _) =>
+    {
+        pm17PartialProcess = StartTemporaryLastWar(Path.Combine(o01RootA, "Game", "LastWar.exe"), 3);
+        throw new InvalidOperationException("synthetic failure after selected-root process appeared");
+    },
+};
+using (var pm17PartialLifecycle = new OverviewLifecycleService(pm17PartialConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-partial-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17PartialConfig, testHooks: pm17PartialHooks, startRecoveryMonitor: false))
+{
+    var pm17PartialBackend = new LWBridgeBackend(pm17PartialConfig, pm17PartialLifecycle, overviewLifecycle: pm17PartialLifecycle);
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17PartialConfig.Snapshot.ProfileId }));
+    try { await pm17PartialLifecycle.InvokeAsync("profile_instance_start", payload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    await Task.Delay(150);
+    bool partialBlocked = false;
+    try { pm17PartialBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { partialBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+    Check(partialBlocked && string.Equals(pm17PartialConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 partial selected-root launch blocks retargeting while that process remains alive");
+    if (pm17PartialProcess is not null) await pm17PartialProcess.WaitForExitAsync();
+    GameRootStatus afterPartialExit = pm17PartialBackend.SaveGameRoot(o01RootB);
+    Check(afterPartialExit.Valid && string.Equals(pm17PartialConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 partial-launch identity releases after the selected-root process exits and no journal/helper remains");
+}
+pm17PartialProcess?.Dispose();
 }
 try { Directory.Delete(o01Root, recursive: true); } catch { }
 

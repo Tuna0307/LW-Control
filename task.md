@@ -1,14 +1,14 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
-## Current owner priority — finish two fixes, then Map Data, 2026-09-13
+## Current owner priority — PM17 fixes implemented; deliver, then Player City, 2026-09-13
 
-**Web is authorized to continue directly to Map Data after solving and verifying PM17-02 and PM17-01.** Deliver the correction checkpoint with applicable checks, evidence, commit/push and remote/CI verification, then begin **Player City first**. No additional PM approval or whole-Overview signoff is required to start. [Delivery sequence](docs/map-data-delivery.md) and [copyable prompts](docs/team-workflow.md).
+**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The shared recovery journal now fails closed for pending/unknown state, and a failed-before-launch attempt can release only after helper/process/journal ownership is proven clear. The deterministic PM17 matrix and broader offline gates pass. The correction still needs commit/push/remote-CI delivery verification before the already-authorized Player City implementation begins.
 
-**S03 complete Refresh Status and S06 cross-server travel are PENDING/DEFERRED by the owner.** Do not work on them or require their completion before Map Data. S02 remains unfinished and unassigned; other header gaps do not mean the whole Overview page is complete. Preserve all 47 acceptance requirements and historical proof limits.
+**The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN.** Historical live Overview results stay tied to their recorded builds; passing offline checks do not promote them to the corrected build.
 
-Use one feature at a time: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. Recover only direct missing contracts and fix the first broken link. Keep unperformed Overview live regression explicitly tracked; old live results are not proof of the corrected build.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. Do not turn those gaps into prerequisites for Player City or claim the whole Overview page complete.
 
-This instruction supersedes older stop-before-Map-Data and return-for-permission wording below. Existing operation-specific restrictions and cleanup/ownership requirements remain unchanged. No automatic Daybreak assignment.
+After correction delivery verification, continue directly with one feature: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. No additional PM approval is required merely to start.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -24,7 +24,7 @@ Read [AGENTS.md](AGENTS.md) before starting. Its repository-wide requirements ar
 
 Send `AGENTS.md` with this file when handing work to another AI. The full rules, evidence fields and completion checklist are defined there; do not weaken them for convenience.
 
-Prepared: 2026-09-08; current project-manager review 15. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
+Prepared: 2026-09-08; current project-manager review 17 with 2026-09-13 owner priority override. **This is the primary AI instruction and full acceptance file.** Read `AGENTS.md` first, [BACKLOG.md](BACKLOG.md) for priorities and [the audit](docs/lwbridge-project-status.md) for source/proof limits. Keep one task specification; do not recreate `TASKS.md`.
 
 ## Team ownership — updated owner instruction, 2026-09-11
 

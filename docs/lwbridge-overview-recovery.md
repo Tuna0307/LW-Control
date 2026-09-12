@@ -1,8 +1,24 @@
 # Overview startup and automatic-reconnection recovery
 
-**Owner update, 2026-09-13:** review-17 technical findings remain; once PM17-02/01 are solved and verified, Web continues directly to [Player City Map Data](map-data-delivery.md). S03/S06 are pending/deferred. Earlier stop-before-Map-Data instructions are superseded; historical live evidence and limitations remain unchanged.
+**Owner update, 2026-09-13:** PM17-02/01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`; finish exact Git/CI delivery verification, then Web continues directly to [Player City Map Data](map-data-delivery.md). The corrected-build Overview live regression remains unperformed. S03/S06 are pending/deferred; historical live evidence and limitations remain unchanged.
 
 This document records the evidence used for O04 **Open games at startup** and O05 **Automatic Reconnection**. It supplements the accepted manual Overview lifecycle; it does not replace `LWB-OVL-003` or claim the still-unrecovered original protected launch proof/ticket protocol.
+
+## LWB-PM17-001 — shared recovery-journal retarget classification — 2026-09-13
+
+**Status:** IMPLEMENTED/OFFLINE-TESTED; PM audit and corrected-build live regression remain separate. **Implementation:** `OverviewLifecycleService.RebindGameRoot` now classifies the shared `overview-bridge/recovery.json` as absent, verified completed, pending, or unknown. Known unfinished stages plus malformed, unreadable, unsupported-schema, unknown-stage, missing-profile and foreign-profile records block retargeting without deleting evidence. A leftover `restored` journal permits selection only when its backup `manifest.json` independently confirms schema-1 restored state.
+
+**Validation/reproduction.** Deterministic coverage is in `tests/LWBridge.Desktop.Checks/Program.cs` around the PM17-02 matrix. It covers `backup_ready`, `installed_*`, failure/close/restore stages, unknown stage, foreign/missing profile, missing/future schema, JSON null/array, unreadable data, absent journal and verified/unverified completion. Durable evidence: `evidence/lwbridge-implementation/2026-09-13-pm17-root-lifecycle.json`.
+
+**Limits/impact.** This is a rebuild ownership guard for the shared runtime; it does not claim a new original LWBridge contract or a live-game result. It closes PM17-02 at IMPLEMENTED/OFFLINE-TESTED scope.
+
+## LWB-PM17-002 — abandoned launch identity and helper-timeout ownership — 2026-09-13
+
+**Status:** IMPLEMENTED/OFFLINE-TESTED; PM audit and corrected-build live regression remain separate. **Implementation:** after a failed-before-launch attempt, root retargeting releases attempt identity only after the helper is gone, no selected-root game process exists, and the recovery journal is absent or verified completed. Configuration persistence happens before identity release, so a failed write preserves the old root/state. A supervised helper timeout keeps the exact helper process as active ownership until it actually exits.
+
+**Validation/reproduction.** PM17-01 regressions prove failed A -> valid B -> successful B launch without app restart, same-root persistence, invalid selection preservation, config-write-failure preservation, active helper blocking, timed-out helper blocking until exit, pending restoration blocking, and partial same-path process blocking until exit. The broader deterministic suite returns `ok=true`, `failures=[]`; Release/frontend/lifecycle/collector/preference/native-host/transport gates also pass. Durable evidence is the same PM17 JSON above.
+
+**Limits/impact.** No PM17 real-game run, PID-reuse experiment, second installation or damaged-file experiment was performed. Historical live Overview results stay tied to their recorded builds. The corrected-build normal Launch/message/Close regression remains prepared but unperformed.
 
 ## LWB-OVR-005 — original reconnect gates, reasons and thresholds — 2026-09-12
 

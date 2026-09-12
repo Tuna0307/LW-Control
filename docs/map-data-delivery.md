@@ -4,7 +4,7 @@ Owner priority change, 2026-09-13. This is the active sequencing instruction and
 
 ## Transition already authorized by the owner
 
-Web first fixes PM17-02 (unfinished/unknown recovery journals) and PM17-01 (abandoned launch identity), meeting the source/isolated-regression criteria in [review 17](reviews/2026-09-13-review-17-pm16-return.md). Deliver the coherent correction with applicable checks, documentation, commit/push and remote/CI verification. Keep the corrected-build normal Overview regression packet and any unperformed live verification explicitly tracked; do not relabel old live evidence as new-build proof.
+PM17-02 (unfinished/unknown recovery journals) and PM17-01 (abandoned launch identity) are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`, meeting the source/isolated-regression criteria in [review 17](reviews/2026-09-13-review-17-pm16-return.md). Complete commit/push and exact remote/CI delivery verification, then begin Player City. The corrected-build normal Overview regression packet remains prepared but unperformed; old live evidence is not new-build proof.
 
 **Then continue directly to Map Data. No further PM audit, permission prompt or whole-Overview signoff is required merely to start this already-authorized work.** If a real unresolved lifecycle problem blocks a Map Data operation, fix that direct prerequisite and record the reason. Do not start Map Data before the two assigned corrections are solved, and do not spend further checkpoints on unrelated Overview polish.
 

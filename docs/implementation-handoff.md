@@ -1,23 +1,23 @@
 # ChatGPT Web implementation task — PM review 17
 
-## Current owner priority — finish two fixes, then Map Data, 2026-09-13
+## Current owner priority — PM17 fixes implemented; deliver, then Player City, 2026-09-13
 
-**Web is authorized to continue directly to Map Data after solving and verifying PM17-02 and PM17-01.** Deliver the correction checkpoint with applicable checks, evidence, commit/push and remote/CI verification, then begin **Player City first**. No additional PM approval or whole-Overview signoff is required to start. [Delivery sequence](map-data-delivery.md) and [copyable prompts](team-workflow.md).
+**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The shared recovery journal now fails closed for pending/unknown state, and a failed-before-launch attempt can release only after helper/process/journal ownership is proven clear. The deterministic PM17 matrix and broader offline gates pass. The correction still needs commit/push/remote-CI delivery verification before the already-authorized Player City implementation begins.
 
-**S03 complete Refresh Status and S06 cross-server travel are PENDING/DEFERRED by the owner.** Do not work on them or require their completion before Map Data. S02 remains unfinished and unassigned; other header gaps do not mean the whole Overview page is complete. Preserve all 47 acceptance requirements and historical proof limits.
+**The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN.** Historical live Overview results stay tied to their recorded builds; passing offline checks do not promote them to the corrected build.
 
-Use one feature at a time: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. Recover only direct missing contracts and fix the first broken link. Keep unperformed Overview live regression explicitly tracked; old live results are not proof of the corrected build.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. Do not turn those gaps into prerequisites for Player City or claim the whole Overview page complete.
 
-This instruction supersedes older stop-before-Map-Data and return-for-permission wording below. Existing operation-specific restrictions and cleanup/ownership requirements remain unchanged. No automatic Daybreak assignment.
+After correction delivery verification, continue directly with one feature: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. No additional PM approval is required merely to start.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
 
 Read [AGENTS.md](../AGENTS.md), [task.md](../task.md), [BACKLOG.md](../BACKLOG.md), [current audit](lwbridge-project-status.md), [first-live-result contract](first-live-result.md) and the relevant evidence. Audit base: `7ca6d5c`; inspect actual HEAD/worktree before editing. Preserve concurrent work. All 47 acceptance cases remain required.
 
-## Current assignment — PM15-01/02
+## Current assignment — finish PM17 delivery, then Player City
 
-Review-15 repairs are implemented at `1e9af6e` and documented by `LWB-PM15-001`. Current-session evidence is isolated by collector-generated session directory plus exact launched PID/start/end ownership; failed process/app/UI/runtime/store evidence is explicit and cannot pass as clean. Seven isolated PM15 regressions pass. **Current action is PM audit of the returned package; no owner repeat or live test is requested.** Do not replay the rejected live workflow or switch to monster research.
+`LWB-PM17-001/002` implement and offline-test review-17's two remaining root/lifecycle corrections. Finish the coherent correction delivery with commit/push and exact remote/CI verification. The corrected-build normal Overview regression remains prepared but unperformed. Then continue directly to Player City; do not return to the old PM15/resource queue or wait for another permission gate.
 
 ## Owner clarification — current, 2026-09-11
 

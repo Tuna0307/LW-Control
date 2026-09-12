@@ -1,14 +1,14 @@
 # LWBridge documentation index
 
-## Current owner priority — finish two fixes, then Map Data, 2026-09-13
+## Current owner priority — PM17 fixes implemented; deliver, then Player City, 2026-09-13
 
-**Web is authorized to continue directly to Map Data after solving and verifying PM17-02 and PM17-01.** Deliver the correction checkpoint with applicable checks, evidence, commit/push and remote/CI verification, then begin **Player City first**. No additional PM approval or whole-Overview signoff is required to start. [Delivery sequence](map-data-delivery.md) and [copyable prompts](team-workflow.md).
+**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The shared recovery journal now fails closed for pending/unknown state, and a failed-before-launch attempt can release only after helper/process/journal ownership is proven clear. The deterministic PM17 matrix and broader offline gates pass. The correction still needs commit/push/remote-CI delivery verification before the already-authorized Player City implementation begins.
 
-**S03 complete Refresh Status and S06 cross-server travel are PENDING/DEFERRED by the owner.** Do not work on them or require their completion before Map Data. S02 remains unfinished and unassigned; other header gaps do not mean the whole Overview page is complete. Preserve all 47 acceptance requirements and historical proof limits.
+**The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN.** Historical live Overview results stay tied to their recorded builds; passing offline checks do not promote them to the corrected build.
 
-Use one feature at a time: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. Recover only direct missing contracts and fix the first broken link. Keep unperformed Overview live regression explicitly tracked; old live results are not proof of the corrected build.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. Do not turn those gaps into prerequisites for Player City or claim the whole Overview page complete.
 
-This instruction supersedes older stop-before-Map-Data and return-for-permission wording below. Existing operation-specific restrictions and cleanup/ownership requirements remain unchanged. No automatic Daybreak assignment.
+After correction delivery verification, continue directly with one feature: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. No additional PM approval is required merely to start.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -22,7 +22,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. `LWB-OVL-003` records normal Launch/message/Close acceptance; `LWB-OVR-011` records startup/reconnect/intentional-Close acceptance; `LWB-OVR-013` closes O01 edge cases; `LWB-OVR-014` live-proves the interrupted-session Repair required → Update and restart game path and its startup-reconcile race correction. **Stop here for PM audit; Player City is queued but not started.** Daybreak is unassigned.
+**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. `LWB-PM17-001/002` implement/offline-test the review-17 root/lifecycle corrections; corrected-build live Overview regression remains unperformed. Finish exact Git/CI delivery verification, then begin Player City directly under the owner priority. Daybreak is unassigned.
 
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 

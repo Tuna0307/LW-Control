@@ -149,14 +149,27 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 return;
             }
             if (phase is "starting" or "stopping" or "running" ||
-                gamePid is not null || instanceId is not null || activeHelperProcess is not null || activeRecoveryCancellation is not null)
+                gamePid is not null || activeHelperProcess is not null || activeRecoveryCancellation is not null)
                 throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
                     "The selected installation cannot change while an owned game lifecycle operation is active.");
-            if (HasPendingRecoveryJournal())
+            RecoveryJournalState journalState = ClassifyRecoveryJournal();
+            if (journalState is RecoveryJournalState.Pending or RecoveryJournalState.Unknown)
                 throw new BridgeCommandException("GAME_REPAIR_REQUIRED",
-                    "Finish restoring the current LWBridge-owned game session before selecting another installation.");
+                    "Finish restoring or resolve the existing LWBridge recovery journal before selecting another installation.");
 
+            bool releaseAbandonedAttempt = false;
+            if (instanceId is not null)
+            {
+                if (phase != "error" || gameRoot is null || FindSelectedGameProcess(gameRoot) is not null)
+                    throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                        "The selected installation cannot change while an owned or uncertain launch attempt remains active.");
+                releaseAbandonedAttempt = true;
+            }
+
+            // Persist first. A failed config write keeps the previous root and launch identity.
             persistSelection();
+            if (releaseAbandonedAttempt)
+                ClearAbandonedLaunchIdentityLocked();
             gameRoot = normalized;
             if (phase == "error")
             {
@@ -170,28 +183,97 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         if (startRecoveryMonitor) StartRecoveryMonitor();
     }
 
-    private bool HasPendingRecoveryJournal()
+    private void ClearAbandonedLaunchIdentityLocked()
+    {
+        instanceId = null;
+        challenge = null;
+        launcherPid = null;
+        gamePath = null;
+        gameStartedAtUtc = null;
+        readyAtUnix = null;
+    }
+
+    private enum RecoveryJournalState
+    {
+        Absent,
+        VerifiedCompleted,
+        Pending,
+        Unknown,
+    }
+
+    // PM17-02 IMPLEMENTATION POLICY: overview-bridge/recovery.json is a single
+    // shared runtime journal, not profile-isolated storage. Therefore any known
+    // unfinished stage blocks retargeting regardless of profile, and malformed,
+    // unsupported, unreadable or future records are UNKNOWN and fail closed.
+    // A leftover "restored" journal is accepted only when the backup manifest
+    // independently confirms the same completed schema-1 restoration.
+    private RecoveryJournalState ClassifyRecoveryJournal()
     {
         string journalPath = Path.Combine(runtimeRoot, "recovery.json");
-        if (testHooks?.ReadAllBytes is null && !File.Exists(journalPath)) return false;
+        if (testHooks?.ReadAllBytes is null && !File.Exists(journalPath))
+            return RecoveryJournalState.Absent;
         try
         {
             byte[] bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(journalPath);
             using JsonDocument document = JsonDocument.Parse(bytes);
             JsonElement root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object || !MatchesInt(root, "schemaVersion", 1) ||
-                !MatchesString(root, "profileId", profileId)) return false;
+            if (root.ValueKind != JsonValueKind.Object || !MatchesInt(root, "schemaVersion", 1))
+                return RecoveryJournalState.Unknown;
             if (!root.TryGetProperty("stage", out JsonElement stageElement) || stageElement.ValueKind != JsonValueKind.String)
-                return true;
-            return stageElement.GetString() is
-                "active_ready_deferred_restore" or
-                "closing_owned_game_for_restore" or
-                "restoring_after_owned_game_exit";
+                return RecoveryJournalState.Unknown;
+            string? stage = stageElement.GetString();
+            if (string.IsNullOrWhiteSpace(stage))
+                return RecoveryJournalState.Unknown;
+            if (string.Equals(stage, "restored", StringComparison.Ordinal))
+                return IsVerifiedCompletedRecovery(root) ? RecoveryJournalState.VerifiedCompleted : RecoveryJournalState.Unknown;
+            return IsKnownPendingRecoveryStage(stage) ? RecoveryJournalState.Pending : RecoveryJournalState.Unknown;
         }
-        catch (FileNotFoundException) { return false; }
-        catch (DirectoryNotFoundException) { return false; }
-        catch { return true; }
+        catch (FileNotFoundException) { return RecoveryJournalState.Absent; }
+        catch (DirectoryNotFoundException) { return RecoveryJournalState.Absent; }
+        catch { return RecoveryJournalState.Unknown; }
     }
+
+    private bool IsVerifiedCompletedRecovery(JsonElement recovery)
+    {
+        try
+        {
+            if (!recovery.TryGetProperty("backupPath", out JsonElement backupElement) || backupElement.ValueKind != JsonValueKind.String)
+                return false;
+            string? backupPath = backupElement.GetString();
+            if (string.IsNullOrWhiteSpace(backupPath) ||
+                !recovery.TryGetProperty("originalFiles", out JsonElement originals) || originals.ValueKind != JsonValueKind.Object)
+                return false;
+            string manifestPath = Path.Combine(Path.GetFullPath(backupPath), "manifest.json");
+            byte[] manifestBytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(manifestPath);
+            using JsonDocument manifestDocument = JsonDocument.Parse(manifestBytes);
+            JsonElement manifest = manifestDocument.RootElement;
+            if (manifest.ValueKind != JsonValueKind.Object || !MatchesInt(manifest, "schemaVersion", 1) ||
+                !MatchesString(manifest, "stage", "restored"))
+                return false;
+            if (!manifest.TryGetProperty("backupPath", out JsonElement manifestBackup) || manifestBackup.ValueKind != JsonValueKind.String ||
+                string.IsNullOrWhiteSpace(manifestBackup.GetString()) || !PathEquals(manifestBackup.GetString()!, backupPath))
+                return false;
+            return manifest.TryGetProperty("originalFiles", out JsonElement manifestOriginals) && manifestOriginals.ValueKind == JsonValueKind.Object;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool IsKnownPendingRecoveryStage(string stage) =>
+        stage is "backup_ready" or
+            "restoring_after_failure" or
+            "closing_failed_owned_game" or
+            "restoring_after_failed_owned_game_close" or
+            "active_ready_deferred_restore" or
+            "closing_owned_game_for_restore" or
+            "restoring_after_owned_game_exit" or
+            "restoring_interrupted_operation" or
+            "restoring_while_running" or
+            "restoring_after_owned_game_close" ||
+        stage.StartsWith("installed_", StringComparison.Ordinal) ||
+        stage.StartsWith("restored_", StringComparison.Ordinal);
 
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken) => command switch
     {
@@ -629,6 +711,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         Process process = Process.Start(start)
             ?? throw new InvalidOperationException("Python Overview bridge helper could not be started.");
         lock (stateGate) activeHelperProcess = process;
+        bool retainHelperOwnership = false;
         try
         {
             Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
@@ -636,7 +719,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             Task exitTask = process.WaitForExitAsync(CancellationToken.None);
             Task completed = await Task.WhenAny(exitTask, Task.Delay(helperSupervisionTimeout, CancellationToken.None)).ConfigureAwait(false);
             if (!ReferenceEquals(completed, exitTask))
+            {
+                retainHelperOwnership = true;
+                _ = ReleaseRetainedHelperAfterExitAsync(process, exitTask, stdoutTask, stderrTask);
                 throw new TimeoutException($"Overview bridge helper exceeded {helperSupervisionTimeout.TotalSeconds:0.#} seconds; the helper retains cleanup ownership.");
+            }
             await exitTask.ConfigureAwait(false);
             string stdout = await stdoutTask.ConfigureAwait(false);
             string stderr = await stderrTask.ConfigureAwait(false);
@@ -661,12 +748,36 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
         finally
         {
-            lock (stateGate)
-            {
-                if (ReferenceEquals(activeHelperProcess, process)) activeHelperProcess = null;
-            }
-            process.Dispose();
+            if (!retainHelperOwnership)
+                ReleaseHelperProcess(process);
         }
+    }
+
+    private async Task ReleaseRetainedHelperAfterExitAsync(
+        Process process,
+        Task exitTask,
+        Task<string> stdoutTask,
+        Task<string> stderrTask)
+    {
+        try
+        {
+            await exitTask.ConfigureAwait(false);
+            await Task.WhenAll(stdoutTask, stderrTask).ConfigureAwait(false);
+        }
+        catch { }
+        finally
+        {
+            ReleaseHelperProcess(process);
+        }
+    }
+
+    private void ReleaseHelperProcess(Process process)
+    {
+        lock (stateGate)
+        {
+            if (ReferenceEquals(activeHelperProcess, process)) activeHelperProcess = null;
+        }
+        process.Dispose();
     }
 
     internal static OverviewStartResult ValidateStartResult(

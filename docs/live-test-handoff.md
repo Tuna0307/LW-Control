@@ -1,19 +1,16 @@
 # Current Web technical packet and owner-test preparation
 
-**Owner update, 2026-09-13:** after PM17-02/01 are solved/verified, Web proceeds directly to [Player City Map Data](map-data-delivery.md). Preserve corrected-build Overview regression evidence and unknowns; prepare the actual city build/session/capture instructions here as implementation becomes testable. No city test package or live success is claimed by this priority change. S03/S06 are deferred.
+**Current transition, 2026-09-13:** PM17-02/01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`. Finish their commit/push/exact remote-CI verification, then Web proceeds directly to [Player City Map Data](map-data-delivery.md). S03/S06 remain deferred.
 
-## Authoritative owner priority — Overview only, 2026-09-11
+### Corrected-build Overview regression packet — PREPARED / NOT RUN
 
-**Active result:** preserve the owner-accepted normal Overview Launch -> verified in-game **LWbridge is running** -> Close path and the recorded startup/reconnect/repair successes. PM16-01/02 add offline negative-edge protection without replacing that live evidence. No repeat owner test is requested by PM16-03; the owner explicitly chooses any next feature after PM audit.
+The existing repo-root `Start Overview Verification.cmd` remains the bounded normal Overview entry point. Its `--self-test` passes against the fresh corrected Release build and deployed helper. Local corrected-build identity at PM17 validation: EXE SHA-256 `e5a5bbb6c200590061deaa3deb721ee6ee743fa00579a697d53bb7ea7295c666`, DLL SHA-256 `234d745e13b21e50533a79c4d3aaba637c6a525fff22900e858decc2bc585f99`, helper SHA-256 `103224b89fb972ff82b75c6be925ce40054a5d1a197d045d51c7d7bfba79410e`, launcher SHA-256 `bd1a4ccc4058c343dd24c38b4db2972c3a31a8aec956b010ad36d2f9b74169cb`.
 
-The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
+No PM17 real-game/owner run was performed. Do not promote the earlier Launch/message/Close, startup/reconnect or repair successes to this corrected build. If the normal Overview regression is later dispatched, the owner performs only the existing simple UI actions while Web captures and interprets the technical evidence automatically.
 
-The owner supplies only simple UI actions, descriptions and screenshots. Web must automatically collect technical evidence and deliver an actual tested script/entry point and beginner guide; no commands, logs, hashes or database inspection are assigned to the owner. PM plans/audits only. No separate Sol or Daybreak task.
+### Player City packet — NOT YET TESTABLE
 
-### Current Overview packet — DELIVERED FOR PM/OWNER REVIEW; NO NEW OWNER TEST REQUESTED
-
-The review-16 correction packet is complete at corrected code revision `c3d77e2`: PM16-02/01 evidence is `LWB-PM16-001/002`, PM16-03 reconciliation is `LWB-PM16-003`, and CI `34696597174` passed on the exact corrected code SHA. Existing automatic Overview evidence/owner-guide material remains preserved; PM16-03 requested no new game run. Whole-page S02/S03/S06 gaps remain explicit.
-
+No Player City live package or success is claimed yet. After PM17 delivery verification, Web traces and fixes the first missing link in fresh city acquisition -> persistence -> normal Search/display -> newer acquisition -> same-profile reopen, then updates this packet when an exact tested city build exists.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

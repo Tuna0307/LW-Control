@@ -1,16 +1,14 @@
-# Project-manager status — owner priority update, 2026-09-13
+# Project-manager status — PM17 implementation return, 2026-09-13
 
-**Finish and verify PM17-02/01, then Web continues directly to Map Data, Player City first.** The owner has explicitly authorized this transition; another PM audit or permission prompt is not a prerequisite to begin. [Delivery sequence](map-data-delivery.md) and [Web prompts](team-workflow.md).
+**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The deterministic review-17 matrix is green together with the broader Release/frontend/lifecycle/collector/preference/native-host/transport gates. Commit/push and exact remote/CI delivery verification are the remaining correction-delivery step before Web proceeds directly to Map Data, Player City first.
 
-Review 17's findings remain unchanged: process-identity/evidence corrections are accepted within offline/source scope; abandoned launch identity and unfinished/unknown journal handling remain open until verified fixed. This planning update performs no implementation or live test.
+The corrected-build normal Overview Launch -> exact in-game **LWbridge is running** -> Close/restoration regression is prepared through the existing tested entry point but has NOT been run. Historical live Overview evidence remains credited only to its recorded build/scope.
 
-**S03 complete Refresh Status and S06 cross-server travel are PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. The whole Overview page is not being marked complete.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. The whole Overview page is not marked complete.
 
-The selected Map Data result is fresh real Player City acquisition -> normal Search/display -> a distinct later result -> same-profile reopen persistence. Reuse existing evidence/code, fix the first broken link and capture technical evidence automatically. The owner only supplies simple visible observations/screenshots. No Daybreak assignment.
+The selected next result is fresh real Player City acquisition -> normal Search/display -> a distinct later result -> same-profile reopen persistence, with automatic source/session/store/query/render evidence. No additional PM permission is required merely to start after PM17 delivery verification.
 
-Keep historical live successes tied to their actual builds, unperformed corrected-build live checks explicit, and all 47 release cases/provenance/restrictions intact. The next priority is practical city functionality, not unrelated Overview polish.
-
-The historical reviews below preserve their original baseline. Their stop/queue instructions do not override the latest owner priority.
+The historical reviews below preserve their original baselines and proof limits.
 
 ## Historical review 15 — deferred resource recorder work
 

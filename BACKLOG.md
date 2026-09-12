@@ -1,23 +1,23 @@
 # LWBridge implementation backlog
 
-## Current owner priority — finish two fixes, then Map Data, 2026-09-13
+## Current owner priority — PM17 fixes implemented; deliver, then Player City, 2026-09-13
 
-**Web is authorized to continue directly to Map Data after solving and verifying PM17-02 and PM17-01.** Deliver the correction checkpoint with applicable checks, evidence, commit/push and remote/CI verification, then begin **Player City first**. No additional PM approval or whole-Overview signoff is required to start. [Delivery sequence](docs/map-data-delivery.md) and [copyable prompts](docs/team-workflow.md).
+**PM17-02 and PM17-01 are IMPLEMENTED/OFFLINE-TESTED under `LWB-PM17-001/002`.** The shared recovery journal now fails closed for pending/unknown state, and a failed-before-launch attempt can release only after helper/process/journal ownership is proven clear. The deterministic PM17 matrix and broader offline gates pass. The correction still needs commit/push/remote-CI delivery verification before the already-authorized Player City implementation begins.
 
-**S03 complete Refresh Status and S06 cross-server travel are PENDING/DEFERRED by the owner.** Do not work on them or require their completion before Map Data. S02 remains unfinished and unassigned; other header gaps do not mean the whole Overview page is complete. Preserve all 47 acceptance requirements and historical proof limits.
+**The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN.** Historical live Overview results stay tied to their recorded builds; passing offline checks do not promote them to the corrected build.
 
-Use one feature at a time: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. Recover only direct missing contracts and fix the first broken link. Keep unperformed Overview live regression explicitly tracked; old live results are not proof of the corrected build.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. Do not turn those gaps into prerequisites for Player City or claim the whole Overview page complete.
 
-This instruction supersedes older stop-before-Map-Data and return-for-permission wording below. Existing operation-specific restrictions and cleanup/ownership requirements remain unchanged. No automatic Daybreak assignment.
+After correction delivery verification, continue directly with one feature: fresh real Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic technical evidence. No additional PM approval is required merely to start.
 
 ### Current sequence — corrections, then Player City
 
 - [x] PM16-02: PM accepts process-incarnation correction as implemented/offline-tested under LWB-PM16-001.
 - [x] PM16-03: PM accepts durable evidence reconciliation, with historical generator command unavailable.
-- [ ] PM16-01: stopped selection integration accepted, full failure-state closure pending PM17-01/02.
-- [ ] PM17-02 / P2: unfinished/unknown journal classification must prevent retargeting and preserve evidence.
-- [ ] PM17-01 / P2: release abandoned launch identity after verified cleanup; failed launch -> select B -> Launch works without restarting the app.
-- [ ] Deliver corrected-build checks, automatic normal-path regression packet and Git/CI evidence; then proceed directly to Player City. Keep any unperformed live check explicit.
+- [x] PM16-01 implementation closure: stopped selection plus PM17 failure-state corrections are implemented/offline-tested; PM audit remains separate.
+- [x] PM17-02 / LWB-PM17-001: unfinished/unknown shared journals block retargeting and preserve evidence; absent/verified-completed cleanup permits selection.
+- [x] PM17-01 / LWB-PM17-002: abandoned launch identity releases only after helper/process/journal ownership clears; failed A -> B -> Launch works without app restart.
+- [ ] Deliver the PM17 implementation commit and exact remote/CI verification; corrected-build normal-path live regression remains prepared but unperformed. Then proceed directly to Player City.
 - [x] Owner authorizes direct Map Data continuation after the two verified fixes; no further permission gate.
 - [ ] First Map Data result: fresh Player City acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic evidence.
 - [ ] PENDING/DEFERRED: S03 complete runtime Refresh Status; S06 actual cross-server travel. S02 remains unfinished/unassigned.
