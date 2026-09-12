@@ -32,6 +32,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
     private string scanRunId = string.Empty;
     private string phase = "idle";
     private string scanMode = "normal";
+    private string selectedMapKind = "resource";
     private string? lastError;
     private bool isReading;
     private long lastCapturedAt;
@@ -150,11 +151,12 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", $"Live resource adapter cannot handle '{command}'.");
 
         MapScanStartOptions options = MapScanContract.NormalizeStart(payload);
-        if (options.SelectedTypes.Count != 1 || options.SelectedTypes[0] != "resource")
+        string requestedMapKind = options.SelectedTypes.Count == 1 ? options.SelectedTypes[0] : string.Empty;
+        if (requestedMapKind is not ("resource" or "city"))
         {
             throw new BridgeCommandException(
                 "LIVE_RESOURCE_TYPES_UNSUPPORTED",
-                "The bounded live adapter currently supports a resource-only scan. Other map kinds remain fail-closed.");
+                "The bounded live adapter supports exactly one resource or Player City scan kind. Mixed and other map kinds remain fail-closed.");
         }
 
         CancellationTokenSource operationCancellation;
@@ -172,6 +174,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             isReading = true;
             phase = "reading";
             scanMode = options.ScanMode;
+            selectedMapKind = requestedMapKind;
             lastError = null;
             lastHelperResult = null;
             lastResultPath = null;
@@ -196,7 +199,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         {
             try
             {
-                LiveResourceHelperRun helperRun = await RunHelperAsync(operationId).ConfigureAwait(false);
+                LiveResourceHelperRun helperRun = await RunHelperAsync(operationId, requestedMapKind).ConfigureAwait(false);
                 operationCancellation.Token.ThrowIfCancellationRequested();
                 lock (stateGate)
                 {
@@ -212,7 +215,8 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                     operationStartedAtUtc: operationStartedAtUtc,
                     expectedProfileId: helperRun.ProfileId,
                     expectedLaunchSessionId: helperRun.LaunchSessionId,
-                    expectedGamePid: helperRun.GamePid);
+                    expectedGamePid: helperRun.GamePid,
+                    mapKind: requestedMapKind);
 
                 testHooks?.BeforeCommitDecision?.Invoke();
                 lock (stateGate)
@@ -299,12 +303,13 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         DateTimeOffset? nowUtc = null,
         string? expectedProfileId = null,
         string? expectedLaunchSessionId = null,
-        int? expectedGamePid = null)
+        int? expectedGamePid = null,
+        string mapKind = "resource")
     {
         ArgumentNullException.ThrowIfNull(store);
         FirstLivePreparedResource prepared = PrepareCorrelatedResult(
             resultPath, requestId, out acquisitionOrdinal, readAllBytes, expectedServerId,
-            operationStartedAtUtc, nowUtc, expectedProfileId, expectedLaunchSessionId, expectedGamePid);
+            operationStartedAtUtc, nowUtc, expectedProfileId, expectedLaunchSessionId, expectedGamePid, mapKind);
         store.UpsertRecord(prepared.Record);
         return prepared.Import;
     }
@@ -319,8 +324,11 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         DateTimeOffset? nowUtc = null,
         string? expectedProfileId = null,
         string? expectedLaunchSessionId = null,
-        int? expectedGamePid = null)
+        int? expectedGamePid = null,
+        string mapKind = "resource")
     {
+        if (mapKind is not ("resource" or "city"))
+            throw new ArgumentOutOfRangeException(nameof(mapKind));
         byte[] resultBytes = (readAllBytes ?? File.ReadAllBytes)(resultPath);
         using JsonDocument resultDocument = JsonDocument.Parse(resultBytes);
         JsonElement root = resultDocument.RootElement;
@@ -332,6 +340,14 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         {
             throw new InvalidDataException("Live resource result did not match the supported probe schema/version.");
         }
+        if (root.TryGetProperty("mapKind", out JsonElement resultMapKind))
+        {
+            if (resultMapKind.ValueKind != JsonValueKind.String || !string.Equals(resultMapKind.GetString(), mapKind, StringComparison.Ordinal))
+                throw new InvalidDataException("Live map result did not match the requested map kind.");
+        }
+        else if (mapKind != "resource")
+            throw new InvalidDataException("Live city result did not identify its requested map kind.");
+
         if (!root.TryGetProperty("requestId", out JsonElement requestIdValue) ||
             requestIdValue.ValueKind != JsonValueKind.String ||
             !string.Equals(requestIdValue.GetString(), requestId, StringComparison.Ordinal) ||
@@ -361,12 +377,16 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         {
             throw new InvalidDataException("Live resource result did not match the helper-owned game PID identity.");
         }
-        if (!root.TryGetProperty("requestRoute", out JsonElement routeValue) ||
-            routeValue.ValueKind != JsonValueKind.String ||
-            routeValue.GetString() != "WorldPointManager.StartViewRequest+UpdateViewRequest(true)")
-        {
-            throw new InvalidDataException("Live resource result did not prove the recovered current-view request route.");
-        }
+        const string currentViewRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)";
+        const string targetedCityRoute = currentViewRoute + "+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)";
+        if (!root.TryGetProperty("requestRoute", out JsonElement routeValue) || routeValue.ValueKind != JsonValueKind.String)
+            throw new InvalidDataException("Live map result did not prove a recovered current-view request route.");
+        string? requestRoute = routeValue.GetString();
+        bool supportedRoute = mapKind == "resource"
+            ? requestRoute == currentViewRoute
+            : requestRoute is currentViewRoute or targetedCityRoute;
+        if (!supportedRoute)
+            throw new InvalidDataException($"Live {mapKind} result did not prove a supported recovered request route.");
         if (!root.TryGetProperty("source", out JsonElement sourceValue) ||
             sourceValue.ValueKind != JsonValueKind.String ||
             sourceValue.GetString() != "WorldPointManager._pointInfos")
@@ -390,36 +410,28 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             throw new InvalidDataException("Live resource result capture timestamp is implausibly in the future.");
 
         if (!root.TryGetProperty("point_records", out JsonElement records) || records.ValueKind != JsonValueKind.Array)
-            throw new InvalidDataException("Live resource result is missing point_records.");
-        JsonElement? resource = null;
+            throw new InvalidDataException("Live map result is missing point_records.");
+        string expectedPointKind = mapKind == "city" ? "player_base" : "resource_point";
+        JsonElement? selectedPoint = null;
         foreach (JsonElement candidate in records.EnumerateArray())
         {
-            if (candidate.ValueKind == JsonValueKind.Object &&
-                candidate.TryGetProperty("kind", out JsonElement kind) &&
-                kind.ValueKind == JsonValueKind.String && kind.GetString() == "resource_point")
-            {
-                resource = candidate;
-                break;
-            }
+            if (candidate.ValueKind == JsonValueKind.Object && candidate.TryGetProperty("kind", out JsonElement kind) &&
+                kind.ValueKind == JsonValueKind.String && kind.GetString() == expectedPointKind)
+            { selectedPoint = candidate; break; }
         }
-        if (!resource.HasValue ||
-            !resource.Value.TryGetProperty("serverId", out JsonElement serverValue) ||
+        if (!selectedPoint.HasValue || !selectedPoint.Value.TryGetProperty("serverId", out JsonElement serverValue) ||
             !serverValue.TryGetInt32(out int serverId) || serverId is < 1 or > 99999)
-        {
-            throw new InvalidDataException("Live resource result does not contain a supported positive serverId.");
-        }
-        if (!resource.Value.TryGetProperty("source", out JsonElement pointSource) ||
-            pointSource.ValueKind != JsonValueKind.String ||
+            throw new InvalidDataException($"Live {mapKind} result does not contain a supported positive serverId.");
+        if (!selectedPoint.Value.TryGetProperty("source", out JsonElement pointSource) || pointSource.ValueKind != JsonValueKind.String ||
             pointSource.GetString() != "WorldPointManager._pointInfos")
-        {
-            throw new InvalidDataException("Live resource point does not identify the proven WorldPointManager._pointInfos source.");
-        }
+            throw new InvalidDataException($"Live {mapKind} point does not identify the proven WorldPointManager._pointInfos source.");
+        if (mapKind == "city" && (!selectedPoint.Value.TryGetProperty("pointType", out JsonElement pt) || !pt.TryGetInt32(out int pointType) || pointType != 6))
+            throw new InvalidDataException("Live city result did not contain current-client player-base pointType 6.");
         if (expectedServerId.HasValue && serverId != expectedServerId.Value)
-            throw new InvalidDataException("Live resource result belongs to a different server than the active bounded session.");
-
+            throw new InvalidDataException($"Live {mapKind} result belongs to a different server than the active bounded session.");
         acquisitionOrdinal = root.TryGetProperty("acquisitionOrdinal", out JsonElement ordinalValue) &&
             ordinalValue.TryGetInt32(out int parsedOrdinal) && parsedOrdinal > 0 ? parsedOrdinal : null;
-        return FirstLiveResultImporter.PrepareOneResource(resultBytes, resultPath);
+        return mapKind == "city" ? FirstLiveResultImporter.PrepareOneCity(resultBytes, resultPath) : FirstLiveResultImporter.PrepareOneResource(resultBytes, resultPath);
     }
 
     public object CreateStatus()
@@ -429,6 +441,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         bool reading;
         string currentPhase;
         string currentScanMode;
+        string currentMapKind;
         string? error;
         long capturedAt;
         int? ordinal;
@@ -439,6 +452,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             reading = isReading;
             currentPhase = phase;
             currentScanMode = scanMode;
+            currentMapKind = selectedMapKind;
             error = lastError;
             capturedAt = lastCapturedAt;
             ordinal = acquisitionOrdinal;
@@ -449,11 +463,11 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         return new
         {
             serverId = server,
-            serverIdSource = server.HasValue ? "current_live_resource_probe" : "none",
+            serverIdSource = server.HasValue ? (currentMapKind == "city" ? "current_live_city_probe" : "current_live_resource_probe") : "none",
             scanRunId = runId,
             isReading = reading,
             phase = currentPhase,
-            selectedTypes = new[] { "resource" },
+            selectedTypes = new[] { currentMapKind },
             totalBlocks = (int?)null,
             readBlocks = (int?)null,
             unreadBlocks = (int?)null,
@@ -505,7 +519,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         catch (ObjectDisposedException) { }
     }
 
-    private async Task<LiveResourceHelperRun> RunHelperAsync(string requestId)
+    private async Task<LiveResourceHelperRun> RunHelperAsync(string requestId, string mapKind)
     {
         if (!File.Exists(helperPath))
             throw new FileNotFoundException("Live resource helper was not deployed with LWBridge.Desktop.", helperPath);
@@ -530,6 +544,8 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
         // IMPLEMENTATION POLICY: outer launch/acquisition bound; the in-game
         // response itself has its separately documented eight-second bound.
         start.ArgumentList.Add("120");
+        start.ArgumentList.Add("--map-kind");
+        start.ArgumentList.Add(mapKind);
         if (gameRoot is not null)
         {
             start.ArgumentList.Add("--game-root");
@@ -620,6 +636,8 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
                     requestValue.ValueKind != JsonValueKind.String ||
                     requestValue.GetString() != requestId)
                     throw new InvalidDataException("Live resource helper response requestId did not match the app request.");
+                if (!root.TryGetProperty("mapKind", out JsonElement helperMapKind) || helperMapKind.ValueKind != JsonValueKind.String || helperMapKind.GetString() != mapKind)
+                    throw new InvalidDataException("Live helper response mapKind did not match the app request.");
                 if (!root.TryGetProperty("probeVersion", out JsonElement helperProbeVersion) ||
                     helperProbeVersion.ValueKind != JsonValueKind.String ||
                     helperProbeVersion.GetString() != ExpectedProbeVersion)

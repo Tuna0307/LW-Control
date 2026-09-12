@@ -8,9 +8,20 @@ The existing repo-root `Start Overview Verification.cmd` remains the bounded nor
 
 No PM17 real-game/owner run was performed. Do not promote the earlier Launch/message/Close, startup/reconnect or repair successes to this corrected build. If the normal Overview regression is later dispatched, the owner performs only the existing simple UI actions while Web captures and interprets the technical evidence automatically.
 
-### Player City packet - ACTIVE IMPLEMENTATION / NOT YET OWNER-TESTABLE
+### Player City packet — TECHNICAL LIVE PATH PROVEN / READY FOR PM REVIEW
 
-No Player City live package or success is claimed yet. Web is tracing and fixing the first missing link in fresh city acquisition -> persistence -> normal Search/display -> newer acquisition -> same-profile reopen. This packet will be updated when an exact tested city build exists.
+`LWB-PC-001` completed two city-only current-client acquisitions on server 2212 with distinct request/session/PID identities and strictly newer `capturedAt`; both results came from `WorldPointManager._pointInfos`, normalized the real runtime `BuildPointInfo` row into `kind=city`, persisted it in the active profile, returned it through normal `map_search`, restored the official Lua package exactly and left no game/helper/recovery owner behind. `LWB-PC-002` then launched a fresh proof process, reopened that same profile/store through `saved_profile_index`, and normal `map_search` returned the saved city again. Shared evidence is identity-redacted and records immutable result SHA-256 values.
+
+Evidence: `evidence/lwbridge-implementation/2026-09-13-player-city-live-proof.json` and `2026-09-13-player-city-reopen-proof.json`. The successful live runs used the ordinary `StartViewRequest+UpdateViewRequest(true)` route; the recovered same-server `PlayerWorldPointId + SendViewRequest(...current LOD...)` fallback remains IMPLEMENTED/OFFLINE-TESTED only.
+
+**Owner action now: none.** Return this package to PM first. After PM approval, the only intended owner check is visible normal-page confirmation of the already-saved Player City row in the exact tested build; no fresh scan or game action is required from the owner.
+
+Prepared owner package: repo-root `Start Owner Player City Check.cmd` launches `tools/collect_owner_player_city_evidence.py`, which preflights the active profile/store and refuses active LWBridge/Last War or pending recovery ownership. LWBridge starts with `--owner-evidence ... --view map-data`; owner-evidence mode suppresses startup auto-launch and blocks state-changing commands.
+
+City evidence records only safe query context plus server/record/point/coordinates/level/update time. Keyword/alliance filters and player/alliance identity are not written to shared City evidence. The render observer reads only City coordinates/level/updated time. Collector `--self-test` and `--preflight-only` pass without app/game launch; the repo-root shortcut `--self-test` exits 0 without app/game launch.
+
+Package identity after final Release build: EXE SHA-256 `c20cd9c663c074041b6d339b4d33dab9dd63eb071784b87840635e5e1d690c68`; managed DLL `be9eeb9d3b4636dc79298e78bd99e83b6d72189c08074fb09a647821a1a59b8f`; City collector `d15bfd30fd243ec4c198ba241e1ccf337481e4c42b092db58bb1c8c08d990b49`; shortcut `1b5eb52dbe9d49387e1d977f7c41c19b0f2d045f8cda48af8ead72c0070f6174`. Sanitized shared proofs hash to `d98a1b65a5cb926d796eba29f4271a1ad627a152a08e684d59ced2bb13a63394` (`LWB-PC-001`) and `bb735643c07d4febae73bd372dcc2be221967ff1c52bc436d002581ec6a1673e` (`LWB-PC-002`). Latest city `--check-only` preserved official package SHA-256 `09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace`; candidate SHA-256 is `835bdbf3401fea1f30eb1ecac1a79d97aac8a72218713d617f9e9268d3f2676d` and probe source SHA-256 `e77529a22045c60da4015659b5741838580cb79860418f0a52d57125f5e0713a`.
+
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

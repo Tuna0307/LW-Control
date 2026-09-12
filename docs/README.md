@@ -1,12 +1,12 @@
 # LWBridge documentation index
 
-## Current owner priority — Player City active, 2026-09-13
+## Current owner priority - Player City PM return, 2026-09-13
 
-**PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
+**PM17 correction delivery remains complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS. The corrected-build Overview live regression remains prepared but NOT RUN.
 
-**Active assignment: Map Data, Player City first.** Work one end-to-end path: fresh real city acquisition -> correct profile/server persistence -> normal Search/display -> a distinct newer acquisition/result -> same-profile reopen. Reuse existing recovered contracts and current-client evidence, fix the first broken link, and capture source/session/store/query/render evidence automatically.
+**Player City technical core is LIVE-PROVEN.** [`LWB-PC-001`](../evidence/lwbridge-implementation/2026-09-13-player-city-live-proof.json) records two distinct fresh city-only current-client acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact restoration and clean ownership. [`LWB-PC-002`](../evidence/lwbridge-implementation/2026-09-13-player-city-reopen-proof.json) separately reopens the same profile/store and returns the saved city through normal `map_search`.
 
-**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Do not expand those areas unless a minimal evidence-backed dependency is directly required by Player City, and do not claim the whole Overview or Map Data feature complete.
+**Next gate: PM review, then owner-visible normal-page confirmation only.** The tested read-only package is `Start Owner Player City Check.cmd` + `tools/collect_owner_player_city_evidence.py`; it suppresses startup game auto-launch, blocks state-changing commands and records sanitized City Search/render correlation. No fresh owner scan is requested. S03/S06 remain deferred and S02 remains unfinished/unassigned.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -20,7 +20,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. `LWB-PM17-001/002` implement/offline-test the review-17 root/lifecycle corrections; corrected-build live Overview regression remains unperformed. Finish exact Git/CI delivery verification, then begin Player City directly under the owner priority. Daybreak is unassigned.
+**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. Return the Player City technical/live proof plus read-only owner package to PM; after approval, request only the visible saved-row check. Daybreak is unassigned.
 
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 

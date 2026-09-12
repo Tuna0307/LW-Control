@@ -17,7 +17,8 @@
 - [x] PM17-01 / LWB-PM17-002: abandoned launch identity releases only after helper/process/journal ownership clears; failed A -> B -> Launch works without app restart.
 - [x] PM17 delivered at `f24fef3`; local/origin/remote match and CI `34711920482` succeeded on the exact revision. Corrected-build normal-path live regression remains prepared but unperformed.
 - [x] Owner authorizes direct Map Data continuation after the two verified fixes; no further permission gate.
-- [ ] **ACTIVE — Player City:** fresh real acquisition -> normal Search/display -> newer result -> same-profile reopen, with automatic evidence.
+- [x] **Player City technical core / LWB-PC-001/002:** two fresh real city-only acquisitions -> normal persisted Search/summary -> strictly newer second result -> fresh-process same-profile reopen/search; exact restoration and cleanup proven.
+- [ ] **NEXT — PM review, then owner-visible Player City row:** confirm the already-saved city renders in the normal Map Data page of the exact tested build. No fresh owner scan is requested.
 - [ ] PENDING/DEFERRED: S03 complete runtime Refresh Status; S06 actual cross-server travel. S02 remains unfinished/unassigned.
 
 ### Preserved delivered OVL milestone

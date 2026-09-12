@@ -15,6 +15,10 @@ local active_request_id = nil
 local active_launch_session_id = nil
 local active_profile_id = nil
 local active_game_pid = nil
+local active_map_kind = nil
+local city_targeted_requested = false
+local city_target_point_id = nil
+local city_target_lod = nil
 local request_started_at = nil
 local response_started_at = nil
 local transition_requested = false
@@ -318,6 +322,7 @@ local function write_heartbeat(now)
         launchSessionId = active_launch_session_id,
         profileId = active_profile_id,
         gamePid = active_game_pid,
+        mapKind = active_map_kind,
         acquisitionOrdinal = acquisition_ordinal,
     })
 end
@@ -339,12 +344,14 @@ local function fail_request(now, message, world, point_manager)
         launchSessionId = active_launch_session_id,
         profileId = active_profile_id,
         gamePid = active_game_pid,
+        mapKind = active_map_kind,
         acquisitionOrdinal = acquisition_ordinal,
         state = "failed",
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", now),
         error = tostring(message or "live_resource_failed"),
     })
-    active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil
+    active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil; active_map_kind = nil
+    city_targeted_requested = false; city_target_point_id = nil; city_target_lod = nil
     phase = "idle"; response_started_at = nil
 end
 
@@ -417,6 +424,61 @@ local function resource_record(world, point_manager)
     return candidates[selected_index], nil, #candidates, expected, selected_index
 end
 
+local function city_record(world, point_manager)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = tonumber(safe_get(collection, "Count") or safe_get(collection, "Length"))
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "loaded point count is outside bounded limit" end
+    local values = safe_get(collection, "Values")
+    local enumerable = values ~= nil and values or collection
+    local candidates = {}
+    local scanned = each(enumerable, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex" })
+        if id == nil or id <= 0 then return true end
+        local tile = index_to_tile(world, id)
+        if tile == nil then return true end
+        local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+        if server_id == nil or server_id <= 0 then return true end
+        -- Current build-1078 _pointInfos is List<PointInfo>. Player bases are
+        -- BuildPointInfo runtime objects, whose city fields are direct members.
+        local owner_uid = scalar_field(info, { "ownerUid", "OwnerUid" })
+        local owner_name = scalar_field(info, { "playerName", "PlayerName" })
+        if owner_uid == nil or tostring(owner_uid) == "" or tostring(owner_uid) == "0" or
+           owner_name == nil or tostring(owner_name) == "" then return true end
+        local uuid = scalar_field(info, { "uuid", "Uuid" })
+        local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
+        local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
+        candidates[#candidates + 1] = {
+            id = id,
+            pointId = id,
+            pointType = 6,
+            kind = "player_base",
+            runtimeClass = reflected_type_name(info),
+            serverId = math.floor(server_id),
+            srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
+            worldId = integer_field(info, { "worldId", "WorldId" }) or 0,
+            x = tile.x,
+            y = tile.y,
+            uuid = uuid ~= nil and tostring(uuid) or nil,
+            ownerUid = tostring(owner_uid),
+            ownerName = tostring(owner_name),
+            allianceId = alliance_id ~= nil and tostring(alliance_id) or nil,
+            allianceName = alliance_name ~= nil and tostring(alliance_name) or nil,
+            level = scalar_field(info, { "level", "Level" }),
+            health = scalar_field(info, { "curHp", "CurHp" }),
+            protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
+            source = "WorldPointManager._pointInfos",
+        }
+        return true
+    end)
+    if scanned ~= expected then return nil, "loaded point enumeration did not match _pointInfos.Count" end
+    if #candidates == 0 then return nil, "no Player City point is loaded after the fresh view response" end
+    local selected_index = ((acquisition_ordinal - 1) % #candidates) + 1
+    return candidates[selected_index], nil, #candidates, expected, selected_index
+end
+
 local function read_command()
     local file = io.open(command_path, "rb")
     if file == nil then return nil end
@@ -431,11 +493,13 @@ local function read_command()
     local launch_session_id = tostring(values.launchSessionId or "")
     local profile_id = tostring(values.profileId or "")
     local game_pid = tonumber(values.gamePid)
+    local map_kind = tostring(values.mapKind or "")
     local valid_token = function(value)
         return #value > 0 and #value <= 128 and string.match(value, "^[%w_-]+$") ~= nil
     end
     if values.schema ~= "1" or not valid_token(request_id) or
        not valid_token(launch_session_id) or not valid_token(profile_id) or
+       (map_kind ~= "resource" and map_kind ~= "city") or
        game_pid == nil or game_pid <= 0 or game_pid ~= math.floor(game_pid) then
         return false, "invalid_command"
     end
@@ -444,6 +508,7 @@ local function read_command()
         launchSessionId = launch_session_id,
         profileId = profile_id,
         gamePid = game_pid,
+        mapKind = map_kind,
     }, nil
 end
 
@@ -471,6 +536,45 @@ local function begin_refresh(world, point_manager)
     return true, nil
 end
 
+local function begin_targeted_city_refresh(world, point_manager)
+    local cs = rawget(_G, "CS")
+    local entry = rawget(_G, "GameEntry")
+    if entry == nil and cs ~= nil then entry = safe_get(cs, "GameEntry") end
+    local data = entry and safe_get(entry, "Data") or nil
+    local player = data and safe_get(data, "Player") or nil
+    if player == nil then return false, "current player unavailable for city-targeted view request" end
+    local point_id = integer_field(player, { "PlayerWorldPointId" })
+    if point_id == nil or point_id <= 0 then return false, "PlayerWorldPointId unavailable for city-targeted view request" end
+    local tile = index_to_tile(world, point_id)
+    if tile == nil then return false, "PlayerWorldPointId could not be converted to a world tile" end
+    local server_id = current_server_id()
+    if server_id == nil or server_id <= 0 then return false, "current server unavailable for city-targeted view request" end
+    local lod = integer_field(point_manager, { "LOD" })
+    if lod == nil or lod < 0 then return false, "current WorldPointManager.LOD unavailable for city-targeted view request" end
+    local vector_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+    if vector_type == nil then return false, "UnityEngine.Vector2Int unavailable for city-targeted view request" end
+    local ok_vector, tile_pos = pcall(function() return vector_type(tile.x, tile.y) end)
+    if not ok_vector or tile_pos == nil then return false, "could not construct current city target tile" end
+    if not reflected_set_value(point_manager, "isRecvViewPoints", false) then
+        return false, "city-targeted isRecvViewPoints reset failed"
+    end
+    if not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
+        restore_flags(world, point_manager)
+        return false, "city-targeted hasReceiveViewPointsReply reset failed"
+    end
+    local sent = select(1, call(point_manager, "SendViewRequest", tile_pos, math.floor(lod), math.floor(server_id)))
+    if not sent then
+        restore_flags(world, point_manager)
+        return false, "SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId) failed"
+    end
+    city_targeted_requested = true
+    city_target_point_id = math.floor(point_id)
+    city_target_lod = math.floor(lod)
+    response_started_at = runtime_clock()
+    phase = "waiting_city_target_response"
+    return true, nil
+end
+
 function M.Pump()
     local now = tonumber(os.time()) or 0
     if active_request_id == nil then
@@ -485,9 +589,13 @@ function M.Pump()
             active_launch_session_id = command.launchSessionId
             active_profile_id = command.profileId
             active_game_pid = command.gamePid
+            active_map_kind = command.mapKind
             request_started_at = runtime_clock()
             acquisition_ordinal = acquisition_ordinal + 1
             transition_requested = false
+            city_targeted_requested = false
+            city_target_point_id = nil
+            city_target_lod = nil
             phase = "waiting_world"
         end
         write_heartbeat(now)
@@ -515,14 +623,33 @@ function M.Pump()
         if not started then fail_request(now, start_error, world, point_manager) end
         write_heartbeat(now); return true
     end
-    if phase == "waiting_response" then
+    if phase == "waiting_response" or phase == "waiting_city_target_response" then
         local manager_received = manager_response_flag(point_manager)
         local world_received = world_response_flag(world)
         if manager_received == true and world_received == true then
-            local point, point_error, resource_count, loaded_count, selected_index = resource_record(world, point_manager)
+            local response_phase = phase
+            local point, point_error, matched_count, loaded_count, selected_index
+            if active_map_kind == "city" then
+                point, point_error, matched_count, loaded_count, selected_index = city_record(world, point_manager)
+            else
+                point, point_error, matched_count, loaded_count, selected_index = resource_record(world, point_manager)
+            end
+            if point == nil and active_map_kind == "city" and response_phase == "waiting_response" and not city_targeted_requested then
+                local targeted, target_error = begin_targeted_city_refresh(world, point_manager)
+                if targeted then write_heartbeat(now); return true end
+                restore_flags(world, point_manager)
+                fail_request(now, tostring(point_error) .. "; targeted city request unavailable: " .. tostring(target_error), world, point_manager)
+                write_heartbeat(now); return true
+            end
             local restored = restore_flags(world, point_manager)
             if point == nil then fail_request(now, point_error, world, point_manager); write_heartbeat(now); return true end
             if not restored then fail_request(now, "response flags did not restore", world, point_manager); write_heartbeat(now); return true end
+            local route = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)"
+            local response_evidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true"
+            if city_targeted_requested then
+                route = route .. "+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)"
+                response_evidence = response_evidence .. ";targetedSameServerView=false->true"
+            end
             write_json(result_path, {
                 schemaVersion = 1,
                 probeVersion = M.VERSION,
@@ -530,21 +657,29 @@ function M.Pump()
                 launchSessionId = active_launch_session_id,
                 profileId = active_profile_id,
                 gamePid = active_game_pid,
+                mapKind = active_map_kind,
                 acquisitionOrdinal = acquisition_ordinal,
                 state = "proven",
                 capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", now),
-                requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
-                responseEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+                requestRoute = route,
+                responseEvidence = response_evidence,
                 source = "WorldPointManager._pointInfos",
                 loadedPointCount = loaded_count,
-                resourcePointCount = resource_count,
-                selectedResourceIndex = selected_index,
+                resourcePointCount = active_map_kind == "resource" and matched_count or nil,
+                cityPointCount = active_map_kind == "city" and matched_count or nil,
+                selectedResourceIndex = active_map_kind == "resource" and selected_index or nil,
+                selectedCityIndex = active_map_kind == "city" and selected_index or nil,
+                cityTargetedView = active_map_kind == "city" and city_targeted_requested or nil,
+                cityTargetPointId = active_map_kind == "city" and city_target_point_id or nil,
+                cityTargetLod = active_map_kind == "city" and city_target_lod or nil,
                 point_records = { point },
             })
-            active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil
+            active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil; active_map_kind = nil
+            city_targeted_requested = false; city_target_point_id = nil; city_target_lod = nil
             phase = "idle"; response_started_at = nil
         elseif response_started_at ~= nil and runtime_clock() - response_started_at >= RESPONSE_TIMEOUT_SECONDS then
-            fail_request(now, "fresh view response timeout", world, point_manager)
+            local timeout_label = phase == "waiting_city_target_response" and "fresh targeted city view response timeout" or "fresh view response timeout"
+            fail_request(now, timeout_label, world, point_manager)
         end
         write_heartbeat(now); return true
     end

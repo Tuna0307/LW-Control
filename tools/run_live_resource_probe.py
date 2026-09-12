@@ -663,6 +663,7 @@ def write_command(
     launch_session_id: str,
     profile_id: str,
     game_pid: int,
+    map_kind: str,
 ) -> None:
     p["runtime"].mkdir(parents=True, exist_ok=True)
     command = p["runtime"] / "command.txt"
@@ -670,6 +671,7 @@ def write_command(
     request_id = _require_command_token(request_id, "requestId")
     launch_session_id = _require_command_token(launch_session_id, "launchSessionId")
     profile_id = _require_command_token(profile_id, "profileId")
+    if map_kind not in {"resource", "city"}: raise LiveResourceError("mapKind must be resource or city")
     if not isinstance(game_pid, int) or game_pid <= 0:
         raise LiveResourceError("gamePid must be a positive process identifier")
     temp.write_text(
@@ -677,7 +679,8 @@ def write_command(
         f"requestId={request_id}\n"
         f"launchSessionId={launch_session_id}\n"
         f"profileId={profile_id}\n"
-        f"gamePid={game_pid}\n",
+        f"gamePid={game_pid}\n"
+        f"mapKind={map_kind}\n",
         encoding="utf-8",
     )
     os.replace(temp, command)
@@ -696,7 +699,7 @@ def persist_request_result(p: dict[str, Path], request_id: str, result_bytes: by
 
 
 def await_result(
-    p: dict[str, Path], request_id: str, timeout_seconds: int
+    p: dict[str, Path], request_id: str, timeout_seconds: int, map_kind: str
 ) -> tuple[dict[str, object], Path]:
     result_path = p["runtime"] / "result.json"
     deadline = time.monotonic() + timeout_seconds
@@ -709,6 +712,7 @@ def await_result(
         except (OSError, json.JSONDecodeError):
             value = None
         if value is not None and value.get("requestId") == request_id:
+            if value.get("mapKind") != map_kind: raise LiveResourceError("live-resource result mapKind did not match owned request")
             state = value.get("state")
             if state == "proven":
                 immutable_path = persist_request_result(p, request_id, result_bytes)
@@ -724,6 +728,7 @@ def run(
     timeout_seconds: int,
     game_root: str | Path | None = None,
     profile_id: str | None = None,
+    map_kind: str = "resource",
 ) -> dict[str, object]:
     p = paths(game_root)
     p["runtime"].mkdir(parents=True, exist_ok=True)
@@ -731,11 +736,12 @@ def run(
         "schemaVersion": 1,
         "requestId": request_id,
         "profileId": profile_id,
+        "mapKind": map_kind,
         "helperPid": os.getpid(),
         "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     with OperationLease(p["runtime"], owner):
-        return run_owned(p, request_id, timeout_seconds, profile_id)
+        return run_owned(p, request_id, timeout_seconds, profile_id, map_kind)
 
 
 def run_owned(
@@ -743,12 +749,14 @@ def run_owned(
     request_id: str,
     timeout_seconds: int,
     profile_id: str | None,
+    map_kind: str,
 ) -> dict[str, object]:
     interrupted_recovery = recover_pending(p)
     # PM12-C: process-name + heartbeat reuse is insufficient session identity.
     # A fresh run only begins when the selected installation has no game process.
     require_no_selected_game_process(p)
     profile_id = _require_command_token(profile_id, "profileId")
+    if map_kind not in {"resource", "city"}: raise LiveResourceError("mapKind must be resource or city")
     launch_session_id = uuid.uuid4().hex
 
     current = verify_current(p)
@@ -757,6 +765,7 @@ def run_owned(
     candidate_root = Path(tempfile.mkdtemp(prefix="lwbridge-live-resource-"))
     recovery_armed = True
     candidate_info: dict[str, object] | None = None
+    owned_game: dict[str, object] | None = None
     try:
         candidate_info = make_candidate(p, candidate_root)
         install_candidate(
@@ -773,9 +782,9 @@ def run_owned(
         launcher_process = subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
         deadline = launch_started + timeout_seconds
         owned_game = await_owned_game_process(p, deadline)
-        write_command(p, request_id, launch_session_id, profile_id, int(owned_game["pid"]))
+        write_command(p, request_id, launch_session_id, profile_id, int(owned_game["pid"]), map_kind)
         remaining = max(1, int(deadline - time.monotonic()))
-        result, immutable_result_path = await_result(p, request_id, remaining)
+        result, immutable_result_path = await_result(p, request_id, remaining, map_kind)
 
         update_recovery_stage(p, recovery_state, "restoring_while_running")
         try:
@@ -808,6 +817,7 @@ def run_owned(
             "mode": "install_launch_restore",
             "requestId": request_id,
             "profileId": profile_id,
+            "mapKind": map_kind,
             "launchSessionId": launch_session_id,
             "gamePid": owned_game["pid"],
             "gamePath": owned_game["path"],
@@ -815,6 +825,7 @@ def run_owned(
             "launcherPid": launcher_process.pid,
             "probeVersion": PROBE_VERSION,
             "resultPath": str(immutable_result_path),
+            "resultSha256": sha256_file(immutable_result_path),
             "result": result,
             "currentClient": current,
             "candidate": candidate_info,
@@ -825,15 +836,32 @@ def run_owned(
         }
     except Exception as run_error:
         if recovery_armed:
+            update_recovery_stage(p, recovery_state, "restoring_after_failure")
             try:
-                update_recovery_stage(p, recovery_state, "restoring_after_failure")
                 restore_backup(p, backup)
-                clear_recovery(p, recovery_state)
-                recovery_armed = False
-            except Exception as restore_error:
-                raise LiveResourceError(
-                    f"live-resource run failed: {run_error}; restore also failed: {restore_error}"
-                ) from run_error
+            except Exception as first_restore_error:
+                if owned_game is None:
+                    raise LiveResourceError(
+                        f"live-resource run failed: {run_error}; restore also failed before game ownership: {first_restore_error}"
+                    ) from run_error
+                update_recovery_stage(p, recovery_state, "closing_owned_game_after_failure_for_restore")
+                try:
+                    close_owned_game_process_for_restore(p, owned_game)
+                except Exception as close_error:
+                    raise LiveResourceError(
+                        "live-resource run failed and exact restoration required closing the helper-owned game, "
+                        f"but exact-PID normal close failed: {close_error}; original run error: {run_error}"
+                    ) from run_error
+                update_recovery_stage(p, recovery_state, "restoring_after_failure_owned_game_close")
+                try:
+                    restore_backup(p, backup)
+                except Exception as retry_restore_error:
+                    raise LiveResourceError(
+                        "live-resource run failed; restoration failed while the helper-owned game was open and "
+                        f"also after exact-PID normal close: {retry_restore_error}; original run error: {run_error}"
+                    ) from run_error
+            clear_recovery(p, recovery_state)
+            recovery_armed = False
         raise
     finally:
         shutil.rmtree(candidate_root, ignore_errors=True)
@@ -845,6 +873,7 @@ def main() -> int:
     parser.add_argument("--timeout-seconds", type=int, default=120)
     parser.add_argument("--game-root")
     parser.add_argument("--profile-id")
+    parser.add_argument("--map-kind", choices=("resource", "city"), default="resource")
     parser.add_argument(
         "--check-only",
         action="store_true",
@@ -875,6 +904,7 @@ def main() -> int:
             args.timeout_seconds,
             args.game_root,
             args.profile_id,
+            args.map_kind,
         )
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc), "errorType": type(exc).__name__}))

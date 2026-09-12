@@ -173,7 +173,7 @@ internal sealed class LWBridgeWindow : Form
                 backend.GetBootstrap(
                     capturePath is not null && firstLiveResult is null,
                     documentSession.Id,
-                    suppressAutoLaunch: liveProbePath is not null || hostProbePath is not null || firstLiveResult is not null),
+                    suppressAutoLaunch: liveProbePath is not null || hostProbePath is not null || firstLiveResult is not null || ownerEvidence is not null),
                 JsonOptions.Default);
             await core.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.__LWBridgeBootstrap=" + bootstrapJson + ";" +
@@ -1473,13 +1473,63 @@ internal sealed class LWBridgeWindow : Form
     private void BeginOwnerEvidenceRenderCapture(string requestId, JsonElement payload, object? result)
     {
         if (ownerEvidence is null || webView.CoreWebView2 is null) return;
+        bool resourceSearch = OwnerEvidenceResourceContract.IsResourceSearch(payload);
+        bool citySearch = OwnerEvidenceResourceContract.IsCitySearch(payload);
+        if (!resourceSearch && !citySearch) return;
         JsonElement resultElement = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
-        if (!OwnerEvidenceResourceContract.IsResourceSearch(payload)) return;
 
         ownerEvidenceRenderCapture?.Cancel();
         ownerEvidenceRenderCapture?.Dispose();
         ownerEvidenceRenderCapture = new CancellationTokenSource();
-        _ = CaptureOwnerEvidenceRenderAsync(requestId, payload.Clone(), resultElement.Clone(), ownerEvidenceRenderCapture.Token);
+        if (citySearch)
+            _ = CaptureOwnerEvidenceCityRenderAsync(requestId, payload.Clone(), resultElement.Clone(), ownerEvidenceRenderCapture.Token);
+        else
+            _ = CaptureOwnerEvidenceRenderAsync(requestId, payload.Clone(), resultElement.Clone(), ownerEvidenceRenderCapture.Token);
+    }
+
+    private async Task CaptureOwnerEvidenceCityRenderAsync(
+        string requestId, JsonElement payload, JsonElement result, CancellationToken cancellationToken)
+    {
+        if (ownerEvidence is null || webView.CoreWebView2 is not { } core) return;
+        OwnerEvidenceCityTableSnapshot? lastSnapshot = null;
+        string? expectedUpdatedText = null;
+        OwnerEvidenceResourceTarget? target = OwnerEvidenceResourceContract.TryGetFirstTarget(result);
+        bool resultIsEmpty = OwnerEvidenceResourceContract.IsEmptyResult(result);
+        object sanitizedResult = OwnerEvidenceResourceContract.SanitizeCitySearchResult(result);
+        try
+        {
+            if (target is not null)
+            {
+                string renderedTimeJson = await core.ExecuteScriptAsync(
+                    $"new Date({target.UpdatedAt.ToString(System.Globalization.CultureInfo.InvariantCulture)}).toLocaleString(document.documentElement.lang || undefined)");
+                expectedUpdatedText = JsonSerializer.Deserialize<string?>(renderedTimeJson);
+            }
+
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    ownerEvidence.RecordCityRender(requestId, payload, sanitizedResult, lastSnapshot, false, "superseded-by-new-city-search", target, expectedUpdatedText);
+                    return;
+                }
+                string snapshotJson = await core.ExecuteScriptAsync(OwnerEvidenceResourceContract.CityTableSnapshotScript);
+                if (snapshotJson != "null")
+                {
+                    lastSnapshot = JsonSerializer.Deserialize<OwnerEvidenceCityTableSnapshot>(snapshotJson, JsonOptions.Default);
+                    if (lastSnapshot is not null && OwnerEvidenceResourceContract.IsCityCorrelated(target, resultIsEmpty, lastSnapshot, expectedUpdatedText))
+                    {
+                        ownerEvidence.RecordCityRender(requestId, payload, sanitizedResult, lastSnapshot, true, null, target, expectedUpdatedText);
+                        return;
+                    }
+                }
+                await Task.Delay(100, CancellationToken.None);
+            }
+            ownerEvidence.RecordCityRender(requestId, payload, sanitizedResult, lastSnapshot, false, "city-render-not-correlated-within-passive-observation-bound", target, expectedUpdatedText);
+        }
+        catch (Exception ex)
+        {
+            ownerEvidence.Record("city-render-capture-error", new { requestId, error = ex.GetType().Name, ex.Message });
+        }
     }
 
     private async Task CaptureOwnerEvidenceRenderAsync(
@@ -1624,6 +1674,8 @@ internal sealed class LWBridgeWindow : Form
                     RecordNormalUiProofSearch(id, payload, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
                     ownerEvidence.RecordSearch(id, payload, execution.Result);
+                if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsCitySearch(payload))
+                    ownerEvidence.RecordCitySearch(id, payload, execution.Result);
                 SendResult(session, id, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null)
                     BeginOwnerEvidenceRenderCapture(id, payload, execution.Result);

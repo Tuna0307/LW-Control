@@ -198,6 +198,42 @@ internal static class FirstLiveResultImporter
         return new FirstLivePreparedResource(import, record);
     }
 
+    internal static FirstLivePreparedResource PrepareOneCity(ReadOnlyMemory<byte> diagnosticsBytes, string sourcePath)
+    {
+        if (diagnosticsBytes.IsEmpty) throw new InvalidDataException("First-live city diagnostics bytes are empty.");
+        string normalizedSourcePath = Path.GetFullPath(sourcePath);
+        string captureSha256 = Convert.ToHexString(SHA256.HashData(diagnosticsBytes.Span)).ToLowerInvariant();
+        using JsonDocument document = JsonDocument.Parse(diagnosticsBytes);
+        JsonElement root = document.RootElement;
+        if (!root.TryGetProperty("capturedAt", out JsonElement capturedAtValue) || capturedAtValue.ValueKind != JsonValueKind.String ||
+            !DateTimeOffset.TryParse(capturedAtValue.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out DateTimeOffset capturedAt))
+            throw new InvalidDataException("First-live city diagnostics are missing a valid capturedAt timestamp.");
+        if (!root.TryGetProperty("point_records", out JsonElement records) || records.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("First-live city diagnostics are missing point_records.");
+        JsonElement? selected = null;
+        foreach (JsonElement candidate in records.EnumerateArray())
+            if (candidate.ValueKind == JsonValueKind.Object && candidate.TryGetProperty("kind", out JsonElement kind) && kind.ValueKind == JsonValueKind.String && kind.GetString() == "player_base") { selected = candidate.Clone(); break; }
+        if (!selected.HasValue) throw new InvalidDataException("First-live city diagnostics contain no player_base point.");
+        JsonElement point=selected.Value;
+        int serverId=RequirePositiveInt32(point,"serverId"), pointIndex=RequirePositiveInt32(point,"pointId");
+        int x=RequirePositiveInt32(point,"x"), y=RequirePositiveInt32(point,"y");
+        if (serverId>99999) throw new InvalidDataException("First-live city serverId is outside the public Map Data range.");
+        string ownerUid=ReadNonEmptyString(point,"ownerUid") ?? throw new InvalidDataException("First-live city is missing ownerUid.");
+        string ownerName=ReadNonEmptyString(point,"ownerName") ?? throw new InvalidDataException("First-live city is missing ownerName.");
+        string recordKey=pointIndex.ToString(CultureInfo.InvariantCulture); long updatedAt=capturedAt.ToUnixTimeMilliseconds();
+        JsonObject normalized=JsonNode.Parse(point.GetRawText())?.AsObject() ?? throw new InvalidDataException("Selected city point could not be normalized.");
+        normalized["sourceKind"]="player_base"; normalized["kind"]="city"; normalized["recordKey"]=recordKey;
+        normalized["pointIndex"]=pointIndex; normalized["ownerUid"]=ownerUid; normalized["ownerName"]=ownerName; normalized["updatedAt"]=updatedAt;
+        string dataJson=normalized.ToJsonString(JsonOptions.Default);
+        int? level=TryReadInt(point,"level",out int parsedLevel)?parsedLevel:null;
+        string? uuid=ReadNonEmptyString(point,"uuid"), allianceName=ReadNonEmptyString(point,"allianceName");
+        long? shieldEnd=TryReadLong(point,"protectEndTime",out long protectEnd)?protectEnd:null;
+        MapStoredRecord record=new("city",serverId,recordKey,pointIndex,uuid,ownerName,allianceName,level,null,null,null,shieldEnd,updatedAt,dataJson);
+        FirstLiveResultImport import=new(serverId,recordKey,pointIndex,x,y,level,updatedAt,captureSha256,normalizedSourcePath,
+            ReadNonEmptyString(root,"probeVersion"),ReadNonEmptyString(root,"sourceCaptureSha256"),dataJson);
+        return new FirstLivePreparedResource(import,record);
+    }
+
     private static int RequirePositiveInt32(JsonElement value, string propertyName)
     {
         if (!TryReadPositiveInt(value, propertyName, out int result))
@@ -217,6 +253,12 @@ internal static class FirstLiveResultImporter
         return value.TryGetProperty(propertyName, out JsonElement property) &&
                property.ValueKind == JsonValueKind.Number &&
                property.TryGetInt32(out result);
+    }
+
+    private static bool TryReadLong(JsonElement value, string propertyName, out long result)
+    {
+        result = 0;
+        return value.TryGetProperty(propertyName, out JsonElement property) && property.ValueKind == JsonValueKind.Number && property.TryGetInt64(out result);
     }
 
     private static bool TryReadBool(JsonElement value, string propertyName, out bool result)

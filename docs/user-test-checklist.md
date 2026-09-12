@@ -1,31 +1,23 @@
-# Owner guide ? Overview Launch, bridge message and Close
+# Owner guide - Player City visible-row check
 
-**Owner update, 2026-09-13:** no new manual test is requested now. PM17 is delivered and Web is actively working on Player City Map Data; exact UI-only instructions with automatic evidence will be prepared when a city build is ready. The Overview steps below are historical accepted runs, not an instruction to repeat them now.
+**Do not run this yet.** PM must approve the Player City package first. When PM explicitly dispatches this check, the owner only opens the prepared shortcut, confirms the already-saved Player City row is visible, sends one screenshot, and closes LWBridge normally.
 
-Updated 2026-09-11. **OWNER ACCEPTED (`LWB-OVL-003`).** The owner completed the normal Overview Launch -> in-game message -> Close sequence, supplied a screenshot showing **LWbridge is running** near the top centre, and reported ?yup all working?. This file now preserves the tested sequence; do not ask for another run unless a future change specifically requires regression testing.
+This check is deliberately read-only. It does **not** start Last War, run a scan, travel cross-server, clear data, export, jump coordinates, or modify the saved map row. Technical capture is automatic.
 
 ## Before you start
 
-Close Last War and LWBridge if either is already open. In the `LW-Control` folder, double-click **Start Overview Verification.cmd**. Do **not** use `Start Owner Resource Check.cmd`; that is the old read-only resource recorder.
+1. Make sure **Last War** and **LWBridge** are closed.
+2. Open the `LW-Control` folder.
+3. Double-click **Start Owner Player City Check.cmd**.
+4. Wait for the message titled **LWBridge Player City check**. If it says preparation is blocked or failed, stop and send ChatGPT a screenshot of that message. Do not retry.
 
-The tested package behind this shortcut is the Release build from implementation commit `dc82bc9bebd9e1b56c56621edd18e905a7e3ee23`. The shortcut self-test, Release build, deterministic checks and GitHub Actions run `34603661402` all pass.
+## What to do after the ready message
 
-## What to do
+1. LWBridge opens directly on **Map Data**. Do not press **Start Scan / Start Reading**.
+2. Click the **City / Player City** tab if it is not already selected.
+3. Click **Search** once.
+4. Confirm that a saved city row is visible. The row should visibly include coordinates, a level, and an updated time. Player/alliance text may also be visible on your screen, but the automatic shared evidence does not record those identity fields.
+5. Take **one screenshot** showing the normal Map Data page and the visible city row, then send it to ChatGPT.
+6. Close LWBridge normally with the window close button. Do not open Last War and do not run the shortcut again unless PM later asks for a separate retest.
 
-1. Wait for LWBridge to open on **Overview / ??**.
-2. Click **Launch Game / ????** **once**.
-3. Wait for Last War to open. Allow up to about **2 minutes** for the launch/bridge handshake. Do not click Launch repeatedly.
-4. In the game, look near the **top centre** for the exact text **LWbridge is running**.
-5. Take a screenshot showing the game and that text, then send it to ChatGPT.
-6. Return to LWBridge and click **Close Game / ????** **once**.
-7. Wait for Last War to close and for Overview to return to its stopped/offline state. Tell ChatGPT that it closed; a second screenshot of the stopped Overview is helpful but not required.
-
-If the game does not open, the text does not appear after the wait, LWBridge shows an error, or Close Game does not close the game, **stop there** and send a screenshot plus what you saw. Do not retry the sequence unless ChatGPT asks after reading the automatic evidence.
-
-## What ChatGPT records automatically
-
-The normal app and deployed helper write one session-correlated evidence bundle containing build identity, current-client identity, game PID/session/challenge correlation, game-side readiness/message evidence, Close/exit result, exact script restoration, and cleanup state. You do not need to run commands, find logs, inspect JSON/databases, or compare hashes.
-
-Use this simple report: **I reached step __. I clicked __. I saw __. Here is the screenshot.**
-
-Owner acceptance is complete for this milestone. Work now stops until **the owner explicitly chooses the next feature**; Resource/Monster work does not resume automatically.
+If the City tab is empty, Search shows an error, LWBridge opens the game, the row disappears, or anything looks different from these steps, stop immediately and send a screenshot plus a short description of what you saw. Do not press other Map Data buttons to troubleshoot.

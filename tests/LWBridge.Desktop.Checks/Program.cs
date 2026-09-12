@@ -74,8 +74,33 @@ string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int 
 
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument("--request-id", required=True)
+        parser.add_argument("--map-kind", choices=["resource", "city"], default="resource")
         args, _ = parser.parse_known_args()
         time.sleep({{delayMilliseconds}} / 1000.0)
+        point = {
+            "kind": "player_base",
+            "pointType": 6,
+            "serverId": 2212,
+            "pointId": {{pointId}},
+            "x": 481,
+            "y": 32,
+            "uuid": "fake-city-{{pointId}}",
+            "ownerUid": "fake-owner-{{pointId}}",
+            "ownerName": "Fake City {{pointId}}",
+            "allianceId": "fake-alliance",
+            "allianceName": "FAKE",
+            "level": 30,
+            "protectEndTime": 1893456000,
+            "source": "WorldPointManager._pointInfos"
+        } if args.map_kind == "city" else {
+            "kind": "resource_point",
+            "serverId": 2212,
+            "pointId": {{pointId}},
+            "x": 481,
+            "y": 32,
+            "level": 3,
+            "source": "WorldPointManager._pointInfos"
+        }
         result = {
             "schemaVersion": 1,
             "probeVersion": "lwbridge-live-resource-probe-2",
@@ -85,15 +110,8 @@ string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int 
             "source": "WorldPointManager._pointInfos",
             "capturedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "acquisitionOrdinal": 1,
-            "point_records": [{
-                "kind": "resource_point",
-                "serverId": 2212,
-                "pointId": {{pointId}},
-                "x": 481,
-                "y": 32,
-                "level": 3,
-                "source": "WorldPointManager._pointInfos"
-            }]
+            "mapKind": args.map_kind,
+            "point_records": [point]
         }
         with open({{resultLiteral}}, "w", encoding="utf-8") as stream:
             json.dump(result, stream)
@@ -101,6 +119,7 @@ string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int 
             "ok": True,
             "probeVersion": "lwbridge-live-resource-probe-2",
             "requestId": args.request_id,
+            "mapKind": args.map_kind,
             "resultPath": {{resultLiteral}}
         }))
         """);
@@ -1716,9 +1735,10 @@ try
         await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "production launch gate remains closed after a replay import", async () =>
             await productionMapBackend.InvokeAsync("profile_instance_start", productionProfile.RootElement.Clone(), CancellationToken.None));
 
+        string boundedCityHelper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-city", 0, 2000);
         var boundedLiveService = new LiveResourceProbeCommandService(
             productionMapStore,
-            Path.Combine(firstLiveReplayRoot, "helper-must-not-run.py"));
+            boundedCityHelper);
         using (JsonDocument boundedStatus = JsonDocument.Parse(JsonSerializer.Serialize(boundedLiveService.CreateStatus(), JsonOptions.Default)))
         {
             JsonElement root = boundedStatus.RootElement;
@@ -1740,11 +1760,89 @@ try
             Check(boundedStatusJson.RootElement.GetProperty("xluaOnline").ValueKind == JsonValueKind.False,
                 "bounded direct resource probe never promotes its heartbeat to original bridge online state");
         }
-        await ExpectBridgeError("LIVE_RESOURCE_TYPES_UNSUPPORTED", "bounded live route rejects unsupported scan kinds before helper launch", async () =>
+        object? boundedCityStatus = await boundedLiveBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = boundedLiveBackend.ProfileId,
+            selectedTypes = new[] { "city" },
+            scanMode = "normal",
+        })).RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument boundedCityStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(boundedCityStatus, JsonOptions.Default)))
+        {
+            JsonElement selectedTypes = boundedCityStatusJson.RootElement.GetProperty("selectedTypes");
+            Check(selectedTypes.GetArrayLength() == 1 && selectedTypes[0].GetString() == "city" &&
+                  boundedCityStatusJson.RootElement.GetProperty("serverId").GetInt32() == 2212,
+                "bounded live route accepts Player City alone and reports the acquired server context");
+        }
+        Check(productionMapStore.CountRecords("city", 2212) == 1,
+            "bounded live Player City acquisition persists exactly one source-backed city row");
+        using JsonDocument boundedCitySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = boundedLiveBackend.ProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City", page = 1, pageSize = 10 },
+        }));
+        object? boundedCitySearchResult = await boundedLiveBackend.InvokeAsync(
+            "map_search", boundedCitySearch.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument boundedCitySearchJson = JsonDocument.Parse(JsonSerializer.Serialize(boundedCitySearchResult, JsonOptions.Default)))
+        {
+            JsonElement rows = boundedCitySearchJson.RootElement.GetProperty("rows");
+            Check(boundedCitySearchJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+                  rows.GetArrayLength() == 1 &&
+                  rows[0].GetProperty("ownerName").GetString() == "Fake City 2000" &&
+                  rows[0].GetProperty("allianceName").GetString() == "FAKE" &&
+                  rows[0].GetProperty("level").GetInt32() == 30,
+                "fresh Player City acquisition is immediately visible through normal persisted map_search");
+        }
+        string targetedCityRoutePath = Path.Combine(firstLiveReplayRoot, "targeted-city-route.json");
+        string targetedCityRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)";
+        File.WriteAllText(targetedCityRoutePath, JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = "targeted-city-request",
+            mapKind = "city",
+            state = "proven",
+            requestRoute = targetedCityRoute,
+            source = "WorldPointManager._pointInfos",
+            capturedAt = DateTimeOffset.UtcNow,
+            acquisitionOrdinal = 2,
+            point_records = new[]
+            {
+                new
+                {
+                    kind = "player_base",
+                    pointType = 6,
+                    serverId = 2212,
+                    pointId = 2010,
+                    x = 482,
+                    y = 33,
+                    uuid = "targeted-city-2010",
+                    ownerUid = "targeted-owner-2010",
+                    ownerName = "Targeted City 2010",
+                    allianceName = "TGT",
+                    level = 31,
+                    source = "WorldPointManager._pointInfos",
+                },
+            },
+        }, JsonOptions.Default));
+        FirstLivePreparedResource targetedCityPrepared = LiveResourceProbeCommandService.PrepareCorrelatedResult(
+            targetedCityRoutePath, "targeted-city-request", out int? targetedCityOrdinal,
+            expectedServerId: 2212, nowUtc: DateTimeOffset.UtcNow.AddSeconds(1), mapKind: "city");
+        Check(targetedCityOrdinal == 2 && targetedCityPrepared.Record.Kind == "city" && targetedCityPrepared.Record.RecordKey == "2010",
+            "bounded Player City correlation accepts the recovered same-server PlayerWorldPointId targeted view route");
+        string wrongTargetedCityRoutePath = Path.Combine(firstLiveReplayRoot, "wrong-targeted-city-route.json");
+        File.WriteAllText(wrongTargetedCityRoutePath,
+            File.ReadAllText(targetedCityRoutePath).Replace(targetedCityRoute.Replace("+", "\\u002B", StringComparison.Ordinal), (targetedCityRoute + "+unknown").Replace("+", "\\u002B", StringComparison.Ordinal), StringComparison.Ordinal));
+        ExpectInvalidData("supported recovered request route", "bounded Player City correlation rejects any unrecognized targeted route", () =>
+            LiveResourceProbeCommandService.PrepareCorrelatedResult(
+                wrongTargetedCityRoutePath, "targeted-city-request", out _,
+                expectedServerId: 2212, nowUtc: DateTimeOffset.UtcNow.AddSeconds(1), mapKind: "city"));
+
+        await ExpectBridgeError("LIVE_RESOURCE_TYPES_UNSUPPORTED", "bounded live route still rejects mixed map kinds before helper launch", async () =>
             await boundedLiveBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
             {
                 profileId = boundedLiveBackend.ProfileId,
-                selectedTypes = new[] { "city" },
+                selectedTypes = new[] { "city", "resource" },
                 scanMode = "normal",
             })).RootElement.Clone(), CancellationToken.None));
 
@@ -2069,6 +2167,76 @@ try
 
     Check(OwnerEvidenceResourceContract.IsResourceSearch(proofSearchPayload),
         "owner evidence recognizes normal Resource Search without triggering it");
+    JsonElement ownerCityPayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "owner-city-profile",
+        kind = "city",
+        query = new { serverId = 2212, keyword = "PRIVATE QUERY", alliance = "PRIVATE FILTER", page = 1, pageSize = 50 },
+    }, JsonOptions.Default);
+    JsonElement ownerCityResult = JsonSerializer.SerializeToElement(new
+    {
+        rows = new[]
+        {
+            new
+            {
+                serverId = 2212, recordKey = "40496", pointIndex = 40496, x = 495, y = 40, level = 27, updatedAt = 1789250251000L,
+                ownerName = "PRIVATE PLAYER", ownerUid = "PRIVATE UID", uuid = "PRIVATE UUID",
+                allianceName = "PRIVATE ALLIANCE", allianceId = "PRIVATE ALLIANCE ID",
+            },
+        },
+        total = 1,
+    }, JsonOptions.Default);
+    Check(OwnerEvidenceResourceContract.IsCitySearch(ownerCityPayload) &&
+          !OwnerEvidenceResourceContract.IsResourceSearch(ownerCityPayload),
+        "owner evidence recognizes normal Player City Search separately from Resource Search");
+    string sanitizedOwnerCityJson = JsonSerializer.Serialize(
+        OwnerEvidenceResourceContract.SanitizeCitySearchResult(ownerCityResult), JsonOptions.Default);
+    string sanitizedOwnerCityPayloadJson = JsonSerializer.Serialize(
+        OwnerEvidenceResourceContract.SanitizeCitySearchPayload(ownerCityPayload), JsonOptions.Default);
+    Check(!sanitizedOwnerCityPayloadJson.Contains("PRIVATE QUERY", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityPayloadJson.Contains("PRIVATE FILTER", StringComparison.Ordinal) &&
+          sanitizedOwnerCityPayloadJson.Contains("2212", StringComparison.Ordinal),
+        "owner Player City Search payload evidence removes keyword/alliance identity-bearing filters");
+    Check(sanitizedOwnerCityJson.Contains("40496", StringComparison.Ordinal) &&
+          sanitizedOwnerCityJson.Contains("495", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE UID", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE UUID", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE ALLIANCE", StringComparison.Ordinal),
+        "owner Player City Search evidence removes player/alliance identity while retaining row correlation fields");
+    OwnerEvidenceResourceTarget? ownerCityTarget = OwnerEvidenceResourceContract.TryGetFirstTarget(ownerCityResult);
+    var ownerCitySnapshot = new OwnerEvidenceCityTableSnapshot(false,
+        new[] { new OwnerEvidenceCityTableRow(false, "495,40", "27", "9/13/2026, 5:57:31 AM") });
+    Check(OwnerEvidenceResourceContract.IsCityCorrelated(ownerCityTarget, false, ownerCitySnapshot, "9/13/2026, 5:57:31 AM") &&
+          !OwnerEvidenceResourceContract.IsCityCorrelated(ownerCityTarget, false, ownerCitySnapshot, "9/13/2026, 5:57:30 AM"),
+        "owner Player City render evidence requires exact coordinates, level and rendered update time");
+    Check(OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains(".map-table--city", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("cells[2]", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("cells[3]", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("ownerName", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("allianceName", StringComparison.Ordinal),
+        "owner Player City DOM snapshot deliberately excludes player/alliance identity cells");
+    string syntheticUserProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    string sharedCityProofInput = JsonSerializer.Serialize(new
+    {
+        profileId = "local-0123456789abcdef",
+        ownerName = "PRIVATE PLAYER",
+        gamePath = Path.Combine(syntheticUserProfile, "AppData", "Local", "FunFly", "Last War-Survival Game", "Game", "LastWar.exe"),
+        mapDatabase = Path.Combine(syntheticUserProfile, "AppData", "Local", "LWBridgeRebuild", "profiles", "local-0123456789abcdef", "map-data.db"),
+    }, JsonOptions.Default);
+    string sharedCityProof = LiveResourceProofRunner.SanitizeCityProofJsonForSharedEvidence(sharedCityProofInput);
+    using JsonDocument sharedCityProofDocument = JsonDocument.Parse(sharedCityProof);
+    JsonElement sharedCityProofRoot = sharedCityProofDocument.RootElement;
+    string? sharedCityProfile = sharedCityProofRoot.GetProperty("profileId").GetString();
+    string? sharedCityGamePath = sharedCityProofRoot.GetProperty("gamePath").GetString();
+    string? sharedCityMapPath = sharedCityProofRoot.GetProperty("mapDatabase").GetString();
+    Check(!sharedCityProof.Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+          !sharedCityProof.Contains("local-0123456789abcdef", StringComparison.Ordinal) &&
+          sharedCityProfile == "<active-profile>" &&
+          sharedCityGamePath is not null && sharedCityGamePath.StartsWith("%USERPROFILE%", StringComparison.Ordinal) &&
+          sharedCityMapPath is not null && sharedCityMapPath.StartsWith("%USERPROFILE%", StringComparison.Ordinal) &&
+          sharedCityMapPath.Contains("profiles\\<active-profile>\\map-data.db", StringComparison.Ordinal),
+        "shared Player City proof removes player identity, local profile id and Windows user path");
     Check(OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_scan_start") &&
           OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_scan_clear") &&
           OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_treasure_claim") &&
@@ -2102,6 +2270,10 @@ try
                   new[] { new NormalUiResourceProofTableRow(true, new[] { "No saved data of this type." }) }), null),
         "owner evidence cannot treat a malformed nonempty Search result as an empty result");
 
+    string ownerWindowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+    Check(ownerWindowSource.Contains("firstLiveResult is not null || ownerEvidence is not null", StringComparison.Ordinal),
+        "owner evidence mode suppresses startup auto-launch before the normal page is shown");
+
     string ownerRecorderRoot = Path.Combine(Path.GetTempPath(), "lwbridge-owner-recorder-" + Guid.NewGuid().ToString("N"));
     try
     {
@@ -2112,20 +2284,106 @@ try
                 true, null, ownerTarget, proofRenderedTime);
             recorder.RecordCommandError("owner-summary-1", "map_summary", "MAP_SAVED_CONTEXT_UNAVAILABLE",
                 "No saved map server context.", new { serverIds = Array.Empty<int>() });
+            recorder.RecordCitySearch("owner-city-request-1", ownerCityPayload,
+                JsonSerializer.Deserialize<object>(ownerCityResult.GetRawText(), JsonOptions.Default));
+            recorder.RecordCityRender("owner-city-request-1", ownerCityPayload,
+                OwnerEvidenceResourceContract.SanitizeCitySearchResult(ownerCityResult), ownerCitySnapshot,
+                true, null, ownerCityTarget, "9/13/2026, 5:57:31 AM");
         }
         string ownerJsonl = Directory.GetFiles(ownerRecorderRoot, "ui-session-*.jsonl").Single();
         string[] ownerLines = File.ReadAllLines(ownerJsonl);
-        Check(ownerLines.Length == 3 &&
+        Check(ownerLines.Length == 5 &&
               ownerLines[0].Contains("owner-request-1", StringComparison.Ordinal) &&
               ownerLines[1].Contains("owner-request-1", StringComparison.Ordinal) &&
               ownerLines[2].Contains("owner-summary-1", StringComparison.Ordinal) &&
-              ownerLines[2].Contains("MAP_SAVED_CONTEXT_UNAVAILABLE", StringComparison.Ordinal),
-            "owner evidence recorder durably appends Search/render identity and normal map-summary errors");
+              ownerLines[2].Contains("MAP_SAVED_CONTEXT_UNAVAILABLE", StringComparison.Ordinal) &&
+              ownerLines[3].Contains("city-search-response", StringComparison.Ordinal) &&
+              ownerLines[4].Contains("city-render-observation", StringComparison.Ordinal) &&
+              ownerLines[4].Contains("\"correlated\":true", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE UID", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE UUID", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE ALLIANCE", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE QUERY", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE FILTER", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE QUERY", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE FILTER", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE UID", StringComparison.Ordinal),
+            "owner evidence recorder preserves Resource evidence and appends identity-redacted Player City Search/render correlation");
     }
     finally
     {
         try { Directory.Delete(ownerRecorderRoot, recursive: true); } catch { }
     }
+
+    string cityPersistencePath = Path.Combine(firstLiveReplayRoot, "city-persistence.db");
+    foreach (string suffix in new[] { string.Empty, "-shm", "-wal" })
+        try { File.Delete(cityPersistencePath + suffix); } catch { }
+    var cityProfileConfig = new LocalConfigStore(persistent: false);
+    string persistedCityProfileId;
+    long firstPersistedCityUpdatedAt;
+    using (var firstCityStore = new MapDataStore(cityPersistencePath))
+    {
+        string firstCityHelper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-city-persist-1", 0, 2100);
+        var firstCityService = new LiveResourceProbeCommandService(firstCityStore, firstCityHelper);
+        var firstCityBackend = new LWBridgeBackend(cityProfileConfig, asyncCommands: firstCityService, mapData: firstCityStore);
+        persistedCityProfileId = firstCityBackend.ProfileId;
+        await firstCityBackend.InvokeAsync("map_scan_start", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            selectedTypes = new[] { "city" },
+            scanMode = "normal",
+        }), CancellationToken.None);
+        object? firstSearch = await firstCityBackend.InvokeAsync("map_search", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City 2100", page = 1, pageSize = 10 },
+        }), CancellationToken.None);
+        using JsonDocument firstSearchJson = JsonDocument.Parse(JsonSerializer.Serialize(firstSearch, JsonOptions.Default));
+        JsonElement firstRows = firstSearchJson.RootElement.GetProperty("rows");
+        firstPersistedCityUpdatedAt = firstRows[0].GetProperty("updatedAt").GetInt64();
+        Check(firstSearchJson.RootElement.GetProperty("total").GetInt32() == 1 && firstRows[0].GetProperty("ownerName").GetString() == "Fake City 2100",
+            "file-backed Player City acquisition is searchable before profile reopen");
+    }
+    await Task.Delay(1100);
+    using (var reopenedCityStore = new MapDataStore(cityPersistencePath))
+    {
+        string secondCityHelper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-city-persist-2", 0, 2101);
+        var secondCityService = new LiveResourceProbeCommandService(reopenedCityStore, secondCityHelper);
+        var reopenedCityBackend = new LWBridgeBackend(cityProfileConfig, asyncCommands: secondCityService, mapData: reopenedCityStore);
+        Check(reopenedCityBackend.ProfileId == persistedCityProfileId,
+            "same profile identity is preserved when reopening the file-backed Player City store");
+        object? reopenedSearch = await reopenedCityBackend.InvokeAsync("map_search", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City 2100", page = 1, pageSize = 10 },
+        }), CancellationToken.None);
+        using (JsonDocument reopenedSearchJson = JsonDocument.Parse(JsonSerializer.Serialize(reopenedSearch, JsonOptions.Default)))
+            Check(reopenedSearchJson.RootElement.GetProperty("total").GetInt32() == 1,
+                "same-profile reopen preserves the prior Player City through normal map_search");
+        await reopenedCityBackend.InvokeAsync("map_scan_start", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            selectedTypes = new[] { "city" },
+            scanMode = "normal",
+        }), CancellationToken.None);
+        object? newerSearch = await reopenedCityBackend.InvokeAsync("map_search", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City", page = 1, pageSize = 10 },
+        }), CancellationToken.None);
+        using JsonDocument newerSearchJson = JsonDocument.Parse(JsonSerializer.Serialize(newerSearch, JsonOptions.Default));
+        JsonElement newerRows = newerSearchJson.RootElement.GetProperty("rows");
+        JsonElement newerCity = newerRows.EnumerateArray().Single(row => row.GetProperty("ownerName").GetString() == "Fake City 2101");
+        Check(newerSearchJson.RootElement.GetProperty("total").GetInt32() == 2 && newerCity.GetProperty("updatedAt").GetInt64() > firstPersistedCityUpdatedAt,
+            "a distinct second Player City acquisition persists as a newer normal Search result after reopen");
+    }
+    foreach (string suffix in new[] { string.Empty, "-shm", "-wal" })
+        try { File.Delete(cityPersistencePath + suffix); } catch { }
 
     using JsonDocument lifecycleStartPayload = JsonDocument.Parse("""
         {"selectedTypes":["resource"],"scanMode":"normal"}
@@ -3913,6 +4171,18 @@ await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "valid recovered map search rea
     await backend.InvokeAsync("map_search", unavailableSearch.RootElement.Clone(), CancellationToken.None));
 
 // Generated adapter checks pin the recovered original implicit-profile/event rules.
+string liveProbeHelperSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "run_live_resource_probe.py"));
+Check(liveProbeHelperSource.Contains("closing_owned_game_after_failure_for_restore", StringComparison.Ordinal) &&
+      liveProbeHelperSource.Contains("restoring_after_failure_owned_game_close", StringComparison.Ordinal) &&
+      liveProbeHelperSource.Contains("close_owned_game_process_for_restore(p, owned_game)", StringComparison.Ordinal),
+    "live helper failure cleanup retains exact helper-owned PID normal-close restoration fallback");
+string liveCityProbeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+Check(liveCityProbeSource.Contains("PlayerWorldPointId", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("SendViewRequest", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("currentLOD,currentServerId", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("scalar_field(info, { \"playerName\", \"PlayerName\" })", StringComparison.Ordinal),
+    "Player City helper retains current-runtime BuildPointInfo fields and same-server targeted view fallback");
+
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),
     "generated API injects active profile when wrapper omits profileId");

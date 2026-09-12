@@ -1,14 +1,16 @@
-# Project-manager status — PM17 implementation return, 2026-09-13
+# Project-manager status — Player City technical return, 2026-09-13
 
-**PM17-02 and PM17-01 are delivered under `LWB-PM17-001/002` at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`.** The deterministic review-17 matrix and broader gates are green; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact revision. Player City is now the active Map Data assignment.
+**PM17-02/01 remain delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`.** The corrected-build Overview live regression remains prepared but unperformed; S03/S06 remain deferred and S02 remains unfinished/unassigned.
 
-The corrected-build normal Overview Launch -> exact in-game **LWbridge is running** -> Close/restoration regression is prepared through the existing tested entry point but has NOT been run. Historical live Overview evidence remains credited only to its recorded build/scope.
+**Player City technical core is ready for PM audit.** `LWB-PC-001` proves two fresh city-only current-client acquisitions on the active server with distinct owned request/session/PID identities, strictly newer capture time, real `BuildPointInfo` normalization, active-profile persistence, normal `map_search`/summary, exact official-package restoration and clean process/recovery state. `LWB-PC-002` then proves a fresh process reopens the same profile/store through `saved_profile_index` and normal `map_search` returns the saved city again.
 
-**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. The whole Overview page is not marked complete.
+The previously observed failed city attempt exposed a helper exception-path restoration gap; production now retries exact restoration after a normal close of only the helper-owned exact PID when restoration cannot proceed while that owned game is open. The successful final runs required no recovery fallback and ended clean.
 
-The active result is fresh real Player City acquisition -> normal Search/display -> a distinct later result -> same-profile reopen persistence, with automatic source/session/store/query/render evidence. No additional PM permission is required.
+Committed Player City evidence is identity-redacted and includes immutable result SHA-256 values. The successful runs used `StartViewRequest+UpdateViewRequest(true)`; the recovered same-server `PlayerWorldPointId + SendViewRequest(tile,current LOD,current server)` fallback is implemented/offline-tested but not live-proven.
 
-The historical reviews below preserve their original baselines and proof limits.
+**Owner action: none until PM review.** The remaining selected-path acceptance is visible normal-page rendering of the already-saved city row in the exact tested build. That future owner check does not require a fresh scan, cross-server travel, Resource Start, or technical work from the owner.
+
+The PM-return owner package is implemented and offline-tested: `Start Owner Player City Check.cmd` invokes the read-only City collector; startup game auto-launch is suppressed, state-changing commands are blocked before backend dispatch, City Search payload/results are sanitized, and DOM correlation reads only coordinates/level/updated time. Collector self-test, preflight-only and shortcut self-test pass without launching the game.
 
 ## Historical review 15 — deferred resource recorder work
 

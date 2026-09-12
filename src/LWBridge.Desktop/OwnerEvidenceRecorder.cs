@@ -12,6 +12,16 @@ internal sealed record OwnerEvidenceResourceTarget(
     int? Level,
     long UpdatedAt);
 
+internal sealed record OwnerEvidenceCityTableRow(
+    bool IsEmpty,
+    string Coordinate,
+    string Level,
+    string UpdatedAt);
+
+internal sealed record OwnerEvidenceCityTableSnapshot(
+    bool Busy,
+    IReadOnlyList<OwnerEvidenceCityTableRow> Rows);
+
 internal static class OwnerEvidenceResourceContract
 {
     private static readonly HashSet<string> BlockedOwnerCommands = new(StringComparer.Ordinal)
@@ -33,6 +43,82 @@ internal static class OwnerEvidenceResourceContract
     {
         try { return MapDataQueryContract.NormalizeSearch(payload).Kind == "resource"; }
         catch { return false; }
+    }
+
+    internal static bool IsCitySearch(JsonElement payload)
+    {
+        try { return MapDataQueryContract.NormalizeSearch(payload).Kind == "city"; }
+        catch { return false; }
+    }
+
+    internal static object SanitizeCitySearchPayload(JsonElement payload)
+    {
+        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
+        return new
+        {
+            kind = query.Kind,
+            query = new { serverId = query.ServerId, page = query.Page, pageSize = query.PageSize, sorts = query.Sorts }
+        };
+    }
+
+    // This City snapshot deliberately never reads the player/alliance cells.
+    internal const string CityTableSnapshotScript = """
+        (() => {
+          const table = document.querySelector('.map-table--city');
+          if (!table) return null;
+          return {
+            busy: table.getAttribute('aria-busy') === 'true',
+            rows: [...table.querySelectorAll('tbody tr')].map(row => {
+              const cells = [...row.querySelectorAll('td')];
+              return {
+                isEmpty: !!row.querySelector('td.map-empty'),
+                coordinate: (cells[1]?.querySelector('.map-coordinate-button span:not(.map-coordinate-icon)')?.textContent || cells[1]?.innerText || '').trim(),
+                level: (cells[4]?.innerText || '').trim(),
+                updatedAt: (cells[7]?.innerText || '').trim()
+              };
+            })
+          };
+        })()
+        """;
+
+    internal static bool IsCityCorrelated(
+        OwnerEvidenceResourceTarget? target,
+        bool resultIsEmpty,
+        OwnerEvidenceCityTableSnapshot snapshot,
+        string? expectedUpdatedText)
+    {
+        if (snapshot.Busy) return false;
+        if (target is null)
+            return resultIsEmpty && snapshot.Rows.Count > 0 && snapshot.Rows.All(row => row.IsEmpty);
+        if (string.IsNullOrWhiteSpace(expectedUpdatedText)) return false;
+        string coordinate = $"{target.X},{target.Y}";
+        string level = target.Level?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "-";
+        return snapshot.Rows.Any(row =>
+            !row.IsEmpty && row.Coordinate == coordinate && row.Level == level && row.UpdatedAt == expectedUpdatedText);
+    }
+
+    internal static object SanitizeCitySearchResult(object? result)
+    {
+        JsonElement root = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
+        if (root.ValueKind != JsonValueKind.Object ||
+            !root.TryGetProperty("rows", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
+            return new { rows = Array.Empty<object>(), total = 0 };
+        var sanitized = rows.EnumerateArray()
+            .Where(row => row.ValueKind == JsonValueKind.Object)
+            .Select(row => (object)new
+            {
+                serverId = Int32(row, "serverId"),
+                recordKey = String(row, "recordKey"),
+                pointIndex = Int32(row, "pointIndex"),
+                x = Int32(row, "x"),
+                y = Int32(row, "y"),
+                level = NullableInt32(row, "level") is int level && level != int.MinValue ? level : (int?)null,
+                updatedAt = Int64(row, "updatedAt"),
+            })
+            .ToArray();
+        int total = root.TryGetProperty("total", out JsonElement totalValue) && totalValue.TryGetInt32(out int parsedTotal)
+            ? parsedTotal : sanitized.Length;
+        return new { rows = sanitized, total };
     }
 
     internal static OwnerEvidenceResourceTarget? TryGetFirstTarget(JsonElement result)
@@ -118,6 +204,37 @@ internal sealed class OwnerEvidenceRecorder : IDisposable
         requestId,
         payload,
         result
+    });
+
+    public void RecordCitySearch(string requestId, JsonElement payload, object? result) => Write(new
+    {
+        timestampUtc = DateTimeOffset.UtcNow,
+        eventType = "city-search-response",
+        requestId,
+        payload = OwnerEvidenceResourceContract.SanitizeCitySearchPayload(payload),
+        result = OwnerEvidenceResourceContract.SanitizeCitySearchResult(result)
+    });
+
+    public void RecordCityRender(
+        string requestId,
+        JsonElement payload,
+        object sanitizedResult,
+        OwnerEvidenceCityTableSnapshot? snapshot,
+        bool correlated,
+        string? reason,
+        OwnerEvidenceResourceTarget? target,
+        string? expectedUpdatedText) => Write(new
+    {
+        timestampUtc = DateTimeOffset.UtcNow,
+        eventType = "city-render-observation",
+        requestId,
+        correlated,
+        reason,
+        target,
+        expectedUpdatedText,
+        snapshot,
+        payload = OwnerEvidenceResourceContract.SanitizeCitySearchPayload(payload),
+        result = sanitizedResult
     });
 
     public void RecordCommandError(string requestId, string command, string code, string message, object? details) => Write(new

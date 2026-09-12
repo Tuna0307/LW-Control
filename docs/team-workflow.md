@@ -1,23 +1,21 @@
-# Team workflow — Player City active
+# Team workflow - Player City PM return
 
-PM17 is delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS on the exact revision. The active assignment is now Player City Map Data. S03/S06 remain deferred; corrected-build Overview live regression remains prepared but unperformed. No separate Sol or Daybreak assignment.
+Player City is the active Map Data delivery. PM17 remains delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS. S03/S06 remain deferred; S02 remains unfinished/unassigned; the corrected-build Overview live regression remains prepared but unperformed.
 
-## Main prompt for Web
+## Current PM return
 
-```text
-Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control on research/offline-controller. Read AGENTS.md, docs/map-data-delivery.md, docs/reviews/2026-09-13-review-17-pm16-return.md, task.md and BACKLOG.md. Inspect actual HEAD/worktree and preserve completed work.
+`LWB-PC-001` LIVE-PROVES the technical core on the current client: two fresh city-only acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact Lua-package restoration, and clean owned-process/recovery shutdown. `LWB-PC-002` LIVE-PROVES a separate fresh-process same-profile reopen/search of the saved city. Shared evidence is identity-redacted and preserves immutable raw-result hashes.
 
-PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS on the exact revision. Keep the corrected-build normal Overview regression packet and its unperformed live proof explicit; do not redo the correction work.
+The remaining selected-path gate is the **owner-visible normal Map Data row**. Do not ask the owner to perform it until PM approves this package. The prepared check is read-only: no scan, game launch, cross-server travel, Resource action, export, or store mutation.
 
-Then continue directly to Map Data, Player City first, without waiting for another PM audit or asking permission to begin. Work until fresh real city acquisition -> normal Search/display -> a newer result -> same-profile reopen works with correlated automatic evidence. Reuse valid findings, recover direct missing contracts and fix the first broken link. Passing builds or saved/fixture rows do not establish fresh live success.
-
-Defer complete Refresh Status (S03) and cross-server travel (S06); they are not priorities or prerequisites for starting Map Data. S02 remains unfinished and unassigned. Do not claim the whole Overview page is complete. Preserve all restrictions and cleanup/ownership rules.
-
-Continue through coherent checkpoints; commit/push/verify each. Prepare automatic technical capture and clear UI-only instructions when owner observation is needed. Do not ask the owner for commands, logs, hashes or technical diagnosis. Stay on Player City until it works; no unrelated research or parallel category expansion.
-```
-
-## Repeatable continuation prompt
+## Prompt to send PM now
 
 ```text
-Resume the saved checkpoint using AGENTS.md and docs/map-data-delivery.md. PM17 is delivered; continue the next unresolved step of the real Player City Map Data workflow directly. Keep S03/S06 deferred, preserve evidence/restrictions, automate technical capture, and commit/push/verify coherent progress. Do not replace a failed city step with unrelated research or another category.
+Audit the Player City return on research/offline-controller. Read AGENTS.md, task.md, BACKLOG.md, docs/map-data-delivery.md, docs/live-test-handoff.md, docs/user-test-checklist.md, docs/lwbridge-feature-ledger.md and the two LWB-PC evidence files.
+
+Verify that LWB-PC-001 supports two distinct fresh city-only current-client acquisitions with authoritative source/request identities, strictly newer second capture, active-profile persistence, normal map_search/summary, exact restoration and clean ownership; verify LWB-PC-002 independently reopens the same profile/store and returns the saved city through normal map_search.
+
+Audit the new read-only owner package: Start Owner Player City Check.cmd, tools/collect_owner_player_city_evidence.py and --owner-evidence instrumentation. Confirm startup auto-launch is suppressed, state-changing commands are blocked, City Search evidence is sanitized, and render correlation reads only coordinates/level/updated time rather than player/alliance identity.
+
+If accepted, dispatch only the owner-visible normal-page check in docs/user-test-checklist.md. Do not request a fresh scan or game action. Keep S03/S06 deferred, S02 unfinished, corrected-build Overview regression unperformed, and all non-Player-City Map Data work out of this checkpoint.
 ```
