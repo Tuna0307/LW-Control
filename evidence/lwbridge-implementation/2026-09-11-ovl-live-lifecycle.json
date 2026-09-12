@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-OVL-002",
+  "stage": "READY_FOR_OWNER_VISIBLE_VERIFICATION",
+  "generatedDate": "2026-09-11",
+  "scope": "Overview Launch -> same-session injected bridge readiness -> in-game LWbridge is running -> exact owned Close -> deferred exact restoration",
+  "implementationCommit": "dc82bc9bebd9e1b56c56621edd18e905a7e3ee23",
+  "implementationCommitMessage": "Complete Overview launch and close lifecycle",
+  "delivery": {
+    "branch": "research/offline-controller",
+    "localRemoteMatched": true,
+    "githubActions": {
+      "workflow": "C# build and checks",
+      "runId": 34603661402,
+      "headSha": "dc82bc9bebd9e1b56c56621edd18e905a7e3ee23",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "testedBuild": {
+    "exe": {
+      "sha256": "0435223634a7804a442c5f499db80fb2df6552075263ee738b03cc848accb473",
+      "size": 163328
+    },
+    "dll": {
+      "sha256": "ecb43f8084a145f8839185c7b6b7f0398b1bb1481df222c62d087f533958e872",
+      "size": 481280
+    },
+    "overviewHelper": {
+      "sha256": "959915b725e2d450cb45b82d84bfe9010366773b63ba487084502a3cdc37cbaf",
+      "size": 24094,
+      "deployedMatchesSource": true
+    },
+    "overviewLua": {
+      "sha256": "a51b9d118e309638fcd6c6483bdd13ba6b55e2479bf02f7985ccf7e44df79ac2",
+      "size": 13961,
+      "deployedMatchesSource": true,
+      "utf8Bom": false
+    },
+    "entryPoint": {
+      "path": "Start Overview Verification.cmd",
+      "sha256": "bd1a4ccc4058c343dd24c38b4db2972c3a31a8aec956b010ad36d2f9b74169cb",
+      "size": 630,
+      "selfTest": "PASS"
+    }
+  },
+  "currentClient": {
+    "build": "1.0.361 / 1078",
+    "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "packageSize": 41269242,
+    "packageCrc32": 3541420783,
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
+  },
+  "liveCycles": [
+    {
+      "sessionId": "d44f8532eec0486ab0235d5f039089bc",
+      "gamePid": 1920,
+      "source": "source-tree helper after BOM/lazy-registration repair",
+      "startExit": 0,
+      "ready": true,
+      "messageVisible": true,
+      "messageText": "LWbridge is running",
+      "registrationMethod": "UpdateManager.AddUpdate",
+      "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
+      "closeMethod": "Process.CloseMainWindow",
+      "closeAccepted": true,
+      "processExited": true,
+      "restored": true,
+      "gameRunningAfter": false,
+      "recoveryExistsAfter": false,
+      "scratchEvidenceSha256": "baf6131b0ed1cc51c20744f850b5debae1e02bc589e6decd8cfb067c32845a0c"
+    },
+    {
+      "sessionId": "40969ed730be495888b835ec28238c1a",
+      "gamePid": 32004,
+      "source": "deployed Release helper",
+      "startExit": 0,
+      "ready": true,
+      "messageVisible": true,
+      "messageText": "LWbridge is running",
+      "registrationMethod": "UpdateManager.AddUpdate",
+      "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
+      "closeMethod": "Process.CloseMainWindow",
+      "closeAccepted": true,
+      "processExited": true,
+      "restored": true,
+      "gameRunningAfter": false,
+      "recoveryExistsAfter": false,
+      "automaticBundle": {
+        "attemptSummarySha256": "9ced038360c676fcbf4bf6c389b1e725cc18466a26a5d6de79b4ae60c89fef6d",
+        "helperStartSha256": "f604c70d1773efbb61735812669e2ba6a659486aad3893193785b996e79fc5ab",
+        "helperStopSha256": "428735d7dc5ac4c64a6b879b6a4a9fd37904989968d5a3fdb26a82a1b5ae7e80",
+        "status": "COMPLETE"
+      }
+    }
+  ],
+  "freshSessionIsolation": {
+    "distinctSessionIds": true,
+    "distinctGamePids": true,
+    "stalePriorSuccessReused": false
+  },
+  "deferredRestorationPolicy": {
+    "reason": "Windows locks the active LWScripts.data package while LastWar is running.",
+    "duringReadySession": "candidate remains installed with exact originals and ownership in recovery journal",
+    "onClose": "validate profile/session/PID/path journal -> exact-PID normal close -> restore exact originals -> verify hashes -> clear journal",
+    "abnormalExit": "ownership remains recovering until stop/recovery restores the journaled originals; not reported clean merely because the process disappeared"
+  },
+  "validation": {
+    "releaseBuild": "PASS, 0 warnings / 0 errors",
+    "deterministicDesktopSuite": "PASS",
+    "isolatedDeferredRestoreRegression": "PASS",
+    "entryPointSelfTest": "PASS",
+    "githubActions": "PASS"
+  },
+  "automaticOwnerEvidence": {
+    "helper": "writes per-session helper-start.json, helper-stop.json and COMPLETE attempt-summary.json",
+    "normalDesktop": "writes host start/stop build and session correlation into the same per-session evidence directory when the owner uses normal Overview",
+    "ownerResponsibility": "visible UI observation/screenshots only; no logs, commands, hashes or database work"
+  },
+  "limits": [
+    "The original protected launch-proof/ticket and final hello.ack grammar remain unrecovered; this is an explicit independent rebuild policy.",
+    "The two successful live cycles exercised the deployed helper lifecycle directly; the normal Overview UI command wiring is deterministic-tested but still needs the owner-visible normal-window verification.",
+    "A game-side readiness record proves the in-game renderer reported visible; the owner screenshot is still required to confirm actual placement/appearance in the normal game view.",
+    "No Resource or Monster operation was started. Existing operation-specific restrictions remain unchanged."
+  ],
+  "next": "Owner runs the verified normal Overview entry point once, clicks Launch Game, confirms/sends screenshot of LWbridge is running top-centre, clicks Close Game, confirms game closes. Web reads the automatic same-session evidence and records owner acceptance; then wait for owner-selected next feature."
+}

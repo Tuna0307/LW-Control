@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "type": "lwbridge-map-index-static-recovery",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recovered": {
+    "databaseFilename": "map-data.db",
+    "connectionPragmas": [
+      "journal_mode=WAL",
+      "synchronous=NORMAL",
+      "foreign_keys=ON",
+      "busy_timeout=5000"
+    ],
+    "tables": [
+      "metadata",
+      "map_records",
+      "scan_runs",
+      "scan_blocks",
+      "scan_records",
+      "player_marks",
+      "app_settings",
+      "treasure_claim_states",
+      "dispatch_plunder_jobs",
+      "truck_plunder_jobs",
+      "truck_plunder_history",
+      "dispatch_assist_jobs"
+    ],
+    "mapRecordPrimaryKey": ["kind", "server_id", "record_key"],
+    "scanRecordPrimaryKey": ["run_id", "kind", "server_id", "record_key"],
+    "playerMarkPrimaryKey": ["server_id", "owner_uid"],
+    "clearServerSql": [
+      "DELETE FROM scan_runs WHERE server_id=?1",
+      "DELETE FROM map_records WHERE server_id=?1"
+    ],
+    "clearPreservesPlayerMarks": true,
+    "completedDirectScanPublish": [
+      "DELETE FROM scan_runs WHERE server_id=?1 AND id<>?2",
+      "DELETE FROM map_records WHERE kind=?1 AND server_id=?2",
+      "INSERT INTO map_records(...) SELECT ... FROM scan_records WHERE run_id=?1 AND kind=?2 AND server_id=?3"
+    ],
+    "completionFailureMarkers": [
+      "INCOMPLETE_SCAN",
+      "direct map scan contains failed batches",
+      "direct map scan is incomplete"
+    ],
+    "playerMarkSql": {
+      "lookup": "SELECT state,marked_at,checked_at,player_json FROM player_marks WHERE server_id=?1 AND owner_uid=?2",
+      "delete": "DELETE FROM player_marks WHERE server_id=?1 AND owner_uid=?2",
+      "upsertConflictKey": ["server_id", "owner_uid"],
+      "cityJoin": "mark.server_id=page.server_id AND mark.owner_uid=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)"
+    },
+    "frontendPlayerMark": {
+      "command": "map_player_mark_set",
+      "payload": ["row", "marked"],
+      "rowRequiresOwnerUidForButton": true,
+      "refreshEvent": "bridge://player-mark-changed",
+      "eventPayloadUsedByPanel": false
+    },
+    "mapSearchFragments": {
+      "keywordColumns": ["name", "alliance_name", "uuid", "data_json"],
+      "keywordCaseInsensitive": true,
+      "stableTieBreaker": "record_key ASC",
+      "playerMarksJoinedForCity": true
+    }
+  },
+  "implementedOffline": [
+    "recovered SQLite schema and indexes",
+    "explicit-key map record upsert/read/count",
+    "recovered player mark upsert/read/delete identity",
+    "recovered server-scoped clear preserving marks",
+    "backend map_player_mark_set mark/unmark",
+    "backend map_scan_clear with selected-server post-clear status",
+    "bridge://player-mark-changed refresh event",
+    "isolated restart and large-ID deterministic tests"
+  ],
+  "unknownBlocked": [
+    "per-kind derivation of record_key from native payloads",
+    "complete per-kind normalized schemas and optionality",
+    "complete map_search SQL for every filter and sort",
+    "player tracker live active/missing/replaced transition algorithm",
+    "original numeric map schema version"
+  ],
+  "liveGameSideEffectsPerformed": false
+}

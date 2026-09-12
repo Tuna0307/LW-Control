@@ -1,0 +1,65 @@
+{
+  "scope": "isolated dummy files only; no game/process operations",
+  "findingId": "LWB-PM12-001",
+  "installFailureCases": [
+    {
+      "failureAtInstallCopy": 1,
+      "error": "injected install failure 1",
+      "filesRestored": true,
+      "pendingRecovery": false
+    },
+    {
+      "failureAtInstallCopy": 2,
+      "error": "injected install failure 2",
+      "filesRestored": true,
+      "pendingRecovery": false
+    },
+    {
+      "failureAtInstallCopy": 3,
+      "error": "injected install failure 3",
+      "filesRestored": true,
+      "pendingRecovery": false
+    }
+  ],
+  "restoreFailureCases": [
+    {
+      "failureAtRestoreCopy": 1,
+      "error": "injected restore failure 1",
+      "pendingStatePreserved": true,
+      "recoveredOnNextAttempt": true,
+      "pendingRecoveryAfterRetry": false
+    },
+    {
+      "failureAtRestoreCopy": 2,
+      "error": "injected restore failure 2",
+      "pendingStatePreserved": true,
+      "recoveredOnNextAttempt": true,
+      "pendingRecoveryAfterRetry": false
+    },
+    {
+      "failureAtRestoreCopy": 3,
+      "error": "injected restore failure 3",
+      "pendingStatePreserved": true,
+      "recoveredOnNextAttempt": true,
+      "pendingRecoveryAfterRetry": false
+    }
+  ],
+  "interruptedRecovery": {
+    "candidateWasInstalled": true,
+    "recovered": true,
+    "pendingRecoveryAfterRecovery": false
+  },
+  "sharedLease": {
+    "childAcquiredLease": true,
+    "crossProcessOverlapRejected": true,
+    "childExitCode": 0,
+    "leaseReusableAfterRelease": true
+  },
+  "dualError": {
+    "message": "live-resource run failed: primary failure; restore also failed: cleanup failure",
+    "preservesPrimary": true,
+    "preservesCleanup": true,
+    "pendingRecoveryPreserved": true
+  },
+  "ok": true
+}

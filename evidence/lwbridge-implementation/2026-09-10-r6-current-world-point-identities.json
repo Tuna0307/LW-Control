@@ -1,0 +1,77 @@
+{
+  "finding": "LWB-R6-048",
+  "date": "2026-09-10",
+  "status": "RECOVERED current-client static identity surface; LWBridge record_key mapping UNKNOWN/BLOCKED",
+  "source": {
+    "path": "%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl",
+    "build": "1.0.361 / 1078",
+    "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "size": 15640576,
+    "rgmdOffset": "0x9a88a8",
+    "typeDefs": 5828,
+    "methodDefs": 54474
+  },
+  "worldPointInfo": {
+    "typeRow": 4309,
+    "protobufFields": {
+      "Id": 1,
+      "ResourceInfo": 6,
+      "Uuid": 100,
+      "ServerId": 102,
+      "SrcServerId": 103,
+      "WorldId": 104
+    },
+    "getterRows": {
+      "Id": 45249,
+      "ResourceInfo": 45259,
+      "Uuid": 45298,
+      "ServerId": 45302,
+      "SrcServerId": 45304,
+      "WorldId": 45306
+    }
+  },
+  "resourcePoint": {
+    "typeRow": 1753,
+    "base": "PointInfo",
+    "fields": [
+      "id:int32",
+      "state:int32",
+      "gatherMarchUuid:int64",
+      "gatherUid:string",
+      "gatherAllianceId:string",
+      "specialType:Protobuf.SpecialType"
+    ],
+    "constructorRow": 13461,
+    "getResTypeRow": 13464,
+    "getResLevelRow": 13465
+  },
+  "lookupMethods": [
+    {
+      "row": 13619,
+      "rva": "0x1555a0",
+      "signature": "WorldTileInfo WorldPointManager::GetWorldTileInfo(int32 pointIndex)",
+      "result": "uses the int32 pointIndex argument as a dictionary lookup key and returns the value or null; modified backing-field token is not named from this evidence"
+    },
+    {
+      "row": 13627,
+      "rva": "0x1556e4",
+      "signature": "PointInfo WorldPointManager::GetPointInfoByUuid(int64 uuid)",
+      "result": "uses the int64 uuid argument as a dictionary lookup key, obtains a tile value, then returns its PointInfo or null; modified backing-field/method tokens are not named from this evidence"
+    },
+    {
+      "row": 13638,
+      "rva": "0x1558dc",
+      "signature": "ResPointInfo WorldPointManager::GetResourcePointInfoByIndex(int32 pointIndex)",
+      "result": "passes pointIndex into an internal point lookup, tests one modified field against literal 7, and casts the surviving value to ResPointInfo; the modified field token is deliberately not named"
+    }
+  ],
+  "conclusion": "The current client has independently typed point-index and UUID lookup inputs around world-point/resource data. This does not establish which source, if either, LWBridge uses for native record_key.",
+  "limits": [
+    "No link from these current-client lookups to LWBridge record struct +0x78 is recovered.",
+    "No per-kind record_key formula is assigned.",
+    "Modified CIL tokens that the parser cannot resolve are left unnamed.",
+    "No production ingestion or live scan is enabled.",
+    "Combined references-to-type/wrapper and broader WorldPointManager inventory follow-ups were rejected by automatic safety review and were not rerouted."
+  ],
+  "next": "Trace an independently permitted original/capture-side producer into R6-047 record offset +0x78, using these current-client pointIndex/uuid dimensions only as named candidates until direct dataflow proves one."
+}

@@ -1,0 +1,356 @@
+{
+  "finding": "LWB-R6-050",
+  "date": "2026-09-10",
+  "status": "RECOVERED current-client managed/xLua identity surface; capture-to-builder mapping UNKNOWN/BLOCKED",
+  "source": {
+    "path": "%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl",
+    "build": "1.0.361 / 1078",
+    "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "size": 15640576,
+    "rgmdOffset": "0x9a88a8",
+    "typeDefs": 5828,
+    "methodDefs": 54474
+  },
+  "pointInfo": {
+    "typeRow": 1748,
+    "fields": {
+      "pointIndex": {
+        "row": 9975,
+        "type": "int32",
+        "name": "pointIndex"
+      },
+      "mainIndex": {
+        "row": 9976,
+        "type": "int32",
+        "name": "mainIndex"
+      },
+      "uuid": {
+        "row": 9980,
+        "type": "int64",
+        "name": "uuid"
+      }
+    },
+    "xLuaWrapperTypeRow": 3302,
+    "xLuaGetters": {
+      "pointIndex": {
+        "row": 26703,
+        "rva": "0x288e6c",
+        "returnType": "int32",
+        "argumentTypes": [
+          "native int"
+        ],
+        "il": [
+          "IL_000c: call token(0xA79588A2)",
+          "IL_0011: ldarg.0",
+          "IL_0012: callvirt token(0xA7958982)",
+          "IL_0017: ldarg.0",
+          "IL_0018: ldc.i4.1",
+          "IL_0019: callvirt token(0xA7959FE2)",
+          "IL_001e: castclass token(0x279FDAE2)",
+          "IL_0023: stloc.0",
+          "IL_0024: ldarg.0",
+          "IL_0025: ldloc.0",
+          "IL_0026: ldfld token(0x679326C2)",
+          "IL_002b: call token(0x279C38E3)",
+          "IL_0030: leave.s 71",
+          "IL_0032: stloc.1",
+          "IL_0033: ldarg.0",
+          "IL_0034: ldstr string token(0xE6801210)",
+          "IL_0039: ldloc.1",
+          "IL_003a: call token(0x279F8A43)",
+          "IL_003f: call token(0x2793E623)",
+          "IL_0044: stloc.2",
+          "IL_0045: leave.s 73",
+          "IL_0047: ldc.i4.1",
+          "IL_0048: ret",
+          "IL_0049: ldloc.2",
+          "IL_004a: ret"
+        ]
+      },
+      "mainIndex": {
+        "row": 26704,
+        "rva": "0x288ec8",
+        "returnType": "int32",
+        "argumentTypes": [
+          "native int"
+        ],
+        "il": [
+          "IL_000c: call token(0xA79588A2)",
+          "IL_0011: ldarg.0",
+          "IL_0012: callvirt token(0xA7958982)",
+          "IL_0017: ldarg.0",
+          "IL_0018: ldc.i4.1",
+          "IL_0019: callvirt token(0xA7959FE2)",
+          "IL_001e: castclass token(0x279FDAE2)",
+          "IL_0023: stloc.0",
+          "IL_0024: ldarg.0",
+          "IL_0025: ldloc.0",
+          "IL_0026: ldfld token(0x67932162)",
+          "IL_002b: call token(0x279C38E3)",
+          "IL_0030: leave.s 71",
+          "IL_0032: stloc.1",
+          "IL_0033: ldarg.0",
+          "IL_0034: ldstr string token(0xE6801210)",
+          "IL_0039: ldloc.1",
+          "IL_003a: call token(0x279F8A43)",
+          "IL_003f: call token(0x2793E623)",
+          "IL_0044: stloc.2",
+          "IL_0045: leave.s 73",
+          "IL_0047: ldc.i4.1",
+          "IL_0048: ret",
+          "IL_0049: ldloc.2",
+          "IL_004a: ret"
+        ]
+      },
+      "uuid": {
+        "row": 26708,
+        "rva": "0x289038",
+        "returnType": "int32",
+        "argumentTypes": [
+          "native int"
+        ],
+        "il": [
+          "IL_000c: call token(0xA79588A2)",
+          "IL_0011: ldarg.0",
+          "IL_0012: callvirt token(0xA7958982)",
+          "IL_0017: ldarg.0",
+          "IL_0018: ldc.i4.1",
+          "IL_0019: callvirt token(0xA7959FE2)",
+          "IL_001e: castclass token(0x279FDAE2)",
+          "IL_0023: stloc.0",
+          "IL_0024: ldarg.0",
+          "IL_0025: ldloc.0",
+          "IL_0026: ldfld token(0x679321E2)",
+          "IL_002b: call token(0x279C3823)",
+          "IL_0030: leave.s 71",
+          "IL_0032: stloc.1",
+          "IL_0033: ldarg.0",
+          "IL_0034: ldstr string token(0xE6801210)",
+          "IL_0039: ldloc.1",
+          "IL_003a: call token(0x279F8A43)",
+          "IL_003f: call token(0x2793E623)",
+          "IL_0044: stloc.2",
+          "IL_0045: leave.s 73",
+          "IL_0047: ldc.i4.1",
+          "IL_0048: ret",
+          "IL_0049: ldloc.2",
+          "IL_004a: ret"
+        ]
+      }
+    },
+    "backingFieldTokens": {
+      "pointIndex": "0x679326C2",
+      "mainIndex": "0x67932162",
+      "uuid": "0x679321E2"
+    },
+    "isMainPoint": {
+      "row": 13408,
+      "rva": "0x14f5bd",
+      "returnType": "bool",
+      "argumentTypes": [],
+      "il": [
+        "IL_0001: ldarg.0",
+        "IL_0002: ldfld token(0x67932162)",
+        "IL_0007: ldarg.0",
+        "IL_0008: ldfld token(0x679326C2)",
+        "IL_000d: ceq",
+        "IL_000f: ret"
+      ]
+    },
+    "worldPointConstructor": {
+      "row": 13404,
+      "rva": "0x14f454",
+      "returnType": "void",
+      "argumentTypes": [
+        "Protobuf.WorldPointInfo"
+      ],
+      "il": [
+        "IL_000c: ldarg.0",
+        "IL_000d: ldc.i4.m1",
+        "IL_000e: stfld token(0x6793F062)",
+        "IL_0013: ldarg.0",
+        "IL_0014: call token(0x279F9083)",
+        "IL_0019: ldarg.0",
+        "IL_001a: ldarg.1",
+        "IL_001b: callvirt token(0xA781E1A2)",
+        "IL_0020: stfld token(0x679321E2)",
+        "IL_0025: ldarg.0",
+        "IL_0026: ldarg.1",
+        "IL_0027: callvirt token(0xA7819802)",
+        "IL_002c: stfld token(0x679326C2)",
+        "IL_0031: ldarg.0",
+        "IL_0032: ldarg.1",
+        "IL_0033: callvirt token(0xA7819802)",
+        "IL_0038: stfld token(0x67932162)",
+        "IL_003d: ldarg.0",
+        "IL_003e: ldarg.1",
+        "IL_003f: callvirt token(0xA7819842)",
+        "IL_0044: stfld token(0x67932102)",
+        "IL_0049: ldarg.0",
+        "IL_004a: ldc.i4.1",
+        "IL_004b: stfld token(0x67932142)",
+        "IL_0050: ldarg.0",
+        "IL_0051: ldarg.1",
+        "IL_0052: callvirt token(0xA781E622)",
+        "IL_0057: stfld token(0x67932122)",
+        "IL_005c: ldarg.0",
+        "IL_005d: ldarg.1",
+        "IL_005e: callvirt token(0xA781E162)",
+        "IL_0063: stfld token(0x679321C2)",
+        "IL_0068: ldarg.0",
+        "IL_0069: ldarg.1",
+        "IL_006a: callvirt token(0xA781E0A2)",
+        "IL_006f: stfld token(0x6793F062)",
+        "IL_0074: ldarg.1",
+        "IL_0075: callvirt token(0xA781E6E2)",
+        "IL_007a: stloc.0",
+        "IL_007b: ldloc.0",
+        "IL_007c: ldnull",
+        "IL_007d: call token(0x279CAA43)",
+        "IL_0082: brfalse.s 144",
+        "IL_0084: ldarg.0",
+        "IL_0085: ldloc.0",
+        "IL_0086: callvirt token(0x279CAAE3)",
+        "IL_008b: stfld token(0x67932182)",
+        "IL_0090: ldarg.0",
+        "IL_0091: ldarg.1",
+        "IL_0092: callvirt token(0xA781E742)",
+        "IL_0097: stfld token(0x6793F3A2)",
+        "IL_009c: ret"
+      ]
+    },
+    "constructorStoredFieldTokens": [
+      "0x6793F062",
+      "0x679321E2",
+      "0x679326C2",
+      "0x67932162",
+      "0x67932102",
+      "0x67932142",
+      "0x67932122",
+      "0x679321C2",
+      "0x6793F062",
+      "0x67932182",
+      "0x6793F3A2"
+    ],
+    "constructorSourceGetterMapping": "UNKNOWN/BLOCKED: modified call tokens are preserved raw and are not assigned protobuf getter names"
+  },
+  "resourcePoint": {
+    "typeRow": 1753,
+    "base": "PointInfo",
+    "fields": {
+      "gatherMarchUuid": {
+        "row": 10139,
+        "type": "int64",
+        "name": "gatherMarchUuid"
+      }
+    },
+    "methods": {
+      "constructor": {
+        "row": 13461,
+        "rva": "0x1512c0",
+        "returnType": "void",
+        "argumentTypes": [
+          "Protobuf.WorldPointInfo"
+        ],
+        "il": [
+          "IL_000c: ldarg.0",
+          "IL_000d: ldarg.1",
+          "IL_000e: call token(0xA79115E2)",
+          "IL_0013: ldarg.1",
+          "IL_0014: callvirt token(0xA7819B42)",
+          "IL_0019: stloc.0",
+          "IL_001a: ldarg.0",
+          "IL_001b: ldloc.0",
+          "IL_001c: callvirt token(0xA7826FC2)",
+          "IL_0021: stfld token(0x6793CD02)",
+          "IL_0026: ldarg.0",
+          "IL_0027: ldloc.0",
+          "IL_0028: callvirt token(0xA7826E02)",
+          "IL_002d: stfld token(0x6793CCA2)",
+          "IL_0032: ldarg.0",
+          "IL_0033: ldloc.0",
+          "IL_0034: callvirt token(0xA7826E42)",
+          "IL_0039: stfld token(0x6793CD42)",
+          "IL_003e: ldarg.0",
+          "IL_003f: ldloc.0",
+          "IL_0040: callvirt token(0xA7826902)",
+          "IL_0045: stfld token(0x6793CDE2)",
+          "IL_004a: ldarg.0",
+          "IL_004b: ldloc.0",
+          "IL_004c: callvirt token(0xA7826982)",
+          "IL_0051: stfld token(0x6793CD82)",
+          "IL_0056: ldarg.0",
+          "IL_0057: ldloc.0",
+          "IL_0058: callvirt token(0xA7826E82)",
+          "IL_005d: stfld token(0x6793CD22)",
+          "IL_0062: ldarg.0",
+          "IL_0063: ldstr string token(0xE79D39F0)",
+          "IL_0068: stfld token(0x679320A2)",
+          "IL_006d: ldloc.0",
+          "IL_006e: callvirt token(0xA7826EC2)",
+          "IL_0073: brfalse.s 134",
+          "IL_0075: ldarg.0",
+          "IL_0076: ldloc.0",
+          "IL_0077: callvirt token(0xA7826EC2)",
+          "IL_007c: callvirt token(0xA7826742)",
+          "IL_0081: stfld token(0x679320A2)",
+          "IL_0086: ret"
+        ]
+      },
+      "getResType": {
+        "row": 13464,
+        "rva": "0x1513c4",
+        "returnType": "int32",
+        "argumentTypes": [],
+        "il": [
+          "IL_000c: ldc.i4.m1",
+          "IL_000d: stloc.0",
+          "IL_000e: call token(0xA79E2C22)",
+          "IL_0013: ldstr string token(0xE4323E50)",
+          "IL_0018: ldarg.0",
+          "IL_0019: ldfld token(0x6793CD02)",
+          "IL_001e: ldstr string token(0xE4323510)",
+          "IL_0023: callvirt token(0xA79ED522)",
+          "IL_0028: stloc.1",
+          "IL_0029: ldloc.1",
+          "IL_002a: call token(0x279FAF23)",
+          "IL_002f: brtrue.s 56",
+          "IL_0031: ldloc.1",
+          "IL_0032: call token(0x279FAEC3)",
+          "IL_0037: stloc.0",
+          "IL_0038: ldloc.0",
+          "IL_0039: ret"
+        ]
+      },
+      "getResLevel": {
+        "row": 13465,
+        "rva": "0x151400",
+        "returnType": "int32",
+        "argumentTypes": [],
+        "il": [
+          "IL_000c: call token(0xA79E2C22)",
+          "IL_0011: ldstr string token(0xE4323E50)",
+          "IL_0016: ldarg.0",
+          "IL_0017: ldfld token(0x6793CD02)",
+          "IL_001c: ldstr string token(0xE418EED0)",
+          "IL_0021: callvirt token(0xA79ED522)",
+          "IL_0026: ldloca.s local(0x0000)",
+          "IL_0028: call token(0x279C5A23)",
+          "IL_002d: brfalse.s 49",
+          "IL_002f: ldloc.0",
+          "IL_0030: ret",
+          "IL_0031: ldc.i4.0",
+          "IL_0032: ret"
+        ]
+      }
+    }
+  },
+  "conclusion": "The current client exposes pointIndex, mainIndex, and uuid as distinct PointInfo fields through generated xLua getters. PointInfo.isMainPoint directly compares mainIndex with pointIndex, and PointInfo(WorldPointInfo) stores all three fields. ResPointInfo separately defines gatherMarchUuid plus resource type/level getters.",
+  "limits": [
+    "The modified call tokens feeding PointInfo(WorldPointInfo) are not mapped to named protobuf getters by this finding.",
+    "No native capture/serializer owner is recovered from these managed/xLua getters.",
+    "No direct dataflow from current-client fields into the original R6-049 normalized-record builder is proven.",
+    "No production ingestion, bridge readiness, real scan completion, or displayed live result is enabled."
+  ],
+  "next": "Use the proven current field names/types as capture-side anchors while tracing a permitted serializer/provider path into the R6-049 builder; keep unsupported source-getter and native ownership mappings fail-closed."
+}

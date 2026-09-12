@@ -1,0 +1,173 @@
+{
+  "findingId": "LWB-R6-004",
+  "date": "2026-09-08",
+  "scope": "Map Data options/summary consumers, conditional per-tab query emission and stale-result suppression",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "api": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\api-ClPPi2JT.js",
+      "sha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+    },
+    "index": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\index-sfL2sT3K.js",
+      "sha256": "4d18cbc036a417b1a13a2c9905f1abc5dda1427531ad1ab4f7b03f4b269704b3"
+    }
+  },
+  "locators": {
+    "mapDataOptionsWrapperCharacterOffset": 21176,
+    "mapSummaryWrapperCharacterOffset": 21233,
+    "mapDataOptionsConsumerCharacterOffset": 34234,
+    "mapSummaryConsumerCharacterOffset": 315014,
+    "mapSummaryCountUpdateCharacterOffset": 315180,
+    "staleSearchGuardCharacterOffset": 37718
+  },
+  "commands": {
+    "mapDataOptions": {
+      "name": "map_data_options",
+      "payload": [
+        "serverId"
+      ]
+    },
+    "mapSummary": {
+      "name": "map_summary",
+      "payload": [
+        "profileId (implicit-capable wrapper)"
+      ]
+    }
+  },
+  "mapDataOptionsResponse": {
+    "topLevelFieldsConsumed": [
+      "serverId",
+      "alliances",
+      "names",
+      "dispatchLevels",
+      "counts",
+      "rewardItems",
+      "treasureTypes",
+      "noAllianceCount",
+      "scanProgress"
+    ],
+    "nestedFieldsConsumed": {
+      "alliances[]": [
+        "name",
+        "count"
+      ],
+      "names.resource[]": [
+        "key",
+        "count"
+      ],
+      "names.monster[]": [
+        "key",
+        "count"
+      ],
+      "dispatchLevels[]": [
+        "numeric value"
+      ],
+      "rewardItems.truck[] / rewardItems.railway[]": [
+        "key",
+        "name",
+        "iconPath"
+      ],
+      "treasureTypes[]": [
+        "key",
+        "count",
+        "treasureType",
+        "suppliesType",
+        "treasureNameKey"
+      ],
+      "scanProgress": [
+        "serverId",
+        "id",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "error (when present)"
+      ]
+    }
+  },
+  "mapSummaryResponse": {
+    "topLevelFieldsConsumed": [
+      "serverId",
+      "counts",
+      "scanState"
+    ],
+    "behavior": "the parent stores the summary and passes summary.scanState through the shared map scan state path; count refreshes replace counts only when server identity matches"
+  },
+  "queryEmission": {
+    "rulesVerified": {
+      "city": [
+        "alliance:n===`city`&&r?r:void 0",
+        "withoutAlliance:n===`city`&&Et===`none`?!0:void 0",
+        "markedOnly:n===`city`&&At?!0:void 0"
+      ],
+      "resource": [
+        "resourceNameKey:n===`resource`?Ot.resource:void 0"
+      ],
+      "monster": [
+        "monsterNameKey:n===`monster`?Ot.monster:void 0"
+      ],
+      "truckRailway": [
+        "itemKey:a?It[a]:void 0",
+        "reindeerOnly:o===`reindeer`?!0:void 0"
+      ],
+      "dispatchGhost": [
+        "completionStatus:n===`dispatch`||n===`ghost`?Bt[n]:void 0",
+        "specialOnly:o===`special`?!0:void 0"
+      ],
+      "plunderable": [
+        "plunderableOnly:he(n,He(n)&&Ht[n]===!0)"
+      ],
+      "treasure": [
+        "treasureType:s?.treasureType",
+        "suppliesType:s?.suppliesType",
+        "includeForeignRadarTreasures:n===`treasure`?An:void 0",
+        "luckyFirst:n===`treasure`?J:void 0",
+        "viewerUid:n===`treasure`?Nn.playerUid:void 0",
+        "viewerAllianceId:n===`treasure`?Nn.allianceId:void 0"
+      ],
+      "dispatchLevel": [
+        "minLevel:n===`dispatch`&&Wt?Number(Wt):void 0",
+        "maxLevel:n===`dispatch`&&Wt?Number(Wt):void 0"
+      ]
+    },
+    "explicitFalseIsMeaningful": [
+      "treasure includeForeignRadarTreasures is emitted for treasure even when false",
+      "treasure luckyFirst is emitted for treasure even when false"
+    ],
+    "undefinedOmissionRules": [
+      "city withoutAlliance and markedOnly are emitted only when true",
+      "plunderableOnly is emitted only as true for truck/railway/dispatch when enabled",
+      "dispatch minLevel/maxLevel are omitted when the level selector is empty"
+    ]
+  },
+  "staleResultSuppression": {
+    "mapSearch": "each request increments E.current; rows/total, error clearing and loading-finally effects are committed only when the captured generation still equals E.current",
+    "mapDataOptions": "each options request increments Ie.current and ignores a response whose captured generation no longer matches",
+    "mapSummary": "each summary request increments Xe.current and ignores replacement when the generation changed or selected profile changed"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_frontend_consumers.py evidence\\lwbridge-0.3.1\\frontend",
+    "python tools\\inspect_lwbridge_map_frontend_consumers.py evidence\\lwbridge-0.3.1\\frontend --json",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj"
+  ],
+  "validationAndLimits": {
+    "validation": "static-only against immutable recovered frontend assets",
+    "liveProven": false,
+    "unknownBlocked": [
+      "complete map_data_options aggregation SQL and ordering/deduplication semantics",
+      "map_summary backend server-selection and scan-state producer semantics",
+      "exact original SQL predicate for nonempty query filters",
+      "exact SQL expression for every non-updatedAt sort key",
+      "city export native file-picker/workbook writer contract"
+    ]
+  },
+  "implementationImpact": {
+    "queryGate": "all eight real frontend tab envelope families plus false/zero/empty/omitted distinctions are offline regression-tested without weakening MAP_QUERY_UNRECOVERED",
+    "options": "response shape is now pinned, but production map_data_options stays fail-closed until aggregation semantics are recovered",
+    "summary": "response shape/stale-profile guard is pinned, but persisted rows must not be used to invent the active summary server"
+  }
+}

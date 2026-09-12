@@ -1,0 +1,33 @@
+{
+  "scope": "Saved historical live-proof audit; current read-only source/database inspection, not a new acquisition",
+  "savedProofHashAndSourceMatch": true,
+  "savedTwoReadCorrelationsMatch": true,
+  "runs": [
+    {
+      "requestId": "bfa59bfd07214e1b919ef89acfb46b12",
+      "capturedAt": "2026-09-10T09:37:53Z",
+      "gamePid": 43980
+    },
+    {
+      "requestId": "f4a66c92f0f04e54aa33ba9e278e2e8b",
+      "capturedAt": "2026-09-10T09:38:19Z",
+      "gamePid": 15140
+    }
+  ],
+  "databaseExists": true,
+  "currentSelectedProfileMatchesSavedProof": true,
+  "persistedCounts": [
+    {
+      "kind": "resource",
+      "serverId": 2212,
+      "count": 1
+    }
+  ],
+  "currentSourceHashes": {
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "6b701ada9f54902e441633a0b5207758a78c9edc89a6b806c383bb95c74ace24",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs": "095e65d096e5f2e09547c28379bff11664674ac8d4d8fbf5ce94cf76978fdccb",
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs": "3acc952128b4974e5b6e4fc11c52dc745fac61894e3334daa309b8385b2c0e75",
+    "tools/run_live_resource_probe.py": "5997bcabaf44e7b40d0eb66a03a784c39442ed4cbc1a02a2f2b3218ca4966d15",
+    "tools/current_live_resource_probe.lua": "a9808f28d43134cdc20171d38de833ac27580b185d18f90bb2f4cef1aa0cd8ac"
+  }
+}

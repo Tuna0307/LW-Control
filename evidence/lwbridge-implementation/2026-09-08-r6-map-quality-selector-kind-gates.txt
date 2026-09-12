@@ -1,0 +1,43 @@
+LWB-R6-010 focused frontend quality-selector evidence
+Date: 2026-09-08
+Source: evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js
+SHA-256: fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e
+Coordinate system: UTF-8 JavaScript character offsets
+
+[5977] quality-capable result kinds
+Fe=new Set([`truck`,`railway`,`dispatch`,`ghost`])
+
+[9155] quality display mapping
+function I(e){let t=Number(e);return t===1?`N`:t===2?`R`:t===3?`SR`:t===4?`SSR`:t>=5?`UR`:`-`}
+
+[37243-37297] query-builder boolean split
+quality:o===`special`||o===`reindeer`?void 0:o,
+specialOnly:o===`special`?!0:void 0,
+reindeerOnly:o===`reindeer`?!0:void 0
+
+[52301+] visible quality selector values
+ordinary values: n, r, sr, ssr, ur
+special option: visible only when F is dispatch or ghost
+reindeer option: visible only when F is truck
+
+[52723] exact reindeer option branch
+(F===`truck`) ... option value `reindeer`
+
+Correlated verified-binary predicate evidence from LWB-R6-006:
+reindeerOnly -> CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER) = 1
+
+Result:
+- RECOVERED: the visible original frontend can emit ordinary quality for truck/railway/dispatch/ghost,
+  specialOnly for dispatch/ghost, and reindeerOnly from the quality selector only for truck.
+- IMPLEMENTED/OFFLINE-TESTED in LWB-R6-010: MapDataQueryContract no longer accepts railway
+  reindeerOnly as a recovered frontend form; truck remains supported.
+- UNKNOWN/BLOCKED: the exact backend ordinary-quality predicate/parameter mapping remains unrecovered.
+  In particular, frontend rendering maps every numeric quality >=5 to UR, so an `ur` filter must not
+  be guessed as either `quality = 5` or `quality >= 5` until the original query-builder branch is proven.
+
+Reproduction:
+- inspect the immutable frontend source at the offsets above;
+- dotnet run --project tests\LWBridge.Desktop.Checks\LWBridge.Desktop.Checks.csproj -c Release
+
+Validation limit:
+Static recovered frontend evidence plus offline contract tests only. No live Last War query outcome is claimed.

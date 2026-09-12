@@ -1,0 +1,101 @@
+{
+  "findingId": "LWB-PM-REVIEW-012",
+  "date": "2026-09-10",
+  "reviewedCommit": "749b8e3bdca0ed92f7d22aae0f1ab0c1d562a4cd",
+  "reviewedCommits": [
+    "f75e9bb",
+    "749b8e3"
+  ],
+  "branch": "research/offline-controller",
+  "decision": {
+    "currentClientRoute": "accepted for bounded acquisition/backend portion",
+    "PM10-01": "PARTIAL; reliability and normal UI proof open",
+    "originalPipeRequiredForBoundedAcquisition": false,
+    "ESC-005": "NOT_ASSIGNED; deferred original parity",
+    "nextQueue": [
+      "PM12-A",
+      "PM12-B",
+      "PM12-C",
+      "PM12-D"
+    ]
+  },
+  "checks": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministicSuite": {
+      "ok": true,
+      "failures": [],
+      "groups": 6,
+      "realConfigPreservationFlag": true
+    },
+    "frontendIntegrity": true,
+    "preferenceMatrix": true,
+    "liveTransportMissingNative": true,
+    "transportBoundary": true,
+    "pythonCompilation": true,
+    "acceptanceCasesPreserved": 47,
+    "localMarkdownLinksVerified": 236
+  },
+  "savedProofVerification": {
+    "path": "evidence/lwbridge-implementation/2026-09-10-fresh-resource-live-proof.json",
+    "sha256": "11a938eef3e19032be9a50daef980ce3b102fb9115b673855d5e1375b7cc3553",
+    "twoDistinctCorrelatedCaptures": true,
+    "resultToSearchFieldsAndTimesMatch": true,
+    "currentProbeSourceMatchesRecordedCandidate": true,
+    "bothRequiredGameStop": true,
+    "captures": [
+      "2026-09-10T05:14:45Z",
+      "2026-09-10T05:15:09Z"
+    ]
+  },
+  "freshInstalledHashes": {
+    "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "knownFailures": {
+    "PM12-A": {
+      "reproduction": "evidence/lwbridge-implementation/2026-09-10-pm12-partial-install-repro.py",
+      "scope": "dummy files only; no installed package construction or process operations",
+      "cases": [
+        {
+          "failureAtReplacement": 2,
+          "restoreCalls": 0,
+          "dummyFilesLeftChanged": [
+            "data"
+          ]
+        },
+        {
+          "failureAtReplacement": 3,
+          "restoreCalls": 0,
+          "dummyFilesLeftChanged": [
+            "data",
+            "metadata"
+          ]
+        }
+      ],
+      "partialInstallDefectReproduced": true
+    },
+    "PM12-B": "code-reviewed duplicate queue/Stop/cancel/unbounded-helper/disposal gaps; not live reproduced",
+    "PM12-C": "code-reviewed mutable-file reread and reuse identity gaps; not live reproduced",
+    "PM12-D": "normal UI unverified; recovered absent-gather fallback must not imply observed Idle"
+  },
+  "limits": {
+    "freshAcquisitionRunByPM": false,
+    "currentUiCapture": false,
+    "binaryAnalysis": false,
+    "installedFilesModified": false,
+    "newFullAcceptanceCases": 0
+  },
+  "reproduction": [
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+    "python evidence/lwbridge-implementation/2026-09-10-pm12-partial-install-repro.py",
+    "python tools/build_lwbridge_frontend.py --check",
+    "node tools/check_lwbridge_preference_provider.cjs",
+    "node tools/check_lwbridge_live_transport.cjs",
+    "node tools/check_lwbridge_transport_boundary.cjs"
+  ]
+}

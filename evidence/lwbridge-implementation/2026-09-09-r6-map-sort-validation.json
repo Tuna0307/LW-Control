@@ -1,0 +1,70 @@
+{
+  "findingId": "LWB-R6-026",
+  "date": "2026-09-09",
+  "scope": "Validation of the recovered Map Data sort inventory checkpoint",
+  "evidenceStatus": "RECOVERED static plus regression validation; no production sort implementation added",
+  "sourceIdentity": {
+    "lwbridgeSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "mapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "inventory": "evidence/lwbridge-implementation/2026-09-09-r6-map-sort-inventory.json",
+    "verifier": "tools/inspect_lwbridge_map_sorts.py"
+  },
+  "checks": {
+    "hashLockedSortVerifier": {
+      "command": "python tools\\inspect_lwbridge_map_sorts.py ..\\LW\\lwbridge-0.3.1.exe evidence\\lwbridge-0.3.1\\frontend --json",
+      "passed": true
+    },
+    "pythonCompile": {
+      "command": "python -m py_compile tools\\inspect_lwbridge_map_sorts.py",
+      "passed": true
+    },
+    "evidenceJsonParse": {
+      "passed": true
+    },
+    "gitDiffCheck": {
+      "passed": true,
+      "note": "Only line-ending conversion warnings were emitted."
+    },
+    "releaseBuild": {
+      "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "passed": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministicBackendSuite": {
+      "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "passed": true,
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true
+    },
+    "installedClientDiagnostic": {
+      "valid": true,
+      "is64Bit": true,
+      "gameRunning": false,
+      "launcherRunning": false
+    }
+  },
+  "implementationImpact": {
+    "productionSourceChanged": false,
+    "testsChanged": false,
+    "alternateProductionSortsEnabled": false,
+    "failClosedBoundary": "non-updatedAt sorts continue to return MAP_QUERY_UNRECOVERED"
+  },
+  "validationLimits": {
+    "liveProven": false,
+    "reason": "No game or launcher process was running and R6-026 is a static recovery checkpoint.",
+    "remaining": [
+      "complete native ordered multi-sort/null/tie-break assembly",
+      "remainingLootCount parser-key proof",
+      "shield prebuilt CASE data flow",
+      "distance computed expression source",
+      "railway quality branch",
+      "complete per-kind native alternate-sort gates"
+    ]
+  },
+  "environmentRestrictions": ["SB-20", "SB-21", "SB-22", "SB-23"]
+}

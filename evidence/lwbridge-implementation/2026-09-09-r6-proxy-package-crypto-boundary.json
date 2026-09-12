@@ -1,0 +1,115 @@
+{
+  "findingId": "LWB-R6-045",
+  "date": "2026-09-09",
+  "scope": "PM7-B secure-proxy package validation/decrypt to AES-GCM boundary",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProxy": "xlua-proxy-secure.dll",
+    "embeddedProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "embeddedProxyHostRawOffset": "0x987374",
+    "coordinateSystem": "secure-proxy preferred-image RVAs/VAs plus raw offsets"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.6"
+  },
+  "packageFunction": {
+    "beginRva": "0x3D260",
+    "endRva": "0x3DCF5",
+    "unwindDelimited": true,
+    "aesGcmCallRva": "0x3DA4A",
+    "aesGcmTargetRva": "0x3CB60",
+    "literalReferences": [
+      {
+        "instructionRva": "0x3D53F",
+        "mnemonic": "lea",
+        "operands": "rdx, [rip + 0x365c2]",
+        "literal": "package integrity invalid"
+      },
+      {
+        "instructionRva": "0x3D65B",
+        "mnemonic": "lea",
+        "operands": "rdx, [rip + 0x364c6]",
+        "literal": "package build mismatch"
+      },
+      {
+        "instructionRva": "0x3DA00",
+        "mnemonic": "mov",
+        "operands": "eax, dword ptr [rip + 0x3613a]",
+        "literal": "LWBP2|"
+      },
+      {
+        "instructionRva": "0x3DBAD",
+        "mnemonic": "lea",
+        "operands": "rdx, [rip + 0x35f54]",
+        "literal": "package integrity invalid"
+      },
+      {
+        "instructionRva": "0x3DC17",
+        "mnemonic": "lea",
+        "operands": "rdx, [rip + 0x35f0a]",
+        "literal": "package build mismatch"
+      },
+      {
+        "instructionRva": "0x3DC81",
+        "mnemonic": "lea",
+        "operands": "rdx, [rip + 0x35e80]",
+        "literal": "package integrity invalid"
+      }
+    ]
+  },
+  "literals": {
+    "package integrity invalid": {
+      "proxyRawOffset": "0x72F08",
+      "proxyRva": "0x73B08",
+      "proxyVa": "0x180073B08",
+      "encoding": "ascii"
+    },
+    "package build mismatch": {
+      "proxyRawOffset": "0x72F28",
+      "proxyRva": "0x73B28",
+      "proxyVa": "0x180073B28",
+      "encoding": "ascii"
+    },
+    "LWBP2|": {
+      "proxyRawOffset": "0x72F40",
+      "proxyRva": "0x73B40",
+      "proxyVa": "0x180073B40",
+      "encoding": "ascii"
+    }
+  },
+  "result": [
+    "Secure-proxy unwind function RVA 0x3D260-0x3DCF5 directly calls the recovered AES-GCM helper RVA 0x3CB60 at callsite RVA 0x3DA4A.",
+    "The same function directly references the exact package marker LWBP2| plus package integrity invalid and package build mismatch diagnostics at the verified instruction RVAs.",
+    "This establishes a package validation/decrypt consumer of the R6-043 AES-GCM primitive and separates that package-side boundary from the still-unrecovered package-key.envelope reader/parser and agreement caller."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_package_crypto_boundary.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_proxy_package_crypto_boundary.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-proxy-package-crypto-boundary.json",
+    "python -m py_compile tools\\inspect_lwbridge_proxy_package_crypto_boundary.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "secureProxyOnly": true,
+    "notProven": [
+      "the file/path caller that supplies bytes to package function RVA 0x3D260-0x3DCF5",
+      "whether that caller is bridge-scripts.dat or another protected package",
+      "the package-key.envelope open/read function, grammar and parsed field ownership",
+      "the caller that links package-key.envelope fields into agreement helper RVA 0x3DD00",
+      "which exact values at the package callsite provide the AES-GCM key, nonce, tag and ciphertext",
+      "plain-proxy instruction parity",
+      "protected getWorldMapState/getCurrentServerId handler plaintext and authoritative readiness/error mapping",
+      "live current-client behavior"
+    ],
+    "interpretationRule": "Only the hash-locked unwind boundary, exact RIP-relative package diagnostics/marker and direct AES helper call are treated as recovered. No enclosing file-loader or envelope ownership is inferred from function adjacency."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "closedGap": "identifies a package validation/decrypt consumer of the recovered AES-GCM helper",
+    "pm7B": "continue from the independent package-key.envelope open/read + agreement caller seam; package-side AES consumption is now source-attributed",
+    "mapSummary": "remains fail-closed"
+  }
+}

@@ -1,0 +1,35 @@
+LWB-R6-012 — ordinary-quality special-UR exclusion
+Date: 2026-09-08
+Scope: verified LWBridge 0.3.1 Map Data backend static query evidence
+
+Source identity
+- Artifact: ..\LW\lwbridge-0.3.1.exe
+- SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+- Coordinate system: raw PE file offsets
+
+Reproduction
+1. Verify the SHA-256 with PowerShell Get-FileHash using SHA256.
+2. Open the artifact read-only, seek to raw file offset 0x00C89E20, read 0xC0 bytes, and render printable ASCII while replacing non-printable bytes with dots.
+
+Observed bounded window
+offset=0x00C89E20 length=0xC0
+on_extract(data_json,'$.suppliesType') AS INTEGER),0) = 0qualityCOALESCE(CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0itemKey EXISTS (SELECT 1 FROM json_each(.^.data_j
+
+Exact locators in that window
+- quality field marker: 0x00C89E59
+- COALESCE(CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0: 0x00C89E60
+- next itemKey field marker: 0x00C89EAF
+
+RECOVERED result
+- The ordinary quality branch immediately applies the special-UR exclusion predicate above.
+- Therefore ordinary quality matching excludes rows whose isSpecialURQuality value is nonzero.
+
+UNKNOWN/BLOCKED
+- This window does not recover the numeric ordinary-quality comparison or parameter binding.
+- The frontend separately maps numeric display quality 1=N, 2=R, 3=SR, 4=SSR and every value >=5 to UR, but this does not prove whether the backend ordinary ur selector uses =5, >=5, another range, or another transformation.
+- No production quality support is enabled from this finding; requests remain fail-closed.
+
+Validation and implementation impact
+- Static bounded read only; not LIVE-PROVEN.
+- MapDataQueryContract and MapDataStore intentionally remain unchanged for ordinary quality.
+- DB-05 should continue from the numeric quality predicate/binding instead of re-recovering this exclusion guard.

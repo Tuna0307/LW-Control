@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-13",
+  "scope": "PM17-02 journal classification and PM17-01 abandoned-launch/root-retarget ownership",
+  "baselineRevision": "9fe3f8d",
+  "evidenceStatus": "IMPLEMENTED/OFFLINE-TESTED",
+  "liveGameRunPerformed": false,
+  "findings": [
+    {
+      "findingId": "LWB-PM17-001",
+      "pmDefect": "PM17-02",
+      "result": "The shared Overview recovery journal is explicitly classified as absent, verified completed, pending, or unknown. Pending and unknown records fail closed during root retargeting. Foreign-profile, malformed, unreadable, unsupported-schema and unknown-stage records are not treated as harmless. A leftover restored journal is accepted only when its backup manifest independently confirms a schema-1 restored state.",
+      "sourceLocators": [
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:134-180 RebindGameRoot",
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:196-278 RecoveryJournalState/ClassifyRecoveryJournal/verification helpers",
+        "tests/LWBridge.Desktop.Checks/Program.cs:4222-4292 PM17-02 matrix"
+      ],
+      "regressions": [
+        "known unfinished stages: backup_ready, installed_*, restoring_after_failure, closing_failed_owned_game, restoring_after_failed_owned_game_close, active_ready_deferred_restore, closing_owned_game_for_restore, restoring_after_owned_game_exit, restoring_interrupted_operation, restored_*, restoring_while_running, restoring_after_owned_game_close",
+        "unknown stage",
+        "foreign or missing profile",
+        "missing or unsupported schema",
+        "JSON null/array",
+        "unreadable journal",
+        "absent journal permits retargeting",
+        "verified completed journal permits retargeting",
+        "unverified completed journal remains blocked"
+      ]
+    },
+    {
+      "findingId": "LWB-PM17-002",
+      "pmDefect": "PM17-01",
+      "result": "A failed-before-launch attempt keeps its error/attempt identity until a later root selection verifies no active helper, no selected-root game process, and no pending/unknown recovery journal. Persistence occurs before clearing the abandoned identity, so a configuration write failure preserves the old root and state. A supervised helper timeout retains helper ownership until that exact process exits.",
+      "sourceLocators": [
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:134-193 root retarget/abandoned-attempt release",
+        "src/LWBridge.Desktop/OverviewLifecycleService.cs:710-780 helper supervision ownership",
+        "tests/LWBridge.Desktop.Checks/Program.cs:4293-4524 PM17-01 regressions"
+      ],
+      "regressions": [
+        "failed-before-launch A -> valid B -> successful B launch without app restart",
+        "same-root retry/persistence remains available",
+        "invalid selection preserves A and attempt identity",
+        "configuration persistence failure preserves A and attempt identity",
+        "active fake helper blocks retargeting",
+        "timed-out real helper blocks until exact helper exit",
+        "pending restoration blocks retargeting",
+        "same-path partial launch process blocks until process exit"
+      ]
+    }
+  ],
+  "preFixReproduction": {
+    "baseline": "9fe3f8d",
+    "outcome": "The added deterministic checks failed for the PM17-02 journal cases and PM17-01 failed-before-launch A-to-B case before production corrections were applied. After PM17-02 alone, the suite reduced to the single intended PM17-01 failure."
+  },
+  "validation": {
+    "frontendRecoveryIntegrity": "python tools/build_lwbridge_frontend.py --check -> PASS",
+    "releaseBuild": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release -> 0 warnings, 0 errors",
+    "deterministicBackend": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release -> ok=true, failures=[]",
+    "overviewLifecycle": "python tools/test_overview_bridge_lifecycle.py -> ok=true",
+    "ownerEvidenceCollector": "python tools/test_owner_resource_evidence.py -> ok=true",
+    "preferenceMatrix": "python tools/check_preference_ordering.py -> ok=true",
+    "hostTerminationBoundary": "powershell -File tools/check_lwbridge_host_cleanup.ps1 --self-test -> ok=true",
+    "nativeHostProbe": "isolated native-host probe -> ok=true; liveGameCommandsPerformed=false",
+    "liveTransportBoundary": "live transport missing-native check passed",
+    "transportBoundary": "transport boundary check passed",
+    "overviewPacketSelfTest": "Start Overview Verification.cmd --self-test -> Overview verification entry point is ready; exit 0",
+    "diffCheck": "git diff --check -> PASS"
+  },
+  "correctedBuildIdentity": {
+    "scope": "Fresh local Release build from the uncommitted PM17 corrected working tree; final Git revision and CI are recorded by the delivery successor.",
+    "exeSha256": "e5a5bbb6c200590061deaa3deb721ee6ee743fa00579a697d53bb7ea7295c666",
+    "dllSha256": "234d745e13b21e50533a79c4d3aaba637c6a525fff22900e858decc2bc585f99",
+    "overviewHelperSha256": "103224b89fb972ff82b75c6be925ce40054a5d1a197d045d51c7d7bfba79410e",
+    "overviewVerificationCmdSha256": "bd1a4ccc4058c343dd24c38b4db2972c3a31a8aec956b010ad36d2f9b74169cb"
+  },
+  "limits": [
+    "No real game launch, owner run, PID-reuse experiment, second installation, or damaged-file experiment was performed for PM17.",
+    "Historical Overview live Launch/message/Close, startup/reconnect and repair evidence remains credited only to its recorded builds and scope.",
+    "The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but unperformed.",
+    "S03 complete Refresh Status and S06 actual cross-server travel remain deferred; S02 remains unfinished/unassigned.",
+    "No additional full 47-case acceptance item is signed off by these offline fixes."
+  ]
+}

@@ -1,0 +1,241 @@
+LWB-PM16-003 / LWB-OVR-012 saved-disassembly reproduction excerpt
+Date: 2026-09-12
+Source original: ..\LW\lwbridge-0.3.1.exe
+Source SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+Tool versions currently installed for the recorded disassembly method: Python 3.12.10; capstone 5.0.7; pefile 2024.8.26.
+Historical generator command: UNAVAILABLE in durable notes. PM16-03 therefore reuses the already-saved disassembly outputs below; no new binary experiment was run.
+Saved source hashes:
+  .codex-live\lwbridge-static\abi-select-fn.txt = ccc0d394db6903e04e1274fd948bdfcc4776c15fd223227e8ec767694e444199
+  .codex-live\lwbridge-static\proxy-select-fn.txt = ded9ed32953fe4572311eab9a6f83909d673df17db76b6aa0d6d21275a193fc9
+  .codex-live\repair_command_mid.txt = 6d88e5550401302e04d17a2b0388aa6fc31fa46a992acb0857bf550f9932b916
+  .codex-live\repair_command_tail.txt = 9e49eb731d658154e5ea69fbf4367c71f92ff7095029b4dab5034ec816d680cc
+  .codex-live\lwbridge-readable\api-ClPPi2JT.js = bfebc6cab4a4c36bae667b8d028bf1ebc7b9f8bdb769b3154809ba26e920647d
+  .codex-live\lwbridge-readable\index-sfL2sT3K.js = cb05a5935087524375fb0fa6400b297d5cfbf415528adc98b9a0383cf8d50963
+
+--- component status: needsRepair / installed (.codex-live\lwbridge-static\abi-select-fn.txt lines 19-60) ---
+   19:   0x3E48D2: call    0x1403e3ab1
+   20:   0x3E48D7: mov     bpl, byte ptr [r15]
+   21:   0x3E48DA: cmp     bpl, 5
+   22:   0x3E48DE: jne     0x1403e492c
+   23:   0x3E48E0: lea     rcx, [rsp + 0x158]
+   24:   0x3E48E8: lea     rdx, [rip + 0x922b13] ; 'gameRunningstateneedsRepair'
+   25:   0x3E48EF: mov     r8d, 0xb
+   26:   0x3E48F5: call    0x1405a2051
+   27:   0x3E48FA: test    rax, rax
+   28:   0x3E48FD: je      0x1403e492c
+   29:   0x3E48FF: cmp     byte ptr [rax], 1
+   30:   0x3E4902: jne     0x1403e492c
+   31:   0x3E4904: cmp     byte ptr [rax + 1], 0
+   32:   0x3E4908: je      0x1403e492c
+   33:   0x3E490A: mov     qword ptr [rsp + 0x20], 0x1d
+   34:   0x3E4913: lea     rdx, [rip + 0x928640] ; 'GAME_RUNNINGClose the game and try again.!xlua abi unsupported fingerprint='
+   35:   0x3E491A: lea     r9, [rip + 0x928645] ; 'Close the game and try again.!xlua abi unsupported fingerprint='
+   36:   0x3E4921: mov     r8d, 0xc
+   37:   0x3E4927: jmp     0x1403e4a01
+   38:   0x3E492C: mov     rcx, qword ptr [rsi + 8]
+   39:   0x3E4930: mov     rdx, qword ptr [rsi + 0x10]
+   40:   0x3E4934: call    0x1405c6a40
+   41:   0x3E4939: test    al, al
+   42:   0x3E493B: je      0x1403e49e4
+   43:   0x3E4941: mov     rcx, qword ptr [rsi + 0x28]
+   44:   0x3E4945: mov     rdx, qword ptr [rsi + 0x30]
+   45:   0x3E4949: call    0x1405c6a40
+   46:   0x3E494E: test    al, al
+   47:   0x3E4950: je      0x1403e49e4
+   48:   0x3E4956: mov     rcx, qword ptr [rsi + 0x48]
+   49:   0x3E495A: mov     rdx, qword ptr [rsi + 0x50]
+   50:   0x3E495E: call    0x1405c6a40
+   51:   0x3E4963: test    al, al
+   52:   0x3E4965: je      0x1403e49e4
+   53:   0x3E4967: cmp     bpl, 5
+   54:   0x3E496B: jne     0x1403e4a2d
+   55:   0x3E4971: lea     rcx, [rsp + 0x158]
+   56:   0x3E4979: lea     rdx, [rip + 0x92847c] ; 'installed'
+   57:   0x3E4980: mov     r8d, 9
+   58:   0x3E4986: call    0x1405a2051
+   59:   0x3E498B: test    rax, rax
+   60:   0x3E498E: je      0x1403e4a2d
+
+--- component paths including proxy bundle (.codex-live\lwbridge-static\proxy-select-fn.txt lines 55-90) ---
+   55:   0x2324BF: mov     rax, qword ptr [r14]
+   56:   0x2324C2: mov     rcx, rax
+   57:   0x2324C5: neg     rcx
+   58:   0x2324C8: jno     0x140232a00
+   59:   0x2324CE: mov     r13d, 0x12
+   60:   0x2324D4: mov     qword ptr [rsp + 0x20], r13
+   61:   0x2324D9: lea     r12, [rip + 0x7559f3] ; 'bridge-scripts.datxlua-proxy-secure.dllxlua-proxy-plain.dllxlua-proxy-bundle.jsonxlua-legacy.dlllwbridge-profile-launcher.exelwbridge-multi-hook.dlllastwar-textsMZ'
+   62:   0x2324E0: lea     r14, [rsp + 0x260]
+   63:   0x2324E8: mov     rcx, r14
+   64:   0x2324EB: mov     rdx, rsi
+   65:   0x2324EE: mov     r8, rdi
+   66:   0x2324F1: mov     r9, r12
+   67:   0x2324F4: call    0x1405c6750
+   68:   0x2324F9: mov     rdx, qword ptr [r15 + 0x28]
+   69:   0x2324FD: mov     r8, qword ptr [r15 + 0x30]
+   70:   0x232501: mov     qword ptr [rsp + 0x20], r13
+   71:   0x232506: lea     rcx, [rsp + 0x70]
+   72:   0x23250B: mov     r9, r12
+   73:   0x23250E: call    0x1405c6750
+   74:   0x232513: mov     qword ptr [rsp + 0x20], 0x15
+   75:   0x23251C: lea     r9, [rip + 0x7559c2] ; 'xlua-proxy-secure.dllxlua-proxy-plain.dllxlua-proxy-bundle.jsonxlua-legacy.dlllwbridge-profile-launcher.exelwbridge-multi-hook.dlllastwar-textsMZ'
+   76:   0x232523: lea     rcx, [rsp + 0x90]
+   77:   0x23252B: mov     rdx, rsi
+   78:   0x23252E: mov     r8, rdi
+   79:   0x232531: call    0x1405c6750
+   80:   0x232536: mov     qword ptr [rsp + 0x20], 0x14
+   81:   0x23253F: lea     r9, [rip + 0x7559b4] ; 'xlua-proxy-plain.dllxlua-proxy-bundle.jsonxlua-legacy.dlllwbridge-profile-launcher.exelwbridge-multi-hook.dlllastwar-textsMZ'
+   82:   0x232546: lea     rcx, [rsp + 0xb0]
+   83:   0x23254E: mov     rdx, rsi
+   84:   0x232551: mov     r8, rdi
+   85:   0x232554: call    0x1405c6750
+   86:   0x232559: mov     qword ptr [rsp + 0x20], 0x16
+   87:   0x232562: lea     r9, [rip + 0x7559a5] ; 'xlua-proxy-bundle.jsonxlua-legacy.dlllwbridge-profile-launcher.exelwbridge-multi-hook.dlllastwar-textsMZ'
+   88:   0x232569: lea     rcx, [rsp + 0xd0]
+   89:   0x232571: mov     rdx, rsi
+   90:   0x232574: mov     r8, rdi
+
+--- update/restart bridge_update reason (.codex-live\repair_command_mid.txt lines 350-366) ---
+  350: 0x140200a5d cmp rax, rcx
+  351: 0x140200a60 je 0x140200b7d
+  352: 0x140200a66 lea rcx, [rax + 0x78]
+  353: 0x140200a6a mov qword ptr [rbx + 0x63a0], rcx
+  354: 0x140200a71 mov rcx, qword ptr [rbx + 0x5d78]
+  355: 0x140200a78 movups xmm0, xmmword ptr [rax + 8]
+  356: 0x140200a7c movups xmm1, xmmword ptr [rax + 0x20]
+  357: 0x140200a80 mov qword ptr [rbx + 0x5e28], rcx
+  358: 0x140200a87 movups xmmword ptr [rbx + 0x5e30], xmm0
+  359: 0x140200a8e lea rax, [rip + 0x6349ab]
+  360: 0x140200a95 mov qword ptr [rbx + 0x5e40], rax
+  361: 0x140200a9c mov qword ptr [rbx + 0x5e48], 0xd
+  362: 0x140200aa7 movups xmmword ptr [rbx + 0x5e50], xmm1
+  363: 0x140200aae mov byte ptr [rbx + 0x5f00], 0
+  364: 0x140200ab5 lea rsi, [rbx + 0x5e28]
+  365: 0x140200abc lea rdi, [rsp + 0xc0]
+  366: 0x140200ac4 mov rcx, rdi
+
+--- per-error error key construction (.codex-live\repair_command_tail.txt lines 180-216) ---
+  180: 0x140200fd0 cmp byte ptr [rdi], 6
+  181: 0x140200fd3 je 0x140200fe2
+  182: 0x140200fd5 lea rcx, [rsp + 0xc0]
+  183: 0x140200fdd call 0x140081ccb
+  184: 0x140200fe2 mov edi, 5
+  185: 0x140200fe7 mov r8d, 5
+  186: 0x140200fed xor edx, edx
+  187: 0x140200fef call 0x1405bcdb0
+  188: 0x140200ff4 test rax, rax
+  189: 0x140200ff7 je 0x140201640
+  190: 0x140200ffd mov byte ptr [rax + 4], 0x72
+  191: 0x140201001 mov dword ptr [rax], 0x6f727265
+  192: 0x140201007 mov qword ptr [rsp + 0x78], rdi
+  193: 0x14020100c mov qword ptr [rsp + 0x80], rax
+  194: 0x140201014 mov qword ptr [rsp + 0x88], rdi
+  195: 0x14020101c lea rdi, [rsp + 0xc0]
+  196: 0x140201024 lea rdx, [rsp + 0x400]
+  197: 0x14020102c mov rcx, rdi
+  198: 0x14020102f call 0x1402ad5d7
+  199: 0x140201034 cmp byte ptr [rdi], 6
+  200: 0x140201037 je 0x1402015de
+  201: 0x14020103d lea rdi, [rsp + 0xc0]
+  202: 0x140201045 movups xmm0, xmmword ptr [rdi]
+  203: 0x140201048 movups xmm1, xmmword ptr [rdi + 0x10]
+  204: 0x14020104c lea r9, [rsp + 0x90]
+  205: 0x140201054 movaps xmmword ptr [r9 + 0x10], xmm1
+  206: 0x140201059 movaps xmmword ptr [r9], xmm0
+  207: 0x14020105d lea rdx, [rsp + 0x228]
+  208: 0x140201065 lea r8, [rsp + 0x78]
+  209: 0x14020106a mov rcx, rdi
+  210: 0x14020106d call 0x1405a214e
+  211: 0x140201072 cmp byte ptr [rdi], 6
+  212: 0x140201075 je 0x140201084
+  213: 0x140201077 lea rcx, [rsp + 0xc0]
+  214: 0x14020107f call 0x140081ccb
+  215: 0x140201084 mov rax, qword ptr [rsp + 0x238]
+  216: 0x14020108c movups xmm0, xmmword ptr [rsp + 0x228]
+
+--- restarted/errors response construction (.codex-live\repair_command_tail.txt lines 255-316) ---
+  255: 0x14020116c xor edx, edx
+  256: 0x14020116e call 0x1405bcdb0
+  257: 0x140201173 test rax, rax
+  258: 0x140201176 je 0x140201631
+  259: 0x14020117c movabs rcx, 0x6574726174736572
+  260: 0x140201186 mov qword ptr [rax], rcx
+  261: 0x140201189 mov byte ptr [rax + 8], 0x64
+  262: 0x14020118d mov qword ptr [rsp + 0x90], rsi
+  263: 0x140201195 mov qword ptr [rsp + 0x98], rax
+  264: 0x14020119d mov qword ptr [rsp + 0xa0], rsi
+  265: 0x1402011a5 lea rsi, [rbx + 0x5e28]
+  266: 0x1402011ac lea rdi, [rsp + 0xc0]
+  267: 0x1402011b4 mov rcx, rdi
+  268: 0x1402011b7 mov rdx, rsi
+  269: 0x1402011ba call 0x1401d287e
+  270: 0x1402011bf cmp byte ptr [rdi], 6
+  271: 0x1402011c2 je 0x140201615
+  272: 0x1402011c8 lea rdi, [rsp + 0xc0]
+  273: 0x1402011d0 movups xmm0, xmmword ptr [rdi]
+  274: 0x1402011d3 movups xmm1, xmmword ptr [rdi + 0x10]
+  275: 0x1402011d7 lea r9, [rsp + 0x340]
+  276: 0x1402011df movaps xmmword ptr [r9 + 0x10], xmm1
+  277: 0x1402011e4 movaps xmmword ptr [r9], xmm0
+  278: 0x1402011e8 lea rdx, [rsp + 0x78]
+  279: 0x1402011ed lea r8, [rsp + 0x90]
+  280: 0x1402011f5 mov rcx, rdi
+  281: 0x1402011f8 call 0x1405a214e
+  282: 0x1402011fd cmp byte ptr [rdi], 6
+  283: 0x140201200 je 0x14020120f
+  284: 0x140201202 lea rcx, [rsp + 0xc0]
+  285: 0x14020120a call 0x140081ccb
+  286: 0x14020120f mov edi, 6
+  287: 0x140201214 mov r8d, 6
+  288: 0x14020121a xor edx, edx
+  289: 0x14020121c call 0x1405bcdb0
+  290: 0x140201221 test rax, rax
+  291: 0x140201224 je 0x14020164f
+  292: 0x14020122a mov word ptr [rax + 4], 0x7372
+  293: 0x140201230 mov dword ptr [rax], 0x6f727265
+  294: 0x140201236 mov qword ptr [rsp + 0x90], rdi
+  295: 0x14020123e mov qword ptr [rsp + 0x98], rax
+  296: 0x140201246 mov qword ptr [rsp + 0xa0], rdi
+  297: 0x14020124e lea rdi, [rbx + 0x5e40]
+  298: 0x140201255 lea r12, [rsp + 0xc0]
+  299: 0x14020125d mov rcx, r12
+  300: 0x140201260 mov rdx, rdi
+  301: 0x140201263 call 0x1401d24ce
+  302: 0x140201268 cmp byte ptr [r12], 6
+  303: 0x14020126d je 0x140201615
+  304: 0x140201273 lea r12, [rsp + 0xc0]
+  305: 0x14020127b movups xmm0, xmmword ptr [r12]
+  306: 0x140201280 movups xmm1, xmmword ptr [r12 + 0x10]
+  307: 0x140201286 lea r9, [rsp + 0x340]
+  308: 0x14020128e movaps xmmword ptr [r9 + 0x10], xmm1
+  309: 0x140201293 movaps xmmword ptr [r9], xmm0
+  310: 0x140201297 lea rdx, [rsp + 0x78]
+  311: 0x14020129c lea r8, [rsp + 0x90]
+  312: 0x1402012a4 mov rcx, r12
+  313: 0x1402012a7 call 0x1405a214e
+  314: 0x1402012ac cmp byte ptr [r12], 6
+  315: 0x1402012b1 je 0x1402012c0
+  316: 0x1402012b3 lea rcx, [rsp + 0xc0]
+
+--- frontend argument-free wrapper (.codex-live\lwbridge-readable\api-ClPPi2JT.js lines 798-806) ---
+  798:         closeUnmanaged: !0
+  799:     })
+  800: }
+  801: 
+  802: function ge() {
+  803:     return U(`profile_instances_update_and_restart`)
+  804: }
+  805: 
+  806: function _e(e) {
+
+--- frontend result consumer (.codex-live\lwbridge-readable\index-sfL2sT3K.js lines 12790-12800) ---
+12790:     }
+12791:     async function Wt() {
+12792:         ie(!0), k(``);
+12793:         try {
+12794:             let t = await e();
+12795:             ne(await we()), t.errors.length > 0 && k(t.errors[0].error), F(`game connection updated restarted=${t.restarted.length} errors=${t.errors.length}`)
+12796:         } catch (e) {
+12797:             k(String(e)), F(`game connection update error ` + String(e))
+12798:         } finally {
+12799:             ie(!1)
+12800:         }

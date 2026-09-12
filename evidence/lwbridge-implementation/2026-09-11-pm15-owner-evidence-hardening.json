@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM15-001",
+  "date": "2026-09-11",
+  "scope": "PM15-01 current-session reopen proof ownership and PM15-02 truthful process/evidence health",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; READY_FOR_PM_REVIEW",
+  "sourceIdentity": {
+    "pmReviewCommit": "e9d60fb5981eeb8e5157e73b87c73afec949c161",
+    "pmReviewPath": "docs/reviews/2026-09-11-review-15-owner-evidence.md",
+    "pmReviewSha256": "b786435641af16baefe0dd8930f5c677509fe47e2e3e9af91eab018b06c832a6",
+    "reviewedCollectorSha256": "8e17f0213c3cb08fc74ddd02ae40e31cce43de127c8609269b33adecc4db8da8",
+    "implementationCommit": "1e9af6e87bfbff6155ad4b9b4340b2f6928c5fd0",
+    "repairedCollectorSha256": "0c30afad67308e2ef40f2b9bc039734cb087a4c9879b5a4925925d4545fbfe67"
+  },
+  "exactLocators": {
+    "processObservationParser": "tools/collect_owner_resource_evidence.py:79 parse_process_snapshot",
+    "currentSessionUiReader": "tools/collect_owner_resource_evidence.py:188 collect_ui_events",
+    "processBlocker": "tools/collect_owner_resource_evidence.py:371 process_observation_blocker",
+    "sessionDirectoryOwnership": "tools/collect_owner_resource_evidence.py:377 create_evidence_session",
+    "evidenceHealth": "tools/collect_owner_resource_evidence.py:384 evidence_health_errors and :409 completion_failure_reasons",
+    "reopenDecision": "tools/collect_owner_resource_evidence.py:420 evaluate_reopen",
+    "preflight": "tools/collect_owner_resource_evidence.py:448 preflight",
+    "postflight": "tools/collect_owner_resource_evidence.py:499 postflight",
+    "ownerSessionRunner": "tools/collect_owner_resource_evidence.py:552 run_owner_session",
+    "isolatedRegressions": "tools/check_owner_resource_evidence_collector.py:55 main; PM15 cases at lines 70-156"
+  },
+  "result": {
+    "PM15-01": [
+      "Each app launch receives a collector-generated evidenceSessionId and a unique ui/session-<index>-<uuid> directory.",
+      "The collector launches LWBridge with subprocess.Popen, records the exact launched PID, and reads only ui-session-<that PID>.jsonl from that launch's unique directory.",
+      "A current session is healthy only with one matching session-start and session-end for the exact launched PID and no parse/unexpected-file errors.",
+      "Search/render correlation is evaluated in event order inside the current session; a correlated render must follow that Search and carry the same requestId.",
+      "Reopen requires both session-one and session-two evidence to be independently healthy/current-session Search-render proofs plus same profile and same saved-row signature. Session one cannot satisfy session two."
+    ],
+    "PM15-02": [
+      "Windows process observation now returns explicit ok/rows/error/diagnostic state; nonzero exit, malformed JSON, and invalid shapes are UNKNOWN failures rather than empty rows.",
+      "A successful empty process query remains distinct and is accepted as an observed empty set.",
+      "Preflight blocks when process observation fails and preserves bounded stdout/stderr/exit-code diagnostic in the attempt evidence.",
+      "Postflight cleanupClean requires a successful process observation; failed observation can no longer become a clean claim.",
+      "Nonzero app exit, malformed/missing current-session UI evidence, failed postflight process observation, failed runtime inspection, or unreadable profile store makes evidenceHealthy false and forces INCOMPLETE before reopen acceptance."
+    ]
+  },
+  "isolatedRegressions": {
+    "path": "evidence/lwbridge-implementation/pm15-owner-evidence/isolated-regressions.json",
+    "sha256": "3a0f888e5612f5b728bc305683c31e0e6ae451c9a812fb71dd6b11a60c1ca6b7",
+    "checks": {
+      "secondSessionWithoutSearchRejected": true,
+      "uncorrelatedOrMismatchingSecondEvidenceRejected": true,
+      "fileOrderAndPidReuseCannotSelectOldProof": true,
+      "distinctValidSecondSessionCanPass": true,
+      "processObservationFailureAndEmptySeparated": true,
+      "missingOrMalformedCurrentSessionEvidenceRejected": true,
+      "appOrEvidenceFailureAfterPriorSuccessRejected": true
+    }
+  },
+  "packageIdentity": {
+    "path": "evidence/lwbridge-implementation/pm15-owner-evidence/package-identity.json",
+    "sha256": "643880feaf76ee0bb834de683feb4042f0891a6f3fd521c6507a6f5650dee421",
+    "implementationCommit": "1e9af6e87bfbff6155ad4b9b4340b2f6928c5fd0",
+    "exeSha256": "9f4f4857453139094279866ea85b3b2c95a53ef5fa2d87caa566c3c96dfe220b",
+    "exeSize": 163328,
+    "managedDllSha256": "5c859de9cf25c2fbc68b4e80abb7f1abfc6243a466b76778e2dfb9f297155848",
+    "managedDllSize": 444928,
+    "collectorSha256": "0c30afad67308e2ef40f2b9bc039734cb087a4c9879b5a4925925d4545fbfe67",
+    "regressionScriptSha256": "acd6a2041dee28f371c69f4e27c00032304cfebfbd41db55e59b4761485c3f59",
+    "shortcutSha256": "9354f5b3d99362ac5e4b7d629b870c0aa01ae6afc70efe0c455ffd16e8993d90"
+  },
+  "validation": [
+    "python -m py_compile tools/collect_owner_resource_evidence.py tools/check_owner_resource_evidence_collector.py = PASS",
+    "python tools/collect_owner_resource_evidence.py --self-test = PASS; no app/game/process operation",
+    "python tools/check_owner_resource_evidence_collector.py = PASS; seven PM15 isolated checks true",
+    "repo-root Start Owner Resource Check.cmd --self-test = PASS; exit 0; no leftover LWBridge/LastWar/pythonw process",
+    "python tools/build_lwbridge_frontend.py --check = PASS",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release = PASS twice; 0 warnings/errors; identical EXE/DLL hashes across both builds from implementation commit",
+    "desktop deterministic suite --verify-real-config-unchanged = PASS; six groups true; no failures",
+    "preference provider = PASS",
+    "isolated native host termination self-test and WebView matrix = PASS; liveGameCommandsPerformed=false",
+    "requested-live missing-native and transport boundary checks = PASS",
+    "PM13 resource feedback browser regression = PASS",
+    "PM13 five-case resource proof browser regression = PASS",
+    "full frontend/browser verifier = PASS 35 checks; compare = 32/32 identical, maxMae 0.0"
+  ],
+  "toolSetupNote": "The first local PM13 browser invocation lacked Playwright. An isolated .codex-live/pm15-ui-check dependency was installed with npm.cmd after PowerShell blocked npm.ps1 by execution policy; reruns passed. This was a local test dependency/policy issue, not an application failure.",
+  "limits": [
+    "No fresh Resource Start, game acquisition, saved-data seeding, owner retest, or SB-97 reroute was performed.",
+    "The owner's original no-saved-context attempt remains preserved unchanged and accepted by PM review 15; this checkpoint only hardens future collector use.",
+    "COMPLETE_NO_SAVED_CONTEXT remains distinct from saved-row reopen and still requires the current session's healthy no-context evidence plus empty pre/post publishedServerIds.",
+    "PM13-04 fresh acquisition remains BLOCKED/NOT_RUN under SB-97; collector correctness does not provide live resource acceptance."
+  ],
+  "implementationImpact": {
+    "pmDefects": [
+      "PM15-01",
+      "PM15-02"
+    ],
+    "files": [
+      "tools/collect_owner_resource_evidence.py",
+      "tools/check_owner_resource_evidence_collector.py",
+      ".github/workflows/csharp.yml"
+    ],
+    "next": "PM audits LWB-PM15-001 and CI for the final evidence/handoff checkpoint. No owner action is requested."
+  }
+}

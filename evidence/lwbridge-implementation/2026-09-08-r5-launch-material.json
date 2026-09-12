@@ -1,0 +1,125 @@
+{
+  "findingId": "LWB-R5-004",
+  "date": "2026-09-08",
+  "scope": "outer launch-proof response propagation and launch-ticket source selection/cache reuse",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "artifact": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "preferredImageBase": "0x140000000",
+    "coordinateSystem": "preferred virtual addresses (VA)"
+  },
+  "profileLaunchRuntimeFunctionPreferredVa": "0x1401D3F1B-0x1401DCAD1",
+  "launchProof": {
+    "responseType": "LeaseActivationResponse",
+    "responseField": "launchProof",
+    "responseTypeXrefPreferredVa": "0x1401DA43A",
+    "responseTypeLengthPreferredVa": "0x1401DA441",
+    "responseTypeLength": 23,
+    "responseDecodeCallPreferredVa": "0x1401DA44D",
+    "responseDecodeTargetPreferredVa": "0x1402AAEBD",
+    "responseStateCopyPreferredVa": "0x1401DA80E-0x1401DA82C",
+    "proofStateOffset": "0x690",
+    "proofStateCopyPreferredVa": "0x1401DA846-0x1401DA857",
+    "envelopeFieldXrefPreferredVa": "0x1401DA91D",
+    "envelopeFieldLengthPreferredVa": "0x1401DA92C",
+    "envelopeValueSourcePreferredVa": "0x1401DA937"
+  },
+  "ticketSelection": {
+    "initialTicketStateSentinelWritePreferredVa": "0x1401D67A7-0x1401D67B1",
+    "ticketStateOffset": "0x4C0",
+    "candidateHelperCallPreferredVa": "0x1401D67D2",
+    "candidateHelperTargetPreferredVa": "0x1401E4910",
+    "missingTicketReason": "ticket_missing",
+    "missingTicketLogPreferredVa": "0x1401D67F0",
+    "missingTicketLogLengthPreferredVa": "0x1401D67F7",
+    "missingTicketLogLength": 75,
+    "ticketStateReferencePreferredVa": "0x1401D6824",
+    "ticketStateHelperCallPreferredVa": "0x1401D6833",
+    "ticketStateHelperTargetPreferredVa": "0x1401E470F",
+    "sourceLabels": [
+      {
+        "label": "primary_official",
+        "labelLength": 16,
+        "xrefPreferredVa": "0x1401D6866"
+      },
+      {
+        "label": "independent_official",
+        "labelLength": 20,
+        "xrefPreferredVa": "0x1401D687D"
+      },
+      {
+        "label": "cached_reusable",
+        "labelLength": 15,
+        "xrefPreferredVa": "0x1401D6884"
+      }
+    ],
+    "cachedIndependentSelectionPreferredVa": "0x1401D6873-0x1401D6893",
+    "selectedSourceLogPreferredVa": "0x1401D68CC"
+  },
+  "cachedLauncherReport": {
+    "fields": [
+      {
+        "name": "pid",
+        "nameLength": 3,
+        "nameXrefPreferredVa": "0x1401DB605",
+        "lengthPreferredVa": "0x1401DB60C"
+      },
+      {
+        "name": "gameLaunchTicket",
+        "nameLength": 16,
+        "nameXrefPreferredVa": "0x1401DB65E",
+        "lengthPreferredVa": "0x1401DB665"
+      },
+      {
+        "name": "gameLaunchTicketExpiresAt",
+        "nameLength": 25,
+        "nameXrefPreferredVa": "0x1401DB81E",
+        "lengthPreferredVa": "0x1401DB825"
+      }
+    ],
+    "fallbackPreferredVa": "0x1401DB993",
+    "fallbackBranches": [
+      "0x1401DB658",
+      "0x1401DB818",
+      "0x1401DB836",
+      "0x1401DB83F",
+      "0x1401DB848",
+      "0x1401DB851",
+      "0x1401DB85C"
+    ],
+    "fallbackProcessingCallPreferredVa": "0x1401DB9B3",
+    "fallbackProcessingTargetPreferredVa": "0x14033C51B"
+  },
+  "reproduction": {
+    "inspector": "python tools\\inspect_lwbridge_launch_material.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-08-r5-launch-material.json",
+    "inspectorSyntaxCheck": "python -m py_compile tools\\inspect_lwbridge_launch_material.py",
+    "currentCheckpointExecution": "The syntax check passed. The environment safety review blocked executing the new fixed-address verifier against the reference binary. Exact locators above were independently observed in bounded read-only disassembly of the verified reference during this checkpoint and cross-checked against the existing saved disassembly trace under .codex-live/lwbridge-static/proxy-selection-xrefs.txt."
+  },
+  "result": [
+    "The inspected outer profile-launch state consumes a field named launchProof from a value named LeaseActivationResponse and later serializes the propagated value as LaunchEnvelope.launchProof.",
+    "The outer host contains three explicit launch-ticket source labels: primary_official, cached_reusable, and independent_official.",
+    "The missing reusable-ticket path logs profile launch requesting independent official ticket reason=ticket_missing before the independent-official candidate path.",
+    "Cached launcher state is queried for pid, gameLaunchTicket, and gameLaunchTicketExpiresAt; missing/type/shape failures converge on the recovered fallback-processing path beginning at 0x1401DB993."
+  ],
+  "validationAndLimits": {
+    "validation": "RECOVERED static only against the immutable LWBridge reference; no live game operation was performed",
+    "liveProven": false,
+    "unknownBlocked": [
+      "the producer/service implementation that creates LeaseActivationResponse and launchProof",
+      "launchProof signing inputs and complete claim-name/order mapping",
+      "gameLaunchTicket signing inputs and exact primary/independent producer implementation",
+      "semantic meaning of the LWLT2 extra decimal field",
+      "ticket ownership and consumption protocol/state transitions",
+      "semantic contract of helper 0x14033C51B beyond its recovered callsite and inputs",
+      "exact outer-host child argument construction/quoting/input channel",
+      "current-client live launch/bootstrap acceptance"
+    ]
+  },
+  "implementationImpact": {
+    "r5LaunchProofSource": "response propagation recovered; producer/signing remain blocked",
+    "r5TicketSelection": "source taxonomy and cached-report reuse gate recovered; producer/signing/ownership remain blocked",
+    "profileInstanceStart": "remains fail-closed with OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED",
+    "nextTrace": "recover LeaseActivationResponse producer/signing inputs, ticket ownership/consumption transitions, and exact child argument construction without guessing helper semantics"
+  }
+}

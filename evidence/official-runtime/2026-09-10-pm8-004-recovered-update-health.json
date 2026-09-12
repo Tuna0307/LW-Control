@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 2,
+  "observedAtUtc": "2026-09-09T17:30:41.521879+00:00",
+  "mode": "read-only",
+  "scriptsRoot": "%USERPROFILE%/AppData/LocalLow/FunFly/Last War-Survival Game/lwScripts",
+  "sourceLog": {
+    "name": "Launcher.log",
+    "exists": true,
+    "size": 1658149,
+    "sha256": "cc7d2ab008ab84f10ac652e570b7b56422e459e6eefcec80384fec5b60acd27f",
+    "rawCrc32": 2099891998,
+    "modifiedAtUtc": "2026-09-09T17:14:54.132611+00:00",
+    "stableDuringRead": true
+  },
+  "latestRecordedCrcFailure": {
+    "line": 39720,
+    "timestampAsLogged": "2026-09-10 00:31:21.582",
+    "target": "lwScripts/LWScripts.data.tmp",
+    "expectedCrc32": 3541420783,
+    "reportedCrc32": 4055968188
+  },
+  "precedingPatchAdvertisement": {
+    "line": 39719,
+    "name": "LWScripts_14_12_u440.patch",
+    "savedName": "LWScripts_14_12_u440.patch",
+    "advertisedSize": 1230849,
+    "advertisedCrc32": 3874454969
+  },
+  "latestRecoveryCleanupStart": {
+    "line": 39721,
+    "timestampAsLogged": "2026-09-10 01:13:36.451"
+  },
+  "latestUpdateCompleted": {
+    "line": 39857,
+    "timestampAsLogged": "2026-09-10 01:13:56.251"
+  },
+  "latestAppliedLwLuaUpdate": {
+    "line": 39869,
+    "timestampAsLogged": "2026-09-10 01:14:48.633",
+    "version": 14,
+    "fileVersion": 3,
+    "size": 41269242,
+    "crc32": 3541420783
+  },
+  "latestGameStart": {
+    "line": 39874,
+    "timestampAsLogged": "2026-09-10 01:14:54.132",
+    "target": "Game/LastWar.exe"
+  },
+  "playerLog": {
+    "name": "Player.log",
+    "exists": true,
+    "size": 6208,
+    "sha256": "9f0798a4e6ee1850646ac2e1065273d48a579b33e69141a53c88fa9b58295bda",
+    "rawCrc32": 920800145,
+    "modifiedAtUtc": "2026-09-09T17:17:04.134346+00:00",
+    "stableDuringRead": true,
+    "startupSignals": {
+      "initializeEngine": true,
+      "applicationAwake": true,
+      "gameEntryInitBegin": true,
+      "gameEntryInitEnd": true,
+      "startGameCall": true
+    }
+  },
+  "files": {
+    "LWScripts.data": {
+      "exists": true,
+      "size": 41269242,
+      "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "rawCrc32": 3541420783,
+      "modifiedAtUtc": "2026-09-09T17:14:47.703018+00:00",
+      "stableDuringRead": true
+    },
+    "LWScripts.data.tmp": {
+      "exists": false
+    },
+    "LWScripts.txt": {
+      "exists": true,
+      "size": 19,
+      "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+      "rawCrc32": 996811375,
+      "modifiedAtUtc": "2026-09-09T17:14:48.611661+00:00",
+      "stableDuringRead": true
+    },
+    "version.txt": {
+      "exists": true,
+      "size": 2,
+      "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+      "rawCrc32": 2788221432,
+      "modifiedAtUtc": "2026-09-09T17:15:05.799328+00:00",
+      "stableDuringRead": true
+    },
+    "LWScripts_14_12_u440.patch": {
+      "exists": false
+    }
+  },
+  "activeMetadata": "41269242|3541420783",
+  "activeVersionMarker": "14",
+  "checks": {
+    "activeSizeMatchesMetadata": true,
+    "activeRawCrcMatchesMetadata": true,
+    "activeSizeMatchesLatestAppliedUpdate": true,
+    "activeRawCrcMatchesLatestAppliedUpdate": true,
+    "activeVersionMatchesLatestAppliedUpdate": true,
+    "latestGameStartFollowsLatestAppliedUpdate": true
+  },
+  "limits": [
+    "Historical log events do not alone establish current launcher health.",
+    "Matching downloaded patch CRC does not prove the publisher patch/decoder is correct.",
+    "No patch application, decryption, game launch, repair or installed-file mutation performed.",
+    "Inspect stableDuringRead and recheck after any update/repair before relying on hashes."
+  ]
+}

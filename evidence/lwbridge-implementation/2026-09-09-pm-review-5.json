@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "type": "project-manager-review-5",
+  "implementationRevision": "d4e97903122372378ce324edf8d1444d6ccdc0e6",
+  "branch": "research/offline-controller",
+  "startingWorktreeClean": true,
+  "scope": "Combined audit and regular-first escalation workflow; PM5-01 evidence-tool metadata correction. No production behavior changes.",
+  "referenceIdentity": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256FromExistingFindings": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "freshBinaryVerificationOrExtractionThisReview": false
+  },
+  "taskAttribution": [
+    {
+      "title": "Start deep binary handoff",
+      "taskId": "01a0814c-d0ff-7ed3-9bbd-e0351bb65391",
+      "turnId": "01a0814c-d39a-7d13-aa53-ca709d556f96",
+      "designation": "Daybreak task identified by user/context",
+      "reportedCompletedCommits": [
+        "6e1d80f",
+        "d5be1d8"
+      ],
+      "acceptedScope": "R6-006 boolean predicates with R6-010 kind correction; R6-007 literal keyword search. Not completion of all DB-01-06."
+    },
+    {
+      "title": "Read Map Scan Recovery Docs",
+      "taskId": "01a0816c-e9e0-7d53-921e-aa365cccc74c",
+      "latestTurnId": "01a081a6-77cb-7893-974c-af50f0104e7b",
+      "designation": "regular AI task",
+      "commits": [
+        "e69c8e4",
+        "dc797df",
+        "cffe8ed",
+        "8ed4b4b",
+        "cfe43ff",
+        "d4e9790"
+      ],
+      "acceptedScope": "R6-008 consistent snapshot, R6-009 treasure/level slice and option SQL, R6-010 reindeer correction, R6-011 partial schema markers, R6-012 superseded adjacency, R6-013 ordinary-quality implementation."
+    }
+  ],
+  "sourceFileSha256": {
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "d3ceb2b2e12c4f90b58f878094e6e8ee24e2f66c1f1aa15127ead3bef6ad4223",
+    "src/LWBridge.Desktop/MapDataStore.cs": "7e8cc9fdb14262deec14db330f8260bcf59064cd808f15b73bd59bbf6d3c351d",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "1be4c1afbf514912999cd26d74b15ddc89c2bce3523313cd0e13c637f79b0fa4",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "0df8b1a5dd934a42934d27bb4fa6fe1717f349db1c17b0eb58d02db38ecf4a0f",
+    "tools/inspect_lwbridge_map_query_boolean_filters.py": "9bf1cb9368f2c3a201d875c9a632051b0668269ee404e8bf44240cf69dc0953c",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-query-boolean-filters.json": "92e2d9bba908e2d7496500c2af4bcf6c9920778d5e5c4f8555df3d7340ce2e5b",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-keyword.json": "b39b675ce0e9dcdd3c8956c34a819f7b12167d8a18e13b5102c69a9f0a29dd2b",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-search-snapshot.json": "ce46fa732e7c19a0198392e3f897115bdb613a9d9cb8632a1afddacd0096964b",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.json": "513ab3e40ce0ff1375864f789c4cb2cb9ec3ea394381157d0d91606e004489d7",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.txt": "bdf3a823c76011d17ce6feb76d11e1218f72f1a2e4aa864989e15a46395d1250",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-quality-selector-kind-gates.json": "374ccc76b23c41c1623ee1108dc5cc802e350e6f42ed2c67e17725570bf02ec1",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-schema-metadata.json": "c25df1105920d396869d5b1d24ba8cbb39027e5632e4464a93e44e2cf483044b",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-quality-special-ur-exclusion.json": "5672b0faedc5141ac27fbe4f52df11c7b8ae89f838548eeb3860b7234ae562c7",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-quality-filter.json": "4c7c3b7d7f8452809c3458da1fbe1e1146129ef4d1fb213b19dfa8ac95d9cc8e",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-quality-filter.txt": "6be1b93e49940c583ca52688cb48988586649c9814859d73f0e072a78204a2c5",
+    "evidence/lwbridge-implementation/2026-09-08-r6-map-quality-implementation.json": "800009578f3e28b0ade56550736b3bdaed6c2b53250aab927ac5699a6ad7f9ee"
+  },
+  "checks": {
+    "releaseBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0,
+      "command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release"
+    },
+    "standardBackend": {
+      "passed": true,
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "deterministic": {
+        "profileRouting": true,
+        "persistence": true,
+        "requestLifetime": true,
+        "mapPersistence": true,
+        "mapContract": true
+      },
+      "failures": [],
+      "realConfigPreservationFlag": true,
+      "installedDiagnosticValid": true,
+      "gameRunningAtDiagnostic": false,
+      "launcherRunningAtDiagnostic": false
+    },
+    "frontendIntegrity": {
+      "passed": true,
+      "command": "python tools/build_lwbridge_frontend.py --check"
+    },
+    "preferenceProvider": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_preference_provider.cjs",
+      "scenarios": [
+        "bothFail",
+        "failThenSuccess",
+        "successThenFail",
+        "bothSuccess",
+        "recovery"
+      ]
+    },
+    "missingNativeTransport": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_live_transport.cjs"
+    },
+    "transportBoundary": {
+      "passed": true,
+      "command": "node tools/check_lwbridge_transport_boundary.cjs"
+    },
+    "inspectorSyntax": {
+      "passed": true,
+      "count": 14,
+      "method": "ast.parse UTF-8 source, no module execution or reference-binary access"
+    },
+    "pm5_01_metadata": {
+      "passed": true,
+      "method": "AST literal frontendKinds matches saved R6-010; source checks explicitly separate UI saved evidence and backend tests from binary marker verification. No inspector execution.",
+      "reindeerOnly": [
+        "truck"
+      ],
+      "specialOnly": [
+        "dispatch",
+        "ghost"
+      ]
+    },
+    "documentation": {
+      "passed": true,
+      "markdownFiles": 20,
+      "missingTargets": [],
+      "acceptanceRows": 47,
+      "acceptanceRowsUnchanged": true,
+      "formerTASKSAbsent": true
+    },
+    "notRerun": {
+      "nativeWebViewHost": true,
+      "desktopCaptures": true,
+      "browserPixelMatrix": true,
+      "reason": "No audited changes to these UI/host paths; review-4 results retained as historical. Appropriate backend/filter tests rerun instead.",
+      "verifiedUnchangedPaths": [
+        "src/LWBridge.Desktop/LWBridgeWindow.cs",
+        "src/LWBridge.Desktop/WebUi/local-providers.js",
+        "tools/check_lwbridge_host_probe.ps1"
+      ]
+    }
+  },
+  "auditFinding": {
+    "id": "PM5-01",
+    "status": "CORRECTED/source-checked",
+    "file": "tools/inspect_lwbridge_map_query_boolean_filters.py",
+    "locator": "result.recovered.frontendKinds, correlatedFrontendFinding, frontendKindEvidence, validation.implementationValidation",
+    "before": "Inspector still emitted truck and railway for reindeerOnly despite production R6-010 truck-only correction; listed backend tests among checks without executing them.",
+    "after": "Truck-only metadata cites saved R6-010; explicitly states frontend gates and backend suite are not independently verified by this binary-marker inspector.",
+    "historicalEvidencePreserved": "Original R6-006 JSON unchanged; subject summary marks kind interpretation superseded.",
+    "productionEffect": "None; production kind gate already correct."
+  },
+  "knownValidationGap": {
+    "scope": "R6-013 persisted quality results",
+    "observation": "Truck selectors have persisted result tests. Other three quality kinds have normalization acceptance tests but lack equivalent persisted special-UR boundary rows.",
+    "nextTask": "Regular AI add persisted non-truck special-UR retention and truck non-special quality>5 tests; not a reproduced production defect."
+  },
+  "escalationPolicy": {
+    "rule": "Regular AI owns research and implementation first, including permitted binary work; document exhausted relevant methods and reasons, then PM review before bounded Daybreak assignment.",
+    "source": "AGENTS.md section 6",
+    "regularTask": "docs/implementation-handoff.md",
+    "specialistTask": "docs/deep-binary-handoff.md",
+    "register": "docs/daybreak-escalations.md",
+    "requests": {
+      "ESC-001": "NEEDS_INFORMATION: completion/reward cutoff",
+      "ESC-002": "NEEDS_INFORMATION: schema/migration prerequisites"
+    },
+    "newApprovedTechnicalAssignments": [],
+    "newTasksCreatedOrMessagesDispatched": false
+  },
+  "reportedRestrictions": [
+    {
+      "id": "SB-03",
+      "source": "evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.json",
+      "locator": "validation.environmentRestriction",
+      "operation": "Convenience executable verifier",
+      "evidenceQuality": "Existing finding metadata; exact rejected invocation not contained there."
+    },
+    {
+      "id": "SB-04",
+      "source": "evidence/lwbridge-implementation/2026-09-08-r6-map-schema-metadata.json",
+      "locator": "validation.environmentRestriction",
+      "operation": "Read-only query of existing user-profile map-data.db",
+      "evidenceQuality": "Existing finding metadata; database contents not accepted."
+    },
+    {
+      "id": "SB-05",
+      "sourceTaskId": "01a0816c-e9e0-7d53-921e-aa365cccc74c",
+      "turnId": "01a081a6-77cb-7893-974c-af50f0104e7b",
+      "operation": "Completion-status broad context and bounded-range reads",
+      "reportedReason": "Environment automatic safety review could not determine safety status.",
+      "evidenceQuality": "Task commentary/final report inspected; raw rejection telemetry not acquired."
+    }
+  ],
+  "limits": [
+    "No denied operation retried and no new rejection in this audit; model change does not authorize rerouting denied actions.",
+    "Regular-AI attempt history is incomplete for ESC-001/002; PM does not claim every permitted alternative was exhausted.",
+    "Latest chat leads for map_summary/export/sorts do not establish native producer contracts; preserved as leads, not new recovered findings.",
+    "No live launch/injection/scan/travel/claim/plunder/message performed.",
+    "Full Overview/Map Data and all 47 complete acceptance cases remain unsigned; offline slices credited separately.",
+    "All eight source commits already integrated on one branch; no cherry-pick/merge necessary."
+  ]
+}

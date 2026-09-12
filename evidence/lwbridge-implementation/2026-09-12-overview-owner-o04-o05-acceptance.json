@@ -1,0 +1,59 @@
+{
+  "findingId": "LWB-OVR-011",
+  "date": "2026-09-12",
+  "status": "OWNER-ACCEPTED",
+  "validatedParentCommit": "87487d5e868a2b96dd9f3832c5819ae23fd19160",
+  "ownerScreenshot": {
+    "sha256": "151346c3cac40d47e1c1fd8e5b4d9be18c7456bfda91814d77add5668c21092b",
+    "size": 54665,
+    "observed": [
+      "Connected",
+      "Game running",
+      "Open games at startup enabled",
+      "Automatic Reconnection enabled",
+      "Native command timed out: profile_instances_reconcile"
+    ]
+  },
+  "ownerReport": "when i close the game normally , it reopen automatically",
+  "ownerRun": {
+    "startup": {
+      "sessionId": "be2c3711a27a44b5ade97b18d4e933f4",
+      "gamePid": 36684,
+      "messageText": "LWbridge is running"
+    },
+    "recovery": {
+      "sessionId": "b98c7894a53c4336a05612e9b49d6585",
+      "gamePid": 34360,
+      "messageText": "LWbridge is running"
+    },
+    "intentionalClose": {
+      "method": "Process.CloseMainWindow",
+      "accepted": true,
+      "processExited": true,
+      "gamePid": 34360
+    },
+    "final": {
+      "autoLaunchGame": true,
+      "autoReconnect": true,
+      "gameDesiredRunning": false,
+      "gameRunning": false,
+      "runtimeFiles": [
+        "operation.lock"
+      ]
+    }
+  },
+  "restoredHashes": {
+    "LWScripts.data": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "LWScripts.txt": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+    "version.txt": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61"
+  },
+  "timeoutCorrection": {
+    "cause": "profile_instances_reconcile used the default 30000 ms native UI transport timeout even though it can launch the game",
+    "fix": "classify profile_instances_reconcile with profile_instance_start/profile_instances_update_and_restart at 360000 ms",
+    "deterministicRegression": true,
+    "correctedLiveSessionId": "34867a3d1ad94ae7be313ab648c20857",
+    "correctedLiveGamePid": 31808,
+    "correctedUiAfterOldBoundary": "Connected; no Native command timed out text"
+  },
+  "scopeLimit": "Owner acceptance covers startup launch, unexpected process-exit reconnection and intentional Close non-resurrection; event/update adapters retain documented offline-tested scope."
+}

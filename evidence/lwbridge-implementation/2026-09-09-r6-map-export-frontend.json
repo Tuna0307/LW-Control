@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-017",
+  "scope": "Map Data city export frontend request/result contract",
+  "evidenceStatus": "RECOVERED static + IMPLEMENTED/OFFLINE-TESTED gate",
+  "sourceIdentity": {
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "api": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\api-ClPPi2JT.js",
+      "sha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+    }
+  },
+  "locators": {
+    "wrapperCharacterOffset": 21401,
+    "exportFunctionCharacterOffset": 40336,
+    "exportCallCharacterOffset": 40397,
+    "exportResultCharacterOffset": 40659,
+    "exportFailureCharacterOffset": 40786,
+    "exportButtonCharacterOffset": 53358
+  },
+  "recovered": {
+    "command": "map_city_export",
+    "apiPayload": "{query,...options}",
+    "eligibility": "frontend offers export only on the city tab; selected data server must be positive; button is disabled while a map scan is reading or export is already busy",
+    "query": {
+      "source": "the same current Map Data query builder used by search",
+      "page": 1,
+      "pageSize": 200,
+      "implication": "current city keyword/alliance/no-alliance/marked/sort state is serialized by the shared query builder when present"
+    },
+    "options": {
+      "headers": [
+        "map.server",
+        "X",
+        "Y",
+        "map.player",
+        "UID",
+        "UUID",
+        "map.alliance",
+        "map.level",
+        "HP",
+        "automation.shieldEnds",
+        "map.marked",
+        "map.updatedAt"
+      ],
+      "sheetName": "map.city",
+      "yesLabel": "common.yes",
+      "noLabel": "common.no",
+      "localization": "translation keys are resolved by the frontend before invocation; literal X/Y/UID/UUID/HP remain literal"
+    },
+    "result": {
+      "fieldsConsumed": ["canceled", "rowCount", "path"],
+      "canceled": "suppresses success text/log when true",
+      "success": "uses rowCount and path in the visible success message and log",
+      "failure": "surfaces the thrown error through the panel error formatter and city-export log"
+    }
+  },
+  "implementation": {
+    "status": "IMPLEMENTED/OFFLINE-TESTED gate only",
+    "file": "tests/LWBridge.Desktop.Checks/Program.cs",
+    "behavior": "a structurally recovered city-export envelope with page=1/pageSize=200 and resolved option strings reaches the existing MAP_INDEX_UNAVAILABLE writer gate; no workbook is created"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_export_frontend.py evidence\\lwbridge-0.3.1\\frontend",
+    "python tools\\inspect_lwbridge_map_export_frontend.py evidence\\lwbridge-0.3.1\\frontend --json",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+  ],
+  "validationAndLimits": {
+    "validation": "hash-locked static frontend verification plus deterministic fail-closed backend-envelope regression",
+    "liveProven": false,
+    "unknownBlocked": [
+      "native file picker contract and default filename/path",
+      "backend row-to-column value mapping and type coercion",
+      "whether the backend internally paginates beyond the frontend query pageSize=200",
+      "workbook library/format details, column widths/styles and exact cancellation/error codes",
+      "large UID/UUID preservation and reopen behavior in the original writer"
+    ]
+  },
+  "implementationImpact": {
+    "frontendEnvelope": "exact request options and consumed result fields are now pinned",
+    "backend": "map_city_export remains unavailable until writer scope/row mapping/pagination/file-dialog semantics are recovered; the 200-row frontend query is not treated as proof of an export row limit"
+  }
+}

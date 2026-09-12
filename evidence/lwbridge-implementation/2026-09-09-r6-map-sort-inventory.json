@@ -1,0 +1,287 @@
+{
+  "findingId": "LWB-R6-026",
+  "date": "2026-09-09",
+  "scope": "Map Data native sort parser/expression inventory and frontend ordered multi-sort state",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "lwbridge": {
+      "path": "..\\LW\\lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "mapPanel": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    }
+  },
+  "locators": {
+    "mapSearchPreferredImageVaRange": [
+      "0x140271864",
+      "0x140276d7b"
+    ],
+    "sortMappingPreferredImageVaRange": [
+      "0x1402749a7",
+      "0x1402755f0"
+    ],
+    "parserComparisons": {
+      "remainingLootCountCandidate": {
+        "preferredImageVa": "0x140274b1d",
+        "expectedPrefixHex": "f30f6f06660f74c60fb74610660f6ec8660f74cf660fdbc8660fd7c13dffff0000"
+      },
+      "distance": {
+        "preferredImageVa": "0x140274b68",
+        "expectedPrefixHex": "48b864697374616e6365483906"
+      },
+      "itemCount": {
+        "preferredImageVa": "0x140274be5",
+        "expectedPrefixHex": "488b0648b96974656d436f756e4831c80fb64e084883f174"
+      },
+      "updatedAt": {
+        "preferredImageVa": "0x140274c06",
+        "expectedPrefixHex": "488b0648b975706461746564414831c80fb64e084883f174"
+      },
+      "quality": {
+        "preferredImageVa": "0x140274c2c",
+        "expectedPrefixHex": "8b06b97175616c31c88b4e03ba6c69747931d109c1"
+      },
+      "shield": {
+        "preferredImageVa": "0x140274cdf",
+        "expectedPrefixHex": "8b06b97368696531c80fb74e0481f16c64000009c1"
+      },
+      "health": {
+        "preferredImageVa": "0x140274cfa",
+        "expectedPrefixHex": "8b06b96865616c31c80fb74e0481f17468000009c1"
+      },
+      "level": {
+        "preferredImageVa": "0x140274d6a",
+        "expectedPrefixHex": "8b06b96c65766531c80fb64e0483f16c09c1"
+      },
+      "power": {
+        "preferredImageVa": "0x140274d82",
+        "expectedPrefixHex": "8b06b9706f776531c80fb64e0483f17209c1"
+      },
+      "arriveTime": {
+        "preferredImageVa": "0x140274dc2",
+        "expectedPrefixHex": "488b0648b961727269766554694831c80fb74e084881f16d6500004809c1"
+      },
+      "protectTime": {
+        "preferredImageVa": "0x140274e0a",
+        "expectedPrefixHex": "488b0648b970726f74656374544831c8488b4e0348ba7465637454696d654831d14809c1"
+      },
+      "completionTime": {
+        "preferredImageVa": "0x140274e58",
+        "expectedPrefixHex": "488b0648b9636f6d706c6574694831c8488b4e0648ba74696f6e54696d654831d14809c1"
+      }
+    },
+    "expressionStrings": {
+      "updatedAt": {
+        "rawPeOffset": "0xc8a533",
+        "text": "updated_at AS sort_value_0"
+      },
+      "distanceLiteral": {
+        "rawPeOffset": "0xc8a918",
+        "text": "distance"
+      },
+      "powerLiteral": {
+        "rawPeOffset": "0xc8a920",
+        "text": "power"
+      },
+      "itemCountDescriptor": {
+        "rawPeOffset": "0xc8a925",
+        "text": "V"
+      },
+      "itemCount": {
+        "rawPeOffset": "0xc8a926",
+        "text": "COALESCE((SELECT SUM(CAST(json_extract(good.value,'$.count') AS REAL)) FROM json_each("
+      },
+      "completionTime": {
+        "rawPeOffset": "0xc8a9e0",
+        "text": "NULLIF(CAST(json_extract(data_json,'$.completionTime') AS INTEGER),0)"
+      },
+      "remainingLootCount": {
+        "rawPeOffset": "0xc8aa25",
+        "text": "COALESCE(CAST(json_extract(data_json,'$.remainingLootCount') AS INTEGER),0)"
+      },
+      "protectTime": {
+        "rawPeOffset": "0xc8aa70",
+        "text": "NULLIF(CAST(json_extract(data_json,'$.protectTime') AS INTEGER),0)"
+      },
+      "arriveTime": {
+        "rawPeOffset": "0xc8aab2",
+        "text": "NULLIF(CAST(json_extract(data_json,'$.arriveTs') AS INTEGER),0)"
+      },
+      "truckQuality": {
+        "rawPeOffset": "0xc8aaf1",
+        "text": "CASE WHEN CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER)=1 THEN 100 ELSE quality END"
+      },
+      "dispatchGhostQuality": {
+        "rawPeOffset": "0xc8ab56",
+        "text": "CASE WHEN CAST(json_extract(data_json,'$.isSpecial') AS INTEGER)=1 THEN 100 ELSE quality END"
+      },
+      "health": {
+        "rawPeOffset": "0xc8abb2",
+        "text": "NULLIF(CAST(json_extract(data_json,'$.health') AS REAL),0)"
+      },
+      "sortValuePrefix": {
+        "rawPeOffset": "0xc8abed",
+        "text": "sort_value_"
+      },
+      "descendingLiteral": {
+        "rawPeOffset": "0xc8abfa",
+        "text": "DESC"
+      },
+      "nullOrderFragment": {
+        "rawPeOffset": "0xc8ac19",
+        "text": " IS NULL) ASC, "
+      },
+      "pageNullOrderPrefix": {
+        "rawPeOffset": "0xc8ac40",
+        "text": "(page."
+      },
+      "pageNullOrderFragment": {
+        "rawPeOffset": "0xc8ac48",
+        "text": " IS NULL) ASC, page."
+      }
+    },
+    "directExpressionReferences": {
+      "completionTime": {
+        "preferredImageVa": "0x140274ed6",
+        "expectedPrefixHex": "488d150367a100"
+      },
+      "arriveTime": {
+        "preferredImageVa": "0x140275039",
+        "expectedPrefixHex": "488d157266a100"
+      },
+      "protectTime": {
+        "preferredImageVa": "0x140275081",
+        "expectedPrefixHex": "488d15e865a100"
+      },
+      "itemCount": {
+        "preferredImageVa": "0x140275191",
+        "expectedPrefixHex": "488d158d63a100"
+      }
+    }
+  },
+  "frontendSortState": {
+    "default": [
+      {
+        "sortBy": "updatedAt",
+        "sortOrder": "desc"
+      }
+    ],
+    "toggle": [
+      "missing key: prepend key desc and preserve existing ordered sorts",
+      "existing desc key: change to asc and move it to the front",
+      "existing asc key: remove it"
+    ],
+    "publicSortsByKind": {
+      "city": [
+        "level",
+        "health",
+        "shield",
+        "updatedAt"
+      ],
+      "resource": [
+        "level",
+        "updatedAt"
+      ],
+      "monster": [
+        "level",
+        "distance",
+        "updatedAt"
+      ],
+      "truck": [
+        "quality",
+        "power",
+        "itemCount",
+        "remainingLootCount",
+        "arriveTime",
+        "updatedAt"
+      ],
+      "railway": [
+        "quality",
+        "power",
+        "itemCount",
+        "protectTime",
+        "updatedAt"
+      ],
+      "treasure": [
+        "updatedAt"
+      ],
+      "dispatch": [
+        "level",
+        "quality",
+        "completionTime",
+        "updatedAt"
+      ],
+      "ghost": [
+        "level",
+        "quality",
+        "completionTime",
+        "updatedAt"
+      ]
+    },
+    "itemCountVisibleOnlyWhenItemKeyIsPresent": true
+  },
+  "recoveredNativeSubset": {
+    "parserKeysPinnedByScalarImmediateComparisons": [
+      "distance",
+      "itemCount",
+      "updatedAt",
+      "quality",
+      "shield",
+      "health",
+      "level",
+      "power",
+      "arriveTime",
+      "protectTime",
+      "completionTime"
+    ],
+    "directExpressionReferences": [
+      "itemCount",
+      "arriveTime",
+      "protectTime",
+      "completionTime"
+    ],
+    "exactExpressionInventory": [
+      "updatedAt",
+      "distanceLiteral",
+      "powerLiteral",
+      "itemCountDescriptor",
+      "itemCount",
+      "completionTime",
+      "remainingLootCount",
+      "protectTime",
+      "arriveTime",
+      "truckQuality",
+      "dispatchGhostQuality",
+      "health",
+      "sortValuePrefix",
+      "descendingLiteral",
+      "nullOrderFragment",
+      "pageNullOrderPrefix",
+      "pageNullOrderFragment"
+    ],
+    "remainingLootCountCandidate": "a 18-byte vector comparison is pinned at 0x140274B1D, but this checkpoint does not claim the compared constant until its producer is independently pinned"
+  },
+  "implementationImpact": {
+    "productionChange": "none",
+    "reason": "frontend can emit ordered multi-sort arrays, while complete native multi-sort/null-order assembly and several key-to-expression/kind mappings are still incomplete",
+    "failClosed": "non-updatedAt production sorts remain MAP_QUERY_UNRECOVERED"
+  },
+  "unknownBlocked": [
+    "remainingLootCount vector-compare constant producer and exact parser-key proof",
+    "shield prebuilt CASE expression data-flow",
+    "distance exact computed expression/value source",
+    "railway quality expression branch",
+    "complete per-kind native gates for every alternate sort",
+    "complete ordered multi-sort SQL assembly, null ordering and tie-break behavior"
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_sorts.py ..\\LW\\lwbridge-0.3.1.exe evidence\\lwbridge-0.3.1\\frontend --json"
+  ],
+  "validationAndLimits": {
+    "validation": "hash-locked static verification of immutable reference/frontend bytes",
+    "liveProven": false,
+    "broadDisassemblyRequired": false
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "url": "https://lwbridge.local/index.html?view=map-data&language=en&nativeSession=082b31f07d5640e6b2d6b9bb43bb3db5",
+  "count": 8,
+  "checked": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "startDisabled": false,
+  "alertText": "Live map scan currently supports Resource Point only. Select only Resource Point, then start the scan.",
+  "checkedAfter": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "at": "2026-09-11T00:24:48.951Z"
+}

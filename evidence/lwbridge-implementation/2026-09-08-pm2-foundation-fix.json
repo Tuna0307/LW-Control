@@ -1,0 +1,79 @@
+{
+  "checkpoint": "PM2 foundation repair",
+  "date": "2026-09-08",
+  "startingHead": "167989b3828184380dc5595590da52dfb7e08c78",
+  "branch": "research/offline-controller",
+  "reference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "useInThisCheckpoint": "identity context only; these PM2 fixes are rebuild implementation policy and do not assert newly recovered original behavior"
+  },
+  "classification": [
+    "IMPLEMENTATION POLICY",
+    "IMPLEMENTED/OFFLINE-TESTED"
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "fa0c0f9216eb96a7278b1050572fdfa5bde56bf1fdef8c5ee47feb5a827d3cd7",
+    "src/LWBridge.Desktop/LocalConfigStore.cs": "a42dfa8f27d7496fa21d33bb69d0f430d9bf5dfe2c73152ce3c9f72722b4f7c6",
+    "src/LWBridge.Desktop/NativeRequestRegistry.cs": "230e9667bad6512ac446aad1d0572e012d82518925812bd5073793ee1ebb3080",
+    "src/LWBridge.Desktop/NativeRequestExecutor.cs": "e4182486c2855a09843accbf792ee68af6e0871ac0a164b86e081f390661d9b5",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "9db8b89928ae309d883cb9e282d6602dc8937e4e29aa290b47e7a936097df7d4",
+    "evidence/lwbridge-implementation/pm-review-2-repro/Program.cs": "43564b96bcb4c8ee96814a95f1b3c298e2e8f64eab364ec53dbc0c4f2ae27f11"
+  },
+  "findings": [
+    {
+      "id": "PM2-FIX-01",
+      "scope": "backend partial local-config save",
+      "locator": "src/LWBridge.Desktop/LWBridgeBackend.cs:SetLocalConfig around line 245",
+      "result": "validated partial fields are applied to the fresh baseline supplied by LocalConfigStore.Update under the storage lock, preserving unrelated committed profile/reconnect/root/history state",
+      "validation": "independent PM2-01 passed; standard backend interleaving regression passed",
+      "limits": "isolated filesystem/offline only; overlapping real WebView interaction remains R4"
+    },
+    {
+      "id": "PM2-FIX-02",
+      "scope": "missing-primary configuration recovery",
+      "locator": "src/LWBridge.Desktop/LocalConfigStore.cs:Load line 153; GetFilePresence line 233",
+      "result": "a valid owned backup is recovered before creating a new profile; incompatible backup and unreadable storage fail closed and are preserved",
+      "validation": "independent PM2-02 passed; standard missing-primary, incompatible-backup, corrupt-primary and unreadable-storage regressions passed",
+      "limits": "no real user configuration modified; broader production filesystem fault matrix remains R4"
+    },
+    {
+      "id": "PM2-FIX-03",
+      "scope": "configuration owner/schema compatibility",
+      "locator": "src/LWBridge.Desktop/LocalConfigStore.cs:Load line 153",
+      "result": "owner mismatch and unsupported schema are explicit compatibility failures and are never replaced by a valid backup; primary bytes remain unchanged",
+      "validation": "independent PM2-03 passed; standard owner/future-schema cases with and without backups passed",
+      "limits": "no migration/downgrade policy for future schemas is implemented"
+    },
+    {
+      "id": "PM2-FIX-04",
+      "scope": "native request cancellation-source lifetime",
+      "locator": "src/LWBridge.Desktop/NativeRequestRegistry.cs:Close line 65; src/LWBridge.Desktop/NativeRequestExecutor.cs:ExecuteAsync line 21",
+      "result": "close cancels active sources without disposing them; request completion owns disposal, a captured token remains usable through late work, and closed/cancelled late success or fault resolves as Cancelled",
+      "validation": "independent PM2-04 passed; standard cooperative cancel, noncooperative return/fault, explicit cancel and 32 cancel/completion races passed",
+      "limits": "append_log is still a no-op; cancellation cannot undo mutations committed before a service cancellation boundary"
+    }
+  ],
+  "commands": [
+    {
+      "command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release",
+      "result": "passed; 0 warnings, 0 errors"
+    },
+    {
+      "command": "dotnet run --project evidence/lwbridge-implementation/pm-review-2-repro/Audit.csproj --configuration Release",
+      "result": "passed expectations; PM2-01 through PM2-04 each reported passed:true"
+    },
+    {
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release",
+      "result": "passed; ok:true and failures:[]"
+    }
+  ],
+  "liveProof": false,
+  "remainingGates": [
+    "R3 nonblocking service scheduling and cancellation ownership in the real host",
+    "R3/R4 actual document reload/session generation invalidation",
+    "R4 controlled production-WebView origin/error/busy/picker/save/reload matrix",
+    "R5 exact launch bootstrap and xLua ABI selection",
+    "R6 production map query/export and later live ingestion"
+  ]
+}

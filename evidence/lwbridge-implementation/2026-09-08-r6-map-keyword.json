@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-007",
+  "scope": "Map Data literal-substring keyword SQL, escaping and parameter construction",
+  "evidenceStatus": "RECOVERED static",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets and preferred-image virtual addresses"
+  },
+  "locators": {
+    "mapSearchFunctionVaRange": [
+      "0x0000000140271864",
+      "0x0000000140276D7B"
+    ],
+    "sqlFileOffset": "0x00C89A56",
+    "sqlXrefVa": "0x0000000140272AD8",
+    "replaceFunctionVa": "0x00000001402948C1",
+    "formatDescriptorFileOffset": "0x00C83ECF",
+    "formatDescriptorXrefVa": "0x0000000140272BDD",
+    "formatStringFunctionVa": "0x00000001400276B0",
+    "cloneLoopVaRange": [
+      "0x0000000140272BF9",
+      "0x0000000140272C60"
+    ]
+  },
+  "result": {
+    "predicate": "(name LIKE ? ESCAPE '\\' COLLATE NOCASE OR alliance_name LIKE ? ESCAPE '\\' COLLATE NOCASE OR uuid LIKE ? ESCAPE '\\' COLLATE NOCASE OR data_json LIKE ? ESCAPE '\\' COLLATE NOCASE)",
+    "columns": [
+      "name",
+      "alliance_name",
+      "uuid",
+      "data_json"
+    ],
+    "collation": "NOCASE",
+    "escapeCharacter": "\\",
+    "replacementOrder": [
+      {
+        "name": "backslash",
+        "inputCharacter": "\\",
+        "replacement": "\\\\",
+        "fileOffset": "0x00C89B06",
+        "replacementXrefVa": "0x0000000140272B30",
+        "characterImmediateVa": "0x0000000140272B4A"
+      },
+      {
+        "name": "percent",
+        "inputCharacter": "%",
+        "replacement": "\\%",
+        "fileOffset": "0x00C89B08",
+        "replacementXrefVa": "0x0000000140272B5D",
+        "characterImmediateVa": "0x0000000140272B74"
+      },
+      {
+        "name": "underscore",
+        "inputCharacter": "_",
+        "replacement": "\\_",
+        "fileOffset": "0x00C89B0A",
+        "replacementXrefVa": "0x0000000140272B87",
+        "characterImmediateVa": "0x0000000140272B9E"
+      }
+    ],
+    "parameterConstruction": "wrap the fully escaped keyword with one literal % on each side",
+    "parameterCopies": 4,
+    "semanticMatch": "case-insensitive literal substring across the four columns"
+  },
+  "analysisTools": {
+    "capstone": {
+      "version": "5.0.6",
+      "package": "PyPI capstone==5.0.6",
+      "location": "C:\\Users\\chimw\\AppData\\Local\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Roaming\\Python\\Python312\\site-packages\\capstone\\__init__.py"
+    },
+    "pefile": {
+      "version": "2024.8.26",
+      "package": "PyPI pefile==2024.8.26",
+      "location": "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pefile.py"
+    }
+  },
+  "reproduction": [
+    "python -m pip install --user capstone==5.0.6 pefile==2024.8.26",
+    "python tools\\inspect_lwbridge_map_keyword.py ..\\LW\\lwbridge-0.3.1.exe --json",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release"
+  ],
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "result": "nonempty keyword is supported with exact literal escaping, four equivalent bound parameters and recovered column/collation scope"
+  },
+  "validationAndLimits": {
+    "validation": "verified binary hash, exact SQL/static bytes, bounded instruction/data flow and deterministic escaped-wildcard queries",
+    "liveProven": false,
+    "limits": "no live scan or native ingestion; this does not resolve other DB-05 filters or sorts"
+  }
+}

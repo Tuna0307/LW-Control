@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-018",
+  "scope": "Map Data city export native dialog/error vocabulary and embedded XLSX structure",
+  "evidenceStatus": "RECOVERED static partial",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets"
+  },
+  "locators": {
+    "exportOptionCluster": "0x00821EE8",
+    "defaultFilenamePrefix": "0x00821F13",
+    "xlsxExtension": "0x00821F4E",
+    "dialogLabel": "0x00821F68",
+    "canceled": "0x00821F90",
+    "path": "0x00821FB0",
+    "rowCount": "0x00821FC8",
+    "errorCode": "0x00821FD0",
+    "serverUnavailableError": "0x00821FE1",
+    "headersInvalidError": "0x00822002",
+    "worksheetTemplate": "0x00C9801B",
+    "frozenPane": "0x00C980AD",
+    "rowMetadata": "0x00C98375-0x00C983E0",
+    "contentTypesTemplate": "0x00C9845A",
+    "packageRelationshipsTemplate": "0x00C98715",
+    "workbookTemplate": "0x00C9884B",
+    "workbookRelationshipsTemplate": "0x00C98973",
+    "stylesTemplate": "0x00C98B35",
+    "writerStageStrings": "0x00C99008-0x00C99055",
+    "datetimeCellTemplate": "0x00C99056",
+    "inlineStringCellTemplate": "0x00C99075"
+  },
+  "recovered": {
+    "dialogAndResultVocabulary": {
+      "optionKeysAndDefaults": "headers, sheetName/Cities, yesLabel/Yes, noLabel/No",
+      "defaultFilenamePrefix": "map-cities-",
+      "extension": ".xlsx",
+      "filterExtension": "xlsx",
+      "dialogLabel": "Excel workbook",
+      "resultFieldsPresent": ["canceled", "path", "rowCount"],
+      "errorCode": "MAP_EXPORT_FAILED",
+      "errors": ["city export server is unavailable", "city export headers are invalid"]
+    },
+    "workbook": {
+      "sheetColumns": "A:L",
+      "frozenHeader": "row 1 frozen; topLeftCell A2",
+      "headerRowHeight": 20,
+      "columnWidths": {
+        "A:C": 11,
+        "D": 22,
+        "E:F": 24,
+        "G": 18,
+        "H:I": 12,
+        "J": 21,
+        "K": 10,
+        "L": 21
+      },
+      "autoFilter": "A1:L<last-row>",
+      "pageMargins": {"left": 0.7, "right": 0.7, "top": 0.75, "bottom": 0.75, "header": 0.3, "footer": 0.3},
+      "packageParts": ["[Content_Types].xml", "_rels/.rels", "xl/workbook.xml", "xl/_rels/workbook.xml.rels", "xl/styles.xml", "xl/worksheets/sheet1.xml"],
+      "styles": {
+        "cellXfs": 4,
+        "datetimeFormat": "yyyy-mm-dd hh:mm:ss",
+        "datetimeNumFmtId": 164,
+        "header": "bold white font with solid fill 004F81BD",
+        "templatesPresent": ["generic value cell", "style-3 datetime value cell", "inline string cell"]
+      },
+      "writerStages": ["create city export", "write city export", "read city export metadata", "flush city export"]
+    },
+    "rowMetadata": {
+      "exactRawSequence": "serverId A B C; D ownerName; E ownerUid; F uuid; G allianceName; level H; health I; protectEndTime J; K marked; updatedAt L; shieldEndTime",
+      "interpretation": "the byte adjacency supports the visible D-L field order, but this checkpoint does not claim exact A-C semantics, the J protect/shield fallback, or per-column cell typing without runtime control-flow proof"
+    }
+  },
+  "analysisTools": {
+    "python": "local Python raw-byte reads only; no disassembler result is accepted in this checkpoint"
+  },
+  "reproduction": [
+    "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256",
+    "bounded raw-byte printable-string enumeration of file offsets 0x00821E70-0x00822080",
+    "bounded raw-byte printable-string enumeration of file offsets 0x00C98000-0x00C99120",
+    "bounded raw-byte hex dump of file offsets 0x00C98360-0x00C983F0"
+  ],
+  "durableExcerpt": "evidence\\lwbridge-implementation\\2026-09-09-r6-map-export-native-structure.txt",
+  "validationAndLimits": {
+    "validation": "reference hash verified; every reported string/XML/style/row-metadata item was observed in successful bounded raw-byte reads before the later rejected analysis attempts",
+    "liveProven": false,
+    "unknownBlocked": [
+      "exact default filename timestamp pattern and default directory",
+      "complete native picker cancel/error control flow",
+      "exact A-C row mapping",
+      "exact protectEndTime versus shieldEndTime fallback for column J",
+      "per-column value typing/coercion, including lossless UID/UUID behavior",
+      "internal pagination and whether export covers the full filtered result set beyond frontend pageSize 200",
+      "original workbook reopen behavior and large-ID preservation"
+    ],
+    "restrictions": ["SB-08", "SB-09"]
+  },
+  "implementationImpact": {
+    "unblocked": "one-to-one workbook formatting/package scaffolding can now be specified from original static evidence once row typing/scope are recovered",
+    "stillFailClosed": "map_city_export must remain unavailable; this checkpoint does not recover enough row/scope/type semantics to safely write an original-compatible workbook"
+  }
+}

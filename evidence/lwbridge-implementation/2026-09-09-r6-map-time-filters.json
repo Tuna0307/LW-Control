@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-014",
+  "scope": "Map Data current-time source, completion status and plunderability predicates",
+  "evidenceStatus": "RECOVERED static",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets and preferred-image virtual addresses"
+  },
+  "clock": {
+    "helperVaRange": [
+      "0x000000014023F1C0",
+      "0x000000014023F244"
+    ],
+    "importIatVa": "0x00000001407B94B0",
+    "source": "kernel32.dll!GetSystemTimePreciseAsFileTime",
+    "filetimeUnixEpoch100ns": 116444736000000000,
+    "resultUnit": "Unix milliseconds",
+    "derivedFormula": "max(FILETIME_100ns - 116444736000000000, 0) // 10000",
+    "mapSearchCallVa": "0x0000000140272353",
+    "mapDataOptionsRewardCallVa": "0x000000014025A1B5"
+  },
+  "predicates": {
+    "activeArrival": {
+      "fileOffset": "0x00C894A6",
+      "sql": "(json_extract(data_json,'$.arriveTs') IS NULL OR CAST(json_extract(data_json,'$.arriveTs') AS INTEGER) > ?)"
+    },
+    "arrivalPresent": {
+      "fileOffset": "0x00C8971A",
+      "sql": "json_extract(data_json,'$.arriveTs') IS NOT NULL"
+    },
+    "remainingLoot": {
+      "fileOffset": "0x00C8974A",
+      "sql": "COALESCE(CAST(json_extract(data_json,'$.remainingLootCount') AS INTEGER),MAX(COALESCE(CAST(json_extract(data_json,'$.maxLootCount') AS INTEGER),0)-COALESCE(CAST(json_extract(data_json,'$.robTimes') AS INTEGER),0),0)) > 0"
+    },
+    "completionPositive": {
+      "fileOffset": "0x00C89826",
+      "sql": "COALESCE(CAST(json_extract(data_json,'$.completionTime') AS INTEGER),0) > 0"
+    },
+    "plunderAtPositive": {
+      "fileOffset": "0x00C89871",
+      "sql": "COALESCE(CAST(json_extract(data_json,'$.plunderAt') AS INTEGER),CAST(json_extract(data_json,'$.completionTime') AS INTEGER),0) > 0"
+    },
+    "taskNotExpired": {
+      "fileOffset": "0x00C898F3",
+      "sql": "(COALESCE(CAST(json_extract(data_json,'$.taskExpireTime') AS INTEGER),0) <= 0 OR CAST(json_extract(data_json,'$.taskExpireTime') AS INTEGER) > ?)"
+    },
+    "stealsRemaining": {
+      "fileOffset": "0x00C89984",
+      "sql": "(COALESCE(CAST(json_extract(data_json,'$.maxStealCount') AS INTEGER),0) <= 0 OR COALESCE(CAST(json_extract(data_json,'$.stolenCount') AS INTEGER),0) < CAST(json_extract(data_json,'$.maxStealCount') AS INTEGER))"
+    },
+    "completionPending": {
+      "fileOffset": "0x00C89F8D",
+      "sql": "(CAST(json_extract(data_json,'$.completionTime') AS INTEGER) IS NULL OR CAST(json_extract(data_json,'$.completionTime') AS INTEGER) <= 0 OR CAST(json_extract(data_json,'$.completionTime') AS INTEGER) > ?)"
+    },
+    "completionCompleted": {
+      "fileOffset": "0x00C8A059",
+      "sql": "CAST(json_extract(data_json,'$.completionTime') AS INTEGER) > 0 AND CAST(json_extract(data_json,'$.completionTime') AS INTEGER) <= ?"
+    }
+  },
+  "result": {
+    "truckRailwayDefault": "truck and railway append activeArrival with the sampled Unix-ms clock even when plunderableOnly is absent",
+    "truckRailwayPlunderableOnly": [
+      "arrivalPresent",
+      "remainingLoot"
+    ],
+    "dispatchGhostTreasureNativePlunderableBranch": [
+      "completionPositive",
+      "plunderAtPositive",
+      "taskNotExpired(now)",
+      "stealsRemaining"
+    ],
+    "frontendPublicPlunderableKinds": [
+      "truck",
+      "railway",
+      "dispatch"
+    ],
+    "completionStatus": {
+      "pending": "completionTime IS NULL OR completionTime <= 0 OR completionTime > now",
+      "completed": "completionTime > 0 AND completionTime <= now",
+      "frontendKinds": [
+        "dispatch",
+        "ghost"
+      ]
+    },
+    "rewardOptionCutoff": "reward-item arriveTs filtering binds the same sampled Unix-ms wall clock"
+  },
+  "analysisTools": {
+    "capstone": {
+      "version": "5.0.6",
+      "package": "PyPI capstone==5.0.6"
+    },
+    "pefile": {
+      "version": "2024.8.26",
+      "package": "PyPI pefile==2024.8.26"
+    }
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_time_filters.py ..\\LW\\lwbridge-0.3.1.exe --json",
+    "python tools\\inspect_lwbridge_map_frontend_consumers.py evidence\\lwbridge-0.3.1\\frontend --json"
+  ],
+  "validationAndLimits": {
+    "validation": "verified reference hash, import identity, clock helper constants/calls, exact SQL bytes/xrefs and clock-parameter append sites",
+    "liveProven": false,
+    "limits": "static original evidence plus offline rebuild tests only; native ingestion, treasure visibility/lucky semantics and alternate sorts remain unproven"
+  },
+  "implementationImpact": {
+    "mapSearch": "unblocks frontend-emitted completionStatus and plunderableOnly forms plus the original truck/railway active-arrival default",
+    "mapDataOptions": "closes the reward arriveTs cutoff source/unit gap, but public options still require complete source/run-context response semantics before enabling",
+    "escalation": "ESC-001 clock/source/unit and completion-status question is answered by regular-AI static analysis"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-038",
+  "scope": "PM7-A source-aware published/staged option and count integration behind the existing public gate",
+  "evidenceStatus": "IMPLEMENTED/OFFLINE-TESTED using previously RECOVERED R6-014/R6-024/R6-030/R6-031 contracts; public map_data_options remains UNKNOWN/BLOCKED on exact scanProgress serialization and authoritative state/provider integration",
+  "baseRevision": "fe975429c85299ee6228bd2c647a81172781aeca",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "reverifiedThisCheckpoint": true,
+    "sourceFindings": [
+      "LWB-R6-014 precise Unix-ms reward cutoff",
+      "LWB-R6-024 map_records/server versus scan_records/server+run source shapes",
+      "LWB-R6-030 isReading + matching server + raw nonempty scanRunId selector",
+      "LWB-R6-031 noAllianceCount and persisted-versus-exact-run scanProgress row selection"
+    ]
+  },
+  "implementation": {
+    "sourceFile": {
+      "path": "src/LWBridge.Desktop/MapDataStore.cs",
+      "sha256": "6fcbe14782cba699ead6f5767b8fbab93b0ac198decef5dfd3a117231e1ae8da",
+      "locators": {
+        "selector": "SelectOptionSource at line 287",
+        "service": "ReadOptionAggregatesAt at line 307",
+        "snapshotTestEntry": "ReadOptionAggregatesAtForSnapshotTest at line 312",
+        "sharedCore": "ReadOptionAggregatesCore at line 321"
+      }
+    },
+    "testFile": {
+      "path": "tests/LWBridge.Desktop.Checks/Program.cs",
+      "sha256": "56f79c90e275bdfe68a0386dab8dedbac06360598bcf0f9d0212737610f9764b",
+      "locators": {
+        "walSnapshot": "option aggregate snapshot test begins around line 613",
+        "selectorMatrix": "active/idle/mismatch/null/empty/whitespace cases begin around line 786",
+        "publishedAndStagedIsolation": "conflicting published/staged/two-run/two-server aggregate fixtures begin around line 805"
+      }
+    },
+    "result": [
+      "One MapOptionSourceSelection carries requested server plus optional exact raw scanRunId.",
+      "Staging is selected only for isReading=true, matching scan-state/request server, and a raw string with Length > 0; whitespace is intentionally not trimmed.",
+      "All recovered option families and all eight counts select the same recovered source/scope structure and bind server/run values.",
+      "NULL and empty city alliance groups are omitted from alliances and accumulated into noAllianceCount.",
+      "Reward-item aggregation uses the recovered Unix-millisecond arrival cutoff for both published and staged scopes.",
+      "Published scanProgress record selection uses newest non-discarded run by server; active selection uses the exact recovered scan_runs WHERE id=?1 query.",
+      "The former persisted-only aggregate kernel and separate test-only selector call path are replaced by one reusable source-aware service."
+    ],
+    "implementationPolicy": "Every aggregate in one ReadOptionAggregatesAt call runs inside one deferred SQLite read transaction. This guarantees internally coherent options/counts while another WAL connection publishes, but is not claimed as recovered original transaction behavior.",
+    "publicCapability": "none newly enabled; LWBridgeBackend map_data_options still returns MAP_INDEX_UNAVAILABLE"
+  },
+  "syntheticValidation": {
+    "explicitlySynthetic": true,
+    "coverage": [
+      "published rows versus conflicting active staged rows",
+      "same-server different staged run isolation",
+      "different-server staged run isolation",
+      "active reading selector",
+      "idle selector",
+      "scan-state/request server mismatch",
+      "null scanRunId",
+      "empty scanRunId",
+      "whitespace-only scanRunId preserving native no-trim behavior",
+      "alliance/noAlliance, names, dispatch levels, treasure keys, reward items and all eight counts in staging",
+      "exact active scanProgress run selection versus newest published non-discarded run",
+      "two-connection file-backed WAL writer after first aggregate read; alliances and counts stay on one snapshot, then the next call sees the committed row"
+    ]
+  },
+  "reproduction": [
+    "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256",
+    "python tools/build_lwbridge_frontend.py --check",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+    "node tools/check_lwbridge_preference_provider.cjs",
+    "node tools/check_lwbridge_live_transport.cjs",
+    "node tools/check_lwbridge_transport_boundary.cjs",
+    "git diff --check"
+  ],
+  "validation": {
+    "frontendIntegrity": "passed",
+    "releaseBuild": "passed with 0 warnings and 0 errors",
+    "deterministicBackend": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "failures": []
+    },
+    "preferenceProvider": "passed all five scenarios",
+    "missingNativeTransport": "passed",
+    "transportBoundary": "passed",
+    "processState": "no game or launcher process running during deterministic backend validation",
+    "liveProven": false
+  },
+  "limits": [
+    "MapScanProgressAggregateRow is an internal selected database row shape and is not evidence of the exact public scanProgress JSON serializer.",
+    "Exact public scanProgress keys/types/order, absent/null behavior and query/conversion error behavior remain UNKNOWN/BLOCKED under ESC-003 NOT_ASSIGNED.",
+    "Authoritative shared scan-state/provider readiness and bridge-handler linkage remain PM7-B work.",
+    "Native record_key derivation and live scan ingestion remain PM7-C/R7 work.",
+    "No full task.md acceptance case is signed off by this offline integration checkpoint."
+  ],
+  "restrictions": [
+    "SB-52: a combined read-only InsertScanRun search+range read was rejected; separate narrow reads succeeded and supplied the accepted repository context.",
+    "SB-53: a combined two-file SHA-256 command was rejected; separate single-file Get-FileHash calls succeeded and produced the hashes recorded here."
+  ],
+  "implementationImpact": {
+    "completed": "PM7-A bounded integration checkpoint",
+    "next": "PM7-B recover bridge-handler linkage and authoritative readiness/error semantics, then integrate only the supported shared-state provider",
+    "daybreak": "no new request; ESC-003 remains NOT_ASSIGNED and ESC-002/004 remain NEEDS_INFORMATION"
+  }
+}

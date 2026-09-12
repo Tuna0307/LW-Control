@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-028",
+  "scope": "Restart-safe scan block checkpoint infrastructure over the recovered scan_blocks schema",
+  "evidenceStatus": "IMPLEMENTATION POLICY / OFFLINE-TESTED; production scan scheduling and resume semantics UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "reusedRecoveredFinding": "persistent map-index schema in docs/lwbridge-map-scan.md",
+    "reusedSchemaLocator": "scan_blocks(run_id, block_index, payload_json, status, attempts, error, updated_at), PRIMARY KEY (run_id, block_index), FOREIGN KEY run_id -> scan_runs(id) ON DELETE CASCADE"
+  },
+  "implementation": {
+    "files": [
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "codeLocators": [
+      "MapScanBlockCheckpoint",
+      "MapDataStore.UpsertScanBlockCheckpointForTest",
+      "MapDataStore.ReadScanBlockCheckpointsForTest"
+    ],
+    "policy": [
+      "checkpoint identity is the recovered run_id + block_index primary key",
+      "writes are test-only upserts so deterministic restart/reconciliation behavior can be exercised without exposing an unrecovered production state machine",
+      "reads are ordered by block_index for deterministic verification only",
+      "no public map_scan command calls these helpers"
+    ]
+  },
+  "validation": {
+    "tests": [
+      "two checkpoints persist under one run using the recovered composite identity",
+      "upserting block 1 replaces its payload/status/attempts/error/updated_at without creating a duplicate row",
+      "file-backed checkpoints survive MapDataStore disposal and reopen",
+      "ClearServer deletes the owning scan_run and SQLite ON DELETE CASCADE removes its scan_blocks"
+    ],
+    "commands": [
+      "git diff --check",
+      "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+      "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+    ],
+    "result": "Release build succeeded with zero warnings/errors; deterministic backend report returned ok=true with profileRouting, persistence, requestLifetime, mapPersistence and mapContract all true"
+  },
+  "researchContinuation": {
+    "optionsSummary": "R6-024/025 remain the active public-options/summary evidence boundary; the exact persisted-vs-staging optional run-scope producer and full response assembly remain unresolved",
+    "liveTargetCheck": "an independent Get-Process check returned no LastWar, LWBridge or LastWarControl process, so no supported active-scan observation target was available during this checkpoint",
+    "nextPermittedMethod": "continue from readable/saved evidence or a future supported active-scan target; do not replay restricted operations"
+  },
+  "environmentRestrictions": [
+    "SB-25: a combined exact saved-reference search for optional-scope helpers, scratch/evidence inventory and process check was rejected by automatic review because safety status could not be determined; the command did not execute and was not retried or rerouted. A separate process-only check later succeeded and is the only accepted result from that line of inquiry.",
+    "SB-26: a combined launch-document/evidence inventory plus launch-inspector help request was rejected before execution; it was not retried or rerouted and contributed no launch finding.",
+    "SB-27: a combined read of the existing map-sort-direction inspector and its evidence JSON was rejected before execution; it was not retried or rerouted and contributed no sort finding."
+  ],
+  "limits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "unknownBlocked": [
+      "original scan block status vocabulary and transitions",
+      "scheduling order and concurrency ownership",
+      "acknowledgement timing",
+      "retry eligibility/count semantics",
+      "inflight treatment after bridge loss",
+      "completion/publication eligibility",
+      "native per-kind record_key derivation"
+    ],
+    "classification": "research/test-only checkpoint; no real UI operation becomes newly usable"
+  }
+}

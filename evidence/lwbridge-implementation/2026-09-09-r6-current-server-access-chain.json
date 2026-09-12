@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-035",
+  "scope": "Current build-1078 managed/xLua ownership and access chain for the DCPlayer current-server source",
+  "evidenceStatus": "RECOVERED current-client static access chain; bridge-facing producer/readiness/error integration remains UNKNOWN/BLOCKED",
+  "currentClientSource": {
+    "path": "%LOCALAPPDATA%/FunFly/Last War-Survival Game/Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+    "build": "1.0.361 / 1078",
+    "size": 15640576,
+    "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "outerFormat": "RG wrapper with RGMD managed metadata root",
+    "rgmdRootFileOffset": "0x009A88A8"
+  },
+  "tooling": {
+    "tool": "tools/inspect_lastwar_rdl_metadata.py",
+    "provenance": "read-only RG/RGMD metadata/CIL inspector restored in LWB-R6-034 from historical commit 0d23432",
+    "changeThisCheckpoint": "added --references-to-type so ownership hops can be reproduced from decoded field/method signatures without ad-hoc scripts",
+    "behavior": "reads the RDL only; does not load, rewrite or execute the game artifact"
+  },
+  "managedAccessChain": {
+    "gameEntryData": {
+      "fieldRow": 2447,
+      "field": "CustomDataManager GameEntry::<Data>k__BackingField",
+      "getterMethodRow": 3736,
+      "getterRva": "0x000502EE",
+      "getter": "CustomDataManager GameEntry::get_Data()",
+      "getterCil": [
+        "ldsfld token(0x679E83C2)",
+        "ret"
+      ],
+      "result": "GameEntry.Data is backed by a static field"
+    },
+    "dataPlayer": {
+      "fieldRow": 3534,
+      "field": "DCPlayer CustomDataManager::<Player>k__BackingField",
+      "getterMethodRow": 5419,
+      "getterRva": "0x000A6FB2",
+      "getter": "DCPlayer CustomDataManager::get_Player()",
+      "getterCil": [
+        "ldarg.0",
+        "ldfld token(0x679E3B22)",
+        "ret"
+      ],
+      "result": "the CustomDataManager instance owns the DCPlayer Player field"
+    },
+    "playerCurrentServer": {
+      "finding": "LWB-R6-034",
+      "methodRow": 3426,
+      "methodRva": "0x0004B3D8",
+      "method": "int32 DCPlayer::GetCurServerId()",
+      "result": "returns the cross-server field when that signed value is nonnegative, otherwise returns the still-unnamed fallback field"
+    },
+    "result": "the current managed access sequence is GameEntry.Data -> CustomDataManager.Player -> DCPlayer.GetCurServerId()"
+  },
+  "xluaExposure": {
+    "gameEntryDataGetter": {
+      "wrapperMethodRow": 24694,
+      "wrapperRva": "0x0024B4D0",
+      "wrapper": "XLua.CSObjectWrap.GameEntryWrap::_g_get_Data(native int L)"
+    },
+    "playerGetter": {
+      "wrapperMethodRow": 22825,
+      "wrapperRva": "0x0020DEA4",
+      "wrapper": "XLua.CSObjectWrap.CustomDataManagerWrap::_g_get_Player(native int L)"
+    },
+    "currentServerMethod": {
+      "wrapperMethodRow": 22900,
+      "wrapperRva": "0x002102AC",
+      "wrapper": "XLua.CSObjectWrap.DCPlayerWrap::_m_GetCurServerId(native int L)"
+    },
+    "result": "generated xLua wrappers expose every property/method hop needed for the managed access sequence; exact LWBridge script spelling and invocation are not claimed from wrapper presence alone"
+  },
+  "initializationContext": {
+    "gameEntryInitMethodRow": 3756,
+    "gameEntryInitRva": "0x00050384",
+    "customDataManagerConstructorToken": "0xA79D3F62",
+    "observedAtGameEntryInitIl": "IL_005E newobj token(0xA79D3F62)",
+    "independentTokenIdentity": "CustomDataManagerWrap::__CreateInstance at row 22822 / RVA 0x20DD94 uses the same newobj token at IL_0021",
+    "limit": "the protected call token immediately following GameEntry.Init's construction is not symbolically decoded, so this checkpoint does not claim the following call is set_Data or establish exact initialization timing/readiness"
+  },
+  "reproduction": [
+    "Get-FileHash $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl -Algorithm SHA256",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --references-to-type DCPlayer",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --references-to-type CustomDataManager",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method GameEntry::get_Data",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method CustomDataManager::get_Player",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method XLua.CSObjectWrap.GameEntryWrap::_g_get_Data",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method XLua.CSObjectWrap.CustomDataManagerWrap::_g_get_Player",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method XLua.CSObjectWrap.DCPlayerWrap::_m_GetCurServerId",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method GameEntry::Init",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method XLua.CSObjectWrap.CustomDataManagerWrap::__CreateInstance"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "resolved": [
+      "the current-client managed owner of the DCPlayer reference is CustomDataManager.Player",
+      "the globally reachable managed owner is static GameEntry.Data",
+      "generated xLua wrappers expose GameEntry.Data, CustomDataManager.Player and DCPlayer.GetCurServerId"
+    ],
+    "unknownBlocked": [
+      "the exact LWBridge bridge-script/native producer that traverses or otherwise obtains this state",
+      "the runtime readiness/nullability/lifecycle conditions for GameEntry.Data and Data.Player in the bridge context",
+      "the exact LWBridge shared-producer condition-to-error mapping",
+      "whether LWBridge calls these generated wrappers directly versus an equivalent internal helper",
+      "live current-client correlation"
+    ],
+    "productionBoundary": "map_summary and map_scan_status remain fail-closed; the managed access sequence alone is insufficient to invent bridge transport/readiness/error behavior"
+  },
+  "implementationImpact": {
+    "files": [
+      "tools/inspect_lastwar_rdl_metadata.py"
+    ],
+    "classification": "research/tooling checkpoint; no production backend change",
+    "backlog": "closes the R6-034 authoritative managed DCPlayer owner/access-path subproblem; remaining summary integration work is the bridge-facing producer/readiness/error seam",
+    "escalation": "regular-AI permitted evidence produced a positive result; no Daybreak request is warranted",
+    "nextMethod": "trace the bridge-facing producer through already permitted LWBridge/script/host evidence without replaying denied SB-42/native xref operations, or use a supported live bridge observation target if one becomes available"
+  }
+}

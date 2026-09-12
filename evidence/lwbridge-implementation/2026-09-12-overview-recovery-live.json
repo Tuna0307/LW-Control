@@ -1,0 +1,173 @@
+{
+  "findingId": "LWB-OVR-010",
+  "date": "2026-09-12",
+  "status": "TECHNICAL LIVE-PROVEN; owner-visible acceptance pending",
+  "validatedParentCommit": "6b005d00c70998dce2665e95fe71481d31540d7c",
+  "profileId": "local-9370d887d93e4475a8d4fee049b50632",
+  "ci": {
+    "runId": 34660694328,
+    "headSha": "6b005d00c70998dce2665e95fe71481d31540d7c",
+    "conclusion": "success"
+  },
+  "startup": {
+    "autoLaunchGame": true,
+    "autoReconnect": true,
+    "desiredRunningAfterReady": true,
+    "sessionId": "090d71612eac4c4aae545a6e7bf26fdc",
+    "gamePid": 25008,
+    "messageText": "LWbridge is running"
+  },
+  "unexpectedLoss": {
+    "method": "external exact-PID Process.CloseMainWindow",
+    "gamePid": 25008,
+    "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "processExited": true,
+    "restore": {
+      "originalFiles": {
+        "data": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+          "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+          "size": 41269242
+        },
+        "metadata": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+          "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+          "size": 19
+        },
+        "version": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+          "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+          "size": 2
+        }
+      },
+      "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "restored": true,
+      "restoredFiles": {
+        "data": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+          "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+          "size": 41269242
+        },
+        "metadata": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+          "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+          "size": 19
+        },
+        "version": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+          "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+          "size": 2
+        }
+      }
+    },
+    "installedFilesChangedAfterCleanup": false
+  },
+  "recovery": {
+    "sessionId": "8a2dc3c70c4349cd8d903753714708d0",
+    "gamePid": 17804,
+    "messageText": "LWbridge is running",
+    "messageVisible": true,
+    "registrationMethod": "UpdateManager.AddUpdate",
+    "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
+    "stableVerificationSeconds": 17,
+    "uiAfterVerification": "Connected",
+    "hostIdentity": {
+      "schemaVersion": 1,
+      "recordedAtUtc": "2026-09-12T00:36:20.6390896+00:00",
+      "profileId": "local-9370d887d93e4475a8d4fee049b50632",
+      "sessionId": "8a2dc3c70c4349cd8d903753714708d0",
+      "gamePid": 17804,
+      "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "readyAt": 1789173380,
+      "hostProcess": {
+        "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+        "size": 163328,
+        "sha256": "e4bfede1bd31512a020d27cc06b00aec47a1ab424fc60fbbd913de4bf5b815f9"
+      },
+      "desktopAssembly": {
+        "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.dll",
+        "size": 527872,
+        "sha256": "f0f4cfbefb83f95a675229a6be58660b8927bdd380a05422c8e4e8516c0a85bc"
+      },
+      "overviewHelper": {
+        "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\OverviewBridge\\run_overview_bridge.py",
+        "size": 24094,
+        "sha256": "959915b725e2d450cb45b82d84bfe9010366773b63ba487084502a3cdc37cbaf"
+      }
+    }
+  },
+  "intentionalClose": {
+    "trigger": "normal Overview Close game UI control via WebView",
+    "close": {
+      "accepted": true,
+      "method": "Process.CloseMainWindow",
+      "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "pid": 17804,
+      "processExited": true,
+      "waitMilliseconds": 10000
+    },
+    "desiredRunningAfterClose": false,
+    "autoReconnectRemainedEnabled": true,
+    "nonResurrectionObservationSeconds": 15,
+    "gameRelaunched": false,
+    "runtimeFilesAfterClose": [
+      "operation.lock"
+    ],
+    "restore": {
+      "originalFiles": {
+        "data": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+          "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+          "size": 41269242
+        },
+        "metadata": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+          "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+          "size": 19
+        },
+        "version": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+          "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+          "size": 2
+        }
+      },
+      "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "restored": true,
+      "restoredFiles": {
+        "data": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+          "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+          "size": 41269242
+        },
+        "metadata": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+          "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+          "size": 19
+        },
+        "version": {
+          "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+          "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+          "size": 2
+        }
+      }
+    },
+    "installedFilesChanged": false
+  },
+  "cleanupRaceFix": {
+    "preFixObservation": "a stale lease.txt.tmp-* remained after an otherwise successful live Close",
+    "fix": "generation-gated lease writes plus serialized stop cleanup and temp artifact removal",
+    "correctedLiveResult": "no lease/control/heartbeat/ready/recovery/temp lease remained; only operation.lock persisted"
+  },
+  "final": {
+    "lastWarRunning": false,
+    "launcherUpdaterSyncRunning": false,
+    "lwbridgeRunning": false,
+    "autoLaunchGame": true,
+    "autoReconnect": true,
+    "gameDesiredRunning": false
+  },
+  "limits": [
+    "technical process-exit recovery live-proven; owner-visible combined O04/O05 verification still required",
+    "event-driven disconnect/update adapters retain their offline-tested scope until separately exercised live"
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-008",
+  "date": "2026-09-11",
+  "scope": "Passive owner-assisted saved Resource Search/reopen evidence package; no fresh scan trigger",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "readiness": "PM_REVIEWED_READY_FOR_OWNER_CHECK",
+  "implementationPolicy": "--owner-evidence is rebuild-only passive instrumentation. It records already-occurring normal Resource map_search request/result and polls the already-rendering Resource table. It also rejects scan/state-changing commands with OWNER_EVIDENCE_READ_ONLY. It never clicks, searches, starts scans, drives the desktop, invokes the live helper, modifies map rows, or clears recovery state.",
+  "sourceIdentity": {
+    "branch": "research/offline-controller",
+    "baseCommit": "3a9278abafe7d0027ae0227212dfd245b04327af",
+    "referenceExeSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "sources": {
+    "program": {
+      "path": "src/LWBridge.Desktop/Program.cs",
+      "sha256": "e562dba471e8ad21a996e65ef77288ec2322c0902f61dc18b8b17d841d0cc313",
+      "locator": "Program.Main: --owner-evidence option parsing/mutual exclusion and LWBridgeWindow construction"
+    },
+    "window": {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "sha256": "4abb5cad625bab5e63ec02a153d58aa05ec6d74fbac8e2a2f8ab8853e477f3f3",
+      "locator": "OnWebMessageReceived; BeginOwnerEvidenceRenderCapture; CaptureOwnerEvidenceRenderAsync; OnFormClosed"
+    },
+    "recorder": {
+      "path": "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs",
+      "sha256": "e2bc9d0618d3a86f97e1946b7721a2da635b88749b197cc89c753c923485b769",
+      "locator": "OwnerEvidenceResourceContract; BlockedOwnerCommands; OwnerEvidenceRecorder"
+    },
+    "collector": {
+      "path": "tools/collect_owner_resource_evidence.py",
+      "sha256": "1f34e591b419547a496cd3c4443dc322d8049f7cc59b63f970d2669212cdbff9",
+      "locator": "app_identity, preflight, postflight, run_owner_session, self_test"
+    },
+    "shortcut": {
+      "path": "Start Owner Resource Check.cmd",
+      "sha256": "9354f5b3d99362ac5e4b7d629b870c0aa01ae6afc70efe0c455ffd16e8993d90",
+      "locator": "repo-root double-click entry point"
+    },
+    "tests": {
+      "path": "tests/LWBridge.Desktop.Checks/Program.cs",
+      "sha256": "e226a5cf762009993c13f84899bd14a13389d352c01c7c1c92f843320aaa1ad6",
+      "locator": "PM13 owner-evidence contract/recorder assertions near PM13 proof-correlation checks"
+    },
+    "ownerGuide": {
+      "path": "docs/user-test-checklist.md",
+      "sha256": "38097a902315093ce30b3126f086dab001456619b6dc210becbd95f1ea9cd9ce",
+      "locator": "First check, Reopen check, Stop immediately sections"
+    }
+  },
+  "build": {
+    "exe": {
+      "path": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe",
+      "sha256": "eb1cd35eebe28bd7853a79ec5709257ce29f0b2cc2eca71d9d44ab4f7913f4d8",
+      "size": 163328
+    },
+    "managedDll": {
+      "path": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.dll",
+      "sha256": "7f21ad24d8852deb4ed57afed81473a99054e44f0e04a0c88f0992c2daa935ec",
+      "size": 442880
+    },
+    "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+    "result": "PASS",
+    "warnings": 0,
+    "errors": 0
+  },
+  "reproduction": [
+    "Start Owner Resource Check.cmd --self-test",
+    "Start Owner Resource Check.cmd --preflight-only",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release -- --verify-real-config-unchanged",
+    "python tools/build_lwbridge_frontend.py --check",
+    "NODE_PATH=<npm.cmd root -g> node tools/check_pm13_resource_feedback.cjs; node tools/check_pm13_resource_proof.cjs; node tools/check_lwbridge_frontend.cjs",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release"
+  ],
+  "entryPointVerification": {
+    "selfTest": "PASS",
+    "preflightOnly": "PASS",
+    "latestPreflightBundle": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\owner-evidence\\20260911T083848Z-eb1cd35e-7f21ad24",
+    "latestPreflightSummary": "PREFLIGHT_ONLY; blockers=[]; no LWBridge/LastWar/launcher; no recovery/operation-owner journal",
+    "activeReopenPointer": false
+  },
+  "results": [
+    "Actual normal Resource map_search request id/payload/result can be recorded without initiating it.",
+    "The resulting Resource table is passively observed and correlated to the same Search result, including exact coordinate/level/update time or explicit empty-result/empty-render agreement.",
+    "Malformed non-empty Search results are not accepted as empty evidence.",
+    "Owner-evidence mode rejects scan/state-changing commands before backend execution with OWNER_EVIDENCE_READ_ONLY while map_search remains allowed.",
+    "Collector records exact executable and managed DLL identities, git identity, current-client compatibility, selected profile/store, read-only Resource rows, process/recovery state, pre/post official-runtime fingerprints and cleanup state.",
+    "Collector preserves separate attempt bundles and partial failures; a successful first saved row permits exactly one same-build/profile reopen check."
+  ],
+  "validation": [
+    "python -m py_compile tools\\collect_owner_resource_evidence.py => PASS",
+    "repo-root shortcut self-test => PASS",
+    "repo-root shortcut read-only preflight => PASS; blockers=[]",
+    "python tools\\build_lwbridge_frontend.py --check => PASS",
+    "PM13 resource feedback browser check => PASS",
+    "PM13 five-case resource proof browser check => PASS",
+    "preference-provider scenarios => PASS",
+    "live transport missing-native check => PASS",
+    "transport boundary check => PASS",
+    "PM12 recovery/session-identity/scoped-close regressions => PASS",
+    "desktop deterministic suite --verify-real-config-unchanged => PASS including exact/stale/empty/malformed owner-evidence and read-only command policy assertions",
+    "standard browser verifier => PASS 35 checks",
+    "Release build => PASS, 0 warnings/errors",
+    "git diff --check => PASS",
+    "owner-evidence native boundary rejects scan/state-changing commands with OWNER_EVIDENCE_READ_ONLY while allowing Resource Search => PASS"
+  ],
+  "validationNote": "An earlier browser invocation omitted NODE_PATH and could not resolve globally installed Playwright. The final reruns used NODE_PATH from npm.cmd root -g and passed; this was environment setup, not a product failure.",
+  "limits": [
+    "No fresh Resource Start was executed while preparing this package.",
+    "SB-97 remains BLOCKED for the first and second fresh acquisitions; neither collector, shortcut nor owner may recreate that denied operation.",
+    "The owner package is limited to passive saved Resource Search and optional same-profile reopen after PM review.",
+    "SQLite rows and screenshots are supplementary; they do not substitute for actual Search request/result/render correlation or fresh acquisition proof.",
+    "Resource-name mapping and live Gathering remain unresolved.",
+    "This checkpoint is preparation/offline verification, not LIVE-PROVEN feature acceptance."
+  ],
+  "pmReview": {
+    "date": "2026-09-11",
+    "result": "APPROVED_FOR_PASSIVE_OWNER_CHECK",
+    "scope": "Saved Resource Search/render and conditional same-profile reopen only; no fresh acquisition",
+    "audit": [
+      "Verified branch/HEAD/remote synchronization and clean worktree before review.",
+      "Verified owner-evidence state-changing command gate executes before backend dispatch and blocks map_scan_start with OWNER_EVIDENCE_READ_ONLY.",
+      "Verified collector launches only --owner-evidence normal app mode after read-only preflight and preserves SB-97 prohibition.",
+      "Corrected stale duplicate provenance hashes for LWBridgeWindow.cs, collector and shortcut so both source-hash sections match the committed files.",
+      "Clean rebuild exposed that the previously recorded EXE/DLL pair was stale relative to the final committed source; rebuilt twice to stable hashes and replaced the candidate identity before owner dispatch.",
+      "Approval does not change PM13-04 fresh-acquisition status: Start #1/#2 remain SB-97 BLOCKED/NOT_RUN."
+    ]
+  },
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/Program.cs",
+      "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs",
+      "tools/collect_owner_resource_evidence.py",
+      "Start Owner Resource Check.cmd",
+      "tests/LWBridge.Desktop.Checks/Program.cs",
+      "docs/user-test-checklist.md"
+    ],
+    "pmDefect": "PM13-04 direct permitted dependency only",
+    "next": "PM reviews package readiness. Only after PM approval may the owner run the passive saved Search/reopen check. Fresh acquisition remains separately blocked."
+  },
+  "source": {
+    "program": {
+      "path": "src/LWBridge.Desktop/Program.cs",
+      "sha256": "e562dba471e8ad21a996e65ef77288ec2322c0902f61dc18b8b17d841d0cc313"
+    },
+    "window": {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "sha256": "4abb5cad625bab5e63ec02a153d58aa05ec6d74fbac8e2a2f8ab8853e477f3f3"
+    },
+    "recorder": {
+      "path": "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs",
+      "sha256": "e2bc9d0618d3a86f97e1946b7721a2da635b88749b197cc89c753c923485b769"
+    },
+    "collector": {
+      "path": "tools/collect_owner_resource_evidence.py",
+      "sha256": "1f34e591b419547a496cd3c4443dc322d8049f7cc59b63f970d2669212cdbff9"
+    },
+    "shortcut": {
+      "path": "Start Owner Resource Check.cmd",
+      "sha256": "9354f5b3d99362ac5e4b7d629b870c0aa01ae6afc70efe0c455ffd16e8993d90"
+    },
+    "ownerGuide": {
+      "path": "docs/user-test-checklist.md",
+      "sha256": "38097a902315093ce30b3126f086dab001456619b6dc210becbd95f1ea9cd9ce"
+    },
+    "desktopChecks": {
+      "path": "tests/LWBridge.Desktop.Checks/Program.cs",
+      "sha256": "e226a5cf762009993c13f84899bd14a13389d352c01c7c1c92f843320aaa1ad6"
+    }
+  },
+  "locators": {
+    "nativeHost": "src/LWBridge.Desktop/LWBridgeWindow.cs:1459 BeginOwnerEvidenceRenderCapture; 1577 OWNER_EVIDENCE_READ_ONLY; 1612 RecordSearch; 1615 render capture",
+    "contract": "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs:30 IsBlockedOwnerCommand; 61 IsCorrelated; 114 RecordSearch; 123 RecordRender",
+    "collector": "tools/collect_owner_resource_evidence.py:157 collect_ui_events; 234 create_attempt; 255 preflight; 285 postflight; 305 run_owner_session",
+    "tests": "tests/LWBridge.Desktop.Checks/Program.cs owner-evidence checks adjacent to PM13 proof contract checks"
+  }
+}

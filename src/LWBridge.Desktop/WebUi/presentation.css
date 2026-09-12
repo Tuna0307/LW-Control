@@ -1,0 +1,20 @@
+/* Removing the two-line account button otherwise shortens the original header
+   by 2px. Preserve its recovered desktop height without retaining auth UI. */
+.top-bar { min-height: 54px; }
+
+/* Login-free mode has no profile sidebar, so native preference failures need
+   a visible home for the existing profile-error state. This is absent during
+   normal operation and therefore does not change the recovered steady UI. */
+.profile-save-error {
+    position: fixed;
+    z-index: 1400;
+    top: 66px;
+    left: 50%;
+    width: min(520px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    border: 1px solid var(--danger-line);
+    border-radius: 8px;
+    background: var(--danger-soft);
+    padding: 9px 12px;
+    box-shadow: 0 10px 28px var(--shadow-strong);
+}

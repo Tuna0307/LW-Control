@@ -1,0 +1,395 @@
+LWB-R6-047 focused native map-record upsert evidence
+
+Source: ..\LW\lwbridge-0.3.1.exe
+SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+Tool: Python 3.12 + repository tools/inspect_lwbridge_map_scan.py (pefile + capstone)
+Reproduction from repository root:
+  python tools\inspect_lwbridge_map_scan.py ..\LW\lwbridge-0.3.1.exe --target "INSERT INTO scan_records" --target "INSERT INTO map_records" --target "record_key"
+
+The excerpt below is copied from the successful hash-locked read-only xref pass. A later direct --dump-rva follow-up was rejected by the environment automatic safety review; no denied operation was rerouted.
+
+=== xref summary ===
+sha256=2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+image_base=0x140000000
+target 'INSERT INTO scan_records': 1 occurrence(s)
+  string offset=0xC8B632 rva=0xC8C232 va=0x140C8C232
+target 'INSERT INTO map_records': 3 occurrence(s)
+  string offset=0xC84E51 rva=0xC85A51 va=0x140C85A51
+  string offset=0xC85AD3 rva=0xC866D3 va=0x140C866D3
+  string offset=0xC8B3FE rva=0xC8BFFE va=0x140C8BFFE
+target 'record_key': 22 occurrence(s)
+  string offset=0xC8161A rva=0xC8221A va=0x140C8221A
+  string offset=0xC81766 rva=0xC82366 va=0x140C82366
+  string offset=0xC81BAD rva=0xC827AD va=0x140C827AD
+  string offset=0xC81D01 rva=0xC82901 va=0x140C82901
+  string offset=0xC84E92 rva=0xC85A92 va=0x140C85A92
+  string offset=0xC84F4B rva=0xC85B4B va=0x140C85B4B
+  string offset=0xC85B18 rva=0xC86718 va=0x140C86718
+  string offset=0xC85BF5 rva=0xC867F5 va=0x140C867F5
+  string offset=0xC85D09 rva=0xC86909 va=0x140C86909
+  string offset=0xC88036 rva=0xC88C36 va=0x140C88C36
+  string offset=0xC880E7 rva=0xC88CE7 va=0x140C88CE7
+  string offset=0xC8A553 rva=0xC8B153 va=0x140C8B153
+  string offset=0xC8A56B rva=0xC8B16B va=0x140C8B16B
+  string offset=0xC8A57F rva=0xC8B17F va=0x140C8B17F
+  string offset=0xC8A5DB rva=0xC8B1DB va=0x140C8B1DB
+  string offset=0xC8A658 rva=0xC8B258 va=0x140C8B258
+  string offset=0xC8A703 rva=0xC8B303 va=0x140C8B303
+  string offset=0xC8A800 rva=0xC8B400 va=0x140C8B400
+  string offset=0xC8B425 rva=0xC8C025 va=0x140C8C025
+  string offset=0xC8B4EA rva=0xC8C0EA va=0x140C8C0EA
+  string offset=0xC8B661 rva=0xC8C261 va=0x140C8C261
+  string offset=0xC8B731 rva=0xC8C331 va=0x140C8C331
+code_xrefs=4
+xref 'INSERT INTO map_records' section=.text rva=0x26018B function=0x25F9AF-0x260A7D: lea r8, [rip + 0xa258bf]
+xref 'INSERT INTO map_records' section=.text rva=0x263FB3 function=0x262C90-0x264D70: lea r8, [rip + 0xa22719]
+xref 'INSERT INTO map_records' section=.text rva=0x27A242 function=0x27A1E3-0x27AA73: lea r9, [rip + 0xa11db5]
+xref 'INSERT INTO scan_records' section=.text rva=0x27A542 function=0x27A1E3-0x27AA73: lea r9, [rip + 0xa11ce9]
+referencing_functions=3
+function 0x25F9AF-0x260A7D (4302 bytes)
+
+=== function 0x27A1E3-0x27AA73 relevant saved dump ===
+function 0x27A1E3-0x27AA73 (2192 bytes)
+  0x27A1E3: push    r15
+  0x27A1E5: push    r14
+  0x27A1E7: push    r13
+  0x27A1E9: push    r12
+  0x27A1EB: push    rsi
+  0x27A1EC: push    rdi
+  0x27A1ED: push    rbp
+  0x27A1EE: push    rbx
+  0x27A1EF: sub     rsp, 0x2c8
+  0x27A1F6: mov     rax, rdx
+  0x27A1F9: mov     rbx, rcx
+  0x27A1FC: mov     r14, qword ptr [rsp + 0x340]
+  0x27A204: movabs  rbp, 0x8000000000000000
+  0x27A20E: cmp     r9, 0xc
+  0x27A212: jne     0x14027a235
+  0x27A214: movabs  rcx, 0x6365725f6e616373
+  0x27A21E: xor     rcx, qword ptr [r8]
+  0x27A221: mov     edx, dword ptr [r8 + 8]
+  0x27A225: xor     rdx, 0x7364726f
+  0x27A22C: or      rdx, rcx
+  0x27A22F: je      0x14027a535
+  0x27A235: lea     rdx, [rax + 0x20]
+  0x27A239: mov     qword ptr [rsp + 0x20], 0x234
+  0x27A242: lea     r9, [rip + 0xa11db5] ; 'INSERT INTO map_records(kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)'
+  0x27A249: lea     rsi, [rsp + 0x228]
+  0x27A251: mov     rcx, rsi
+  0x27A254: mov     r8, rax
+  0x27A257: call    0x140549bab
+  0x27A25C: cmp     qword ptr [rsi], 0
+  0x27A260: je      0x14027a87d
+  0x27A266: lea     rax, [rsp + 0x280]
+  0x27A26E: lea     rsi, [rsp + 0x228]
+  0x27A276: mov     ecx, 9
+  0x27A27B: mov     rdi, rax
+  0x27A27E: rep movsq qword ptr [rdi], qword ptr [rsi]
+  0x27A281: cmp     qword ptr [rax + 8], 0
+  0x27A286: je      0x14027aa66
+  0x27A28C: lea     rax, [r14 + 0x60]
+  0x27A290: mov     qword ptr [rsp + 0x30], rax
+  0x27A295: lea     rax, [r14 + 0x78]
+  0x27A299: mov     qword ptr [rsp + 0x38], rax
+  0x27A29E: mov     rax, qword ptr [r14 + 0xb8]
+  0x27A2A5: xor     r13d, r13d
+  0x27A2A8: mov     ecx, 0
+  0x27A2AD: cmp     qword ptr [r14 + 0xa8], rbp
+  0x27A2B4: je      0x14027a2bd
+  0x27A2B6: mov     rcx, qword ptr [r14 + 0xb0]
+  0x27A2BD: mov     qword ptr [rsp + 0x88], rcx
+  0x27A2C5: mov     qword ptr [rsp + 0x90], rax
+  0x27A2CD: mov     rax, qword ptr [r14 + 0xd0]
+  0x27A2D4: mov     ecx, 0
+  0x27A2D9: cmp     qword ptr [r14 + 0xc0], rbp
+  0x27A2E0: je      0x14027a2e9
+  0x27A2E2: mov     rcx, qword ptr [r14 + 0xc8]
+  0x27A2E9: mov     qword ptr [rsp + 0x28], rbx
+  0x27A2EE: lea     r15, [r14 + 0x110]
+  0x27A2F5: mov     qword ptr [rsp + 0x98], rcx
+  0x27A2FD: mov     qword ptr [rsp + 0xa0], rax
+  0x27A305: mov     rax, qword ptr [r14 + 0xe8]
+  0x27A30C: mov     ecx, 0
+  0x27A311: cmp     qword ptr [r14 + 0xd8], rbp
+  0x27A318: je      0x14027a321
+  0x27A31A: mov     rcx, qword ptr [r14 + 0xe0]
+  0x27A321: lea     rsi, [rsp + 0x288]
+  0x27A329: lea     rdi, [rsp + 0x270]
+  0x27A331: mov     qword ptr [rdi], rcx
+  0x27A334: mov     qword ptr [rdi + 8], rax
+  0x27A338: lea     rbx, [r14 + 0x10]
+  0x27A33C: lea     r11, [r14 + 0x20]
+  0x27A340: lea     r9, [r14 + 0x30]
+  0x27A344: lea     r8, [r14 + 0x40]
+  0x27A348: lea     rdx, [r14 + 0x50]
+  0x27A34C: lea     rax, [r14 + 0x118]
+  0x27A353: lea     r10, [r14 + 0x90]
+  0x27A35A: lea     rcx, [rsp + 0xa8]
+  0x27A362: mov     qword ptr [rcx], r10
+  0x27A365: lea     r10, [rsp + 0x30]
+  0x27A36A: mov     qword ptr [rsp + 0xf0], r10
+  0x27A372: lea     r10, [rip + 0xa07bbf]
+  0x27A379: mov     qword ptr [rsp + 0xf8], r10
+  0x27A381: mov     qword ptr [rsp + 0x100], r15
+  0x27A389: lea     r15, [rip + 0xa076a0]
+  0x27A390: mov     qword ptr [rsp + 0x108], r15
+  0x27A398: lea     r12, [rsp + 0x38]
+  0x27A39D: mov     qword ptr [rsp + 0x110], r12
+  0x27A3A5: mov     qword ptr [rsp + 0x118], r10
+  0x27A3AD: mov     qword ptr [rsp + 0x120], r14
+  0x27A3B5: lea     r14, [rip + 0xa0d0f4]
+  0x27A3BC: mov     qword ptr [rsp + 0x128], r14
+  0x27A3C4: lea     r12, [rsp + 0x88]
+  0x27A3CC: mov     qword ptr [rsp + 0x130], r12
+  0x27A3D4: lea     r12, [rip + 0xa077bd]
+  0x27A3DB: mov     qword ptr [rsp + 0x138], r12
+  0x27A3E3: lea     rbp, [rsp + 0x98]
+  0x27A3EB: mov     qword ptr [rsp + 0x140], rbp
+  0x27A3F3: mov     qword ptr [rsp + 0x148], r12
+  0x27A3FB: mov     qword ptr [rsp + 0x150], rdi
+  0x27A403: mov     qword ptr [rsp + 0x158], r12
+  0x27A40B: mov     qword ptr [rsp + 0x160], rbx
+  0x27A413: lea     rdi, [rip + 0xa12066]
+  0x27A41A: mov     qword ptr [rsp + 0x168], rdi
+  0x27A422: mov     qword ptr [rsp + 0x170], r11
+  0x27A42A: mov     qword ptr [rsp + 0x178], rdi
+  0x27A432: mov     qword ptr [rsp + 0x180], r9
+  0x27A43A: mov     qword ptr [rsp + 0x188], rdi
+  0x27A442: mov     qword ptr [rsp + 0x190], r8
+  0x27A44A: mov     qword ptr [rsp + 0x198], rdi
+  0x27A452: mov     qword ptr [rsp + 0x1a0], rdx
+  0x27A45A: mov     qword ptr [rsp + 0x1a8], r14
+  0x27A462: mov     qword ptr [rsp + 0x1b0], rax
+  0x27A46A: mov     qword ptr [rsp + 0x1b8], r15
+  0x27A472: mov     qword ptr [rsp + 0x1c0], rcx
+  0x27A47A: mov     qword ptr [rsp + 0x1c8], r10
+  0x27A482: mov     rcx, qword ptr [rsi + 0x38]
+  0x27A486: call    0x1406bbe3c
+  0x27A48B: movsxd  r12, eax
+  0x27A48E: mov     rbp, r12
+  0x27A491: neg     rbp
+  0x27A494: mov     edi, 1
+  0x27A499: lea     r14, [rsp + 0x1e8]
+  0x27A4A1: lea     r15, [rsp + 0xb0]
+  0x27A4A9: movabs  rax, 0x8000000000000000
+  0x27A4B3: lea     rbx, [rax + 0x16]
+  0x27A4B7: lea     rax, [rdi + rbp]
+  0x27A4BB: lea     rcx, [rsp + r13]
+  0x27A4BF: add     rcx, 0xf0
+  0x27A4C6: mov     qword ptr [rsp + 0xb0], rcx
+  0x27A4CE: cmp     rax, 1
+  0x27A4D2: je      0x14027a50b
+  0x27A4D4: mov     rcx, r14
+  0x27A4D7: mov     rdx, rsi
+  0x27A4DA: mov     r8, r15
+  0x27A4DD: mov     r9, rdi
+  0x27A4E0: call    0x1402a051c
+  0x27A4E5: mov     rax, qword ptr [rsp + 0x1e8]
+  0x27A4ED: cmp     rax, rbx
+  0x27A4F0: jne     0x14027a8bc
+  0x27A4F6: add     r13, 0x10
+  0x27A4FA: inc     rdi
+  0x27A4FD: cmp     r13, 0xe0
+  0x27A504: jne     0x14027a4b7
+  0x27A506: mov     edi, 0xe
+  0x27A50B: mov     rbx, qword ptr [rsp + 0x28]
+  0x27A510: movabs  rbp, 0x8000000000000000
+  0x27A51A: cmp     rdi, r12
+  0x27A51D: jne     0x14027a8b6
+  0x27A523: lea     rcx, [rsp + 0x40]
+  0x27A528: mov     rdx, rsi
+  0x27A52B: call    0x1402a0a02
+  0x27A530: jmp     0x14027a941
+  0x27A535: lea     rdx, [rax + 0x20]
+  0x27A539: mov     qword ptr [rsp + 0x20], 0x247
+  0x27A542: lea     r9, [rip + 0xa11ce9] ; 'INSERT INTO scan_records(run_id,kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)'
+  0x27A549: lea     rsi, [rsp + 0x228]
+  0x27A551: mov     rcx, rsi
+  0x27A554: mov     r8, rax
+  0x27A557: call    0x140549bab
+  0x27A55C: cmp     qword ptr [rsi], 0
+  0x27A560: je      0x14027a87d
+  0x27A566: lea     rax, [rsp + 0x280]
+  0x27A56E: lea     rsi, [rsp + 0x228]
+  0x27A576: mov     ecx, 9
+  0x27A57B: mov     rdi, rax
+  0x27A57E: rep movsq qword ptr [rdi], qword ptr [rsi]
+  0x27A581: cmp     qword ptr [rax + 8], 0
+  0x27A586: je      0x14027aa66
+  0x27A58C: mov     rax, qword ptr [rsp + 0x330]
+  0x27A594: test    rax, rax
+  0x27A597: mov     esi, 1
+  0x27A59C: mov     rcx, rax
+  0x27A59F: cmove   rcx, rsi
+  0x27A5A3: cmovne  rax, qword ptr [rsp + 0x338]
+  0x27A5AC: mov     qword ptr [rsp + 0xb0], rcx
+  0x27A5B4: mov     qword ptr [rsp + 0xb8], rax
+  0x27A5BC: lea     rax, [r14 + 0x60]
+  0x27A5C0: mov     qword ptr [rsp + 0x1e0], rax
+  0x27A5C8: lea     rax, [r14 + 0x78]
+  0x27A5CC: mov     qword ptr [rsp + 0x30], rax
+  0x27A5D1: mov     rax, qword ptr [r14 + 0xb8]
+  0x27A5D8: xor     r13d, r13d
+  0x27A5DB: mov     ecx, 0
+  0x27A5E0: cmp     qword ptr [r14 + 0xa8], rbp
+  0x27A5E7: je      0x14027a5f0
+  0x27A5E9: mov     rcx, qword ptr [r14 + 0xb0]
+  0x27A5F0: mov     qword ptr [rsp + 0x88], rcx
+  0x27A5F8: mov     qword ptr [rsp + 0x90], rax
+  0x27A600: mov     rax, qword ptr [r14 + 0xd0]
+  0x27A607: mov     ecx, 0
+  0x27A60C: cmp     qword ptr [r14 + 0xc0], rbp
+  0x27A613: je      0x14027a61c
+  0x27A615: mov     rcx, qword ptr [r14 + 0xc8]
+  0x27A61C: mov     qword ptr [rsp + 0x28], rbx
+  0x27A621: lea     r12, [r14 + 0x110]
+  0x27A628: mov     qword ptr [rsp + 0x98], rcx
+  0x27A630: mov     qword ptr [rsp + 0xa0], rax
+  0x27A638: mov     rax, qword ptr [r14 + 0xe8]
+  0x27A63F: mov     ecx, 0
+  0x27A644: cmp     qword ptr [r14 + 0xd8], rbp
+  0x27A64B: je      0x14027a654
+  0x27A64D: mov     rcx, qword ptr [r14 + 0xe0]
+  0x27A654: lea     rdi, [rsp + 0x288]
+  0x27A65C: lea     r11, [rsp + 0x270]
+  0x27A664: mov     qword ptr [r11], rcx
+  0x27A667: mov     qword ptr [r11 + 8], rax
+  0x27A66B: lea     r15, [r14 + 0x10]
+  0x27A66F: lea     r10, [r14 + 0x20]
+  0x27A673: lea     r9, [r14 + 0x30]
+  0x27A677: lea     r8, [r14 + 0x40]
+  0x27A67B: lea     rdx, [r14 + 0x50]
+  0x27A67F: lea     rax, [r14 + 0x118]
+  0x27A686: lea     rbx, [r14 + 0x90]
+  0x27A68D: lea     rcx, [rsp + 0x38]
+  0x27A692: mov     qword ptr [rcx], rbx
+  0x27A695: lea     rbx, [rsp + 0xb0]
+  0x27A69D: mov     qword ptr [rsp + 0xf0], rbx
+  0x27A6A5: lea     rbx, [rip + 0xa0750c]
+  0x27A6AC: mov     qword ptr [rsp + 0xf8], rbx
+  0x27A6B4: lea     rbx, [rsp + 0x1e0]
+  0x27A6BC: mov     qword ptr [rsp + 0x100], rbx
+  0x27A6C4: lea     rbp, [rip + 0xa0786d]
+  0x27A6CB: mov     qword ptr [rsp + 0x108], rbp
+  0x27A6D3: mov     qword ptr [rsp + 0x110], r12
+  0x27A6DB: lea     rbx, [rip + 0xa0734e]
+  0x27A6E2: mov     qword ptr [rsp + 0x118], rbx
+  0x27A6EA: lea     r12, [rsp + 0x30]
+  0x27A6EF: mov     qword ptr [rsp + 0x120], r12
+  0x27A6F7: mov     qword ptr [rsp + 0x128], rbp
+  0x27A6FF: mov     qword ptr [rsp + 0x130], r14
+  0x27A707: lea     r14, [rip + 0xa0cda2]
+  0x27A70E: mov     qword ptr [rsp + 0x138], r14
+  0x27A716: lea     r12, [rsp + 0x88]
+  0x27A71E: mov     qword ptr [rsp + 0x140], r12
+  0x27A726: lea     r12, [rip + 0xa0746b]
+  0x27A72D: mov     qword ptr [rsp + 0x148], r12
+  0x27A735: lea     rcx, [rsp + 0x98]
+  0x27A73D: mov     qword ptr [rsp + 0x150], rcx
+  0x27A745: mov     qword ptr [rsp + 0x158], r12
+  0x27A74D: mov     qword ptr [rsp + 0x160], r11
+  0x27A755: mov     qword ptr [rsp + 0x168], r12
+  0x27A75D: mov     qword ptr [rsp + 0x170], r15
+  0x27A765: lea     rcx, [rip + 0xa11d14]
+  0x27A76C: mov     qword ptr [rsp + 0x178], rcx
+  0x27A774: mov     qword ptr [rsp + 0x180], r10
+  0x27A77C: mov     qword ptr [rsp + 0x188], rcx
+  0x27A784: mov     qword ptr [rsp + 0x190], r9
+  0x27A78C: mov     qword ptr [rsp + 0x198], rcx
+  0x27A794: mov     qword ptr [rsp + 0x1a0], r8
+  0x27A79C: mov     qword ptr [rsp + 0x1a8], rcx
+  0x27A7A4: mov     qword ptr [rsp + 0x1b0], rdx
+  0x27A7AC: mov     qword ptr [rsp + 0x1b8], r14
+  0x27A7B4: mov     qword ptr [rsp + 0x1c0], rax
+  0x27A7BC: mov     qword ptr [rsp + 0x1c8], rbx
+  0x27A7C4: lea     rax, [rsp + 0x38]
+  0x27A7C9: mov     qword ptr [rsp + 0x1d0], rax
+  0x27A7D1: mov     qword ptr [rsp + 0x1d8], rbp
+  0x27A7D9: mov     rcx, qword ptr [rdi + 0x38]
+  0x27A7DD: call    0x1406bbe3c
+  0x27A7E2: movsxd  rbp, eax
+  0x27A7E5: mov     r12, rbp
+  0x27A7E8: neg     r12
+  0x27A7EB: lea     r14, [rsp + 0x1e8]
+  0x27A7F3: lea     r15, [rsp + 0xa8]
+  0x27A7FB: movabs  rax, 0x8000000000000000
+  0x27A805: lea     rbx, [rax + 0x16]
+  0x27A809: lea     rax, [r12 + rsi]
+  0x27A80D: lea     rcx, [rsp + r13]
+  0x27A811: add     rcx, 0xf0
+  0x27A818: mov     qword ptr [rsp + 0xa8], rcx
+  0x27A820: cmp     rax, 1
+  0x27A824: je      0x14027a85d
+  0x27A826: mov     rcx, r14
+  0x27A829: mov     rdx, rdi
+  0x27A82C: mov     r8, r15
+  0x27A82F: mov     r9, rsi
+  0x27A832: call    0x1402a051c
+  0x27A837: mov     rax, qword ptr [rsp + 0x1e8]
+  0x27A83F: cmp     rax, rbx
+  0x27A842: jne     0x14027a9cf
+  0x27A848: add     r13, 0x10
+  0x27A84C: inc     rsi
+  0x27A84F: cmp     r13, 0xf0
+  0x27A856: jne     0x14027a809
+  0x27A858: mov     esi, 0xf
+  0x27A85D: mov     rbx, qword ptr [rsp + 0x28]
+  0x27A862: cmp     rsi, rbp
+  0x27A865: jne     0x14027a9bf
+  0x27A86B: lea     rcx, [rsp + 0x40]
+  0x27A870: mov     rdx, rdi
+  0x27A873: call    0x1402a0a02
+  0x27A878: jmp     0x14027aa4a
+  0x27A87D: movups  xmm0, xmmword ptr [rsp + 0x230]
+  0x27A885: movups  xmm1, xmmword ptr [rsp + 0x240]
+  0x27A88D: movups  xmm2, xmmword ptr [rsp + 0x250]
+  0x27A895: movups  xmm3, xmmword ptr [rsp + 0x260]
+  0x27A89D: movaps  xmmword ptr [rsp + 0x70], xmm3
+  0x27A8A2: movaps  xmmword ptr [rsp + 0x60], xmm2
+  0x27A8A7: movaps  xmmword ptr [rsp + 0x50], xmm1
+  0x27A8AC: movaps  xmmword ptr [rsp + 0x40], xmm0
+  0x27A8B1: jmp     0x14027a94e
+  0x27A8B6: lea     rax, [rbp + 0x13]
+  0x27A8BA: jmp     0x14027a90b
+  0x27A8BC: mov     rdi, qword ptr [rsp + 0x1f0]
+  0x27A8C4: mov     r12, qword ptr [rsp + 0x1f8]
+  0x27A8CC: movups  xmm0, xmmword ptr [rsp + 0x200]
+  0x27A8D4: movaps  xmmword ptr [rsp + 0xc0], xmm0
+  0x27A8DC: movups  xmm0, xmmword ptr [rsp + 0x210]
+  0x27A8E4: movaps  xmmword ptr [rsp + 0xd0], xmm0
+  0x27A8EC: mov     rcx, qword ptr [rsp + 0x220]
+  0x27A8F4: mov     qword ptr [rsp + 0xe0], rcx
+  0x27A8FC: mov     rbx, qword ptr [rsp + 0x28]
+  0x27A901: movabs  rbp, 0x8000000000000000
+  0x27A90B: mov     qword ptr [rsp + 0x40], rax
+  0x27A910: mov     qword ptr [rsp + 0x48], rdi
+  0x27A915: mov     qword ptr [rsp + 0x50], r12
+  0x27A91A: movaps  xmm0, xmmword ptr [rsp + 0xc0]
+  0x27A922: movaps  xmm1, xmmword ptr [rsp + 0xd0]
+  0x27A92A: movups  xmmword ptr [rsp + 0x58], xmm0
+  0x27A92F: movups  xmmword ptr [rsp + 0x68], xmm1
+  0x27A934: mov     rax, qword ptr [rsp + 0xe0]
+  0x27A93C: mov     qword ptr [rsp + 0x78], rax
+  0x27A941: lea     rcx, [rsp + 0x280]
+  0x27A949: call    0x1402897b0
+  0x27A94E: mov     rax, qword ptr [rsp + 0x40]
+  0x27A953: lea     rcx, [rbp + 0x16]
+  0x27A957: cmp     rax, rcx
+  0x27A95A: jne     0x14027a961
+  0x27A95C: mov     qword ptr [rbx], rbp
+  0x27A95F: jmp     0x14027a9a8
+  0x27A961: mov     rcx, qword ptr [rsp + 0x78]
+  0x27A966: lea     r9, [rsp + 0xf0]
+  0x27A96E: mov     qword ptr [r9 + 0x38], rcx
+  0x27A972: movups  xmm0, xmmword ptr [rsp + 0x48]
+  0x27A977: movups  xmm1, xmmword ptr [rsp + 0x58]
+  0x27A97C: movups  xmm2, xmmword ptr [rsp + 0x68]
+  0x27A981: movups  xmmword ptr [r9 + 0x28], xmm2
+  0x27A986: movups  xmmword ptr [r9 + 0x18], xmm1
+  0x27A98B: movups  xmmword ptr [r9 + 8], xmm0
+  0x27A990: mov     qword ptr [r9], rax
+  0x27A993: lea     rdx, [rip + 0xa11b06] ; 'upsert map record'
+  0x27A99A: mov     r8d, 0x11
+  0x27A9A0: mov     rcx, rbx
+  0x27A9A3: call    0x1402793be
+  0x27A9A8: mov     rax, rbx

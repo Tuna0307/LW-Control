@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "findingId": "LWB-R7-001",
+  "date": "2026-09-10",
+  "scope": "bounded current-game resource acquisition and rebuilt Map Data display",
+  "evidenceLabels": {
+    "sourceAcquisition": "LIVE-PROVEN",
+    "boundedAdapter": "IMPLEMENTATION POLICY",
+    "rebuiltDisplay": "IMPLEMENTED/OFFLINE-TESTED",
+    "productionBridgeAndScan": "UNKNOWN/BLOCKED"
+  },
+  "officialClient": {
+    "appVersion": "1.0.361",
+    "build": 1078,
+    "launcherVersion": "0.1.2",
+    "freshRuntimeEvidence": "evidence/official-runtime/2026-09-10-first-live-official-runtime.json",
+    "freshUpdateHealthEvidence": "evidence/official-runtime/2026-09-10-first-live-update-health.json",
+    "baseUtilsSha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6"
+  },
+  "launcherCorrelation": {
+    "source": "%LOCALAPPDATA%/FunFly/Last War-Survival Game/Launcher.log",
+    "lines": {
+      "40124": "[2026-09-10 03:01:41.640][Launcher][INFO] Local manifest version: 1078",
+      "40131": "[2026-09-10 03:01:43.607][Launcher][INFO] LWLuaFile is current. local=LwLuaState { version: 14, file_version: 3, size: 41301710, crc: 2371889527, exists: true }, remote_version=14, format=Lenc",
+      "40135": "[2026-09-10 03:01:45.332][Launcher::app::pack][INFO] pack: index hash verification succeeded",
+      "40136": "[2026-09-10 03:01:45.343][Launcher][INFO] Starting game at: <official-root>/Game/LastWar.exe"
+    }
+  },
+  "captureRuntimePackage": {
+    "path": "%TEMP%/lwcontrol-first-live-v14-embedded-5bef55cd31c44d42a67d3dcd136ec568/LWScripts.data",
+    "sha256": "028e32ca71cf318758ab696ca05628ec30a28b429646e8bd6834dc0287bfffa0",
+    "size": 41301710,
+    "metadata": "41301710|2371889527",
+    "version": 14,
+    "correlation": "size, CRC and version match launcher line 40131 immediately before the official game start"
+  },
+  "postCaptureRestoredLua": {
+    "path": "%USERPROFILE%/AppData/LocalLow/FunFly/Last War-Survival Game/lwScripts/LWScripts.data",
+    "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "size": 41269242,
+    "version": 14,
+    "evidence": "evidence/official-runtime/2026-09-10-first-live-update-health.json",
+    "meaning": "the instrumented 41301710-byte capture package was temporary; the installed Lua payload was restored after the bounded test"
+  },
+  "liveDiagnostics": {
+    "path": "%TEMP%/lwcontrol-first-live-v14-embedded-5bef55cd31c44d42a67d3dcd136ec568/live-direct-diagnostics.json",
+    "sha256": "6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce",
+    "capturedAtUtc": "2026-09-09T19:02:27Z",
+    "capturedAtSingapore": "2026-09-10T03:02:27+08:00",
+    "probeVersion": "lwcontrol-world-full-scan-probe-9",
+    "accumulatedRecordCount": 15293,
+    "resourcePointCount": 8000,
+    "coveredBlockCount": 10000,
+    "completedBatchCount": 65,
+    "requestSentCount": 65,
+    "sourceObject": "WorldPointManager._pointInfos"
+  },
+  "focusedCaptureExcerpt": {
+    "path": "evidence/lwbridge-implementation/2026-09-10-first-live-resource-capture.json",
+    "sha256": "e2cf100d09b03f359e4baf8dceef3e14344d350e454e12c58094f066e42d227d",
+    "derivation": "programmatically selected the first resource_point from the hash-identified live diagnostics and retained its sourceCaptureSha256"
+  },
+  "selectedResourcePoint": {
+    "kind": "resource_point",
+    "pointId": 1006,
+    "pointType": 7,
+    "resourceType": "wood",
+    "resourceTypeId": 2,
+    "serverId": 2212,
+    "srcServerId": 2212,
+    "x": 5,
+    "y": 1,
+    "level": 3,
+    "uuid": 0,
+    "worldId": 0,
+    "resourceGettersObserved": true,
+    "gatherTimeStatus": "occupied_time_unavailable"
+  },
+  "boundedImport": {
+    "commandOption": "--first-live-result <diagnostics.json>",
+    "sourceLocator": "src/LWBridge.Desktop/FirstLiveResultImporter.cs:22",
+    "normalizedKind": "resource",
+    "recordKey": "1006",
+    "pointIndex": 1006,
+    "serverId": 2212,
+    "level": 3,
+    "updatedAtUnixMilliseconds": 1788980547000,
+    "resourceNameKey": null,
+    "gatheringOccupancy": null,
+    "policy": "resource_point is adapted to the recovered public resource kind only in this bounded evidence path; unsupported public fields are left absent"
+  },
+  "rebuiltUiEvidence": {
+    "screenshot": "evidence/lwbridge-implementation/2026-09-10-first-live-resource.png",
+    "screenshotSha256": "149911eae1e6ebc0c38411205b67b5a22df46bd98b7264ec4f4950280f269f27",
+    "diagnostics": "evidence/lwbridge-implementation/2026-09-10-first-live-resource-ui.json",
+    "diagnosticsSha256": "5f7980662942c26a062bcfcea5f8b3ca338d46b7d251fd4ca609f2b3262e790a",
+    "observed": {
+      "server": 2212,
+      "resourceTabCount": 1,
+      "itemCount": 1,
+      "coordinates": "5,1",
+      "resource": "Unknown resource",
+      "level": 3,
+      "status": "—",
+      "updatedAt": "9/10/2026, 3:02:27 AM"
+    }
+  },
+  "reproduction": [
+    "python tools/inspect_official_runtime.py --output evidence/official-runtime/2026-09-10-first-live-official-runtime.json",
+    "python tools/inspect_lastwar_update_health.py --output evidence/official-runtime/2026-09-10-first-live-update-health.json",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+    "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe --view map-data --language en --theme light --capture <png> --first-live-result evidence/lwbridge-implementation/2026-09-10-first-live-resource-capture.json"
+  ],
+  "validationAndLimits": [
+    "The official launcher and the capture package are correlated by build 1078 plus exact Lua v14 size/CRC immediately before the official game start; the diagnostics were captured about 42 seconds later.",
+    "The selected row is read from the captured WorldPointManager._pointInfos data, not a mock, manually entered row or screenshot transcription.",
+    "resourceType=wood is not mapped to resourceNameKey because that original public mapping is not source-backed; the rebuilt UI therefore displays Unknown resource.",
+    "gatherTimeStatus=occupied_time_unavailable does not prove Idle or Gathering; bounded display overrides the recovered missing-ID fallback with an unknown marker only for this evidence mode.",
+    "The bounded adapter does not establish production bridge ownership, live map_scan_start execution, scan completion/resume, public map_data_options, or the production map_summary state provider.",
+    "Computer Use initialization was rejected by the environment's automatic safety review before any UI action; no denied UI automation was rerouted through another executor."
+  ],
+  "implementationImpact": [
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "src/LWBridge.Desktop/Program.cs"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "findingId": "LWB-PM8-001",
+  "dateLocal": "2026-09-10",
+  "scope": "Observed update failure and source/build applicability; not a repair or live feature proof",
+  "previousSnapshot": "2026-09-08-official-runtime.json",
+  "currentSnapshot": "2026-09-10-official-runtime.json",
+  "updateHealth": "2026-09-10-lua-update-health.json",
+  "comparisons": {
+    "pe": {
+      "LastWarLauncher.exe": {
+        "previousSha256": "b6e29176f64c11a6f203d414fb50ee1e02293be318efda9c33cf221c83d763bc",
+        "observedSha256": "b6e29176f64c11a6f203d414fb50ee1e02293be318efda9c33cf221c83d763bc",
+        "matches": true
+      },
+      "LastWarSync.exe": {
+        "previousSha256": "18fde4ebe98767de1c769d2bcc474b726ad400a0d2c67178d7ded01aedfda3e9",
+        "observedSha256": "18fde4ebe98767de1c769d2bcc474b726ad400a0d2c67178d7ded01aedfda3e9",
+        "matches": true
+      },
+      "Game/LastWar.exe": {
+        "previousSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+        "observedSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+        "matches": true
+      },
+      "Game/GameAssembly.dll": {
+        "previousSha256": "496fbb32195086deaf39221668957d130a96a94aa90f87dd5adaab23bb800279",
+        "observedSha256": "496fbb32195086deaf39221668957d130a96a94aa90f87dd5adaab23bb800279",
+        "matches": true
+      },
+      "Game/LastWarBase.dll": {
+        "previousSha256": "10f3e8a462141d0aa6771902dd162c6550c32f12bc5d2ddf5ffc1bd85ca3c0d9",
+        "observedSha256": "10f3e8a462141d0aa6771902dd162c6550c32f12bc5d2ddf5ffc1bd85ca3c0d9",
+        "matches": true
+      },
+      "Game/LastWar_Data/Plugins/x86_64/xlua.dll": {
+        "previousSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+        "observedSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+        "matches": true
+      }
+    },
+    "containerSamples": {
+      "Assembly-CSharp.rdl": {
+        "previousSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+        "observedSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+        "matches": true
+      },
+      "BaseUtils.rdl": {
+        "previousSha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6",
+        "observedSha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6",
+        "matches": true
+      },
+      "SmartFox2X.rdl": {
+        "previousSha256": "bdb893b29cd5c1ffe4e2ebecf504209c47d775de5dd08e34d09ad5fb6107a96b",
+        "observedSha256": "bdb893b29cd5c1ffe4e2ebecf504209c47d775de5dd08e34d09ad5fb6107a96b",
+        "matches": true
+      },
+      "XLuaRuntime.rdl": {
+        "previousSha256": "5d1aa6536a4feec7467225a119ea2f0b7451e9d0b51220d902e5f0d8bbc081b2",
+        "observedSha256": "5d1aa6536a4feec7467225a119ea2f0b7451e9d0b51220d902e5f0d8bbc081b2",
+        "matches": true
+      },
+      "UnityEngine.CoreModule.mdl": {
+        "previousSha256": "a10a4b4a666d691f51ecd75adfae332e1e2f92f8a97bb333955339d7b7b96612",
+        "observedSha256": "a10a4b4a666d691f51ecd75adfae332e1e2f92f8a97bb333955339d7b7b96612",
+        "matches": true
+      },
+      "mscorlib.mdl": {
+        "previousSha256": "acba748e150dd68ca9f6d0a21ee4bfb29d2bfb1cb30b0514e83dd49fd10065d6",
+        "observedSha256": "acba748e150dd68ca9f6d0a21ee4bfb29d2bfb1cb30b0514e83dd49fd10065d6",
+        "matches": true
+      }
+    },
+    "protectedRuntimeHashes": {
+      "ACE-Base64.dll": {
+        "previousSha256": "e464279f37d8b27c2289ac52d8446c94c5b09a29842490d25d04c749f1387041",
+        "observedSha256": "e464279f37d8b27c2289ac52d8446c94c5b09a29842490d25d04c749f1387041",
+        "matches": true
+      },
+      "ACE-Service64.exe": {
+        "previousSha256": "dd6c302bada944b5246fb3b81a9e4244f57bceffcb4c309a370886d721da8114",
+        "observedSha256": "dd6c302bada944b5246fb3b81a9e4244f57bceffcb4c309a370886d721da8114",
+        "matches": true
+      }
+    }
+  },
+  "activeScriptMatchesPrevious": true,
+  "previousTable": {
+    "name": "table_39128_5d6bbf1725c5524bbfe9ae862865d7db.data",
+    "exists": true,
+    "size": 19316988,
+    "sha256": "8a4da3d8f4015f77188d6600ffe2144562014d3035b4d96d106489588618e18d"
+  },
+  "observedTable": {
+    "name": "table_39191_7476c6ef71b756a1033c7c79a5d0c177.data",
+    "exists": true,
+    "size": 19337661,
+    "sha256": "81ed5dcf49f484372b09190a07eab8304055568c9651a238a47e202b4e3fac3a"
+  },
+  "limits": [
+    "14 sampled file anchors only, not complete installed-directory equality",
+    "Historical latestLuaState in the architecture inspector is not proof the newest update succeeded",
+    "Raw update output fails CRC; root cause and subsequent successful launch remain unproven"
+  ]
+}

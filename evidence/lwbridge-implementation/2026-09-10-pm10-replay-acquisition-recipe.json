@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "findingId": "LWB-R7-002",
+  "date": "2026-09-10",
+  "scope": "PM10 acquisition-recipe preservation plus saved-capture replay isolation and production-gate regression coverage",
+  "evidenceLabels": {
+    "historicalAcquisitionRecipe": "RECOVERED",
+    "replayIsolationAndLabeling": "IMPLEMENTED/OFFLINE-TESTED",
+    "freshAppInitiatedAcquisition": "UNKNOWN/BLOCKED"
+  },
+  "historicalSource": {
+    "gitCommit": "2a3cc66a88de86394b4404adf9e9cfd7af6275a1",
+    "isAncestorOfCheckpoint": true,
+    "preservedReadOnlyCheckout": "%LOCALAPPDATA%/Temp/lwcontrol-legacy-readonly-2a3cc66",
+    "files": [
+      {
+        "path": "tools/current_world_map_full_scan_probe.lua",
+        "gitBlobSha256": "a6dc2f194e51356a9519eb8372aa843a2a6c6ed324fa9f93574556e8a8a3d189",
+        "historicalRunWorktreeSha256": "3adb8c2d1e191e98185afc372f82613f345ad51d34b04caeb8d356ce70a9b5de",
+        "lineEndingNote": "The preserved checkout is clean at commit 2a3cc66 and core.autocrlf=true. The historical runner read working-tree bytes, so its recorded probe hash is the CRLF worktree representation rather than the canonical LF Git blob hash."
+      },
+      {
+        "path": "tools/prepare_world_map_full_scan_probe.py",
+        "sha256": "4e71ab749554d29e6c2f44db3d3f7070f5ce894210d7f0fc8ab1eac5fe66d1f7"
+      },
+      {
+        "path": "tools/run_world_map_full_scan_probe.py",
+        "sha256": "8ab79be1a81b7777d275108681cfbb894fa1c326f5ff69f11626390e7a33d7f3"
+      },
+      {
+        "path": "tools/install_loader_probe.py",
+        "sha256": "31680dadfdce605d59515f03b5b56ec24536d9917954577c943e1f230b7501ee"
+      },
+      {
+        "path": "tools/extract_lenc_v3.py",
+        "sha256": "e1fcca3b06aef430b704ba7e5c0213e0bf2d57e4a8ca72d7a4d4db0ef42edc75"
+      },
+      {
+        "path": "tools/build_world_block_sender.py",
+        "sha256": "95ad2af5342797534f8154372154b969e9a0d230b5f7f3082e1f56207b0e32e7"
+      }
+    ]
+  },
+  "toolVersionsAtRecovery": {
+    "python": "3.12.10",
+    "dotnetSdk": "10.0.400"
+  },
+  "v14Candidate": {
+    "officialFileVersion": 3,
+    "officialContentVersion": 14,
+    "officialEntryCount": 18731,
+    "officialPackageSize": 41269242,
+    "officialPackageCrc32": 3541420783,
+    "officialLuaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "baseUtilsSha256": "b20865f42c9272e0fca2b6deb2e9142576b12dcf42f11ad1a8816ddd59b952d6",
+    "candidateEntryCount": 18732,
+    "candidatePackageSha256": "028e32ca71cf318758ab696ca05628ec30a28b429646e8bd6834dc0287bfffa0",
+    "candidatePackageSize": 41301710,
+    "candidateMetadata": "41301710|2371889527",
+    "candidateVersion": 14,
+    "probeSourceSha256FromHistoricalRun": "3adb8c2d1e191e98185afc372f82613f345ad51d34b04caeb8d356ce70a9b5de",
+    "embeddedWrapperSourceSha256": "9b3b6db7af1e140509f4a8415145fbb0e1a58458c6b4e582762ac15df18dc77b"
+  },
+  "reproduction": {
+    "sourceCheckout": "git worktree or git archive of commit 2a3cc66a88de86394b4404adf9e9cfd7af6275a1; do not substitute later script bytes without revalidation",
+    "staging": "Historical session ordinal 368 adapted only install_loader_probe.EXPECTED_CONTENT_VERSION from 12 to the observed current 14, required LastWar.exe stopped, verified LWLF 3/14 and the official LuaEntry hash, derived the xLua key/nonce with extract_lenc_v3, embedded current_world_map_full_scan_probe.lua in the active LuaEntry wrapper, preserved DataCenter/Global/LuaEntry_original.luac, wrote LWScripts.data/LWScripts.txt/version.txt into a unique candidate directory, then called prepare_world_map_full_scan_probe.verify(paths,outdir).",
+    "guardedRunPython": "from pathlib import Path\nimport os,sys,json\nsys.path.insert(0,str(Path.cwd()/'tools'))\nimport install_loader_probe as ilp\nilp.EXPECTED_CONTENT_VERSION=14\nimport run_world_map_full_scan_probe as runner\nresult=runner.run_probe(Path(os.environ['CAND']),180)\nprint(json.dumps({'ok':True,**result},indent=2,default=str))",
+    "runContract": "run_probe verifies candidate hashes, backs up the protected data/metadata/version files, installs only those candidate files, starts the official launcher, waits boundedly for result/status, copies live diagnostics into the candidate directory, and restores the protected files. A successful live restore keeps the process; otherwise it closes the game and restores from backup. Before/after protected hashes must match or the run refuses success.",
+    "focusedExtraction": "Select one resource_point from the hash-identified live-direct-diagnostics.json and retain capturedAt, probeVersion and the full sourceCaptureSha256. The committed R7-001 excerpt is evidence/lwbridge-implementation/2026-09-10-first-live-resource-capture.json."
+  },
+  "knownLiveEvidence": {
+    "fullCaptureSha256": "6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce",
+    "capturedAtUtc": "2026-09-09T19:02:27Z",
+    "probeVersion": "lwcontrol-world-full-scan-probe-9",
+    "resourcePointCount": 8000,
+    "selectedPoint": {
+      "serverId": 2212,
+      "pointId": 1006,
+      "x": 5,
+      "y": 1,
+      "level": 3,
+      "source": "WorldPointManager._pointInfos"
+    },
+    "restoredOfficialLuaSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "restoredOfficialLuaSize": 41269242
+  },
+  "pm10Implementation": {
+    "replayStore": "FirstLiveResultImporter.CreateIsolatedReplay creates a dedicated in-memory MapDataStore and disposes it on import failure.",
+    "replayUi": "Saved capture replay is explicitly labeled with capture time, source filename, probe version and input SHA-256; acquisition controls are disabled; Resource is automatically selected.",
+    "replayScanState": "phase=unavailable, serverIdSource=saved_capture_replay, isReading=false",
+    "importerLimits": "serverId uses the recovered public 1..99999 range. pointId/x/y remain a positive Int32 demo-only IMPLEMENTATION POLICY and are not generalized as recovered production map ranges.",
+    "productionGates": "normal profile_instance_start, map_scan_start and map_summary behavior remains fail-closed and is tested independently of replay state."
+  },
+  "validation": {
+    "releaseBuild": "passed, 0 warnings, 0 errors",
+    "desktopChecks": "passed; ok=true, all five deterministic groups true, failures=[]",
+    "installedDiagnostic": "valid; gameRunning=false, launcherRunning=false at validation time",
+    "freshUiCapture": "not repeated because the earlier rebuilt-app capture operation was rejected by the environment's automatic review before launch; R7-001 remains the last committed screenshot proof"
+  },
+  "restrictionsAndLimits": [
+    "This checkpoint recovered and preserved the historical recipe; it did not execute a second fresh game acquisition.",
+    "Earlier attempts in this task to decode/rebuild the current instrumented package and to launch a rebuilt-app UI capture were rejected by the environment's automatic review. Those denied operations were not rerouted.",
+    "A historical command that succeeded on 2026-09-10 is evidence of the old run, not proof the same mutation is permitted by the active environment now.",
+    "Fresh app-initiated acquisition still requires a supported rebuild-owned bridge/session and acquisition path; replay is deliberately incapable of representing itself as fresh."
+  ],
+  "implementationImpact": [
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-11",
+  "baseCommit": "7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d",
+  "kind": "PM audit; no new live acquisition",
+  "acceptanceSections1Through16Unchanged": true,
+  "historicalEvidenceAndImplementationHashChecks": [
+    {
+      "name": "input",
+      "path": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-expected.json",
+      "sha256": "761168940666dc266b942e60c70de954447e96628e9178707cef8f965cf6de16",
+      "matches": true
+    },
+    {
+      "name": "result",
+      "path": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-reopen.json",
+      "sha256": "2ab7b56804d85cdd82356e69a3d3a46d1b54f86adfe1137bd1439c0890c1ffa1",
+      "matches": true
+    },
+    {
+      "name": "screenshot",
+      "path": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-reopen-reopen.png",
+      "sha256": "8830102d7b10b460c847a7a1f81ed66cc7e72e069903d571a86a16fe1a3dd4c1",
+      "matches": true
+    },
+    {
+      "path": "src/LWBridge.Desktop/NormalUiResourceProofContract.cs",
+      "sha256": "750c31067a6a8c6978ab4623196b8ed44922eed2a843c4ca3dd053cd7dcc27a2",
+      "matches": true
+    },
+    {
+      "path": "tools/check_pm13_resource_proof.cjs",
+      "sha256": "9c8459450693d53a59e44fbd614468d66d6d9871a83ed5e2628e644b05e1ff85",
+      "matches": true
+    },
+    {
+      "path": "tools/check_pm13_saved_reopen.cjs",
+      "sha256": "64642172bbebbd4ebcb68b8cb08cd311cd8c07f01f40a91285526ed616622e3e",
+      "matches": true
+    },
+    {
+      "path": "tools/run_pm13_saved_reopen_proof.ps1",
+      "sha256": "965a77e1a60da89f3a42180553029dda9a45744dfd724c7dc9d07941cdf7d252",
+      "matches": true
+    }
+  ],
+  "changedDocumentLocalLinksValid": true,
+  "freshChecksThisAudit": {
+    "releaseBuild": "PASS; 0 warnings/errors",
+    "desktopChecks": "PASS; all six groups true, failures empty; real config unchanged",
+    "frontendRegeneration": "PASS",
+    "pm13ResourceFeedback": "PASS",
+    "pm13ResourceProof": "PASS; five DOM cases",
+    "pm12RecoverySessionScopedClose": "PASS; three isolated scripts"
+  },
+  "nativeObservation": "Canonical ordinary app launched and observed through sky; no completed new saved-row/reopen proof",
+  "notPerformed": [
+    "Fresh game acquisition",
+    "Rejected SB-97 prepared proof",
+    "New full 47-case acceptance"
+  ],
+  "remainingGate": "PM13-04: permitted fresh resource-only two-read/Search/render/reopen with integrity and cleanup"
+}

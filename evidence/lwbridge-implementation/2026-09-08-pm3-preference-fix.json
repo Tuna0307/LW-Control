@@ -1,0 +1,240 @@
+{
+  "date": "2026-09-08",
+  "scope": "PM3-01 visible preference-save failure feedback and PM3-02 rapid failed-save reconciliation",
+  "evidenceLabel": "IMPLEMENTED/OFFLINE-TESTED",
+  "implementationPolicy": "Login-free single-profile mode surfaces native preference-save failures in the existing profile-error visual language and reconciles optimistic UI state to the last confirmed persisted value.",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "role": "verified UI/feature authority; no new original preference semantics are claimed by this fix"
+  },
+  "sourceIdentity": [
+    {
+      "path": "src/LWBridge.Desktop/WebUi/local-providers.js",
+      "sha256": "5956a49c0e636cd90b4a07b04143f8875b5fdc633dfbfac39fc2af1437bd5551",
+      "locator": "Xt autoLaunchCommitted/save chain/profile-save-error"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "sha256": "c480e4c361cb69cff9d381916046f6612742ecea07b386dd5419e3b65ac77e8a",
+      "locator": "RunHostProbeAsync preference rollback/failure/recovery phases and final ok gate"
+    },
+    {
+      "path": "tools/check_lwbridge_preference_provider.cjs",
+      "sha256": "77867a0fbf106e4644598a99981a41559bf7ce3352dc4e3677b55e0eabe4e3b4",
+      "locator": "four rapid-save outcomes plus failed-save recovery"
+    }
+  ],
+  "findings": [
+    {
+      "id": "PM3-01",
+      "result": "Rejected native saves now create a visible .profile-error.profile-save-error alert in login-free single-profile mode; the native host pass gate requires non-empty visible feedback.",
+      "reproduction": [
+        "python tools/build_lwbridge_frontend.py",
+        "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+        "LWBridge.Desktop.exe --host-probe <isolated-output.json>"
+      ],
+      "validation": {
+        "preferenceRollbackVisible": true,
+        "preferenceRollbackErrorVisible": true,
+        "preferenceRollbackErrorText": "Expected isolated preference-save failure."
+      }
+    },
+    {
+      "id": "PM3-02",
+      "result": "Auto-launch saves remain serialized, but rollback now uses the last confirmed persisted value. Stale failures cannot overwrite newer intentions; latest success clears the error.",
+      "reproduction": [
+        "node tools/check_lwbridge_preference_provider.cjs",
+        "LWBridge.Desktop.exe --host-probe <isolated-output.json>"
+      ],
+      "validation": {
+        "providerMatrix": {
+          "ok": true,
+          "checks": {
+            "bothFail": true,
+            "failThenSuccess": true,
+            "successThenFail": true,
+            "bothSuccess": true,
+            "recovery": true
+          },
+          "scenarios": {
+            "bothFail": {
+              "first": "fail",
+              "second": "fail",
+              "finalUi": false,
+              "errors": [
+                "CONFIG_WRITE_FAILED"
+              ],
+              "sentValues": [
+                true,
+                false
+              ]
+            },
+            "failThenSuccess": {
+              "first": "fail",
+              "second": "success",
+              "finalUi": false,
+              "errors": [],
+              "sentValues": [
+                true,
+                false
+              ]
+            },
+            "successThenFail": {
+              "first": "success",
+              "second": "fail",
+              "finalUi": true,
+              "errors": [
+                "CONFIG_WRITE_FAILED"
+              ],
+              "sentValues": [
+                true,
+                false
+              ]
+            },
+            "bothSuccess": {
+              "first": "success",
+              "second": "success",
+              "finalUi": false,
+              "errors": [],
+              "sentValues": [
+                true,
+                false
+              ]
+            }
+          },
+          "recovery": {
+            "failedUi": false,
+            "failedErrors": [
+              "CONFIG_WRITE_FAILED"
+            ],
+            "recoveredUi": true,
+            "recoveredErrors": []
+          }
+        },
+        "nativeHost": {
+          "bothFail": true,
+          "failThenSuccess": true,
+          "successThenFail": true,
+          "recoveryClearsError": true,
+          "maxConcurrentNativeSaves": 1
+        }
+      }
+    }
+  ],
+  "hostProbe": {
+    "ok": true,
+    "mode": "isolated-native-host-probe",
+    "implementationPolicy": true,
+    "slowStorageUiResponsive": true,
+    "timerDelayMs": 57.199999928474426,
+    "slowStorageElapsedMs": 882.2999999523163,
+    "sessionRotated": true,
+    "oldSessionId": "83f58401535f4dfdb9f931c533181f3b",
+    "newSessionId": "4b4fde84130d4d009ae0491fb21d5542",
+    "documentGeneration": 3,
+    "reloadCancelledOldWork": true,
+    "reloadResetSubscriptions": true,
+    "lastClosedRequestCount": 1,
+    "lastClosedSubscriptionCount": 7,
+    "staleSessionIgnored": true,
+    "slowBeforeStale": 0,
+    "slowAfterStale": 0,
+    "structuredError": true,
+    "expectedErrorCode": "DIAGNOSTIC_EXPECTED",
+    "duplicateRequestRejected": true,
+    "duplicateCodes": [
+      "DUPLICATE_REQUEST_ID",
+      "COMMAND_CANCELLED"
+    ],
+    "preferenceRollbackVisible": true,
+    "preferenceRollbackErrorVisible": true,
+    "preferenceRollbackErrorText": "Expected isolated preference-save failure.",
+    "preferenceRollbackBefore": false,
+    "preferenceRollbackOptimistic": true,
+    "preferenceRollbackAfter": false,
+    "preferenceConfigBefore": false,
+    "preferenceConfigAfter": false,
+    "overlappingPreferenceSavesOrdered": true,
+    "overlapInitial": false,
+    "overlapFirstDraft": true,
+    "overlapLatest": false,
+    "overlapFinal": false,
+    "overlapConfig": false,
+    "overlapStartedBefore": 2,
+    "overlapStartedAfter": 4,
+    "overlapMaxActive": 1,
+    "preferenceBothFailedReconciled": true,
+    "bothFailedInitial": false,
+    "bothFailedFirstDraft": true,
+    "bothFailedSecondDraft": false,
+    "bothFailedFinal": false,
+    "bothFailedConfig": false,
+    "bothFailedErrorText": "Expected isolated preference-save failure.",
+    "preferenceFailThenSuccessReconciled": true,
+    "failThenSuccessInitial": false,
+    "failThenSuccessFirstDraft": true,
+    "failThenSuccessSecondDraft": false,
+    "failThenSuccessFinal": false,
+    "failThenSuccessConfig": false,
+    "failThenSuccessErrorText": "",
+    "preferenceSuccessThenFailReconciled": true,
+    "successThenFailInitial": false,
+    "successThenFailFirstDraft": true,
+    "successThenFailSecondDraft": false,
+    "successThenFailFinal": true,
+    "successThenFailConfig": true,
+    "successThenFailErrorText": "Expected isolated preference-save failure.",
+    "preferenceRecoveryClearsError": true,
+    "preferenceRecoveryInitial": true,
+    "preferenceRecoveryOptimistic": false,
+    "preferenceRecoveryFinal": false,
+    "preferenceRecoveryConfig": false,
+    "preferenceRecoveryErrorBefore": "Expected isolated preference-save failure.",
+    "preferenceRecoveryErrorAfter": "",
+    "pickerCancelAndInvalidHandled": true,
+    "pickerCancelBusy": true,
+    "pickerInvalidBusy": true,
+    "pickerBaselineText": "未检测到",
+    "pickerAfterCancelText": "未检测到",
+    "pickerAfterInvalidText": "选择的游戏安装目录无效。",
+    "pickerCancelledBefore": 0,
+    "pickerCancelledAfter": 1,
+    "pickerInvalidBefore": 0,
+    "pickerInvalidAfter": 1,
+    "externalNavigationRejected": true,
+    "localSourceBeforeExternal": "https://lwbridge.local/index.html?view=overview&nativeSession=98aeda12eb9546abb7027f113fababc7",
+    "sourceAfterExternal": "https://lwbridge.local/index.html?view=overview&nativeSession=98aeda12eb9546abb7027f113fababc7",
+    "rejectedNavigationCount": 1,
+    "closedWindowLateResponseSuppressed": true,
+    "activeRequestsBeforeClose": 1,
+    "activeRequestsAfterLateCompletion": 0,
+    "postedMessagesBeforeClose": 122,
+    "postedMessagesAfterLateCompletion": 122,
+    "service": {
+      "slowSyncStarted": 0,
+      "delayedStarted": 2,
+      "delayedActive": 0,
+      "delayedCancelled": 2,
+      "lateStarted": 1,
+      "lateCompleted": 1,
+      "configSaveStarted": 11,
+      "configSaveCompleted": 6,
+      "configSaveFailed": 5,
+      "configSaveActive": 0,
+      "configSaveMaxActive": 1,
+      "pickerStarted": 2,
+      "pickerCancelled": 1,
+      "pickerInvalid": 1
+    },
+    "startupAutoLaunchSuppressed": true,
+    "isolatedPersistentConfig": true,
+    "userConfigTouched": false,
+    "liveGameCommandsPerformed": false
+  },
+  "limits": [
+    "No Last War process was launched or mutated by these tests.",
+    "This closes rebuild preference correctness/feedback only; Overview lifecycle remains blocked on R5 launch/bridge contracts.",
+    "Normal-state recovered UI remains unchanged because the alert is rendered only while an error exists."
+  ]
+}
