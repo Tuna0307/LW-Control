@@ -47,7 +47,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly object stateGate = new();
     private readonly object leaseWriteGate = new();
     private readonly string helperPath;
-    private readonly string? gameRoot;
+    private string? gameRoot;
     private readonly string profileId;
     private readonly string runtimeRoot;
     private readonly string evidenceRoot;
@@ -55,6 +55,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly LocalConfigStore? config;
     private readonly OverviewLifecycleTestHooks? testHooks;
     private readonly bool requireCurrentClientEvidence;
+    private readonly bool recoveryMonitorEnabled;
     private System.Threading.Timer? leaseTimer;
     private long leaseGeneration;
     private Process? activeHelperProcess;
@@ -90,6 +91,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         this.config = config;
         this.testHooks = testHooks;
+        recoveryMonitorEnabled = startRecoveryMonitor;
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
         evidenceRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-evidence");
@@ -124,6 +126,72 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     }
 
     public bool RepairRequired => TryGetRepairSnapshot(out _);
+
+    // PM16-01 IMPLEMENTATION POLICY: a validated installation may replace the bound
+    // lifecycle root only while no owned launch/close/recovery work is active and no
+    // same-profile recovery journal remains. Re-selecting the same root
+    // is a harmless persistence-only no-op.
+    internal void RebindGameRoot(string selectedRoot, Action persistSelection)
+    {
+        if (string.IsNullOrWhiteSpace(selectedRoot))
+            throw new ArgumentException("A validated game root is required.", nameof(selectedRoot));
+        ArgumentNullException.ThrowIfNull(persistSelection);
+        string normalized = Path.TrimEndingDirectorySeparator(Path.GetFullPath(selectedRoot));
+        bool startRecoveryMonitor = false;
+
+        lock (stateGate)
+        {
+            if (closed)
+                throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
+            if (gameRoot is not null && PathEquals(gameRoot, normalized))
+            {
+                persistSelection();
+                return;
+            }
+            if (phase is "starting" or "stopping" or "running" ||
+                gamePid is not null || instanceId is not null || activeHelperProcess is not null || activeRecoveryCancellation is not null)
+                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                    "The selected installation cannot change while an owned game lifecycle operation is active.");
+            if (HasPendingRecoveryJournal())
+                throw new BridgeCommandException("GAME_REPAIR_REQUIRED",
+                    "Finish restoring the current LWBridge-owned game session before selecting another installation.");
+
+            persistSelection();
+            gameRoot = normalized;
+            if (phase == "error")
+            {
+                phase = "stopped";
+                connectionState = "offline";
+                lastError = null;
+            }
+            startRecoveryMonitor = recoveryMonitorEnabled && config is not null && recoveryTimer is null;
+        }
+
+        if (startRecoveryMonitor) StartRecoveryMonitor();
+    }
+
+    private bool HasPendingRecoveryJournal()
+    {
+        string journalPath = Path.Combine(runtimeRoot, "recovery.json");
+        if (testHooks?.ReadAllBytes is null && !File.Exists(journalPath)) return false;
+        try
+        {
+            byte[] bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(journalPath);
+            using JsonDocument document = JsonDocument.Parse(bytes);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object || !MatchesInt(root, "schemaVersion", 1) ||
+                !MatchesString(root, "profileId", profileId)) return false;
+            if (!root.TryGetProperty("stage", out JsonElement stageElement) || stageElement.ValueKind != JsonValueKind.String)
+                return true;
+            return stageElement.GetString() is
+                "active_ready_deferred_restore" or
+                "closing_owned_game_for_restore" or
+                "restoring_after_owned_game_exit";
+        }
+        catch (FileNotFoundException) { return false; }
+        catch (DirectoryNotFoundException) { return false; }
+        catch { return true; }
+    }
 
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken) => command switch
     {
@@ -369,26 +437,24 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private async Task<object?> StartAsync(CancellationToken cancellationToken)
     {
-        if (gameRoot is null)
-            throw new BridgeCommandException("GAME_ROOT_NOT_FOUND", "No validated Last War installation is selected.");
         if (!File.Exists(helperPath) && testHooks?.RunHelperAsync is null)
             throw new BridgeCommandException("OVERVIEW_HELPER_MISSING", "The Overview bridge helper was not deployed with LWBridge.Desktop.");
 
+        string newSession = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string newChallenge = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
+        string selectedRoot;
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
+            if (gameRoot is null)
+                throw new BridgeCommandException("GAME_ROOT_NOT_FOUND", "No validated Last War installation is selected.");
             if (phase is "starting" or "stopping")
                 throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "A game lifecycle operation is already in progress.");
             if (gamePid is not null)
                 throw new BridgeCommandException("GAME_RUNNING", "The LWBridge-owned game is already running.");
-        }
-        if (FindSelectedGameProcess() is not null)
-            throw new BridgeCommandException("UNMANAGED_GAME_RUNNING", "Close the game started outside this application first.");
-
-        string newSession = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-        string newChallenge = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
-        lock (stateGate)
-        {
+            selectedRoot = gameRoot;
+            if (FindSelectedGameProcess(selectedRoot) is not null)
+                throw new BridgeCommandException("UNMANAGED_GAME_RUNNING", "Close the game started outside this application first.");
             phase = "starting";
             connectionState = "starting";
             instanceId = newSession;
@@ -402,7 +468,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             JsonElement helper = await RunHelperAsync(
                 new OverviewHelperInvocation("start", profileId, newSession, newChallenge, null, null, null),
                 cancellationToken).ConfigureAwait(false);
-            OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, gameRoot, requireCurrentClientEvidence);
+            OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
             lock (stateGate)
             {
@@ -754,8 +820,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private GameProcessIdentity? FindSelectedGameProcess()
     {
-        if (gameRoot is null) return null;
-        string expected = Path.GetFullPath(Path.Combine(gameRoot, "Game", "LastWar.exe"));
+        string? selectedRoot;
+        lock (stateGate) selectedRoot = gameRoot;
+        return selectedRoot is null ? null : FindSelectedGameProcess(selectedRoot);
+    }
+
+    private static GameProcessIdentity? FindSelectedGameProcess(string selectedRoot)
+    {
+        string expected = Path.GetFullPath(Path.Combine(selectedRoot, "Game", "LastWar.exe"));
         foreach (Process process in Process.GetProcessesByName("LastWar"))
         {
             try

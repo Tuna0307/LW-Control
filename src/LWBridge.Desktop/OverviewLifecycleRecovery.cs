@@ -56,7 +56,7 @@ internal sealed partial class OverviewLifecycleService
 
     private void StartRecoveryMonitor()
     {
-        if (config is null || gameRoot is null) return;
+        if (!recoveryMonitorEnabled || config is null || gameRoot is null || recoveryTimer is not null) return;
         recoveryTimer = new System.Threading.Timer(
             _ => _ = RecoveryObservationAsync(), null,
             RecoveryMonitorCadence, RecoveryMonitorCadence);

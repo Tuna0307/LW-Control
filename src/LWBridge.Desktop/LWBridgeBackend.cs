@@ -68,7 +68,19 @@ internal sealed class LWBridgeBackend
     {
         try
         {
-            return installation.SaveSelectedRoot(path);
+            GameRootStatus validated = installation.Validate(path, "selected");
+            if (!validated.Valid) return validated;
+            if (overviewLifecycle is null) return installation.SaveSelectedRoot(validated.Path);
+
+            GameRootStatus? saved = null;
+            overviewLifecycle.RebindGameRoot(validated.Path, () =>
+            {
+                saved = installation.SaveSelectedRoot(validated.Path);
+                if (!saved.Valid)
+                    throw new BridgeCommandException(saved.Error ?? "GAME_ROOT_INVALID",
+                        "The selected Last War installation became invalid before it could be saved.");
+            });
+            return saved ?? throw new InvalidOperationException("Game Root selection was not persisted.");
         }
         catch (LocalConfigStoreException ex)
         {

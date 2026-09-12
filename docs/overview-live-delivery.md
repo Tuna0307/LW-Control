@@ -1,6 +1,6 @@
 # Active delivery: Overview launch, injected bridge message, and close
 
-**Current correction plan — PM review 16:** [audit](reviews/2026-09-12-review-16-overview-zero-open.md) credits the successful Overview paths but rejects zero-open closure. Web fixes PM16-02 process identity, then PM16-01 selected-root integration, and PM16-03 documentation/evidence. [Current prompts](team-workflow.md). The OVL sequence below is preserved as the delivered milestone, not a request to restart completed work. Map Data remains on hold.
+**Current correction plan — PM review 16:** [audit](reviews/2026-09-12-review-16-overview-zero-open.md) credits the successful Overview paths but rejects zero-open closure. PM16-02 process identity and PM16-01 selected-root integration are corrected/offline-tested as `LWB-PM16-001` and `LWB-PM16-002`; PM16-03 documentation/evidence and corrected-revision CI verification remain. [Current prompts](team-workflow.md). The OVL sequence below is preserved as the delivered milestone, not a request to restart completed work. Map Data remains on hold.
 
 Owner-directed priority change, 2026-09-11. This is the only active user-visible feature. It supersedes resource-first and monster-next instructions elsewhere. The full 47-case specification in task.md remains future scope; this milestone does not claim all Overview settings or both pages are complete.
 

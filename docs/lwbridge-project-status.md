@@ -4,11 +4,11 @@
 
 - Preserve recorded owner acceptance of Launch -> in-game **LWbridge is running** -> Close and startup/process-exit reconnect.
 - Credit the successful interrupted-session repair -> original restoration -> fresh ready relaunch -> final clean Close path.
-- **PM16-02 / P1 OPEN:** reject replacement processes with a reused PID by checking durable process incarnation at repair/close boundaries.
-- **PM16-01 / P1 OPEN:** the selected game folder must reach the active lifecycle; missing-root selection and A -> B currently leave Launch using the constructor's old root. Invalid-root status must not accept foreign same-named processes.
+- **PM16-02 / P1 CORRECTED/OFFLINE-TESTED (`LWB-PM16-001`):** repair/close/recovery ownership now includes durable process-incarnation identity and fails closed on replacement/unknown identity.
+- **PM16-01 / P1 CORRECTED/OFFLINE-TESTED (`LWB-PM16-002`):** validated root changes rebind only at a stopped, journal-free boundary; status and next Launch agree, active/repair ownership stays on the original root, and invalid-root foreign same-named processes remain unmatched.
 - **PM16-03 OPEN:** reconcile source evidence/reproduction details and deliver corrected-build checks, Git and CI; preserve historical successes and limits.
 
-Web executes those corrections in the listed order and returns to PM/owner. No separate Sol or Daybreak task. PM has not run the game or application suites in this audit; defects are source-confirmed and their isolated reproductions are assigned to Web.
+Web has completed both returned code corrections offline; PM16-03 evidence/document reconciliation and corrected-revision CI verification are next before return to PM/owner. No separate Sol or Daybreak task. PM has not run the game or application suites in this audit; defects are source-confirmed and their isolated reproductions are assigned to Web.
 
 Whole-page shared gaps are S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel. UI language bundles exist; S05 game-derived names require consumer-specific scoping and are not an excuse to begin Map Data. Protected-original bootstrap parity, event/update live coverage and the 47-case release matrix stay separate.
 

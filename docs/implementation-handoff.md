@@ -4,7 +4,7 @@
 
 **RETURN FOR CORRECTION: O01–O06 zero-open is not approved.** [PM audit](reviews/2026-09-12-review-16-overview-zero-open.md) reviewed code commit `0758006`, verified GitHub delivery and successful CI, and preserved the recorded live Launch/message/Close, startup/reconnect and repair success paths.
 
-**Web's only assignment:** fix **PM16-02** (process incarnation identity for repair/close), then **PM16-01** (selected-root propagation/status), with targeted regressions and **PM16-03** evidence/document reconciliation. [Copyable prompts](team-workflow.md). No separate Sol or Daybreak task.
+**Web's only assignment:** **PM16-02** and **PM16-01** are now corrected/offline-tested as `LWB-PM16-001` and `LWB-PM16-002`; complete **PM16-03** evidence/document reconciliation, corrected-build CI verification and return to PM/owner. [Copyable prompts](team-workflow.md). No separate Sol or Daybreak task.
 
 **Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
 

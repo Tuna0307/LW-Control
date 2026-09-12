@@ -1,0 +1,85 @@
+{
+  "findingId": "LWB-PM16-002",
+  "date": "2026-09-12",
+  "scope": "PM16-01 selected installation propagation and selected-process status consistency",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; READY_FOR_PM_REVIEW",
+  "auditSource": "docs/reviews/2026-09-12-review-16-overview-zero-open.md#pm16-01",
+  "implementationPolicy": "A validated Last War root may rebind the existing Overview lifecycle only at a stopped, same-profile journal-free boundary. An active launch/running/stop/recovery/repair-owned session remains bound to its original root until exact cleanup/restoration finishes. Re-selecting the same root is a persistence-only no-op.",
+  "preFixReproduction": {
+    "method": "isolated backend/lifecycle integration with temporary valid game roots plus fake helper/process seams; no real game action",
+    "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release",
+    "result": "before the production correction the deterministic suite failed exactly the two PM-reported propagation cases",
+    "failures": [
+      "missing-root-to-valid: existing lifecycle launches immediately from the newly selected root without restart",
+      "A-to-B-stopped: existing lifecycle launches immediately from the newly selected root without restart"
+    ],
+    "realGameTouched": false
+  },
+  "sourceIdentity": {
+    "src/LWBridge.Desktop/GameInstallationService.cs": "0c4484aad5bfa7f971fbe321575992a77f52830c6c17d2f233244aa96e5a0914",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "7e4d5b5c048e61216b1b6cbb3d99833333b3888a5da452a5642a647d8d2b3289",
+    "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs": "d8556dcd16e4719bf6855fcaf0ff0533399c889c6a888ac3cde7e45c9247c250",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs": "ba5a6ffc2d62d5509c79c2f86370ce20abe16036e2919b6eeabb8a4d87998a0e",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "417771ba083028d9283664bb7a7f09c76353e7fd406fd44d47f358b9b40720fe"
+  },
+  "locators": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs:67 SaveGameRoot validates first and coordinates lifecycle rebind with persistence",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs:134 RebindGameRoot enforces stopped/journal-free ownership boundary",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs:155 HasPendingRecoveryJournal fails closed for same-profile pending restoration state",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs:438 StartAsync snapshots the selected root under lifecycle ownership before launch validation",
+    "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs:57 StartRecoveryMonitor supports a root that becomes valid after app startup",
+    "src/LWBridge.Desktop/GameInstallationService.cs:132/150 selected process status requires an exact validated executable path; null expected path matches nothing",
+    "tests/LWBridge.Desktop.Checks/Program.cs:4051 PM16-01 integration regressions"
+  ],
+  "implementation": [
+    "SaveGameRoot validates without mutating configuration, then atomically coordinates persistence and lifecycle root replacement.",
+    "Rebind rejects root changes while starting, running, stopping, helper-owned or recovery-owned work is active.",
+    "A same-profile pending recovery journal blocks root replacement until cleanup/restoration is complete; malformed/unreadable journal state fails closed.",
+    "Same-root reselection remains a harmless persistence-only no-op.",
+    "StartAsync captures the selected root while holding lifecycle state ownership and validates the helper result against that exact root.",
+    "A lifecycle created with no valid root can start its recovery monitor after a later valid selection.",
+    "Game process status no longer accepts any same-named LastWar/launcher process when no validated expected path exists."
+  ],
+  "regressions": {
+    "missingRootSelectValidLaunchUsesSelectedRoot": true,
+    "installationAToBWhileStoppedStatusAndLaunchUseB": true,
+    "activeOwnedSessionRejectsRetarget": true,
+    "repairOwnedJournalRejectsRetarget": true,
+    "sameRootReselectionNoOp": true,
+    "invalidSelectionPreservesPreviousValidRoot": true,
+    "cancelledSelectionPreservesPreviousValidRoot": "covered by existing folder-picker cancellation host probe; no SaveGameRoot call occurs",
+    "invalidRootForeignSameNamedProcessNotSelected": true,
+    "realGameTouched": false
+  },
+  "validation": {
+    "frontendHashCheck": "python tools\\build_lwbridge_frontend.py --check => PASS",
+    "releaseBuild": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj --configuration Release => PASS, 0 warnings, 0 errors",
+    "desktopSuite": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release --no-build => ok=true, failures=[]",
+    "overviewHelperLifecycle": "python tools\\test_overview_bridge_lifecycle.py => ok=true",
+    "ownerCollector": "python tools\\check_owner_resource_evidence_collector.py => ok=true",
+    "preferenceProvider": "node tools\\check_lwbridge_preference_provider.cjs => ok=true",
+    "hostProbeTermination": "pwsh -NoProfile -File tools\\check_lwbridge_host_probe.ps1 -RunTerminationFailureSelfTest => ok=true",
+    "hostProbe": "pwsh -NoProfile -File tools\\check_lwbridge_host_probe.ps1 => ok=true; liveGameCommandsPerformed=false; userConfigTouched=false",
+    "liveTransport": "node tools\\check_lwbridge_live_transport.cjs => PASS",
+    "transportBoundary": "node tools\\check_lwbridge_transport_boundary.cjs => PASS",
+    "hygiene": "git diff --check => PASS (Git line-ending notice only)"
+  },
+  "validationTooling": {
+    "tool": "Microsoft PowerShell",
+    "packageId": "Microsoft.PowerShell",
+    "version": "7.6.6.0",
+    "source": "winget",
+    "installLocation": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.6.0_x64__8wekyb3d8bbwe",
+    "userAlias": "C:\\Users\\chimw\\AppData\\Local\\Microsoft\\WindowsApps\\pwsh.exe",
+    "installCommand": "winget install --id Microsoft.PowerShell --exact --source winget --scope user --accept-package-agreements --accept-source-agreements --disable-interactivity",
+    "reason": "required to run the repository CI host-probe PowerShell scripts without changing the Windows PowerShell execution policy"
+  },
+  "validationLimits": [
+    "This checkpoint proves the selected-root correction with isolated fake helper/process seams and existing host probes; it does not add a new real-game launch.",
+    "Existing owner/live Launch-message-Close and repair evidence remains credited only within its recorded installation/session scope.",
+    "The stopped/journal-free rebind rule is an explicit rebuild implementation policy, not a claim about protected original LWBridge root-change semantics.",
+    "PM16-03 document/evidence reconciliation remains the next assigned step after this checkpoint.",
+    "Shared S02 pending semantics, S03 full runtime Refresh Status and S06 cross-server travel remain unfinished and are not changed here."
+  ],
+  "implementationImpact": "PM16-01 is corrected offline: configuration, selected-process status and the next Overview launch now agree on the newly selected validated root without restarting LWBridge, while active/recovery/repair ownership remains tied to the original installation until cleanup is complete."
+}

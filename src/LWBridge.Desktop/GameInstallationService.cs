@@ -150,9 +150,9 @@ internal sealed class GameInstallationService
 
     private static Process? FindMatchingProcess(string name, string? expectedPath)
     {
+        if (expectedPath is null) return null;
         foreach (Process process in Process.GetProcessesByName(name))
         {
-            if (expectedPath is null) return process;
             string? actual = SafeProcessPath(process);
             if (actual is not null && PathEquals(actual, expectedPath)) return process;
             process.Dispose();

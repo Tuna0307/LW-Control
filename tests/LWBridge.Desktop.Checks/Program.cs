@@ -4034,6 +4034,191 @@ using (Process selectedGame = StartTemporaryLastWar(Path.Combine(o01ValidRoot, "
         "exited selected-path process cannot remain as stale Game Root process state");
 }
 
+var invalidProcessConfig = new LocalConfigStore(Path.Combine(o01Root, "invalid-process-config"));
+invalidProcessConfig.Update(c => c with { GameRoot = o01MissingRoot });
+var invalidProcessInstallation = new GameInstallationService(invalidProcessConfig,
+    new GameInstallationTestHooks { DefaultRoot = o01MissingRoot });
+using (Process foreignGame = StartTemporaryLastWar(Path.Combine(foreignRoot, "Game", "LastWar.exe"), 4))
+{
+    await Task.Delay(250);
+    GameProcessStatus invalidRootStatus = invalidProcessInstallation.GetProcessStatus();
+    Check(!invalidRootStatus.GameRunning && invalidRootStatus.GamePid is null && invalidRootStatus.GamePath is null,
+        "missing/invalid selected root never classifies an arbitrary same-named LastWar process as selected-game status");
+    await foreignGame.WaitForExitAsync();
+}
+
+
+// PM16-01: backend/lifecycle integration must use the newly selected valid root
+// immediately at a stopped boundary, without requiring an app restart.
+async Task RunRootRebindCase(string initialRoot, string selectedRoot, string label)
+{
+    var cfg = new LocalConfigStore(Path.Combine(o01Root, "rebind-" + label));
+    if (!string.IsNullOrWhiteSpace(initialRoot)) cfg.Update(c => c with { GameRoot = initialRoot });
+    string? session = null;
+    string? challenge = null;
+    string started = "2026-09-12T05:00:00.0000000Z";
+    const int pid = 45501;
+    const int launcherPid = 45502;
+    bool alive = false;
+    var invocations = new List<OverviewHelperInvocation>();
+    byte[] Heartbeat() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+        profileId = cfg.Snapshot.ProfileId,
+        sessionId = session,
+        challenge,
+        gamePid = pid,
+        updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ready = true,
+        messageVisible = true,
+        messageText = OverviewLifecycleService.ReadyMessage,
+    });
+    var hooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (candidatePid, path, created) => alive && candidatePid == pid && created == started,
+        ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+            ? throw new FileNotFoundException(path)
+            : Heartbeat(),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        RunHelperAsync = (invocation, _) =>
+        {
+            invocations.Add(invocation);
+            string selected = cfg.Snapshot.GameRoot!;
+            if (invocation.Operation == "start")
+            {
+                session = invocation.SessionId;
+                challenge = invocation.Challenge;
+                alive = true;
+                string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(challenge!))).ToLowerInvariant();
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_install_launch_ready_deferred_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = cfg.Snapshot.ProfileId,
+                    sessionId = session,
+                    challengeSha256 = hash,
+                    gamePid = pid,
+                    gamePath = Path.Combine(selected, "Game", "LastWar.exe"),
+                    gameStartedAtUtc = started,
+                    launcherPid,
+                    ready = new
+                    {
+                        schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId = cfg.Snapshot.ProfileId, sessionId = session, challenge,
+                        gamePid = pid, readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        ready = true, messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+                    },
+                    restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                    gameRunning = true,
+                    installedFilesChanged = true,
+                }));
+            }
+            alive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_exact_pid_close_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = cfg.Snapshot.ProfileId,
+                sessionId = invocation.SessionId,
+                gamePid = pid,
+                gamePath = invocation.GamePath,
+                gameStartedAtUtc = started,
+                close = new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false },
+                restore = new { restored = true },
+                gameRunning = false,
+                installedFilesChanged = false,
+            }));
+        },
+    };
+    string? constructorRoot = string.IsNullOrWhiteSpace(initialRoot) ? null : initialRoot;
+    using var lifecycle = new OverviewLifecycleService(
+        cfg.Snapshot.ProfileId, constructorRoot,
+        helperPath: Path.Combine(o01Root, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: cfg,
+        testHooks: hooks,
+        startRecoveryMonitor: false);
+    var integrated = new LWBridgeBackend(cfg, lifecycle, overviewLifecycle: lifecycle);
+    GameRootStatus saved = integrated.SaveGameRoot(selectedRoot);
+    Check(saved.Valid && string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+        $"{label}: backend persists the newly selected valid root");
+    GameRootStatus selectedStatus = integrated.GetGameRootStatus();
+    Check(selectedStatus.Valid && string.Equals(selectedStatus.Path, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+        $"{label}: backend status immediately follows the newly selected root");
+    string invalidCandidate = Path.Combine(o01Root, "invalid-rebind-" + label);
+    Directory.CreateDirectory(invalidCandidate);
+    GameRootStatus rejectedSelection = integrated.SaveGameRoot(invalidCandidate);
+    Check(!rejectedSelection.Valid && string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+        $"{label}: invalid selection preserves the previously selected valid root");
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = cfg.Snapshot.ProfileId }));
+    bool launched = true;
+    try { await lifecycle.InvokeAsync("profile_instance_start", payload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { launched = false; }
+    Check(launched && invocations.Any(i => i.Operation == "start"),
+        $"{label}: existing lifecycle launches immediately from the newly selected root without restart");
+    if (launched)
+    {
+        if (!string.IsNullOrWhiteSpace(initialRoot) &&
+            !string.Equals(Path.GetFullPath(initialRoot), Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase))
+        {
+            bool activeRetargetRejected = false;
+            try { integrated.SaveGameRoot(initialRoot); }
+            catch (BridgeCommandException ex) { activeRetargetRejected = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+            Check(activeRetargetRejected &&
+                  string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+                $"{label}: active owned session stays bound to its launch root and rejects retargeting");
+        }
+        string active = session!;
+        using JsonDocument stop = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = cfg.Snapshot.ProfileId, instanceId = active }));
+        await lifecycle.InvokeAsync("profile_instance_stop", stop.RootElement.Clone(), CancellationToken.None);
+    }
+}
+
+string o01RootA = CreateValidGameRoot(Path.Combine(o01Root, "integration-A"));
+string o01RootB = CreateValidGameRoot(Path.Combine(o01Root, "integration-B"));
+await RunRootRebindCase(string.Empty, o01RootB, "missing-root-to-valid");
+await RunRootRebindCase(o01RootA, o01RootB, "A-to-B-stopped");
+
+var pm16RepairConfig = new LocalConfigStore(Path.Combine(o01Root, "repair-root-guard"));
+pm16RepairConfig.Update(c => c with { GameRoot = o01RootA });
+byte[] repairJournal = JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = 1,
+    profileId = pm16RepairConfig.Snapshot.ProfileId,
+    stage = "active_ready_deferred_restore",
+    gamePath = Path.Combine(o01RootA, "Game", "LastWar.exe"),
+});
+var pm16RepairHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+        ? repairJournal
+        : throw new FileNotFoundException(path),
+};
+using (var repairLifecycle = new OverviewLifecycleService(
+    pm16RepairConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-overview-helper.py"),
+    requireCurrentClientEvidence: false,
+    config: pm16RepairConfig,
+    testHooks: pm16RepairHooks,
+    startRecoveryMonitor: false))
+{
+    var repairBackend = new LWBridgeBackend(pm16RepairConfig, repairLifecycle, overviewLifecycle: repairLifecycle);
+    bool repairRetargetRejected = false;
+    try { repairBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { repairRetargetRejected = ex.Code == "GAME_REPAIR_REQUIRED"; }
+    Check(repairRetargetRejected &&
+          string.Equals(pm16RepairConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "pending repair journal keeps lifecycle/configuration bound to installation A until cleanup/restoration finishes");
+    GameRootStatus sameRepairRoot = repairBackend.SaveGameRoot(o01RootA);
+    Check(sameRepairRoot.Valid &&
+          string.Equals(pm16RepairConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "re-selecting the same repair-owned root is a harmless persistence-only no-op");
+}
 try { Directory.Delete(o01Root, recursive: true); } catch { }
 
 // Installed-game checks are diagnostics by default and become a gate only when requested.
