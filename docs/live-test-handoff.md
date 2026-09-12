@@ -1,18 +1,18 @@
 # Current Web technical packet and owner-test preparation
 
-**Current PM review 16:** [audit and corrections](reviews/2026-09-12-review-16-overview-zero-open.md) supersede zero-open/next-feature conclusions below. Successful live evidence remains credited; O01 is reopened by PM16-01 and O06/shared close ownership by PM16-02. Web owns those fixes plus PM16-03 evidence reconciliation. No new live run is dispatched by this audit; no Player City/Map Data work.
+**Current PM review 16:** [audit and corrections](reviews/2026-09-12-review-16-overview-zero-open.md) returned O01 selected-root integration and O06/shared-close process-incarnation ownership. Both are now corrected/offline-tested (`LWB-PM16-002`, `LWB-PM16-001`), and PM16-03 reconciliation is recorded as `LWB-PM16-003`. Corrected code revision `c3d77e2` is remote-verified with CI `34696597174` successful. No new live run is requested; return to PM/owner and do not start Player City/Map Data/cross-server implementation.
 
 ## Authoritative owner priority — Overview only, 2026-09-11
 
-**Active result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. Follow [OVL-00–06](overview-live-delivery.md) and [the current Web prompt](team-workflow.md). Web continues those assigned dependencies across checkpoints; the owner must verify this live result and explicitly choose the next feature.
+**Active result:** preserve the owner-accepted normal Overview Launch -> verified in-game **LWbridge is running** -> Close path and the recorded startup/reconnect/repair successes. PM16-01/02 add offline negative-edge protection without replacing that live evidence. No repeat owner test is requested by PM16-03; the owner explicitly chooses any next feature after PM audit.
 
 The resource-first/monster-next queue and PM15 next-task wording below are superseded and DEFERRED. Preserve/finalize Web's already-written PM15 evidence under OVL-00 without expanding recorder work. No new resource/monster test. Existing restrictions remain operation-specific. All 47 acceptance cases remain future scope; no live completion is claimed by this priority change.
 
 The owner supplies only simple UI actions, descriptions and screenshots. Web must automatically collect technical evidence and deliver an actual tested script/entry point and beginner guide; no commands, logs, hashes or database inspection are assigned to the owner. PM plans/audits only. No separate Sol or Daybreak task.
 
-### Current Overview packet — Web must prepare; NOT_READY
+### Current Overview packet — DELIVERED FOR PM/OWNER REVIEW; NO NEW OWNER TEST REQUESTED
 
-Record the exact Overview build/client/profile, allowed lifecycle preconditions, same-game launch/bridge readiness/message/close evidence, automatic collection entry point, cleanup and resume state. Use the OVL plan's exit checklist and [owner guide](user-test-checklist.md). The old resource shortcut/read-only mode below cannot test Overview Launch/Close. No script, successful injection or in-game message is declared ready by this document update.
+The review-16 correction packet is complete at corrected code revision `c3d77e2`: PM16-02/01 evidence is `LWB-PM16-001/002`, PM16-03 reconciliation is `LWB-PM16-003`, and CI `34696597174` passed on the exact corrected code SHA. Existing automatic Overview evidence/owner-guide material remains preserved; PM16-03 requested no new game run. Whole-page S02/S03/S06 gaps remain explicit.
 
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment

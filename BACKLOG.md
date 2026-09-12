@@ -2,19 +2,19 @@
 
 ## Current PM decision — review 16, 2026-09-12
 
-**RETURN FOR CORRECTION: O01–O06 zero-open is not approved.** [PM audit](docs/reviews/2026-09-12-review-16-overview-zero-open.md) reviewed code commit `0758006`, verified GitHub delivery and successful CI, and preserved the recorded live Launch/message/Close, startup/reconnect and repair success paths.
+**REVIEW-16 CORRECTION RETURN PREPARED.** [PM audit](docs/reviews/2026-09-12-review-16-overview-zero-open.md) reviewed `0758006` and returned PM16-02/PM16-01 while preserving the recorded live Launch/message/Close, startup/reconnect and repair success paths. Both returned code defects are now corrected and the PM16-03 successor evidence is prepared; the audit remains the source of the return criteria.
 
-**Current Web execution:** **PM16-02** and **PM16-01** are corrected and offline-tested as `LWB-PM16-001` and `LWB-PM16-002`; proceed with **PM16-03** evidence/document reconciliation. [Copyable prompts](docs/team-workflow.md). No separate Sol or Daybreak task.
+**Current Web execution:** `LWB-PM16-001` (PM16-02), `LWB-PM16-002` (PM16-01) and `LWB-PM16-003` (PM16-03 reconciliation) are prepared for PM/owner review. Corrected code revision `c3d77e2` is remote-verified and GitHub Actions `34696597174` passed on that exact SHA. No separate Sol or Daybreak task; no new owner live run is requested by PM16-03.
 
 **Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
 
-**STOP on new features. Do not start Player City or any Map Data work.** Complete the bounded corrections and return to PM/owner; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical, superseded by review 16.
+**STOP on new features. Do not start Player City, any Map Data work, cross-server implementation or another feature.** All assigned review-16 corrections are prepared for PM/owner audit; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical.
 
 ### Review 16 — only active Web queue
 
 - [x] PM16-02 / P1: process incarnation is persisted/revalidated at repair/close/recovery boundaries; PID reuse and unknown identity fail closed (`LWB-PM16-001`, READY_FOR_PM_REVIEW).
 - [x] PM16-01 / P1: selected-root changes now coordinate with the lifecycle at a stopped, journal-free boundary; status/Launch agree, active/repair ownership cannot retarget, and invalid-root foreign-process fallback fails closed (`LWB-PM16-002`, READY_FOR_PM_REVIEW).
-- [ ] PM16-03: reconcile evidence, current instructions and exact corrected-build/check/CI delivery; return to PM and owner.
+- [x] PM16-03: reconciled O01/O06 conclusions, strengthened `LWB-OVR-012` with hashed saved-disassembly excerpts/tool versions, recorded corrected build/helper identity and exact `c3d77e2` CI (`34696597174`) as `LWB-PM16-003`; return to PM/owner.
 - [ ] Owner explicitly resumes the next scope. S02/S03/S06 and Map Data are unfinished, not automatically assigned.
 
 ### Preserved delivered OVL milestone

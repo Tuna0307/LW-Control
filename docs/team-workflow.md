@@ -6,22 +6,18 @@ PM audited `0758006` and returned two source-confirmed defects. Successful live 
 
 Web is the single implementer/researcher/technical verification owner. PM audits and maintains instructions; the owner chooses features and supplies only simple UI observations/screenshots. Web captures all technical evidence automatically. No separate Sol assignment. No Daybreak assignment: these are implementation defects, not exhausted binary-analysis questions or a transfer of restricted operations.
 
-**Do not begin Player City or any Map Data work.** PM16-02 and PM16-01 are corrected/offline-tested as `LWB-PM16-001` and `LWB-PM16-002`; complete PM16-03 reconciliation and corrected-revision CI verification, then return to PM/owner. No automatic transition to cross-server, other shared controls or the historical queue. Whole Overview remains incomplete while S02/S03/S06 are unfinished; S05 runtime-name scope depends on actual visible consumers.
+**Do not begin Player City or any Map Data work.** PM16-02 and PM16-01 are delivered/offline-tested as `LWB-PM16-001` and `LWB-PM16-002`; PM16-03 reconciliation is recorded as `LWB-PM16-003`. Corrected code revision `c3d77e2` is remote-verified and CI `34696597174` passed on that exact SHA. Return to PM/owner and stop. No automatic transition to cross-server, other shared controls or the historical queue. Whole Overview remains incomplete while S02/S03/S06 are unfinished; S05 runtime-name scope depends on actual visible consumers.
 
 ## Main prompt for ChatGPT Web
 
 ```text
-Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control on the existing research/offline-controller branch. Read AGENTS.md and docs/reviews/2026-09-12-review-16-overview-zero-open.md, then task.md, BACKLOG.md and docs/lwbridge-feature-ledger.md. Inspect actual HEAD/worktree and preserve all work; 0758006 is the audited code baseline, not a reset target.
+Review 16 correction work is delivered. In C:\Users\chimw\OneDrive\Desktop\Github\LW-Control on research/offline-controller, preserve LWB-PM16-001/002/003 and the corrected code revision c3d77e2. PM16-02 process-incarnation ownership and PM16-01 selected-root integration are corrected/offline-tested; GitHub Actions 34696597174 passed on c3d77e2. PM16-03 reconciles the O01/O06 evidence, saved LWB-OVR-012 reproduction excerpts, corrected build/helper identity and remaining limits.
 
-The PM did not approve zero-open Overview. Complete PM16-02 (same-process incarnation checks across journal/repair/close/recovery), then PM16-01 (selected-root propagation and accurate selected-process status). Follow the exact negative/positive regression and ownership criteria in the audit. Reproduce adverse cases using isolated fake process/helper seams; do not move the real installation or force real PID reuse. Preserve successful live paths, original backups and all operation-specific restrictions. Recover facts first and label rebuild policies explicitly.
-
-Then complete PM16-03: reconcile O01/O06 findings, reproduction details, status/ledger/backlog/handoffs and exact corrected-build evidence. Run appropriate checks, commit/push each coherent checkpoint, verify remote and CI for the actual delivered revision. Continue across these assigned steps without stopping after each commit. Prepare automatic capture and a simple owner guide only if the changed normal path needs permitted live regression; the owner supplies no commands/logs/hashes.
-
-Return the defect dispositions, proof limits, shared S02/S03/S06 gaps and exact commit to PM/owner. Do not start Player City, any Map Data category, cross-server implementation, broad original-parity work or another feature. Do not claim the whole Overview page is 100% complete.
+Return this package to PM/owner for audit. Do not run another owner/game test unless PM/owner explicitly requests one. Do not begin Player City, Map Data, cross-server implementation, broad original-parity work or another feature. Whole Overview is not 100% complete: S02 pending semantics, S03 full runtime Refresh Status and S06 actual cross-server travel remain open. Only the owner resumes subsequent scope.
 ```
 
 ## Repeatable continuation prompt
 
 ```text
-Resume the saved PM review 16 checkpoint. Inspect HEAD/worktree and the latest evidence first. Continue the next unfinished PM16-02, PM16-01 or PM16-03 acceptance criterion from docs/reviews/2026-09-12-review-16-overview-zero-open.md. Preserve prior work and restrictions; no repeated owner test or unrelated research. Commit/push/verify coherent progress. When all assigned corrections and applicable verification are delivered, return to PM/owner and stop: do not begin Player City, Map Data or a new feature.
+Inspect the latest PM/owner response and actual HEAD/worktree first. If review 16 is still awaiting audit, do not redo PM16-01/02/03; preserve LWB-PM16-001/002/003 and return the package. Start no new feature until the owner explicitly resumes scope. If the owner assigns a new scope, re-read AGENTS.md and the updated planning documents before acting.
 ```

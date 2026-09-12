@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 recovery
 
-**Current delivery:** [PM review 16](docs/reviews/2026-09-12-review-16-overview-zero-open.md) credits working live Overview paths but returns two defects: selected-root propagation and process-incarnation ownership. Web fixes PM16-02 then PM16-01 and reconciles evidence under PM16-03; [copyable prompts](docs/team-workflow.md). The whole page is not complete: pending counter, full runtime Refresh and actual cross-server travel remain open. **Do not start Player City or any Map Data work; return to the owner after the correction audit.**
+**Current delivery:** [PM review 16](docs/reviews/2026-09-12-review-16-overview-zero-open.md) returned selected-root and process-incarnation defects. Both are now corrected/offline-tested as `LWB-PM16-002` and `LWB-PM16-001`; PM16-03 evidence reconciliation is recorded as `LWB-PM16-003`. Corrected code revision `c3d77e2` is pushed and GitHub Actions `34696597174` passed on that exact SHA. The whole page remains incomplete because S02 pending semantics, S03 full runtime Refresh Status and S06 actual cross-server travel are still open. **Do not start Player City, Map Data or another feature; return this package to PM/owner and wait for the owner to resume scope.**
 
 This repository is now **LWBridge-only**. Treat the directory and remote repository name as historical naming; they do not define the product or feature authority.
 
@@ -23,7 +23,7 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 - Selected-profile saved-resource browsing and reopen have recorded normal-window proof, distinct from live readiness.
 - A bounded resource-only acquisition route has historical real-client evidence. The latest normal-window two-read/Search/render/reopen acceptance remains open; see [current readiness and tests](docs/user-test-checklist.md).
 - Cancellation/cleanup ownership and exact result/query/render correlation repairs pass focused offline checks.
-- Overview Launch/message/Close and startup/process-exit reconnect have owner-accepted live paths; interrupted-session repair also has recorded technical live proof. PM16-01/02 remain open for installation changes and process identity. Original protected-bootstrap parity, other-category acquisition, automatic/full-world scanning and complete export/action parity remain unfinished.
+- Overview Launch/message/Close and startup/process-exit reconnect retain owner-accepted live paths; interrupted-session repair retains recorded technical live proof. PM16-02 process-incarnation and PM16-01 selected-root corrections are now delivered/offline-tested. Original protected-bootstrap parity, S02/S03/S06, other-category acquisition, automatic/full-world scanning and complete export/action parity remain unfinished.
 - SQLite persistence, marks, scoped clear and supported search contracts have offline coverage; this is not full Map Data acceptance.
 - A repeatable read-only official-client inspector records current runtime versions, hashes, PE structure, packaged containers, hot-update state, and launcher lifecycle evidence.
 

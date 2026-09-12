@@ -2,13 +2,13 @@
 
 ## Current PM decision — review 16, 2026-09-12
 
-**RETURN FOR CORRECTION: O01–O06 zero-open is not approved.** [PM audit](reviews/2026-09-12-review-16-overview-zero-open.md) reviewed code commit `0758006`, verified GitHub delivery and successful CI, and preserved the recorded live Launch/message/Close, startup/reconnect and repair success paths.
+**REVIEW-16 CORRECTION RETURN PREPARED.** [PM audit](reviews/2026-09-12-review-16-overview-zero-open.md) reviewed `0758006` and returned PM16-02/PM16-01 while preserving prior owner/live successes. Both defects are now corrected and PM16-03 reconciliation is prepared.
 
-**Web's only assignment:** **PM16-02** and **PM16-01** are now corrected/offline-tested as `LWB-PM16-001` and `LWB-PM16-002`; complete **PM16-03** evidence/document reconciliation, corrected-build CI verification and return to PM/owner. [Copyable prompts](team-workflow.md). No separate Sol or Daybreak task.
+**Current Web disposition:** `LWB-PM16-001`, `LWB-PM16-002` and `LWB-PM16-003` are prepared for PM/owner review. Corrected code revision `c3d77e2` is remote-verified and CI `34696597174` passed. No further implementation scope is assigned; stop after the audit return.
 
 **Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
 
-**STOP on new features. Do not start Player City or any Map Data work.** Complete the bounded corrections and return to PM/owner; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical, superseded by review 16.
+**STOP on new features. Do not start Player City, any Map Data work, cross-server implementation or another feature.** Return the review-16 package to PM/owner; only the owner can resume scope.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -49,7 +49,7 @@ If a required operation is actually restricted, document its exact tool/reason/t
 
 ## Current Overview continuation — 2026-09-12
 
-O04/O05 remain technically live-proven/owner-visible accepted under `LWB-OVR-010/011`. `LWB-OVR-013` closes O01's functional validation matrix. `LWB-OVR-012` recovers the original repair-required/update-restart contract, and `LWB-OVR-014` live-proves the rebuild's journal-correlated interrupted-session repair flow, including the startup reconcile suppression fix, exact old-session restoration, fresh ready relaunch, and final clean Close. **Overview O01-O06 is now zero-open for PM audit. Stop here; do not begin Player City until the owner returns that audit.**
+O04/O05 remain technically live-proven/owner-visible accepted under `LWB-OVR-010/011`. `LWB-OVR-012/014` retain the recovered repair contract and successful live repair path. Review 16 reopened O01/O06 edge closure; PM16-02 and PM16-01 are now corrected/offline-tested as `LWB-PM16-001` and `LWB-PM16-002`, and `LWB-PM16-003` reconciles their evidence/status. **This is a return-to-PM/owner checkpoint, not a claim that the whole Overview page is complete: S02/S03/S06 remain open. Do not begin Player City or Map Data until the owner explicitly resumes scope.**
 
 ## Readiness decision and test plan
 
