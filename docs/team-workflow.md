@@ -1,6 +1,6 @@
 # Team workflow - Overview startup and automatic reconnect
 
-Owner selected next feature, 2026-09-11. [AGENTS.md](../AGENTS.md) is mandatory. `LWB-OVL-003` remains owner-accepted and must not regress. The only active work is O04 **Open games at startup** plus O05 **Automatic Reconnection**.
+Owner-visible O04/O05 acceptance passed on 2026-09-12 under `LWB-OVR-011`. [AGENTS.md](../AGENTS.md) is mandatory. The active work is now **Map Data → Player City (`city`)** only; preserve the accepted Overview lifecycle and do not begin the next Map Data type until Player City works end-to-end with durable evidence.
 
 ## Current target
 
@@ -14,4 +14,4 @@ Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control. Read AGENTS.md, task.
 
 ## Continuity
 
-Continue direct dependencies across checkpoints without routine PM stops. The owner explicitly defined `ok continue` as permission to advance through the agreed queue. Finish O04/O05, then after required Overview owner-visible verification proceed directly to Map Data in strict type order: `city` → `resource` → `monster` → `truck` → `railway` → `dispatch` → `ghost` → `treasure`. Do not advance from one Map Data type until that type works end-to-end and has durable evidence. Stop only for necessary owner-visible verification, a real external blocker, or an evidence-backed specialist escalation. Do not rerun the accepted manual Overview test unless required by a changed lifecycle path. Existing operation-specific restrictions remain in force.
+Continue direct dependencies across checkpoints without routine PM stops. The owner explicitly defined `ok continue` as permission to advance through the agreed queue. O04/O05 owner-visible verification is complete under `LWB-OVR-011`; proceed with Map Data in strict type order, beginning now with `city` → `resource` → `monster` → `truck` → `railway` → `dispatch` → `ghost` → `treasure`. Do not advance from one Map Data type until that type works end-to-end and has durable evidence. Stop only for necessary owner-visible verification, a real external blocker, or an evidence-backed specialist escalation. Do not rerun the accepted manual Overview test unless required by a changed lifecycle path. Existing operation-specific restrictions remain in force.

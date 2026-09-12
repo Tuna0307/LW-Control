@@ -2,11 +2,11 @@
 
 ## Authoritative owner priority - Overview, then Map Data sequentially, 2026-09-12
 
-**Active feature:** preserve the owner-accepted `LWB-OVL-003` manual Launch/message/Close lifecycle and finish the two adjacent original Overview controls: **Open games at startup** (O04) and **Automatic Reconnection** (O05). Recover original behavior first; do not invent retry counts, delays, eligibility, update/maintenance handling, or success conditions.
+**Active feature:** Overview O04/O05 is owner-accepted under `LWB-OVR-011`. Begin **Map Data → Player City (`city`)** only. Recover and verify the exact city acquisition/index/query/mark/export contract before implementation, and do not advance to the next Map Data type until Player City works end-to-end with durable evidence.
 
 **Owner continuation rule:** future `ok continue` messages mean continue the agreed queue without stopping for another feature selection. After Overview O04/O05 is implemented, technically verified and owner-visible verified, proceed directly to **Map Data**. Implement and verify Map Data functions one at a time in this order: **Player City (`city`) → Resource Point (`resource`) → Monster (`monster`) → Truck → Railway/Train → Dispatch/Secret Task → Ghost → Treasure**. Do not begin the next type until the current type works end-to-end and has durable evidence. Existing operation-specific safety restrictions still apply; they are not waived by this sequencing instruction.
 
-**Overview acceptance target:** startup ON performs the original one scoped startup reconcile/launch behavior through the proven lifecycle; startup OFF leaves the game untouched. Automatic Reconnection ON recovers only the original eligible unexpected-loss/update/maintenance cases and OFF suppresses future recovery. Manual Close must remain intentional and must not relaunch. Owner-visible live verification is required before Overview is accepted and Map Data implementation begins.
+**Overview acceptance:** PASSED under `LWB-OVR-011`. Startup ON, Automatic Reconnection unexpected-loss recovery, and intentional Close non-resurrection are owner-visible verified; the startup reconcile false-timeout discovered during that run was corrected and live-checked before moving to Map Data.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

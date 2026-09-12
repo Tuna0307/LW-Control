@@ -2,9 +2,9 @@
 
 ## Authoritative owner priority - Overview startup + automatic reconnect, 2026-09-11
 
-**Active feature:** preserve the owner-accepted `LWB-OVL-003` manual Launch/message/Close lifecycle and now implement the two adjacent original Overview controls: **Open games at startup** (O04) and **Automatic Reconnection** (O05). Recover original behavior first; do not invent retry counts, delays, eligibility, update/maintenance handling, or success conditions. No Resource/Monster work.
+**Active feature:** Overview O04/O05 is owner-accepted under `LWB-OVR-011`. Begin **Map Data → Player City (`city`)** only. Reverse-engineer the original/current-city acquisition, schema, indexing, search/filter/mark/export and applicable row semantics before implementation; do not begin Resource Point, Monster, or later types until Player City works end-to-end with durable evidence. Existing operation-specific restrictions remain in force.
 
-**Acceptance target:** startup ON performs the original one scoped startup reconcile/launch behavior through the proven lifecycle; startup OFF leaves the game untouched. Automatic Reconnection ON recovers only the original eligible unexpected-loss/update/maintenance cases and OFF suppresses future recovery. Manual Close must remain intentional and must not relaunch. Owner-visible live verification is required before this feature is accepted.
+**Overview status:** OWNER-ACCEPTED under `LWB-OVR-011`. The active acceptance target is now Player City: recover the authoritative `city` acquisition/schema/index/query behavior and prove real city rows, filtering/mark persistence, and city export semantics end-to-end before advancing to Resource Point.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -45,7 +45,7 @@ If a required operation is actually restricted, document its exact tool/reason/t
 
 ## Current Overview continuation — 2026-09-12
 
-O04 startup is technically live-proven and CI-clean. O05 is TECHNICAL LIVE-PROVEN for the bounded process-exit recovery cycle under `LWB-OVR-010`, after offline completion through `LWB-OVR-009`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, confirmed `forceUpdate`/`crossDisconnect`/`disconnect`/`exitPrompt` waiting and in-place/escalation behavior, updater activity/stall handling, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. The bounded normal-app live recovery/intentional-Close run passed; only combined owner-visible O04/O05 verification remains. Do not start Player City until that acceptance.
+O04 startup is technically live-proven and CI-clean. O05 is TECHNICAL LIVE-PROVEN for the bounded process-exit recovery cycle under `LWB-OVR-010`, after offline completion through `LWB-OVR-009`: process-exit, exact-PID hang, bridge-offline and observed-health recovery, confirmed `forceUpdate`/`crossDisconnect`/`disconnect`/`exitPrompt` waiting and in-place/escalation behavior, updater activity/stall handling, cancellation/manual-close semantics, recovered retry tables and real recovery status/event publication all pass deterministic checks. The bounded normal-app live recovery/intentional-Close run and the combined owner-visible O04/O05 verification both passed under `LWB-OVR-011`. The startup-reconcile false timeout discovered by the owner was corrected and live-checked. Begin Player City now; do not advance to Resource Point until Player City works end-to-end with durable evidence.
 
 ## Readiness decision and test plan
 

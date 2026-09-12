@@ -3680,6 +3680,9 @@ string previewHost = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.De
 Check(previewHost.Contains("NATIVE_TRANSPORT_MISSING", StringComparison.Ordinal) &&
       previewHost.Contains("liveRequested ? await liveInvoke", StringComparison.Ordinal),
     "requested live mode fails visibly instead of falling through to fixtures when native transport is missing");
+Check(previewHost.Contains("command === 'profile_instances_reconcile'", StringComparison.Ordinal) &&
+      previewHost.Contains("? 360000 : 30000", StringComparison.Ordinal),
+    "startup reconcile receives the long-running native timeout because it can launch the game");
 
 // Installed-game checks are diagnostics by default and become a gate only when requested.
 bool requireInstalled = args.Contains("--require-installed", StringComparer.OrdinalIgnoreCase);

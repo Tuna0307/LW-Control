@@ -124,7 +124,8 @@
             return Promise.reject(error);
         }
         const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
-        const timeoutMs = command === 'profile_instance_start' || command === 'profile_instances_update_and_restart'
+        const timeoutMs = command === 'profile_instance_start' || command === 'profile_instances_reconcile' ||
+            command === 'profile_instances_update_and_restart'
             ? 360000 : 30000;
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {

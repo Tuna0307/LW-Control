@@ -2,9 +2,9 @@
 
 ## Authoritative owner priority - Overview startup + automatic reconnect, 2026-09-11
 
-**Active feature:** preserve the owner-accepted `LWB-OVL-003` manual Launch/message/Close lifecycle and now implement the two adjacent original Overview controls: **Open games at startup** (O04) and **Automatic Reconnection** (O05). Recover original behavior first; do not invent retry counts, delays, eligibility, update/maintenance handling, or success conditions. No Resource/Monster work.
+**Active feature:** Overview O04/O05 is owner-accepted under `LWB-OVR-011`. Begin **Map Data → Player City (`city`)** only. Reverse-engineer the original/current-city acquisition, schema, indexing, search/filter/mark/export and applicable row semantics before implementation; do not begin Resource Point, Monster, or later types until Player City works end-to-end with durable evidence. Existing operation-specific restrictions remain in force.
 
-**Acceptance target:** startup ON performs the original one scoped startup reconcile/launch behavior through the proven lifecycle; startup OFF leaves the game untouched. Automatic Reconnection ON recovers only the original eligible unexpected-loss/update/maintenance cases and OFF suppresses future recovery. Manual Close must remain intentional and must not relaunch. Owner-visible live verification is required before this feature is accepted.
+**Overview status:** OWNER-ACCEPTED under `LWB-OVR-011`. The active acceptance target is now Player City: recover the authoritative `city` acquisition/schema/index/query behavior and prove real city rows, filtering/mark persistence, and city export semantics end-to-end before advancing to Resource Point.
 
 ### OVL current checkpoint
 
@@ -180,8 +180,8 @@ Run the [independent reproducer](evidence/lwbridge-implementation/pm-review-2-re
 - [ ] Implement owned `profile_instance_start`, `profile_instance_status`, and `profile_instance_stop` lifecycle.
 - [x] Recover the original per-user control-pipe name derivation. `LWB-R5-006` proves prefix + first 16 lowercase SHA-256 hex characters of UTF-8 Windows user SID and live-correlates the result against the verified reference host; session framing/request grammar remain open.
 - [ ] Require matching instance identity, bridge handshake, and fresh heartbeat before reporting connected.
-- [x] Implement startup launch preference through the same lifecycle service without double-start races (`LWB-OVL-004` technical live proof; owner-visible combined O04/O05 acceptance still pending).
-- [x] Implement automatic reconnect/recovery with explicit eligibility, cancellation, and bounded retry behavior. `LWB-OVR-008/009` cover the offline recovery/event/update implementation; `LWB-OVR-010` technically live-proves normal-app process-exit recovery, 15-second verification, exact restoration and intentional Close non-resurrection. Combined owner-visible O04/O05 acceptance remains open.
+- [x] Implement startup launch preference through the same lifecycle service without double-start races (`LWB-OVL-004` technical live proof; owner-visible combined O04/O05 acceptance passed under `LWB-OVR-011`).
+- [x] Implement automatic reconnect/recovery with explicit eligibility, cancellation, and bounded retry behavior. `LWB-OVR-008/009` cover offline recovery/event/update behavior, `LWB-OVR-010` technically live-proves the bounded recovery cycle, and `LWB-OVR-011` records owner-visible startup/reconnect/intentional-Close acceptance plus the corrected startup-reconcile UI timeout.
 - [ ] Recover and implement repair/update/restart presentation and state transitions.
 - [ ] **LIVE-VALIDATION:** validate repeated cold start, restart, disconnect, and stop cycles against the current client after supported lifecycle implementation.
 
