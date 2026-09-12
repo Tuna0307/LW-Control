@@ -1,23 +1,23 @@
-# Team workflow — review 17 folder-selection follow-up
+# Team workflow — two fixes, then Player City
 
-[PM review 17](reviews/2026-09-13-review-17-pm16-return.md) accepts PM16-02 and PM16-03 at their documented offline/source scope. PM16-01's stopped selection paths are accepted, but failed-launch and pending-journal cases remain open. Web owns the bounded fixes; PM audits; the owner provides only simple visible observations/screenshots. No separate Sol or Daybreak assignment.
+The owner's 2026-09-13 instruction authorizes Map Data immediately after the two Overview fixes are solved and verified. [Delivery sequence](map-data-delivery.md). [Review 17](reviews/2026-09-13-review-17-pm16-return.md) still defines the correction criteria, but its stop-before-Map-Data gate is superseded. S03 full Refresh Status and S06 actual cross-server travel are pending/deferred. No separate Sol or Daybreak assignment.
 
 ## Main prompt for Web
 
 ```text
-Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control on research/offline-controller. Read AGENTS.md, docs/reviews/2026-09-13-review-17-pm16-return.md, task.md and BACKLOG.md. Inspect actual HEAD/worktree and preserve completed PM16 work; 7e1bee7 is the audited baseline, not a reset target.
+Work in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control on research/offline-controller. Read AGENTS.md, docs/map-data-delivery.md, docs/reviews/2026-09-13-review-17-pm16-return.md, task.md and BACKLOG.md. Inspect actual HEAD/worktree and preserve completed work.
 
-Fix PM17-02 first: absent, completed, unfinished and unknown recovery journals must be distinguished before root changes. Then fix PM17-01: a launch that failed with verified complete cleanup must not leave stale attempt identity blocking a different folder selection. Follow every regression/ownership criterion in the audit. Use temporary journals and fake process/helper seams; do not damage/move the actual installation, force PID reuse or simply clear ownership on all errors.
+Finish PM17-02 and PM17-01 with the specified isolated regressions and appropriate verification. Document the fixes, commit/push and verify remote/CI. Keep the normal Overview regression packet and any unperformed live proof explicit.
 
-Continue through these two fixes and documentation/checkpoint delivery without stopping after each commit. Run applicable checks, document exact results/build identities, commit/push and verify the actual remote revision and CI. Preserve evidence and restrictions.
+Then continue directly to Map Data, Player City first, without waiting for another PM audit or asking permission to begin. Work until fresh real city acquisition -> normal Search/display -> a newer result -> same-profile reopen works with correlated automatic evidence. Reuse valid findings, recover direct missing contracts and fix the first broken link. Passing builds or saved/fixture rows do not establish fresh live success.
 
-After the fixes pass, prepare one corrected-build normal Overview Launch -> LWbridge is running -> Close/restoration regression packet with automatic technical collection and simple owner actions. Keep any live-validation gate explicit; old-build evidence is not new-build proof. Return to PM/owner.
+Defer complete Refresh Status (S03) and cross-server travel (S06); they are not priorities or prerequisites for starting Map Data. S02 remains unfinished and unassigned. Do not claim the whole Overview page is complete. Preserve all restrictions and cleanup/ownership rules.
 
-Do not start Player City, Map Data, cross-server implementation, broader research or another feature. S02/S03/S06 remain unfinished; only the owner chooses the next feature.
+Continue through coherent checkpoints; commit/push/verify each. Prepare automatic technical capture and clear UI-only instructions when owner observation is needed. Do not ask the owner for commands, logs, hashes or technical diagnosis. Stay on Player City until it works; no unrelated research or parallel category expansion.
 ```
 
 ## Repeatable continuation prompt
 
 ```text
-Resume the saved review-17 checkpoint after inspecting HEAD/worktree and the latest handoff. Continue only unfinished PM17-02, PM17-01 and their assigned validation/evidence tasks in docs/reviews/2026-09-13-review-17-pm16-return.md. Preserve accepted PM16 work. Commit/push/verify coherent progress. When delivered, return to PM/owner and stop; do not start Map Data or another feature.
+Resume the saved checkpoint using AGENTS.md and docs/map-data-delivery.md. If PM17-02/01 are unfinished, finish and verify them first. Otherwise continue the next unresolved step of the real Player City Map Data workflow directly; no further permission to start is needed. Keep S03/S06 deferred, preserve evidence/restrictions, automate technical capture, and commit/push/verify coherent progress. Do not replace a failed city step with unrelated research or another category.
 ```

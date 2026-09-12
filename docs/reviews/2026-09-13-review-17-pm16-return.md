@@ -1,5 +1,7 @@
 # PM review 17 — review-16 correction return
 
+**Later owner priority instruction, 2026-09-13:** after PM17-02/01 are solved and verified, Web is authorized to continue directly to [Map Data, Player City first](../map-data-delivery.md), without another PM/owner permission gate. S03 complete Refresh Status and S06 cross-server travel are deferred. This supersedes only this review's stop-before-Map-Data/next-scope gate; findings, correction criteria, evidence limits and restrictions below remain intact.
+
 Reviewed 2026-09-13 at `7e1bee7742c710e778cc4d820db962da9062a901`, branch `research/offline-controller`. The worktree was clean; local HEAD, origin tracking ref and GitHub branch all matched that revision before PM documentation changes.
 
 **Decision: accept PM16-02 and PM16-03 within their offline/source-evidence scope; partially accept PM16-01 and return two specific failure cases below.** Working live Launch/message/Close, startup/reconnect and repair scenarios remain credited to their original builds. The corrected code has no new live-game run. Neither zero-open lifecycle nor whole-Overview completion is approved.

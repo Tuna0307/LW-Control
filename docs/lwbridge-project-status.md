@@ -1,20 +1,16 @@
-# Project-manager status — review 17, 2026-09-13
+# Project-manager status — owner priority update, 2026-09-13
 
-**Real working live paths remain credited. Two folder-selection failure cases prevent closing this correction package.** [Detailed audit](reviews/2026-09-13-review-17-pm16-return.md) verified `7e1bee7` against GitHub and final CI `34705461170`, inspected code/tests and matched the local build/helper/excerpt hashes.
+**Finish and verify PM17-02/01, then Web continues directly to Map Data, Player City first.** The owner has explicitly authorized this transition; another PM audit or permission prompt is not a prerequisite to begin. [Delivery sequence](map-data-delivery.md) and [Web prompts](team-workflow.md).
 
-- PM16-02 process-incarnation checks: accepted as implemented/offline-tested.
-- PM16-03 evidence reconciliation: accepted; historical disassembly generator command remains explicitly unavailable.
-- PM16-01 stopped-folder selection integration: accepted within tested scope; failure-state closure remains open.
-- **PM17-02 / P2:** unfinished/unknown journals must block retargeting rather than count as no pending recovery.
-- **PM17-01 / P2:** after a verified clean failed launch, stale attempt identity must not prevent selecting another folder.
+Review 17's findings remain unchanged: process-identity/evidence corrections are accepted within offline/source scope; abandoned launch identity and unfinished/unknown journal handling remain open until verified fixed. This planning update performs no implementation or live test.
 
-Web fixes PM17-02 then PM17-01 with isolated regressions, preserves successful work, delivers checks/evidence and prepares one corrected-build normal Launch/message/Close regression packet. No real PID-reuse, damaged-install or second-install experiment is requested. PM did not run the app/game or application tests in this audit.
+**S03 complete Refresh Status and S06 cross-server travel are PENDING/DEFERRED by the owner.** S02 remains unfinished and unassigned. The whole Overview page is not being marked complete.
 
-The correction package has no new live test; previous live evidence remains tied to its original builds. Shared S02 pending counter, S03 complete runtime Refresh and S06 actual travel remain unfinished. S05 runtime names are consumer-scoped, and broader parity/event/47-case coverage remains separate.
+The selected Map Data result is fresh real Player City acquisition -> normal Search/display -> a distinct later result -> same-profile reopen persistence. Reuse existing evidence/code, fix the first broken link and capture technical evidence automatically. The owner only supplies simple visible observations/screenshots. No Daybreak assignment.
 
-**No Player City, Map Data, cross-server implementation or other new feature.** No Daybreak task. [Current Web prompts](team-workflow.md). The owner chooses subsequent feature scope after the audit return.
+Keep historical live successes tied to their actual builds, unperformed corrected-build live checks explicit, and all 47 release cases/provenance/restrictions intact. The next priority is practical city functionality, not unrelated Overview polish.
 
-Historical reviews below preserve their original baseline; they are not the active queue.
+The historical reviews below preserve their original baseline. Their stop/queue instructions do not override the latest owner priority.
 
 ## Historical review 15 — deferred resource recorder work
 

@@ -1,6 +1,6 @@
 # Owner guide ? Overview Launch, bridge message and Close
 
-**Current PM review 17:** no new owner test is requested yet. Web must finish PM17-02/01 and prepare the exact corrected-build packet plus automatic collection. The accepted instructions/build below are historical. The next packet will use only normal Overview Launch/message/Close; you will not need commands, logs, a second game installation or damaged files. No Map Data test is assigned.
+**Owner update, 2026-09-13:** no new manual test is requested by this planning change. Web will finish the two fixes, then work on Player City Map Data and prepare exact UI-only instructions with automatic evidence when ready. The Overview steps below are historical accepted runs, not an instruction to repeat them now.
 
 Updated 2026-09-11. **OWNER ACCEPTED (`LWB-OVL-003`).** The owner completed the normal Overview Launch -> in-game message -> Close sequence, supplied a screenshot showing **LWbridge is running** near the top centre, and reported ?yup all working?. This file now preserves the tested sequence; do not ask for another run unless a future change specifically requires regression testing.
 

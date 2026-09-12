@@ -1,6 +1,6 @@
 # Overview startup and automatic-reconnection recovery
 
-**Current PM review 17:** [audit](reviews/2026-09-13-review-17-pm16-return.md) accepts the PM16-02 process-identity correction and PM16-03 evidence reconciliation within their offline/source scope. Root-selection failure cases PM17-01/02 remain open. Preserve historical live successes and the findings below; do not promote them to new-build live acceptance or begin Map Data.
+**Owner update, 2026-09-13:** review-17 technical findings remain; once PM17-02/01 are solved and verified, Web continues directly to [Player City Map Data](map-data-delivery.md). S03/S06 are pending/deferred. Earlier stop-before-Map-Data instructions are superseded; historical live evidence and limitations remain unchanged.
 
 This document records the evidence used for O04 **Open games at startup** and O05 **Automatic Reconnection**. It supplements the accepted manual Overview lifecycle; it does not replace `LWB-OVL-003` or claim the still-unrecovered original protected launch proof/ticket protocol.
 

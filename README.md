@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 recovery
 
-**Current delivery:** [review 17](docs/reviews/2026-09-13-review-17-pm16-return.md) accepts PM16 process-identity/evidence corrections and returns two folder-selection failure cases. Web fixes PM17-02 then PM17-01 and prepares corrected-build validation; [prompts](docs/team-workflow.md). Prior live Overview successes remain credited, but this corrected build has no new live run. The whole page is unfinished (S02/S03/S06). **No Player City, Map Data or another feature until the owner resumes scope.**
+**Current delivery:** finish and verify the two review-17 Overview fixes, then continue directly to **Map Data / Player City**. The owner has authorized the transition; no extra PM permission is required. Complete Refresh Status and cross-server travel are pending/deferred. [Delivery sequence](docs/map-data-delivery.md) and [Web prompts](docs/team-workflow.md).
 
 This repository is now **LWBridge-only**. Treat the directory and remote repository name as historical naming; they do not define the product or feature authority.
 

@@ -1,6 +1,6 @@
 # Current Web technical packet and owner-test preparation
 
-**Current PM review 17:** [correction audit](reviews/2026-09-13-review-17-pm16-return.md) accepts PM16-02/03 within scope; PM16-01 still needs PM17-02/01 failure-state fixes. Web must deliver those first, then prepare one corrected-build normal Overview Launch/message/Close packet with automatic collection and simple owner actions. The packet is NOT READY from this audit alone. No new live run is claimed or executed; no Map Data/new-feature work.
+**Owner update, 2026-09-13:** after PM17-02/01 are solved/verified, Web proceeds directly to [Player City Map Data](map-data-delivery.md). Preserve corrected-build Overview regression evidence and unknowns; prepare the actual city build/session/capture instructions here as implementation becomes testable. No city test package or live success is claimed by this priority change. S03/S06 are deferred.
 
 ## Authoritative owner priority — Overview only, 2026-09-11
 

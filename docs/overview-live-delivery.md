@@ -1,6 +1,6 @@
 # Active delivery: Overview launch, injected bridge message, and close
 
-**Current review 17:** [audit](reviews/2026-09-13-review-17-pm16-return.md) accepts process-identity and documentation corrections but returns two folder-selection failure cases: PM17-02 unknown/pending journal classification, then PM17-01 abandoned launch identity. Web fixes/tests these and prepares the bounded normal-path regression packet. Preserve the accepted earlier OVL milestone below; do not redo it from scratch or begin Map Data/cross-server implementation.
+**Owner update, 2026-09-13:** finish/verify PM17-02/01, then continue directly to [Map Data, Player City first](map-data-delivery.md). Review 17's previous stop-before-Map-Data gate is superseded. S03 full Refresh Status and S06 travel are deferred. Preserve the accepted Overview milestone and any corrected-build validation still outstanding.
 
 Owner-directed priority change, 2026-09-11. This is the only active user-visible feature. It supersedes resource-first and monster-next instructions elsewhere. The full 47-case specification in task.md remains future scope; this milestone does not claim all Overview settings or both pages are complete.
 
