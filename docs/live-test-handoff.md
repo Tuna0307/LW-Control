@@ -1,5 +1,7 @@
 # Current Web technical packet and owner-test preparation
 
+**Current PM review 16:** [audit and corrections](reviews/2026-09-12-review-16-overview-zero-open.md) supersede zero-open/next-feature conclusions below. Successful live evidence remains credited; O01 is reopened by PM16-01 and O06/shared close ownership by PM16-02. Web owns those fixes plus PM16-03 evidence reconciliation. No new live run is dispatched by this audit; no Player City/Map Data work.
+
 ## Authoritative owner priority — Overview only, 2026-09-11
 
 **Active result:** normal Overview Launch opens the actual game, the injected/loaded bridge is verified ready, **LWbridge is running** appears top-centre inside the game, and Overview Close ends the correct game/session with cleanup. Follow [OVL-00–06](overview-live-delivery.md) and [the current Web prompt](team-workflow.md). Web continues those assigned dependencies across checkpoints; the owner must verify this live result and explicitly choose the next feature.

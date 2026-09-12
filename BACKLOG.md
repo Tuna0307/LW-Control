@@ -1,19 +1,30 @@
 # LWBridge implementation backlog
 
-## Authoritative owner priority - Overview zero-open checkpoint for PM audit, 2026-09-12
+## Current PM decision — review 16, 2026-09-12
 
-**Active feature:** **Overview O01-O06 ZERO-OPEN CANDIDATE; PM audit next.** `LWB-OVR-013` closes O01 functional validation and `LWB-OVR-014` live-proves O06 repair/update/relaunch. **Do not start Player City** until the owner returns the PM audit and explicitly resumes implementation. Existing operation-specific restrictions remain in force.
+**RETURN FOR CORRECTION: O01–O06 zero-open is not approved.** [PM audit](docs/reviews/2026-09-12-review-16-overview-zero-open.md) reviewed code commit `0758006`, verified GitHub delivery and successful CI, and preserved the recorded live Launch/message/Close, startup/reconnect and repair success paths.
 
-**Overview status:** O04/O05 owner-visible accepted under `LWB-OVR-011`; O01 functional edge cases are closed by `LWB-OVR-013`; O06 repair presentation/update-relaunch is LIVE-PROVEN by `LWB-OVR-014`. The O01-O06 functional matrix is zero-open for PM audit. This does not claim protected original launch-proof/ticket parity or all 47 release cases.
+**Web's only assignment:** fix **PM16-02** (process incarnation identity for repair/close), then **PM16-01** (selected-root propagation/status), with targeted regressions and **PM16-03** evidence/document reconciliation. [Copyable prompts](docs/team-workflow.md). No separate Sol or Daybreak task.
 
-### OVL current checkpoint
+**Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
+
+**STOP on new features. Do not start Player City or any Map Data work.** Complete the bounded corrections and return to PM/owner; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical, superseded by review 16.
+
+### Review 16 — only active Web queue
+
+- [ ] PM16-02 / P1: persist and revalidate process incarnation at repair/close/recovery boundaries; reject PID reuse and unknown identity.
+- [ ] PM16-01 / P1: coordinate selected-root changes with the lifecycle; status/Launch must agree; preserve active ownership and reject foreign process fallback.
+- [ ] PM16-03: reconcile evidence, current instructions and exact corrected-build/check/CI delivery; return to PM and owner.
+- [ ] Owner explicitly resumes the next scope. S02/S03/S06 and Map Data are unfinished, not automatically assigned.
+
+### Preserved delivered OVL milestone
 
 - [x] OVL-00 PM15 handoff cleanup delivered at `cc4bc77`; CI passed.
 - [x] OVL-01 exact dependency chain bounded. Original proof/ticket/final pipe grammar stays open; independent current-v14 route is explicitly policy.
 - [x] OVL-02/03/04 technical lifecycle is live-proven in `LWB-OVL-002`: two fresh current-client cycles reached exact same-session game-side readiness/message evidence, then exact-PID normal Close and byte-exact deferred restoration. Normal Overview button/visual placement is owner-verified in `LWB-OVL-003`.
 - [x] Normal Overview owner run completed: Launch opened the real game, **LWbridge is running** was visible top-centre, and Close completed with automatic cleanup evidence (`LWB-OVL-003`).
 - [x] OVL-05 automatic per-session evidence + tested `Start Overview Verification.cmd` + beginner owner guide delivered.
-- [x] OVL-06 owner-visible normal Overview verification and explicit acceptance recorded as `LWB-OVL-003`; later O01/O06 closure is recorded by `LWB-OVR-013/014`. **STOP: PM audit the zero-open Overview checkpoint before any Map Data work.**
+- [x] OVL-06 owner-visible normal Overview verification and explicit acceptance recorded as `LWB-OVL-003`; later O01/O06 success findings `LWB-OVR-013/014` remain credited within scope, but review 16 reopens O01/O06 edge-case closure.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

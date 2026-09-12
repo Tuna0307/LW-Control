@@ -1,5 +1,7 @@
 # Overview startup and automatic-reconnection recovery
 
+**Current PM review 16:** [audit and corrections](reviews/2026-09-12-review-16-overview-zero-open.md) supersede zero-open/next-feature conclusions below. Successful live evidence remains credited; O01 is reopened by PM16-01 and O06/shared close ownership by PM16-02. Web owns those fixes plus PM16-03 evidence reconciliation. No new live run is dispatched by this audit; no Player City/Map Data work.
+
 This document records the evidence used for O04 **Open games at startup** and O05 **Automatic Reconnection**. It supplements the accepted manual Overview lifecycle; it does not replace `LWB-OVL-003` or claim the still-unrecovered original protected launch proof/ticket protocol.
 
 ## LWB-OVR-005 — original reconnect gates, reasons and thresholds — 2026-09-12

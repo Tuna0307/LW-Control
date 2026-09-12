@@ -1,12 +1,14 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
-## Authoritative owner priority - Overview, then Map Data sequentially, 2026-09-12
+## Current PM decision — review 16, 2026-09-12
 
-**Active feature:** **Overview O01-O06 functional matrix is ZERO-OPEN CANDIDATE** under `LWB-OVR-013/014`. **STOP for PM audit. Do not begin Map Data / Player City** until the owner returns the PM audit and explicitly resumes implementation. Protected-original bootstrap parity, extended event/update live validation and the wider 47-case project release gate remain separately tracked and are not being relabelled complete.
+**RETURN FOR CORRECTION: O01–O06 zero-open is not approved.** [PM audit](docs/reviews/2026-09-12-review-16-overview-zero-open.md) reviewed code commit `0758006`, verified GitHub delivery and successful CI, and preserved the recorded live Launch/message/Close, startup/reconnect and repair success paths.
 
-**Owner audit gate (latest instruction, 2026-09-12):** after Overview reaches zero open functional items, stop and hand the checkpoint to PM for audit. **Do not start Player City first.** The previously agreed Map Data type order remains queued for later: **Player City (`city`) → Resource Point (`resource`) → Monster (`monster`) → Truck → Railway/Train → Dispatch/Secret Task → Ghost → Treasure**. Existing operation-specific safety restrictions remain in force.
+**Web's only assignment:** fix **PM16-02** (process incarnation identity for repair/close), then **PM16-01** (selected-root propagation/status), with targeted regressions and **PM16-03** evidence/document reconciliation. [Copyable prompts](docs/team-workflow.md). No separate Sol or Daybreak task.
 
-**Overview acceptance:** O04/O05 owner-visible acceptance remains `LWB-OVR-011`. `LWB-OVR-013` closes the O01 Game Root functional edge-case matrix, and `LWB-OVR-014` live-proves O06 interrupted-session **Repair required → Update and restart game** including the startup-reconcile repair race fix, exact restoration, fresh ready session and final clean Close. O01-O06 therefore has no open functional item; this checkpoint now waits for PM audit before Map Data.
+**Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
+
+**STOP on new features. Do not start Player City or any Map Data work.** Complete the bounded corrections and return to PM/owner; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical, superseded by review 16.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

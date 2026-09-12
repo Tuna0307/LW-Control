@@ -1,31 +1,20 @@
-# Project-manager priority reset — Overview-only delivery
+# Project-manager status — review 16, 2026-09-12
 
-2026-09-11, Overview implementation commit `dc82bc9` with passing CI run `34603661402`. **The selected Overview Launch/message/Close milestone is owner-accepted (`LWB-OVL-003`). Stop and wait for the owner to choose the next feature.** [Active Overview plan](overview-live-delivery.md).
+**Working live paths exist. Zero-open Overview is not approved, and the whole page is not complete.** [Detailed audit](reviews/2026-09-12-review-16-overview-zero-open.md) reviewed `0758006`, confirmed local/remote equality and successful CI `34685129087`, and checked stored repair/start/close evidence plus build identities.
 
-## Owner's acceptance target
+- Preserve recorded owner acceptance of Launch -> in-game **LWbridge is running** -> Close and startup/process-exit reconnect.
+- Credit the successful interrupted-session repair -> original restoration -> fresh ready relaunch -> final clean Close path.
+- **PM16-02 / P1 OPEN:** reject replacement processes with a reused PID by checking durable process incarnation at repair/close boundaries.
+- **PM16-01 / P1 OPEN:** the selected game folder must reach the active lifecycle; missing-root selection and A -> B currently leave Launch using the constructor's old root. Invalid-root status must not accept foreign same-named processes.
+- **PM16-03 OPEN:** reconcile source evidence/reproduction details and deliver corrected-build checks, Git and CI; preserve historical successes and limits.
 
-Normal Overview Launch -> actual game with verified injected/loaded bridge -> exact **LWbridge is running** message top-centre inside the game -> normal Overview Close ends the owned game/bridge with cleanup. The owner verifies it and explicitly chooses the next feature.
+Web executes those corrections in the listed order and returns to PM/owner. No separate Sol or Daybreak task. PM has not run the game or application suites in this audit; defects are source-confirmed and their isolated reproductions are assigned to Web.
 
-Current selected-feature acceptance: **OWNER ACCEPTED**. The normal Overview run opened the real game, the owner screenshot shows **LWbridge is running** top-centre, automatic evidence correlates that run to a fresh ready session, and Overview Close restored the official package. Auto-launch/reconnect and all Map Data expansion remain deferred.
+Whole-page shared gaps are S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel. UI language bundles exist; S05 game-derived names require consumer-specific scoping and are not an excuse to begin Map Data. Protected-original bootstrap parity, event/update live coverage and the 47-case release matrix stay separate.
 
-## Assignment and pending work
+**Do not start Player City or any Map Data work.** Only the owner resumes the next scope after the correction/audit return. [Web main and continuation prompts](team-workflow.md). No new owner test is requested until Web prepares any necessary corrected-build automatic evidence and simple instructions.
 
-Web owns OVL-00–06 and may continue through their direct dependencies without a PM stop after every checkpoint. PM coordinates/audits only; the owner supplies descriptions/screenshots, while Web captures technical evidence automatically. No separate Sol or Daybreak task.
-
-`LWB-OVL-002` now supersedes the earlier offline-only Overview checkpoint: two distinct current-client sessions reached correlated game-side readiness for **LWbridge is running**, exact owned normal Close succeeded, and the official script package was restored byte-for-byte after each run. `Start Overview Verification.cmd` is self-tested and the normal app/helper now record per-session evidence automatically. Owner-visible confirmation is complete in `LWB-OVL-003`; the correlated normal-app session is `61732f78f03e4643bb5329b40012c89a`. Do not start the next feature until the owner explicitly chooses it.
-
-The user reports PM15-01/02 implemented and pushed at `1e9af6e`. At inspection six tracked handoff/evidence-index documents plus new PM15 evidence remain uncommitted. Preserve and finalize that coherent handoff under OVL-00; this priority reset does not re-audit or certify its regression claims. Do not request another resource check or expand the old recorder project. PM commits only its priority changes, leaving Web's unfinished evidence changes for Web.
-
-## Current order
-
-1. Finish the existing PM15 evidence delivery housekeeping.
-2. Recover/implement only direct normal Overview launch and bridge-session dependencies.
-3. Display the requested in-game text only for a genuinely ready same-session bridge.
-4. Close the correct game and verify session/cleanup state.
-5. Deliver automatic technical capture and a clear beginner guide; fix the first failed live step when permitted.
-6. Wait for explicit owner verification and next-feature instruction.
-
-Existing restrictions remain operation-specific and are not cleared. The old resource-first/monster-next queue below is historical and must not override this instruction. All 47 full-scope acceptance cases remain; this is the first selected feature, not full product completion.
+Previous priority/status text is superseded. The historical reviews below preserve their original baseline and are not the current task queue.
 
 ## Historical review 15 — deferred resource recorder work
 

@@ -1,10 +1,14 @@
-# ChatGPT Web implementation task — review 15
+# ChatGPT Web implementation task — PM review 16
 
-## Authoritative owner priority - Overview zero-open checkpoint for PM audit, 2026-09-12
+## Current PM decision — review 16, 2026-09-12
 
-**Active feature:** **Overview O01-O06 ZERO-OPEN CANDIDATE; PM audit next. Do not start Player City.** O01 closure is `LWB-OVR-013`; O06 repair/update-relaunch live closure is `LWB-OVR-014`. Protected-original parity and broader project release gates remain separately tracked.
+**RETURN FOR CORRECTION: O01–O06 zero-open is not approved.** [PM audit](reviews/2026-09-12-review-16-overview-zero-open.md) reviewed code commit `0758006`, verified GitHub delivery and successful CI, and preserved the recorded live Launch/message/Close, startup/reconnect and repair success paths.
 
-**Overview status:** O04/O05 owner-visible accepted under `LWB-OVR-011`; O01 is functionally closed under `LWB-OVR-013`; O06 is LIVE-PROVEN under `LWB-OVR-014`. O01-O06 has no open functional item. **Handoff this exact checkpoint to PM for audit before any Map Data work.**
+**Web's only assignment:** fix **PM16-02** (process incarnation identity for repair/close), then **PM16-01** (selected-root propagation/status), with targeted regressions and **PM16-03** evidence/document reconciliation. [Copyable prompts](team-workflow.md). No separate Sol or Daybreak task.
+
+**Whole Overview is not 100%:** shared S02 pending counter, S03 full runtime Refresh Status and S06 actual cross-server travel remain unfinished. S05 game-derived localization is scoped to actual consumers, not automatically assigned as Map Data work. Preserve all 47 acceptance cases and separately tracked original parity/event coverage.
+
+**STOP on new features. Do not start Player City or any Map Data work.** Complete the bounded corrections and return to PM/owner; only the owner can resume subsequent scope. Older zero-open conclusions and automatic-next instructions below are historical, superseded by review 16.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 recovery
 
-**Only active delivery:** Overview Launch Game -> real injected/loaded bridge ready -> **LWbridge is running** top-centre inside the game -> Overview Close Game closes that session. [Active plan](docs/overview-live-delivery.md) and [Web prompts](docs/team-workflow.md). The owner must verify this live result and select the next feature. Maps/monsters and other settings are deferred; the earlier resource recorder findings below remain historical supporting work.
+**Current delivery:** [PM review 16](docs/reviews/2026-09-12-review-16-overview-zero-open.md) credits working live Overview paths but returns two defects: selected-root propagation and process-incarnation ownership. Web fixes PM16-02 then PM16-01 and reconciles evidence under PM16-03; [copyable prompts](docs/team-workflow.md). The whole page is not complete: pending counter, full runtime Refresh and actual cross-server travel remain open. **Do not start Player City or any Map Data work; return to the owner after the correction audit.**
 
 This repository is now **LWBridge-only**. Treat the directory and remote repository name as historical naming; they do not define the product or feature authority.
 
@@ -23,7 +23,7 @@ The goal is a one-for-one recovery of LWBridge behavior where evidence permits i
 - Selected-profile saved-resource browsing and reopen have recorded normal-window proof, distinct from live readiness.
 - A bounded resource-only acquisition route has historical real-client evidence. The latest normal-window two-read/Search/render/reopen acceptance remains open; see [current readiness and tests](docs/user-test-checklist.md).
 - Cancellation/cleanup ownership and exact result/query/render correlation repairs pass focused offline checks.
-- Overview Launch remains fail-closed until its bootstrap contract is complete. Other-category acquisition, automatic/full-world scanning and complete export/action parity are unfinished.
+- Overview Launch/message/Close and startup/process-exit reconnect have owner-accepted live paths; interrupted-session repair also has recorded technical live proof. PM16-01/02 remain open for installation changes and process identity. Original protected-bootstrap parity, other-category acquisition, automatic/full-world scanning and complete export/action parity remain unfinished.
 - SQLite persistence, marks, scoped clear and supported search contracts have offline coverage; this is not full Map Data acceptance.
 - A repeatable read-only official-client inspector records current runtime versions, hashes, PE structure, packaged containers, hot-update state, and launcher lifecycle evidence.
 
