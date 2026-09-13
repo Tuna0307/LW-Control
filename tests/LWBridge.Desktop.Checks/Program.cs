@@ -3656,6 +3656,30 @@ foreach ((int requested, int current, string? source) in new[]
     }
 }
 
+// LWB-R6-058: recovered transactional completion ownership guard.
+MapScanPublicationOwnership.ValidateCompletionTransition(1);
+MapScanPublicationOwnership.ValidatePostCommitRunPresent(true);
+try
+{
+    MapScanPublicationOwnership.ValidateCompletionTransition(0);
+    failures.Add("direct completion rejects a stale/non-running run inside publication transaction");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN" && error.Message == "map scan is not running",
+        "direct completion preserves recovered compare-and-set failure contract");
+}
+try
+{
+    MapScanPublicationOwnership.ValidatePostCommitRunPresent(false);
+    failures.Add("direct completion rejects a missing run after commit");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN" && error.Message == "map scan disappeared",
+        "direct completion preserves recovered post-commit reread failure contract");
+}
+
 // Recovered Map Data query envelope: eight kinds, page size 50 and ordered asc/desc sorts.
 using JsonDocument mapQuery = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":7,\"page\":2,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"asc\"},{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}");
 MapDataQueryOptions mapOptions = MapDataQueryContract.NormalizeSearch(mapQuery.RootElement);

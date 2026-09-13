@@ -1,0 +1,37 @@
+{
+  "findingId": "LWB-R6-058",
+  "date": "2026-09-13",
+  "scope": "transactional direct-scan publication ownership and stale-run rejection",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "recoveredResult": {
+    "completionTransition": "UPDATE scan_runs SET status='completed',error=NULL,updated_at=?1 WHERE id=?2 AND status='running'",
+    "zeroAffectedRows": {
+      "code": "INVALID_SCAN",
+      "message": "map scan is not running"
+    },
+    "postCommitReread": "the completed run is read again by exact run id after the completion transaction",
+    "missingPostCommitRun": {
+      "code": "INVALID_SCAN",
+      "message": "map scan disappeared"
+    },
+    "cleanupOrdering": "staging cleanup and same-server old-run pruning occur only after a nonzero completion transition",
+    "scanBlocksLiteralSurface": "schema creation plus ordered SELECT only; no literal INSERT/UPDATE/DELETE scan_blocks SQL exists in the verified binary"
+  },
+  "limits": [
+    "this does not recover game-side block traversal, grouping, pacing or retry",
+    "absence of literal scan_blocks DML does not prove no dynamically assembled or indirect writer exists",
+    "this finding does not wire production publication before the common live scanner exists"
+  ],
+  "locators": {
+    "directCompletion": "0x14025F9AF-0x140260A7D",
+    "conditionalTransition": "0x140260440-0x1402604E1",
+    "stagingCleanup": "0x140260505",
+    "oldRunPrune": "0x1402605C7",
+    "postCommitReread": "0x1402608FF"
+  }
+}
