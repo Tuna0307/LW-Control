@@ -1,0 +1,32 @@
+{
+  "findingId": "LWB-R6-060",
+  "date": "2026-09-14",
+  "scope": "active map-scan event run/server identity admission",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "recoveredResult": {
+    "activeGate": "events are admitted only while current scan state isReading=true",
+    "scanRunId": "if event scanRunId is present and nonempty, it must byte-match the active scanRunId; missing/empty is tolerated",
+    "serverId": "if event serverId is positive, it must equal the active scan-state serverId; zero/missing is tolerated",
+    "eventPath": "map.scan.progress, map.scan.complete and map.scan.error pass this helper before scan-event processing"
+  },
+  "locators": {
+    "admissionHelper": [
+      "0x140344dcf",
+      "0x140344f1d"
+    ],
+    "eventAdmissionCalls": [
+      "0x1403404DE",
+      "0x140340520"
+    ]
+  },
+  "limits": [
+    "this finding does not claim every event carries scanRunId or serverId",
+    "missing identity fields are tolerated by the recovered helper rather than synthesized",
+    "game-side event generation and delivery ordering remain unrecovered"
+  ]
+}
