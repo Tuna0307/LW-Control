@@ -308,9 +308,9 @@ The original manual UI submits `{selectedTypes, scanMode}` to `map_scan_start`. 
 
 Implement and prove:
 
-- Reject missing/stale connection and a second active scan, independently of what buttons allow.
+- Reject missing/stale connection and a second active scan, independently of what buttons allow. `LWB-R6-056` pins the exact original failures as `GAME_CONNECTION_UNAVAILABLE` / `game connection unavailable` and `SCAN_RUNNING` / `map scan already running`; do not substitute rebuild-only error vocabulary when implementing parity.
 - Obtain current world/server state, enter the world map when necessary, and await authoritative readiness.
-- `LWB-R6-052` recovers the original positive-dimension gate and exact block-grid cardinality `ceil(tileWidth/20) * ceil(tileHeight/20)`, plus initial block counters and the scalar no-failure completion prerequisite. Continue with current authoritative traversal/order/request coordinates and the remaining non-scalar publication gate. Do not hardcode “10,000 blocks” from an older implementation as a universal truth.
+- `LWB-R6-052` recovers the original positive-dimension gate and exact block-grid cardinality `ceil(tileWidth/20) * ceil(tileHeight/20)`, plus initial block counters. `LWB-R6-055` recovers the direct-completion coverage/zero-failed-block checks and shows the real production caller passes zero for the helper's extra failed-batch input. Continue with current authoritative traversal/order/request coordinates and the remaining publication sequencing. Do not hardcode “10,000 blocks” from an older implementation as a universal truth.
 - Generate a unique run identity, schedule the exact recovered coverage with bounded concurrency, and correlate acknowledgments/records to it.
 - Keep manual selection/mode state consistent with the actual accepted run. Changes intended for the next run must not relabel an existing one.
 - Stop quickly enough to be useful: stop new scheduling, handle inflight uncertainty, drain or abort according to recovered rules, publish the stopped checkpoint, and clean up capture state. Do not mark unfinished work complete.
@@ -338,9 +338,9 @@ Reverse-engineer missing serializer branches and map-index normalization. The ex
 
 ### M04. Progress, failure, stop, and resume
 
-Recover relationships among `totalBlocks`, `completedBlocks`, `readBlocks`, `failedBlocks`, `unreadBlocks`, `inflightBlocks`, `scanRate`, `progressPercent`, status/phase, `lastError`, and `resumeAvailable`. `LWB-R6-053` now fixes one recovered relationship: `unreadBlocks = max(totalBlocks - completedBlocks - failedBlocks, 0)` and, for positive totals, exact `completed` permits 100% while every other status uses one-decimal CRT rounding and is capped at 98%. `MapScanProgress` reproduces only that derived rule offline. Do not synthesize missing counters or interchange fields merely because their names seem similar.
+Recover relationships among `totalBlocks`, `completedBlocks`, `readBlocks`, `failedBlocks`, `unreadBlocks`, `inflightBlocks`, `scanRate`, `progressPercent`, status/phase, `lastError`, and `resumeAvailable`. `LWB-R6-053` fixes unread/display-progress derivation and the 98%-until-`completed` rule. `LWB-R6-054` recovers event counter normalization and two-decimal completed-blocks-per-second scan rate. `LWB-R6-055` further recovers native pending aggregation across points/marches/removals/acks, separately tracked dropped records with positive dropped values entering failure before publishing, direct-completion coverage/zero-failed-block checks, and Stop reset to `isReading=false`, `phase=idle`, `inflightBlocks=0`, `resumeAvailable=false`. `nativePendingRecords > 0` alone is not yet proven to reject publication. The offline helpers reproduce only these recovered rules. Do not synthesize missing counters/events or interchange fields merely because their names seem similar.
 
-Checkpoint run identity, server/world/geometry/client compatibility, type/mode selection, unresolved block work, committed results, and capture/drain state. On crash/disconnect, treat unacknowledged inflight work as uncertain and replay idempotently. Refuse incompatible/stale resume rather than mixing scans. Define whether resuming uses the same logical run and how new session identity is related to it.
+Checkpoint run identity, server/world/geometry/client compatibility, type/mode selection, unresolved block work, committed results, and capture/drain state. `LWB-R6-056` recovers that requested `resume:true` enters the existing-state route only when current serialized `resumeAvailable=true`; missing/invalid/false resume availability falls back to fresh start, and all recovered scan-state constructors/resets in 0.3.1 write `resumeAvailable=false`. On crash/disconnect, treat unacknowledged inflight work as uncertain and replay idempotently. Refuse incompatible/stale resume rather than mixing scans. Do not advertise resume until the true-state producer/compatibility path is recovered; define how new session identity relates to the logical run only from evidence.
 
 **Required completion gate for this implementation:** correct identity and coverage, zero unresolved failures/unread/inflight work, capture queues/acks drained as required, no unhandled dropped records, and final durable index commit. A finished loop or 100% counter does not establish this gate. If original behavior differs, document that difference rather than silently weakening the gate.
 
@@ -348,8 +348,8 @@ Keep transport coverage and semantic completeness separate. A scan can visit eve
 
 ### M05. Clear Map Data
 
-- Preserve the original server scope from `map_scan_clear({serverId})` and returned state.
-- Block/conflict-resolve during an active scan and prevent late responses from resurrecting cleared rows.
+- Preserve the original server scope from `map_scan_clear({serverId})` and returned state. `LWB-R6-057` recovers the original pre-clear gate: active scans reject with `SCAN_RUNNING` / `stop the map scan first`; otherwise requested `serverId` must be positive, match the current scan-state server, and current `serverIdSource` must be exact `live`, or Clear rejects with `SERVER_UNAVAILABLE` / `current server id unavailable`.
+- Block/conflict-resolve during an active scan and prevent late responses from resurrecting cleared rows. Do not wire a fabricated `serverIdSource="live"`; the validator stays offline until the production scanner owns an authoritative live server source.
 - Atomically clear the intended cache/index scope and update rows, totals, filters/options, page number, selection caches, progress, and pending query generations.
 - Recover whether marks, completed job history, and checkpoints are included; do not delete them speculatively.
 - Test clearing one server while another retains data, empty clear, app restart after clear, and interruption/failure during clear. Use a backed-up/temporary store for destructive cache tests.

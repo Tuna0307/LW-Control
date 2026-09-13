@@ -3534,6 +3534,128 @@ MapScanDerivedProgress roundedProgress = MapScanProgress.Derive(2000, 1, 0, "sca
 Check(roundedProgress.ProgressPercent == 0.1,
     "scan progress rounds to one decimal using the recovered CRT-round tenths formula");
 
+// LWB-R6-054: recovered map.scan.progress counter normalization and scan-rate derivation.
+MapScanSchedulerCounters schedulerCounters = MapScanSchedulerProgress.Normalize(100, 8, 25, 5, 20);
+Check(schedulerCounters == new MapScanSchedulerCounters(25, 25, 5, 62, 8),
+    "scan scheduler bounds inflight work by concurrency and derives unread after inflight");
+MapScanSchedulerCounters clampedCounters = MapScanSchedulerProgress.Normalize(100, 20, -5, 3, -7);
+Check(clampedCounters == new MapScanSchedulerCounters(0, 0, 3, 97, 0),
+    "scan scheduler clamps negative completed/inflight inputs while preserving failed work");
+try
+{
+    MapScanSchedulerProgress.Normalize(100, 8, 80, 30, 0);
+    failures.Add("scan scheduler rejects completed plus failed work beyond total");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN_PROGRESS",
+        "scan scheduler uses recovered INVALID_SCAN_PROGRESS for impossible accounting");
+}
+Check(MapScanSchedulerProgress.ComputeScanRate(25, 2500) == 10.0 &&
+      MapScanSchedulerProgress.ComputeScanRate(1, 3000) == 0.33,
+    "scan rate is completed blocks per elapsed second rounded to two decimals");
+Check(MapScanSchedulerProgress.ComputeScanRate(1, 0) == 1000.0,
+    "scan rate floors elapsed milliseconds to one before division");
+
+// LWB-R6-055: recovered native-capture completion safety and stopped-state reset.
+MapScanNativeCaptureMetrics nativeMetrics = MapScanCompletionSafety.DeriveNativeCaptureMetrics(3, 4, 5, 6, 7, 2);
+Check(nativeMetrics == new MapScanNativeCaptureMetrics(25, 2),
+    "native pending records sum points, marches, removals and acknowledgements while dropped stays separate");
+Check(MapScanCompletionSafety.HasDroppedNativeCapture(1) && !MapScanCompletionSafety.HasDroppedNativeCapture(0),
+    "positive native dropped count is a recovered pre-publication failure condition");
+MapScanCompletionSafety.ValidateDirectCompletion(100, 100, 0);
+try
+{
+    MapScanCompletionSafety.ValidateDirectCompletion(100, 99, 0);
+    failures.Add("direct completion rejects incomplete block coverage");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INCOMPLETE_SCAN" && error.Message == "direct map scan is incomplete",
+        "direct completion uses recovered incomplete-scan error for missing coverage");
+}
+try
+{
+    MapScanCompletionSafety.ValidateDirectCompletion(100, 99, 1);
+    failures.Add("direct completion rejects failed blocks");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INCOMPLETE_SCAN" && error.Message == "direct map scan contains failed batches",
+        "direct completion uses recovered failed-batches error when failed blocks are nonzero");
+}
+try
+{
+    MapScanCompletionSafety.ValidateDirectCompletion(100, 100, 0, 1);
+    failures.Add("direct completion helper rejects its recovered extra failed-batch input");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INCOMPLETE_SCAN" && error.Message == "direct map scan contains failed batches",
+        "direct completion helper preserves the recovered extra failed-batch gate even though production passes zero");
+}
+Check(MapScanCompletionSafety.RecoveredStoppedState() == new MapScanStoppedState(false, "idle", 0, false),
+    "stopped scan state resets reading, phase, inflight and resume fields to recovered values");
+
+// LWB-R6-056: recovered start ownership and explicit resume gating.
+Check(MapScanStartOwnership.ResolveIntent(false, false) == MapScanStartIntent.Fresh &&
+      MapScanStartOwnership.ResolveIntent(true, false) == MapScanStartIntent.Fresh &&
+      MapScanStartOwnership.ResolveIntent(true, true) == MapScanStartIntent.ResumeExisting,
+    "resume request only selects the existing-state path when current resumeAvailable is true");
+MapScanStartOwnership.RequireConnection(true);
+MapScanStartOwnership.RejectAlreadyRunning(false);
+try
+{
+    MapScanStartOwnership.RequireConnection(false);
+    failures.Add("map scan start rejects missing game connection");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "GAME_CONNECTION_UNAVAILABLE" && error.Message == "game connection unavailable",
+        "map scan start preserves recovered missing-connection error contract");
+}
+try
+{
+    MapScanStartOwnership.RejectAlreadyRunning(true);
+    failures.Add("map scan start rejects a second active scan");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "SCAN_RUNNING" && error.Message == "map scan already running",
+        "map scan start preserves recovered duplicate-start error contract");
+}
+
+// LWB-R6-057: recovered Clear ownership and current-live-server validation.
+MapScanClearOwnership.Validate(2212, false, 2212, "live");
+try
+{
+    MapScanClearOwnership.Validate(2212, true, 2212, "live");
+    failures.Add("map scan clear rejects an active scan");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "SCAN_RUNNING" && error.Message == "stop the map scan first",
+        "map scan clear preserves recovered active-scan error contract");
+}
+foreach ((int requested, int current, string? source) in new[]
+{
+    (0, 2212, (string?)"live"),
+    (2213, 2212, (string?)"live"),
+    (2212, 2212, (string?)"saved_capture_replay"),
+})
+{
+    try
+    {
+        MapScanClearOwnership.Validate(requested, false, current, source);
+        failures.Add("map scan clear rejects unavailable or mismatched current server");
+    }
+    catch (BridgeCommandException error)
+    {
+        Check(error.Code == "SERVER_UNAVAILABLE" && error.Message == "current server id unavailable",
+            "map scan clear preserves recovered current-live-server gate");
+    }
+}
+
 // Recovered Map Data query envelope: eight kinds, page size 50 and ordered asc/desc sorts.
 using JsonDocument mapQuery = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":7,\"page\":2,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"asc\"},{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}");
 MapDataQueryOptions mapOptions = MapDataQueryContract.NormalizeSearch(mapQuery.RootElement);
