@@ -338,7 +338,7 @@ Reverse-engineer missing serializer branches and map-index normalization. The ex
 
 ### M04. Progress, failure, stop, and resume
 
-Recover relationships among `totalBlocks`, `completedBlocks`, `readBlocks`, `failedBlocks`, `unreadBlocks`, `inflightBlocks`, `scanRate`, `progressPercent`, status/phase, `lastError`, and `resumeAvailable`. Do not interchange fields merely because their names seem similar.
+Recover relationships among `totalBlocks`, `completedBlocks`, `readBlocks`, `failedBlocks`, `unreadBlocks`, `inflightBlocks`, `scanRate`, `progressPercent`, status/phase, `lastError`, and `resumeAvailable`. `LWB-R6-053` now fixes one recovered relationship: `unreadBlocks = max(totalBlocks - completedBlocks - failedBlocks, 0)` and, for positive totals, exact `completed` permits 100% while every other status uses one-decimal CRT rounding and is capped at 98%. `MapScanProgress` reproduces only that derived rule offline. Do not synthesize missing counters or interchange fields merely because their names seem similar.
 
 Checkpoint run identity, server/world/geometry/client compatibility, type/mode selection, unresolved block work, committed results, and capture/drain state. On crash/disconnect, treat unacknowledged inflight work as uncertain and replay idempotently. Refuse incompatible/stale resume rather than mixing scans. Define whether resuming uses the same logical run and how new session identity is related to it.
 

@@ -3517,6 +3517,23 @@ catch (BridgeCommandException error)
     Check(error.Code == "MAP_SIZE_UNAVAILABLE", "nonpositive direct scan dimensions use recovered MAP_SIZE_UNAVAILABLE");
 }
 
+// LWB-R6-053: recovered shared scan-state unread/progress derivation.
+MapScanDerivedProgress emptyProgress = MapScanProgress.Derive(0, 0, 0, "completed");
+Check(emptyProgress == new MapScanDerivedProgress(0, 0.0),
+    "zero-total scan progress remains zero even when status says completed");
+MapScanDerivedProgress partialProgress = MapScanProgress.Derive(100, 12, 3, "scanning");
+Check(partialProgress == new MapScanDerivedProgress(85, 15.0),
+    "scan progress counts completed plus failed blocks and derives unread remainder");
+MapScanDerivedProgress cappedProgress = MapScanProgress.Derive(100, 100, 0, "scanning");
+Check(cappedProgress == new MapScanDerivedProgress(0, 98.0),
+    "non-completed scan progress is capped at recovered 98 percent");
+MapScanDerivedProgress completedProgress = MapScanProgress.Derive(100, 100, 0, "completed");
+Check(completedProgress == new MapScanDerivedProgress(0, 100.0),
+    "completed positive-total scan progress reports 100 percent");
+MapScanDerivedProgress roundedProgress = MapScanProgress.Derive(2000, 1, 0, "scanning");
+Check(roundedProgress.ProgressPercent == 0.1,
+    "scan progress rounds to one decimal using the recovered CRT-round tenths formula");
+
 // Recovered Map Data query envelope: eight kinds, page size 50 and ordered asc/desc sorts.
 using JsonDocument mapQuery = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":7,\"page\":2,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"asc\"},{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}");
 MapDataQueryOptions mapOptions = MapDataQueryContract.NormalizeSearch(mapQuery.RootElement);
