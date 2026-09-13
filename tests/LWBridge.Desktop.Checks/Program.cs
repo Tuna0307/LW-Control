@@ -3680,6 +3680,17 @@ catch (BridgeCommandException error)
         "direct completion preserves recovered post-commit reread failure contract");
 }
 
+// LWB-R6-059: recovered terminal failure-list gate before publishing.
+Check(MapScanTerminalPublicationGate.CanEnterPublishing(0, null) &&
+      MapScanTerminalPublicationGate.CanEnterPublishing(0, string.Empty),
+    "terminal publication gate accepts zero failed blocks with no last error");
+Check(MapScanTerminalPublicationGate.HasTerminalScanFailure(1, null),
+    "terminal publication gate rejects positive failed block count");
+Check(MapScanTerminalPublicationGate.HasTerminalScanFailure(0, "map scan failed"),
+    "terminal publication gate rejects a nonempty last error");
+Check(MapScanTerminalPublicationGate.HasTerminalScanFailure(0, " "),
+    "terminal publication gate preserves recovered nonempty-string semantics without trimming");
+
 // Recovered Map Data query envelope: eight kinds, page size 50 and ordered asc/desc sorts.
 using JsonDocument mapQuery = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":7,\"page\":2,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"asc\"},{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}");
 MapDataQueryOptions mapOptions = MapDataQueryContract.NormalizeSearch(mapQuery.RootElement);
