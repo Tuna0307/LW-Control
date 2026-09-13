@@ -1,0 +1,31 @@
+{
+  "findingId": "LWB-R6-061",
+  "date": "2026-09-14",
+  "scope": "map scan Start world-map readiness and live-server gate",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "recoveredResult": {
+    "enterWorldMapRequestTimeoutMs": 5000,
+    "worldMapReadyDeadlineMs": 10000,
+    "worldMapReadyPollIntervalMs": 500,
+    "worldMapFailure": "WORLD_MAP_FAILED / failed to enter world map",
+    "liveServerGate": "after world readiness, serverId must be positive and serverIdSource must equal live",
+    "serverFailure": "SERVER_UNAVAILABLE / current server id unavailable"
+  },
+  "locators": {
+    "enterWorldMapRequest": "0x1400F95D9-0x1400F961D",
+    "readinessDeadline": "0x1400F96D0-0x1400F96DB",
+    "readinessPoll": "0x1400F9730-0x1400F974A",
+    "deadlineFailure": "0x1400F99FA-0x1400F9A38",
+    "liveServerGate": "0x1400F9B53-0x1400F9B9E",
+    "serverFailure": "0x1400F9D39-0x1400F9D61"
+  },
+  "limits": [
+    "this finding recovers Start readiness and live-server admission, not block traversal or request scheduling",
+    "the rebuilt helper mirrors only recovered constants and fail-closed predicates; production Start wiring remains separate"
+  ]
+}
