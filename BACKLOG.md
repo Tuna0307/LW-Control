@@ -1,27 +1,23 @@
 # LWBridge implementation backlog
 
-## Current owner priority — Player City owner-visible path complete, 2026-09-13
+## Current owner priority - shared Map Data Manual Scan engine, 2026-09-13
 
-**PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
+**PM17 corrections remain delivered.** Player City `LWB-PC-001/002/003` remains credited for authentic current-client city acquisition, persistence/reopen and owner-visible saved-row rendering. This does not prove the ordinary Manual Start button performs a complete world scan.
 
-**Player City selected path is complete through owner-visible saved-row Search/render.** `LWB-PC-001/002` prove the fresh live acquisition, persistence and reopen core; `LWB-PC-003` records the normal Map Data owner screenshot plus exact-session automatic Search/render evidence. This does not mark all Map Data complete.
+**Current sequence:** build the shared scanner before treating Resource/Monster/etc. as separate delivery items. The core work is M01-M05/R7: authoritative map geometry/traversal, one owned scan run, block scheduling, Normal/Fast concurrency, native point/march capture, acknowledgements/removals, Stop/cancel/retry/failure, truthful progress/completion, durable staging/publication and Clear with late-result protection. Then route the eight `selectedTypes` through that same engine.
 
-**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Do not expand those areas unless a minimal evidence-backed dependency is directly required by Player City, and do not claim the whole Overview or Map Data feature complete.
-
-### Current sequence — corrections, then Player City
-
-- [x] PM16-02: PM accepts process-incarnation correction as implemented/offline-tested under LWB-PM16-001.
-- [x] PM16-03: PM accepts durable evidence reconciliation, with historical generator command unavailable.
-- [x] PM16-01 implementation closure: stopped selection plus PM17 failure-state corrections are implemented/offline-tested; PM audit remains separate.
-- [x] PM17-02 / LWB-PM17-001: unfinished/unknown shared journals block retargeting and preserve evidence; absent/verified-completed cleanup permits selection.
-- [x] PM17-01 / LWB-PM17-002: abandoned launch identity releases only after helper/process/journal ownership clears; failed A -> B -> Launch works without app restart.
-- [x] PM17 delivered at `f24fef3`; local/origin/remote match and CI `34711920482` succeeded on the exact revision. Corrected-build normal-path live regression remains prepared but unperformed.
-- [x] Owner authorizes direct Map Data continuation after the two verified fixes; no further permission gate.
-- [x] **Player City technical core / LWB-PC-001/002:** two fresh real city-only acquisitions -> normal persisted Search/summary -> strictly newer second result -> fresh-process same-profile reopen/search; exact restoration and cleanup proven.
-- [x] **PM review 18:** implementation `7da8665` and CI `34726315539` accepted for the prepared read-only saved-row owner check.
-- [x] **LWB-PC-003 — owner-visible Player City row:** owner ran `Start Owner Player City Check.cmd`, normal Map Data rendered the persisted city row, the later Search correlated to the same row, and cleanup completed cleanly. The page also auto-runs a saved-data City query on initial load, so the row can appear before the Search button is pressed; this is persisted data, not a fresh scan.
-- [ ] **NEXT ordered category — Resource Point:** the original Map Data order places Resource after City, but fresh Resource Start remains blocked by SB-97. Do not recreate the denied operation through another executor or skip the restriction silently.
+- [x] PM17 delivery and owner-authorized direct Map Data continuation.
+- [x] Player City source/storage/reopen/owner-visible foundation under `LWB-PC-001/002/003`.
+- [ ] **ACTIVE P0 - shared Manual Scan lifecycle:** replace the bounded one-view proof behavior with the real common world-scan lifecycle while preserving evidence gates and fail-closed unknowns.
+- [ ] **ACTIVE P0 - Normal/Fast:** use the same scheduler with RECOVERED concurrency `8` / `20`; recover any additional differences before implementing them.
+- [ ] **ACTIVE P0 - progress/completion:** expose real total/completed/read/failed/unread/inflight/capture/commit state; never equate 100% or helper exit with complete.
+- [ ] **ACTIVE P0 - Clear:** server-scoped atomic clear, active-run ownership/conflict handling, generation invalidation, visible state reset and no late-row resurrection; preserve marks per recovered contract.
+- [ ] **CATEGORY ACCEPTANCE on the common engine:** Player City first through ordinary Manual Start -> progress -> commit -> Search/render -> newer run -> reopen; then Resource, then Monster/Truck/Railway/Dispatch/Ghost/Treasure, then mixed and all-eight selections.
+- [ ] **DOWNSTREAM after acquisition:** finish per-kind normalization plus Search/filter/sort/options/export/navigation. Scan Content selects acquisition; result filters query persisted data.
+- [ ] **AUTO SCAN after Manual:** reuse the same scan engine; add scheduler/server sequencing/Run Now/cancel/return-to-origin without a second acquisition implementation.
 - [ ] PENDING/DEFERRED: S03 complete runtime Refresh Status; S06 actual cross-server travel. S02 remains unfinished/unassigned.
+
+The present `LiveResourceProbeCommandService` city/resource route is support/evidence code only: it accepts one city/resource kind and leaves full block/progress metrics unknown. SB-97 remains an operation-specific restriction and must not be recreated or rerouted. Continue permitted recovery/implementation/offline work instead of skipping the shared-engine priority.
 
 ### Preserved delivered OVL milestone
 
@@ -61,11 +57,11 @@ Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle
 - [x] **PM / review 15:** audited LWB-PM13-009 and original owner evidence. Accepted no-context interpretation; returned the wider collector for PM15-01/02 above. No fresh context was created.
 - **SOL:** no separate active role. **DAYBREAK:** no assignment.
 
-[Current workflow/prompts](docs/team-workflow.md) and [technical packet](docs/live-test-handoff.md) govern the same resource function. Do not send blocked actions to the owner or another executor.
+[Current workflow/prompts](docs/team-workflow.md) now govern the shared Manual Scan engine. The resource notes below are retained as historical review-14 evidence and do not override the current sequence. Do not send blocked actions to the owner or another executor.
 
-## Current function and ordered repairs — review 14
+## Historical review-14 resource function - superseded by shared-engine priority
 
-**One active function: resource scan -> store -> normal search/display -> fresh refresh -> reopen.** No unrelated checkpoint or monster implementation until its exit criteria pass. An external blocker keeps this function open; only direct permitted dependencies may continue. Full 47-case scope is unchanged.
+The review-14 instruction below previously treated Resource as the one active function. It is retained for provenance only. The 2026-09-13 owner direction above supersedes its sequencing: shared Manual Scan lifecycle first, with Player City as the first common-engine acceptance category. SB-97 still applies to the denied Resource operation.
 
 - [x] **PM13-01:** existing source-backed saved resource now reopens through ordinary Resource Search with saved/live distinction and profile/server scope preserved. `LWB-PM13-001` implements the unambiguous saved-profile context; `LWB-PM13-001B` rediscovered the exact review-13 store in the Codex package-local cache, verified byte-identical normal-window search across an app restart, and restored the direct-desktop test root afterward. No new acquisition was claimed.
 - [x] **PM13-01b:** `LWB-PM13-002` preserves structured Start errors, adds nine-language Resource-only guidance, distinguishes empty/missing-context/query failures, and keeps unsupported categories fail-closed without silently discarding them. Connected normal-window revalidation remains part of PM13-04.
@@ -76,13 +72,15 @@ Project-manager review 14 audited `7ca6d5c`. Saved browsing, feedback, lifecycle
 
 Reference SHA-256: `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-## Active delivery priority — user correction after review 9
+## Historical delivery priority - review 9, superseded
 
-1. **R5 / connection:** establish a supported connection to the real game.
-2. **Necessary R6/R7 slice:** acquire one real resource point and display it in the rebuilt Map Data page, with source-correlated proof.
-3. **After resource exit criteria pass:** complete monster acquisition/search next, then select further functions one at a time.
+The following sequence produced the bounded Resource/Player City foundations but is no longer the active delivery order. The 2026-09-13 owner direction at the top of this file now requires the shared Manual Scan engine first. Preserve the historical evidence and SB-97 restriction; do not use this old "Resource then Monster" order to override the current plan.
 
-Follow [the bounded live-result task](docs/first-live-result.md). R labels describe work areas, not completed prerequisites. New research must directly unblock this demonstration. PM9-A/future automatic updates and unrelated migration/export completion are deferred. Game launch/close/restart and project Computer Use testing are pre-authorized under AGENTS.md; actual environment restrictions remain separate.
+1. Historical R5 connection work established the bounded current-game route.
+2. Historical R6/R7 work acquired/displayed real Resource and Player City rows with source-correlated proof.
+3. The old one-category-at-a-time continuation is superseded by common-engine implementation and then per-kind enablement on that engine.
+
+`docs/first-live-result.md` remains historical evidence for the bounded demonstration, not the current sequencing authority.
 
 ## Project rules
 
@@ -264,15 +262,21 @@ This work can advance while R5 semantic research remains incomplete or a particu
   - [ ] Finish the native writer/file-picker contract: exact A-C and J fallback mapping, per-column value typing/coercion, internal pagination/full-filter scope, filename timestamp/default directory, complete cancellation/error control flow and lossless large-ID reopen behavior before enabling export.
 - [ ] Connect offline services to real native handlers and result tabs; test using explicitly labelled recovered/synthetic samples. Keep unknown semantic fields open.
 
-## R7 — Production manual scan (P0; requires R5/R6)
+## R7 - Production shared Manual Scan engine (P0; active)
 
-- [ ] Connect production `map_scan_start` to the recovered bridge/native capture path.
-- [ ] **DEEP-BINARY DB-04:** recover exact block scheduler/tick behavior, block ordering, retry rules, capture acknowledgements/drop handling and resume/completion state.
-- [ ] Persist scan run/checkpoint state atomically and reject stale run/session/server results.
-- [ ] Preserve dropped/pending/acknowledgement/failure semantics and never silently complete with unresolved work.
-- [ ] Implement actual Start/Stop/resume/Normal/Fast/selected-type behavior and prove stop cancels/drains owned work. Returning an unavailable status is not cancellation proof.
-- [ ] Prove a bounded scan before full coverage; validate UI/query/export against committed data and record updates/removals.
-- [ ] Validate representative data for all eight record kinds and repeated full-scan completion.
+- [ ] Connect production `map_scan_start` to one common recovered bridge/native capture worker; retire the city/resource one-view path as the normal production Start implementation once equivalent evidence gates exist.
+- [ ] **DEEP-BINARY DB-04:** recover authoritative map geometry, block generation/order, scheduler/tick behavior, retry rules, capture acknowledgements/drop handling and resume/completion state. Do not hardcode historical 10,000-block observations as universal geometry.
+- [ ] Implement one run identity scoped to profile/session/server/world/geometry/selected types/mode; reject duplicate Start and stale/foreign results.
+- [ ] Implement Normal and Fast through the same scheduler with recovered concurrency `8` and `20`. Additional mode-specific behavior stays fail-closed until recovered.
+- [ ] Implement actual Stop/cancel/drain ownership, including Stop-before-acceptance, mid-read, pre/post-commit decisions, connection loss and shutdown.
+- [ ] Persist run/block/capture checkpoints atomically; treat unacknowledged inflight work as uncertain after interruption and never publish unresolved failed/unread/inflight work as complete.
+- [ ] Wire native `points`, `marches`, removals, `acks`, pending queues and `dropped` into staging/index publication with correct run/server identity and backpressure handling.
+- [ ] Drive `map_scan_status`/`bridge://map-scan-status` and the progress bar from real totals/completed/read/failed/unread/inflight/rate/capture/commit state. `100%` is not sufficient without drain and durable publication.
+- [ ] Finish `map_scan_clear({serverId})` lifecycle semantics: preserve marks, safely resolve active scans, invalidate pending generations/results, atomically clear intended server scan/index scope and reset UI/query progress without resurrection.
+- [ ] Prove the common worker first with `city` through ordinary Manual Start -> real progress -> durable commit -> normal Search/render -> strictly newer second run -> reopen. Existing LWB-PC evidence remains supporting source/storage proof, not this full-scan acceptance.
+- [ ] Enable `resource`, then `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure` on the same worker; validate representative add/update/removal/expiry behavior and typed normalization for each.
+- [ ] Prove mixed selected types and all-eight selection, then repeated completed scans in both modes. Only after this is the shared acquisition layer eligible for completion.
+- [ ] Finish downstream per-kind query/options/filter/sort/export/navigation against committed data; keep Scan Content acquisition selection distinct from result filtering.
 
 ## R8 — Automatic scanning and server travel (P0)
 

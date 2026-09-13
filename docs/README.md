@@ -1,12 +1,12 @@
 # LWBridge documentation index
 
-## Current owner priority - Player City owner-visible path complete, 2026-09-13
+## Current owner priority - shared Map Data Manual Scan engine, 2026-09-13
 
 **PM17 correction delivery remains complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS. The corrected-build Overview live regression remains prepared but NOT RUN.
 
 **Player City is LIVE-PROVEN through the selected owner-visible path.** [`LWB-PC-001`](../evidence/lwbridge-implementation/2026-09-13-player-city-live-proof.json) records two distinct fresh city-only current-client acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact restoration and clean ownership. [`LWB-PC-002`](../evidence/lwbridge-implementation/2026-09-13-player-city-reopen-proof.json) separately reopens the same profile/store and returns the saved city through normal `map_search`. [`LWB-PC-003`](../evidence/lwbridge-implementation/2026-09-13-player-city-owner-check.json) records the owner-visible normal Map Data row, exact-session Search/render correlation, clean shutdown, and the fact that initial page load performs an automatic saved-data City query before the manual Search click.
 
-**The Review 18 owner check is complete.** Attempt `20260913T042954Z-c20cd9c6-2b81ad37` used the reviewed read-only package, showed the persisted Player City row in the normal page, correlated the later owner Search to that row, exited cleanly and recorded no identity leak. No fresh scan/game action was part of the owner check. The next ordered category is Resource Point, whose fresh Start remains blocked by SB-97; S03/S06 remain deferred and S02 remains unfinished/unassigned.
+**The Review 18 owner check is complete.** Attempt `20260913T042954Z-c20cd9c6-2b81ad37` used the reviewed read-only package, showed the persisted Player City row in the normal page, correlated the later owner Search to that row, exited cleanly and recorded no identity leak. No fresh scan/game action was part of the owner check. The active priority is now the shared Manual Scan engine: real map traversal/block work, Start/Stop, Normal/Fast, capture/acks/removals, truthful progress/completion, staging/publication and Clear. Player City is the first common-engine acceptance category; Resource follows on that same engine, subject to SB-97. S03/S06 remain deferred and S02 unfinished/unassigned.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -20,7 +20,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. Player City `LWB-PC-001/002/003` is closed for the selected live-acquire/persist/Search/reopen/owner-visible path. Do not repeat the owner check merely because the page auto-loads saved data. The next ordered Resource Point live Start remains SB-97 blocked. Daybreak is unassigned.
+**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. Player City `LWB-PC-001/002/003` is closed for the selected live-acquire/persist/Search/reopen/owner-visible path. Do not repeat the owner check merely because the page auto-loads saved data. The active work is the shared Manual Scan engine documented in [`map-data-delivery.md`](map-data-delivery.md) and [`team-workflow.md`](team-workflow.md): build the common world-scan lifecycle first, prove it with Player City, then enable Resource and the remaining kinds on that same worker. SB-97 remains specific to the denied Resource operation. Daybreak is unassigned.
 
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 
@@ -28,7 +28,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Reading order
 
-Start with [review 18](reviews/2026-09-13-review-18-player-city.md), [current PM status](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
+Start with the active [`map-data-delivery.md`](map-data-delivery.md) and [`team-workflow.md`](team-workflow.md), then [review 18](reviews/2026-09-13-review-18-player-city.md), [current PM status](lwbridge-project-status.md), [restriction outcomes and requests](daybreak-escalations.md), and [the rough completion estimate](lwbridge-completion-estimate.md). Read [the regular-AI task](implementation-handoff.md) or [the specialist task](deep-binary-handoff.md) as appropriate. The [review 8/follow-up narrative](reviews/2026-09-10-review-8-and-followups.md) and earlier reviews are historical. Clock/keys/cleanup and option source/no-alliance subquestions are resolved. ESC-003 has a reviewed NOT_ASSIGNED decision; public integration and serializer/export/schema/lifecycle gaps remain tracked.
 
 1. [`lwbridge-feature-ledger.md`](lwbridge-feature-ledger.md) — current implementation/proof matrix for Overview and Map Data.
 2. [`lwbridge-overview-recovery.md`](lwbridge-overview-recovery.md) — O04/O05 original recovery contracts, current-client observation mapping and rebuild recovery-core validation.

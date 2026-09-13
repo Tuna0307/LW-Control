@@ -1,10 +1,16 @@
-# Next delivery — Map Data, Player City first
+# Next delivery - Map Data shared scan engine first
 
-Owner priority change, 2026-09-13. This is the active sequencing instruction and supersedes the review-17 stop-before-Map-Data instruction. It does not mark any unfinished feature complete or override operation-specific restrictions.
+Owner priority change, 2026-09-13. This is the active sequencing instruction and supersedes the former category-by-category "Resource next" interpretation. It does not mark any unfinished feature complete or override operation-specific restrictions.
+
+## Architectural direction agreed with the owner
+
+Treat Map Data as **one shared world-map acquisition engine plus downstream per-kind data handling**, not eight independent scanners. The Manual Scan controls own map readiness, geometry/traversal, run identity, block work, Normal/Fast scheduling, Stop/cancellation, native capture/acks/removals, progress/failure state, staging/publication and Clear. The eight Scan Content checkboxes select which record kinds that shared run acquires/processes. The result-tab filters/search/sorts operate on persisted data after acquisition and are a separate layer.
+
+The current bounded city/resource proof route is useful source/runtime evidence, but it is not the final Manual Scan implementation. A one-view city/resource acquisition with null block/progress metrics must never be presented as a completed full-world Normal/Fast scan.
 
 ## Transition already authorized by the owner
 
-PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` under `LWB-PM17-001/002`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact revision. Player City is now active. The corrected-build normal Overview regression packet remains prepared but unperformed; old live evidence is not new-build proof.
+PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` under `LWB-PM17-001/002`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact revision. The bounded Player City path is complete and now serves as foundation for the active shared Manual Scan engine work. The corrected-build normal Overview regression packet remains prepared but unperformed; old live evidence is not new-build proof.
 
 **Then continue directly to Map Data. No further PM audit, permission prompt or whole-Overview signoff is required merely to start this already-authorized work.** If a real unresolved lifecycle problem blocks a Map Data operation, fix that direct prerequisite and record the reason. Do not start Map Data before the two assigned corrections are solved, and do not spend further checkpoints on unrelated Overview polish.
 
@@ -29,15 +35,25 @@ PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` under `LW
 
 The **visible normal Map Data row** owner step is now complete under `LWB-PC-003`. The owner run also established a UI clarification: initial Map Data load automatically performs a saved-data City query, so the persisted row can be visible before manual Search; pressing Search runs the same local persisted-data path again and does not itself acquire fresh game data. No Resource Start, cross-server travel, auto scan, export or unrelated category action was part of this checkpoint. The recovered `PlayerWorldPointId + SendViewRequest(tile,current LOD,current server)` city fallback is IMPLEMENTED/OFFLINE-TESTED but was not exercised by the successful live runs, so it is not labelled LIVE-PROVEN.
 
-Retain the existing queued category order, beginning with **Player City (`city`)**. Work on one complete normal-page path: acquire fresh real city data from the current permitted game session -> persist it for the correct profile/server -> Search -> display the returned cities in Map Data. The [full task contract](../task.md) and [feature ledger](lwbridge-feature-ledger.md) remain authoritative for existing commands, filters and all 47 acceptance cases; this document sets delivery order rather than duplicating or weakening them.
+## Active delivery sequence
 
-1. Review existing city acquisition/query/normalization findings and current code before new recovery. Trace the actual Player City selection, normal Start/Stop/Search controls, source request/result, profile/server context, persistence/query and rendered rows. Record the first missing or broken link and work until it is resolved. No fresh dependency may be guessed from historical resource behavior.
-2. Enable only recovered/current-client-backed city behavior. Reuse compatible Overview connection and persistence work. Use the current session's server; do not fabricate server IDs, cities, names, coordinates, counts or completion state, and do not invoke cross-server travel as a substitute for missing local data.
-3. Deliver the basic acquisition/Search/display path before broad city filters/export/actions or another category. Surface actionable errors and distinguish no cities found, missing context, unavailable transport and failed acquisition. A stored fixture or previously captured city may support an isolated regression but cannot count as a new live acquisition.
-4. Validate normal controls with automatic request/source/session/store/query/render evidence: a fresh acquisition, a distinct later acquisition whose new result is used, and same-profile reopen/search persistence. Test normal Stop, interrupted acquisition and cleanup appropriate to the changed code. Keep state tied to the correct profile/server and prevent late/stale results from being shown as the new run.
-5. Prepare an exact tested build and simple owner guide when visible live confirmation is needed. Web captures logs, commands, hashes and other technical evidence automatically. The owner only follows clear UI actions, describes what is visible and supplies screenshots. Do not ask the owner to force adverse OS states or work around a denied operation.
+The common Manual Scan engine is now the next implementation target. Player City remains the first category used to prove that engine because its current-client source, identity, persistence and rendered-row path are already established. Do not continue by building a special Resource scanner merely because Resource is second in the visible category order.
 
-Completion for this selected Player City path is now achieved: fresh real-game acquisition, persisted Search, newer acquisition, same-profile reopen, and owner-visible normal-page rendering all have correlated evidence under `LWB-PC-001/002/003`. This does not complete all Map Data. The next original category is Resource Point, whose fresh Start remains blocked by SB-97; do not bypass that restriction or silently skip sequence. Report implementation/offline/live/owner-observed states separately and keep later categories open.
+1. **Shared scan lifecycle first.** Recover/implement current server/world readiness, authoritative map geometry, block traversal/order, unique run identity, scheduling, retry/failure state, native capture, acknowledgements, removals, staging and atomic publication. Start/Stop must own one run and reject stale session/server/run results.
+2. **Normal and Fast are modes of the same scanner.** Recovered parity proves `normal -> concurrency 8` and `fast -> concurrency 20`. Additional mode-specific pacing, retries or timeouts remain UNKNOWN until recovered; do not invent them. Both modes must target the same correct map coverage and data semantics.
+3. **Truthful progress/completion.** Drive the UI from real `totalBlocks`, completed/read/failed/unread/inflight work, scan rate, capture readiness/pending/drop state and durable commit state. A loop ending or progress reaching 100% is not sufficient if failures, unread/inflight work, pending capture/acks, dropped records or an uncommitted index remain.
+4. **Clear is core lifecycle behavior.** Keep the recovered server scope, preserve player marks, safely resolve an active run, invalidate late generations/results, clear the intended scan/index state atomically and reset visible progress/query context without resurrecting cleared rows.
+5. **Scan Content controls acquisition.** Route `city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure` through the same run. Prove City first through the ordinary Manual Start path, then Resource, then the remaining kinds, then mixed selections and all eight. The existing bounded city/resource one-view adapter is evidence/support code, not the final scanner.
+6. **Result filters are downstream.** Search/filter/sort/options/export/navigation operate on acquired persisted data and must not be confused with the eight Scan Content checkboxes. Finish the per-kind normalization/query surface after the common acquisition path is reliable.
+7. **Auto Scan comes after Manual Scan.** Reuse exactly the same scan engine. Auto Scan adds durable scheduling, server sequencing/travel eligibility, Run Now, cancellation and return-to-origin; it must not create a second acquisition implementation.
+
+### Acceptance order for the common engine
+
+The first normal-page proof is: Map Data -> Manual Scan -> Player City selected -> Normal or Fast -> Start -> real scan state/progress -> fresh city records committed -> normal Search/display uses that run. Repeat with a distinct newer run and verify restart persistence. After that common path is stable, enable Resource and the other categories on the same worker rather than duplicating lifecycle code. Mixed/all-eight scans are required before the acquisition layer can be called complete.
+
+Existing operation-specific restrictions remain unchanged. In particular, SB-97 still blocks the denied fresh Resource operation and must not be recreated through another model, executor, owner click, helper-direct invocation or disguised test path. That restriction does not block permitted static recovery, shared-engine implementation/offline tests, or City-first validation through an allowed path.
+
+Player City `LWB-PC-001/002/003` remains credited at its documented scope: authentic city source acquisition, persistence, reopen/search and owner-visible saved-row rendering. It is not promoted into proof of full-world traversal, Normal/Fast scheduling, progress, mixed selected types or all-Map-Data completion.
 
 ## Worker continuity
 

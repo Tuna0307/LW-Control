@@ -1,5 +1,13 @@
 # LWBridge Map Scan recovery
 
+## Active implementation direction - shared scanner first, 2026-09-13
+
+The owner has explicitly chosen the shared Manual Scan engine as the next Map Data priority. Treat the recovered scan architecture as one world-map acquisition lifecycle with `selectedTypes`, not eight independent category scanners. Player City remains the first acceptance category because its current-client source/identity/storage/render path is already proven; Resource follows only after the common worker exists, subject to SB-97.
+
+The common engine must own authoritative map geometry/traversal, run/block scheduling, Start/Stop/cancel, Normal/Fast, capture/acks/removals/drop handling, truthful progress/failure/resume state, staging/publication and Clear. Normal concurrency `8` and Fast concurrency `20` are RECOVERED; other mode differences remain UNKNOWN. Search/filter/sort/options are downstream persisted-data behavior. Auto Scan must reuse this same worker. The current bounded city/resource one-view adapter is support/evidence code and is not full-world scan parity.
+
+See `map-data-delivery.md`, `team-workflow.md`, `BACKLOG.md` R7 and `task.md` for the active sequencing. Historical findings below retain their original dated scope.
+
 ## Current implementation audit — review 13
 
 At `b16fb9a`, PM credited the saved bounded resource acquisitions/restoration/import, then used native Computer Use/sky to reproduce normal Resource Search showing no row after reopen despite one stored resource in the selected profile. Default all-category Start gives generic failure; the adapter accepts resource-only and monster acquisition is absent. PM13-01/01b now close the saved display/context/feedback path, and `LWB-PM13-003` restores PM12-B bounded-route lifecycle closure for the source-reviewed commit/cancel and helper-ownership races. `LWB-PM13-004` closes PM13-02 by replacing PM12-008's nonempty-row predicate with source/result/query/render correlation; PM13-04 fresh normal-window proof remains open. These current corrections override completion implications in dated findings below, which retain their original evidence scope. SB-97/98 remain recorded and were not rerouted. Follow [the current audit](lwbridge-project-status.md), [single-function task](implementation-handoff.md) and [PM13 evidence](../evidence/lwbridge-implementation/pm-review-13/README.md).

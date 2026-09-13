@@ -1,12 +1,16 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
-## Current owner priority — Player City owner-visible path complete, 2026-09-13
+## Current owner priority - shared Manual Scan engine first, 2026-09-13
 
-**PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
+**PM17 correction delivery is complete.** `LWB-PM17-001/002` remain IMPLEMENTED/OFFLINE-TESTED at their documented revision. Player City `LWB-PC-001/002/003` remains valid evidence for authentic city acquisition, persistence, reopen/search and owner-visible saved-row rendering. Initial Map Data load may automatically query persisted City data, so a row visible before Search is saved data, not a fresh acquisition.
 
-**Player City selected path is now complete through owner-visible normal-page rendering.** `LWB-PC-001/002` LIVE-PROVE two fresh city-only acquisitions, active-profile/server persistence, normal `map_search`/summary, a newer second result and fresh-process reopen/search. `LWB-PC-003` records the owner-visible saved-row result and exact-session Search/render correlation. Initial Map Data load also performs a saved-data City query automatically, so a persisted row may be visible before the owner presses Search; this is not a fresh acquisition.
+**Active Map Data direction:** stop treating the visible category order as eight separate scanner projects. Implement the common Manual Scan engine first: current server/world readiness, real map geometry/traversal, run identity, block scheduling, native point/march capture, acknowledgements/removals, Start/Stop/cancel, retry/failure state, staging/publication, truthful progress/completion and Clear. The eight `selectedTypes` values are content selectors for that one engine. Search/filter/sort/options/export and row actions are downstream consumers of persisted data.
 
-**Next ordered Map Data category is Resource Point, but its fresh Start remains BLOCKED by SB-97.** Do not reroute or disguise that denied operation. S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED; S02 remains unfinished/unassigned. Do not claim the whole Overview or Map Data feature complete from the Player City result.
+Recovered mode parity currently proves Normal concurrency `8` and Fast concurrency `20`; any other mode difference remains UNKNOWN until recovered. `100%` or a completed helper is not a completion gate by itself. Clear must remain server-scoped, preserve marks under the recovered contract, safely resolve an active run and prevent late results from repopulating cleared data.
+
+Use Player City as the first normal-page acceptance category for the common engine, then Resource, then Monster/Truck/Railway/Dispatch/Ghost/Treasure, then mixed selections and all eight. The existing bounded `LiveResourceProbeCommandService` city/resource path is evidence/support code, not full-world Normal/Fast scanning. Auto Scan comes only after Manual Scan and must reuse the same engine.
+
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Existing operation-specific restrictions, including SB-97, remain in force and must not be bypassed. Do not claim the whole Map Data feature complete from the Player City result or from the common engine until the relevant acceptance gates pass. See `docs/map-data-delivery.md` and `docs/team-workflow.md` for the active sequencing.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -576,18 +580,23 @@ Current status: foundation partially implemented; lifecycle remains blocked/unim
 - Implement installation selection, stable local instance identity, owned launch/stop, status, startup preference, and bounded reconnect/repair behavior.
 - Prove one valid bridge-ready lifecycle before attempting a full map scan. Fix failure cleanup first if this is unreliable.
 
-### Milestone C — Small real scan and per-kind schemas
+### Milestone C - Shared Manual Scan engine
 
-- Implement the recovered runtime path and native capture/index seams.
-- Validate a bounded coverage slice or another evidence-backed small scan without inventing a different production algorithm.
-- Trace representative point/march/update/removal records through raw capture, normalization, storage, query, and UI.
-- Recover authoritative field meaning before calling the schema complete.
+Current active Map Data milestone under the 2026-09-13 owner direction. Build one acquisition lifecycle before proceeding category-by-category.
 
-### Milestone D — Full manual scan, persistence, and all result tabs
+- Recover/implement current server/world readiness, authoritative map geometry/traversal, run identity, block scheduling, native capture/acks/removals, staging/publication and real Stop/cancel ownership.
+- Implement Normal and Fast through the same scheduler using recovered concurrency `8` and `20`; keep any unrecovered mode differences UNKNOWN/BLOCKED.
+- Drive progress/completion from real total/completed/read/failed/unread/inflight/capture/commit state. Do not treat helper exit, one row or 100% as complete by itself.
+- Finish server-scoped Clear with active-run conflict/cancellation, generation invalidation, atomic data/progress reset and no late-result resurrection while preserving marks under the recovered contract.
+- Use Player City as the first ordinary Manual Start acceptance category. Existing bounded Player City evidence supports source/identity/storage/render correctness but is not full-scan proof.
 
-- Implement full coverage, Normal/Fast, selection, stop, complete/error states, resumable progress, and drain/commit gates.
-- Implement all query/filter/sort/page/mark/export/navigation features.
-- Validate repeat scans, selected-type isolation, counts, removals, and restart persistence with current-client evidence.
+### Milestone D - All scan contents plus downstream data features
+
+- Route Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure through the same proven worker; then validate mixed selected types and all eight together.
+- Trace representative point/march/update/removal/expiry records through raw capture, normalization, storage, query and UI. Recover authoritative field meaning before calling a per-kind schema complete.
+- Implement/finish query/filter/sort/page/mark/export/navigation against committed persisted data. Keep Scan Content acquisition selection separate from result filters.
+- Validate repeat scans in Normal and Fast, selected-type isolation, counts, removals, failure/retry behavior and restart persistence with current-client evidence.
+- Only after Manual Scan is reliable should Auto Scan orchestrate it; Auto Scan must not own a separate acquisition path.
 
 ### Milestone E — Automatic scan orchestration
 
@@ -789,4 +798,8 @@ Do not claim completion based on “the app builds,” “the UI matches,” “
 
 ## 17. First action for the receiving AI
 
-Read AGENTS.md, this file, BACKLOG.md, docs/lwbridge-project-status.md, docs/implementation-handoff.md, docs/user-test-checklist.md and docs/team-workflow.md. Inspect HEAD/worktree. PM13-01/01b/03/02 are closed at their documented scopes. Web's first task now is PM15-01/02 from docs/reviews/2026-09-11-review-15-owner-evidence.md. Do not start another owner/live attempt; the empty-profile result is already recorded. The owner supplies only descriptions/screenshots, never command output or technical diagnosis. Preserve bounded PM12-A/B/C acceptance and leave PM12-D open until complete live evidence exists. Do not reroute SB-97. No Sol or Daybreak assignment. Keep all 47 cases; commit/push/verify and return the actual package readiness to PM. Current prompts are in docs/team-workflow.md.
+Read `AGENTS.md`, `docs/team-workflow.md`, `docs/map-data-delivery.md`, this file, `BACKLOG.md`, `docs/lwbridge-map-scan.md` and `docs/lwbridge-feature-ledger.md`, then inspect HEAD/worktree and current evidence before changing code.
+
+The active task is the **shared Manual Scan engine**, not a special Resource scanner and not another saved-row Player City proof. Start from M01-M05/R7: recover the first missing common lifecycle contract (authoritative map geometry/block traversal/scheduler/capture/ack/progress/publication/clear ownership), implement only evidence-backed behavior, and keep the bounded city/resource adapter clearly labelled as support/evidence code. Player City is the first ordinary Manual Start acceptance category once the common path is ready; then Resource and the remaining kinds use that same worker.
+
+Do not reroute SB-97 or any other recorded operation restriction. The owner supplies only descriptions/screenshots, never command output or technical diagnosis. S03/S06 remain deferred and S02 unassigned unless a minimal direct dependency is required. Keep all 47 cases, document new findings immediately, and commit/push/verify each coherent checkpoint under `AGENTS.md`.
