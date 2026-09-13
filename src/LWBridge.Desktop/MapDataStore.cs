@@ -95,7 +95,7 @@ internal sealed record MapOptionSourceSelection(
     public bool UsesStagingRecords => ScanRunId is { Length: > 0 };
 }
 
-internal sealed class MapDataStore : IDisposable
+internal sealed partial class MapDataStore : IDisposable
 {
     private static readonly HashSet<string> AllowedKinds = new(MapScanContract.AllTypes, StringComparer.Ordinal);
 
