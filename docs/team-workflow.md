@@ -1,21 +1,15 @@
-﻿# Team workflow - Player City owner check approved
+﻿# Team workflow - Player City selected path complete
 
-Player City remains the active Map Data delivery. Review 18 accepted implementation `7da866595089698a00d89b14cd650b849a5bac90`; GitHub Actions `34726315539` completed SUCCESS on that exact implementation SHA. S03/S06 remain deferred, S02 remains unfinished/unassigned, and the corrected-build Overview live regression remains prepared but unperformed.
+Player City is complete for the selected end-to-end path under `LWB-PC-001/002/003`. Review 18 accepted implementation `7da866595089698a00d89b14cd650b849a5bac90`; the owner then completed the read-only normal-page check on that reviewed build. S03/S06 remain deferred, S02 remains unfinished/unassigned, and the corrected-build Overview live regression remains prepared but unperformed.
 
-## Current gate
+## Closed Player City gate
 
-`LWB-PC-001` LIVE-PROVES two distinct fresh city-only current-client acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact restoration and clean ownership. `LWB-PC-002` LIVE-PROVES fresh-process same-profile reopen/search of the saved city.
+`LWB-PC-001` LIVE-PROVES two distinct fresh city-only current-client acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact restoration and clean ownership. `LWB-PC-002` LIVE-PROVES fresh-process same-profile reopen/search of the saved city. `LWB-PC-003` proves the owner-visible normal Map Data City row, later manual Search -> render correlation, normal exit and clean postflight.
 
-Review 18 found no PM-blocking defect in the selected Player City path or the read-only owner-evidence package. The remaining selected-path gate is now only the **owner-visible normal Map Data City row**.
+The owner run also clarifies that Map Data auto-runs a saved-data City query during initial page load. Therefore a persisted row may appear before the Search button is pressed. This is expected reopen/persistence behavior, not seeded/fake data and not a fresh live scan.
 
-## Owner instruction now
+## Next ordered work
 
-1. Make sure Last War and LWBridge are closed.
-2. Double-click repo-root `Start Owner Player City Check.cmd`.
-3. After the ready message, use the Player City tab and click Search once.
-4. Take one screenshot showing the visible saved city row and send it to ChatGPT.
-5. Close LWBridge normally. Do not retry on failure; send the screenshot/error instead.
+The original Map Data category order is City -> Resource -> Monster -> Truck -> Railway -> Dispatch -> Ghost -> Treasure. Resource Point is therefore next, but fresh Resource Start remains blocked by SB-97. Do not recreate the denied operation through Remote Desktop Commander, owner clicks, another model, helper-direct execution or a repackaged proof route. Do not silently jump to another category unless sequencing is explicitly changed.
 
-This check is read-only. Do not run Start Scan/Start Reading, Clear, Export, Jump, cross-server travel, Resource actions, or any game action. The collector automatically records the exact-session sanitized Search/render evidence and cleanup state.
-
-After the owner result, Web interprets the automatic evidence and screenshot, records PASS/FAIL for the visible-row gate, fixes only the first failed link if necessary, then commits/pushes/verifies the resulting checkpoint. Do not begin another Map Data category until this selected Player City gate is resolved.
+No Player City owner retest is requested. If a future regression specifically requires one, reuse the read-only collector and preserve a new attempt rather than overwriting `LWB-PC-003`.

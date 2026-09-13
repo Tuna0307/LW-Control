@@ -1,12 +1,12 @@
 # LWBridge documentation index
 
-## Current owner priority - Player City owner check approved, 2026-09-13
+## Current owner priority - Player City owner-visible path complete, 2026-09-13
 
 **PM17 correction delivery remains complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS. The corrected-build Overview live regression remains prepared but NOT RUN.
 
-**Player City technical core is LIVE-PROVEN.** [`LWB-PC-001`](../evidence/lwbridge-implementation/2026-09-13-player-city-live-proof.json) records two distinct fresh city-only current-client acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact restoration and clean ownership. [`LWB-PC-002`](../evidence/lwbridge-implementation/2026-09-13-player-city-reopen-proof.json) separately reopens the same profile/store and returns the saved city through normal `map_search`.
+**Player City is LIVE-PROVEN through the selected owner-visible path.** [`LWB-PC-001`](../evidence/lwbridge-implementation/2026-09-13-player-city-live-proof.json) records two distinct fresh city-only current-client acquisitions, correct active-profile/server persistence, normal `map_search`/summary, a strictly newer second capture, exact restoration and clean ownership. [`LWB-PC-002`](../evidence/lwbridge-implementation/2026-09-13-player-city-reopen-proof.json) separately reopens the same profile/store and returns the saved city through normal `map_search`. [`LWB-PC-003`](../evidence/lwbridge-implementation/2026-09-13-player-city-owner-check.json) records the owner-visible normal Map Data row, exact-session Search/render correlation, clean shutdown, and the fact that initial page load performs an automatic saved-data City query before the manual Search click.
 
-**Review 18 approved the owner-visible normal-page confirmation.** The tested read-only package is `Start Owner Player City Check.cmd` + `tools/collect_owner_player_city_evidence.py`; it suppresses startup game auto-launch, blocks state-changing commands and records sanitized City Search/render correlation. The next gate is one owner City/Search screenshot; no fresh scan is requested. S03/S06 remain deferred and S02 remains unfinished/unassigned.
+**The Review 18 owner check is complete.** Attempt `20260913T042954Z-c20cd9c6-2b81ad37` used the reviewed read-only package, showed the persisted Player City row in the normal page, correlated the later owner Search to that row, exited cleanly and recorded no identity leak. No fresh scan/game action was part of the owner check. The next ordered category is Resource Point, whose fresh Start remains blocked by SB-97; S03/S06 remain deferred and S02 remains unfinished/unassigned.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 
@@ -20,7 +20,7 @@ This directory contains current LWBridge reconstruction and official-client evid
 
 ## Current priorities
 
-**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. Review 18 accepted the Player City technical/live proof and read-only owner package; request only the visible saved-row check now. Daybreak is unassigned.
+**Current team:** Web handles implementation and automatic technical capture; the owner supplies only guided screenshots/descriptions; PM audits. No separate Sol task. Player City `LWB-PC-001/002/003` is closed for the selected live-acquire/persist/Search/reopen/owner-visible path. Do not repeat the owner check merely because the page auto-loads saved data. The next ordered Resource Point live Start remains SB-97 blocked. Daybreak is unassigned.
 
 [Review 14](lwbridge-project-status.md) audits `7ca6d5c`. Four resource repairs are closed at stated scopes; PM13-04 remains the final fresh resource-only normal-window test. **Controlled-test candidate, not a completed live feature or two-page release.** Use [the concrete test checklist](user-test-checklist.md) and [regular handoff/prompts](implementation-handoff.md). Computer Use capability testing is separate from the real-game result and does not clear SB-97.
 
@@ -49,6 +49,7 @@ Start with [review 18](reviews/2026-09-13-review-18-player-city.md), [current PM
 ## Visual and machine-readable evidence
 
 - [Review 18 Player City audit](reviews/2026-09-13-review-18-player-city.md) accepts implementation `7da8665` / CI `34726315539` for the read-only saved-row owner check, while retaining the targeted-city fallback, Resource SB-97, deferred Overview work and non-Player-City Map Data as open.
+- [Player City owner-visible acceptance](../evidence/lwbridge-implementation/2026-09-13-player-city-owner-check.json) records `LWB-PC-003`: exact reviewed build identity, owner attempt/session completion, two sanitized City Search/render pairs, same saved city/profile, clean cleanup, and the automatic initial saved-data query that explains why the row is visible before pressing Search.
 
 - [Overview owner acceptance evidence](../evidence/lwbridge-implementation/2026-09-11-ovl-owner-acceptance.json) records `LWB-OVL-003`: the normal Overview owner session, exact tested package identity, automatic readiness/Close/restoration bundle hashes, owner screenshot digest/dimensions, and explicit "yup all working" acceptance. This closes only the selected Launch/message/Close milestone; wait for the owner to choose the next feature.
 

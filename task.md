@@ -1,12 +1,12 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
-## Current owner priority — Player City active, 2026-09-13
+## Current owner priority — Player City owner-visible path complete, 2026-09-13
 
 **PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
 
-**Active assignment: Map Data, Player City first.** `LWB-PC-001/002` LIVE-PROVE the technical core: two fresh city-only current-client acquisitions -> correct active-profile/server persistence -> normal `map_search`/summary -> a strictly newer second result -> fresh-process same-profile reopen/search persistence. Review 18 accepted implementation `7da8665` and CI `34726315539`; the remaining selected-path gate is now only owner-visible normal-page rendering of the already-saved row. No fresh owner scan or cross-server action is requested.
+**Player City selected path is now complete through owner-visible normal-page rendering.** `LWB-PC-001/002` LIVE-PROVE two fresh city-only acquisitions, active-profile/server persistence, normal `map_search`/summary, a newer second result and fresh-process reopen/search. `LWB-PC-003` records the owner-visible saved-row result and exact-session Search/render correlation. Initial Map Data load also performs a saved-data City query automatically, so a persisted row may be visible before the owner presses Search; this is not a fresh acquisition.
 
-**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Do not expand those areas unless a minimal evidence-backed dependency is directly required by Player City, and do not claim the whole Overview or Map Data feature complete.
+**Next ordered Map Data category is Resource Point, but its fresh Start remains BLOCKED by SB-97.** Do not reroute or disguise that denied operation. S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED; S02 remains unfinished/unassigned. Do not claim the whole Overview or Map Data feature complete from the Player City result.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

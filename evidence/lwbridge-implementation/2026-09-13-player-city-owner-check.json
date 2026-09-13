@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PC-003",
+  "status": "COMPLETE",
+  "scope": "owner-visible normal Player City saved-row Search/render persistence check",
+  "observedUtc": "2026-09-13T04:30:44.843616Z",
+  "build": {
+    "implementationCommit": "7da866595089698a00d89b14cd650b849a5bac90",
+    "reviewCommit": "4bfcf47f51b72fed3a543a60ce09ae7a8971b5c4",
+    "exeSha256": "c20cd9c663c074041b6d339b4d33dab9dd63eb071784b87840635e5e1d690c68",
+    "managedDllSha256": "be9eeb9d3b4636dc79298e78bd99e83b6d72189c08074fb09a647821a1a59b8f"
+  },
+  "ownerRun": {
+    "attemptId": "20260913T042954Z-c20cd9c6-2b81ad37",
+    "appExitCode": 0,
+    "sameProfile": true,
+    "sameSavedCity": true,
+    "cleanupClean": true,
+    "identityLeakDetected": false,
+    "uiEvidenceSha256": "3c83c97c4e6bdce78c859237cc1c17ca82b685dbd6ec9603009b8d2daf9bd456"
+  },
+  "savedCity": {
+    "serverId": 2212,
+    "recordKey": "40496",
+    "pointIndex": 40496,
+    "x": 495,
+    "y": 40,
+    "level": 27,
+    "updatedAt": 1789250251000
+  },
+  "ui": {
+    "sessionPid": 40164,
+    "eventCount": 7,
+    "sessionComplete": true,
+    "citySearchCount": 2,
+    "cityRenderCount": 2,
+    "latestSearchCorrelated": true,
+    "errors": [],
+    "initialLoad": {
+      "automaticSavedSearch": true,
+      "note": "The first saved-city Search/render occurred automatically after opening Map Data, before the owner pressed Search."
+    },
+    "ownerSearch": {
+      "correlated": true,
+      "note": "The later owner Search returned and rendered the same persisted city row."
+    }
+  },
+  "visualObservation": {
+    "screenshotReceived": true,
+    "sanitized": "Map Data City visibly showed one saved row matching server 2212, coordinates 495,40 and level 27; player/alliance identity is intentionally omitted."
+  },
+  "provenance": {
+    "matchesLiveFinding": "LWB-PC-001",
+    "matchesReopenFinding": "LWB-PC-002",
+    "liveSource": "WorldPointManager._pointInfos",
+    "runtimeClass": "BuildPointInfo",
+    "pointType": 6,
+    "note": "This finding proves owner-visible persisted Search/render. It is not a fresh live acquisition and does not require the game to be running."
+  }
+}

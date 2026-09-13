@@ -8,15 +8,15 @@ The existing repo-root `Start Overview Verification.cmd` remains the bounded nor
 
 No PM17 real-game/owner run was performed. Do not promote the earlier Launch/message/Close, startup/reconnect or repair successes to this corrected build. If the normal Overview regression is later dispatched, the owner performs only the existing simple UI actions while Web captures and interprets the technical evidence automatically.
 
-### Player City packet — PM REVIEW 18 APPROVED / OWNER VISIBLE-ROW CHECK NEXT
+### Player City packet — OWNER VISIBLE-ROW CHECK COMPLETE / LWB-PC-003
 
 `LWB-PC-001` completed two city-only current-client acquisitions on server 2212 with distinct request/session/PID identities and strictly newer `capturedAt`; both results came from `WorldPointManager._pointInfos`, normalized the real runtime `BuildPointInfo` row into `kind=city`, persisted it in the active profile, returned it through normal `map_search`, restored the official Lua package exactly and left no game/helper/recovery owner behind. `LWB-PC-002` then launched a fresh proof process, reopened that same profile/store through `saved_profile_index`, and normal `map_search` returned the saved city again. Shared evidence is identity-redacted and records immutable result SHA-256 values.
 
 Evidence: `evidence/lwbridge-implementation/2026-09-13-player-city-live-proof.json` and `2026-09-13-player-city-reopen-proof.json`. The successful live runs used the ordinary `StartViewRequest+UpdateViewRequest(true)` route; the recovered same-server `PlayerWorldPointId + SendViewRequest(...current LOD...)` fallback remains IMPLEMENTED/OFFLINE-TESTED only.
 
-**Owner action now: approved read-only visible-row check.** Review 18 accepted implementation `7da8665` and CI `34726315539`. The owner now runs only `Start Owner Player City Check.cmd`, uses Player City + Search once, sends one screenshot, then closes LWBridge. No fresh scan or game action is required.
+**Owner-visible gate COMPLETE.** Attempt `20260913T042954Z-c20cd9c6-2b81ad37` ran the Review 18 read-only package against the exact reviewed Release build. The normal Map Data City view rendered the saved row, the later owner Search returned/rendered the same row, the app exited normally, same-profile/same-saved-city checks passed, cleanup was clean and shared evidence contained no identity leak. `LWB-PC-003` is the durable sanitized acceptance record.
 
-Prepared owner package: repo-root `Start Owner Player City Check.cmd` launches `tools/collect_owner_player_city_evidence.py`, which preflights the active profile/store and refuses active LWBridge/Last War or pending recovery ownership. LWBridge starts with `--owner-evidence ... --view map-data`; owner-evidence mode suppresses startup auto-launch and blocks state-changing commands.
+The owner run also clarified normal UI semantics: Map Data performs an automatic saved-data City query on initial load, so the persisted row can appear before the Search button is pressed. The evidence captured an initial correlated City Search/render and a second correlated City Search/render after the owner's manual click; neither was a fresh game acquisition. Repo-root `Start Owner Player City Check.cmd` remains a regression tool only and should not be rerun without a new reason.
 
 City evidence records only safe query context plus server/record/point/coordinates/level/update time. Keyword/alliance filters and player/alliance identity are not written to shared City evidence. The render observer reads only City coordinates/level/updated time. Collector `--self-test` and `--preflight-only` pass without app/game launch; the repo-root shortcut `--self-test` exits 0 without app/game launch.
 

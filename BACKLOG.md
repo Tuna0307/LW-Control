@@ -1,10 +1,10 @@
 # LWBridge implementation backlog
 
-## Current owner priority — Player City active, 2026-09-13
+## Current owner priority — Player City owner-visible path complete, 2026-09-13
 
 **PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
 
-**Active assignment: Map Data, Player City first.** Work one end-to-end path: fresh real city acquisition -> correct profile/server persistence -> normal Search/display -> a distinct newer acquisition/result -> same-profile reopen. Reuse existing recovered contracts and current-client evidence, fix the first broken link, and capture source/session/store/query/render evidence automatically.
+**Player City selected path is complete through owner-visible saved-row Search/render.** `LWB-PC-001/002` prove the fresh live acquisition, persistence and reopen core; `LWB-PC-003` records the normal Map Data owner screenshot plus exact-session automatic Search/render evidence. This does not mark all Map Data complete.
 
 **S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Do not expand those areas unless a minimal evidence-backed dependency is directly required by Player City, and do not claim the whole Overview or Map Data feature complete.
 
@@ -19,7 +19,8 @@
 - [x] Owner authorizes direct Map Data continuation after the two verified fixes; no further permission gate.
 - [x] **Player City technical core / LWB-PC-001/002:** two fresh real city-only acquisitions -> normal persisted Search/summary -> strictly newer second result -> fresh-process same-profile reopen/search; exact restoration and cleanup proven.
 - [x] **PM review 18:** implementation `7da8665` and CI `34726315539` accepted for the prepared read-only saved-row owner check.
-- [ ] **NEXT — owner-visible Player City row:** run only `Start Owner Player City Check.cmd`, click Player City + Search once, send one screenshot, then close LWBridge. No fresh scan or game action is requested.
+- [x] **LWB-PC-003 — owner-visible Player City row:** owner ran `Start Owner Player City Check.cmd`, normal Map Data rendered the persisted city row, the later Search correlated to the same row, and cleanup completed cleanly. The page also auto-runs a saved-data City query on initial load, so the row can appear before the Search button is pressed; this is persisted data, not a fresh scan.
+- [ ] **NEXT ordered category — Resource Point:** the original Map Data order places Resource after City, but fresh Resource Start remains blocked by SB-97. Do not recreate the denied operation through another executor or skip the restriction silently.
 - [ ] PENDING/DEFERRED: S03 complete runtime Refresh Status; S06 actual cross-server travel. S02 remains unfinished/unassigned.
 
 ### Preserved delivered OVL milestone

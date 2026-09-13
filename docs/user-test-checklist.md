@@ -1,23 +1,16 @@
 # Owner guide - Player City visible-row check
 
-**PM review 18 approved this check.** Run it when ChatGPT asks you to do the Player City owner check. You only open the prepared shortcut, confirm the already-saved Player City row is visible, send one screenshot, and close LWBridge normally.
+**Completed 2026-09-13 under `LWB-PC-003`. Do not rerun this check unless ChatGPT/PM explicitly requests a regression retest.** The owner-visible normal Map Data row, Search correlation and clean close are already recorded.
 
-This check is deliberately read-only. It does **not** start Last War, run a scan, travel cross-server, clear data, export, jump coordinates, or modify the saved map row. Technical capture is automatic.
+The completed check was deliberately read-only. It did **not** start Last War, run a scan, travel cross-server, clear data, export, jump coordinates, or modify the saved map row. The saved row was already visible because Map Data automatically performs a local persisted-data City query when the page opens; pressing Search simply repeated that local query.
 
-## Before you start
+## Historical retest steps - only if explicitly requested later
 
 1. Make sure **Last War** and **LWBridge** are closed.
-2. Open the `LW-Control` folder.
-3. Double-click **Start Owner Player City Check.cmd**.
-4. Wait for the message titled **LWBridge Player City check**. If it says preparation is blocked or failed, stop and send ChatGPT a screenshot of that message. Do not retry.
+2. Open the `LW-Control` folder and double-click **Start Owner Player City Check.cmd**.
+3. Wait for the message titled **LWBridge Player City check**; if preparation is blocked or failed, stop and send ChatGPT a screenshot. Do not retry.
+4. LWBridge opens directly on **Map Data**. Do not press **Start Scan / Start Reading**.
+5. Click the **City / Player City** tab if needed, then click **Search** once.
+6. Confirm a saved city row is visible, take one screenshot, send it to ChatGPT, and close LWBridge normally.
 
-## What to do after the ready message
-
-1. LWBridge opens directly on **Map Data**. Do not press **Start Scan / Start Reading**.
-2. Click the **City / Player City** tab if it is not already selected.
-3. Click **Search** once.
-4. Confirm that a saved city row is visible. The row should visibly include coordinates, a level, and an updated time. Player/alliance text may also be visible on your screen, but the automatic shared evidence does not record those identity fields.
-5. Take **one screenshot** showing the normal Map Data page and the visible city row, then send it to ChatGPT.
-6. Close LWBridge normally with the window close button. Do not open Last War and do not run the shortcut again unless PM later asks for a separate retest.
-
-If the City tab is empty, Search shows an error, LWBridge opens the game, the row disappears, or anything looks different from these steps, stop immediately and send a screenshot plus a short description of what you saw. Do not press other Map Data buttons to troubleshoot.
+If anything differs from the expected read-only flow, stop and send a screenshot plus a short description. Do not use other Map Data buttons to troubleshoot.
