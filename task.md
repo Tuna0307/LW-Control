@@ -310,7 +310,7 @@ Implement and prove:
 
 - Reject missing/stale connection and a second active scan, independently of what buttons allow.
 - Obtain current world/server state, enter the world map when necessary, and await authoritative readiness.
-- Discover current map geometry and traversal rules from the target/current build. Do not hardcode “10,000 blocks” from an older implementation as a universal truth.
+- `LWB-R6-052` recovers the original positive-dimension gate and exact block-grid cardinality `ceil(tileWidth/20) * ceil(tileHeight/20)`, plus initial block counters and the scalar no-failure completion prerequisite. Continue with current authoritative traversal/order/request coordinates and the remaining non-scalar publication gate. Do not hardcode “10,000 blocks” from an older implementation as a universal truth.
 - Generate a unique run identity, schedule the exact recovered coverage with bounded concurrency, and correlate acknowledgments/records to it.
 - Keep manual selection/mode state consistent with the actual accepted run. Changes intended for the next run must not relabel an existing one.
 - Stop quickly enough to be useful: stop new scheduling, handle inflight uncertainty, drain or abort according to recovered rules, publish the stopped checkpoint, and clean up capture state. Do not mark unfinished work complete.

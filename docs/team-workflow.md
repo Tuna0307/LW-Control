@@ -6,7 +6,7 @@ Player City `LWB-PC-001/002/003` remains valid historical/live evidence for fres
 
 ## Active implementation order
 
-1. Recover and implement the common Manual Scan lifecycle: current server/world readiness, real map geometry/traversal, run identity, block scheduling, Start, Stop, cancellation, retry/failure ownership, native capture, acknowledgements, removals, staging and final publication.
+1. Recover and implement the common Manual Scan lifecycle: current server/world readiness, real map geometry/traversal, run identity, block scheduling, Start, Stop, cancellation, retry/failure ownership, native capture, acknowledgements, removals, staging and final publication. `LWB-R6-052` has now recovered positive dimension validation plus exact block-grid cardinality and scalar completion prerequisites; traversal/order/request coordinates and the rest of the lifecycle remain active.
 2. Make **Normal** and **Fast** use that same engine. Recovered parity currently proves Normal concurrency `8` and Fast concurrency `20`; do not invent other pacing/timeout/retry differences without evidence.
 3. Make the progress/status bar truthful from real scan state: total/completed/read/failed/unread/inflight work, scan rate, progress, capture readiness/pending/dropped state, last error and resume state where recovered. `100%` alone is not completion.
 4. Finish **Clear Map Data** as part of the scan lifecycle: server-scoped clear, active-run conflict/cancel handling, generation protection against late-result resurrection, progress/query reset, and preservation of marks where the recovered contract says they survive.

@@ -265,7 +265,7 @@ This work can advance while R5 semantic research remains incomplete or a particu
 ## R7 - Production shared Manual Scan engine (P0; active)
 
 - [ ] Connect production `map_scan_start` to one common recovered bridge/native capture worker; retire the city/resource one-view path as the normal production Start implementation once equivalent evidence gates exist.
-- [ ] **DEEP-BINARY DB-04:** recover authoritative map geometry, block generation/order, scheduler/tick behavior, retry rules, capture acknowledgements/drop handling and resume/completion state. Do not hardcode historical 10,000-block observations as universal geometry.
+- [ ] **DEEP-BINARY DB-04:** `LWB-R6-052` now recovers positive map-dimension validation, exact block-grid cardinality `ceil(tileWidth/20) * ceil(tileHeight/20)`, initial total/read/unread/failed/inflight counters, and the scalar direct-completion prerequisite `completedBlocks + failedBlocks == totalBlocks && failedBlocks == 0`. Continue recovering authoritative block traversal/order/request coordinates, scheduler/tick behavior, retry rules, capture acknowledgements/drop handling, the additional non-scalar completion input, and resume/publication state. Do not hardcode historical 10,000-block observations as universal geometry.
 - [ ] Implement one run identity scoped to profile/session/server/world/geometry/selected types/mode; reject duplicate Start and stale/foreign results.
 - [ ] Implement Normal and Fast through the same scheduler with recovered concurrency `8` and `20`. Additional mode-specific behavior stays fail-closed until recovered.
 - [ ] Implement actual Stop/cancel/drain ownership, including Stop-before-acceptance, mid-read, pre/post-commit decisions, connection loss and shutdown.

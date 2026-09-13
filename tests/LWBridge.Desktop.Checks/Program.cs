@@ -3492,6 +3492,31 @@ catch (BridgeCommandException error)
     Check(error.Code == "INVALID_SCAN_MODE", "unknown scan mode is rejected");
 }
 
+// LWB-R6-052: recovered direct-scan block-grid cardinality and scalar completion prerequisite.
+MapScanBlockGrid oneBlockGrid = MapScanGeometry.FromTileDimensions(20, 20);
+Check(oneBlockGrid == new MapScanBlockGrid(1, 1, 1),
+    "20x20 map dimensions recover one direct scan block");
+MapScanBlockGrid boundaryGrid = MapScanGeometry.FromTileDimensions(21, 41);
+Check(boundaryGrid == new MapScanBlockGrid(2, 3, 6),
+    "direct scan block grid uses ceil(tileWidth/20) by ceil(tileHeight/20)");
+MapScanInitialCounters initialScanCounters = MapScanGeometry.InitialCounters(boundaryGrid);
+Check(initialScanCounters == new MapScanInitialCounters(6, 0, 6, 0, 0),
+    "direct scan counters initialize total/unread from the recovered grid with other block counts zero");
+Check(MapScanGeometry.MeetsRecoveredScalarCompletionPrerequisite(6, 6, 0),
+    "direct scan scalar completion prerequisite accepts all blocks completed with zero failures");
+Check(!MapScanGeometry.MeetsRecoveredScalarCompletionPrerequisite(6, 5, 0) &&
+      !MapScanGeometry.MeetsRecoveredScalarCompletionPrerequisite(6, 5, 1),
+    "direct scan scalar completion prerequisite rejects incomplete or failed block accounting");
+try
+{
+    MapScanGeometry.FromTileDimensions(0, 20);
+    failures.Add("nonpositive direct scan dimensions are rejected");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "MAP_SIZE_UNAVAILABLE", "nonpositive direct scan dimensions use recovered MAP_SIZE_UNAVAILABLE");
+}
+
 // Recovered Map Data query envelope: eight kinds, page size 50 and ordered asc/desc sorts.
 using JsonDocument mapQuery = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":7,\"page\":2,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"asc\"},{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}");
 MapDataQueryOptions mapOptions = MapDataQueryContract.NormalizeSearch(mapQuery.RootElement);
