@@ -4,7 +4,7 @@
 
 **PM17 correction delivery is complete.** `LWB-PM17-001/002` are IMPLEMENTED/OFFLINE-TESTED at code revision `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`; local/origin/remote matched and GitHub Actions `34711920482` completed SUCCESS on that exact SHA. The corrected-build normal Overview Launch -> exact in-game message -> Close/restoration regression remains prepared but NOT RUN, so historical live results are not promoted to this build.
 
-**Active assignment: Map Data, Player City first.** The technical core is now LIVE-PROVEN under `LWB-PC-001/002`: two fresh city-only current-client acquisitions -> correct profile/server persistence -> normal `map_search` -> strictly newer second result -> fresh-process same-profile reopen/search persistence. The visible normal-page rendered-row confirmation remains pending PM review/owner observation; do not claim all Map Data complete.
+**Active assignment: Map Data, Player City first.** The technical core is now LIVE-PROVEN under `LWB-PC-001/002`: two fresh city-only current-client acquisitions -> correct profile/server persistence -> normal `map_search` -> strictly newer second result -> fresh-process same-profile reopen/search persistence. Review 18 accepts the technical package; the visible normal-page rendered-row confirmation now remains only as the owner observation gate. Do not claim all Map Data complete.
 
 **S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Do not expand those areas unless a minimal evidence-backed dependency is directly required by Player City, and do not claim the whole Overview or Map Data feature complete.
 

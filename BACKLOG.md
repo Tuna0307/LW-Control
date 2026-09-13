@@ -18,7 +18,8 @@
 - [x] PM17 delivered at `f24fef3`; local/origin/remote match and CI `34711920482` succeeded on the exact revision. Corrected-build normal-path live regression remains prepared but unperformed.
 - [x] Owner authorizes direct Map Data continuation after the two verified fixes; no further permission gate.
 - [x] **Player City technical core / LWB-PC-001/002:** two fresh real city-only acquisitions -> normal persisted Search/summary -> strictly newer second result -> fresh-process same-profile reopen/search; exact restoration and cleanup proven.
-- [ ] **NEXT — PM review, then owner-visible Player City row:** confirm the already-saved city renders in the normal Map Data page of the exact tested build. No fresh owner scan is requested.
+- [x] **PM review 18:** implementation `7da8665` and CI `34726315539` accepted for the prepared read-only saved-row owner check.
+- [ ] **NEXT — owner-visible Player City row:** run only `Start Owner Player City Check.cmd`, click Player City + Search once, send one screenshot, then close LWBridge. No fresh scan or game action is requested.
 - [ ] PENDING/DEFERRED: S03 complete runtime Refresh Status; S06 actual cross-server travel. S02 remains unfinished/unassigned.
 
 ### Preserved delivered OVL milestone

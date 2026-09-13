@@ -1,6 +1,6 @@
 # Owner guide - Player City visible-row check
 
-**Do not run this yet.** PM must approve the Player City package first. When PM explicitly dispatches this check, the owner only opens the prepared shortcut, confirms the already-saved Player City row is visible, sends one screenshot, and closes LWBridge normally.
+**PM review 18 approved this check.** Run it when ChatGPT asks you to do the Player City owner check. You only open the prepared shortcut, confirm the already-saved Player City row is visible, send one screenshot, and close LWBridge normally.
 
 This check is deliberately read-only. It does **not** start Last War, run a scan, travel cross-server, clear data, export, jump coordinates, or modify the saved map row. Technical capture is automatic.
 

@@ -1,16 +1,14 @@
-# Project-manager status — Player City technical return, 2026-09-13
+# Project-manager status — Player City review 18 accepted, 2026-09-13
 
-**PM17-02/01 remain delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811`.** The corrected-build Overview live regression remains prepared but unperformed; S03/S06 remain deferred and S02 remains unfinished/unassigned.
+**Review 18 decision: APPROVED for the prepared read-only owner-visible saved-row check.** The audited implementation is `7da866595089698a00d89b14cd650b849a5bac90` on `research/offline-controller`; local/remote matched and GitHub Actions run `34726315539` completed SUCCESS, including Windows job `103640930629`.
 
-**Player City technical core is ready for PM audit.** `LWB-PC-001` proves two fresh city-only current-client acquisitions on the active server with distinct owned request/session/PID identities, strictly newer capture time, real `BuildPointInfo` normalization, active-profile persistence, normal `map_search`/summary, exact official-package restoration and clean process/recovery state. `LWB-PC-002` then proves a fresh process reopens the same profile/store through `saved_profile_index` and normal `map_search` returns the saved city again.
+`LWB-PC-001` is accepted as LIVE-PROVEN for the bounded technical Player City core: two distinct fresh city-only current-client acquisitions, exact `WorldPointManager._pointInfos` source, real `BuildPointInfo` / pointType 6, strictly newer second capture, active-profile/server persistence, normal `map_search`/summary, exact package restoration and clean owned process/recovery state. `LWB-PC-002` is accepted as the separate fresh-process same-profile reopen/search proof.
 
-The previously observed failed city attempt exposed a helper exception-path restoration gap; production now retries exact restoration after a normal close of only the helper-owned exact PID when restoration cannot proceed while that owned game is open. The successful final runs required no recovery fallback and ended clean.
+PM independently parsed the committed evidence and rechecked the implementation boundaries. Shared City evidence is identity/path redacted; owner-evidence startup suppresses game auto-launch; state-changing commands are blocked before backend dispatch; City Search payload/results are sanitized; and the City DOM correlator reads only coordinates, level and updated time rather than Player/Alliance cells. The collector requires the exact launched PID/session, existing saved City context, Search→render correlation, clean postflight and no identity leak.
 
-Committed Player City evidence is identity-redacted and includes immutable result SHA-256 values. The successful runs used `StartViewRequest+UpdateViewRequest(true)`; the recovered same-server `PlayerWorldPointId + SendViewRequest(tile,current LOD,current server)` fallback is implemented/offline-tested but not live-proven.
+The successful live runs used only `StartViewRequest+UpdateViewRequest(true)`. The recovered targeted `SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)` fallback remains IMPLEMENTED/OFFLINE-TESTED, not LIVE-PROVEN. Resource SB-97, S02/S03/S06, the corrected-build Overview live regression and non-Player-City Map Data work are unchanged and not accepted by this review.
 
-**Owner action: none until PM review.** The remaining selected-path acceptance is visible normal-page rendering of the already-saved city row in the exact tested build. That future owner check does not require a fresh scan, cross-server travel, Resource Start, or technical work from the owner.
-
-The PM-return owner package is implemented and offline-tested: `Start Owner Player City Check.cmd` invokes the read-only City collector; startup game auto-launch is suppressed, state-changing commands are blocked before backend dispatch, City Search payload/results are sanitized, and DOM correlation reads only coordinates/level/updated time. Collector self-test, preflight-only and shortcut self-test pass without launching the game.
+**Owner action now:** run only `Start Owner Player City Check.cmd`, use Player City + Search once, send one screenshot of the visible saved row, then close LWBridge normally. No fresh scan, game launch, cross-server travel, Resource action, export, clear or jump is requested. [Detailed review 18](reviews/2026-09-13-review-18-player-city.md).
 
 ## Historical review 15 — deferred resource recorder work
 

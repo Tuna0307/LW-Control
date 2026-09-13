@@ -12,7 +12,7 @@ PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` under `LW
 
 ## First user-visible result — Player City
 
-### Current technical checkpoint — LIVE-PROVEN core / PM review pending
+### Current technical checkpoint — LIVE-PROVEN core / PM-approved owner check pending
 
 `LWB-PC-001` now proves two fresh **city-only** current-client acquisitions on the active server through `WorldPointManager._pointInfos`. Both helper-owned runs produced distinct request/session/PID identities and strictly newer capture time, imported one real `BuildPointInfo` city row with the recovered signed-decimal point identity, returned it through normal `map_search`, restored the official Lua package byte-exactly, exited the owned game normally and left no recovery journal. Committed evidence is identity-redacted; immutable raw result hashes are preserved.
 
@@ -27,7 +27,7 @@ PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` under `LW
 - **Validation / limits:** successful live runs used only `WorldPointManager.StartViewRequest+UpdateViewRequest(true)` and direct runtime `BuildPointInfo` fields. The same-server `PlayerWorldPointId + SendViewRequest(tile,current LOD,current server)` fallback is IMPLEMENTED/OFFLINE-TESTED but was not exercised live. No cross-server travel, Resource Start, export or other category is proven by these findings. Owner-visible normal-page rendering remains pending PM-approved observation.
 - **Implementation impact:** `LiveResourceProbeCommandService`, `FirstLiveResultImporter`, `LiveResourceProofRunner`, `current_live_resource_probe.lua`, helper lifecycle/restoration, owner-evidence instrumentation and deterministic checks now support the bounded Player City path. The full 47-case Map Data scope remains open.
 
-The final **visible normal Map Data row** remains an owner-observed acceptance step. Per owner sequencing, do not request that check before PM reviews this package. No Resource Start, cross-server travel, auto scan, export or unrelated category action is part of this checkpoint. The recovered `PlayerWorldPointId + SendViewRequest(tile,current LOD,current server)` city fallback is IMPLEMENTED/OFFLINE-TESTED but was not exercised by the successful live runs, so it is not labelled LIVE-PROVEN.
+The final **visible normal Map Data row** remains an owner-observed acceptance step. Review 18 approved that read-only saved-row check against implementation `7da8665`; it is now the next gate. No Resource Start, cross-server travel, auto scan, export or unrelated category action is part of this checkpoint. The recovered `PlayerWorldPointId + SendViewRequest(tile,current LOD,current server)` city fallback is IMPLEMENTED/OFFLINE-TESTED but was not exercised by the successful live runs, so it is not labelled LIVE-PROVEN.
 
 Retain the existing queued category order, beginning with **Player City (`city`)**. Work on one complete normal-page path: acquire fresh real city data from the current permitted game session -> persist it for the correct profile/server -> Search -> display the returned cities in Map Data. The [full task contract](../task.md) and [feature ledger](lwbridge-feature-ledger.md) remain authoritative for existing commands, filters and all 47 acceptance cases; this document sets delivery order rather than duplicating or weakening them.
 
