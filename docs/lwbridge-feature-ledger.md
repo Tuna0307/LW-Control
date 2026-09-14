@@ -121,3 +121,9 @@ node tools/check_lwbridge_transport_boundary.cjs
 ```
 
 Review 9 reran build/backend and frontend/preference/transport checks; refreshed read-only runtime/health comparison. No new binary-analysis/game action/host screenshot matrix. See [review evidence](../evidence/lwbridge-implementation/2026-09-10-pm-review-9.json).
+
+## Current-client v16 update-safety checkpoint — 2026-09-14
+
+| Capability | Status | Evidence / impact |
+|---|---|---|
+| Overview launcher update safety | LIVE-PROVEN diagnosis / implementation pending | `LWB-V16-001/002` in [`lastwar-v16-update-safe-lifecycle.md`](lastwar-v16-update-safe-lifecycle.md) proves the same official v14→v16 Lua patch fails against the temporary modified package and succeeds against untouched official bytes. v16 keeps the xLua, Assembly-CSharp, LuaEntry, AOI and City→World anchors unchanged. Production must settle/update untouched files before temporary Overview installation; current production constants/order remain pending because the exact lifecycle edit operation is restricted. |

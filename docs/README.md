@@ -182,3 +182,7 @@ Start with the active [`map-data-delivery.md`](map-data-delivery.md) and [`team-
 - **UNKNOWN/BLOCKED** — still unresolved.
 
 Temporary analysis under `.codex-live/lwbridge-*` is convenience material only. Durable conclusions belong in this directory or under `evidence/`.
+
+## 2026-09-14 current-client v16 update-safety
+
+- [`lastwar-v16-update-safe-lifecycle.md`](lastwar-v16-update-safe-lifecycle.md) records `LWB-V16-001/002`: live proof that the official v14→v16 Lua patch fails against the temporary modified package but succeeds against untouched official bytes, the exact v16 package fingerprint, unchanged xLua/Assembly/LuaEntry/AOI/City→World anchors, the required updater-safe two-phase Overview launch policy, and current integration restrictions. Reproduce the current fingerprint/critical-entry checks with `python tools/check_v16_update_safe_prereqs.py`.
