@@ -6,12 +6,14 @@ using System.Text.Json;
 namespace LWBridge.Desktop;
 
 // OVL-02/03/04 IMPLEMENTATION POLICY: the Overview lifecycle deliberately uses
-// the independently proven current-v14 LuaEntry execution route.  It does not
+// the independently proven current-client LuaEntry execution route. It does not
 // claim to reproduce the still-unrecovered original launch-proof/ticket or
 // hello.ack protocol. READY requires a fresh, exact-session game-side response.
 internal sealed class OverviewLifecycleTestHooks
 {
     public Func<OverviewHelperInvocation, CancellationToken, Task<JsonElement>>? RunHelperAsync { get; init; }
+    public Func<string, CancellationToken, Task>? RunOfficialRecoverAsync { get; init; }
+    public Func<string, CancellationToken, Task>? RunOfficialSettleAsync { get; init; }
     public Func<int, string, string?, bool>? ProcessMatches { get; init; }
     public Func<string, byte[]>? ReadAllBytes { get; init; }
     public Action<string, string, string>? WriteLease { get; init; }
@@ -33,13 +35,15 @@ internal sealed record OverviewHelperInvocation(
     string? Challenge,
     int? GamePid,
     string? GamePath,
-    string? GameStartedAtUtc);
+    string? GameStartedAtUtc,
+    int? TimeoutSeconds = null,
+    int? SupervisionMilliseconds = null);
 
 internal sealed partial class OverviewLifecycleService : INativeAsyncCommandService, IDisposable
 {
     internal const string BridgeVersion = "lwbridge-overview-bridge-1";
     internal const string ReadyMessage = "LWbridge is running";
-    private const string ExpectedPackageSha256 = "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace";
+    private const string ExpectedPackageSha256 = "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4";
     private const string ExpectedXluaSha256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f";
     private const string ExpectedAssemblyCSharpSha256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd";
     private static readonly TimeSpan HeartbeatFreshness = TimeSpan.FromSeconds(5);
@@ -86,7 +90,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
         this.gameRoot = string.IsNullOrWhiteSpace(gameRoot) ? null : Path.GetFullPath(gameRoot);
-        this.helperPath = helperPath ?? Path.Combine(AppContext.BaseDirectory, "OverviewBridge", "run_overview_bridge.py");
+        this.helperPath = helperPath ?? Path.Combine(AppContext.BaseDirectory, "OverviewBridge", "run_overview_bridge_current.py");
         this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(190);
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         this.config = config;
@@ -547,9 +551,29 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
         try
         {
-            JsonElement helper = await RunHelperAsync(
-                new OverviewHelperInvocation("start", profileId, newSession, newChallenge, null, null, null),
-                cancellationToken).ConfigureAwait(false);
+            OverviewHelperInvocation startInvocation;
+            if (testHooks is null)
+            {
+                long startDeadline = checked(
+                    RecoveryClockMilliseconds() + (long)helperSupervisionTimeout.TotalMilliseconds);
+                await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken, startDeadline).ConfigureAwait(false);
+                long remainingMilliseconds = startDeadline - RecoveryClockMilliseconds();
+                if (remainingMilliseconds < 10_000)
+                    throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
+                        "The official client settled, but no bounded start window remained for the Overview bridge.");
+                int timeoutSeconds = (int)Math.Min(120, remainingMilliseconds / 1000);
+                int supervisionMilliseconds = (int)Math.Min(int.MaxValue, remainingMilliseconds);
+                startInvocation = new OverviewHelperInvocation(
+                    "start", profileId, newSession, newChallenge, null, null, null,
+                    timeoutSeconds, supervisionMilliseconds);
+            }
+            else
+            {
+                await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken).ConfigureAwait(false);
+                startInvocation = new OverviewHelperInvocation(
+                    "start", profileId, newSession, newChallenge, null, null, null);
+            }
+            JsonElement helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
             lock (stateGate)
@@ -673,6 +697,13 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         if (testHooks?.RunHelperAsync is { } testRunner)
             return await testRunner(invocation, cancellationToken).ConfigureAwait(false);
 
+        string operationHelperPath = invocation.Operation == "preflight-recover"
+            ? Path.Combine(Path.GetDirectoryName(helperPath) ?? AppContext.BaseDirectory,
+                "recover_overview_pending_current.py")
+            : helperPath;
+        if (!File.Exists(operationHelperPath))
+            throw new InvalidOperationException($"Overview helper is missing: {operationHelperPath}");
+
         var start = new ProcessStartInfo
         {
             FileName = "python",
@@ -680,21 +711,28 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true,
-            WorkingDirectory = Path.GetDirectoryName(helperPath) ?? AppContext.BaseDirectory,
+            WorkingDirectory = Path.GetDirectoryName(operationHelperPath) ?? AppContext.BaseDirectory,
         };
-        start.ArgumentList.Add(helperPath);
-        start.ArgumentList.Add(invocation.Operation);
+        start.ArgumentList.Add(operationHelperPath);
+        if (invocation.Operation != "preflight-recover")
+            start.ArgumentList.Add(invocation.Operation);
         if (gameRoot is not null)
         {
             start.ArgumentList.Add("--game-root");
             start.ArgumentList.Add(gameRoot);
         }
-        if (invocation.Operation == "start")
+        if (invocation.Operation == "preflight-recover")
+        {
+            // The recovery helper needs only the selected game root supplied above.
+        }
+        else if (invocation.Operation == "start")
         {
             start.ArgumentList.Add("--profile-id"); start.ArgumentList.Add(invocation.ProfileId);
             start.ArgumentList.Add("--session-id"); start.ArgumentList.Add(invocation.SessionId!);
             start.ArgumentList.Add("--challenge"); start.ArgumentList.Add(invocation.Challenge!);
-            start.ArgumentList.Add("--timeout-seconds"); start.ArgumentList.Add("120");
+            int timeoutSeconds = invocation.TimeoutSeconds ?? 120;
+            start.ArgumentList.Add("--timeout-seconds");
+            start.ArgumentList.Add(timeoutSeconds.ToString(CultureInfo.InvariantCulture));
         }
         else
         {
@@ -717,12 +755,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
             Task<string> stderrTask = process.StandardError.ReadToEndAsync();
             Task exitTask = process.WaitForExitAsync(CancellationToken.None);
-            Task completed = await Task.WhenAny(exitTask, Task.Delay(helperSupervisionTimeout, CancellationToken.None)).ConfigureAwait(false);
+            TimeSpan supervision = invocation.SupervisionMilliseconds is int requestedSupervision
+                ? TimeSpan.FromMilliseconds(requestedSupervision)
+                : helperSupervisionTimeout;
+            Task completed = await Task.WhenAny(exitTask, Task.Delay(supervision, CancellationToken.None)).ConfigureAwait(false);
             if (!ReferenceEquals(completed, exitTask))
             {
                 retainHelperOwnership = true;
                 _ = ReleaseRetainedHelperAfterExitAsync(process, exitTask, stdoutTask, stderrTask);
-                throw new TimeoutException($"Overview bridge helper exceeded {helperSupervisionTimeout.TotalSeconds:0.#} seconds; the helper retains cleanup ownership.");
+                throw new TimeoutException($"Overview bridge helper exceeded {supervision.TotalSeconds:0.#} seconds; the helper retains cleanup ownership.");
             }
             await exitTask.ConfigureAwait(false);
             string stdout = await stdoutTask.ConfigureAwait(false);

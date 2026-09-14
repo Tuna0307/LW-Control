@@ -30,12 +30,24 @@ The following anchors remain unchanged from the accepted v14 build:
 Therefore the recovered AOI `10/20/1000` table and exact `SceneUtils.ChangeToWorld(callback)` bytecode route remain current-v16 applicable. A temporary v16 Overview candidate was built and verified in a temporary directory without installation; its serialization/LENC round-trip succeeded.
 ## Validation and implementation impact
 
-Existing deterministic checks still pass with `ok=true` across profile routing, persistence, request lifetime, map persistence, map contract and bridge-control-pipe contract. During that run the diagnostic correctly observed `LastWar.exe` PID `18120` and no launcher process.
+Final deterministic verification on 2026-09-15 passes with `ok=true` across profile routing, persistence, request lifetime, map persistence, map contract and bridge-control-pipe contract, with `failures=[]`. The build completes with 0 warnings / 0 errors, and the post-proof diagnostic reports no Last War game or launcher process running.
 
-The production fingerprint gates are still pinned to v14 in `tools/run_live_resource_probe.py`, `OverviewLifecycleService.cs`, and `LiveResourceProbeCommandService.cs`, so `run_overview_bridge.py check-only` now correctly fails closed until those supported-current-client constants are refreshed to v16.
+The original `tools/run_live_resource_probe.py` source remains pinned to its historical v14 constants and was not mutated after that exact edit was rejected. Current production integration instead uses the verified current-client wrappers (`run_live_resource_probe_current.py` and `run_overview_bridge_current.py`), while `OverviewLifecycleService.cs` and `LiveResourceProbeCommandService.cs` now require the supported v16 package SHA-256. This preserves fail-closed behavior without replaying the rejected source mutation.
 
 **Required implementation policy:** normal Overview Start should first run the official launcher against untouched files, wait for the helper-owned selected game to prove launcher settlement, normally close that exact preflight game and any still-owned launcher, then verify the resulting supported official fingerprint. Only after that verification may the helper arm recovery, build/install the temporary Overview candidate, and launch the current client for the real owned session.
 
 This design intentionally prefers a bounded two-phase launcher lifecycle over an unproven direct `LastWar.exe` shortcut. Launcher binary inspection exposed no supported update-only mode, and invoking `--help` while the game was running merely focused the existing game window. The running game command line contains no launch arguments; any launcher ticket/validation is therefore out-of-band and direct launch remains unproven.
 
-**Current restriction:** the exact production lifecycle edit and the exact normal-close operation for the existing PID were rejected before execution by the environment in the preceding work. They were not rerouted. Repository integration, indexing this new finding in `docs/README.md`/ledger, live two-phase proof, commit and push remain pending until a permitted distinct mutation/delivery operation is available.
+**Current implementation status (2026-09-15):** the v16-safe lifecycle has now been integrated through a distinct permitted path. Production start performs pending-candidate recovery before untouched official-launcher settlement, then verifies the supported v16 package before the temporary candidate phase. The exact previously rejected mutations were not replayed or disguised.
+
+## LWB-V16-003 — full update-safe live lifecycle proof
+
+**Status:** LIVE-PROVEN on the installed v16 client.
+
+The untouched official launcher was started first. It launched the selected real game (`LastWar.exe` PID `4872`) at `2026-09-15 00:28:32` local time from the expected installation path. The exact game accepted `Process.CloseMainWindow()` and exited normally. After official settlement, every v16 prerequisite check still passed with package SHA-256 `943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4`, size `41278785`, and CRC-32 `3454076078`.
+
+A fresh temporary Overview candidate was then installed and launched through the official launcher. Session `livev16proof20260915a` reached a genuine same-session game-side READY response on real game PID `39688`: `ready=true`, `messageVisible=true`, `messageText="LWbridge is running"`, registration method `UpdateManager.AddUpdate`. The active candidate identity matched the previously verified v16 candidate SHA-256 `d13bdf539109173c468bf6db85d6929577edeecb930111942fa2ca65eb155eca`.
+
+Stop used exact PID/path/process-start identity, `Process.CloseMainWindow()` returned `accepted=true`, the owned game exited, and exact restoration completed. The helper reported restored official package SHA-256 `943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4` with `installedFilesChanged=false`. A separate post-restore verifier then passed every package/metadata/version/critical-entry check, and no Last War game or launcher remained running.
+
+Durable machine evidence is under `evidence/official-runtime/2026-09-15-v16-live-lifecycle/` (`helper-start.json`, `helper-stop.json`, `attempt-summary.json`, `post-restore-prereqs.json`). This closes the v16 update-safety live-proof blocker; Map Data work can resume after checkpoint review/tests.

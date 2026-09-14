@@ -17,7 +17,7 @@ internal sealed class LiveResourceProbeTestHooks
 internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandService
 {
     private const string ExpectedProbeVersion = "lwbridge-live-resource-probe-2";
-    private const string ExpectedPackageSha256 = "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace";
+    private const string ExpectedPackageSha256 = "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4";
     private const string ExpectedXluaSha256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f";
     private const string ExpectedAssemblyCSharpSha256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd";
     private readonly MapDataStore store;
@@ -55,7 +55,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.helperPath = helperPath ?? Path.Combine(
-            AppContext.BaseDirectory, "LiveResourceProbe", "run_live_resource_probe.py");
+            AppContext.BaseDirectory, "LiveResourceProbe", "run_live_resource_probe_current.py");
         this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(135);
         this.gameRoot = string.IsNullOrWhiteSpace(gameRoot) ? null : Path.GetFullPath(gameRoot);
         this.profileId = string.IsNullOrWhiteSpace(profileId) ? null : profileId;

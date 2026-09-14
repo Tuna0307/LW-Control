@@ -3,6 +3,7 @@ using System.Diagnostics;
 using LWBridge.Desktop;
 
 var failures = new List<string>();
+await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 
 void Check(bool condition, string name)
 {
