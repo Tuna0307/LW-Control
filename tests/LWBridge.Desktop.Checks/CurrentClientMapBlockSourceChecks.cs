@@ -19,10 +19,12 @@ internal static class CurrentClientMapBlockSourceChecks
 
     private static async Task RunAsync()
     {
+        await ContextCarriesOptionalPlayerTile();
         await ResourceViewEnumeratesAndFilters();
         await EmptyResourceViewIsAZeroRowCapture();
         await LodZeroAcquiresAllFourCells();
         await LodTwoFiltersSupersetToRequestedBlock();
+        await EmptyCityCurrentViewIsAZeroRowCapture();
         await TargetedCityFallbackFailsClosed();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await MissingOwnedSessionFailsClosed();
@@ -33,6 +35,14 @@ internal static class CurrentClientMapBlockSourceChecks
 
     private static MapScanTargetBlock Block() =>
         new(0, 0, 0, 0, 0, 19, 19, 9, 9);
+
+    private static async Task ContextCarriesOptionalPlayerTile()
+    {
+        CurrentClientMapBlockSource source = CreateSource((fields, _) => FailedEmptyResource(fields));
+        CurrentClientMapContext context = await source.GetCurrentContextAsync(CancellationToken.None);
+        Check(context.PlayerTileX == 495 && context.PlayerTileY == 40,
+            "world-ready context should preserve optional source-backed player tile metadata");
+    }
 
     private static async Task ResourceViewEnumeratesAndFilters()
     {
@@ -116,6 +126,24 @@ internal static class CurrentClientMapBlockSourceChecks
               cell.GetProperty("maxX").GetInt32() == 39 && cell.GetProperty("maxY").GetInt32() == 39 &&
               payload.RootElement.GetProperty("recordsInBlock").GetInt32() == 1,
             "server LOD 2 checkpoint should preserve the clamped superset AOI cell and filtered result count");
+    }
+
+    private static async Task EmptyCityCurrentViewIsAZeroRowCapture()
+    {
+        bool fallbackDisabled = false;
+        CurrentClientMapBlockSource source = CreateSource((fields, mapKind) =>
+        {
+            Check(mapKind == "city", "empty-city block test received the wrong map kind");
+            fallbackDisabled = fields.TryGetValue("allowCityTargetedFallback", out string? value) && value == "false";
+            return ProvenEmptyCityCurrentView(fields);
+        });
+
+        MapScanBlockCapture capture = await source.CaptureAsync(Request("city"), Block(), CancellationToken.None);
+        Check(fallbackDisabled, "shared Player City block source must disable the bounded home-city fallback");
+        Check(capture.Records.Count == 0, "fresh empty Player City current view should produce zero staged rows");
+        using JsonDocument payload = JsonDocument.Parse(capture.PayloadJson);
+        Check(payload.RootElement.GetProperty("cells")[0].GetProperty("matchedCount").GetInt32() == 0,
+            "fresh empty Player City current view should checkpoint zero candidates for its AOI cell");
     }
 
     private static async Task TargetedCityFallbackFailsClosed()
@@ -251,6 +279,8 @@ internal static class CurrentClientMapBlockSourceChecks
             worldId = 0,
             tileWidth = 1000,
             tileHeight = 1000,
+            playerTileX = 495,
+            playerTileY = 40,
         }, JsonOptions.Default);
 
     private static string NavigationResult(
@@ -345,6 +375,27 @@ internal static class CurrentClientMapBlockSourceChecks
             mapKind = "resource",            state = "failed",
             capturedAt = Timestamp(),
             error = "no resource point is loaded after the fresh view response",
+        }, JsonOptions.Default);
+
+    private static string ProvenEmptyCityCurrentView(IReadOnlyDictionary<string, string> fields) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"],
+            launchSessionId = fields["launchSessionId"],
+            profileId = fields["profileId"],
+            gamePid = int.Parse(fields["gamePid"]),
+            mapKind = "city",
+            acquisitionOrdinal = 1,
+            state = "proven",
+            capturedAt = Timestamp(),
+            requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+            responseEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+            source = "WorldPointManager._pointInfos",
+            loadedPointCount = 0,
+            cityPointCount = 0,
+            point_records = Array.Empty<object>(),
         }, JsonOptions.Default);
 
     private static string ProvenCityTargeted(IReadOnlyDictionary<string, string> fields) =>

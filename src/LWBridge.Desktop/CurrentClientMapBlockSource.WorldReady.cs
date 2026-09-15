@@ -7,7 +7,9 @@ internal sealed record CurrentClientMapContext(
     int ServerId,
     long WorldId,
     int TileWidth,
-    int TileHeight);
+    int TileHeight,
+    int? PlayerTileX = null,
+    int? PlayerTileY = null);
 
 internal sealed partial class CurrentClientMapBlockSource
 {
@@ -86,7 +88,21 @@ internal sealed partial class CurrentClientMapBlockSource
                 throw new InvalidDataException("World-readiness result worldId is missing or invalid.");
             int tileWidth = RequirePositiveInt(root, "tileWidth");
             int tileHeight = RequirePositiveInt(root, "tileHeight");
-            return new CurrentClientMapContext(serverId, worldId, tileWidth, tileHeight);
+            int? playerTileX = null;
+            int? playerTileY = null;
+            bool hasPlayerTileX = root.TryGetProperty("playerTileX", out JsonElement playerXValue);
+            bool hasPlayerTileY = root.TryGetProperty("playerTileY", out JsonElement playerYValue);
+            if (hasPlayerTileX != hasPlayerTileY)
+                throw new InvalidDataException("World-readiness result player tile is incomplete.");
+            if (hasPlayerTileX)
+            {
+                if (!playerXValue.TryGetInt32(out int parsedX) || parsedX < 0 || parsedX >= tileWidth ||
+                    !playerYValue.TryGetInt32(out int parsedY) || parsedY < 0 || parsedY >= tileHeight)
+                    throw new InvalidDataException("World-readiness result player tile is outside the live map dimensions.");
+                playerTileX = parsedX;
+                playerTileY = parsedY;
+            }
+            return new CurrentClientMapContext(serverId, worldId, tileWidth, tileHeight, playerTileX, playerTileY);
         }
         if (state == "failed")
             throw new BridgeCommandException(

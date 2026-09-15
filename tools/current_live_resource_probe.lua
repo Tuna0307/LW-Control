@@ -23,6 +23,7 @@ local active_launch_session_id = nil
 local active_profile_id = nil
 local active_game_pid = nil
 local active_map_kind = nil
+local active_allow_city_targeted_fallback = true
 local city_targeted_requested = false
 local city_target_point_id = nil
 local city_target_lod = nil
@@ -453,6 +454,7 @@ local function fail_request(now, message, world, point_manager)
         error = tostring(message or "live_resource_failed"),
     })
     active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil; active_map_kind = nil
+    active_allow_city_targeted_fallback = true
     city_targeted_requested = false; city_target_point_id = nil; city_target_lod = nil
     phase = "idle"; response_started_at = nil
 end
@@ -580,7 +582,9 @@ local function city_record(world, point_manager)
         return true
     end)
     if scanned ~= expected then return nil, "loaded point enumeration did not match _pointInfos.Count" end
-    if #candidates == 0 then return nil, "no Player City point is loaded after the fresh view response" end
+    if #candidates == 0 then
+        return nil, "no Player City point is loaded after the fresh view response", 0, expected, nil, {}
+    end
     local selected_index = ((acquisition_ordinal - 1) % #candidates) + 1
     local ordered = { candidates[selected_index] }
     for index = 1, #candidates do
@@ -604,6 +608,13 @@ local function read_command()
     local profile_id = tostring(values.profileId or "")
     local game_pid = tonumber(values.gamePid)
     local map_kind = tostring(values.mapKind or "")
+    local allow_city_targeted_fallback = true
+    if values.allowCityTargetedFallback == "false" then
+        allow_city_targeted_fallback = false
+    elseif values.allowCityTargetedFallback ~= nil and values.allowCityTargetedFallback ~= "" and
+           values.allowCityTargetedFallback ~= "true" then
+        return false, "invalid_command"
+    end
     local valid_token = function(value)
         return #value > 0 and #value <= 128 and string.match(value, "^[%w_-]+$") ~= nil
     end
@@ -619,6 +630,7 @@ local function read_command()
         profileId = profile_id,
         gamePid = game_pid,
         mapKind = map_kind,
+        allowCityTargetedFallback = allow_city_targeted_fallback,
     }, nil
 end
 
@@ -1103,6 +1115,7 @@ function M.Pump()
             active_profile_id = command.profileId
             active_game_pid = command.gamePid
             active_map_kind = command.mapKind
+            active_allow_city_targeted_fallback = command.allowCityTargetedFallback ~= false
             request_started_at = runtime_clock()
             acquisition_ordinal = acquisition_ordinal + 1
             transition_requested = false
@@ -1147,15 +1160,22 @@ function M.Pump()
             else
                 point, point_error, matched_count, loaded_count, selected_index, point_records = resource_record(world, point_manager)
             end
-            if point == nil and active_map_kind == "city" and response_phase == "waiting_response" and not city_targeted_requested then
+            if point == nil and active_map_kind == "city" and response_phase == "waiting_response" and
+               not city_targeted_requested and active_allow_city_targeted_fallback then
                 local targeted, target_error = begin_targeted_city_refresh(world, point_manager)
                 if targeted then write_heartbeat(now); return true end
                 restore_flags(world, point_manager)
                 fail_request(now, tostring(point_error) .. "; targeted city request unavailable: " .. tostring(target_error), world, point_manager)
                 write_heartbeat(now); return true
             end
+            local proven_empty_city = point == nil and active_map_kind == "city" and
+                response_phase == "waiting_response" and not active_allow_city_targeted_fallback and
+                point_error == "no Player City point is loaded after the fresh view response" and
+                matched_count == 0 and type(point_records) == "table" and #point_records == 0
             local restored = restore_flags(world, point_manager)
-            if point == nil then fail_request(now, point_error, world, point_manager); write_heartbeat(now); return true end
+            if point == nil and not proven_empty_city then
+                fail_request(now, point_error, world, point_manager); write_heartbeat(now); return true
+            end
             if not restored then fail_request(now, "response flags did not restore", world, point_manager); write_heartbeat(now); return true end
             local route = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)"
             local response_evidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true"
@@ -1191,6 +1211,7 @@ function M.Pump()
                 point_records = point_records or { point },
             })
             active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil; active_map_kind = nil
+            active_allow_city_targeted_fallback = true
             city_targeted_requested = false; city_target_point_id = nil; city_target_lod = nil
             phase = "idle"; response_started_at = nil
         elseif response_started_at ~= nil and runtime_clock() - response_started_at >= RESPONSE_TIMEOUT_SECONDS then

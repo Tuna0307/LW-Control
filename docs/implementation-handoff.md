@@ -1,10 +1,10 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current superseding checkpoint — LWB-R7-004, 2026-09-15
+## Current superseding checkpoint — LWB-R7-004/005, 2026-09-15
 
-`LWB-R7-004` supersedes the older one-view/resource sequencing below for current work. Ordinary production `map_scan_start/status/stop` now routes through `ManualMapScanCommandService` and the shared `MapScanEngine`; current-v16 live `serverId/worldId/WorldScene.TileCount`, arbitrary-target AOI-backed Resource blocks, one real Normal engine block, and bounded Stop-to-idle are LIVE-PROVEN. Normal/Fast share the service with recovered concurrency `8/20`; camera acquisition remains intentionally single-owner/sequential because original `XluaBridgeMapScanTick` pacing is unrecovered.
+`LWB-R7-004/005` supersede the older one-view/resource sequencing below for current work. Ordinary production `map_scan_start/status/stop` routes through `ManualMapScanCommandService` and the shared `MapScanEngine`; current-v16 live context, arbitrary-target AOI-backed Resource and Player City blocks, proven zero-city current-view cells, one real Normal engine block, and bounded Stop-to-idle are LIVE-PROVEN. Normal/Fast share the service with recovered concurrency `8/20`; camera acquisition remains intentionally single-owner/sequential because original `XluaBridgeMapScanTick` pacing is unrecovered.
 
-The immediate acceptance target is **Player City through the same ordinary Manual Start path**, then a complete run, guarded publication, normal Search/render and reopen. Do not claim full-world completion from the one-block proof. Native acknowledgement/removal/drain semantics, mixed selected types and the remaining six kinds remain open. `LWB-R7-004` evidence is `evidence/lwbridge-implementation/2026-09-15-r7-current-client-manual-block-proof.json`; detailed source/limits are in `docs/lwbridge-map-scan.md`. Sections below retain historical review context where useful but do not override this checkpoint.
+The immediate acceptance target is a **complete Player City run through the same ordinary Manual Start path**, followed by guarded publication, normal Search/render and reopen. Do not claim full-world completion from the bounded proofs. Native acknowledgement/removal/drain semantics, mixed selected types and the remaining six kinds remain open. Evidence is `2026-09-15-r7-current-client-manual-block-proof.json` plus `2026-09-15-r7-player-city-block-proof.json`; detailed source/limits are in `docs/lwbridge-map-scan.md`. Sections below retain historical review context where useful but do not override this checkpoint.
 
 ## Current owner priority — Player City active, 2026-09-13
 

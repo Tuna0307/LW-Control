@@ -18,7 +18,7 @@ internal static class LiveCurrentClientMapBlockProof
         using var lifecycle = new OverviewLifecycleService(
             "current-block-live-proof",
             gameRoot);
-        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(4));
+        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
         string? instanceId = null;
         Exception? operationError = null;
         try
@@ -57,6 +57,8 @@ internal static class LiveCurrentClientMapBlockProof
                 request,
                 block,
                 operationCts.Token).ConfigureAwait(false);
+            object cityBlockProof = await RunCityBlockCoverageProofAsync(
+                source, context, operationCts.Token).ConfigureAwait(false);
             object manualScan = await LiveManualMapScanProof.RunAsync(
                 source, context, operationCts.Token).ConfigureAwait(false);
             AoiDiagnosticObservation[] aoiDiagnostics =
@@ -73,6 +75,7 @@ internal static class LiveCurrentClientMapBlockProof
                 sessionId = session.SessionId,
                 gamePid = session.GamePid,
                 liveContext = context,
+                cityBlockProof,
                 manualScan,
                 aoiDiagnostics,
                 block = new
@@ -121,6 +124,88 @@ internal static class LiveCurrentClientMapBlockProof
                 }
             }
         }
+    }
+
+    private static async Task<object> RunCityBlockCoverageProofAsync(
+        CurrentClientMapBlockSource source,
+        CurrentClientMapContext context,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(context.TileWidth, context.TileHeight);
+        MapScanTargetBlock FindBlock(int x, int y) => blocks.Single(candidate =>
+            candidate.MinX <= x && candidate.MaxX >= x && candidate.MinY <= y && candidate.MaxY >= y);
+
+        int targetX = context.PlayerTileX ?? 495;
+        int targetY = context.PlayerTileY ?? 40;
+        MapScanTargetBlock cityBlock = FindBlock(targetX, targetY);
+        var request = new MapScanExecutionRequest(
+            "live_current_client_city_block_proof",
+            context.ServerId,
+            context.WorldId,
+            context.TileWidth,
+            context.TileHeight,
+            ["city"],
+            1,
+            1);
+        MapScanBlockCapture cityCapture = await source.CaptureAsync(request, cityBlock, cancellationToken)
+            .ConfigureAwait(false);
+        using JsonDocument cityPayload = JsonDocument.Parse(cityCapture.PayloadJson);
+        int[] cityCellCounts = cityPayload.RootElement.GetProperty("cells").EnumerateArray()
+            .Select(cell => cell.GetProperty("matchedCount").GetInt32()).ToArray();
+        if (cityCapture.Records.Count == 0)
+            throw new InvalidDataException("Current Player City block returned no in-block city records.");
+
+        object? emptyProof = null;
+        var seen = new HashSet<int>();
+        foreach ((int x, int y) in new[]
+                 {
+                     (0, 0), (context.TileWidth - 1, 0),
+                     (0, context.TileHeight - 1), (context.TileWidth - 1, context.TileHeight - 1),
+                 })
+        {
+            MapScanTargetBlock candidate = FindBlock(x, y);
+            if (!seen.Add(candidate.BlockIndex) || candidate.BlockIndex == cityBlock.BlockIndex) continue;
+            MapScanBlockCapture edgeCapture = await source.CaptureAsync(request, candidate, cancellationToken)
+                .ConfigureAwait(false);
+            using JsonDocument edgePayload = JsonDocument.Parse(edgeCapture.PayloadJson);
+            int[] counts = edgePayload.RootElement.GetProperty("cells").EnumerateArray()
+                .Select(cell => cell.GetProperty("matchedCount").GetInt32()).ToArray();
+            if (!counts.Any(count => count == 0)) continue;
+            emptyProof = new
+            {
+                candidate.BlockIndex,
+                candidate.MinX,
+                candidate.MinY,
+                candidate.MaxX,
+                candidate.MaxY,
+                recordsInBlock = edgeCapture.Records.Count,
+                cellMatchedCounts = counts,
+            };
+            break;
+        }
+        if (emptyProof is null)
+            throw new InvalidDataException("Bounded edge search did not encounter a proven zero-city current-view AOI cell.");
+
+        return new
+        {
+            proof = "current_client_city_block_current_view_only",
+            targetSource = context.PlayerTileX.HasValue && context.PlayerTileY.HasValue
+                ? "live_player_world_point_tile"
+                : "sanitized_prior_city_tile",
+            targetX,
+            targetY,
+            cityBlock = new
+            {
+                cityBlock.BlockIndex,
+                cityBlock.MinX,
+                cityBlock.MinY,
+                cityBlock.MaxX,
+                cityBlock.MaxY,
+                recordsInBlock = cityCapture.Records.Count,
+                cellMatchedCounts = cityCellCounts,
+            },
+            emptyCurrentView = emptyProof,
+        };
     }
 
     internal static async Task RunRuntimeDiagnosticOnlyAsync()

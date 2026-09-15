@@ -474,6 +474,17 @@ local function current_map_context()
     local tile_count = safe_get(world, "TileCount") or reflected_value(world, "TileCount")
     local tile_width = tonumber(tile_count and (safe_get(tile_count, "x") or safe_get(tile_count, "X")))
     local tile_height = tonumber(tile_count and (safe_get(tile_count, "y") or safe_get(tile_count, "Y")))
+    local player_tile_x, player_tile_y = nil, nil
+    local player_point_id = tonumber(safe_get(player, "PlayerWorldPointId"))
+    if player_point_id ~= nil and player_point_id > 0 and player_point_id == math.floor(player_point_id) then
+        local ok_player_tile, player_tile = call(world, "IndexToTilePos", math.floor(player_point_id))
+        if ok_player_tile and player_tile ~= nil then
+            player_tile_x = tonumber(safe_get(player_tile, "x") or safe_get(player_tile, "X"))
+            player_tile_y = tonumber(safe_get(player_tile, "y") or safe_get(player_tile, "Y"))
+            if player_tile_x ~= nil then player_tile_x = math.floor(player_tile_x) end
+            if player_tile_y ~= nil then player_tile_y = math.floor(player_tile_y) end
+        end
+    end
     server_id = ok_server and tonumber(server_id) or nil
     world_id = ok_world and tonumber(world_id) or nil
     if server_id == nil or server_id <= 0 or server_id ~= math.floor(server_id) or
@@ -482,7 +493,10 @@ local function current_map_context()
        tile_height == nil or tile_height <= 0 or tile_height ~= math.floor(tile_height) then
         return nil
     end
-    return { serverId = server_id, worldId = world_id, tileWidth = tile_width, tileHeight = tile_height }
+    return {
+        serverId = server_id, worldId = world_id, tileWidth = tile_width, tileHeight = tile_height,
+        playerTileX = player_tile_x, playerTileY = player_tile_y,
+    }
 end
 
 local function write_world_ready_result(request, state, error_text, method)
@@ -502,6 +516,8 @@ local function write_world_ready_result(request, state, error_text, method)
         worldId = context and context.worldId or nil,
         tileWidth = context and context.tileWidth or nil,
         tileHeight = context and context.tileHeight or nil,
+        playerTileX = context and context.playerTileX or nil,
+        playerTileY = context and context.playerTileY or nil,
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
 end

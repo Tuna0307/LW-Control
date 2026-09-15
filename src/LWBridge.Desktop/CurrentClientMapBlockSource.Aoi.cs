@@ -17,7 +17,7 @@ internal sealed partial class CurrentClientMapBlockSource
         ProbeObservation snapshot = await ProbeOnceAsync(
             session, request, mapKind, cancellationToken).ConfigureAwait(false);
 
-        if (snapshot.IsEmptyResourceView)
+        if (snapshot.IsEmptyView)
             return new AoiCellCaptureSummary(cell, 0, Array.Empty<int>());
 
         AddObservation(snapshot, mapKind, block, records, selectedIndices);

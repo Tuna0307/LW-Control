@@ -293,8 +293,10 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
             $"profileId={session.ProfileId}",
             $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
             $"mapKind={mapKind}",
+            $"allowCityTargetedFallback={(mapKind == "city" ? "false" : "true")}",
             string.Empty,
-        });        await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
+        });
+        await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
         DateTimeOffset deadline = startedAt + ProbeTimeout;
 
         while (Now() < deadline)
@@ -329,7 +331,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
         string mapKind)
-    {        if (!MatchesInt(root, "schemaVersion", 1) ||
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
             !MatchesString(root, "probeVersion", ProbeVersion) ||
             !MatchesString(root, "profileId", session.ProfileId) ||
             !MatchesString(root, "launchSessionId", session.SessionId) ||
@@ -353,6 +356,25 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
         }
         if (state != "proven")
             throw new InvalidDataException("Live map probe result did not contain a supported terminal state.");
+
+        const string currentViewRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)";
+        const string currentViewEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true";
+        if (mapKind == "city" &&
+            root.TryGetProperty("cityPointCount", out JsonElement emptyCityCount) &&
+            emptyCityCount.TryGetInt32(out int cityCount) && cityCount == 0)
+        {
+            RequireFreshCaptureTime(root, startedAt);
+            if (!MatchesString(root, "requestRoute", currentViewRoute) ||
+                !MatchesString(root, "responseEvidence", currentViewEvidence) ||
+                !MatchesString(root, "source", "WorldPointManager._pointInfos") ||
+                MatchesBool(root, "cityTargetedView", true) ||
+                !root.TryGetProperty("point_records", out JsonElement emptyRecords) ||
+                emptyRecords.ValueKind != JsonValueKind.Array || emptyRecords.GetArrayLength() != 0)
+            {
+                throw new InvalidDataException("Empty Player City block result did not prove a fresh current-view zero-row response.");
+            }
+            return new ProbeObservation(0, 0, false, true, Array.Empty<FirstLivePreparedResource>());
+        }
 
         string countName = mapKind == "resource" ? "resourcePointCount" : "cityPointCount";
         string indexName = mapKind == "resource" ? "selectedResourceIndex" : "selectedCityIndex";
@@ -500,6 +522,6 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
         int MatchedCount,
         int SelectedIndex,
         bool CityTargetedView,
-        bool IsEmptyResourceView,
+        bool IsEmptyView,
         IReadOnlyList<FirstLivePreparedResource> Prepared);
 }
