@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-032",
+  "scope": "Native scanProgress post-query conversion edge and remaining serializer boundary",
+  "evidenceStatus": "RECOVERED static partial; no production command enabled; exact field mapping remains UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets and preferred-image virtual addresses"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "capstone": "5.0.6",
+    "pefile": "2024.8.26",
+    "ripgrep": "15.2.0"
+  },
+  "recovered": {
+    "optionPostQueryPath": {
+      "activeRunCall": "0x000000014025B079 -> 0x0000000140276D7B",
+      "commonReturnInspection": "0x000000014025B07E-0x000000014025B15D",
+      "genericValueConversionCall": "0x000000014025B155 -> 0x00000001402AD389",
+      "converterRangeObserved": "0x00000001402AD389-0x00000001402AD510",
+      "result": "the selected scan-run helper result is normalized through a generic tagged-value converter before the final scanProgress value is assembled; this helper is not a scan-run-specific field mapper"
+    },
+    "persistedQueryMapper": {
+      "helper": "0x000000014025EAEC-0x000000014025ED53",
+      "sqlRawOffset": "0x00C849FF",
+      "sql": "SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error FROM scan_runs WHERE server_id=?1 AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1",
+      "closureVtableVa": "0x0000000140C81A30",
+      "closureVtableRawOffset": "0x00C80E30",
+      "observedQwords": [
+        "0x0000000000000000",
+        "0x0000000000000008",
+        "0x0000000000000008",
+        "0x0000000140294188"
+      ],
+      "rowMapperCallback": "0x0000000140294188",
+      "result": "the persisted latest-scan query carries an identified row-mapper callback through its query closure; the callback is now the smallest unresolved field-level boundary"
+    },
+    "metadataSeparation": {
+      "liveScanStateRawRange": "0x008261A8-0x0082672D",
+      "liveScanStateFieldsObserved": [
+        "isReading",
+        "createdAt",
+        "scanRunId",
+        "totalBlocks",
+        "readBlocks",
+        "unreadBlocks",
+        "failedBlocks",
+        "inflightBlocks",
+        "scanRate",
+        "progressPercent",
+        "nativePendingRecords",
+        "nativeDroppedRecords",
+        "nativeCaptureReady",
+        "startedAt"
+      ],
+      "serviceMetadataRawRange": "0x00C99D1F-0x00C99FC8",
+      "result": "the dense map_scan service/event metadata is a broader live scan-state contract and is not evidence that every one of those fields belongs to persisted map_data_options.scanProgress"
+    },
+    "persistedFieldLiterals": {
+      "rawOffsets": {
+        "totalBlocks": "0x00C84B48",
+        "completedBlocks": "0x00C84B70",
+        "failedBlocks": "0x00C84B98",
+        "updatedAt": "0x00C84BD8"
+      },
+      "limit": "these literals are adjacent to the persisted scan-summary region, but the denied row-mapper control-flow read prevents claiming their exact serializer membership or order"
+    }
+  },
+  "restrictions": [
+    {
+      "id": "SB-32",
+      "operation": "bounded exception-directory/function-bound lookup for newly identified post-query helper targets",
+      "result": "automatic safety review rejected the operation because it could not determine safety status; it was not repeated"
+    },
+    {
+      "id": "SB-33",
+      "operation": "bounded direct disassembly of row-mapper callback 0x140294188",
+      "result": "automatic safety review rejected the operation because it could not determine safety status; it was not repeated or rerouted"
+    },
+    {
+      "id": "SB-34",
+      "operation": "combined raw-region/qword inspection around persisted field literals",
+      "result": "automatic safety review rejected the operation because it could not determine safety status; it contributed no field-mapping evidence"
+    },
+    {
+      "id": "SB-35",
+      "operation": "plain raw-region dump around the option local error/string cluster",
+      "result": "automatic safety review rejected the operation because it could not determine safety status; it contributed no error-representation evidence"
+    }
+  ],
+  "alternativesAttempted": [
+    "reviewed saved R6-009/R6-031 evidence for an existing row serializer mapping; none was present",
+    "used bounded successful option-function reads to identify the generic converter after 0x14025B07E",
+    "used bounded successful persisted-helper reads plus immutable data inspection to identify the query closure row-mapper callback",
+    "searched immutable binary string metadata for scan-run and live scan-state field vocabularies and separated the broader live event shape from persisted scan progress",
+    "compared the original frontend consumer, which only reads scanProgress serverId/id/status/createdAt/updatedAt/error when present",
+    "checked runtime state through the deterministic suite; no game or launcher process was running, so an active-scan observation target was unavailable"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "resolved": [
+      "the common post-query path invokes generic tagged-value conversion rather than directly exposing the database row",
+      "the persisted latest-scan query has an identified row-mapper callback at 0x140294188",
+      "the broad map_scan live-state metadata must not be substituted for the persisted scanProgress contract"
+    ],
+    "unknown": [
+      "the exact scanProgress JSON key set and field order",
+      "selected_types conversion from stored text to public JSON",
+      "whether totalBlocks/completedBlocks/failedBlocks are included in scanProgress",
+      "precise absent-row/null representation",
+      "precise query/row-conversion error propagation into map_data_options"
+    ]
+  },
+  "implementationImpact": {
+    "classification": "research-only checkpoint",
+    "publicCapability": "none; map_data_options remains MAP_INDEX_UNAVAILABLE",
+    "escalation": "ESC-003 remains regular-AI owned but now has a smaller identified serializer boundary and a fuller attempted-method/restriction record",
+    "nextIndependentWork": "continue summary unavailable/error integration or another public blocker while the serializer callback remains restricted; use a supported active-scan observation if one becomes available"
+  }
+}

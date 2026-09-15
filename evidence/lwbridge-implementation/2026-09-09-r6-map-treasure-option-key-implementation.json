@@ -1,0 +1,59 @@
+{
+  "findingId": "LWB-R6-023",
+  "date": "2026-09-09",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredContract": {
+    "ordinaryTreasureKey": "treasure:<positive decimal treasureType>",
+    "suppliesKey": "supplies:<positive decimal suppliesType>",
+    "optionAssemblyPreferredImageVaRange": [
+      "0x0000000140257AA4",
+      "0x000000014025B436"
+    ],
+    "treasureDescriptorXref": "0x0000000140259E4B",
+    "suppliesDescriptorXref": "0x0000000140259C11",
+    "signedDecimalFormatterPreferredImageVa": "0x00000001400397B0",
+    "numericHelperPreferredImageVaRange": [
+      "0x00000001400394C0",
+      "0x000000014003968E"
+    ],
+    "treasureTypeFieldPreferredImageVa": "0x0000000140838A85"
+  },
+  "implementation": {
+    "scope": "persisted-only test helper",
+    "files": [
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "publicMapDataOptionsEnabled": false,
+    "deterministicCases": [
+      "treasureType=12 -> treasure:12",
+      "suppliesType=4 -> supplies:4"
+    ]
+  },
+  "validation": {
+    "inspector": "passed",
+    "gitDiffCheck": "passed",
+    "releaseBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "backendChecks": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true
+    }
+  },
+  "limits": [
+    "static reference recovery plus offline deterministic validation; not live-game proof",
+    "public map_data_options remains fail-closed pending original persisted-vs-run source selection and complete native response assembly",
+    "exact native count/no-alliance producer assembly and source-dependent semantics remain unrecovered"
+  ],
+  "detailedEvidence": "evidence/lwbridge-implementation/2026-09-09-r6-map-treasure-option-descriptors.json"
+}

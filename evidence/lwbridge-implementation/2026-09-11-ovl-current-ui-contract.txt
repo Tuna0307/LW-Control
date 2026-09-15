@@ -1,0 +1,81 @@
+﻿OVL-01 current-client UI rendering recovery excerpt - 2026-09-11
+================================================================
+
+Status: RECOVERED current-client source facts + IMPLEMENTATION POLICY renderer design.
+This is not live proof that the new message is visible yet.
+
+Current source package
+----------------------
+Active v14 LWScripts.data:
+  SHA-256 09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace
+  size 41269242
+  CRC32 3541420783
+
+Relevant LENC entries and decoded Lua chunks:
+
+Framework/UI/UIManager.luac
+  entry SHA-256 0161c2f07e6d6da3abdeb224e6b8d95139791b55fb32f6d57f6a516043927c5d
+  decoded chunk SHA-256 313a6699086fb0a2d6b55aee11e371605563214bea78a167ec85c78cfc9ea21e
+  decoded size 73785
+  decompiled locators:
+    line 2: UIRootPath = "GameFramework/UI"
+    line 36: Canvas = typeof(CS.UnityEngine.Canvas)
+    lines 55-58: GameObject.Find(UIRootPath) -> UIContainer -> Canvas
+    lines 71-80: current client creates a RectTransform child, parents it to UIContainer,
+                 and sets anchors/offsets.
+    lines 90-102: current client creates UI GameObjects/RectTransforms and uses an
+                  override-sorting nested Canvas with explicit sortingOrder.
+    lines 148-163: top interaction layer is parented to UIContainer and stretched by anchors.
+
+Framework/UI/Component/UICanvas.luac
+  entry SHA-256 80c6027f4bd1e023a59860d7a89828fd056670e9fd747d9781df759106b77425
+  decoded chunk SHA-256 2cf12bdb6c39f1267001773e9833a323db64cb3d11b2d955ff0bcd98813a0211
+  decoded size 1355
+  decompiled contract: gets CS.UnityEngine.Canvas from the GameObject and writes
+  overrideSorting, sortingOrder and sortingLayerName.
+
+DataCenter/LWPlotManager/LWPlotBubble.luac
+  entry SHA-256 19ef7906655d6dcfd962dcd100441b8a7d2380a0ca3134372fe7e438668f873c
+  decoded chunk SHA-256 d99d55d62040e3da1dee91b4cf3f0a253005170d8376379b9a2dd7977c5f4384
+  decoded size 14400
+  decompiled locators:
+    lines 40/46: current client gets CS.TextMeshProUGUIEx components.
+    lines 121/129: current client writes the component text property.
+    line 134: current client writes RectTransform.anchoredPosition.
+
+DataCenter/ZombieBattle/DamageTextManager.luac
+  entry SHA-256 ecb73dec216995d7e5e35c1c59ede65c1a7dcf275d7ef6521f7fa2ac55a2a9d5
+  decoded chunk SHA-256 4061ec2aecb1aa177aaff62d48b510935366abbd3bc7a9cc6dc418917ab4f938
+  decoded size 23632
+  decompiled locators:
+    line 249: gets CS.TextMeshProEx.
+    lines 582/586: writes .text and .fontSize.
+
+Lua chunk normalization used only on scratch copies
+----------------------------------------------------
+The decoded current chunks begin:
+  1b4c7561530119930d0a1a0a040408087856...
+
+The chunk identifies Lua 5.3 (0x53), custom format 1, and omits the standard
+Lua-5.3 size_t header byte. For read-only decompilation only, a scratch copy was
+normalized by:
+  - changing format byte 1 -> 0; and
+  - inserting size_t=8 after the first size-int=4 byte,
+producing the standard header field sequence 04 08 04 08 08.
+No installed game/package bytes were changed by this decompilation step.
+
+Decompiler/tool identity
+------------------------
+unluac source commit: 1b2bfed6045eb719a27f026311744d7a674847f5
+built JAR SHA-256: A479019CFA8B2D91DD64BF3D90F0AEEFC12C170F8C60AE326DF067D8D034AEA6
+runtime: Microsoft OpenJDK 17.0.20.1
+scratch root: .codex-live/tools/unluac (not a delivered runtime dependency)
+
+Implementation consequence
+--------------------------
+The rebuild renderer may use the evidenced current UI root, RectTransform,
+nested-Canvas sorting and TMP text surface. Pixel/layout values and the
+session/lease mechanism are IMPLEMENTATION POLICY. The implementation requires
+an existing TextMeshProUGUIEx donor under UIContainer and copies its font/material;
+it does not report ready if no live donor/font is available. The exact requested
+text remains "LWbridge is running" and is not claimed as an original LWBridge string.

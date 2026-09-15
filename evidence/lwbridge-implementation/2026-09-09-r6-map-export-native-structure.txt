@@ -1,0 +1,78 @@
+LWB-R6-018 bounded native city-export structure excerpt
+Date: 2026-09-09
+Reference: ..\LW\lwbridge-0.3.1.exe
+SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+Coordinate system: raw PE file offsets
+
+Export option/dialog/result string cluster:
+0x00821EE8 headerssheetNameCitiesyesLabelYesnoLabelNo
+0x00821F13 map-cities-
+0x00821F4E .xlsx
+0x00821F54 xlsx
+0x00821F68 Excel workbook
+0x00821F90 canceled
+0x00821FB0 path
+0x00821FC8 rowCount
+0x00821FD0 MAP_EXPORT_FAILED
+0x00821FE1 city export server is unavailable
+0x00822002 city export headers are invalid
+
+Embedded worksheet/package strings from 0x00C98000-0x00C99120:
+0x00C9801B <worksheet ...><dimension ref="A1:L
+0x00C980AD <pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>
+0x00C98080-0x00C982B6 column definitions:
+  cols 1-3 width 11
+  col 4 width 22
+  cols 5-6 width 24
+  col 7 width 18
+  cols 8-9 width 12
+  col 10 width 21
+  col 11 width 10
+  col 12 width 21
+0x00C982B7 <row r="1" ht="20" customHeight="1">
+0x00C982B7-0x00C98367 autoFilter ref="A1:L..." and page margins left/right 0.7, top/bottom 0.75, header/footer 0.3
+
+Row metadata byte/printable sequence:
+0x00C98375 serverIdABC
+0x00C98381 D ... ownerName
+0x00C9838E E ... ownerUid
+0x00C9839A F ... uuid
+0x00C983A2 G ... allianceName
+0x00C983B5 levelHhealthIprotectEndTimeJ
+0x00C983CD K ... markedupdatedAtLshieldEndTime
+
+The sequence strongly supports the visible D-L field ordering, but this checkpoint does not promote exact A-C semantics or the protectEndTime/shieldEndTime fallback into a recovered runtime mapping without control-flow proof.
+
+OOXML package/style fragments:
+0x00C9845A [Content_Types].xml template and content types
+0x00C98715 _rels/.rels relationship template
+0x00C9884B xl/workbook.xml template
+0x00C98973 xl/_rels/workbook.xml.rels template
+0x00C98B35 xl/styles.xml template
+  custom datetime format: yyyy-mm-dd hh:mm:ss (numFmtId 164)
+  header font: bold, rgb 00FFFFFF
+  header solid fill: rgb 004F81BD
+  cellXfs count: 4
+0x00C99008 create city export
+0x00C9901A write city export
+0x00C9902B read city export metadata
+0x00C99044 flush city export
+0x00C99056 datetime cell template uses s="3"
+0x00C99075 inline-string cell template uses t="inlineStr"
+
+Observed limits:
+- exact default filename timestamp pattern remains UNKNOWN/BLOCKED;
+- default directory and complete picker/cancel branch remain UNKNOWN/BLOCKED;
+- exact A-C row mapping remains UNKNOWN/BLOCKED;
+- exact protectEndTime versus shieldEndTime fallback remains UNKNOWN/BLOCKED;
+- per-column numeric/string/datetime typing remains UNKNOWN/BLOCKED despite the presence of numeric, datetime and inline-string templates;
+- internal pagination/full-filter export scope remains UNKNOWN/BLOCKED;
+- no original workbook was generated or opened in this checkpoint, so large-ID preservation is not proven.
+
+Successful bounded reproduction steps used for this excerpt:
+1. Get-FileHash ..\LW\lwbridge-0.3.1.exe -Algorithm SHA256
+2. Python raw-byte printable-string enumeration of 0x00821E70-0x00822080.
+3. Python raw-byte printable-string enumeration of 0x00C98000-0x00C99120.
+4. Python hex dump of 0x00C98360-0x00C983F0 for the row metadata sequence.
+
+Environment restrictions encountered after the successful reads are recorded as SB-08/SB-09 in docs/daybreak-escalations.md and were not retried or rerouted.

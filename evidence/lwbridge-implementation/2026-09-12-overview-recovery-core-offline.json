@@ -1,0 +1,53 @@
+{
+  "findingId": "LWB-OVR-008",
+  "date": "2026-09-12",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "baseCommit": "d1aa8a42b7359856ca81314bb6361ed9cad427e5",
+  "scope": "Overview O05 recovery core; event-driven forceUpdate/crossDisconnect/exitPrompt production triggers and live acceptance remain open",
+  "originalReference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "currentClient": {
+    "version": "1.0.361",
+    "build": 1078,
+    "assemblyCSharpRdlSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaScriptsDataSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+  },
+  "implemented": [
+    "separate auto reconnect and desired-running gates",
+    "two-observation process-exit recovery",
+    "exact-PID 30s hang, 60s bridge-offline and 180s observed-health classifiers",
+    "journal restoration before relaunch through the proven Overview lifecycle",
+    "official launcher/updater/sync suppression and recovered retry families",
+    "15s post-relaunch stable verification",
+    "real game_recovery_status and bridge://game-recovery publication",
+    "manual Close non-resurrection and reconnect-disable cancellation"
+  ],
+  "checks": {
+    "recoveryInspector": "PASS",
+    "overviewLifecycleIsolated": "PASS",
+    "generatedFrontendCheck": "PASS",
+    "releaseBuild": "PASS: 0 warnings, 0 errors",
+    "desktopDeterministicSuite": "PASS: ok=true, failures=[]",
+    "gitDiffCheck": "PASS"
+  },
+  "deterministicBoundaries": [
+    "30s hang does not fire early and terminates only exact owned PID/path",
+    "60s bridge-offline disconnect does not fire early",
+    "180s observed game-health failure does not fire early",
+    "unknown current-client game state remains fail-safe",
+    "updater/launcher/sync activity suppresses running-process recovery",
+    "normal and maintenance retry schedules use recovered tables",
+    "manual Close clears desired-running and cannot be resurrected"
+  ],
+  "runtimeDuringValidation": {
+    "gameRunning": false,
+    "launcherRunning": false
+  },
+  "limits": [
+    "not LIVE-PROVEN",
+    "event-driven forceUpdate/crossDisconnect/exitPrompt production handling is not yet complete",
+    "bounded real-game O05 recovery and owner-visible combined O04/O05 acceptance remain required"
+  ]
+}

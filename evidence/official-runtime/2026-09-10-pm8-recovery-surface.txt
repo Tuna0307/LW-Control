@@ -1,0 +1,35 @@
+LWB-PM8-002 recovery-surface evidence
+date: 2026-09-10 Asia/Singapore
+launcher_sha256: b6e29176f64c11a6f203d414fb50ee1e02293be318efda9c33cf221c83d763bc
+lastwarsync_sha256: 18fde4ebe98767de1c769d2bcc474b726ad400a0d2c67178d7ded01aedfda3e9
+lastwarsync_version: Updater 0.1.0
+
+LastWarSync help:
+LastWar Updater
+
+Usage: LastWarSync.exe --root <APP ROOT DIR> <COMMAND>
+
+Commands:
+  install    Install LastWar Game Launcher from this path to App Root Directory
+  uninstall  Uninstall LastWar game cache content from this path
+  update     Update LastWar Game Launcher from this path to App Root Directory
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+      --root <APP ROOT DIR>  App Root Directory
+  -h, --help                 Print help
+  -V, --version              Print version
+
+Recovered launcher strings:
+Game integrity check found repair paths:
+Super Cleanup can resolve issues such as freezing and inability to enter the game, but it requires redownloading at least 3.0GB of content. Please use with caution!
+Super Cleanup in progress. Please wait...
+Verifying game resources
+Fetching resource list
+
+Historical Launcher.log recovery observations:
+2026-08-30 22:10:27.605 WARN Game integrity check found repair paths: ["LastWar_Data\\Plugins\\x86_64\\libzstd.dll"]
+2026-09-02 16:39:35.132 INFO LWLuaFile encrypt format changed from fileVersion 2 to Lenc; clearing stale downloaded artifacts before download
+2026-09-02 16:39:35.132 INFO Downloading LWLuaFile Replace LWScripts_12_u440.bz2
+2026-09-02 16:39:41.216 INFO Applied LWLuaFile update version=12 file_version=3
+2026-09-02 16:39:43.582 INFO Starting game at Game\\LastWar.exe

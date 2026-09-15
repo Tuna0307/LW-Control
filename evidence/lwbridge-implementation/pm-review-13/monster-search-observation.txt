@@ -1,0 +1,193 @@
+Window: "lwbridge", App: LWBridge.Desktop.exe.
+	0 window lwbridge Secondary Actions: Raise
+		1 pane ID: 199540
+			8 pane lwbridge
+				9 pane (disabled)
+				10 region lwbridge - Web content
+					11 region
+						12 region
+						13 region
+							14 region
+								15 region
+								16 region
+									17 region
+										18 region
+											19 region
+												20 region
+													21 region
+													25 document lwbridge ID: RootWebArea
+														26 group ID: root
+															27 main
+																28 section header
+																	29 heading lwbridge
+																	30 text v0.3.1-rebuild
+																	31 text 游戏已停止
+																	32 text 待处理任务
+																	33 text 0
+																	34 toggle button 切换到黑夜模式 Description: 切换到黑夜模式
+																	35 text 语言
+																	36 combo box 语言
+																	37 button 跨区
+																	38 button 刷新状态
+																39 navigation
+																	40 text 导航
+																	41 button 首页
+																	42 button 自动化
+																	43 button 地图数据
+																	44 button 小队/挂机
+																	45 button 内城编辑
+																	46 button 快捷键
+																	47 button 小游戏
+																	48 button 设置
+																55 tab 地图扫描模式
+																	56 tab item (selectable) 手动扫描
+																	57 tab item (selectable) 自动扫描
+																58 heading 世界地图数据
+																59 group 速度
+																	60 radio button (selectable) 普通
+																	61 text 普通
+																	62 radio button (selectable) 快速
+																	63 text 快速
+																64 button 开始扫描
+																65 button (disabled) 停止
+																66 button (disabled) 清除地图数据
+																67 text 已停止
+																68 text 区服
+																69 text
+																70 text -
+																71 progress indicator 扫描进度
+																72 text —
+																122 alert
+																	123 text 操作未能完成。
+																73 text 扫描内容
+																74 text ✓
+																75 check box ✓ 玩家城市
+																76 text ✓
+																77 check box ✓ 资源点
+																78 text ✓
+																79 check box ✓ 怪物
+																80 text ✓
+																81 check box ✓ 卡车
+																82 text ✓
+																83 check box ✓ 列车
+																84 text ✓
+																85 check box ✓ 隐秘任务
+																86 text ✓
+																87 check box ✓ 幽灵行动
+																88 text ✓
+																89 check box ✓ 宝藏
+																90 button 城市 —
+																91 button 资源 —
+																92 button 怪物 —
+																93 button 卡车 —
+																94 button 列车 —
+																95 button 隐秘任务 —
+																96 button 幽灵行动 —
+																97 button 宝藏 —
+																98 button 定时抢夺 0
+																99 edit 搜索名称、同盟或 UUID Description: 搜索名称、同盟或 UUID
+																124 combo box 名称
+																103 button 搜索
+																105 text 0 条
+																106 table 怪物
+																	107 row
+																		109 column header 坐标
+																		125 column header 名称
+																		112 column header 等级
+																			113 button 等级
+																		126 column header 距离
+																			127 button 距离
+																		118 column header 更新时间：降序，第 1 优先级
+																			119 button 更新时间：降序，第 1 优先级
+																	120 row
+																		121 item 暂无此类型的已保存数据。
+								23 region
+						24 region
+		2 title bar
+			3 menu bar System ID: MenuBar
+				4 menu item System
+			5 button Minimize
+			6 button Maximize
+			7 button Close
+
+Document text: ```
+lwbridge
+v0.3.1-rebuild
+游戏已停止
+待处理任务
+0
+切换到黑夜模式
+语言
+￼
+跨区
+刷新状态
+导航
+首页
+自动化
+地图数据
+小队/挂机
+内城编辑
+快捷键
+小游戏
+设置
+手动扫描
+自动扫描
+世界地图数据
+￼
+普通
+￼
+快速
+开始扫描
+停止
+清除地图数据
+已停止
+区服 -
+扫描进度
+—
+操作未能完成。
+扫描内容
+✓
+￼
+✓
+￼
+✓
+￼
+✓
+￼
+✓
+￼
+✓
+￼
+✓
+￼
+✓
+￼
+城市
+—
+资源
+—
+怪物
+—
+卡车
+—
+列车
+—
+隐秘任务
+—
+幽灵行动
+—
+宝藏
+—
+定时抢夺
+0
+搜索名称、同盟或 UUID
+名称
+搜索
+0 条
+坐标
+名称
+等级
+距离
+更新时间
+暂无此类型的已保存数据。
+```

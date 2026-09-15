@@ -1,0 +1,34 @@
+{
+  "observedUtc": "2026-09-11T04:45:11.1532861Z",
+  "configPath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\config.json",
+  "configExists": true,
+  "config": {
+    "schemaVersion": 1,
+    "owner": "LWBridgeRebuild",
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "gameRoot": null,
+    "autoLaunchGame": true,
+    "autoReconnect": false,
+    "serverJumpHistory": []
+  },
+  "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+  "databasePath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\profiles\\local-bd7b2533b1a146bca0aba9efb193a4a2\\map-data.db",
+  "databaseExists": true,
+  "selectedProcesses": [
+    {
+      "ProcessId": 30844,
+      "Name": "LWBridge.Desktop.exe",
+      "ExecutablePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\github\\lw-control\\src\\lwbridge.desktop\\bin\\release\\net10.0-windows10.0.17763.0\\lwbridge.desktop.exe",
+      "CommandLine": "\"C:\\Users\\chimw\\OneDrive\\Desktop\\github\\lw-control\\src\\lwbridge.desktop\\bin\\release\\net10.0-windows10.0.17763.0\\lwbridge.desktop.exe\" "
+    }
+  ],
+  "recoveryExists": false,
+  "operationOwnerExists": false,
+  "computerUse": {
+    "provider": "computer-use @oai/sky via node_repl",
+    "targetWindowId": 68246,
+    "targetWindowTitle": "lwbridge",
+    "targetWindowApp": "process:C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+    "selectionCount": 1
+  }
+}

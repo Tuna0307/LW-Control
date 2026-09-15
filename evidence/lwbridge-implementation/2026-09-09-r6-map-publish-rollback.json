@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-020",
+  "scope": "Map Data staged-publication rollback reliability",
+  "evidenceStatus": "IMPLEMENTATION POLICY/OFFLINE-TESTED reliability",
+  "sourceBoundary": {
+    "inherits": "LWB-R6-019 recovered one-kind/server delete plus matching scan_records copy transaction",
+    "newOriginalRecovery": false,
+    "policy": "a rebuild publication failure between the recovered delete and copy statements must roll back the whole transaction so the prior published kind/server remains intact"
+  },
+  "implementation": {
+    "file": "src\\LWBridge.Desktop\\MapDataStore.cs",
+    "method": "ReplacePublishedKindFromStagingForTest",
+    "testHook": "optional afterDeleteBeforeCopy callback used only by deterministic tests to inject a mid-transaction failure",
+    "productionImpact": "none; helper remains internal/test-only and production publication eligibility remains unavailable"
+  },
+  "validation": {
+    "testFile": "tests\\LWBridge.Desktop.Checks\\Program.cs",
+    "case": "two existing city/server rows are deleted inside the transaction, a deterministic exception is injected before staged copy, and transaction disposal restores both old rows while publishing none of the staged replacement",
+    "commands": [
+      "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+    ],
+    "result": "build succeeded with 0 warnings/0 errors; deterministic suite ok=true with mapPersistence=true and mapContract=true",
+    "liveProven": false
+  },
+  "unknownBlocked": [
+    "native per-kind record_key derivation and normalization",
+    "exact scan-completeness/failed-batch eligibility gate",
+    "production error classification and retry policy",
+    "scan worker/session/generation ownership and stale-publication rejection"
+  ],
+  "implementationImpact": {
+    "unblocked": "offline failure testing can now prove the recovered delete/copy publication slice is atomic under an injected mid-transaction exception",
+    "stillFailClosed": "no public scan command calls the helper; production publication still requires recovered completion and native capture contracts"
+  }
+}

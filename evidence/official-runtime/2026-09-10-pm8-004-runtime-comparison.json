@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "before": "2026-09-10-official-runtime.json",
+  "after": "2026-09-10-pm8-004-official-runtime.json",
+  "unchangedPe": {
+    "LastWarLauncher.exe": true,
+    "LastWarSync.exe": true,
+    "Game/LastWar.exe": true,
+    "Game/GameAssembly.dll": true,
+    "Game/LastWarBase.dll": true,
+    "Game/LastWar_Data/Plugins/x86_64/xlua.dll": true
+  },
+  "unchangedContainers": {
+    "Assembly-CSharp.rdl": true,
+    "BaseUtils.rdl": true,
+    "SmartFox2X.rdl": true,
+    "XLuaRuntime.rdl": true,
+    "UnityEngine.CoreModule.mdl": true,
+    "mscorlib.mdl": true
+  },
+  "unchangedProtectedRuntime": {
+    "ACE-Base64.dll": true,
+    "ACE-Service64.exe": true
+  },
+  "unchangedAnchorCount": 14,
+  "totalAnchorCount": 14,
+  "luaBefore": {
+    "version": "12",
+    "sha256": "bc10cda45528ef82adb1439b0cac5b08265c7a11770430e7484a27a7031c485c"
+  },
+  "luaAfter": {
+    "version": "14",
+    "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+  },
+  "tableUnchanged": true,
+  "tableAfter": {
+    "name": "table_39191_7476c6ef71b756a1033c7c79a5d0c177.data",
+    "exists": true,
+    "size": 19337661,
+    "sha256": "81ed5dcf49f484372b09190a07eab8304055568c9651a238a47e202b4e3fac3a"
+  }
+}

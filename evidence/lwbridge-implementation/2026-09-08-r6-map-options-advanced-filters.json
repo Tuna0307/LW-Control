@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-009",
+  "scope": "Map Data option SQL family plus treasure selector and dispatch level persisted-search predicates",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file byte offset"
+  },
+  "frontendReference": {
+    "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "correlatedFinding": "LWB-R6-004"
+  },
+  "evidence": {
+    "focusedExcerpt": "evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.txt",
+    "rawPeRanges": {
+      "allianceOptions": "0x00C83048-0x00C830C7",
+      "nameOptions": "0x00C830D5-0x00C832F4",
+      "dispatchLevels": "0x00C832F6-0x00C83359",
+      "treasureOptions": "0x00C8335D-0x00C83764",
+      "rewardItems": "0x00C83768-0x00C83A72",
+      "latestScanSummary": "0x00C849FF-0x00C84AC5",
+      "levelFilterBuilder": "0x00C89BE4-0x00C89C1A",
+      "treasurePredicates": "0x00C89D3E-0x00C89F37",
+      "adjacentTimePredicates": "0x00C89F38-0x00C8A12E",
+      "derivedSorts": "0x00C8A918-0x00C8ABEB"
+    }
+  },
+  "recovered": {
+    "optionSql": {
+      "alliances": "city alliance_name counts ordered by alliance_name COLLATE NOCASE then alliance_name",
+      "names": "resource/monster name-key counts grouped by kind/name_key with empty keys excluded and NOCASE ordering",
+      "dispatchLevels": "distinct integer level values >= 1 ordered ascending",
+      "treasureTypes": "supplies rows use suppliesType>0 with treasureType normalized to 0; ordinary treasure rows use treasureType with suppliesType normalized to 0; grouped counts have stable recovered ordering",
+      "rewardItems": "truck/railway currentGoods key/name/icon groups are ordered by name NOCASE then key, with an unresolved arriveTs cutoff parameter",
+      "scanProgress": "newest non-discarded scan_runs row for the selected server ordered by updated_at descending"
+    },
+    "persistedSearch": {
+      "treasureSuppliesType": "CAST(json_extract(data_json,'$.suppliesType') AS INTEGER) = ?",
+      "treasureTreasureType": "CAST(json_extract(data_json,'$.treasureType') AS INTEGER) = ?",
+      "ordinaryTreasureGuard": "COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) = 0",
+      "dispatchMinLevel": "level >= ?",
+      "dispatchMaxLevel": "level <= ?"
+    }
+  },
+  "implementation": {
+    "status": "IMPLEMENTED/OFFLINE-TESTED",
+    "files": [
+      "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "behavior": [
+      "treasure selected-option query accepts exactly the recovered paired dimensions: one positive value and a zero sentinel for the other",
+      "ordinary treasureType filtering also applies the recovered suppliesType=0 guard",
+      "dispatch selected level applies the recovered >= and <= predicates to the same frontend-emitted level",
+      "unsupported time-dependent and incompletely mapped branches remain MAP_QUERY_UNRECOVERED"
+    ]
+  },
+  "validation": {
+    "checks": [
+      "fresh reference and frontend SHA-256 verification",
+      "bounded raw-byte printable-ASCII inspection of the listed PE ranges",
+      "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release"
+    ],
+    "result": "RECOVERED static plus IMPLEMENTED/OFFLINE-TESTED; no live scan or native ingestion claim",
+    "limits": [
+      "public map_data_options remains blocked because reward-item arriveTs cutoff producer/source/unit is unresolved",
+      "map_summary authoritative server selection remains unresolved",
+      "ordinary quality binding remains unresolved",
+      "completionStatus and plunderableOnly clock/parameter mapping remains unresolved",
+      "treasure foreign-radar/lucky-first mapping and remaining alternate-sort mapping remain unresolved"
+    ],
+    "environmentRestriction": "A convenience executable verifier was rejected by automatic safety review and was not retried; the durable excerpt records the successful bounded inspections completed before that rejection."
+  }
+}

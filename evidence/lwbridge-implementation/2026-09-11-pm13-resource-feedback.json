@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-002",
+  "date": "2026-09-11",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "scope": "PM13-01b resource-only scan and saved-search feedback; no game launch, helper launch, or new acquisition",
+  "referenceExecutable": {
+    "name": "lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredFrontendEvidence": [
+    {
+      "path": "evidence/lwbridge-0.3.1/frontend/assets/index-sfL2sT3K.js",
+      "sha256": "4d18cbc036a417b1a13a2c9905f1abc5dda1427531ad1ab4f7b03f4b269704b3",
+      "locators": [279031, 279479, 279562],
+      "result": "Recovered formatter already extracts structured/embedded uppercase error codes and otherwise falls back to common.actionFailed."
+    },
+    {
+      "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+      "locators": [36154, 38377],
+      "result": "Recovered Start catch stringified before storing the visible error, while search catch only logged the failure."
+    }
+  ],  "implementation": {
+    "policy": "Rebuild-only localized wording; no claim that these strings are original LWBridge text.",
+    "changes": [
+      "Preserve the structured map_scan_start exception object so LIVE_RESOURCE_TYPES_UNSUPPORTED reaches the recovered formatter.",
+      "Add localized messages for LIVE_RESOURCE_TYPES_UNSUPPORTED, MAP_SAVED_CONTEXT_UNAVAILABLE, MAP_SAVED_CONTEXT_AMBIGUOUS and MAP_QUERY_FAILED in all nine recovered languages.",
+      "Give an empty selected-profile map summary the specific MAP_SAVED_CONTEXT_UNAVAILABLE code instead of broad MAP_INDEX_UNAVAILABLE.",
+      "Keep zero-row search as the recovered empty-data state, reject missing browse context before map_search, and surface actual query failures separately while preserving technical logs.",
+      "Do not silently drop non-resource scan categories and do not fabricate monster or resource rows."
+    ],
+    "generatedAssetSha256": {
+      "index-sfL2sT3K.js": "0febfa2fbafa4a5f8f5fa9ac395f97a33953b3d69f8a2170a63afbaae878834c",
+      "MapDataPanel-C1HVeNHr.js": "0959f7536dc878f377b5301322ef5c8f9e99e367456017be588cbe628eb14559"
+    },
+    "testHarness": {
+      "path": "tools/check_pm13_resource_feedback.cjs",
+      "sha256": "d43099eb040e43675f4204ae6803103ca7e7c9d412a6b7f5ccf9478bf2a1bf65",
+      "transport": "CSP-compliant same-origin external test shim; browser-local only"
+    }
+  },
+  "verification": [    {"command": "python tools/build_lwbridge_frontend.py --check", "result": "passed"},
+    {"command": "NODE_PATH=<global playwright> LWBRIDGE_BROWSER=msedge node tools/check_pm13_resource_feedback.cjs", "result": "passed unsupported/empty/missing/query UI cases"},
+    {"command": "node tools/check_lwbridge_preference_provider.cjs", "result": "passed all five scenarios"},
+    {"command": "node tools/check_lwbridge_live_transport.cjs", "result": "passed"},
+    {"command": "node tools/check_lwbridge_transport_boundary.cjs", "result": "passed"},
+    {"command": "node tools/check_lwbridge_frontend.cjs", "result": "passed 35 browser checks"},
+    {"command": "python evidence/lwbridge-implementation/2026-09-10-pm12-recovery-regression.py", "result": "passed; ok=true"},
+    {"command": "python evidence/lwbridge-implementation/2026-09-10-pm12-session-identity-regression.py", "result": "passed; ok=true"},
+    {"command": "python evidence/lwbridge-implementation/2026-09-10-pm12-scoped-close-regression.py", "result": "passed; ok=true"},
+    {"command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged", "result": "passed; ok=true, all six deterministic groups true, failures=[]"},
+    {"command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release", "result": "passed; 0 warnings, 0 errors"}
+  ],
+  "limits": [
+    "This checkpoint does not establish persistent native bridge readiness or a connected normal-window live Start; LWBridgeBackend.CreateStatus still reports xluaOnline=false by design.",
+    "The connected normal-window Start/second fresh acquisition/reopen proof remains PM13-04 and must not be inferred from browser-local feedback tests.",
+    "Resource naming, Gathering observation, monster acquisition, full-world coverage and Normal/Fast differences remain outside this finding."
+  ],
+  "impact": "PM13-01b is closed at IMPLEMENTED/OFFLINE-TESTED scope; PM13-03 is the next active repair within the same resource function."
+}

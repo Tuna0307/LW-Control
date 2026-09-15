@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-OVL-003",
+  "date": "2026-09-11",
+  "status": "OWNER_ACCEPTED",
+  "scope": "Selected Overview milestone only: normal Overview Launch -> real game -> same-session bridge ready -> top-centre LWbridge is running -> Overview Close -> cleanup/restoration.",
+  "implementationCommit": "dc82bc9bebd9e1b56c56621edd18e905a7e3ee23",
+  "preOwnerEvidenceCommit": "ab4bbe9e290addfe72bdf28ac239eb17778bc42c",
+  "testedPackage": {
+    "exeSha256": "0435223634a7804a442c5f499db80fb2df6552075263ee738b03cc848accb473",
+    "dllSha256": "ecb43f8084a145f8839185c7b6b7f0398b1bb1481df222c62d087f533958e872",
+    "overviewHelperSha256": "959915b725e2d450cb45b82d84bfe9010366773b63ba487084502a3cdc37cbaf",
+    "overviewLuaSha256": "a51b9d118e309638fcd6c6483bdd13ba6b55e2479bf02f7985ccf7e44df79ac2"
+  },
+  "ownerRun": {
+    "sessionId": "61732f78f03e4643bb5329b40012c89a",
+    "gamePid": 34152,
+    "ownerStatement": "yup all working",
+    "visualObservation": "Owner-supplied 1920x1080 screenshot visibly shows the exact text LWbridge is running near the top centre inside the real game view.",
+    "screenshot": {
+      "conversationAttachmentOnly": true,
+      "sha256": "e02be7b42591982eb4ccefb33fccc82f7a6144f9e4ac2b788d86650fc285f1e7",
+      "byteLength": 3570615,
+      "width": 1920,
+      "height": 1080,
+      "repositoryCopyCommitted": false
+    }
+  },
+  "automaticEvidence": {
+    "bundleRoot": "%LOCALAPPDATA%/LWBridgeRebuild/overview-evidence/61732f78f03e4643bb5329b40012c89a",
+    "hostStartSha256": "162205e361105ac2fe2fb3aec20be047083298a9e079d6d508c1a2e34a8a1910",
+    "helperStartSha256": "324795301cdeab34157c658f62465a90802535c4849ae83a9ecbc69fb2c57762",
+    "hostStopSha256": "7bd7ffb27af2dc9db23c119036b5b63c286c337331f4fce7960bfc133b54c595",
+    "helperStopSha256": "ec99afedbeea8458a757c9c67cbf60b212fe22778b13bfb256fd72827df8055c",
+    "attemptSummarySha256": "b0245ce0060a41534ec0afbb51f17fd5086950107bb2dc0f53a0ee3288b1130f",
+    "attemptStatus": "COMPLETE",
+    "ready": {
+      "messageText": "LWbridge is running",
+      "messageVisible": true,
+      "registrationMethod": "UpdateManager.AddUpdate",
+      "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message"
+    },
+    "close": {
+      "method": "Process.CloseMainWindow",
+      "accepted": true,
+      "processExited": true
+    },
+    "restoration": {
+      "restored": true,
+      "installedFilesChangedAfterStop": false,
+      "officialPackageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace"
+    }
+  },
+  "acceptance": {
+    "normalOverviewLaunch": true,
+    "realInjectedBridgeReady": true,
+    "requestedGameSideMessageVisible": true,
+    "normalOverviewClose": true,
+    "cleanupAndExactRestoration": true,
+    "ownerAccepted": true
+  },
+  "limits": [
+    "This accepts only the owner-selected Overview Launch/message/Close milestone, not the full 47-case product specification.",
+    "The independent rebuild route remains implementation policy; it does not claim recovery of the original protected proof/ticket/hello.ack protocol.",
+    "Resource/Monster work remains deferred and existing operation-specific restrictions remain unchanged.",
+    "The screenshot itself remains a conversation attachment; the repository records its digest/dimensions and the correlated automatic session evidence."
+  ],
+  "nextAction": "STOP. Wait for the owner to explicitly choose the next feature."
+}

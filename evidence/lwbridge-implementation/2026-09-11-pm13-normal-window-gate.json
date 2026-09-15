@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-005",
+  "date": "2026-09-11",
+  "state": "NORMAL-WINDOW-PARTIAL / LIVE-GATE-BLOCKED",
+  "baseCommit": "4e87b85c4cdc634d7426dcb9d3311482aba78b93",
+  "scope": "PM13-04 safe normal-window UI revalidation only; no fresh acquisition",
+  "referenceExecutableSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "observations": {
+    "unsupportedSelection": {
+      "allEightTypesCheckedBefore": true,
+      "startButtonEnabled": true,
+      "alert": "Live map scan currently supports Resource Point only. Select only Resource Point, then start the scan.",
+      "allEightTypesStillCheckedAfter": true,
+      "gameStarted": false,
+      "launcherStarted": false,
+      "helperStarted": false
+    },
+    "missingSavedContext": {
+      "resourceTabSelected": true,
+      "searchClicked": true,
+      "alert": "No saved map server is available for this profile. Run a Resource Point scan first, then search again.",
+      "emptyStateCount": 1,
+      "gameStarted": false,
+      "launcherStarted": false,
+      "helperStarted": false
+    }
+  },
+  "artifacts": {
+    "unsupportedStartJson": {
+      "path": "evidence/lwbridge-implementation/pm13-normal-window-feedback/unsupported-start.json",
+      "sha256": "1365956d772f50bd06af114687f3923dd8e1f8df0cbdc19b58c81f8220c66b2b"
+    },
+    "unsupportedStartPng": {
+      "path": "evidence/lwbridge-implementation/pm13-normal-window-feedback/unsupported-start.png",
+      "sha256": "c23116c9c64a4fadc293fcfe4b1e86072211d9e84ed6758f768b4ad79c99d86d"
+    },
+    "missingContextJson": {
+      "path": "evidence/lwbridge-implementation/pm13-normal-window-feedback/missing-context.json",
+      "sha256": "263565c757a6e058373d49aebcf6e58d0601dd61c9c640259fa96765366ec307"
+    },
+    "missingContextPng": {
+      "path": "evidence/lwbridge-implementation/pm13-normal-window-feedback/missing-context.png",
+      "sha256": "25735cddb731f4144dc2d9298119f03c9409b872fea004e7103fb698d5d33a77"
+    }
+  },
+  "prePostState": {
+    "before": "direct %LOCALAPPDATA%/LWBridgeRebuild had no config/profile; Presentation retained",
+    "afterEachObservation": "app closed normally; no game/launcher/helper; test-created config/profile/lock bytes removed; Presentation retained"
+  },
+  "capability": {
+    "remoteDesktopCommanderVersion": "0.2.50",
+    "exposedFunctions": "filesystem/terminal/process/configuration only; no native screen/click primitives",
+    "pluginSearch": "No separate installed Computer Use/sky plugin was available; Remote Desktop Commander was the only relevant installed desktop-control result.",
+    "safeUiMethod": "WebView2 DevTools was used only for rebuilt-app pre-helper UI observation/clicks that cannot start the live helper under the tested unsupported/missing-context paths."
+  },
+  "blockedGate": {
+    "id": "PM13-04 / PM12-D",
+    "required": "fresh normal-window resource-only Start -> correlated row -> second newer Start/Search/render -> saved reopen -> cleanup",
+    "reason": "SB-97 previously rejected execution of the prepared live persistent-window proof. This exact live acquisition was not replayed or rerouted. Current exposed desktop tooling also lacks the native sky capability used by the PM.",
+    "requiredExternalCondition": "A permitted PM13-04 live normal-window acquisition path in a session exposing the approved native Computer Use capability, or an explicit platform/PM clearance for a new non-rerouted attempt.",
+    "status": "ACTIVE/BLOCKED"
+  },
+  "limits": [
+    "These observations are normal-window UI proof for feedback and missing-context behavior, not live acquisition proof.",
+    "No installed Last War file was changed and no Last War process was started.",
+    "PM13-04 remains open; monster work must not start yet."
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "findingId": "LWB-PM13-001",
+  "date": "2026-09-10",
+  "scope": "PM13-01 saved resource browsing context after normal app restart",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; NORMAL-WINDOW REOPEN VERIFICATION BLOCKED BY UNAVAILABLE SAVED TARGET",
+  "sourceIdentity": {
+    "lwbridgeReferenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "recoveredFrontend": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "recoveredFrontendSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "review13SavedAudit": "evidence/lwbridge-implementation/pm-review-13/saved-evidence-check.json"
+  },
+  "locators": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs map_summary",
+    "src/LWBridge.Desktop/MapDataStore.cs ReadPublishedServerIds",
+    ".codex-live/lwbridge-readable/MapDataPanel-C1HVeNHr.js MapDataPanel scanState.serverId -> data server state -> map_search query.serverId",
+    ".codex-live/lwbridge-readable/index-sfL2sT3K.js startup map_summary -> mapSummary/scanState state"
+  ],
+  "result": {
+    "rootCause": "Normal restart cleared LiveResourceProbeCommandService.CurrentServerId; frontend derives saved browsing server from map_summary.scanState.serverId, so map_summary failed before a valid map_search server could be established.",
+    "policy": "When the selected profile map store contains exactly one published server, map_summary exposes that server as saved_profile_index with phase unavailable and no live-readiness claim. Zero saved servers remain unavailable; multiple saved servers fail with MAP_SAVED_CONTEXT_AMBIGUOUS rather than silently choosing one.",
+    "profileIsolation": "The server is discovered only from the MapDataStore already bound to that backend/profile."
+  },
+  "verification": {
+    "desktopChecks": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release -- --verify-real-config-unchanged => ok=true, failures=[]",
+    "releaseBuild": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release => 0 warnings, 0 errors",
+    "frontendCheck": "python tools/build_lwbridge_frontend.py --check => verified recovered hashes",
+    "testsCover": [
+      "single saved server summary",
+      "zero saved server fail-closed",
+      "multiple saved server ambiguity",
+      "two profile-store isolation",
+      "file-backed server rediscovery after store reopen"
+    ]
+  },
+  "normalWindowBlocker": {
+    "historicalAcceptedTarget": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\profiles\\local-bd7b2533b1a146bca0aba9efb193a4a2\\map-data.db",
+    "historicalAuditSaidDatabaseExists": true,
+    "currentDatabaseExists": false,
+    "currentConfigExists": false,
+    "observedRootExists": true,
+    "impact": "The exact source-backed saved row PM13-01 requires for ordinary reopen verification is not currently present at its recorded production path. Fixtures or re-importing historical proof are not accepted substitutes, so normal-window acceptance remains open."
+  },
+  "changedSourceHashes": {
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "4ec5302c447e846968a0f028ab9d57402e4362e1c49dcee5162a38f8cf85c01a",
+    "src/LWBridge.Desktop/MapDataStore.cs": "8c000ec7e865e40dc9f4702284f9fc3f93ee2fc9d537c6fb13469c739ed59088",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "291b4f01c1def4ac6d2c3dd9ee3e12ccfcc69adc81b5fd08bb5599b5fe3f953a"
+  },
+  "nextStep": "Recover/observe the original selected profile database at the recorded production location without fabricating/re-importing a row, then launch the ordinary app and verify Resource Search shows that saved row. Until then PM13-01 remains open and later review-13 items are not started."
+}

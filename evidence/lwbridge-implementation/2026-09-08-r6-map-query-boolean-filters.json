@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-006",
+  "scope": "Map Data special-only and reindeer-only backend predicates",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file byte offset"
+  },
+  "recovered": {
+    "predicates": {
+      "specialOnly": "CAST(json_extract(data_json,'$.isSpecial') AS INTEGER) = 1",
+      "reindeerOnly": "CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER) = 1"
+    },
+    "fileOffsets": {
+      "specialOnlyField": "0x00C89F38",
+      "specialOnlyPredicate": "0x00C89F43",
+      "reindeerOnlyField": "0x00C8A0DD",
+      "reindeerOnlyPredicate": "0x00C8A0E9"
+    },
+    "frontendKinds": {
+      "specialOnly": [
+        "dispatch",
+        "ghost"
+      ],
+      "reindeerOnly": [
+        "truck",
+        "railway"
+      ]
+    },
+    "correlatedFrontendFinding": "LWB-R6-004"
+  },
+  "reproduction": "python tools\\inspect_lwbridge_map_query_boolean_filters.py ..\\LW\\lwbridge-0.3.1.exe --json",
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "result": "frontend-emitted true forms are accepted only for the recovered kind families and applied to count/page SQL"
+  },
+  "validation": {
+    "status": "RECOVERED static plus IMPLEMENTED/OFFLINE-TESTED",
+    "checks": [
+      "verified reference SHA-256",
+      "verified each field and predicate occurs once and is byte-adjacent",
+      "deterministic LWBridge.Desktop.Checks mapContract suite"
+    ],
+    "limits": "no live scan or native ingestion; adjacent quality, time, plunder, treasure and alternate-sort semantics remain fail-closed"
+  }
+}

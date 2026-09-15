@@ -1,0 +1,40 @@
+{
+  "findingId": "LWB-R6-013",
+  "date": "2026-09-08",
+  "scope": "ordinary Map Data quality frontend forms implemented against recovered LWBridge SQL",
+  "evidenceStatus": "IMPLEMENTED/OFFLINE-TESTED",
+  "implementation": {
+    "files": [
+      "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "acceptedFrontendForms": ["n", "r", "sr", "ssr", "ur"],
+    "acceptedKinds": ["truck", "railway", "dispatch", "ghost"],
+    "predicates": {
+      "n": "quality = 1",
+      "r": "quality = 2",
+      "sr": "quality = 3",
+      "ssr": "quality = 4",
+      "ur": "quality >= 5",
+      "truckUrAdditional": "COALESCE(CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0"
+    },
+    "failClosed": [
+      "quality on non-quality frontend kinds",
+      "unknown string selectors",
+      "numeric backend quality input through the public recovered frontend contract"
+    ]
+  },
+  "validation": {
+    "staticVerifier": "python tools\\inspect_lwbridge_map_quality.py ..\\LW\\lwbridge-0.3.1.exe --json",
+    "staticVerifierResult": "LWB-R6-013 RECOVERED static",
+    "releaseBuild": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj --configuration Release",
+    "releaseBuildResult": "succeeded with 0 warnings and 0 errors",
+    "deterministicSuite": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release",
+    "deterministicSuiteResult": {
+      "ok": true,
+      "mapContract": true
+    }
+  },
+  "limits": "offline/static only; no native ingestion or live-game query result is claimed"
+}

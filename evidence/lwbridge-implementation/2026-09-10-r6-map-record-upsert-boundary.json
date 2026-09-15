@@ -1,0 +1,91 @@
+{
+  "finding": "LWB-R6-047",
+  "date": "2026-09-10",
+  "status": "RECOVERED static boundary; upstream identity derivation UNKNOWN/BLOCKED",
+  "source": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "tool": {
+    "script": "tools/inspect_lwbridge_map_scan.py",
+    "runtime": "Python 3.12",
+    "command": "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --target \"INSERT INTO scan_records\" --target \"INSERT INTO map_records\" --target \"record_key\""
+  },
+  "locators": {
+    "helper_rva_range": "0x27A1E3-0x27AA73",
+    "scan_records_name_compare": "0x27A20E-0x27A22F",
+    "map_insert_xref": "0x27A242",
+    "scan_insert_xref": "0x27A542",
+    "success_context_label_xref": "0x27A993"
+  },
+  "table_selection": {
+    "scan_table_literal": "scan_records",
+    "scan_table_literal_length": 12,
+    "behavior": "exact 12-byte scan_records argument selects scan_records branch; other observed path uses map_records branch"
+  },
+  "record_layout_from_sql_bind_order": [
+    {
+      "column": "kind",
+      "record_offset": "0x60"
+    },
+    {
+      "column": "server_id",
+      "record_offset": "0x110"
+    },
+    {
+      "column": "record_key",
+      "record_offset": "0x78"
+    },
+    {
+      "column": "point_index",
+      "record_offset": "0x00"
+    },
+    {
+      "column": "uuid",
+      "record_offset": "0xA8 option / payload at 0xB0,0xB8"
+    },
+    {
+      "column": "name",
+      "record_offset": "0xC0 option / payload at 0xC8,0xD0"
+    },
+    {
+      "column": "alliance_name",
+      "record_offset": "0xD8 option / payload at 0xE0,0xE8"
+    },
+    {
+      "column": "level",
+      "record_offset": "0x10"
+    },
+    {
+      "column": "quality",
+      "record_offset": "0x20"
+    },
+    {
+      "column": "power",
+      "record_offset": "0x30"
+    },
+    {
+      "column": "distance",
+      "record_offset": "0x40"
+    },
+    {
+      "column": "shield_end_time",
+      "record_offset": "0x50"
+    },
+    {
+      "column": "updated_at",
+      "record_offset": "0x118"
+    },
+    {
+      "column": "data_json",
+      "record_offset": "0x90"
+    }
+  ],
+  "staging_extra_parameter": "scan_records prepends run_id before the same 14 record fields",
+  "limits": [
+    "This helper consumes an already-built record; it does not reveal per-kind record_key derivation.",
+    "The upstream caller and per-kind normalization/removal producer remain UNKNOWN/BLOCKED.",
+    "No production ingestion, live scan, or current-client result is proven by this static helper.",
+    "A later focused direct binary dump attempt was rejected by the environment automatic safety review and was not rerouted."
+  ]
+}

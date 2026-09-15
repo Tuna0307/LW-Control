@@ -1,0 +1,25 @@
+{
+  "scope": "synthetic DOM only",
+  "sourcePredicate": "(()=>document.querySelector('.map-table--resource tbody tr')?.innerText ?? null)()",
+  "defectReproduced": true,
+  "results": [
+    {
+      "name": "empty-state",
+      "acceptedByCurrentPredicate": true,
+      "expectedForFreshProof": false,
+      "rowText": "No saved data of this type."
+    },
+    {
+      "name": "loading-state",
+      "acceptedByCurrentPredicate": true,
+      "expectedForFreshProof": false,
+      "rowText": "Processing"
+    },
+    {
+      "name": "stale-unrelated-row",
+      "acceptedByCurrentPredicate": true,
+      "expectedForFreshProof": false,
+      "rowText": "Old point 999\tYesterday"
+    }
+  ]
+}

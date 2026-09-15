@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-036",
+  "scope": "LWBridge shared map-scan-state producer bridge request order, recovered field normalization, and current-client handoff boundary",
+  "evidenceStatus": "RECOVERED static producer/request slice; exact named-error mapping and current-client bridge implementation remain UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "preferred-image virtual addresses from the verified PE",
+    "producerVaRange": [
+      "0x00000001400F7F47",
+      "0x00000001400F9333"
+    ]
+  },
+  "bridgeRequestSequence": {
+    "getWorldMapState": {
+      "commandStringVa": "0x00000001400F7FBE",
+      "commandLength": 16,
+      "timeoutFieldVa": "0x00000001400F7FD7",
+      "timeoutMs": 5000,
+      "dispatcherCallVa": "0x00000001400F7FFF",
+      "dispatcherTargetVa": "0x00000001400E4FAD"
+    },
+    "getCurrentServerId": {
+      "commandStringVa": "0x00000001400F80B9",
+      "commandLength": 18,
+      "timeoutFieldVa": "0x00000001400F80D2",
+      "timeoutMs": 5000,
+      "dispatcherCallVa": "0x00000001400F80F7",
+      "dispatcherTargetVa": "0x00000001400E4FAD"
+    },
+    "recovered": [
+      "the shared producer issues getWorldMapState before getCurrentServerId",
+      "both requests use the same bridge dispatcher and the recovered 5000 ms bridge-call timeout",
+      "map_summary therefore consumes a state object built from explicit bridge calls rather than directly reading the rebuild database"
+    ]
+  },
+  "fieldNormalization": {
+    "currentServerResponse": {
+      "serverIdLookupVa": "0x00000001400F81BE-0x00000001400F81D3",
+      "key": "serverId"
+    },
+    "worldMapState": {
+      "isInWorldLookupVa": "0x00000001400F8225-0x00000001400F8232",
+      "isInWorldFallbackVa": "0x00000001400F8325-0x00000001400F8333",
+      "isInWorldBehavior": "missing or non-boolean isInWorld is normalized to false before insertion into the producer state",
+      "homeServerIdLookupVa": "0x00000001400F835F-0x00000001400F8374",
+      "homeServerIdBehavior": "the producer inserts homeServerId only when the decoded value is positive",
+      "seasonServerIdsLookupVa": "0x00000001400F83D1-0x00000001400F83E1",
+      "seasonServerIdsBehavior": "numeric entries are filtered to the inclusive range 1..99999, deduplicated, sorted when needed, and then written back",
+      "truckMatchServerIdsLookupVa": "0x00000001400F85E7-0x00000001400F85F7",
+      "truckMatchServerIdsBehavior": "the same 1..99999 numeric filtering, deduplication and sorting pattern is applied",
+      "isReadingLookupVa": "0x00000001400F8E99-0x00000001400F8EAA"
+    },
+    "sourceMarkers": {
+      "serverIdSourceKeyVa": "0x00000001400F8891",
+      "liveValueVa": "0x00000001400F8855",
+      "noneValueVa": "0x00000001400F8CAE",
+      "currentServerChangedErrorStringVa": "0x00000001400F8A18",
+      "currentServerChangedErrorConstructorCallVa": "0x00000001400F8A2A",
+      "limit": "the successful dump proves these values/branches exist in this producer; the complete condition selecting live versus none and the public named-error mapping are not promoted from partial control-flow alone"
+    }
+  },
+  "currentClientCrossCheck": {
+    "priorFinding": "LWB-R6-035",
+    "knownManagedChain": "GameEntry.Data -> CustomDataManager.Player -> DCPlayer.GetCurServerId()",
+    "negativeMemberSearches": [
+      "--member WorldMapState returned no managed member-name match",
+      "--member CurrentServerId returned no managed member-name match"
+    ],
+    "limit": "the LWBridge bridge command getCurrentServerId is not yet source-attributed to the R6-035 managed/xLua chain; equivalent behavior is plausible but not claimed"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x0F7F47",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --member WorldMapState",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --member CurrentServerId"
+  ],
+  "environmentRestrictions": [
+    "SB-48: a follow-up pipeline that attempted to filter a fresh producer dump to named unavailable/error strings and selected addresses was rejected by automatic review because it could not determine safety status; it was not replayed or rerouted and contributes no technical finding",
+    "SB-49: a combined line-range read of the artifact-evidence and map-scan documentation was rejected during validation; narrower reads succeeded and confirmed the existing 5000 ms bridge-call unit, so the rejected read contributes no technical finding"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "resolved": [
+      "the exact shared-producer bridge command order",
+      "the common dispatcher target and recovered 5000 ms request timeout for both calls",
+      "the producer's isInWorld missing/type fallback",
+      "positive-only homeServerId insertion",
+      "season/truck-match server list filtering, deduplication and sorting"
+    ],
+    "unknownBlocked": [
+      "the exact original public error code/message for getWorldMapState/getCurrentServerId failure or timeout",
+      "the exact condition-to-error mapping for SERVER_UNAVAILABLE/current server id unavailable and map scan state is unavailable",
+      "the full condition selecting serverIdSource=live versus none",
+      "the exact bridge-side implementation of getCurrentServerId and whether it traverses the R6-035 xLua chain",
+      "live current-client correlation"
+    ],
+    "productionBoundary": "map_scan_status and map_summary remain fail-closed; this producer slice is insufficient to reproduce original errors or claim bridge readiness"
+  },
+  "implementationImpact": {
+    "classification": "research checkpoint; no production backend change",
+    "backlog": "closes the shared producer's bridge request order and several normalization rules while leaving named-error mapping and bridge-to-managed linkage open",
+    "nextMethod": "trace the getCurrentServerId/getWorldMapState command handlers through permitted bridge/managed evidence, or use an available live bridge observation target; do not replay SB-42 or SB-48"
+  }
+}
