@@ -2,6 +2,25 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+if (args.Contains("--live-current-client-block-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-runtime-diagnostic", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunRuntimeDiagnosticOnlyAsync();
+    return 0;
+}
+
+if (args.Contains("--overview-official-settle-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
+    Console.WriteLine("overview official settle checks: ok");
+    return 0;
+}
+
 var failures = new List<string>();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 
@@ -2630,12 +2649,12 @@ try
         {
           "capturedAt": "2026-09-09T19:02:27Z",
           "point_records": [
-            {"kind":"resource_point","serverId":2212,"pointId":1006,"x":0,"y":1},
+            {"kind":"resource_point","serverId":2212,"pointId":1006,"x":-1,"y":1},
             {"kind":"resource_point","serverId":2212,"pointId":1007,"x":6,"y":2}
           ]
         }
         """);
-    ExpectInvalidData("x", "first-live replay fails on the first out-of-slice resource instead of silently choosing a later record", () =>
+    ExpectInvalidData("x", "first-live replay rejects a negative edge coordinate instead of silently choosing a later record", () =>
         FirstLiveResultImporter.CreateIsolatedReplay(invalidFirstResourcePath));
 
     string overflowCoordinatePath = Path.Combine(firstLiveReplayRoot, "overflow-coordinate.json");

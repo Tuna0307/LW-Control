@@ -43,6 +43,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly HostProbeCommandService? hostProbeService;
     private readonly OverviewLifecycleService? overviewLifecycleService;
     private readonly LiveResourceProbeCommandService? liveResourceService;
+    private readonly ManualMapScanCommandService? manualMapScanService;
     private readonly string? isolatedConfigRoot;
     private long documentGeneration = 1;
     private DocumentSession documentSession = new(1, EventAllowlist);
@@ -117,21 +118,33 @@ internal sealed class LWBridgeWindow : Form
                 config.Snapshot.ProfileId,
                 liveGameRoot.Valid ? liveGameRoot.Path : null,
                 config: config);
-            liveResourceService = new LiveResourceProbeCommandService(
-                mapData,
-                gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
-                profileId: config.Snapshot.ProfileId);
+            if (normalUiLiveResourceProofPath is null)
+            {
+                manualMapScanService = new ManualMapScanCommandService(overviewLifecycleService, mapData);
+                liveResourceService = null;
+            }
+            else
+            {
+                manualMapScanService = null;
+                liveResourceService = new LiveResourceProbeCommandService(
+                    mapData,
+                    gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
+                    profileId: config.Snapshot.ProfileId);
+            }
         }
         else
         {
             overviewLifecycleService = null;
             liveResourceService = null;
+            manualMapScanService = null;
         }
         INativeAsyncCommandService? productionCommands = hostProbeService;
-        if (productionCommands is null && overviewLifecycleService is not null && liveResourceService is not null)
+        if (productionCommands is null && overviewLifecycleService is not null && manualMapScanService is not null)
+            productionCommands = new CompositeAsyncCommandService(overviewLifecycleService, manualMapScanService);
+        else if (productionCommands is null && overviewLifecycleService is not null && liveResourceService is not null)
             productionCommands = new CompositeAsyncCommandService(overviewLifecycleService, liveResourceService);
         else if (productionCommands is null)
-            productionCommands = (INativeAsyncCommandService?)overviewLifecycleService ?? liveResourceService;
+            productionCommands = (INativeAsyncCommandService?)overviewLifecycleService ?? (INativeAsyncCommandService?)manualMapScanService ?? liveResourceService;
         backend = new LWBridgeBackend(
             config,
             asyncCommands: productionCommands,
@@ -1820,8 +1833,10 @@ internal sealed class LWBridgeWindow : Form
         documentSession.Close();
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged -= OnOverviewRecoveryStatusChanged;
-        overviewLifecycleService?.Close();
+        // IMPLEMENTATION POLICY: drain the dependent scan worker before closing its owned game lifecycle.
+        manualMapScanService?.Close();
         liveResourceService?.Close();
+        overviewLifecycleService?.Close();
         ownerEvidenceRenderCapture?.Cancel();
         ownerEvidenceRenderCapture?.Dispose();
         ownerEvidence?.Record("session-end", new { processId = Environment.ProcessId });

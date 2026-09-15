@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -109,8 +110,8 @@ internal static class FirstLiveResultImporter
             }
 
             // IMPLEMENTATION POLICY: this bounded replay importer currently
-            // accepts only the positive Int32 identity/coordinate slice already
-            // exercised by LWB-R7-001. Do not silently skip an out-of-slice
+            // accepts positive Int32 identity values and non-negative Int32 map
+            // coordinates. Tile zero is a valid current-world edge coordinate.
             // resource and present a later row as though the whole source had
             // been accepted.
             int candidateServerId = RequirePositiveInt32(candidate, "serverId");
@@ -120,8 +121,8 @@ internal static class FirstLiveResultImporter
                     "First-live replay resource serverId must be within the recovered public Map Data range 1 through 99999.");
             }
             RequirePositiveInt32(candidate, "pointId");
-            RequirePositiveInt32(candidate, "x");
-            RequirePositiveInt32(candidate, "y");
+            RequireNonNegativeInt32(candidate, "x");
+            RequireNonNegativeInt32(candidate, "y");
 
             selected = candidate.Clone();
             break;
@@ -133,8 +134,8 @@ internal static class FirstLiveResultImporter
         JsonElement point = selected.Value;
         TryReadPositiveInt(point, "serverId", out int serverId);
         TryReadPositiveInt(point, "pointId", out int pointIndex);
-        TryReadPositiveInt(point, "x", out int x);
-        TryReadPositiveInt(point, "y", out int y);
+        TryReadNonNegativeInt(point, "x", out int x);
+        TryReadNonNegativeInt(point, "y", out int y);
         string recordKey = pointIndex.ToString(CultureInfo.InvariantCulture);
         long updatedAt = capturedAt.ToUnixTimeMilliseconds();
 
@@ -216,7 +217,7 @@ internal static class FirstLiveResultImporter
         if (!selected.HasValue) throw new InvalidDataException("First-live city diagnostics contain no player_base point.");
         JsonElement point=selected.Value;
         int serverId=RequirePositiveInt32(point,"serverId"), pointIndex=RequirePositiveInt32(point,"pointId");
-        int x=RequirePositiveInt32(point,"x"), y=RequirePositiveInt32(point,"y");
+        int x=RequireNonNegativeInt32(point,"x"), y=RequireNonNegativeInt32(point,"y");
         if (serverId>99999) throw new InvalidDataException("First-live city serverId is outside the public Map Data range.");
         string ownerUid=ReadNonEmptyString(point,"ownerUid") ?? throw new InvalidDataException("First-live city is missing ownerUid.");
         string ownerName=ReadNonEmptyString(point,"ownerName") ?? throw new InvalidDataException("First-live city is missing ownerName.");
@@ -234,6 +235,56 @@ internal static class FirstLiveResultImporter
         return new FirstLivePreparedResource(import,record);
     }
 
+    internal static IReadOnlyList<FirstLivePreparedResource> PrepareResourceSnapshot(
+        ReadOnlyMemory<byte> diagnosticsBytes,
+        string sourcePath) =>
+        PrepareSnapshot(diagnosticsBytes, sourcePath, "resource_point", PrepareOneResource);
+
+    internal static IReadOnlyList<FirstLivePreparedResource> PrepareCitySnapshot(
+        ReadOnlyMemory<byte> diagnosticsBytes,
+        string sourcePath) =>
+        PrepareSnapshot(diagnosticsBytes, sourcePath, "player_base", PrepareOneCity);
+
+    private static IReadOnlyList<FirstLivePreparedResource> PrepareSnapshot(
+        ReadOnlyMemory<byte> diagnosticsBytes,
+        string sourcePath,
+        string pointKind,
+        Func<ReadOnlyMemory<byte>, string, FirstLivePreparedResource> prepareOne)
+    {
+        if (diagnosticsBytes.IsEmpty)
+            throw new InvalidDataException("Live candidate snapshot bytes are empty.");
+        string captureSha256 = Convert.ToHexString(SHA256.HashData(diagnosticsBytes.Span)).ToLowerInvariant();
+        using JsonDocument document = JsonDocument.Parse(diagnosticsBytes);
+        JsonElement root = document.RootElement;
+        if (!root.TryGetProperty("point_records", out JsonElement records) || records.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("Live candidate snapshot is missing point_records.");
+
+        var prepared = new List<FirstLivePreparedResource>();
+        foreach (JsonElement candidate in records.EnumerateArray())
+        {
+            if (candidate.ValueKind != JsonValueKind.Object ||
+                !candidate.TryGetProperty("kind", out JsonElement kind) ||
+                kind.ValueKind != JsonValueKind.String ||
+                !string.Equals(kind.GetString(), pointKind, StringComparison.Ordinal))
+                continue;
+
+            JsonObject singleRoot = JsonNode.Parse(root.GetRawText())?.AsObject()
+                ?? throw new InvalidDataException("Live candidate snapshot root could not be normalized.");
+            var singleRecords = new JsonArray();
+            singleRecords.Add(JsonNode.Parse(candidate.GetRawText()));
+            singleRoot["point_records"] = singleRecords;
+            byte[] singleBytes = Encoding.UTF8.GetBytes(singleRoot.ToJsonString(JsonOptions.Default));
+            FirstLivePreparedResource item = prepareOne(singleBytes, sourcePath);
+            prepared.Add(new FirstLivePreparedResource(
+                item.Import with { CaptureSha256 = captureSha256 },
+                item.Record));
+        }
+
+        if (prepared.Count == 0)
+            throw new InvalidDataException($"Live candidate snapshot contains no {pointKind} records.");
+        return prepared;
+    }
+
     private static int RequirePositiveInt32(JsonElement value, string propertyName)
     {
         if (!TryReadPositiveInt(value, propertyName, out int result))
@@ -244,8 +295,19 @@ internal static class FirstLiveResultImporter
         return result;
     }
 
+    private static int RequireNonNegativeInt32(JsonElement value, string propertyName)
+    {
+        if (!TryReadNonNegativeInt(value, propertyName, out int result))
+            throw new InvalidDataException(
+                $"First-live map coordinate {propertyName} must be a non-negative Int32.");
+        return result;
+    }
+
     private static bool TryReadPositiveInt(JsonElement value, string propertyName, out int result) =>
         TryReadInt(value, propertyName, out result) && result > 0;
+
+    private static bool TryReadNonNegativeInt(JsonElement value, string propertyName, out int result) =>
+        TryReadInt(value, propertyName, out result) && result >= 0;
 
     private static bool TryReadInt(JsonElement value, string propertyName, out int result)
     {

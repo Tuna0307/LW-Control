@@ -10,6 +10,13 @@ local root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\live-resou
 local heartbeat_path = root .. [[\heartbeat.json]]
 local command_path = root .. [[\command.txt]]
 local result_path = root .. [[\result.json]]
+local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
+local aoi_diagnostic_result_path = root .. [[\aoi-diagnostic-result.json]]
+local runtime_diagnostic_path = root .. [[\runtime-diagnostic.txt]]
+local runtime_diagnostic_result_path = root .. [[\runtime-diagnostic-result.json]]
+local overview_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\overview-bridge]]
+local overview_control_path = overview_root .. [[\control.txt]]
+local overview_lease_path = overview_root .. [[\lease.txt]]
 local phase = "idle"
 local active_request_id = nil
 local active_launch_session_id = nil
@@ -97,6 +104,36 @@ local function reflection_flags()
     return 52
 end
 
+local function reflection_static_flags()
+    local cs = rawget(_G, "CS")
+    local binding = cs and cs.System and cs.System.Reflection and cs.System.Reflection.BindingFlags
+    if binding ~= nil then
+        local ok, value = pcall(function()
+            return binding.Static + binding.Public + binding.NonPublic
+        end)
+        if ok then return value end
+    end
+    return 56
+end
+
+local function reflected_static_value(component, key)
+    if component == nil then return nil end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return nil end
+    local flags = reflection_static_flags()
+    local ok_property, property = pcall(function() return reflected_type:GetProperty(tostring(key), flags) end)
+    if ok_property and property ~= nil then
+        local ok_value, value = pcall(function() return property:GetValue(nil, nil) end)
+        if ok_value and value ~= nil then return value end
+    end
+    local ok_field, field = pcall(function() return reflected_type:GetField(tostring(key), flags) end)
+    if ok_field and field ~= nil then
+        local ok_value, value = pcall(function() return field:GetValue(nil) end)
+        if ok_value and value ~= nil then return value end
+    end
+    return nil
+end
+
 local function reflected_value(component, key)
     if component == nil then return nil end
     local ok_type, reflected_type = pcall(function() return component:GetType() end)
@@ -113,6 +150,41 @@ local function reflected_value(component, key)
         if ok_value then return value end
     end
     return nil
+end
+
+local function reflected_call(component, key, ...)
+    if component == nil then return false, nil end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return false, nil end
+    local flags = reflection_flags()
+    local ok_method, method = pcall(function() return reflected_type:GetMethod(tostring(key), flags) end)
+    if not ok_method or method == nil then return false, nil end
+    local raw_args = { ... }
+    local arguments = nil
+    if #raw_args > 0 then
+        local cs = rawget(_G, "CS")
+        local typeof_fn = rawget(_G, "typeof")
+        local array_type = cs and cs.System and cs.System.Array or nil
+        local object_type = cs and cs.System and cs.System.Object or nil
+        local int32_type = cs and cs.System and cs.System.Int32 or nil
+        if array_type == nil or object_type == nil or type(typeof_fn) ~= "function" then return false, nil end
+        local ok_args, values = pcall(function()
+            local result = array_type.CreateInstance(typeof_fn(object_type), #raw_args)
+            for index, raw in ipairs(raw_args) do
+                local value = raw
+                if type(raw) == "number" and int32_type ~= nil then
+                    value = int32_type.Parse(tostring(math.floor(raw)))
+                end
+                result:SetValue(value, index - 1)
+            end
+            return result
+        end)
+        if not ok_args or values == nil then return false, nil end
+        arguments = values
+    end
+    local ok_value, value = pcall(function() return method:Invoke(component, arguments) end)
+    if not ok_value then return false, nil end
+    return true, value
 end
 
 local function reflected_field_value(component, key)
@@ -313,6 +385,36 @@ local function write_json(path, value)
     file:write(json_encode(value)); file:close(); return true
 end
 
+local function read_kv_file(path, maximum_bytes)
+    local file = io.open(path, "rb")
+    if file == nil then return nil end
+    local text = file:read("*a") or ""; file:close()
+    if #text > (maximum_bytes or 4096) then return nil end
+    local values = {}
+    for line in string.gmatch(text, "[^\r\n]+") do
+        local key, value = string.match(line, "^([%w_]+)=(.*)$")
+        if key ~= nil then values[key] = value end
+    end
+    return values
+end
+
+local function valid_token(value)
+    return type(value) == "string" and #value > 0 and #value <= 128 and
+        string.match(value, "^[%w_-]+$") ~= nil
+end
+
+local function collection_count(value)
+    if value == nil then return nil end
+    return tonumber(safe_get(value, "Count") or safe_get(value, "Length"))
+end
+
+local function vector_components(value)
+    if value == nil then return nil, nil, nil end
+    return tonumber(safe_get(value, "x") or safe_get(value, "X")),
+        tonumber(safe_get(value, "y") or safe_get(value, "Y")),
+        tonumber(safe_get(value, "z") or safe_get(value, "Z"))
+end
+
 local function write_heartbeat(now)
     return write_json(heartbeat_path, {
         probeVersion = M.VERSION,
@@ -421,7 +523,11 @@ local function resource_record(world, point_manager)
     -- acquisitions are visibly distinguishable when at least two resources are
     -- present. This does not assert an original LWBridge row-selection rule.
     local selected_index = ((acquisition_ordinal - 1) % #candidates) + 1
-    return candidates[selected_index], nil, #candidates, expected, selected_index
+    local ordered = { candidates[selected_index] }
+    for index = 1, #candidates do
+        if index ~= selected_index then ordered[#ordered + 1] = candidates[index] end
+    end
+    return candidates[selected_index], nil, #candidates, expected, selected_index, ordered
 end
 
 local function city_record(world, point_manager)
@@ -476,7 +582,11 @@ local function city_record(world, point_manager)
     if scanned ~= expected then return nil, "loaded point enumeration did not match _pointInfos.Count" end
     if #candidates == 0 then return nil, "no Player City point is loaded after the fresh view response" end
     local selected_index = ((acquisition_ordinal - 1) % #candidates) + 1
-    return candidates[selected_index], nil, #candidates, expected, selected_index
+    local ordered = { candidates[selected_index] }
+    for index = 1, #candidates do
+        if index ~= selected_index then ordered[#ordered + 1] = candidates[index] end
+    end
+    return candidates[selected_index], nil, #candidates, expected, selected_index, ordered
 end
 
 local function read_command()
@@ -510,6 +620,407 @@ local function read_command()
         gamePid = game_pid,
         mapKind = map_kind,
     }, nil
+end
+
+local function active_overview_identity(now)
+    local control = read_kv_file(overview_control_path, 4096)
+    local lease = read_kv_file(overview_lease_path, 4096)
+    if control == nil or lease == nil then return nil, "overview_session_unavailable" end
+    if control.schema ~= "1" or control.bridgeVersion ~= "lwbridge-overview-bridge-1" or
+       not valid_token(control.profileId) or not valid_token(control.sessionId) or
+       not valid_token(control.challenge) then
+        return nil, "overview_control_invalid"
+    end
+    local game_pid = tonumber(control.gamePid)
+    if game_pid == nil or game_pid <= 0 or game_pid ~= math.floor(game_pid) then
+        return nil, "overview_game_pid_invalid"
+    end
+    if lease.schema ~= "1" or lease.bridgeVersion ~= "lwbridge-overview-bridge-1" or
+       lease.sessionId ~= control.sessionId or lease.challenge ~= control.challenge then
+        return nil, "overview_lease_identity_mismatch"
+    end
+    local updated = tonumber(lease.updatedAt)
+    if updated == nil or updated > now + 5 or now - updated > 5 then
+        return nil, "overview_lease_stale"
+    end
+    return {
+        profileId = control.profileId,
+        sessionId = control.sessionId,
+        challenge = control.challenge,
+        gamePid = math.floor(game_pid),
+    }, nil
+end
+
+local function read_aoi_diagnostic(now)
+    local values = read_kv_file(aoi_diagnostic_path, 4096)
+    if values == nil then return nil, nil end
+    pcall(os.remove, aoi_diagnostic_path)
+    local request_id = tostring(values.requestId or "")
+    local request = { requestId = request_id }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request_id) then
+        request.error = "aoi_diagnostic_invalid"
+        return request, nil
+    end
+    local profile_id = tostring(values.profileId or "")
+    local launch_session_id = tostring(values.launchSessionId or "")
+    local challenge = tostring(values.challenge or "")
+    local game_pid = tonumber(values.gamePid)
+    local cell_x = tonumber(values.cellX)
+    local cell_y = tonumber(values.cellY)
+    local tile_count = tonumber(values.tileCount)
+    if not valid_token(profile_id) or not valid_token(launch_session_id) or not valid_token(challenge) or
+       game_pid == nil or game_pid <= 0 or game_pid ~= math.floor(game_pid) or
+       cell_x == nil or cell_y == nil or tile_count == nil or
+       cell_x < 0 or cell_y < 0 or tile_count <= 0 or
+       cell_x ~= math.floor(cell_x) or cell_y ~= math.floor(cell_y) or tile_count ~= math.floor(tile_count) then
+        request.error = "aoi_diagnostic_invalid"
+        return request, nil
+    end
+    request.profileId = profile_id
+    request.launchSessionId = launch_session_id
+    request.challenge = challenge
+    request.gamePid = math.floor(game_pid)
+    request.cellX = math.floor(cell_x)
+    request.cellY = math.floor(cell_y)
+    request.tileCount = math.floor(tile_count)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request, nil end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "aoi_diagnostic_identity_mismatch"
+    end
+    return request, nil
+end
+
+local function read_runtime_diagnostic(now)
+    local values = read_kv_file(runtime_diagnostic_path, 4096)
+    if values == nil then return nil end
+    pcall(os.remove, runtime_diagnostic_path)
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "runtime_diagnostic_invalid"
+        return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) then
+        request.error = "runtime_diagnostic_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "runtime_diagnostic_identity_mismatch"
+    end
+    return request
+end
+
+local function object_shape(value)
+    if value == nil then return { exists = false } end
+    return {
+        exists = true,
+        luaType = type(value),
+        reflectedType = reflected_type_name(value),
+    }
+end
+
+local function write_runtime_diagnostic_result(request, state, error_text, details)
+    details = details or {}
+    write_json(runtime_diagnostic_result_path, {
+        schemaVersion = 1,
+        probeVersion = M.VERSION,
+        requestId = request.requestId,
+        launchSessionId = request.launchSessionId,
+        profileId = request.profileId,
+        challenge = request.challenge,
+        gamePid = request.gamePid,
+        state = state,
+        error = error_text,
+        globalGameEntry = details.globalGameEntry,
+        csGameEntry = details.csGameEntry,
+        luaEntry = details.luaEntry,
+        gameMain = details.gameMain,
+        dataCenter = details.dataCenter,
+        globalEntryNetwork = details.globalEntryNetwork,
+        globalEntryData = details.globalEntryData,
+        globalEntryPlayer = details.globalEntryPlayer,
+        csEntryNetwork = details.csEntryNetwork,
+        csEntryData = details.csEntryData,
+        csEntryPlayer = details.csEntryPlayer,
+        luaEntryPlayer = details.luaEntryPlayer,
+        luaEntryNetwork = details.luaEntryNetwork,
+        luaEntryData = details.luaEntryData,
+        luaEntryGameEntry = details.luaEntryGameEntry,
+        gameMainGameEntry = details.gameMainGameEntry,
+        dataCenterPlayer = details.dataCenterPlayer,
+        globalNetworkManager = details.globalNetworkManager,
+        globalCustomNetworkManager = details.globalCustomNetworkManager,
+        networkLoginedType = details.networkLoginedType,
+        networkLogined = details.networkLogined,
+        networkConnectedType = details.networkConnectedType,
+        networkConnected = details.networkConnected,
+        networkConnectingType = details.networkConnectingType,
+        networkConnecting = details.networkConnecting,
+        reflectedLoginedType = details.reflectedLoginedType,
+        reflectedLogined = details.reflectedLogined,
+        reflectedConnectedType = details.reflectedConnectedType,
+        reflectedConnected = details.reflectedConnected,
+        reflectedConnectingType = details.reflectedConnectingType,
+        reflectedConnecting = details.reflectedConnecting,
+        reflectedLoginedMethodOk = details.reflectedLoginedMethodOk,
+        reflectedLoginedMethodType = details.reflectedLoginedMethodType,
+        reflectedLoginedMethodValue = details.reflectedLoginedMethodValue,
+        reflectedConnectedMethodOk = details.reflectedConnectedMethodOk,
+        reflectedConnectedMethodType = details.reflectedConnectedMethodType,
+        reflectedConnectedMethodValue = details.reflectedConnectedMethodValue,
+        reflectedConnectingMethodOk = details.reflectedConnectingMethodOk,
+        reflectedConnectingMethodType = details.reflectedConnectingMethodType,
+        reflectedConnectingMethodValue = details.reflectedConnectingMethodValue,
+        loginedGetterOk = details.loginedGetterOk,
+        loginedGetterType = details.loginedGetterType,
+        loginedGetterValue = details.loginedGetterValue,
+        connectedGetterOk = details.connectedGetterOk,
+        connectedGetterType = details.connectedGetterType,
+        connectedGetterValue = details.connectedGetterValue,
+        connectingGetterOk = details.connectingGetterOk,
+        connectingGetterType = details.connectingGetterType,
+        connectingGetterValue = details.connectingGetterValue,
+        uidCallOk = details.uidCallOk,
+        uidType = details.uidType,
+        uidNonEmpty = details.uidNonEmpty,
+        serverCallOk = details.serverCallOk,
+        serverNumeric = details.serverNumeric,
+        serverPositive = details.serverPositive,
+        worldPosNumeric = details.worldPosNumeric,
+        worldPosPositive = details.worldPosPositive,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+local function pump_runtime_diagnostic(now)
+    local request = read_runtime_diagnostic(now)
+    if request == nil then return false end
+    if request.error ~= nil then
+        write_runtime_diagnostic_result(request, "failed", request.error, nil)
+        return true
+    end
+    local cs = rawget(_G, "CS")
+    local global_entry = rawget(_G, "GameEntry")
+    local cs_entry = cs and safe_get(cs, "GameEntry") or nil
+    local lua_entry = rawget(_G, "LuaEntry")
+    local game_main = rawget(_G, "GameMain")
+    local data_center = rawget(_G, "DataCenter")
+    local global_data = global_entry and safe_get(global_entry, "Data") or nil
+    local cs_data = cs_entry and safe_get(cs_entry, "Data") or nil
+    local cs_network = cs_entry and safe_get(cs_entry, "Network") or nil
+    local cs_player = cs_data and safe_get(cs_data, "Player") or nil
+    local logged_in = cs_network and safe_get(cs_network, "Logined") or nil
+    local connected = cs_network and safe_get(cs_network, "IsConnected") or nil
+    local connecting = cs_network and safe_get(cs_network, "IsConnecting") or nil
+    local reflected_logined = cs_network and reflected_value(cs_network, "Logined") or nil
+    local reflected_connected = cs_network and reflected_value(cs_network, "IsConnected") or nil
+    local reflected_connecting = cs_network and reflected_value(cs_network, "IsConnecting") or nil
+    local reflected_logined_ok, reflected_logined_method = reflected_call(cs_network, "get_Logined")
+    local reflected_connected_ok, reflected_connected_method = reflected_call(cs_network, "get_IsConnected")
+    local reflected_connecting_ok, reflected_connecting_method = reflected_call(cs_network, "get_IsConnecting")
+    local logined_getter_ok, logined_getter = call(cs_network, "get_Logined")
+    local connected_getter_ok, connected_getter = call(cs_network, "get_IsConnected")
+    local connecting_getter_ok, connecting_getter = call(cs_network, "get_IsConnecting")
+    local uid_ok, uid = call(cs_player, "GetUid")
+    local server_ok, server_id = call(cs_player, "GetCurServerId")
+    local world_pos = cs_player and safe_get(cs_player, "PlayerWorldPointId") or nil
+    local server_numeric = tonumber(server_id)
+    local world_pos_numeric = tonumber(world_pos)
+    write_runtime_diagnostic_result(request, "proven", nil, {
+        globalGameEntry = object_shape(global_entry),
+        csGameEntry = object_shape(cs_entry),
+        luaEntry = object_shape(lua_entry),
+        gameMain = object_shape(game_main),
+        dataCenter = object_shape(data_center),
+        globalEntryNetwork = object_shape(global_entry and safe_get(global_entry, "Network") or nil),
+        globalEntryData = object_shape(global_data),
+        globalEntryPlayer = object_shape(global_data and safe_get(global_data, "Player") or nil),
+        csEntryNetwork = object_shape(cs_entry and safe_get(cs_entry, "Network") or nil),
+        csEntryData = object_shape(cs_data),
+        csEntryPlayer = object_shape(cs_data and safe_get(cs_data, "Player") or nil),
+        luaEntryPlayer = object_shape(lua_entry and safe_get(lua_entry, "Player") or nil),
+        luaEntryNetwork = object_shape(lua_entry and safe_get(lua_entry, "Network") or nil),
+        luaEntryData = object_shape(lua_entry and safe_get(lua_entry, "Data") or nil),
+        luaEntryGameEntry = object_shape(lua_entry and safe_get(lua_entry, "GameEntry") or nil),
+        gameMainGameEntry = object_shape(game_main and safe_get(game_main, "GameEntry") or nil),
+        dataCenterPlayer = object_shape(data_center and safe_get(data_center, "Player") or nil),
+        globalNetworkManager = object_shape(rawget(_G, "NetworkManager")),
+        globalCustomNetworkManager = object_shape(rawget(_G, "CustomNetworkManager")),
+        networkLoginedType = type(logged_in),
+        networkLogined = type(logged_in) == "boolean" and logged_in or nil,
+        networkConnectedType = type(connected),
+        networkConnected = type(connected) == "boolean" and connected or nil,
+        networkConnectingType = type(connecting),
+        networkConnecting = type(connecting) == "boolean" and connecting or nil,
+        reflectedLoginedType = type(reflected_logined),
+        reflectedLogined = type(reflected_logined) == "boolean" and reflected_logined or nil,
+        reflectedConnectedType = type(reflected_connected),
+        reflectedConnected = type(reflected_connected) == "boolean" and reflected_connected or nil,
+        reflectedConnectingType = type(reflected_connecting),
+        reflectedConnecting = type(reflected_connecting) == "boolean" and reflected_connecting or nil,
+        reflectedLoginedMethodOk = reflected_logined_ok == true,
+        reflectedLoginedMethodType = type(reflected_logined_method),
+        reflectedLoginedMethodValue = type(reflected_logined_method) == "boolean" and reflected_logined_method or nil,
+        reflectedConnectedMethodOk = reflected_connected_ok == true,
+        reflectedConnectedMethodType = type(reflected_connected_method),
+        reflectedConnectedMethodValue = type(reflected_connected_method) == "boolean" and reflected_connected_method or nil,
+        reflectedConnectingMethodOk = reflected_connecting_ok == true,
+        reflectedConnectingMethodType = type(reflected_connecting_method),
+        reflectedConnectingMethodValue = type(reflected_connecting_method) == "boolean" and reflected_connecting_method or nil,
+        loginedGetterOk = logined_getter_ok == true,
+        loginedGetterType = type(logined_getter),
+        loginedGetterValue = type(logined_getter) == "boolean" and logined_getter or nil,
+        connectedGetterOk = connected_getter_ok == true,
+        connectedGetterType = type(connected_getter),
+        connectedGetterValue = type(connected_getter) == "boolean" and connected_getter or nil,
+        connectingGetterOk = connecting_getter_ok == true,
+        connectingGetterType = type(connecting_getter),
+        connectingGetterValue = type(connecting_getter) == "boolean" and connecting_getter or nil,
+        uidCallOk = uid_ok == true,
+        uidType = type(uid),
+        uidNonEmpty = uid ~= nil and tostring(uid) ~= "",
+        serverCallOk = server_ok == true,
+        serverNumeric = server_numeric ~= nil,
+        serverPositive = server_numeric ~= nil and server_numeric > 0,
+        worldPosNumeric = world_pos_numeric ~= nil,
+        worldPosPositive = world_pos_numeric ~= nil and world_pos_numeric > 0,
+    })
+    return true
+end
+
+local function read_aoi_size_array(point_manager)
+    local raw = safe_get(point_manager, "lwAoiBlockSizeArray") or
+        reflected_value(point_manager, "lwAoiBlockSizeArray")
+    if raw == nil then
+        raw = reflected_static_value(point_manager, "lwAoiBlockSizeArray") or
+            reflected_static_value(point_manager, "_lwAoiBlockSizeArray")
+    end
+    if raw == nil then
+        local cs = rawget(_G, "CS")
+        local point_manager_type = cs and safe_get(cs, "WorldPointManager") or nil
+        raw = point_manager_type and safe_get(point_manager_type, "lwAoiBlockSizeArray") or nil
+    end
+    if raw == nil then return nil end
+    local length = tonumber(safe_get(raw, "Length") or safe_get(raw, "Count"))
+    if length == nil or length < 1 or length > 32 then return nil end
+    local result = {}
+    for index = 0, math.floor(length) - 1 do
+        local value = tonumber(safe_get(raw, index))
+        if value == nil then value = tonumber(safe_get(raw, index + 1)) end
+        if value == nil then return nil end
+        result[#result + 1] = math.floor(value)
+    end
+    return result
+end
+
+local function write_aoi_diagnostic_result(request, state, error_text, details)
+    details = details or {}
+    write_json(aoi_diagnostic_result_path, {
+        schemaVersion = 1,
+        probeVersion = M.VERSION,
+        requestId = request.requestId,
+        launchSessionId = request.launchSessionId,
+        profileId = request.profileId,
+        challenge = request.challenge,
+        gamePid = request.gamePid,
+        state = state,
+        error = error_text,
+        cellX = request.cellX,
+        cellY = request.cellY,
+        tileCount = request.tileCount,
+        currentLod = details.currentLod,
+        serverLod = details.serverLod,
+        lwAoiBlockSizeArray = details.aoiSizes,
+        lwAoiBlockSize = details.blockSize,
+        lwAoiBlockCount = details.blockCount,
+        msgViewIndexCount = details.msgCount,
+        addViewIndexCount = details.addCount,
+        curViewIndexCount = details.curCount,
+        aoiIndex = details.aoiIndex,
+        centerX = details.centerX,
+        centerY = details.centerY,
+        centerZ = details.centerZ,
+        method = details.method or "WorldPointManager.AoiBlockToIndex+GetAoiIndexCenter(read-only)",
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+local function pump_aoi_diagnostic(now)
+    local request = select(1, read_aoi_diagnostic(now))
+    if request == nil then return false end
+    if request.error ~= nil then
+        write_aoi_diagnostic_result(request, "failed", request.error, nil)
+        return true
+    end
+    local world, point_manager, world_error = runtime_world()
+    if world == nil or point_manager == nil then
+        write_aoi_diagnostic_result(request, "failed", world_error or "world_unavailable", nil)
+        return true
+    end
+    local lod = integer_field(point_manager, { "LOD" })
+    local ok_server_lod, raw_server_lod = false, nil
+    if lod ~= nil then ok_server_lod, raw_server_lod = call(point_manager, "GetServerLod", lod) end
+    local server_lod = ok_server_lod and tonumber(raw_server_lod) or nil
+    local aoi_sizes = read_aoi_size_array(point_manager)
+    if lod == nil or server_lod == nil or aoi_sizes == nil then
+        write_aoi_diagnostic_result(request, "failed", "aoi_geometry_unavailable", nil)
+        return true
+    end
+    local block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+    local block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+    local ok_index, raw_index = reflected_call(point_manager, "AoiBlockToIndex", request.cellX, request.cellY)
+    local aoi_index = ok_index and tonumber(raw_index) or nil
+    local method = "WorldPointManager.AoiBlockToIndex+GetAoiIndexCenter(read-only)"
+    if aoi_index == nil then
+        if block_count == nil or block_count <= 0 then
+            write_aoi_diagnostic_result(request, "failed", "aoi_index_unavailable", nil)
+            return true
+        end
+        -- Exact current-v16 IL: AoiBlockToIndex(x,y) = y * _lwAoiBlockCount + x.
+        aoi_index = request.cellY * block_count + request.cellX
+        method = "WorldPointManager.AoiBlockToIndex+GetAoiIndexCenter(recovered-v16-IL,read-only)"
+    end
+    local ok_center, center = reflected_call(point_manager, "GetAoiIndexCenter", math.floor(aoi_index))
+    local center_x, center_y, center_z = nil, nil, nil
+    if ok_center then center_x, center_y, center_z = vector_components(center) end
+    if center_x == nil or center_z == nil then
+        if block_size == nil or block_size <= 0 then
+            write_aoi_diagnostic_result(request, "failed", "aoi_center_unavailable", nil)
+            return true
+        end
+        -- Exact current-v16 IL after IndexToAoiBlock: center=(2*size*x+size,0,2*size*y+size).
+        center_x = block_size * request.cellX * 2 + block_size
+        center_y = 0
+        center_z = block_size * request.cellY * 2 + block_size
+        method = "WorldPointManager.AoiBlockToIndex+GetAoiIndexCenter(recovered-v16-IL,read-only)"
+    end
+    write_aoi_diagnostic_result(request, "proven", nil, {
+        currentLod = lod,
+        serverLod = math.floor(server_lod),
+        aoiSizes = aoi_sizes,
+        blockSize = block_size,
+        blockCount = block_count,
+        msgCount = collection_count(reflected_value(point_manager, "_msgViewIndex")),
+        addCount = collection_count(reflected_value(point_manager, "_addViewIndex")),
+        curCount = collection_count(reflected_value(point_manager, "_curViewIndex")),
+        aoiIndex = math.floor(aoi_index),
+        centerX = center_x,
+        centerY = center_y,
+        centerZ = center_z,
+        method = method,
+    })
+    return true
 end
 
 local function begin_refresh(world, point_manager)
@@ -578,6 +1089,8 @@ end
 function M.Pump()
     local now = tonumber(os.time()) or 0
     if active_request_id == nil then
+        pump_runtime_diagnostic(now)
+        pump_aoi_diagnostic(now)
         local command, command_error = read_command()
         if command == false then
             write_json(result_path, {
@@ -628,11 +1141,11 @@ function M.Pump()
         local world_received = world_response_flag(world)
         if manager_received == true and world_received == true then
             local response_phase = phase
-            local point, point_error, matched_count, loaded_count, selected_index
+            local point, point_error, matched_count, loaded_count, selected_index, point_records
             if active_map_kind == "city" then
-                point, point_error, matched_count, loaded_count, selected_index = city_record(world, point_manager)
+                point, point_error, matched_count, loaded_count, selected_index, point_records = city_record(world, point_manager)
             else
-                point, point_error, matched_count, loaded_count, selected_index = resource_record(world, point_manager)
+                point, point_error, matched_count, loaded_count, selected_index, point_records = resource_record(world, point_manager)
             end
             if point == nil and active_map_kind == "city" and response_phase == "waiting_response" and not city_targeted_requested then
                 local targeted, target_error = begin_targeted_city_refresh(world, point_manager)
@@ -672,7 +1185,10 @@ function M.Pump()
                 cityTargetedView = active_map_kind == "city" and city_targeted_requested or nil,
                 cityTargetPointId = active_map_kind == "city" and city_target_point_id or nil,
                 cityTargetLod = active_map_kind == "city" and city_target_lod or nil,
-                point_records = { point },
+                -- IMPLEMENTATION POLICY: expose the complete candidate snapshot from
+                -- this one proven fresh response. Keep the rotating selected row first
+                -- so the existing bounded one-row importer remains backward compatible.
+                point_records = point_records or { point },
             })
             active_request_id = nil; active_launch_session_id = nil; active_profile_id = nil; active_game_pid = nil; active_map_kind = nil
             city_targeted_requested = false; city_target_point_id = nil; city_target_lod = nil

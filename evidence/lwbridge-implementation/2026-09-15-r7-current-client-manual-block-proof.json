@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-004",
+  "date": "2026-09-15",
+  "status": ["LIVE-PROVEN", "IMPLEMENTED/OFFLINE-TESTED"],
+  "scope": "current-v16 arbitrary Resource block source plus bounded production Manual Scan Start/Stop",
+  "officialClient": {
+    "packageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+    "packageSize": 41278785,
+    "packageCrc32": 3454076078,
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpRdlSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "entryCount": 18734
+  },
+  "candidate": {
+    "packageSha256": "197d324876e6b799b344f355d6871157755bc4f608d09d02644b85a5cb4c47d1",
+    "packageSize": 41302005,
+    "packageCrc32": 588174926,
+    "bridgeSourceSha256": "de62d4d2a25d3295e2e66c56046b513ba20cb5d6e2aaa73ae1355144a62a9903",
+    "wrapperPlaintextSha256": "cad6d867d9d2d533734fa9ce2e6af6ecb5ec74988d58b7b01c91acd7a7c343eb"
+  },
+  "liveContext": {"serverId": 2212, "worldId": 0, "tileWidth": 1000, "tileHeight": 1000},
+  "manualScan": {"scanMode": "normal", "concurrency": 8, "totalBlocks": 2500, "completedBlocksBeforeStop": 1, "finalPhase": "idle", "stopped": true},
+  "arbitraryBlock": {"blockIndex": 255, "minX": 100, "minY": 100, "maxX": 119, "maxY": 119, "serverLod": 0, "aoiBlockSize": 10, "cellMatchedCounts": [12, 11, 11, 11], "recordsInBlock": 3, "recordKeys": ["106103", "107113", "113113"]},
+  "edgeCoordinateObservation": {"source": "WorldPointManager._pointInfos", "pointId": 9, "x": 8, "y": 0, "capturedAt": "2026-09-15T03:43:45Z", "result": "valid tile-zero coordinate exposed importer positive-only defect"},
+  "aoiDiagnostics": [
+    {"cellX": 0, "cellY": 0, "blockSize": 10, "blockCount": 100, "aoiIndex": 0, "center": [10,0,10]},
+    {"cellX": 1, "cellY": 0, "blockSize": 10, "blockCount": 100, "aoiIndex": 1, "center": [30,0,10]},
+    {"cellX": 0, "cellY": 1, "blockSize": 10, "blockCount": 100, "aoiIndex": 100, "center": [10,0,30]}
+  ],
+  "validation": {"releaseBuildWarnings": 0, "releaseBuildErrors": 0, "deterministicSuiteOk": true, "luaSyntaxOk": true, "postRunInstalledFilesChanged": false, "postRunRecovery": null, "postRunGameRunning": false, "postRunLauncherRunning": false},
+  "limits": [
+    "Production proof intentionally stopped after one completed engine block; it is not a 2500-block completion/publication proof.",
+    "Normal/Fast values 8/20 are recovered and wired, but current camera acquisition remains single-owner/sequential because original XluaBridgeMapScanTick pacing is unrecovered.",
+    "Native acknowledgement/removal/drain and dropped-record readiness semantics remain unresolved.",
+    "Current live source supports one city or resource kind per run; mixed and the other six kinds remain fail-closed.",
+    "No direct WorldPointManager.SendAoiRequest was used."
+  ]
+}

@@ -1,6 +1,6 @@
 # Current Web technical packet and owner-test preparation
 
-**Current transition, 2026-09-13:** PM17-02/01 are delivered at `f24fef39bbe41a8655595da2c9c9da1bcb9e9811` with GitHub Actions `34711920482` SUCCESS. Web is now working directly on [Player City Map Data](map-data-delivery.md). S03/S06 remain deferred.
+**Current transition, 2026-09-15:** `LWB-R7-004` is the active technical checkpoint. Current v16 live context, arbitrary-target Resource blocks, ordinary production Manual Start through the shared engine, one completed Normal block and bounded Stop-to-idle are LIVE-PROVEN. The next live acceptance target is Player City through the same ordinary Manual Start path and a complete publish/Search/reopen cycle. No owner action is requested for this technical checkpoint. S03/S06 remain deferred.
 
 ### Corrected-build Overview regression packet — PREPARED / NOT RUN
 

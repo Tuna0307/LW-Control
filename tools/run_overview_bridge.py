@@ -52,10 +52,15 @@ def bridge_source() -> bytes:
     return data
 
 
+def resource_probe_source() -> bytes:
+    return (HERE / "current_live_resource_probe.lua").read_bytes()
+
+
 def wrapper_source() -> bytes:
     prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
-    suffix = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal function pump_bridge()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_bridge()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\npump_bridge()\nreturn original\n'''
-    return prefix + bridge_source() + suffix
+    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal probe = (function()\n'''
+    suffix = b'''\nend)()\nif type(probe) ~= "table" then error("embedded live-resource probe did not return a table") end\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then pcall(probe.Pump) end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
+    return prefix + bridge_source() + between + resource_probe_source() + suffix
 
 
 def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
@@ -131,7 +136,21 @@ def write_kv_atomic(path: Path, values: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_name(path.name + ".tmp-" + uuid.uuid4().hex)
     temp.write_text("".join(f"{key}={value}\n" for key, value in values.items()), encoding="utf-8")
-    os.replace(temp, path)
+    deadline = time.monotonic() + 1.0
+    try:
+        while True:
+            try:
+                os.replace(temp, path)
+                return
+            except PermissionError:
+                if time.monotonic() >= deadline:
+                    raise
+                time.sleep(0.02)
+    finally:
+        try:
+            temp.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def write_control(p: dict[str, Path], profile_id: str, session_id: str, challenge: str, game_pid: int) -> None:
@@ -164,6 +183,29 @@ def clear_stale_runtime(p: dict[str, Path]) -> None:
             (p["runtime"] / name).unlink()
         except FileNotFoundError:
             pass
+
+
+def close_owned_launcher_process(launcher_process, wait_seconds: float = 10.0) -> None:
+    if launcher_process is None or launcher_process.poll() is not None:
+        return
+    command = (
+        f"$process = Get-Process -Id {launcher_process.pid} -ErrorAction Stop; "
+        "if (-not $process.CloseMainWindow()) { exit 4 }"
+    )
+    result = lr.subprocess.run(
+        ["powershell.exe", "-NoProfile", "-Command", command],
+        capture_output=True, text=True, timeout=5, check=False,
+    )
+    if result.returncode != 0:
+        raise OverviewBridgeError(
+            f"helper-owned launcher normal close was not accepted (pid {launcher_process.pid})"
+        )
+    try:
+        launcher_process.wait(timeout=wait_seconds)
+    except lr.subprocess.TimeoutExpired as exc:
+        raise OverviewBridgeError(
+            f"helper-owned launcher did not exit after normal close (pid {launcher_process.pid})"
+        ) from exc
 
 
 def read_json(path: Path) -> dict[str, object] | None:
@@ -231,6 +273,7 @@ def run_start(
         recovery_armed = True
         candidate_info: dict[str, object] | None = None
         owned_game: dict[str, object] | None = None
+        launcher_process = None
         try:
             candidate_info = make_candidate(p, candidate_root)
             lr.install_candidate(
@@ -304,6 +347,12 @@ def run_start(
                 })
             except Exception:
                 pass
+            launcher_close_error: Exception | None = None
+            if owned_game is None and launcher_process is not None:
+                try:
+                    close_owned_launcher_process(launcher_process)
+                except Exception as exc:
+                    launcher_close_error = exc
             if recovery_armed:
                 first_restore_error: Exception | None = None
                 try:
@@ -345,6 +394,10 @@ def run_start(
                     raise OverviewBridgeError(
                         f"Overview start failed: {run_error}; cleanup incomplete: {'; '.join(details)}"
                     ) from run_error
+            if launcher_close_error is not None:
+                raise OverviewBridgeError(
+                    f"Overview start failed: {run_error}; helper-owned launcher cleanup failed: {launcher_close_error}"
+                ) from run_error
             raise
         finally:
             shutil.rmtree(candidate_root, ignore_errors=True)
