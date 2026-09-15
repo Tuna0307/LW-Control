@@ -409,6 +409,62 @@ local function collection_count(value)
     return tonumber(safe_get(value, "Count") or safe_get(value, "Length"))
 end
 
+local function collection_int_values(value, limit)
+    local expected = collection_count(value)
+    if expected == nil or expected < 0 or expected > limit then return nil, "count_invalid" end
+    local cs = rawget(_G, "CS")
+    local typeof_fn = rawget(_G, "typeof")
+    local array_type = cs and cs.System and cs.System.Array or nil
+    local int32_type = cs and cs.System and cs.System.Int32 or nil
+    local object_type = cs and cs.System and cs.System.Object or nil
+    if array_type == nil or int32_type == nil or object_type == nil or type(typeof_fn) ~= "function" then
+        return nil, "array_type_unavailable"
+    end
+    local ok_array, values = pcall(function()
+        return array_type.CreateInstance(typeof_fn(int32_type), expected)
+    end)
+    if not ok_array or values == nil then return nil, "array_create_failed" end
+    local copied = select(1, call(value, "CopyTo", values))
+    local method = copied and "HashSet.CopyTo(int[])" or nil
+    if not copied then
+        local ok_type, reflected_type = pcall(function() return value:GetType() end)
+        local flags = reflection_flags()
+        local methods = ok_type and reflected_type and reflected_type:GetMethods(flags) or nil
+        each(methods, 128, function(candidate)
+            if copied or tostring(safe_get(candidate, "Name") or "") ~= "CopyTo" then return true end
+            local parameters = candidate:GetParameters()
+            local length = tonumber(safe_get(parameters, "Length") or safe_get(parameters, "Count"))
+            if length ~= 1 then return true end
+            local parameter = safe_get(parameters, 0) or safe_get(parameters, 1)
+            local parameter_type = parameter and safe_get(parameter, "ParameterType") or nil
+            local is_array = parameter_type and safe_get(parameter_type, "IsArray") == true
+            local element_type = is_array and parameter_type:GetElementType() or nil
+            if element_type == nil or tostring(element_type) ~= "System.Int32" then return true end
+            local args = array_type.CreateInstance(typeof_fn(object_type), 1)
+            args:SetValue(values, 0)
+            local ok_invoke = pcall(function() candidate:Invoke(value, args) end)
+            if ok_invoke then copied = true; method = "HashSet.CopyTo(int[])-reflection" end
+            return not copied
+        end)
+    end
+    if not copied then return nil, "copyto_failed" end
+    local result = {}
+    for index = 0, expected - 1 do
+        local raw = safe_get(values, index)
+        if raw == nil then
+            local ok_get, observed = call(values, "GetValue", index)
+            raw = ok_get and observed or nil
+        end
+        local numeric = tonumber(safe_get(raw, "Value") or raw)
+        if numeric == nil or numeric < 0 or numeric ~= math.floor(numeric) then
+            return nil, "copied_value_invalid"
+        end
+        result[#result + 1] = math.floor(numeric)
+    end
+    table.sort(result)
+    return result, method
+end
+
 local function vector_components(value)
     if value == nil then return nil, nil, nil end
     return tonumber(safe_get(value, "x") or safe_get(value, "X")),
@@ -1183,6 +1239,11 @@ function M.Pump()
                 route = route .. "+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)"
                 response_evidence = response_evidence .. ";targetedSameServerView=false->true"
             end
+            local current_view_set = reflected_value(point_manager, "_curViewIndex")
+            local current_view_indices, current_view_method = collection_int_values(current_view_set, 20000)
+            local current_view_count = collection_count(current_view_set)
+            local live_aoi_block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+            local live_aoi_block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
             write_json(result_path, {
                 schemaVersion = 1,
                 probeVersion = M.VERSION,
@@ -1197,6 +1258,11 @@ function M.Pump()
                 requestRoute = route,
                 responseEvidence = response_evidence,
                 source = "WorldPointManager._pointInfos",
+                lwAoiBlockSize = live_aoi_block_size,
+                lwAoiBlockCount = live_aoi_block_count,
+                curViewIndexCount = current_view_count,
+                curViewIndices = current_view_indices,
+                curViewIndexMethod = current_view_method,
                 loadedPointCount = loaded_count,
                 resourcePointCount = active_map_kind == "resource" and matched_count or nil,
                 cityPointCount = active_map_kind == "city" and matched_count or nil,

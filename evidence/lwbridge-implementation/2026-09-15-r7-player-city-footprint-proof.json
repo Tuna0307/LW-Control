@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-006",
+  "date": "2026-09-15",
+  "status": [
+    "LIVE-PROVEN",
+    "IMPLEMENTED/OFFLINE-TESTED",
+    "RECOVERED"
+  ],
+  "scope": "current-v16 Player City one-response AOI footprint coverage using WorldPointManager._curViewIndex",
+  "officialClient": {
+    "packageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpRdlSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
+  },
+  "candidate": {
+    "packageSha256": "e2fcdce55ad17bd589ab4ffc2f58d643f476ca0c7efdc67cb5c4f09a0c609050",
+    "probeSourceSha256": "d1a0d0026e5502fa8aa3dce4a21fb4b299c3722e54dd3b656721e28304e07590"
+  },
+  "recoveredRuntime": {
+    "source": "Assembly-CSharp.rdl current v16",
+    "updateLwAoiNormal": {
+      "methodRow": 13597,
+      "rva": "0x153e54"
+    },
+    "recalculateBlockArg": {
+      "methodRow": 13748,
+      "rva": "0x15b414"
+    },
+    "indexFormula": "cellY * lwAoiBlockCount + cellX",
+    "lod0BlockSize": 10
+  },
+  "implementationLocators": {
+    "probeCopy": "tools/current_live_resource_probe.lua:412,1243,1263-1265",
+    "cityValidation": "src/LWBridge.Desktop/CurrentClientMapBlockSource.cs:89,372-378",
+    "cityCoverage": "src/LWBridge.Desktop/CurrentClientMapBlockSource.Aoi.cs:30-93,144-148"
+  },
+  "liveContext": {
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000
+  },
+  "cityContainingBlock": {
+    "targetSource": "sanitized_prior_city_tile",
+    "targetX": 495,
+    "targetY": 40,
+    "blockIndex": 124,
+    "bounds": [
+      480,
+      40,
+      499,
+      59
+    ],
+    "recordsInBlock": 1,
+    "responseCount": 1,
+    "cellMatchedCounts": [
+      4,
+      4,
+      4,
+      4
+    ],
+    "coverage": "live_cur_view_index_covered",
+    "footprintSource": "WorldPointManager._curViewIndex"
+  },
+  "emptyCurrentViewBlock": {
+    "blockIndex": 0,
+    "bounds": [
+      0,
+      0,
+      19,
+      19
+    ],
+    "recordsInBlock": 0,
+    "responseCount": 1,
+    "cellMatchedCounts": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "coverage": "live_cur_view_index_covered",
+    "footprintSource": "WorldPointManager._curViewIndex",
+    "fallbackAllowed": false
+  },
+  "copyMechanismLiveObservation": {
+    "field": "WorldPointManager._curViewIndex",
+    "declaredCount": 12,
+    "copiedCount": 12,
+    "method": "HashSet.CopyTo(int[])",
+    "sampleIndices": [
+      0,
+      1,
+      2,
+      3,
+      100,
+      101,
+      102,
+      103
+    ],
+    "note": "same current-v16 helper observation; recorded separately from the final City snapshot"
+  },
+  "manualScanRegression": {
+    "mode": "normal",
+    "requestedConcurrency": 8,
+    "totalBlocks": 2500,
+    "completedBlocksBeforeStop": 1,
+    "finalPhase": "idle",
+    "stopped": true
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicSuiteOk": true,
+    "luaSyntaxOk": true,
+    "deployedLuaMatchesSource": true,
+    "liveProofExitCode": 0,
+    "postRunInstalledFilesChanged": false,
+    "postRunRecovery": null,
+    "postRunGameRunning": false,
+    "postRunLauncherRunning": false
+  },
+  "limits": [
+    "This proves one-response coverage for the bounded populated and empty Player City blocks, not a complete 2500-block run or publication.",
+    "City footprint reuse is conditional on the live current-view set covering every planned cell; the source navigates another pending cell when coverage is incomplete.",
+    "Resource acquisition remains on the prior per-cell path; this checkpoint makes no Resource footprint-reuse claim.",
+    "Native acknowledgement/removal/drain semantics and original XluaBridgeMapScanTick pacing remain unresolved.",
+    "Committed proof contains no player name, UID, alliance identity, or raw City data_json."
+  ]
+}

@@ -152,8 +152,14 @@ internal static class LiveCurrentClientMapBlockProof
         using JsonDocument cityPayload = JsonDocument.Parse(cityCapture.PayloadJson);
         int[] cityCellCounts = cityPayload.RootElement.GetProperty("cells").EnumerateArray()
             .Select(cell => cell.GetProperty("matchedCount").GetInt32()).ToArray();
+        int cityResponseCount = cityPayload.RootElement.GetProperty("responseCount").GetInt32();
+        string? cityCoverage = cityPayload.RootElement.GetProperty("coverage").GetString();
+        string? cityFootprintSource = cityPayload.RootElement.GetProperty("footprintSource").GetString();
         if (cityCapture.Records.Count == 0)
             throw new InvalidDataException("Current Player City block returned no in-block city records.");
+        if (cityResponseCount != 1 || cityCoverage != "live_cur_view_index_covered" ||
+            cityFootprintSource != "WorldPointManager._curViewIndex")
+            throw new InvalidDataException("Player City block did not prove one-response current-view AOI coverage.");
 
         object? emptyProof = null;
         var seen = new HashSet<int>();
@@ -170,7 +176,13 @@ internal static class LiveCurrentClientMapBlockProof
             using JsonDocument edgePayload = JsonDocument.Parse(edgeCapture.PayloadJson);
             int[] counts = edgePayload.RootElement.GetProperty("cells").EnumerateArray()
                 .Select(cell => cell.GetProperty("matchedCount").GetInt32()).ToArray();
+            int edgeResponseCount = edgePayload.RootElement.GetProperty("responseCount").GetInt32();
+            string? edgeCoverage = edgePayload.RootElement.GetProperty("coverage").GetString();
+            string? edgeFootprintSource = edgePayload.RootElement.GetProperty("footprintSource").GetString();
             if (!counts.Any(count => count == 0)) continue;
+            if (edgeResponseCount != 1 || edgeCoverage != "live_cur_view_index_covered" ||
+                edgeFootprintSource != "WorldPointManager._curViewIndex")
+                throw new InvalidDataException("Empty Player City block did not prove one-response current-view AOI coverage.");
             emptyProof = new
             {
                 candidate.BlockIndex,
@@ -179,6 +191,9 @@ internal static class LiveCurrentClientMapBlockProof
                 candidate.MaxX,
                 candidate.MaxY,
                 recordsInBlock = edgeCapture.Records.Count,
+                responseCount = edgeResponseCount,
+                coverage = edgeCoverage,
+                footprintSource = edgeFootprintSource,
                 cellMatchedCounts = counts,
             };
             break;
@@ -202,6 +217,9 @@ internal static class LiveCurrentClientMapBlockProof
                 cityBlock.MaxX,
                 cityBlock.MaxY,
                 recordsInBlock = cityCapture.Records.Count,
+                responseCount = cityResponseCount,
+                coverage = cityCoverage,
+                footprintSource = cityFootprintSource,
                 cellMatchedCounts = cityCellCounts,
             },
             emptyCurrentView = emptyProof,

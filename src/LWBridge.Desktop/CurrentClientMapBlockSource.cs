@@ -83,28 +83,30 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
 
         var records = new Dictionary<string, MapStoredRecord>(StringComparer.Ordinal);
         var cellSummaries = new List<AoiCellCaptureSummary>(plan.Cells.Count);
-        foreach (CurrentClientAoiCell cell in plan.Cells)
+        int? responseCount = null;
+        if (mapKind == "city")
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            NavigationObservation navigation = await NavigateAsync(
-                    session, request.ServerId, request.WorldId, cell.TargetX, cell.TargetY, cancellationToken)
-                .ConfigureAwait(false);
-            if (navigation.ServerLod != plan.ServerLod || !navigation.AoiBlockSizes.SequenceEqual(initialNavigation.AoiBlockSizes))
-                throw new InvalidDataException("Current-client AOI geometry changed during map acquisition.");
-            RequireSameSession(session);
-            AoiCellCaptureSummary summary = await CaptureCurrentViewAsync(
-                session,
-                request,
-                mapKind,
-                block,
-                cell,
-                records,
-                cancellationToken).ConfigureAwait(false);
-            cellSummaries.Add(summary);
+            responseCount = await CaptureCityFootprintAsync(session, request, block, initialNavigation, plan,
+                records, cellSummaries, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            foreach (CurrentClientAoiCell cell in plan.Cells)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                NavigationObservation navigation = await NavigateAsync(
+                        session, request.ServerId, request.WorldId, cell.TargetX, cell.TargetY, cancellationToken)
+                    .ConfigureAwait(false);
+                ValidateStableAoiGeometry(navigation, initialNavigation, plan);
+                RequireSameSession(session);
+                AoiCellCaptureSummary summary = await CaptureCurrentViewAsync(
+                    session, request, mapKind, block, cell, records, cancellationToken).ConfigureAwait(false);
+                cellSummaries.Add(summary);
+            }
         }
 
         RequireSameSession(session);
-        return BuildCapture(request, block, initialNavigation, plan, cellSummaries, records.Values);
+        return BuildCapture(request, block, initialNavigation, plan, cellSummaries, records.Values, responseCount);
     }
 
     private OverviewMapScanSession RequireReadySession() =>
@@ -350,7 +352,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
             if (mapKind == "resource" &&
                 string.Equals(error, "no resource point is loaded after the fresh view response", StringComparison.Ordinal))
             {
-                return new ProbeObservation(0, 0, false, true, Array.Empty<FirstLivePreparedResource>());
+                return new ProbeObservation(0, 0, false, true,
+                    0, 0, Array.Empty<int>(), Array.Empty<FirstLivePreparedResource>());
             }
             throw new InvalidDataException($"Live {mapKind} probe failed: {error}");
         }
@@ -359,6 +362,20 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
 
         const string currentViewRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)";
         const string currentViewEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true";
+        int liveAoiBlockSize = 0;
+        int liveAoiBlockCount = 0;
+        int[] currentViewIndices = Array.Empty<int>();
+        if (mapKind == "city")
+        {
+            liveAoiBlockSize = RequirePositiveInt(root, "lwAoiBlockSize");
+            liveAoiBlockCount = RequirePositiveInt(root, "lwAoiBlockCount");
+            int currentViewIndexCount = RequirePositiveInt(root, "curViewIndexCount");
+            currentViewIndices = RequireNonNegativeIntArray(root, "curViewIndices");
+            long maxIndexExclusive = checked((long)liveAoiBlockCount * liveAoiBlockCount);
+            if (currentViewIndices.Length != currentViewIndexCount ||
+                currentViewIndices.Any(index => index >= maxIndexExclusive))
+                throw new InvalidDataException("Player City current-view AOI footprint is incomplete or out of range.");
+        }
         if (mapKind == "city" &&
             root.TryGetProperty("cityPointCount", out JsonElement emptyCityCount) &&
             emptyCityCount.TryGetInt32(out int cityCount) && cityCount == 0)
@@ -373,7 +390,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
             {
                 throw new InvalidDataException("Empty Player City block result did not prove a fresh current-view zero-row response.");
             }
-            return new ProbeObservation(0, 0, false, true, Array.Empty<FirstLivePreparedResource>());
+            return new ProbeObservation(0, 0, false, true,
+                liveAoiBlockSize, liveAoiBlockCount, currentViewIndices, Array.Empty<FirstLivePreparedResource>());
         }
 
         string countName = mapKind == "resource" ? "resourcePointCount" : "cityPointCount";
@@ -402,7 +420,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
             throw new InvalidDataException("The live map candidate snapshot count did not match its declared candidate count.");
         if (prepared.Any(item => item.Import.ServerId != request.ServerId))
             throw new InvalidDataException("The live map candidate snapshot contained a different server than the active bounded session.");
-        return new ProbeObservation(matchedCount, selectedIndex, cityTargetedView, false, prepared);
+        return new ProbeObservation(matchedCount, selectedIndex, cityTargetedView, false,
+            liveAoiBlockSize, liveAoiBlockCount, currentViewIndices, prepared);
     }
 
     private void RequireFreshCaptureTime(JsonElement root, DateTimeOffset startedAt)
@@ -523,5 +542,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
         int SelectedIndex,
         bool CityTargetedView,
         bool IsEmptyView,
+        int AoiBlockSize,
+        int AoiBlockCount,
+        int[] CurrentViewIndices,
         IReadOnlyList<FirstLivePreparedResource> Prepared);
 }

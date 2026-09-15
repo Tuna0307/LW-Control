@@ -23,6 +23,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await ResourceViewEnumeratesAndFilters();
         await EmptyResourceViewIsAZeroRowCapture();
         await LodZeroAcquiresAllFourCells();
+        await CityLodZeroUsesOneLiveFootprint();
         await LodTwoFiltersSupersetToRequestedBlock();
         await EmptyCityCurrentViewIsAZeroRowCapture();
         await TargetedCityFallbackFailsClosed();
@@ -103,6 +104,29 @@ internal static class CurrentClientMapBlockSourceChecks
             .ToArray();
         Check(actual.SequenceEqual(new[] { (0, 0, 9, 9), (10, 0, 19, 9), (0, 10, 9, 19), (10, 10, 19, 19) }),
             "server LOD 0 source cell bounds changed");
+    }
+
+    private static async Task CityLodZeroUsesOneLiveFootprint()
+    {
+        int probeCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource((fields, mapKind) =>
+        {
+            probeCalls++;
+            Check(mapKind == "city", "city footprint test received the wrong map kind");
+            return ProvenCitySnapshot(fields, 10, 100, [0, 1, 100, 101], (200, 9, 9));
+        }, currentLod: 4, serverLod: 0);
+
+        MapScanBlockCapture capture = await source.CaptureAsync(Request("city"), Block(), CancellationToken.None);
+        Check(probeCalls == 1,
+            "one fresh City response should satisfy all four planned cells when _curViewIndex proves them covered");
+        Check(capture.Records.Count == 1 && capture.Records[0].RecordKey == "200",
+            "city footprint capture should retain the real in-block City row");
+        using JsonDocument payload = JsonDocument.Parse(capture.PayloadJson);
+        Check(payload.RootElement.GetProperty("cells").GetArrayLength() == 4 &&
+              payload.RootElement.GetProperty("responseCount").GetInt32() == 1 &&
+              payload.RootElement.GetProperty("coverage").GetString() == "live_cur_view_index_covered" &&
+              payload.RootElement.GetProperty("footprintSource").GetString() == "WorldPointManager._curViewIndex",
+            "city checkpoint should expose source-backed current-view footprint coverage");
     }
 
     private static async Task LodTwoFiltersSupersetToRequestedBlock()
@@ -377,6 +401,42 @@ internal static class CurrentClientMapBlockSourceChecks
             error = "no resource point is loaded after the fresh view response",
         }, JsonOptions.Default);
 
+    private static string ProvenCitySnapshot(
+        IReadOnlyDictionary<string, string> fields,
+        int blockSize,
+        int blockCount,
+        int[] currentViewIndices,
+        params (int PointId, int X, int Y)[] points) => JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"],
+            launchSessionId = fields["launchSessionId"],
+            profileId = fields["profileId"],
+            gamePid = int.Parse(fields["gamePid"]),
+            mapKind = "city",
+            acquisitionOrdinal = 1,
+            state = "proven",
+            capturedAt = Timestamp(),
+            requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+            responseEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+            source = "WorldPointManager._pointInfos",
+            lwAoiBlockSize = blockSize,
+            lwAoiBlockCount = blockCount,
+            curViewIndexCount = currentViewIndices.Length,
+            curViewIndices = currentViewIndices,
+            loadedPointCount = points.Length,
+            cityPointCount = points.Length,
+            selectedCityIndex = 1,
+            point_records = points.Select(point => new
+            {
+                kind = "player_base", pointType = 6, serverId = 2212,
+                pointId = point.PointId, x = point.X, y = point.Y,
+                ownerUid = "u1", ownerName = "Player", level = 30,
+                source = "WorldPointManager._pointInfos",
+            }).ToArray(),
+        }, JsonOptions.Default);
+
     private static string ProvenEmptyCityCurrentView(IReadOnlyDictionary<string, string> fields) =>
         JsonSerializer.Serialize(new
         {
@@ -393,6 +453,10 @@ internal static class CurrentClientMapBlockSourceChecks
             requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
             responseEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
             source = "WorldPointManager._pointInfos",
+            lwAoiBlockSize = 20,
+            lwAoiBlockCount = 50,
+            curViewIndexCount = 1,
+            curViewIndices = new[] { 0 },
             loadedPointCount = 0,
             cityPointCount = 0,
             point_records = Array.Empty<object>(),
@@ -414,6 +478,10 @@ internal static class CurrentClientMapBlockSourceChecks
             requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)",
             responseEvidence = "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true;targetedSameServerView=false->true",
             source = "WorldPointManager._pointInfos",
+            lwAoiBlockSize = 20,
+            lwAoiBlockCount = 50,
+            curViewIndexCount = 1,
+            curViewIndices = new[] { 0 },
             loadedPointCount = 1,
             cityPointCount = 1,
             selectedCityIndex = 1,

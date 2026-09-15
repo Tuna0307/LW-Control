@@ -1,6 +1,6 @@
 # Current Web technical packet and owner-test preparation
 
-**Current transition, 2026-09-15:** `LWB-R7-004/005` are the active technical checkpoints. Current v16 live context, arbitrary-target Resource and Player City blocks, proven zero-city current-view cells, ordinary production Manual Start through the shared engine, one completed Normal block and bounded Stop-to-idle are LIVE-PROVEN. The next live acceptance target is a complete Player City run through the same ordinary Manual Start path and guarded publish/Search/reopen cycle. No owner action is requested for this technical checkpoint. S03/S06 remain deferred.
+**Current transition, 2026-09-15:** `LWB-R7-004/005/006` are the active technical checkpoints. Current v16 live context, arbitrary-target Resource and Player City blocks, proven zero-city current-view cells, and Player City `_curViewIndex` footprint reuse are LIVE-PROVEN; both the populated City proof block and empty edge block covered all four planned LOD0 cells from exactly one fresh response. Ordinary production Manual Start through the shared engine, one completed Normal block and bounded Stop-to-idle are also LIVE-PROVEN. The next live acceptance target is a complete Player City run through the same ordinary Manual Start path and guarded publish/Search/reopen cycle. No owner action is requested for this technical checkpoint. S03/S06 remain deferred.
 
 ### Corrected-build Overview regression packet — PREPARED / NOT RUN
 
