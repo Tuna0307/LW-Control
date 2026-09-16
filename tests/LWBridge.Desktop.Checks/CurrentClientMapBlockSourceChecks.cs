@@ -32,6 +32,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await CoordinateJumpUsesOwnedNavigation();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
+        await FastResourceFullMapReturnsAllLogicalCaptures();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastFullMapRejectsIncompleteMeasuredCoverage();
         await HealthyGateRunsBeforeWorldReadyProtocol();
@@ -264,6 +265,37 @@ internal static class CurrentClientMapBlockSourceChecks
     }
 
 
+
+
+    private static async Task FastResourceFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => FailedEmptyResource(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
+                if (x == 25 && y == 75) return ProvenFastResourceBatch(fields, (400, 9, 9, 3, 2, true, false));
+                if (x == 975 && y == 975) return ProvenFastResourceBatch(fields, (500, 985, 985, 10, 4, true, true));
+                return ProvenFastResourceBatch(fields);
+            });
+        MapScanExecutionRequest request = Request("resource", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(bulkCalls == 200 && captures.Count == 2500, "fast full-Resource source should use 200 live-measured native responses");
+        MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
+        MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
+        Check(first.Kind == "resource" && first.RecordKey == "400" && first.Level == 3 &&
+              last.Kind == "resource" && last.RecordKey == "500" && last.Level == 10,
+            "fast full-Resource source did not preserve normalized resources at map extremes");
+        Check(first.DataJson.Contains("\"resourceTypeId\":2", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"rebuildGatherOccupancyKnown\":true", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"rebuildGatherOccupied\":false", StringComparison.Ordinal) &&
+              last.DataJson.Contains("\"rebuildGatherOccupied\":true", StringComparison.Ordinal),
+            "fast full-Resource source did not preserve source-backed type and occupancy state");
+    }
 
     private static async Task FastMonsterFullMapReturnsAllLogicalCaptures()
     {
@@ -703,6 +735,7 @@ internal static class CurrentClientMapBlockSourceChecks
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage", includeMonster,
             state = "proven", error = (string?)null, requestedIndices = requested,
+            matchedCityCount = points.Length, matchedResourceCount = 0,
             serverLod = 0, blockSize = 10, blockCount = 100,
             targetTileX = int.Parse(fields["targetTileX"]), targetTileY = int.Parse(fields["targetTileY"]),
             responseFlagsTransitioned = true, cameraTileStable = true, positionRestoredBeforeResponse = true,
@@ -720,6 +753,25 @@ internal static class CurrentClientMapBlockSourceChecks
         }, JsonOptions.Default);
     }
 
+
+
+    private static string ProvenFastResourceBatch(
+        IReadOnlyDictionary<string, string> fields,
+        params (int PointId, int X, int Y, int Level, int ResourceTypeId, bool OccupancyKnown, bool Occupied)[] resources)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
+        root["matchedCityCount"] = 0;
+        root["matchedResourceCount"] = resources.Length;
+        root["point_records"] = JsonSerializer.SerializeToNode(resources.Select(resource => new
+        {
+            id = resource.PointId, pointId = resource.PointId, pointType = 1, kind = "resource_point",
+            runtimeClass = "ResPointInfo", serverId = 2212, srcServerId = 0, worldId = 0,
+            x = resource.X, y = resource.Y, level = resource.Level, resourceTypeId = resource.ResourceTypeId,
+            resourceSourceType = "ResPointInfo", gatherOccupancyKnown = resource.OccupancyKnown,
+            gatherOccupied = resource.Occupied, source = "WorldPointManager._pointInfos",
+        }).ToArray(), JsonOptions.Default);
+        return root.ToJsonString(JsonOptions.Default);
+    }
 
     private static string ProvenFastMonsterBatch(
         IReadOnlyDictionary<string, string> fields,

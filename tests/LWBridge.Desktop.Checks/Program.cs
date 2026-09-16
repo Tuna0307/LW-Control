@@ -25,6 +25,12 @@ if (args.Contains("--live-current-client-full-city-manual", StringComparer.Ordin
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-resource-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullResourceProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-monster-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullMonsterProof.RunAsync();

@@ -974,6 +974,16 @@ Monster rows now render a local ticking countdown when a supported source timest
 
 **Validation/limits.** Release builds are zero-warning/zero-error, the six deterministic groups pass with `failures=[]`, the generated frontend is stable and 36 browser checks pass. No generic `endTime` is substituted for Zombie/Boss shield time. Evidence: `evidence/lwbridge-implementation/2026-09-17-r7-owner-map-fixes.json`. Resource remains the next common-engine category acceptance.
 
+### LWB-R7-015 - Resource complete ordinary Manual Start on the shared full-world planner (2026-09-17)
+
+**LIVE-PROVEN current-v17.** Resource now uses the same common `ManualMapScanCommandService` -> `MapScanEngine` -> `CurrentClientMapBlockSource` path as City and Monster. The bulk current-client serializer enumerates `WorldPointManager._pointInfos` within each proven native AOI footprint, keeps game point types `1`, `7`, and `26`, and resolves `GetResourcePointInfoByIndex(pointIndex)` when available. It preserves source-backed point/server/world/coordinate/level/`resourceTypeId` fields plus the separately recovered `gatherMarchUuid`/`gatherUid` occupancy signal. No resource-name mapping is synthesized.
+
+For full 1000x1000 world scans, Resource joins the current-v17 planner already live-measured under R7-012: 200 sequential native coverage requests accumulate `_curViewIndex` footprints into the exact `covered.Count == 10000` publication gate, then records are bucketed into the recovered 2,500 logical 20x20 blocks. Deterministic coverage requires 200 responses, all 2,500 captures, edge-block Resource placement, `resourceTypeId`, and known/occupied gather-state normalization.
+
+**Live result.** Ordinary Resource-only Manual Start in Normal mode (`concurrency=8`) reached `completed` with 2,500/2,500 read blocks, zero failed and zero unread blocks in 70.9584005 seconds. The run published 442 Resource rows and a new `MapDataStore` reopen returned exactly 442. All 442 rows exposed a source-backed `resourceTypeId`, level, and known gather occupancy; 71 rows were occupied in that live population. These population values are observations, not fixed invariants. No resource point identity or coordinate is retained in durable evidence.
+
+**Validation / limits / next.** Release checks build with zero warnings/errors and the six deterministic groups return `ok=true`, `failures=[]`. Post-run `check_current_client_compat.py` revalidated exact v17 package/game/xLua/Assembly anchors and no game/launcher/updater/sync/app process remained. This closes Resource common-engine acquisition/publication/reopen acceptance; it does not recover the numeric current `resourceTypeId` -> original public `resourceNameKey` mapping, original scheduler/ack/removal/drain semantics, or any later category. Evidence: [`2026-09-17-r7-resource-full-manual.json`](../evidence/lwbridge-implementation/2026-09-17-r7-resource-full-manual.json). Truck is next on the same scanner, followed by Railway/Train, Dispatch/Secret Task, Ghost Ops, Treasure, mixed/all-eight and Auto Scan.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

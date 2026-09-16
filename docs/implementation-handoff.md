@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding checkpoint - LWB-R7-015, 2026-09-17
+
+Resource is now LIVE-PROVEN through the same ordinary Manual Start engine as City and Monster. Current-v17 Resource-only Start completed all 2,500 logical blocks with zero failures in 70.958 s Normal, published 442 Resource rows, and reopened exactly 442 from the persisted database. All 442 carried source-backed `resourceTypeId`, level, and known gather occupancy from current `ResPointInfo`; 71 were occupied in this live population. Resource rows are collected inside the same 200-request / exact-10,000-AOI union planner by filtering `WorldPointManager._pointInfos` point types 1/7/26 and using `GetResourcePointInfoByIndex` when available. Evidence is aggregate-only: `2026-09-17-r7-resource-full-manual.json`.
+
+The observed counts are dynamic, not invariants. The numeric `resourceTypeId` -> original public `resourceNameKey` mapping remains unresolved downstream presentation work and is not guessed. Native ack/removal/drain and original scheduler parity also remain separate open contracts.
+
+**Next:** Truck, then Railway/Train, Dispatch/Secret Task, Ghost Ops and Treasure on this same scanner; then mixed/all-eight and Auto Scan. Do not add a second acquisition engine.
+
 ## Current superseding checkpoint - LWB-R7-014 / LWB-OVR-016, 2026-09-17
 
 Owner-reported Monster/Home corrections are now the active completed-code checkpoint pending final Git delivery. Monster **Remaining** is narrowed to the game-owned `zMBossInfo.shieldEndTime` source and ticks locally only when that deadline is positive; generic march `endTime` is no longer displayed as the shield timer. The Monster level selector is an inclusive maximum (`60` means `<=60`), Level/Distance sorting is wired through the persisted query instead of clearing rows, and failed searches preserve the current table. Current-client world readiness now recovers the player's home tile through `CS.GameEntry.Data.Player.PlayerWorldPointId` with `WorldPointManager.GetMyPointInfo().pointIndex` fallback, and a current-v17 complete run LIVE-PROVES real `distanceFromHome` on all 12,731 published/reopened Monster rows.

@@ -1244,6 +1244,62 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     return records, nil
 end
 
+local function resource_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+    local records = {}
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        local point_type = integer_field(info, { "pointType", "PointType" })
+        if point_type ~= 1 and point_type ~= 7 and point_type ~= 26 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
+        if id == nil or id <= 0 then return true end
+        local tile = index_to_tile(world, id)
+        if tile == nil then return true end
+        local cell_x = math.floor(tile.x / block_size)
+        local cell_y = math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        local aoi_index = cell_y * block_count + cell_x
+        if selected_lookup[aoi_index] ~= true then return true end
+        local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+        if server_id == nil or server_id <= 0 then return true end
+        local resource_info = safe_get(info, "collectResourceInfo") or safe_get(info, "CollectResourceInfo")
+        local resource_source = info
+        local ok_resource, loaded_resource = call(point_manager, "GetResourcePointInfoByIndex", id)
+        if ok_resource and loaded_resource ~= nil then resource_source = loaded_resource end
+        local gather_march_found, gather_march_uuid = reflected_field_value(resource_source, "gatherMarchUuid")
+        local gather_uid_found, gather_uid = reflected_field_value(resource_source, "gatherUid")
+        local gather_occupancy_known = gather_march_found and gather_uid_found
+        local gather_occupied = nil
+        if gather_occupancy_known then gather_occupied = occupancy_value_present(gather_march_uuid) or occupancy_value_present(gather_uid) end
+        local level = resource_info and scalar_field(resource_info, { "level", "Level" }) or nil
+        if level == nil then
+            local ok_level, observed_level = call(resource_source, "GetResLevel")
+            level = ok_level and tonumber(observed_level) or scalar_field(resource_source, { "level", "Level" })
+        end
+        local resource_type = resource_info and scalar_field(resource_info, { "resourceType", "ResourceType" }) or nil
+        if resource_type == nil then
+            local ok_type, observed_type = call(resource_source, "GetResType")
+            resource_type = ok_type and (tonumber(observed_type) or tostring(observed_type)) or nil
+        end
+        records[#records + 1] = {
+            id = id, pointId = id, pointType = point_type, kind = "resource_point",
+            runtimeClass = reflected_type_name(info), serverId = math.floor(server_id),
+            srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
+            worldId = integer_field(info, { "worldId", "WorldId" }) or 0,
+            x = tile.x, y = tile.y, level = level, resourceTypeId = resource_type,
+            resourceSourceType = reflected_type_name(resource_source),
+            gatherOccupancyKnown = gather_occupancy_known, gatherOccupied = gather_occupied,
+            source = "WorldPointManager._pointInfos",
+        }
+        return true
+    end)
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
 local function monster_march_aoi_records(world, block_size, block_count, selected_lookup, home_tile)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
@@ -2106,6 +2162,13 @@ local function pump_bulk_aoi_diagnostic(now)
         fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
         return true
     end
+    local resource_records, resource_records_error = resource_aoi_records(
+        world, point_manager, details.blockSize, details.blockCount, lookup)
+    if resource_records == nil then
+        fail_bulk_aoi(bulk_aoi_request, resource_records_error, details, point_manager)
+        return true
+    end
+    for index = 1, #resource_records do point_records[#point_records + 1] = resource_records[index] end
     details.pointRecords = point_records
     details.monsterMarchRecords = {}
     if bulk_aoi_request.includeMonster == true then
