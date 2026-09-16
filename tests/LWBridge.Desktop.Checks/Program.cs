@@ -8,6 +8,24 @@ if (args.Contains("--live-current-client-block-proof", StringComparer.OrdinalIgn
     return 0;
 }
 
+if (args.Contains("--live-current-client-city-sample", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCityScanSampleProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-bulk-aoi-diagnostic", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-full-map-coverage", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunFullCoverageAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-runtime-diagnostic", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunRuntimeDiagnosticOnlyAsync();

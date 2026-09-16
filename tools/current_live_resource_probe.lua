@@ -14,6 +14,8 @@ local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
 local aoi_diagnostic_result_path = root .. [[\aoi-diagnostic-result.json]]
 local runtime_diagnostic_path = root .. [[\runtime-diagnostic.txt]]
 local runtime_diagnostic_result_path = root .. [[\runtime-diagnostic-result.json]]
+local bulk_aoi_diagnostic_path = root .. [[\bulk-aoi-diagnostic.txt]]
+local bulk_aoi_diagnostic_result_path = root .. [[\bulk-aoi-diagnostic-result.json]]
 local overview_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\overview-bridge]]
 local overview_control_path = overview_root .. [[\control.txt]]
 local overview_lease_path = overview_root .. [[\lease.txt]]
@@ -37,10 +39,30 @@ local acquisition_ordinal = 0
 local registration_method = nil
 local timer_handle = nil
 local update_callback = nil
+local bulk_aoi_request = nil
+local bulk_aoi_started_at = nil
+local bulk_aoi_original_start_view_request = nil
+local bulk_aoi_original_block_count = nil
+local bulk_aoi_block_count_touched = false
+local bulk_aoi_added_indices = {}
+local bulk_aoi_native_camera = nil
+local bulk_aoi_native_touch_camera = nil
+local bulk_aoi_native_original_pos = nil
+local bulk_aoi_native_original_fov = nil
+local bulk_aoi_native_hold_seconds = nil
+local bulk_aoi_native_position_restored = false
+local bulk_aoi_restore_current_view = false
+local bulk_aoi_original_manager_response_flag = nil
+local bulk_aoi_original_world_response_flag = nil
+local bulk_aoi_response_flags_reset = false
+local bulk_aoi_skip_restore_update = false
+local bulk_aoi_original_manager_lod = nil
+local bulk_aoi_original_camera_lod = nil
 
 -- IMPLEMENTATION POLICY: this guards a bounded current-view response wait.  It
 -- is not an original LWBridge timeout.
 local RESPONSE_TIMEOUT_SECONDS = 8
+local BULK_AOI_TIMEOUT_SECONDS = 8
 local MAX_POINTS = 50000
 
 local function safe_get(target, key)
@@ -153,13 +175,37 @@ local function reflected_value(component, key)
     return nil
 end
 
+local function reflected_method(component, key, parameter_count)
+    if component == nil then return nil end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return nil end
+    local flags = reflection_flags()
+    local methods = nil
+    local ok_methods, value = pcall(function() return reflected_type:GetMethods(flags) end)
+    if ok_methods then methods = value end
+    if methods == nil then
+        ok_methods, value = pcall(function() return reflected_type:GetMethods() end)
+        if ok_methods then methods = value end
+    end
+    local length = methods and tonumber(safe_get(methods, "Length")) or nil
+    if length == nil then return nil end
+    for index = 0, length - 1 do
+        local ok_method, method = pcall(function() return methods:GetValue(index) end)
+        if ok_method and method ~= nil and tostring(safe_get(method, "Name") or "") == tostring(key) then
+            local ok_params, parameters = pcall(function() return method:GetParameters() end)
+            local count = ok_params and parameters and tonumber(safe_get(parameters, "Length")) or nil
+            if parameter_count == nil or count == parameter_count then return method end
+        end
+    end
+    return nil
+end
+
 local function reflected_call(component, key, ...)
     if component == nil then return false, nil end
     local ok_type, reflected_type = pcall(function() return component:GetType() end)
     if not ok_type or reflected_type == nil then return false, nil end
-    local flags = reflection_flags()
-    local ok_method, method = pcall(function() return reflected_type:GetMethod(tostring(key), flags) end)
-    if not ok_method or method == nil then return false, nil end
+    local method = reflected_method(component, key, select("#", ...))
+    if method == nil then return false, nil end
     local raw_args = { ... }
     local arguments = nil
     if #raw_args > 0 then
@@ -186,6 +232,31 @@ local function reflected_call(component, key, ...)
     local ok_value, value = pcall(function() return method:Invoke(component, arguments) end)
     if not ok_value then return false, nil end
     return true, value
+end
+
+local function reflected_call_bool(component, key, raw_value)
+    if component == nil then return false, nil, "component_unavailable" end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return false, nil, "type_unavailable" end
+    local method = reflected_method(component, key, 1)
+    if method == nil then return false, nil, "method_unavailable" end
+    local cs = rawget(_G, "CS")
+    local typeof_fn = rawget(_G, "typeof")
+    local array_type = cs and cs.System and cs.System.Array or nil
+    local object_type = cs and cs.System and cs.System.Object or nil
+    local boolean_type = cs and cs.System and cs.System.Boolean or nil
+    if array_type == nil or object_type == nil or boolean_type == nil or type(typeof_fn) ~= "function" then
+        return false, nil, "reflection_types_unavailable"
+    end
+    local ok_args, arguments = pcall(function()
+        local result = array_type.CreateInstance(typeof_fn(object_type), 1)
+        result:SetValue(boolean_type.Parse(raw_value and "True" or "False"), 0)
+        return result
+    end)
+    if not ok_args or arguments == nil then return false, nil, "argument_boxing_failed" end
+    local ok_value, value = pcall(function() return method:Invoke(component, arguments) end)
+    if not ok_value then return false, nil, tostring(value) end
+    return true, value, nil
 end
 
 local function reflected_field_value(component, key)
@@ -231,6 +302,26 @@ local function reflected_set_value(component, key, value)
         return pcall(function() property:SetValue(component, value, nil) end)
     end
     return false
+end
+
+local function reflected_set_int_field(component, key, value)
+    if component == nil or type(value) ~= "number" then return false end
+    local ok_type, reflected_type = pcall(function() return component:GetType() end)
+    if not ok_type or reflected_type == nil then return false end
+    local flags = reflection_flags()
+    local ok_field, field = pcall(function() return reflected_type:GetField(tostring(key), flags) end)
+    if not ok_field or field == nil then return false end
+    local cs = rawget(_G, "CS")
+    local int32_type = cs and cs.System and cs.System.Int32 or nil
+    if int32_type == nil then return false end
+    local ok_boxed, boxed = pcall(function() return int32_type.Parse(tostring(math.floor(value))) end)
+    if not ok_boxed or boxed == nil then return false end
+    local ok_set = pcall(function() field:SetValue(component, boxed) end)
+    if not ok_set then return false end
+    local ok_read, observed = pcall(function() return field:GetValue(component) end)
+    local numeric = ok_read and tonumber(observed) or nil
+    if numeric == nil and ok_read and observed ~= nil then numeric = tonumber(tostring(observed)) end
+    return numeric == math.floor(value)
 end
 
 local function integer_field(target, names)
@@ -967,6 +1058,957 @@ local function pump_runtime_diagnostic(now)
     return true
 end
 
+local function read_bulk_aoi_diagnostic(now)
+    local values = read_kv_file(bulk_aoi_diagnostic_path, 4096)
+    if values == nil then return nil end
+    pcall(os.remove, bulk_aoi_diagnostic_path)
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "bulk_aoi_diagnostic_invalid"
+        return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    request.serverId = tonumber(values.serverId)
+    request.viewLevel = tonumber(values.viewLevel or "-1")
+    request.requestMode = tostring(values.requestMode or "native")
+    request.targetTileX = tonumber(values.targetTileX)
+    request.targetTileY = tonumber(values.targetTileY)
+    request.requestedCount = tonumber(values.requestedCount or "8")
+    request.holdMilliseconds = tonumber(values.holdMilliseconds or "1000")
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) or
+       request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) or
+       request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
+       (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage") or
+       request.targetTileX == nil or request.targetTileY == nil or
+       request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
+       request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
+       request.requestedCount == nil or
+       request.requestedCount < 1 or request.requestedCount > 160 or
+       request.requestedCount ~= math.floor(request.requestedCount) or
+       request.holdMilliseconds == nil or request.holdMilliseconds < 0 or
+       request.holdMilliseconds > 2000 or request.holdMilliseconds ~= math.floor(request.holdMilliseconds) then
+        request.error = "bulk_aoi_diagnostic_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    request.serverId = math.floor(request.serverId)
+    request.viewLevel = math.floor(request.viewLevel)
+    request.targetTileX = math.floor(request.targetTileX)
+    request.targetTileY = math.floor(request.targetTileY)
+    request.requestedCount = math.floor(request.requestedCount)
+    request.holdMilliseconds = math.floor(request.holdMilliseconds)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "bulk_aoi_diagnostic_identity_mismatch"
+    end
+    return request
+end
+
+local function collection_contains_int(collection, value)
+    local ok, result = call(collection, "Contains", math.floor(value))
+    if ok and type(result) == "boolean" then return result end
+    local reflected_ok, reflected_result = reflected_call(collection, "Contains", math.floor(value))
+    return reflected_ok and reflected_result == true
+end
+
+local function collection_add_int(collection, value)
+    local ok = select(1, call(collection, "Add", math.floor(value)))
+    if ok then return true end
+    return select(1, reflected_call(collection, "Add", math.floor(value)))
+end
+
+local function collection_remove_int(collection, value)
+    local ok = select(1, call(collection, "Remove", math.floor(value)))
+    if ok then return true end
+    return select(1, reflected_call(collection, "Remove", math.floor(value)))
+end
+
+local function collection_clear(collection)
+    local ok = select(1, call(collection, "Clear"))
+    if ok then return true end
+    return select(1, reflected_call(collection, "Clear"))
+end
+
+local function point_aoi_counts(world, point_manager, block_size, block_count, selected_lookup)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+    local matched, cities, resources = 0, 0, 0
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        if id == nil or id <= 0 then return true end
+        local tile = index_to_tile(world, id)
+        if tile == nil then return true end
+        local cell_x = math.floor(tile.x / block_size)
+        local cell_y = math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        local aoi_index = cell_y * block_count + cell_x
+        if selected_lookup[aoi_index] == true then
+            matched = matched + 1
+            local point_type = integer_field(info, { "pointType", "PointType" })
+            if point_type == 6 then cities = cities + 1 end
+            if point_type == 1 or point_type == 7 or point_type == 26 then resources = resources + 1 end
+        end
+        return true
+    end)
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return { total = matched, cities = cities, resources = resources, loadedPointCount = expected }, nil
+end
+
+local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+    local records = {}
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex" })
+        if id == nil or id <= 0 then return true end
+        local tile = index_to_tile(world, id)
+        if tile == nil then return true end
+        local cell_x = math.floor(tile.x / block_size)
+        local cell_y = math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        local aoi_index = cell_y * block_count + cell_x
+        if selected_lookup[aoi_index] ~= true then return true end
+        local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+        if server_id == nil or server_id <= 0 then return true end
+        local owner_uid = scalar_field(info, { "ownerUid", "OwnerUid" })
+        local owner_name = scalar_field(info, { "playerName", "PlayerName" })
+        if owner_uid == nil or tostring(owner_uid) == "" or tostring(owner_uid) == "0" or
+           owner_name == nil or tostring(owner_name) == "" then return true end
+        local uuid = scalar_field(info, { "uuid", "Uuid" })
+        local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
+        local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
+        records[#records + 1] = {
+            id = id, pointId = id, pointType = 6, kind = "player_base",
+            runtimeClass = reflected_type_name(info), serverId = math.floor(server_id),
+            srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
+            worldId = integer_field(info, { "worldId", "WorldId" }) or 0,
+            x = tile.x, y = tile.y,
+            uuid = uuid ~= nil and tostring(uuid) or nil,
+            ownerUid = tostring(owner_uid), ownerName = tostring(owner_name),
+            allianceId = alliance_id ~= nil and tostring(alliance_id) or nil,
+            allianceName = alliance_name ~= nil and tostring(alliance_name) or nil,
+            level = scalar_field(info, { "level", "Level" }),
+            health = scalar_field(info, { "curHp", "CurHp" }),
+            protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
+            source = "WorldPointManager._pointInfos",
+        }
+        return true
+    end)
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
+local function point_tile_count(world, point_manager, target_x, target_y)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+    local matched = 0
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        local tile = id and index_to_tile(world, id) or nil
+        if tile ~= nil and tile.x == target_x and tile.y == target_y then matched = matched + 1 end
+        return true
+    end)
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return matched, nil
+end
+
+local function loaded_aoi_lookup(world, point_manager, block_size, block_count)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil end
+    local result = {}
+    each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        local tile = id and index_to_tile(world, id) or nil
+        if tile ~= nil then
+            local cell_x = math.floor(tile.x / block_size)
+            local cell_y = math.floor(tile.y / block_size)
+            if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count then
+                result[cell_y * block_count + cell_x] = true
+            end
+        end
+        return true
+    end)
+    return result
+end
+
+local function choose_bulk_aoi_indices(world, point_manager, block_size, block_count, requested_count, target_tile_x, target_tile_y)
+    local current_set = reflected_value(point_manager, "_curViewIndex")
+    if current_set == nil then return nil, "cur_view_index_unavailable" end
+    local current_tile = safe_get(world, "CurTilePosClamped")
+    local tile_x = tonumber(current_tile and (safe_get(current_tile, "x") or safe_get(current_tile, "X")))
+    local tile_y = tonumber(current_tile and (safe_get(current_tile, "y") or safe_get(current_tile, "Y")))
+    if tile_x == nil or tile_y == nil then return nil, "current_tile_unavailable" end
+    tile_x = math.floor(tile_x); tile_y = math.floor(tile_y)
+    local target_x = math.max(0, math.min(block_count - 1, math.floor(target_tile_x / block_size)))
+    local target_y = math.max(0, math.min(block_count - 1, math.floor(target_tile_y / block_size)))
+    local target_index = target_y * block_count + target_x
+    local loaded = loaded_aoi_lookup(world, point_manager, block_size, block_count) or {}
+    if collection_contains_int(current_set, target_index) then return nil, "target_aoi_still_current" end
+    if loaded[target_index] == true then return nil, "target_aoi_already_loaded" end
+    local selected = { target_index }
+    local selected_lookup = { [target_index] = true }
+    for radius = 1, block_count do
+        local min_x = math.max(0, target_x - radius)
+        local max_x = math.min(block_count - 1, target_x + radius)
+        local min_y = math.max(0, target_y - radius)
+        local max_y = math.min(block_count - 1, target_y + radius)
+        for y = min_y, max_y do
+            for x = min_x, max_x do
+                if math.max(math.abs(x - target_x), math.abs(y - target_y)) == radius then
+                    local index = y * block_count + x
+                    if selected_lookup[index] ~= true and not collection_contains_int(current_set, index) and loaded[index] ~= true then
+                        selected[#selected + 1] = index
+                        selected_lookup[index] = true
+                        if #selected >= requested_count then
+                            return selected, nil, tile_x, tile_y, target_index
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nil, "insufficient_unloaded_aoi_indices"
+end
+
+local function point_store_state(world, point_manager, target_x, target_y)
+    local vector_type = rawget(_G, "CS") and CS.UnityEngine and CS.UnityEngine.Vector2Int or nil
+    if vector_type == nil then return nil end
+    local ok_index, raw_index = call(world, "TilePosToIndex", vector_type(target_x, target_y))
+    local point_index = ok_index and tonumber(raw_index) or nil
+    if point_index == nil then return nil end
+    point_index = math.floor(point_index)
+    local function inspect(name)
+        local collection = reflected_value(point_manager, name)
+        if collection == nil then return nil, nil end
+        local count = collection_count(collection)
+        local ok_contains, contains = call(collection, "ContainsKey", point_index)
+        if not ok_contains then ok_contains, contains = reflected_call(collection, "ContainsKey", point_index) end
+        return count, ok_contains and contains == true or false
+    end
+    local all_count, all_has = inspect("allViewPoints")
+    local out_count, out_has = inspect("outOfViewPoints")
+    local out_obj_count, out_obj_has = inspect("outOfViewPointsObj")
+    return {
+        targetPointIndex = point_index, allViewPointsCount = all_count, allViewPointsHasTarget = all_has,
+        outOfViewPointsCount = out_count, outOfViewPointsHasTarget = out_has,
+        outOfViewPointsObjCount = out_obj_count, outOfViewPointsObjHasTarget = out_obj_has,
+    }
+end
+
+local function bulk_manager_flags(point_manager)
+    local function read(name)
+        local value = reflected_value(point_manager, name)
+        if type(value) == "boolean" then return value end
+        local numeric = tonumber(value)
+        if numeric ~= nil then return numeric end
+        return nil
+    end
+    return {
+        isRecvViewPoints = read("isRecvViewPoints"),
+        isPointUpdate = read("_isPointUpdate"),
+        isCityPointUpdate = read("_isCityPointUpdate"),
+        myPointDirty = read("_myPointDirty"),
+        littleSmartDirty = read("littleSmartDirty"),
+        firstTimeReqAoi = read("firstTimeReqAoi"),
+        splitLastAoiRequest = read("_splitLastAOIRequest"),
+    }
+end
+
+local function profiler_packet_state(dictionary)
+    if dictionary == nil then return { available = false } end
+    local total = collection_count(dictionary) or 0
+    local commands, counts = {}, {}
+    local ok_enum, enumerator = call(dictionary, "GetEnumerator")
+    if ok_enum and enumerator ~= nil then
+        local seen = 0
+        while seen < 4096 do
+            local ok_move, moved = call(enumerator, "MoveNext")
+            if not ok_move or moved ~= true then break end
+            seen = seen + 1
+            local pair = safe_get(enumerator, "Current")
+            local packet = pair and safe_get(pair, "Key") or nil
+            local info = packet and (safe_get(packet, "info") or reflected_value(packet, "<info>k__BackingField")) or nil
+            local ok_cmd, cmd = info and call(info, "GetUtfString", "c") or false, nil
+            if info ~= nil then ok_cmd, cmd = call(info, "GetUtfString", "c") end
+            if ok_cmd and type(cmd) == "string" and cmd ~= "" then
+                counts[cmd] = (counts[cmd] or 0) + 1
+                if #commands < 32 and counts[cmd] == 1 then commands[#commands + 1] = cmd end
+            end
+        end
+    end
+    table.sort(commands)
+    local rendered = {}
+    for _, cmd in ipairs(commands) do rendered[#rendered + 1] = cmd .. ":" .. tostring(counts[cmd] or 0) end
+    return { available = true, total = total, commands = table.concat(rendered, ";") }
+end
+
+local function bulk_network_receive_state()
+    local cs = rawget(_G, "CS")
+    local entry = rawget(_G, "GameEntry")
+    if entry == nil and cs ~= nil then entry = safe_get(cs, "GameEntry") end
+    local network = entry and safe_get(entry, "Network") or nil
+    local proxy = network and reflected_value(network, "m_proxy") or nil
+    local profiler = proxy and (safe_get(proxy, "profiler") or reflected_value(proxy, "<profiler>k__BackingField")) or nil
+    if profiler == nil then return { available = false, sendAvailable = false } end
+    local receive = profiler_packet_state(reflected_value(profiler, "_receiveData"))
+    local send = profiler_packet_state(reflected_value(profiler, "_sendData"))
+    receive.sendAvailable = send.available
+    receive.sendTotal = send.total
+    receive.sendCommands = send.commands
+    return receive
+end
+
+local function bulk_selected_lookup(indices)
+    local lookup = {}
+    for _, index in ipairs(indices or {}) do lookup[index] = true end
+    return lookup
+end
+
+local function restore_bulk_aoi_state(point_manager)
+    local ok = true
+    local current_set = point_manager and reflected_value(point_manager, "_curViewIndex") or nil
+    if current_set ~= nil then
+        for _, index in ipairs(bulk_aoi_added_indices or {}) do
+            if not collection_remove_int(current_set, index) then ok = false end
+        end
+    elseif #(bulk_aoi_added_indices or {}) > 0 then
+        ok = false
+    end
+    if point_manager ~= nil and bulk_aoi_original_start_view_request ~= nil then
+        if not reflected_set_value(point_manager, "startViewRequest", bulk_aoi_original_start_view_request == true) then ok = false end
+    end
+    if point_manager ~= nil and bulk_aoi_block_count_touched then
+        if not reflected_set_int_field(point_manager, "_lwAoiBlockCount", bulk_aoi_original_block_count or 0) then ok = false end
+    end
+    if bulk_aoi_restore_current_view and point_manager ~= nil then
+        call(point_manager, "StartViewRequest")
+        call(point_manager, "UpdateViewRequest", true)
+    end
+    bulk_aoi_restore_current_view = false
+    if bulk_aoi_response_flags_reset and point_manager ~= nil then
+        local world = runtime_world()
+        if bulk_aoi_original_manager_response_flag ~= nil and
+           not reflected_set_value(point_manager, "isRecvViewPoints", bulk_aoi_original_manager_response_flag == true) then ok = false end
+        if world ~= nil and bulk_aoi_original_world_response_flag ~= nil and
+           not reflected_set_value(world, "hasReceiveViewPointsReply", bulk_aoi_original_world_response_flag == true) then ok = false end
+    end
+    bulk_aoi_response_flags_reset = false
+    bulk_aoi_original_manager_response_flag = nil
+    bulk_aoi_original_world_response_flag = nil
+    if bulk_aoi_native_touch_camera ~= nil and bulk_aoi_native_original_pos ~= nil then
+        if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then ok = false end
+    end
+    if bulk_aoi_native_camera ~= nil and bulk_aoi_native_original_fov ~= nil then
+        if not select(1, call(bulk_aoi_native_camera, "SetFOV", bulk_aoi_native_original_fov)) then ok = false end
+    end
+    if bulk_aoi_native_camera ~= nil then
+        if not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then ok = false end
+        if point_manager ~= nil and not bulk_aoi_skip_restore_update then call(point_manager, "UpdateViewRequest", true) end
+    end
+    bulk_aoi_skip_restore_update = false
+    bulk_aoi_native_camera = nil
+    bulk_aoi_native_touch_camera = nil
+    bulk_aoi_native_original_pos = nil
+    bulk_aoi_native_original_fov = nil
+    bulk_aoi_native_hold_seconds = nil
+    bulk_aoi_native_position_restored = false
+    bulk_aoi_added_indices = {}
+    bulk_aoi_original_start_view_request = nil
+    bulk_aoi_original_block_count = nil
+    bulk_aoi_block_count_touched = false
+    return ok
+end
+
+local function write_bulk_aoi_result(request, state, error_text, details)
+    details = details or {}
+    write_json(bulk_aoi_diagnostic_result_path, {
+        schemaVersion = 1,
+        probeVersion = M.VERSION,
+        requestId = request.requestId,
+        launchSessionId = request.launchSessionId,
+        profileId = request.profileId,
+        challenge = request.challenge,
+        gamePid = request.gamePid,
+        requestedCount = request.requestedCount,
+        requestMode = request.requestMode,
+        state = state,
+        error = error_text,
+        requestedIndices = details.requestedIndices,
+        bigMap = details.bigMap,
+        serverLod = details.serverLod,
+        blockSize = details.blockSize,
+        blockCount = details.blockCount,
+        anchorTileX = details.anchorTileX,
+        anchorTileY = details.anchorTileY,
+        lbTileIndex = details.lbTileIndex,
+        rtTileIndex = details.rtTileIndex,
+        baselineMatchedCount = details.baselineMatchedCount,
+        matchedCount = details.matchedCount,
+        matchedCityCount = details.matchedCityCount,
+        matchedResourceCount = details.matchedResourceCount,
+        beforeLoadedPointCount = details.beforeLoadedPointCount,
+        afterLoadedPointCount = details.afterLoadedPointCount,
+        targetTileX = details.targetTileX,
+        targetTileY = details.targetTileY,
+        targetAoiIndex = details.targetAoiIndex,
+        baselineTargetPointCount = details.baselineTargetPointCount,
+        targetPointCount = details.targetPointCount,
+        targetPointIndex = details.targetPointIndex,
+        baselineAllViewPointsCount = details.baselineAllViewPointsCount,
+        allViewPointsCount = details.allViewPointsCount,
+        baselineAllViewPointsHasTarget = details.baselineAllViewPointsHasTarget,
+        allViewPointsHasTarget = details.allViewPointsHasTarget,
+        baselineOutOfViewPointsCount = details.baselineOutOfViewPointsCount,
+        outOfViewPointsCount = details.outOfViewPointsCount,
+        baselineOutOfViewPointsHasTarget = details.baselineOutOfViewPointsHasTarget,
+        outOfViewPointsHasTarget = details.outOfViewPointsHasTarget,
+        baselineOutOfViewPointsObjCount = details.baselineOutOfViewPointsObjCount,
+        outOfViewPointsObjCount = details.outOfViewPointsObjCount,
+        baselineOutOfViewPointsObjHasTarget = details.baselineOutOfViewPointsObjHasTarget,
+        outOfViewPointsObjHasTarget = details.outOfViewPointsObjHasTarget,
+        preTileX = details.preTileX,
+        preTileY = details.preTileY,
+        postTileX = details.postTileX,
+        postTileY = details.postTileY,
+        elapsedSeconds = details.elapsedSeconds,
+        cameraTileStable = details.cameraTileStable,
+        addListExists = details.addListExists,
+        currentSetExists = details.currentSetExists,
+        splitPending = details.splitPending,
+        startViewType = details.startViewType,
+        startViewValue = details.startViewValue,
+        initializedViaNormalUpdate = details.initializedViaNormalUpdate,
+        initializedViaStartViewRequest = details.initializedViaStartViewRequest,
+        initInvokeError = details.initInvokeError,
+        baselineIsRecvViewPoints = details.baselineIsRecvViewPoints,
+        isRecvViewPoints = details.isRecvViewPoints,
+        hasReceiveViewPointsReply = details.hasReceiveViewPointsReply,
+        responseFlagsTransitioned = details.responseFlagsTransitioned,
+        baselineIsPointUpdate = details.baselineIsPointUpdate,
+        isPointUpdate = details.isPointUpdate,
+        baselineIsCityPointUpdate = details.baselineIsCityPointUpdate,
+        isCityPointUpdate = details.isCityPointUpdate,
+        baselineMyPointDirty = details.baselineMyPointDirty,
+        myPointDirty = details.myPointDirty,
+        baselineLittleSmartDirty = details.baselineLittleSmartDirty,
+        littleSmartDirty = details.littleSmartDirty,
+        baselineFirstTimeReqAoi = details.baselineFirstTimeReqAoi,
+        firstTimeReqAoi = details.firstTimeReqAoi,
+        baselineNetReceiveAvailable = details.baselineNetReceiveAvailable,
+        netReceiveAvailable = details.netReceiveAvailable,
+        baselineNetReceiveCount = details.baselineNetReceiveCount,
+        netReceiveCount = details.netReceiveCount,
+        baselineNetReceiveCommands = details.baselineNetReceiveCommands,
+        netReceiveCommands = details.netReceiveCommands,
+        baselineNetSendAvailable = details.baselineNetSendAvailable,
+        netSendAvailable = details.netSendAvailable,
+        baselineNetSendCount = details.baselineNetSendCount,
+        netSendCount = details.netSendCount,
+        baselineNetSendCommands = details.baselineNetSendCommands,
+        netSendCommands = details.netSendCommands,
+        nativeRemoteTileX = details.nativeRemoteTileX,
+        nativeRemoteTileY = details.nativeRemoteTileY,
+        nativeCurrentSetCount = details.nativeCurrentSetCount,
+        holdMilliseconds = details.holdMilliseconds,
+        viewLevel = details.viewLevel,
+        postServerLod = details.postServerLod,
+        postBlockSize = details.postBlockSize,
+        postBlockCount = details.postBlockCount,
+        positionRestoredBeforeResponse = details.positionRestoredBeforeResponse,
+        positionRestoreElapsedSeconds = details.positionRestoreElapsedSeconds,
+        point_records = details.pointRecords,
+        requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+local function fail_bulk_aoi(request, error_text, details, point_manager)
+    local restored = restore_bulk_aoi_state(point_manager)
+    if not restored then error_text = tostring(error_text) .. "; bulk_aoi_state_restore_failed" end
+    write_bulk_aoi_result(request, "failed", error_text, details)
+    bulk_aoi_request = nil
+    bulk_aoi_started_at = nil
+end
+
+local function pump_bulk_aoi_diagnostic(now)
+    if bulk_aoi_request == nil then
+        local request = read_bulk_aoi_diagnostic(now)
+        if request == nil then return false end
+        if request.error ~= nil then
+            write_bulk_aoi_result(request, "failed", request.error, nil)
+            return true
+        end
+        local world, point_manager, world_error = runtime_world()
+        if world == nil or point_manager == nil then
+            write_bulk_aoi_result(request, "failed", world_error or "world_unavailable", nil)
+            return true
+        end
+        local block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+        local block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+        local server_lod = integer_field(point_manager, { "svLod" })
+        local start_view_before_init = reflected_value(point_manager, "startViewRequest")
+        local initialized_via_start_view = false
+        local initialized_via_normal_update = false
+        if block_size ~= nil and block_size > 0 and block_count ~= nil and block_count <= 0 and
+           server_lod ~= nil and server_lod >= 0 then
+            local start_ok = select(1, call(point_manager, "StartViewRequest"))
+            local update_ok = select(1, call(point_manager, "UpdateViewRequest", true))
+            if not start_ok or not update_ok then
+                write_bulk_aoi_result(request, "failed", "native_aoi_initialization_failed", {
+                    blockSize = block_size, blockCount = block_count, serverLod = server_lod,
+                    initInvokeError = not start_ok and "StartViewRequest failed" or "UpdateViewRequest(true) failed",
+                })
+                return true
+            end
+            initialized_via_start_view = true
+            initialized_via_normal_update = true
+            block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+            block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+            server_lod = integer_field(point_manager, { "svLod" })
+        end
+        if false and request.viewLevel >= 0 then
+            local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+            local original_manager_lod = integer_field(point_manager, { "LOD" })
+            local original_camera_lod = camera_manager and tonumber(safe_get(camera_manager, "CurrentLodLevel")) or nil
+            local desired_camera_lod = request.viewLevel == 0 and 1 or (request.viewLevel == 1 and 5 or 6)
+            if camera_manager == nil or original_manager_lod == nil or original_camera_lod == nil then
+                write_bulk_aoi_result(request, "failed", "native_lod_state_unavailable", nil)
+                return true
+            end
+            bulk_aoi_original_manager_lod = original_manager_lod
+            bulk_aoi_original_camera_lod = math.floor(original_camera_lod)
+            local camera_lod_ok = select(1, reflected_call(camera_manager, "set_CurrentLodLevel", desired_camera_lod))
+            local manager_lod_ok = select(1, reflected_call(point_manager, "OnUpdateLod", desired_camera_lod))
+            local update_ok = select(1, call(point_manager, "UpdateViewRequest", true))
+            if not camera_lod_ok or not manager_lod_ok or not update_ok then
+                write_bulk_aoi_result(request, "failed", "native_lod_transition_failed", nil)
+                return true
+            end
+            block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+            block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+            server_lod = integer_field(point_manager, { "svLod" })
+        end
+        local add_list = reflected_value(point_manager, "_addViewIndex")
+        local current_set = reflected_value(point_manager, "_curViewIndex")
+        local split_pending = reflected_value(point_manager, "_splitLastAOIRequest")
+        local start_view = reflected_value(point_manager, "startViewRequest")
+        if block_size == nil or block_size <= 0 or block_count == nil or block_count <= 0 or
+           server_lod == nil or server_lod < 0 or add_list == nil or current_set == nil or
+           type(start_view) ~= "boolean" then
+            write_bulk_aoi_result(request, "failed", "bulk_aoi_geometry_or_state_unavailable", {
+                blockSize = block_size, blockCount = block_count, serverLod = server_lod,
+                addListExists = add_list ~= nil, currentSetExists = current_set ~= nil,
+                splitPending = split_pending, startViewType = type(start_view), startViewValue = start_view,
+            })
+            return true
+        end
+        local add_count = collection_count(add_list)
+        if split_pending == true then
+            write_bulk_aoi_result(request, "failed", "bulk_aoi_manager_has_pending_split_request", {
+                blockSize = block_size, blockCount = block_count, serverLod = server_lod,
+            })
+            return true
+        end
+        local indices, choose_error, pre_tile_x, pre_tile_y, target_aoi_index
+        if request.requestMode == "coverage" then
+            local current_tile = safe_get(world, "CurTilePosClamped")
+            pre_tile_x = tonumber(current_tile and (safe_get(current_tile, "x") or safe_get(current_tile, "X")))
+            pre_tile_y = tonumber(current_tile and (safe_get(current_tile, "y") or safe_get(current_tile, "Y")))
+            if pre_tile_x == nil or pre_tile_y == nil then
+                write_bulk_aoi_result(request, "failed", "current_tile_unavailable", nil)
+                return true
+            end
+            pre_tile_x = math.floor(pre_tile_x); pre_tile_y = math.floor(pre_tile_y)
+            local target_cell_x = math.max(0, math.min(block_count - 1, math.floor(request.targetTileX / block_size)))
+            local target_cell_y = math.max(0, math.min(block_count - 1, math.floor(request.targetTileY / block_size)))
+            target_aoi_index = target_cell_y * block_count + target_cell_x
+            indices = { target_aoi_index }
+        else
+            indices, choose_error, pre_tile_x, pre_tile_y, target_aoi_index = choose_bulk_aoi_indices(
+                world, point_manager, block_size, block_count, request.requestedCount,
+                request.targetTileX, request.targetTileY)
+            if indices == nil then
+                write_bulk_aoi_result(request, "failed", choose_error, nil)
+                return true
+            end
+        end
+        local lookup = bulk_selected_lookup(indices)
+        local baseline, baseline_error = point_aoi_counts(world, point_manager, block_size, block_count, lookup)
+        if baseline == nil then
+            write_bulk_aoi_result(request, "failed", baseline_error, nil)
+            return true
+        end
+        local baseline_target, target_error = point_tile_count(
+            world, point_manager, request.targetTileX, request.targetTileY)
+        local baseline_stores = point_store_state(world, point_manager, request.targetTileX, request.targetTileY) or {}
+        if baseline_target == nil then
+            write_bulk_aoi_result(request, "failed", target_error, nil)
+            return true
+        end
+        if baseline_target ~= 0 then
+            write_bulk_aoi_result(request, "failed", "target_point_already_loaded", {
+                blockSize = block_size, blockCount = block_count, targetAoiIndex = target_aoi_index,
+                targetTileX = request.targetTileX, targetTileY = request.targetTileY,
+                baselineTargetPointCount = baseline_target,
+            targetPointIndex = baseline_stores.targetPointIndex,
+            baselineAllViewPointsCount = baseline_stores.allViewPointsCount,
+            baselineAllViewPointsHasTarget = baseline_stores.allViewPointsHasTarget,
+            baselineOutOfViewPointsCount = baseline_stores.outOfViewPointsCount,
+            baselineOutOfViewPointsHasTarget = baseline_stores.outOfViewPointsHasTarget,
+            baselineOutOfViewPointsObjCount = baseline_stores.outOfViewPointsObjCount,
+            baselineOutOfViewPointsObjHasTarget = baseline_stores.outOfViewPointsObjHasTarget,
+            })
+            return true
+        end
+        bulk_aoi_original_start_view_request = start_view_before_init
+        bulk_aoi_added_indices = {}
+        if request.viewLevel >= 90 then
+            local cs = rawget(_G, "CS")
+            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+            if vector2_type == nil then
+                fail_bulk_aoi(request, "direct_view_vector2int_unavailable", nil, point_manager)
+                return true
+            end
+            local tile_pos = vector2_type(request.targetTileX, request.targetTileY)
+            local baseline_flags = bulk_manager_flags(point_manager)
+            local baseline_net = bulk_network_receive_state()
+            local invoked = select(1, reflected_call(point_manager, "SendViewRequest",
+                tile_pos, request.viewLevel, request.serverId))
+            if not invoked then
+                fail_bulk_aoi(request, "direct_send_view_request_reflection_failed", nil, point_manager)
+                return true
+            end
+            bulk_aoi_restore_current_view = true
+            request.details = {
+                requestedIndices = { target_aoi_index },
+                bigMap = 0, serverLod = request.viewLevel,
+                blockSize = block_size, blockCount = block_count,
+                anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
+                baselineMatchedCount = baseline.total,
+                beforeLoadedPointCount = baseline.loadedPointCount,
+                targetTileX = request.targetTileX, targetTileY = request.targetTileY,
+                targetAoiIndex = target_aoi_index,
+                baselineTargetPointCount = baseline_target,
+                targetPointIndex = baseline_stores.targetPointIndex,
+                baselineAllViewPointsCount = baseline_stores.allViewPointsCount,
+                baselineAllViewPointsHasTarget = baseline_stores.allViewPointsHasTarget,
+                baselineOutOfViewPointsCount = baseline_stores.outOfViewPointsCount,
+                baselineOutOfViewPointsHasTarget = baseline_stores.outOfViewPointsHasTarget,
+                baselineOutOfViewPointsObjCount = baseline_stores.outOfViewPointsObjCount,
+                baselineOutOfViewPointsObjHasTarget = baseline_stores.outOfViewPointsObjHasTarget,
+                baselineIsRecvViewPoints = baseline_flags.isRecvViewPoints,
+                baselineIsPointUpdate = baseline_flags.isPointUpdate,
+                baselineIsCityPointUpdate = baseline_flags.isCityPointUpdate,
+                baselineMyPointDirty = baseline_flags.myPointDirty,
+                baselineLittleSmartDirty = baseline_flags.littleSmartDirty,
+                baselineFirstTimeReqAoi = baseline_flags.firstTimeReqAoi,
+                baselineNetReceiveAvailable = baseline_net.available,
+                baselineNetReceiveCount = baseline_net.total,
+                baselineNetReceiveCommands = baseline_net.commands,
+                baselineNetSendAvailable = baseline_net.sendAvailable,
+                baselineNetSendCount = baseline_net.sendTotal,
+                baselineNetSendCommands = baseline_net.sendCommands,
+                preTileX = pre_tile_x, preTileY = pre_tile_y,
+                nativeRemoteTileX = request.targetTileX,
+                nativeRemoteTileY = request.targetTileY,
+                nativeCurrentSetCount = collection_count(current_set) or 0,
+                holdMilliseconds = request.holdMilliseconds,
+                viewLevel = request.viewLevel,
+                initializedViaNormalUpdate = initialized_via_normal_update,
+                initializedViaStartViewRequest = initialized_via_start_view,
+                requestMethod = "WorldPointManager.SendViewRequest",
+            }
+            bulk_aoi_request = request
+            bulk_aoi_started_at = runtime_clock()
+            return true
+        end
+        local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+        local touch_camera = camera_manager and (safe_get(camera_manager, "touchCamera") or reflected_value(camera_manager, "touchCamera")) or nil
+        local ok_pos, original_pos = touch_camera and call(touch_camera, "GetCameraPos") or false, nil
+        if touch_camera ~= nil then ok_pos, original_pos = call(touch_camera, "GetCameraPos") end
+        local ox = tonumber(original_pos and safe_get(original_pos, "x"))
+        local oy = tonumber(original_pos and safe_get(original_pos, "y"))
+        local oz = tonumber(original_pos and safe_get(original_pos, "z"))
+        local vector3_type = rawget(_G, "CS") and CS.UnityEngine and CS.UnityEngine.Vector3 or nil
+        if camera_manager == nil or touch_camera == nil or not ok_pos or ox == nil or oy == nil or oz == nil or vector3_type == nil then
+            fail_bulk_aoi(request, "native_camera_state_unavailable", nil, point_manager)
+            return true
+        end
+        local shift_x = (request.targetTileX - pre_tile_x) * 2
+        local shift_z = (request.targetTileY - pre_tile_y) * 2
+        local remote_pos = vector3_type(ox + shift_x, oy, oz + shift_z)
+        local baseline_flags = bulk_manager_flags(point_manager)
+        local baseline_net = bulk_network_receive_state()
+        if not select(1, call(touch_camera, "SetCameraPos", remote_pos)) or
+           not select(1, call(camera_manager, "RefreshCameraAnchor")) then
+            call(touch_camera, "SetCameraPos", original_pos)
+            fail_bulk_aoi(request, "native_camera_shift_failed", nil, point_manager)
+            return true
+        end
+        local remote_tile = safe_get(world, "CurTilePosClamped")
+        local remote_tile_x = tonumber(remote_tile and (safe_get(remote_tile, "x") or safe_get(remote_tile, "X")))
+        local remote_tile_y = tonumber(remote_tile and (safe_get(remote_tile, "y") or safe_get(remote_tile, "Y")))
+        bulk_aoi_native_camera = camera_manager
+        bulk_aoi_native_touch_camera = touch_camera
+        bulk_aoi_native_original_pos = original_pos
+        bulk_aoi_native_hold_seconds = request.holdMilliseconds / 1000.0
+        bulk_aoi_native_position_restored = false
+        bulk_aoi_skip_restore_update = request.requestMode == "coverage"
+        local expanded_anchor_cells = nil
+        if request.requestMode == "expanded" or request.requestMode == "coverage" then
+            local unity_camera = safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")
+            local original_fov = tonumber(unity_camera and safe_get(unity_camera, "fieldOfView"))
+            if original_fov == nil or original_fov <= 0 then
+                fail_bulk_aoi(request, "expanded_camera_fov_unavailable", nil, point_manager)
+                return true
+            end
+            bulk_aoi_native_original_fov = original_fov
+            if not select(1, call(camera_manager, "SetFOV", 120.0)) then
+                fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
+                return true
+            end
+        end
+        local manager_reply_before = manager_response_flag(point_manager)
+        local world_reply_before = world_response_flag(world)
+        if manager_reply_before == nil or world_reply_before == nil then
+            fail_bulk_aoi(request, "bulk_response_flags_unavailable", nil, point_manager)
+            return true
+        end
+        bulk_aoi_original_manager_response_flag = manager_reply_before
+        bulk_aoi_original_world_response_flag = world_reply_before
+        if not reflected_set_value(point_manager, "isRecvViewPoints", false) or
+           not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
+            fail_bulk_aoi(request, "bulk_response_flag_reset_failed", nil, point_manager)
+            return true
+        end
+        bulk_aoi_response_flags_reset = true
+        local request_method = "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift"
+        local invoked = false
+        local requested_indices = indices
+        local direct_lb_index, direct_rt_index = nil, nil
+        if request.viewLevel >= 0 then
+            local cs = rawget(_G, "CS")
+            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+            local tile_pos = vector2_type and vector2_type(request.targetTileX, request.targetTileY) or nil
+            invoked = tile_pos ~= nil and select(1, reflected_call(point_manager, "SendViewRequest", tile_pos, request.viewLevel, request.serverId))
+            request_method = "WorldPointManager.SendViewRequest+held-internal-camera-shift"
+        elseif request.requestMode == "direct" then
+            bulk_aoi_added_indices = {}
+            if not collection_clear(add_list) then
+                fail_bulk_aoi(request, "direct_add_list_clear_failed", nil, point_manager)
+                return true
+            end
+            local min_x, min_y, max_x, max_y = block_count, block_count, 0, 0
+            for _, index in ipairs(indices) do
+                if not collection_add_int(add_list, index) then
+                    fail_bulk_aoi(request, "direct_add_list_population_failed", nil, point_manager)
+                    return true
+                end
+                if not collection_contains_int(current_set, index) then
+                    if not collection_add_int(current_set, index) then
+                        fail_bulk_aoi(request, "direct_current_set_population_failed", nil, point_manager)
+                        return true
+                    end
+                    bulk_aoi_added_indices[#bulk_aoi_added_indices + 1] = index
+                end
+                local cell_x = index % block_count
+                local cell_y = math.floor(index / block_count)
+                min_x = math.min(min_x, cell_x); min_y = math.min(min_y, cell_y)
+                max_x = math.max(max_x, cell_x); max_y = math.max(max_y, cell_y)
+            end
+            local cs = rawget(_G, "CS")
+            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+            local lb = vector2_type and vector2_type(min_x * block_size, min_y * block_size) or nil
+            local rt = vector2_type and vector2_type((max_x + 1) * block_size, (max_y + 1) * block_size) or nil
+            local ok_lb, lb_index = lb and call(world, "TilePosToIndex", lb) or false, nil
+            if lb ~= nil then ok_lb, lb_index = call(world, "TilePosToIndex", lb) end
+            local ok_rt, rt_index = rt and call(world, "TilePosToIndex", rt) or false, nil
+            if rt ~= nil then ok_rt, rt_index = call(world, "TilePosToIndex", rt) end
+            if not ok_lb or not ok_rt or tonumber(lb_index) == nil or tonumber(rt_index) == nil then
+                fail_bulk_aoi(request, "direct_tile_bounds_unavailable", nil, point_manager)
+                return true
+            end
+            direct_lb_index = math.floor(tonumber(lb_index)); direct_rt_index = math.floor(tonumber(rt_index))
+            invoked = select(1, reflected_call(point_manager, "SendAoiRequest", 0, server_lod,
+                request.targetTileX, request.targetTileY, add_list, block_size, direct_lb_index, direct_rt_index))
+            request_method = "WorldPointManager.SendAoiRequest(private-reflection)+held-internal-camera-shift"
+        else
+            invoked = select(1, call(point_manager, "UpdateViewRequest", true))
+        end
+        if not invoked then
+            call(camera_manager, "RefreshCameraAnchor")
+            fail_bulk_aoi(request, "native_remote_request_failed", nil, point_manager)
+            return true
+        end
+        local native_current = reflected_value(point_manager, "_curViewIndex")
+        local native_indices = native_current and select(1, collection_int_values(native_current, 512)) or nil
+        if request.requestMode ~= "direct" then
+            if native_indices == nil or #native_indices == 0 then native_indices = { target_aoi_index } end
+            requested_indices = native_indices
+        end
+        request.details = {
+            requestedIndices = requested_indices,
+            bigMap = 0, serverLod = server_lod, blockSize = block_size, blockCount = block_count,
+            anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
+            lbTileIndex = direct_lb_index, rtTileIndex = direct_rt_index,
+            baselineMatchedCount = baseline.total, beforeLoadedPointCount = baseline.loadedPointCount,
+            targetTileX = request.targetTileX, targetTileY = request.targetTileY,
+            targetAoiIndex = target_aoi_index, baselineTargetPointCount = baseline_target,
+            targetPointIndex = baseline_stores.targetPointIndex,
+            baselineAllViewPointsCount = baseline_stores.allViewPointsCount,
+            baselineAllViewPointsHasTarget = baseline_stores.allViewPointsHasTarget,
+            baselineOutOfViewPointsCount = baseline_stores.outOfViewPointsCount,
+            baselineOutOfViewPointsHasTarget = baseline_stores.outOfViewPointsHasTarget,
+            baselineOutOfViewPointsObjCount = baseline_stores.outOfViewPointsObjCount,
+            baselineOutOfViewPointsObjHasTarget = baseline_stores.outOfViewPointsObjHasTarget,
+            baselineIsRecvViewPoints = baseline_flags.isRecvViewPoints,
+            baselineIsPointUpdate = baseline_flags.isPointUpdate,
+            baselineIsCityPointUpdate = baseline_flags.isCityPointUpdate,
+            baselineMyPointDirty = baseline_flags.myPointDirty,
+            baselineLittleSmartDirty = baseline_flags.littleSmartDirty,
+            baselineFirstTimeReqAoi = baseline_flags.firstTimeReqAoi,
+            baselineNetReceiveAvailable = baseline_net.available,
+            baselineNetReceiveCount = baseline_net.total,
+            baselineNetReceiveCommands = baseline_net.commands,
+            baselineNetSendAvailable = baseline_net.sendAvailable,
+            baselineNetSendCount = baseline_net.sendTotal,
+            baselineNetSendCommands = baseline_net.sendCommands,
+            preTileX = pre_tile_x, preTileY = pre_tile_y,
+            nativeRemoteTileX = remote_tile_x, nativeRemoteTileY = remote_tile_y,
+            nativeCurrentSetCount = native_indices and #native_indices or (collection_count(current_set) or 0),
+            holdMilliseconds = request.holdMilliseconds,
+            viewLevel = request.viewLevel,
+            initializedViaNormalUpdate = initialized_via_normal_update,
+            initializedViaStartViewRequest = initialized_via_start_view,
+            requestMethod = request_method,
+        }
+        bulk_aoi_request = request
+        bulk_aoi_started_at = runtime_clock()
+        return true
+    end
+
+    local world, point_manager, world_error = runtime_world()
+    if world == nil or point_manager == nil then
+        fail_bulk_aoi(bulk_aoi_request, world_error or "world_unavailable", bulk_aoi_request.details, point_manager)
+        return true
+    end
+    local details = bulk_aoi_request.details or {}
+    local elapsed_now = bulk_aoi_started_at and (runtime_clock() - bulk_aoi_started_at) or 0
+    if not bulk_aoi_native_position_restored and bulk_aoi_native_hold_seconds ~= nil and
+       elapsed_now >= bulk_aoi_native_hold_seconds and bulk_aoi_native_touch_camera ~= nil and
+       bulk_aoi_native_original_pos ~= nil then
+        if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
+            fail_bulk_aoi(bulk_aoi_request, "native_camera_timed_restore_failed", details, point_manager)
+            return true
+        end
+        if bulk_aoi_native_camera ~= nil and bulk_aoi_native_original_fov ~= nil then
+            if not select(1, call(bulk_aoi_native_camera, "SetFOV", bulk_aoi_native_original_fov)) then
+                fail_bulk_aoi(bulk_aoi_request, "native_camera_fov_timed_restore_failed", details, point_manager)
+                return true
+            end
+        end
+        bulk_aoi_native_position_restored = true
+        details.positionRestoreElapsedSeconds = elapsed_now
+    end
+    details.positionRestoredBeforeResponse = bulk_aoi_native_position_restored == true
+    local lookup = bulk_selected_lookup(details.requestedIndices)
+    local observed, observe_error = point_aoi_counts(
+        world, point_manager, details.blockSize, details.blockCount, lookup)
+    if observed == nil then
+        fail_bulk_aoi(bulk_aoi_request, observe_error, details, point_manager)
+        return true
+    end
+    local post_tile = safe_get(world, "CurTilePosClamped")
+    details.postTileX = tonumber(post_tile and (safe_get(post_tile, "x") or safe_get(post_tile, "X")))
+    details.postTileY = tonumber(post_tile and (safe_get(post_tile, "y") or safe_get(post_tile, "Y")))
+    details.matchedCount = observed.total
+    details.matchedCityCount = observed.cities
+    details.matchedResourceCount = observed.resources
+    details.afterLoadedPointCount = observed.loadedPointCount
+    local point_records, point_records_error = city_aoi_records(
+        world, point_manager, details.blockSize, details.blockCount, lookup)
+    if point_records == nil then
+        fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
+        return true
+    end
+    details.pointRecords = point_records
+    local target_count, target_count_error = point_tile_count(
+        world, point_manager, details.targetTileX, details.targetTileY)
+    if target_count == nil then
+        fail_bulk_aoi(bulk_aoi_request, target_count_error, details, point_manager)
+        return true
+    end
+    details.targetPointCount = target_count
+    local post_stores = point_store_state(world, point_manager, details.targetTileX, details.targetTileY) or {}
+    details.allViewPointsCount = post_stores.allViewPointsCount
+    details.allViewPointsHasTarget = post_stores.allViewPointsHasTarget
+    details.outOfViewPointsCount = post_stores.outOfViewPointsCount
+    details.outOfViewPointsHasTarget = post_stores.outOfViewPointsHasTarget
+    details.outOfViewPointsObjCount = post_stores.outOfViewPointsObjCount
+    details.outOfViewPointsObjHasTarget = post_stores.outOfViewPointsObjHasTarget
+    local post_flags = bulk_manager_flags(point_manager)
+    details.isRecvViewPoints = post_flags.isRecvViewPoints
+    details.hasReceiveViewPointsReply = world_response_flag(world)
+    details.responseFlagsTransitioned = details.isRecvViewPoints == true and details.hasReceiveViewPointsReply == true
+    details.isPointUpdate = post_flags.isPointUpdate
+    details.isCityPointUpdate = post_flags.isCityPointUpdate
+    details.myPointDirty = post_flags.myPointDirty
+    details.littleSmartDirty = post_flags.littleSmartDirty
+    details.firstTimeReqAoi = post_flags.firstTimeReqAoi
+    details.postServerLod = integer_field(point_manager, { "svLod" })
+    details.postBlockSize = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+    details.postBlockCount = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+    local post_net = bulk_network_receive_state()
+    details.netReceiveAvailable = post_net.available
+    details.netReceiveCount = post_net.total
+    details.netReceiveCommands = post_net.commands
+    details.netSendAvailable = post_net.sendAvailable
+    details.netSendCount = post_net.sendTotal
+    details.netSendCommands = post_net.sendCommands
+    details.elapsedSeconds = bulk_aoi_started_at and (runtime_clock() - bulk_aoi_started_at) or nil
+    details.cameraTileStable = details.postTileX == details.preTileX and details.postTileY == details.preTileY
+    local request_completed = details.targetPointCount > (details.baselineTargetPointCount or 0)
+    if bulk_aoi_request.requestMode == "coverage" then
+        request_completed = details.responseFlagsTransitioned == true
+    end
+    if request_completed then
+        local request = bulk_aoi_request
+        local restored = restore_bulk_aoi_state(point_manager)
+        if not restored then
+            write_bulk_aoi_result(request, "failed", "bulk_aoi_state_restore_failed", details)
+        elseif details.cameraTileStable ~= true and details.requestMethod ~= "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift" then
+            write_bulk_aoi_result(request, "failed", "camera_tile_changed_during_bulk_aoi_request", details)
+        else
+            write_bulk_aoi_result(request, "proven", nil, details)
+        end
+        bulk_aoi_request = nil
+        bulk_aoi_started_at = nil
+        return true
+    end
+    if bulk_aoi_started_at ~= nil and runtime_clock() - bulk_aoi_started_at >= BULK_AOI_TIMEOUT_SECONDS then
+        fail_bulk_aoi(bulk_aoi_request, "bulk_aoi_response_timeout", details, point_manager)
+    end
+    return true
+end
+
 local function read_aoi_size_array(point_manager)
     local raw = safe_get(point_manager, "lwAoiBlockSizeArray") or
         reflected_value(point_manager, "lwAoiBlockSizeArray")
@@ -1157,6 +2199,10 @@ end
 function M.Pump()
     local now = tonumber(os.time()) or 0
     if active_request_id == nil then
+        if pump_bulk_aoi_diagnostic(now) then
+            write_heartbeat(now)
+            return true
+        end
         pump_runtime_diagnostic(now)
         pump_aoi_diagnostic(now)
         local command, command_error = read_command()

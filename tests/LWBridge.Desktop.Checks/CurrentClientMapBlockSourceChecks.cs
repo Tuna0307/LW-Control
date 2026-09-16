@@ -342,9 +342,13 @@ internal static class CurrentClientMapBlockSourceChecks
             targetWorldX = 219.0,
             targetWorldY = 0.0,
             targetWorldZ = 219.0,
+            // Live block-0 evidence showed normal Unity float drift at the callback.
+            // The requested tile is still exact after SceneUtils.WorldToTile.
             postCurTargetX = 219.0,
             postCurTargetY = 0.0,
-            postCurTargetZ = 219.0,
+            postCurTargetZ = 218.999992370605,
+            postTargetTileX = int.Parse(fields["targetX"]),
+            postTargetTileY = int.Parse(fields["targetY"]),
             verifyCurTargetX = 219.0,
             verifyCurTargetY = 0.0,
             verifyCurTargetZ = 219.0,

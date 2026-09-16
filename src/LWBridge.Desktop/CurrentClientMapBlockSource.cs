@@ -259,14 +259,16 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
         }
         else
         {
-            double targetWorldX = RequireFiniteDouble(root, "targetWorldX");
-            double targetWorldY = RequireFiniteDouble(root, "targetWorldY");
-            double targetWorldZ = RequireFiniteDouble(root, "targetWorldZ");
-            double callbackTargetX = RequireFiniteDouble(root, "postCurTargetX");
-            double callbackTargetY = RequireFiniteDouble(root, "postCurTargetY");
-            double callbackTargetZ = RequireFiniteDouble(root, "postCurTargetZ");
-            if (callbackTargetX != targetWorldX || callbackTargetY != targetWorldY || callbackTargetZ != targetWorldZ)
-                throw new InvalidDataException("Normal-world navigation did not prove the requested camera target at the GotoWorldPos completion callback.");
+            _ = RequireFiniteDouble(root, "targetWorldX");
+            _ = RequireFiniteDouble(root, "targetWorldY");
+            _ = RequireFiniteDouble(root, "targetWorldZ");
+            _ = RequireFiniteDouble(root, "postCurTargetX");
+            _ = RequireFiniteDouble(root, "postCurTargetY");
+            _ = RequireFiniteDouble(root, "postCurTargetZ");
+            int callbackTileX = RequireNonNegativeInt(root, "postTargetTileX");
+            int callbackTileY = RequireNonNegativeInt(root, "postTargetTileY");
+            if (callbackTileX != targetX || callbackTileY != targetY)
+                throw new InvalidDataException("Normal-world navigation did not prove the requested tile at the GotoWorldPos completion callback.");
             expectedMethod = "SceneUtils.TileToWorld(ForceChangeScene.World,serverId)+GoToUtil.GotoWorldPos(serverId,worldId)+completionCallbackCurTarget";
         }
         if (!MatchesString(root, "method", expectedMethod))

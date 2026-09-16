@@ -618,6 +618,8 @@ local function write_navigation_result(request, state, error_text, current_x, cu
         postCurTargetX = request.postCurTargetX,
         postCurTargetY = request.postCurTargetY,
         postCurTargetZ = request.postCurTargetZ,
+        postTargetTileX = request.postTargetTileX,
+        postTargetTileY = request.postTargetTileY,
         currentLod = lod,
         serverLod = server_lod,
         lwAoiBlockSizeArray = aoi_sizes,
@@ -870,6 +872,15 @@ local function begin_navigation(request)
             request.postCurTargetX = tonumber(post_target and safe_get(post_target, "x"))
             request.postCurTargetY = tonumber(post_target and safe_get(post_target, "y"))
             request.postCurTargetZ = tonumber(post_target and safe_get(post_target, "z"))
+            local scene_utils = resolve_scene_utils()
+            local world_to_tile = scene_utils and safe_get(scene_utils, "WorldToTile") or nil
+            if post_target ~= nil and type(world_to_tile) == "function" then
+                local ok_tile, post_tile = pcall(world_to_tile, post_target)
+                if ok_tile and post_tile ~= nil then
+                    request.postTargetTileX = tonumber(safe_get(post_tile, "x"))
+                    request.postTargetTileY = tonumber(safe_get(post_tile, "y"))
+                end
+            end
         end
         request.autoLookatCompleted = true
     end
@@ -981,11 +992,9 @@ local function pump_navigation(control)
             request.verifyCurTargetY == request.expectedGotoWorldY and
             request.verifyCurTargetZ == request.expectedGotoWorldZ
         local callback_target_matches =
-            request.postCurTargetX ~= nil and request.postCurTargetY ~= nil and request.postCurTargetZ ~= nil and
-            request.targetWorldX ~= nil and request.targetWorldY ~= nil and request.targetWorldZ ~= nil and
-            request.postCurTargetX == request.targetWorldX and
-            request.postCurTargetY == request.targetWorldY and
-            request.postCurTargetZ == request.targetWorldZ
+            request.postTargetTileX ~= nil and request.postTargetTileY ~= nil and
+            request.postTargetTileX == request.targetX and
+            request.postTargetTileY == request.targetY
         local verified_target_matches = request.liveWorldId > 0 and verified_unique_matches or callback_target_matches
         if request.autoLookatCompleted == true and verified_target_matches then
             local lod, server_lod, aoi_sizes, geometry = navigation_geometry()
