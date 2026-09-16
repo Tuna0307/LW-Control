@@ -43,9 +43,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 {
     internal const string BridgeVersion = "lwbridge-overview-bridge-1";
     internal const string ReadyMessage = "LWbridge is running";
-    private const string ExpectedPackageSha256 = "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4";
-    private const string ExpectedXluaSha256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f";
-    private const string ExpectedAssemblyCSharpSha256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd";
     private static readonly TimeSpan HeartbeatFreshness = TimeSpan.FromSeconds(5);
 
     private readonly object stateGate = new();
@@ -782,6 +779,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     string error = root.TryGetProperty("error", out JsonElement errorElement) && errorElement.ValueKind == JsonValueKind.String
                         ? errorElement.GetString() ?? "unknown Overview helper error"
                         : stderr.Trim();
+                    string? errorType = root.TryGetProperty("errorType", out JsonElement errorTypeElement) && errorTypeElement.ValueKind == JsonValueKind.String
+                        ? errorTypeElement.GetString()
+                        : null;
+                    if (string.Equals(errorType, "CurrentClientCompatibilityError", StringComparison.Ordinal))
+                        throw new BridgeCommandException(
+                            "GAME_UPDATE_UNSUPPORTED",
+                            "Last War updated, but LWBridge could not verify this game version as automatically compatible.",
+                            new { error });
                     throw new InvalidOperationException(error);
                 }
                 return root.Clone();
@@ -857,11 +862,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             throw new InvalidDataException("Overview readiness response is missing readyAt.");
         if (requireCurrentClientEvidence)
         {
-            if (!root.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object ||
-                !MatchesString(current, "packageSha256", ExpectedPackageSha256) ||
-                !MatchesString(current, "xluaSha256", ExpectedXluaSha256) ||
-                !MatchesString(current, "assemblyCSharpSha256", ExpectedAssemblyCSharpSha256))
-                throw new InvalidDataException("Overview helper did not prove the supported current-client identity.");
+            if (!root.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object)
+                throw new InvalidDataException("Overview helper did not return current-client compatibility evidence.");
+            _ = CurrentClientCompatibility.ValidateCurrentClient(current);
         }
         string gameStartedAtUtc = RequiredProcessStartedAtUtc(root, "gameStartedAtUtc");
         return new(pid, launcher, Path.GetFullPath(gamePath), gameStartedAtUtc, readyAt);
@@ -902,8 +905,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         if (!root.TryGetProperty("restore", out JsonElement restore) || restore.ValueKind != JsonValueKind.Object ||
             !restore.TryGetProperty("restored", out JsonElement restored) || restored.ValueKind != JsonValueKind.True)
             throw new InvalidDataException("Overview stop helper did not prove exact script restoration after game exit.");
-        if (requireCurrentClientEvidence && !MatchesString(restore, "packageSha256", ExpectedPackageSha256))
-            throw new InvalidDataException("Overview stop helper did not restore the supported current-client script package identity.");
+        if (requireCurrentClientEvidence)
+            CurrentClientCompatibility.ValidateRestore(restore);
     }
 
     internal static bool HeartbeatMatches(

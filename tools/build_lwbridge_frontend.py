@@ -74,6 +74,17 @@ def build(check=False):
             # rebuild-only bounded resource/search errors. These strings are
             # IMPLEMENTATION POLICY, not recovered original LWBridge wording.
             feedback_errors = {
+                'GAME_UPDATE_UNSUPPORTED': [
+                    'Last War updated, but this version changed a bridge-critical component. LWBridge stopped safely instead of using an unverified game build.',
+                    'Last War 已更新，但此版本修改了桥接关键组件。LWBridge 已安全停止，不会使用未经验证的游戏版本。',
+                    'Last War 已更新，但此版本修改了橋接關鍵元件。LWBridge 已安全停止，不會使用未經驗證的遊戲版本。',
+                    'Last War が更新され、ブリッジに重要なコンポーネントが変更されました。未検証のゲーム版を使用せず、LWBridge は安全に停止しました。',
+                    'Last War가 업데이트되었고 브리지 핵심 구성 요소가 변경되었습니다. LWBridge는 검증되지 않은 게임 빌드를 사용하지 않고 안전하게 중지했습니다.',
+                    'Last War đã cập nhật và thay đổi một thành phần quan trọng của cầu nối. LWBridge đã dừng an toàn thay vì dùng bản game chưa được xác minh.',
+                    'Last War telah diperbarui dan mengubah komponen penting bridge. LWBridge berhenti dengan aman daripada memakai build game yang belum diverifikasi.',
+                    'Last War обновилась и изменила критичный для моста компонент. LWBridge безопасно остановилась вместо использования непроверенной версии игры.',
+                    'Last War foi atualizado e alterou um componente crítico da ponte. O LWBridge parou com segurança em vez de usar uma versão do jogo não verificada.',
+                ],
                 'LIVE_RESOURCE_TYPES_UNSUPPORTED': [
                     'Live map scan currently supports Resource Point only. Select only Resource Point, then start the scan.',
                     '当前实机地图扫描仅支持“资源点”。请只勾选“资源点”，然后开始扫描。',

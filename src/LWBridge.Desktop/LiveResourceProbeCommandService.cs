@@ -17,9 +17,6 @@ internal sealed class LiveResourceProbeTestHooks
 internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandService
 {
     private const string ExpectedProbeVersion = "lwbridge-live-resource-probe-2";
-    private const string ExpectedPackageSha256 = "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4";
-    private const string ExpectedXluaSha256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f";
-    private const string ExpectedAssemblyCSharpSha256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd";
     private readonly MapDataStore store;
     private readonly string helperPath;
     private readonly TimeSpan helperSupervisionTimeout;
@@ -691,19 +688,14 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             throw new InvalidDataException(
                 "Loaded-probe reuse is not accepted without a separately verified owned session; production requires a fresh hash-gated install/launch/restore helper run.");
         }
-        if (!root.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object ||
-            !MatchesString(current, "packageSha256", ExpectedPackageSha256) ||
-            !MatchesString(current, "xluaSha256", ExpectedXluaSha256) ||
-            !MatchesString(current, "assemblyCSharpSha256", ExpectedAssemblyCSharpSha256))
-        {
-            throw new InvalidDataException("Live resource helper did not prove the supported current-client package/xLua/Assembly-CSharp fingerprint.");
-        }
+        if (!root.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object)
+            throw new InvalidDataException("Live resource helper did not return current-client compatibility evidence.");
+        _ = CurrentClientCompatibility.ValidateCurrentClient(current);
         if (!root.TryGetProperty("restore", out JsonElement restore) || restore.ValueKind != JsonValueKind.Object ||
             !restore.TryGetProperty("restored", out JsonElement restored) || restored.ValueKind != JsonValueKind.True ||
             !root.TryGetProperty("installedFilesChanged", out JsonElement changed) || changed.ValueKind != JsonValueKind.False)
-        {
             throw new InvalidDataException("Live resource helper did not prove exact post-acquisition restoration before import.");
-        }
+        CurrentClientCompatibility.ValidateRestore(restore);
         string helperProfile = RequiredString(root, "profileId", "selected app profile identity");
         if (!string.Equals(helperProfile, profileId, StringComparison.Ordinal))
             throw new InvalidDataException("Live resource helper did not match the selected app profile.");

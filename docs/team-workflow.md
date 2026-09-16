@@ -1,5 +1,7 @@
 # Team workflow — shared Map Data scan engine first
 
+**Temporary owner prerequisite, 2026-09-16:** `LWB-OVR-015` is technically live-proven on current Last War content v17 for both manual Home Launch/Close and Open-games-at-startup/Close. The new fail-closed compatibility gate automatically accepts package-only updates only while recovered bridge-critical anchors stay exact; future critical changes return `GAME_UPDATE_UNSUPPORTED`. **Owner action now:** run the normal Home UI/functionality pass. Do not resume scan-speed implementation until that pass is complete; the prior scan-speed work was investigation only, with no half-written production planner checkpoint.
+
 Latest owner direction, 2026-09-13: stop treating City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure as eight separate scanners. The active implementation priority is the **shared Manual Scan engine** shown on the Map Data page. Player City remains the first acceptance category for that common engine because its current-client acquisition/storage path is already proven.
 
 Player City `LWB-PC-001/002/003` remains valid historical/live evidence for fresh city acquisition, persistence, reopen/search and owner-visible saved-row rendering. It is a foundation, not proof that the normal Start button performs a complete world scan. Initial Map Data load may show a persisted City row before Search; that is saved-data browsing, not a new scan.

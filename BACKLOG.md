@@ -1,5 +1,14 @@
 # LWBridge implementation backlog
 
+## Current owner prerequisite - Home current-client regression, 2026-09-16
+
+- [x] `LWB-OVR-015` TECHNICALLY LIVE-PROVES **Launch Game -> connected -> Close Game** on current Last War Lua content v17.
+- [x] `LWB-OVR-015` TECHNICALLY LIVE-PROVES **Open games at startup -> connected -> Close Game** through production startup reconcile on v17.
+- [x] Replace the obsolete exact Lua-package pin with fail-closed automatic compatibility: content-only package identity may advance only while recovered executable/xLua/managed/Lua anchors remain exact; critical changes return `GAME_UPDATE_UNSUPPORTED`.
+- [x] Replace the generic update-mismatch Home error with a useful localized `GAME_UPDATE_UNSUPPORTED` message.
+- [ ] **OWNER NEXT:** reopen the delivered app with `Start LWBridge.cmd`, visually confirm Home Launch/Close and startup toggle, then continue the UI/functionality pass.
+- [ ] **AFTER OWNER UI PASS:** resume the already-started Map Data scan-speed measurement/planner work; no half-written production performance code was paused.
+
 ## Current owner priority - shared Map Data Manual Scan engine, 2026-09-13
 
 **PM17 corrections remain delivered.** Player City `LWB-PC-001/002/003` remains credited for authentic current-client city acquisition, persistence/reopen and owner-visible saved-row rendering. This does not prove the ordinary Manual Start button performs a complete world scan.

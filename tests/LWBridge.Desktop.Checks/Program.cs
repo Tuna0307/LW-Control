@@ -44,6 +44,12 @@ if (args.Contains("--live-current-runtime-diagnostic", StringComparer.OrdinalIgn
     return 0;
 }
 
+if (args.Contains("--live-overview-home-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveOverviewLifecycleProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--local-lastwar-locale-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunLocalCacheProofAsync();
@@ -59,6 +65,7 @@ if (args.Contains("--overview-official-settle-check", StringComparer.OrdinalIgno
 
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
+LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 
 void Check(bool condition, string name)

@@ -101,11 +101,9 @@ internal sealed partial class OverviewLifecycleService
         RequireString(result, "mode", "overview_preflight_recover");
         if (!result.TryGetProperty("installedFilesChanged", out JsonElement changed) || changed.ValueKind != JsonValueKind.False)
             throw new InvalidDataException("Overview preflight recovery reported changed installed files.");
-        if (!result.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object ||
-            !MatchesString(current, "packageSha256", ExpectedPackageSha256) ||
-            !MatchesString(current, "xluaSha256", ExpectedXluaSha256) ||
-            !MatchesString(current, "assemblyCSharpSha256", ExpectedAssemblyCSharpSha256))
-            throw new InvalidDataException("Overview preflight recovery did not prove the supported current-client identity.");
+        if (!result.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object)
+            throw new InvalidDataException("Overview preflight recovery did not return current-client compatibility evidence.");
+        _ = CurrentClientCompatibility.ValidateCurrentClient(current);
     }
 
     private static OfficialProcessIdentity? ReadSingleSelectedGameIdentity(string selectedRoot)

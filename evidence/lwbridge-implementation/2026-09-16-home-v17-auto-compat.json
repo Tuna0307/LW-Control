@@ -1,0 +1,86 @@
+{
+  "findingId": "LWB-OVR-015",
+  "date": "2026-09-16",
+  "status": "TECHNICAL LIVE-PROVEN on current v17; owner Home UI retest pending",
+  "validatedBaseCommit": "e88d68b5b57f2313b09a441205c4441fd606140c",
+  "compatibilityPolicy": "IMPLEMENTATION POLICY: auto-accept a changed Lua content package only when all recovered bridge-critical anchors remain exact; otherwise fail closed",
+  "currentClient": {
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-1",
+    "contentVersion": 17,
+    "criticalEntries": {
+      "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+      "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+      "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+    },
+    "entryCount": 18734,
+    "fileVersion": 3,
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "metadata": "41293716|2113157353",
+    "packageCrc32": 2113157353,
+    "packageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "packageSize": 41293716,
+    "version": "17",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+  },
+  "liveCycles": [
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "e64ffb07b1e943a2b5f649dc1b42b9aa",
+      "gamePid": 15828,
+      "messageText": "LWbridge is running",
+      "messageVisible": true,
+      "ready": true,
+      "registrationMethod": "UpdateManager.AddUpdate",
+      "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+      "installedFilesChangedAfterClose": false
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "7dcb774031da4cdba37979d86125a630",
+      "gamePid": 31864,
+      "messageText": "LWbridge is running",
+      "messageVisible": true,
+      "ready": true,
+      "registrationMethod": "UpdateManager.AddUpdate",
+      "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+      "installedFilesChangedAfterClose": false
+    }
+  ],
+  "sourceHashes": {
+    "current_client_compat.py": "0c217322dce5655194f4d20dbe71d1edca2d75d3e73f21783a4e695edddb6d99",
+    "run_overview_bridge_current.py": "8fde2093b36efe3fe43da282bfe851470d35055fff328784aac3a68b2bcdb310",
+    "CurrentClientCompatibility.cs": "03711df784e73b73d9b96ce816077878aef35d56c5ec5474e1a5091c0d0ec1e4",
+    "LiveOverviewLifecycleProof.cs": "1fb590b948243f3244c604964fb41b9ff88ffdfc01e44af0da0ac736234d73e2"
+  },
+  "reproduction": [
+    "python tools\\check_current_client_compat.py",
+    "tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.exe --live-overview-home-proof",
+    "python tools\\build_lwbridge_frontend.py --check",
+    "node tools\\check_lwbridge_frontend.cjs with NODE_PATH set to the installed Codex runtime node_modules"
+  ],
+  "result": {
+    "manualLaunch": "connected and ready, then exact owned Close Game restored v17 package",
+    "openGamesAtStartup": "startup reconcile connected and ready, then exact owned Close Game restored v17 package",
+    "currentV17PackageAcceptedWithoutHardCodedPackagePin": true,
+    "criticalAnchorChangesFailClosed": true,
+    "unsupportedUpdateUiCode": "GAME_UPDATE_UNSUPPORTED"
+  },
+  "limits": [
+    "This does not prove arbitrary future Last War updates are compatible.",
+    "Any change to LastWar.exe, xlua.dll, Assembly-CSharp.rdl, LWLF file version, or a critical Lua anchor remains blocked until separately recovered and validated.",
+    "The owner still needs to visually retest the normal Home page build after delivery."
+  ]
+}

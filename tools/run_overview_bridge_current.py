@@ -1,8 +1,8 @@
 """Current-client entry point for the Overview bridge helper.
 
-The existing run_overview_bridge.py lifecycle remains unchanged. This shim
-updates only its imported current-client identity gate to the independently
-revalidated Lua-v16 package before delegating to the existing main().
+The historical Overview lifecycle stays unchanged. This shim installs the
+fail-closed dynamic compatibility gate into its shared current-client helper so
+compatible Lua-content updates can advance automatically after launcher settle.
 """
 from __future__ import annotations
 
@@ -10,17 +10,20 @@ import importlib.util
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-BASE = HERE / "run_overview_bridge.py"
-_spec = importlib.util.spec_from_file_location("lwbridge_overview_current_base", BASE)
-if _spec is None or _spec.loader is None:
-    raise RuntimeError("could not load the shared Overview bridge helper")
-base = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(base)
 
-base.lr.EXPECTED_CONTENT_VERSION = 16
-base.lr.EXPECTED_PACKAGE_SHA256 = "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4"
-base.lr.EXPECTED_PACKAGE_SIZE = 41278785
-base.lr.EXPECTED_PACKAGE_CRC32 = 3454076078
+
+def load(path: Path, name: str):
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"could not load {path.name}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+base = load(HERE / "run_overview_bridge.py", "lwbridge_overview_current_base")
+compat = load(HERE / "current_client_compat.py", "lwbridge_overview_compat")
+compat.install_dynamic_verifier(base.lr)
 
 
 def main() -> int:

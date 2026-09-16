@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding prerequisite - LWB-OVR-015, 2026-09-16
+
+The owner paused Map Data performance work to repair the Home prerequisite after Last War advanced its Lua content package from v16 to v17. `LWB-OVR-015` now TECHNICALLY LIVE-PROVES both production lifecycle paths on current v17: manual `profile_instance_start` reached connected/ready then exact owned Close/restoration, and startup `profile_instances_reconcile({autoLaunchAll:true})` independently reached connected/ready then exact Close/restoration. The old exact package hash pin is replaced by a fail-closed critical-anchor compatibility policy, and a future incompatible update surfaces `GAME_UPDATE_UNSUPPORTED` instead of the generic action-failed message. Evidence: `2026-09-16-home-v17-auto-compat.json`.
+
+**Next:** owner visually retests Home and continues the UI/functionality pass. After that pass, resume the pre-existing full-world scan-speed investigation described under `LWB-R7-011`; it had reached measurement/planner research only and had no half-written production performance code.
+
 ## Current superseding checkpoint - LWB-R7-011, 2026-09-16
 
 `LWB-R7-004/005/006` supersede the older one-view/resource sequencing below for current work. Ordinary production `map_scan_start/status/stop` routes through `ManualMapScanCommandService` and the shared `MapScanEngine`; current-v16 live context, arbitrary-target AOI-backed Resource and Player City blocks, proven zero-city current-view cells, Player City `_curViewIndex` footprint reuse with one fresh response covering all four planned LOD0 cells, one real Normal engine block, and bounded Stop-to-idle are LIVE-PROVEN. Normal/Fast share the service with recovered concurrency `8/20`; camera acquisition remains intentionally single-owner/sequential because original `XluaBridgeMapScanTick` pacing is unrecovered.

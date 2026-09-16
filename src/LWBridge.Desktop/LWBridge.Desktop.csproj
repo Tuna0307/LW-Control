@@ -11,11 +11,11 @@
 
   <ItemGroup>
     <Content Include="WebUi\index.html;WebUi\preview-host.js;WebUi\presentation.css;WebUi\assets\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\..\tools\run_live_resource_probe.py;..\..\tools\run_live_resource_probe_current.py;..\..\tools\current_live_resource_probe.lua"
+    <Content Include="..\..\tools\run_live_resource_probe.py;..\..\tools\run_live_resource_probe_current.py;..\..\tools\current_client_compat.py;..\..\tools\current_live_resource_probe.lua"
              Link="LiveResourceProbe\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\..\tools\run_overview_bridge.py;..\..\tools\run_overview_bridge_current.py;..\..\tools\recover_overview_pending_current.py;..\..\tools\current_overview_bridge.lua;..\..\tools\run_live_resource_probe.py;..\..\tools\current_live_resource_probe.lua"
+    <Content Include="..\..\tools\run_overview_bridge.py;..\..\tools\run_overview_bridge_current.py;..\..\tools\recover_overview_pending_current.py;..\..\tools\current_overview_bridge.lua;..\..\tools\run_live_resource_probe.py;..\..\tools\current_client_compat.py;..\..\tools\current_live_resource_probe.lua"
              Link="OverviewBridge\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />
