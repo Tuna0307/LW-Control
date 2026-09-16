@@ -14,6 +14,11 @@ if (args.Contains("--live-current-client-city-sample", StringComparer.OrdinalIgn
     return 0;
 }
 
+if (args.Contains("--live-current-client-manual-stop", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualStopProof.RunAsync();
+    return 0;
+}
 if (args.Contains("--live-current-client-full-city-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullCityProof.RunAsync();

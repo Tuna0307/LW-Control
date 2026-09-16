@@ -11,6 +11,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly IMapScanBlockSource blockSource;
     private CancellationTokenSource? activeCancellation;
     private Task? activeTask;
+    private TaskCompletionSource<object?>? activeTerminal;
     private bool closed;
     private bool isReading;
     private string phase = "idle";
@@ -52,6 +53,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         currentClientSource = null!;
     }
 
+    public event Action<object>? StatusChanged;
+
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump";
 
@@ -65,7 +68,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return await JumpToCoordinateAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_scan_stop")
         {
-            RequestStop();
+            await StopAsync(cancellationToken).ConfigureAwait(false);
             return CreateStatus();
         }
         if (command != "map_scan_start")
@@ -150,7 +153,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             scanRunId = runId;
             scanCancellation = new CancellationTokenSource();
             activeCancellation = scanCancellation;
+            activeTerminal = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
+        PublishStatusChanged();
 
         try
         {
@@ -191,6 +196,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 unreadBlocks = totalBlocks;
                 phase = "scanning";
             }
+            PublishStatusChanged();
 
             var engine = new MapScanEngine(
                 blockSource,
@@ -219,51 +225,70 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         try
         {
             await engine.ExecuteAsync(request, scanCancellation.Token).ConfigureAwait(false);
+            bool changed = false;
             lock (gate)
             {
-                if (!ReferenceEquals(activeCancellation, scanCancellation)) return;
-                isReading = false;
-                phase = "completed";
-                inflightBlocks = 0;
-                unreadBlocks = 0;
-                lastError = null;
-                acquisitionProgressPercent = null;
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    isReading = false;
+                    phase = "completed";
+                    inflightBlocks = 0;
+                    unreadBlocks = 0;
+                    lastError = null;
+                    acquisitionProgressPercent = null;
+                    changed = true;
+                }
             }
+            if (changed) PublishStatusChanged();
         }
         catch (OperationCanceledException) when (scanCancellation.IsCancellationRequested)
         {
+            bool changed = false;
             lock (gate)
             {
-                if (!ReferenceEquals(activeCancellation, scanCancellation)) return;
-                isReading = false;
-                phase = "idle";
-                inflightBlocks = 0;
-                lastError = null;
-                acquisitionProgressPercent = null;
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    isReading = false;
+                    phase = "idle";
+                    inflightBlocks = 0;
+                    lastError = null;
+                    acquisitionProgressPercent = null;
+                    changed = true;
+                }
             }
+            if (changed) PublishStatusChanged();
         }
         catch (Exception error)
         {
+            bool changed = false;
             lock (gate)
             {
-                if (!ReferenceEquals(activeCancellation, scanCancellation)) return;
-                isReading = false;
-                phase = "error";
-                inflightBlocks = 0;
-                lastError = error.Message;
-                acquisitionProgressPercent = null;
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    isReading = false;
+                    phase = "error";
+                    inflightBlocks = 0;
+                    lastError = error.Message;
+                    acquisitionProgressPercent = null;
+                    changed = true;
+                }
             }
+            if (changed) PublishStatusChanged();
         }
         finally
         {
+            TaskCompletionSource<object?>? terminal = null;
             lock (gate)
             {
                 if (ReferenceEquals(activeCancellation, scanCancellation))
                 {
                     activeCancellation = null;
                     activeTask = null;
+                    terminal = activeTerminal;
+                    activeTerminal = null;
                 }
             }
+            terminal?.TrySetResult(null);
             scanCancellation.Dispose();
         }
     }
@@ -285,12 +310,15 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             else if (!string.Equals(progress.Phase, "scanning", StringComparison.Ordinal))
                 acquisitionProgressPercent = null;
         }
+        PublishStatusChanged();
     }
 
     private void CleanupFailedStart(
         CancellationTokenSource scanCancellation,
         Exception error)
     {
+        TaskCompletionSource<object?>? terminal = null;
+        bool changed = false;
         lock (gate)
         {
             if (!ReferenceEquals(activeCancellation, scanCancellation)) return;
@@ -300,21 +328,44 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             inflightBlocks = 0;
             activeCancellation = null;
             activeTask = null;
+            terminal = activeTerminal;
+            activeTerminal = null;
             lastError = cancelled ? null : error.Message;
+            acquisitionProgressPercent = null;
+            changed = true;
         }
+        terminal?.TrySetResult(null);
+        if (changed) PublishStatusChanged();
         scanCancellation.Dispose();
     }
 
-    private void RequestStop()
+    private async Task StopAsync(CancellationToken cancellationToken)
     {
         CancellationTokenSource? cancellation;
+        Task terminalTask;
+        bool changed = false;
         lock (gate)
         {
             cancellation = activeCancellation;
-            if (isReading && phase is not "completed") phase = "cancelling";
+            terminalTask = activeTerminal?.Task ?? Task.CompletedTask;
+            if (isReading && phase is not "completed" and not "cancelling")
+            {
+                phase = "cancelling";
+                changed = true;
+            }
         }
+        if (changed) PublishStatusChanged();
         try { cancellation?.Cancel(); }
         catch (ObjectDisposedException) { }
+        if (!terminalTask.IsCompleted)
+            await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private void PublishStatusChanged()
+    {
+        Action<object>? handler = StatusChanged;
+        if (handler is null) return;
+        handler(CreateStatus());
     }
 
     public object CreateStatus()
@@ -362,19 +413,19 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
     public void Close()
     {
-        Task? task;
+        Task? terminalTask;
         CancellationTokenSource? cancellation;
         lock (gate)
         {
             closed = true;
             cancellation = activeCancellation;
-            task = activeTask;
+            terminalTask = activeTerminal?.Task ?? activeTask;
             if (isReading && phase is not "completed") phase = "cancelling";
         }
         try { cancellation?.Cancel(); }
         catch (ObjectDisposedException) { }
-        if (task is null) return;
-        try { task.GetAwaiter().GetResult(); }
+        if (terminalTask is null) return;
+        try { terminalTask.GetAwaiter().GetResult(); }
         catch { }
     }
 }

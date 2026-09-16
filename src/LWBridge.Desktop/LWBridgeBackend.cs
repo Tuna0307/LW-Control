@@ -30,6 +30,7 @@ internal sealed class LWBridgeBackend
     private readonly MapDataStore? mapData;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
+    private readonly Func<object>? mapScanStatusProvider;
 
     public LWBridgeBackend(
         LocalConfigStore? config = null,
@@ -37,7 +38,8 @@ internal sealed class LWBridgeBackend
         MapDataStore? mapData = null,
         int? firstLiveResultServerId = null,
         OverviewLifecycleService? overviewLifecycle = null,
-        LastWarLocaleService? lastWarLocales = null)
+        LastWarLocaleService? lastWarLocales = null,
+        Func<object>? mapScanStatusProvider = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
@@ -45,6 +47,7 @@ internal sealed class LWBridgeBackend
         this.mapData = mapData;
         this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
         this.firstLiveResultServerId = firstLiveResultServerId;
+        this.mapScanStatusProvider = mapScanStatusProvider;
         installation = new(this.config);
     }
 
@@ -226,6 +229,30 @@ internal sealed class LWBridgeBackend
                 return SetPlayerMark(payload);
             case "map_summary":
                 RequireOptionalProfile(payload);
+                if (mapScanStatusProvider is not null)
+                {
+                    object scanState = mapScanStatusProvider();
+                    JsonElement scanJson = JsonSerializer.SerializeToElement(scanState, JsonOptions.Default);
+                    if (scanJson.TryGetProperty("serverId", out JsonElement serverElement) &&
+                        serverElement.TryGetInt32(out int activeServerId) && activeServerId > 0)
+                    {
+                        bool isReading = scanJson.TryGetProperty("isReading", out JsonElement readingElement) &&
+                            readingElement.ValueKind == JsonValueKind.True;
+                        string? scanRunId = scanJson.TryGetProperty("scanRunId", out JsonElement runElement) &&
+                            runElement.ValueKind == JsonValueKind.String ? runElement.GetString() : null;
+                        MapDataStore store = RequireMapDataStore();
+                        MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
+                            activeServerId, isReading, activeServerId, scanRunId);
+                        MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
+                            source, RecoveredWallClock.UnixTimeMilliseconds());
+                        return new
+                        {
+                            serverId = activeServerId,
+                            counts = aggregates.Counts,
+                            scanState,
+                        };
+                    }
+                }
                 if (asyncCommands is LiveResourceProbeCommandService liveResource &&
                     liveResource.CurrentServerId is int liveServerId)
                 {

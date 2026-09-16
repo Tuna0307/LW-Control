@@ -15,6 +15,7 @@ internal static class ManualMapScanCommandServiceChecks
     private static async Task RunAsync()
     {
         await NormalStartOwnsOneRunAndStopCancels();
+        await BackendSummaryTracksActiveManualScan();
         await FastUsesRecoveredConcurrencyAndPublishes();
         await ContextFailureLeavesTruthfulError();
         await MixedTypesFailClosed();
@@ -44,6 +45,12 @@ internal static class ManualMapScanCommandServiceChecks
                 return Task.FromResult(Context());
             },
             source);
+        var observedPhases = new List<string>();
+        service.StatusChanged += status =>
+        {
+            JsonElement json = JsonSerializer.SerializeToElement(status, JsonOptions.Default);
+            observedPhases.Add(String(json, "phase"));
+        };
 
         _ = await service.InvokeAsync(
             "map_scan_start",
@@ -72,15 +79,59 @@ internal static class ManualMapScanCommandServiceChecks
         {
         }
 
-        _ = await service.InvokeAsync(
+        object? stop = await service.InvokeAsync(
             "map_scan_stop",
             Payload("normal", "resource"),
             CancellationToken.None);
-        WaitForPhase(service, "idle");
-        status = Status(service);
-        Check(!Bool(status, "isReading") && Int(status, "inflightBlocks") == 0,
-            "Stop should release scan ownership and clear inflight work");
+        status = JsonSerializer.SerializeToElement(stop, JsonOptions.Default);
+        Check(!Bool(status, "isReading") && String(status, "phase") == "idle" && Int(status, "inflightBlocks") == 0,
+            "one Stop response should be terminal and release scan ownership");
+        Check(observedPhases.Contains("cancelling") && observedPhases.Contains("idle"),
+            "scan status notifications should expose cancelling and terminal idle states");
         Check(contextCalls == 1, "duplicate Start must not reacquire live context");
+        service.Close();
+    }
+
+    private static async Task BackendSummaryTracksActiveManualScan()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var source = new BlockingSource();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            source);
+        var backend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            asyncCommands: service,
+            mapData: store,
+            mapScanStatusProvider: service.CreateStatus);
+
+        _ = await service.InvokeAsync(
+            "map_scan_start",
+            Payload("fast", "monster"),
+            CancellationToken.None);
+        await source.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+
+        JsonElement profile = JsonSerializer.SerializeToElement(new { profileId = backend.ProfileId }, JsonOptions.Default);
+        JsonElement summary = JsonSerializer.SerializeToElement(
+            await backend.InvokeAsync("map_summary", profile, CancellationToken.None),
+            JsonOptions.Default);
+        JsonElement scanState = summary.GetProperty("scanState");
+        Check(summary.GetProperty("serverId").GetInt32() == 2212 &&
+              Bool(scanState, "isReading") && String(scanState, "phase") == "scanning" &&
+              scanState.GetProperty("serverId").GetInt32() == 2212,
+            "periodic map_summary should preserve the active Manual Scan state");
+
+        _ = await service.InvokeAsync(
+            "map_scan_stop",
+            Payload("fast", "monster"),
+            CancellationToken.None);
+        summary = JsonSerializer.SerializeToElement(
+            await backend.InvokeAsync("map_summary", profile, CancellationToken.None),
+            JsonOptions.Default);
+        scanState = summary.GetProperty("scanState");
+        Check(!Bool(scanState, "isReading") && String(scanState, "phase") == "idle",
+            "map_summary should expose terminal idle after one Stop");
         service.Close();
     }
 

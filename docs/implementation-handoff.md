@@ -1,10 +1,16 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding checkpoint - LWB-R7-012, 2026-09-16
+
+The owner resumed Map Data and exposed two real integration problems: the ~one-minute performance work had not yet been delivered, and one mid-scan Stop could leave the UI in `cancelling` until a second click. `LWB-R7-012` now closes this checkpoint. Current-v17 live measurements show each production coverage request returns a stable 5x10/50-AOI `_curViewIndex` footprint, so the full-world planner uses 200 sequential requests instead of 250 while retaining the exact 10,000/10,000 union gate. Ordinary full-Monster Manual Start completes at 43.620 s Normal in one live population and 70.746 s Fast in another; exact row count and wall time vary with live state. A dedicated current-v17 proof also completes one real block then returns `idle` after one Stop. Production emits `bridge://map-scan-status`, periodic `map_summary` follows the active Manual run, and Stop waits for terminal ownership release. Evidence: `2026-09-16-r7-map-scan-speed-stop.json`.
+
+**Next:** Resource complete-run acceptance on this same shared engine, then Truck/Railway/Dispatch/Ghost/Treasure, mixed selections and all eight. Do not add a second scanner.
+
 ## Current superseding prerequisite - LWB-OVR-015, 2026-09-16
 
 The owner paused Map Data performance work to repair the Home prerequisite after Last War advanced its Lua content package from v16 to v17. `LWB-OVR-015` now TECHNICALLY LIVE-PROVES both production lifecycle paths on current v17: manual `profile_instance_start` reached connected/ready then exact owned Close/restoration, and startup `profile_instances_reconcile({autoLaunchAll:true})` independently reached connected/ready then exact Close/restoration. The old exact package hash pin is replaced by a fail-closed critical-anchor compatibility policy, and a future incompatible update surfaces `GAME_UPDATE_UNSUPPORTED` instead of the generic action-failed message. Evidence: `2026-09-16-home-v17-auto-compat.json`.
 
-**Next:** owner visually retests Home and continues the UI/functionality pass. After that pass, resume the pre-existing full-world scan-speed investigation described under `LWB-R7-011`; it had reached measurement/planner research only and had no half-written production performance code.
+**Superseded by R7-012:** the owner resumed Map Data, so the performance/progress/Stop work is no longer paused. The Home v17 lifecycle evidence remains valid.
 
 ## Current superseding checkpoint - LWB-R7-011, 2026-09-16
 

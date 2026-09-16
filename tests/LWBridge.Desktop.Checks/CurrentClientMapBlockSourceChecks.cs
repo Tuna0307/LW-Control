@@ -33,6 +33,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
+        await FastFullMapRejectsIncompleteMeasuredCoverage();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await MissingOwnedSessionFailsClosed();
     }
@@ -247,7 +248,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                if (x == 15 && y == 75) return ProvenFastCityBatch(fields, (200, 9, 9));
+                if (x == 25 && y == 75) return ProvenFastCityBatch(fields, (200, 9, 9));
                 if (x == 975 && y == 975) return ProvenFastCityBatch(fields, (300, 985, 985));
                 return ProvenFastCityBatch(fields);
             });
@@ -255,8 +256,8 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 250 && captures.Count == 2500,
-            "fast full-City source should use 250 native responses for all 2,500 logical blocks");
+        Check(bulkCalls == 200 && captures.Count == 2500,
+            "fast full-City source should use the live-measured 200 native responses for all 2,500 logical blocks");
         Check(captures.Single(capture => capture.BlockIndex == 0).Records.Single().RecordKey == "200" &&
               captures.Single(capture => capture.BlockIndex == 2499).Records.Single().RecordKey == "300",
             "fast full-City source should preserve globally accumulated Cities at both map extremes");
@@ -273,7 +274,7 @@ internal static class CurrentClientMapBlockSourceChecks
             {
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x == 15 && y == 75) return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000001", false));
+                if (x == 25 && y == 75) return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000001", false));
                 if (x == 975 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", true));
                 return ProvenFastMonsterBatch(fields);
             });
@@ -281,7 +282,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 250 && captures.Count == 2500, "fast full-Monster source should use 250 native responses");
+        Check(bulkCalls == 200 && captures.Count == 2500, "fast full-Monster source should use 200 live-measured native responses");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
         Check(first.Kind == "monster" && first.RecordKey == "m-first" && first.Level == 9 &&
@@ -289,6 +290,43 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Monster source did not preserve normalized monsters at map extremes");
         Check(first.DataJson.Contains("\"monsterNameKey\":\"2000001\"", StringComparison.Ordinal),
             "fast full-Monster source did not preserve the authoritative name key");
+    }
+
+    private static async Task FastFullMapRejectsIncompleteMeasuredCoverage()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                string result = ProvenFastCityBatch(fields);
+                if (x != 25 || y != 75) return result;
+                JsonObject root = JsonNode.Parse(result)!.AsObject();
+                JsonArray indices = root["requestedIndices"]!.AsArray();
+                JsonArray reduced = new(indices
+                    .Select(node => node!.GetValue<int>())
+                    .Where(index => index % 100 != 4)
+                    .Select(index => (JsonNode?)JsonValue.Create(index))
+                    .ToArray());
+                root["requestedIndices"] = reduced;
+                root["nativeCurrentSetCount"] = reduced.Count;
+                return root.ToJsonString(JsonOptions.Default);
+            });
+        MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        try
+        {
+            _ = await source.CaptureBatchAsync(
+                request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+            throw new InvalidOperationException("expected incomplete measured full-world coverage rejection");
+        }
+        catch (InvalidDataException error) when (error.Message.Contains("9990/10000", StringComparison.Ordinal))
+        {
+        }
+        Check(bulkCalls == 200, "incomplete measured footprint should still fail only at the exact full-world union gate");
     }
 
     private static async Task CoordinateJumpUsesOwnedNavigation()
@@ -648,10 +686,10 @@ internal static class CurrentClientMapBlockSourceChecks
     {
         int targetX = int.Parse(fields["targetTileX"]);
         int targetY = int.Parse(fields["targetTileY"]);
-        int startCellX = (targetX - 15) / 10;
-        int startCellY = (targetY - 75) / 10;
+        int startCellX = Math.Clamp((targetX / 10) - 2, 0, 95);
+        int startCellY = Math.Clamp((targetY / 10) - 7, 0, 90);
         int[] requested = Enumerable.Range(startCellY, 10)
-            .SelectMany(row => Enumerable.Range(startCellX, 4).Select(column => row * 100 + column))
+            .SelectMany(row => Enumerable.Range(startCellX, 5).Select(column => row * 100 + column))
             .ToArray();
         bool includeMonster = fields.TryGetValue("includeMonster", out string? includeMonsterText) && includeMonsterText == "true";
         return JsonSerializer.Serialize(new

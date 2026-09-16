@@ -23,6 +23,10 @@ internal static class LiveManualFullMonsterProof
         int publishedMonsterCount = 0;
         int reopenedMonsterCount = 0;
         double scanWallSeconds = 0;
+        string scanMode = string.Equals(
+            Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
+            "fast", StringComparison.OrdinalIgnoreCase) ? "fast" : "normal";
+        int expectedConcurrency = scanMode == "fast" ? 20 : 8;
         try
         {
             using JsonDocument empty = JsonDocument.Parse("{}");
@@ -41,7 +45,7 @@ internal static class LiveManualFullMonsterProof
                 JsonElement payload = JsonSerializer.SerializeToElement(new
                 {
                     profileId = "manual-full-monster-proof",
-                    scanMode = "normal",
+                    scanMode,
                     selectedTypes = new[] { "monster" },
                 }, JsonOptions.Default);
 
@@ -53,7 +57,7 @@ internal static class LiveManualFullMonsterProof
                 serverId = startStatus.GetProperty("serverId").GetInt32();
                 if (string.IsNullOrWhiteSpace(runId) || serverId <= 0 ||
                     startStatus.GetProperty("totalBlocks").GetInt32() != 2500 ||
-                    startStatus.GetProperty("concurrency").GetInt32() != 8)
+                    startStatus.GetProperty("concurrency").GetInt32() != expectedConcurrency)
                 {
                     throw new InvalidDataException("Ordinary Manual Start did not expose the expected Monster scan identity/geometry.");
                 }
@@ -113,6 +117,8 @@ internal static class LiveManualFullMonsterProof
                 totalBlocks = 2500,
                 publishedMonsterCount,
                 reopenedMonsterCount,
+                scanMode,
+                concurrency = expectedConcurrency,
                 scanWallSeconds,
             }, JsonOptions.Default));
         }

@@ -150,9 +150,12 @@ internal sealed class LWBridgeWindow : Form
             asyncCommands: productionCommands,
             mapData: mapData,
             firstLiveResultServerId: firstLiveResult?.ServerId,
-            overviewLifecycle: overviewLifecycleService);
+            overviewLifecycle: overviewLifecycleService,
+            mapScanStatusProvider: manualMapScanService is null ? null : manualMapScanService.CreateStatus);
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
+        if (manualMapScanService is not null)
+            manualMapScanService.StatusChanged += OnManualMapScanStatusChanged;
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
@@ -1767,6 +1770,23 @@ internal sealed class LWBridgeWindow : Form
                 new OverviewRecoveryStatus("idle", null, false, false, null, null, 0, null, null, null, false));
     }
 
+    private void OnManualMapScanStatusChanged(object status)
+    {
+        if (sessionClosed || IsDisposed) return;
+        void Publish()
+        {
+            DocumentSession session = documentSession;
+            if (IsCurrentDocument(session) && session.Subscriptions.Contains("bridge://map-scan-status"))
+                SendEvent(session, "bridge://map-scan-status", status);
+        }
+        try
+        {
+            if (InvokeRequired) BeginInvoke(Publish);
+            else Publish();
+        }
+        catch (InvalidOperationException) { }
+    }
+
     private void OnOverviewRecoveryStatusChanged(OverviewRecoveryStatus status)
     {
         if (sessionClosed || IsDisposed) return;
@@ -1833,6 +1853,8 @@ internal sealed class LWBridgeWindow : Form
         documentSession.Close();
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged -= OnOverviewRecoveryStatusChanged;
+        if (manualMapScanService is not null)
+            manualMapScanService.StatusChanged -= OnManualMapScanStatusChanged;
         // IMPLEMENTATION POLICY: drain the dependent scan worker before closing its owned game lifecycle.
         manualMapScanService?.Close();
         liveResourceService?.Close();

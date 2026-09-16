@@ -12,6 +12,12 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastCityGroupColumns = 2;
     private const int FastCityGroupRows = 5;
     private const int FastCityExpectedAoiCount = 40;
+    // LWB-R7-012 live-measured current-client full-world footprint: 5 AOI columns x 10 AOI rows.
+    // The ordinary partial-band path intentionally keeps its recovered 2x5 logical-block grouping.
+    private const int FastFullWorldAoiColumns = 5;
+    private const int FastFullWorldAoiRows = 10;
+    private const int FastFullWorldColumnRequests = FastCityAoiBlockCount / FastFullWorldAoiColumns;
+    private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
@@ -127,15 +133,19 @@ internal sealed partial class CurrentClientMapBlockSource
         var covered = new HashSet<int>();
         var cityRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
         var monsterRecords = new Dictionary<string, FastMonsterPrepared>(StringComparer.Ordinal);
-        for (int row = 0; row < 10; row++)
+        for (int row = 0; row < FastFullWorldRowRequests; row++)
         {
             int groupStartRow = row * FastCityGroupRows;
             int targetY = 75 + (row * 100);
-            for (int column = 0; column < 25; column++)
+            for (int column = 0; column < FastFullWorldColumnRequests; column++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                int groupStartColumn = column * FastCityGroupColumns;
-                int targetX = 15 + (column * 40);
+                // Current v17 returns five consecutive LOD0 AOI columns around these targets.
+                // Keep a four-column validator subset inside that measured footprint; the final
+                // covered.Count == 10000 invariant independently rejects any missing fifth column.
+                int footprintStartCellX = column * FastFullWorldAoiColumns;
+                int groupStartColumn = (footprintStartCellX + 1) / 2;
+                int targetX = 25 + (column * 50);
                 FastCityBatchObservation? observation = null;
                 Exception? lastError = null;
                 for (int attempt = 1; attempt <= 3; attempt++)
