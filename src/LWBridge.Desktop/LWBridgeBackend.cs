@@ -18,6 +18,7 @@ internal sealed class LWBridgeBackend
         "append_log",
         "set_window_theme",
         "lastwar_localize",
+        "map_coordinate_jump",
         "local_config_get",
         "local_config_set",
     };

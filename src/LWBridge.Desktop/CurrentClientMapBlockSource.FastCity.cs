@@ -15,10 +15,14 @@ internal sealed partial class CurrentClientMapBlockSource
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
 
+    public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+        MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
+        IReadOnlySet<int> pendingBlockIndices, CancellationToken cancellationToken) =>
+        CaptureBatchAsync(request, seedBlock, pendingBlockIndices, null, cancellationToken);
+
     public async Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
-        MapScanExecutionRequest request,
-        MapScanTargetBlock seedBlock,
-        IReadOnlySet<int> pendingBlockIndices,
+        MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
+        IReadOnlySet<int> pendingBlockIndices, Action<MapScanSourceProgress>? progress,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pendingBlockIndices);
@@ -39,7 +43,7 @@ internal sealed partial class CurrentClientMapBlockSource
         }
 
         if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0)
-            return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, cancellationToken)
+            return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
                 .ConfigureAwait(false);
 
         int bandStartRow = (seedBlock.Row / FastCityGroupRows) * FastCityGroupRows;
@@ -113,6 +117,7 @@ internal sealed partial class CurrentClientMapBlockSource
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
         IReadOnlySet<int> pendingBlockIndices,
+        Action<MapScanSourceProgress>? progress,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
@@ -161,6 +166,7 @@ internal sealed partial class CurrentClientMapBlockSource
                         prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
                         cityRecords[prepared.Record.RecordKey] = prepared;
                 }
+                progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
             }
         }
 

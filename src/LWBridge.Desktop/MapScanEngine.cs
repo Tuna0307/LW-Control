@@ -47,9 +47,14 @@ internal sealed class MapScanEngine
                     IReadOnlyList<MapScanBlockCapture> captures;
                     try
                     {
-                        captures = source is IMapScanBatchSource batchSource
-                            ? await batchSource.CaptureBatchAsync(request, block, pending, cancellationToken).ConfigureAwait(false)
-                            : [await source.CaptureAsync(request, block, cancellationToken).ConfigureAwait(false)];
+                        captures = source is IMapScanProgressBatchSource progressiveBatchSource
+                            ? await progressiveBatchSource.CaptureBatchAsync(
+                                request, block, pending, sourceProgress =>
+                                    Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 1, startedAt, sourceProgress.Percent),
+                                cancellationToken).ConfigureAwait(false)
+                            : source is IMapScanBatchSource batchSource
+                                ? await batchSource.CaptureBatchAsync(request, block, pending, cancellationToken).ConfigureAwait(false)
+                                : [await source.CaptureAsync(request, block, cancellationToken).ConfigureAwait(false)];
                     }
                     catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                     {
@@ -134,7 +139,8 @@ internal sealed class MapScanEngine
         int completed,
         int failed,
         int inflight,
-        long startedAt)
+        long startedAt,
+        double? acquisitionProgressPercent = null)
     {
         MapScanSchedulerCounters counters = MapScanSchedulerProgress.Normalize(
             total,
@@ -150,7 +156,8 @@ internal sealed class MapScanEngine
             checked((int)counters.FailedBlocks),
             checked((int)counters.InflightBlocks),
             checked((int)counters.UnreadBlocks),
-            MapScanSchedulerProgress.ComputeScanRate(counters.CompletedBlocks, elapsed)));
+            MapScanSchedulerProgress.ComputeScanRate(counters.CompletedBlocks, elapsed),
+            acquisitionProgressPercent));
     }
 
     private static void ValidateRequest(MapScanExecutionRequest request)

@@ -26,6 +26,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private int inflightBlocks;
     private int unreadBlocks;
     private double scanRate;
+    private double? acquisitionProgressPercent;
+    private bool coordinateJumping;
     private string? lastError;
 
     public ManualMapScanCommandService(
@@ -51,7 +53,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     }
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump";
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -59,6 +61,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         CancellationToken cancellationToken)
     {
         if (command == "map_scan_status") return CreateStatus();
+        if (command == "map_coordinate_jump")
+            return await JumpToCoordinateAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_scan_stop")
         {
             RequestStop();
@@ -81,6 +85,40 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+
+    private async Task<object> JumpToCoordinateAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        int requestedServerId = RequirePayloadInt(payload, "serverId", positive: true);
+        int x = RequirePayloadInt(payload, "x", positive: false);
+        int y = RequirePayloadInt(payload, "y", positive: false);
+        lock (gate)
+        {
+            if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (coordinateJumping) throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
+            if (currentClientSource is null) throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Map coordinate jump requires the live current-client source.");
+            coordinateJumping = true;
+        }
+        try
+        {
+            CurrentClientCoordinateJumpResult result = await currentClientSource.JumpToCoordinateAsync(
+                requestedServerId, x, y, cancellationToken).ConfigureAwait(false);
+            return new { serverId = result.ServerId, x = result.X, y = result.Y };
+        }
+        finally
+        {
+            lock (gate) coordinateJumping = false;
+        }
+    }
+
+    private static int RequirePayloadInt(JsonElement payload, string name, bool positive)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) || !value.TryGetInt32(out int parsed) ||
+            (positive ? parsed <= 0 : parsed < 0))
+            throw new BridgeCommandException("INVALID_PAYLOAD", $"{name} is invalid.");
+        return parsed;
+    }
+
     private async Task<object> StartAsync(
         MapScanStartOptions options,
         CancellationToken cancellationToken)
@@ -94,6 +132,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SCAN_CLOSED",
                     "The Map Data window is closing and cannot start another scan.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (coordinateJumping)
+                throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
             isReading = true;
             phase = "starting";
             scanMode = options.ScanMode;
@@ -105,6 +145,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             totalBlocks = completedBlocks = failedBlocks = inflightBlocks = 0;
             unreadBlocks = 0;
             scanRate = 0;
+            acquisitionProgressPercent = null;
             runId = Guid.NewGuid().ToString("N");
             scanRunId = runId;
             scanCancellation = new CancellationTokenSource();
@@ -186,6 +227,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 inflightBlocks = 0;
                 unreadBlocks = 0;
                 lastError = null;
+                acquisitionProgressPercent = null;
             }
         }
         catch (OperationCanceledException) when (scanCancellation.IsCancellationRequested)
@@ -197,6 +239,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 phase = "idle";
                 inflightBlocks = 0;
                 lastError = null;
+                acquisitionProgressPercent = null;
             }
         }
         catch (Exception error)
@@ -208,6 +251,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 phase = "error";
                 inflightBlocks = 0;
                 lastError = error.Message;
+                acquisitionProgressPercent = null;
             }
         }
         finally
@@ -236,6 +280,10 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             inflightBlocks = progress.InflightBlocks;
             unreadBlocks = progress.UnreadBlocks;
             scanRate = progress.ScanRate;
+            if (progress.AcquisitionProgressPercent.HasValue)
+                acquisitionProgressPercent = Math.Clamp(progress.AcquisitionProgressPercent.Value, 0d, 100d);
+            else if (!string.Equals(progress.Phase, "scanning", StringComparison.Ordinal))
+                acquisitionProgressPercent = null;
         }
     }
 
@@ -278,6 +326,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 completedBlocks,
                 failedBlocks,
                 phase);
+            double visibleProgress = derived.ProgressPercent;
+            if (isReading && string.Equals(phase, "scanning", StringComparison.Ordinal) && acquisitionProgressPercent.HasValue)
+                visibleProgress = Math.Max(visibleProgress, Math.Min(98d, acquisitionProgressPercent.Value));
             return new
             {
                 serverId,
@@ -295,7 +346,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 concurrency,
                 retryCount = (int?)null,
                 scanRate,
-                progressPercent = derived.ProgressPercent,
+                progressPercent = visibleProgress,
+                acquisitionProgressPercent,
                 nativeCaptureReady = (bool?)null,
                 nativePendingRecords = (int?)null,
                 nativeDroppedRecords = (int?)null,

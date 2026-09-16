@@ -11,6 +11,9 @@ internal sealed record CurrentClientMapContext(
     int? PlayerTileX = null,
     int? PlayerTileY = null);
 
+
+internal sealed record CurrentClientCoordinateJumpResult(int ServerId, int X, int Y);
+
 internal sealed partial class CurrentClientMapBlockSource
 {
     internal async Task<CurrentClientMapContext> GetCurrentContextAsync(CancellationToken cancellationToken)
@@ -25,6 +28,27 @@ internal sealed partial class CurrentClientMapBlockSource
         RequireSameSession(session);
         return context;
     }
+
+    internal async Task<CurrentClientCoordinateJumpResult> JumpToCoordinateAsync(
+        int requestedServerId, int x, int y, CancellationToken cancellationToken)
+    {
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+        CurrentClientMapContext context = await EnsureWorldReadyAsync(session, cancellationToken).ConfigureAwait(false);
+        RequireSameSession(session);
+        if (context.ServerId != requestedServerId)
+            throw new BridgeCommandException("STALE_MAP_SERVER", "Map row server does not match the current live server.");
+        if (x < 0 || x >= context.TileWidth || y < 0 || y >= context.TileHeight)
+            throw new BridgeCommandException("INVALID_MAP_COORDINATE", "Map coordinates are outside the current live world.");
+        _ = await NavigateCoreAsync(session, context.ServerId, context.WorldId, x, y, cancellationToken).ConfigureAwait(false);
+        RequireSameSession(session);
+        return new CurrentClientCoordinateJumpResult(context.ServerId, x, y);
+    }
+
     private async Task<CurrentClientMapContext> EnsureWorldReadyAsync(
         OverviewMapScanSession session,
         CancellationToken cancellationToken)

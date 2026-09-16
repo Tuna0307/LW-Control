@@ -24,7 +24,8 @@ internal readonly record struct MapScanEngineProgress(
     int FailedBlocks,
     int InflightBlocks,
     int UnreadBlocks,
-    double ScanRate);
+    double ScanRate,
+    double? AcquisitionProgressPercent = null);
 
 internal interface IMapScanBlockSource
 {
@@ -40,6 +41,17 @@ internal interface IMapScanBatchSource : IMapScanBlockSource
         MapScanExecutionRequest request,
         MapScanTargetBlock seedBlock,
         IReadOnlySet<int> pendingBlockIndices,
+        CancellationToken cancellationToken);
+}
+
+
+internal readonly record struct MapScanSourceProgress(double Percent);
+
+internal interface IMapScanProgressBatchSource : IMapScanBatchSource
+{
+    Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+        MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
+        IReadOnlySet<int> pendingBlockIndices, Action<MapScanSourceProgress>? progress,
         CancellationToken cancellationToken);
 }
 

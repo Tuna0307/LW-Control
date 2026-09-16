@@ -28,6 +28,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await EmptyCityCurrentViewIsAZeroRowCapture();
         await TargetedCityFallbackFailsClosed();
         await FastCityBatchReturnsTenLogicalCaptures();
+        await CoordinateJumpUsesOwnedNavigation();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
         await HealthyGateRunsBeforeWorldReadyProtocol();
@@ -257,6 +258,27 @@ internal static class CurrentClientMapBlockSourceChecks
         Check(captures.Single(capture => capture.BlockIndex == 0).Records.Single().RecordKey == "200" &&
               captures.Single(capture => capture.BlockIndex == 2499).Records.Single().RecordKey == "300",
             "fast full-City source should preserve globally accumulated Cities at both map extremes");
+    }
+
+
+    private static async Task CoordinateJumpUsesOwnedNavigation()
+    {
+        int navigationWrites = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("map-navigation.txt", StringComparison.OrdinalIgnoreCase)) navigationWrites++;
+            });
+        CurrentClientCoordinateJumpResult result = await source.JumpToCoordinateAsync(2212, 836, 601, CancellationToken.None);
+        Check(navigationWrites == 1 && result.ServerId == 2212 && result.X == 836 && result.Y == 601,
+            "coordinate Jump must use one correlated owned-session map navigation request");
+        try
+        {
+            _ = await source.JumpToCoordinateAsync(2213, 836, 601, CancellationToken.None);
+            throw new InvalidOperationException("stale-server Jump should fail closed");
+        }
+        catch (BridgeCommandException error) when (error.Code == "STALE_MAP_SERVER") { }
     }
 
     private static async Task HealthyGateRunsBeforeWorldReadyProtocol()

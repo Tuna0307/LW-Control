@@ -16,6 +16,7 @@ internal static class MapScanEngineChecks
         await CancellationStopsWithoutPublication();
         await ForeignCaptureFailsClosed();
         await BatchCaptureCompletesMultipleLogicalBlocks();
+        await ProgressiveBatchReportsAcquisitionBeforeCheckpoint();
         await DuplicateBatchCaptureFailsClosed();
     }
 
@@ -129,6 +130,22 @@ internal static class MapScanEngineChecks
             "one batch request checkpoints each logical block before publication");
     }
 
+
+    private static async Task ProgressiveBatchReportsAcquisitionBeforeCheckpoint()
+    {
+        var sink = new RecordingSink();
+        var observed = new List<MapScanEngineProgress>();
+        var source = new ProgressiveBatchSource((request, seed, pending, report, _) =>
+        {
+            report?.Invoke(new MapScanSourceProgress(40));
+            IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(request.TileWidth, request.TileHeight);
+            return Task.FromResult<IReadOnlyList<MapScanBlockCapture>>([Capture(request, blocks[0]), Capture(request, blocks[1])]);
+        });
+        await new MapScanEngine(source, sink, observed.Add).ExecuteAsync(Request(40, 20));
+        Check(observed.Any(item => item.CompletedBlocks == 0 && item.AcquisitionProgressPercent == 40),
+            "progressive batch source must expose native acquisition progress before logical checkpointing");
+    }
+
     private static async Task DuplicateBatchCaptureFailsClosed()
     {
         var sink = new RecordingSink();
@@ -174,6 +191,25 @@ internal static class MapScanEngineChecks
             MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
             IReadOnlySet<int> pendingBlockIndices, CancellationToken cancellationToken) =>
             capture(request, seedBlock, pendingBlockIndices, cancellationToken);
+    }
+
+
+    private sealed class ProgressiveBatchSource(
+        Func<MapScanExecutionRequest, MapScanTargetBlock, IReadOnlySet<int>, Action<MapScanSourceProgress>?, CancellationToken, Task<IReadOnlyList<MapScanBlockCapture>>> capture)
+        : IMapScanProgressBatchSource
+    {
+        public Task<MapScanBlockCapture> CaptureAsync(
+            MapScanExecutionRequest request, MapScanTargetBlock block, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("progressive source should use batch capture");
+
+        public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+            MapScanExecutionRequest request, MapScanTargetBlock seedBlock, IReadOnlySet<int> pendingBlockIndices,
+            CancellationToken cancellationToken) => capture(request, seedBlock, pendingBlockIndices, null, cancellationToken);
+
+        public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+            MapScanExecutionRequest request, MapScanTargetBlock seedBlock, IReadOnlySet<int> pendingBlockIndices,
+            Action<MapScanSourceProgress>? progress, CancellationToken cancellationToken) =>
+            capture(request, seedBlock, pendingBlockIndices, progress, cancellationToken);
     }
 
     private sealed class RecordingSink : IMapScanRunSink
