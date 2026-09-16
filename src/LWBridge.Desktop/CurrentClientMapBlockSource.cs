@@ -11,7 +11,7 @@ internal sealed class CurrentClientMapBlockSourceHooks
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
 }
 
-internal sealed partial class CurrentClientMapBlockSource : IMapScanBlockSource
+internal sealed partial class CurrentClientMapBlockSource : IMapScanBatchSource
 {
     private const string ProbeVersion = "lwbridge-live-resource-probe-2";
     private const string OverviewBridgeVersion = "lwbridge-overview-bridge-1";

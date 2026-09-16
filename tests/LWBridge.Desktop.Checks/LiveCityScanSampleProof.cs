@@ -29,9 +29,6 @@ internal static class LiveCityScanSampleProof
             var source = new CurrentClientMapBlockSource(lifecycle);
             CurrentClientMapContext context = await source.GetCurrentContextAsync(operationCts.Token)
                 .ConfigureAwait(false);
-            // Startup readiness policy for this bounded live sample: allow the just-entered
-            // world scene to finish its initial population before block 0 begins.
-            await Task.Delay(TimeSpan.FromSeconds(3), operationCts.Token).ConfigureAwait(false);
             using MapDataStore store = MapDataStore.CreateInMemory();
             var service = new ManualMapScanCommandService(
                 store,

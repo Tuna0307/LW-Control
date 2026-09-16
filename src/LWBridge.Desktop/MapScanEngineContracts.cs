@@ -34,6 +34,28 @@ internal interface IMapScanBlockSource
         CancellationToken cancellationToken);
 }
 
+internal interface IMapScanBatchSource : IMapScanBlockSource
+{
+    Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+        MapScanExecutionRequest request,
+        MapScanTargetBlock seedBlock,
+        IReadOnlySet<int> pendingBlockIndices,
+        CancellationToken cancellationToken);
+}
+
+internal readonly record struct MapScanBlockSuccess(
+    MapScanTargetBlock Block,
+    MapScanBlockCapture Capture);
+
+internal interface IMapScanBatchRunSink : IMapScanRunSink
+{
+    void CheckpointSuccessBatch(
+        MapScanExecutionRequest request,
+        IReadOnlyList<MapScanBlockSuccess> successes,
+        int attempts,
+        long updatedAt);
+}
+
 internal interface IMapScanRunSink
 {
     void Begin(MapScanExecutionRequest request, int totalBlocks, long updatedAt);

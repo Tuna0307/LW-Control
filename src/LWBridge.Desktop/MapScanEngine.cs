@@ -31,9 +31,12 @@ internal sealed class MapScanEngine
         try
         {
             Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 0, startedAt);
-            foreach (MapScanTargetBlock block in blocks)
+            var pending = new HashSet<int>(blocks.Select(block => block.BlockIndex));
+            var blocksByIndex = blocks.ToDictionary(block => block.BlockIndex);
+            while (pending.Count > 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                MapScanTargetBlock block = blocks.First(candidate => pending.Contains(candidate.BlockIndex));
                 Exception? lastError = null;
                 bool succeeded = false;
 
@@ -41,13 +44,12 @@ internal sealed class MapScanEngine
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 1, startedAt);
-                    MapScanBlockCapture capture;
+                    IReadOnlyList<MapScanBlockCapture> captures;
                     try
                     {
-                        capture = await source.CaptureAsync(
-                            request,
-                            block,
-                            cancellationToken).ConfigureAwait(false);
+                        captures = source is IMapScanBatchSource batchSource
+                            ? await batchSource.CaptureBatchAsync(request, block, pending, cancellationToken).ConfigureAwait(false)
+                            : [await source.CaptureAsync(request, block, cancellationToken).ConfigureAwait(false)];
                     }
                     catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                     {
@@ -59,9 +61,21 @@ internal sealed class MapScanEngine
                         continue;
                     }
 
-                    ValidateCapture(request, block, capture);
-                    sink.CheckpointSuccess(request, block, capture, attempt, UtcNowMilliseconds());
-                    completed++;
+                    ValidateBatch(request, block, captures, pending, blocksByIndex);
+                    MapScanBlockSuccess[] successes = captures
+                        .Select(capture => new MapScanBlockSuccess(blocksByIndex[capture.BlockIndex], capture))
+                        .ToArray();
+                    long checkpointedAt = UtcNowMilliseconds();
+                    if (sink is IMapScanBatchRunSink batchSink && successes.Length > 1)
+                        batchSink.CheckpointSuccessBatch(request, successes, attempt, checkpointedAt);
+                    else
+                        foreach (MapScanBlockSuccess success in successes)
+                            sink.CheckpointSuccess(request, success.Block, success.Capture, attempt, checkpointedAt);
+                    foreach (MapScanBlockSuccess success in successes)
+                    {
+                        pending.Remove(success.Block.BlockIndex);
+                        completed++;
+                    }
                     succeeded = true;
                     break;
                 }
@@ -69,13 +83,9 @@ internal sealed class MapScanEngine
                 if (!succeeded)
                 {
                     failed++;
+                    pending.Remove(block.BlockIndex);
                     string message = lastError?.Message ?? "map block capture failed";
-                    sink.CheckpointFailure(
-                        request,
-                        block,
-                        request.MaxAttemptsPerBlock,
-                        message,
-                        UtcNowMilliseconds());
+                    sink.CheckpointFailure(request, block, request.MaxAttemptsPerBlock, message, UtcNowMilliseconds());
                 }
 
                 Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 0, startedAt);
@@ -154,6 +164,28 @@ internal sealed class MapScanEngine
         if (request.SelectedTypes.Count == 0 || request.SelectedTypes.Any(type =>
                 !MapScanContract.AllTypes.Contains(type, StringComparer.Ordinal)))
             throw new BridgeCommandException("INVALID_SCAN_TYPES", "no valid map scan types selected");
+    }
+
+    private static void ValidateBatch(
+        MapScanExecutionRequest request,
+        MapScanTargetBlock seedBlock,
+        IReadOnlyList<MapScanBlockCapture> captures,
+        IReadOnlySet<int> pending,
+        IReadOnlyDictionary<int, MapScanTargetBlock> blocksByIndex)
+    {
+        if (captures.Count == 0)
+            throw new InvalidDataException("map batch capture returned no logical blocks");
+        if (!captures.Any(capture => capture.BlockIndex == seedBlock.BlockIndex))
+            throw new InvalidDataException("map batch capture did not include the requested seed block");
+        var seen = new HashSet<int>();
+        foreach (MapScanBlockCapture capture in captures)
+        {
+            if (!seen.Add(capture.BlockIndex))
+                throw new InvalidDataException("map batch capture contained a duplicate logical block");
+            if (!pending.Contains(capture.BlockIndex) || !blocksByIndex.TryGetValue(capture.BlockIndex, out MapScanTargetBlock block))
+                throw new InvalidDataException("map batch capture returned a block outside the pending scan set");
+            ValidateCapture(request, block, capture);
+        }
     }
 
     private static void ValidateCapture(

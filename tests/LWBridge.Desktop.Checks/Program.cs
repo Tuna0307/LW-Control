@@ -14,6 +14,12 @@ if (args.Contains("--live-current-client-city-sample", StringComparer.OrdinalIgn
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-city-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullCityProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-bulk-aoi-diagnostic", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunAsync();

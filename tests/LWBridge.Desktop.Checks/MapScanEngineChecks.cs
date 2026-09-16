@@ -15,6 +15,8 @@ internal static class MapScanEngineChecks
         await ExhaustedRetriesFailWithoutPublication();
         await CancellationStopsWithoutPublication();
         await ForeignCaptureFailsClosed();
+        await BatchCaptureCompletesMultipleLogicalBlocks();
+        await DuplicateBatchCaptureFailsClosed();
     }
 
     private static MapScanExecutionRequest Request(int width = 20, int height = 20) =>
@@ -109,6 +111,42 @@ internal static class MapScanEngineChecks
             "foreign-server captures fail immediately without checkpoint or publication");
     }
 
+    private static async Task BatchCaptureCompletesMultipleLogicalBlocks()
+    {
+        var sink = new RecordingSink();
+        int calls = 0;
+        var source = new BatchSource((request, seed, pending, _) =>
+        {
+            calls++;
+            Check(seed.BlockIndex == 0 && pending.SetEquals([0, 1]),
+                "batch source receives the requested seed and authoritative pending set");
+            IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(request.TileWidth, request.TileHeight);
+            return Task.FromResult<IReadOnlyList<MapScanBlockCapture>>([
+                Capture(request, blocks[0]), Capture(request, blocks[1])]);
+        });
+        await new MapScanEngine(source, sink).ExecuteAsync(Request(40, 20));
+        Check(calls == 1 && sink.Events.SequenceEqual(["begin", "success:0:1", "success:1:1", "publish"]),
+            "one batch request checkpoints each logical block before publication");
+    }
+
+    private static async Task DuplicateBatchCaptureFailsClosed()
+    {
+        var sink = new RecordingSink();
+        var source = new BatchSource((request, seed, _, _) =>
+            Task.FromResult<IReadOnlyList<MapScanBlockCapture>>([
+                Capture(request, seed), Capture(request, seed)]));
+        try
+        {
+            await new MapScanEngine(source, sink).ExecuteAsync(Request());
+            throw new InvalidOperationException("expected duplicate batch rejection");
+        }
+        catch (InvalidDataException error) when (error.Message == "map batch capture contained a duplicate logical block")
+        {
+        }
+        Check(sink.Events.SequenceEqual(["begin", "fail"]),
+            "duplicate batch blocks fail before checkpoint or publication");
+    }
+
     private static void Check(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
@@ -122,6 +160,20 @@ internal static class MapScanEngineChecks
             MapScanExecutionRequest request,
             MapScanTargetBlock block,
             CancellationToken cancellationToken) => capture(request, block, cancellationToken);
+    }
+
+    private sealed class BatchSource(
+        Func<MapScanExecutionRequest, MapScanTargetBlock, IReadOnlySet<int>, CancellationToken, Task<IReadOnlyList<MapScanBlockCapture>>> capture)
+        : IMapScanBatchSource
+    {
+        public Task<MapScanBlockCapture> CaptureAsync(
+            MapScanExecutionRequest request, MapScanTargetBlock block, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("batch source should be invoked through CaptureBatchAsync");
+
+        public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+            MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
+            IReadOnlySet<int> pendingBlockIndices, CancellationToken cancellationToken) =>
+            capture(request, seedBlock, pendingBlockIndices, cancellationToken);
     }
 
     private sealed class RecordingSink : IMapScanRunSink

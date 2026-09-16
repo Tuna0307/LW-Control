@@ -40,6 +40,31 @@ internal sealed partial class MapDataStore
         }
     }
 
+    internal void CommitEngineBlockSuccessBatch(
+        MapScanExecutionRequest request,
+        IReadOnlyList<MapScanBlockSuccess> successes,
+        int attempts,
+        long updatedAt)
+    {
+        if (successes.Count == 0) throw new ArgumentException("Batch success list must not be empty.", nameof(successes));
+        foreach (MapScanBlockSuccess success in successes)
+            foreach (MapStoredRecord record in success.Capture.Records)
+                ValidateRecord(record);
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            foreach (MapScanBlockSuccess success in successes)
+            {
+                UpsertEngineBlock(transaction, request.RunId, success.Block.BlockIndex, success.Capture.PayloadJson,
+                    "completed", attempts, null, updatedAt);
+                foreach (MapStoredRecord record in success.Capture.Records)
+                    UpsertEngineStagingRecord(transaction, request.RunId, record);
+            }
+            RefreshEngineRunCounters(transaction, request.RunId, updatedAt);
+            transaction.Commit();
+        }
+    }
+
     internal void CommitEngineBlockFailure(
         MapScanExecutionRequest request,
         MapScanTargetBlock block,

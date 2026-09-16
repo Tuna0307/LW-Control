@@ -27,12 +27,15 @@ internal static class CurrentClientMapBlockSourceChecks
         await LodTwoFiltersSupersetToRequestedBlock();
         await EmptyCityCurrentViewIsAZeroRowCapture();
         await TargetedCityFallbackFailsClosed();
+        await FastCityBatchReturnsTenLogicalCaptures();
+        await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
+        await FastCityFullMapReturnsAllLogicalCaptures();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await MissingOwnedSessionFailsClosed();
     }
 
-    private static MapScanExecutionRequest Request(string kind, long width = 20, long height = 20) =>
-        new("run_1", 2212, 7, width, height, [kind], 8, 2);
+    private static MapScanExecutionRequest Request(string kind, long width = 20, long height = 20, long worldId = 7) =>
+        new("run_1", 2212, worldId, width, height, [kind], 8, 2);
 
     private static MapScanTargetBlock Block() =>
         new(0, 0, 0, 0, 0, 19, 19, 9, 9);
@@ -184,6 +187,78 @@ internal static class CurrentClientMapBlockSourceChecks
         }
     }
 
+    private static async Task FastCityBatchReturnsTenLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                return ProvenFastCityBatch(fields, (200, 9, 9), (201, 25, 45));
+            });
+        MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        int[] groupIndices = [0, 1, 50, 51, 100, 101, 150, 151, 200, 201];
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], groupIndices.ToHashSet(), CancellationToken.None);
+        Check(bulkCalls == 1 && captures.Count == 10,
+            "fast City source should satisfy one 2x5 logical-block group from one native response");
+        Check(captures.Select(capture => capture.BlockIndex).SequenceEqual(groupIndices),
+            "fast City batch logical-block ordering changed");
+        Check(captures.Single(capture => capture.BlockIndex == 0).Records.Single().RecordKey == "200" &&
+              captures.Single(capture => capture.BlockIndex == 101).Records.Single().RecordKey == "201" &&
+              captures.Where(capture => capture.BlockIndex is not (0 or 101)).All(capture => capture.Records.Count == 0),
+            "fast City batch did not assign source-backed Cities to the correct logical blocks");
+    }
+
+
+    private static async Task FastCityBandReturnsTwoHundredFiftyLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                return ProvenFastCityBatch(fields);
+            });
+        MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        HashSet<int> band = blocks.Where(block => block.Row < 5).Select(block => block.BlockIndex).ToHashSet();
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], band, CancellationToken.None);
+        Check(bulkCalls == 25 && captures.Count == 250,
+            "fast City band should satisfy 250 logical blocks from 25 immediate native responses");
+        Check(captures.Select(capture => capture.BlockIndex).Order().SequenceEqual(band.Order()),
+            "fast City band did not return the exact pending 5-row logical-block band");
+    }
+
+    private static async Task FastCityFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                if (x == 15 && y == 75) return ProvenFastCityBatch(fields, (200, 9, 9));
+                if (x == 975 && y == 975) return ProvenFastCityBatch(fields, (300, 985, 985));
+                return ProvenFastCityBatch(fields);
+            });
+        MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(bulkCalls == 250 && captures.Count == 2500,
+            "fast full-City source should use 250 native responses for all 2,500 logical blocks");
+        Check(captures.Single(capture => capture.BlockIndex == 0).Records.Single().RecordKey == "200" &&
+              captures.Single(capture => capture.BlockIndex == 2499).Records.Single().RecordKey == "300",
+            "fast full-City source should preserve globally accumulated Cities at both map extremes");
+    }
+
     private static async Task HealthyGateRunsBeforeWorldReadyProtocol()
     {
         bool healthGatePassed = false;
@@ -232,7 +307,8 @@ internal static class CurrentClientMapBlockSourceChecks
         int currentLod = 5,
         int serverLod = 1,
         Func<OverviewMapScanSession, CancellationToken, Task>? waitForHealthySession = null,
-        Action<string>? onProtocolWrite = null)
+        Action<string>? onProtocolWrite = null,
+        Func<IReadOnlyDictionary<string, string>, string>? bulkResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -268,6 +344,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     string mapKind = fields["mapKind"];
                     string result = probeResult(fields, mapKind);
                     files[Path.Combine(probeRoot, "result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(probeRoot, "bulk-aoi-diagnostic.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (bulkResult is null) throw new InvalidOperationException("unexpected fast City bulk request");
+                    string result = bulkResult(fields);
+                    files[Path.Combine(probeRoot, "bulk-aoi-diagnostic-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 throw new InvalidOperationException("unexpected protocol write: " + path);
@@ -506,6 +589,39 @@ internal static class CurrentClientMapBlockSourceChecks
                 },
             },
         }, JsonOptions.Default);
+
+    private static string ProvenFastCityBatch(
+        IReadOnlyDictionary<string, string> fields,
+        params (int PointId, int X, int Y)[] points)
+    {
+        int targetX = int.Parse(fields["targetTileX"]);
+        int targetY = int.Parse(fields["targetTileY"]);
+        int startCellX = (targetX - 15) / 10;
+        int startCellY = (targetY - 75) / 10;
+        int[] requested = Enumerable.Range(startCellY, 10)
+            .SelectMany(row => Enumerable.Range(startCellX, 4).Select(column => row * 100 + column))
+            .ToArray();
+        return JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
+            profileId = fields["profileId"], challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
+            state = "proven", error = (string?)null, requestedIndices = requested,
+            serverLod = 0, blockSize = 10, blockCount = 100,
+            targetTileX = int.Parse(fields["targetTileX"]), targetTileY = int.Parse(fields["targetTileY"]),
+            responseFlagsTransitioned = true, cameraTileStable = true, positionRestoredBeforeResponse = true,
+            requestMethod = "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift",
+            nativeCurrentSetCount = requested.Length, holdMilliseconds = 0, viewLevel = -1,
+            postServerLod = 0, postBlockSize = 10, postBlockCount = 100, capturedAt = Timestamp(),
+            point_records = points.Select(point => new
+            {
+                kind = "player_base", pointType = 6, serverId = 2212, pointId = point.PointId,
+                x = point.X, y = point.Y, ownerUid = "u" + point.PointId, ownerName = "Player",
+                level = 30, source = "WorldPointManager._pointInfos",
+            }).ToArray(),
+        }, JsonOptions.Default);
+    }
 
     private static string Timestamp() => Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
 

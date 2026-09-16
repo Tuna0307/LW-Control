@@ -1,6 +1,6 @@
 namespace LWBridge.Desktop;
 
-internal sealed class MapDataStoreScanSink : IMapScanRunSink
+internal sealed class MapDataStoreScanSink : IMapScanBatchRunSink
 {
     private readonly MapDataStore store;
 
@@ -19,6 +19,13 @@ internal sealed class MapDataStoreScanSink : IMapScanRunSink
         int attempts,
         long updatedAt) =>
         store.CommitEngineBlockSuccess(request, block, capture, attempts, updatedAt);
+
+    public void CheckpointSuccessBatch(
+        MapScanExecutionRequest request,
+        IReadOnlyList<MapScanBlockSuccess> successes,
+        int attempts,
+        long updatedAt) =>
+        store.CommitEngineBlockSuccessBatch(request, successes, attempts, updatedAt);
 
     public void CheckpointFailure(
         MapScanExecutionRequest request,
