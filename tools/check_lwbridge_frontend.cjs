@@ -130,6 +130,27 @@ async function main() {
   const monsterTable=monsterPage.locator('.map-table');
   assert.match(await monsterTable.innerText(),/Fixture Monster Alpha/);
   assert.match(await monsterTable.innerText(),/Fixture Monster Beta/);
+  const firstRemaining=await monsterTable.locator('tbody tr').first().locator('td').nth(3).innerText();
+  assert.match(firstRemaining,/^00:0[23]:\d{2}$/,'Monster countdown must render a live HH:MM:SS remainder from endTime');
+  await monsterPage.waitForTimeout(1200);
+  const nextRemaining=await monsterTable.locator('tbody tr').first().locator('td').nth(3).innerText();
+  assert.notEqual(nextRemaining,firstRemaining,'Monster countdown must continue ticking locally after capture');
+  const levelSelect=monsterPage.locator('.map-searchbar select[aria-label="Level"]');
+  await levelSelect.selectOption('7');
+  await monsterPage.waitForFunction(()=>document.querySelectorAll('.map-table tbody tr').length===1);
+  assert.match(await monsterTable.innerText(),/Fixture Monster Alpha/);
+  assert.doesNotMatch(await monsterTable.innerText(),/Fixture Monster Beta/);
+  await levelSelect.selectOption('');
+  await monsterPage.waitForFunction(()=>document.querySelectorAll('.map-table tbody tr').length===2);
+  const searchInput=monsterPage.locator('.map-searchbar input');
+  await searchInput.fill('Alpha');
+  await monsterPage.locator('.map-searchbar button').filter({hasText:'Search'}).click();
+  await monsterPage.waitForFunction(()=>document.querySelectorAll('.map-table tbody tr').length===1);
+  assert.match(await monsterTable.innerText(),/Fixture Monster Alpha/);
+  assert.doesNotMatch(await monsterTable.innerText(),/Fixture Monster Beta/);
+  await searchInput.fill('');
+  await monsterPage.locator('.map-searchbar button').filter({hasText:'Search'}).click();
+  await monsterPage.waitForFunction(()=>document.querySelectorAll('.map-table tbody tr').length===2);
   const englishLocaleCalls=await monsterPage.evaluate(()=>window.LWBridgePreview.calls.filter(name=>name==='lastwar_localize').length);
   assert(englishLocaleCalls>0,'Monster table must call lastwar_localize in English');
   await monsterPage.screenshot({path:path.join(output,'monster-locale-en.png'),animations:'disabled'});
@@ -143,7 +164,7 @@ async function main() {
   assert(chineseLocaleCalls>englishLocaleCalls,'Language change must rerun lastwar_localize');
   assert.deepEqual(await monsterPage.evaluate(()=>window.LWBridgePreview.failures),[], 'Monster locale fixture must stay error-free');
   await monsterPage.screenshot({path:path.join(output,'monster-locale-zh-CN.png'),animations:'disabled'});
-  results.push({interaction:'monster-locale-switch',englishLocaleCalls,chineseLocaleCalls});
+  results.push({interaction:'monster-locale-switch-level-search-countdown',englishLocaleCalls,chineseLocaleCalls});
   await monsterPage.close();
   const denied=await page.evaluate(async()=>{
    const result=[];

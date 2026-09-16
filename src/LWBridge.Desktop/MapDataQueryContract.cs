@@ -96,7 +96,9 @@ internal static class MapDataQueryContract
             sorts,
             markedOnly,
             treasureType,
-            suppliesType);
+            suppliesType,
+            minLevel,
+            maxLevel);
         return new MapDataQueryOptions(
             kind,
             serverId,
@@ -171,7 +173,9 @@ internal static class MapDataQueryContract
         IReadOnlyList<MapDataSort> sorts,
         bool markedOnly,
         int? treasureType,
-        int? suppliesType)
+        int? suppliesType,
+        int? minLevel,
+        int? maxLevel)
     {
         var unsupported = new List<string>();
         foreach (string name in FilterFields)
@@ -195,6 +199,21 @@ internal static class MapDataQueryContract
         }
 
         if (markedOnly && kind != "city") unsupported.Add("markedOnly");
+        // IMPLEMENTATION POLICY LWB-R7-013: the rebuilt Monster page exposes an
+        // exact-level selector requested by the owner. It reuses the already-normalized
+        // minLevel/maxLevel pair only when both are positive and equal; arbitrary Monster
+        // ranges remain rejected rather than inventing a wider original contract.
+        if (kind == "monster")
+        {
+            bool hasMinLevel = query.TryGetProperty("minLevel", out JsonElement minLevelValue) && !IsNeutral(minLevelValue);
+            bool hasMaxLevel = query.TryGetProperty("maxLevel", out JsonElement maxLevelValue) && !IsNeutral(maxLevelValue);
+            bool exactMonsterLevel = hasMinLevel && hasMaxLevel && minLevel is > 0 && maxLevel == minLevel;
+            if ((hasMinLevel || hasMaxLevel) && !exactMonsterLevel)
+            {
+                unsupported.Add("minLevel");
+                unsupported.Add("maxLevel");
+            }
+        }
         if (sorts.Count != 1 || !string.Equals(sorts[0].SortBy, "updatedAt", StringComparison.Ordinal))
             unsupported.Add("sorts");
         return unsupported.Distinct(StringComparer.Ordinal).ToArray();
@@ -223,8 +242,8 @@ internal static class MapDataQueryContract
         "plunderableOnly" => kind is "truck" or "railway" or "dispatch" && value.ValueKind == JsonValueKind.True,
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
-        "minLevel" => kind == "dispatch" && IsPositiveInteger(value),
-        "maxLevel" => kind == "dispatch" && IsPositiveInteger(value),
+        "minLevel" => kind is "dispatch" or "monster" && IsPositiveInteger(value),
+        "maxLevel" => kind is "dispatch" or "monster" && IsPositiveInteger(value),
         _ => false,
     };
 

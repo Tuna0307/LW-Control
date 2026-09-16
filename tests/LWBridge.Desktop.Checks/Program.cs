@@ -3443,16 +3443,114 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         "city", 91, "backend-city-key", 7, "backend-city-uuid", "Backend City", "XYZ",
         28, null, 1234567890123456789L, null, null, 1000,
         "{\"serverId\":91,\"ownerUid\":\"12345678901234567890\",\"ownerName\":\"Backend City\"}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "monster", 91, "backend-monster-alpha", 11, "monster-a", "monster.alpha", null,
+        7, null, null, 12, null, 1100,
+        "{\"serverId\":91,\"uuid\":\"monster-a\",\"monsterNameKey\":\"monster.alpha\",\"level\":7,\"zombieRushId\":0,\"endTime\":410000}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "monster", 91, "backend-monster-beta", 12, "monster-b", "monster.beta", null,
+        9, null, null, 34, null, 1200,
+        "{\"serverId\":91,\"uuid\":\"monster-b\",\"monsterNameKey\":\"monster.beta\",\"level\":9,\"zombieRushId\":0,\"endTime\":420000}"));
     backendMapStore.InsertScanRun(new MapScanRunSeed(
-        "backend-run", 91, "[\"city\"]", "running", 100, 0, 0, 1000, 1000, null));
+        "backend-run", 91, "[\"city\",\"monster\"]", "running", 100, 0, 0, 1000, 1000, null));
 
     using JsonDocument optionsPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = mapBackend.ProfileId,
         serverId = 91,
     }));
-    await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "public map_data_options stays fail-closed until exact progress serialization and production state integration are established", async () =>
-        await mapBackend.InvokeAsync("map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None));
+    object? optionsResult = await mapBackend.InvokeAsync(
+        "map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument optionsJson = JsonDocument.Parse(JsonSerializer.Serialize(optionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = optionsJson.RootElement;
+        Check(root.GetProperty("serverId").GetInt32() == 91 &&
+              root.GetProperty("names").GetProperty("monster").GetArrayLength() == 2 &&
+              root.GetProperty("monsterLevels").EnumerateArray().Select(item => item.GetInt32()).SequenceEqual(new[] { 7, 9 }) &&
+              root.GetProperty("counts").GetProperty("monster").GetInt32() == 2,
+            "public map_data_options exposes persisted Monster names, exact available levels and counts");
+    }
+
+    using JsonDocument localizedMonsterSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            keyword = "Alpha Localized",
+            monsterNameKeys = new[] { "monster.alpha" },
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? localizedMonsterResult = await mapBackend.InvokeAsync(
+        "map_search", localizedMonsterSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(localizedMonsterResult, JsonOptions.Default)))
+    {
+        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              searchJson.RootElement.GetProperty("rows")[0].GetProperty("monsterNameKey").GetString() == "monster.alpha",
+            "Monster keyword search can resolve a localized display name without matching every row's zombieRushId schema key");
+    }
+
+    using JsonDocument unrelatedMonsterKeyword = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            keyword = "Zombie",
+            monsterNameKeys = Array.Empty<string>(),
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? unrelatedMonsterKeywordResult = await mapBackend.InvokeAsync(
+        "map_search", unrelatedMonsterKeyword.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument zombieJson = JsonDocument.Parse(JsonSerializer.Serialize(unrelatedMonsterKeywordResult, JsonOptions.Default)))
+        Check(zombieJson.RootElement.GetProperty("total").GetInt32() == 0,
+            "Monster keyword search does not match every row merely because zombieRushId is a JSON schema property");
+
+    using JsonDocument exactMonsterLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            minLevel = 7,
+            maxLevel = 7,
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? exactMonsterLevelResult = await mapBackend.InvokeAsync(
+        "map_search", exactMonsterLevelSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument levelJson = JsonDocument.Parse(JsonSerializer.Serialize(exactMonsterLevelResult, JsonOptions.Default)))
+        Check(levelJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              levelJson.RootElement.GetProperty("rows")[0].GetProperty("level").GetInt32() == 7,
+            "Monster exact-level selector filters persisted rows without enabling arbitrary range semantics");
+
+    using JsonDocument monsterLevelRange = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            minLevel = 7,
+            maxLevel = 9,
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Monster level filtering stays exact-only", async () =>
+        await mapBackend.InvokeAsync("map_search", monsterLevelRange.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

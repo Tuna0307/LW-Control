@@ -199,14 +199,26 @@ internal sealed class LWBridgeBackend
                     return CreateMapScanStatus(serverId, "idle", null);
                 }
             case "map_data_options":
-                MapDataQueryContract.RequiredServerId(payload);
-                throw new BridgeCommandException(
-                    "MAP_INDEX_UNAVAILABLE",
-                    "Map data options are unavailable before the production map index is initialized.");
+                {
+                    int serverId = MapDataQueryContract.RequiredServerId(payload);
+                    MapDataStore store = RequireMapDataStore();
+                    MapOptionSourceSelection source = SelectMapOptionSource(serverId);
+                    MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
+                        source, RecoveredWallClock.UnixTimeMilliseconds());
+                    return CreateMapDataOptions(serverId, aggregates);
+                }
             case "map_search":
                 {
                     MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
-                    MapSearchResult result = RequireMapDataStore().SearchIndexed(query);
+                    IReadOnlyList<string> resolvedMonsterNameKeys = ReadResolvedMonsterNameKeys(payload, query.Kind);
+                    MapDataStore store = RequireMapDataStore();
+                    // IMPLEMENTATION POLICY LWB-R7-013: any Monster keyword search uses
+                    // the Monster-specific predicate even when localization resolves zero
+                    // names, so raw JSON property names (for example zombieRushId) can
+                    // never turn an unrelated keyword into an all-row match.
+                    MapSearchResult result = query.Kind == "monster" && query.Keyword is not null
+                        ? store.SearchIndexedWithMonsterNameKeys(query, resolvedMonsterNameKeys)
+                        : store.SearchIndexed(query);
                     return new { rows = result.Rows, total = result.Total };
                 }
             case "map_city_export":
@@ -508,6 +520,95 @@ internal sealed class LWBridgeBackend
     private MapDataStore RequireMapDataStore() => mapData ?? throw new BridgeCommandException(
         "MAP_INDEX_UNAVAILABLE",
         "Map data is unavailable before the profile map index is initialized.");
+
+    private MapOptionSourceSelection SelectMapOptionSource(int serverId)
+    {
+        if (mapScanStatusProvider is null)
+            return MapDataStore.SelectOptionSource(serverId, false, 0, null);
+
+        JsonElement status = JsonSerializer.SerializeToElement(mapScanStatusProvider(), JsonOptions.Default);
+        int scanServerId = status.TryGetProperty("serverId", out JsonElement server) && server.TryGetInt32(out int parsed)
+            ? parsed
+            : 0;
+        bool isReading = status.TryGetProperty("isReading", out JsonElement reading) && reading.ValueKind == JsonValueKind.True;
+        string? scanRunId = status.TryGetProperty("scanRunId", out JsonElement run) && run.ValueKind == JsonValueKind.String
+            ? run.GetString()
+            : null;
+        return MapDataStore.SelectOptionSource(serverId, isReading, scanServerId, scanRunId);
+    }
+
+    private static object CreateMapDataOptions(int serverId, MapOptionAggregates aggregates)
+    {
+        object? scanProgress = aggregates.ScanProgress is { } progress
+            ? new
+            {
+                // RECOVERED frontend consumer surface (LWB-R6-004): only these
+                // persisted scanProgress fields are required here. Do not serialize the
+                // adjacent count/type columns whose exact original public mapping remains
+                // unrecovered.
+                id = progress.Id,
+                serverId = progress.ServerId,
+                status = progress.Status,
+                createdAt = progress.CreatedAt,
+                updatedAt = progress.UpdatedAt,
+                error = progress.Error,
+            }
+            : null;
+        return new
+        {
+            serverId,
+            alliances = aggregates.Alliances.Select(item => new { name = item.Name ?? string.Empty, count = item.Count }).ToArray(),
+            names = new
+            {
+                resource = aggregates.Names.Where(item => item.Kind == "resource").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
+                monster = aggregates.Names.Where(item => item.Kind == "monster").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
+            },
+            dispatchLevels = aggregates.DispatchLevels,
+            monsterLevels = aggregates.MonsterLevels,
+            treasureTypes = aggregates.TreasureTypes.Select(item => new
+            {
+                key = item.Key,
+                suppliesType = item.SuppliesType,
+                treasureType = item.TreasureType,
+                treasureNameKey = item.TreasureNameKey,
+                count = item.Count,
+            }).ToArray(),
+            rewardItems = new
+            {
+                truck = aggregates.RewardItems.Where(item => item.Kind == "truck").Select(item => new { key = item.Key, name = item.Name, iconPath = item.IconPath }).ToArray(),
+                railway = aggregates.RewardItems.Where(item => item.Kind == "railway").Select(item => new { key = item.Key, name = item.Name, iconPath = item.IconPath }).ToArray(),
+            },
+            counts = aggregates.Counts,
+            noAllianceCount = aggregates.NoAllianceCount,
+            scanProgress,
+        };
+    }
+
+    private static IReadOnlyList<string> ReadResolvedMonsterNameKeys(JsonElement payload, string kind)
+    {
+        if (kind != "monster" ||
+            !payload.TryGetProperty("query", out JsonElement query) || query.ValueKind != JsonValueKind.Object ||
+            !query.TryGetProperty("monsterNameKeys", out JsonElement values) ||
+            values.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return Array.Empty<string>();
+        if (values.ValueKind != JsonValueKind.Array)
+            throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys must be an array.");
+
+        var result = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (JsonElement value in values.EnumerateArray())
+        {
+            if (value.ValueKind != JsonValueKind.String)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys entries must be strings.");
+            string key = value.GetString() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(key) || key.Length > 256)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys entries must be nonempty strings of at most 256 characters.");
+            if (seen.Add(key)) result.Add(key);
+            if (result.Count > 200)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys accepts at most 200 distinct entries.");
+        }
+        return result;
+    }
 
     private object SetPlayerMark(JsonElement payload)
     {

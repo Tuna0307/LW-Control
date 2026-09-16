@@ -82,6 +82,7 @@ internal sealed record MapOptionAggregates(
     IReadOnlyList<MapAllianceOptionAggregate> Alliances,
     IReadOnlyList<MapNameOptionAggregate> Names,
     IReadOnlyList<int> DispatchLevels,
+    IReadOnlyList<int> MonsterLevels,
     IReadOnlyList<MapTreasureTypeOptionAggregate> TreasureTypes,
     IReadOnlyList<MapRewardItemOptionAggregate> RewardItems,
     IReadOnlyDictionary<string, int> Counts,
@@ -438,6 +439,23 @@ internal sealed partial class MapDataStore : IDisposable
                 while (reader.Read()) dispatchLevels.Add(reader.GetInt32(0));
             }
 
+            // IMPLEMENTATION POLICY R7: the rebuilt Monster page adds an exact-level
+            // selector requested by the owner. The original 0.3.1 frontend only used
+            // dispatchLevels, so MonsterLevels is a rebuild-only aggregate over the same
+            // snapshot/source scope and never invents levels outside persisted rows.
+            var monsterLevels = new List<int>();
+            using (SqliteCommand command = connection.CreateCommand())
+            {
+                command.Transaction = snapshot;
+                command.CommandText = $"""
+                    SELECT DISTINCT CAST(level AS INTEGER) FROM {sourceTable}
+                    WHERE {sourceScope} AND kind='monster' AND level>=1 ORDER BY 1
+                    """;
+                BindSource(command);
+                using SqliteDataReader reader = command.ExecuteReader();
+                while (reader.Read()) monsterLevels.Add(reader.GetInt32(0));
+            }
+
             var treasureTypes = new List<MapTreasureTypeOptionAggregate>();
             using (SqliteCommand command = connection.CreateCommand())
             {
@@ -557,13 +575,22 @@ internal sealed partial class MapDataStore : IDisposable
 
             snapshot.Commit();
             return new MapOptionAggregates(
-                alliances, names, dispatchLevels, treasureTypes, rewardItems,
+                alliances, names, dispatchLevels, monsterLevels, treasureTypes, rewardItems,
                 counts, noAllianceCount, scanProgress);
         }
     }
 
     public MapSearchResult SearchIndexed(MapDataQueryOptions options) =>
         SearchIndexedCore(options, RecoveredWallClock.UnixTimeMilliseconds(), afterCountObserved: null);
+
+    internal MapSearchResult SearchIndexedWithMonsterNameKeys(
+        MapDataQueryOptions options,
+        IReadOnlyList<string> monsterNameKeys) =>
+        SearchIndexedCore(
+            options,
+            RecoveredWallClock.UnixTimeMilliseconds(),
+            afterCountObserved: null,
+            monsterNameKeys);
 
     internal MapSearchResult SearchIndexedForSnapshotTest(MapDataQueryOptions options, Action afterCountObserved) =>
         SearchIndexedCore(
@@ -574,7 +601,11 @@ internal sealed partial class MapDataStore : IDisposable
     internal MapSearchResult SearchIndexedAtForTest(MapDataQueryOptions options, long nowUnixMilliseconds) =>
         SearchIndexedCore(options, nowUnixMilliseconds, afterCountObserved: null);
 
-    private MapSearchResult SearchIndexedCore(MapDataQueryOptions options, long nowUnixMilliseconds, Action? afterCountObserved)
+    private MapSearchResult SearchIndexedCore(
+        MapDataQueryOptions options,
+        long nowUnixMilliseconds,
+        Action? afterCountObserved,
+        IReadOnlyList<string>? monsterNameKeys = null)
     {
         ValidateKind(options.Kind);
         ValidateServerId(options.ServerId);
@@ -583,6 +614,13 @@ internal sealed partial class MapDataStore : IDisposable
         string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
         long offset = checked(((long)options.Page - 1L) * options.PageSize);
         bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
+        string[] resolvedMonsterNameKeys = string.Equals(options.Kind, "monster", StringComparison.Ordinal)
+            ? (monsterNameKeys ?? Array.Empty<string>())
+                .Where(key => !string.IsNullOrWhiteSpace(key))
+                .Distinct(StringComparer.Ordinal)
+                .Take(200)
+                .ToArray()
+            : Array.Empty<string>();
 
         lock (gate)
         {
@@ -602,8 +640,23 @@ internal sealed partial class MapDataStore : IDisposable
                 predicates.Add("(json_extract(page.data_json,'$.arriveTs') IS NULL OR CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER) > $nowUnixMs)");
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
-            if (options.Keyword is not null)
+            if (options.Keyword is not null && options.Kind == "monster")
+            {
+                // IMPLEMENTATION POLICY R7: the raw JSON blob contains schema keys such
+                // as zombieRushId, so blob LIKE makes a search for "Zombie" match every
+                // Monster. Search visible/identity values only, plus localized name keys
+                // resolved by the frontend, never JSON property names.
+                string resolvedNamePredicate = resolvedMonsterNameKeys.Length == 0
+                    ? string.Empty
+                    : " OR CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) IN (" +
+                      string.Join(",", Enumerable.Range(0, resolvedMonsterNameKeys.Length).Select(i => "$resolvedMonsterName" + i)) + ")";
+                predicates.Add("(page.name LIKE $keywordName ESCAPE '\\' COLLATE NOCASE OR page.uuid LIKE $keywordUuid ESCAPE '\\' COLLATE NOCASE OR CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) LIKE $keywordName ESCAPE '\\' COLLATE NOCASE" + resolvedNamePredicate + ")");
+            }
+            else if (options.Keyword is not null)
                 predicates.Add("(page.name LIKE $keywordName ESCAPE '\\' COLLATE NOCASE OR page.alliance_name LIKE $keywordAlliance ESCAPE '\\' COLLATE NOCASE OR page.uuid LIKE $keywordUuid ESCAPE '\\' COLLATE NOCASE OR page.data_json LIKE $keywordJson ESCAPE '\\' COLLATE NOCASE)");
+            else if (resolvedMonsterNameKeys.Length > 0)
+                predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) IN (" +
+                    string.Join(",", Enumerable.Range(0, resolvedMonsterNameKeys.Length).Select(i => "$resolvedMonsterName" + i)) + ")");
             if (options.Alliance is not null)
                 predicates.Add("page.alliance_name = $alliance");
             if (options.WithoutAlliance)
@@ -659,7 +712,7 @@ internal sealed partial class MapDataStore : IDisposable
             {
                 count.Transaction = snapshot;
                 count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE {where}";
-                AddSearchParameters(count, options, nowUnixMilliseconds);
+                AddSearchParameters(count, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
                 total = Convert.ToInt32(count.ExecuteScalar());
             }
 
@@ -670,7 +723,7 @@ internal sealed partial class MapDataStore : IDisposable
             page.CommandText = city
                 ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
                 : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
-            AddSearchParameters(page, options, nowUnixMilliseconds);
+            AddSearchParameters(page, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
             page.Parameters.AddWithValue("$limit", options.PageSize);
             page.Parameters.AddWithValue("$offset", offset);
 
@@ -1024,7 +1077,11 @@ internal sealed partial class MapDataStore : IDisposable
         command.Parameters.AddWithValue("$json", record.DataJson);
     }
 
-    private static void AddSearchParameters(SqliteCommand command, MapDataQueryOptions options, long nowUnixMilliseconds)
+    private static void AddSearchParameters(
+        SqliteCommand command,
+        MapDataQueryOptions options,
+        long nowUnixMilliseconds,
+        IReadOnlyList<string>? resolvedMonsterNameKeys = null)
     {
         command.Parameters.AddWithValue("$kind", options.Kind);
         command.Parameters.AddWithValue("$server", options.ServerId);
@@ -1036,6 +1093,9 @@ internal sealed partial class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$keywordUuid", keyword);
             command.Parameters.AddWithValue("$keywordJson", keyword);
         }
+        if (resolvedMonsterNameKeys is not null)
+            for (int i = 0; i < resolvedMonsterNameKeys.Count; i++)
+                command.Parameters.AddWithValue("$resolvedMonsterName" + i, resolvedMonsterNameKeys[i]);
         if (options.Alliance is not null)
             command.Parameters.AddWithValue("$alliance", options.Alliance);
         if (options.ResourceNameKey is not null)

@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding checkpoint - LWB-R7-013, 2026-09-17
+
+Monster result usability is now the newest completed slice on top of the R7-012 shared scanner. A current-v17 full Monster acquisition exposed source-backed positive `endTime` deadlines on 11 of 3,853 sanitized live rows; no row identities or coordinates are retained. Production `map_data_options` now supplies Monster levels from the recovered persisted/staging source selector, the rebuild supports exact-level Monster filtering, localized visible-name keyword search avoids raw-JSON schema-key false matches such as `zombieRushId`, and Monster rows show a locally ticking countdown when a supported positive deadline exists (otherwise `-`). The timer-field acquisition is LIVE-PROVEN; the search/filter/countdown UI behavior is IMPLEMENTED/OFFLINE-TESTED. Exact-level and visible-keyword overrides are explicit rebuild usability policy, not claimed original 0.3.1 frontend behavior. Evidence: `2026-09-17-r7-monster-usability.json`.
+
+**Next:** Resource complete-run acceptance on the same shared engine, then Truck/Railway/Dispatch/Ghost/Treasure, mixed selections and all eight. Do not add a second scanner.
+
 ## Current superseding checkpoint - LWB-R7-012, 2026-09-16
 
 The owner resumed Map Data and exposed two real integration problems: the ~one-minute performance work had not yet been delivered, and one mid-scan Stop could leave the UI in `cancelling` until a second click. `LWB-R7-012` now closes this checkpoint. Current-v17 live measurements show each production coverage request returns a stable 5x10/50-AOI `_curViewIndex` footprint, so the full-world planner uses 200 sequential requests instead of 250 while retaining the exact 10,000/10,000 union gate. Ordinary full-Monster Manual Start completes at 43.620 s Normal in one live population and 70.746 s Fast in another; exact row count and wall time vary with live state. A dedicated current-v17 proof also completes one real block then returns `idle` after one Stop. Production emits `bridge://map-scan-status`, periodic `map_summary` follows the active Manual run, and Stop waits for terminal ownership release. Evidence: `2026-09-16-r7-map-scan-speed-stop.json`.

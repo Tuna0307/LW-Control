@@ -166,6 +166,44 @@ def build(check=False):
                 '(0,b.useEffect)(()=>{w.isReading&&Ge(tt(w.selectedTypes))},[w.isReading,w.selectedTypes])')
             s = replace_once(s, 'disabled:!e.enabled,checked:We.includes(e.key)',
                 'disabled:!e.enabled||We.length===1&&We[0]===e.key,checked:We.includes(e.key)')
+            # LWB-R7-013 IMPLEMENTATION POLICY: owner-requested Monster usability pass.
+            # The rebuild adds exact Monster level filtering, localized-name keyword
+            # resolution, and a live countdown sourced from the current client's proven
+            # WorldMarch.endTime. These additions are deliberately anchored to the
+            # immutable 0.3.1 panel rather than editing generated output by hand.
+            s = replace_once(s,
+                '[Wt,Gt]=(0,b.useState)(``),[Kt,qt]=(0,b.useState)(Re)',
+                '[Wt,Gt]=(0,b.useState)(``),[monsterLevels,setMonsterLevels]=(0,b.useState)([]),[monsterLevel,setMonsterLevel]=(0,b.useState)(``),[Kt,qt]=(0,b.useState)(Re)')
+            s = replace_once(s,
+                'if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`&&F!==`scheduledPlunder`)return;nn(Date.now())',
+                'if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`&&F!==`monster`&&F!==`scheduledPlunder`)return;nn(Date.now())')
+            s = replace_once(s,
+                'ut(t.alliances),ft(t.names),mt(t.dispatchLevels),gt(t.counts)',
+                'ut(t.alliances),ft(t.names),mt(t.dispatchLevels),setMonsterLevels(Array.isArray(t.monsterLevels)?t.monsterLevels:[]),gt(t.counts)')
+            s = replace_once(s,
+                'Gt(e=>!e||t.dispatchLevels.includes(Number(e))?e:``),zt(e=>!e||t.treasureTypes.some(t=>t.key===e)?e:``)',
+                'Gt(e=>!e||t.dispatchLevels.includes(Number(e))?e:``),setMonsterLevel(e=>!e||Array.isArray(t.monsterLevels)&&t.monsterLevels.includes(Number(e))?e:``),zt(e=>!e||t.treasureTypes.some(t=>t.key===e)?e:``)')
+            s = replace_once(s,
+                'mt([]),gt(ve),vt(!0)',
+                'mt([]),setMonsterLevels([]),setMonsterLevel(``),gt(ve),vt(!0)')
+            s = replace_once(s,
+                'F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)',
+                'F===`monster`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.level`),value:monsterLevel,onChange:e=>{setMonsterLevel(e.target.value),B(1)},children:[(0,D.jsx)(`option`,{value:``,children:C(`squad.afkAnyLevel`)}),monsterLevels.map(e=>(0,D.jsx)(`option`,{value:e,children:e},e))]}),F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)')
+            s = replace_once(s,
+                'minLevel:n===`dispatch`&&Wt?Number(Wt):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):void 0',
+                'monsterNameKeys:n===`monster`&&I.trim()?dt.monster.filter(e=>String(j(Xt,e.key,e.key)).toLocaleLowerCase().includes(I.trim().toLocaleLowerCase())).map(e=>e.key):void 0,minLevel:n===`dispatch`&&Wt?Number(Wt):n===`monster`&&monsterLevel?Number(monsterLevel):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):n===`monster`&&monsterLevel?Number(monsterLevel):void 0')
+            s = replace_once(s,
+                '[F,Et,L,z,Pt,It,Rt,Bt,Ht,Wt,Ot,Kt,At,Mt,mn,An,h,J,Nn]',
+                '[F,Et,L,z,Pt,It,Rt,Bt,Ht,Wt,monsterLevel,Ot,Kt,At,Mt,mn,An,h,J,Nn]')
+            s = replace_once(s,
+                'function L(e,t,n,r,i,a){',
+                'function L(e,t,n,r,i,a,c){')
+            s = replace_once(s,
+                'e===`monster`?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]',
+                'e===`monster`?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`automation.remaining`),width:`110px`,value:e=>{let t=P(k(e,`endTime`));return t?Ke(Math.max(0,t-c)):`-`}},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]')
+            s = replace_once(s,
+                '()=>L(e,g,h,r,i,d),[r,i,e,h,g,d]',
+                '()=>L(e,g,h,r,i,d,a),[r,i,e,h,g,d,a]')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')
