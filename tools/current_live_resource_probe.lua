@@ -1078,6 +1078,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
     request.holdMilliseconds = tonumber(values.holdMilliseconds or "1000")
+    local include_monster_raw = tostring(values.includeMonster or "false")
+    request.includeMonster = include_monster_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -1091,7 +1093,8 @@ local function read_bulk_aoi_diagnostic(now)
        request.requestedCount < 1 or request.requestedCount > 160 or
        request.requestedCount ~= math.floor(request.requestedCount) or
        request.holdMilliseconds == nil or request.holdMilliseconds < 0 or
-       request.holdMilliseconds > 2000 or request.holdMilliseconds ~= math.floor(request.holdMilliseconds) then
+       request.holdMilliseconds > 2000 or request.holdMilliseconds ~= math.floor(request.holdMilliseconds) or
+       (include_monster_raw ~= "true" and include_monster_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -1209,6 +1212,94 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
+local function monster_march_aoi_records(world, block_size, block_count, selected_lookup)
+    local march_manager = safe_get(world, "MarchDataManager")
+    if march_manager == nil then
+        local ok_manager, value = call(world, "get_MarchDataManager")
+        if ok_manager then march_manager = value end
+    end
+    if march_manager == nil then return nil, "WorldScene.MarchDataManager unavailable" end
+    local data_center = rawget(_G, "DataCenter")
+    local template_manager = data_center and safe_get(data_center, "MonsterTemplateManager") or nil
+    local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
+    if not ok_all or collection == nil then collection = reflected_value(march_manager, "allMarches") end
+    if collection == nil then return nil, "WorldMarchDataManager.allMarches unavailable" end
+    local ok_enum, enumerator = call(collection, "GetEnumerator")
+    if not ok_enum or enumerator == nil then return nil, "march_enumerator_unavailable" end
+    local records, scanned = {}, 0
+    while scanned < MAX_POINTS do
+        local ok_move, moved = call(enumerator, "MoveNext")
+        if not ok_move then return nil, "march_enumerator_failed" end
+        if moved ~= true then break end
+        scanned = scanned + 1
+        local pair = safe_get(enumerator, "Current")
+        local march = pair and (safe_get(pair, "Value") or pair) or nil
+        if march ~= nil then
+            local ok_kind, is_monster_or_boss = call(march, "IsMonsterOrBoss")
+            if ok_kind and is_monster_or_boss == true then
+                local ok_index, position_index = call(march, "GetMarchCurPosIndex")
+                local index = ok_index and tonumber(position_index) or nil
+                if index == nil or index <= 0 then index = integer_field(march, { "targetPos", "TargetPos" }) end
+                local tile = index and index > 0 and index_to_tile(world, index) or nil
+                if tile ~= nil then
+                    local cell_x = math.floor(tile.x / block_size)
+                    local cell_y = math.floor(tile.y / block_size)
+                    local aoi_index = cell_y * block_count + cell_x
+                    if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and
+                       selected_lookup[aoi_index] == true then
+                        local function flag(name)
+                            local ok, value = call(march, name)
+                            return ok and value == true
+                        end
+                        local ok_hp, hp = call(march, "GetHP")
+                        local ok_max_hp, max_hp = call(march, "GetMaxHP")
+                        local monster_id = integer_field(march, { "monsterId", "MonsterId" }) or 0
+                        local template = nil
+                        if template_manager ~= nil and monster_id > 0 then
+                            local ok_template, value = call(template_manager, "TryGetMonsterTemplate", monster_id)
+                            if ok_template then template = value end
+                        end
+                        records[#records + 1] = {
+                            uuid = tostring(scalar_field(march, { "uuid", "Uuid" }) or ""),
+                            kind = "monster", runtimeClass = reflected_type_name(march),
+                            serverId = integer_field(march, { "serverId", "ServerId" }) or current_server_id(),
+                            worldId = integer_field(march, { "worldId", "WorldId" }) or 0,
+                            x = tile.x, y = tile.y, positionIndex = math.floor(index),
+                            monsterId = monster_id,
+                            monsterType = integer_field(march, { "monsterType", "MonsterType" }) or 0,
+                            monsterSpecialType = integer_field(march, { "monsterSpecialType", "MonsterSpecialType" }) or 0,
+                            monsterRallyNum = integer_field(march, { "monsterRallyNum", "MonsterRallyNum" }) or 0,
+                            monsterHpRatio = scalar_field(march, { "monsterHpRatio", "MonsterHpRatio" }),
+                            configId = template and integer_field(template, { "id", "Id" }) or nil,
+                            monsterNameKey = template and scalar_field(template, { "name", "Name" }) or nil,
+                            monsterLevel = template and integer_field(template, { "level", "Level" }) or nil,
+                            configType = template and integer_field(template, { "type", "Type" }) or nil,
+                            configSpecial = template and integer_field(template, { "special", "Special" }) or nil,
+                            configBoss = template and integer_field(template, { "boss", "Boss" }) or nil,
+                            modelName = template and scalar_field(template, { "model_name", "modelName" }) or nil,
+                            picture = template and scalar_field(template, { "pic", "Pic" }) or nil,
+                            hp = ok_hp and hp or nil, maxHp = ok_max_hp and max_hp or nil,
+                            refreshTime = scalar_field(march, { "refreshTime", "RefreshTime" }),
+                            createTime = scalar_field(march, { "createTime", "CreateTime" }),
+                            expireTime = scalar_field(march, { "expireTime", "ExpireTime" }),
+                            actStartTime = scalar_field(march, { "actStartTime", "ActStartTime" }),
+                            actEndTime = scalar_field(march, { "actEndTime", "ActEndTime" }),
+                            eventId = scalar_field(march, { "eventId", "EventId" }),
+                            zombieRushId = integer_field(march, { "zombieRushId", "ZombieRushId" }) or 0,
+                            zombieRushRound = integer_field(march, { "zombieRushRound", "ZombieRushRound" }) or 0,
+                            isMonster = flag("IsMonster"), isBoss = flag("IsBoss"),
+                            isOrdinaryBoss = flag("IsOrdinaryBoss"), isWanderMonster = flag("IsWanderMonster"),
+                            isWanderBoss = flag("IsWanderBoss"), isZombieRushAltered = flag("IsZombieRushAltered"),
+                            source = "WorldScene.MarchDataManager.GetAllMarchesByCS",
+                        }
+                    end
+                end
+            end
+        end
+    end
     return records, nil
 end
 
@@ -1535,6 +1626,8 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         positionRestoredBeforeResponse = details.positionRestoredBeforeResponse,
         positionRestoreElapsedSeconds = details.positionRestoreElapsedSeconds,
         point_records = details.pointRecords,
+        monster_march_records = details.monsterMarchRecords,
+        includeMonster = request.includeMonster == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
@@ -1950,6 +2043,16 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     details.pointRecords = point_records
+    details.monsterMarchRecords = {}
+    if bulk_aoi_request.includeMonster == true then
+        local monster_march_records, monster_march_records_error = monster_march_aoi_records(
+            world, details.blockSize, details.blockCount, lookup)
+        if monster_march_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, monster_march_records_error, details, point_manager)
+            return true
+        end
+        details.monsterMarchRecords = monster_march_records
+    end
     local target_count, target_count_error = point_tile_count(
         world, point_manager, details.targetTileX, details.targetTileY)
     if target_count == nil then

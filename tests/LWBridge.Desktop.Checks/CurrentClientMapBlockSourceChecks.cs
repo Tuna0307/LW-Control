@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LWBridge.Desktop;
 
 namespace LWBridge.Desktop.Checks;
@@ -31,6 +32,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await CoordinateJumpUsesOwnedNavigation();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
+        await FastMonsterFullMapReturnsAllLogicalCaptures();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await MissingOwnedSessionFailsClosed();
     }
@@ -260,6 +262,34 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-City source should preserve globally accumulated Cities at both map extremes");
     }
 
+
+
+    private static async Task FastMonsterFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
+                if (x == 15 && y == 75) return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000001", false));
+                if (x == 975 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", true));
+                return ProvenFastMonsterBatch(fields);
+            });
+        MapScanExecutionRequest request = Request("monster", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(bulkCalls == 250 && captures.Count == 2500, "fast full-Monster source should use 250 native responses");
+        MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
+        MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
+        Check(first.Kind == "monster" && first.RecordKey == "m-first" && first.Level == 9 &&
+              last.Kind == "monster" && last.RecordKey == "m-last" && last.Level == 29,
+            "fast full-Monster source did not preserve normalized monsters at map extremes");
+        Check(first.DataJson.Contains("\"monsterNameKey\":\"2000001\"", StringComparison.Ordinal),
+            "fast full-Monster source did not preserve the authoritative name key");
+    }
 
     private static async Task CoordinateJumpUsesOwnedNavigation()
     {
@@ -623,12 +653,13 @@ internal static class CurrentClientMapBlockSourceChecks
         int[] requested = Enumerable.Range(startCellY, 10)
             .SelectMany(row => Enumerable.Range(startCellX, 4).Select(column => row * 100 + column))
             .ToArray();
+        bool includeMonster = fields.TryGetValue("includeMonster", out string? includeMonsterText) && includeMonsterText == "true";
         return JsonSerializer.Serialize(new
         {
             schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
-            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
+            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage", includeMonster,
             state = "proven", error = (string?)null, requestedIndices = requested,
             serverLod = 0, blockSize = 10, blockCount = 100,
             targetTileX = int.Parse(fields["targetTileX"]), targetTileY = int.Parse(fields["targetTileY"]),
@@ -642,7 +673,30 @@ internal static class CurrentClientMapBlockSourceChecks
                 x = point.X, y = point.Y, ownerUid = "u" + point.PointId, ownerName = "Player",
                 level = 30, source = "WorldPointManager._pointInfos",
             }).ToArray(),
+            monster_march_records = Array.Empty<object>(),
         }, JsonOptions.Default);
+    }
+
+
+    private static string ProvenFastMonsterBatch(
+        IReadOnlyDictionary<string, string> fields,
+        params (string Uuid, int X, int Y, int MonsterId, int Level, string NameKey, bool Boss)[] monsters)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
+        root["includeMonster"] = true;
+        root["monster_march_records"] = JsonSerializer.SerializeToNode(monsters.Select(monster => new
+        {
+            uuid = monster.Uuid, kind = "monster", runtimeClass = "WorldMarch", serverId = 2212, worldId = 0,
+            x = monster.X, y = monster.Y, positionIndex = monster.Y * 1000 + monster.X + 1,
+            monsterId = monster.MonsterId, monsterType = 0, monsterSpecialType = 0, monsterRallyNum = monster.Boss ? 1 : 0,
+            configId = monster.MonsterId, monsterNameKey = monster.NameKey, monsterLevel = monster.Level,
+            configType = monster.Boss ? 7 : 1, configSpecial = 0, configBoss = monster.Boss ? 1 : 0,
+            hp = 1, maxHp = 1, createTime = 1L, refreshTime = 2L, expireTime = 0L,
+            isMonster = !monster.Boss, isBoss = monster.Boss, isOrdinaryBoss = monster.Boss,
+            isWanderMonster = false, isWanderBoss = false, isZombieRushAltered = false,
+            source = "WorldScene.MarchDataManager.GetAllMarchesByCS",
+        }).ToArray(), JsonOptions.Default);
+        return root.ToJsonString(JsonOptions.Default);
     }
 
     private static string Timestamp() => Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
