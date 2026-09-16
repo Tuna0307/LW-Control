@@ -22,6 +22,12 @@ internal static class LiveManualFullMonsterProof
         Exception? operationError = null;
         int publishedMonsterCount = 0;
         int reopenedMonsterCount = 0;
+        int distanceCount = 0;
+        int shieldDeadlineCount = 0;
+        double? minDistance = null;
+        double? maxDistance = null;
+        long? minShieldDeadline = null;
+        long? maxShieldDeadline = null;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -99,6 +105,8 @@ internal static class LiveManualFullMonsterProof
                 publishedMonsterCount = store.SearchIndexed(MonsterQuery(serverId)).Total;
                 if (publishedMonsterCount <= 0)
                     throw new InvalidDataException("Ordinary Manual Monster scan published no Monster records.");
+                CollectMonsterMetrics(store, serverId, out distanceCount, out shieldDeadlineCount,
+                    out minDistance, out maxDistance, out minShieldDeadline, out maxShieldDeadline);
                 }
                 finally
                 {
@@ -120,6 +128,12 @@ internal static class LiveManualFullMonsterProof
                 scanMode,
                 concurrency = expectedConcurrency,
                 scanWallSeconds,
+                distanceCount,
+                minDistance,
+                maxDistance,
+                shieldDeadlineCount,
+                minShieldDeadline,
+                maxShieldDeadline,
             }, JsonOptions.Default));
         }
         catch (Exception error)
@@ -150,8 +164,42 @@ internal static class LiveManualFullMonsterProof
         }
     }
 
-    private static MapDataQueryOptions MonsterQuery(int serverId) => new(
-        "monster", serverId, 1, MapDataQueryContract.RecoveredPageSize,
+
+    private static void CollectMonsterMetrics(
+        MapDataStore store, int serverId, out int distanceCount, out int shieldDeadlineCount,
+        out double? minDistance, out double? maxDistance, out long? minShieldDeadline, out long? maxShieldDeadline)
+    {
+        distanceCount = 0; shieldDeadlineCount = 0;
+        minDistance = null; maxDistance = null; minShieldDeadline = null; maxShieldDeadline = null;
+        int page = 1; int observed = 0; int expectedTotal = -1;
+        while (true)
+        {
+            MapSearchResult result = store.SearchIndexed(MonsterQuery(serverId, page));
+            if (expectedTotal < 0) expectedTotal = result.Total;
+            foreach (JsonElement row in result.Rows)
+            {
+                observed++;
+                if (row.TryGetProperty("distanceFromHome", out JsonElement distance) && distance.TryGetDouble(out double d) && double.IsFinite(d) && d >= 0)
+                {
+                    distanceCount++;
+                    minDistance = minDistance is null ? d : Math.Min(minDistance.Value, d);
+                    maxDistance = maxDistance is null ? d : Math.Max(maxDistance.Value, d);
+                }
+                if (row.TryGetProperty("shieldEndTime", out JsonElement shield) && shield.TryGetInt64(out long deadline) && deadline > 0)
+                {
+                    shieldDeadlineCount++;
+                    minShieldDeadline = minShieldDeadline is null ? deadline : Math.Min(minShieldDeadline.Value, deadline);
+                    maxShieldDeadline = maxShieldDeadline is null ? deadline : Math.Max(maxShieldDeadline.Value, deadline);
+                }
+            }
+            if (observed >= expectedTotal || result.Rows.Count == 0) break;
+            page++;
+        }
+        if (observed != expectedTotal) throw new InvalidDataException($"Monster metric read observed {observed}/{expectedTotal} rows.");
+    }
+
+    private static MapDataQueryOptions MonsterQuery(int serverId, int page = 1) => new(
+        "monster", serverId, page, MapDataQueryContract.RecoveredPageSize,
         [new MapDataSort("updatedAt", "desc")], false, null, null, false,
         null, null, null, null, null, null, null, false, false, false,
         null, null, Array.Empty<string>());

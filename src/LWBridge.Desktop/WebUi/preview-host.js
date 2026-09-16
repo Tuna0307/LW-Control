@@ -20,8 +20,8 @@
     const monsterLocaleFixture = query.get('fixture') === 'monster-locale';
     const fixtureServerId = monsterLocaleFixture ? 9001 : 0;
     const fixtureMonsterRows = [
-        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-a', pointIndex: 1, x: 101, y: 202, monsterNameKey: 'fixture.monster.alpha', level: 7, endTime: Date.now() + 190_000, distanceFromHome: 12, updatedAt: 1_700_000_000_000},
-        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-b', pointIndex: 2, x: 303, y: 404, monsterNameKey: 'fixture.monster.beta', level: 9, endTime: Date.now() + 70_000, distanceFromHome: 34, updatedAt: 1_700_000_001_000}
+        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-a', pointIndex: 1, x: 101, y: 202, monsterNameKey: 'fixture.monster.alpha', level: 7, shieldEndTime: Date.now() + 190_000, distanceFromHome: 12, updatedAt: 1_700_000_000_000},
+        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-b', pointIndex: 2, x: 303, y: 404, monsterNameKey: 'fixture.monster.beta', level: 9, shieldEndTime: 0, distanceFromHome: 34, updatedAt: 1_700_000_001_000}
     ];
     const fixtureMonsterTranslations = {
         en: {'fixture.monster.alpha': 'Fixture Monster Alpha', 'fixture.monster.beta': 'Fixture Monster Beta'},
@@ -72,9 +72,19 @@
         map_search: payload => {
             if (!monsterLocaleFixture || payload?.kind !== 'monster') return {rows: [], total: 0};
             const query = payload?.query || {};
-            let rows = fixtureMonsterRows;
-            if (Number(query.minLevel) > 0 && Number(query.maxLevel) === Number(query.minLevel))
-                rows = rows.filter(row => row.level === Number(query.minLevel));
+            let rows = [...fixtureMonsterRows];
+            if (Number(query.maxLevel) > 0)
+                rows = rows.filter(row => row.level <= Number(query.maxLevel));
+            const sorts = Array.isArray(query.sorts) ? query.sorts : [];
+            const valueForSort = (row, key) => key === 'distance' ? row.distanceFromHome : key === 'updatedAt' ? row.updatedAt : row[key];
+            rows.sort((a, b) => {
+                for (const sort of sorts) {
+                    const av = Number(valueForSort(a, sort.sortBy)); const bv = Number(valueForSort(b, sort.sortBy));
+                    if (av === bv) continue;
+                    return (av < bv ? -1 : 1) * (sort.sortOrder === 'asc' ? 1 : -1);
+                }
+                return a.recordKey.localeCompare(b.recordKey);
+            });
             const keyword = String(query.keyword || '').trim().toLocaleLowerCase();
             if (keyword) {
                 const resolved = new Set(Array.isArray(query.monsterNameKeys) ? query.monsterNameKeys.map(String) : []);

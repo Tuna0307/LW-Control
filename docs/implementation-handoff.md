@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding checkpoint - LWB-R7-014 / LWB-OVR-016, 2026-09-17
+
+Owner-reported Monster/Home corrections are now the active completed-code checkpoint pending final Git delivery. Monster **Remaining** is narrowed to the game-owned `zMBossInfo.shieldEndTime` source and ticks locally only when that deadline is positive; generic march `endTime` is no longer displayed as the shield timer. The Monster level selector is an inclusive maximum (`60` means `<=60`), Level/Distance sorting is wired through the persisted query instead of clearing rows, and failed searches preserve the current table. Current-client world readiness now recovers the player's home tile through `CS.GameEntry.Data.Player.PlayerWorldPointId` with `WorldPointManager.GetMyPointInfo().pointIndex` fallback, and a current-v17 complete run LIVE-PROVES real `distanceFromHome` on all 12,731 published/reopened Monster rows.
+
+The zero-hold full-world request path restores the internal camera transform in the same Lua callback after the native request is queued; complete 2,500-block live runs prove acquisition survives this anti-flicker change, while owner-visible flicker reduction remains a later visual check. `LWB-OVR-016` also prevents the update-safety warm-up from launching/closing the official game on every unchanged start: read-only recovery/compatibility still runs every time, while the destructive warm-up is reused only for the exact validated game root + package hash. Evidence: `2026-09-17-r7-owner-map-fixes.json`.
+
+**Next:** complete Resource on this same shared engine, then Truck/Railway/Dispatch/Ghost/Treasure, mixed/all-eight and Auto Scan.
+
 ## Current superseding checkpoint - LWB-R7-013, 2026-09-17
 
 Monster result usability is now the newest completed slice on top of the R7-012 shared scanner. A current-v17 full Monster acquisition exposed source-backed positive `endTime` deadlines on 11 of 3,853 sanitized live rows; no row identities or coordinates are retained. Production `map_data_options` now supplies Monster levels from the recovered persisted/staging source selector, the rebuild supports exact-level Monster filtering, localized visible-name keyword search avoids raw-JSON schema-key false matches such as `zombieRushId`, and Monster rows show a locally ticking countdown when a supported positive deadline exists (otherwise `-`). The timer-field acquisition is LIVE-PROVEN; the search/filter/countdown UI behavior is IMPLEMENTED/OFFLINE-TESTED. Exact-level and visible-keyword overrides are explicit rebuild usability policy, not claimed original 0.3.1 frontend behavior. Evidence: `2026-09-17-r7-monster-usability.json`.

@@ -251,12 +251,15 @@ internal static class LiveCurrentClientMapBlockProof
             RuntimeDiagnosticObservation observation = await RunRuntimeDiagnosticAsync(
                 session,
                 operationCts.Token).ConfigureAwait(false);
+            CurrentClientMapContext liveContext = await new CurrentClientMapBlockSource(lifecycle)
+                .GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 ok = true,
                 proof = "production_lifecycle_current_client_runtime_objects",
                 sessionId = session.SessionId,
                 gamePid = session.GamePid,
+                liveContext,
                 runtime = observation,
             }, JsonOptions.Default));
         }

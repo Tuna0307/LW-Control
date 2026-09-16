@@ -3514,26 +3514,25 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         Check(zombieJson.RootElement.GetProperty("total").GetInt32() == 0,
             "Monster keyword search does not match every row merely because zombieRushId is a JSON schema property");
 
-    using JsonDocument exactMonsterLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    using JsonDocument maximumMonsterLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = mapBackend.ProfileId,
         kind = "monster",
         query = new
         {
             serverId = 91,
-            minLevel = 7,
             maxLevel = 7,
             page = 1,
             pageSize = 50,
             sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
         },
     }));
-    object? exactMonsterLevelResult = await mapBackend.InvokeAsync(
-        "map_search", exactMonsterLevelSearch.RootElement.Clone(), CancellationToken.None);
-    using (JsonDocument levelJson = JsonDocument.Parse(JsonSerializer.Serialize(exactMonsterLevelResult, JsonOptions.Default)))
+    object? maximumMonsterLevelResult = await mapBackend.InvokeAsync(
+        "map_search", maximumMonsterLevelSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument levelJson = JsonDocument.Parse(JsonSerializer.Serialize(maximumMonsterLevelResult, JsonOptions.Default)))
         Check(levelJson.RootElement.GetProperty("total").GetInt32() == 1 &&
               levelJson.RootElement.GetProperty("rows")[0].GetProperty("level").GetInt32() == 7,
-            "Monster exact-level selector filters persisted rows without enabling arbitrary range semantics");
+            "Monster level selector uses inclusive maximum semantics");
 
     using JsonDocument monsterLevelRange = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -3549,8 +3548,31 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
             sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
         },
     }));
-    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Monster level filtering stays exact-only", async () =>
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Monster min/range filtering stays fail-closed", async () =>
         await mapBackend.InvokeAsync("map_search", monsterLevelRange.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument monsterSortSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            page = 1,
+            pageSize = 50,
+            sorts = new[]
+            {
+                new { sortBy = "level", sortOrder = "desc" },
+                new { sortBy = "distance", sortOrder = "asc" },
+            },
+        },
+    }));
+    object? monsterSortResult = await mapBackend.InvokeAsync(
+        "map_search", monsterSortSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument sortJson = JsonDocument.Parse(JsonSerializer.Serialize(monsterSortResult, JsonOptions.Default)))
+        Check(sortJson.RootElement.GetProperty("rows")[0].GetProperty("uuid").GetString() == "monster-b" &&
+              sortJson.RootElement.GetProperty("rows")[1].GetProperty("uuid").GetString() == "monster-a",
+            "Monster visible sort arrows execute normalized level/distance ordering without clearing rows");
 
     using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

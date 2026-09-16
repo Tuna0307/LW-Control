@@ -199,23 +199,26 @@ internal static class MapDataQueryContract
         }
 
         if (markedOnly && kind != "city") unsupported.Add("markedOnly");
-        // IMPLEMENTATION POLICY LWB-R7-013: the rebuilt Monster page exposes an
-        // exact-level selector requested by the owner. It reuses the already-normalized
-        // minLevel/maxLevel pair only when both are positive and equal; arbitrary Monster
-        // ranges remain rejected rather than inventing a wider original contract.
+        // IMPLEMENTATION POLICY LWB-R7-014: the owner-defined Monster level selector
+        // is an inclusive maximum (selecting 60 means level <= 60). The recovered generic
+        // maxLevel predicate is reused; Monster min/range forms remain fail-closed.
         if (kind == "monster")
         {
             bool hasMinLevel = query.TryGetProperty("minLevel", out JsonElement minLevelValue) && !IsNeutral(minLevelValue);
             bool hasMaxLevel = query.TryGetProperty("maxLevel", out JsonElement maxLevelValue) && !IsNeutral(maxLevelValue);
-            bool exactMonsterLevel = hasMinLevel && hasMaxLevel && minLevel is > 0 && maxLevel == minLevel;
-            if ((hasMinLevel || hasMaxLevel) && !exactMonsterLevel)
+            bool validMonsterMaximum = !hasMinLevel && hasMaxLevel && maxLevel is > 0;
+            if ((hasMinLevel || hasMaxLevel) && !validMonsterMaximum)
             {
-                unsupported.Add("minLevel");
-                unsupported.Add("maxLevel");
+                if (hasMinLevel) unsupported.Add("minLevel");
+                if (hasMaxLevel && maxLevel is not > 0) unsupported.Add("maxLevel");
             }
         }
-        if (sorts.Count != 1 || !string.Equals(sorts[0].SortBy, "updatedAt", StringComparison.Ordinal))
-            unsupported.Add("sorts");
+        bool recoveredSort = kind == "monster"
+            ? sorts.Count is >= 1 and <= 3 &&
+              sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
+              sorts.All(sort => sort.SortBy is "level" or "distance" or "updatedAt")
+            : sorts.Count == 1 && string.Equals(sorts[0].SortBy, "updatedAt", StringComparison.Ordinal);
+        if (!recoveredSort) unsupported.Add("sorts");
         return unsupported.Distinct(StringComparer.Ordinal).ToArray();
     }
 

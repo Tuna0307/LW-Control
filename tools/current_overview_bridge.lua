@@ -469,13 +469,33 @@ local function current_map_context()
     local lua_entry = rawget(_G, "LuaEntry")
     local player = lua_entry and safe_get(lua_entry, "Player") or nil
     if player == nil then return nil end
+    local cs = rawget(_G, "CS")
+    local cs_entry = cs and safe_get(cs, "GameEntry") or nil
+    local cs_data = cs_entry and safe_get(cs_entry, "Data") or nil
+    local cs_player = cs_data and safe_get(cs_data, "Player") or nil
     local ok_server, server_id = call(player, "GetCurServerId")
     local ok_world, world_id = call(player, "GetCurWorldId")
     local tile_count = safe_get(world, "TileCount") or reflected_value(world, "TileCount")
     local tile_width = tonumber(tile_count and (safe_get(tile_count, "x") or safe_get(tile_count, "X")))
     local tile_height = tonumber(tile_count and (safe_get(tile_count, "y") or safe_get(tile_count, "Y")))
     local player_tile_x, player_tile_y = nil, nil
-    local player_point_id = tonumber(safe_get(player, "PlayerWorldPointId"))
+    local point_player = cs_player or player
+    local player_point_id = tonumber(safe_get(point_player, "PlayerWorldPointId"))
+    if player_point_id == nil then
+        local ok_player_point, value = call(point_player, "get_PlayerWorldPointId")
+        if ok_player_point then player_point_id = tonumber(value) end
+    end
+    if player_point_id == nil then
+        player_point_id = tonumber(reflected_value(point_player, "<PlayerWorldPointId>k__BackingField"))
+    end
+    if player_point_id == nil or player_point_id <= 0 then
+        local point_manager = safe_get(world, "PointManager") or reflected_value(world, "<PointManager>k__BackingField")
+        local ok_my_point, my_point = false, nil
+        if point_manager ~= nil then ok_my_point, my_point = call(point_manager, "GetMyPointInfo") end
+        if ok_my_point and my_point ~= nil then
+            player_point_id = tonumber(safe_get(my_point, "pointIndex") or reflected_value(my_point, "pointIndex"))
+        end
+    end
     if player_point_id ~= nil and player_point_id > 0 and player_point_id == math.floor(player_point_id) then
         local ok_player_tile, player_tile = call(world, "IndexToTilePos", math.floor(player_point_id))
         if ok_player_tile and player_tile ~= nil then

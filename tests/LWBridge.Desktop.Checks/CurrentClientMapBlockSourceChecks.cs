@@ -290,6 +290,10 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Monster source did not preserve normalized monsters at map extremes");
         Check(first.DataJson.Contains("\"monsterNameKey\":\"2000001\"", StringComparison.Ordinal),
             "fast full-Monster source did not preserve the authoritative name key");
+        Check(first.Distance == 12.5 && first.ShieldEndTime == 2_000_000_000_000L &&
+              first.DataJson.Contains("\"distanceFromHome\":12.5", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"shieldEndTime\":2000000000000", StringComparison.Ordinal),
+            "fast full-Monster source should persist game-derived distance and zombie shield deadline");
     }
 
     private static async Task FastFullMapRejectsIncompleteMeasuredCoverage()
@@ -702,8 +706,9 @@ internal static class CurrentClientMapBlockSourceChecks
             serverLod = 0, blockSize = 10, blockCount = 100,
             targetTileX = int.Parse(fields["targetTileX"]), targetTileY = int.Parse(fields["targetTileY"]),
             responseFlagsTransitioned = true, cameraTileStable = true, positionRestoredBeforeResponse = true,
-            requestMethod = "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift",
-            nativeCurrentSetCount = requested.Length, holdMilliseconds = 0, viewLevel = -1,
+            requestMethod = "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore",
+            nativeCurrentSetCount = requested.Length, holdMilliseconds = 0,
+            homeTileX = int.Parse(fields["homeTileX"]), homeTileY = int.Parse(fields["homeTileY"]), viewLevel = -1,
             postServerLod = 0, postBlockSize = 10, postBlockCount = 100, capturedAt = Timestamp(),
             point_records = points.Select(point => new
             {
@@ -730,6 +735,8 @@ internal static class CurrentClientMapBlockSourceChecks
             configId = monster.MonsterId, monsterNameKey = monster.NameKey, monsterLevel = monster.Level,
             configType = monster.Boss ? 7 : 1, configSpecial = 0, configBoss = monster.Boss ? 1 : 0,
             hp = 1, maxHp = 1, createTime = 1L, refreshTime = 2L, expireTime = 0L,
+            distanceFromHome = monster.Uuid == "m-first" ? 12.5 : 34.5,
+            zMBossShieldEndTime = monster.Uuid == "m-first" ? 2_000_000_000_000L : 0L,
             isMonster = !monster.Boss, isBoss = monster.Boss, isOrdinaryBoss = monster.Boss,
             isWanderMonster = false, isWanderBoss = false, isZombieRushAltered = false,
             source = "WorldScene.MarchDataManager.GetAllMarchesByCS",

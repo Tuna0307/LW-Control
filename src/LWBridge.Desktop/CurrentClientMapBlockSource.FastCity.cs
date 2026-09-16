@@ -248,6 +248,8 @@ internal sealed partial class CurrentClientMapBlockSource
             $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
             "requestedCount=8",
             "holdMilliseconds=0",
+            $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
+            $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"includeMonster={request.SelectedTypes.Contains("monster", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             string.Empty,
         });
@@ -303,6 +305,8 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesInt(root, "requestedCount", 8) ||
             !MatchesInt(root, "holdMilliseconds", 0) ||
+            !MatchesInt(root, "homeTileX", request.PlayerTileX ?? -1) ||
+            !MatchesInt(root, "homeTileY", request.PlayerTileY ?? -1) ||
             !MatchesInt(root, "viewLevel", -1) ||
             !MatchesInt(root, "targetTileX", targetX) ||
             !MatchesInt(root, "targetTileY", targetY))
@@ -317,7 +321,7 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
             !MatchesBool(root, "positionRestoredBeforeResponse", true) ||
-            !MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift"))
+            !MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore"))
             throw new InvalidDataException("Fast world batch did not prove the native response/restoration contract.");
         if (!MatchesInt(root, "serverLod", 0) ||
             !MatchesInt(root, "blockSize", FastCityAoiBlockSize) ||
@@ -399,9 +403,16 @@ internal sealed partial class CurrentClientMapBlockSource
             int aoiIndex = checked((y / FastCityAoiBlockSize) * FastCityAoiBlockCount + (x / FastCityAoiBlockSize));
             if (!requestedSet.Contains(aoiIndex)) throw new InvalidDataException("Fast world Monster fell outside the native AOI footprint.");
             JsonObject data = JsonNode.Parse(row.GetRawText())!.AsObject(); long updatedAt = capturedAt.ToUnixTimeMilliseconds();
+            double? distance = row.TryGetProperty("distanceFromHome", out JsonElement distanceValue) &&
+                distanceValue.TryGetDouble(out double parsedDistance) && double.IsFinite(parsedDistance) && parsedDistance >= 0
+                ? parsedDistance : null;
+            long? shieldEndTime = row.TryGetProperty("zMBossShieldEndTime", out JsonElement shieldValue) &&
+                shieldValue.TryGetInt64(out long parsedShield) && parsedShield > 0 ? parsedShield : null;
             data["level"] = level; data["updatedAt"] = updatedAt;
+            if (distance is not null) data["distanceFromHome"] = distance.Value;
+            if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
-            result.Add(new FastMonsterPrepared(x, y, new MapStoredRecord("monster", serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, null, null, updatedAt, data.ToJsonString(JsonOptions.Default))));
+            result.Add(new FastMonsterPrepared(x, y, new MapStoredRecord("monster", serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
         }
         return result;
     }

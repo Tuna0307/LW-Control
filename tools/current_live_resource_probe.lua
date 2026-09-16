@@ -418,6 +418,27 @@ local function index_to_tile(world, index)
     return { x = zero % size, y = math.floor(zero / size) }
 end
 
+local function tile_distance(world, a, b)
+    if a == nil or b == nil then return nil end
+    local cs = rawget(_G, "CS")
+    local vector_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+    if vector_type == nil then return nil end
+    local ok_a, av = pcall(function() return vector_type(a.x, a.y) end)
+    local ok_b, bv = pcall(function() return vector_type(b.x, b.y) end)
+    if not ok_a or not ok_b or av == nil or bv == nil then return nil end
+    local ok, value = call(world, "TileDistance", av, bv)
+    local numeric = ok and tonumber(value) or nil
+    return numeric and numeric >= 0 and numeric or nil
+end
+
+local function current_home_tile(world)
+    local entry = rawget(_G, "GameEntry")
+    local data = entry and safe_get(entry, "Data") or nil
+    local player = data and safe_get(data, "Player") or nil
+    local point_id = player and integer_field(player, { "PlayerWorldPointId" }) or nil
+    return point_id and point_id > 0 and index_to_tile(world, point_id) or nil
+end
+
 local function manager_response_flag(point_manager)
     local value = safe_get(point_manager, "isRecvViewPoints")
     if value == nil then value = reflected_value(point_manager, "isRecvViewPoints") end
@@ -1078,6 +1099,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
     request.holdMilliseconds = tonumber(values.holdMilliseconds or "1000")
+    request.homeTileX = tonumber(values.homeTileX or "-1")
+    request.homeTileY = tonumber(values.homeTileY or "-1")
     local include_monster_raw = tostring(values.includeMonster or "false")
     request.includeMonster = include_monster_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
@@ -1094,6 +1117,10 @@ local function read_bulk_aoi_diagnostic(now)
        request.requestedCount ~= math.floor(request.requestedCount) or
        request.holdMilliseconds == nil or request.holdMilliseconds < 0 or
        request.holdMilliseconds > 2000 or request.holdMilliseconds ~= math.floor(request.holdMilliseconds) or
+       request.homeTileX == nil or request.homeTileY == nil or
+       request.homeTileX < -1 or request.homeTileX >= 1000 or request.homeTileY < -1 or request.homeTileY >= 1000 or
+       request.homeTileX ~= math.floor(request.homeTileX) or request.homeTileY ~= math.floor(request.homeTileY) or
+       ((request.homeTileX == -1) ~= (request.homeTileY == -1)) or
        (include_monster_raw ~= "true" and include_monster_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
@@ -1105,6 +1132,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.targetTileY = math.floor(request.targetTileY)
     request.requestedCount = math.floor(request.requestedCount)
     request.holdMilliseconds = math.floor(request.holdMilliseconds)
+    request.homeTileX = math.floor(request.homeTileX)
+    request.homeTileY = math.floor(request.homeTileY)
     local identity, identity_error = active_overview_identity(now)
     if identity == nil then request.error = identity_error; return request end
     if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
@@ -1215,7 +1244,7 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     return records, nil
 end
 
-local function monster_march_aoi_records(world, block_size, block_count, selected_lookup)
+local function monster_march_aoi_records(world, block_size, block_count, selected_lookup, home_tile)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
         local ok_manager, value = call(world, "get_MarchDataManager")
@@ -1268,6 +1297,7 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
                             serverId = integer_field(march, { "serverId", "ServerId" }) or current_server_id(),
                             worldId = integer_field(march, { "worldId", "WorldId" }) or 0,
                             x = tile.x, y = tile.y, positionIndex = math.floor(index),
+                            distanceFromHome = tile_distance(world, home_tile, tile),
                             monsterId = monster_id,
                             monsterType = integer_field(march, { "monsterType", "MonsterType" }) or 0,
                             monsterSpecialType = integer_field(march, { "monsterSpecialType", "MonsterSpecialType" }) or 0,
@@ -1547,6 +1577,8 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         challenge = request.challenge,
         gamePid = request.gamePid,
         requestedCount = request.requestedCount,
+        homeTileX = request.homeTileX,
+        homeTileY = request.homeTileY,
         requestMode = request.requestMode,
         state = state,
         error = error_text,
@@ -1959,6 +1991,30 @@ local function pump_bulk_aoi_diagnostic(now)
             fail_bulk_aoi(request, "native_remote_request_failed", nil, point_manager)
             return true
         end
+        -- LWB-R7-014 IMPLEMENTATION POLICY: production coverage uses a zero hold.
+        -- Restore the visible camera transform in the same Lua callback that queues the
+        -- remote request, instead of waiting for the next 250 ms pump/frame.
+        if request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
+           bulk_aoi_native_original_pos ~= nil then
+            if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
+                fail_bulk_aoi(request, "native_camera_same_tick_restore_failed", nil, point_manager)
+                return true
+            end
+            if bulk_aoi_native_camera ~= nil and bulk_aoi_native_original_fov ~= nil and
+               not select(1, call(bulk_aoi_native_camera, "SetFOV", bulk_aoi_native_original_fov)) then
+                fail_bulk_aoi(request, "native_camera_fov_same_tick_restore_failed", nil, point_manager)
+                return true
+            end
+            bulk_aoi_native_position_restored = true
+            bulk_aoi_native_hold_seconds = nil
+            if request_method == "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift" then
+                request_method = "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore"
+            elseif request_method == "WorldPointManager.SendViewRequest+held-internal-camera-shift" then
+                request_method = "WorldPointManager.SendViewRequest+same-tick-camera-restore"
+            elseif request_method == "WorldPointManager.SendAoiRequest(private-reflection)+held-internal-camera-shift" then
+                request_method = "WorldPointManager.SendAoiRequest(private-reflection)+same-tick-camera-restore"
+            end
+        end
         local native_current = reflected_value(point_manager, "_curViewIndex")
         local native_indices = native_current and select(1, collection_int_values(native_current, 512)) or nil
         if request.requestMode ~= "direct" then
@@ -2053,8 +2109,10 @@ local function pump_bulk_aoi_diagnostic(now)
     details.pointRecords = point_records
     details.monsterMarchRecords = {}
     if bulk_aoi_request.includeMonster == true then
+        local home_tile = bulk_aoi_request.homeTileX >= 0 and
+            { x = bulk_aoi_request.homeTileX, y = bulk_aoi_request.homeTileY } or nil
         local monster_march_records, monster_march_records_error = monster_march_aoi_records(
-            world, details.blockSize, details.blockCount, lookup)
+            world, details.blockSize, details.blockCount, lookup, home_tile)
         if monster_march_records == nil then
             fail_bulk_aoi(bulk_aoi_request, monster_march_records_error, details, point_manager)
             return true
@@ -2105,7 +2163,7 @@ local function pump_bulk_aoi_diagnostic(now)
         local restored = restore_bulk_aoi_state(point_manager)
         if not restored then
             write_bulk_aoi_result(request, "failed", "bulk_aoi_state_restore_failed", details)
-        elseif details.cameraTileStable ~= true and details.requestMethod ~= "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift" then
+        elseif details.cameraTileStable ~= true and details.requestMethod ~= "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore" then
             write_bulk_aoi_result(request, "failed", "camera_tile_changed_during_bulk_aoi_request", details)
         else
             write_bulk_aoi_result(request, "proven", nil, details)

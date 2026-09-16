@@ -614,6 +614,15 @@ internal sealed partial class MapDataStore : IDisposable
         string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
         long offset = checked(((long)options.Page - 1L) * options.PageSize);
         bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
+        string orderBy = options.Kind == "monster"
+            ? string.Join(", ", options.Sorts.Select(sort => (sort.SortBy switch
+            {
+                "level" => "page.level",
+                "distance" => "page.distance",
+                "updatedAt" => "page.updated_at",
+                _ => throw new BridgeCommandException("MAP_QUERY_UNRECOVERED", "Unsupported Monster sort column."),
+            }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
+            : $"page.updated_at {direction}, page.record_key ASC";
         string[] resolvedMonsterNameKeys = string.Equals(options.Kind, "monster", StringComparison.Ordinal)
             ? (monsterNameKeys ?? Array.Empty<string>())
                 .Where(key => !string.IsNullOrWhiteSpace(key))
@@ -721,8 +730,8 @@ internal sealed partial class MapDataStore : IDisposable
             using SqliteCommand page = connection.CreateCommand();
             page.Transaction = snapshot;
             page.CommandText = city
-                ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset"
-                : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY page.updated_at {direction}, page.record_key ASC LIMIT $limit OFFSET $offset";
+                ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset"
+                : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset";
             AddSearchParameters(page, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
             page.Parameters.AddWithValue("$limit", options.PageSize);
             page.Parameters.AddWithValue("$offset", offset);

@@ -10,8 +10,9 @@ internal sealed partial class OverviewLifecycleService
     private static readonly TimeSpan OfficialNormalCloseTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan OfficialProcessPoll = TimeSpan.FromMilliseconds(250);
 
-    // IMPLEMENTATION POLICY: let the official launcher update/settle untouched files
-    // before the temporary Overview candidate is ever created or installed.
+    // IMPLEMENTATION POLICY LWB-OVR-016: perform the destructive launcher warm-up only
+    // once per validated current-client package/root. Repeated launches first run the
+    // read-only recovery/compatibility preflight and reuse the persisted settled marker.
     private async Task EnsureOfficialClientSettledAsync(
         string selectedRoot,
         CancellationToken cancellationToken,
@@ -31,7 +32,10 @@ internal sealed partial class OverviewLifecycleService
             throw new InvalidOperationException("Production official settlement requires one overall start deadline.");
         long deadline = overallDeadline.Value;
 
-        await RecoverPendingBeforeOfficialSettleAsync(selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
+        string packageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
+            selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
+        if (OfficialSettleMarkerMatches(selectedRoot, packageSha256))
+            return;
         if (RecoveryClockMilliseconds() >= deadline)
             throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT",
                 "Pending recovery consumed the bounded Overview start window.");
@@ -80,9 +84,13 @@ internal sealed partial class OverviewLifecycleService
             throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT", "The official launcher/updater did not settle before the Overview install phase.");
         if (ReadSingleSelectedGameIdentity(selectedRoot) is not null)
             throw new BridgeCommandException("OFFICIAL_SETTLE_GAME_CLOSE_FAILED", "The official preflight game is still running after normal close.");
+
+        string settledPackageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
+            selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
+        WriteOfficialSettleMarker(selectedRoot, settledPackageSha256);
     }
 
-    private async Task RecoverPendingBeforeOfficialSettleAsync(
+    private async Task<string> RecoverPendingBeforeOfficialSettleAsync(
         string selectedRoot,
         long deadline,
         CancellationToken cancellationToken)
@@ -103,7 +111,34 @@ internal sealed partial class OverviewLifecycleService
             throw new InvalidDataException("Overview preflight recovery reported changed installed files.");
         if (!result.TryGetProperty("currentClient", out JsonElement current) || current.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("Overview preflight recovery did not return current-client compatibility evidence.");
-        _ = CurrentClientCompatibility.ValidateCurrentClient(current);
+        return CurrentClientCompatibility.ValidateCurrentClient(current);
+    }
+
+    private string OfficialSettleMarkerPath => Path.Combine(evidenceRoot, "official-settled-client.json");
+
+    private bool OfficialSettleMarkerMatches(string selectedRoot, string packageSha256)
+    {
+        try
+        {
+            using JsonDocument marker = JsonDocument.Parse(File.ReadAllBytes(OfficialSettleMarkerPath));
+            JsonElement root = marker.RootElement;
+            return MatchesInt(root, "schemaVersion", 1) &&
+                   MatchesString(root, "gameRoot", Path.GetFullPath(selectedRoot)) &&
+                   MatchesString(root, "packageSha256", packageSha256);
+        }
+        catch { return false; }
+    }
+
+    private void WriteOfficialSettleMarker(string selectedRoot, string packageSha256)
+    {
+        Directory.CreateDirectory(evidenceRoot);
+        File.WriteAllText(OfficialSettleMarkerPath, JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            gameRoot = Path.GetFullPath(selectedRoot),
+            packageSha256,
+            settledAtUtc = RecoveryNow().ToString("O", CultureInfo.InvariantCulture),
+        }, JsonOptions.Default));
     }
 
     private static OfficialProcessIdentity? ReadSingleSelectedGameIdentity(string selectedRoot)

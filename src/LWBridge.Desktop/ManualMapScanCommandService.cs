@@ -183,7 +183,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 context.TileHeight,
                 selectedTypes,
                 options.Concurrency,
-                MaxAttemptsPerBlock: 2);
+                MaxAttemptsPerBlock: 2,
+                PlayerTileX: context.PlayerTileX,
+                PlayerTileY: context.PlayerTileY);
 
             lock (gate)
             {

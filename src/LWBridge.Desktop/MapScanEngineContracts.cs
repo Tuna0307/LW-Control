@@ -8,7 +8,9 @@ internal sealed record MapScanExecutionRequest(
     long TileHeight,
     IReadOnlyList<string> SelectedTypes,
     int RequestedConcurrency,
-    int MaxAttemptsPerBlock = 2);
+    int MaxAttemptsPerBlock = 2,
+    int? PlayerTileX = null,
+    int? PlayerTileY = null);
 
 internal sealed record MapScanBlockCapture(
     int ServerId,
