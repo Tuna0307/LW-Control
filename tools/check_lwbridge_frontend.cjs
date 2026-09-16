@@ -121,6 +121,30 @@ async function main() {
    await page.waitForTimeout(150);
    assert(await page.locator('.main-view').innerText());
   }
+  const monsterPage=await open('candidate','map-data','dark','en');
+  await monsterPage.goto(`${origin}/candidate/index.html?view=map-data&theme=dark&language=en&fixture=monster-locale`);
+  await monsterPage.locator('.main-view .panel').first().waitFor();
+  const monsterTabs=monsterPage.locator('.map-tabs button');
+  await monsterTabs.nth(2).click();
+  await monsterPage.waitForFunction(()=>document.body.innerText.includes('Fixture Monster Alpha'));
+  const monsterTable=monsterPage.locator('.map-table');
+  assert.match(await monsterTable.innerText(),/Fixture Monster Alpha/);
+  assert.match(await monsterTable.innerText(),/Fixture Monster Beta/);
+  const englishLocaleCalls=await monsterPage.evaluate(()=>window.LWBridgePreview.calls.filter(name=>name==='lastwar_localize').length);
+  assert(englishLocaleCalls>0,'Monster table must call lastwar_localize in English');
+  await monsterPage.screenshot({path:path.join(output,'monster-locale-en.png'),animations:'disabled'});
+  await monsterPage.locator('.language-select select').selectOption('zh-CN');
+  await monsterPage.waitForFunction(()=>document.body.innerText.includes('\u624b\u52a8\u626b\u63cf'));
+  await monsterPage.locator('.map-tabs button').nth(2).click();
+  await monsterPage.waitForFunction(()=>document.body.innerText.includes('测试怪物甲'));
+  assert.match(await monsterTable.innerText(),/测试怪物甲/);
+  assert.doesNotMatch(await monsterTable.innerText(),/Fixture Monster Alpha/);
+  const chineseLocaleCalls=await monsterPage.evaluate(()=>window.LWBridgePreview.calls.filter(name=>name==='lastwar_localize').length);
+  assert(chineseLocaleCalls>englishLocaleCalls,'Language change must rerun lastwar_localize');
+  assert.deepEqual(await monsterPage.evaluate(()=>window.LWBridgePreview.failures),[], 'Monster locale fixture must stay error-free');
+  await monsterPage.screenshot({path:path.join(output,'monster-locale-zh-CN.png'),animations:'disabled'});
+  results.push({interaction:'monster-locale-switch',englishLocaleCalls,chineseLocaleCalls});
+  await monsterPage.close();
   const denied=await page.evaluate(async()=>{
    const result=[];
    for(const name of ['auth_login','auth_activate','auth_logout','profile_instance_start','map_scan_start','call_lua']) {

@@ -17,13 +17,23 @@
     if (theme) localStorage.setItem('lwbridge.theme', theme);
     const clone = value => value == null ? value : structuredClone(value);
     const types = ['city', 'resource', 'monster', 'truck', 'railway', 'dispatch', 'ghost', 'treasure'];
+    const monsterLocaleFixture = query.get('fixture') === 'monster-locale';
+    const fixtureServerId = monsterLocaleFixture ? 9001 : 0;
+    const fixtureMonsterRows = [
+        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-a', pointIndex: 1, x: 101, y: 202, monsterNameKey: 'fixture.monster.alpha', level: 7, distanceFromHome: 12, updatedAt: 1_700_000_000_000},
+        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-b', pointIndex: 2, x: 303, y: 404, monsterNameKey: 'fixture.monster.beta', level: 9, distanceFromHome: 34, updatedAt: 1_700_000_001_000}
+    ];
+    const fixtureMonsterTranslations = {
+        en: {'fixture.monster.alpha': 'Fixture Monster Alpha', 'fixture.monster.beta': 'Fixture Monster Beta'},
+        'zh-CN': {'fixture.monster.alpha': '测试怪物甲', 'fixture.monster.beta': '测试怪物乙'}
+    };
     const calls = [];
     const failures = [];
     const listeners = new Map();
     const pending = new Map();
 
     const fixtureScanState = {
-        serverId: 0, serverIdSource: 'none', scanRunId: '', isReading: false,
+        serverId: fixtureServerId, serverIdSource: monsterLocaleFixture ? 'fixture' : 'none', scanRunId: '', isReading: false,
         phase: 'idle', selectedTypes: types, totalBlocks: 0, readBlocks: 0,
         unreadBlocks: 0, failedBlocks: 0, inflightBlocks: 0, scanMode: 'normal',
         concurrency: 8, retryCount: 2, scanRate: 0, progressPercent: 0,
@@ -31,6 +41,7 @@
         homeServerId: 0, seasonServerIds: [], truckMatchServerIds: []
     };
     const fixtureCounts = Object.fromEntries(types.map(key => [key, 0]));
+    if (monsterLocaleFixture) fixtureCounts.monster = fixtureMonsterRows.length;
     const fixtureDefaults = {
         status: {xluaOnline: false, pending: 0, config: {auto_weekend_shield: true, auto_attack_shield: true, auto_force_update_reload: false, auto_close_popup: false, tasks: {}}},
         hotkeys: Object.fromEntries(['attack', 'recall', 'shieldOverlay', 'shieldUse', 'equipment', 'randomRelocate', 'allianceRelocate', 'frontlineReinforce', 'attackMarchSpeedupItem', 'attackMarchSpeedupDiamond'].map(key => [key, false])),
@@ -51,9 +62,16 @@
         automation_status: () => ({tasks: {}}),
         resource_automation_status: () => ({tasks: Object.fromEntries(['buildingResources', 'armedTruckReward'].map(key => [key, {enabled: false, intervalMinutes: 60}]))}),
         map_scan_status: () => fixtureScanState,
-        map_summary: () => ({serverId: 0, counts: fixtureCounts, scanState: fixtureScanState}),
-        map_data_options: () => ({serverId: 0, alliances: [], names: {}, dispatchLevels: [], counts: fixtureCounts, rewardItems: {}, treasureTypes: [], noAllianceCount: 0, scanProgress: null}),
-        map_search: () => ({rows: [], total: 0}),
+        map_summary: () => ({serverId: fixtureServerId, counts: fixtureCounts, scanState: fixtureScanState}),
+        map_data_options: () => ({
+            serverId: fixtureServerId,
+            alliances: [],
+            names: {resource: [], monster: monsterLocaleFixture ? fixtureMonsterRows.map(row => ({key: row.monsterNameKey})) : []},
+            dispatchLevels: [], counts: fixtureCounts, rewardItems: {}, treasureTypes: [], noAllianceCount: 0, scanProgress: null
+        }),
+        map_search: payload => monsterLocaleFixture && payload?.kind === 'monster'
+            ? ({rows: fixtureMonsterRows, total: fixtureMonsterRows.length})
+            : ({rows: [], total: 0}),
         map_plunder_jobs_list: () => ({dispatchJobs: [], truckJobs: []}),
         map_treasure_claim_status: () => ({running: false, jobs: []}),
         hotkey_config_get: () => fixtureState.hotkeys,
@@ -66,7 +84,11 @@
         city_layout_apply_status: () => ({state: 'idle'}),
         vip18_base_config_get: () => fixtureState.vip,
         vip18_base_list: () => ({items: []}),
-        lastwar_localize: () => ({}),
+        lastwar_localize: payload => {
+            if (!monsterLocaleFixture) return {};
+            const requested = fixtureMonsterTranslations[payload?.language] || fixtureMonsterTranslations.en;
+            return Object.fromEntries((payload?.keys || []).map(key => [key, requested[key] || fixtureMonsterTranslations.en[key] || key]));
+        },
         update_status: () => fixtureUpdate,
         profile_instance_status: () => null
     };
@@ -141,7 +163,7 @@
     }
 
     async function fixtureInvoke(command, payload = {}) {
-        if (Object.hasOwn(fixtureReads, command)) return clone(fixtureReads[command]());
+        if (Object.hasOwn(fixtureReads, command)) return clone(fixtureReads[command](payload));
         if (command === 'append_log' || command === 'set_window_theme') return null;
         if (command === 'server_jump_history_import' || command === 'server_jump_history_set') return clone(payload.history || []);
         const configKey = {hotkey_config_save: 'hotkeys', visual_metrics_config_save: 'metrics', equipment_config_save: 'equipment', vip18_base_config_save: 'vip'}[command];

@@ -145,6 +145,16 @@ def build(check=False):
             search_button = '(0,D.jsx)(`button`,{onClick:()=>{z===1?er(1):B(1)},children:C(`common.search`)})'
             s = replace_once(s, search_button,
                 '(0,D.jsx)(`button`,{onClick:()=>{if(L<=0){yn({code:`MAP_SAVED_CONTEXT_UNAVAILABLE`});return}z===1?er(1):B(1)},children:C(`common.search`)})')
+            # LWB-R7-009: preserve owner scan-content selection while stopped.
+            # The backend's stopped-state default must not overwrite the local
+            # checkbox choice; also keep at least one selected Manual type.
+            s = replace_once(s, 'selectedTypes:[...O],totalBlocks:0',
+                'selectedTypes:[`city`],totalBlocks:0')
+            s = replace_once(s,
+                '(0,b.useEffect)(()=>{Ge(tt(w.selectedTypes))},[w.selectedTypes])',
+                '(0,b.useEffect)(()=>{w.isReading&&Ge(tt(w.selectedTypes))},[w.isReading,w.selectedTypes])')
+            s = replace_once(s, 'disabled:!e.enabled,checked:We.includes(e.key)',
+                'disabled:!e.enabled||We.length===1&&We[0]===e.key,checked:We.includes(e.key)')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

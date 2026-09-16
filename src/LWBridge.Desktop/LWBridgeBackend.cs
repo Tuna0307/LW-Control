@@ -28,6 +28,7 @@ internal sealed class LWBridgeBackend
     private readonly INativeAsyncCommandService? asyncCommands;
     private readonly OverviewLifecycleService? overviewLifecycle;
     private readonly MapDataStore? mapData;
+    private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
 
     public LWBridgeBackend(
@@ -35,12 +36,14 @@ internal sealed class LWBridgeBackend
         INativeAsyncCommandService? asyncCommands = null,
         MapDataStore? mapData = null,
         int? firstLiveResultServerId = null,
-        OverviewLifecycleService? overviewLifecycle = null)
+        OverviewLifecycleService? overviewLifecycle = null,
+        LastWarLocaleService? lastWarLocales = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
         this.overviewLifecycle = overviewLifecycle;
         this.mapData = mapData;
+        this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
         this.firstLiveResultServerId = firstLiveResultServerId;
         installation = new(this.config);
     }
@@ -310,7 +313,7 @@ internal sealed class LWBridgeBackend
             case "set_window_theme":
                 return null;
             case "lastwar_localize":
-                return new Dictionary<string, string>();
+                return lastWarLocales.Localize(payload);
             case "local_config_get":
                 return new
                 {
