@@ -306,12 +306,14 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 bulkCalls++;
+                Check(fields["homeTileX"] == "230" && fields["homeTileY"] == "257",
+                    "fast full-Monster source must pass the authoritative player home/base tile into every live distance capture");
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x == 25 && y == 75) return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000001", false));
-                if (x == 975 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", true));
+                if (x == 25 && y == 75) return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000001", true));
+                if (x == 975 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", false));
                 return ProvenFastMonsterBatch(fields);
             });
-        MapScanExecutionRequest request = Request("monster", 1000, 1000, worldId: 0);
+        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
@@ -325,6 +327,7 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Monster source did not preserve the authoritative name key");
         Check(first.Distance == 12.5 && first.ShieldEndTime == 2_000_000_000_000L &&
               first.DataJson.Contains("\"distanceFromHome\":12.5", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"zMBossId\":7001", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"shieldEndTime\":2000000000000", StringComparison.Ordinal),
             "fast full-Monster source should persist game-derived distance and zombie shield deadline");
     }
@@ -847,6 +850,10 @@ internal static class CurrentClientMapBlockSourceChecks
             configType = monster.Boss ? 7 : 1, configSpecial = 0, configBoss = monster.Boss ? 1 : 0,
             hp = 1, maxHp = 1, createTime = 1L, refreshTime = 2L, expireTime = 0L,
             distanceFromHome = monster.Uuid == "m-first" ? 12.5 : 34.5,
+            zMBossId = monster.Boss ? 7001 : 0,
+            zMBossStage = monster.Boss ? 2 : 0,
+            zMBossShieldHp = monster.Boss ? 1_000L : 0L,
+            zMBossShieldMaxHp = monster.Boss ? 2_000L : 0L,
             zMBossShieldEndTime = monster.Uuid == "m-first" ? 2_000_000_000_000L : 0L,
             isMonster = !monster.Boss, isBoss = monster.Boss, isOrdinaryBoss = monster.Boss,
             isWanderMonster = false, isWanderBoss = false, isZombieRushAltered = false,

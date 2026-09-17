@@ -1,5 +1,7 @@
 # Next delivery - Map Data shared scan engine first
 
+Owner Monster follow-up, 2026-09-17: `LWB-R7-017` is the current owner-test candidate before Railway/Train resumes. Monster Remaining is a rebuild-only usability extension because immutable 0.3.1 has no such Monster column; it is sourced only from current-v17 `ZMBossInfo.shieldEndTime`. Level choices are now `5,10,15,...` with `<= selectedMaximum` semantics. Distance is explicitly from the player's authoritative base/home tile via game-owned `WorldScene.TileDistance`. Fresh ordinary current-v17 Monster Start completed 2,500/2,500 with zero failed/unread and Distance on all 12,017 published/reopened rows. The population contained zero `ZMBossInfo` / shield deadlines, so `-` is truthful until a shielded Zombie Boss appears. Release builds, deterministic checks and 36 browser checks pass.
+
 Owner priority change, 2026-09-13. This is the active sequencing instruction and supersedes the former category-by-category "Resource next" interpretation. It does not mark any unfinished feature complete or override operation-specific restrictions.
 
 ## Architectural direction agreed with the owner

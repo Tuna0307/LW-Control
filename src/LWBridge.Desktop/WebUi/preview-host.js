@@ -20,7 +20,7 @@
     const monsterLocaleFixture = query.get('fixture') === 'monster-locale';
     const fixtureServerId = monsterLocaleFixture ? 9001 : 0;
     const fixtureMonsterRows = [
-        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-a', pointIndex: 1, x: 101, y: 202, monsterNameKey: 'fixture.monster.alpha', level: 7, shieldEndTime: Date.now() + 190_000, distanceFromHome: 12, updatedAt: 1_700_000_000_000},
+        {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-a', pointIndex: 1, x: 101, y: 202, monsterNameKey: 'fixture.monster.alpha', level: 5, shieldEndTime: Date.now() + 190_000, distanceFromHome: 12, updatedAt: 1_700_000_000_000},
         {kind: 'monster', serverId: fixtureServerId, recordKey: 'fixture-monster-b', pointIndex: 2, x: 303, y: 404, monsterNameKey: 'fixture.monster.beta', level: 9, shieldEndTime: 0, distanceFromHome: 34, updatedAt: 1_700_000_001_000}
     ];
     const fixtureMonsterTranslations = {

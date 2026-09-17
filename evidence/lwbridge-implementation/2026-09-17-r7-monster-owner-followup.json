@@ -1,0 +1,68 @@
+{
+  "findingId": "LWB-R7-017",
+  "date": "2026-09-17",
+  "status": "LIVE-PROVEN current-v17 full Monster acquisition/base-relative Distance; IMPLEMENTED/OFFLINE-TESTED five-level maximum buckets and shield-only Remaining",
+  "baseCommit": "073660e",
+  "referenceFrontendSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+  "currentClientAssemblyCSharpRdlSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+  "originalFrontendFinding": {
+    "monsterColumns": ["Coordinate", "Name", "Level", "Distance", "Updated"],
+    "remainingColumnPresent": false,
+    "levelFilterPresent": false,
+    "interpretation": "Remaining and level filtering are rebuild usability policy, not claimed original 0.3.1 UI parity."
+  },
+  "currentClientRecovery": {
+    "worldMarchField": "ZMBossInfo zMBossInfo",
+    "zMBossInfoFields": ["zMBossId", "stage", "nextStageTime", "transferEndTime", "bossSrcServer", "shieldHp", "shieldMaxHp", "shieldEndTime", "frenzyEndTime", "frenzyDuration"],
+    "remainingSource": "zMBossInfo.shieldEndTime only",
+    "distanceSource": "WorldScene.TileDistance(homeTile, monsterTile)",
+    "homeTileSource": "CS.GameEntry.Data.Player.PlayerWorldPointId with WorldPointManager.GetMyPointInfo().pointIndex fallback"
+  },
+  "implementation": {
+    "levelChoices": "Any Level plus 5,10,15,... through the smallest five-level bucket covering the maximum source-backed observed Monster level",
+    "levelPredicate": "level <= selected maximum",
+    "remaining": "positive future shieldEndTime renders HH:MM:SS and ticks locally; absent/nonpositive/expired renders '-'",
+    "collector": "normal xLua zMBossInfo field getter with reflected same-field fallback; no generic endTime/nextStageTime substitution",
+    "distanceRegression": "deterministic full-Monster batch requires authoritative homeTileX/homeTileY on every live request"
+  },
+  "liveProof": {
+    "totalBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedMonsterCount": 12017,
+    "reopenedMonsterCount": 12017,
+    "scanMode": "normal",
+    "concurrency": 8,
+    "scanWallSeconds": 86.8188584,
+    "distanceCount": 12017,
+    "minDistance": 2.0,
+    "maxDistance": 1055.8356933594,
+    "zMBossInfoCount": 0,
+    "shieldDeadlineCount": 0,
+    "activeShieldDeadlineCount": 0,
+    "privacy": "aggregate-only; no Monster UUID, coordinate, player identity, session ID or challenge ID committed"
+  },
+  "validation": {
+    "desktopReleaseBuild": "0 warnings / 0 errors",
+    "checksReleaseBuild": "0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; six deterministic groups true; failures=[]",
+    "frontendGeneratorCheck": "passed",
+    "javascriptSyntax": "passed",
+    "browserChecks": 36,
+    "gitDiffCheckBeforeDocs": "passed"
+  },
+  "limits": [
+    "The successful live population contained no ZMBossInfo row, so an active positive shield countdown is not live-positive-proven in this checkpoint.",
+    "A current UI test performed while no shielded Zombie Boss is present should truthfully show '-' in Remaining.",
+    "Monster counts and scan wall time are dynamic observations, not invariants."
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js": "a92c7ff2db9d940421e64e24b69373d64ee2d1fb33afb1325e71e79355423a06",
+    "src/LWBridge.Desktop/WebUi/preview-host.js": "193596037219fa61ed4cb309b4bff47351520bbe17584490418da663b4aefce1",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "fc79be6f86d2a414aef5e4a9aec2f5995bd6ed53f131d576c9763dd21b376bcb",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullMonsterProof.cs": "4b13e30bd11a40b3231e3a7876d9f42d1db940bdfbfdfce0f205fc534600a324",
+    "tools/build_lwbridge_frontend.py": "b481b3b0d26a01edb02cdb0c2326f6104577f399bbcd926413b86c9b41b22665",
+    "tools/check_lwbridge_frontend.cjs": "6b19c1fc8d1e600725172ea1c3cec8e8ffd5e499a0efff25c4636f8c9a788cc6",
+    "tools/current_live_resource_probe.lua": "5d5a05fddfe19f1847dffa3c4a5274cd50bdaa0e0ca70d18456122473f4abaac"
+  }
+}

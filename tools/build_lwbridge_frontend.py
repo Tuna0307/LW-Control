@@ -166,11 +166,16 @@ def build(check=False):
                 '(0,b.useEffect)(()=>{w.isReading&&Ge(tt(w.selectedTypes))},[w.isReading,w.selectedTypes])')
             s = replace_once(s, 'disabled:!e.enabled,checked:We.includes(e.key)',
                 'disabled:!e.enabled||We.length===1&&We[0]===e.key,checked:We.includes(e.key)')
-            # LWB-R7-014 IMPLEMENTATION POLICY: owner-reviewed Monster usability pass.
+            # LWB-R7-014 / R7-017 IMPLEMENTATION POLICY: owner-reviewed Monster usability pass.
             # The rebuild adds an inclusive maximum-level selector, localized-name keyword
             # resolution, and a shield-only Remaining countdown from ZMBossInfo.shieldEndTime.
+            # R7-017 presents the maximum-level choices in source-bounded increments of five
+            # (5, 10, 15, ...) while keeping the backend predicate as level <= selected max.
             # These additions are anchored to the immutable 0.3.1 panel; the original
             # recovered Monster table did not itself expose a Remaining column/level filter.
+            s = replace_once(s,
+                'function Ge(e){return[`gatherMarchUuid`,`gatherUid`].some(t=>{let n=String(k(e,t)||``).trim();return n!==``&&n!==`0`})}',
+                'function Ge(e){return[`gatherMarchUuid`,`gatherUid`].some(t=>{let n=String(k(e,t)||``).trim();return n!==``&&n!==`0`})}function monsterLevelSteps(e){let t=(Array.isArray(e)?e:[]).map(Number).filter(Number.isFinite),n=t.length?Math.max(...t):0;return n>0?Array.from({length:Math.ceil(n/5)},(e,t)=>(t+1)*5):[]}')
             s = replace_once(s,
                 '[Wt,Gt]=(0,b.useState)(``),[Kt,qt]=(0,b.useState)(Re)',
                 '[Wt,Gt]=(0,b.useState)(``),[monsterLevels,setMonsterLevels]=(0,b.useState)([]),[monsterLevel,setMonsterLevel]=(0,b.useState)(``),[Kt,qt]=(0,b.useState)(Re)')
@@ -182,13 +187,13 @@ def build(check=False):
                 'ut(t.alliances),ft(t.names),mt(t.dispatchLevels),setMonsterLevels(Array.isArray(t.monsterLevels)?t.monsterLevels:[]),gt(t.counts)')
             s = replace_once(s,
                 'Gt(e=>!e||t.dispatchLevels.includes(Number(e))?e:``),zt(e=>!e||t.treasureTypes.some(t=>t.key===e)?e:``)',
-                'Gt(e=>!e||t.dispatchLevels.includes(Number(e))?e:``),setMonsterLevel(e=>!e||Array.isArray(t.monsterLevels)&&t.monsterLevels.includes(Number(e))?e:``),zt(e=>!e||t.treasureTypes.some(t=>t.key===e)?e:``)')
+                'Gt(e=>!e||t.dispatchLevels.includes(Number(e))?e:``),setMonsterLevel(e=>!e||monsterLevelSteps(t.monsterLevels).includes(Number(e))?e:``),zt(e=>!e||t.treasureTypes.some(t=>t.key===e)?e:``)')
             s = replace_once(s,
                 'mt([]),gt(ve),vt(!0)',
                 'mt([]),setMonsterLevels([]),setMonsterLevel(``),gt(ve),vt(!0)')
             s = replace_once(s,
                 'F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)',
-                'F===`monster`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.level`),value:monsterLevel,onChange:e=>{setMonsterLevel(e.target.value),B(1)},children:[(0,D.jsx)(`option`,{value:``,children:C(`squad.afkAnyLevel`)}),monsterLevels.map(e=>(0,D.jsx)(`option`,{value:e,children:e},e))]}),F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)')
+                'F===`monster`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.level`),value:monsterLevel,onChange:e=>{setMonsterLevel(e.target.value),B(1)},children:[(0,D.jsx)(`option`,{value:``,children:C(`squad.afkAnyLevel`)}),monsterLevelSteps(monsterLevels).map(e=>(0,D.jsx)(`option`,{value:e,children:e},e))]}),F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)')
             s = replace_once(s,
                 'minLevel:n===`dispatch`&&Wt?Number(Wt):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):void 0',
                 'monsterNameKeys:n===`monster`&&I.trim()?dt.monster.filter(e=>String(j(Xt,e.key,e.key)).toLocaleLowerCase().includes(I.trim().toLocaleLowerCase())).map(e=>e.key):void 0,minLevel:n===`dispatch`&&Wt?Number(Wt):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):n===`monster`&&monsterLevel?Number(monsterLevel):void 0')
@@ -200,7 +205,7 @@ def build(check=False):
                 'function L(e,t,n,r,i,a,c){')
             s = replace_once(s,
                 'e===`monster`?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]',
-                'e===`monster`?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`automation.remaining`),width:`110px`,value:e=>{let t=P(k(e,`shieldEndTime`)??k(e,`zMBossShieldEndTime`));return t?Ke(Math.max(0,t-c)):`-`}},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]')
+                'e===`monster`?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`automation.remaining`),width:`110px`,value:e=>{let t=P(k(e,`shieldEndTime`)??k(e,`zMBossShieldEndTime`));return t&&t>c?Ke(t-c):`-`}},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]')
             s = replace_once(s,
                 '()=>L(e,g,h,r,i,d),[r,i,e,h,g,d]',
                 '()=>L(e,g,h,r,i,d,a),[r,i,e,h,g,d,a]')

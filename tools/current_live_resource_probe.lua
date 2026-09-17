@@ -1423,6 +1423,12 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
                             local ok_template, value = call(template_manager, "TryGetMonsterTemplate", monster_id)
                             if ok_template then template = value end
                         end
+                        -- Current-v17 Assembly-CSharp.rdl type 1700 proves WorldMarch.zMBossInfo
+                        -- is a ZMBossInfo carrying the Zombie Boss stage/shield fields. Prefer the
+                        -- normal xLua field getter, then the reflected field, and never substitute
+                        -- generic march endTime/nextStageTime for shieldEndTime.
+                        local zm_boss_info = safe_get(march, "zMBossInfo")
+                        if zm_boss_info == nil then zm_boss_info = reflected_value(march, "zMBossInfo") end
                         records[#records + 1] = {
                             uuid = tostring(scalar_field(march, { "uuid", "Uuid" }) or ""),
                             kind = "monster", runtimeClass = reflected_type_name(march),
@@ -1451,11 +1457,14 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
                             actEndTime = scalar_field(march, { "actEndTime", "ActEndTime" }),
                             startTime = scalar_field(march, { "startTime", "StartTime" }),
                             endTime = scalar_field(march, { "endTime", "EndTime" }),
-                            zMBossStage = scalar_field(safe_get(march, "zMBossInfo"), { "stage", "Stage" }),
-                            zMBossNextStageTime = scalar_field(safe_get(march, "zMBossInfo"), { "nextStageTime", "NextStageTime" }),
-                            zMBossTransferEndTime = scalar_field(safe_get(march, "zMBossInfo"), { "transferEndTime", "TransferEndTime" }),
-                            zMBossShieldEndTime = scalar_field(safe_get(march, "zMBossInfo"), { "shieldEndTime", "ShieldEndTime" }),
-                            zMBossFrenzyEndTime = scalar_field(safe_get(march, "zMBossInfo"), { "frenzyEndTime", "FrenzyEndTime" }),
+                            zMBossId = integer_field(zm_boss_info, { "zMBossId", "ZMBossId" }),
+                            zMBossStage = scalar_field(zm_boss_info, { "stage", "Stage" }),
+                            zMBossNextStageTime = scalar_field(zm_boss_info, { "nextStageTime", "NextStageTime" }),
+                            zMBossTransferEndTime = scalar_field(zm_boss_info, { "transferEndTime", "TransferEndTime" }),
+                            zMBossShieldHp = scalar_field(zm_boss_info, { "shieldHp", "ShieldHp" }),
+                            zMBossShieldMaxHp = scalar_field(zm_boss_info, { "shieldMaxHp", "ShieldMaxHp" }),
+                            zMBossShieldEndTime = scalar_field(zm_boss_info, { "shieldEndTime", "ShieldEndTime" }),
+                            zMBossFrenzyEndTime = scalar_field(zm_boss_info, { "frenzyEndTime", "FrenzyEndTime" }),
                             eventId = scalar_field(march, { "eventId", "EventId" }),
                             zombieRushId = integer_field(march, { "zombieRushId", "ZombieRushId" }) or 0,
                             zombieRushRound = integer_field(march, { "zombieRushRound", "ZombieRushRound" }) or 0,

@@ -1,6 +1,16 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current superseding checkpoint - LWB-R7-016, 2026-09-17
+## Current superseding owner follow-up - LWB-R7-017, 2026-09-17
+
+Monster owner follow-up is complete. The immutable LWBridge 0.3.1 Monster table was rechecked and contains Coordinate, Name, Level, Distance and Updated only: it has no original Remaining column and no original level filter. In the rebuild, Remaining therefore stays an explicit usability extension tied only to current-v17 `WorldMarch.zMBossInfo.shieldEndTime`; the current `ZMBossInfo` type was statically recovered with real `shieldHp`, `shieldMaxHp`, `shieldEndTime` and related stage fields. Generic march `endTime` and `nextStageTime` are not substituted. The collector now prefers the normal xLua `zMBossInfo` field getter with a reflected same-field fallback.
+
+The Monster level selector now presents `Any Level`, then `5, 10, 15, ...` through the smallest five-level bucket covering the observed source-backed maximum Monster level; selection remains an inclusive maximum (`10` means `level <= 10`). Distance remains game-owned `WorldScene.TileDistance(homeTile, monsterTile)`, where `homeTile` comes from the player's authoritative base/home world point (`CS.GameEntry.Data.Player.PlayerWorldPointId`, with `WorldPointManager.GetMyPointInfo().pointIndex` fallback). A new deterministic regression requires that home tile on every full-Monster request.
+
+Fresh current-v17 ordinary Monster Manual Start completed all 2,500 logical blocks with zero failed/unread blocks in 86.819 s Normal, published 12,017 rows, reopened exactly 12,017, and all 12,017 carried Distance (`min=2`, `max=1055.8356933594`). This live population contained zero `ZMBossInfo` rows / shield deadlines, so an active shield countdown is not fabricated or claimed; Remaining truthfully shows `-` until a shielded Zombie Boss is actually present. Release builds are 0-warning/0-error, deterministic suite `ok=true`, and all 36 browser checks pass. Evidence: `2026-09-17-r7-monster-owner-followup.json`.
+
+**Next after owner retest:** Railway/Train, then Dispatch/Secret Task, Ghost Ops and Treasure on the shared scanner.
+
+## Prior checkpoint - LWB-R7-016, 2026-09-17
 
 Truck is now LIVE-PROVEN through the same ordinary Manual Start engine as City, Monster and Resource. Current-v17 Truck-only Start completed all 2,500 logical blocks with zero failures/unread blocks in 71.321 s Normal, published 175 Truck rows, and reopened exactly 175. All 175 carried source-backed Truck type, quality, power, train config and raw train data; all 175 also exposed the newly proven normalization `trainDataJson.arriveTime -> arriveTs` and `trainDataJson.marchInfo.robTimes -> robTimes`. The dynamic count is not an invariant. Evidence is aggregate-only: `2026-09-17-r7-truck-full-manual.json`.
 

@@ -23,7 +23,9 @@ internal static class LiveManualFullMonsterProof
         int publishedMonsterCount = 0;
         int reopenedMonsterCount = 0;
         int distanceCount = 0;
+        int zMBossInfoCount = 0;
         int shieldDeadlineCount = 0;
+        int activeShieldDeadlineCount = 0;
         double? minDistance = null;
         double? maxDistance = null;
         long? minShieldDeadline = null;
@@ -105,7 +107,8 @@ internal static class LiveManualFullMonsterProof
                 publishedMonsterCount = store.SearchIndexed(MonsterQuery(serverId)).Total;
                 if (publishedMonsterCount <= 0)
                     throw new InvalidDataException("Ordinary Manual Monster scan published no Monster records.");
-                CollectMonsterMetrics(store, serverId, out distanceCount, out shieldDeadlineCount,
+                CollectMonsterMetrics(store, serverId, out distanceCount, out zMBossInfoCount,
+                    out shieldDeadlineCount, out activeShieldDeadlineCount,
                     out minDistance, out maxDistance, out minShieldDeadline, out maxShieldDeadline);
                 }
                 finally
@@ -131,7 +134,9 @@ internal static class LiveManualFullMonsterProof
                 distanceCount,
                 minDistance,
                 maxDistance,
+                zMBossInfoCount,
                 shieldDeadlineCount,
+                activeShieldDeadlineCount,
                 minShieldDeadline,
                 maxShieldDeadline,
             }, JsonOptions.Default));
@@ -166,11 +171,13 @@ internal static class LiveManualFullMonsterProof
 
 
     private static void CollectMonsterMetrics(
-        MapDataStore store, int serverId, out int distanceCount, out int shieldDeadlineCount,
+        MapDataStore store, int serverId, out int distanceCount, out int zMBossInfoCount,
+        out int shieldDeadlineCount, out int activeShieldDeadlineCount,
         out double? minDistance, out double? maxDistance, out long? minShieldDeadline, out long? maxShieldDeadline)
     {
-        distanceCount = 0; shieldDeadlineCount = 0;
+        distanceCount = 0; zMBossInfoCount = 0; shieldDeadlineCount = 0; activeShieldDeadlineCount = 0;
         minDistance = null; maxDistance = null; minShieldDeadline = null; maxShieldDeadline = null;
+        long nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         int page = 1; int observed = 0; int expectedTotal = -1;
         while (true)
         {
@@ -185,9 +192,13 @@ internal static class LiveManualFullMonsterProof
                     minDistance = minDistance is null ? d : Math.Min(minDistance.Value, d);
                     maxDistance = maxDistance is null ? d : Math.Max(maxDistance.Value, d);
                 }
+                if (row.TryGetProperty("zMBossId", out JsonElement zMBossId) && zMBossId.TryGetInt32(out int bossId) && bossId > 0)
+                    zMBossInfoCount++;
                 if (row.TryGetProperty("shieldEndTime", out JsonElement shield) && shield.TryGetInt64(out long deadline) && deadline > 0)
                 {
                     shieldDeadlineCount++;
+                    long deadlineMs = deadline < 1_000_000_000_000L ? checked(deadline * 1000L) : deadline;
+                    if (deadlineMs > nowMs) activeShieldDeadlineCount++;
                     minShieldDeadline = minShieldDeadline is null ? deadline : Math.Min(minShieldDeadline.Value, deadline);
                     maxShieldDeadline = maxShieldDeadline is null ? deadline : Math.Max(maxShieldDeadline.Value, deadline);
                 }
