@@ -134,6 +134,7 @@ internal sealed partial class CurrentClientMapBlockSource
         var cityRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
         var resourceRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
         var monsterRecords = new Dictionary<string, FastMonsterPrepared>(StringComparer.Ordinal);
+        var truckRecords = new Dictionary<string, FastTrainPrepared>(StringComparer.Ordinal);
         for (int row = 0; row < FastFullWorldRowRequests; row++)
         {
             int groupStartRow = row * FastCityGroupRows;
@@ -188,6 +189,12 @@ internal sealed partial class CurrentClientMapBlockSource
                         prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
                         monsterRecords[prepared.Record.RecordKey] = prepared;
                 }
+                foreach (FastTrainPrepared prepared in observation.Trains.Where(item => item.Record.Kind == "truck"))
+                {
+                    if (!truckRecords.TryGetValue(prepared.Record.RecordKey, out FastTrainPrepared? prior) ||
+                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
+                        truckRecords[prepared.Record.RecordKey] = prepared;
+                }
                 progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
             }
         }
@@ -204,6 +211,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 AddRecordToBlock(buckets, item.Import.X, item.Import.Y, item.Record);
         if (request.SelectedTypes.Contains("monster", StringComparer.Ordinal))
             foreach (FastMonsterPrepared item in monsterRecords.Values)
+                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
+        if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
+            foreach (FastTrainPrepared item in truckRecords.Values)
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         Dictionary<int, MapStoredRecord[]> recordsByBlock = buckets.ToDictionary(
             pair => pair.Key, pair => pair.Value.ToArray());
@@ -226,8 +236,8 @@ internal sealed partial class CurrentClientMapBlockSource
     }
 
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count is >= 1 and <= 3 &&
-        request.SelectedTypes.All(type => type is "city" or "resource" or "monster") &&
+        request.SelectedTypes.Count is >= 1 and <= 4 &&
+        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "truck") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
     private async Task<FastCityBatchObservation> ProbeFastCityBatchAsync(
         OverviewMapScanSession session,
@@ -261,6 +271,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"includeMonster={request.SelectedTypes.Contains("monster", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            $"includeTrain={request.SelectedTypes.Contains("truck", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -311,7 +322,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesString(root, "challenge", session.Challenge) ||
             !MatchesInt(root, "gamePid", session.GamePid) ||
             !MatchesString(root, "requestMode", "coverage") ||
-            !MatchesBool(root, "includeMonster", request.SelectedTypes.Contains("monster", StringComparer.Ordinal)))
+            !MatchesBool(root, "includeMonster", request.SelectedTypes.Contains("monster", StringComparer.Ordinal)) ||
+            !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesInt(root, "requestedCount", 8) ||
             !MatchesInt(root, "holdMilliseconds", 0) ||
@@ -379,7 +391,10 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FastMonsterPrepared> monsters = request.SelectedTypes.Contains("monster", StringComparer.Ordinal)
             ? PrepareMonsterRecords(root, request, requestedSet, startedAt)
             : Array.Empty<FastMonsterPrepared>();
-        return new FastCityBatchObservation(requestedIndices, prepared, resources, monsters);
+        IReadOnlyList<FastTrainPrepared> trains = request.SelectedTypes.Contains("truck", StringComparer.Ordinal)
+            ? PrepareTrainRecords(root, request, requestedSet, startedAt)
+            : Array.Empty<FastTrainPrepared>();
+        return new FastCityBatchObservation(requestedIndices, prepared, resources, monsters, trains);
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
     {
@@ -392,6 +407,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 AddRecordToBlock(buckets, item.Import.X, item.Import.Y, item.Record);
         if (request.SelectedTypes.Contains("monster", StringComparer.Ordinal))
             foreach (FastMonsterPrepared item in observation.Monsters)
+                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
+        if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
+            foreach (FastTrainPrepared item in observation.Trains.Where(item => item.Record.Kind == "truck"))
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         return buckets.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
     }
@@ -444,6 +462,89 @@ internal sealed partial class CurrentClientMapBlockSource
         return result;
     }
 
+    private static IReadOnlyList<FastTrainPrepared> PrepareTrainRecords(JsonElement root, MapScanExecutionRequest request, HashSet<int> requestedSet, DateTimeOffset capturedAt)
+    {
+        if (!root.TryGetProperty("train_march_records", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("Fast world batch is missing its Train march snapshot.");
+        var result = new List<FastTrainPrepared>(rows.GetArrayLength());
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            TrainDataMetadata trainData = ReadTrainDataMetadata(row);
+            int? trainType = OptionalInt(row, "trainType") ?? trainData.Type;
+            if (trainType is null) continue; // unclassifiable train rows stay unknown rather than becoming Truck.
+            if (trainType.Value != 1) continue; // current-v17 TrainType.Truck = 1; railway is handled separately.
+            string uuid = RequiredString(row, "uuid");
+            int serverId = RequiredInt(row, "serverId");
+            int worldId = RequiredInt(row, "worldId");
+            int x = RequiredInt(row, "x");
+            int y = RequiredInt(row, "y");
+            int quality = RequiredInt(row, "trainQuality");
+            if (serverId != request.ServerId || worldId != request.WorldId ||
+                x < 0 || x >= 1000 || y < 0 || y >= 1000 || quality < 1)
+                throw new InvalidDataException("Fast world Truck snapshot contained invalid identity/geometry/quality data.");
+            int aoiIndex = checked((y / FastCityAoiBlockSize) * FastCityAoiBlockCount + (x / FastCityAoiBlockSize));
+            if (!requestedSet.Contains(aoiIndex))
+                throw new InvalidDataException("Fast world Truck fell outside the native AOI footprint.");
+            long updatedAt = capturedAt.ToUnixTimeMilliseconds();
+            long? power = row.TryGetProperty("power", out JsonElement powerValue) && powerValue.TryGetInt64(out long parsedPower) && parsedPower >= 0 ? parsedPower : null;
+            string? ownerName = OptionalStringValue(row, "ownerName");
+            string? allianceName = OptionalStringValue(row, "allianceName");
+            int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
+            var data = new JsonObject
+            {
+                ["uuid"] = uuid, ["ownerName"] = ownerName, ["allianceName"] = allianceName,
+                ["quality"] = quality, ["power"] = power, ["x"] = x, ["y"] = y,
+                ["positionIndex"] = pointIndex, ["trainType"] = trainType.Value,
+                ["trainCfgId"] = RequiredInt(row, "trainCfgId"),
+                ["carriageNum"] = RequiredInt(row, "carriageNum"),
+                ["updatedAt"] = updatedAt,
+                ["source"] = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
+            };
+            if (row.TryGetProperty("trainUuid", out JsonElement trainUuidValue)) data["trainUuid"] = JsonNode.Parse(trainUuidValue.GetRawText());
+            if (row.TryGetProperty("ownerUid", out JsonElement ownerUidValue) && ownerUidValue.ValueKind == JsonValueKind.String) data["ownerUid"] = ownerUidValue.GetString();
+            if (row.TryGetProperty("allianceUid", out JsonElement allianceUidValue) && allianceUidValue.ValueKind == JsonValueKind.String) data["allianceUid"] = allianceUidValue.GetString();
+            if (row.TryGetProperty("ownerServer", out JsonElement ownerServerValue) && ownerServerValue.TryGetInt32(out int ownerServer)) data["ownerServer"] = ownerServer;
+            if (row.TryGetProperty("targetServer", out JsonElement targetServerValue) && targetServerValue.TryGetInt32(out int targetServer)) data["targetServer"] = targetServer;
+            if (row.TryGetProperty("srcServer", out JsonElement srcServerValue) && srcServerValue.TryGetInt32(out int srcServer)) data["srcServer"] = srcServer;
+            if (row.TryGetProperty("startTime", out JsonElement startValue) && startValue.TryGetInt64(out long startTime)) data["startTime"] = startTime;
+            if (row.TryGetProperty("endTime", out JsonElement endValue) && endValue.TryGetInt64(out long endTime)) data["endTime"] = endTime;
+            if (trainData.ArriveTs is long arriveTs) data["arriveTs"] = arriveTs;
+            if (trainData.RobTimes is int robTimes) data["robTimes"] = robTimes;
+            if (row.TryGetProperty("trainDataJson", out JsonElement trainDataValue) && trainDataValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(trainDataValue.GetString())) data["trainDataJson"] = trainDataValue.GetString();
+            result.Add(new FastTrainPrepared(x, y, new MapStoredRecord(
+                "truck", serverId, uuid, pointIndex, uuid, ownerName, allianceName, null, quality, power, null, null, updatedAt,
+                data.ToJsonString(JsonOptions.Default))));
+        }
+        return result;
+    }
+
+    private static int? OptionalInt(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed) ? parsed : null;
+
+    private static TrainDataMetadata ReadTrainDataMetadata(JsonElement row)
+    {
+        if (!row.TryGetProperty("trainDataJson", out JsonElement raw) || raw.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(raw.GetString()))
+            return new TrainDataMetadata(null, null, null);
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(raw.GetString()!);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object) return new TrainDataMetadata(null, null, null);
+            int? type = root.TryGetProperty("type", out JsonElement typeValue) && typeValue.TryGetInt32(out int parsedType) ? parsedType : null;
+            long? arriveTs = root.TryGetProperty("arriveTime", out JsonElement arriveValue) && arriveValue.TryGetInt64(out long parsedArrive) && parsedArrive > 0 ? parsedArrive : null;
+            int? robTimes = null;
+            if (root.TryGetProperty("marchInfo", out JsonElement marchInfo) && marchInfo.ValueKind == JsonValueKind.Object &&
+                marchInfo.TryGetProperty("robTimes", out JsonElement robValue) && robValue.TryGetInt32(out int parsedRob) && parsedRob >= 0)
+                robTimes = parsedRob;
+            return new TrainDataMetadata(type, arriveTs, robTimes);
+        }
+        catch (JsonException) { return new TrainDataMetadata(null, null, null); }
+    }
+
+    private static string? OptionalStringValue(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString())
+            ? value.GetString() : null;
+
     private static int RequiredInt(JsonElement row, string name) => row.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed) ? parsed : throw new InvalidDataException("Monster field missing: " + name);
     private static string RequiredString(JsonElement row, string name) => row.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString()) ? value.GetString()! : throw new InvalidDataException("Monster field missing: " + name);
 
@@ -471,10 +572,13 @@ internal sealed partial class CurrentClientMapBlockSource
         ];
     }
 
+    private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes);
     private sealed record FastMonsterPrepared(int X, int Y, MapStoredRecord Record);
+    private sealed record FastTrainPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastCityBatchObservation(
         int[] RequestedIndices,
         IReadOnlyList<FirstLivePreparedResource> Prepared,
         IReadOnlyList<FirstLivePreparedResource> Resources,
-        IReadOnlyList<FastMonsterPrepared> Monsters);
+        IReadOnlyList<FastMonsterPrepared> Monsters,
+        IReadOnlyList<FastTrainPrepared> Trains);
 }

@@ -1103,6 +1103,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.homeTileY = tonumber(values.homeTileY or "-1")
     local include_monster_raw = tostring(values.includeMonster or "false")
     request.includeMonster = include_monster_raw == "true"
+    local include_train_raw = tostring(values.includeTrain or "false")
+    request.includeTrain = include_train_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -1121,7 +1123,8 @@ local function read_bulk_aoi_diagnostic(now)
        request.homeTileX < -1 or request.homeTileX >= 1000 or request.homeTileY < -1 or request.homeTileY >= 1000 or
        request.homeTileX ~= math.floor(request.homeTileX) or request.homeTileY ~= math.floor(request.homeTileY) or
        ((request.homeTileX == -1) ~= (request.homeTileY == -1)) or
-       (include_monster_raw ~= "true" and include_monster_raw ~= "false") then
+       (include_monster_raw ~= "true" and include_monster_raw ~= "false") or
+       (include_train_raw ~= "true" and include_train_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -1297,6 +1300,79 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
+local function train_march_aoi_records(world, block_size, block_count, selected_lookup)
+    local march_manager = safe_get(world, "MarchDataManager")
+    if march_manager == nil then
+        local ok_manager, value = call(world, "get_MarchDataManager")
+        if ok_manager then march_manager = value end
+    end
+    if march_manager == nil then return nil, "WorldScene.MarchDataManager unavailable" end
+    local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
+    if not ok_all or collection == nil then collection = reflected_value(march_manager, "allMarches") end
+    if collection == nil then return nil, "WorldMarchDataManager.allMarches unavailable" end
+    local ok_enum, enumerator = call(collection, "GetEnumerator")
+    if not ok_enum or enumerator == nil then return nil, "march_enumerator_unavailable" end
+    local records, scanned = {}, 0
+    while scanned < MAX_POINTS do
+        local ok_move, moved = call(enumerator, "MoveNext")
+        if not ok_move then return nil, "march_enumerator_failed" end
+        if moved ~= true then break end
+        scanned = scanned + 1
+        local pair = safe_get(enumerator, "Current")
+        local march = pair and (safe_get(pair, "Value") or pair) or nil
+        local train = march and safe_get(march, "train") or nil
+        if train ~= nil then
+            local ok_index, position_index = call(march, "GetMarchCurPosIndex")
+            local index = ok_index and tonumber(position_index) or nil
+            if index == nil or index <= 0 then index = integer_field(march, { "targetPos", "TargetPos" }) end
+            local tile = index and index > 0 and index_to_tile(world, index) or nil
+            if tile ~= nil then
+                local cell_x = math.floor(tile.x / block_size)
+                local cell_y = math.floor(tile.y / block_size)
+                local aoi_index = cell_y * block_count + cell_x
+                if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and selected_lookup[aoi_index] == true then
+                    local config = safe_get(train, "config")
+                    local train_data = safe_get(train, "trainData")
+                    local train_data_json = nil
+                    if train_data ~= nil then
+                        local ok_json, value = call(train_data, "ToJson")
+                        if ok_json and value ~= nil then train_data_json = tostring(value) end
+                        if train_data_json == nil then
+                            local ok_dump, dump = call(train_data, "GetDump")
+                            if ok_dump and dump ~= nil then train_data_json = tostring(dump) end
+                        end
+                    end
+                    records[#records + 1] = {
+                        uuid = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or ""),
+                        runtimeClass = reflected_type_name(march),
+                        serverId = integer_field(march, { "serverId", "ServerId" }) or current_server_id(),
+                        worldId = integer_field(march, { "worldId", "WorldId" }) or 0,
+                        x = tile.x, y = tile.y, positionIndex = math.floor(index),
+                        ownerUid = scalar_field(march, { "ownerUid", "OwnerUid" }),
+                        ownerName = scalar_field(march, { "ownerName", "OwnerName" }),
+                        allianceUid = scalar_field(march, { "allianceUid", "AllianceUid" }),
+                        allianceName = scalar_field(march, { "allianceName", "AllianceName" }),
+                        ownerServer = integer_field(march, { "ownerServer", "OwnerServer" }),
+                        targetServer = integer_field(march, { "targetServer", "TargetServer" }),
+                        srcServer = integer_field(march, { "srcServer", "SrcServer" }),
+                        power = scalar_field(march, { "power", "Power" }),
+                        startTime = scalar_field(march, { "startTime", "StartTime" }),
+                        endTime = scalar_field(march, { "endTime", "EndTime" }),
+                        trainUuid = scalar_field(train, { "uuid", "Uuid" }),
+                        trainCfgId = integer_field(train, { "cfgId", "CfgId" }),
+                        trainType = integer_field(train, { "type", "Type" }),
+                        trainQuality = config and integer_field(config, { "quality", "Quality" }) or nil,
+                        carriageNum = config and integer_field(config, { "carriageNum", "CarriageNum" }) or nil,
+                        trainDataJson = train_data_json,
+                        source = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
+                    }
+                end
+            end
+        end
+    end
     return records, nil
 end
 
@@ -1723,7 +1799,9 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         positionRestoreElapsedSeconds = details.positionRestoreElapsedSeconds,
         point_records = details.pointRecords,
         monster_march_records = details.monsterMarchRecords,
+        train_march_records = details.trainMarchRecords,
         includeMonster = request.includeMonster == true,
+        includeTrain = request.includeTrain == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
@@ -2170,6 +2248,16 @@ local function pump_bulk_aoi_diagnostic(now)
     end
     for index = 1, #resource_records do point_records[#point_records + 1] = resource_records[index] end
     details.pointRecords = point_records
+    details.trainMarchRecords = {}
+    if bulk_aoi_request.includeTrain == true then
+        local train_records, train_records_error = train_march_aoi_records(
+            world, details.blockSize, details.blockCount, lookup)
+        if train_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, train_records_error, details, point_manager)
+            return true
+        end
+        details.trainMarchRecords = train_records
+    end
     details.monsterMarchRecords = {}
     if bulk_aoi_request.includeMonster == true then
         local home_tile = bulk_aoi_request.homeTileX >= 0 and

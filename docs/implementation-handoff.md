@@ -1,6 +1,14 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current superseding checkpoint - LWB-R7-015, 2026-09-17
+## Current superseding checkpoint - LWB-R7-016, 2026-09-17
+
+Truck is now LIVE-PROVEN through the same ordinary Manual Start engine as City, Monster and Resource. Current-v17 Truck-only Start completed all 2,500 logical blocks with zero failures/unread blocks in 71.321 s Normal, published 175 Truck rows, and reopened exactly 175. All 175 carried source-backed Truck type, quality, power, train config and raw train data; all 175 also exposed the newly proven normalization `trainDataJson.arriveTime -> arriveTs` and `trainDataJson.marchInfo.robTimes -> robTimes`. The dynamic count is not an invariant. Evidence is aggregate-only: `2026-09-17-r7-truck-full-manual.json`.
+
+Truck capture enumerates `WorldScene.MarchDataManager.GetAllMarchesByCS` inside the same 200-request / exact-10,000-AOI full-world planner. Classification uses top-level `trainType` when present and otherwise `trainDataJson.type`; unclassifiable rows stay unknown, and current-v17 type `1` is Truck. Do not guess the still-unproven recovered row fields `maxLootCount`, `protectTime`, `isSpecialURQuality`, or UI-ready `currentGoods`.
+
+**Next:** Railway/Train, then Dispatch/Secret Task, Ghost Ops and Treasure on this same scanner; then mixed/all-eight and Auto Scan. Do not add a second acquisition engine.
+
+## Prior checkpoint - LWB-R7-015, 2026-09-17
 
 Resource is now LIVE-PROVEN through the same ordinary Manual Start engine as City and Monster. Current-v17 Resource-only Start completed all 2,500 logical blocks with zero failures in 70.958 s Normal, published 442 Resource rows, and reopened exactly 442 from the persisted database. All 442 carried source-backed `resourceTypeId`, level, and known gather occupancy from current `ResPointInfo`; 71 were occupied in this live population. Resource rows are collected inside the same 200-request / exact-10,000-AOI union planner by filtering `WorldPointManager._pointInfos` point types 1/7/26 and using `GetResourcePointInfoByIndex` when available. Evidence is aggregate-only: `2026-09-17-r7-resource-full-manual.json`.
 

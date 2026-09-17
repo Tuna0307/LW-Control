@@ -34,6 +34,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastCityFullMapReturnsAllLogicalCaptures();
         await FastResourceFullMapReturnsAllLogicalCaptures();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
+        await FastTruckFullMapReturnsAllLogicalCaptures();
         await FastFullMapRejectsIncompleteMeasuredCoverage();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await MissingOwnedSessionFailsClosed();
@@ -326,6 +327,43 @@ internal static class CurrentClientMapBlockSourceChecks
               first.DataJson.Contains("\"distanceFromHome\":12.5", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"shieldEndTime\":2000000000000", StringComparison.Ordinal),
             "fast full-Monster source should persist game-derived distance and zombie shield deadline");
+    }
+
+    private static async Task FastTruckFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
+                if (x == 25 && y == 75)
+                {
+                    JsonObject root = JsonNode.Parse(ProvenFastTruckBatch(fields, ("t-first", 9, 9, 86, 3, 1, "Driver A", 4_152_318L)))!.AsObject();
+                    JsonObject row = root["train_march_records"]!.AsArray()[0]!.AsObject();
+                    row.Remove("trainType");
+                    row["trainDataJson"] = "{\"type\":1,\"arriveTime\":1789615774078,\"marchInfo\":{\"robTimes\":2}}";
+                    return root.ToJsonString(JsonOptions.Default);
+                }
+                if (x == 975 && y == 975) return ProvenFastTruckBatch(fields, ("t-last", 985, 985, 87, 5, 2, "Driver B", 9_000_000L));
+                return ProvenFastTruckBatch(fields);
+            });
+        MapScanExecutionRequest request = Request("truck", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(bulkCalls == 200 && captures.Count == 2500, "fast full-Truck source should use 200 live-measured native responses");
+        MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
+        MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
+        Check(first.Kind == "truck" && first.RecordKey == "t-first" && first.Quality == 3 && first.Power == 4_152_318L &&
+              last.Kind == "truck" && last.RecordKey == "t-last" && last.Quality == 5 && last.Power == 9_000_000L,
+            "fast full-Truck source did not preserve live train identity/quality/power at map extremes");
+        Check(first.Name == "Driver A" && first.DataJson.Contains("\"trainType\":1", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"trainCfgId\":86", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"arriveTs\":1789615774078", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"robTimes\":2", StringComparison.Ordinal),
+            "fast full-Truck source did not preserve source-backed truck metadata");
     }
 
     private static async Task FastFullMapRejectsIncompleteMeasuredCoverage()
@@ -728,12 +766,13 @@ internal static class CurrentClientMapBlockSourceChecks
             .SelectMany(row => Enumerable.Range(startCellX, 5).Select(column => row * 100 + column))
             .ToArray();
         bool includeMonster = fields.TryGetValue("includeMonster", out string? includeMonsterText) && includeMonsterText == "true";
+        bool includeTrain = fields.TryGetValue("includeTrain", out string? includeTrainText) && includeTrainText == "true";
         return JsonSerializer.Serialize(new
         {
             schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
-            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage", includeMonster,
+            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage", includeMonster, includeTrain,
             state = "proven", error = (string?)null, requestedIndices = requested,
             matchedCityCount = points.Length, matchedResourceCount = 0,
             serverLod = 0, blockSize = 10, blockCount = 100,
@@ -750,6 +789,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 level = 30, source = "WorldPointManager._pointInfos",
             }).ToArray(),
             monster_march_records = Array.Empty<object>(),
+            train_march_records = Array.Empty<object>(),
         }, JsonOptions.Default);
     }
 
@@ -769,6 +809,25 @@ internal static class CurrentClientMapBlockSourceChecks
             x = resource.X, y = resource.Y, level = resource.Level, resourceTypeId = resource.ResourceTypeId,
             resourceSourceType = "ResPointInfo", gatherOccupancyKnown = resource.OccupancyKnown,
             gatherOccupied = resource.Occupied, source = "WorldPointManager._pointInfos",
+        }).ToArray(), JsonOptions.Default);
+        return root.ToJsonString(JsonOptions.Default);
+    }
+
+    private static string ProvenFastTruckBatch(
+        IReadOnlyDictionary<string, string> fields,
+        params (string Uuid, int X, int Y, int TrainCfgId, int Quality, int CarriageNum, string OwnerName, long Power)[] trucks)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
+        root["includeTrain"] = true;
+        root["train_march_records"] = JsonSerializer.SerializeToNode(trucks.Select(truck => new
+        {
+            uuid = truck.Uuid, runtimeClass = "WorldMarch", serverId = 2212, worldId = 0,
+            x = truck.X, y = truck.Y, positionIndex = truck.Y * 1000 + truck.X + 1,
+            ownerUid = "owner-" + truck.Uuid, ownerName = truck.OwnerName, allianceName = "Alliance", ownerServer = 2212,
+            power = truck.Power, startTime = 1_789_588_788_959L, endTime = 1_789_589_236_172L,
+            trainUuid = 1_417_409_824_803_038_247L, trainCfgId = truck.TrainCfgId, trainType = 1,
+            trainQuality = truck.Quality, carriageNum = truck.CarriageNum, trainDataJson = "{}",
+            source = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
         }).ToArray(), JsonOptions.Default);
         return root.ToJsonString(JsonOptions.Default);
     }

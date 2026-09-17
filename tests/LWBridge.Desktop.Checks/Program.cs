@@ -31,6 +31,18 @@ if (args.Contains("--live-current-client-full-resource-manual", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-truck-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-monster-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullMonsterProof.RunAsync();
