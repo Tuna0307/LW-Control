@@ -9,6 +9,7 @@ internal sealed class CurrentClientMapBlockSourceHooks
     public Action<string, string>? WriteTextAtomic { get; init; }
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
+    public bool DisableCoarseMonsterMap { get; init; }
 }
 
 internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatchSource

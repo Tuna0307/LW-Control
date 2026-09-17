@@ -54,6 +54,9 @@ local bulk_aoi_native_camera = nil
 local bulk_aoi_native_touch_camera = nil
 local bulk_aoi_native_original_pos = nil
 local bulk_aoi_native_original_fov = nil
+local bulk_aoi_native_unity_camera = nil
+local bulk_aoi_native_original_aspect = nil
+local bulk_aoi_native_original_zoom = nil
 local bulk_aoi_native_hold_seconds = nil
 local bulk_aoi_native_position_restored = false
 local bulk_aoi_restore_current_view = false
@@ -1120,7 +1123,7 @@ local function read_bulk_aoi_diagnostic(now)
        request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) or
        not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
-       (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage") or
+       (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
        request.targetTileX == nil or request.targetTileY == nil or
        request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
        request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
@@ -1803,15 +1806,6 @@ local function pump_monster_protection_detail(now)
         request.requestCount = monster_protection_scan.requestCount or 0
         request.retryCount = 0
         request.scanError = monster_protection_scan.error
-        if #request.targets ~= request.expectedTargetCount then
-            write_monster_protection_detail_result(
-                request, "completed", "monster_protection_target_count_mismatch",
-                request.targets, request.requestCount,
-                count_ready_monster_invasion_protection_details(request.targets))
-            abandon_monster_invasion_protection_requests(request.targets)
-            monster_protection_scan = nil
-            return true
-        end
         if #request.targets == 0 then
             write_monster_protection_detail_result(request, "completed", nil, request.targets, 0, 0)
             monster_protection_scan = nil
@@ -2157,11 +2151,17 @@ local function restore_bulk_aoi_state(point_manager)
     bulk_aoi_response_flags_reset = false
     bulk_aoi_original_manager_response_flag = nil
     bulk_aoi_original_world_response_flag = nil
-    if bulk_aoi_native_touch_camera ~= nil and bulk_aoi_native_original_pos ~= nil then
-        if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then ok = false end
-    end
     if bulk_aoi_native_camera ~= nil and bulk_aoi_native_original_fov ~= nil then
         if not select(1, call(bulk_aoi_native_camera, "SetFOV", bulk_aoi_native_original_fov)) then ok = false end
+    end
+    if bulk_aoi_native_unity_camera ~= nil and bulk_aoi_native_original_aspect ~= nil then
+        if not reflected_set_value(bulk_aoi_native_unity_camera, "aspect", bulk_aoi_native_original_aspect) then ok = false end
+    end
+    if bulk_aoi_native_camera ~= nil and bulk_aoi_native_original_zoom ~= nil then
+        if not pcall(function() bulk_aoi_native_camera.Zoom = bulk_aoi_native_original_zoom end) then ok = false end
+    end
+    if bulk_aoi_native_touch_camera ~= nil and bulk_aoi_native_original_pos ~= nil then
+        if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then ok = false end
     end
     if bulk_aoi_native_camera ~= nil then
         if not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then ok = false end
@@ -2172,6 +2172,9 @@ local function restore_bulk_aoi_state(point_manager)
     bulk_aoi_native_touch_camera = nil
     bulk_aoi_native_original_pos = nil
     bulk_aoi_native_original_fov = nil
+    bulk_aoi_native_unity_camera = nil
+    bulk_aoi_native_original_aspect = nil
+    bulk_aoi_native_original_zoom = nil
     bulk_aoi_native_hold_seconds = nil
     bulk_aoi_native_position_restored = false
     bulk_aoi_added_indices = {}
@@ -2290,6 +2293,18 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         includeMonster = request.includeMonster == true,
         includeTrain = request.includeTrain == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
+        zoomFinalBlockSize = details.zoomFinalBlockSize,
+        zoomFinalBlockCount = details.zoomFinalBlockCount,
+        zoomFinalServerLod = details.zoomFinalServerLod,
+        zoomWholeWorldCoarse = details.zoomWholeWorldCoarse,
+        restoredTileX = details.restoredTileX, restoredTileY = details.restoredTileY,
+        restoredBlockSize = details.restoredBlockSize, restoredBlockCount = details.restoredBlockCount, restoredServerLod = details.restoredServerLod,
+        registrationMethod = registration_method,
+        anchorDebug = details.anchorDebug,
+        expandedAnchorCells = details.expandedAnchorCells,
+        postInvokeAddListCount = details.postInvokeAddListCount,
+        postInvokeSplitPending = details.postInvokeSplitPending,
+        postInvokeMsgViewCount = details.postInvokeMsgViewCount,
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
 end
@@ -2523,10 +2538,96 @@ local function pump_bulk_aoi_diagnostic(now)
         bulk_aoi_native_camera = camera_manager
         bulk_aoi_native_touch_camera = touch_camera
         bulk_aoi_native_original_pos = original_pos
-        bulk_aoi_native_hold_seconds = request.holdMilliseconds / 1000.0
+        bulk_aoi_native_hold_seconds = request.requestMode == "zoom" and nil or (request.holdMilliseconds / 1000.0)
         bulk_aoi_native_position_restored = false
-        bulk_aoi_skip_restore_update = request.requestMode == "coverage"
+        bulk_aoi_skip_restore_update = request.requestMode == "coverage" or request.requestMode == "anchor" or request.requestMode == "edge"
         local expanded_anchor_cells = nil
+        local anchor_debug = nil
+        local zoom_debug = nil
+        if request.requestMode == "anchor" then
+            local anchors = safe_get(camera_manager, "cameraAnchor") or reflected_value(camera_manager, "cameraAnchor")
+            local cs = rawget(_G, "CS")
+            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+            local scene_utils = rawget(_G, "SceneUtils")
+            local tile_to_world = scene_utils and safe_get(scene_utils, "TileToWorld") or nil
+            local force_change_scene = rawget(_G, "ForceChangeScene")
+            local force_world = force_change_scene and safe_get(force_change_scene, "World") or nil
+            if anchors == nil or vector2_type == nil or type(tile_to_world) ~= "function" or force_world == nil then
+                fail_bulk_aoi(request, "anchor_rectangle_dependencies_unavailable", nil, point_manager)
+                return true
+            end
+            -- 14x8 visible AOI cells. UpdateLWAoi_Normal adds its recovered EDGE margin;
+            -- this is intentionally bounded below the native once_max_request_count=160.
+            local width_cells, height_cells = 14, 8
+            local target_cell_x = math.floor(request.targetTileX / block_size)
+            local target_cell_y = math.floor(request.targetTileY / block_size)
+            local start_cell_x = math.max(0, math.min(block_count - width_cells, target_cell_x - math.floor(width_cells / 2)))
+            local start_cell_y = math.max(0, math.min(block_count - height_cells, target_cell_y - math.floor(height_cells / 2)))
+            local min_tile_x = start_cell_x * block_size
+            local min_tile_y = start_cell_y * block_size
+            local max_tile_x = math.min(999, ((start_cell_x + width_cells) * block_size) - 1)
+            local max_tile_y = math.min(999, ((start_cell_y + height_cells) * block_size) - 1)
+            local function anchor_world(tx, ty)
+                local ok, value = pcall(tile_to_world, vector2_type(tx, ty), force_world, request.serverId)
+                if not ok then return nil end
+                return value
+            end
+            local original_anchor_values = {}
+            for index = 0, 3 do
+                local value = safe_get(anchors, index)
+                original_anchor_values[#original_anchor_values + 1] = {
+                    x = tonumber(value and safe_get(value, "x")),
+                    y = tonumber(value and safe_get(value, "y")),
+                    z = tonumber(value and safe_get(value, "z")),
+                }
+            end
+            local values = {
+                anchor_world(min_tile_x, min_tile_y),
+                anchor_world(min_tile_x, max_tile_y),
+                anchor_world(max_tile_x, max_tile_y),
+                anchor_world(max_tile_x, min_tile_y),
+            }
+            if values[1] == nil or values[2] == nil or values[3] == nil or values[4] == nil then
+                fail_bulk_aoi(request, "anchor_rectangle_world_conversion_failed", nil, point_manager)
+                return true
+            end
+            for index = 0, 3 do
+                local ok = pcall(function() anchors[index] = values[index + 1] end)
+                if not ok then
+                    fail_bulk_aoi(request, "anchor_rectangle_assignment_failed", nil, point_manager)
+                    return true
+                end
+            end
+            local assigned_anchor_values = {}
+            for index = 0, 3 do
+                local value = safe_get(anchors, index)
+                assigned_anchor_values[#assigned_anchor_values + 1] = {
+                    x = tonumber(value and safe_get(value, "x")),
+                    y = tonumber(value and safe_get(value, "y")),
+                    z = tonumber(value and safe_get(value, "z")),
+                }
+            end
+            expanded_anchor_cells = { start_cell_x, start_cell_y, width_cells, height_cells }
+            anchor_debug = {
+                minTileX = min_tile_x, minTileY = min_tile_y, maxTileX = max_tile_x, maxTileY = max_tile_y,
+                original = original_anchor_values, assigned = assigned_anchor_values,
+            }
+        end
+        if request.requestMode == "zoom" then
+            local original_zoom = tonumber(safe_get(camera_manager, "Zoom"))
+            local zoom_max = tonumber(safe_get(camera_manager, "ZoomMax"))
+            if original_zoom == nil or zoom_max == nil or zoom_max <= 0 then
+                fail_bulk_aoi(request, "zoom_state_unavailable", nil, point_manager)
+                return true
+            end
+            bulk_aoi_native_original_zoom = original_zoom
+            local ok_zoom = pcall(function() camera_manager.Zoom = zoom_max end)
+            if not ok_zoom or not select(1, call(camera_manager, "RefreshCameraAnchor")) then
+                fail_bulk_aoi(request, "zoom_override_failed", nil, point_manager)
+                return true
+            end
+            zoom_debug = { originalZoom = original_zoom, zoomMax = zoom_max, appliedZoom = tonumber(safe_get(camera_manager, "Zoom")) }
+        end
         if request.requestMode == "expanded" or request.requestMode == "coverage" then
             local unity_camera = safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")
             local original_fov = tonumber(unity_camera and safe_get(unity_camera, "fieldOfView"))
@@ -2534,9 +2635,20 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "expanded_camera_fov_unavailable", nil, point_manager)
                 return true
             end
+            local original_aspect = tonumber(unity_camera and safe_get(unity_camera, "aspect"))
+            if original_aspect == nil or original_aspect <= 0 then
+                fail_bulk_aoi(request, "expanded_camera_aspect_unavailable", nil, point_manager)
+                return true
+            end
             bulk_aoi_native_original_fov = original_fov
+            bulk_aoi_native_unity_camera = unity_camera
+            bulk_aoi_native_original_aspect = original_aspect
             if not select(1, call(camera_manager, "SetFOV", 120.0)) then
                 fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
+                return true
+            end
+            if not reflected_set_value(unity_camera, "aspect", 4.0) then
+                fail_bulk_aoi(request, "expanded_camera_aspect_set_failed", nil, point_manager)
                 return true
             end
         end
@@ -2605,7 +2717,25 @@ local function pump_bulk_aoi_diagnostic(now)
                 request.targetTileX, request.targetTileY, add_list, block_size, direct_lb_index, direct_rt_index))
             request_method = "WorldPointManager.SendAoiRequest(private-reflection)+held-internal-camera-shift"
         else
-            invoked = select(1, call(point_manager, "UpdateViewRequest", true))
+            if request.requestMode == "anchor" then
+                invoked = select(1, reflected_call(point_manager, "UpdateLWAoi_Normal", true))
+                request_method = "WorldPointManager.UpdateLWAoi_Normal(true)+synthetic-camera-anchor"
+                call(camera_manager, "RefreshCameraAnchor")
+            elseif request.requestMode == "edge" then
+                local original_edge = tonumber(reflected_value(point_manager, "EDGE"))
+                request.details = request.details or {}
+                request.details.originalEdge = original_edge
+                request.details.testEdge = 8
+                if original_edge == nil or not reflected_set_value(point_manager, "EDGE", 8) then
+                    fail_bulk_aoi(request, "edge_override_unavailable", nil, point_manager)
+                    return true
+                end
+                invoked = select(1, call(point_manager, "UpdateViewRequest", true))
+                reflected_set_value(point_manager, "EDGE", original_edge)
+                request_method = "WorldPointManager.UpdateViewRequest(true)+temporary-edge-8"
+            else
+                invoked = select(1, call(point_manager, "UpdateViewRequest", true))
+            end
         end
         if not invoked then
             call(camera_manager, "RefreshCameraAnchor")
@@ -2615,7 +2745,7 @@ local function pump_bulk_aoi_diagnostic(now)
         -- LWB-R7-014 IMPLEMENTATION POLICY: production coverage uses a zero hold.
         -- Restore the visible camera transform in the same Lua callback that queues the
         -- remote request, instead of waiting for the next 250 ms pump/frame.
-        if request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
+        if request.requestMode ~= "zoom" and request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
            bulk_aoi_native_original_pos ~= nil then
             if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
                 fail_bulk_aoi(request, "native_camera_same_tick_restore_failed", nil, point_manager)
@@ -2626,10 +2756,24 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "native_camera_fov_same_tick_restore_failed", nil, point_manager)
                 return true
             end
+            if bulk_aoi_native_unity_camera ~= nil and bulk_aoi_native_original_aspect ~= nil and
+               not reflected_set_value(bulk_aoi_native_unity_camera, "aspect", bulk_aoi_native_original_aspect) then
+                fail_bulk_aoi(request, "native_camera_aspect_same_tick_restore_failed", nil, point_manager)
+                return true
+            end
+            if bulk_aoi_native_camera ~= nil and bulk_aoi_native_original_zoom ~= nil then
+                local ok_zoom = pcall(function() bulk_aoi_native_camera.Zoom = bulk_aoi_native_original_zoom end)
+                if not ok_zoom then
+                    fail_bulk_aoi(request, "native_camera_zoom_same_tick_restore_failed", nil, point_manager)
+                    return true
+                end
+            end
             bulk_aoi_native_position_restored = true
             bulk_aoi_native_hold_seconds = nil
             if request_method == "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift" then
                 request_method = "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore"
+            elseif request_method == "WorldPointManager.UpdateViewRequest(true)+synthetic-camera-anchor" then
+                request_method = "WorldPointManager.UpdateViewRequest(true)+synthetic-camera-anchor+same-tick-camera-restore"
             elseif request_method == "WorldPointManager.SendViewRequest+held-internal-camera-shift" then
                 request_method = "WorldPointManager.SendViewRequest+same-tick-camera-restore"
             elseif request_method == "WorldPointManager.SendAoiRequest(private-reflection)+held-internal-camera-shift" then
@@ -2677,6 +2821,12 @@ local function pump_bulk_aoi_diagnostic(now)
             initializedViaNormalUpdate = initialized_via_normal_update,
             initializedViaStartViewRequest = initialized_via_start_view,
             requestMethod = request_method,
+            anchorDebug = anchor_debug,
+            zoomDebug = zoom_debug,
+            expandedAnchorCells = expanded_anchor_cells,
+            postInvokeAddListCount = collection_count(add_list),
+            postInvokeSplitPending = reflected_value(point_manager, "_splitLastAOIRequest"),
+            postInvokeMsgViewCount = collection_count(reflected_value(point_manager, "_msgViewIndex")),
         }
         bulk_aoi_request = request
         bulk_aoi_started_at = runtime_clock()
@@ -2689,8 +2839,31 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     local details = bulk_aoi_request.details or {}
+    if bulk_aoi_request.requestMode == "zoom" and details.zoomRestorePending == true then
+        local restored_tile = safe_get(world, "CurTilePosClamped")
+        details.restoredTileX = tonumber(restored_tile and (safe_get(restored_tile, "x") or safe_get(restored_tile, "X")))
+        details.restoredTileY = tonumber(restored_tile and (safe_get(restored_tile, "y") or safe_get(restored_tile, "Y")))
+        details.restoredBlockSize = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+        details.restoredBlockCount = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+        details.restoredServerLod = integer_field(point_manager, { "svLod" })
+        details.cameraTileStable = details.restoredTileX == details.preTileX and details.restoredTileY == details.preTileY
+        if details.cameraTileStable == true and details.restoredBlockSize == details.blockSize and
+           details.restoredBlockCount == details.blockCount and details.restoredServerLod == details.serverLod then
+            details.zoomRestorePending = false
+            details.positionRestoredBeforeResponse = true
+            write_bulk_aoi_result(bulk_aoi_request, "proven", nil, details)
+            bulk_aoi_request = nil; bulk_aoi_started_at = nil
+            return true
+        end
+        if details.zoomRestoreStartedAt ~= nil and runtime_clock() - details.zoomRestoreStartedAt >= 3 then
+            write_bulk_aoi_result(bulk_aoi_request, "failed", "zoom_restore_confirmation_timeout", details)
+            bulk_aoi_request = nil; bulk_aoi_started_at = nil
+            return true
+        end
+        return true
+    end
     local elapsed_now = bulk_aoi_started_at and (runtime_clock() - bulk_aoi_started_at) or 0
-    if not bulk_aoi_native_position_restored and bulk_aoi_native_hold_seconds ~= nil and
+    if bulk_aoi_request.requestMode ~= "zoom" and not bulk_aoi_native_position_restored and bulk_aoi_native_hold_seconds ~= nil and
        elapsed_now >= bulk_aoi_native_hold_seconds and bulk_aoi_native_touch_camera ~= nil and
        bulk_aoi_native_original_pos ~= nil then
         if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
@@ -2703,10 +2876,55 @@ local function pump_bulk_aoi_diagnostic(now)
                 return true
             end
         end
+        if bulk_aoi_native_unity_camera ~= nil and bulk_aoi_native_original_aspect ~= nil and
+           not reflected_set_value(bulk_aoi_native_unity_camera, "aspect", bulk_aoi_native_original_aspect) then
+            fail_bulk_aoi(bulk_aoi_request, "native_camera_aspect_timed_restore_failed", details, point_manager)
+            return true
+        end
         bulk_aoi_native_position_restored = true
         details.positionRestoreElapsedSeconds = elapsed_now
     end
     details.positionRestoredBeforeResponse = bulk_aoi_native_position_restored == true
+    if bulk_aoi_request.requestMode == "zoom" then
+        local split_pending_now = reflected_value(point_manager, "_splitLastAOIRequest") == true
+        details.splitPending = split_pending_now
+        details.splitAddCount = collection_count(reflected_value(point_manager, "_addViewIndex"))
+        details.splitCurrentCount = collection_count(reflected_value(point_manager, "_curViewIndex"))
+        details.splitMsgCount = collection_count(reflected_value(point_manager, "_msgViewIndex"))
+        local flags_now = bulk_manager_flags(point_manager)
+        if split_pending_now then
+            if flags_now.isRecvViewPoints == true and world_response_flag(world) == true then
+                call(point_manager, "UpdateViewRequest", true)
+            end
+            if bulk_aoi_started_at ~= nil and runtime_clock() - bulk_aoi_started_at >= 20 then
+                fail_bulk_aoi(bulk_aoi_request, "zoom_split_drain_timeout", details, point_manager)
+            end
+            return true
+        end
+        if flags_now.isRecvViewPoints ~= true or world_response_flag(world) ~= true then return true end
+        local final_block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+        local final_block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+        local final_server_lod = integer_field(point_manager, { "svLod" })
+        details.zoomFinalBlockSize = final_block_size
+        details.zoomFinalBlockCount = final_block_count
+        details.zoomFinalServerLod = final_server_lod
+        if final_block_size == 1000 and final_block_count == 1 then
+            local full = {}
+            for index = 0, 9999 do full[#full + 1] = index end
+            details.requestedIndices = full
+            details.nativeCurrentSetCount = 1
+            details.zoomWholeWorldCoarse = true
+        else
+            local final_current = reflected_value(point_manager, "_curViewIndex")
+            local final_indices = final_current and select(1, collection_int_values(final_current, 10000)) or nil
+            if final_indices == nil or #final_indices == 0 then
+                fail_bulk_aoi(bulk_aoi_request, "zoom_final_view_indices_unavailable", details, point_manager)
+                return true
+            end
+            details.requestedIndices = final_indices
+            details.nativeCurrentSetCount = #final_indices
+        end
+    end
     local lookup = bulk_selected_lookup(details.requestedIndices)
     local observed, observe_error = point_aoi_counts(
         world, point_manager, details.blockSize, details.blockCount, lookup)
@@ -2747,7 +2965,7 @@ local function pump_bulk_aoi_diagnostic(now)
     end
     details.monsterMarchRecords = {}
     if bulk_aoi_request.includeMonster == true then
-        if bulk_aoi_request.requestMode == "coverage" then
+        if bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" then
             local response_flags = bulk_manager_flags(point_manager)
             if response_flags.isRecvViewPoints ~= true or world_response_flag(world) ~= true then return true end
         end
@@ -2808,12 +3026,25 @@ local function pump_bulk_aoi_diagnostic(now)
     details.elapsedSeconds = bulk_aoi_started_at and (runtime_clock() - bulk_aoi_started_at) or nil
     details.cameraTileStable = details.postTileX == details.preTileX and details.postTileY == details.preTileY
     local request_completed = details.targetPointCount > (details.baselineTargetPointCount or 0)
-    if bulk_aoi_request.requestMode == "coverage" then
-        request_completed = details.responseFlagsTransitioned == true
+    if bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" or
+       bulk_aoi_request.requestMode == "zoom" then
+        request_completed = details.responseFlagsTransitioned == true and
+            reflected_value(point_manager, "_splitLastAOIRequest") ~= true
     end
     if request_completed then
         local request = bulk_aoi_request
+        -- Zoom intentionally holds the temporary camera/LOD state until the coarse
+        -- whole-world response has been serialized. Restoration must then run one
+        -- normal view update at the original camera state so CurTilePosClamped and
+        -- the native LOD0 view state are restored together, not just the transform.
+        if request.requestMode == "zoom" then bulk_aoi_skip_restore_update = false end
         local restored = restore_bulk_aoi_state(point_manager)
+        if restored and request.requestMode == "zoom" then
+            details.zoomRestorePending = true
+            details.zoomRestoreStartedAt = runtime_clock()
+            request.details = details
+            return true
+        end
         if not restored then
             write_bulk_aoi_result(request, "failed", "bulk_aoi_state_restore_failed", details)
         elseif details.cameraTileStable ~= true and details.requestMethod ~= "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore" then

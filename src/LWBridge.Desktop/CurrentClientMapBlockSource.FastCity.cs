@@ -9,21 +9,20 @@ internal sealed partial class CurrentClientMapBlockSource
 {
     private const int FastCityAoiBlockSize = 10;
     private const int FastCityAoiBlockCount = 100;
-    // Current v18 live measurement narrowed the native footprint to 3 AOI columns x 10 rows.
-    // One logical block column is only 2 AOI columns, so keep the batch validator conservative
-    // and let the final exact 10,000-cell union prove complete full-world coverage.
+    // Current v18 live measurement with a same-tick temporary camera aspect of 4.0 returns
+    // a variable 2-4 x 10 AOI footprint. Never assume a fixed width: full-world acquisition
+    // advances from the measured native footprint and still requires the exact 10,000-cell union.
     private const int FastCityGroupColumns = 1;
     private const int FastCityGroupRows = 5;
     private const int FastCityExpectedAoiCount = 20;
-    private const int FastFullWorldAoiColumns = 3;
     private const int FastFullWorldAoiRows = 10;
-    private const int FastFullWorldColumnRequests =
-        (FastCityAoiBlockCount + FastFullWorldAoiColumns - 1) / FastFullWorldAoiColumns;
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
+    private const int FastFullWorldMaxRequestsPerRow = 50;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(8);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
+    private FastFullWorldResumeState? fastFullWorldResumeState;
     internal MonsterProtectionDetailMetrics? LastMonsterProtectionDetailMetrics { get; private set; }
 
     public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
@@ -40,7 +39,7 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!CanUseFastCityBatch(request))
             return [await CaptureAsync(request, seedBlock, cancellationToken).ConfigureAwait(false)];
 
-        OverviewMapScanSession session = RequireReadySession();
+        OverviewMapScanSession session = await RequireReadyOrResumeSessionAsync(request, cancellationToken).ConfigureAwait(false);
         if (waitForHealthySession is { } waitForHealthy)
         {
             await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
@@ -54,8 +53,22 @@ internal sealed partial class CurrentClientMapBlockSource
         }
 
         if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0)
+        {
+            if (IsMonsterOnly(request) && hooks?.DisableCoarseMonsterMap != true)
+            {
+                try
+                {
+                    return await CaptureFullMonsterMapViaCoarseLodAsync(
+                        session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
+                {
+                    fastFullWorldResumeState = null;
+                }
+            }
             return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
                 .ConfigureAwait(false);
+        }
 
         int bandStartRow = (seedBlock.Row / FastCityGroupRows) * FastCityGroupRows;
         int firstGroupStartColumn = (seedBlock.Column / FastCityGroupColumns) * FastCityGroupColumns;
@@ -121,6 +134,88 @@ internal sealed partial class CurrentClientMapBlockSource
         return captures;
     }
 
+    private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureFullMonsterMapViaCoarseLodAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        IReadOnlySet<int> pendingBlockIndices,
+        Action<MapScanSourceProgress>? progress,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
+            request.TileWidth, request.TileHeight);
+        if (logicalBlocks.Count != 2500 || pendingBlockIndices.Count != logicalBlocks.Count ||
+            logicalBlocks.Any(block => !pendingBlockIndices.Contains(block.BlockIndex)))
+            throw new InvalidDataException("LOD2 Monster acquisition requires all 2,500 logical blocks pending.");
+
+        LastMonsterProtectionDetailMetrics = null;
+        IReadOnlyList<FastMonsterPrepared> coarse = await ProbeCoarseMonsterMapAsync(
+            session, request, cancellationToken).ConfigureAwait(false);
+        RequireSameSession(session);
+        progress?.Invoke(new MapScanSourceProgress(90));
+
+        var monsterRecords = new Dictionary<string, FastMonsterPrepared>(StringComparer.Ordinal);
+        foreach (FastMonsterPrepared prepared in coarse)
+        {
+            if (!monsterRecords.TryGetValue(prepared.Record.RecordKey, out FastMonsterPrepared? prior) ||
+                prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
+                monsterRecords[prepared.Record.RecordKey] = prepared;
+        }
+
+        MonsterProtectionDetailObservation protection = MonsterProtectionDetailObservation.Empty;
+        int monsterInvasionBossCount = monsterRecords.Values.Count(item => item.ProtectionEligible);
+        if (monsterInvasionBossCount > 0)
+        {
+            try
+            {
+                protection = await ProbeMonsterProtectionDetailsAsync(
+                    session, request, monsterInvasionBossCount, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
+            {
+                protection = MonsterProtectionDetailObservation.Failed(ex.Message);
+            }
+            foreach ((string key, FastMonsterPrepared prepared) in monsterRecords.ToArray())
+            {
+                if (!prepared.ProtectionEligible) continue;
+                protection.Details.TryGetValue(prepared.Record.Uuid ?? string.Empty, out MonsterProtectionDetail? detail);
+                monsterRecords[key] = ApplyMonsterProtectionDetail(prepared, detail);
+            }
+        }
+        LastMonsterProtectionDetailMetrics = new MonsterProtectionDetailMetrics(
+            monsterInvasionBossCount, protection.TargetCount, protection.RequestCount,
+            protection.RetryCount, protection.ReadyCount, protection.Error);
+        progress?.Invoke(new MapScanSourceProgress(100));
+
+        var buckets = new Dictionary<int, List<MapStoredRecord>>();
+        foreach (FastMonsterPrepared item in monsterRecords.Values)
+            AddRecordToBlock(buckets, item.X, item.Y, item.Record);
+        Dictionary<int, MapStoredRecord[]> recordsByBlock = buckets.ToDictionary(
+            pair => pair.Key, pair => pair.Value.ToArray());
+        var captures = new List<MapScanBlockCapture>(logicalBlocks.Count);
+        foreach (MapScanTargetBlock block in logicalBlocks)
+        {
+            IReadOnlyList<MapStoredRecord> records = recordsByBlock.TryGetValue(
+                block.BlockIndex, out MapStoredRecord[]? value) ? value : Array.Empty<MapStoredRecord>();
+            string payload = JsonSerializer.Serialize(new
+            {
+                protocol = "current_fast_monster_lod2_v1",
+                blockIndex = block.BlockIndex,
+                coverage = "native_lod2_whole_world_monster_snapshot_restored_to_original_lod",
+                recordsInBlock = records.Count,
+                monsterInvasionBossCount,
+                monsterProtectionDetailTargetCount = protection.TargetCount,
+                monsterProtectionDetailRequestCount = protection.RequestCount,
+                monsterProtectionDetailRetryCount = protection.RetryCount,
+                monsterProtectionDetailReadyCount = protection.ReadyCount,
+                monsterProtectionDetailError = protection.Error,
+            }, JsonOptions.Default);
+            captures.Add(new MapScanBlockCapture(
+                request.ServerId, request.WorldId, block.BlockIndex, payload, records));
+        }
+        fastFullWorldResumeState = null;
+        return captures;
+    }
+
     private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureFullCityMapAsync(
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
@@ -134,25 +229,42 @@ internal sealed partial class CurrentClientMapBlockSource
             logicalBlocks.Any(block => !pendingBlockIndices.Contains(block.BlockIndex)))
             throw new InvalidDataException("Fast full-world acquisition requires all 2,500 logical blocks pending.");
 
-        var covered = new HashSet<int>();
-        var cityRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
-        var resourceRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
-        var monsterRecords = new Dictionary<string, FastMonsterPrepared>(StringComparer.Ordinal);
-        var truckRecords = new Dictionary<string, FastTrainPrepared>(StringComparer.Ordinal);
+        FastFullWorldResumeState state = fastFullWorldResumeState is { } existing && existing.Matches(session, request)
+            ? existing
+            : new FastFullWorldResumeState(session, request);
+        fastFullWorldResumeState = state;
+        HashSet<int> covered = state.Covered;
+        Dictionary<string, FirstLivePreparedResource> cityRecords = state.CityRecords;
+        Dictionary<string, FirstLivePreparedResource> resourceRecords = state.ResourceRecords;
+        Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
+        Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
         for (int row = 0; row < FastFullWorldRowRequests; row++)
         {
             int groupStartRow = row * FastCityGroupRows;
+            int aoiRowStart = row * FastFullWorldAoiRows;
             int targetY = 75 + (row * 100);
-            for (int column = 0; column < FastFullWorldColumnRequests; column++)
+            bool preferWideStep = false;
+            int? previousGap = null;
+            int requestsThisRow = 0;
+            while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                // Current v18 returns three consecutive LOD0 AOI columns at ordinary targets.
-                // Target every third AOI column; one 2-column logical-block slice is validated
-                // inside each response and the final union must still equal all 10,000 AOIs.
-                int footprintAnchorCellX = Math.Min(FastCityAoiBlockCount - 1, column * FastFullWorldAoiColumns);
-                int groupStartColumn = Math.Min(49, footprintAnchorCellX / 2);
-                int targetX = Math.Min(995, 5 + (column * 30));
+                int gapColumn = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                if (gapColumn < 0) break;
+                if (++requestsThisRow > FastFullWorldMaxRequestsPerRow)
+                    throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
+
+                // A 4-column footprint is centered two columns left / one right of the target.
+                // Optimistically step two columns only after we have measured width=4 in this band.
+                // If the footprint contracts, the unchanged first gap forces the next request back
+                // to the conservative +1 target; exact coverage, not the prediction, remains truth.
+                int targetOffset = preferWideStep ? 2 : 1;
+                if (gapColumn == 0) targetOffset = 0;
+                if (previousGap == gapColumn) targetOffset = gapColumn == 0 ? 0 : 1;
+                int targetCellX = Math.Min(FastCityAoiBlockCount - 1, gapColumn + targetOffset);
+                int targetX = checked((targetCellX * FastCityAoiBlockSize) + 5);
+
                 FastCityBatchObservation? observation = null;
                 Exception? lastError = null;
                 for (int attempt = 1; attempt <= 3; attempt++)
@@ -160,20 +272,31 @@ internal sealed partial class CurrentClientMapBlockSource
                     try
                     {
                         observation = await ProbeFastCityBatchAsync(
-                            session, request, groupStartColumn, groupStartRow, targetX, targetY, cancellationToken)
+                            session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
                         lastError = null;
                         break;
                     }
-                    catch (Exception error) when (error is TimeoutException or InvalidDataException)
+                    catch (Exception error) when (error is TimeoutException or InvalidDataException ||
+                        error is BridgeCommandException bridge && bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
                     {
                         lastError = error;
                         if (attempt < 3)
+                        {
+                            if (waitForHealthySession is { } waitForHealthy)
+                            {
+                                await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+                                RequireSameSession(session);
+                            }
                             await DelayAsync(TimeSpan.FromMilliseconds(150), cancellationToken).ConfigureAwait(false);
+                        }
                     }
                 }
                 if (lastError is not null || observation is null) throw lastError!;
                 RequireSameSession(session);
+                ValidateAdaptiveRowFootprint(observation.RequestedIndices, aoiRowStart);
+
+                int before = covered.Count;
                 foreach (int index in observation.RequestedIndices)
                     covered.Add(index);
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
@@ -194,12 +317,19 @@ internal sealed partial class CurrentClientMapBlockSource
                         prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
                         monsterRecords[prepared.Record.RecordKey] = prepared;
                 }
-                foreach (FastTrainPrepared prepared in observation.Trains.Where(item => item.Record.Kind == "truck"))
+                foreach (FastTrainPrepared prepared in observation.Trains)
                 {
-                    if (!truckRecords.TryGetValue(prepared.Record.RecordKey, out FastTrainPrepared? prior) ||
+                    if (!trainRecords.TryGetValue(prepared.Record.RecordKey, out FastTrainPrepared? prior) ||
                         prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        truckRecords[prepared.Record.RecordKey] = prepared;
+                        trainRecords[prepared.Record.RecordKey] = prepared;
                 }
+
+                int afterGap = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                if (covered.Count == before)
+                    throw new InvalidDataException("Fast full-world adaptive acquisition returned no new AOI coverage.");
+                int measuredWidth = observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
+                preferWideStep = measuredWidth >= 4 && afterGap != gapColumn;
+                previousGap = afterGap == gapColumn ? gapColumn : null;
                 progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
             }
         }
@@ -242,7 +372,10 @@ internal sealed partial class CurrentClientMapBlockSource
             foreach (FastMonsterPrepared item in monsterRecords.Values)
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
-            foreach (FastTrainPrepared item in truckRecords.Values)
+            foreach (FastTrainPrepared item in trainRecords.Values.Where(item => item.Record.Kind == "truck"))
+                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
+        if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+            foreach (FastTrainPrepared item in trainRecords.Values.Where(item => item.Record.Kind == "railway"))
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         Dictionary<int, MapStoredRecord[]> recordsByBlock = buckets.ToDictionary(
             pair => pair.Key, pair => pair.Value.ToArray());
@@ -267,12 +400,59 @@ internal sealed partial class CurrentClientMapBlockSource
             }, JsonOptions.Default);
             captures.Add(new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex, payload, records));
         }
+        fastFullWorldResumeState = null;
         return captures;
     }
 
+    private async Task<OverviewMapScanSession> RequireReadyOrResumeSessionAsync(
+        MapScanExecutionRequest request,
+        CancellationToken cancellationToken)
+    {
+        OverviewMapScanSession? current = getSession();
+        if (current is not null) return current;
+        FastFullWorldResumeState? resume = fastFullWorldResumeState;
+        if (resume is null || resume.RunId != request.RunId || waitForHealthySession is null)
+            return RequireReadySession();
+        await waitForHealthySession(resume.Session, cancellationToken).ConfigureAwait(false);
+        RequireSameSession(resume.Session);
+        return resume.Session;
+    }
+
+    private static int FirstUncoveredAoiColumn(IReadOnlySet<int> covered, int rowStart)
+    {
+        for (int column = 0; column < FastCityAoiBlockCount; column++)
+        {
+            bool complete = true;
+            for (int row = rowStart; row < rowStart + FastFullWorldAoiRows; row++)
+            {
+                if (covered.Contains(checked(row * FastCityAoiBlockCount + column))) continue;
+                complete = false;
+                break;
+            }
+            if (!complete) return column;
+        }
+        return -1;
+    }
+
+    private static void ValidateAdaptiveRowFootprint(int[] indices, int rowStart)
+    {
+        int[] rows = indices.Select(index => index / FastCityAoiBlockCount).Distinct().Order().ToArray();
+        int[] columns = indices.Select(index => index % FastCityAoiBlockCount).Distinct().Order().ToArray();
+        if (rows.Length != FastFullWorldAoiRows || rows[0] != rowStart || rows[^1] != rowStart + FastFullWorldAoiRows - 1 ||
+            columns.Length is < 2 or > 4 || columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
+            indices.Length != rows.Length * columns.Length)
+            throw new InvalidDataException("Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint.");
+        var expected = rows.SelectMany(row => columns.Select(column => checked(row * FastCityAoiBlockCount + column))).ToHashSet();
+        if (expected.Count != indices.Length || indices.Any(index => !expected.Contains(index)))
+            throw new InvalidDataException("Fast full-world adaptive acquisition returned an inconsistent AOI footprint.");
+    }
+
+    private static bool IsMonsterOnly(MapScanExecutionRequest request) =>
+        request.SelectedTypes.Count == 1 && request.SelectedTypes.Contains("monster", StringComparer.Ordinal);
+
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count is >= 1 and <= 4 &&
-        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "truck") &&
+        request.SelectedTypes.Count is >= 1 and <= 5 &&
+        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "truck" or "railway") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
     private async Task<FastCityBatchObservation> ProbeFastCityBatchAsync(
         OverviewMapScanSession session,
@@ -307,7 +487,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"includeMonster={request.SelectedTypes.Contains("monster", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
-            $"includeTrain={request.SelectedTypes.Contains("truck", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -335,6 +515,150 @@ internal sealed partial class CurrentClientMapBlockSource
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client fast City batch did not return a correlated result.");
+    }
+
+    private async Task<IReadOnlyList<FastMonsterPrepared>> ProbeCoarseMonsterMapAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        CancellationToken cancellationToken)
+    {
+        (int X, int Y)[] targets =
+        [
+            (500, 500), (100, 100), (900, 900), (100, 900), (900, 100),
+            (250, 750), (750, 250), (250, 250), (750, 750),
+        ];
+        CoarseMonsterTargetUnavailableException? lastUnavailable = null;
+        foreach ((int targetX, int targetY) in targets)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                return await ProbeCoarseMonsterMapAtTargetAsync(
+                    session, request, targetX, targetY, cancellationToken).ConfigureAwait(false);
+            }
+            catch (CoarseMonsterTargetUnavailableException ex)
+            {
+                lastUnavailable = ex;
+            }
+        }
+        if (lastUnavailable is not null)
+            throw new InvalidDataException("LOD2 Monster acquisition had no usable remote target.", lastUnavailable);
+        throw new InvalidDataException("LOD2 Monster acquisition had no usable remote target.");
+    }
+
+    private async Task<IReadOnlyList<FastMonsterPrepared>> ProbeCoarseMonsterMapAtTargetAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int targetX,
+        int targetY,
+        CancellationToken cancellationToken)
+    {
+        string requestId = "monsterlod2" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string commandPath = Path.Combine(probeRuntimeRoot, "bulk-aoi-diagnostic.txt");
+        string resultPath = Path.Combine(probeRuntimeRoot, "bulk-aoi-diagnostic-result.json");
+        DateTimeOffset startedAt = Now();
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"probeVersion={ProbeVersion}",
+            $"requestId={requestId}",
+            $"profileId={session.ProfileId}",
+            $"launchSessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"scanRunId={request.RunId}",
+            "viewLevel=-1",
+            "requestMode=zoom",
+            $"targetTileX={targetX.ToString(CultureInfo.InvariantCulture)}",
+            $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
+            "requestedCount=160",
+            "holdMilliseconds=0",
+            $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
+            $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
+            "includeMonster=true",
+            "includeTrain=false",
+            string.Empty,
+        });
+        await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset deadline = startedAt + FastCityProbeTimeout;
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+                return ValidateCoarseMonsterMapResult(
+                    root.Value, requestId, startedAt, session, request, targetX, targetY);
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+        throw new TimeoutException("The current-client LOD2 Monster acquisition did not return a correlated result.");
+    }
+
+    private IReadOnlyList<FastMonsterPrepared> ValidateCoarseMonsterMapResult(
+        JsonElement root,
+        string requestId,
+        DateTimeOffset startedAt,
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int targetX,
+        int targetY)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "probeVersion", ProbeVersion) ||
+            !MatchesString(root, "requestId", requestId) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "launchSessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesString(root, "requestMode", "zoom") ||
+            !MatchesBool(root, "includeMonster", true) ||
+            !MatchesBool(root, "includeTrain", false))
+            throw new InvalidDataException("LOD2 Monster result did not match the active owned game session.");
+        if (!MatchesInt(root, "requestedCount", 160) ||
+            !MatchesInt(root, "holdMilliseconds", 0) ||
+            !MatchesInt(root, "homeTileX", request.PlayerTileX ?? -1) ||
+            !MatchesInt(root, "homeTileY", request.PlayerTileY ?? -1) ||
+            !MatchesInt(root, "viewLevel", -1) ||
+            !MatchesInt(root, "targetTileX", targetX) ||
+            !MatchesInt(root, "targetTileY", targetY))
+            throw new InvalidDataException("LOD2 Monster result did not match the requested acquisition parameters.");
+        RequireFreshCaptureTime(root, startedAt);
+        if (!MatchesString(root, "state", "proven"))
+        {
+            string error = ReadOptionalString(root, "error") ?? "unknown LOD2 Monster acquisition failure";
+            if (error is "target_aoi_still_current" or "target_aoi_already_loaded" or "target_point_already_loaded")
+                throw new CoarseMonsterTargetUnavailableException(error);
+            throw new InvalidDataException("LOD2 Monster acquisition failed: " + error);
+        }
+        if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
+            !MatchesBool(root, "cameraTileStable", true) ||
+            !MatchesBool(root, "positionRestoredBeforeResponse", true) ||
+            !MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift") ||
+            !MatchesBool(root, "zoomWholeWorldCoarse", true))
+            throw new InvalidDataException("LOD2 Monster acquisition did not prove the native response/restoration contract.");
+        if (!MatchesInt(root, "serverLod", 0) || !MatchesInt(root, "blockSize", 10) || !MatchesInt(root, "blockCount", 100) ||
+            !MatchesInt(root, "postServerLod", 2) || !MatchesInt(root, "postBlockSize", 1000) || !MatchesInt(root, "postBlockCount", 1) ||
+            !MatchesInt(root, "zoomFinalServerLod", 2) || !MatchesInt(root, "zoomFinalBlockSize", 1000) || !MatchesInt(root, "zoomFinalBlockCount", 1) ||
+            !MatchesInt(root, "restoredServerLod", 0) || !MatchesInt(root, "restoredBlockSize", 10) || !MatchesInt(root, "restoredBlockCount", 100))
+            throw new InvalidDataException("LOD2 Monster acquisition did not make and restore the proven v18 LOD transition.");
+        if (!root.TryGetProperty("preTileX", out JsonElement preX) || !preX.TryGetInt32(out int px) ||
+            !root.TryGetProperty("preTileY", out JsonElement preY) || !preY.TryGetInt32(out int py) ||
+            !MatchesInt(root, "restoredTileX", px) || !MatchesInt(root, "restoredTileY", py))
+            throw new InvalidDataException("LOD2 Monster acquisition did not restore the exact original camera tile.");
+
+        var allAoi = Enumerable.Range(0, FastCityAoiBlockCount * FastCityAoiBlockCount).ToHashSet();
+        IReadOnlyList<FastMonsterPrepared> monsters = PrepareMonsterRecords(root, request, allAoi, startedAt);
+        int bossCount = RequireNonNegativeInt(root, "monsterInvasionBossCount");
+        int protectionTargets = RequireNonNegativeInt(root, "monsterProtectionDetailTargetCount");
+        int protectionRequests = RequireNonNegativeInt(root, "monsterProtectionDetailRequestCount");
+        int protectionReady = RequireNonNegativeInt(root, "monsterProtectionDetailReadyCount");
+        int normalizedBossCount = monsters.Count(item => item.ProtectionEligible);
+        if (bossCount != normalizedBossCount || protectionTargets != bossCount ||
+            protectionRequests > protectionTargets || protectionReady > protectionRequests)
+            throw new InvalidDataException("LOD2 Monster protection counters changed during normalization.");
+        if (request.PlayerTileX is not null && request.PlayerTileY is not null && monsters.Any(item => item.Record.Distance is null))
+            throw new InvalidDataException("LOD2 Monster acquisition omitted home-relative Distance.");
+        return monsters;
     }
 
     private async Task<MonsterProtectionDetailObservation> ProbeMonsterProtectionDetailsAsync(
@@ -400,7 +724,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int requestCount = RequireNonNegativeInt(root, "requestCount");
         int retryCount = RequireNonNegativeInt(root, "retryCount");
         int readyCount = RequireNonNegativeInt(root, "readyCount");
-        if (targetCount != expectedTargetCount || requestCount > targetCount || readyCount > requestCount)
+        if (targetCount < expectedTargetCount || requestCount > targetCount || readyCount > requestCount)
             throw new InvalidDataException("Monster Protection enrichment counters are inconsistent.");
         if (!root.TryGetProperty("details", out JsonElement detailsValue) || detailsValue.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Monster Protection enrichment details are missing.");
@@ -470,7 +794,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesInt(root, "gamePid", session.GamePid) ||
             !MatchesString(root, "requestMode", "coverage") ||
             !MatchesBool(root, "includeMonster", request.SelectedTypes.Contains("monster", StringComparer.Ordinal)) ||
-            !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal)))
+            !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
+                request.SelectedTypes.Contains("railway", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesInt(root, "requestedCount", 8) ||
             !MatchesInt(root, "holdMilliseconds", 0) ||
@@ -505,10 +830,13 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Fast world batch returned an invalid native AOI footprint.");
         if (!MatchesInt(root, "nativeCurrentSetCount", requestedIndices.Length))
             throw new InvalidDataException("Fast world batch native AOI count did not match its copied footprint.");
-        int[] expectedIndices = ExpectedGroupAoiIndices(groupStartColumn, groupStartRow);
         var requestedSet = requestedIndices.ToHashSet();
-        if (expectedIndices.Any(index => !requestedSet.Contains(index)))
-            throw new InvalidDataException("Fast world batch did not cover all AOIs required by its logical block group.");
+        if (groupStartColumn >= 0)
+        {
+            int[] expectedIndices = ExpectedGroupAoiIndices(groupStartColumn, groupStartRow);
+            if (expectedIndices.Any(index => !requestedSet.Contains(index)))
+                throw new InvalidDataException("Fast world batch did not cover all AOIs required by its logical block group.");
+        }
 
         if (!root.TryGetProperty("point_records", out JsonElement pointRecords) ||
             pointRecords.ValueKind != JsonValueKind.Array)
@@ -538,7 +866,9 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FastMonsterPrepared> monsters = request.SelectedTypes.Contains("monster", StringComparer.Ordinal)
             ? PrepareMonsterRecords(root, request, requestedSet, startedAt)
             : Array.Empty<FastMonsterPrepared>();
-        IReadOnlyList<FastTrainPrepared> trains = request.SelectedTypes.Contains("truck", StringComparer.Ordinal)
+        bool includeTrain = request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
+            request.SelectedTypes.Contains("railway", StringComparer.Ordinal);
+        IReadOnlyList<FastTrainPrepared> trains = includeTrain
             ? PrepareTrainRecords(root, request, requestedSet, startedAt)
             : Array.Empty<FastTrainPrepared>();
         int monsterInvasionBossCount = RequireNonNegativeInt(root, "monsterInvasionBossCount");
@@ -565,6 +895,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
             foreach (FastTrainPrepared item in observation.Trains.Where(item => item.Record.Kind == "truck"))
+                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
+        if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+            foreach (FastTrainPrepared item in observation.Trains.Where(item => item.Record.Kind == "railway"))
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         return buckets.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
     }
@@ -639,8 +972,10 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             TrainDataMetadata trainData = ReadTrainDataMetadata(row);
             int? trainType = OptionalInt(row, "trainType") ?? trainData.Type;
-            if (trainType is null) continue; // unclassifiable train rows stay unknown rather than becoming Truck.
-            if (trainType.Value != 1) continue; // current-v17 TrainType.Truck = 1; railway is handled separately.
+            if (trainType is null) continue; // unclassifiable train rows stay unknown.
+            // Current-v18 Assembly-CSharp.rdl: TrainType.Truck = 1, TrainType.Train = 2.
+            string? kind = trainType.Value switch { 1 => "truck", 2 => "railway", _ => null };
+            if (kind is null || !request.SelectedTypes.Contains(kind, StringComparer.Ordinal)) continue;
             string uuid = RequiredString(row, "uuid");
             int serverId = RequiredInt(row, "serverId");
             int worldId = RequiredInt(row, "worldId");
@@ -680,7 +1015,7 @@ internal sealed partial class CurrentClientMapBlockSource
             if (trainData.RobTimes is int robTimes) data["robTimes"] = robTimes;
             if (row.TryGetProperty("trainDataJson", out JsonElement trainDataValue) && trainDataValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(trainDataValue.GetString())) data["trainDataJson"] = trainDataValue.GetString();
             result.Add(new FastTrainPrepared(x, y, new MapStoredRecord(
-                "truck", serverId, uuid, pointIndex, uuid, ownerName, allianceName, null, quality, power, null, null, updatedAt,
+                kind, serverId, uuid, pointIndex, uuid, ownerName, allianceName, null, quality, power, null, null, updatedAt,
                 data.ToJsonString(JsonOptions.Default))));
         }
         return result;
@@ -739,6 +1074,36 @@ internal sealed partial class CurrentClientMapBlockSource
             checked((startCellY + 1) * FastCityAoiBlockCount + startCellX + 1),
         ];
     }
+
+    private sealed class FastFullWorldResumeState
+    {
+        internal FastFullWorldResumeState(OverviewMapScanSession session, MapScanExecutionRequest request)
+        {
+            Session = session;
+            RunId = request.RunId;
+            ServerId = request.ServerId;
+            WorldId = request.WorldId;
+            SelectedTypesKey = string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
+        }
+
+        internal OverviewMapScanSession Session { get; }
+        internal string RunId { get; }
+        internal int ServerId { get; }
+        internal long WorldId { get; }
+        internal string SelectedTypesKey { get; }
+        internal HashSet<int> CompletedRequestOrdinals { get; } = new();
+        internal HashSet<int> Covered { get; } = new();
+        internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, FirstLivePreparedResource> ResourceRecords { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, FastMonsterPrepared> MonsterRecords { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, FastTrainPrepared> TrainRecords { get; } = new(StringComparer.Ordinal);
+
+        internal bool Matches(OverviewMapScanSession session, MapScanExecutionRequest request) =>
+            Session == session && RunId == request.RunId && ServerId == request.ServerId && WorldId == request.WorldId &&
+            SelectedTypesKey == string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
+    }
+
+    private sealed class CoarseMonsterTargetUnavailableException(string message) : Exception(message);
 
     internal sealed record MonsterProtectionDetailMetrics(
         int BossCount, int TargetCount, int RequestCount, int RetryCount, int ReadyCount, string? Error);

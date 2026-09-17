@@ -30,7 +30,7 @@ internal static class LiveBulkAoiDiagnosticProof
                 throw new InvalidDataException(
                     $"Bulk AOI proof expected normal 1000x1000 world, got world={context.WorldId}, size={context.TileWidth}x{context.TileHeight}.");
             string requestMode = ReadRequestMode();
-            (int targetTileX, int targetTileY) = requestMode == "coverage"
+            (int targetTileX, int targetTileY) = requestMode is "coverage" or "anchor" or "zoom"
                 ? ReadCoverageTarget()
                 : await AcquireLiveCityTargetAsync(source, context, operationCts.Token).ConfigureAwait(false);
             await ParkCameraAwayFromTargetAsync(
@@ -52,7 +52,7 @@ internal static class LiveBulkAoiDiagnosticProof
                     operationCts.Token).ConfigureAwait(false));
             }
             JsonElement result = results[^1];
-            JsonElement geometry = await RunAoiGeometryDiagnosticAsync(
+            JsonElement geometry = requestMode == "anchor" ? JsonSerializer.SerializeToElement(new { skipped = true }, JsonOptions.Default) : await RunAoiGeometryDiagnosticAsync(
                 session, operationCts.Token).ConfigureAwait(false);
             Console.WriteLine(JsonSerializer.Serialize(new
             {
@@ -403,12 +403,14 @@ internal static class LiveBulkAoiDiagnosticProof
             $"challenge={session.Challenge}",
             $"gamePid={session.GamePid}",
             $"serverId={serverId}",
+            "scanRunId=bulk-aoi-live-proof",
             $"viewLevel={viewLevel}",
             $"requestMode={requestMode}",
             $"targetTileX={targetTileX}",
             $"targetTileY={targetTileY}",
             $"requestedCount={requestedCount}",
             $"holdMilliseconds={holdMilliseconds}",
+            "includeMonster=true",
             string.Empty,
         });
         try
@@ -504,8 +506,8 @@ internal static class LiveBulkAoiDiagnosticProof
         string? raw = Environment.GetEnvironmentVariable("LWBRIDGE_BULK_AOI_REQUEST_MODE");
         if (string.IsNullOrWhiteSpace(raw)) return "native";
         string value = raw.Trim().ToLowerInvariant();
-        if (value is not ("native" or "direct" or "expanded" or "coverage"))
-            throw new InvalidDataException("LWBRIDGE_BULK_AOI_REQUEST_MODE must be native, direct, expanded, or coverage.");
+        if (value is not ("native" or "direct" or "expanded" or "coverage" or "anchor" or "edge" or "zoom"))
+            throw new InvalidDataException("LWBRIDGE_BULK_AOI_REQUEST_MODE must be native, direct, expanded, coverage, anchor, edge, or zoom.");
         return value;
     }
 

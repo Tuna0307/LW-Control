@@ -37,16 +37,22 @@ internal sealed partial class OverviewLifecycleService
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            OverviewMapScanSession? current = GetReadyMapScanSession();
-            if (current != expected)
+            OwnedSnapshot? snapshot = GetOwnedSnapshot();
+            if (snapshot is null ||
+                snapshot.InstanceId != expected.SessionId || snapshot.Challenge != expected.Challenge ||
+                snapshot.GamePid != expected.GamePid || !PathEquals(snapshot.GamePath, expected.GamePath) ||
+                snapshot.GameStartedAtUtc != expected.GameStartedAtUtc)
                 throw new BridgeCommandException(
                     MapScanStartOwnership.MissingConnectionErrorCode,
                     MapScanStartOwnership.MissingConnectionErrorMessage);
 
-            OwnedSnapshot snapshot = GetOwnedSnapshot()!;
-            RecoveryHeartbeatObservation heartbeat = ReadRecoveryHeartbeat(snapshot);
-            if (heartbeat.BridgeOnline && heartbeat.GameStateObserved && heartbeat.GameHealthy)
-                return;
+            OverviewMapScanSession? current = GetReadyMapScanSession();
+            if (current == expected)
+            {
+                RecoveryHeartbeatObservation heartbeat = ReadRecoveryHeartbeat(snapshot);
+                if (heartbeat.BridgeOnline && heartbeat.GameStateObserved && heartbeat.GameHealthy)
+                    return;
+            }
             if (RecoveryClockMilliseconds() >= deadline)
                 throw new BridgeCommandException(
                     MapScanStartOwnership.MissingConnectionErrorCode,

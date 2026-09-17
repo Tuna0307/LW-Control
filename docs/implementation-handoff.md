@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-026, 2026-09-18
+
+Current-v18 Monster discovery now uses a source-backed coarse whole-world path instead of hundreds of LOD0 camera footprints. A controlled native `UpdateViewRequest(true)` at maximum game zoom transitions `WorldPointManager` from LOD0 (`blockSize=10`, `blockCount=100`) to LOD2 (`blockSize=1000`, `blockCount=1`), returns the complete loaded Monster march population, and then restores the exact original camera tile plus LOD0 geometry before the result is accepted. A dedicated capability proof captured 7,429 Monster marches including 67 Zombie Bosses in 0.347 s and passed exact restoration.
+
+The ordinary production Normal Monster path was then live-proven twice: 2,500/2,500 logical captures, zero failures, exact publish/reopen equality, Distance on every row, and 11.418 s / 10.903 s scan wall times. The runs published 7,271 / 7,194 Monsters; exact live counts are dynamic. Automatic serialized Zombie Boss enrichment remained intact: 10/10 and 9/9 required detail replies produced 10 and 9 active future shield deadlines respectively, with no Jump/click/priming scan and no protection error. The owner's 60-second target is therefore exceeded substantially for Monster. LOD2 validation/timeout failure now falls back automatically to the conservative exact-coverage LOD0 scanner. Brief same-owned-session readiness loss/resume remains IMPLEMENTED/OFFLINE-TESTED rather than live-proven. Evidence: `2026-09-18-r7-monster-lod2-fast-scan.json`.
+
 ## Current superseding owner follow-up - LWB-R7-025, 2026-09-18
 
 A fresh current-v18 ordinary **Normal Monster** scan now closes the first-scan Zombie Boss Remaining gate technically. The run started from a fresh helper-owned game launch and performed one scan only: no Jump, no manual boss click and no priming second scan. It completed 2,500/2,500 blocks with zero failed/unread blocks, published/reopened 4,735 Monster rows in 108.144 s, detected 21 exact Monster-Invasion Zombie Bosses, issued only 2 protection-detail requests, received 2/2 authoritative replies with no retry/error, and persisted 2 future shield deadlines.
