@@ -1,0 +1,76 @@
+{
+  "findingId": "LWB-R7-024",
+  "date": "2026-09-18",
+  "scope": "Zombie Boss first-scan protection detail correlation and scan-speed isolation",
+  "status": {
+    "messageCorrelationContract": "RECOVERED",
+    "implementation": "IMPLEMENTED/OFFLINE-TESTED",
+    "ownerLiveRetest": "PENDING"
+  },
+  "officialSource": {
+    "contentVersion": 18,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "packageSize": 41296021,
+    "sourceKind": "exact official v18 package preserved by the active lifecycle recovery backup"
+  },
+  "modules": {
+    "msgMap": {
+      "path": "Net/Config/MsgMap.luac",
+      "rawSha256": "6a8cc052f6e6dd56db3481ee34aadbae26d4eddba28baeecc73cee33bb8ad432",
+      "decodedSha256": "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306",
+      "locator": "source line 2435",
+      "result": "MsgDefines.MonsterInvasionBossDetail maps to Net.Msgs.MonsterInvasionBossDetailMessge"
+    },
+    "sfsNetwork": {
+      "path": "Net/SFSNetwork.luac",
+      "rawSha256": "e093de00dbb63ce2f985b541ba00f4252963816ba65a10d3335a1820fd7f2225",
+      "decodedSha256": "f9c2762ef603df799da3b502a0c63a50454f97a5a8a6949a39f5948cf0a8fc36",
+      "locator": "GetMsgType source lines 7-23; SendMessage 25-34; HandleMessage 36-54",
+      "result": "GetMsgType requires the MsgMap module path and caches the returned table; incoming handling creates an instance from that table and calls HandleMessage"
+    },
+    "detailMessage": {
+      "path": "Net/Msgs/MonsterInvasionBossDetailMessge.luac",
+      "rawSha256": "8964354b5804c06b3f280535d5a8af78cc14fd609e56b2762c7f5fc68c4db093",
+      "decodedSha256": "c60138085a6e8a29d7200b38beecd6a4e76a90cb61b5ca5be55a3a3175119155",
+      "locator": "root local _uuid; OnCreate source lines 12-17; HandleMessage 20-30",
+      "result": "OnCreate overwrites one module-level _uuid upvalue. HandleMessage reuses that same _uuid for the successful response before calling MonsterProtectionManager.OnGetDetail; errors call UIUtil.ShowTipsId instead. Overlapping requests therefore cannot be safely correlated by this message class."
+    }
+  },
+  "implementation": {
+    "lua": "tools/current_live_resource_probe.lua",
+    "host": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+    "policy": [
+      "Queue exact MonsterInvasionBossDetail targets and allow only one request in flight.",
+      "Hook the exact recovered Net.Msgs.MonsterInvasionBossDetailMessge table so both success and error HandleMessage completion advance the queue.",
+      "Only request protection detail when the recovered createTime + monster_invasion.k12*1000 deadline can still be future according to UITimeManager.GetInstance():GetServerTime().",
+      "Run the serial queue beside AOI acquisition instead of waiting per AOI.",
+      "Remove the previous 100 ms host-side per-AOI protection settle delay.",
+      "Do not fabricate protection state for error/unanswered requests."
+    ]
+  },
+  "validation": {
+    "luaParse": true,
+    "gitDiffCheck": true,
+    "temporaryReleaseBuild": "0 warnings, 0 errors",
+    "deterministicSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "liveGameTouched": false
+  },
+  "limits": [
+    "The owner-visible first-scan Remaining behavior is not yet live-proven after this serialization change.",
+    "A request that never reaches the exact message handler can leave optional enrichment partial; base Monster acquisition remains independent and final collection stays bounded.",
+    "Manual game interaction that sends the same MonsterInvasionBossDetail command during an owned scan is outside this offline checkpoint and should not be treated as proof of automatic first-scan behavior."
+  ],
+  "ownerAcceptance": [
+    "One Normal Monster scan reaches 100% at normal full-world speed without 0.1%-style protection stalls.",
+    "A visibly shielded Zombie Boss shows Remaining after the first scan without Jump or manual boss click.",
+    "A second scan is not required to prime the timer."
+  ]
+}

@@ -1,10 +1,16 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-024, 2026-09-18
+
+The owner clarified the remaining defect precisely: a Zombie Boss timer can appear only after manually Jumping/clicking that boss, then a second scan inherits the primed game state; some scans also crawl in 0.1% progress increments. Exact current-v18 source now explains both symptoms. `MsgMap` maps `MonsterInvasionBossDetail` to `Net.Msgs.MonsterInvasionBossDetailMessge`; `SFSNetwork.GetMsgType` requires/caches that one module table; the message module stores one root `_uuid` upvalue that `OnCreate` overwrites for every send and `HandleMessage` later reuses for the response. Overlapping detail sends therefore cannot be safely correlated.
+
+Production now serializes Zombie Boss detail: one `MonsterInvasionBossDetail` request may be in flight, the exact recovered module `HandleMessage` advances the queue on success or error completion, and the queue runs beside AOI acquisition rather than blocking it. Only bosses whose recovered `createTime + monster_invasion.k12 * 1000` deadline can still be future are network-enriched. The previous final bulk retry and the C# 100 ms per-AOI protection settle wait are removed. Lua parses, a separate Release build is 0-warning/0-error, the full deterministic suite is green, and no live game action was taken because the owner was playing. Owner acceptance remains: first Normal scan, no Jump/click, normal scan pace, shielded Zombie Boss already has Remaining. Evidence: `2026-09-18-r7-zombie-boss-serial-detail.json`.
+
 ## Current superseding owner follow-up - LWB-R7-023, 2026-09-18
 
 A fresh current-v18 ordinary Monster scan after R7-021/R7-022 completed 2,500/2,500 blocks with zero failures in 73.206 s and published 13,462 Monster rows. Aggregate-only inspection found 97 exact Invasion Zombie Boss rows; 40 received authoritative protected replies and all 40 persisted positive protection deadlines. Six deadlines were still future at publication, so the backend positive-Remaining source is now LIVE-PROVEN rather than fixture-only.
 
-The revised retry policy is also live-confirmed: 97 initial requests produced 40 replies, then the final retry sent exactly 57 requests for the 57 unanswered bosses. The frontend generator `--check` passes and the existing local-only browser interaction suite passes its Monster Remaining contract, including HH:MM:SS rendering and a one-second local countdown tick. Owner-visible positive Remaining is still deliberately PENDING until the owner personally observes one of these future deadlines in the normal UI. Railway remains gated on that final visual check. Evidence: `2026-09-18-r7-zombie-boss-positive-deadlines.json`.
+Historical R7-023 observation: 97 initial requests produced 40 replies and the then-current final retry sent 57 more. R7-024 supersedes that retry architecture after recovering the message module's shared `_uuid`, which makes overlapping sends correlation-unsafe. The frontend generator `--check` passes and the existing local-only browser interaction suite passes its Monster Remaining contract, including HH:MM:SS rendering and a one-second local countdown tick. Owner-visible positive Remaining is still deliberately PENDING until the owner personally observes one of these future deadlines in the normal UI. Railway remains gated on that final visual check. Evidence: `2026-09-18-r7-zombie-boss-positive-deadlines.json`.
 
 ## Current superseding owner follow-up - LWB-R7-022, 2026-09-17
 

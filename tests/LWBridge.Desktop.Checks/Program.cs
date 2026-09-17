@@ -4589,8 +4589,15 @@ Check(liveCityProbeSource.Contains("PlayerWorldPointId", StringComparison.Ordina
       liveCityProbeSource.Contains("scalar_field(info, { \"playerName\", \"PlayerName\" })", StringComparison.Ordinal),
     "Player City helper retains current-runtime BuildPointInfo fields and same-server targeted view fallback");
 Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", StringComparison.Ordinal) &&
-      liveCityProbeSource.Contains("unanswered_monster_protection_targets", StringComparison.Ordinal),
-    "Monster Protection pump must not reference the removed per-batch retry helper");
+      !liveCityProbeSource.Contains("send_monster_invasion_protection_requests", StringComparison.Ordinal) &&
+      !liveCityProbeSource.Contains("unanswered_monster_protection_targets", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("ensure_monster_protection_message_capture", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("Net.Msgs.MonsterInvasionBossDetailMessge", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("pump_monster_protection_queue()", StringComparison.Ordinal),
+    "Monster Protection detail must serialize the shared-UUID game message and avoid bulk/retry overlap");
+string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
+Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
+    "optional Monster Protection detail must not pause each AOI acquisition step");
 
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),

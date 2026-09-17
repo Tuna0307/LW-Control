@@ -20,9 +20,6 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(8);
-    // IMPLEMENTATION POLICY: allow the optional detail response one short host-side
-    // window before advancing the map; this is not a recovered LWBridge constant.
-    private static readonly TimeSpan MonsterProtectionResponseSettleDelay = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     internal MonsterProtectionDetailMetrics? LastMonsterProtectionDetailMetrics { get; private set; }
@@ -175,11 +172,6 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 if (lastError is not null || observation is null) throw lastError!;
                 RequireSameSession(session);
-                if (observation.MonsterProtectionDetailRequestCount >
-                    observation.MonsterProtectionDetailReadyCount)
-                {
-                    await DelayAsync(MonsterProtectionResponseSettleDelay, cancellationToken).ConfigureAwait(false);
-                }
                 foreach (int index in observation.RequestedIndices)
                     covered.Add(index);
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
