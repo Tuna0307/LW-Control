@@ -12,6 +12,8 @@
 
 ## Current owner priority - shared Map Data Manual Scan engine, 2026-09-13
 
+- [ ] **ACTIVE owner Zombie Boss Remaining retest (`LWB-R7-021`):** owner normal Monster scan completes 2,500/2,500 in 74.791 s with 10,297 rows. Owner screenshot proves active protection timers, while one authoritative protected reply still persisted deadline `0`. The scanner now preserves the recovered `createTime + monster_invasion.k12 * 1000` deadline while loaded, removes the premature 40 ms all-target retry, and retries only unanswered UUIDs once at final collection. First retest goal: active protected rows show ticking Remaining. Railway remains gated.
+
 **PM17 corrections remain delivered.** Player City `LWB-PC-001/002/003` remains credited for authentic current-client city acquisition, persistence/reopen and owner-visible saved-row rendering. This does not prove the ordinary Manual Start button performs a complete world scan.
 
 **Current sequence:** build the shared scanner before treating Resource/Monster/etc. as separate delivery items. The core work is M01-M05/R7: authoritative map geometry/traversal, one owned scan run, block scheduling, Normal/Fast concurrency, native point/march capture, acknowledgements/removals, Stop/cancel/retry/failure, truthful progress/completion, durable staging/publication and Clear with late-result protection. Then route the eight `selectedTypes` through that same engine.

@@ -1,5 +1,9 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-021, 2026-09-17
+
+Owner live scan now completes 2,500/2,500 in 74.791 s with 10,297 Monster rows, but the supplied screenshot proves active Zombie Boss timers can still show `-`. The scan captured 65 targets / 43 authoritative replies; one visibly protected boss was `monsterProtectionKnown=true`, `monsterProtectionActive=true`, yet `protectionEndTime=0`, proving transport succeeded but deadline extraction failed after the boss unloaded. Current-v18 source proves `MonsterProtection.Refresh` computes `march.createTime + monster_invasion.k12 * 1000`. Production now preserves that source deadline while the AOI is loaded and uses it only when the authoritative reply says protected and the manager getter has already fallen to zero. The old 40 ms retry duplicated every request (65/65); it is removed. One final retry now targets only still-unanswered UUIDs. Offline suite/build are green; owner retest of positive Remaining is pending. Evidence: `2026-09-17-r7-zombie-boss-deadline-extraction.json`.
+
 ## Current superseding owner follow-up - LWB-R7-020, 2026-09-17
 
 The owner ordinary UI Monster scan exposed a validator bug after R7-019: the latest persisted run was discarded with 31 failed blocks, 29 carrying `Fast world Monster Invasion protection detail counters are inconsistent.` R7-019 correctly deduplicates Zombie Boss UUID requests across overlapping AOIs, so a later footprint can validly report `target=1, newRequest=0, ready=1` when the request was sent in the previous overlap. The C# UI path incorrectly required `ready <= newRequest`; it now validates `newRequest <= target` and `ready <= target` independently. A deterministic full-world regression covers that exact carry-over case.
