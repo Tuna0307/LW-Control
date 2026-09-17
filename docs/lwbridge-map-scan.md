@@ -1038,6 +1038,14 @@ For the current-v17 1000x1000 world, Truck reuses the same 200-request native AO
 
 **Correction and proof.** The stale invocation is removed and deterministic source checks reject that deleted helper reference while requiring `unanswered_monster_protection_targets`. Lua parse, full deterministic suite, Release build and packaged-Lua hash parity pass. A live current-v18 Home lifecycle proof then ran both manual and auto-start launch/close cycles; both reached `running/connected`, both closed cleanly, the new Player.log tail contained no stale-symbol error, exact original v18 compatibility returned `ok=true`, and no recovery journal remained. This checkpoint fixes launch/bootstrap only; R7-021 Zombie Boss positive Remaining remains the owner-visible gate. Evidence: [`2026-09-17-r7-black-screen-bootstrap-fix.json`](../evidence/lwbridge-implementation/2026-09-17-r7-black-screen-bootstrap-fix.json).
 
+### LWB-R7-023 - positive Zombie Boss protection deadlines survive full scan (2026-09-18)
+
+**LIVE-PROVEN backend source.** On current Lua content v18, a fresh ordinary Normal Monster scan completed 2,500/2,500 logical blocks with zero failures in 73.206 s and published 13,462 dynamic Monster rows. Aggregate-only inspection found 97 exact `MonsterInvasionBoss`/Zombie Boss rows. Forty received authoritative `isProtected=true` replies and all 40 persisted positive `monsterProtectionEndTime`/`shieldEndTime` values; six deadlines remained future at publication. No live UUIDs, coordinates, account/session identifiers or profile identifiers are retained in durable evidence.
+
+**LIVE-PROVEN selective retry.** The scan issued 97 initial detail requests and received 40 replies before final collection. The replacement retry policy then issued exactly 57 retries, matching the 57 still-unanswered UUIDs; it did not recreate the removed 40 ms all-target retry. Exact response yield remains dynamic and unresolved rows stay unknown without invalidating base acquisition.
+
+**Frontend validation and remaining gate.** `python tools/build_lwbridge_frontend.py --check` passes. The local-only Playwright interaction suite passes its existing Monster Remaining contract: a future `shieldEndTime` renders `HH:MM:SS` and changes after a 1.2 s local tick. This proves backend positive deadlines plus offline frontend rendering, but it does not substitute for the owner's normal-window observation. Owner-visible positive Remaining remains PENDING; Railway/Train stays gated until that final visual check. Evidence: `evidence/lwbridge-implementation/2026-09-18-r7-zombie-boss-positive-deadlines.json`.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

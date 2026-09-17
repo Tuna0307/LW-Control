@@ -1,0 +1,55 @@
+{
+  "findingId": "LWB-R7-023",
+  "date": "2026-09-18",
+  "scope": "Monster Invasion Zombie Boss positive protection deadlines after R7-021/R7-022",
+  "status": {
+    "backend": "LIVE-PROVEN",
+    "frontendCountdown": "IMPLEMENTED/OFFLINE-TESTED",
+    "ownerVisiblePositiveRemaining": "PENDING"
+  },
+  "source": {
+    "clientContentVersion": 18,
+    "officialPackageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "rebuildCommit": "eb8f41a7abad75520e9849454d690df0bf53cc30",
+    "data": "current profile map-data.db plus correlated Monster Protection collector result",
+    "privacy": "aggregate-only; no live UUID, coordinate, account, session or profile identifiers retained"
+  },
+  "liveScan": {
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "scanWallMilliseconds": 73206,
+    "publishedMonsterRows": 13462,
+    "eligibleZombieBossRows": 97,
+    "knownProtectionRows": 40,
+    "authoritativeProtectedRows": 40,
+    "positiveProtectionDeadlineRows": 40,
+    "futureProtectionDeadlinesAtPublication": 6
+  },
+  "protectionCollector": {
+    "initialRequestCount": 97,
+    "readyBeforeFinalRetry": 40,
+    "finalRetryCount": 57,
+    "finalReadyCount": 40,
+    "observation": "retry count exactly equals the still-unanswered target count; the removed 40 ms all-target retry did not recur"
+  },
+  "frontendValidation": {
+    "generatorCheck": "python tools/build_lwbridge_frontend.py --check",
+    "generatorCheckPassed": true,
+    "browserCommand": "LWBRIDGE_INTERACTIONS_ONLY=1 node tools/check_lwbridge_frontend.cjs",
+    "browserChecksPassed": 4,
+    "countdownContract": "future Monster shieldEndTime renders HH:MM:SS and changes after a 1.2 second local tick"
+  },
+  "result": {
+    "recoveredFormula": "march.createTime + DataConfig(monster_invasion,k12) * 1000",
+    "displayUnit": "Unix milliseconds",
+    "backendPositiveDeadlineProven": true,
+    "scanContinuityProven": true,
+    "ownerVisiblePositiveRemainingStillRequired": true
+  },
+  "limits": [
+    "Exact protection-response yield is dynamic and is not a fixed invariant.",
+    "A received protected response with an already elapsed deadline correctly renders no positive Remaining.",
+    "Owner has not yet explicitly confirmed a visibly ticking positive Remaining row after this checkpoint."
+  ]
+}

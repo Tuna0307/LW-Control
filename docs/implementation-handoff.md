@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-023, 2026-09-18
+
+A fresh current-v18 ordinary Monster scan after R7-021/R7-022 completed 2,500/2,500 blocks with zero failures in 73.206 s and published 13,462 Monster rows. Aggregate-only inspection found 97 exact Invasion Zombie Boss rows; 40 received authoritative protected replies and all 40 persisted positive protection deadlines. Six deadlines were still future at publication, so the backend positive-Remaining source is now LIVE-PROVEN rather than fixture-only.
+
+The revised retry policy is also live-confirmed: 97 initial requests produced 40 replies, then the final retry sent exactly 57 requests for the 57 unanswered bosses. The frontend generator `--check` passes and the existing local-only browser interaction suite passes its Monster Remaining contract, including HH:MM:SS rendering and a one-second local countdown tick. Owner-visible positive Remaining is still deliberately PENDING until the owner personally observes one of these future deadlines in the normal UI. Railway remains gated on that final visual check. Evidence: `2026-09-18-r7-zombie-boss-positive-deadlines.json`.
+
 ## Current superseding owner follow-up - LWB-R7-022, 2026-09-17
 
 The first owner launch after `LWB-R7-021` opened Last War to a black screen while LWBridge stayed `Launching game... / Disconnected`. `Player.log` proved an immediate bridge runtime error: `DataCenter.Global.LuaEntry: attempt to call a nil value (global pump_monster_protection_batch_retry)`. R7-021 removed that retry helper but left one stale call in `M.Pump()`, so every update tick faulted before bridge readiness. Production removes the stale call and deterministic checks now reject that removed symbol while requiring the replacement final-unanswered retry path.
