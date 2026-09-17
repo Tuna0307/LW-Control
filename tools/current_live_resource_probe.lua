@@ -2960,10 +2960,6 @@ function M.Pump()
             write_heartbeat(now)
             return true
         end
-        if pump_monster_protection_batch_retry() then
-            write_heartbeat(now)
-            return true
-        end
         if pump_bulk_aoi_diagnostic(now) then
             write_heartbeat(now)
             return true

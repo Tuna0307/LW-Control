@@ -4588,6 +4588,9 @@ Check(liveCityProbeSource.Contains("PlayerWorldPointId", StringComparison.Ordina
       liveCityProbeSource.Contains("currentLOD,currentServerId", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("scalar_field(info, { \"playerName\", \"PlayerName\" })", StringComparison.Ordinal),
     "Player City helper retains current-runtime BuildPointInfo fields and same-server targeted view fallback");
+Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("unanswered_monster_protection_targets", StringComparison.Ordinal),
+    "Monster Protection pump must not reference the removed per-batch retry helper");
 
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),

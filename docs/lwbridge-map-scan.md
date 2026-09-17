@@ -1032,6 +1032,12 @@ For the current-v17 1000x1000 world, Truck reuses the same 200-request native AO
 
 **Validation and owner gate.** Deterministic full-world coverage now includes the exact `1/0/1` carry-over case and still returns all 2,500 captures. The complete six-group deterministic suite is `ok=true`, Release build has zero warnings/errors, and `git diff --check` is clean. The failed owner session left a temporary candidate installed; `recover_overview_pending_current.py` restored exact original v18 package SHA-256 `e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1`, compatibility is `ok=true`, and the recovery journal is gone. No post-fix live scan is claimed here. Owner acceptance is now: first prove one ordinary Normal Monster scan reaches 100% without reset/stall, then inspect Zombie Boss Remaining. Evidence: [`2026-09-17-r7-owner-ui-dedup-counter-fix.json`](../evidence/lwbridge-implementation/2026-09-17-r7-owner-ui-dedup-counter-fix.json).
 
+### LWB-R7-022 - Monster protection refactor bootstrap regression (2026-09-17)
+
+**Owner-observed failure and root cause.** The first owner launch after R7-021 opened a black Last War window and left LWBridge at Launching/Disconnected. The candidate never produced bridge ready/heartbeat. `Player.log` repeatedly reported `DataCenter.Global.LuaEntry: attempt to call a nil value (global pump_monster_protection_batch_retry)` from `M.Pump()`. R7-021 had removed the per-batch retry helper in favor of one final retry for still-unanswered UUIDs, but one stale pump invocation remained.
+
+**Correction and proof.** The stale invocation is removed and deterministic source checks reject that deleted helper reference while requiring `unanswered_monster_protection_targets`. Lua parse, full deterministic suite, Release build and packaged-Lua hash parity pass. A live current-v18 Home lifecycle proof then ran both manual and auto-start launch/close cycles; both reached `running/connected`, both closed cleanly, the new Player.log tail contained no stale-symbol error, exact original v18 compatibility returned `ok=true`, and no recovery journal remained. This checkpoint fixes launch/bootstrap only; R7-021 Zombie Boss positive Remaining remains the owner-visible gate. Evidence: [`2026-09-17-r7-black-screen-bootstrap-fix.json`](../evidence/lwbridge-implementation/2026-09-17-r7-black-screen-bootstrap-fix.json).
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

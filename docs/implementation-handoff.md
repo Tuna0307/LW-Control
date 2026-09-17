@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-022, 2026-09-17
+
+The first owner launch after `LWB-R7-021` opened Last War to a black screen while LWBridge stayed `Launching game... / Disconnected`. `Player.log` proved an immediate bridge runtime error: `DataCenter.Global.LuaEntry: attempt to call a nil value (global pump_monster_protection_batch_retry)`. R7-021 removed that retry helper but left one stale call in `M.Pump()`, so every update tick faulted before bridge readiness. Production removes the stale call and deterministic checks now reject that removed symbol while requiring the replacement final-unanswered retry path.
+
+A controlled current-v18 lifecycle proof then completed both manual Launch and Open-games-at-startup cycles at `running/connected`, closed both owned games cleanly, left no stale retry error in the new log tail, restored the exact original v18 package and left no recovery journal. Zombie Boss positive Remaining remains the owner-visible gate from R7-021; Railway stays blocked until that timer retest. Evidence: `2026-09-17-r7-black-screen-bootstrap-fix.json`.
+
 ## Current superseding owner follow-up - LWB-R7-021, 2026-09-17
 
 Owner live scan now completes 2,500/2,500 in 74.791 s with 10,297 Monster rows, but the supplied screenshot proves active Zombie Boss timers can still show `-`. The scan captured 65 targets / 43 authoritative replies; one visibly protected boss was `monsterProtectionKnown=true`, `monsterProtectionActive=true`, yet `protectionEndTime=0`, proving transport succeeded but deadline extraction failed after the boss unloaded. Current-v18 source proves `MonsterProtection.Refresh` computes `march.createTime + monster_invasion.k12 * 1000`. Production now preserves that source deadline while the AOI is loaded and uses it only when the authoritative reply says protected and the manager getter has already fallen to zero. The old 40 ms retry duplicated every request (65/65); it is removed. One final retry now targets only still-unanswered UUIDs. Offline suite/build are green; owner retest of positive Remaining is pending. Evidence: `2026-09-17-r7-zombie-boss-deadline-extraction.json`.
