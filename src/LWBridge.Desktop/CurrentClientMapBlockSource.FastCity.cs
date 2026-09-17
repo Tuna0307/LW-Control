@@ -19,6 +19,10 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldColumnRequests = FastCityAoiBlockCount / FastFullWorldAoiColumns;
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(8);
+    // IMPLEMENTATION POLICY: allow the optional detail response one short host-side
+    // window before advancing the map; this is not a recovered LWBridge constant.
+    private static readonly TimeSpan MonsterProtectionResponseSettleDelay = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     internal MonsterProtectionDetailMetrics? LastMonsterProtectionDetailMetrics { get; private set; }
@@ -136,10 +140,6 @@ internal sealed partial class CurrentClientMapBlockSource
         var resourceRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
         var monsterRecords = new Dictionary<string, FastMonsterPrepared>(StringComparer.Ordinal);
         var truckRecords = new Dictionary<string, FastTrainPrepared>(StringComparer.Ordinal);
-        int monsterInvasionBossCount = 0;
-        int monsterProtectionDetailTargetCount = 0;
-        int monsterProtectionDetailRequestCount = 0;
-        int monsterProtectionDetailReadyCount = 0;
         LastMonsterProtectionDetailMetrics = null;
         for (int row = 0; row < FastFullWorldRowRequests; row++)
         {
@@ -175,12 +175,13 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 if (lastError is not null || observation is null) throw lastError!;
                 RequireSameSession(session);
+                if (observation.MonsterProtectionDetailRequestCount >
+                    observation.MonsterProtectionDetailReadyCount)
+                {
+                    await DelayAsync(MonsterProtectionResponseSettleDelay, cancellationToken).ConfigureAwait(false);
+                }
                 foreach (int index in observation.RequestedIndices)
                     covered.Add(index);
-                monsterInvasionBossCount += observation.MonsterInvasionBossCount;
-                monsterProtectionDetailTargetCount += observation.MonsterProtectionDetailTargetCount;
-                monsterProtectionDetailRequestCount += observation.MonsterProtectionDetailRequestCount;
-                monsterProtectionDetailReadyCount += observation.MonsterProtectionDetailReadyCount;
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
                 {
                     if (!cityRecords.TryGetValue(prepared.Record.RecordKey, out FirstLivePreparedResource? prior) ||
@@ -211,9 +212,30 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
+
+        MonsterProtectionDetailObservation protection = MonsterProtectionDetailObservation.Empty;
+        int monsterInvasionBossCount = monsterRecords.Values.Count(item => item.ProtectionEligible);
+        if (monsterInvasionBossCount > 0)
+        {
+            try
+            {
+                protection = await ProbeMonsterProtectionDetailsAsync(
+                    session, request, monsterInvasionBossCount, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
+            {
+                protection = MonsterProtectionDetailObservation.Failed(ex.Message);
+            }
+            foreach ((string key, FastMonsterPrepared prepared) in monsterRecords.ToArray())
+            {
+                if (!prepared.ProtectionEligible) continue;
+                protection.Details.TryGetValue(prepared.Record.Uuid ?? string.Empty, out MonsterProtectionDetail? detail);
+                monsterRecords[key] = ApplyMonsterProtectionDetail(prepared, detail);
+            }
+        }
         LastMonsterProtectionDetailMetrics = new MonsterProtectionDetailMetrics(
-            monsterInvasionBossCount, monsterProtectionDetailTargetCount,
-            monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
+            monsterInvasionBossCount, protection.TargetCount,
+            protection.RequestCount, protection.RetryCount, protection.ReadyCount, protection.Error);
 
         var buckets = new Dictionary<int, List<MapStoredRecord>>();
         if (request.SelectedTypes.Contains("city", StringComparer.Ordinal))
@@ -243,9 +265,11 @@ internal sealed partial class CurrentClientMapBlockSource
                 recordsInBlock = records.Count,
                 coveredAoiCells = covered.Count,
                 monsterInvasionBossCount,
-                monsterProtectionDetailTargetCount,
-                monsterProtectionDetailRequestCount,
-                monsterProtectionDetailReadyCount,
+                monsterProtectionDetailTargetCount = protection.TargetCount,
+                monsterProtectionDetailRequestCount = protection.RequestCount,
+                monsterProtectionDetailRetryCount = protection.RetryCount,
+                monsterProtectionDetailReadyCount = protection.ReadyCount,
+                monsterProtectionDetailError = protection.Error,
             }, JsonOptions.Default);
             captures.Add(new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex, payload, records));
         }
@@ -279,6 +303,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"challenge={session.Challenge}",
             $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
             $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"scanRunId={request.RunId}",
             "viewLevel=-1",
             "requestMode=coverage",
             $"targetTileX={targetX.ToString(CultureInfo.InvariantCulture)}",
@@ -316,6 +341,117 @@ internal sealed partial class CurrentClientMapBlockSource
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client fast City batch did not return a correlated result.");
+    }
+
+    private async Task<MonsterProtectionDetailObservation> ProbeMonsterProtectionDetailsAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int expectedTargetCount,
+        CancellationToken cancellationToken)
+    {
+        string requestId = "monsterprotection" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string commandPath = Path.Combine(probeRuntimeRoot, "monster-protection-detail.txt");
+        string resultPath = Path.Combine(probeRuntimeRoot, "monster-protection-detail-result.json");
+        DateTimeOffset startedAt = Now();
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"probeVersion={ProbeVersion}",
+            $"requestId={requestId}",
+            $"profileId={session.ProfileId}",
+            $"launchSessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"scanRunId={request.RunId}",
+            $"expectedTargetCount={expectedTargetCount.ToString(CultureInfo.InvariantCulture)}",
+            string.Empty,
+        });
+        await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset deadline = startedAt + MonsterProtectionProbeTimeout;
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+                return ValidateMonsterProtectionDetailResult(
+                    root.Value, requestId, startedAt, session, request, expectedTargetCount);
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+        throw new TimeoutException("The current-client Monster Protection enrichment did not return a correlated result.");
+    }
+
+    private MonsterProtectionDetailObservation ValidateMonsterProtectionDetailResult(
+        JsonElement root,
+        string requestId,
+        DateTimeOffset startedAt,
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int expectedTargetCount)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "probeVersion", ProbeVersion) ||
+            !MatchesString(root, "requestId", requestId) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "launchSessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesString(root, "scanRunId", request.RunId) ||
+            !MatchesInt(root, "serverId", request.ServerId) ||
+            !MatchesInt(root, "expectedTargetCount", expectedTargetCount) ||
+            !MatchesString(root, "state", "completed"))
+            throw new InvalidDataException("Monster Protection enrichment result did not match the active owned scan.");
+        RequireFreshCaptureTime(root, startedAt);
+        int targetCount = RequireNonNegativeInt(root, "targetCount");
+        int requestCount = RequireNonNegativeInt(root, "requestCount");
+        int retryCount = RequireNonNegativeInt(root, "retryCount");
+        int readyCount = RequireNonNegativeInt(root, "readyCount");
+        if (targetCount != expectedTargetCount || requestCount > targetCount || readyCount > requestCount)
+            throw new InvalidDataException("Monster Protection enrichment counters are inconsistent.");
+        if (!root.TryGetProperty("details", out JsonElement detailsValue) || detailsValue.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("Monster Protection enrichment details are missing.");
+        var details = new Dictionary<string, MonsterProtectionDetail>(StringComparer.Ordinal);
+        foreach (JsonElement item in detailsValue.EnumerateArray())
+        {
+            string uuid = RequiredString(item, "uuid");
+            bool received = item.TryGetProperty("received", out JsonElement receivedValue) && receivedValue.ValueKind == JsonValueKind.True;
+            bool active = item.TryGetProperty("isProtected", out JsonElement activeValue) && activeValue.ValueKind == JsonValueKind.True;
+            long endTime = item.TryGetProperty("protectionEndTime", out JsonElement endValue) && endValue.TryGetInt64(out long parsedEnd)
+                ? parsedEnd : 0;
+            if (!received && (active || endTime != 0))
+                throw new InvalidDataException("Unreceived Monster Protection detail carried authoritative state.");
+            if (!details.TryAdd(uuid, new MonsterProtectionDetail(received, active, endTime)))
+                throw new InvalidDataException("Monster Protection enrichment returned a duplicate UUID.");
+        }
+        if (details.Count != targetCount)
+            throw new InvalidDataException("Monster Protection enrichment target/detail counts differ.");
+        string? error = ReadOptionalString(root, "error");
+        return new MonsterProtectionDetailObservation(targetCount, requestCount, retryCount, readyCount, details, error);
+    }
+
+    private static FastMonsterPrepared ApplyMonsterProtectionDetail(
+        FastMonsterPrepared prepared,
+        MonsterProtectionDetail? detail)
+    {
+        JsonObject data = JsonNode.Parse(prepared.Record.DataJson)?.AsObject()
+            ?? throw new InvalidDataException("Monster record JSON is unavailable during protection enrichment.");
+        bool known = detail?.Received == true;
+        bool active = known && detail!.Active;
+        long endTime = active && detail!.EndTime > 0 ? detail.EndTime : 0;
+        data["monsterProtectionKnown"] = known;
+        data["monsterProtectionActive"] = active;
+        data["monsterProtectionEndTime"] = endTime;
+        data.Remove("shieldEndTime");
+        long? shieldEndTime = endTime > 0 ? endTime : null;
+        if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
+        return prepared with
+        {
+            Record = prepared.Record with
+            {
+                ShieldEndTime = shieldEndTime,
+                DataJson = data.ToJsonString(JsonOptions.Default),
+            },
+        };
     }
 
     private FastCityBatchObservation ValidateFastCityBatchResult(
@@ -495,7 +631,7 @@ internal sealed partial class CurrentClientMapBlockSource
             if (distance is not null) data["distanceFromHome"] = distance.Value;
             if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
-            result.Add(new FastMonsterPrepared(x, y, new MapStoredRecord("monster", serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
+            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord("monster", serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
         }
         return result;
     }
@@ -611,9 +747,24 @@ internal sealed partial class CurrentClientMapBlockSource
     }
 
     internal sealed record MonsterProtectionDetailMetrics(
-        int BossCount, int TargetCount, int RequestCount, int ReadyCount);
+        int BossCount, int TargetCount, int RequestCount, int RetryCount, int ReadyCount, string? Error);
     private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes);
-    private sealed record FastMonsterPrepared(int X, int Y, MapStoredRecord Record);
+    private sealed record FastMonsterPrepared(int X, int Y, bool ProtectionEligible, MapStoredRecord Record);
+    private sealed record MonsterProtectionDetail(bool Received, bool Active, long EndTime);
+    private sealed record MonsterProtectionDetailObservation(
+        int TargetCount,
+        int RequestCount,
+        int RetryCount,
+        int ReadyCount,
+        IReadOnlyDictionary<string, MonsterProtectionDetail> Details,
+        string? Error)
+    {
+        internal static readonly MonsterProtectionDetailObservation Empty =
+            new(0, 0, 0, 0, new Dictionary<string, MonsterProtectionDetail>(StringComparer.Ordinal), null);
+
+        internal static MonsterProtectionDetailObservation Failed(string error) =>
+            new(0, 0, 0, 0, new Dictionary<string, MonsterProtectionDetail>(StringComparer.Ordinal), error);
+    }
     private sealed record FastTrainPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastCityBatchObservation(
         int[] RequestedIndices,

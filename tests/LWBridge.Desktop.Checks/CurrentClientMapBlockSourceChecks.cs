@@ -303,6 +303,7 @@ internal static class CurrentClientMapBlockSourceChecks
     private static async Task FastMonsterFullMapReturnsAllLogicalCaptures()
     {
         int bulkCalls = 0;
+        int protectionCalls = 0;
         CurrentClientMapBlockSource source = CreateSource(
             (fields, _) => ProvenEmptyCityCurrentView(fields),
             bulkResult: fields =>
@@ -320,12 +321,18 @@ internal static class CurrentClientMapBlockSourceChecks
                 }
                 if (x == 975 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", false));
                 return ProvenFastMonsterBatch(fields);
+            },
+            monsterProtectionResult: fields =>
+            {
+                protectionCalls++;
+                return ProvenMonsterProtectionResult(fields, ("m-first", true, true, 2_000_000_000_000L));
             });
         MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 200 && captures.Count == 2500, "fast full-Monster source should use 200 live-measured native responses");
+        Check(bulkCalls == 200 && protectionCalls == 1 && captures.Count == 2500,
+            "fast full-Monster source should use 200 AOI responses and one post-acquisition protection refresh");
         Check(source.LastMonsterProtectionDetailMetrics is { BossCount: 1, TargetCount: 1, RequestCount: 1, ReadyCount: 1 },
             "fast full-Monster source should aggregate completed Monster Invasion protection detail refresh metrics");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
@@ -358,7 +365,9 @@ internal static class CurrentClientMapBlockSourceChecks
                 root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
                 root["monsterProtectionDetailRequestCount"] = 1; root["monsterProtectionDetailReadyCount"] = 1;
                 return root.ToJsonString(JsonOptions.Default);
-            });
+            },
+            monsterProtectionResult: fields =>
+                ProvenMonsterProtectionResult(fields, ("m-inactive", true, false, 0L)));
         MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
@@ -387,7 +396,9 @@ internal static class CurrentClientMapBlockSourceChecks
                     row["monsterProtectionEndTime"] = 0; row["zMBossShieldEndTime"] = 2_000_000_000_000L;
                 }
                 return root.ToJsonString(JsonOptions.Default);
-            });
+            },
+            monsterProtectionResult: fields =>
+                ProvenMonsterProtectionResult(fields, ("m-timeout", false, false, 0L)));
         MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
@@ -543,7 +554,8 @@ internal static class CurrentClientMapBlockSourceChecks
         int serverLod = 1,
         Func<OverviewMapScanSession, CancellationToken, Task>? waitForHealthySession = null,
         Action<string>? onProtocolWrite = null,
-        Func<IReadOnlyDictionary<string, string>, string>? bulkResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? bulkResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? monsterProtectionResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -586,6 +598,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     if (bulkResult is null) throw new InvalidOperationException("unexpected fast City bulk request");
                     string result = bulkResult(fields);
                     files[Path.Combine(probeRoot, "bulk-aoi-diagnostic-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(probeRoot, "monster-protection-detail.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (monsterProtectionResult is null) throw new InvalidOperationException("unexpected Monster Protection request");
+                    string result = monsterProtectionResult(fields);
+                    files[Path.Combine(probeRoot, "monster-protection-detail-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 throw new InvalidOperationException("unexpected protocol write: " + path);
@@ -935,6 +954,39 @@ internal static class CurrentClientMapBlockSourceChecks
         }).ToArray(), JsonOptions.Default);
         return root.ToJsonString(JsonOptions.Default);
     }
+
+    private static string ProvenMonsterProtectionResult(
+        IReadOnlyDictionary<string, string> fields,
+        params (string Uuid, bool Received, bool Active, long EndTime)[] details) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"],
+            launchSessionId = fields["launchSessionId"],
+            profileId = fields["profileId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            scanRunId = fields["scanRunId"],
+            serverId = int.Parse(fields["serverId"]),
+            expectedTargetCount = int.Parse(fields["expectedTargetCount"]),
+            state = "completed",
+            error = details.Any(detail => !detail.Received) ? "monster_invasion_protection_response_timeout" : null,
+            targetCount = details.Length,
+            requestCount = details.Length,
+            retryCount = 0,
+            readyCount = details.Count(detail => detail.Received),
+            timedOut = details.Any(detail => !detail.Received),
+            elapsedSeconds = 3.0,
+            details = details.Select(detail => new
+            {
+                uuid = detail.Uuid,
+                received = detail.Received,
+                isProtected = detail.Active,
+                protectionEndTime = detail.EndTime,
+            }).ToArray(),
+            capturedAt = Timestamp(),
+        }, JsonOptions.Default);
 
     private static string Timestamp() => Now.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
 

@@ -1,0 +1,109 @@
+{
+  "findingId": "LWB-R7-019",
+  "date": "2026-09-17",
+  "status": "RECOVERED current-v18 click/request/response contract; IMPLEMENTED/OFFLINE-TESTED automatic batch enrichment; LIVE-PROVEN complete scan and automatic detail transport; positive active deadline not observed",
+  "scope": "Automatic Zombie Boss Remaining enrichment without per-row clicking and without exceeding the owner's 90-second normal-scan ceiling",
+  "sourceIdentity": {
+    "lwbridgeReferenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "currentClientContentVersion": 18,
+    "currentClientPackageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "currentClientPackageSize": 41296021,
+    "currentClientPackageCrc32": 738537259,
+    "assemblyCSharpRdlSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "currentClientRecovery": {
+    "triggerLocator": "UI/UIWorldPoint/Component/WorldMonsterDes.luac :: WorldMonsterDes.RefreshData",
+    "eligibility": "template.special == WorldMonsterSpecialType.MonsterInvasionBoss",
+    "request": "SFSNetwork.SendMessage(MsgDefines.MonsterInvasionBossDetail, view.ctrl.serverId, data.uuid)",
+    "responseLocator": "MonsterInvasionBossDetail response handler -> DataCenter.MonsterProtectionManager:OnGetDetail(msg)",
+    "deadlineLocator": "MonsterProtectionManager:GetMonsterProtectionEndTime(uuid)",
+    "displayFormula": "protectionEndTime - authoritative server time",
+    "boundedReproduction": [
+      "Use tools/run_live_resource_probe.py package reader and verified LENC decoder to extract the named current-v18 Lua chunk from the exact package hash.",
+      "Parse the decoded Lua 5.3 chunk with the Reader/decode helpers in tools/inspect_uimain_world_transition.py.",
+      "Locate constants MonsterInvasionBoss, MonsterInvasionBossDetail, OnGetDetail, GetMonsterProtectionEndTime and inspect their containing prototypes and call operands.",
+      "Run the ordinary live proof with: dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-build -- --live-current-client-full-monster-manual"
+    ]
+  },
+  "implementation": {
+    "acquisition": "Each exact MonsterInvasionBoss is requested while its AOI is loaded; UUIDs are deduplicated and bound to profile, launch session, challenge, game PID, scan run and server.",
+    "pacing": "No per-boss or per-AOI response timeout is allowed to fail base acquisition. The host keeps only boss-bearing AOIs stable for at most 100 ms and the Lua pump may retry an unanswered UUID once after 40 ms.",
+    "collection": "One post-acquisition collector waits once for outstanding responses, validates exact run identity and target cardinality, then merges only received isProtected/protectionEndTime values.",
+    "failurePolicy": "Transport timeout or malformed enrichment is fail-soft for the optional detail: the complete Monster scan publishes, Remaining stays unknown, stale zMBossInfo is not substituted, and diagnostics retain target/request/retry/ready/error counts.",
+    "presentation": "Received isProtected=true with positive protectionEndTime populates shieldEndTime and the existing Remaining countdown; received inactive, unanswered, nonpositive or expired values render '-'.",
+    "implementationPolicy": "The 100 ms host settle and one 40 ms unanswered retry are rebuild pacing choices measured against the owner's under-90-second requirement, not recovered LWBridge constants."
+  },
+  "liveRuns": [
+    {
+      "purpose": "prove base speed after removing per-AOI waits",
+      "scanWallSeconds": 69.0848678,
+      "publishedMonsterCount": 7160,
+      "bossRecords": 63,
+      "detailTargets": 0,
+      "result": "proved bosses unload before a final-only enumeration; design superseded"
+    },
+    {
+      "purpose": "nonblocking request while AOI loaded",
+      "scanWallSeconds": 74.5309576,
+      "publishedMonsterCount": 10296,
+      "bossRecords": 80,
+      "detailTargets": 80,
+      "detailRequests": 80,
+      "detailReady": 45,
+      "result": "automatic transport live-proven; partial replies; under 90 seconds"
+    },
+    {
+      "purpose": "rejected in-Lua drain experiment",
+      "completedBlocks": 110,
+      "failedBlocks": 624,
+      "unreadBlocks": 1765,
+      "result": "failed closed without publication; incompatible drain removed before final implementation"
+    },
+    {
+      "purpose": "final host-paced one-retry implementation",
+      "scanMode": "normal",
+      "concurrency": 8,
+      "totalBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 82.9616908,
+      "publishedMonsterCount": 10350,
+      "reopenedMonsterCount": 10350,
+      "distanceCount": 10350,
+      "bossRecords": 81,
+      "detailTargets": 81,
+      "detailRequests": 81,
+      "detailRetries": 81,
+      "detailReady": 50,
+      "detailError": "monster_invasion_protection_response_timeout",
+      "shieldDeadlineCount": 0,
+      "activeShieldDeadlineCount": 0,
+      "result": "complete publication/reopen and automatic detail replies in 82.96 seconds; no active shield existed in this dynamic population"
+    }
+  ],
+  "validation": {
+    "checksReleaseBuild": "0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; six deterministic groups true; failures=[]",
+    "fullWorldCases": [
+      "known active detail populates persisted shieldEndTime",
+      "known inactive detail suppresses Remaining",
+      "unanswered detail preserves all 2500 base captures and suppresses unrelated fallback",
+      "one final detail protocol request is used for all captured eligible rows"
+    ],
+    "cleanup": "Every bounded live proof stopped the owned lifecycle and removed its temporary database; the failed drain attempt published no partial index."
+  },
+  "limits": [
+    "The final live population returned no active positive protectionEndTime, so a visibly ticking positive Remaining value is not LIVE-PROVEN in this checkpoint.",
+    "50 of 81 final-run targets returned authoritative detail after one retry; unanswered targets intentionally remain unknown rather than guessed.",
+    "Monster populations, response counts and scan times are dynamic observations, not fixed invariants.",
+    "The original LWBridge 0.3.1 Monster table had no Remaining column; this remains an evidence-backed rebuild usability extension."
+  ],
+  "sourceHashes": {
+    "tools/current_live_resource_probe.lua": "cfc9db68830dace617e6f458f7041c39f2d57d30081f9c551901d8e7e9cb971f",
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "30764ecd87af3cd77486e1198a9616f60f3c8d89741017a1f9461f47ed4f3f63",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "3e47e3f52eb1bf8d99dcda21ffc8d193c8975cf653bf5d31c8aebd389425f389",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullMonsterProof.cs": "d33a7463b83f3f246c53198e873dd5e86d024ab123b832cebfbe2764c7aa80ca",
+    "releaseExe": "513e739690ed9093e5b4a09b0b99415328f0975600caafa21239b3b798ad0dc5",
+    "releaseDll": "5ce5d406ca9922d8b712991e2569d173ebf96fdfe381e6b9f6f0227f20f35052"
+  }
+}

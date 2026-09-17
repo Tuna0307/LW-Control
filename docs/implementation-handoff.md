@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-019, 2026-09-17
+
+The exact current-v18 behavior behind the owner's click observation is recovered: `WorldMonsterDes.RefreshData` sends `MonsterInvasionBossDetail(view.ctrl.serverId,data.uuid)` only for exact `WorldMonsterSpecialType.MonsterInvasionBoss`; the response enters `MonsterProtectionManager:OnGetDetail`, and UI Remaining derives from `GetMonsterProtectionEndTime(uuid)` relative to server time. Production now sends this automatically while each eligible boss AOI is loaded, deduplicates and run-binds UUIDs, allows only a 100 ms host settle plus one 40 ms unanswered retry, and performs one final collection. These two pacing values are IMPLEMENTATION POLICY, not recovered constants. Optional detail failure cannot fail or reset base acquisition, and unknown/inactive protection cannot fabricate Remaining.
+
+Final current-v18 Normal proof completed 2,500/2,500 blocks with zero failed/unread blocks in 82.9616908 seconds, published/reopened exactly 10,350 dynamic Monster rows, issued 81 automatic detail requests plus 81 bounded retries and captured 50 authoritative replies. The population contained no active positive protection deadline, so a visibly ticking positive Remaining is not yet LIVE-PROVEN; `-` is correct for inactive/unanswered rows. Deterministic known-active coverage proves a received positive deadline persists and renders through the existing countdown. Evidence: `2026-09-17-r7-zombie-boss-protection-batch.json`.
+
+**Owner next check:** run one normal Monster scan in the delivered app and inspect Zombie Boss Remaining without clicking. The technical scan/time gate is closed; owner-visible positive Remaining can only be confirmed while the live server actually exposes an active protected boss. After that visual check, proceed to Railway/Train on the shared scanner.
+
 ## Current superseding owner follow-up - LWB-R7-018, 2026-09-17
 
 The owner exposed a real Monster regression after the v18 update: progress repeatedly reached ~4.5%, reset to 0%, and repeated. Persisted scan checkpoints identify the exact cause as `monster_invasion_protection_response_timeout` on the new Zombie Boss protection enrichment, not broken v18 AOI acquisition. Protection detail is optional enrichment and now cannot discard the base Monster scan: timeout/transport failure leaves protection unknown, clears pending correlation, preserves diagnostic target/request/ready counts, and continues. Eligible Invasion Zombie Boss rows with unknown protection do not fall back to unrelated `zMBossInfo`. Deterministic full-world coverage, Lua parse and Release build are green. The interrupted candidate was recovered to exact original v18 and current compatibility is `ok=true`. Evidence: `2026-09-17-r7-monster-protection-scan-resilience.json`.
@@ -20,7 +28,7 @@ The Monster level selector now presents `Any Level`, then `5, 10, 15, ...` throu
 
 Fresh current-v17 ordinary Monster Manual Start completed all 2,500 logical blocks with zero failed/unread blocks in 86.819 s Normal, published 12,017 rows, reopened exactly 12,017, and all 12,017 carried Distance (`min=2`, `max=1055.8356933594`). This live population contained zero `ZMBossInfo` rows / shield deadlines, so an active shield countdown is not fabricated or claimed; Remaining truthfully shows `-` until a shielded Zombie Boss is actually present. Release builds are 0-warning/0-error, deterministic suite `ok=true`, and all 36 browser checks pass. Evidence: `2026-09-17-r7-monster-owner-followup.json`.
 
-**Next after owner retest:** Railway/Train, then Dispatch/Secret Task, Ghost Ops and Treasure on the shared scanner.
+**Superseded by R7-019:** the technical v18 full-scan retest is complete. Railway/Train follows the remaining owner-visible Monster page check, then Dispatch/Secret Task, Ghost Ops and Treasure on the shared scanner.
 
 ## Prior checkpoint - LWB-R7-016, 2026-09-17
 

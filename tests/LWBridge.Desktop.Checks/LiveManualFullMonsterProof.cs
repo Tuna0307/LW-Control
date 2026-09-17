@@ -29,7 +29,9 @@ internal static class LiveManualFullMonsterProof
         int monsterInvasionBossCount = 0;
         int monsterProtectionDetailTargetCount = 0;
         int monsterProtectionDetailRequestCount = 0;
+        int monsterProtectionDetailRetryCount = 0;
         int monsterProtectionDetailReadyCount = 0;
+        string? monsterProtectionDetailError = null;
         double? minDistance = null;
         double? maxDistance = null;
         long? minShieldDeadline = null;
@@ -114,7 +116,9 @@ internal static class LiveManualFullMonsterProof
                 monsterInvasionBossCount = metrics.BossCount;
                 monsterProtectionDetailTargetCount = metrics.TargetCount;
                 monsterProtectionDetailRequestCount = metrics.RequestCount;
+                monsterProtectionDetailRetryCount = metrics.RetryCount;
                 monsterProtectionDetailReadyCount = metrics.ReadyCount;
+                monsterProtectionDetailError = metrics.Error;
                 publishedMonsterCount = store.SearchIndexed(MonsterQuery(serverId)).Total;
                 if (publishedMonsterCount <= 0)
                     throw new InvalidDataException("Ordinary Manual Monster scan published no Monster records.");
@@ -151,7 +155,9 @@ internal static class LiveManualFullMonsterProof
                 monsterInvasionBossCount,
                 monsterProtectionDetailTargetCount,
                 monsterProtectionDetailRequestCount,
+                monsterProtectionDetailRetryCount,
                 monsterProtectionDetailReadyCount,
+                monsterProtectionDetailError,
                 minShieldDeadline,
                 maxShieldDeadline,
             }, JsonOptions.Default));

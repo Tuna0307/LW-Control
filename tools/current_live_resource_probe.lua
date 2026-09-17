@@ -16,6 +16,8 @@ local runtime_diagnostic_path = root .. [[\runtime-diagnostic.txt]]
 local runtime_diagnostic_result_path = root .. [[\runtime-diagnostic-result.json]]
 local bulk_aoi_diagnostic_path = root .. [[\bulk-aoi-diagnostic.txt]]
 local bulk_aoi_diagnostic_result_path = root .. [[\bulk-aoi-diagnostic-result.json]]
+local monster_protection_detail_path = root .. [[\monster-protection-detail.txt]]
+local monster_protection_detail_result_path = root .. [[\monster-protection-detail-result.json]]
 local overview_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\overview-bridge]]
 local overview_control_path = overview_root .. [[\control.txt]]
 local overview_lease_path = overview_root .. [[\lease.txt]]
@@ -41,6 +43,9 @@ local timer_handle = nil
 local update_callback = nil
 local bulk_aoi_request = nil
 local bulk_aoi_started_at = nil
+local monster_protection_request = nil
+local monster_protection_started_at = nil
+local monster_protection_scan = nil
 local bulk_aoi_original_start_view_request = nil
 local bulk_aoi_original_block_count = nil
 local bulk_aoi_block_count_touched = false
@@ -64,6 +69,9 @@ local bulk_aoi_original_camera_lod = nil
 local RESPONSE_TIMEOUT_SECONDS = 8
 local BULK_AOI_TIMEOUT_SECONDS = 8
 local MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS = 3
+-- IMPLEMENTATION POLICY: one unanswered-detail retry may be sent after this
+-- short interval while the host keeps the same AOI stable.
+local MONSTER_INVASION_PROTECTION_RETRY_SECONDS = 0.04
 local MAX_POINTS = 50000
 
 local function safe_get(target, key)
@@ -1094,6 +1102,7 @@ local function read_bulk_aoi_diagnostic(now)
     request.challenge = tostring(values.challenge or "")
     request.gamePid = tonumber(values.gamePid)
     request.serverId = tonumber(values.serverId)
+    request.scanRunId = tostring(values.scanRunId or "")
     request.viewLevel = tonumber(values.viewLevel or "-1")
     request.requestMode = tostring(values.requestMode or "native")
     request.targetTileX = tonumber(values.targetTileX)
@@ -1110,6 +1119,7 @@ local function read_bulk_aoi_diagnostic(now)
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
        request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) or
+       not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
        (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage") or
        request.targetTileX == nil or request.targetTileY == nil or
@@ -1387,10 +1397,13 @@ end
 
 local function is_monster_invasion_template(template)
     if template == nil then return false end
+    local specials = rawget(_G, "WorldMonsterSpecialType")
+    local invasion_boss = specials and safe_get(specials, "MonsterInvasionBoss") or nil
     local special = scalar_field(template, { "special", "Special" })
-    local name_key = tostring(scalar_field(template, { "name", "Name" }) or "")
-    return same_enum_value(special, invasion_big_boss) or
-        same_enum_value(special, invasion_boss) or name_key == "2901012"
+    -- Current-v18 WorldMonsterDes.RefreshData issues MonsterInvasionBossDetail
+    -- only for this exact game-owned special type. Names and other boss types
+    -- are not substituted.
+    return same_enum_value(special, invasion_boss)
 end
 
 local function ensure_monster_protection_capture()
@@ -1428,7 +1441,7 @@ local function ensure_monster_protection_capture()
     return state, nil
 end
 
-local function monster_invasion_protection_targets(world, block_size, block_count, selected_lookup)
+local function monster_invasion_protection_targets(world, block_size, block_count, selected_lookup, requested_server_id)
     local march_manager = safe_get(world, "MarchDataManager") or reflected_value(world, "MarchDataManager")
     if march_manager == nil then return nil, nil, "WorldScene.MarchDataManager unavailable" end
     local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
@@ -1437,9 +1450,6 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
     local data_center = rawget(_G, "DataCenter")
     local template_manager = data_center and safe_get(data_center, "MonsterTemplateManager") or nil
     if template_manager == nil then return nil, nil, "monster_template_manager_unavailable" end
-    local specials = rawget(_G, "WorldMonsterSpecialType")
-    local invasion_big_boss = specials and safe_get(specials, "InvasionBigBoss") or nil
-    local invasion_boss = specials and safe_get(specials, "MonsterInvasionBoss") or nil
     local ok_enum, enumerator = call(collection, "GetEnumerator")
     if not ok_enum or enumerator == nil then return nil, nil, "march_enumerator_unavailable" end
     local targets, total, scanned = {}, 0, 0
@@ -1467,11 +1477,14 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
                 if tile ~= nil then
                     local cell_x, cell_y = math.floor(tile.x / block_size), math.floor(tile.y / block_size)
                     local aoi_index = cell_y * block_count + cell_x
-                    if selected_lookup[aoi_index] == true then
+                    if selected_lookup == nil or selected_lookup[aoi_index] == true then
                         total = total + 1
                         local wire_uuid = safe_get(march, "uuid") or reflected_value(march, "uuid")
                         local uuid = wire_uuid ~= nil and tostring(wire_uuid) or ""
-                        local server_id = integer_field(march, { "serverId", "ServerId", "srcServer", "SrcServer" }) or current_server_id()
+                        -- The original Zombie Boss panel sends view.ctrl.serverId,
+                        -- not a march source-server field. The owned scan server is
+                        -- the rebuild equivalent of that controller value.
+                        local server_id = tonumber(requested_server_id) or current_server_id()
                         if uuid == "" then return nil, nil, "monster_invasion_boss_uuid_unavailable" end
                         if server_id == nil then return nil, nil, "monster_invasion_boss_server_unavailable" end
                         targets[#targets + 1] = { uuid = uuid, wireUuid = wire_uuid, serverId = server_id }
@@ -1506,6 +1519,62 @@ local function send_monster_invasion_protection_requests(targets)
     return #targets, nil
 end
 
+local function same_monster_protection_scan(scan, request)
+    return type(scan) == "table" and
+        scan.profileId == request.profileId and
+        scan.launchSessionId == request.launchSessionId and
+        scan.challenge == request.challenge and
+        scan.gamePid == request.gamePid and
+        scan.scanRunId == request.scanRunId and
+        scan.serverId == request.serverId
+end
+
+local function queue_monster_invasion_protection_requests(request, targets)
+    if not same_monster_protection_scan(monster_protection_scan, request) then
+        if type(monster_protection_scan) == "table" and type(monster_protection_scan.targets) == "table" then
+            local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+            if type(capture) == "table" and type(capture.pending) == "table" then
+                for index = 1, #monster_protection_scan.targets do
+                    capture.pending[monster_protection_scan.targets[index].uuid] = nil
+                end
+            end
+        end
+        monster_protection_scan = {
+            profileId = request.profileId,
+            launchSessionId = request.launchSessionId,
+            challenge = request.challenge,
+            gamePid = request.gamePid,
+            scanRunId = request.scanRunId,
+            serverId = request.serverId,
+            targets = {},
+            targetByUuid = {},
+            requestCount = 0,
+            retryCount = 0,
+            error = nil,
+        }
+    end
+    local fresh = {}
+    for index = 1, #targets do
+        local target = targets[index]
+        if monster_protection_scan.targetByUuid[target.uuid] == nil then
+            monster_protection_scan.targetByUuid[target.uuid] = target
+            monster_protection_scan.targets[#monster_protection_scan.targets + 1] = target
+            fresh[#fresh + 1] = target
+        end
+    end
+    if #fresh == 0 then return 0, nil end
+    local sent, send_error = send_monster_invasion_protection_requests(fresh)
+    if sent == nil then
+        monster_protection_scan.error = send_error
+        return 0, send_error
+    end
+    monster_protection_scan.requestCount = monster_protection_scan.requestCount + sent
+    monster_protection_scan.lastBatchTargets = fresh
+    monster_protection_scan.lastBatchQueuedAt = runtime_clock()
+    monster_protection_scan.lastBatchRetried = false
+    return sent, nil
+end
+
 local function count_ready_monster_invasion_protection_details(targets)
     local state = rawget(_G, "__lwbridgeMonsterProtectionCapture")
     if type(state) ~= "table" then return 0 end
@@ -1537,6 +1606,169 @@ local function monster_invasion_protection_snapshot(uuid)
     local end_time = tonumber(response.protectionEndTime) or 0
     if not active then end_time = 0 end
     return true, active, end_time
+end
+
+local function pump_monster_protection_batch_retry()
+    local scan = monster_protection_scan
+    if type(scan) ~= "table" or scan.lastBatchRetried == true or
+       type(scan.lastBatchTargets) ~= "table" or #scan.lastBatchTargets == 0 then
+        return false
+    end
+    if runtime_clock() - (scan.lastBatchQueuedAt or runtime_clock()) <
+       MONSTER_INVASION_PROTECTION_RETRY_SECONDS then
+        return false
+    end
+    scan.lastBatchRetried = true
+    local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+    local unresolved = {}
+    for index = 1, #scan.lastBatchTargets do
+        local target = scan.lastBatchTargets[index]
+        local response = type(capture) == "table" and capture.responses[target.uuid] or nil
+        if type(response) ~= "table" or response.received ~= true or response.isProtected == nil then
+            unresolved[#unresolved + 1] = target
+        end
+    end
+    if #unresolved == 0 then return false end
+    local sent, send_error = send_monster_invasion_protection_requests(unresolved)
+    if sent == nil then
+        scan.error = send_error
+        return false
+    end
+    scan.retryCount = (scan.retryCount or 0) + sent
+    return true
+end
+
+local function read_monster_protection_detail(now)
+    local values = read_kv_file(monster_protection_detail_path, 4096)
+    if values == nil then return nil end
+    pcall(os.remove, monster_protection_detail_path)
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "monster_protection_detail_invalid"
+        return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    request.scanRunId = tostring(values.scanRunId or "")
+    request.serverId = tonumber(values.serverId)
+    request.expectedTargetCount = tonumber(values.expectedTargetCount or "0")
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.scanRunId) or
+       not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) or
+       request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) or
+       request.expectedTargetCount == nil or request.expectedTargetCount < 0 or
+       request.expectedTargetCount ~= math.floor(request.expectedTargetCount) then
+        request.error = "monster_protection_detail_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    request.serverId = math.floor(request.serverId)
+    request.expectedTargetCount = math.floor(request.expectedTargetCount)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "monster_protection_detail_identity_mismatch"
+    end
+    return request
+end
+
+local function monster_protection_details(targets)
+    local state = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+    local details = {}
+    for index = 1, #targets do
+        local target = targets[index]
+        local response = type(state) == "table" and state.responses[target.uuid] or nil
+        local received = type(response) == "table" and response.received == true and response.isProtected ~= nil
+        local active = received and (response.isProtected == true or tonumber(response.isProtected) == 1) or false
+        local end_time = active and (tonumber(response.protectionEndTime) or 0) or 0
+        details[#details + 1] = {
+            uuid = target.uuid,
+            received = received,
+            isProtected = active,
+            protectionEndTime = end_time,
+        }
+    end
+    return details
+end
+
+local function write_monster_protection_detail_result(request, state, error_text, targets, request_count, ready_count)
+    write_json(monster_protection_detail_result_path, {
+        schemaVersion = 1,
+        probeVersion = M.VERSION,
+        requestId = request.requestId,
+        launchSessionId = request.launchSessionId,
+        profileId = request.profileId,
+        challenge = request.challenge,
+        gamePid = request.gamePid,
+        scanRunId = request.scanRunId,
+        serverId = request.serverId,
+        expectedTargetCount = request.expectedTargetCount,
+        state = state,
+        error = error_text,
+        targetCount = targets and #targets or 0,
+        requestCount = request_count or 0,
+        retryCount = request.retryCount or 0,
+        readyCount = ready_count or 0,
+        timedOut = error_text == "monster_invasion_protection_response_timeout",
+        elapsedSeconds = monster_protection_started_at and (runtime_clock() - monster_protection_started_at) or 0,
+        details = targets and monster_protection_details(targets) or {},
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+local function pump_monster_protection_detail(now)
+    if monster_protection_request == nil then
+        local request = read_monster_protection_detail(now)
+        if request == nil then return false end
+        if request.error ~= nil then
+            write_monster_protection_detail_result(request, "completed", request.error, nil, 0, 0)
+            return true
+        end
+        if not same_monster_protection_scan(monster_protection_scan, request) then
+            write_monster_protection_detail_result(
+                request, "completed", "monster_protection_scan_unavailable", nil, 0, 0)
+            return true
+        end
+        request.targets = monster_protection_scan.targets or {}
+        request.requestCount = monster_protection_scan.requestCount or 0
+        request.retryCount = monster_protection_scan.retryCount or 0
+        request.scanError = monster_protection_scan.error
+        if #request.targets ~= request.expectedTargetCount then
+            write_monster_protection_detail_result(
+                request, "completed", "monster_protection_target_count_mismatch",
+                request.targets, request.requestCount,
+                count_ready_monster_invasion_protection_details(request.targets))
+            abandon_monster_invasion_protection_requests(request.targets)
+            monster_protection_scan = nil
+            return true
+        end
+        if #request.targets == 0 then
+            write_monster_protection_detail_result(request, "completed", nil, request.targets, 0, 0)
+            monster_protection_scan = nil
+            return true
+        end
+        monster_protection_request = request
+        monster_protection_started_at = runtime_clock()
+        return true
+    end
+
+    local request = monster_protection_request
+    local targets = request.targets or {}
+    local ready = count_ready_monster_invasion_protection_details(targets)
+    local elapsed = runtime_clock() - (monster_protection_started_at or runtime_clock())
+    if ready < #targets and elapsed < MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS then return true end
+    local error_text = request.scanError or
+        (ready < #targets and "monster_invasion_protection_response_timeout" or nil)
+    if error_text ~= nil then abandon_monster_invasion_protection_requests(targets) end
+    write_monster_protection_detail_result(request, "completed", error_text, targets, request.requestCount, ready)
+    monster_protection_request = nil
+    monster_protection_started_at = nil
+    monster_protection_scan = nil
+    return true
 end
 
 local function monster_march_aoi_records(world, block_size, block_count, selected_lookup, home_tile)
@@ -2449,44 +2681,17 @@ local function pump_bulk_aoi_diagnostic(now)
             local response_flags = bulk_manager_flags(point_manager)
             if response_flags.isRecvViewPoints ~= true or world_response_flag(world) ~= true then return true end
         end
-        if details.monsterProtectionDetailPhase == nil then
-            local targets, total, target_error = monster_invasion_protection_targets(world, details.blockSize, details.blockCount, lookup)
-            if targets == nil then fail_bulk_aoi(bulk_aoi_request, target_error, details, point_manager); return true end
-            details.monsterInvasionBossCount = total
-            details.monsterProtectionDetailTargetCount = #targets
-            details.monsterProtectionDetailTargets = targets
-            if #targets > 0 then
-                local sent, send_error = send_monster_invasion_protection_requests(targets)
-                if sent == nil then
-                    details.monsterProtectionDetailRequestCount = 0
-                    details.monsterProtectionDetailReadyCount = 0
-                    details.monsterProtectionDetailError = send_error
-                    details.monsterProtectionDetailPhase = "ready"
-                else
-                    details.monsterProtectionDetailRequestCount = sent
-                    details.monsterProtectionDetailStartedAt = runtime_clock()
-                    details.monsterProtectionDetailPhase = "waiting"
-                    return true
-                end
-            end
-            details.monsterProtectionDetailRequestCount = 0
-            details.monsterProtectionDetailReadyCount = 0
-            details.monsterProtectionDetailPhase = "ready"
-        elseif details.monsterProtectionDetailPhase == "waiting" then
-            local targets = details.monsterProtectionDetailTargets or {}
-            local ready = count_ready_monster_invasion_protection_details(targets)
-            details.monsterProtectionDetailReadyCount = ready
-            if ready < #targets then
-                if runtime_clock() - (details.monsterProtectionDetailStartedAt or runtime_clock()) < MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS then
-                    return true
-                end
-                details.monsterProtectionDetailError = "monster_invasion_protection_response_timeout"
-                abandon_monster_invasion_protection_requests(targets)
-            end
-            details.monsterProtectionDetailPhase = "ready"
-        end
-        details.monsterProtectionDetailTargets = nil
-        details.monsterProtectionDetailStartedAt = nil
+        -- Reproduce the original panel request while each boss is still loaded,
+        -- without blocking the Lua acquisition pump.
+        local targets, total, target_error = monster_invasion_protection_targets(
+            world, details.blockSize, details.blockCount, lookup, bulk_aoi_request.serverId)
+        if targets == nil then fail_bulk_aoi(bulk_aoi_request, target_error, details, point_manager); return true end
+        local queued, queue_error = queue_monster_invasion_protection_requests(bulk_aoi_request, targets)
+        details.monsterInvasionBossCount = total
+        details.monsterProtectionDetailTargetCount = #targets
+        details.monsterProtectionDetailRequestCount = queued or 0
+        details.monsterProtectionDetailReadyCount = count_ready_monster_invasion_protection_details(targets)
+        details.monsterProtectionDetailError = queue_error
         local home_tile = bulk_aoi_request.homeTileX >= 0 and
             { x = bulk_aoi_request.homeTileX, y = bulk_aoi_request.homeTileY } or nil
         local monster_march_records, monster_march_records_error = monster_march_aoi_records(
@@ -2746,6 +2951,14 @@ end
 function M.Pump()
     local now = tonumber(os.time()) or 0
     if active_request_id == nil then
+        if pump_monster_protection_detail(now) then
+            write_heartbeat(now)
+            return true
+        end
+        if pump_monster_protection_batch_retry() then
+            write_heartbeat(now)
+            return true
+        end
         if pump_bulk_aoi_diagnostic(now) then
             write_heartbeat(now)
             return true
