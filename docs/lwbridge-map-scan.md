@@ -1054,6 +1054,14 @@ For the current-v17 1000x1000 world, Truck reuses the same 200-request native AO
 
 **Validation and gate.** Lua parses, `git diff --check` is clean, a separate temporary Release build succeeds with zero warnings/errors, and the full deterministic suite reports all six groups true. No live game action was performed for this checkpoint because the owner was actively playing. The next owner check is exact: one Normal Monster scan should return to normal full-world pace, and a shielded Zombie Boss must show Remaining on the **first scan** without Jump/click priming or a second scan. Evidence: `evidence/lwbridge-implementation/2026-09-18-r7-zombie-boss-serial-detail.json`.
 
+### LWB-R7-025 - current-v18 footprint correction and first-scan Zombie Boss Remaining acceptance (2026-09-18)
+
+**LIVE-PROVEN footprint change.** The first fresh v18 acceptance attempt failed before protection enrichment because ordinary native coverage now returned 30 AOIs as 3 consecutive columns x 10 rows, while the R7-012 v17 planner still required at least 40 cells inside a 5x10 footprint. The run was stopped, the exact helper-owned game was closed normally, the journal backup was restored byte-for-byte and current compatibility returned `ok=true`. Production now uses one logical block-column per partial batch and a conservative 3-column full-world stride (340 requests), while retaining the exact 10,000/10,000 AOI union as the final coverage gate.
+
+**LIVE-PROVEN first-scan Remaining source.** The corrected fresh Normal run then completed all 2,500 logical blocks with zero failed/unread blocks in 108.1437786 s and published/reopened exactly 4,735 Monster rows. It found 21 exact Monster-Invasion Zombie Bosses. Source-proven expired bosses required no network detail; 2 bosses required serialized detail, both completed authoritatively, no retry/error occurred, and both persisted future shield deadlines. No Jump, manual boss click or priming second scan occurred. This is the exact automatic behavior required by the owner; the existing frontend `shieldEndTime` countdown consumer therefore has a positive first-scan source.
+
+**Cleanup / next category.** Final cleanup left no game, launcher or LWBridge process, no recovery journal and exact official v18 compatibility `ok=true`. Release build and all six deterministic groups pass; frontend generation integrity also passes. Monster is no longer the category gate. Continue Railway/Train on the same shared Manual Scan engine. Evidence: `evidence/lwbridge-implementation/2026-09-18-r7-monster-first-scan-remaining.json`.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-025, 2026-09-18
+
+A fresh current-v18 ordinary **Normal Monster** scan now closes the first-scan Zombie Boss Remaining gate technically. The run started from a fresh helper-owned game launch and performed one scan only: no Jump, no manual boss click and no priming second scan. It completed 2,500/2,500 blocks with zero failed/unread blocks, published/reopened 4,735 Monster rows in 108.144 s, detected 21 exact Monster-Invasion Zombie Bosses, issued only 2 protection-detail requests, received 2/2 authoritative replies with no retry/error, and persisted 2 future shield deadlines.
+
+The same run exposed a separate current-v18 geometry change before succeeding: the native coverage footprint is now 3 AOI columns x 10 rows (30 cells) rather than the current-v17 5x10 footprint used by R7-012. Production now uses a conservative 3-column horizontal stride / 340 full-world requests, validates one logical block-column slice inside every response, and still requires the exact 10,000-AOI final union. Release build and all six deterministic groups pass. Final cleanup restored exact official v18, left no game/launcher/LWBridge process and no recovery journal, and compatibility is `ok=true`. Monster is no longer the gate; continue Railway/Train on the same shared scanner. Evidence: `2026-09-18-r7-monster-first-scan-remaining.json`.
+
 ## Current superseding owner follow-up - LWB-R7-024, 2026-09-18
 
 The owner clarified the remaining defect precisely: a Zombie Boss timer can appear only after manually Jumping/clicking that boss, then a second scan inherits the primed game state; some scans also crawl in 0.1% progress increments. Exact current-v18 source now explains both symptoms. `MsgMap` maps `MonsterInvasionBossDetail` to `Net.Msgs.MonsterInvasionBossDetailMessge`; `SFSNetwork.GetMsgType` requires/caches that one module table; the message module stores one root `_uuid` upvalue that `OnCreate` overwrites for every send and `HandleMessage` later reuses for the response. Overlapping detail sends therefore cannot be safely correlated.

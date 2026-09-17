@@ -9,14 +9,16 @@ internal sealed partial class CurrentClientMapBlockSource
 {
     private const int FastCityAoiBlockSize = 10;
     private const int FastCityAoiBlockCount = 100;
-    private const int FastCityGroupColumns = 2;
+    // Current v18 live measurement narrowed the native footprint to 3 AOI columns x 10 rows.
+    // One logical block column is only 2 AOI columns, so keep the batch validator conservative
+    // and let the final exact 10,000-cell union prove complete full-world coverage.
+    private const int FastCityGroupColumns = 1;
     private const int FastCityGroupRows = 5;
-    private const int FastCityExpectedAoiCount = 40;
-    // LWB-R7-012 live-measured current-client full-world footprint: 5 AOI columns x 10 AOI rows.
-    // The ordinary partial-band path intentionally keeps its recovered 2x5 logical-block grouping.
-    private const int FastFullWorldAoiColumns = 5;
+    private const int FastCityExpectedAoiCount = 20;
+    private const int FastFullWorldAoiColumns = 3;
     private const int FastFullWorldAoiRows = 10;
-    private const int FastFullWorldColumnRequests = FastCityAoiBlockCount / FastFullWorldAoiColumns;
+    private const int FastFullWorldColumnRequests =
+        (FastCityAoiBlockCount + FastFullWorldAoiColumns - 1) / FastFullWorldAoiColumns;
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(8);
@@ -145,12 +147,12 @@ internal sealed partial class CurrentClientMapBlockSource
             for (int column = 0; column < FastFullWorldColumnRequests; column++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                // Current v17 returns five consecutive LOD0 AOI columns around these targets.
-                // Keep a four-column validator subset inside that measured footprint; the final
-                // covered.Count == 10000 invariant independently rejects any missing fifth column.
-                int footprintStartCellX = column * FastFullWorldAoiColumns;
-                int groupStartColumn = (footprintStartCellX + 1) / 2;
-                int targetX = 25 + (column * 50);
+                // Current v18 returns three consecutive LOD0 AOI columns at ordinary targets.
+                // Target every third AOI column; one 2-column logical-block slice is validated
+                // inside each response and the final union must still equal all 10,000 AOIs.
+                int footprintAnchorCellX = Math.Min(FastCityAoiBlockCount - 1, column * FastFullWorldAoiColumns);
+                int groupStartColumn = Math.Min(49, footprintAnchorCellX / 2);
+                int targetX = Math.Min(995, 5 + (column * 30));
                 FastCityBatchObservation? observation = null;
                 Exception? lastError = null;
                 for (int attempt = 1; attempt <= 3; attempt++)
@@ -720,7 +722,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int startCellY = checked(groupStartRow * 2);
         var result = new List<int>(FastCityExpectedAoiCount);
         for (int cellY = startCellY; cellY < startCellY + 10; cellY++)
-            for (int cellX = startCellX; cellX < startCellX + 4; cellX++)
+            for (int cellX = startCellX; cellX < startCellX + (FastCityGroupColumns * 2); cellX++)
                 result.Add(checked(cellY * FastCityAoiBlockCount + cellX));
         return result.ToArray();
     }
