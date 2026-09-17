@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-018, 2026-09-17
+
+The owner exposed a real Monster regression after the v18 update: progress repeatedly reached ~4.5%, reset to 0%, and repeated. Persisted scan checkpoints identify the exact cause as `monster_invasion_protection_response_timeout` on the new Zombie Boss protection enrichment, not broken v18 AOI acquisition. Protection detail is optional enrichment and now cannot discard the base Monster scan: timeout/transport failure leaves protection unknown, clears pending correlation, preserves diagnostic target/request/ready counts, and continues. Eligible Invasion Zombie Boss rows with unknown protection do not fall back to unrelated `zMBossInfo`. Deterministic full-world coverage, Lua parse and Release build are green. The interrupted candidate was recovered to exact original v18 and current compatibility is `ok=true`. Evidence: `2026-09-17-r7-monster-protection-scan-resilience.json`.
+
+**Owner next test:** run one normal Monster scan. First acceptance is that progress no longer resets/stalls and reaches completion. Then inspect Zombie Boss Remaining without clicking/Jumping. A positive protection countdown remains unproven and must not be claimed until that owner test succeeds. Do not begin Railway/Train before this Monster gate.
+
 ## Current prerequisite correction - LWB-OVR-017, 2026-09-17
 
 A content-only Last War update from Lua v17 to v18 exposed a regression in `LWB-OVR-016`: because the installed v17 package still exactly matched the cached settle marker, LWBridge skipped untouched official settlement, installed its temporary candidate, and then let the official launcher attempt the `18 <- 17` delta against modified bytes. The patch download itself matched its advertised size/CRC, but the reconstructed temporary package failed CRC. Running the same official launcher once against restored untouched v17 bytes immediately applied v18 successfully. Current v18 (`e4f875a8...d9d2a1`, size 41,296,021, CRC 738537259) passes the dynamic critical-anchor compatibility gate.

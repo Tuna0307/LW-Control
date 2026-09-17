@@ -26,6 +26,10 @@ internal static class LiveManualFullMonsterProof
         int zMBossInfoCount = 0;
         int shieldDeadlineCount = 0;
         int activeShieldDeadlineCount = 0;
+        int monsterInvasionBossCount = 0;
+        int monsterProtectionDetailTargetCount = 0;
+        int monsterProtectionDetailRequestCount = 0;
+        int monsterProtectionDetailReadyCount = 0;
         double? minDistance = null;
         double? maxDistance = null;
         long? minShieldDeadline = null;
@@ -47,7 +51,8 @@ internal static class LiveManualFullMonsterProof
             int serverId;
             using (var store = new MapDataStore(databasePath))
             {
-                var service = new ManualMapScanCommandService(lifecycle, store);
+                var source = new CurrentClientMapBlockSource(lifecycle);
+                var service = new ManualMapScanCommandService(store, source.GetCurrentContextAsync, source);
                 try
                 {
                 JsonElement payload = JsonSerializer.SerializeToElement(new
@@ -104,6 +109,12 @@ internal static class LiveManualFullMonsterProof
                     throw new InvalidDataException($"Ordinary Manual Monster scan incomplete: phase={status.GetProperty("phase").GetString()}, read={status.GetProperty("readBlocks").GetInt32()}, failed={status.GetProperty("failedBlocks").GetInt32()}, unread={status.GetProperty("unreadBlocks").GetInt32()}, checkpoints={partial.Count}, secondAttempts={secondAttempts}.");
                 }
 
+                CurrentClientMapBlockSource.MonsterProtectionDetailMetrics metrics =
+                    source.LastMonsterProtectionDetailMetrics ?? throw new InvalidDataException("Monster source did not retain full-world Monster Protection detail metrics.");
+                monsterInvasionBossCount = metrics.BossCount;
+                monsterProtectionDetailTargetCount = metrics.TargetCount;
+                monsterProtectionDetailRequestCount = metrics.RequestCount;
+                monsterProtectionDetailReadyCount = metrics.ReadyCount;
                 publishedMonsterCount = store.SearchIndexed(MonsterQuery(serverId)).Total;
                 if (publishedMonsterCount <= 0)
                     throw new InvalidDataException("Ordinary Manual Monster scan published no Monster records.");
@@ -137,6 +148,10 @@ internal static class LiveManualFullMonsterProof
                 zMBossInfoCount,
                 shieldDeadlineCount,
                 activeShieldDeadlineCount,
+                monsterInvasionBossCount,
+                monsterProtectionDetailTargetCount,
+                monsterProtectionDetailRequestCount,
+                monsterProtectionDetailReadyCount,
                 minShieldDeadline,
                 maxShieldDeadline,
             }, JsonOptions.Default));

@@ -21,6 +21,7 @@ internal sealed partial class CurrentClientMapBlockSource
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
+    internal MonsterProtectionDetailMetrics? LastMonsterProtectionDetailMetrics { get; private set; }
 
     public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
         MapScanExecutionRequest request, MapScanTargetBlock seedBlock,
@@ -135,6 +136,11 @@ internal sealed partial class CurrentClientMapBlockSource
         var resourceRecords = new Dictionary<string, FirstLivePreparedResource>(StringComparer.Ordinal);
         var monsterRecords = new Dictionary<string, FastMonsterPrepared>(StringComparer.Ordinal);
         var truckRecords = new Dictionary<string, FastTrainPrepared>(StringComparer.Ordinal);
+        int monsterInvasionBossCount = 0;
+        int monsterProtectionDetailTargetCount = 0;
+        int monsterProtectionDetailRequestCount = 0;
+        int monsterProtectionDetailReadyCount = 0;
+        LastMonsterProtectionDetailMetrics = null;
         for (int row = 0; row < FastFullWorldRowRequests; row++)
         {
             int groupStartRow = row * FastCityGroupRows;
@@ -171,6 +177,10 @@ internal sealed partial class CurrentClientMapBlockSource
                 RequireSameSession(session);
                 foreach (int index in observation.RequestedIndices)
                     covered.Add(index);
+                monsterInvasionBossCount += observation.MonsterInvasionBossCount;
+                monsterProtectionDetailTargetCount += observation.MonsterProtectionDetailTargetCount;
+                monsterProtectionDetailRequestCount += observation.MonsterProtectionDetailRequestCount;
+                monsterProtectionDetailReadyCount += observation.MonsterProtectionDetailReadyCount;
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
                 {
                     if (!cityRecords.TryGetValue(prepared.Record.RecordKey, out FirstLivePreparedResource? prior) ||
@@ -201,6 +211,9 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
+        LastMonsterProtectionDetailMetrics = new MonsterProtectionDetailMetrics(
+            monsterInvasionBossCount, monsterProtectionDetailTargetCount,
+            monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
 
         var buckets = new Dictionary<int, List<MapStoredRecord>>();
         if (request.SelectedTypes.Contains("city", StringComparer.Ordinal))
@@ -229,6 +242,10 @@ internal sealed partial class CurrentClientMapBlockSource
                 coverage = "all_four_lod0_aoi_cells_proven_by_full_map_union",
                 recordsInBlock = records.Count,
                 coveredAoiCells = covered.Count,
+                monsterInvasionBossCount,
+                monsterProtectionDetailTargetCount,
+                monsterProtectionDetailRequestCount,
+                monsterProtectionDetailReadyCount,
             }, JsonOptions.Default);
             captures.Add(new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex, payload, records));
         }
@@ -394,7 +411,15 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FastTrainPrepared> trains = request.SelectedTypes.Contains("truck", StringComparer.Ordinal)
             ? PrepareTrainRecords(root, request, requestedSet, startedAt)
             : Array.Empty<FastTrainPrepared>();
-        return new FastCityBatchObservation(requestedIndices, prepared, resources, monsters, trains);
+        int monsterInvasionBossCount = RequireNonNegativeInt(root, "monsterInvasionBossCount");
+        int monsterProtectionDetailTargetCount = RequireNonNegativeInt(root, "monsterProtectionDetailTargetCount");
+        int monsterProtectionDetailRequestCount = RequireNonNegativeInt(root, "monsterProtectionDetailRequestCount");
+        int monsterProtectionDetailReadyCount = RequireNonNegativeInt(root, "monsterProtectionDetailReadyCount");
+        if (monsterProtectionDetailRequestCount > monsterProtectionDetailTargetCount ||
+            monsterProtectionDetailReadyCount > monsterProtectionDetailRequestCount)
+            throw new InvalidDataException("Fast world Monster Invasion protection detail counters are inconsistent.");
+        return new FastCityBatchObservation(requestedIndices, prepared, resources, monsters, trains,
+            monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
     {
@@ -451,8 +476,21 @@ internal sealed partial class CurrentClientMapBlockSource
             double? distance = row.TryGetProperty("distanceFromHome", out JsonElement distanceValue) &&
                 distanceValue.TryGetDouble(out double parsedDistance) && double.IsFinite(parsedDistance) && parsedDistance >= 0
                 ? parsedDistance : null;
-            long? shieldEndTime = row.TryGetProperty("zMBossShieldEndTime", out JsonElement shieldValue) &&
-                shieldValue.TryGetInt64(out long parsedShield) && parsedShield > 0 ? parsedShield : null;
+            bool protectionEligible = row.TryGetProperty("monsterProtectionEligible", out JsonElement protectionEligibleValue) &&
+                protectionEligibleValue.ValueKind == JsonValueKind.True;
+            bool protectionKnown = row.TryGetProperty("monsterProtectionKnown", out JsonElement protectionKnownValue) &&
+                protectionKnownValue.ValueKind == JsonValueKind.True;
+            bool protectionActive = row.TryGetProperty("monsterProtectionActive", out JsonElement protectionActiveValue) &&
+                protectionActiveValue.ValueKind == JsonValueKind.True;
+            long? shieldEndTime;
+            if (protectionKnown)
+                shieldEndTime = protectionActive && row.TryGetProperty("monsterProtectionEndTime", out JsonElement protectionEndValue) &&
+                    protectionEndValue.TryGetInt64(out long protectionEnd) && protectionEnd > 0 ? protectionEnd : null;
+            else if (protectionEligible)
+                shieldEndTime = null;
+            else
+                shieldEndTime = row.TryGetProperty("zMBossShieldEndTime", out JsonElement shieldValue) &&
+                    shieldValue.TryGetInt64(out long parsedShield) && parsedShield > 0 ? parsedShield : null;
             data["level"] = level; data["updatedAt"] = updatedAt;
             if (distance is not null) data["distanceFromHome"] = distance.Value;
             if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
@@ -572,6 +610,8 @@ internal sealed partial class CurrentClientMapBlockSource
         ];
     }
 
+    internal sealed record MonsterProtectionDetailMetrics(
+        int BossCount, int TargetCount, int RequestCount, int ReadyCount);
     private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes);
     private sealed record FastMonsterPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastTrainPrepared(int X, int Y, MapStoredRecord Record);
@@ -580,5 +620,9 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FirstLivePreparedResource> Prepared,
         IReadOnlyList<FirstLivePreparedResource> Resources,
         IReadOnlyList<FastMonsterPrepared> Monsters,
-        IReadOnlyList<FastTrainPrepared> Trains);
+        IReadOnlyList<FastTrainPrepared> Trains,
+        int MonsterInvasionBossCount,
+        int MonsterProtectionDetailTargetCount,
+        int MonsterProtectionDetailRequestCount,
+        int MonsterProtectionDetailReadyCount);
 }
