@@ -16,7 +16,8 @@ internal sealed partial class OverviewLifecycleService
     private async Task EnsureOfficialClientSettledAsync(
         string selectedRoot,
         CancellationToken cancellationToken,
-        long? overallDeadline = null)
+        long? overallDeadline = null,
+        bool forceOfficialSettle = false)
     {
         if (testHooks is not null)
         {
@@ -34,8 +35,10 @@ internal sealed partial class OverviewLifecycleService
 
         string packageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
             selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
-        if (OfficialSettleMarkerMatches(selectedRoot, packageSha256))
+        if (!forceOfficialSettle && OfficialSettleMarkerMatches(selectedRoot, packageSha256))
             return;
+        if (forceOfficialSettle)
+            InvalidateOfficialSettleMarker();
         if (RecoveryClockMilliseconds() >= deadline)
             throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT",
                 "Pending recovery consumed the bounded Overview start window.");
@@ -115,6 +118,13 @@ internal sealed partial class OverviewLifecycleService
     }
 
     private string OfficialSettleMarkerPath => Path.Combine(evidenceRoot, "official-settled-client.json");
+
+    private void InvalidateOfficialSettleMarker()
+    {
+        try { File.Delete(OfficialSettleMarkerPath); }
+        catch (DirectoryNotFoundException) { }
+    }
+
 
     private bool OfficialSettleMarkerMatches(string selectedRoot, string packageSha256)
     {

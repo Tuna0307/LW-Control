@@ -6,6 +6,7 @@
 - [x] `LWB-OVR-015` TECHNICALLY LIVE-PROVES **Open games at startup -> connected -> Close Game** through production startup reconcile on v17.
 - [x] Replace the obsolete exact Lua-package pin with fail-closed automatic compatibility: content-only package identity may advance only while recovered executable/xLua/managed/Lua anchors remain exact; critical changes return `GAME_UPDATE_UNSUPPORTED`.
 - [x] Replace the generic update-mismatch Home error with a useful localized `GAME_UPDATE_UNSUPPORTED` message.
+- [x] `LWB-OVR-017` fixes the v18 auto-update regression: a cached v17 settle marker could skip untouched official settlement and let the launcher patch LWBridge-modified candidate bytes. Fresh Lua CRC failure detection now restores, invalidates the marker, forces one untouched official settle/update, revalidates compatibility and retries exactly once. The same 18<-17 delta succeeds on untouched v17; current v18 passes the critical-anchor compatibility gate.
 - [x] **OWNER MAP DATA RETURN:** the owner resumed Map Data and reported real Monster scan progress/Stop defects after the Home prerequisite.
 - [x] **MAP DATA PERFORMANCE + STOP checkpoint:** `LWB-R7-012` measures the current-v17 native footprint as 5x10 AOIs, reduces full-world acquisition from 250 to 200 sequential requests without weakening the exact 10,000-AOI publication gate, live-proves Monster full runs at 43.620 s Normal and 70.746 s Fast, and repairs live status/summary plus one-click Stop-to-idle integration.
 

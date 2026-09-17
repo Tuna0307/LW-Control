@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current prerequisite correction - LWB-OVR-017, 2026-09-17
+
+A content-only Last War update from Lua v17 to v18 exposed a regression in `LWB-OVR-016`: because the installed v17 package still exactly matched the cached settle marker, LWBridge skipped untouched official settlement, installed its temporary candidate, and then let the official launcher attempt the `18 <- 17` delta against modified bytes. The patch download itself matched its advertised size/CRC, but the reconstructed temporary package failed CRC. Running the same official launcher once against restored untouched v17 bytes immediately applied v18 successfully. Current v18 (`e4f875a8...d9d2a1`, size 41,296,021, CRC 738537259) passes the dynamic critical-anchor compatibility gate.
+
+Production now detects a new `LWLua decode failed: crc mismatch` during the helper-owned candidate launch, completes exact recovery, invalidates the settle marker, forces one untouched official settle/update, revalidates compatibility, and retries the bridge helper exactly once. Other failures do not enter this retry. Dedicated settle checks and the complete deterministic suite pass; Release build is 0-warning/0-error. Evidence: `2026-09-17-v18-auto-update-recovery.json`. Resume the separate Zombie Boss Remaining owner test after this prerequisite correction.
+
 ## Current superseding owner follow-up - LWB-R7-017, 2026-09-17
 
 Monster owner follow-up is complete. The immutable LWBridge 0.3.1 Monster table was rechecked and contains Coordinate, Name, Level, Distance and Updated only: it has no original Remaining column and no original level filter. In the rebuild, Remaining therefore stays an explicit usability extension tied only to current-v17 `WorldMarch.zMBossInfo.shieldEndTime`; the current `ZMBossInfo` type was statically recovered with real `shieldHp`, `shieldMaxHp`, `shieldEndTime` and related stage fields. Generic march `endTime` and `nextStageTime` are not substituted. The collector now prefers the normal xLua `zMBossInfo` field getter with a reflected same-field fallback.

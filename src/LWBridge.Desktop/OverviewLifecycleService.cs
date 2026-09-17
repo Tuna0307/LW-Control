@@ -549,20 +549,13 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         try
         {
             OverviewHelperInvocation startInvocation;
+            long? startDeadline = null;
             if (testHooks is null)
             {
-                long startDeadline = checked(
+                startDeadline = checked(
                     RecoveryClockMilliseconds() + (long)helperSupervisionTimeout.TotalMilliseconds);
-                await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken, startDeadline).ConfigureAwait(false);
-                long remainingMilliseconds = startDeadline - RecoveryClockMilliseconds();
-                if (remainingMilliseconds < 10_000)
-                    throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
-                        "The official client settled, but no bounded start window remained for the Overview bridge.");
-                int timeoutSeconds = (int)Math.Min(120, remainingMilliseconds / 1000);
-                int supervisionMilliseconds = (int)Math.Min(int.MaxValue, remainingMilliseconds);
-                startInvocation = new OverviewHelperInvocation(
-                    "start", profileId, newSession, newChallenge, null, null, null,
-                    timeoutSeconds, supervisionMilliseconds);
+                await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken, startDeadline.Value).ConfigureAwait(false);
+                startInvocation = CreateBoundedStartInvocation(newSession, newChallenge, startDeadline.Value);
             }
             else
             {
@@ -570,7 +563,29 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 startInvocation = new OverviewHelperInvocation(
                     "start", profileId, newSession, newChallenge, null, null, null);
             }
-            JsonElement helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
+
+            JsonElement helper;
+            try
+            {
+                helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
+            }
+            catch (InvalidOperationException error) when (IsOfficialLuaUpdateFailure(error))
+            {
+                if (testHooks is null)
+                {
+                    await EnsureOfficialClientSettledAsync(
+                        selectedRoot, cancellationToken, startDeadline!.Value, forceOfficialSettle: true).ConfigureAwait(false);
+                    startInvocation = CreateBoundedStartInvocation(newSession, newChallenge, startDeadline.Value);
+                }
+                else
+                {
+                    await EnsureOfficialClientSettledAsync(
+                        selectedRoot, cancellationToken, forceOfficialSettle: true).ConfigureAwait(false);
+                    startInvocation = new OverviewHelperInvocation(
+                        "start", profileId, newSession, newChallenge, null, null, null);
+                }
+                helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
+            }
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
             lock (stateGate)
@@ -623,6 +638,25 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             throw new BridgeCommandException("LAUNCH_FAILED", "The Overview bridge launch failed.", new { error = message });
         }
     }
+
+    private OverviewHelperInvocation CreateBoundedStartInvocation(
+        string sessionId,
+        string sessionChallenge,
+        long deadline)
+    {
+        long remainingMilliseconds = deadline - RecoveryClockMilliseconds();
+        if (remainingMilliseconds < 10_000)
+            throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
+                "The official client settled, but no bounded start window remained for the Overview bridge.");
+        int timeoutSeconds = (int)Math.Min(120, remainingMilliseconds / 1000);
+        int supervisionMilliseconds = (int)Math.Min(int.MaxValue, remainingMilliseconds);
+        return new OverviewHelperInvocation(
+            "start", profileId, sessionId, sessionChallenge, null, null, null,
+            timeoutSeconds, supervisionMilliseconds);
+    }
+
+    private static bool IsOfficialLuaUpdateFailure(InvalidOperationException error) =>
+        error.Message.StartsWith("official_lua_update_failed:", StringComparison.Ordinal);
 
     private async Task<object?> StopAsync(JsonElement payload, CancellationToken cancellationToken)
     {

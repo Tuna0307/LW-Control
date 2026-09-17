@@ -185,6 +185,44 @@ def clear_stale_runtime(p: dict[str, Path]) -> None:
             pass
 
 
+OFFICIAL_LUA_UPDATE_FAILURE = "official_lua_update_failed"
+
+def launcher_log_offset(p: dict[str, Path]) -> int:
+    log = p["launcher"].parent / "Launcher.log"
+    try:
+        return log.stat().st_size
+    except OSError:
+        return 0
+
+def await_owned_game_process_update_aware(
+    p: dict[str, Path], deadline: float, initial_log_offset: int,
+) -> dict[str, object]:
+    log = p["launcher"].parent / "Launcher.log"
+    offset = max(0, initial_log_offset)
+    while time.monotonic() < deadline:
+        processes = lr.selected_game_processes(p)
+        if len(processes) > 1:
+            raise OverviewBridgeError("multiple LastWar processes match the selected installation")
+        if len(processes) == 1:
+            return processes[0]
+        try:
+            size = log.stat().st_size
+            if size < offset:
+                offset = 0
+            if size > offset:
+                with log.open("rb") as handle:
+                    handle.seek(offset)
+                    chunk = handle.read(size - offset).decode("utf-8", errors="replace")
+                offset = size
+                if "LWLua decode failed: crc mismatch" in chunk:
+                    raise OverviewBridgeError(
+                        OFFICIAL_LUA_UPDATE_FAILURE + ": official launcher rejected the Lua delta output"
+                    )
+        except OSError:
+            pass
+        time.sleep(0.25)
+    raise OverviewBridgeError("the selected launcher did not create a matching LastWar process before timeout")
+
 def close_owned_launcher_process(launcher_process, wait_seconds: float = 10.0) -> None:
     if launcher_process is None or launcher_process.poll() is not None:
         return
@@ -281,10 +319,11 @@ def run_start(
                 lambda index, key: lr.update_recovery_stage(p, recovery_state, f"installed_{index}_{key}"),
             )
             clear_stale_runtime(p)
+            launch_log_offset = launcher_log_offset(p)
             launch_started = time.monotonic()
             launcher_process = lr.subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
             deadline = launch_started + timeout_seconds
-            owned_game = lr.await_owned_game_process(p, deadline)
+            owned_game = await_owned_game_process_update_aware(p, deadline, launch_log_offset)
             game_started_at_utc = lr.require_process_started_at(owned_game.get("startedAtUtc"), "owned game startedAtUtc")
             write_control(p, profile_id, session_id, challenge, int(owned_game["pid"]))
             ready = await_ready(p, profile_id, session_id, challenge, int(owned_game["pid"]), deadline)
