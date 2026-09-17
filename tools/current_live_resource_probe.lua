@@ -1651,15 +1651,18 @@ local function pump_monster_protection_queue()
     end
     local target = scan.requestQueue[scan.queueIndex]
     scan.queueIndex = scan.queueIndex + 1
+    -- Claim correlation before SendMessage so even an unexpectedly synchronous
+    -- completion is attributed to this exact target.
+    scan.inflightTarget = target
+    scan.inflightCompletedUuid = nil
+    scan.inflightErrorCode = nil
     local sent, send_error = send_monster_invasion_protection_request(target)
     if sent == nil then
+        scan.inflightTarget = nil
         scan.error = scan.error or send_error
         return
     end
     scan.requestCount = scan.requestCount + sent
-    scan.inflightTarget = target
-    scan.inflightCompletedUuid = nil
-    scan.inflightErrorCode = nil
 end
 
 local function count_ready_monster_invasion_protection_details(targets)
