@@ -552,7 +552,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int monsterProtectionDetailRequestCount = RequireNonNegativeInt(root, "monsterProtectionDetailRequestCount");
         int monsterProtectionDetailReadyCount = RequireNonNegativeInt(root, "monsterProtectionDetailReadyCount");
         if (monsterProtectionDetailRequestCount > monsterProtectionDetailTargetCount ||
-            monsterProtectionDetailReadyCount > monsterProtectionDetailRequestCount)
+            monsterProtectionDetailReadyCount > monsterProtectionDetailTargetCount)
             throw new InvalidDataException("Fast world Monster Invasion protection detail counters are inconsistent.");
         return new FastCityBatchObservation(requestedIndices, prepared, resources, monsters, trains,
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);

@@ -36,6 +36,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastMonsterKnownInactiveProtectionSuppressesRemaining();
         await FastMonsterAllowsIncompleteMonsterProtectionDetail();
+        await FastMonsterAllowsDeduplicatedReadyCarryover();
         await FastTruckFullMapReturnsAllLogicalCaptures();
         await FastFullMapRejectsIncompleteMeasuredCoverage();
         await HealthyGateRunsBeforeWorldReadyProtocol();
@@ -409,6 +410,29 @@ internal static class CurrentClientMapBlockSourceChecks
         MapStoredRecord row = captures.Single(c => c.BlockIndex == 0).Records.Single();
         Check(row.ShieldEndTime is null && !row.DataJson.Contains("\"shieldEndTime\":", StringComparison.Ordinal),
             "unresolved Invasion Zombie Boss protection must not fall back to unrelated zMBoss shield data");
+    }
+
+    private static async Task FastMonsterAllowsDeduplicatedReadyCarryover()
+    {
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
+                if (x != 25 || y != 75) return ProvenFastMonsterBatch(fields);
+                JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(fields, ("m-carry", 9, 9, 1031015, 20, "2901012", true)))!.AsObject();
+                root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
+                root["monsterProtectionDetailRequestCount"] = 0; root["monsterProtectionDetailReadyCount"] = 1;
+                return root.ToJsonString(JsonOptions.Default);
+            },
+            monsterProtectionResult: fields =>
+                ProvenMonsterProtectionResult(fields, ("m-carry", true, false, 0L)));
+        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(captures.Count == 2500,
+            "a ready protection response carried from an overlapping AOI must not invalidate the full Monster scan");
     }
 
     private static async Task FastTruckFullMapReturnsAllLogicalCaptures()

@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-020, 2026-09-17
+
+The owner ordinary UI Monster scan exposed a validator bug after R7-019: the latest persisted run was discarded with 31 failed blocks, 29 carrying `Fast world Monster Invasion protection detail counters are inconsistent.` R7-019 correctly deduplicates Zombie Boss UUID requests across overlapping AOIs, so a later footprint can validly report `target=1, newRequest=0, ready=1` when the request was sent in the previous overlap. The C# UI path incorrectly required `ready <= newRequest`; it now validates `newRequest <= target` and `ready <= target` independently. A deterministic full-world regression covers that exact carry-over case.
+
+The failed owner session also left the temporary candidate installed; preflight recovery restored exact original v18 SHA-256 `e4f875a8...d9d2a1`, compatibility is `ok=true`, and the recovery journal is cleared. Release build and the full deterministic suite are green. Owner must first confirm one ordinary Normal Monster scan reaches 100% without reset/stall; only then inspect Zombie Boss Remaining. Positive Remaining is still not live-positive-proven. Evidence: `2026-09-17-r7-owner-ui-dedup-counter-fix.json`.
+
 ## Current superseding owner follow-up - LWB-R7-019, 2026-09-17
 
 The exact current-v18 behavior behind the owner's click observation is recovered: `WorldMonsterDes.RefreshData` sends `MonsterInvasionBossDetail(view.ctrl.serverId,data.uuid)` only for exact `WorldMonsterSpecialType.MonsterInvasionBoss`; the response enters `MonsterProtectionManager:OnGetDetail`, and UI Remaining derives from `GetMonsterProtectionEndTime(uuid)` relative to server time. Production now sends this automatically while each eligible boss AOI is loaded, deduplicates and run-binds UUIDs, allows only a 100 ms host settle plus one 40 ms unanswered retry, and performs one final collection. These two pacing values are IMPLEMENTATION POLICY, not recovered constants. Optional detail failure cannot fail or reset base acquisition, and unknown/inactive protection cannot fabricate Remaining.
