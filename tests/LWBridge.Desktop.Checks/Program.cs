@@ -4593,7 +4593,9 @@ Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", Strin
       !liveCityProbeSource.Contains("unanswered_monster_protection_targets", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("ensure_monster_protection_message_capture", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("Net.Msgs.MonsterInvasionBossDetailMessge", StringComparison.Ordinal) &&
-      liveCityProbeSource.Contains("pump_monster_protection_queue()", StringComparison.Ordinal),
+      liveCityProbeSource.Contains("pump_monster_protection_queue()", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("capture.responses[target.uuid] = nil", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("requestProtectionDetail = source_end_time <= 0 or", StringComparison.Ordinal),
     "Monster Protection detail must serialize the shared-UUID game message and avoid bulk/retry overlap");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),

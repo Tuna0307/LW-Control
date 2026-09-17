@@ -42,7 +42,7 @@
     "policy": [
       "Queue exact MonsterInvasionBossDetail targets and allow only one request in flight.",
       "Hook the exact recovered Net.Msgs.MonsterInvasionBossDetailMessge table so both success and error HandleMessage completion advance the queue.",
-      "Only request protection detail when the recovered createTime + monster_invasion.k12*1000 deadline can still be future according to UITimeManager.GetInstance():GetServerTime().",
+      "Skip network detail only when the recovered createTime + monster_invasion.k12*1000 deadline is source-proven already expired against UITimeManager.GetInstance():GetServerTime(); unknown deadline inputs fail open to requesting detail.",
       "Run the serial queue beside AOI acquisition instead of waiting per AOI.",
       "Remove the previous 100 ms host-side per-AOI protection settle delay.",
       "Do not fabricate protection state for error/unanswered requests."

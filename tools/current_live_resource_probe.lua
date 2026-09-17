@@ -1514,8 +1514,10 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
                         targets[#targets + 1] = {
                             uuid = uuid, wireUuid = wire_uuid, serverId = server_id,
                             sourceProtectionEndTime = source_end_time,
-                            requestProtectionDetail = source_end_time > 0 and
-                                (server_time_ms == nil or source_end_time > server_time_ms),
+                            -- Fail open when the local deadline inputs are unavailable;
+                            -- only a source-proven already-expired deadline may skip detail.
+                            requestProtectionDetail = source_end_time <= 0 or
+                                server_time_ms == nil or source_end_time > server_time_ms,
                         }
                     end
                 end
@@ -1619,6 +1621,11 @@ local function queue_monster_invasion_protection_requests(request, targets)
         if monster_protection_scan.targetByUuid[target.uuid] == nil then
             monster_protection_scan.targetByUuid[target.uuid] = target
             monster_protection_scan.targets[#monster_protection_scan.targets + 1] = target
+            local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+            if type(capture) == "table" and type(capture.responses) == "table" then
+                -- A new scan owns a fresh authority decision for this UUID.
+                capture.responses[target.uuid] = nil
+            end
             if target.requestProtectionDetail == true then
                 monster_protection_scan.requestQueue[#monster_protection_scan.requestQueue + 1] = target
                 queued = queued + 1
