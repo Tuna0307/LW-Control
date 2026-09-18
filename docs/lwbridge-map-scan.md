@@ -8,7 +8,15 @@ The common engine must own authoritative map geometry/traversal, run/block sched
 
 See `map-data-delivery.md`, `team-workflow.md`, `BACKLOG.md` R7 and `task.md` for the active sequencing. Historical findings below retain their original dated scope.
 
-## Current Auto Scan scheduler acceptance — LWB-R7-038, 2026-09-19
+## Current Auto Scan scheduler acceptance — LWB-R7-039, 2026-09-19
+
+The existing top-level React scheduler is now LIVE-PROVEN for a single cycle containing two targets, disable-during-cycle behavior, and persisted timed execution after complete desktop/game restart. Both targets in the real multi-target Zombie Boss cycle completed 2,500/2,500 Fast blocks with zero failed/unread before configured return-to-original. Turning Auto off after target one started allowed that scan to finish, skipped target two, and preserved the original server.
+
+A persisted future `nextRunAt` survived full desktop restart and a new owned game session. With no Run Now click and no Auto UI interaction after restart, the schedule fired 741 ms after its deadline, completed 2,500/2,500 Fast Zombie Boss blocks with zero failed/unread, and advanced the next run. A deterministic page-level one-shot `server_jump` exception proves scheduler catch/finally/no-scan behavior only; native travel timeout/error remains unobserved. An attempted native failure probe was rejected because the alternate server was actually accepted; that early scan was manually stopped and returned safely. Evidence: `2026-09-19-r7-auto-scheduler-complete.json`.
+
+Auto Scan core timer/multi-target/disable acceptance is closed. Explicit navigation-away/back survival remains a separate UI lifecycle gap, and native travel failure is still population/environment dependent.
+
+## Prior Auto Scan scheduler acceptance — LWB-R7-038, 2026-09-19
 
 The real parent React scheduler now preserves dedicated `zombie_boss` Auto configuration, reuses `map_scan_start`/the shared Manual worker, and has live-proven cross-server return status. Fresh idle status learns an unknown server only from the fresh exact-session owned Overview heartbeat; successful `server_jump` immediately publishes the authoritative target. Two consecutive real UI Run-now cycles each began on the original server, moved to a different target, completed 2,500/2,500 Fast Zombie Boss blocks with zero failed/unread, returned to the original server, and left shared status on the original server before the next cycle. Aggregate-only evidence is `2026-09-19-r7-auto-scheduler-cross-server.json`.
 

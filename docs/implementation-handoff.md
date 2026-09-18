@@ -1,6 +1,16 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Actual Auto Scan scheduler checkpoint - LWB-R7-038, 2026-09-19
+## Auto Scan scheduler completion checkpoint - LWB-R7-039, 2026-09-19
+
+The existing top-level React Auto Scan scheduler is now LIVE-PROVEN for one cycle containing multiple configured targets, disable-during-cycle behavior, and persisted clock-triggered execution after a full desktop/game restart. One real two-target Zombie Boss cycle scanned the original/current server and then a different server in order; both shared Fast runs completed 2,500/2,500 with zero failed/unread and the scheduler returned to the original server.
+
+Disabling Auto after the first target had started let that in-flight scan finish, skipped the remaining target, and left the game on the original server. A deterministic frontend-only failure injection then threw one target `server_jump` before native travel: the scheduler started no map scan and its catch/finally path preserved the original server. This proves scheduler error control flow only; it is not claimed as a native game-side travel timeout/error proof.
+
+A persisted future `nextRunAt` was then tested across a complete desktop restart and new owned game session. With no Run Now click and no Auto Scan UI interaction after restart, the observer was attached before the deadline and the schedule fired 741 ms after it, completing a Fast Zombie Boss 2,500/2,500 scan with zero failed/unread and advancing the next schedule. One attempted native failure probe is explicitly rejected: the valid-range alternate server was actually accepted, the early scan was manually stopped at zero read blocks / two failed blocks, and the game returned to the original server. The true pre-test user Auto configuration was restored afterward and test scratch was deleted. Aggregate-only evidence: `evidence/lwbridge-implementation/2026-09-19-r7-auto-scheduler-complete.json`.
+
+**Next:** Auto Scan's core timer/multi-target/disable scheduler acceptance is closed. Explicit navigation-away/back survival and a naturally occurring native `server_jump` failure remain separate limited gaps. Resume Map Data parity/actions, starting with Truck action/filter behavior, while keeping Ghost positive-row and season-locked Treasure/Supplies limits truthful.
+
+## Prior actual Auto Scan scheduler checkpoint - LWB-R7-038, 2026-09-19
 
 The real desktop React Auto Scan scheduler is now LIVE-PROVEN for dedicated Zombie Boss current/cross-server operation. Failure-first UI driving found that the parent sanitizer omitted `zombie_boss`, so the visible Zombie Boss choice was silently normalized back to the recovered default Auto kinds. Production generation now preserves `zombie_boss` in the parent allow-list while keeping the recovered default list unchanged.
 

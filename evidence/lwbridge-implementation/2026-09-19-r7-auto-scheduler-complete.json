@@ -1,0 +1,111 @@
+{
+  "evidenceId": "LWB-R7-039",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "fd2bb28d9b49757a8c955abf3ab813eb8aa7d1f6",
+  "status": {
+    "multiTargetSingleCycle": "LIVE_PROVEN",
+    "disableDuringActiveCycle": "LIVE_PROVEN",
+    "schedulerFailureFinallyPath": "SYNTHETIC_FRONTEND_FAILURE_PROVEN",
+    "persistedClockTriggerAfterDesktopRestart": "LIVE_PROVEN",
+    "nativeTravelFailureRecovery": "NOT_PROVEN",
+    "navigationAwaySurvival": "PENDING"
+  },
+  "currentClient": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+  },
+  "multiTargetSingleCycle": {
+    "trigger": "real Auto Scan Run now through the normal parent React scheduler",
+    "targetCount": 2,
+    "targetOrder": [
+      "original/current server",
+      "different server"
+    ],
+    "selectedTypes": [
+      "zombie_boss"
+    ],
+    "scanMode": "fast",
+    "returnToOriginalServer": true,
+    "scans": [
+      {
+        "totalBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0
+      },
+      {
+        "totalBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0
+      }
+    ],
+    "returnedToOriginal": true
+  },
+  "disableDuringCycle": {
+    "setup": "two configured targets with Auto enabled; disable was toggled after the first target scan started",
+    "inFlightTarget": "allowed to finish",
+    "remainingTarget": "skipped",
+    "scanStartsObserved": 1,
+    "returnedToOriginal": true,
+    "configEnabledAfterToggle": false
+  },
+  "controlledFailurePath": {
+    "scope": "frontend scheduler catch/finally only",
+    "injection": "the page invoke wrapper threw exactly once for the target server_jump before native travel",
+    "nativeGameTravelPerformed": false,
+    "mapScanStartsObserved": 0,
+    "originalServerPreserved": true,
+    "claimLimit": "This does not prove a native game-side server_jump timeout/error path."
+  },
+  "persistedRestartSchedule": {
+    "desktopFullyRestarted": true,
+    "gameSessionRestarted": true,
+    "runNowUsedAfterRestart": false,
+    "autoUiInteractedAfterRestart": false,
+    "observerAttachedBeforeDeadline": true,
+    "scheduledStartDelayMilliseconds": 741,
+    "selectedTypes": [
+      "zombie_boss"
+    ],
+    "scanMode": "fast",
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "currentServerJumpWasNoOp": true,
+    "nextRunAtAdvanced": true
+  },
+  "rejectedAttempt": {
+    "description": "A valid-range alternate server intended as a failure probe was actually accepted by the game, so it was not treated as failure evidence.",
+    "scanStateWhenAborted": {
+      "readBlocks": 0,
+      "failedBlocks": 2
+    },
+    "manualStopUsed": true,
+    "returnedToOriginal": true,
+    "acceptedAsEvidence": false
+  },
+  "restoration": {
+    "truePreTestAutoConfigRestored": true,
+    "restoredServerTargets": "none",
+    "restoredSelectedTypes": [
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "restoredScanMode": "fast",
+    "restoredReturnToOriginal": true,
+    "testScratchDeleted": true,
+    "numericServerIdsExcludedFromEvidence": true
+  },
+  "remaining": [
+    "Explicit navigation-away/back survival of the page-owned scheduler is not yet separately live-proven.",
+    "A genuine native server_jump timeout/error during an Auto cycle remains unobserved; only the scheduler catch/finally path was deterministically injected.",
+    "Auto Scan acquisition/actions parity for non-Zombie categories remains governed by each category's separate Map Data acceptance status."
+  ]
+}
