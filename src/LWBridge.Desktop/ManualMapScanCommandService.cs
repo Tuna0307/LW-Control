@@ -77,12 +77,15 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 $"Manual Map Scan cannot handle '{command}'.");
 
         MapScanStartOptions options = MapScanContract.NormalizeStart(payload);
-        if (options.SelectedTypes.Count != 1 ||
-            options.SelectedTypes[0] is not ("city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway" or "dispatch" or "ghost" or "treasure"))
+        bool dedicatedZombieBossOnly = options.SelectedTypes.Count == 1 &&
+            options.SelectedTypes[0] == "zombie_boss";
+        bool recoveredMixedSelection = options.SelectedTypes.Count is >= 1 and <= 8 &&
+            options.SelectedTypes.All(type => MapScanContract.RecoveredDefaultTypes.Contains(type, StringComparer.Ordinal));
+        if (!dedicatedZombieBossOnly && !recoveredMixedSelection)
         {
             throw new BridgeCommandException(
                 "LIVE_BLOCK_TYPES_UNSUPPORTED",
-                "The shared current-client scanner currently supports one Player City, Resource, Monster, Zombie Boss, Truck, Railway/Train, Dispatch, Ghost Ops, or Treasure kind.");
+                "The shared current-client scanner supports any mixture of the original eight Map Data kinds; dedicated Zombie Boss must be scanned by itself.");
         }
 
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);

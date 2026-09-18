@@ -9,6 +9,7 @@ internal static class MapDataStoreScanEngineChecks
     internal static void Run()
     {
         SuccessfulScanReplacesPublishedRows();
+        AllEightSelectionPublishesEveryKind();
         UnresolvedMonsterProtectionCarriesForwardKnownDeadline();
         UnresolvedZombieBossProtectionCarriesForwardKnownDeadline();
         KnownInactiveMonsterProtectionClearsPriorDeadline();
@@ -32,6 +33,33 @@ internal static class MapDataStoreScanEngineChecks
         Check(key == "fresh", "completed engine publication exposes only freshly staged row");
         Check(store.ReadScanBlockCheckpointsForTest(request.RunId).Count == 0,
             "completed publication removes block staging after commit");
+    }
+
+    private static void AllEightSelectionPublishesEveryKind()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        foreach (string kind in MapScanContract.RecoveredDefaultTypes)
+            store.UpsertRecord(GenericRecord(kind, "old-" + kind, 1));
+
+        var request = new MapScanExecutionRequest(
+            "store-all-eight", 2212, 7, 20, 20,
+            MapScanContract.RecoveredDefaultTypes, 8, 2);
+        MapStoredRecord[] fresh = MapScanContract.RecoveredDefaultTypes
+            .Select((kind, index) => GenericRecord(kind, "fresh-" + kind, 100 + index))
+            .ToArray();
+        var source = new MultiCaptureSource(fresh);
+        new MapScanEngine(source, new MapDataStoreScanSink(store))
+            .ExecuteAsync(request).GetAwaiter().GetResult();
+
+        foreach (string kind in MapScanContract.RecoveredDefaultTypes)
+        {
+            Check(store.CountRecords(kind, 2212) == 1 &&
+                  store.GetRecord(kind, 2212, "fresh-" + kind) is not null &&
+                  store.GetRecord(kind, 2212, "old-" + kind) is null,
+                $"all-eight publication should atomically replace the selected {kind} scope");
+        }
+        Check(store.ReadScanBlockCheckpointsForTest(request.RunId).Count == 0,
+            "all-eight publication should clean shared block staging after commit");
     }
 
     private static void UnresolvedMonsterProtectionCarriesForwardKnownDeadline()
@@ -140,6 +168,12 @@ internal static class MapDataStoreScanEngineChecks
     private static MapScanExecutionRequest MonsterRequest(string runId, string kind = "monster") =>
         new(runId, 2212, 7, 20, 20, [kind], 1, 2);
 
+    private static MapStoredRecord GenericRecord(string kind, string key, long updatedAt) =>
+        new(
+            kind, 2212, key, 1, key, key, null,
+            null, null, null, null, null, updatedAt,
+            $"{{\"recordKey\":\"{key}\",\"kind\":\"{kind}\",\"serverId\":2212,\"updatedAt\":{updatedAt}}}");
+
     private static MapStoredRecord MonsterRecord(
         string key,
         long updatedAt,
@@ -191,6 +225,19 @@ internal static class MapDataStoreScanEngineChecks
     private static void Check(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private sealed class MultiCaptureSource(IReadOnlyList<MapStoredRecord> records) : IMapScanBlockSource
+    {
+        public Task<MapScanBlockCapture> CaptureAsync(
+            MapScanExecutionRequest request,
+            MapScanTargetBlock block,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult(new MapScanBlockCapture(
+                request.ServerId, request.WorldId, block.BlockIndex, "{}", records));
+        }
     }
 
     private sealed class SingleCaptureSource : IMapScanBlockSource

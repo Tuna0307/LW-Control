@@ -9,6 +9,9 @@ internal sealed record MapScanStartOptions(
 
 internal static class MapScanContract
 {
+    public static readonly string[] RecoveredDefaultTypes =
+        ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
+
     public static readonly string[] AllTypes =
         ["city", "resource", "monster", "zombie_boss", "truck", "railway", "dispatch", "ghost", "treasure"];
 
@@ -26,7 +29,7 @@ internal static class MapScanContract
         if (mode is not ("normal" or "fast"))
             throw new BridgeCommandException("INVALID_SCAN_MODE", "scanMode must be normal or fast.");
 
-        IReadOnlyList<string> selected = AllTypes;
+        IReadOnlyList<string> selected = RecoveredDefaultTypes;
         if (payload.ValueKind == JsonValueKind.Object &&
             payload.TryGetProperty("selectedTypes", out JsonElement typesValue) &&
             typesValue.ValueKind == JsonValueKind.Array)

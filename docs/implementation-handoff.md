@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current shared Manual selection/mode acceptance - LWB-R7-036, 2026-09-19
+
+The shared current-v19 Manual Scan engine is now LIVE-PROVEN for mixed selected types, the recovered original all-eight selection, same-owned-session repeated scans, and all-eight Normal/Fast. The original default set is exactly `city, resource, monster, truck, railway, dispatch, ghost, treasure`. Dedicated `zombie_boss` remains a separate ninth extension and must be selected alone; its Monster-source normalizer intentionally maps output to `zombie_boss` only for the dedicated run.
+
+A same-owned-session mixed Normal -> all-eight Normal proof completed 2,500/2,500 twice with zero failed/unread in 129.3349007 s / 127.2110683 s and exact all-eight reopen equality. A second same-owned-session all-eight Normal -> Fast proof completed 2,500/2,500 twice with zero failed/unread in 133.8908957 s / 127.0581974 s at concurrency 8 / 20. The final Fast run published positive City, Resource, Monster, Truck, Railway, Dispatch and Treasure populations; Ghost was zero and retains its separate positive-row population gate. A fresh store reopen reproduced every Fast kind count exactly.
+
+Deterministic coverage now forces all eight normalizers through one full-world 10,000-AOI run and proves all eight selected kind/server scopes publish in the shared completed transaction. The normal Map Data UI again exposes multi-select and Normal/Fast; selecting Zombie Boss makes it exclusive, and selecting an original kind drops Zombie Boss. Current-v19 compatibility/restoration and cleanup pass. Aggregate-only evidence is `evidence/lwbridge-implementation/2026-09-19-r7-mixed-all-eight-manual.json`. **Next: Auto Scan. It must invoke/reuse this shared Manual engine and preserve the same selection, lifecycle, publication, Stop and failure truth; do not create a separate scanner.**
+
 ## Current Treasure category acceptance - LWB-R7-035, 2026-09-18
 
 Treasure is now LIVE-PROVEN through the ordinary shared Manual Start production path on current v19. A Treasure-only Normal run completed 2,500/2,500 logical blocks with zero failed/unread blocks in 123.1499154 s at recovered Normal concurrency 8, published one authentic live Treasure row, and a fresh store reopen returned exactly one. The strict positive-row gate was not weakened.

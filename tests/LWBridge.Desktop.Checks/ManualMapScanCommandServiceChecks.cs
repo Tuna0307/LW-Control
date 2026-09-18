@@ -23,7 +23,9 @@ internal static class ManualMapScanCommandServiceChecks
         await DispatchTypeIsAccepted();
         await GhostTypeIsAccepted();
         await TreasureTypeIsAccepted();
-        await MixedTypesFailClosed();
+        await MixedTypesAreAccepted();
+        await AllEightTypesAreAccepted();
+        await ZombieBossMixedTypesFailClosed();
     }
 
     private static JsonElement Payload(string mode, params string[] types) =>
@@ -266,7 +268,38 @@ internal static class ManualMapScanCommandServiceChecks
         service.Close();
     }
 
-    private static async Task MixedTypesFailClosed()
+    private static async Task MixedTypesAreAccepted()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var source = new ImmediateSource();
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        _ = await service.InvokeAsync(
+            "map_scan_start", Payload("normal", "city", "resource"), CancellationToken.None);
+        WaitForPhase(service, "completed");
+        JsonElement status = Status(service);
+        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0 &&
+              status.GetProperty("selectedTypes").EnumerateArray().Select(value => value.GetString()).SequenceEqual(new[] { "city", "resource" }) &&
+              source.LastSelectedTypes.SequenceEqual(new[] { "city", "resource" }),
+            "mixed original Map Data kinds should flow unchanged through the shared Manual Scan worker");
+        service.Close();
+    }
+
+    private static async Task AllEightTypesAreAccepted()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var source = new ImmediateSource();
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        _ = await service.InvokeAsync(
+            "map_scan_start", Payload("normal", MapScanContract.RecoveredDefaultTypes), CancellationToken.None);
+        WaitForPhase(service, "completed");
+        JsonElement status = Status(service);
+        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0 &&
+              source.LastSelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),
+            "all eight recovered Map Data kinds should use one shared Manual Scan run");
+        service.Close();
+    }
+
+    private static async Task ZombieBossMixedTypesFailClosed()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         int contextCalls = 0;
@@ -281,15 +314,13 @@ internal static class ManualMapScanCommandServiceChecks
         try
         {
             _ = await service.InvokeAsync(
-                "map_scan_start",
-                Payload("normal", "city", "resource"),
-                CancellationToken.None);
-            throw new InvalidOperationException("expected unsupported mixed-type rejection");
+                "map_scan_start", Payload("normal", "monster", "zombie_boss"), CancellationToken.None);
+            throw new InvalidOperationException("expected dedicated Zombie Boss mixed-type rejection");
         }
         catch (BridgeCommandException error) when (error.Code == "LIVE_BLOCK_TYPES_UNSUPPORTED")
         {
         }
-        Check(contextCalls == 0, "unsupported mixed scan must fail before live-context acquisition");
+        Check(contextCalls == 0, "mixed dedicated Zombie Boss scan must fail before live-context acquisition");
         service.Close();
     }
 
@@ -331,6 +362,7 @@ internal static class ManualMapScanCommandServiceChecks
     private sealed class ImmediateSource : IMapScanBlockSource
     {
         public int Calls { get; private set; }
+        public IReadOnlyList<string> LastSelectedTypes { get; private set; } = Array.Empty<string>();
 
         public Task<MapScanBlockCapture> CaptureAsync(
             MapScanExecutionRequest request,
@@ -339,6 +371,7 @@ internal static class ManualMapScanCommandServiceChecks
         {
             cancellationToken.ThrowIfCancellationRequested();
             Calls++;
+            LastSelectedTypes = request.SelectedTypes.ToArray();
             return Task.FromResult(new MapScanBlockCapture(
                 request.ServerId,
                 request.WorldId,

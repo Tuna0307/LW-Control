@@ -50,6 +50,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastDispatchFullMapReturnsAllLogicalCaptures();
         await FastGhostFullMapReturnsAllLogicalCaptures();
         await FastTreasureFullMapReturnsAllLogicalCaptures();
+        await FastAllEightFullMapReturnsAllLogicalCaptures();
         await FastFullMapFillsMeasuredCoverageHole();
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await HealthyGateRunsBeforeWorldReadyProtocol();
@@ -986,6 +987,35 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Treasure source did not preserve the recovered ordinary-treasure/supplies split");
     }
 
+    private static async Task FastAllEightFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                return ProvenFastAllEightBatch(fields, x == 5 && y == 75);
+            });
+
+        var request = new MapScanExecutionRequest(
+            "run_all_eight", 2212, 0, 1000, 1000,
+            MapScanContract.RecoveredDefaultTypes, 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+
+        MapStoredRecord[] records = captures.SelectMany(capture => capture.Records).ToArray();
+        string[] kinds = records.Select(record => record.Kind).OrderBy(kind => kind, StringComparer.Ordinal).ToArray();
+        string[] expectedKinds = MapScanContract.RecoveredDefaultTypes.OrderBy(kind => kind, StringComparer.Ordinal).ToArray();
+        Check(bulkCalls == 270 && captures.Count == 2500 && kinds.SequenceEqual(expectedKinds),
+            "full-world all-eight source should cover 2,500 logical blocks once and preserve one row of every recovered kind");
+        Check(records.All(record => record.ServerId == 2212),
+            "full-world all-eight source must retain one server scope across every selected kind");
+    }
+
     private static async Task FastFullMapFillsMeasuredCoverageHole()
     {
         int bulkCalls = 0;
@@ -1693,6 +1723,46 @@ internal static class CurrentClientMapBlockSourceChecks
             pointRows.Add(row);
         }
         root["point_records"] = pointRows;
+        return root.ToJsonString(JsonOptions.Default);
+    }
+
+    private static string ProvenFastAllEightBatch(
+        IReadOnlyDictionary<string, string> fields,
+        bool includeRecords)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastCityBatch(
+            fields, includeRecords ? new[] { (90001, 9, 9) } : Array.Empty<(int, int, int)>()))!.AsObject();
+        JsonObject resource = JsonNode.Parse(ProvenFastResourceBatch(
+            fields, includeRecords ? new[] { (90002, 9, 9, 3, 2, true, true) } : Array.Empty<(int, int, int, int, int, bool, bool)>()))!.AsObject();
+        JsonObject dispatch = JsonNode.Parse(ProvenFastDispatchBatch(
+            fields, includeRecords ? new[] { ("dispatch-all", 90003, 9, 9, 7001, 5, 4, false, 1_789_616_000_000L, "owner-dispatch") } : Array.Empty<(string, int, int, int, int, int, int, bool, long, string)>()))!.AsObject();
+        JsonObject ghost = JsonNode.Parse(ProvenFastGhostBatch(
+            fields, includeRecords ? new[] { ("ghost-all", 90004, 9, 9, 7101, 6, 5, true, 1_789_616_000_000L, "owner-ghost") } : Array.Empty<(string, int, int, int, int, int, int, bool, long, string)>()))!.AsObject();
+        JsonObject treasure = JsonNode.Parse(ProvenFastTreasureBatch(
+            fields, includeRecords ? new[] { (false, "treasure-all", 90005, 9, 9, 5) } : Array.Empty<(bool, string, int, int, int, int)>()))!.AsObject();
+        JsonObject monster = JsonNode.Parse(ProvenFastMonsterBatch(
+            fields, includeRecords ? new[] { ("monster-all", 9, 9, 1002009, 9, "2000005", false) } : Array.Empty<(string, int, int, int, int, string, bool)>()))!.AsObject();
+        JsonObject truck = JsonNode.Parse(ProvenFastTruckBatch(
+            fields, includeRecords ? new[] { ("truck-all", 9, 9, 86, 3, 4, "Truck Owner", 12345L) } : Array.Empty<(string, int, int, int, int, int, string, long)>()))!.AsObject();
+        JsonObject railway = JsonNode.Parse(ProvenFastRailwayBatch(
+            fields, includeRecords ? new[] { ("rail-all", 9, 9, 201, 4, 5, "Rail Owner", 54321L) } : Array.Empty<(string, int, int, int, int, int, string, long)>()))!.AsObject();
+
+        var pointRows = new JsonArray();
+        foreach (JsonObject part in new[] { root, resource, dispatch, ghost, treasure })
+            foreach (JsonNode? row in part["point_records"]!.AsArray())
+                pointRows.Add(row!.DeepClone());
+        root["point_records"] = pointRows;
+        root["matchedCityCount"] = includeRecords ? 1 : 0;
+        root["matchedResourceCount"] = includeRecords ? 1 : 0;
+        root["matchedDispatchCount"] = includeRecords ? 1 : 0;
+        root["matchedGhostCount"] = includeRecords ? 1 : 0;
+        root["matchedTreasureCount"] = includeRecords ? 1 : 0;
+        root["monster_march_records"] = monster["monster_march_records"]!.DeepClone();
+        var trainRows = new JsonArray();
+        foreach (JsonObject part in new[] { truck, railway })
+            foreach (JsonNode? row in part["train_march_records"]!.AsArray())
+                trainRows.Add(row!.DeepClone());
+        root["train_march_records"] = trainRows;
         return root.ToJsonString(JsonOptions.Default);
     }
 

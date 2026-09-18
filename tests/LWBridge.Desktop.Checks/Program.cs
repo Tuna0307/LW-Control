@@ -49,6 +49,18 @@ if (args.Contains("--live-current-client-full-ghost-manual", StringComparer.Ordi
     return 0;
 }
 
+if (args.Contains("--live-current-client-all-eight-modes", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualAllEightModesProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-mixed-all-eight-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualMixedAllEightProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-treasure-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullTreasureProof.RunAsync();
@@ -3754,7 +3766,7 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
 using JsonDocument normalScan = JsonDocument.Parse("{}");
 MapScanStartOptions normalOptions = MapScanContract.NormalizeStart(normalScan.RootElement);
 Check(normalOptions.ScanMode == "normal" && normalOptions.Concurrency == 8, "normal scan concurrency is recovered as 8");
-Check(normalOptions.SelectedTypes.SequenceEqual(MapScanContract.AllTypes), "missing selectedTypes defaults to all eight recovered kinds");
+Check(normalOptions.SelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes), "missing selectedTypes defaults to all eight recovered kinds without implicitly adding dedicated Zombie Boss");
 
 using JsonDocument fastScan = JsonDocument.Parse(
     "{\"scanMode\":\"fast\",\"selectedTypes\":[\"truck\",\"bogus\",\"city\",\"truck\",7,\"treasure\"]}");
@@ -4789,6 +4801,12 @@ Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`
       mapDataPanelSource.Contains("localStorage.setItem(filterStoreKey", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("savedResultFilters=readResultFilters()", StringComparison.Ordinal),
     "Map Data result filters must persist across rescans and app restarts");
+Check(mapDataPanelSource.Contains("manualDefaultTypes=O.filter(e=>e!==`zombie_boss`)", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("selectedTypes:scanTypeSelection(S.selectedTypes,e.key,t.target.checked)", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading||F===`scheduledPlunder`", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("map-speed-toggle", StringComparison.Ordinal),
+    "Manual/Auto scan selectors must preserve original-eight mixed selection, dedicated Zombie Boss exclusivity, speed controls, and Scheduled Plunder Start blocking");
 Check(mapDataPanelSource.Contains(
           "F!==`truck`&&F!==`monster`&&F!==`zombie_boss`&&F!==`scheduledPlunder`",
           StringComparison.Ordinal) &&
