@@ -1616,15 +1616,23 @@ local function ensure_monster_protection_message_capture()
         local target = type(scan) == "table" and scan.inflightTarget or nil
         local ok_original, result = pcall(state.original, self, msg)
         if target ~= nil and type(scan) == "table" and scan.inflightTarget == target then
-            local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
-            if type(capture) == "table" and type(capture.pending) == "table" then capture.pending[target.uuid] = nil end
             local response_uuid = msg and (safe_get(msg, "uuid") or reflected_value(msg, "uuid")) or nil
             if response_uuid ~= nil and tostring(response_uuid) ~= target.uuid then
-                scan.error = scan.error or "monster_protection_response_uuid_mismatch"
-                scan.queueIndex = #scan.requestQueue + 1
+                -- A duplicate/late reply from the previous serialized request or
+                -- previous scan must never complete/fail the current request.
+                -- The game's message module has one shared UUID slot, so repeated
+                -- scans can legitimately observe an old reply after a new inflight
+                -- target has already been claimed. Ignore it for correlation; the
+                -- original handler above is still allowed to refresh game-owned data.
+                scan.staleResponseCount = (scan.staleResponseCount or 0) + 1
+            else
+                local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+                if type(capture) == "table" and type(capture.pending) == "table" then
+                    capture.pending[target.uuid] = nil
+                end
+                scan.inflightCompletedUuid = target.uuid
+                scan.inflightErrorCode = scalar_field(msg, { "errorCode", "ErrorCode" })
             end
-            scan.inflightCompletedUuid = target.uuid
-            scan.inflightErrorCode = scalar_field(msg, { "errorCode", "ErrorCode" })
         end
         if not ok_original then error(result) end
         return result
@@ -1650,7 +1658,7 @@ local function queue_monster_invasion_protection_requests(request, targets)
             challenge = request.challenge, gamePid = request.gamePid,
             scanRunId = request.scanRunId, serverId = request.serverId,
             targets = {}, targetByUuid = {}, requestQueue = {}, queueIndex = 1,
-            requestCount = 0, retryCount = 0, responseCount = 0,
+            requestCount = 0, retryCount = 0, responseCount = 0, staleResponseCount = 0,
             inflightTarget = nil, inflightCompletedUuid = nil, inflightErrorCode = nil,
             error = nil,
         }
@@ -1844,6 +1852,7 @@ local function write_monster_protection_detail_result(request, state, error_text
         targetCount = targets and #targets or 0,
         requestCount = request_count or 0,
         retryCount = request.retryCount or 0,
+        staleResponseCount = request.staleResponseCount or 0,
         readyCount = ready_count or 0,
         timedOut = error_text == "monster_invasion_protection_response_timeout",
         elapsedSeconds = monster_protection_started_at and (runtime_clock() - monster_protection_started_at) or 0,
@@ -1867,6 +1876,7 @@ local function pump_monster_protection_detail(now)
         request.targets = monster_protection_scan.targets or {}
         request.requestCount = monster_protection_scan.requestCount or 0
         request.retryCount = 0
+        request.staleResponseCount = monster_protection_scan.staleResponseCount or 0
         request.scanError = monster_protection_scan.error
         if #request.targets == 0 then
             write_monster_protection_detail_result(request, "completed", nil, request.targets, 0, 0)
@@ -1885,7 +1895,10 @@ local function pump_monster_protection_detail(now)
         (scan.inflightTarget == nil and scan.queueIndex > #scan.requestQueue)
     local elapsed = runtime_clock() - (monster_protection_started_at or runtime_clock())
     if not queue_done and elapsed < MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS then return true end
-    if type(scan) == "table" then request.requestCount = scan.requestCount or request.requestCount end
+    if type(scan) == "table" then
+        request.requestCount = scan.requestCount or request.requestCount
+        request.staleResponseCount = scan.staleResponseCount or request.staleResponseCount
+    end
     local ready = count_ready_monster_invasion_protection_details(targets)
     local error_text = request.scanError or
         (not queue_done and "monster_invasion_protection_response_timeout" or nil)
