@@ -918,6 +918,106 @@ local function current_truck_quick_rob_logic(request)
     return logic, nil
 end
 
+
+local function normalize_truck_plunder_rewards(rewards)
+    if rewards == nil then return {}, true end
+    if type(rewards) ~= "table" then return {}, false end
+
+    local data_center = rawget(_G, "DataCenter")
+    local item_manager = data_center and safe_get(data_center, "ItemTemplateManager") or nil
+    local reward_manager = data_center and safe_get(data_center, "RewardManager") or nil
+    local reward_type_enum = rawget(_G, "RewardType")
+    local goods_type = reward_type_enum and tonumber(safe_get(reward_type_enum, "GOODS")) or nil
+    local load_path = rawget(_G, "LoadPath")
+    local item_path = load_path and safe_get(load_path, "ItemPath") or nil
+
+    local by_key, order = {}, {}
+    local unresolved = 0
+    for _, reward in ipairs(rewards) do
+        local reward_type = tonumber(safe_get(reward, "type"))
+        local reward_value = safe_get(reward, "value")
+        local item_id, count = nil, nil
+        if type(reward_value) == "table" then
+            item_id = tonumber(safe_get(reward_value, "id"))
+            count = tonumber(safe_get(reward_value, "num"))
+        else
+            item_id = reward_type
+            count = tonumber(reward_value)
+        end
+
+        if reward_type ~= nil and item_id ~= nil and count ~= nil and count > 0 then
+            local name, icon_path = nil, nil
+            if goods_type ~= nil and reward_type == goods_type and item_manager ~= nil then
+                local ok_template, goods = call(item_manager, "GetItemTemplate", item_id)
+                local ok_name, resolved_name = call(item_manager, "GetName", item_id)
+                if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then
+                    name = tostring(resolved_name)
+                end
+                if ok_template and goods ~= nil then
+                    local join_method = tonumber(safe_get(goods, "join_method")) or -1
+                    local icon_join = safe_get(goods, "icon_join")
+                    if join_method > 0 and icon_join ~= nil and tostring(icon_join) ~= "" then
+                        local parts = {}
+                        for part in string.gmatch(tostring(icon_join), "([^;]+)") do parts[#parts + 1] = part end
+                        if #parts > 2 and parts[3] ~= "" then icon_path = parts[3] end
+                    end
+                    if icon_path == nil then
+                        local icon = safe_get(goods, "icon")
+                        if icon ~= nil and tostring(icon) ~= "" and item_path ~= nil then
+                            local ok_format, formatted = pcall(string.format, tostring(item_path), tostring(icon))
+                            if ok_format and formatted ~= nil and formatted ~= "" then icon_path = tostring(formatted) end
+                        end
+                    end
+                end
+            elseif reward_manager ~= nil then
+                local ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type, item_id)
+                if not ok_name or resolved_name == nil or tostring(resolved_name) == "" then
+                    ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type)
+                end
+                if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then
+                    name = tostring(resolved_name)
+                end
+                local ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type, item_id)
+                if not ok_icon or resolved_icon == nil or tostring(resolved_icon) == "" then
+                    ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type)
+                end
+                if ok_icon and resolved_icon ~= nil and tostring(resolved_icon) ~= "" then
+                    icon_path = tostring(resolved_icon)
+                end
+            end
+
+            if name ~= nil and icon_path ~= nil then
+                -- Internal rebuild identity only. Current-v19 supplies the
+                -- authoritative reward type/item id, name and icon; the exact
+                -- original LWBridge plunderRewards key producer is unrecovered.
+                local key = "reward:" .. tostring(reward_type) .. ":" .. tostring(item_id)
+                local existing = by_key[key]
+                if existing == nil then
+                    existing = {
+                        key = key,
+                        name = name,
+                        iconPath = icon_path,
+                        count = 0,
+                        rewardType = reward_type,
+                        itemId = item_id,
+                    }
+                    by_key[key] = existing
+                    order[#order + 1] = key
+                end
+                existing.count = existing.count + count
+            else
+                unresolved = unresolved + 1
+            end
+        else
+            unresolved = unresolved + 1
+        end
+    end
+
+    local result = {}
+    for _, key in ipairs(order) do result[#result + 1] = by_key[key] end
+    return result, unresolved == 0
+end
+
 local function truck_reward_count(value)
     if value == nil then return 0 end
     local count = tonumber(safe_get(value, "Count") or safe_get(value, "Length"))
@@ -949,6 +1049,8 @@ local function write_truck_quick_rob_result(request, state, error_text)
         requestSent = request.requestSent == true,
         battleWon = request.battleWon,
         rewardCount = request.rewardCount,
+        plunderRewards = request.plunderRewards,
+        rewardNormalizationComplete = request.rewardNormalizationComplete,
         method = request.method,
         error = error_text,
     })
@@ -1168,7 +1270,10 @@ local function pump_truck_quick_rob(control)
                     if ok_top and type(top_player_win) == "boolean" then
                         request.battleWon = not top_player_win
                         local param = safe_get(logic, "param")
-                        request.rewardCount = truck_reward_count(param and safe_get(param, "attackTrainReward") or nil)
+                        local raw_rewards = param and safe_get(param, "attackTrainReward") or nil
+                        request.rewardCount = truck_reward_count(raw_rewards)
+                        request.plunderRewards, request.rewardNormalizationComplete =
+                            normalize_truck_plunder_rewards(raw_rewards)
                         finish_truck_quick_rob(request, "proven", nil, true)
                         return
                     end

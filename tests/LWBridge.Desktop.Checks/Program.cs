@@ -4732,6 +4732,39 @@ Check(
     overviewBridgeSource.Contains("finish_truck_quick_rob(request, \"ambiguous\", \"server_response_timeout\"", StringComparison.Ordinal) &&
     overviewBridgeSource.Contains("request.requestSent = true", StringComparison.Ordinal),
     "Truck quick-rob must resolve the live March/Train identities without 64-bit tonumber coercion, use the current-v19 official attack path, distinguish success-only from terminal response events, invert topPlayerWin to player battleWon, and preserve non-retryable post-send ambiguity");
+Check(
+    overviewBridgeSource.Contains("normalize_truck_plunder_rewards", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetItemTemplate", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetNameByType", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetPicByType", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("request.plunderRewards, request.rewardNormalizationComplete", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("plunderRewards = request.plunderRewards", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("rewardNormalizationComplete = request.rewardNormalizationComplete", StringComparison.Ordinal),
+    "Truck quick-rob must normalize authoritative reward entries through current-v19 item/reward managers and carry completeness separately from the proven battle result");
+int overviewBridgeTopLevelLocalCount = 0;
+foreach (string sourceLine in overviewBridgeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+{
+    if (!sourceLine.StartsWith("local ", StringComparison.Ordinal)) continue;
+    if (sourceLine.StartsWith("local function ", StringComparison.Ordinal))
+    {
+        overviewBridgeTopLevelLocalCount++;
+        continue;
+    }
+    string declaration = sourceLine["local ".Length..];
+    int equals = declaration.IndexOf('=');
+    if (equals >= 0) declaration = declaration[..equals];
+    overviewBridgeTopLevelLocalCount += declaration.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
+}
+Check(overviewBridgeTopLevelLocalCount < 200,
+    $"current Overview bridge uses {overviewBridgeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
+string plunderStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs"));
+Check(
+    plunderStoreSource.Contains("RecordTruckPlunderSuccess(", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("row[\"battleWon\"] = battleWon", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("row[\"plunderRewards\"] = JsonNode.Parse", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("status='succeeded',last_error=NULL", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("attempts=attempts+1", StringComparison.Ordinal),
+    "Truck result persistence must enrich the current truck_json and mark succeeded without incrementing attempts; archiving remains a separate reschedule operation");
 int liveProbeTopLevelLocalCount = 0;
 foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
 {

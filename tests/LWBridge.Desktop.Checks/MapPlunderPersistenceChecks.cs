@@ -78,6 +78,48 @@ internal static class MapPlunderPersistenceChecks
                       listedJson.GetProperty("dispatchJobs").GetArrayLength() == 1,
                     "production map_plunder_jobs_list returns the recovered combined envelope");
 
+                JsonElement plunderRewards = Payload(new[]
+                {
+                    new
+                    {
+                        key = "reward:1:1001",
+                        name = "Iron",
+                        iconPath = "items/iron.png",
+                        count = 25,
+                        rewardType = 1,
+                        itemId = 1001L,
+                    },
+                });
+                Check(store.RecordTruckPlunderSuccess(
+                        88,
+                        "truck-waiting",
+                        battleWon: true,
+                        plunderRewards,
+                        rewardNormalizationComplete: true,
+                        updatedAt: 150),
+                    "authoritative Truck result updates the active persisted attempt");
+                Check(!store.RecordTruckPlunderSuccess(
+                        88,
+                        "missing-truck",
+                        battleWon: true,
+                        plunderRewards,
+                        rewardNormalizationComplete: true,
+                        updatedAt: 151),
+                    "Truck result update does not fabricate a missing scheduled attempt");
+
+                JsonElement succeeded = store.ReadPlunderJobs().TruckJobs.Single(
+                    row => row.GetProperty("uuid").GetString() == "truck-waiting");
+                Check(succeeded.GetProperty("scheduleStatus").GetString() == "succeeded" &&
+                      succeeded.GetProperty("battleWon").GetBoolean() &&
+                      succeeded.GetProperty("plunderRewards").GetArrayLength() == 1 &&
+                      succeeded.GetProperty("plunderRewards")[0].GetProperty("key").GetString() == "reward:1:1001" &&
+                      succeeded.GetProperty("plunderRewards")[0].GetProperty("count").GetInt32() == 25 &&
+                      succeeded.GetProperty("plunderRewardsComplete").GetBoolean() &&
+                      succeeded.GetProperty("attempts").GetInt32() == 2 &&
+                      succeeded.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+                      succeeded.GetProperty("scheduleUpdatedAt").GetInt64() == 150,
+                    "Truck success persists battle/reward result while preserving attempt count and clearing the prior connection error");
+
                 JsonElement schedule = Payload(new
                 {
                     profileId = config.Snapshot.ProfileId,
@@ -133,6 +175,14 @@ internal static class MapPlunderPersistenceChecks
                     row => row.GetProperty("uuid").GetString() == "truck-later");
                 Check(cancelled.GetProperty("scheduleStatus").GetString() == "cancelled",
                     "truck cancel persists across database reopen");
+                JsonElement succeeded = snapshot.TruckJobs.Single(
+                    row => row.GetProperty("uuid").GetString() == "truck-waiting");
+                Check(succeeded.GetProperty("scheduleStatus").GetString() == "succeeded" &&
+                      succeeded.GetProperty("battleWon").GetBoolean() &&
+                      succeeded.GetProperty("plunderRewards")[0].GetProperty("count").GetInt32() == 25 &&
+                      succeeded.GetProperty("plunderRewardsComplete").GetBoolean() &&
+                      succeeded.GetProperty("attempts").GetInt32() == 2,
+                    "authoritative Truck battle/reward result persists across database reopen without changing attempts");
                 Check(snapshot.DispatchJobs.Count == 1 &&
                       snapshot.DispatchJobs[0].GetProperty("scheduleStatus").GetString() == "running",
                     "combined list preserves unrelated dispatch job state across reopen");

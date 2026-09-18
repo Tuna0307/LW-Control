@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Truck result/reward reconciliation ? LWB-R7-043, 2026-09-19
+
+**OFFLINE-TESTED; scheduling still blocked.** v19 `FakePVPLogic` combines `msg.reward`, `extraPlunder`, and `retake` into the Truck attack reward list; `TruckRobData` exposes the same three reward classes historically. The rebuild now converts those authoritative reward entries to `plunderRewards[{key,name,iconPath,count,rewardType,itemId}]` using the game Item/Reward managers and carries `rewardNormalizationComplete` separately, so metadata gaps never become retryable execution failures.
+
+Original 0.3.1 binary strings recover the result lifecycle: `battleWon`, `plunderRewards`, `jobId` sit beside the Truck result/archive path; `record truck plunder result` updates the existing active row (`truck_json`, status, error, updated time) while attempt incrementing is a separate SQL path. Therefore success is now persisted on the active row as `succeeded`, with attempts unchanged, and the row is archived only when rescheduled later. Reopen persistence is proven. Evidence: [`2026-09-19-r7-truck-result-reconciliation.json`](../evidence/lwbridge-implementation/2026-09-19-r7-truck-result-reconciliation.json).
+
 ## Current-v19 Truck quick-rob execution protocol ? LWB-R7-042, 2026-09-19
 
 **INTERNAL/OFFLINE-TESTED only; public Truck scheduling remains blocked.** v19 source proves the full action chain: `WorldMarch.uuid` and `WorldMarch.train.uuid` identify the scanned moving target; `RailwayUtil.ClickAttackTrain(trainData,true)` performs the game eligibility checks and enters Truck FakePVP; the formation UI saves the Truck formation then calls `LWMyStationDataManager:TryAttackTrain`; `AttackTrainMessage` sends/handles `train.attack` and emits success-only `TrainSkirmishDataReceived` plus terminal `TrainAttackReceived`. The rebuild now reproduces that chain behind `CurrentClientMapBlockSource.ExecuteTruckQuickRobAsync`, preserving both 64-bit identities as strings until the exact live Int64 object is passed back to the game.

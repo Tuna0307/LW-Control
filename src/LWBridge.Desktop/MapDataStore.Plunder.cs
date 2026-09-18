@@ -20,6 +20,88 @@ internal sealed partial class MapDataStore
         }
     }
 
+
+    internal bool RecordTruckPlunderSuccess(
+        int serverId,
+        string trainUuid,
+        bool battleWon,
+        JsonElement plunderRewards,
+        bool rewardNormalizationComplete,
+        long updatedAt)
+    {
+        ValidateServerId(serverId);
+        if (string.IsNullOrWhiteSpace(trainUuid))
+            throw new BridgeCommandException("INVALID_TARGET", "truck target is required");
+        if (plunderRewards.ValueKind != JsonValueKind.Array)
+            throw new BridgeCommandException("INVALID_MAP_DATA", "truck plunder rewards must be an array");
+
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+
+            string? truckJson;
+            using (SqliteCommand read = connection.CreateCommand())
+            {
+                read.Transaction = transaction;
+                read.CommandText = """
+                    SELECT truck_json
+                    FROM truck_plunder_jobs WHERE server_id=$server AND train_uuid=$uuid
+                    """;
+                read.Parameters.AddWithValue("$server", serverId);
+                read.Parameters.AddWithValue("$uuid", trainUuid);
+                truckJson = read.ExecuteScalar() as string;
+            }
+            if (truckJson is null)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            JsonObject row;
+            try
+            {
+                row = JsonNode.Parse(truckJson) as JsonObject
+                    ?? throw new BridgeCommandException("MAP_DATA_ERROR", "scheduled truck job contains invalid JSON");
+            }
+            catch (JsonException ex)
+            {
+                throw new BridgeCommandException(
+                    "MAP_DATA_ERROR",
+                    "scheduled truck job contains invalid JSON",
+                    ex.Message);
+            }
+
+            row["battleWon"] = battleWon;
+            row["plunderRewards"] = JsonNode.Parse(plunderRewards.GetRawText());
+            // Rebuild-only diagnostic metadata. The recovered frontend ignores it,
+            // while durable execution can distinguish complete display normalization
+            // from a successful attack whose reward metadata was only partially resolved.
+            row["plunderRewardsComplete"] = rewardNormalizationComplete;
+
+            using (SqliteCommand update = connection.CreateCommand())
+            {
+                update.Transaction = transaction;
+                update.CommandText = """
+                    UPDATE truck_plunder_jobs
+                    SET truck_json=$json,status='succeeded',last_error=NULL,updated_at=$updated
+                    WHERE server_id=$server AND train_uuid=$uuid
+                    """;
+                update.Parameters.AddWithValue("$server", serverId);
+                update.Parameters.AddWithValue("$uuid", trainUuid);
+                update.Parameters.AddWithValue("$json", row.ToJsonString(JsonOptions.Default));
+                update.Parameters.AddWithValue("$updated", updatedAt);
+                if (update.ExecuteNonQuery() != 1)
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+
+            transaction.Commit();
+            return true;
+        }
+    }
+
     internal bool CancelTruckPlunder(int serverId, string trainUuid, long updatedAt)
     {
         ValidateServerId(serverId);

@@ -23,7 +23,9 @@ internal sealed record CurrentClientTruckQuickRobResult(
     long MarchUuid,
     long TrainUuid,
     bool BattleWon,
-    int RewardCount);
+    int RewardCount,
+    JsonElement PlunderRewards,
+    bool RewardNormalizationComplete);
 
 internal sealed partial class CurrentClientMapBlockSource
 {
@@ -270,13 +272,49 @@ internal sealed partial class CurrentClientMapBlockSource
             {
                 throw new InvalidDataException("Truck quick-rob result reward count is invalid.");
             }
+            if (!root.TryGetProperty("plunderRewards", out JsonElement plunderRewards) ||
+                plunderRewards.ValueKind != JsonValueKind.Array)
+            {
+                throw new InvalidDataException("Truck quick-rob result plunderRewards must be an array.");
+            }
+            var rewardKeys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (JsonElement reward in plunderRewards.EnumerateArray())
+            {
+                if (reward.ValueKind != JsonValueKind.Object ||
+                    !reward.TryGetProperty("key", out JsonElement keyValue) ||
+                    keyValue.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(keyValue.GetString()) ||
+                    !rewardKeys.Add(keyValue.GetString()!) ||
+                    !reward.TryGetProperty("name", out JsonElement nameValue) ||
+                    nameValue.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(nameValue.GetString()) ||
+                    !reward.TryGetProperty("iconPath", out JsonElement iconValue) ||
+                    iconValue.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(iconValue.GetString()) ||
+                    !reward.TryGetProperty("count", out JsonElement countValue) ||
+                    !countValue.TryGetDouble(out double count) || !double.IsFinite(count) || count <= 0 ||
+                    !reward.TryGetProperty("rewardType", out JsonElement typeValue) ||
+                    !typeValue.TryGetInt32(out int rewardType) || rewardType <= 0 ||
+                    !reward.TryGetProperty("itemId", out JsonElement itemValue) ||
+                    !itemValue.TryGetInt64(out long itemId) || itemId <= 0)
+                {
+                    throw new InvalidDataException("Truck quick-rob result contains an invalid normalized plunder reward.");
+                }
+            }
+            if (!root.TryGetProperty("rewardNormalizationComplete", out JsonElement normalizationValue) ||
+                normalizationValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            {
+                throw new InvalidDataException("Truck quick-rob result rewardNormalizationComplete must be a boolean.");
+            }
 
             return new CurrentClientTruckQuickRobResult(
                 currentServerId,
                 marchUuid,
                 trainUuid,
                 battleWonValue.GetBoolean(),
-                rewardCount);
+                rewardCount,
+                plunderRewards.Clone(),
+                normalizationValue.GetBoolean());
         }
 
         string error = ReadOptionalString(root, "error") ?? "truck_quick_rob_failed";

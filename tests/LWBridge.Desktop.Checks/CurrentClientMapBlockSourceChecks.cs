@@ -1270,9 +1270,32 @@ internal static class CurrentClientMapBlockSourceChecks
               win.TrainUuid == TrainUuid &&
               win.BattleWon &&
               win.RewardCount == 3 &&
+              win.RewardNormalizationComplete &&
+              win.PlunderRewards.GetArrayLength() == 1 &&
+              win.PlunderRewards[0].GetProperty("key").GetString() == "reward:1:1001" &&
+              win.PlunderRewards[0].GetProperty("count").GetInt32() == 25 &&
               !loss.BattleWon &&
-              loss.RewardCount == 0,
-            "Truck quick-rob host protocol must preserve exact identity and authoritative win/loss orientation");
+              loss.RewardCount == 0 &&
+              loss.RewardNormalizationComplete &&
+              loss.PlunderRewards.GetArrayLength() == 0,
+            "Truck quick-rob host protocol must preserve exact identity, normalized rewards and authoritative win/loss orientation");
+
+        CurrentClientMapBlockSource incompleteRewards = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            truckQuickRobResult: fields => TruckQuickRobResult(
+                fields,
+                state: "proven",
+                error: null,
+                requestSent: true,
+                battleWon: true,
+                rewardCount: 1,
+                rewardNormalizationComplete: false));
+        CurrentClientTruckQuickRobResult incomplete = await incompleteRewards.ExecuteTruckQuickRobAsync(
+            2212, MarchUuid, TrainUuid, CancellationToken.None);
+        Check(incomplete.BattleWon &&
+              !incomplete.RewardNormalizationComplete &&
+              incomplete.PlunderRewards.GetArrayLength() == 1,
+            "incomplete reward display normalization must remain a proven one-shot battle result rather than becoming retryable");
     }
 
     private static async Task TruckQuickRobMapsRejectedAndAmbiguousWithoutRetry()
@@ -1553,7 +1576,8 @@ internal static class CurrentClientMapBlockSourceChecks
         string? error,
         bool requestSent,
         bool? battleWon,
-        int? rewardCount) =>
+        int? rewardCount,
+        bool rewardNormalizationComplete = true) =>
         JsonSerializer.Serialize(new
         {
             schemaVersion = 1,
@@ -1571,6 +1595,21 @@ internal static class CurrentClientMapBlockSourceChecks
             requestSent,
             battleWon,
             rewardCount,
+            plunderRewards = rewardCount is > 0
+                ? new object[]
+                {
+                    new
+                    {
+                        key = "reward:1:1001",
+                        name = "Synthetic Reward",
+                        iconPath = "synthetic/reward.png",
+                        count = 25,
+                        rewardType = 1,
+                        itemId = 1001L,
+                    },
+                }
+                : Array.Empty<object>(),
+            rewardNormalizationComplete,
             method = "RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain",
             error,
         }, JsonOptions.Default);
