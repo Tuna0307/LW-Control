@@ -95,9 +95,9 @@ internal sealed partial class MapDataStore
 
             foreach (string kind in request.SelectedTypes)
             {
-                if (kind == "monster")
+                if (kind is "monster" or "zombie_boss")
                     CarryForwardUnresolvedMonsterProtection(
-                        transaction, request.RunId, request.ServerId, updatedAt);
+                        transaction, request.RunId, kind, request.ServerId, updatedAt);
                 DeletePublishedEngineKind(transaction, kind, request.ServerId);
                 CopyEngineStagingKind(transaction, request.RunId, kind, request.ServerId);
             }
@@ -251,6 +251,7 @@ internal sealed partial class MapDataStore
     private void CarryForwardUnresolvedMonsterProtection(
         SqliteTransaction transaction,
         string runId,
+        string kind,
         int serverId,
         long updatedAt)
     {
@@ -261,7 +262,7 @@ internal sealed partial class MapDataStore
             SET shield_end_time=(
                   SELECT old.shield_end_time
                   FROM map_records old
-                  WHERE old.kind='monster'
+                  WHERE old.kind=$kind
                     AND old.server_id=scan_records.server_id
                     AND old.record_key=scan_records.record_key
                   LIMIT 1
@@ -273,7 +274,7 @@ internal sealed partial class MapDataStore
                   '$.monsterProtectionEndTime',(
                     SELECT old.shield_end_time
                     FROM map_records old
-                    WHERE old.kind='monster'
+                    WHERE old.kind=$kind
                       AND old.server_id=scan_records.server_id
                       AND old.record_key=scan_records.record_key
                     LIMIT 1
@@ -281,21 +282,21 @@ internal sealed partial class MapDataStore
                   '$.shieldEndTime',(
                     SELECT old.shield_end_time
                     FROM map_records old
-                    WHERE old.kind='monster'
+                    WHERE old.kind=$kind
                       AND old.server_id=scan_records.server_id
                       AND old.record_key=scan_records.record_key
                     LIMIT 1
                   )
                 )
             WHERE run_id=$run
-              AND kind='monster'
+              AND kind=$kind
               AND server_id=$server
               AND COALESCE(json_extract(data_json,'$.monsterProtectionEligible'),0)=1
               AND COALESCE(json_extract(data_json,'$.monsterProtectionKnown'),0)=0
               AND EXISTS (
                 SELECT 1
                 FROM map_records old
-                WHERE old.kind='monster'
+                WHERE old.kind=$kind
                   AND old.server_id=scan_records.server_id
                   AND old.record_key=scan_records.record_key
                   AND old.shield_end_time IS NOT NULL
@@ -309,6 +310,7 @@ internal sealed partial class MapDataStore
               )
             """;
         command.Parameters.AddWithValue("$run", runId);
+        command.Parameters.AddWithValue("$kind", kind);
         command.Parameters.AddWithValue("$server", serverId);
         command.Parameters.AddWithValue("$updated", updatedAt);
         command.ExecuteNonQuery();

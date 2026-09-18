@@ -414,7 +414,7 @@ internal sealed partial class MapDataStore : IDisposable
                       END AS name_key,
                       COUNT(*)
                     FROM {sourceTable}
-                    WHERE {sourceScope} AND kind IN ('resource','monster')
+                    WHERE {sourceScope} AND kind IN ('resource','monster','zombie_boss')
                     GROUP BY kind,name_key
                     HAVING name_key IS NOT NULL AND name_key<>''
                     ORDER BY kind,name_key COLLATE NOCASE
@@ -449,7 +449,7 @@ internal sealed partial class MapDataStore : IDisposable
                 command.Transaction = snapshot;
                 command.CommandText = $"""
                     SELECT DISTINCT CAST(level AS INTEGER) FROM {sourceTable}
-                    WHERE {sourceScope} AND kind='monster' AND level>=1 ORDER BY 1
+                    WHERE {sourceScope} AND kind IN ('monster','zombie_boss') AND level>=1 ORDER BY 1
                     """;
                 BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
@@ -614,7 +614,8 @@ internal sealed partial class MapDataStore : IDisposable
         string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
         long offset = checked(((long)options.Page - 1L) * options.PageSize);
         bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
-        string orderBy = options.Kind == "monster"
+        bool monsterLike = options.Kind is "monster" or "zombie_boss";
+        string orderBy = monsterLike
             ? string.Join(", ", options.Sorts.Select(sort => (sort.SortBy switch
             {
                 "level" => "page.level",
@@ -623,7 +624,7 @@ internal sealed partial class MapDataStore : IDisposable
                 _ => throw new BridgeCommandException("MAP_QUERY_UNRECOVERED", "Unsupported Monster sort column."),
             }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
             : $"page.updated_at {direction}, page.record_key ASC";
-        string[] resolvedMonsterNameKeys = string.Equals(options.Kind, "monster", StringComparison.Ordinal)
+        string[] resolvedMonsterNameKeys = monsterLike
             ? (monsterNameKeys ?? Array.Empty<string>())
                 .Where(key => !string.IsNullOrWhiteSpace(key))
                 .Distinct(StringComparer.Ordinal)
@@ -649,7 +650,7 @@ internal sealed partial class MapDataStore : IDisposable
                 predicates.Add("(json_extract(page.data_json,'$.arriveTs') IS NULL OR CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER) > $nowUnixMs)");
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
-            if (options.Keyword is not null && options.Kind == "monster")
+            if (options.Keyword is not null && monsterLike)
             {
                 // IMPLEMENTATION POLICY R7: the raw JSON blob contains schema keys such
                 // as zombieRushId, so blob LIKE makes a search for "Zombie" match every

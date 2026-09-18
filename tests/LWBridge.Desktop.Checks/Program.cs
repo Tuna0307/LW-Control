@@ -49,6 +49,12 @@ if (args.Contains("--live-current-client-full-monster-manual", StringComparer.Or
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-zombie-boss-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullZombieBossProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-bulk-aoi-diagnostic", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunAsync();
@@ -3299,6 +3305,8 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
     SeedOptionRecord("resource", optionServerId, "resource-wood-2", "{\"resourceNameKey\":\"wood\"}");
     SeedOptionRecord("resource", optionServerId, "resource-empty", "{\"resourceNameKey\":\"\"}");
     SeedOptionRecord("monster", optionServerId, "monster-zombie", "{\"monsterNameKey\":\"zombie\"}");
+    SeedOptionRecord("zombie_boss", optionServerId, "zombie-boss-invasion",
+        "{\"monsterNameKey\":\"2901012\"}", level: 8);
 
     SeedOptionRecord("dispatch", optionServerId, "dispatch-level-3-a", "{}", level: 3);
     SeedOptionRecord("dispatch", optionServerId, "dispatch-level-1", "{}", level: 1);
@@ -3367,11 +3375,14 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.Alliances.Single(item => item.Name == "Alpha").Count == 2 &&
           persistedOptions.Alliances.All(item => item.Name != "Other"),
         "persisted option alliance aggregation emits only nonempty alliance names while keeping recovered ordering and server scope");
-    Check(persistedOptions.Names.Count == 2 &&
+    Check(persistedOptions.Names.Count == 3 &&
           persistedOptions.Names.Any(item => item.Kind == "resource" && item.Key == "wood" && item.Count == 2) &&
           persistedOptions.Names.Any(item => item.Kind == "monster" && item.Key == "zombie" && item.Count == 1) &&
+          persistedOptions.Names.Any(item => item.Kind == "zombie_boss" && item.Key == "2901012" && item.Count == 1) &&
           persistedOptions.Names.All(item => item.Key.Length > 0),
-        "persisted resource/monster option aggregation excludes empty keys and preserves counts");
+        "persisted resource/Monster/Zombie Boss option aggregation excludes empty keys and preserves counts");
+    Check(persistedOptions.MonsterLevels.SequenceEqual(new[] { 8 }),
+        "persisted Monster level options include dedicated Zombie Boss levels from the same published snapshot");
     Check(persistedOptions.DispatchLevels.SequenceEqual(new[] { 1, 3 }),
         "persisted dispatch option levels are distinct positive integers ordered ascending");
     Check(persistedOptions.TreasureTypes.Count == 2 &&
@@ -3390,16 +3401,17 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.RewardItems[1].Kind == "truck" && persistedOptions.RewardItems[1].Key == "iron" &&
           persistedOptions.RewardItems.All(item => item.Key != "past" && item.Key != "other"),
         "persisted reward options deduplicate current goods, apply recovered Unix-ms arrival cutoff and isolate server scope");
-    Check(persistedOptions.Counts.Count == 8 &&
+    Check(persistedOptions.Counts.Count == 9 &&
           persistedOptions.Counts["city"] == 4 &&
           persistedOptions.Counts["resource"] == 3 &&
           persistedOptions.Counts["monster"] == 1 &&
+          persistedOptions.Counts["zombie_boss"] == 1 &&
           persistedOptions.Counts["truck"] == 2 &&
           persistedOptions.Counts["railway"] == 1 &&
           persistedOptions.Counts["dispatch"] == 4 &&
           persistedOptions.Counts["ghost"] == 0 &&
           persistedOptions.Counts["treasure"] == 4,
-        "persisted option test kernel returns the exact eight frontend count keys with zero for an absent kind");
+        "persisted option test kernel returns the exact nine frontend count keys with zero for absent kinds");
     Check(persistedOptions.NoAllianceCount == 2,
         "persisted option test kernel accumulates null and empty alliance groups into native noAllianceCount instead of alliances[]");
     Check(persistedOptions.ScanProgress?.Id == "options-run-new" &&
@@ -3469,6 +3481,10 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         "monster", 91, "backend-monster-beta", 12, "monster-b", "monster.beta", null,
         9, null, null, 34, null, 1200,
         "{\"serverId\":91,\"uuid\":\"monster-b\",\"monsterNameKey\":\"monster.beta\",\"level\":9,\"zombieRushId\":0,\"endTime\":420000}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "zombie_boss", 91, "backend-zombie-boss", 13, "boss-a", "monster.boss", null,
+        8, null, null, 56, 2_000_000_000_000L, 1250,
+        "{\"serverId\":91,\"uuid\":\"boss-a\",\"monsterNameKey\":\"monster.boss\",\"level\":8,\"monsterProtectionKnown\":true,\"monsterProtectionActive\":true,\"shieldEndTime\":2000000000000}"));
     backendMapStore.InsertScanRun(new MapScanRunSeed(
         "backend-run", 91, "[\"city\",\"monster\"]", "running", 100, 0, 0, 1000, 1000, null));
 
@@ -3484,9 +3500,12 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         JsonElement root = optionsJson.RootElement;
         Check(root.GetProperty("serverId").GetInt32() == 91 &&
               root.GetProperty("names").GetProperty("monster").GetArrayLength() == 2 &&
-              root.GetProperty("monsterLevels").EnumerateArray().Select(item => item.GetInt32()).SequenceEqual(new[] { 7, 9 }) &&
-              root.GetProperty("counts").GetProperty("monster").GetInt32() == 2,
-            "public map_data_options exposes persisted Monster names, exact available levels and counts");
+              root.GetProperty("names").GetProperty("zombie_boss").GetArrayLength() == 1 &&
+              root.GetProperty("names").GetProperty("zombie_boss")[0].GetProperty("key").GetString() == "monster.boss" &&
+              root.GetProperty("monsterLevels").EnumerateArray().Select(item => item.GetInt32()).SequenceEqual(new[] { 7, 8, 9 }) &&
+              root.GetProperty("counts").GetProperty("monster").GetInt32() == 2 &&
+              root.GetProperty("counts").GetProperty("zombie_boss").GetInt32() == 1,
+            "public map_data_options exposes persisted Monster/Zombie Boss names, exact available levels and counts");
     }
 
     using JsonDocument localizedMonsterSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
@@ -3511,6 +3530,48 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
               searchJson.RootElement.GetProperty("rows")[0].GetProperty("monsterNameKey").GetString() == "monster.alpha",
             "Monster keyword search can resolve a localized display name without matching every row's zombieRushId schema key");
     }
+
+    using JsonDocument localizedZombieBossSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "zombie_boss",
+        query = new
+        {
+            serverId = 91,
+            keyword = "Zombie Boss Localized",
+            monsterNameKeys = new[] { "monster.boss" },
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? localizedZombieBossResult = await mapBackend.InvokeAsync(
+        "map_search", localizedZombieBossSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(localizedZombieBossResult, JsonOptions.Default)))
+    {
+        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              searchJson.RootElement.GetProperty("rows")[0].GetProperty("monsterNameKey").GetString() == "monster.boss",
+            "Zombie Boss keyword search resolves the localized display name through its authoritative monsterNameKey");
+    }
+
+    using JsonDocument zombieBossNameKeySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "zombie_boss",
+        query = new
+        {
+            serverId = 91,
+            monsterNameKey = "monster.boss",
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? zombieBossNameKeyResult = await mapBackend.InvokeAsync(
+        "map_search", zombieBossNameKeySearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(zombieBossNameKeyResult, JsonOptions.Default)))
+        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 1,
+            "Zombie Boss name selector may filter by the same authoritative monsterNameKey as generic Monster");
 
     using JsonDocument unrelatedMonsterKeyword = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -4601,11 +4662,36 @@ Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", Strin
       liveCityProbeSource.Contains("pending.sourceProtectionEndTime", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("server has confirmed isProtected=true", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("scan.staleResponseCount", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("MONSTER_INVASION_PROTECTION_PER_TARGET_SECONDS", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("monster_invasion_protection_partial_response", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("capture.responses[target.uuid] = {", StringComparison.Ordinal) &&
       !liveCityProbeSource.Contains("monster_protection_response_uuid_mismatch", StringComparison.Ordinal),
     "Monster Protection detail must serialize the shared-UUID game message, request authoritative detail for every boss, ignore stale cross-scan replies, and use the original protected/visible deadline fallback when the coarse scan cannot instantiate the manager object");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
     "optional Monster Protection detail must not pause each AOI acquisition step");
+Check(fastCitySource.Contains("MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35)", StringComparison.Ordinal),
+    "dedicated Zombie Boss enrichment must allow the bounded target-count-sized serialized detail window");
+
+string mapDataPanelSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
+Check(mapDataPanelSource.Contains(
+          "function Ue(e){return e===`resource`||e===`monster`||e===`zombie_boss`}",
+          StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("function monsterKeywordKeyList(", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains(
+          "monsterNameKey:(n===`monster`||n===`zombie_boss`)?Ot[n]:void 0",
+          StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains(
+          "monsterNameKeys:(n===`monster`||n===`zombie_boss`)&&I.trim()?(resolvedMonsterNameKeys??monsterKeywordKeyList(n,I,dt,Xt)):void 0",
+          StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("localeKeywordRefreshRef", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("localeKeywordRefreshRef.current=n,er(1,t)", StringComparison.Ordinal),
+    "Zombie Boss result filters must reuse localized Monster name keys and rerun one saved keyword query after locale text arrives");
+Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("localStorage.setItem(filterStoreKey", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("savedResultFilters=readResultFilters()", StringComparison.Ordinal),
+    "Map Data result filters must persist across rescans and app restarts");
 
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),

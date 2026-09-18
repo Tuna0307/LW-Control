@@ -10,7 +10,7 @@ internal sealed record MapScanStartOptions(
 internal static class MapScanContract
 {
     public static readonly string[] AllTypes =
-        ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
+        ["city", "resource", "monster", "zombie_boss", "truck", "railway", "dispatch", "ghost", "treasure"];
 
     private static readonly HashSet<string> AllowedTypes = new(AllTypes, StringComparer.Ordinal);
 

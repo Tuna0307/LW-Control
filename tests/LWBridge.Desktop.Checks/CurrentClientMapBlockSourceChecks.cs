@@ -37,6 +37,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastMonsterResumesAfterEarlyReadyLoss();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastMonsterCoarseLodReturnsAllLogicalCaptures();
+        await FastZombieBossCoarseLodPublishesOnlyZombieBosses();
         await FastMonsterCoarseFailureFallsBackToExactCoverage();
         await FastMonsterAcceptsAccumulatedProtectionTargets();
         await FastMonsterKnownInactiveProtectionSuppressesRemaining();
@@ -412,10 +413,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
                 if (x == 5 && y == 75)
                 {
-                    JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2901012", true)))!.AsObject();
-                    root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
-                    root["monsterProtectionDetailRequestCount"] = 1; root["monsterProtectionDetailReadyCount"] = 1;
-                    return root.ToJsonString(JsonOptions.Default);
+                    return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000005", false));
                 }
                 if (x == 995 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", false));
                 return ProvenFastMonsterBatch(fields);
@@ -429,23 +427,20 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 270 && protectionCalls == 1 && captures.Count == 2500,
-            "fast full-Monster source should use 260 AOI responses and one post-acquisition protection refresh");
-        Check(source.LastMonsterProtectionDetailMetrics is { BossCount: 1, TargetCount: 1, RequestCount: 1, ReadyCount: 1 },
-            "fast full-Monster source should aggregate completed Monster Invasion protection detail refresh metrics");
+        Check(bulkCalls == 270 && protectionCalls == 0 && captures.Count == 2500,
+            "generic Monster source should use exact AOI coverage without any Zombie Boss protection network phase");
+        Check(source.LastMonsterProtectionDetailMetrics is { BossCount: 0, TargetCount: 0, RequestCount: 0, ReadyCount: 0 },
+            "generic Monster source must not retain Zombie Boss protection work after the category split");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
         Check(first.Kind == "monster" && first.RecordKey == "m-first" && first.Level == 9 &&
               last.Kind == "monster" && last.RecordKey == "m-last" && last.Level == 29,
             "fast full-Monster source did not preserve normalized monsters at map extremes");
-        Check(first.DataJson.Contains("\"monsterNameKey\":\"2901012\"", StringComparison.Ordinal),
-            "fast full-Monster source did not preserve the authoritative Zombie Boss name key");
-        Check(first.Distance == 12.5 && first.ShieldEndTime == 2_000_000_000_000L &&
-              first.DataJson.Contains("\"distanceFromHome\":12.5", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"monsterProtectionKnown\":true", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"monsterProtectionActive\":true", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"shieldEndTime\":2000000000000", StringComparison.Ordinal),
-            "fast full-Monster source should persist game-derived distance and Monster Invasion protection deadline");
+        Check(first.DataJson.Contains("\"monsterNameKey\":\"2000005\"", StringComparison.Ordinal),
+            "fast full-Monster source did not preserve the authoritative ordinary Monster name key");
+        Check(first.Distance == 12.5 && first.ShieldEndTime is null &&
+              first.DataJson.Contains("\"distanceFromHome\":12.5", StringComparison.Ordinal),
+            "generic Monster source should persist game-derived distance without Zombie Boss Remaining state");
     }
 
 
@@ -475,11 +470,52 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(bulkCalls == 1 && protectionCalls == 0 && captures.Count == 2500,
+            "coarse generic Monster path should use one whole-world snapshot and skip Zombie Boss detail requests");
+        MapStoredRecord[] rows = captures.SelectMany(capture => capture.Records).ToArray();
+        Check(rows.Length == 1 && rows[0].RecordKey == "m-coarse-ordinary" &&
+              rows[0].Kind == "monster" && rows[0].ShieldEndTime is null,
+            "generic Monster path must exclude Zombie Boss rows after the dedicated category split");
+    }
+
+    private static async Task FastZombieBossCoarseLodPublishesOnlyZombieBosses()
+    {
+        int bulkCalls = 0;
+        int protectionCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                Check(fields["requestMode"] == "zoom",
+                    "Zombie Boss path must use the native LOD2 whole-world Monster snapshot");
+                return ProvenCoarseMonsterBatch(fields,
+                    ("z-boss", 500, 500, 1031015, 65, "2901012", true),
+                    ("z-ordinary", 510, 510, 1002009, 9, "2000005", false));
+            },
+            monsterProtectionResult: fields =>
+            {
+                protectionCalls++;
+                return ProvenMonsterProtectionResult(fields,
+                    ("z-boss", true, true, 2_000_000_000_000L));
+            },
+            useCoarseMonsterMap: true);
+
+        MapScanExecutionRequest request = new(
+            "run_zombie_boss", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+
+        MapStoredRecord[] rows = captures.SelectMany(capture => capture.Records).ToArray();
         Check(bulkCalls == 1 && protectionCalls == 1 && captures.Count == 2500,
-            "coarse Monster path should replace hundreds of LOD0 requests with one whole-world snapshot plus protection refresh");
-        MapStoredRecord boss = captures.SelectMany(capture => capture.Records).Single(record => record.RecordKey == "m-coarse");
-        Check(boss.Level == 55 && boss.Distance is not null && boss.ShieldEndTime == 2_000_000_000_000L,
-            "coarse Monster path must preserve level, home-relative Distance, and authoritative Remaining deadline");
+            "Zombie Boss path should use one LOD2 snapshot plus one serialized detail pass");
+        Check(rows.Length == 1 && rows[0].Kind == "zombie_boss" && rows[0].RecordKey == "z-boss",
+            "Zombie Boss scan must publish only authentic protection-eligible Zombie Boss rows into its separate kind");
+        Check(rows[0].Level == 65 && rows[0].Distance is not null &&
+              rows[0].ShieldEndTime == 2_000_000_000_000L &&
+              rows[0].DataJson.Contains("\"kind\":\"zombie_boss\"", StringComparison.Ordinal),
+            "Zombie Boss rows must preserve level, Distance, Remaining, and dedicated result identity");
     }
 
     private static async Task FastMonsterCoarseFailureFallsBackToExactCoverage()
@@ -533,7 +569,7 @@ internal static class CurrentClientMapBlockSourceChecks
             monsterProtectionResult: fields => ProvenMonsterProtectionResult(fields,
                 ("m-final", true, true, 2_000_000_000_000L),
                 ("m-stale", true, false, 0L)));
-        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
@@ -562,7 +598,7 @@ internal static class CurrentClientMapBlockSourceChecks
             },
             monsterProtectionResult: fields =>
                 ProvenMonsterProtectionResult(fields, ("m-inactive", true, false, 0L)));
-        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
@@ -593,7 +629,7 @@ internal static class CurrentClientMapBlockSourceChecks
             },
             monsterProtectionResult: fields =>
                 ProvenMonsterProtectionResult(fields, ("m-timeout", false, false, 0L)));
-        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
@@ -624,7 +660,7 @@ internal static class CurrentClientMapBlockSourceChecks
             },
             monsterProtectionResult: fields =>
                 ProvenMonsterProtectionResult(fields, ("m-first", false, false, 0L)));
-        MapScanExecutionRequest request = new("run_cache", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_cache", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
@@ -651,7 +687,7 @@ internal static class CurrentClientMapBlockSourceChecks
             },
             monsterProtectionResult: fields =>
                 ProvenMonsterProtectionResult(fields, ("m-carry", true, false, 0L)));
-        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_1", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
@@ -1197,13 +1233,16 @@ internal static class CurrentClientMapBlockSourceChecks
             .SelectMany(row => Enumerable.Range(startCellX, columnCount).Select(column => row * 100 + column))
             .ToArray();
         bool includeMonster = fields.TryGetValue("includeMonster", out string? includeMonsterText) && includeMonsterText == "true";
+        bool includeMonsterProtection = fields.TryGetValue("includeMonsterProtection", out string? includeMonsterProtectionText) &&
+            includeMonsterProtectionText == "true";
         bool includeTrain = fields.TryGetValue("includeTrain", out string? includeTrainText) && includeTrainText == "true";
         return JsonSerializer.Serialize(new
         {
             schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
-            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage", includeMonster, includeTrain,
+            gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
+            includeMonster, includeMonsterProtection, includeTrain,
             state = "proven", error = (string?)null, requestedIndices = requested,
             matchedCityCount = points.Length, matchedResourceCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,
@@ -1346,11 +1385,14 @@ internal static class CurrentClientMapBlockSourceChecks
     {
         JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(fields, monsters))!.AsObject();
         int bossCount = monsters.Count(monster => monster.NameKey == "2901012");
+        bool includeMonsterProtection = fields.TryGetValue("includeMonsterProtection", out string? includeProtectionText) &&
+            includeProtectionText == "true";
         root["requestMode"] = "zoom";
         root["requestedCount"] = 160;
         root["holdMilliseconds"] = 0;
         root["viewLevel"] = -1;
         root["includeMonster"] = true;
+        root["includeMonsterProtection"] = includeMonsterProtection;
         root["includeTrain"] = false;
         root["responseFlagsTransitioned"] = true;
         root["cameraTileStable"] = true;
@@ -1364,7 +1406,7 @@ internal static class CurrentClientMapBlockSourceChecks
         root["preTileX"] = 230; root["preTileY"] = 257;
         root["restoredTileX"] = 230; root["restoredTileY"] = 257;
         root["monsterInvasionBossCount"] = bossCount;
-        root["monsterProtectionDetailTargetCount"] = bossCount;
+        root["monsterProtectionDetailTargetCount"] = includeMonsterProtection ? bossCount : 0;
         root["monsterProtectionDetailRequestCount"] = 0;
         root["monsterProtectionDetailReadyCount"] = 0;
         return root.ToJsonString(JsonOptions.Default);

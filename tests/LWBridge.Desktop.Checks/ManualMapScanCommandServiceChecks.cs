@@ -18,6 +18,7 @@ internal static class ManualMapScanCommandServiceChecks
         await BackendSummaryTracksActiveManualScan();
         await FastUsesRecoveredConcurrencyAndPublishes();
         await ContextFailureLeavesTruthfulError();
+        await ZombieBossTypeIsAccepted();
         await MixedTypesFailClosed();
     }
 
@@ -193,6 +194,19 @@ internal static class ManualMapScanCommandServiceChecks
             "failed Start should release ownership and expose an error phase");
         Check(String(status, "lastError") == MapScanStartOwnership.ServerUnavailableMessage,
             "failed Start should preserve the live-context error message");
+        service.Close();
+    }
+
+    private static async Task ZombieBossTypeIsAccepted()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var source = new ImmediateSource();
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        _ = await service.InvokeAsync("map_scan_start", Payload("normal", "zombie_boss"), CancellationToken.None);
+        WaitForPhase(service, "completed");
+        JsonElement status = Status(service);
+        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+            "Zombie Boss should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
 

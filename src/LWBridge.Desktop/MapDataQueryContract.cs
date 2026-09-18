@@ -202,7 +202,7 @@ internal static class MapDataQueryContract
         // IMPLEMENTATION POLICY LWB-R7-014: the owner-defined Monster level selector
         // is an inclusive maximum (selecting 60 means level <= 60). The recovered generic
         // maxLevel predicate is reused; Monster min/range forms remain fail-closed.
-        if (kind == "monster")
+        if (kind is "monster" or "zombie_boss")
         {
             bool hasMinLevel = query.TryGetProperty("minLevel", out JsonElement minLevelValue) && !IsNeutral(minLevelValue);
             bool hasMaxLevel = query.TryGetProperty("maxLevel", out JsonElement maxLevelValue) && !IsNeutral(maxLevelValue);
@@ -213,7 +213,7 @@ internal static class MapDataQueryContract
                 if (hasMaxLevel && maxLevel is not > 0) unsupported.Add("maxLevel");
             }
         }
-        bool recoveredSort = kind == "monster"
+        bool recoveredSort = kind is "monster" or "zombie_boss"
             ? sorts.Count is >= 1 and <= 3 &&
               sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
               sorts.All(sort => sort.SortBy is "level" or "distance" or "updatedAt")
@@ -229,7 +229,7 @@ internal static class MapDataQueryContract
         "alliance" => kind == "city" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
         "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
-        "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "monsterNameKey" => kind is "monster" or "zombie_boss" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "treasureType" => kind == "treasure" && IsNonNegativeInteger(value),
         "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
         // LWB-R6-013: recovered frontend emits only these five string forms.
@@ -245,8 +245,8 @@ internal static class MapDataQueryContract
         "plunderableOnly" => kind is "truck" or "railway" or "dispatch" && value.ValueKind == JsonValueKind.True,
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
-        "minLevel" => kind is "dispatch" or "monster" && IsPositiveInteger(value),
-        "maxLevel" => kind is "dispatch" or "monster" && IsPositiveInteger(value),
+        "minLevel" => kind is "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
+        "maxLevel" => kind is "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
         _ => false,
     };
 

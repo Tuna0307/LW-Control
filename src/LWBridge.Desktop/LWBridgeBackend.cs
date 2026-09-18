@@ -216,7 +216,8 @@ internal sealed class LWBridgeBackend
                     // the Monster-specific predicate even when localization resolves zero
                     // names, so raw JSON property names (for example zombieRushId) can
                     // never turn an unrelated keyword into an all-row match.
-                    MapSearchResult result = query.Kind == "monster" && query.Keyword is not null
+                    bool monsterLike = query.Kind is "monster" or "zombie_boss";
+                    MapSearchResult result = monsterLike && query.Keyword is not null
                         ? store.SearchIndexedWithMonsterNameKeys(query, resolvedMonsterNameKeys)
                         : store.SearchIndexed(query);
                     return new { rows = result.Rows, total = result.Total };
@@ -562,6 +563,7 @@ internal sealed class LWBridgeBackend
             {
                 resource = aggregates.Names.Where(item => item.Kind == "resource").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
                 monster = aggregates.Names.Where(item => item.Kind == "monster").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
+                zombie_boss = aggregates.Names.Where(item => item.Kind == "zombie_boss").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
             },
             dispatchLevels = aggregates.DispatchLevels,
             monsterLevels = aggregates.MonsterLevels,
@@ -586,7 +588,7 @@ internal sealed class LWBridgeBackend
 
     private static IReadOnlyList<string> ReadResolvedMonsterNameKeys(JsonElement payload, string kind)
     {
-        if (kind != "monster" ||
+        if (kind is not ("monster" or "zombie_boss") ||
             !payload.TryGetProperty("query", out JsonElement query) || query.ValueKind != JsonValueKind.Object ||
             !query.TryGetProperty("monsterNameKeys", out JsonElement values) ||
             values.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)

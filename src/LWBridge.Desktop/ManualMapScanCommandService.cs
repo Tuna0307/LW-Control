@@ -78,11 +78,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
         MapScanStartOptions options = MapScanContract.NormalizeStart(payload);
         if (options.SelectedTypes.Count != 1 ||
-            options.SelectedTypes[0] is not ("city" or "resource" or "monster" or "truck"))
+            options.SelectedTypes[0] is not ("city" or "resource" or "monster" or "zombie_boss" or "truck"))
         {
             throw new BridgeCommandException(
                 "LIVE_BLOCK_TYPES_UNSUPPORTED",
-                "The shared current-client scanner currently supports one Player City, Resource, Monster, or Truck kind.");
+                "The shared current-client scanner currently supports one Player City, Resource, Monster, Zombie Boss, or Truck kind.");
         }
 
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);

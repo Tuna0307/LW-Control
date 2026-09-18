@@ -10,6 +10,7 @@ internal static class MapDataStoreScanEngineChecks
     {
         SuccessfulScanReplacesPublishedRows();
         UnresolvedMonsterProtectionCarriesForwardKnownDeadline();
+        UnresolvedZombieBossProtectionCarriesForwardKnownDeadline();
         KnownInactiveMonsterProtectionClearsPriorDeadline();
         StoppedRunCannotPublish();
         FailedRunCannotPublish();
@@ -53,6 +54,29 @@ internal static class MapDataStoreScanEngineChecks
               row.DataJson.Contains("\"monsterProtectionEndTime\":2000000000000", StringComparison.Ordinal) &&
               row.DataJson.Contains("\"shieldEndTime\":2000000000000", StringComparison.Ordinal),
             "unresolved fresh Monster protection must preserve a still-live prior authoritative deadline");
+    }
+
+    private static void UnresolvedZombieBossProtectionCarriesForwardKnownDeadline()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        const long knownDeadline = 2_000_000_000_000L;
+        store.UpsertRecord(MonsterRecord(
+            "boss", 100, known: true, active: true, knownDeadline, kind: "zombie_boss"));
+
+        var request = MonsterRequest("store-zombie-boss-carry", "zombie_boss");
+        var source = new SingleCaptureSource(
+            MonsterRecord("boss", 200, known: false, active: false, deadline: null, kind: "zombie_boss"));
+        new MapScanEngine(source, new MapDataStoreScanSink(store))
+            .ExecuteAsync(request).GetAwaiter().GetResult();
+
+        MapStoredRecord row = store.GetRecord("zombie_boss", 2212, "boss")
+            ?? throw new InvalidOperationException("carried Zombie Boss row was not published");
+        Check(row.ShieldEndTime == knownDeadline &&
+              row.DataJson.Contains("\"monsterProtectionKnown\":true", StringComparison.Ordinal) &&
+              row.DataJson.Contains("\"monsterProtectionActive\":true", StringComparison.Ordinal),
+            "unresolved dedicated Zombie Boss publication must preserve a still-live prior authoritative deadline");
+        Check(store.CountRecords("monster", 2212) == 0,
+            "Zombie Boss publication must stay isolated from the generic Monster dataset");
     }
 
     private static void KnownInactiveMonsterProtectionClearsPriorDeadline()
@@ -113,26 +137,27 @@ internal static class MapDataStoreScanEngineChecks
     private static MapScanExecutionRequest Request(string runId) =>
         new(runId, 2212, 7, 20, 20, ["city"], 1, 2);
 
-    private static MapScanExecutionRequest MonsterRequest(string runId) =>
-        new(runId, 2212, 7, 20, 20, ["monster"], 1, 2);
+    private static MapScanExecutionRequest MonsterRequest(string runId, string kind = "monster") =>
+        new(runId, 2212, 7, 20, 20, [kind], 1, 2);
 
     private static MapStoredRecord MonsterRecord(
         string key,
         long updatedAt,
         bool known,
         bool active,
-        long? deadline)
+        long? deadline,
+        string kind = "monster")
     {
         string deadlineJson = deadline is null ? "null" : deadline.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         string data =
-            $"{{\"recordKey\":\"{key}\",\"kind\":\"monster\",\"serverId\":2212," +
+            $"{{\"recordKey\":\"{key}\",\"kind\":\"{kind}\",\"serverId\":2212," +
             $"\"x\":1,\"y\":1,\"monsterProtectionEligible\":true," +
             $"\"monsterProtectionKnown\":{known.ToString().ToLowerInvariant()}," +
             $"\"monsterProtectionActive\":{active.ToString().ToLowerInvariant()}," +
             $"\"monsterProtectionEndTime\":{(active && deadline is not null ? deadlineJson : "0")}," +
             $"\"shieldEndTime\":{deadlineJson},\"updatedAt\":{updatedAt}}}";
         return new MapStoredRecord(
-            "monster", 2212, key, 1, key, "Zombie Boss", null,
+            kind, 2212, key, 1, key, "Zombie Boss", null,
             55, null, null, 1.0, deadline, updatedAt, data);
     }
 

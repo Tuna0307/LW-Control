@@ -19,7 +19,7 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
     private const int FastFullWorldMaxRequestsPerRow = 50;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
-    private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(13);
+    private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
@@ -372,7 +372,7 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
             foreach (FirstLivePreparedResource item in resourceRecords.Values)
                 AddRecordToBlock(buckets, item.Import.X, item.Import.Y, item.Record);
-        if (request.SelectedTypes.Contains("monster", StringComparer.Ordinal))
+        if (IncludesMonsterSource(request))
             foreach (FastMonsterPrepared item in monsterRecords.Values)
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
@@ -451,12 +451,20 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Fast full-world adaptive acquisition returned an inconsistent AOI footprint.");
     }
 
+    private static bool IncludesMonsterSource(MapScanExecutionRequest request) =>
+        request.SelectedTypes.Contains("monster", StringComparer.Ordinal) ||
+        request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
+
+    private static bool IsZombieBossOnly(MapScanExecutionRequest request) =>
+        request.SelectedTypes.Count == 1 &&
+        request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
+
     private static bool IsMonsterOnly(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count == 1 && request.SelectedTypes.Contains("monster", StringComparer.Ordinal);
+        request.SelectedTypes.Count == 1 && IncludesMonsterSource(request);
 
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
         request.SelectedTypes.Count is >= 1 and <= 5 &&
-        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "truck" or "railway") &&
+        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
     private async Task<FastCityBatchObservation> ProbeFastCityBatchAsync(
         OverviewMapScanSession session,
@@ -490,7 +498,8 @@ internal sealed partial class CurrentClientMapBlockSource
             "holdMilliseconds=0",
             $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
-            $"includeMonster={request.SelectedTypes.Contains("monster", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            $"includeMonster={IncludesMonsterSource(request).ToString().ToLowerInvariant()}",
+            $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
             string.Empty,
         });
@@ -581,6 +590,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
             "includeMonster=true",
+            $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
             "includeTrain=false",
             string.Empty,
         });
@@ -616,6 +626,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesInt(root, "gamePid", session.GamePid) ||
             !MatchesString(root, "requestMode", "zoom") ||
             !MatchesBool(root, "includeMonster", true) ||
+            !MatchesBool(root, "includeMonsterProtection", IsZombieBossOnly(request)) ||
             !MatchesBool(root, "includeTrain", false))
             throw new InvalidDataException("LOD2 Monster result did not match the active owned game session.");
         if (!MatchesInt(root, "requestedCount", 160) ||
@@ -657,9 +668,18 @@ internal sealed partial class CurrentClientMapBlockSource
         int protectionRequests = RequireNonNegativeInt(root, "monsterProtectionDetailRequestCount");
         int protectionReady = RequireNonNegativeInt(root, "monsterProtectionDetailReadyCount");
         int normalizedBossCount = monsters.Count(item => item.ProtectionEligible);
-        if (bossCount != normalizedBossCount || protectionTargets != bossCount ||
-            protectionRequests > protectionTargets || protectionReady > protectionRequests)
-            throw new InvalidDataException("LOD2 Monster protection counters changed during normalization.");
+        bool zombieBossOnly = IsZombieBossOnly(request);
+        bool countersValid = zombieBossOnly
+            ? bossCount == normalizedBossCount &&
+              protectionTargets == bossCount &&
+              protectionRequests <= protectionTargets &&
+              protectionReady <= protectionRequests
+            : normalizedBossCount == 0 &&
+              protectionTargets == 0 &&
+              protectionRequests == 0 &&
+              protectionReady == 0;
+        if (!countersValid)
+            throw new InvalidDataException("LOD2 Monster/Zombie Boss protection counters changed during normalization.");
         if (request.PlayerTileX is not null && request.PlayerTileY is not null && monsters.Any(item => item.Record.Distance is null))
             throw new InvalidDataException("LOD2 Monster acquisition omitted home-relative Distance.");
         return monsters;
@@ -802,7 +822,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesString(root, "challenge", session.Challenge) ||
             !MatchesInt(root, "gamePid", session.GamePid) ||
             !MatchesString(root, "requestMode", "coverage") ||
-            !MatchesBool(root, "includeMonster", request.SelectedTypes.Contains("monster", StringComparer.Ordinal)) ||
+            !MatchesBool(root, "includeMonster", IncludesMonsterSource(request)) ||
+            !MatchesBool(root, "includeMonsterProtection", IsZombieBossOnly(request)) ||
             !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
                 request.SelectedTypes.Contains("railway", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
@@ -872,7 +893,7 @@ internal sealed partial class CurrentClientMapBlockSource
             if (!requestedSet.Contains(aoiIndex))
                 throw new InvalidDataException("Fast world batch point fell outside the native AOI footprint.");
         }
-        IReadOnlyList<FastMonsterPrepared> monsters = request.SelectedTypes.Contains("monster", StringComparer.Ordinal)
+        IReadOnlyList<FastMonsterPrepared> monsters = IncludesMonsterSource(request)
             ? PrepareMonsterRecords(root, request, requestedSet, startedAt)
             : Array.Empty<FastMonsterPrepared>();
         bool includeTrain = request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
@@ -899,7 +920,7 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
             foreach (FirstLivePreparedResource item in observation.Resources)
                 AddRecordToBlock(buckets, item.Import.X, item.Import.Y, item.Record);
-        if (request.SelectedTypes.Contains("monster", StringComparer.Ordinal))
+        if (IncludesMonsterSource(request))
             foreach (FastMonsterPrepared item in observation.Monsters)
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
@@ -930,6 +951,8 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!root.TryGetProperty("monster_march_records", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its Monster march snapshot.");
         var result = new List<FastMonsterPrepared>(rows.GetArrayLength());
+        bool zombieBossOnly = IsZombieBossOnly(request);
+        string outputKind = zombieBossOnly ? "zombie_boss" : "monster";
         foreach (JsonElement row in rows.EnumerateArray())
         {
             string uuid = RequiredString(row, "uuid");
@@ -950,6 +973,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 ? parsedDistance : null;
             bool protectionEligible = row.TryGetProperty("monsterProtectionEligible", out JsonElement protectionEligibleValue) &&
                 protectionEligibleValue.ValueKind == JsonValueKind.True;
+            if (zombieBossOnly ? !protectionEligible : protectionEligible) continue;
             bool protectionKnown = row.TryGetProperty("monsterProtectionKnown", out JsonElement protectionKnownValue) &&
                 protectionKnownValue.ValueKind == JsonValueKind.True;
             bool protectionActive = row.TryGetProperty("monsterProtectionActive", out JsonElement protectionActiveValue) &&
@@ -963,11 +987,11 @@ internal sealed partial class CurrentClientMapBlockSource
             else
                 shieldEndTime = row.TryGetProperty("zMBossShieldEndTime", out JsonElement shieldValue) &&
                     shieldValue.TryGetInt64(out long parsedShield) && parsedShield > 0 ? parsedShield : null;
-            data["level"] = level; data["updatedAt"] = updatedAt;
+            data["kind"] = outputKind; data["level"] = level; data["updatedAt"] = updatedAt;
             if (distance is not null) data["distanceFromHome"] = distance.Value;
             if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
-            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord("monster", serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
+            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord(outputKind, serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
         }
         return result;
     }

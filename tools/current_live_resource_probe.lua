@@ -71,9 +71,16 @@ local bulk_aoi_original_camera_lod = nil
 -- is not an original LWBridge timeout.
 local RESPONSE_TIMEOUT_SECONDS = 8
 local BULK_AOI_TIMEOUT_SECONDS = 8
-local MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS = 10
+local MONSTER_INVASION_PROTECTION_MIN_TIMEOUT_SECONDS = 10
+local MONSTER_INVASION_PROTECTION_MAX_TIMEOUT_SECONDS = 30
+local MONSTER_INVASION_PROTECTION_PER_TARGET_SECONDS = 0.32
+local MONSTER_INVASION_PROTECTION_TIMEOUT_PADDING_SECONDS = 4
 -- RECOVERED current-v18 constraint: MonsterInvasionBossDetailMessge stores one
 -- module-level request UUID, so protection detail requests are serialized.
+-- One dropped reply must not pin the shared UUID slot and starve the tail of the
+-- queue. Give each UUID a short bounded wait and one retry before advancing.
+local MONSTER_INVASION_PROTECTION_ITEM_TIMEOUT_SECONDS = 0.45
+local MONSTER_INVASION_PROTECTION_MAX_RETRIES = 1
 local MAX_POINTS = 50000
 
 local function safe_get(target, key)
@@ -1115,6 +1122,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.homeTileY = tonumber(values.homeTileY or "-1")
     local include_monster_raw = tostring(values.includeMonster or "false")
     request.includeMonster = include_monster_raw == "true"
+    local include_monster_protection_raw = tostring(values.includeMonsterProtection or "false")
+    request.includeMonsterProtection = include_monster_protection_raw == "true"
     local include_train_raw = tostring(values.includeTrain or "false")
     request.includeTrain = include_train_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
@@ -1137,6 +1146,8 @@ local function read_bulk_aoi_diagnostic(now)
        request.homeTileX ~= math.floor(request.homeTileX) or request.homeTileY ~= math.floor(request.homeTileY) or
        ((request.homeTileX == -1) ~= (request.homeTileY == -1)) or
        (include_monster_raw ~= "true" and include_monster_raw ~= "false") or
+       (include_monster_protection_raw ~= "true" and include_monster_protection_raw ~= "false") or
+       (request.includeMonsterProtection == true and request.includeMonster ~= true) or
        (include_train_raw ~= "true" and include_train_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
@@ -1627,11 +1638,42 @@ local function ensure_monster_protection_message_capture()
                 scan.staleResponseCount = (scan.staleResponseCount or 0) + 1
             else
                 local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+                local error_code = scalar_field(msg, { "errorCode", "ErrorCode" })
+                local prior_response = type(capture) == "table" and
+                    type(capture.responses) == "table" and capture.responses[target.uuid] or nil
+                local prior_ready = type(prior_response) == "table" and
+                    prior_response.received == true and prior_response.isProtected ~= nil
+                if error_code == nil and type(capture) == "table" and
+                   type(capture.responses) == "table" and not prior_ready then
+                    -- Current-v18 MonsterInvasionBossDetailMessge passes the same
+                    -- reply object to MonsterProtectionManager.OnGetDetail. If that
+                    -- callback is missed/replaced, recover the exact reply directly
+                    -- here instead of wasting a retry. The display deadline still
+                    -- follows MonsterProtection.Refresh: createTime + k12.
+                    local active_value = scalar_field(msg, { "isProtected", "IsProtected" })
+                    if active_value ~= nil then
+                        local active = active_value == true or tonumber(active_value) == 1
+                        local should_show = monster_protection_should_show(msg, target)
+                        local end_time = 0
+                        if active and should_show then
+                            local candidate = tonumber(target.sourceProtectionEndTime) or 0
+                            local server_time = tonumber(monster_protection_server_time_ms()) or 0
+                            if candidate > 0 and (server_time <= 0 or candidate > server_time) then
+                                end_time = candidate
+                            end
+                        end
+                        capture.responses[target.uuid] = {
+                            received = true,
+                            isProtected = active_value,
+                            protectionEndTime = end_time,
+                        }
+                    end
+                end
                 if type(capture) == "table" and type(capture.pending) == "table" then
                     capture.pending[target.uuid] = nil
                 end
                 scan.inflightCompletedUuid = target.uuid
-                scan.inflightErrorCode = scalar_field(msg, { "errorCode", "ErrorCode" })
+                scan.inflightErrorCode = error_code
             end
         end
         if not ok_original then error(result) end
@@ -1659,7 +1701,9 @@ local function queue_monster_invasion_protection_requests(request, targets)
             scanRunId = request.scanRunId, serverId = request.serverId,
             targets = {}, targetByUuid = {}, requestQueue = {}, queueIndex = 1,
             requestCount = 0, retryCount = 0, responseCount = 0, staleResponseCount = 0,
+            timeoutCount = 0, unresolvedCount = 0, errorResponseCount = 0,
             inflightTarget = nil, inflightCompletedUuid = nil, inflightErrorCode = nil,
+            inflightStartedAt = nil, inflightAttempt = 0,
             error = nil,
         }
     end
@@ -1683,19 +1727,81 @@ local function queue_monster_invasion_protection_requests(request, targets)
     return queued, nil
 end
 
+local function monster_protection_response_ready(uuid)
+    local state = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+    local response = type(state) == "table" and type(state.responses) == "table" and state.responses[uuid] or nil
+    return type(response) == "table" and response.received == true and response.isProtected ~= nil
+end
+
+local function clear_monster_protection_inflight(scan)
+    scan.inflightTarget = nil
+    scan.inflightCompletedUuid = nil
+    scan.inflightErrorCode = nil
+    scan.inflightStartedAt = nil
+    scan.inflightAttempt = 0
+end
+
+local function retry_monster_protection_inflight(scan, target)
+    scan.inflightCompletedUuid = nil
+    scan.inflightErrorCode = nil
+    local sent, send_error = send_monster_invasion_protection_request(target)
+    if sent == nil then
+        scan.error = scan.error or send_error
+        clear_monster_protection_inflight(scan)
+        return false
+    end
+    scan.inflightAttempt = (scan.inflightAttempt or 0) + 1
+    scan.inflightStartedAt = runtime_clock()
+    scan.retryCount = (scan.retryCount or 0) + sent
+    return true
+end
+
 local function pump_monster_protection_queue()
     local scan = monster_protection_scan
     if type(scan) ~= "table" then return end
+
     if scan.inflightTarget ~= nil then
-        if scan.inflightCompletedUuid == scan.inflightTarget.uuid then
-            scan.responseCount = (scan.responseCount or 0) + 1
-            scan.inflightTarget = nil
-            scan.inflightCompletedUuid = nil
-            scan.inflightErrorCode = nil
+        local target = scan.inflightTarget
+        local completed = scan.inflightCompletedUuid == target.uuid
+        local elapsed = runtime_clock() - (scan.inflightStartedAt or runtime_clock())
+        if completed then
+            if monster_protection_response_ready(target.uuid) then
+                scan.responseCount = (scan.responseCount or 0) + 1
+                clear_monster_protection_inflight(scan)
+            elseif scan.inflightErrorCode ~= nil then
+                -- Current-v18 MonsterInvasionBossDetailMessge explicitly skips
+                -- MonsterProtectionManager.OnGetDetail when errorCode is present.
+                -- That is a terminal server reply for this UUID, not a lost reply,
+                -- so do not waste the shared module UUID slot retrying it.
+                target.detailErrorCode = scan.inflightErrorCode
+                scan.errorResponseCount = (scan.errorResponseCount or 0) + 1
+                scan.unresolvedCount = (scan.unresolvedCount or 0) + 1
+                clear_monster_protection_inflight(scan)
+            elseif (scan.inflightAttempt or 0) < MONSTER_INVASION_PROTECTION_MAX_RETRIES then
+                retry_monster_protection_inflight(scan, target)
+                return
+            else
+                scan.unresolvedCount = (scan.unresolvedCount or 0) + 1
+                clear_monster_protection_inflight(scan)
+            end
+        elseif elapsed >= MONSTER_INVASION_PROTECTION_ITEM_TIMEOUT_SECONDS then
+            if (scan.inflightAttempt or 0) < MONSTER_INVASION_PROTECTION_MAX_RETRIES then
+                retry_monster_protection_inflight(scan, target)
+                return
+            else
+                local capture = rawget(_G, "__lwbridgeMonsterProtectionCapture")
+                if type(capture) == "table" and type(capture.pending) == "table" then
+                    capture.pending[target.uuid] = nil
+                end
+                scan.timeoutCount = (scan.timeoutCount or 0) + 1
+                scan.unresolvedCount = (scan.unresolvedCount or 0) + 1
+                clear_monster_protection_inflight(scan)
+            end
         else
             return
         end
     end
+
     if scan.queueIndex > #scan.requestQueue then return end
     local _, capture_error = ensure_monster_protection_capture()
     local _, message_error = ensure_monster_protection_message_capture()
@@ -1704,6 +1810,7 @@ local function pump_monster_protection_queue()
         scan.queueIndex = #scan.requestQueue + 1
         return
     end
+
     local target = scan.requestQueue[scan.queueIndex]
     scan.queueIndex = scan.queueIndex + 1
     -- Claim correlation before SendMessage so even an unexpectedly synchronous
@@ -1711,10 +1818,12 @@ local function pump_monster_protection_queue()
     scan.inflightTarget = target
     scan.inflightCompletedUuid = nil
     scan.inflightErrorCode = nil
+    scan.inflightStartedAt = runtime_clock()
+    scan.inflightAttempt = 0
     local sent, send_error = send_monster_invasion_protection_request(target)
     if sent == nil then
-        scan.inflightTarget = nil
         scan.error = scan.error or send_error
+        clear_monster_protection_inflight(scan)
         return
     end
     scan.requestCount = scan.requestCount + sent
@@ -1830,6 +1939,7 @@ local function monster_protection_details(targets)
             received = received,
             isProtected = active,
             protectionEndTime = end_time,
+            errorCode = target.detailErrorCode,
         }
     end
     return details
@@ -1853,6 +1963,9 @@ local function write_monster_protection_detail_result(request, state, error_text
         requestCount = request_count or 0,
         retryCount = request.retryCount or 0,
         staleResponseCount = request.staleResponseCount or 0,
+        timeoutCount = request.timeoutCount or 0,
+        unresolvedCount = request.unresolvedCount or 0,
+        errorResponseCount = request.errorResponseCount or 0,
         readyCount = ready_count or 0,
         timedOut = error_text == "monster_invasion_protection_response_timeout",
         elapsedSeconds = monster_protection_started_at and (runtime_clock() - monster_protection_started_at) or 0,
@@ -1875,8 +1988,11 @@ local function pump_monster_protection_detail(now)
         end
         request.targets = monster_protection_scan.targets or {}
         request.requestCount = monster_protection_scan.requestCount or 0
-        request.retryCount = 0
+        request.retryCount = monster_protection_scan.retryCount or 0
         request.staleResponseCount = monster_protection_scan.staleResponseCount or 0
+        request.timeoutCount = monster_protection_scan.timeoutCount or 0
+        request.unresolvedCount = monster_protection_scan.unresolvedCount or 0
+        request.errorResponseCount = monster_protection_scan.errorResponseCount or 0
         request.scanError = monster_protection_scan.error
         if #request.targets == 0 then
             write_monster_protection_detail_result(request, "completed", nil, request.targets, 0, 0)
@@ -1894,14 +2010,26 @@ local function pump_monster_protection_detail(now)
     local queue_done = type(scan) ~= "table" or
         (scan.inflightTarget == nil and scan.queueIndex > #scan.requestQueue)
     local elapsed = runtime_clock() - (monster_protection_started_at or runtime_clock())
-    if not queue_done and elapsed < MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS then return true end
+    local allowed_seconds = math.max(
+        MONSTER_INVASION_PROTECTION_MIN_TIMEOUT_SECONDS,
+        math.min(
+            MONSTER_INVASION_PROTECTION_MAX_TIMEOUT_SECONDS,
+            #targets * MONSTER_INVASION_PROTECTION_PER_TARGET_SECONDS +
+                MONSTER_INVASION_PROTECTION_TIMEOUT_PADDING_SECONDS))
+    if not queue_done and elapsed < allowed_seconds then return true end
     if type(scan) == "table" then
         request.requestCount = scan.requestCount or request.requestCount
+        request.retryCount = scan.retryCount or request.retryCount
         request.staleResponseCount = scan.staleResponseCount or request.staleResponseCount
+        request.timeoutCount = scan.timeoutCount or request.timeoutCount
+        request.unresolvedCount = scan.unresolvedCount or request.unresolvedCount
+        request.errorResponseCount = scan.errorResponseCount or request.errorResponseCount
     end
     local ready = count_ready_monster_invasion_protection_details(targets)
+    local incomplete = ready < #targets
     local error_text = request.scanError or
-        (not queue_done and "monster_invasion_protection_response_timeout" or nil)
+        (not queue_done and "monster_invasion_protection_response_timeout" or
+         (incomplete and "monster_invasion_protection_partial_response" or nil))
     if error_text ~= nil then abandon_monster_invasion_protection_requests(targets) end
     write_monster_protection_detail_result(request, "completed", error_text, targets, request.requestCount, ready)
     monster_protection_request = nil
@@ -2366,6 +2494,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         monsterProtectionDetailRequestCount = details.monsterProtectionDetailRequestCount or 0,
         monsterProtectionDetailReadyCount = details.monsterProtectionDetailReadyCount or 0,
         includeMonster = request.includeMonster == true,
+        includeMonsterProtection = request.includeMonsterProtection == true,
         includeTrain = request.includeTrain == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         zoomFinalBlockSize = details.zoomFinalBlockSize,
@@ -3044,17 +3173,6 @@ local function pump_bulk_aoi_diagnostic(now)
             local response_flags = bulk_manager_flags(point_manager)
             if response_flags.isRecvViewPoints ~= true or world_response_flag(world) ~= true then return true end
         end
-        -- Reproduce the original panel request while each boss is still loaded,
-        -- without blocking the Lua acquisition pump.
-        local targets, total, target_error = monster_invasion_protection_targets(
-            world, details.blockSize, details.blockCount, lookup, bulk_aoi_request.serverId)
-        if targets == nil then fail_bulk_aoi(bulk_aoi_request, target_error, details, point_manager); return true end
-        local queued, queue_error = queue_monster_invasion_protection_requests(bulk_aoi_request, targets)
-        details.monsterInvasionBossCount = total
-        details.monsterProtectionDetailTargetCount = #targets
-        details.monsterProtectionDetailRequestCount = queued or 0
-        details.monsterProtectionDetailReadyCount = count_ready_monster_invasion_protection_details(targets)
-        details.monsterProtectionDetailError = queue_error
         local home_tile = bulk_aoi_request.homeTileX >= 0 and
             { x = bulk_aoi_request.homeTileX, y = bulk_aoi_request.homeTileY } or nil
         local monster_march_records, monster_march_records_error = monster_march_aoi_records(
@@ -3064,6 +3182,36 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         details.monsterMarchRecords = monster_march_records
+
+        local boss_count = 0
+        for index = 1, #monster_march_records do
+            if monster_march_records[index].monsterProtectionEligible == true then
+                boss_count = boss_count + 1
+            end
+        end
+        details.monsterInvasionBossCount = boss_count
+        details.monsterProtectionDetailTargetCount = 0
+        details.monsterProtectionDetailRequestCount = 0
+        details.monsterProtectionDetailReadyCount = 0
+        details.monsterProtectionDetailError = nil
+
+        if bulk_aoi_request.includeMonsterProtection == true then
+            -- Dedicated Zombie Boss scans reproduce the original popup request
+            -- while each boss is still loaded. Generic Monster scans intentionally
+            -- skip this network phase so repeated Monster discovery remains fast.
+            local targets, total, target_error = monster_invasion_protection_targets(
+                world, details.blockSize, details.blockCount, lookup, bulk_aoi_request.serverId)
+            if targets == nil then fail_bulk_aoi(bulk_aoi_request, target_error, details, point_manager); return true end
+            if total ~= boss_count or #targets ~= boss_count then
+                fail_bulk_aoi(bulk_aoi_request, "monster_protection_target_count_mismatch", details, point_manager)
+                return true
+            end
+            local queued, queue_error = queue_monster_invasion_protection_requests(bulk_aoi_request, targets)
+            details.monsterProtectionDetailTargetCount = #targets
+            details.monsterProtectionDetailRequestCount = queued or 0
+            details.monsterProtectionDetailReadyCount = count_ready_monster_invasion_protection_details(targets)
+            details.monsterProtectionDetailError = queue_error
+        end
     end
     local target_count, target_count_error = point_tile_count(
         world, point_manager, details.targetTileX, details.targetTileY)
