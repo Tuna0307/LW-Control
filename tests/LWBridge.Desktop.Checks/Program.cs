@@ -4721,6 +4721,17 @@ Check(
     overviewBridgeSource.Contains("local NAVIGATION_TIMEOUT_SECONDS = 5", StringComparison.Ordinal) &&
     !overviewBridgeSource.Contains("write_march_follow_result(request, \"failed\", \"march_unavailable\")", StringComparison.Ordinal),
     "March Follow must use the current-v19 JumpToMarchByUuid server-position fallback, preserve the recovered 5-second native window, and never fail merely because the march is not already locally loaded");
+Check(
+    overviewBridgeSource.Contains("GetAllMarchesByCS", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("exact_runtime_id(safe_get(march, \"uuid\")", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("exact_runtime_id(safe_get(train, \"uuid\")", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("TrainSkirmishDataReceived", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("TrainAttackReceived", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("request.battleWon = not top_player_win", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("finish_truck_quick_rob(request, \"ambiguous\", \"server_response_timeout\"", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("request.requestSent = true", StringComparison.Ordinal),
+    "Truck quick-rob must resolve the live March/Train identities without 64-bit tonumber coercion, use the current-v19 official attack path, distinguish success-only from terminal response events, invert topPlayerWin to player battleWon, and preserve non-retryable post-send ambiguity");
 int liveProbeTopLevelLocalCount = 0;
 foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
 {

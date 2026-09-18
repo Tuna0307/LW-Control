@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current-v19 Truck quick-rob protocol checkpoint - LWB-R7-042, 2026-09-19
+
+The missing original injected `armMapPlunder` function now has a source-backed current-v19 replacement path, implemented behind an internal host method only. The scanner persists `marchUuid=WorldMarch.uuid` and `trainUuid=WorldMarch.train.uuid`; the executor resolves the same live WorldMarch collection by exact decimal-string identity, proves Truck type/server/TrainData UUID, then runs the official `RailwayUtil.ClickAttackTrain(trainData,true)` setup. Once FakePVP has installed its listeners, it uses the game-owned default robbery formation (`GetRobFormation()` -> highest-power free attack formation), mirrors the UI sequence `TrySaveTruckFormation(...,true)` then `TryAttackTrain(...)`, and sends exactly one `train.attack`.
+
+`AttackTrainMessage` provides the authoritative boundary: `TrainSkirmishDataReceived(message)` exists only on success; `TrainAttackReceived` is terminal for success or error. Successful quick rob parses rewards/battle data and jumps to end; player outcome is `battleWon = not battleData.topPlayerWin`. The bridge removes only its own listeners and exits only a matching bridge-owned Truck battle. A post-send response timeout is explicitly `TRUCK_PLUNDER_RESPONSE_TIMEOUT / server response timeout` with ambiguous/requestSent metadata and MUST NOT be retried automatically. Deterministic tests cover exact large IDs, win/loss, rejection, ambiguity/no-retry and foreign-session rejection. Check-only builds the current-v19 candidate without changing installed files.
+
+**Important:** `map_truck_plunder_schedule` remains fail-closed. No live robbery acceptance was run because it consumes a real daily game action. Next recover reward object serialization/history reconciliation, then build durable one-owner scheduling semantics before exposing the public command. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-truck-quick-rob-protocol.json`.
+
 ## Scheduled Plunder persistence checkpoint - LWB-R7-041, 2026-09-19
 
 The original persisted job surface is now implemented independently from the unrecovered game executor. `map_plunder_jobs_list` reads Dispatch jobs plus `truck_plunder_jobs UNION ALL truck_plunder_history` with the recovered active-first / due-time / updated-time ordering, and overlays the scheduler fields consumed by the recovered frontend. Truck cancel uses the exact recovered status transition: only `scheduled` and `waiting_connection` can become `cancelled`, `last_error` is cleared, and a non-cancellable/missing target returns `NOT_FOUND / scheduled truck job not found`. Restart persistence and unrelated Dispatch state are deterministic-test proven.

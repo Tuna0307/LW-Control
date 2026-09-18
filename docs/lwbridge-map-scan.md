@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Current-v19 Truck quick-rob execution protocol ? LWB-R7-042, 2026-09-19
+
+**INTERNAL/OFFLINE-TESTED only; public Truck scheduling remains blocked.** v19 source proves the full action chain: `WorldMarch.uuid` and `WorldMarch.train.uuid` identify the scanned moving target; `RailwayUtil.ClickAttackTrain(trainData,true)` performs the game eligibility checks and enters Truck FakePVP; the formation UI saves the Truck formation then calls `LWMyStationDataManager:TryAttackTrain`; `AttackTrainMessage` sends/handles `train.attack` and emits success-only `TrainSkirmishDataReceived` plus terminal `TrainAttackReceived`. The rebuild now reproduces that chain behind `CurrentClientMapBlockSource.ExecuteTruckQuickRobAsync`, preserving both 64-bit identities as strings until the exact live Int64 object is passed back to the game.
+
+The protocol sends once. Success requires the authoritative success event and parsed battle data; `battleWon` is the inverse of `topPlayerWin`. Server rejection is terminal. Any uncertainty after send is `ambiguous`/non-retryable, including recovered `server response timeout`; there is no hidden resend. A 15 s setup, 30 s response and 50 s host envelope are explicit implementation policy, not recovered original durations. No live robbery was executed in this checkpoint. Evidence: [`2026-09-19-r7-truck-quick-rob-protocol.json`](../evidence/lwbridge-implementation/2026-09-19-r7-truck-quick-rob-protocol.json).
+
 ## Current Scheduled Plunder persistence acceptance ? LWB-R7-041, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED persistence/read/cancel only; Truck execution remains blocked.** Original 0.3.1 SQL proves the Truck list is `truck_plunder_jobs UNION ALL truck_plunder_history`, with `scheduled`/`waiting_connection`/`running` first, then `execute_at ASC`, then `updated_at DESC`; Dispatch uses the analogous `dispatch_plunder_jobs` ordering by `plunder_at`. The recovered frontend consumes `scheduleStatus`, `attempts`, `lastError`, `scheduledAt`, `scheduleUpdatedAt`, and execute/plunder time over the original stored row JSON. Production now exposes that combined `{dispatchJobs,truckJobs}` envelope and the recovered Truck cancel transition.

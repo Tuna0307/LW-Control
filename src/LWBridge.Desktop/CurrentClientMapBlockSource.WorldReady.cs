@@ -18,6 +18,13 @@ internal sealed record CurrentClientMarchFollowResult(int ServerId, long MarchUu
 
 internal sealed record CurrentClientServerJumpResult(int PreviousServerId, bool Changed);
 
+internal sealed record CurrentClientTruckQuickRobResult(
+    int ServerId,
+    long MarchUuid,
+    long TrainUuid,
+    bool BattleWon,
+    int RewardCount);
+
 internal sealed partial class CurrentClientMapBlockSource
 {
     internal async Task<CurrentClientMapContext> GetCurrentContextAsync(CancellationToken cancellationToken)
@@ -144,6 +151,189 @@ internal sealed partial class CurrentClientMapBlockSource
         }
 
         throw new InvalidDataException("March Follow result did not contain a supported terminal state.");
+    }
+
+
+    internal async Task<CurrentClientTruckQuickRobResult> ExecuteTruckQuickRobAsync(
+        int requestedServerId,
+        long marchUuid,
+        long trainUuid,
+        CancellationToken cancellationToken)
+    {
+        if (requestedServerId is < 1 or > 99999 || marchUuid <= 0 || trainUuid <= 0)
+            throw new ArgumentOutOfRangeException(nameof(requestedServerId), "Truck quick-rob target identity is invalid.");
+
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+
+        string requestId = "truckrob" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string requestPath = Path.Combine(overviewRuntimeRoot, "truck-quick-rob.txt");
+        string resultPath = Path.Combine(overviewRuntimeRoot, "truck-quick-rob-result.json");
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"bridgeVersion={OverviewBridgeVersion}",
+            $"profileId={session.ProfileId}",
+            $"sessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"requestId={requestId}",
+            $"serverId={requestedServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"marchUuid={marchUuid.ToString(CultureInfo.InvariantCulture)}",
+            $"trainUuid={trainUuid.ToString(CultureInfo.InvariantCulture)}",
+            string.Empty,
+        });
+        await WriteCommandAsync(requestPath, command, cancellationToken).ConfigureAwait(false);
+
+        // IMPLEMENTATION POLICY LWB-R7-042: the v19 bridge has a 15 s pre-send
+        // setup window and 30 s post-send response window. Keep those inside a
+        // host envelope. A host-envelope timeout is state-unknown and MUST NOT
+        // be treated as retryable because train.attack may already have reached
+        // the server.
+        DateTimeOffset deadline = Now() + TimeSpan.FromSeconds(50);
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            RequireSameSession(session);
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                CurrentClientTruckQuickRobResult result = ValidateTruckQuickRobResult(
+                    root.Value, session, requestedServerId, marchUuid, trainUuid);
+                RequireSameSession(session);
+                return result;
+            }
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+
+        throw new BridgeCommandException(
+            "TRUCK_PLUNDER_STATE_UNKNOWN",
+            "truck plunder execution state is unknown",
+            new
+            {
+                ambiguous = true,
+                serverId = requestedServerId,
+                marchUuid = marchUuid.ToString(CultureInfo.InvariantCulture),
+                trainUuid = trainUuid.ToString(CultureInfo.InvariantCulture),
+            });
+    }
+
+    private static CurrentClientTruckQuickRobResult ValidateTruckQuickRobResult(
+        JsonElement root,
+        OverviewMapScanSession session,
+        int requestedServerId,
+        long marchUuid,
+        long trainUuid)
+    {
+        string marchText = marchUuid.ToString(CultureInfo.InvariantCulture);
+        string trainText = trainUuid.ToString(CultureInfo.InvariantCulture);
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "bridgeVersion", OverviewBridgeVersion) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "sessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesInt(root, "serverId", requestedServerId) ||
+            !MatchesString(root, "marchUuid", marchText) ||
+            !MatchesString(root, "trainUuid", trainText))
+        {
+            throw new InvalidDataException(
+                "Truck quick-rob result did not match the active owned game session or requested target.");
+        }
+
+        string state = ReadOptionalString(root, "state") ?? string.Empty;
+        bool requestSent = MatchesBool(root, "requestSent", true);
+        if (state == "proven")
+        {
+            int currentServerId = RequirePositiveInt(root, "currentServerId");
+            if (currentServerId != requestedServerId || !requestSent)
+                throw new InvalidDataException("Truck quick-rob did not prove the requested live server and sent request.");
+            if (!MatchesString(
+                    root,
+                    "method",
+                    "RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain"))
+            {
+                throw new InvalidDataException("Truck quick-rob did not prove the supported current-v19 route.");
+            }
+
+            if (!root.TryGetProperty("battleWon", out JsonElement battleWonValue) ||
+                battleWonValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            {
+                throw new InvalidDataException("Truck quick-rob result did not contain an authoritative battle outcome.");
+            }
+            if (!root.TryGetProperty("rewardCount", out JsonElement rewardCountValue) ||
+                !rewardCountValue.TryGetInt32(out int rewardCount) || rewardCount < 0)
+            {
+                throw new InvalidDataException("Truck quick-rob result reward count is invalid.");
+            }
+
+            return new CurrentClientTruckQuickRobResult(
+                currentServerId,
+                marchUuid,
+                trainUuid,
+                battleWonValue.GetBoolean(),
+                rewardCount);
+        }
+
+        string error = ReadOptionalString(root, "error") ?? "truck_quick_rob_failed";
+        if (state == "ambiguous")
+        {
+            if (!requestSent)
+                throw new InvalidDataException("Ambiguous Truck quick-rob result did not prove that train.attack was sent.");
+
+            object details = new
+            {
+                ambiguous = true,
+                requestSent = true,
+                serverId = requestedServerId,
+                marchUuid = marchText,
+                trainUuid = trainText,
+                error,
+            };
+            if (string.Equals(error, "server_response_timeout", StringComparison.Ordinal))
+                throw new BridgeCommandException(
+                    "TRUCK_PLUNDER_RESPONSE_TIMEOUT",
+                    "server response timeout",
+                    details);
+            throw new BridgeCommandException(
+                "TRUCK_PLUNDER_RESULT_AMBIGUOUS",
+                "truck plunder result is ambiguous",
+                details);
+        }
+
+        if (state == "failed")
+        {
+            if (requestSent && string.Equals(error, "train_attack_rejected", StringComparison.Ordinal))
+            {
+                throw new BridgeCommandException(
+                    "TRUCK_PLUNDER_SERVER_REJECTED",
+                    "train attack rejected by the game",
+                    new
+                    {
+                        requestSent = true,
+                        serverId = requestedServerId,
+                        marchUuid = marchText,
+                        trainUuid = trainText,
+                    });
+            }
+
+            throw new BridgeCommandException(
+                "TRUCK_QUICK_ROB_FAILED",
+                error,
+                new
+                {
+                    requestSent,
+                    serverId = requestedServerId,
+                    marchUuid = marchText,
+                    trainUuid = trainText,
+                });
+        }
+
+        throw new InvalidDataException("Truck quick-rob result did not contain a supported terminal state.");
     }
 
     internal async Task<CurrentClientServerJumpResult> JumpToServerAsync(

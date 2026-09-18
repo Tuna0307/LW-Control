@@ -15,6 +15,8 @@ local navigation_path = root .. [[\map-navigation.txt]]
 local navigation_result_path = root .. [[\map-navigation-result.json]]
 local march_follow_path = root .. [[\march-follow.txt]]
 local march_follow_result_path = root .. [[\march-follow-result.json]]
+local truck_quick_rob_path = root .. [[\truck-quick-rob.txt]]
+local truck_quick_rob_result_path = root .. [[\truck-quick-rob-result.json]]
 local server_jump_path = root .. [[\server-jump.txt]]
 local server_jump_result_path = root .. [[\server-jump-result.json]]
 local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
@@ -40,9 +42,15 @@ local pending_navigation = nil
 local pending_world_ready = nil
 local pending_server_jump = nil
 local pending_march_follow = nil
+local pending_truck_quick_rob = nil
 local NAVIGATION_TIMEOUT_SECONDS = 5
 local WORLD_READY_TIMEOUT_SECONDS = 10
 local SERVER_JUMP_TIMEOUT_SECONDS = 15
+-- IMPLEMENTATION POLICY: setup is safe to abandon because train.attack has not
+-- been sent yet.  A response timeout after train.attack is intentionally
+-- ambiguous and must never be retried automatically.
+local TRUCK_QUICK_ROB_SETUP_TIMEOUT_SECONDS = 15
+local TRUCK_QUICK_ROB_RESPONSE_TIMEOUT_SECONDS = 30
 
 local function safe_get(target, key)
     if target == nil then return nil end
@@ -783,6 +791,401 @@ local function pump_server_jump(control)
     if runtime_clock() - request.startedClock >= SERVER_JUMP_TIMEOUT_SECONDS then
         write_server_jump_result(request, "failed", "server_jump_timeout")
         pending_server_jump = nil
+    end
+end
+
+
+local function valid_exact_positive_id(value)
+    return type(value) == "string" and #value > 0 and #value <= 20 and
+        string.match(value, "^[0-9]+$") ~= nil and string.match(value, "^0+$") == nil
+end
+
+local function exact_runtime_id(value)
+    if value == nil then return nil end
+    local text = tostring(value)
+    if valid_exact_positive_id(text) then return text end
+    return nil
+end
+
+local function read_truck_quick_rob(control)
+    local values = read_kv(truck_quick_rob_path)
+    if values == nil then return nil end
+    pcall(os.remove, truck_quick_rob_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local server_id = tonumber(values.serverId)
+    local request = {
+        requestId = values.requestId,
+        serverId = server_id,
+        marchUuid = values.marchUuid,
+        trainUuid = values.trainUuid,
+    }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "truck_quick_rob_identity_mismatch"
+        return request
+    end
+    if server_id == nil or server_id ~= math.floor(server_id) or server_id < 1 or server_id > 99999 or
+       not valid_exact_positive_id(values.marchUuid) or not valid_exact_positive_id(values.trainUuid) then
+        request.error = "truck_quick_rob_target_invalid"
+    end
+    return request
+end
+
+local function resolve_truck_railway_util()
+    local loaded = package and package.loaded or nil
+    local value = loaded and loaded["DataCenter.LWRailway.Util.RailwayUtil"] or nil
+    if value ~= nil then return value end
+    local ok_require, required = pcall(require, "DataCenter.LWRailway.Util.RailwayUtil")
+    if ok_require and required ~= nil then return required end
+    return rawget(_G, "RailwayUtil")
+end
+
+local function resolve_truck_event_ids()
+    local value = rawget(_G, "EventId")
+    if value ~= nil then return value end
+    local ok_require, required = pcall(require, "Framework.UI.Message.EventId")
+    if ok_require and required ~= nil then return required end
+    return rawget(_G, "EventId")
+end
+
+local function resolve_truck_event_manager()
+    local manager_type = rawget(_G, "EventManager")
+    if manager_type == nil then return nil end
+    local ok_instance, instance = call(manager_type, "GetInstance")
+    if ok_instance and instance ~= nil then return instance end
+    return manager_type
+end
+
+local function find_live_truck_target(request)
+    local world, world_error = navigation_world()
+    if world == nil then return nil, nil, world_error end
+    local march_manager = safe_get(world, "MarchDataManager") or reflected_value(world, "MarchDataManager")
+    if march_manager == nil then
+        local ok_manager, value = call(world, "get_MarchDataManager")
+        if ok_manager then march_manager = value end
+    end
+    if march_manager == nil then return nil, nil, "world_march_manager_unavailable" end
+    local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
+    if not ok_all or collection == nil then collection = reflected_value(march_manager, "allMarches") end
+    if collection == nil then return nil, nil, "world_march_collection_unavailable" end
+    local ok_enum, enumerator = call(collection, "GetEnumerator")
+    if not ok_enum or enumerator == nil then return nil, nil, "world_march_enumerator_unavailable" end
+
+    local scanned = 0
+    while scanned < 50000 do
+        local ok_move, moved = call(enumerator, "MoveNext")
+        if not ok_move then return nil, nil, "world_march_enumerator_failed" end
+        if moved ~= true then break end
+        scanned = scanned + 1
+        local pair = safe_get(enumerator, "Current")
+        local march = pair and (safe_get(pair, "Value") or pair) or nil
+        if march ~= nil and exact_runtime_id(safe_get(march, "uuid") or safe_get(march, "Uuid") or safe_get(march, "_uuid")) == request.marchUuid then
+            local train = safe_get(march, "train")
+            if train == nil then return march, nil, "truck_train_data_unavailable" end
+            local actual_train_uuid = exact_runtime_id(safe_get(train, "uuid") or safe_get(train, "Uuid"))
+            if actual_train_uuid ~= request.trainUuid then
+                return march, train, "truck_train_identity_mismatch"
+            end
+            local train_type = tonumber(safe_get(train, "type") or safe_get(train, "Type"))
+            if train_type ~= 1 then return march, train, "truck_target_not_truck" end
+            local train_server_id = tonumber(safe_get(train, "serverId") or safe_get(train, "ServerId"))
+            if train_server_id == nil or train_server_id ~= math.floor(train_server_id) or train_server_id ~= request.serverId then
+                return march, train, "truck_train_server_mismatch"
+            end
+            return march, train, nil
+        end
+    end
+    return nil, nil, "truck_live_target_not_found"
+end
+
+local function current_truck_quick_rob_logic(request)
+    local data_center = rawget(_G, "DataCenter")
+    local battle_manager = data_center and safe_get(data_center, "LWBattleManager") or nil
+    if battle_manager == nil then return nil, "truck_battle_manager_unavailable" end
+    local ok_logic, logic = call(battle_manager, "GetCurBattleLogic")
+    if not ok_logic or logic == nil then return nil, nil end
+    local param = safe_get(logic, "param")
+    local enter_type = param and safe_get(param, "enterType") or nil
+    local pve_enter_type = rawget(_G, "PVEEnterType")
+    local truck_rob_type = pve_enter_type and safe_get(pve_enter_type, "TruckRob") or 4
+    if tonumber(enter_type) ~= tonumber(truck_rob_type) then return nil, "truck_battle_logic_mismatch" end
+    local extra_data = safe_get(param, "extraData")
+    local train = extra_data and safe_get(extra_data, "trainData") or nil
+    if train == nil or exact_runtime_id(safe_get(train, "uuid") or safe_get(train, "Uuid")) ~= request.trainUuid then
+        return nil, "truck_battle_target_mismatch"
+    end
+    return logic, nil
+end
+
+local function truck_reward_count(value)
+    if value == nil then return 0 end
+    local count = tonumber(safe_get(value, "Count") or safe_get(value, "Length"))
+    if count ~= nil and count >= 0 then return math.floor(count) end
+    if type(value) == "table" then
+        local maximum = 0
+        for key in pairs(value) do
+            if type(key) == "number" and key > maximum and key == math.floor(key) then maximum = key end
+        end
+        return maximum
+    end
+    return 0
+end
+
+local function write_truck_quick_rob_result(request, state, error_text)
+    write_json(truck_quick_rob_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        currentServerId = request.currentServerId,
+        marchUuid = request.marchUuid,
+        trainUuid = request.trainUuid,
+        requestSent = request.requestSent == true,
+        battleWon = request.battleWon,
+        rewardCount = request.rewardCount,
+        method = request.method,
+        error = error_text,
+    })
+end
+
+local function detach_truck_quick_rob_listeners(request)
+    local event_manager = request and request.eventManager or nil
+    if event_manager == nil then return end
+    if request.successEventId ~= nil and request.successCallback ~= nil then
+        call(event_manager, "RemoveListener", request.successEventId, request.successCallback)
+    end
+    if request.terminalEventId ~= nil and request.terminalCallback ~= nil then
+        call(event_manager, "RemoveListener", request.terminalEventId, request.terminalCallback)
+    end
+    request.eventManager = nil
+    request.successCallback = nil
+    request.terminalCallback = nil
+end
+
+local function exit_owned_truck_quick_rob_battle(request)
+    if request == nil or request.battleOwned ~= true then return end
+    local logic = select(1, current_truck_quick_rob_logic(request))
+    if logic == nil then return end
+    local data_center = rawget(_G, "DataCenter")
+    local battle_manager = data_center and safe_get(data_center, "LWBattleManager") or nil
+    if battle_manager ~= nil then call(battle_manager, "Exit") end
+end
+
+local function finish_truck_quick_rob(request, state, error_text, exit_battle)
+    detach_truck_quick_rob_listeners(request)
+    write_truck_quick_rob_result(request, state, error_text)
+    if exit_battle == true then exit_owned_truck_quick_rob_battle(request) end
+    if pending_truck_quick_rob == request then pending_truck_quick_rob = nil end
+end
+
+local function abandon_truck_quick_rob()
+    local request = pending_truck_quick_rob
+    if request == nil then return end
+    detach_truck_quick_rob_listeners(request)
+    exit_owned_truck_quick_rob_battle(request)
+    pending_truck_quick_rob = nil
+end
+
+local function begin_truck_quick_rob(request)
+    if request.error ~= nil then
+        write_truck_quick_rob_result(request, "failed", request.error)
+        return
+    end
+    if pending_navigation ~= nil or pending_world_ready ~= nil or pending_server_jump ~= nil or pending_march_follow ~= nil then
+        write_truck_quick_rob_result(request, "failed", "game_operation_in_progress")
+        return
+    end
+
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok_cur, cur_value = call(player, "GetCurServerId")
+    local current_server_id = ok_cur and tonumber(cur_value) or nil
+    if current_server_id == nil or current_server_id <= 0 or current_server_id ~= math.floor(current_server_id) then
+        write_truck_quick_rob_result(request, "failed", "current_server_id_unavailable")
+        return
+    end
+    request.currentServerId = math.floor(current_server_id)
+    if request.currentServerId ~= request.serverId then
+        write_truck_quick_rob_result(request, "failed", "truck_quick_rob_server_mismatch")
+        return
+    end
+
+    local data_center = rawget(_G, "DataCenter")
+    local battle_manager = data_center and safe_get(data_center, "LWBattleManager") or nil
+    local station_manager = data_center and safe_get(data_center, "LWMyStationDataManager") or nil
+    if battle_manager == nil or station_manager == nil then
+        write_truck_quick_rob_result(request, "failed", "truck_battle_components_unavailable")
+        return
+    end
+    local ok_existing, existing_logic = call(battle_manager, "GetCurBattleLogic")
+    if ok_existing and existing_logic ~= nil then
+        write_truck_quick_rob_result(request, "failed", "game_operation_in_progress")
+        return
+    end
+
+    local _, train, target_error = find_live_truck_target(request)
+    if target_error ~= nil or train == nil then
+        write_truck_quick_rob_result(request, "failed", target_error or "truck_live_target_not_found")
+        return
+    end
+
+    local railway_util = resolve_truck_railway_util()
+    local click_attack = railway_util and safe_get(railway_util, "ClickAttackTrain") or nil
+    local event_ids = resolve_truck_event_ids()
+    local event_manager = resolve_truck_event_manager()
+    local success_event_id = event_ids and safe_get(event_ids, "TrainSkirmishDataReceived") or nil
+    local terminal_event_id = event_ids and safe_get(event_ids, "TrainAttackReceived") or nil
+    if type(click_attack) ~= "function" or event_manager == nil or success_event_id == nil or terminal_event_id == nil then
+        write_truck_quick_rob_result(request, "failed", "truck_quick_rob_components_unavailable")
+        return
+    end
+
+    request.liveTrain = train
+    request.stationManager = station_manager
+    request.eventManager = event_manager
+    request.successEventId = success_event_id
+    request.terminalEventId = terminal_event_id
+    request.successCallback = function(message)
+        if pending_truck_quick_rob == request and request.requestSent == true then
+            request.successMessage = message
+            request.successReceived = true
+            request.successClock = runtime_clock()
+        end
+    end
+    request.terminalCallback = function()
+        if pending_truck_quick_rob == request and request.requestSent == true then
+            request.terminalReceived = true
+            request.terminalClock = runtime_clock()
+        end
+    end
+    local ok_success_listener = select(1, call(event_manager, "AddListener", success_event_id, request.successCallback))
+    local ok_terminal_listener = select(1, call(event_manager, "AddListener", terminal_event_id, request.terminalCallback))
+    if not ok_success_listener or not ok_terminal_listener then
+        detach_truck_quick_rob_listeners(request)
+        write_truck_quick_rob_result(request, "failed", "truck_quick_rob_listener_install_failed")
+        return
+    end
+
+    request.method = "RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain"
+    request.startedClock = runtime_clock()
+    request.phase = "waiting_logic"
+    pending_truck_quick_rob = request
+    -- Ownership is set before entry so a partial Enter() followed by an
+    -- exception can still be cleaned up. exit_owned_truck_quick_rob_battle()
+    -- additionally proves the active logic target before calling Exit().
+    request.battleOwned = true
+    local ok_click = pcall(click_attack, train, true)
+    if not ok_click then
+        finish_truck_quick_rob(request, "failed", "truck_quick_rob_entry_failed", true)
+        return
+    end
+end
+
+local function pump_truck_quick_rob(control)
+    if pending_truck_quick_rob == nil then
+        local request = read_truck_quick_rob(control)
+        if request ~= nil then
+            local ok_begin, begin_error = pcall(begin_truck_quick_rob, request)
+            if not ok_begin then
+                detach_truck_quick_rob_listeners(request)
+                write_truck_quick_rob_result(request, "failed", "truck_quick_rob_exception:" .. tostring(begin_error))
+                if pending_truck_quick_rob == request then pending_truck_quick_rob = nil end
+            end
+        end
+    end
+    local request = pending_truck_quick_rob
+    if request == nil then return end
+
+    if request.phase == "waiting_logic" then
+        local logic, logic_error = current_truck_quick_rob_logic(request)
+        if logic_error ~= nil and logic_error ~= "truck_battle_manager_unavailable" then
+            finish_truck_quick_rob(request, "failed", logic_error, true)
+            return
+        end
+        if logic ~= nil and safe_get(logic, "sceneLoadRequest") ~= nil then
+            local station_manager = request.stationManager
+            local ok_formation, formation = call(station_manager, "GetRobFormation")
+            if not ok_formation or formation == nil then
+                finish_truck_quick_rob(request, "failed", "truck_rob_formation_unavailable", true)
+                return
+            end
+            local local_heroes = safe_get(formation, "localHeroes")
+            local hero_count = nil
+            local table_count = table and safe_get(table, "count") or nil
+            if type(table_count) == "function" then
+                local ok_count, value = pcall(table_count, local_heroes)
+                if ok_count then hero_count = tonumber(value) end
+            end
+            if hero_count ~= nil and hero_count <= 0 then
+                finish_truck_quick_rob(request, "failed", "truck_rob_formation_empty", true)
+                return
+            end
+
+            local live_train_uuid = safe_get(request.liveTrain, "uuid") or safe_get(request.liveTrain, "Uuid")
+            local live_server_id = tonumber(safe_get(request.liveTrain, "serverId") or safe_get(request.liveTrain, "ServerId"))
+            if exact_runtime_id(live_train_uuid) ~= request.trainUuid or live_server_id ~= request.serverId then
+                finish_truck_quick_rob(request, "failed", "truck_train_identity_changed", true)
+                return
+            end
+
+            local ok_save = select(1, call(station_manager, "TrySaveTruckFormation", formation, true))
+            if not ok_save then
+                finish_truck_quick_rob(request, "failed", "truck_rob_formation_save_failed", true)
+                return
+            end
+            request.requestSent = true
+            request.sentClock = runtime_clock()
+            request.successReceived = false
+            request.terminalReceived = false
+            local ok_attack, attack_result = call(station_manager, "TryAttackTrain", live_train_uuid, request.serverId, formation)
+            if not ok_attack or attack_result == false then
+                request.requestSent = false
+                finish_truck_quick_rob(request, "failed", "train_attack_send_failed", true)
+                return
+            end
+            request.phase = "waiting_response"
+            return
+        end
+        if runtime_clock() - request.startedClock >= TRUCK_QUICK_ROB_SETUP_TIMEOUT_SECONDS then
+            finish_truck_quick_rob(request, "failed", "truck_quick_rob_setup_timeout", true)
+        end
+        return
+    end
+
+    if request.phase == "waiting_response" then
+        if request.successReceived == true then
+            local logic = select(1, current_truck_quick_rob_logic(request))
+            if logic ~= nil then
+                local battle_data = safe_get(logic, "battleData")
+                if battle_data ~= nil then
+                    local ok_top, top_player_win = pcall(function() return battle_data.topPlayerWin end)
+                    if ok_top and type(top_player_win) == "boolean" then
+                        request.battleWon = not top_player_win
+                        local param = safe_get(logic, "param")
+                        request.rewardCount = truck_reward_count(param and safe_get(param, "attackTrainReward") or nil)
+                        finish_truck_quick_rob(request, "proven", nil, true)
+                        return
+                    end
+                end
+            end
+        elseif request.terminalReceived == true then
+            finish_truck_quick_rob(request, "failed", "train_attack_rejected", true)
+            return
+        end
+
+        if runtime_clock() - request.sentClock >= TRUCK_QUICK_ROB_RESPONSE_TIMEOUT_SECONDS then
+            if request.successReceived == true then
+                finish_truck_quick_rob(request, "ambiguous", "truck_quick_rob_result_unavailable", true)
+            else
+                finish_truck_quick_rob(request, "ambiguous", "server_response_timeout", true)
+            end
+        end
     end
 end
 
@@ -1724,6 +2127,7 @@ function M.Pump()
         pending_world_ready = nil
         pending_server_jump = nil
         pending_march_follow = nil
+        abandon_truck_quick_rob()
         destroy_message()
         write_heartbeat(now, false, control == nil and "control_unavailable" or "host_lease_stale")
         return true
@@ -1736,6 +2140,7 @@ function M.Pump()
         pending_world_ready = nil
         pending_server_jump = nil
         pending_march_follow = nil
+        abandon_truck_quick_rob()
         active = control
     end
 
@@ -1743,6 +2148,7 @@ function M.Pump()
     pump_world_ready(control)
     pump_server_jump(control)
     pump_march_follow(control)
+    pump_truck_quick_rob(control)
     pump_navigation(control)
     local rendered, render_error = ensure_message()
     if rendered then

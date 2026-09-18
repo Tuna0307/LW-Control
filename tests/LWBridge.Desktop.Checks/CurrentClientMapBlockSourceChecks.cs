@@ -35,6 +35,9 @@ internal static class CurrentClientMapBlockSourceChecks
         await ServerJumpProvesNoOpAndChangedTransition();
         await ServerJumpMapsRecoveredTimeoutContract();
         await ServerJumpRejectsForeignSessionResult();
+        await TruckQuickRobPreservesExactIdentityAndOutcome();
+        await TruckQuickRobMapsRejectedAndAmbiguousWithoutRetry();
+        await TruckQuickRobRejectsForeignSessionResult();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
         await FastResourceFullMapReturnsAllLogicalCaptures();
@@ -1227,6 +1230,148 @@ internal static class CurrentClientMapBlockSourceChecks
         }
     }
 
+
+    private static async Task TruckQuickRobPreservesExactIdentityAndOutcome()
+    {
+        const long MarchUuid = 1_417_409_824_803_038_247L;
+        const long TrainUuid = 1_417_409_824_803_038_999L;
+        int protocolWrites = 0;
+        int calls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("truck-quick-rob.txt", StringComparison.OrdinalIgnoreCase))
+                    protocolWrites++;
+            },
+            truckQuickRobResult: fields =>
+            {
+                Check(fields["marchUuid"] == MarchUuid.ToString() &&
+                      fields["trainUuid"] == TrainUuid.ToString(),
+                    "Truck quick-rob request must preserve both 64-bit target IDs as exact decimal text");
+                bool won = calls++ == 0;
+                return TruckQuickRobResult(
+                    fields,
+                    state: "proven",
+                    error: null,
+                    requestSent: true,
+                    battleWon: won,
+                    rewardCount: won ? 3 : 0);
+            });
+
+        CurrentClientTruckQuickRobResult win = await source.ExecuteTruckQuickRobAsync(
+            2212, MarchUuid, TrainUuid, CancellationToken.None);
+        CurrentClientTruckQuickRobResult loss = await source.ExecuteTruckQuickRobAsync(
+            2212, MarchUuid, TrainUuid, CancellationToken.None);
+
+        Check(protocolWrites == 2 &&
+              win.ServerId == 2212 &&
+              win.MarchUuid == MarchUuid &&
+              win.TrainUuid == TrainUuid &&
+              win.BattleWon &&
+              win.RewardCount == 3 &&
+              !loss.BattleWon &&
+              loss.RewardCount == 0,
+            "Truck quick-rob host protocol must preserve exact identity and authoritative win/loss orientation");
+    }
+
+    private static async Task TruckQuickRobMapsRejectedAndAmbiguousWithoutRetry()
+    {
+        const long MarchUuid = 1_417_409_824_803_038_247L;
+        const long TrainUuid = 1_417_409_824_803_038_999L;
+
+        int rejectedWrites = 0;
+        CurrentClientMapBlockSource rejected = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("truck-quick-rob.txt", StringComparison.OrdinalIgnoreCase))
+                    rejectedWrites++;
+            },
+            truckQuickRobResult: fields => TruckQuickRobResult(
+                fields,
+                state: "failed",
+                error: "train_attack_rejected",
+                requestSent: true,
+                battleWon: null,
+                rewardCount: null));
+        try
+        {
+            _ = await rejected.ExecuteTruckQuickRobAsync(2212, MarchUuid, TrainUuid, CancellationToken.None);
+            throw new InvalidOperationException("rejected train.attack should fail with a terminal Truck error");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "TRUCK_PLUNDER_SERVER_REJECTED" &&
+            error.Message == "train attack rejected by the game")
+        {
+        }
+        Check(rejectedWrites == 1,
+            "terminal Truck rejection must use one train.attack protocol request without a hidden retry");
+
+        int ambiguousWrites = 0;
+        CurrentClientMapBlockSource ambiguous = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("truck-quick-rob.txt", StringComparison.OrdinalIgnoreCase))
+                    ambiguousWrites++;
+            },
+            truckQuickRobResult: fields => TruckQuickRobResult(
+                fields,
+                state: "ambiguous",
+                error: "server_response_timeout",
+                requestSent: true,
+                battleWon: null,
+                rewardCount: null));
+        try
+        {
+            _ = await ambiguous.ExecuteTruckQuickRobAsync(2212, MarchUuid, TrainUuid, CancellationToken.None);
+            throw new InvalidOperationException("post-send Truck timeout must remain ambiguous");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "TRUCK_PLUNDER_RESPONSE_TIMEOUT" &&
+            error.Message == "server response timeout")
+        {
+            JsonElement details = JsonSerializer.SerializeToElement(error.Details, JsonOptions.Default);
+            Check(details.GetProperty("ambiguous").GetBoolean() &&
+                  details.GetProperty("requestSent").GetBoolean() &&
+                  details.GetProperty("marchUuid").GetString() == MarchUuid.ToString() &&
+                  details.GetProperty("trainUuid").GetString() == TrainUuid.ToString(),
+                "post-send Truck timeout must retain non-retryable ambiguity and exact target identity");
+        }
+        Check(ambiguousWrites == 1,
+            "ambiguous post-send Truck timeout must never auto-retry the robbery request");
+    }
+
+    private static async Task TruckQuickRobRejectsForeignSessionResult()
+    {
+        const long MarchUuid = 1_417_409_824_803_038_247L;
+        const long TrainUuid = 1_417_409_824_803_038_999L;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            truckQuickRobResult: fields =>
+            {
+                JsonObject root = JsonNode.Parse(TruckQuickRobResult(
+                    fields,
+                    state: "proven",
+                    error: null,
+                    requestSent: true,
+                    battleWon: true,
+                    rewardCount: 1))!.AsObject();
+                root["sessionId"] = "foreign_session";
+                return root.ToJsonString(JsonOptions.Default);
+            });
+
+        try
+        {
+            _ = await source.ExecuteTruckQuickRobAsync(2212, MarchUuid, TrainUuid, CancellationToken.None);
+            throw new InvalidOperationException("foreign Truck quick-rob result should fail closed");
+        }
+        catch (InvalidDataException)
+        {
+        }
+    }
+
     private static async Task HealthyGateRunsBeforeWorldReadyProtocol()
     {
         bool healthGatePassed = false;
@@ -1302,7 +1447,8 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<OverviewMapScanSession, bool>? matchesOwnedSession = null,
         Func<IReadOnlyDictionary<string, string>, string>? resourceDetailResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null,
-        Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? truckQuickRobResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -1346,6 +1492,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     if (marchFollowResult is null) throw new InvalidOperationException("unexpected march Follow request");
                     string result = marchFollowResult(fields);
                     files[Path.Combine(overviewRoot, "march-follow-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(overviewRoot, "truck-quick-rob.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (truckQuickRobResult is null) throw new InvalidOperationException("unexpected Truck quick-rob request");
+                    string result = truckQuickRobResult(fields);
+                    files[Path.Combine(overviewRoot, "truck-quick-rob-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 if (string.Equals(path, Path.Combine(probeRoot, "command.txt"), StringComparison.OrdinalIgnoreCase))
@@ -1392,6 +1545,35 @@ internal static class CurrentClientMapBlockSourceChecks
             .Select(line => line.Split('=', 2))
             .Where(parts => parts.Length == 2)
             .ToDictionary(parts => parts[0], parts => parts[1], StringComparer.Ordinal);
+
+
+    private static string TruckQuickRobResult(
+        IReadOnlyDictionary<string, string> fields,
+        string state,
+        string? error,
+        bool requestSent,
+        bool? battleWon,
+        int? rewardCount) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = "lwbridge-overview-bridge-1",
+            profileId = fields["profileId"],
+            sessionId = fields["sessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            requestId = fields["requestId"],
+            state,
+            serverId = int.Parse(fields["serverId"]),
+            currentServerId = int.Parse(fields["serverId"]),
+            marchUuid = fields["marchUuid"],
+            trainUuid = fields["trainUuid"],
+            requestSent,
+            battleWon,
+            rewardCount,
+            method = "RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain",
+            error,
+        }, JsonOptions.Default);
 
     private static string MarchFollowResult(
         IReadOnlyDictionary<string, string> fields,
