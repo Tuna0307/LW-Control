@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current category acceptance - LWB-R7-031, 2026-09-18
+
+Railway/Train is now LIVE-PROVEN through the ordinary shared Manual Start production path on current v19. A Railway-only Normal run completed 2,500/2,500 logical blocks with zero failed/unread blocks in 112.3266952 s at recovered Normal concurrency 8, published one authentic live Railway row, and a fresh store reopen returned exactly one. The positive-row gate was not weakened.
+
+The live row carried source-backed train type, quality, power, train config/raw train data, arrival time, robbery count, march UUID identity and protection time. The same population exposed no `maxLootCount` and no nonempty/auditable `currentGoods`; those enrichment fields remain optional and no values, reward names, icons or labels are fabricated. The rebuild-only `reward:<rewardType>:<itemId>` key remains explicitly non-original and is emitted only when the game supplies auditable reward name/icon data.
+
+Post-run current-v19 compatibility is `ok=true` under `lwbridge-current-client-critical-anchors-2`, exact official package identity is restored, no game/launcher/LWBridge process or recovery journal remains, Release build is 0-warning/0-error and all six deterministic groups pass. Evidence is aggregate-only at `evidence/lwbridge-implementation/2026-09-18-r7-railway-full-manual.json`. Commit Railway-only changes without the unfinished Dispatch work, then continue Dispatch/Secret Task on the same scanner.
+
 ## Current prerequisite correction - LWB-OVR-018, 2026-09-18
 
 During the first resumed Railway live acceptance, production failed before scanning with `GAME_UPDATE_UNSUPPORTED`. Failure-first inspection showed the official Lua package had advanced to content v19, but LocalLow `version.txt` remained 18. An untouched official launcher cycle did not change that marker. The launcher log proved this is official behavior: it applied the `19 <- 18` Lua patch, and a second untouched launch reported local LWLuaFile version 19 current against remote version 19.

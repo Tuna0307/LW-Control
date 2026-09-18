@@ -1062,6 +1062,14 @@ For the current-v17 1000x1000 world, Truck reuses the same 200-request native AO
 
 **Cleanup / next category.** Final cleanup left no game, launcher or LWBridge process, no recovery journal and exact official v18 compatibility `ok=true`. Release build and all six deterministic groups pass; frontend generation integrity also passes. Monster is no longer the category gate. Continue Railway/Train on the same shared Manual Scan engine. Evidence: `evidence/lwbridge-implementation/2026-09-18-r7-monster-first-scan-remaining.json`.
 
+### LWB-R7-031 - Railway/Train ordinary Manual Start full-world acceptance (2026-09-18)
+
+**LIVE-PROVEN common-engine category.** On current Lua content v19, an ordinary Railway-only Normal Manual Start completed 2,500/2,500 logical blocks with zero failed/unread blocks in 112.3266952 s at concurrency 8. The positive-row acceptance gate remained intact: the run published one authentic live Railway row and a separate reopen returned exactly one.
+
+**Source-backed row coverage and limits.** The live row carried train type, quality, power, train config ID/raw train data, `arriveTs`, `robTimes`, march identity and `protectTime`. The current-v18/v19 source path also retains game-derived current carriage goods and `maxLootPerTrain` when present, but this one-row population exposed neither `maxLootCount` nor nonempty `currentGoods`. No fallback value, reward label or icon is synthesized. The internal `reward:<rewardType>:<itemId>` key is rebuild identity only and does not claim recovery of the original LWBridge key producer.
+
+**Validation / cleanup / next.** Release build is 0-warning/0-error and all six deterministic groups pass. Post-run current-v19 compatibility returns `ok=true` under `lwbridge-current-client-critical-anchors-2`; no game/launcher/LWBridge process or recovery journal remains. Evidence: [`2026-09-18-r7-railway-full-manual.json`](../evidence/lwbridge-implementation/2026-09-18-r7-railway-full-manual.json). Railway is closed as a category acceptance; continue Dispatch/Secret Task on this same scanner.
+
 ## Remaining unknowns
 
 - Exact game-side block scheduling/tick implementation behind `XluaBridgeMapScanTick` after the recovered `startMapScan` request boundary.

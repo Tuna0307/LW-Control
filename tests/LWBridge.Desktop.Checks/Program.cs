@@ -31,6 +31,12 @@ if (args.Contains("--live-current-client-full-resource-manual", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-railway-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullRailwayProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();
@@ -4672,6 +4678,22 @@ Check(liveCityProbeSource.Contains("try_recover_zoom_aoi_geometry", StringCompar
       liveCityProbeSource.Contains("details.zoomRecoveryAttempted ~= true", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("zoom_restore_confirmation_timeout", StringComparison.Ordinal),
     "whole-world zoom restore timeout must make one bounded native AOI-grid recovery attempt before failing");
+Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GetOneTrainByMarchUuid", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GetCurRewardData", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("marchInfo.carriageList", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("train_goods.cur", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("maxLootPerTrain", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("MAX_LOOT_PER_TRAIN", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("Delete_Train_Times", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("alliance_train_vip", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("ItemTemplateManager", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("RewardManager", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("Internal rebuild identity only", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("marchUuid = march_uuid", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("allianceAbbr = scalar_field(march", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if train_type == 2 then", StringComparison.Ordinal),
+    "Railway rows must preserve moving-march identity/alliance abbreviation, derive retained goods from game TrainData/current carriage goods, and recover maxLootPerTrain from the current-v18 game formula without inventing display data");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
     "optional Monster Protection detail must not pause each AOI acquisition step");

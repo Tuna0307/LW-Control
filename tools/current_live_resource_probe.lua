@@ -1327,6 +1327,170 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
     return records, nil
 end
 
+local function normalize_train_current_goods(march, train, train_data_json)
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
+
+    local lua_train = nil
+    if manager ~= nil then
+        local train_uuid = train and scalar_field(train, { "uuid", "Uuid" }) or nil
+        if train_uuid ~= nil then
+            local ok_train, value = call(manager, "GetOneTrain", train_uuid)
+            if ok_train and value ~= nil then lua_train = value end
+        end
+        if lua_train == nil then
+            local march_uuid = march and scalar_field(march, { "uuid", "Uuid", "_uuid" }) or nil
+            if march_uuid ~= nil then
+                local ok_train, value = call(manager, "GetOneTrainByMarchUuid", march_uuid)
+                if ok_train and value ~= nil then lua_train = value end
+            end
+        end
+    end
+
+    local rewards = nil
+    local max_loot_count = lua_train and tonumber(safe_get(lua_train, "maxLootPerTrain")) or nil
+    local decoded_train_data = nil
+    if lua_train ~= nil then
+        local ok_rewards, value = call(lua_train, "GetCurRewardData")
+        if ok_rewards and type(value) == "table" then rewards = value end
+    end
+    if (rewards == nil or max_loot_count == nil) and train_data_json ~= nil and train_data_json ~= "" then
+        -- Exact current-v18 TrainData:GetCurRewardData fallback for TrainType.Train:
+        -- flatten marchInfo.carriageList[*].trainGoods.cur from the already captured
+        -- SFS train payload. This is read-only and sends no additional game request.
+        local ok_module, rapidjson = pcall(require, "rapidjson")
+        if ok_module and rapidjson ~= nil then
+            local ok_decode, decoded = pcall(rapidjson.decode, train_data_json)
+            if ok_decode and type(decoded) == "table" then decoded_train_data = decoded end
+            local march_info = decoded_train_data and decoded_train_data.marchInfo or nil
+            local carriage_list = type(march_info) == "table" and march_info.carriageList or nil
+            if rewards == nil and type(carriage_list) == "table" then
+                rewards = {}
+                for _, carriage in ipairs(carriage_list) do
+                    local train_goods = type(carriage) == "table" and carriage.trainGoods or nil
+                    local current = type(train_goods) == "table" and train_goods.cur or nil
+                    if type(current) == "table" then
+                        for _, reward in ipairs(current) do rewards[#rewards + 1] = reward end
+                    end
+                end
+            end
+        end
+    end
+    if max_loot_count == nil and decoded_train_data ~= nil then
+        -- Exact current-v18 TrainData.Refresh maxLootPerTrain construction.
+        local ally_manager = data_center and safe_get(data_center, "LWAllyStationDataManager") or nil
+        local base_max = ally_manager and tonumber(safe_get(ally_manager, "MAX_LOOT_PER_TRAIN")) or nil
+        if base_max ~= nil and base_max >= 0 then
+            local reduction = 0
+            local delete_info = safe_get(ally_manager, "Delete_Train_Times")
+            local march_info = type(decoded_train_data.marchInfo) == "table" and decoded_train_data.marchInfo or nil
+            local lua_entry = rawget(_G, "LuaEntry")
+            local data_config = lua_entry and safe_get(lua_entry, "DataConfig") or nil
+            local ok_switch, vip_switch = call(data_config, "CheckSwitch", "alliance_train_vip")
+            local vip_on = march_info and march_info.vipOn ~= nil and march_info.vipOn ~= false
+            local rights_open = ok_switch and vip_switch ~= nil and vip_switch ~= false
+            local gift_lv = march_info and tonumber(march_info.giftLv) or nil
+            local required_gift_lv = delete_info and tonumber(safe_get(delete_info, "gift_lv")) or nil
+            local buy_flag = tonumber(decoded_train_data.buyFlag)
+            if delete_info ~= nil and rights_open and vip_on and
+               ((gift_lv ~= nil and required_gift_lv ~= nil and gift_lv >= required_gift_lv) or buy_flag == 1) then
+                reduction = tonumber(safe_get(delete_info, "para1")) or 0
+            end
+            max_loot_count = math.max(base_max - reduction, 0)
+        end
+    end
+
+    if type(rewards) ~= "table" then return nil, max_loot_count end
+
+    local item_manager = safe_get(data_center, "ItemTemplateManager")
+    local reward_manager = safe_get(data_center, "RewardManager")
+    local reward_type_enum = rawget(_G, "RewardType")
+    local goods_type = reward_type_enum and tonumber(safe_get(reward_type_enum, "GOODS")) or nil
+    local load_path = rawget(_G, "LoadPath")
+    local item_path = load_path and safe_get(load_path, "ItemPath") or nil
+
+    local by_key, order = {}, {}
+    for _, reward in ipairs(rewards) do
+        local reward_type = tonumber(safe_get(reward, "type"))
+        local reward_value = safe_get(reward, "value")
+        local item_id, count = nil, nil
+        if type(reward_value) == "table" then
+            item_id = tonumber(safe_get(reward_value, "id"))
+            count = tonumber(safe_get(reward_value, "num"))
+        else
+            item_id = reward_type
+            count = tonumber(reward_value)
+        end
+
+        if reward_type ~= nil and item_id ~= nil and count ~= nil and count > 0 then
+            local name, icon_path = nil, nil
+            if goods_type ~= nil and reward_type == goods_type and item_manager ~= nil then
+                local ok_template, goods = call(item_manager, "GetItemTemplate", item_id)
+                local ok_name, resolved_name = call(item_manager, "GetName", item_id)
+                if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then
+                    name = tostring(resolved_name)
+                end
+                if ok_template and goods ~= nil then
+                    local join_method = tonumber(safe_get(goods, "join_method")) or -1
+                    local icon_join = safe_get(goods, "icon_join")
+                    if join_method > 0 and icon_join ~= nil and tostring(icon_join) ~= "" then
+                        local parts = {}
+                        for part in string.gmatch(tostring(icon_join), "([^;]+)") do parts[#parts + 1] = part end
+                        if #parts > 2 and parts[3] ~= "" then icon_path = parts[3] end
+                    end
+                    if icon_path == nil then
+                        local icon = safe_get(goods, "icon")
+                        if icon ~= nil and tostring(icon) ~= "" and item_path ~= nil then
+                            local ok_format, formatted = pcall(string.format, tostring(item_path), tostring(icon))
+                            if ok_format and formatted ~= nil and formatted ~= "" then icon_path = formatted end
+                        end
+                    end
+                end
+            elseif reward_manager ~= nil then
+                local ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type, item_id)
+                if (not ok_name or resolved_name == nil or tostring(resolved_name) == "") then
+                    ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type)
+                end
+                if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then
+                    name = tostring(resolved_name)
+                end
+                local ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type, item_id)
+                if (not ok_icon or resolved_icon == nil or tostring(resolved_icon) == "") then
+                    ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type)
+                end
+                if ok_icon and resolved_icon ~= nil and tostring(resolved_icon) ~= "" then
+                    icon_path = tostring(resolved_icon)
+                end
+            end
+
+            if name ~= nil and icon_path ~= nil then
+                -- Internal rebuild identity only. Last War supplies rewardType/itemId;
+                -- the original LWBridge currentGoods key producer remains unrecovered.
+                local key = "reward:" .. tostring(reward_type) .. ":" .. tostring(item_id)
+                local existing = by_key[key]
+                if existing == nil then
+                    existing = {
+                        key = key,
+                        name = name,
+                        iconPath = icon_path,
+                        count = 0,
+                        rewardType = reward_type,
+                        itemId = item_id,
+                    }
+                    by_key[key] = existing
+                    order[#order + 1] = key
+                end
+                existing.count = existing.count + count
+            end
+        end
+    end
+
+    if #order == 0 then return nil, max_loot_count end
+    local result = {}
+    for _, key in ipairs(order) do result[#result + 1] = by_key[key] end
+    return result, max_loot_count
+end
+
 local function train_march_aoi_records(world, block_size, block_count, selected_lookup)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
@@ -1359,6 +1523,7 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                 local aoi_index = cell_y * block_count + cell_x
                 if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and selected_lookup[aoi_index] == true then
                     local config = safe_get(train, "config")
+                    local train_type = integer_field(train, { "type", "Type" })
                     local train_data = safe_get(train, "trainData")
                     local train_data_json = nil
                     if train_data ~= nil then
@@ -1369,8 +1534,14 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                             if ok_dump and dump ~= nil then train_data_json = tostring(dump) end
                         end
                     end
+                    local current_goods, max_loot_count = nil, nil
+                    if train_type == 2 then
+                        current_goods, max_loot_count = normalize_train_current_goods(march, train, train_data_json)
+                    end
+                    local march_uuid = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
                     records[#records + 1] = {
-                        uuid = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or ""),
+                        uuid = march_uuid,
+                        marchUuid = march_uuid,
                         runtimeClass = reflected_type_name(march),
                         serverId = integer_field(march, { "serverId", "ServerId" }) or current_server_id(),
                         worldId = integer_field(march, { "worldId", "WorldId" }) or 0,
@@ -1379,6 +1550,7 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                         ownerName = scalar_field(march, { "ownerName", "OwnerName" }),
                         allianceUid = scalar_field(march, { "allianceUid", "AllianceUid" }),
                         allianceName = scalar_field(march, { "allianceName", "AllianceName" }),
+                        allianceAbbr = scalar_field(march, { "allianceAbbr", "AllianceAbbr" }),
                         ownerServer = integer_field(march, { "ownerServer", "OwnerServer" }),
                         targetServer = integer_field(march, { "targetServer", "TargetServer" }),
                         srcServer = integer_field(march, { "srcServer", "SrcServer" }),
@@ -1387,10 +1559,12 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                         endTime = scalar_field(march, { "endTime", "EndTime" }),
                         trainUuid = scalar_field(train, { "uuid", "Uuid" }),
                         trainCfgId = integer_field(train, { "cfgId", "CfgId" }),
-                        trainType = integer_field(train, { "type", "Type" }),
+                        trainType = train_type,
                         trainQuality = config and integer_field(config, { "quality", "Quality" }) or nil,
                         carriageNum = config and integer_field(config, { "carriageNum", "CarriageNum" }) or nil,
                         trainDataJson = train_data_json,
+                        currentGoods = current_goods,
+                        maxLootCount = max_loot_count,
                         source = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
                     }
                 end

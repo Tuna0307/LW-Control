@@ -19,6 +19,7 @@ internal static class ManualMapScanCommandServiceChecks
         await FastUsesRecoveredConcurrencyAndPublishes();
         await ContextFailureLeavesTruthfulError();
         await ZombieBossTypeIsAccepted();
+        await RailwayTypeIsAccepted();
         await MixedTypesFailClosed();
     }
 
@@ -207,6 +208,19 @@ internal static class ManualMapScanCommandServiceChecks
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
             "Zombie Boss should use the same ordinary Manual Scan worker as supported kinds");
+        service.Close();
+    }
+
+    private static async Task RailwayTypeIsAccepted()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var source = new ImmediateSource();
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        _ = await service.InvokeAsync("map_scan_start", Payload("normal", "railway"), CancellationToken.None);
+        WaitForPhase(service, "completed");
+        JsonElement status = Status(service);
+        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+            "Railway/Train should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
 

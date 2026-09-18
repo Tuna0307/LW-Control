@@ -1024,7 +1024,8 @@ internal sealed partial class CurrentClientMapBlockSource
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
             var data = new JsonObject
             {
-                ["uuid"] = uuid, ["ownerName"] = ownerName, ["allianceName"] = allianceName,
+                ["uuid"] = uuid, ["marchUuid"] = OptionalStringValue(row, "marchUuid") ?? uuid,
+                ["ownerName"] = ownerName, ["allianceName"] = allianceName,
                 ["quality"] = quality, ["power"] = power, ["x"] = x, ["y"] = y,
                 ["positionIndex"] = pointIndex, ["trainType"] = trainType.Value,
                 ["trainCfgId"] = RequiredInt(row, "trainCfgId"),
@@ -1035,6 +1036,9 @@ internal sealed partial class CurrentClientMapBlockSource
             if (row.TryGetProperty("trainUuid", out JsonElement trainUuidValue)) data["trainUuid"] = JsonNode.Parse(trainUuidValue.GetRawText());
             if (row.TryGetProperty("ownerUid", out JsonElement ownerUidValue) && ownerUidValue.ValueKind == JsonValueKind.String) data["ownerUid"] = ownerUidValue.GetString();
             if (row.TryGetProperty("allianceUid", out JsonElement allianceUidValue) && allianceUidValue.ValueKind == JsonValueKind.String) data["allianceUid"] = allianceUidValue.GetString();
+            if (row.TryGetProperty("allianceAbbr", out JsonElement allianceAbbrValue) &&
+                allianceAbbrValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(allianceAbbrValue.GetString()))
+                data["allianceAbbr"] = allianceAbbrValue.GetString();
             if (row.TryGetProperty("ownerServer", out JsonElement ownerServerValue) && ownerServerValue.TryGetInt32(out int ownerServer)) data["ownerServer"] = ownerServer;
             if (row.TryGetProperty("targetServer", out JsonElement targetServerValue) && targetServerValue.TryGetInt32(out int targetServer)) data["targetServer"] = targetServer;
             if (row.TryGetProperty("srcServer", out JsonElement srcServerValue) && srcServerValue.TryGetInt32(out int srcServer)) data["srcServer"] = srcServer;
@@ -1042,6 +1046,13 @@ internal sealed partial class CurrentClientMapBlockSource
             if (row.TryGetProperty("endTime", out JsonElement endValue) && endValue.TryGetInt64(out long endTime)) data["endTime"] = endTime;
             if (trainData.ArriveTs is long arriveTs) data["arriveTs"] = arriveTs;
             if (trainData.RobTimes is int robTimes) data["robTimes"] = robTimes;
+            if (trainData.ProtectTime is long protectTime) data["protectTime"] = protectTime;
+            if (row.TryGetProperty("maxLootCount", out JsonElement maxLootValue) &&
+                maxLootValue.TryGetInt32(out int maxLootCount) && maxLootCount >= 0)
+                data["maxLootCount"] = maxLootCount;
+            if (row.TryGetProperty("currentGoods", out JsonElement currentGoodsValue) &&
+                currentGoodsValue.ValueKind == JsonValueKind.Array && currentGoodsValue.GetArrayLength() > 0)
+                data["currentGoods"] = JsonNode.Parse(currentGoodsValue.GetRawText());
             if (row.TryGetProperty("trainDataJson", out JsonElement trainDataValue) && trainDataValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(trainDataValue.GetString())) data["trainDataJson"] = trainDataValue.GetString();
             result.Add(new FastTrainPrepared(x, y, new MapStoredRecord(
                 kind, serverId, uuid, pointIndex, uuid, ownerName, allianceName, null, quality, power, null, null, updatedAt,
@@ -1056,21 +1067,28 @@ internal sealed partial class CurrentClientMapBlockSource
     private static TrainDataMetadata ReadTrainDataMetadata(JsonElement row)
     {
         if (!row.TryGetProperty("trainDataJson", out JsonElement raw) || raw.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(raw.GetString()))
-            return new TrainDataMetadata(null, null, null);
+            return new TrainDataMetadata(null, null, null, null);
         try
         {
             using JsonDocument document = JsonDocument.Parse(raw.GetString()!);
             JsonElement root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object) return new TrainDataMetadata(null, null, null);
+            if (root.ValueKind != JsonValueKind.Object) return new TrainDataMetadata(null, null, null, null);
             int? type = root.TryGetProperty("type", out JsonElement typeValue) && typeValue.TryGetInt32(out int parsedType) ? parsedType : null;
             long? arriveTs = root.TryGetProperty("arriveTime", out JsonElement arriveValue) && arriveValue.TryGetInt64(out long parsedArrive) && parsedArrive > 0 ? parsedArrive : null;
             int? robTimes = null;
-            if (root.TryGetProperty("marchInfo", out JsonElement marchInfo) && marchInfo.ValueKind == JsonValueKind.Object &&
-                marchInfo.TryGetProperty("robTimes", out JsonElement robValue) && robValue.TryGetInt32(out int parsedRob) && parsedRob >= 0)
-                robTimes = parsedRob;
-            return new TrainDataMetadata(type, arriveTs, robTimes);
+            long? protectTime = null;
+            if (root.TryGetProperty("marchInfo", out JsonElement marchInfo) && marchInfo.ValueKind == JsonValueKind.Object)
+            {
+                if (marchInfo.TryGetProperty("robTimes", out JsonElement robValue) &&
+                    robValue.TryGetInt32(out int parsedRob) && parsedRob >= 0)
+                    robTimes = parsedRob;
+                if (marchInfo.TryGetProperty("protectTime", out JsonElement protectValue) &&
+                    protectValue.TryGetInt64(out long parsedProtect) && parsedProtect > 0)
+                    protectTime = parsedProtect;
+            }
+            return new TrainDataMetadata(type, arriveTs, robTimes, protectTime);
         }
-        catch (JsonException) { return new TrainDataMetadata(null, null, null); }
+        catch (JsonException) { return new TrainDataMetadata(null, null, null, null); }
     }
 
     private static string? OptionalStringValue(JsonElement row, string name) =>
@@ -1136,7 +1154,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
     internal sealed record MonsterProtectionDetailMetrics(
         int BossCount, int TargetCount, int RequestCount, int RetryCount, int ReadyCount, string? Error);
-    private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes);
+    private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes, long? ProtectTime);
     private sealed record FastMonsterPrepared(int X, int Y, bool ProtectionEligible, MapStoredRecord Record);
     private sealed record MonsterProtectionDetail(bool Received, bool Active, long EndTime);
     private sealed record MonsterProtectionDetailObservation(

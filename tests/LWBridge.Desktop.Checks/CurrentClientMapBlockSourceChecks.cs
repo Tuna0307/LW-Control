@@ -780,7 +780,18 @@ internal static class CurrentClientMapBlockSourceChecks
                     JsonObject root = JsonNode.Parse(ProvenFastRailwayBatch(fields, ("r-first", 9, 9, 201, 4, 3, "Conductor A", 5_500_000L)))!.AsObject();
                     JsonObject row = root["train_march_records"]!.AsArray()[0]!.AsObject();
                     row.Remove("trainType");
-                    row["trainDataJson"] = "{\"type\":2,\"arriveTime\":1789616774078,\"marchInfo\":{\"robTimes\":1}}";
+                    row["trainDataJson"] = "{\"type\":2,\"arriveTime\":1789616774078,\"marchInfo\":{\"robTimes\":1,\"protectTime\":1789616000000}}";
+                    row["maxLootCount"] = 3;
+                    row["currentGoods"] = new JsonArray(
+                        new JsonObject
+                        {
+                            ["key"] = "reward:7:650053",
+                            ["name"] = "Recovered Rail Reward",
+                            ["iconPath"] = "Assets/Main/Sprites/UI/Item/recovered.png",
+                            ["count"] = 1234,
+                            ["rewardType"] = 7,
+                            ["itemId"] = 650053,
+                        });
                     return root.ToJsonString(JsonOptions.Default);
                 }
                 if (x == 995 && y == 975) return ProvenFastRailwayBatch(fields, ("r-last", 985, 985, 202, 5, 4, "Conductor B", 11_000_000L));
@@ -798,9 +809,15 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Railway source did not preserve game TrainType.Train identity/quality/power at map extremes");
         Check(first.Name == "Conductor A" && first.DataJson.Contains("\"trainType\":2", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"trainCfgId\":201", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"marchUuid\":\"r-first\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"arriveTs\":1789616774078", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"robTimes\":1", StringComparison.Ordinal),
-            "fast full-Railway source did not preserve source-backed train metadata");
+              first.DataJson.Contains("\"robTimes\":1", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"protectTime\":1789616000000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"maxLootCount\":3", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"key\":\"reward:7:650053\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"name\":\"Recovered Rail Reward\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"count\":1234", StringComparison.Ordinal),
+            "fast full-Railway source did not preserve source-backed train metadata including protectTime/currentGoods");
     }
 
     private static async Task FastFullMapFillsMeasuredCoverageHole()
