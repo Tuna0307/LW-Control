@@ -236,6 +236,7 @@ internal sealed partial class CurrentClientMapBlockSource
         HashSet<int> covered = state.Covered;
         Dictionary<string, FirstLivePreparedResource> cityRecords = state.CityRecords;
         Dictionary<string, FirstLivePreparedResource> resourceRecords = state.ResourceRecords;
+        Dictionary<string, FastDispatchPrepared> dispatchRecords = state.DispatchRecords;
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
@@ -311,6 +312,12 @@ internal sealed partial class CurrentClientMapBlockSource
                         prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
                         resourceRecords[prepared.Record.RecordKey] = prepared;
                 }
+                foreach (FastDispatchPrepared prepared in observation.Dispatches)
+                {
+                    if (!dispatchRecords.TryGetValue(prepared.Record.RecordKey, out FastDispatchPrepared? prior) ||
+                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
+                        dispatchRecords[prepared.Record.RecordKey] = prepared;
+                }
                 foreach (FastMonsterPrepared prepared in observation.Monsters)
                 {
                     if (!monsterRecords.TryGetValue(prepared.Record.RecordKey, out FastMonsterPrepared? prior) ||
@@ -368,6 +375,9 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
             foreach (FirstLivePreparedResource item in resourceRecords.Values)
                 AddRecordToBlock(buckets, item.Import.X, item.Import.Y, item.Record);
+        if (request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal))
+            foreach (FastDispatchPrepared item in dispatchRecords.Values)
+                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (IncludesMonsterSource(request))
             foreach (FastMonsterPrepared item in monsterRecords.Values)
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
@@ -459,8 +469,8 @@ internal sealed partial class CurrentClientMapBlockSource
         request.SelectedTypes.Count == 1 && IncludesMonsterSource(request);
 
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count is >= 1 and <= 5 &&
-        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway") &&
+        request.SelectedTypes.Count is >= 1 and <= 6 &&
+        request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway" or "dispatch") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
     private async Task<FastCityBatchObservation> ProbeFastCityBatchAsync(
         OverviewMapScanSession session,
@@ -497,6 +507,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeMonster={IncludesMonsterSource(request).ToString().ToLowerInvariant()}",
             $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
+            $"includeDispatch={request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -821,7 +832,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeMonster", IncludesMonsterSource(request)) ||
             !MatchesBool(root, "includeMonsterProtection", IsZombieBossOnly(request)) ||
             !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
-                request.SelectedTypes.Contains("railway", StringComparer.Ordinal)))
+                request.SelectedTypes.Contains("railway", StringComparer.Ordinal)) ||
+            !MatchesBool(root, "includeDispatch", request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesInt(root, "requestedCount", 8) ||
             !MatchesInt(root, "holdMilliseconds", 0) ||
@@ -869,16 +881,22 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Fast world batch is missing its point record snapshot.");
         int matchedCityCount = RequireNonNegativeInt(root, "matchedCityCount");
         int matchedResourceCount = RequireNonNegativeInt(root, "matchedResourceCount");
+        int matchedDispatchCount = RequireNonNegativeInt(root, "matchedDispatchCount");
         IReadOnlyList<FirstLivePreparedResource> prepared = request.SelectedTypes.Contains("city", StringComparer.Ordinal) && HasPointKind(pointRecords, "player_base")
             ? FirstLiveResultImporter.PrepareCitySnapshot(bytes, resultPath)
             : Array.Empty<FirstLivePreparedResource>();
         IReadOnlyList<FirstLivePreparedResource> resources = request.SelectedTypes.Contains("resource", StringComparer.Ordinal) && HasPointKind(pointRecords, "resource_point")
             ? FirstLiveResultImporter.PrepareResourceSnapshot(bytes, resultPath)
             : Array.Empty<FirstLivePreparedResource>();
+        IReadOnlyList<FastDispatchPrepared> dispatches = request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)
+            ? PrepareDispatchRecords(pointRecords, request, requestedSet, startedAt)
+            : Array.Empty<FastDispatchPrepared>();
         if (request.SelectedTypes.Contains("city", StringComparer.Ordinal) && prepared.Count != matchedCityCount)
             throw new InvalidDataException("Fast world batch City snapshot count changed during normalization.");
         if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal) && resources.Count != matchedResourceCount)
             throw new InvalidDataException("Fast world batch Resource snapshot count changed during normalization.");
+        if (request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal) && dispatches.Count != matchedDispatchCount)
+            throw new InvalidDataException("Fast world batch Dispatch snapshot count changed during normalization.");
         foreach (FirstLivePreparedResource item in prepared.Concat(resources))
         {
             if (item.Import.ServerId != request.ServerId)
@@ -904,7 +922,7 @@ internal sealed partial class CurrentClientMapBlockSource
         if (monsterProtectionDetailRequestCount > monsterProtectionDetailTargetCount ||
             monsterProtectionDetailReadyCount > monsterProtectionDetailTargetCount)
             throw new InvalidDataException("Fast world Monster Invasion protection detail counters are inconsistent.");
-        return new FastCityBatchObservation(requestedIndices, prepared, resources, monsters, trains,
+        return new FastCityBatchObservation(requestedIndices, prepared, resources, dispatches, monsters, trains,
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
@@ -916,6 +934,9 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.SelectedTypes.Contains("resource", StringComparer.Ordinal))
             foreach (FirstLivePreparedResource item in observation.Resources)
                 AddRecordToBlock(buckets, item.Import.X, item.Import.Y, item.Record);
+        if (request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal))
+            foreach (FastDispatchPrepared item in observation.Dispatches)
+                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (IncludesMonsterSource(request))
             foreach (FastMonsterPrepared item in observation.Monsters)
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
@@ -940,6 +961,60 @@ internal sealed partial class CurrentClientMapBlockSource
         int blockIndex = checked((y / MapScanGeometry.RecoveredBlockSpan) * 50 + (x / MapScanGeometry.RecoveredBlockSpan));
         if (!buckets.TryGetValue(blockIndex, out List<MapStoredRecord>? list)) buckets[blockIndex] = list = [];
         list.Add(record);
+    }
+
+    private static IReadOnlyList<FastDispatchPrepared> PrepareDispatchRecords(
+        JsonElement rows,
+        MapScanExecutionRequest request,
+        HashSet<int> requestedSet,
+        DateTimeOffset capturedAt)
+    {
+        var result = new List<FastDispatchPrepared>();
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object ||
+                !row.TryGetProperty("kind", out JsonElement kindValue) ||
+                kindValue.ValueKind != JsonValueKind.String ||
+                !string.Equals(kindValue.GetString(), "dispatch_task", StringComparison.Ordinal))
+                continue;
+
+            int pointType = RequiredInt(row, "pointType");
+            string runtimeClass = RequiredString(row, "runtimeClass");
+            int pointId = RequiredInt(row, "pointId");
+            int serverId = RequiredInt(row, "serverId");
+            int worldId = RequiredInt(row, "worldId");
+            int x = RequiredInt(row, "x");
+            int y = RequiredInt(row, "y");
+            string uuid = RequiredString(row, "uuid");
+            int cfgId = RequiredInt(row, "cfgId");
+            int level = RequiredInt(row, "level");
+            int quality = RequiredInt(row, "quality");
+            if (pointType != 17 ||
+                !runtimeClass.EndsWith("HeroDispatchMissionPointInfo", StringComparison.Ordinal) ||
+                pointId <= 0 || serverId != request.ServerId || worldId != request.WorldId ||
+                x < 0 || x >= 1000 || y < 0 || y >= 1000 ||
+                cfgId <= 0 || level < 1 || quality < 1)
+                throw new InvalidDataException("Fast world Dispatch snapshot contained invalid identity/geometry/config data.");
+
+            int aoiIndex = checked((y / FastCityAoiBlockSize) * FastCityAoiBlockCount + (x / FastCityAoiBlockSize));
+            if (!requestedSet.Contains(aoiIndex))
+                throw new InvalidDataException("Fast world Dispatch point fell outside the native AOI footprint.");
+
+            var data = JsonNode.Parse(row.GetRawText())!.AsObject();
+            long updatedAt = capturedAt.ToUnixTimeMilliseconds();
+            data["kind"] = "dispatch";
+            data["updatedAt"] = updatedAt;
+            bool isSpecial = row.TryGetProperty("isSpecial", out JsonElement specialValue) &&
+                specialValue.ValueKind == JsonValueKind.True;
+            data["isSpecial"] = isSpecial;
+
+            string recordKey = pointId.ToString(CultureInfo.InvariantCulture);
+            result.Add(new FastDispatchPrepared(x, y, new MapStoredRecord(
+                "dispatch", serverId, recordKey, pointId, uuid, null, null,
+                level, quality, null, null, null, updatedAt,
+                data.ToJsonString(JsonOptions.Default))));
+        }
+        return result;
     }
 
     private static IReadOnlyList<FastMonsterPrepared> PrepareMonsterRecords(JsonElement root, MapScanExecutionRequest request, HashSet<int> requestedSet, DateTimeOffset capturedAt)
@@ -1142,6 +1217,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal HashSet<int> Covered { get; } = new();
         internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FirstLivePreparedResource> ResourceRecords { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, FastDispatchPrepared> DispatchRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FastMonsterPrepared> MonsterRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FastTrainPrepared> TrainRecords { get; } = new(StringComparer.Ordinal);
 
@@ -1155,6 +1231,7 @@ internal sealed partial class CurrentClientMapBlockSource
     internal sealed record MonsterProtectionDetailMetrics(
         int BossCount, int TargetCount, int RequestCount, int RetryCount, int ReadyCount, string? Error);
     private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes, long? ProtectTime);
+    private sealed record FastDispatchPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastMonsterPrepared(int X, int Y, bool ProtectionEligible, MapStoredRecord Record);
     private sealed record MonsterProtectionDetail(bool Received, bool Active, long EndTime);
     private sealed record MonsterProtectionDetailObservation(
@@ -1176,6 +1253,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int[] RequestedIndices,
         IReadOnlyList<FirstLivePreparedResource> Prepared,
         IReadOnlyList<FirstLivePreparedResource> Resources,
+        IReadOnlyList<FastDispatchPrepared> Dispatches,
         IReadOnlyList<FastMonsterPrepared> Monsters,
         IReadOnlyList<FastTrainPrepared> Trains,
         int MonsterInvasionBossCount,

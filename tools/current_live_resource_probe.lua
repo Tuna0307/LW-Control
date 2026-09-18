@@ -1126,6 +1126,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeMonsterProtection = include_monster_protection_raw == "true"
     local include_train_raw = tostring(values.includeTrain or "false")
     request.includeTrain = include_train_raw == "true"
+    local include_dispatch_raw = tostring(values.includeDispatch or "false")
+    request.includeDispatch = include_dispatch_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -1148,7 +1150,8 @@ local function read_bulk_aoi_diagnostic(now)
        (include_monster_raw ~= "true" and include_monster_raw ~= "false") or
        (include_monster_protection_raw ~= "true" and include_monster_protection_raw ~= "false") or
        (request.includeMonsterProtection == true and request.includeMonster ~= true) or
-       (include_train_raw ~= "true" and include_train_raw ~= "false") then
+       (include_train_raw ~= "true" and include_train_raw ~= "false") or
+       (include_dispatch_raw ~= "true" and include_dispatch_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -1200,7 +1203,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
-    local matched, cities, resources = 0, 0, 0
+    local matched, cities, resources, dispatches = 0, 0, 0, 0
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
@@ -1216,11 +1219,12 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
             local point_type = integer_field(info, { "pointType", "PointType" })
             if point_type == 6 then cities = cities + 1 end
             if point_type == 1 or point_type == 7 or point_type == 26 then resources = resources + 1 end
+            if point_type == 17 then dispatches = dispatches + 1 end
         end
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
-    return { total = matched, cities = cities, resources = resources, loadedPointCount = expected }, nil
+    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, loadedPointCount = expected }, nil
 end
 
 local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -1323,6 +1327,95 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
         }
         return true
     end)
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
+local function dispatch_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+
+    local controller_type = rawget(_G, "LocalController")
+    local ok_controller, controller = call(controller_type, "instance")
+    local table_name = rawget(_G, "TableName")
+    local dispatch_table = table_name and safe_get(table_name, "LwDispatchTask") or nil
+    if not ok_controller or controller == nil or dispatch_table == nil then
+        return nil, "dispatch_config_manager_unavailable"
+    end
+
+    local records = {}
+    local record_error = nil
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        if integer_field(info, { "pointType", "PointType" }) ~= 17 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        if id == nil or id <= 0 then record_error = "dispatch_point_index_invalid"; return false end
+        local tile = index_to_tile(world, id)
+        if tile == nil then record_error = "dispatch_tile_unavailable"; return false end
+        local cell_x = math.floor(tile.x / block_size)
+        local cell_y = math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        local aoi_index = cell_y * block_count + cell_x
+        if selected_lookup[aoi_index] ~= true then return true end
+
+        local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+        local world_id = integer_field(info, { "worldId", "WorldId" }) or 0
+        local uuid = scalar_field(info, { "uuid", "Uuid" })
+        local cfg_id = integer_field(info, { "cfgId", "CfgId" })
+        if server_id == nil or server_id <= 0 or uuid == nil or tostring(uuid) == "" or tostring(uuid) == "0" or
+           cfg_id == nil or cfg_id <= 0 then
+            record_error = "dispatch_identity_invalid"
+            return false
+        end
+
+        local ok_cfg, cfg = call(controller, "getLine", dispatch_table, cfg_id)
+        if not ok_cfg or cfg == nil then
+            record_error = "dispatch_config_unavailable:" .. tostring(cfg_id)
+            return false
+        end
+        local level = tonumber(scalar_field(cfg, { "level", "Level" }))
+        local quality = tonumber(scalar_field(cfg, { "color", "Color" }))
+        local is_special = tonumber(scalar_field(cfg, { "is_special", "isSpecial", "IsSpecial" }))
+        if level == nil or level < 1 or quality == nil or quality < 1 or is_special == nil then
+            record_error = "dispatch_config_shape_invalid:" .. tostring(cfg_id)
+            return false
+        end
+
+        local owner_uid = scalar_field(info, { "ownerUid", "OwnerUid" })
+        local steal_list = safe_get(info, "stealList") or safe_get(info, "StealList")
+        local acc_list = safe_get(info, "accList") or safe_get(info, "AccList")
+        records[#records + 1] = {
+            id = id,
+            pointId = id,
+            pointType = 17,
+            kind = "dispatch_task",
+            runtimeClass = reflected_type_name(info),
+            serverId = math.floor(server_id),
+            srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
+            worldId = world_id,
+            x = tile.x,
+            y = tile.y,
+            uuid = tostring(uuid),
+            ownerUid = owner_uid ~= nil and tostring(owner_uid) or nil,
+            cfgId = cfg_id,
+            level = math.floor(level),
+            quality = math.floor(quality),
+            isSpecial = is_special == 1,
+            completionTime = scalar_field(info, { "completionTime", "CompletionTime" }),
+            rewarded = integer_field(info, { "rewarded", "Rewarded" }),
+            actEndTime = scalar_field(info, { "actEndTime", "ActEndTime" }),
+            expiredTime = scalar_field(info, { "expiredTime", "ExpiredTime" }),
+            allianceId = scalar_field(info, { "allianceId", "AllianceId" }),
+            stealListCount = collection_count(steal_list),
+            accListCount = collection_count(acc_list),
+            dispatchNameKey = scalar_field(cfg, { "name", "Name" }),
+            source = "WorldPointManager._pointInfos+HeroDispatchMissionPointInfo",
+        }
+        return true
+    end)
+    if record_error ~= nil then return nil, record_error end
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
     return records, nil
 end
@@ -2590,6 +2683,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         matchedCount = details.matchedCount,
         matchedCityCount = details.matchedCityCount,
         matchedResourceCount = details.matchedResourceCount,
+        matchedDispatchCount = details.matchedDispatchCount,
         beforeLoadedPointCount = details.beforeLoadedPointCount,
         afterLoadedPointCount = details.afterLoadedPointCount,
         targetTileX = details.targetTileX,
@@ -2670,6 +2764,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         includeMonster = request.includeMonster == true,
         includeMonsterProtection = request.includeMonsterProtection == true,
         includeTrain = request.includeTrain == true,
+        includeDispatch = request.includeDispatch == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         zoomFinalBlockSize = details.zoomFinalBlockSize,
         zoomFinalBlockCount = details.zoomFinalBlockCount,
@@ -3348,6 +3443,7 @@ local function pump_bulk_aoi_diagnostic(now)
     details.matchedCount = observed.total
     details.matchedCityCount = observed.cities
     details.matchedResourceCount = observed.resources
+    details.matchedDispatchCount = observed.dispatches
     details.afterLoadedPointCount = observed.loadedPointCount
     local point_records, point_records_error = city_aoi_records(
         world, point_manager, details.blockSize, details.blockCount, lookup)
@@ -3362,6 +3458,15 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     for index = 1, #resource_records do point_records[#point_records + 1] = resource_records[index] end
+    if bulk_aoi_request.includeDispatch == true then
+        local dispatch_records, dispatch_records_error = dispatch_aoi_records(
+            world, point_manager, details.blockSize, details.blockCount, lookup)
+        if dispatch_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, dispatch_records_error, details, point_manager)
+            return true
+        end
+        for index = 1, #dispatch_records do point_records[#point_records + 1] = dispatch_records[index] end
+    end
     details.pointRecords = point_records
     details.trainMarchRecords = {}
     if bulk_aoi_request.includeTrain == true then

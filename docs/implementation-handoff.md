@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current category acceptance - LWB-R7-032, 2026-09-18
+
+Dispatch/Secret Task is now LIVE-PROVEN through the ordinary shared Manual Start production path on current v19. A Dispatch-only Normal run completed 2,500/2,500 logical blocks with zero failed/unread blocks in 105.7823425 s at recovered Normal concurrency 8, published 74 authentic live Dispatch rows, and a fresh store reopen returned exactly 74. The positive-row gate was not weakened.
+
+Every published row preserved authoritative point type 17, runtime class ending `HeroDispatchMissionPointInfo`, positive `cfgId`, level and quality, explicit `isSpecial`, and source `WorldPointManager._pointInfos+HeroDispatchMissionPointInfo`. All 74 also carried completion/reward/activity-expiry timing, owner UID, steal/assist list counts and `dispatchNameKey`; alliance ID was present on 70/74 and remains optional. Production resolves level/quality/special/name through `TableName.LwDispatchTask`; no task identity/config value is synthesized.
+
+Post-run current-v19 compatibility is `ok=true` under `lwbridge-current-client-critical-anchors-2`, exact official package identity is restored, and no game/launcher/LWBridge process or recovery journal remains. Release build is 0-warning/0-error and the deterministic suite is green. Evidence is aggregate-only at `evidence/lwbridge-implementation/2026-09-18-r7-dispatch-full-manual.json`. Ghost Ops is the next category acceptance on the same scanner.
+
 ## Current category acceptance - LWB-R7-031, 2026-09-18
 
 Railway/Train is now LIVE-PROVEN through the ordinary shared Manual Start production path on current v19. A Railway-only Normal run completed 2,500/2,500 logical blocks with zero failed/unread blocks in 112.3266952 s at recovered Normal concurrency 8, published one authentic live Railway row, and a fresh store reopen returned exactly one. The positive-row gate was not weakened.

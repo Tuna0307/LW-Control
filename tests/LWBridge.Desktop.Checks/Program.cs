@@ -37,6 +37,12 @@ if (args.Contains("--live-current-client-full-railway-manual", StringComparer.Or
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-dispatch-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullDispatchProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();

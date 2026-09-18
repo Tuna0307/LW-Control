@@ -1,5 +1,7 @@
 # Team workflow — shared Map Data scan engine first
 
+**Current Dispatch checkpoint, 2026-09-18:** `LWB-R7-032` LIVE-PROVES Dispatch/Secret Task-only ordinary Manual Start on current v19: 2,500/2,500 logical blocks, zero failed/unread, 74 authentic rows published and exactly 74 reopened in 105.782 s Normal. Every row preserves point type 17, `HeroDispatchMissionPointInfo`, config/level/quality/special/source plus mission timing, owner/list/name-key fields; alliance ID was present on 70/74. Exact v19 restoration/compatibility and cleanup pass. Ghost Ops is next on the same scanner.
+
 **Current Railway checkpoint, 2026-09-18:** `LWB-R7-031` LIVE-PROVES Railway/Train-only ordinary Manual Start on current v19: 2,500/2,500 logical blocks, zero failed/unread, one authentic row published and exactly one reopened in 112.327 s Normal. Core train metadata plus march identity/protection time are source-backed. `maxLootCount`/nonempty `currentGoods` were absent in this population and are not fabricated. Exact v19 restoration/compatibility and cleanup pass. Dispatch/Secret Task is next on the same scanner.
 
 **Current owner Zombie Boss countdown follow-up, 2026-09-18:** `LWB-R7-029` fixes the remaining presentation defect: Zombie Boss now participates in the existing one-second Map Data clock. Live proof on saved rows, with no rescan, observed three Remaining values decrease by four seconds over 4.2 seconds. Build/tests and exact v18 cleanup pass; Railway/Train remains next.
