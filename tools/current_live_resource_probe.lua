@@ -18,6 +18,10 @@ local bulk_aoi_diagnostic_path = root .. [[\bulk-aoi-diagnostic.txt]]
 local bulk_aoi_diagnostic_result_path = root .. [[\bulk-aoi-diagnostic-result.json]]
 local monster_protection_detail_path = root .. [[\monster-protection-detail.txt]]
 local monster_protection_detail_result_path = root .. [[\monster-protection-detail-result.json]]
+local resource_detail_diagnostic_path = root .. [[\resource-detail-diagnostic.txt]]
+local resource_detail_diagnostic_result_path = root .. [[\resource-detail-diagnostic-result.json]]
+local resource_scan_detail_path = root .. [[\resource-scan-detail.txt]]
+local resource_scan_detail_result_path = root .. [[\resource-scan-detail-result.json]]
 local overview_root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebuild\overview-bridge]]
 local overview_control_path = overview_root .. [[\control.txt]]
 local overview_lease_path = overview_root .. [[\lease.txt]]
@@ -46,6 +50,11 @@ local bulk_aoi_started_at = nil
 local monster_protection_request = nil
 local monster_protection_started_at = nil
 local monster_protection_scan = nil
+local resource_detail_request = nil
+local resource_detail_started_at = nil
+local resource_detail_transition_requested = false
+local resource_detail_refresh_requested = false
+local resource_scan_detail_runtime = { state = nil, request = nil, startedAt = nil }
 local bulk_aoi_original_start_view_request = nil
 local bulk_aoi_original_block_count = nil
 local bulk_aoi_block_count_touched = false
@@ -1130,6 +1139,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeDispatch = include_dispatch_raw == "true"
     local include_ghost_raw = tostring(values.includeGhost or "false")
     request.includeGhost = include_ghost_raw == "true"
+    local include_resource_details_raw = tostring(values.includeResourceDetails or "false")
+    request.includeResourceDetails = include_resource_details_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -1154,7 +1165,8 @@ local function read_bulk_aoi_diagnostic(now)
        (request.includeMonsterProtection == true and request.includeMonster ~= true) or
        (include_train_raw ~= "true" and include_train_raw ~= "false") or
        (include_dispatch_raw ~= "true" and include_dispatch_raw ~= "false") or
-       (include_ghost_raw ~= "true" and include_ghost_raw ~= "false") then
+       (include_ghost_raw ~= "true" and include_ghost_raw ~= "false") or
+       (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -1279,7 +1291,47 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     return records, nil
 end
 
-local function resource_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
+local function resource_source_metadata(tile, server_id, resource_source)
+    local config_id = integer_field(resource_source, { "id", "Id" })
+    local name_key, reserve = nil, nil
+    local controller_type = rawget(_G, "LocalController")
+    local ok_controller, controller = call(controller_type, "instance")
+    local table_name = rawget(_G, "TableName")
+    local gather_table = table_name and safe_get(table_name, "GatherResource") or nil
+    if config_id ~= nil and config_id > 0 and ok_controller and controller ~= nil and gather_table ~= nil then
+        local ok_cfg, cfg = call(controller, "getLine", gather_table, config_id)
+        if ok_cfg and cfg ~= nil then
+            local observed_name = scalar_field(cfg, { "name", "Name" })
+            if observed_name ~= nil and tostring(observed_name) ~= "" then name_key = tostring(observed_name) end
+            local observed_reserve = tonumber(scalar_field(cfg, { "reserve", "Reserve" }))
+            if observed_reserve ~= nil and observed_reserve >= 0 then reserve = observed_reserve end
+        end
+    end
+
+    local black_known, black_tile = false, nil
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local scene_utils = rawget(_G, "SceneUtils")
+    local tile_to_world = scene_utils and safe_get(scene_utils, "TileToWorld") or nil
+    local force_change_scene = rawget(_G, "ForceChangeScene")
+    local force_world = force_change_scene and safe_get(force_change_scene, "World") or nil
+    local cs = rawget(_G, "CS")
+    local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
+    if player ~= nil and type(tile_to_world) == "function" and force_world ~= nil and vector2_type ~= nil and
+       tile ~= nil and tonumber(tile.x) ~= nil and tonumber(tile.y) ~= nil and tonumber(server_id) ~= nil then
+        local ok_world, world_pos = pcall(tile_to_world, vector2_type(math.floor(tile.x), math.floor(tile.y)), force_world, math.floor(server_id))
+        if ok_world and world_pos ~= nil then
+            local ok_black, observed_black = call(player, "IsInBlackRange", world_pos)
+            if ok_black and type(observed_black) == "boolean" then
+                black_known = true
+                black_tile = observed_black
+            end
+        end
+    end
+    return config_id, name_key, reserve, black_known, black_tile
+end
+
+local function resource_aoi_records(world, point_manager, block_size, block_count, selected_lookup, detail_request)
     local collection = reflected_value(point_manager, "_pointInfos")
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
     local expected = collection_count(collection)
@@ -1319,15 +1371,30 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
             local ok_type, observed_type = call(resource_source, "GetResType")
             resource_type = ok_type and (tonumber(observed_type) or tostring(observed_type)) or nil
         end
+        local resource_config_id, resource_name_key, resource_reserve, black_tile_known, is_black_tile =
+            resource_source_metadata(tile, server_id, resource_source)
+        if detail_request ~= nil and detail_request.includeResourceDetails == true and
+           gather_occupancy_known and gather_occupied == false then
+            resource_scan_detail_runtime.queue(detail_request, {
+                pointId = id, pointType = point_type, serverId = math.floor(server_id),
+                worldId = integer_field(info, { "worldId", "WorldId" }) or 0,
+                uid = tostring(scalar_field(info, { "ownerUid", "OwnerUid", "uid", "Uid" }) or ""),
+                resourceConfigId = resource_config_id, resourceNameKey = resource_name_key,
+                resourceMaxAmount = resource_reserve,
+            })
+        end
         records[#records + 1] = {
             id = id, pointId = id, pointType = point_type, kind = "resource_point",
             runtimeClass = reflected_type_name(info), serverId = math.floor(server_id),
             srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
             worldId = integer_field(info, { "worldId", "WorldId" }) or 0,
             x = tile.x, y = tile.y, level = level, resourceTypeId = resource_type,
+            resourceConfigId = resource_config_id, resourceNameKey = resource_name_key,
+            resourceMaxAmount = resource_reserve,
             resourceSourceType = reflected_type_name(resource_source),
             gatherOccupancyKnown = gather_occupancy_known, gatherOccupied = gather_occupied,
-            source = "WorldPointManager._pointInfos",
+            blackTileKnown = black_tile_known, isBlackTile = is_black_tile,
+            source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
         }
         return true
     end)
@@ -2407,6 +2474,379 @@ local function pump_monster_protection_detail(now)
     return true
 end
 
+local function read_resource_detail_diagnostic(now)
+    local values = read_kv_file(resource_detail_diagnostic_path, 4096)
+    if values == nil then return nil end
+    pcall(os.remove, resource_detail_diagnostic_path)
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "resource_detail_diagnostic_invalid"
+        return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    request.serverId = tonumber(values.serverId)
+    request.maxTargets = tonumber(values.maxTargets or "1")
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) or
+       request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) or
+       request.maxTargets == nil or request.maxTargets < 1 or request.maxTargets > 32 or
+       request.maxTargets ~= math.floor(request.maxTargets) then
+        request.error = "resource_detail_diagnostic_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    request.serverId = math.floor(request.serverId)
+    request.maxTargets = math.floor(request.maxTargets)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "resource_detail_diagnostic_identity_mismatch"
+    end
+    return request
+end
+
+local function resource_detail_manager()
+    local data_center = rawget(_G, "DataCenter")
+    return data_center and safe_get(data_center, "WorldPointDetailManager") or nil
+end
+
+local function resource_detail_snapshot(manager, point_id)
+    if manager == nil or point_id == nil then return nil end
+    local ok, detail = call(manager, "GetDetailByPointId", point_id)
+    if not ok or detail == nil then return nil end
+    return {
+        resourceId = integer_field(detail, { "resourceId", "ResourceId" }),
+        remainRes = tonumber(scalar_field(detail, { "remainRes", "RemainRes" })),
+        initRes = tonumber(scalar_field(detail, { "initRes", "InitRes" })),
+        reserve = tonumber(scalar_field(detail, { "reserve", "Reserve" })),
+        initReserve = tonumber(scalar_field(detail, { "initReserve", "InitReserve" })),
+        collectStartTime = tonumber(scalar_field(detail, { "collectStartTime", "CollectStartTime" })),
+        speed = tonumber(scalar_field(detail, { "speed", "Speed" })),
+    }
+end
+
+local function find_resource_detail_targets(world, point_manager, requested_server_id, max_targets)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "resource_point_collection_unavailable" end
+    local manager = resource_detail_manager()
+    local uncached, cached = {}, {}
+    each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        local point_type = integer_field(info, { "pointType", "PointType" })
+        if point_type ~= 1 and point_type ~= 7 and point_type ~= 26 then return true end
+        local point_id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
+        if point_id == nil or point_id <= 0 then return true end
+        local resource_source = info
+        local ok_resource, loaded_resource = call(point_manager, "GetResourcePointInfoByIndex", point_id)
+        if ok_resource and loaded_resource ~= nil then resource_source = loaded_resource end
+        local gather_march_found, gather_march_uuid = reflected_field_value(resource_source, "gatherMarchUuid")
+        local gather_uid_found, gather_uid = reflected_field_value(resource_source, "gatherUid")
+        if not gather_march_found or not gather_uid_found then return true end
+        if occupancy_value_present(gather_march_uuid) or occupancy_value_present(gather_uid) then return true end
+        local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+        if server_id == nil or math.floor(server_id) ~= math.floor(requested_server_id) then return true end
+        local tile = index_to_tile(world, point_id)
+        if tile == nil then return true end
+        local config_id, name_key, max_amount = resource_source_metadata(tile, server_id, resource_source)
+        local target = {
+            pointId = point_id, pointType = point_type, serverId = math.floor(server_id),
+            worldId = integer_field(info, { "worldId", "WorldId" }) or 0,
+            uid = tostring(scalar_field(info, { "ownerUid", "OwnerUid", "uid", "Uid" }) or ""),
+            resourceConfigId = config_id, resourceNameKey = name_key, resourceMaxAmount = max_amount,
+        }
+        if resource_detail_snapshot(manager, point_id) == nil then
+            uncached[#uncached + 1] = target
+        else
+            cached[#cached + 1] = target
+        end
+        return #uncached < max_targets
+    end)
+    local selected = {}
+    for index = 1, math.min(#uncached, max_targets) do selected[#selected + 1] = uncached[index] end
+    if #selected == 0 then
+        for index = 1, math.min(#cached, max_targets) do selected[#selected + 1] = cached[index] end
+    end
+    if #selected == 0 then return nil, "no_idle_resource_point_loaded" end
+    return selected, #uncached > 0 and nil or "resource_detail_targets_already_cached"
+end
+
+local function resource_detail_result_rows(manager, targets)
+    local rows, ready = {}, 0
+    for index = 1, #targets do
+        local target = targets[index]
+        local detail = resource_detail_snapshot(manager, target.pointId)
+        if detail ~= nil then ready = ready + 1 end
+        rows[#rows + 1] = {
+            resourceConfigId = target.resourceConfigId, resourceNameKey = target.resourceNameKey,
+            resourceMaxAmount = target.resourceMaxAmount, received = detail ~= nil, detail = detail,
+        }
+    end
+    return rows, ready
+end
+
+function resource_scan_detail_runtime.same_state(state, request)
+    return type(state) == "table" and state.profileId == request.profileId and
+        state.launchSessionId == request.launchSessionId and state.challenge == request.challenge and
+        state.gamePid == request.gamePid and state.serverId == request.serverId and
+        state.scanRunId == request.scanRunId
+end
+
+function resource_scan_detail_runtime.send(target)
+    local sfs, defs = rawget(_G, "SFSNetwork"), rawget(_G, "MsgDefines")
+    local message = defs and safe_get(defs, "WorldGetDetail") or nil
+    local send = sfs and safe_get(sfs, "SendMessage") or nil
+    if message == nil or type(send) ~= "function" then return false end
+    local ok = pcall(send, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid)
+    if not ok then ok = pcall(send, sfs, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid) end
+    return ok == true
+end
+
+function resource_scan_detail_runtime.queue(request, target)
+    if request == nil or request.includeResourceDetails ~= true or target == nil or target.pointId == nil then return false end
+    if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
+        resource_scan_detail_runtime.state = {
+            profileId = request.profileId, launchSessionId = request.launchSessionId,
+            challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
+            scanRunId = request.scanRunId, targets = {}, targetByKey = {},
+            requestCount = 0, cacheBeforeCount = 0, sendFailureCount = 0,
+        }
+    end
+    local state = resource_scan_detail_runtime.state
+    local key = tostring(math.floor(tonumber(target.pointId) or 0))
+    if key == "0" or state.targetByKey[key] ~= nil then return false end
+    target.recordKey = key
+    state.targetByKey[key] = target
+    state.targets[#state.targets + 1] = target
+    local manager = resource_detail_manager()
+    if resource_detail_snapshot(manager, target.pointId) ~= nil then
+        target.cacheBefore = true
+        state.cacheBeforeCount = state.cacheBeforeCount + 1
+        return true
+    end
+    if resource_scan_detail_runtime.send(target) then
+        target.requestIssued = true
+        state.requestCount = state.requestCount + 1
+    else
+        target.sendFailed = true
+        state.sendFailureCount = state.sendFailureCount + 1
+    end
+    return true
+end
+
+function resource_scan_detail_runtime.read(now)
+    local values = read_kv_file(resource_scan_detail_path, 4096)
+    if values == nil then return nil end
+    pcall(os.remove, resource_scan_detail_path)
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "resource_scan_detail_invalid"; return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    request.serverId = tonumber(values.serverId)
+    request.scanRunId = tostring(values.scanRunId or "")
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.challenge) or not valid_token(request.scanRunId) or
+       request.gamePid == nil or request.gamePid <= 0 or request.gamePid ~= math.floor(request.gamePid) or
+       request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) then
+        request.error = "resource_scan_detail_invalid"; return request
+    end
+    request.gamePid = math.floor(request.gamePid); request.serverId = math.floor(request.serverId)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "resource_scan_detail_identity_mismatch"
+    end
+    return request
+end
+
+function resource_scan_detail_runtime.rows(state)
+    local manager = resource_detail_manager()
+    local rows, ready = {}, 0
+    if type(state) ~= "table" then return rows, ready end
+    for index = 1, #state.targets do
+        local target = state.targets[index]
+        local detail = resource_detail_snapshot(manager, target.pointId)
+        if detail ~= nil then ready = ready + 1 end
+        rows[#rows + 1] = {
+            recordKey = target.recordKey, received = detail ~= nil,
+            resourceConfigId = target.resourceConfigId, resourceNameKey = target.resourceNameKey,
+            resourceMaxAmount = target.resourceMaxAmount, detail = detail,
+            requestIssued = target.requestIssued == true, cacheBefore = target.cacheBefore == true,
+            sendFailed = target.sendFailed == true,
+        }
+    end
+    return rows, ready
+end
+
+function resource_scan_detail_runtime.write_result(request, error_text, state)
+    local rows, ready = resource_scan_detail_runtime.rows(state)
+    write_json(resource_scan_detail_result_path, {
+        schemaVersion = 1, probeVersion = M.VERSION, requestId = request.requestId,
+        profileId = request.profileId, launchSessionId = request.launchSessionId,
+        challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
+        scanRunId = request.scanRunId, state = "completed", error = error_text,
+        targetCount = type(state) == "table" and #state.targets or 0,
+        requestCount = type(state) == "table" and state.requestCount or 0,
+        cacheBeforeCount = type(state) == "table" and state.cacheBeforeCount or 0,
+        sendFailureCount = type(state) == "table" and state.sendFailureCount or 0,
+        readyCount = ready, details = rows,
+        elapsedSeconds = resource_scan_detail_runtime.startedAt and (runtime_clock() - resource_scan_detail_runtime.startedAt) or 0,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+function resource_scan_detail_runtime.pump(now)
+    if resource_scan_detail_runtime.request == nil then
+        local request = resource_scan_detail_runtime.read(now)
+        if request == nil then return false end
+        resource_scan_detail_runtime.startedAt = runtime_clock()
+        if request.error ~= nil then
+            resource_scan_detail_runtime.write_result(request, request.error, nil)
+            resource_scan_detail_runtime.startedAt = nil
+            return true
+        end
+        if not resource_scan_detail_runtime.same_state(resource_scan_detail_runtime.state, request) then
+            resource_scan_detail_runtime.write_result(request, "resource_scan_detail_runtime.state_unavailable", nil)
+            resource_scan_detail_runtime.startedAt = nil
+            return true
+        end
+        resource_scan_detail_runtime.request = request
+    end
+    local request = resource_scan_detail_runtime.request
+    local state = resource_scan_detail_runtime.state
+    local _, ready = resource_scan_detail_runtime.rows(state)
+    if ready == #state.targets then
+        resource_scan_detail_runtime.write_result(request, nil, state)
+        resource_scan_detail_runtime.request = nil; resource_scan_detail_runtime.startedAt = nil; resource_scan_detail_runtime.state = nil
+        return true
+    end
+    if runtime_clock() - (resource_scan_detail_runtime.startedAt or runtime_clock()) >= 8 then
+        resource_scan_detail_runtime.write_result(request, "resource_scan_detail_partial_response", state)
+        resource_scan_detail_runtime.request = nil; resource_scan_detail_runtime.startedAt = nil; resource_scan_detail_runtime.state = nil
+        return true
+    end
+    return true
+end
+
+local function write_resource_detail_diagnostic_result(request, state, error_text, rows, ready_count)
+    write_json(resource_detail_diagnostic_result_path, {
+        schemaVersion = 1, probeVersion = M.VERSION, requestId = request.requestId,
+        launchSessionId = request.launchSessionId, profileId = request.profileId,
+        challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
+        state = state, error = error_text, maxTargets = request.maxTargets,
+        targetCount = request.targets and #request.targets or 0,
+        requestCount = request.requestCount or 0, readyCount = ready_count or 0,
+        cacheBeforeCount = request.cacheBeforeCount or 0,
+        elapsedSeconds = resource_detail_started_at and (runtime_clock() - resource_detail_started_at) or 0,
+        details = rows or {},
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+local function finish_resource_detail_diagnostic(request, error_text)
+    local manager = resource_detail_manager()
+    local rows, ready = resource_detail_result_rows(manager, request.targets or {})
+    write_resource_detail_diagnostic_result(request, "completed", error_text, rows, ready)
+    resource_detail_request = nil
+    resource_detail_started_at = nil
+    resource_detail_transition_requested = false
+    resource_detail_refresh_requested = false
+end
+
+local function pump_resource_detail_diagnostic(now)
+    if resource_detail_request == nil then
+        local request = read_resource_detail_diagnostic(now)
+        if request == nil then return false end
+        resource_detail_started_at = runtime_clock()
+        if request.error ~= nil then
+            write_resource_detail_diagnostic_result(request, "completed", request.error, nil, 0)
+            resource_detail_started_at = nil
+            return true
+        end
+        resource_detail_request = request
+    end
+
+    local request = resource_detail_request
+    if runtime_clock() - (resource_detail_started_at or runtime_clock()) > 15 then
+        finish_resource_detail_diagnostic(request, "resource_detail_diagnostic_timeout")
+        return true
+    end
+
+    local scene = scene_identity()
+    if scene ~= "world" then
+        if scene == "city" and not resource_detail_transition_requested then
+            local scene_utils = rawget(_G, "SceneUtils")
+            local change = scene_utils and safe_get(scene_utils, "ChangeToWorld") or nil
+            if type(change) == "function" then
+                local ok = pcall(change)
+                if not ok then ok = pcall(change, scene_utils) end
+                resource_detail_transition_requested = ok == true
+            end
+        end
+        return true
+    end
+
+    local world, point_manager = runtime_world()
+    if world == nil or point_manager == nil then return true end
+    if request.targets == nil then
+        local targets, target_note = find_resource_detail_targets(world, point_manager, request.serverId, request.maxTargets)
+        if targets == nil then
+            if not resource_detail_refresh_requested then
+                local ok = call(point_manager, "UpdateViewRequest", true)
+                resource_detail_refresh_requested = ok == true
+                return true
+            end
+            if runtime_clock() - (resource_detail_started_at or runtime_clock()) < 8 then return true end
+            finish_resource_detail_diagnostic(request, target_note)
+            return true
+        end
+        request.targets = targets
+        request.targetNote = target_note
+        local manager = resource_detail_manager()
+        request.cacheBeforeCount = select(2, resource_detail_result_rows(manager, targets))
+        request.requestCount = 0
+    end
+
+    local manager = resource_detail_manager()
+    if manager == nil then finish_resource_detail_diagnostic(request, "world_point_detail_manager_unavailable"); return true end
+    if request.requestsIssued ~= true then
+        local sfs, defs = rawget(_G, "SFSNetwork"), rawget(_G, "MsgDefines")
+        local message = defs and safe_get(defs, "WorldGetDetail") or nil
+        local send = sfs and safe_get(sfs, "SendMessage") or nil
+        if message == nil or type(send) ~= "function" then
+            finish_resource_detail_diagnostic(request, "world_get_detail_transport_unavailable"); return true
+        end
+        for index = 1, #request.targets do
+            local target = request.targets[index]
+            if resource_detail_snapshot(manager, target.pointId) == nil then
+                local ok = pcall(send, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid)
+                if not ok then ok = pcall(send, sfs, message, target.pointId, target.serverId, target.worldId, 0, target.pointType, target.uid) end
+                if ok then request.requestCount = request.requestCount + 1 end
+            end
+        end
+        request.requestsIssued = true
+        request.requestsIssuedAt = runtime_clock()
+        return true
+    end
+
+    local _, ready = resource_detail_result_rows(manager, request.targets)
+    if ready == #request.targets then finish_resource_detail_diagnostic(request, nil); return true end
+    if runtime_clock() - (request.requestsIssuedAt or runtime_clock()) > 6 then
+        finish_resource_detail_diagnostic(request, "world_get_detail_partial_response")
+        return true
+    end
+    return true
+end
+
 local function monster_march_aoi_records(world, block_size, block_count, selected_lookup, home_tile)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
@@ -2869,6 +3309,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         includeTrain = request.includeTrain == true,
         includeDispatch = request.includeDispatch == true,
         includeGhost = request.includeGhost == true,
+        includeResourceDetails = request.includeResourceDetails == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         zoomFinalBlockSize = details.zoomFinalBlockSize,
         zoomFinalBlockCount = details.zoomFinalBlockCount,
@@ -3557,7 +3998,7 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     local resource_records, resource_records_error = resource_aoi_records(
-        world, point_manager, details.blockSize, details.blockCount, lookup)
+        world, point_manager, details.blockSize, details.blockCount, lookup, bulk_aoi_request)
     if resource_records == nil then
         fail_bulk_aoi(bulk_aoi_request, resource_records_error, details, point_manager)
         return true
@@ -3904,6 +4345,14 @@ function M.Pump()
     pump_monster_protection_queue()
     if active_request_id == nil then
         if pump_monster_protection_detail(now) then
+            write_heartbeat(now)
+            return true
+        end
+        if pump_resource_detail_diagnostic(now) then
+            write_heartbeat(now)
+            return true
+        end
+        if resource_scan_detail_runtime.pump(now) then
             write_heartbeat(now)
             return true
         end

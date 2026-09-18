@@ -296,7 +296,26 @@ internal static class CurrentClientMapBlockSourceChecks
                 if (x == 5 && y == 75) return ProvenFastResourceBatch(fields, (400, 9, 9, 3, 2, true, false));
                 if (x == 995 && y == 975) return ProvenFastResourceBatch(fields, (500, 985, 985, 10, 4, true, true));
                 return ProvenFastResourceBatch(fields);
-            });
+            },
+            resourceDetailResult: fields => JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
+                requestId = fields["requestId"], profileId = fields["profileId"],
+                launchSessionId = fields["launchSessionId"], challenge = fields["challenge"],
+                gamePid = int.Parse(fields["gamePid"]), serverId = int.Parse(fields["serverId"]),
+                scanRunId = fields["scanRunId"], state = "completed", error = (string?)null,
+                targetCount = 1, requestCount = 1, cacheBeforeCount = 0, sendFailureCount = 0, readyCount = 1,
+                details = new[]
+                {
+                    new
+                    {
+                        recordKey = "400", received = true, resourceConfigId = 203, resourceNameKey = "iron",
+                        resourceMaxAmount = 216000, requestIssued = true, cacheBefore = false, sendFailed = false,
+                        detail = new { remainRes = 216000, initRes = 216000, speed = 0 },
+                    },
+                },
+                capturedAt = Timestamp(),
+            }, JsonOptions.Default));
         MapScanExecutionRequest request = Request("resource", 1000, 1000, worldId: 0);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
@@ -310,8 +329,13 @@ internal static class CurrentClientMapBlockSourceChecks
         Check(first.DataJson.Contains("\"resourceTypeId\":2", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"rebuildGatherOccupancyKnown\":true", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"rebuildGatherOccupied\":false", StringComparison.Ordinal) &&
-              last.DataJson.Contains("\"rebuildGatherOccupied\":true", StringComparison.Ordinal),
-            "fast full-Resource source did not preserve source-backed type and occupancy state");
+              first.DataJson.Contains("\"resourceDetailKnown\":true", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"resourceRemainingAmount\":216000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"resourceFullAmount\":216000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"resourceFull\":true", StringComparison.Ordinal) &&
+              last.DataJson.Contains("\"rebuildGatherOccupied\":true", StringComparison.Ordinal) &&
+              !last.DataJson.Contains("\"resourceDetailKnown\":true", StringComparison.Ordinal),
+            "fast full-Resource source did not preserve occupancy or apply authoritative detail only to the idle target");
     }
 
     private static async Task FastFullWorldResumesAfterOuterRetry()
@@ -1053,7 +1077,8 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<IReadOnlyDictionary<string, string>, string>? monsterProtectionResult = null,
         bool useCoarseMonsterMap = false,
         Func<OverviewMapScanSession?>? sessionProvider = null,
-        Func<OverviewMapScanSession, bool>? matchesOwnedSession = null)
+        Func<OverviewMapScanSession, bool>? matchesOwnedSession = null,
+        Func<IReadOnlyDictionary<string, string>, string>? resourceDetailResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -1097,6 +1122,12 @@ internal static class CurrentClientMapBlockSourceChecks
                     if (bulkResult is null) throw new InvalidOperationException("unexpected fast City bulk request");
                     string result = bulkResult(fields);
                     files[Path.Combine(probeRoot, "bulk-aoi-diagnostic-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(probeRoot, "resource-scan-detail.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    string result = resourceDetailResult?.Invoke(fields) ?? ProvenEmptyResourceScanDetail(fields);
+                    files[Path.Combine(probeRoot, "resource-scan-detail-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 if (string.Equals(path, Path.Combine(probeRoot, "monster-protection-detail.txt"), StringComparison.OrdinalIgnoreCase))
@@ -1344,6 +1375,29 @@ internal static class CurrentClientMapBlockSourceChecks
             },
         }, JsonOptions.Default);
 
+    private static string ProvenEmptyResourceScanDetail(IReadOnlyDictionary<string, string> fields) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"],
+            profileId = fields["profileId"],
+            launchSessionId = fields["launchSessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            serverId = int.Parse(fields["serverId"]),
+            scanRunId = fields["scanRunId"],
+            state = "completed",
+            error = (string?)null,
+            targetCount = 0,
+            requestCount = 0,
+            cacheBeforeCount = 0,
+            sendFailureCount = 0,
+            readyCount = 0,
+            details = Array.Empty<object>(),
+            capturedAt = Timestamp(),
+        }, JsonOptions.Default);
+
     private static string ProvenFastCityBatch(
         IReadOnlyDictionary<string, string> fields,
         params (int PointId, int X, int Y)[] points)
@@ -1378,13 +1432,14 @@ internal static class CurrentClientMapBlockSourceChecks
         bool includeTrain = fields.TryGetValue("includeTrain", out string? includeTrainText) && includeTrainText == "true";
         bool includeDispatch = fields.TryGetValue("includeDispatch", out string? includeDispatchText) && includeDispatchText == "true";
         bool includeGhost = fields.TryGetValue("includeGhost", out string? includeGhostText) && includeGhostText == "true";
+        bool includeResourceDetails = fields.TryGetValue("includeResourceDetails", out string? includeResourceDetailsText) && includeResourceDetailsText == "true";
         return JsonSerializer.Serialize(new
         {
             schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
-            includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost,
+            includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeResourceDetails,
             state = "proven", error = (string?)null, requestedIndices = requested,
             matchedCityCount = points.Length, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,

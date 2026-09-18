@@ -20,6 +20,7 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldMaxRequestsPerRow = 50;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
+    private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(12);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
@@ -351,6 +352,29 @@ internal sealed partial class CurrentClientMapBlockSource
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
 
+        ResourceScanDetailObservation resourceDetails = ResourceScanDetailObservation.Empty;
+        int idleResourceCount = request.SelectedTypes.Contains("resource", StringComparer.Ordinal)
+            ? resourceRecords.Values.Count(item => IsKnownIdleResource(item.Record))
+            : 0;
+        if (idleResourceCount > 0)
+        {
+            try
+            {
+                resourceDetails = await ProbeResourceScanDetailsAsync(
+                    session, request, resourceRecords.Count, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
+            {
+                resourceDetails = ResourceScanDetailObservation.Failed(ex.Message);
+            }
+            foreach ((string key, FirstLivePreparedResource prepared) in resourceRecords.ToArray())
+            {
+                if (!IsKnownIdleResource(prepared.Record)) continue;
+                resourceDetails.Details.TryGetValue(key, out ResourceScanDetail? detail);
+                resourceRecords[key] = ApplyResourceScanDetail(prepared, detail);
+            }
+        }
+
         MonsterProtectionDetailObservation protection = MonsterProtectionDetailObservation.Empty;
         int monsterInvasionBossCount = monsterRecords.Values.Count(item => item.ProtectionEligible);
         if (monsterInvasionBossCount > 0)
@@ -411,6 +435,12 @@ internal sealed partial class CurrentClientMapBlockSource
                 coverage = "all_four_lod0_aoi_cells_proven_by_full_map_union",
                 recordsInBlock = records.Count,
                 coveredAoiCells = covered.Count,
+                idleResourceCount,
+                resourceDetailTargetCount = resourceDetails.TargetCount,
+                resourceDetailRequestCount = resourceDetails.RequestCount,
+                resourceDetailReadyCount = resourceDetails.ReadyCount,
+                resourceDetailSendFailureCount = resourceDetails.SendFailureCount,
+                resourceDetailError = resourceDetails.Error,
                 monsterInvasionBossCount,
                 monsterProtectionDetailTargetCount = protection.TargetCount,
                 monsterProtectionDetailRequestCount = protection.RequestCount,
@@ -519,6 +549,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
             $"includeDispatch={request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeGhost={request.SelectedTypes.Contains("ghost", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            $"includeResourceDetails={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -819,6 +850,137 @@ internal sealed partial class CurrentClientMapBlockSource
         };
     }
 
+    private async Task<ResourceScanDetailObservation> ProbeResourceScanDetailsAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int resourceRecordCount,
+        CancellationToken cancellationToken)
+    {
+        string requestId = "resourcedetail" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string commandPath = Path.Combine(probeRuntimeRoot, "resource-scan-detail.txt");
+        string resultPath = Path.Combine(probeRuntimeRoot, "resource-scan-detail-result.json");
+        DateTimeOffset startedAt = Now();
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"probeVersion={ProbeVersion}",
+            $"requestId={requestId}",
+            $"profileId={session.ProfileId}",
+            $"launchSessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"scanRunId={request.RunId}",
+            string.Empty,
+        });
+        await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset deadline = startedAt + ResourceDetailProbeTimeout;
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+                return ValidateResourceScanDetailResult(
+                    root.Value, requestId, startedAt, session, request, resourceRecordCount);
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+        throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
+    }
+
+    private static bool IsKnownIdleResource(MapStoredRecord record)
+    {
+        if (!string.Equals(record.Kind, "resource", StringComparison.Ordinal)) return false;
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(record.DataJson);
+            JsonElement root = document.RootElement;
+            return root.TryGetProperty("rebuildGatherOccupancyKnown", out JsonElement known) &&
+                   known.ValueKind == JsonValueKind.True &&
+                   root.TryGetProperty("rebuildGatherOccupied", out JsonElement occupied) &&
+                   occupied.ValueKind == JsonValueKind.False;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private ResourceScanDetailObservation ValidateResourceScanDetailResult(
+        JsonElement root,
+        string requestId,
+        DateTimeOffset startedAt,
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int resourceRecordCount)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "probeVersion", ProbeVersion) ||
+            !MatchesString(root, "requestId", requestId) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "launchSessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesInt(root, "serverId", request.ServerId) ||
+            !MatchesString(root, "scanRunId", request.RunId) ||
+            !MatchesString(root, "state", "completed"))
+            throw new InvalidDataException("Resource detail enrichment result did not match the active owned scan.");
+        RequireFreshCaptureTime(root, startedAt);
+        int targetCount = RequireNonNegativeInt(root, "targetCount");
+        int requestCount = RequireNonNegativeInt(root, "requestCount");
+        int cacheBeforeCount = RequireNonNegativeInt(root, "cacheBeforeCount");
+        int sendFailureCount = RequireNonNegativeInt(root, "sendFailureCount");
+        int readyCount = RequireNonNegativeInt(root, "readyCount");
+        if (targetCount > resourceRecordCount || requestCount + cacheBeforeCount + sendFailureCount != targetCount ||
+            readyCount > targetCount)
+            throw new InvalidDataException("Resource detail enrichment counters are inconsistent.");
+        if (!root.TryGetProperty("details", out JsonElement detailsValue) || detailsValue.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException("Resource detail enrichment details are missing.");
+        var details = new Dictionary<string, ResourceScanDetail>(StringComparer.Ordinal);
+        foreach (JsonElement item in detailsValue.EnumerateArray())
+        {
+            string recordKey = RequiredString(item, "recordKey");
+            bool received = item.TryGetProperty("received", out JsonElement receivedValue) && receivedValue.ValueKind == JsonValueKind.True;
+            long remaining = 0;
+            long fullAmount = 0;
+            if (received)
+            {
+                if (!item.TryGetProperty("detail", out JsonElement detailValue) || detailValue.ValueKind != JsonValueKind.Object ||
+                    !detailValue.TryGetProperty("remainRes", out JsonElement remainValue) || !remainValue.TryGetInt64(out remaining) || remaining < 0 ||
+                    !detailValue.TryGetProperty("initRes", out JsonElement initValue) || !initValue.TryGetInt64(out fullAmount) || fullAmount < 0 ||
+                    remaining > fullAmount)
+                    throw new InvalidDataException("Resource detail enrichment returned an invalid amount pair.");
+            }
+            if (!details.TryAdd(recordKey, new ResourceScanDetail(received, remaining, fullAmount)))
+                throw new InvalidDataException("Resource detail enrichment returned a duplicate record key.");
+        }
+        if (details.Count != targetCount)
+            throw new InvalidDataException("Resource detail enrichment target/detail counts differ.");
+        string? error = ReadOptionalString(root, "error");
+        return new ResourceScanDetailObservation(
+            targetCount, requestCount, cacheBeforeCount, sendFailureCount, readyCount, details, error);
+    }
+
+    private static FirstLivePreparedResource ApplyResourceScanDetail(
+        FirstLivePreparedResource prepared,
+        ResourceScanDetail? detail)
+    {
+        if (detail?.Received != true) return prepared;
+        JsonObject data = JsonNode.Parse(prepared.Record.DataJson)?.AsObject()
+            ?? throw new InvalidDataException("Resource record JSON is unavailable during detail enrichment.");
+        bool full = detail.RemainingAmount == detail.FullAmount;
+        data["resourceDetailKnown"] = true;
+        data["resourceRemainingAmount"] = detail.RemainingAmount;
+        data["resourceFullAmount"] = detail.FullAmount;
+        data["resourceFull"] = full;
+        if (data["resourceMaxAmount"] is JsonValue configured && configured.TryGetValue<long>(out long configuredMax))
+            data["resourceCapacityMatchesConfig"] = configuredMax == detail.FullAmount;
+        return prepared with
+        {
+            Record = prepared.Record with { DataJson = data.ToJsonString(JsonOptions.Default) },
+            Import = prepared.Import with { DataJson = data.ToJsonString(JsonOptions.Default) },
+        };
+    }
+
     private FastCityBatchObservation ValidateFastCityBatchResult(
         JsonElement root,
         byte[] bytes,
@@ -845,7 +1007,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
                 request.SelectedTypes.Contains("railway", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeDispatch", request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)) ||
-            !MatchesBool(root, "includeGhost", request.SelectedTypes.Contains("ghost", StringComparer.Ordinal)))
+            !MatchesBool(root, "includeGhost", request.SelectedTypes.Contains("ghost", StringComparer.Ordinal)) ||
+            !MatchesBool(root, "includeResourceDetails", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesInt(root, "requestedCount", 8) ||
             !MatchesInt(root, "holdMilliseconds", 0) ||
@@ -1311,6 +1474,21 @@ internal sealed partial class CurrentClientMapBlockSource
     private sealed record FastGhostPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastMonsterPrepared(int X, int Y, bool ProtectionEligible, MapStoredRecord Record);
     private sealed record MonsterProtectionDetail(bool Received, bool Active, long EndTime);
+    private sealed record ResourceScanDetail(bool Received, long RemainingAmount, long FullAmount);
+    private sealed record ResourceScanDetailObservation(
+        int TargetCount,
+        int RequestCount,
+        int CacheBeforeCount,
+        int SendFailureCount,
+        int ReadyCount,
+        IReadOnlyDictionary<string, ResourceScanDetail> Details,
+        string? Error)
+    {
+        internal static readonly ResourceScanDetailObservation Empty =
+            new(0, 0, 0, 0, 0, new Dictionary<string, ResourceScanDetail>(StringComparer.Ordinal), null);
+        internal static ResourceScanDetailObservation Failed(string error) =>
+            new(0, 0, 0, 0, 0, new Dictionary<string, ResourceScanDetail>(StringComparer.Ordinal), error);
+    }
     private sealed record MonsterProtectionDetailObservation(
         int TargetCount,
         int RequestCount,

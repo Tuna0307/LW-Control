@@ -26,7 +26,10 @@ internal sealed record MapDataQueryOptions(
     bool ReindeerOnly,
     int? MinLevel,
     int? MaxLevel,
-    IReadOnlyList<string> UnsupportedFeatures);
+    IReadOnlyList<string> UnsupportedFeatures,
+    bool ResourceIdleOnly = false,
+    bool ResourceFullOnly = false,
+    bool ExcludeBlackTile = false);
 
 internal static class MapDataQueryContract
 {
@@ -36,6 +39,9 @@ internal static class MapDataQueryContract
     [
         "keyword",
         "resourceNameKey",
+        "resourceIdleOnly",
+        "resourceFullOnly",
+        "excludeBlackTile",
         "monsterNameKey",
         "treasureType",
         "suppliesType",
@@ -79,6 +85,9 @@ internal static class MapDataQueryContract
         string? alliance = OptionalString(query, "alliance");
         bool withoutAlliance = OptionalTrue(query, "withoutAlliance");
         string? resourceNameKey = OptionalString(query, "resourceNameKey");
+        bool resourceIdleOnly = OptionalTrue(query, "resourceIdleOnly");
+        bool resourceFullOnly = OptionalTrue(query, "resourceFullOnly");
+        bool excludeBlackTile = OptionalTrue(query, "excludeBlackTile");
         string? monsterNameKey = OptionalString(query, "monsterNameKey");
         int? treasureType = OptionalNonNegativeInt(query, "treasureType");
         int? suppliesType = OptionalNonNegativeInt(query, "suppliesType");
@@ -121,7 +130,10 @@ internal static class MapDataQueryContract
             reindeerOnly,
             minLevel,
             maxLevel,
-            unsupported);
+            unsupported,
+            resourceIdleOnly,
+            resourceFullOnly,
+            excludeBlackTile);
     }
 
     public static void RequireRecoveredIndexedSearch(MapDataQueryOptions options)
@@ -229,6 +241,9 @@ internal static class MapDataQueryContract
         "alliance" => kind == "city" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
         "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "resourceIdleOnly" => kind == "resource" && value.ValueKind == JsonValueKind.True,
+        "resourceFullOnly" => kind == "resource" && value.ValueKind == JsonValueKind.True,
+        "excludeBlackTile" => kind == "resource" && value.ValueKind == JsonValueKind.True,
         "monsterNameKey" => kind is "monster" or "zombie_boss" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "treasureType" => kind == "treasure" && IsNonNegativeInteger(value),
         "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
@@ -245,8 +260,8 @@ internal static class MapDataQueryContract
         "plunderableOnly" => kind is "truck" or "railway" or "dispatch" && value.ValueKind == JsonValueKind.True,
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
-        "minLevel" => kind is "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
-        "maxLevel" => kind is "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
+        "minLevel" => kind is "resource" or "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
+        "maxLevel" => kind is "resource" or "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
         _ => false,
     };
 

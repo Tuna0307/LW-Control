@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-034",
+  "status": "LIVE-PROVEN",
+  "recordedDate": "2026-09-18",
+  "scope": "Resource full/idle/non-black truth, authoritative remaining amount enrichment, UI/query filters, and Lua bootstrap local-budget regression",
+  "privacy": "aggregate-only; no player identity, UUID, coordinates, session/challenge identifiers, raw rows or databases retained",
+  "currentClient": {
+    "contentVersion": 19,
+    "versionMarker": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "compatible": true
+  },
+  "resourceContract": {
+    "remainingSource": "WorldPointDetailManager after game-native WorldGetDetail",
+    "fullRule": "occupancy known + unoccupied + resourceDetailKnown + resourceRemainingAmount == resourceFullAmount",
+    "blackTileRule": "blackTileKnown + isBlackTile",
+    "levelFilter": "exact level 1-12 through existing indexed level range",
+    "unknownDetail": "fails closed and cannot pass Full only"
+  },
+  "livePreproofs": {
+    "singleUncachedDetail": {
+      "remaining": 87787,
+      "full": 129600,
+      "responseSecondsApprox": 1.65
+    },
+    "parallelBurst": {
+      "uncachedTargets": 4,
+      "ready": 4,
+      "wallSecondsApprox": 1.63,
+      "retries": 0
+    },
+    "lod2ResourceDiscovery": {
+      "resourceRows": 0,
+      "conclusion": "Monster-style LOD2 whole-world snapshot cannot provide complete Resource discovery"
+    }
+  },
+  "fullManualAcceptance": {
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 131.2080622,
+    "publishedResourceCount": 838,
+    "reopenedResourceCount": 838,
+    "resourceTypeCount": 838,
+    "levelCount": 838,
+    "resourceNameCount": 838,
+    "resourceMaxAmountCount": 838,
+    "occupancyKnownCount": 838,
+    "occupiedCount": 56,
+    "blackTileKnownCount": 838,
+    "blackTileCount": 0,
+    "detailKnownCount": 782,
+    "fullResourceCount": 696,
+    "partialResourceCount": 86,
+    "invalidAmountCount": 0,
+    "defaultFilteredCount": 696
+  },
+  "detailTransport": {
+    "queuedTransientTargets": 787,
+    "requestCount": 787,
+    "cacheBeforeCount": 0,
+    "sendFailureCount": 0,
+    "readyCount": 787,
+    "error": null,
+    "note": "Five transient targets were later superseded by final occupied/deduplicated state; all 782 final idle published rows carried authoritative detail."
+  },
+  "bootstrapRegression": {
+    "failure": "probe grew to 201 simultaneous top-level Lua locals and the real Lua 5.3 compiler rejected the chunk; generic syntax parser still accepted it",
+    "symptom": "bridge heartbeat/ready absent and game reported DataCenter.Global.LuaEntry unavailable",
+    "fix": "collapse Resource scan-detail state/helpers behind one top-level runtime table",
+    "topLevelLocalsBefore": 201,
+    "topLevelLocalsAfter": 192,
+    "liveBridgeReadyAfterFix": true,
+    "deterministicGuard": "suite now requires the probe top-level local count to remain below 200"
+  },
+  "validation": {
+    "releaseWarnings": 0,
+    "releaseErrors": 0,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "luaParse": true,
+    "javascriptSyntax": true,
+    "gitDiffCheck": true,
+    "postRunGameRunning": false,
+    "postRunRecoveryJournalPresent": false,
+    "officialPackageRestored": true
+  },
+  "implementationFiles": [
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs",
+    "src/LWBridge.Desktop/MapDataStore.cs",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+    "tools/current_live_resource_probe.lua",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullResourceProof.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ]
+}

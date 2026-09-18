@@ -26,6 +26,15 @@ internal static class LiveManualFullResourceProof
         int occupancyKnownCount = 0;
         int occupiedCount = 0;
         int levelCount = 0;
+        int resourceNameCount = 0;
+        int resourceMaxAmountCount = 0;
+        int blackTileKnownCount = 0;
+        int blackTileCount = 0;
+        int detailKnownCount = 0;
+        int fullResourceCount = 0;
+        int partialResourceCount = 0;
+        int invalidAmountCount = 0;
+        int defaultFilteredCount = 0;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -100,7 +109,14 @@ internal static class LiveManualFullResourceProof
                     if (publishedResourceCount <= 0)
                         throw new InvalidDataException("Ordinary Manual Resource scan published no Resource records.");
                     CollectResourceMetrics(store, serverId, out resourceTypeCount, out occupancyKnownCount,
-                        out occupiedCount, out levelCount);
+                        out occupiedCount, out levelCount, out resourceNameCount, out resourceMaxAmountCount,
+                        out blackTileKnownCount, out blackTileCount, out detailKnownCount, out fullResourceCount,
+                        out partialResourceCount, out invalidAmountCount);
+                    defaultFilteredCount = store.SearchIndexed(ResourceDefaultFilteredQuery(serverId)).Total;
+                    if (invalidAmountCount != 0)
+                        throw new InvalidDataException("Resource detail enrichment published an invalid remaining/full amount pair.");
+                    if (detailKnownCount <= 0 || fullResourceCount <= 0)
+                        throw new InvalidDataException("Resource detail enrichment produced no authoritative full Resource rows.");
                 }
                 finally
                 {
@@ -126,6 +142,15 @@ internal static class LiveManualFullResourceProof
                 occupancyKnownCount,
                 occupiedCount,
                 levelCount,
+                resourceNameCount,
+                resourceMaxAmountCount,
+                blackTileKnownCount,
+                blackTileCount,
+                detailKnownCount,
+                fullResourceCount,
+                partialResourceCount,
+                invalidAmountCount,
+                defaultFilteredCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
@@ -158,9 +183,14 @@ internal static class LiveManualFullResourceProof
 
     private static void CollectResourceMetrics(
         MapDataStore store, int serverId, out int resourceTypeCount,
-        out int occupancyKnownCount, out int occupiedCount, out int levelCount)
+        out int occupancyKnownCount, out int occupiedCount, out int levelCount,
+        out int resourceNameCount, out int resourceMaxAmountCount,
+        out int blackTileKnownCount, out int blackTileCount, out int detailKnownCount,
+        out int fullResourceCount, out int partialResourceCount, out int invalidAmountCount)
     {
         resourceTypeCount = occupancyKnownCount = occupiedCount = levelCount = 0;
+        resourceNameCount = resourceMaxAmountCount = blackTileKnownCount = blackTileCount = 0;
+        detailKnownCount = fullResourceCount = partialResourceCount = invalidAmountCount = 0;
         int page = 1; int observed = 0; int expectedTotal = -1;
         while (true)
         {
@@ -180,6 +210,31 @@ internal static class LiveManualFullResourceProof
                     if (row.TryGetProperty("rebuildGatherOccupied", out JsonElement occupied) && occupied.ValueKind == JsonValueKind.True)
                         occupiedCount++;
                 }
+                if (row.TryGetProperty("resourceNameKey", out JsonElement resourceName) &&
+                    resourceName.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(resourceName.GetString()))
+                    resourceNameCount++;
+                if (row.TryGetProperty("resourceMaxAmount", out JsonElement maxAmount) &&
+                    maxAmount.ValueKind == JsonValueKind.Number && maxAmount.TryGetDouble(out double max) && max >= 0)
+                    resourceMaxAmountCount++;
+                if (row.TryGetProperty("blackTileKnown", out JsonElement blackKnown) && blackKnown.ValueKind == JsonValueKind.True)
+                {
+                    blackTileKnownCount++;
+                    if (row.TryGetProperty("isBlackTile", out JsonElement black) && black.ValueKind == JsonValueKind.True)
+                        blackTileCount++;
+                }
+                if (row.TryGetProperty("resourceDetailKnown", out JsonElement detailKnown) && detailKnown.ValueKind == JsonValueKind.True)
+                {
+                    detailKnownCount++;
+                    long remaining = -1;
+                    long full = -1;
+                    bool hasRemaining = row.TryGetProperty("resourceRemainingAmount", out JsonElement remainingValue) &&
+                        remainingValue.TryGetInt64(out remaining) && remaining >= 0;
+                    bool hasFull = row.TryGetProperty("resourceFullAmount", out JsonElement fullValue) &&
+                        fullValue.TryGetInt64(out full) && full >= 0;
+                    if (!hasRemaining || !hasFull || remaining > full) invalidAmountCount++;
+                    else if (remaining == full) fullResourceCount++;
+                    else partialResourceCount++;
+                }
             }
             if (observed >= expectedTotal || result.Rows.Count == 0) break;
             page++;
@@ -193,6 +248,13 @@ internal static class LiveManualFullResourceProof
         [new MapDataSort("updatedAt", "desc")], false, null, null, false,
         null, null, null, null, null, null, null, false, false, false,
         null, null, Array.Empty<string>());
+
+    private static MapDataQueryOptions ResourceDefaultFilteredQuery(int serverId) => new(
+        "resource", serverId, 1, MapDataQueryContract.RecoveredPageSize,
+        [new MapDataSort("updatedAt", "desc")], false, null, null, false,
+        null, null, null, null, null, null, null, false, false, false,
+        null, null, Array.Empty<string>(),
+        ResourceIdleOnly: true, ResourceFullOnly: true, ExcludeBlackTile: true);
 
     private static void TryDelete(string path)
     {

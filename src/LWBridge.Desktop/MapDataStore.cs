@@ -673,6 +673,23 @@ internal sealed partial class MapDataStore : IDisposable
                 predicates.Add("(page.alliance_name IS NULL OR page.alliance_name = '')");
             if (options.ResourceNameKey is not null)
                 predicates.Add("CAST(json_extract(page.data_json,'$.resourceNameKey') AS TEXT) = $resourceNameKey");
+            if (options.ResourceIdleOnly)
+            {
+                predicates.Add("CAST(json_extract(page.data_json,'$.rebuildGatherOccupancyKnown') AS INTEGER) = 1");
+                predicates.Add("CAST(json_extract(page.data_json,'$.rebuildGatherOccupied') AS INTEGER) = 0");
+            }
+            if (options.ResourceFullOnly)
+            {
+                predicates.Add("CAST(json_extract(page.data_json,'$.rebuildGatherOccupancyKnown') AS INTEGER) = 1");
+                predicates.Add("CAST(json_extract(page.data_json,'$.rebuildGatherOccupied') AS INTEGER) = 0");
+                predicates.Add("CAST(json_extract(page.data_json,'$.resourceDetailKnown') AS INTEGER) = 1");
+                predicates.Add("CAST(json_extract(page.data_json,'$.resourceFull') AS INTEGER) = 1");
+            }
+            if (options.ExcludeBlackTile)
+            {
+                predicates.Add("CAST(json_extract(page.data_json,'$.blackTileKnown') AS INTEGER) = 1");
+                predicates.Add("CAST(json_extract(page.data_json,'$.isBlackTile') AS INTEGER) = 0");
+            }
             if (options.MonsterNameKey is not null)
                 predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) = $monsterNameKey");
             if (options.SuppliesType > 0)

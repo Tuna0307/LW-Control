@@ -4047,11 +4047,11 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "resource", 7, "resource-iron", 21, "resource-a", "Iron Mine", null,
         10, null, null, null, null, 2500,
-        "{\"serverId\":7,\"resourceNameKey\":\"iron\",\"level\":10,\"updatedAt\":2500}"));
+        "{\"serverId\":7,\"resourceNameKey\":\"iron\",\"level\":10,\"rebuildGatherOccupancyKnown\":true,\"rebuildGatherOccupied\":false,\"resourceDetailKnown\":true,\"resourceRemainingAmount\":216000,\"resourceFullAmount\":216000,\"resourceFull\":true,\"blackTileKnown\":true,\"isBlackTile\":false,\"updatedAt\":2500}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "resource", 7, "resource-food", 22, "resource-b", "Food Field", null,
         10, null, null, null, null, 2400,
-        "{\"serverId\":7,\"resourceNameKey\":\"food\",\"level\":10,\"updatedAt\":2400}"));
+        "{\"serverId\":7,\"resourceNameKey\":\"food\",\"level\":10,\"rebuildGatherOccupancyKnown\":true,\"rebuildGatherOccupied\":false,\"resourceDetailKnown\":true,\"resourceRemainingAmount\":120000,\"resourceFullAmount\":216000,\"resourceFull\":false,\"blackTileKnown\":true,\"isBlackTile\":true,\"updatedAt\":2400}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "monster", 7, "monster-doom", 31, "monster-a", "Doom Elite", null,
         20, null, null, null, null, 2300,
@@ -4264,6 +4264,28 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         Check(indexedSearchStore.SearchIndexed(MapDataQueryContract.NormalizeSearch(filteredSearch.RootElement)).Total == 1,
             $"{kind} name-key predicate is applied by persisted store");
     }
+
+    using JsonDocument resourceTruthSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "resource",
+        query = new
+        {
+            serverId = 7, resourceIdleOnly = true, resourceFullOnly = true, excludeBlackTile = true,
+            minLevel = 10, maxLevel = 10,
+        },
+    }));
+    MapDataQueryOptions resourceTruthOptions = MapDataQueryContract.NormalizeSearch(resourceTruthSearch.RootElement);
+    Check(resourceTruthOptions.UnsupportedFeatures.Count == 0 && resourceTruthOptions.ResourceIdleOnly &&
+          resourceTruthOptions.ResourceFullOnly && resourceTruthOptions.ExcludeBlackTile &&
+          resourceTruthOptions.MinLevel == 10 && resourceTruthOptions.MaxLevel == 10,
+        "resource truth filters normalize as recovered production predicates");
+    MapSearchResult resourceTruthResult = indexedSearchStore.SearchIndexed(resourceTruthOptions);
+    Check(resourceTruthResult.Total == 1 &&
+          resourceTruthResult.Rows[0].GetProperty("resourceNameKey").GetString() == "iron" &&
+          resourceTruthResult.Rows[0].GetProperty("resourceRemainingAmount").GetInt64() == 216000 &&
+          resourceTruthResult.Rows[0].GetProperty("resourceFullAmount").GetInt64() == 216000,
+        "resource full/idle/non-black/level predicates exclude partial or black resources without treating idle as full");
 
     using JsonDocument itemSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -4662,6 +4684,25 @@ Check(liveProbeHelperSource.Contains("closing_owned_game_after_failure_for_resto
       liveProbeHelperSource.Contains("close_owned_game_process_for_restore(p, owned_game)", StringComparison.Ordinal),
     "live helper failure cleanup retains exact helper-owned PID normal-close restoration fallback");
 string liveCityProbeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+int liveProbeTopLevelLocalCount = 0;
+foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+{
+    if (!sourceLine.StartsWith("local ", StringComparison.Ordinal)) continue;
+    if (sourceLine.StartsWith("local function ", StringComparison.Ordinal))
+    {
+        liveProbeTopLevelLocalCount++;
+        continue;
+    }
+    string declaration = sourceLine["local ".Length..];
+    int equals = declaration.IndexOf('=');
+    if (equals >= 0) declaration = declaration[..equals];
+    liveProbeTopLevelLocalCount += declaration.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
+}
+Check(liveProbeTopLevelLocalCount < 200,
+    $"current live Resource probe uses {liveProbeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
+Check(liveCityProbeSource.Contains("local resource_scan_detail_runtime = {", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("function resource_scan_detail_runtime.pump(now)", StringComparison.Ordinal),
+    "Resource detail scan state/helpers must remain collapsed behind one top-level runtime table to protect the Lua local budget");
 Check(liveCityProbeSource.Contains("PlayerWorldPointId", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("SendViewRequest", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("currentLOD,currentServerId", StringComparison.Ordinal) &&
