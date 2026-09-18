@@ -240,6 +240,18 @@ internal sealed class LWBridgeBackend
                 }
             case "map_player_mark_set":
                 return SetPlayerMark(payload);
+            case "map_plunder_jobs_list":
+                {
+                    MapPlunderJobsSnapshot jobs = RequireMapDataStore().ReadPlunderJobs();
+                    return new
+                    {
+                        dispatchJobs = jobs.DispatchJobs,
+                        truckJobs = jobs.TruckJobs,
+                    };
+                }
+            case "map_truck_plunder_cancel":
+                CancelTruckPlunder(payload);
+                return null;
             case "map_summary":
                 RequireOptionalProfile(payload);
                 if (mapScanStatusProvider is not null)
@@ -610,6 +622,26 @@ internal sealed class LWBridgeBackend
                 throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys accepts at most 200 distinct entries.");
         }
         return result;
+    }
+
+    private void CancelTruckPlunder(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("serverId", out JsonElement serverValue) ||
+            !serverValue.TryGetInt32(out int serverId) ||
+            serverId <= 0 ||
+            !payload.TryGetProperty("trainUuid", out JsonElement uuidValue) ||
+            uuidValue.ValueKind != JsonValueKind.String ||
+            string.IsNullOrWhiteSpace(uuidValue.GetString()))
+        {
+            throw new BridgeCommandException("INVALID_TARGET", "truck target is required");
+        }
+
+        bool cancelled = RequireMapDataStore().CancelTruckPlunder(
+            serverId,
+            uuidValue.GetString()!,
+            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        if (!cancelled)
+            throw new BridgeCommandException("NOT_FOUND", "scheduled truck job not found");
     }
 
     private object SetPlayerMark(JsonElement payload)

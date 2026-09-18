@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Current Scheduled Plunder persistence acceptance ? LWB-R7-041, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED persistence/read/cancel only; Truck execution remains blocked.** Original 0.3.1 SQL proves the Truck list is `truck_plunder_jobs UNION ALL truck_plunder_history`, with `scheduled`/`waiting_connection`/`running` first, then `execute_at ASC`, then `updated_at DESC`; Dispatch uses the analogous `dispatch_plunder_jobs` ordering by `plunder_at`. The recovered frontend consumes `scheduleStatus`, `attempts`, `lastError`, `scheduledAt`, `scheduleUpdatedAt`, and execute/plunder time over the original stored row JSON. Production now exposes that combined `{dispatchJobs,truckJobs}` envelope and the recovered Truck cancel transition.
+
+The execution seam is deliberately still closed. Original service metadata identifies `armMapPlunder` / `clearMapPlunderPending`, but those are absent from all 18,734 current-v19 official Lua entries, so they were injected bridge functions rather than a proven current game API. `map_truck_plunder_schedule` remains `COMMAND_NOT_IMPLEMENTED`; deterministic coverage explicitly guards that fail-closed behavior while proving list ordering, metadata projection, cancel eligibility, `NOT_FOUND`, and database-reopen persistence. Evidence: [`2026-09-19-r7-scheduled-plunder-persistence.json`](../evidence/lwbridge-implementation/2026-09-19-r7-scheduled-plunder-persistence.json).
+
 ## Current moving-march Follow acceptance — LWB-R7-040, 2026-09-19
 
 **Truck Follow is LIVE-PROVEN; Railway positive-row Follow is population-pending.** Original 0.3.1 disassembly ties `map_march_follow` directly to `gotoWorldMarch` with only `serverId` and `marchUuid` plus a recovered 5,000 ms native timeout. Current-v19 `GoToUtil.JumpToMarchByUuid(marchUuid, serverId, 0)` is the matching source-backed route: it uses the local `WorldMarchDataManager` when possible and otherwise sends `MsgDefines.GetMarchPos`; `GetMarchPosMessage` then calls `GoToUtil.MoveToWorldMarchAndOpen` using the authoritative response position/server/world.

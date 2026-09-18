@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Scheduled Plunder persistence checkpoint - LWB-R7-041, 2026-09-19
+
+The original persisted job surface is now implemented independently from the unrecovered game executor. `map_plunder_jobs_list` reads Dispatch jobs plus `truck_plunder_jobs UNION ALL truck_plunder_history` with the recovered active-first / due-time / updated-time ordering, and overlays the scheduler fields consumed by the recovered frontend. Truck cancel uses the exact recovered status transition: only `scheduled` and `waiting_connection` can become `cancelled`, `last_error` is cleared, and a non-cancellable/missing target returns `NOT_FOUND / scheduled truck job not found`. Restart persistence and unrelated Dispatch state are deterministic-test proven.
+
+The action boundary remains strict. Original 0.3.1 service metadata names the injected execution calls `armMapPlunder` and `clearMapPlunderPending`, plus `waiting_connection`, `server response timeout`, and `bridge://truck-plunder-changed`. A complete current-v19 official-Lua scan found none of `armMapPlunder`, `clearMapPlunderPending`, `mapPlunder`, or `MapPlunder`; therefore `map_truck_plunder_schedule` intentionally remains `COMMAND_NOT_IMPLEMENTED`. Do not create a scheduler that stores jobs which cannot authoritatively execute. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-scheduled-plunder-persistence.json`.
+
+**Next:** recover the current-v19 robbery/Train battle execution seam and authoritative result callback before enabling Truck schedule.
+
 ## Moving-march Follow checkpoint - LWB-R7-040, 2026-09-19
 
 Truck/Train row Follow is implemented through the existing owned current-v19 Overview session. Original 0.3.1 recovery proves public `map_march_follow({serverId,marchUuid})`, exact invalid-target text, native `gotoWorldMarch`, and a 5,000 ms native timeout; no coordinate/world/type values are supplied by the original frontend/backend. Current-v19 source maps that contract to `GoToUtil.JumpToMarchByUuid(marchUuid, serverId, 0)`: an already loaded march uses `GotoMarchCurPos`/`OnClickWorldPoint`, while an unloaded march sends `MsgDefines.GetMarchPos`, whose response calls `MoveToWorldMarchAndOpen`.
