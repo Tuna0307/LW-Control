@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-POLICY = "lwbridge-current-client-critical-anchors-1"
+POLICY = "lwbridge-current-client-critical-anchors-2"
 EXPECTED_FILE_VERSION = 3
 EXPECTED_GAME_SHA256 = "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5"
 EXPECTED_XLUA_SHA256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
@@ -26,6 +26,18 @@ class CurrentClientCompatibilityError(RuntimeError):
     pass
 def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def validate_version_marker(version_text: str, content_version: int) -> tuple[int | None, str | None]:
+    try:
+        marker = int(version_text)
+    except ValueError:
+        return None, "version.txt is not a positive numeric Lua content marker"
+    if marker <= 0:
+        return marker, "version.txt is not a positive numeric Lua content marker"
+    if marker > content_version:
+        return marker, "version.txt is newer than the current LWLF content version"
+    return marker, None
 
 
 def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
@@ -70,8 +82,9 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
     version_text = p["version"].read_text(encoding="utf-8-sig").strip()
     if metadata != f"{package_size}|{package_crc}":
         problems.append("LWScripts.txt does not match the current package size/CRC")
-    if version_text != str(content_version):
-        problems.append("version.txt does not match the current LWLF content version")
+    version_marker, version_problem = validate_version_marker(version_text, content_version)
+    if version_problem is not None:
+        problems.append(version_problem)
 
     observed = {
         "packageSha256": package_hash,
@@ -87,6 +100,8 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
         "criticalEntries": critical_hashes,
         "metadata": metadata,
         "version": version_text,
+        "versionMarker": version_marker,
+        "versionMarkerMatchesContentVersion": version_marker == content_version,
     }
     return {
         "ok": not problems,
@@ -99,8 +114,6 @@ def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
 def install_dynamic_verifier(lr) -> None:
     if getattr(lr, "_lwbridge_dynamic_verifier_installed", False):
         return
-    original_verify = lr.verify_current
-
     def verify_current(p: dict[str, Path]) -> dict[str, object]:
         report = inspect_current(lr, p)
         if not report["ok"]:
@@ -113,13 +126,18 @@ def install_dynamic_verifier(lr) -> None:
         lr.EXPECTED_PACKAGE_SHA256 = str(observed["packageSha256"])
         lr.EXPECTED_PACKAGE_SIZE = int(observed["packageSize"])
         lr.EXPECTED_PACKAGE_CRC32 = int(observed["packageCrc32"])
-        try:
-            verified = dict(original_verify(p))
-        except Exception as exc:
+
+        # v19 proves that the official launcher may advance the authoritative
+        # LWLF header/package metadata while leaving LocalLow version.txt at the
+        # prior content number. Re-inspect every authoritative anchor instead of
+        # delegating to the historical verifier that requires exact marker parity.
+        second = inspect_current(lr, p)
+        if not second["ok"] or dict(second.get("observed", {})) != observed:
+            details = "; ".join(second.get("problems", [])) if not second["ok"] else "observed identity changed"
             raise CurrentClientCompatibilityError(
-                "current Last War files changed during compatibility verification: " + str(exc)
-            ) from exc
-        verified.update(observed)
+                "current Last War files changed during compatibility verification: " + details
+            )
+        verified = dict(second["observed"])
         verified["compatibilityPolicy"] = POLICY
         return verified
 

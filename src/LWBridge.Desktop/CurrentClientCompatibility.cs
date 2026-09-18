@@ -7,7 +7,7 @@ namespace LWBridge.Desktop;
 // critical Lua anchor below remains exact. Core/critical changes fail closed.
 internal static class CurrentClientCompatibility
 {
-    internal const string Policy = "lwbridge-current-client-critical-anchors-1";
+    internal const string Policy = "lwbridge-current-client-critical-anchors-2";
     internal const string ExpectedGameSha256 = "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5";
     internal const string ExpectedXluaSha256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f";
     internal const string ExpectedAssemblyCSharpSha256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd";

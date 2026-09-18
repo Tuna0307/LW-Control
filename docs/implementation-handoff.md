@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current prerequisite correction - LWB-OVR-018, 2026-09-18
+
+During the first resumed Railway live acceptance, production failed before scanning with `GAME_UPDATE_UNSUPPORTED`. Failure-first inspection showed the official Lua package had advanced to content v19, but LocalLow `version.txt` remained 18. An untouched official launcher cycle did not change that marker. The launcher log proved this is official behavior: it applied the `19 <- 18` Lua patch, and a second untouched launch reported local LWLuaFile version 19 current against remote version 19.
+
+Compatibility policy v2 now treats the LWLF header, exact package size/CRC metadata, and unchanged recovered executable/xLua/managed/critical-Lua anchors as authoritative. `version.txt` is still required, numeric and positive; an older marker is accepted as advisory, while a marker newer than the package header still fails closed. The dynamic verifier re-inspects the full authoritative identity before acceptance instead of invoking the historical exact-marker verifier.
+
+This is LIVE-PROVEN on current v19: the marker regression passes, Release build is 0-warning/0-error, all six deterministic groups pass, and both manual and auto-start Overview production cycles reached Connected before closing/restoring cleanly. Post-restore compatibility is `ok=true` on v19 package `e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2`; no game/launcher/LWBridge process or recovery journal remains. Aggregate evidence is `evidence/lwbridge-implementation/2026-09-18-v19-version-marker-compat.json`. Resume Railway/Train acceptance after this checkpoint is committed/pushed.
+
 ## Current superseding owner follow-up - LWB-R7-030, 2026-09-18
 
 The owner reported two repeated-scan failures in Monster/Zombie Boss: scans could suddenly become extremely slow, and a later scan could appear stuck/unable to scan again. Failure-first inspection found two independent causes. First, coarse LOD2 timeout/invalid-data/I/O was silently caught and routed into the conservative LOD0 whole-world scanner. Second, one failed run restored the camera tile and `svLod=0` but left `WorldPointManager` AOI geometry at coarse `blockSize=1000/blockCount=1`, then returned `zoom_restore_confirmation_timeout`.
