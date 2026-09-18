@@ -4789,6 +4789,14 @@ Check(
     manualMapServiceSource.Contains("currentClientSource.ExecuteTruckQuickRobAsync", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("TruckPlunderChanged", StringComparison.Ordinal),
     "Truck worker must share the existing live current-client source and game-operation gate with Map Data actions");
+Check(
+    manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("truck rows are required", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("select between 1 and 200 trucks", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("truck scheduling data is invalid", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("robTimes >= maxLootCount", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("ScheduleTruckPlunder(", StringComparison.Ordinal),
+    "Truck public schedule command must preserve recovered INVALID_REQUEST messages, 1-200 batch bound, robTimes/maxLoot predicate and durable store handoff");
 string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
 Check(
     windowSource.Contains("\"bridge://truck-plunder-changed\"", StringComparison.Ordinal) &&

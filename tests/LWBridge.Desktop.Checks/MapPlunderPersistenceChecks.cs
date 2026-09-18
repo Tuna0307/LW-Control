@@ -150,18 +150,6 @@ internal static class MapPlunderPersistenceChecks
                       counted.GetProperty("attempts").GetInt32() == 1,
                     "all authoritative Truck result counters persist without changing attempts");
 
-                JsonElement schedule = Payload(new
-                {
-                    profileId = config.Snapshot.ProfileId,
-                    rows = Array.Empty<object>(),
-                });
-                ExpectBridgeError(
-                    "COMMAND_NOT_IMPLEMENTED",
-                    "Command 'map_truck_plunder_schedule' is not implemented by the production backend yet.",
-                    () => backend.InvokeAsync("map_truck_plunder_schedule", schedule, CancellationToken.None)
-                        .GetAwaiter().GetResult(),
-                    "truck plunder schedule stays fail-closed until a current-v19 execution primitive is recovered");
-
                 JsonElement cancel = Payload(new
                 {
                     profileId = config.Snapshot.ProfileId,

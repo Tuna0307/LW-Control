@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Public Truck Scheduled Plunder command - LWB-R7-046, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED; live robbery acceptance remains pending.** The recovered public command is `map_truck_plunder_schedule({rows})`. Exact validation is now reproduced: required `rows`, 1..200 batch size, and `INVALID_REQUEST` messages `truck rows are required`, `select between 1 and 200 trucks`, and `truck scheduling data is invalid`. Each row must carry a positive server ID, decimal-string WorldMarch `uuid`, positive `executeAt` and `maxLootCount`, with the original literal `robTimes < maxLootCount` rule. Public validation covers the entire batch before any write.
+
+Validated rows flow through the recovered archive/reschedule transaction and durable R7-045 worker. The command returns unit/null and emits `bridge://truck-plunder-changed` after successful persistence. Original schedule storage treats positive `expireAt` as optional; current-v19 Truck scan does not source-prove `expireAt`, so the rebuild leaves it NULL when absent and never aliases `arriveTs` to expiry. Execution is still same-live-server only and does not perform an implicit jump. No live robbery was attempted in this checkpoint. Evidence: [`2026-09-19-r7-truck-public-schedule.json`](../evidence/lwbridge-implementation/2026-09-19-r7-truck-public-schedule.json).
+
 ## Truck durable execution worker ? LWB-R7-045, 2026-09-19
 
 **OFFLINE-TESTED; public schedule command still blocked.** The recovered Truck worker uses a 10-second arm lead, expires rows first, defers due work to `waiting_connection / game disconnected` when the owned game is unavailable, then executes the earliest eligible `scheduled`/`waiting_connection` row. Entering `running` increments attempts exactly once. `invalid scheduled target` fails before that increment; sent response timeout and all other post-send ambiguity become terminal `failed` and are never retried.

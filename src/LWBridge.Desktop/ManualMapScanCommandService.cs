@@ -80,13 +80,18 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump" or "map_march_follow" or "server_jump";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump" or "map_march_follow" or "server_jump" or "map_truck_plunder_schedule";
 
     public async Task<object?> InvokeAsync(
         string command,
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        if (command == "map_truck_plunder_schedule")
+        {
+            ScheduleTruckPlunder(payload, cancellationToken);
+            return null;
+        }
         if (command == "map_scan_status") return CreateStatus();
         if (command == "server_jump")
             return await JumpToServerAsync(payload, cancellationToken).ConfigureAwait(false);
@@ -119,6 +124,98 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+
+    private sealed record TruckScheduleRow(
+        int ServerId,
+        string Uuid,
+        string Json,
+        long ExecuteAt,
+        long? ExpireAt);
+
+    private void ScheduleTruckPlunder(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("rows", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
+            throw new BridgeCommandException("INVALID_REQUEST", "truck rows are required");
+
+        int count = rows.GetArrayLength();
+        if (count is < 1 or > 200)
+            throw new BridgeCommandException("INVALID_REQUEST", "select between 1 and 200 trucks");
+
+        var validated = new List<TruckScheduleRow>(count);
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object)
+                throw InvalidTruckSchedule();
+
+            long serverLong = ReadRecoveredIntegerLike(row, "serverId");
+            string? uuid = row.TryGetProperty("uuid", out JsonElement uuidValue) &&
+                           uuidValue.ValueKind == JsonValueKind.String
+                ? uuidValue.GetString()
+                : null;
+            long executeAt = ReadRecoveredIntegerLike(row, "executeAt");
+            long robTimes = ReadRecoveredIntegerLike(row, "robTimes");
+            long maxLootCount = ReadRecoveredIntegerLike(row, "maxLootCount");
+
+            bool decimalUuid = !string.IsNullOrEmpty(uuid) && uuid.All(ch => ch is >= '0' and <= '9');
+            if (serverLong <= 0 || serverLong > 99_999 || !decimalUuid ||
+                executeAt <= 0 || maxLootCount <= 0 || robTimes >= maxLootCount)
+            {
+                throw InvalidTruckSchedule();
+            }
+
+            long expireValue = ReadRecoveredIntegerLike(row, "expireAt");
+            long? expireAt = expireValue > 0 ? expireValue : null;
+            validated.Add(new TruckScheduleRow(
+                checked((int)serverLong),
+                uuid!,
+                row.GetRawText(),
+                executeAt,
+                expireAt));
+        }
+
+        foreach (TruckScheduleRow row in validated)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            store.ScheduleTruckPlunder(
+                row.ServerId,
+                row.Uuid,
+                row.Json,
+                row.ExecuteAt,
+                row.ExpireAt,
+                RecoveredWallClock.UnixTimeMilliseconds());
+        }
+
+        OnTruckPlunderChanged();
+    }
+
+    private static BridgeCommandException InvalidTruckSchedule() =>
+        new("INVALID_REQUEST", "truck scheduling data is invalid");
+
+    private static long ReadRecoveredIntegerLike(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value)) return 0;
+        if (value.ValueKind == JsonValueKind.Number)
+        {
+            if (value.TryGetInt64(out long integer)) return integer;
+            if (value.TryGetDouble(out double floating) && double.IsFinite(floating))
+            {
+                if (floating >= long.MaxValue) return long.MaxValue;
+                if (floating <= long.MinValue) return long.MinValue;
+                return (long)floating;
+            }
+            return 0;
+        }
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.AllowLeadingSign,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out long parsed))
+        {
+            return parsed;
+        }
+        return 0;
+    }
 
     private async Task<object> JumpToServerAsync(JsonElement payload, CancellationToken cancellationToken)
     {

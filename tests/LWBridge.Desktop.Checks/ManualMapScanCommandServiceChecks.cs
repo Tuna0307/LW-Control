@@ -27,6 +27,7 @@ internal static class ManualMapScanCommandServiceChecks
         await AllEightTypesAreAccepted();
         await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
+        await TruckSchedulePublicContractIsRecovered();
         await ZombieBossMixedTypesFailClosed();
     }
 
@@ -518,6 +519,118 @@ internal static class ManualMapScanCommandServiceChecks
         {
         }
         Check(contextCalls == 0, "mixed dedicated Zombie Boss scan must fail before live-context acquisition");
+        service.Close();
+    }
+
+    private static async Task TruckSchedulePublicContractIsRecovered()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource());
+        Check(service.CanHandle("map_truck_plunder_schedule"),
+            "production async service handles recovered Truck schedule command");
+
+        int changed = 0;
+        service.TruckPlunderChanged += () => changed++;
+        var config = new LocalConfigStore(persistent: false);
+        var backend = new LWBridgeBackend(config, asyncCommands: service, mapData: store);
+        JsonElement good = JsonSerializer.SerializeToElement(new
+        {
+            profileId = config.Snapshot.ProfileId,
+            rows = new object[]
+            {
+                new
+                {
+                    uuid = "7654321090123",
+                    trainUuid = "1417409824803038247",
+                    serverId = 88,
+                    executeAt = 5_000L,
+                    expireAt = 9_000L,
+                    protectTime = 4_000L,
+                    robTimes = 0,
+                    maxLootCount = 2,
+                    ownerName = "Synthetic A",
+                },
+                new
+                {
+                    uuid = "7654321090124",
+                    trainUuid = "1417409824803038248",
+                    serverId = "88",
+                    executeAt = "6000",
+                    expireAt = 0,
+                    robTimes = -1,
+                    maxLootCount = 1,
+                    ownerName = "Synthetic B",
+                },
+            },
+        }, JsonOptions.Default);
+        object? result = await backend.InvokeAsync(
+            "map_truck_plunder_schedule", good, CancellationToken.None);
+        Check(result is null, "recovered Truck schedule success uses unit/null result");
+        Check(changed == 1, "Truck schedule emits one immediate change event after a successful batch");
+        MapPlunderJobsSnapshot snapshot = store.ReadPlunderJobs();
+        Check(snapshot.TruckJobs.Count == 2,
+            "Truck schedule persists every validated row in the batch");
+        JsonElement first = snapshot.TruckJobs.Single(row => row.GetProperty("uuid").GetString() == "7654321090123");
+        JsonElement second = snapshot.TruckJobs.Single(row => row.GetProperty("uuid").GetString() == "7654321090124");
+        Check(first.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              first.GetProperty("executeAt").GetInt64() == 5_000 &&
+              first.GetProperty("expireAt").GetInt64() == 9_000 &&
+              first.GetProperty("attempts").GetInt32() == 0 &&
+              first.GetProperty("jobId").GetString()!.StartsWith("truck-", StringComparison.Ordinal),
+            "Truck schedule persists recovered active-row fields and fresh job identity");
+        Check(second.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              second.GetProperty("executeAt").GetInt64() == 6_000 &&
+              second.GetProperty("robTimes").GetInt32() == -1,
+            "recovered validator accepts numeric strings, normalizes schedule time through SQLite, and preserves literal robTimes < maxLootCount behavior");
+
+        async Task ExpectInvalid(JsonElement payload, string message)
+        {
+            try
+            {
+                _ = await backend.InvokeAsync("map_truck_plunder_schedule", payload, CancellationToken.None);
+                throw new InvalidOperationException("expected Truck schedule validation failure");
+            }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST" && error.Message == message)
+            {
+            }
+        }
+
+        await ExpectInvalid(
+            JsonSerializer.SerializeToElement(new { profileId = config.Snapshot.ProfileId }, JsonOptions.Default),
+            "truck rows are required");
+        await ExpectInvalid(
+            JsonSerializer.SerializeToElement(new { profileId = config.Snapshot.ProfileId, rows = Array.Empty<object>() }, JsonOptions.Default),
+            "select between 1 and 200 trucks");
+        await ExpectInvalid(
+            JsonSerializer.SerializeToElement(new
+            {
+                profileId = config.Snapshot.ProfileId,
+                rows = Enumerable.Range(0, 201).Select(index => (object)new
+                {
+                    uuid = (9000000000000L + index).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    serverId = 88,
+                    executeAt = 7_000,
+                    robTimes = 0,
+                    maxLootCount = 2,
+                }).ToArray(),
+            }, JsonOptions.Default),
+            "select between 1 and 200 trucks");
+        await ExpectInvalid(
+            JsonSerializer.SerializeToElement(new
+            {
+                profileId = config.Snapshot.ProfileId,
+                rows = new object[]
+                {
+                    new { uuid = "7654321090999", serverId = 88, executeAt = 7_000, robTimes = 0, maxLootCount = 2 },
+                    new { uuid = "not-decimal", serverId = 88, executeAt = 7_000, robTimes = 0, maxLootCount = 2 },
+                },
+            }, JsonOptions.Default),
+            "truck scheduling data is invalid");
+        Check(store.ReadPlunderJobs().TruckJobs.Count == 2,
+            "public validator checks the complete batch before persisting any malformed later row");
         service.Close();
     }
 
