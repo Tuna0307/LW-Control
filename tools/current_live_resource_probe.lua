@@ -71,7 +71,7 @@ local bulk_aoi_original_camera_lod = nil
 -- is not an original LWBridge timeout.
 local RESPONSE_TIMEOUT_SECONDS = 8
 local BULK_AOI_TIMEOUT_SECONDS = 8
-local MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS = 3
+local MONSTER_INVASION_PROTECTION_TIMEOUT_SECONDS = 10
 -- RECOVERED current-v18 constraint: MonsterInvasionBossDetailMessge stores one
 -- module-level request UUID, so protection detail requests are serialized.
 local MAX_POINTS = 50000
@@ -1448,9 +1448,6 @@ local function ensure_monster_protection_capture()
             local active = active_value == true or tonumber(active_value) == 1
             local ok_end, end_time = call(manager, "GetMonsterProtectionEndTime", uuid)
             end_time = ok_end and tonumber(end_time) or 0
-            if active and end_time <= 0 and type(pending) == "table" then
-                end_time = tonumber(pending.sourceProtectionEndTime) or 0
-            end
             if not active then end_time = 0 end
             state.responses[key] = { received = true, isProtected = active_value, protectionEndTime = end_time }
             state.pending[key] = nil
@@ -1517,10 +1514,10 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
                         targets[#targets + 1] = {
                             uuid = uuid, wireUuid = wire_uuid, serverId = server_id,
                             sourceProtectionEndTime = source_end_time,
-                            -- Fail open when the local deadline inputs are unavailable;
-                            -- only a source-proven already-expired deadline may skip detail.
-                            requestProtectionDetail = source_end_time <= 0 or
-                                server_time_ms == nil or source_end_time > server_time_ms,
+                            -- The reconstructed createTime + k12 deadline is useful diagnostic
+                            -- context only. It is not authoritative enough to suppress the
+                            -- game's MonsterInvasionBossDetail request.
+                            requestProtectionDetail = true,
                         }
                     end
                 end
@@ -1696,16 +1693,41 @@ local function abandon_monster_invasion_protection_requests(targets)
     end
 end
 
-local function monster_invasion_protection_snapshot(uuid)
+local function monster_protection_epoch_ms(value)
+    local number = tonumber(value) or 0
+    if number <= 0 then return 0 end
+    if number < 100000000000 then return number * 1000 end
+    return number
+end
+
+local function monster_protection_manager_end_time(uuid)
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "MonsterProtectionManager") or nil
+    if manager == nil or uuid == nil then return 0 end
+    local ok, value = call(manager, "GetMonsterProtectionEndTime", uuid)
+    if not ok then return 0 end
+    return monster_protection_epoch_ms(value)
+end
+
+local function monster_invasion_protection_snapshot(uuid, wire_uuid)
     local state = rawget(_G, "__lwbridgeMonsterProtectionCapture")
     local response = type(state) == "table" and state.responses[tostring(uuid)] or nil
-    if type(response) ~= "table" or response.received ~= true or response.isProtected == nil then
-        return false, false, 0
+    if type(response) == "table" and response.received == true and response.isProtected ~= nil then
+        local active = response.isProtected == true or tonumber(response.isProtected) == 1
+        local end_time = active and monster_protection_epoch_ms(response.protectionEndTime) or 0
+        return true, active, end_time
     end
-    local active = response.isProtected == true or tonumber(response.isProtected) == 1
-    local end_time = tonumber(response.protectionEndTime) or 0
-    if not active then end_time = 0 end
-    return true, active, end_time
+
+    -- The game's own WorldMonsterDes reads this manager after
+    -- MonsterInvasionBossDetail. Reuse a still-live game-owned value (for
+    -- example one populated after a user Jump) instead of treating the boss
+    -- as unknown until our post-scan detail pass catches up.
+    local cached_end_time = monster_protection_manager_end_time(wire_uuid or uuid)
+    local server_time = monster_protection_epoch_ms(monster_protection_server_time_ms())
+    if cached_end_time > 0 and (server_time <= 0 or cached_end_time > server_time) then
+        return true, true, cached_end_time
+    end
+    return false, false, 0
 end
 
 local function read_monster_protection_detail(now)
@@ -1892,7 +1914,7 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
                         local record_uuid = raw_record_uuid ~= nil and tostring(raw_record_uuid) or ""
                         local protection_eligible = is_monster_invasion_template(template)
                         local protection_known, protection_active, protection_end_time =
-                            monster_invasion_protection_snapshot(record_uuid)
+                            monster_invasion_protection_snapshot(record_uuid, raw_record_uuid)
                         records[#records + 1] = {
                             uuid = record_uuid,
                             kind = "monster", runtimeClass = reflected_type_name(march),

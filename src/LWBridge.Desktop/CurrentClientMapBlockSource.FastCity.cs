@@ -19,7 +19,7 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
     private const int FastFullWorldMaxRequestsPerRow = 50;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
-    private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(13);
     private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
     private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
@@ -755,11 +755,16 @@ internal sealed partial class CurrentClientMapBlockSource
         FastMonsterPrepared prepared,
         MonsterProtectionDetail? detail)
     {
+        // An unresolved optional reply is not negative authority. Keep any
+        // game-owned protection state already captured with the base Monster
+        // row (for example from MonsterProtectionManager after a prior Jump).
+        if (detail?.Received != true) return prepared;
+
         JsonObject data = JsonNode.Parse(prepared.Record.DataJson)?.AsObject()
             ?? throw new InvalidDataException("Monster record JSON is unavailable during protection enrichment.");
-        bool known = detail?.Received == true;
-        bool active = known && detail!.Active;
-        long endTime = active && detail!.EndTime > 0 ? detail.EndTime : 0;
+        bool known = true;
+        bool active = detail.Active;
+        long endTime = active && detail.EndTime > 0 ? detail.EndTime : 0;
         data["monsterProtectionKnown"] = known;
         data["monsterProtectionActive"] = active;
         data["monsterProtectionEndTime"] = endTime;

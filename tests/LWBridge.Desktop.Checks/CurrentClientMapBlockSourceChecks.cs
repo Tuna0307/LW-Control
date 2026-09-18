@@ -41,6 +41,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastMonsterAcceptsAccumulatedProtectionTargets();
         await FastMonsterKnownInactiveProtectionSuppressesRemaining();
         await FastMonsterAllowsIncompleteMonsterProtectionDetail();
+        await FastMonsterUnresolvedDetailPreservesGameOwnedCache();
         await FastMonsterAllowsDeduplicatedReadyCarryover();
         await FastTruckFullMapReturnsAllLogicalCaptures();
         await FastRailwayFullMapReturnsAllLogicalCaptures();
@@ -602,6 +603,37 @@ internal static class CurrentClientMapBlockSourceChecks
         MapStoredRecord row = captures.Single(c => c.BlockIndex == 0).Records.Single();
         Check(row.ShieldEndTime is null && !row.DataJson.Contains("\"shieldEndTime\":", StringComparison.Ordinal),
             "unresolved Invasion Zombie Boss protection must not fall back to unrelated zMBoss shield data");
+    }
+
+    private static async Task FastMonsterUnresolvedDetailPreservesGameOwnedCache()
+    {
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
+                JsonObject root = JsonNode.Parse(x == 5 && y == 75
+                    ? ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1031015, 55, "2901012", true))
+                    : ProvenFastMonsterBatch(fields))!.AsObject();
+                if (x == 5 && y == 75)
+                {
+                    root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
+                    root["monsterProtectionDetailRequestCount"] = 1; root["monsterProtectionDetailReadyCount"] = 0;
+                }
+                return root.ToJsonString(JsonOptions.Default);
+            },
+            monsterProtectionResult: fields =>
+                ProvenMonsterProtectionResult(fields, ("m-first", false, false, 0L)));
+        MapScanExecutionRequest request = new("run_cache", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+
+        MapStoredRecord row = captures.Single(c => c.BlockIndex == 0).Records.Single();
+        Check(row.ShieldEndTime == 2_000_000_000_000L &&
+              row.DataJson.Contains("\"monsterProtectionKnown\":true", StringComparison.Ordinal) &&
+              row.DataJson.Contains("\"monsterProtectionActive\":true", StringComparison.Ordinal),
+            "an unresolved optional detail reply must not erase game-owned Monster Protection state captured before enrichment");
     }
 
     private static async Task FastMonsterAllowsDeduplicatedReadyCarryover()

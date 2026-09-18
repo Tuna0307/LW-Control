@@ -95,6 +95,9 @@ internal sealed partial class MapDataStore
 
             foreach (string kind in request.SelectedTypes)
             {
+                if (kind == "monster")
+                    CarryForwardUnresolvedMonsterProtection(
+                        transaction, request.RunId, request.ServerId, updatedAt);
                 DeletePublishedEngineKind(transaction, kind, request.ServerId);
                 CopyEngineStagingKind(transaction, request.RunId, kind, request.ServerId);
             }
@@ -243,6 +246,72 @@ internal sealed partial class MapDataStore
             reader.GetInt32(2),
             reader.GetInt32(3),
             reader.GetInt32(4));
+    }
+
+    private void CarryForwardUnresolvedMonsterProtection(
+        SqliteTransaction transaction,
+        string runId,
+        int serverId,
+        long updatedAt)
+    {
+        using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            UPDATE scan_records
+            SET shield_end_time=(
+                  SELECT old.shield_end_time
+                  FROM map_records old
+                  WHERE old.kind='monster'
+                    AND old.server_id=scan_records.server_id
+                    AND old.record_key=scan_records.record_key
+                  LIMIT 1
+                ),
+                data_json=json_set(
+                  data_json,
+                  '$.monsterProtectionKnown',json('true'),
+                  '$.monsterProtectionActive',json('true'),
+                  '$.monsterProtectionEndTime',(
+                    SELECT old.shield_end_time
+                    FROM map_records old
+                    WHERE old.kind='monster'
+                      AND old.server_id=scan_records.server_id
+                      AND old.record_key=scan_records.record_key
+                    LIMIT 1
+                  ),
+                  '$.shieldEndTime',(
+                    SELECT old.shield_end_time
+                    FROM map_records old
+                    WHERE old.kind='monster'
+                      AND old.server_id=scan_records.server_id
+                      AND old.record_key=scan_records.record_key
+                    LIMIT 1
+                  )
+                )
+            WHERE run_id=$run
+              AND kind='monster'
+              AND server_id=$server
+              AND COALESCE(json_extract(data_json,'$.monsterProtectionEligible'),0)=1
+              AND COALESCE(json_extract(data_json,'$.monsterProtectionKnown'),0)=0
+              AND EXISTS (
+                SELECT 1
+                FROM map_records old
+                WHERE old.kind='monster'
+                  AND old.server_id=scan_records.server_id
+                  AND old.record_key=scan_records.record_key
+                  AND old.shield_end_time IS NOT NULL
+                  AND (CASE
+                         WHEN old.shield_end_time < 100000000000
+                           THEN old.shield_end_time * 1000
+                         ELSE old.shield_end_time
+                       END) > $updated
+                  AND COALESCE(json_extract(old.data_json,'$.monsterProtectionKnown'),0)=1
+                  AND COALESCE(json_extract(old.data_json,'$.monsterProtectionActive'),0)=1
+              )
+            """;
+        command.Parameters.AddWithValue("$run", runId);
+        command.Parameters.AddWithValue("$server", serverId);
+        command.Parameters.AddWithValue("$updated", updatedAt);
+        command.ExecuteNonQuery();
     }
 
     private void DeletePublishedEngineKind(
