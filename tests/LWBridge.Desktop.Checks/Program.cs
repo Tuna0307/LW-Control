@@ -43,6 +43,12 @@ if (args.Contains("--live-current-client-full-dispatch-manual", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-ghost-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullGhostProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();
@@ -4700,6 +4706,14 @@ Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringCompar
       liveCityProbeSource.Contains("allianceAbbr = scalar_field(march", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("if train_type == 2 then", StringComparison.Ordinal),
     "Railway rows must preserve moving-march identity/alliance abbreviation, derive retained goods from game TrainData/current carriage goods, and recover maxLootPerTrain from the current-v18 game formula without inventing display data");
+Check(liveCityProbeSource.Contains("ghost_aoi_records", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GetGhostreconPointInfoByIndex", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("LwGhostreconTask", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("pointType = 29", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GhostreconPointInfo", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("memberListCount = collection_count(member_list)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask", StringComparison.Ordinal),
+    "Ghost Ops rows must remain a distinct type-29 GhostreconPointInfo path with current LwGhostreconTask config and source-backed task/list metadata");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
     "optional Monster Protection detail must not pause each AOI acquisition step");

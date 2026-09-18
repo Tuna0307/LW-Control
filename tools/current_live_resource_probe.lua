@@ -1128,6 +1128,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeTrain = include_train_raw == "true"
     local include_dispatch_raw = tostring(values.includeDispatch or "false")
     request.includeDispatch = include_dispatch_raw == "true"
+    local include_ghost_raw = tostring(values.includeGhost or "false")
+    request.includeGhost = include_ghost_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -1151,7 +1153,8 @@ local function read_bulk_aoi_diagnostic(now)
        (include_monster_protection_raw ~= "true" and include_monster_protection_raw ~= "false") or
        (request.includeMonsterProtection == true and request.includeMonster ~= true) or
        (include_train_raw ~= "true" and include_train_raw ~= "false") or
-       (include_dispatch_raw ~= "true" and include_dispatch_raw ~= "false") then
+       (include_dispatch_raw ~= "true" and include_dispatch_raw ~= "false") or
+       (include_ghost_raw ~= "true" and include_ghost_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -1203,7 +1206,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
-    local matched, cities, resources, dispatches = 0, 0, 0, 0
+    local matched, cities, resources, dispatches, ghosts = 0, 0, 0, 0, 0
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
@@ -1220,11 +1223,12 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
             if point_type == 6 then cities = cities + 1 end
             if point_type == 1 or point_type == 7 or point_type == 26 then resources = resources + 1 end
             if point_type == 17 then dispatches = dispatches + 1 end
+            if point_type == 29 then ghosts = ghosts + 1 end
         end
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
-    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, loadedPointCount = expected }, nil
+    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, loadedPointCount = expected }, nil
 end
 
 local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -1412,6 +1416,104 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
             accListCount = collection_count(acc_list),
             dispatchNameKey = scalar_field(cfg, { "name", "Name" }),
             source = "WorldPointManager._pointInfos+HeroDispatchMissionPointInfo",
+        }
+        return true
+    end)
+    if record_error ~= nil then return nil, record_error end
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
+local function ghost_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+
+    local controller_type = rawget(_G, "LocalController")
+    local ok_controller, controller = call(controller_type, "instance")
+    local table_name = rawget(_G, "TableName")
+    local ghost_table = table_name and safe_get(table_name, "LwGhostreconTask") or nil
+    if not ok_controller or controller == nil or ghost_table == nil then
+        return nil, "ghost_config_manager_unavailable"
+    end
+
+    local records = {}
+    local record_error = nil
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        if integer_field(info, { "pointType", "PointType" }) ~= 29 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        if id == nil or id <= 0 then record_error = "ghost_point_index_invalid"; return false end
+        local tile = index_to_tile(world, id)
+        if tile == nil then record_error = "ghost_tile_unavailable"; return false end
+        local cell_x = math.floor(tile.x / block_size)
+        local cell_y = math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        local aoi_index = cell_y * block_count + cell_x
+        if selected_lookup[aoi_index] ~= true then return true end
+
+        local ghost_source = info
+        local ok_ghost, loaded_ghost = call(point_manager, "GetGhostreconPointInfoByIndex", id)
+        if ok_ghost and loaded_ghost ~= nil then ghost_source = loaded_ghost end
+        local runtime_class = reflected_type_name(ghost_source)
+        local server_id = integer_field(ghost_source, { "serverId", "ServerId" }) or current_server_id()
+        local world_id = integer_field(ghost_source, { "worldId", "WorldId" }) or 0
+        local uuid = scalar_field(ghost_source, { "uuid", "Uuid" })
+        local cfg_id = integer_field(ghost_source, { "cfgId", "CfgId" })
+        if runtime_class == nil or not string.find(runtime_class, "GhostreconPointInfo", 1, true) or
+           server_id == nil or server_id <= 0 or uuid == nil or tostring(uuid) == "" or tostring(uuid) == "0" or
+           cfg_id == nil or cfg_id <= 0 then
+            record_error = "ghost_identity_invalid"
+            return false
+        end
+
+        local ok_cfg, cfg = call(controller, "getLine", ghost_table, cfg_id)
+        if not ok_cfg or cfg == nil then
+            record_error = "ghost_config_unavailable:" .. tostring(cfg_id)
+            return false
+        end
+        local level = tonumber(scalar_field(cfg, { "level", "Level" }))
+        local quality = tonumber(scalar_field(cfg, { "color", "Color" }))
+        local is_special = tonumber(scalar_field(cfg, { "is_special", "isSpecial", "IsSpecial" }))
+        if level == nil or level < 1 or quality == nil or quality < 1 or is_special == nil then
+            record_error = "ghost_config_shape_invalid:" .. tostring(cfg_id)
+            return false
+        end
+
+        local steal_list = safe_get(ghost_source, "stealList") or safe_get(ghost_source, "StealList")
+        local member_list = safe_get(ghost_source, "memberList") or safe_get(ghost_source, "MemberList")
+        records[#records + 1] = {
+            id = id,
+            pointId = id,
+            pointType = 29,
+            kind = "ghost_task",
+            runtimeClass = runtime_class,
+            serverId = math.floor(server_id),
+            srcServerId = integer_field(ghost_source, { "srcServerId", "SrcServerId" }) or 0,
+            worldId = world_id,
+            x = tile.x,
+            y = tile.y,
+            uuid = tostring(uuid),
+            ownerUid = tostring(scalar_field(ghost_source, { "ownerUid", "OwnerUid" }) or ""),
+            cfgId = cfg_id,
+            level = math.floor(level),
+            quality = math.floor(quality),
+            isSpecial = is_special == 1,
+            completionTime = scalar_field(ghost_source, { "completionTime", "CompletionTime" }),
+            taskExpireTime = scalar_field(ghost_source, { "taskExpireTime", "TaskExpireTime" }),
+            actEndTime = scalar_field(ghost_source, { "actEndTime", "ActEndTime" }),
+            teamStartTime = scalar_field(ghost_source, { "teamStartTime", "TeamStartTime" }),
+            ownerServer = integer_field(ghost_source, { "ownerServer", "OwnerServer" }),
+            allianceId = scalar_field(ghost_source, { "allianceId", "AllianceId" }),
+            size = integer_field(ghost_source, { "size", "Size" }),
+            stealListCount = collection_count(steal_list),
+            memberListCount = collection_count(member_list),
+            rewardConfig = scalar_field(cfg, { "base_reward_show", "reward", "Reward" }),
+            worldOpen = scalar_field(cfg, { "world_open", "worldOpen", "WorldOpen" }),
+            protectTime = scalar_field(cfg, { "protect_times", "protectTime", "ProtectTime" }),
+            stealMaxTimes = scalar_field(cfg, { "steal_maxtimes", "stealMaxtimes", "StealMaxtimes" }),
+            source = "WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask",
         }
         return true
     end)
@@ -2684,6 +2786,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         matchedCityCount = details.matchedCityCount,
         matchedResourceCount = details.matchedResourceCount,
         matchedDispatchCount = details.matchedDispatchCount,
+        matchedGhostCount = details.matchedGhostCount,
         beforeLoadedPointCount = details.beforeLoadedPointCount,
         afterLoadedPointCount = details.afterLoadedPointCount,
         targetTileX = details.targetTileX,
@@ -2765,6 +2868,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         includeMonsterProtection = request.includeMonsterProtection == true,
         includeTrain = request.includeTrain == true,
         includeDispatch = request.includeDispatch == true,
+        includeGhost = request.includeGhost == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         zoomFinalBlockSize = details.zoomFinalBlockSize,
         zoomFinalBlockCount = details.zoomFinalBlockCount,
@@ -3444,6 +3548,7 @@ local function pump_bulk_aoi_diagnostic(now)
     details.matchedCityCount = observed.cities
     details.matchedResourceCount = observed.resources
     details.matchedDispatchCount = observed.dispatches
+    details.matchedGhostCount = observed.ghosts
     details.afterLoadedPointCount = observed.loadedPointCount
     local point_records, point_records_error = city_aoi_records(
         world, point_manager, details.blockSize, details.blockCount, lookup)
@@ -3466,6 +3571,15 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         for index = 1, #dispatch_records do point_records[#point_records + 1] = dispatch_records[index] end
+    end
+    if bulk_aoi_request.includeGhost == true then
+        local ghost_records, ghost_records_error = ghost_aoi_records(
+            world, point_manager, details.blockSize, details.blockCount, lookup)
+        if ghost_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, ghost_records_error, details, point_manager)
+            return true
+        end
+        for index = 1, #ghost_records do point_records[#point_records + 1] = ghost_records[index] end
     end
     details.pointRecords = point_records
     details.trainMarchRecords = {}

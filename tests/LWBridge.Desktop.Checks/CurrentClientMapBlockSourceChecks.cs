@@ -48,6 +48,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastTruckFullMapReturnsAllLogicalCaptures();
         await FastRailwayFullMapReturnsAllLogicalCaptures();
         await FastDispatchFullMapReturnsAllLogicalCaptures();
+        await FastGhostFullMapReturnsAllLogicalCaptures();
         await FastFullMapFillsMeasuredCoverageHole();
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await HealthyGateRunsBeforeWorldReadyProtocol();
@@ -864,6 +865,50 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Dispatch source did not preserve authoritative HeroDispatchMissionPointInfo fields");
     }
 
+    private static async Task FastGhostFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                if (x == 5 && y == 75)
+                    return ProvenFastGhostBatch(fields,
+                        ("ghost-90010", 90010, 9, 9, 4101, 6, 5, true, 1_789_616_000_000L, "ghost-owner-a"));
+                if (x == 995 && y == 975)
+                    return ProvenFastGhostBatch(fields,
+                        ("ghost-985986", 985986, 985, 985, 4102, 8, 4, false, 1_789_617_000_000L, "ghost-owner-b"));
+                return ProvenFastGhostBatch(fields);
+            });
+
+        MapScanExecutionRequest request = Request("ghost", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+
+        Check(bulkCalls == 270 && captures.Count == 2500,
+            "fast full-Ghost source should adapt to measured four-column interior footprints");
+        MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
+        MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
+        Check(first.Kind == "ghost" && first.RecordKey == "90010" && first.PointIndex == 90010 &&
+              first.Uuid == "ghost-90010" && first.Level == 6 && first.Quality == 5 &&
+              last.Kind == "ghost" && last.RecordKey == "985986" && last.PointIndex == 985986 &&
+              last.Level == 8 && last.Quality == 4,
+            "fast full-Ghost source did not preserve point identity/config metadata at map extremes");
+        Check(first.DataJson.Contains("\"pointType\":29", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"runtimeClass\":\"GhostreconPointInfo\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"cfgId\":4101", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"isSpecial\":true", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"completionTime\":1789616000000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"taskExpireTime\":1789623200000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"ownerUid\":\"ghost-owner-a\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"kind\":\"ghost\"", StringComparison.Ordinal),
+            "fast full-Ghost source did not preserve authoritative GhostreconPointInfo fields");
+    }
+
     private static async Task FastFullMapFillsMeasuredCoverageHole()
     {
         int bulkCalls = 0;
@@ -1332,15 +1377,16 @@ internal static class CurrentClientMapBlockSourceChecks
             includeMonsterProtectionText == "true";
         bool includeTrain = fields.TryGetValue("includeTrain", out string? includeTrainText) && includeTrainText == "true";
         bool includeDispatch = fields.TryGetValue("includeDispatch", out string? includeDispatchText) && includeDispatchText == "true";
+        bool includeGhost = fields.TryGetValue("includeGhost", out string? includeGhostText) && includeGhostText == "true";
         return JsonSerializer.Serialize(new
         {
             schemaVersion = 1, probeVersion = "lwbridge-live-resource-probe-2",
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
-            includeMonster, includeMonsterProtection, includeTrain, includeDispatch,
+            includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost,
             state = "proven", error = (string?)null, requestedIndices = requested,
-            matchedCityCount = points.Length, matchedResourceCount = 0, matchedDispatchCount = 0,
+            matchedCityCount = points.Length, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,
             monsterProtectionDetailRequestCount = 0, monsterProtectionDetailReadyCount = 0,
             serverLod = 0, blockSize = 10, blockCount = 100,
@@ -1441,6 +1487,52 @@ internal static class CurrentClientMapBlockSourceChecks
             accListCount = 0,
             dispatchNameKey = "dispatch_name_key",
             source = "WorldPointManager._pointInfos+HeroDispatchMissionPointInfo",
+        }).ToArray(), JsonOptions.Default);
+        return root.ToJsonString(JsonOptions.Default);
+    }
+
+    private static string ProvenFastGhostBatch(
+        IReadOnlyDictionary<string, string> fields,
+        params (string Uuid, int PointId, int X, int Y, int CfgId, int Level, int Quality, bool IsSpecial, long CompletionTime, string OwnerUid)[] tasks)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
+        root["includeGhost"] = true;
+        root["matchedCityCount"] = 0;
+        root["matchedResourceCount"] = 0;
+        root["matchedDispatchCount"] = 0;
+        root["matchedGhostCount"] = tasks.Length;
+        root["point_records"] = JsonSerializer.SerializeToNode(tasks.Select(task => new
+        {
+            id = task.PointId,
+            pointId = task.PointId,
+            pointType = 29,
+            kind = "ghost_task",
+            runtimeClass = "GhostreconPointInfo",
+            serverId = 2212,
+            srcServerId = 0,
+            worldId = 0,
+            x = task.X,
+            y = task.Y,
+            uuid = task.Uuid,
+            ownerUid = task.OwnerUid,
+            cfgId = task.CfgId,
+            level = task.Level,
+            quality = task.Quality,
+            isSpecial = task.IsSpecial,
+            completionTime = task.CompletionTime,
+            taskExpireTime = task.CompletionTime + 7_200_000L,
+            actEndTime = task.CompletionTime + 3_600_000L,
+            teamStartTime = task.CompletionTime - 60_000L,
+            ownerServer = 2212,
+            allianceId = "ghost-alliance",
+            size = 1,
+            stealListCount = 1,
+            memberListCount = 2,
+            rewardConfig = "1:100",
+            worldOpen = 1,
+            protectTime = 300,
+            stealMaxTimes = 3,
+            source = "WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask",
         }).ToArray(), JsonOptions.Default);
         return root.ToJsonString(JsonOptions.Default);
     }

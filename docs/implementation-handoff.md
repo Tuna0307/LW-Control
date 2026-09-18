@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current Ghost implementation checkpoint - LWB-R7-033, 2026-09-18
+
+Ghost Ops is implemented on the same shared current-v19 full-world scanner, but positive-row live acceptance remains pending. Static current-v19 managed metadata pins `WorldPointType.GHOSTRECON_POINT = 29`, native `GhostreconPointInfo : PointInfo`, and `WorldPointManager.GetGhostreconPointInfoByIndex(int)`. The current Lua package independently pins `TableName.LwGhostreconTask` and the Ghost task/config stack. Production captures only type-29 Ghost points, requires runtime class suffix `GhostreconPointInfo`, resolves positive config/level/quality/special through `LwGhostreconTask`, and preserves source-backed task timing, owner/server/alliance, size and steal/member list counts. It does not alias Ghost to Dispatch or fabricate missing rewards/display fields.
+
+Release build is 0-warning/0-error and all six deterministic groups pass, including full-world Ghost normalization and ordinary Manual Start acceptance. The strict live Ghost-only Normal proof reached the post-scan positive-row gate after all 2,500 logical blocks completed with zero failed/unread blocks; native state was proven and restored to LOD0 / blockSize 10 / blockCount 100. The current map exposed zero authentic Ghost rows, so the harness truthfully failed `Ordinary Manual Ghost scan published no Ghost Ops records.` rather than weakening the positive-row gate. Cleanup left no game/launcher/LWBridge process and no recovery journal. Evidence: `evidence/lwbridge-implementation/2026-09-18-r7-ghost-live-pending.json`.
+
+Do not mark Ghost LIVE-PROVEN until a future complete run publishes at least one authentic type-29 row and reopen count matches. Treasure is the active engineering task while that external population condition is absent.
+
 ## Current category acceptance - LWB-R7-032, 2026-09-18
 
 Dispatch/Secret Task is now LIVE-PROVEN through the ordinary shared Manual Start production path on current v19. A Dispatch-only Normal run completed 2,500/2,500 logical blocks with zero failed/unread blocks in 105.7823425 s at recovered Normal concurrency 8, published 74 authentic live Dispatch rows, and a fresh store reopen returned exactly 74. The positive-row gate was not weakened.
