@@ -54,6 +54,9 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0)
         {
+            if (fastFullWorldResumeState is not { } resume || !resume.Matches(session, request))
+                fastFullWorldResumeState = new FastFullWorldResumeState(session, request);
+
             if (IsMonsterOnly(request) && hooks?.DisableCoarseMonsterMap != true)
             {
                 try
@@ -63,7 +66,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
                 {
-                    fastFullWorldResumeState = null;
+                    // Keep the exact owned run/session anchor so an outer retry can wait out
+                    // transient readiness loss before the conservative LOD0 fallback resumes.
                 }
             }
             return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)

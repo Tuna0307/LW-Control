@@ -34,6 +34,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastCityFullMapReturnsAllLogicalCaptures();
         await FastResourceFullMapReturnsAllLogicalCaptures();
         await FastFullWorldResumesAfterOuterRetry();
+        await FastMonsterResumesAfterEarlyReadyLoss();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastMonsterCoarseLodReturnsAllLogicalCaptures();
         await FastMonsterCoarseFailureFallsBackToExactCoverage();
@@ -46,6 +47,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastFullMapFillsMeasuredCoverageHole();
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await HealthyGateRunsBeforeWorldReadyProtocol();
+        await TransientReadyLossKeepsOwnedSessionIdentity();
         await MissingOwnedSessionFailsClosed();
     }
 
@@ -342,6 +344,57 @@ internal static class CurrentClientMapBlockSourceChecks
             request, blocks[0], pending, CancellationToken.None);
         Check(captures.Count == 2500 && bulkCalls == 273,
             "outer retry should resume the adaptive full-world acquisition instead of repeating successful footprints instead of restarting successful footprints");
+    }
+
+    private static async Task FastMonsterResumesAfterEarlyReadyLoss()
+    {
+        bool ready = true;
+        int bulkCalls = 0;
+        int healthWaits = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            waitForHealthySession: (session, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                healthWaits++;
+                Check(session == Session, "transient Monster readiness wait changed the owned session");
+                ready = true;
+                return Task.CompletedTask;
+            },
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                if (bulkCalls == 1)
+                {
+                    ready = false;
+                    throw new BridgeCommandException(
+                        "GAME_CONNECTION_UNAVAILABLE",
+                        "synthetic transient readiness loss before coarse Monster completion");
+                }
+                return ProvenCoarseMonsterBatch(fields);
+            },
+            useCoarseMonsterMap: true,
+            sessionProvider: () => ready ? Session : null,
+            matchesOwnedSession: session => session == Session);
+
+        MapScanExecutionRequest request = new(
+            "run_transient_monster", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlySet<int> pending = blocks.Select(block => block.BlockIndex).ToHashSet();
+
+        try
+        {
+            _ = await source.CaptureBatchAsync(request, blocks[0], pending, CancellationToken.None);
+            throw new InvalidOperationException("synthetic transient readiness loss should escape the first coarse attempt");
+        }
+        catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
+        {
+        }
+
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], pending, CancellationToken.None);
+        Check(captures.Count == 2500 && bulkCalls == 2 && healthWaits >= 3,
+            "same-run Monster retry must retain its owned-session anchor while instantaneous readiness is absent");
     }
 
     private static async Task FastMonsterFullMapReturnsAllLogicalCaptures()
@@ -745,6 +798,25 @@ internal static class CurrentClientMapBlockSourceChecks
             "current-client block source must gate world entry on healthy game readiness");
     }
 
+    private static async Task TransientReadyLossKeepsOwnedSessionIdentity()
+    {
+        int readyReads = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => FailedEmptyResource(fields),
+            waitForHealthySession: (session, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                Check(session == Session, "transient health gate received a different owned session");
+                return Task.CompletedTask;
+            },
+            sessionProvider: () => ++readyReads == 1 ? Session : null,
+            matchesOwnedSession: session => session == Session);
+
+        _ = await source.CaptureAsync(Request("resource"), Block(), CancellationToken.None);
+        Check(readyReads == 1,
+            "same-session verification must use owned identity instead of re-requiring an instantaneously ready heartbeat");
+    }
+
     private static async Task MissingOwnedSessionFailsClosed()
     {
         var source = new CurrentClientMapBlockSource(
@@ -771,7 +843,9 @@ internal static class CurrentClientMapBlockSourceChecks
         Action<string>? onProtocolWrite = null,
         Func<IReadOnlyDictionary<string, string>, string>? bulkResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? monsterProtectionResult = null,
-        bool useCoarseMonsterMap = false)
+        bool useCoarseMonsterMap = false,
+        Func<OverviewMapScanSession?>? sessionProvider = null,
+        Func<OverviewMapScanSession, bool>? matchesOwnedSession = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -828,11 +902,12 @@ internal static class CurrentClientMapBlockSourceChecks
             },
         };
         return new CurrentClientMapBlockSource(
-            () => Session,
+            sessionProvider ?? (() => Session),
             overviewRoot,
             probeRoot,
             hooks,
-            waitForHealthySession);
+            waitForHealthySession,
+            matchesOwnedSession);
     }
 
     private static IReadOnlyDictionary<string, string> ParseKv(string text) =>

@@ -25,6 +25,18 @@ internal sealed partial class OverviewLifecycleService
             snapshot.GameStartedAtUtc);
     }
 
+    internal bool MatchesOwnedMapScanSession(OverviewMapScanSession expected)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        OwnedSnapshot? snapshot = GetOwnedSnapshot();
+        return snapshot is not null &&
+            snapshot.InstanceId == expected.SessionId &&
+            snapshot.Challenge == expected.Challenge &&
+            snapshot.GamePid == expected.GamePid &&
+            PathEquals(snapshot.GamePath, expected.GamePath) &&
+            snapshot.GameStartedAtUtc == expected.GameStartedAtUtc;
+    }
+
     internal async Task WaitForHealthyMapScanSessionAsync(
         OverviewMapScanSession expected,
         CancellationToken cancellationToken)

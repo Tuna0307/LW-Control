@@ -22,6 +22,7 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
 
     private readonly Func<OverviewMapScanSession?> getSession;
     private readonly Func<OverviewMapScanSession, CancellationToken, Task>? waitForHealthySession;
+    private readonly Func<OverviewMapScanSession, bool>? matchesOwnedSession;
     private readonly CurrentClientMapBlockSourceHooks? hooks;
     private readonly string overviewRuntimeRoot;
     private readonly string probeRuntimeRoot;
@@ -34,7 +35,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
             null,
             null,
             hooks,
-            lifecycle.WaitForHealthyMapScanSessionAsync)
+            lifecycle.WaitForHealthyMapScanSessionAsync,
+            lifecycle.MatchesOwnedMapScanSession)
     {
     }
 
@@ -43,10 +45,12 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
         string? overviewRuntimeRoot,
         string? probeRuntimeRoot,
         CurrentClientMapBlockSourceHooks? hooks = null,
-        Func<OverviewMapScanSession, CancellationToken, Task>? waitForHealthySession = null)
+        Func<OverviewMapScanSession, CancellationToken, Task>? waitForHealthySession = null,
+        Func<OverviewMapScanSession, bool>? matchesOwnedSession = null)
     {
         this.getSession = getSession ?? throw new ArgumentNullException(nameof(getSession));
         this.waitForHealthySession = waitForHealthySession;
+        this.matchesOwnedSession = matchesOwnedSession;
         this.hooks = hooks;
         string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         this.overviewRuntimeRoot = overviewRuntimeRoot ??
@@ -116,8 +120,10 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
 
     private void RequireSameSession(OverviewMapScanSession expected)
     {
-        OverviewMapScanSession current = RequireReadySession();
-        if (current != expected)
+        bool sameOwnedSession = matchesOwnedSession is not null
+            ? matchesOwnedSession(expected)
+            : getSession() == expected;
+        if (!sameOwnedSession)
             throw new BridgeCommandException(
                 "GAME_CONNECTION_UNAVAILABLE",
                 "the owned game session changed during map acquisition");
