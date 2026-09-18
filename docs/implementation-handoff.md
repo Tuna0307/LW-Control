@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-029, 2026-09-18
+
+The owner confirmed Zombie Boss shield deadlines were now present but the displayed Remaining value stayed frozen until another scan. The stored deadline was already correct; the defect was frontend-only. The existing one-second Map Data `currentTime` effect ran for Monster but omitted `zombie_boss`, so Zombie Boss rows kept rendering against the timestamp captured when the tab last rerendered.
+
+Production now includes `zombie_boss` in the same one-second clock effect used by Monster. A regression assertion requires both the Zombie Boss branch and the existing `setInterval(..., 1e3)` clock. Real desktop proof used already-saved rows and performed **no rescan** during the observation: three Remaining values changed `00:01:58 -> 00:01:54`, `00:02:59 -> 00:02:55`, and `00:03:22 -> 00:03:18` over 4.2 seconds. JavaScript syntax, Release build (0 warnings / 0 errors), and all six deterministic groups pass. The official v18 package was restored exactly afterward, compatibility is `ok=true`, and cleanup left no game/launcher/LWBridge process. Railway remains separate unfinished working-tree work. Evidence: `2026-09-18-r7-zombie-boss-live-countdown.json`.
+
 ## Current superseding owner follow-up - LWB-R7-028, 2026-09-18
 
 The owner's dedicated **Zombie Boss** category request is now LIVE-PROVEN on current v18. Production splits exact Monster-Invasion Zombie Bosses out of generic `monster` into persisted/queryable `zombie_boss`: ordinary Monster scans no longer perform protection-detail network requests, while Zombie Boss reuses the whole-world LOD2 discovery and serializes the original game's `MonsterInvasionBossDetail` flow only for protection-eligible bosses. Current-v18 source confirms one module-level request UUID, `MonsterProtection.Refresh` deadline `createTime + monster_invasion.k12 * 1000`, and the error path that intentionally omits manager refresh. Stale cross-scan replies are ignored for correlation, explicit server errors are terminal for that UUID, true missing replies receive one bounded retry, and unknown protection never fabricates Remaining.

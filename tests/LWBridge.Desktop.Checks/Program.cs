@@ -4692,6 +4692,11 @@ Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`
       mapDataPanelSource.Contains("localStorage.setItem(filterStoreKey", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("savedResultFilters=readResultFilters()", StringComparison.Ordinal),
     "Map Data result filters must persist across rescans and app restarts");
+Check(mapDataPanelSource.Contains(
+          "F!==`truck`&&F!==`monster`&&F!==`zombie_boss`&&F!==`scheduledPlunder`",
+          StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("window.setInterval(()=>nn(Date.now()),1e3)", StringComparison.Ordinal),
+    "Zombie Boss Remaining must share the one-second live countdown clock with Monster");
 
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),
