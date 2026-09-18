@@ -1051,6 +1051,7 @@ local function write_truck_quick_rob_result(request, state, error_text)
         rewardCount = request.rewardCount,
         plunderRewards = request.plunderRewards,
         rewardNormalizationComplete = request.rewardNormalizationComplete,
+        dailyRobCount = request.dailyRobCount,
         method = request.method,
         error = error_text,
     })
@@ -1274,6 +1275,11 @@ local function pump_truck_quick_rob(control)
                         request.rewardCount = truck_reward_count(raw_rewards)
                         request.plunderRewards, request.rewardNormalizationComplete =
                             normalize_truck_plunder_rewards(raw_rewards)
+                        local daily_rob_count = tonumber(
+                            request.successMessage and safe_get(request.successMessage, "dailyRobCount") or nil)
+                        if daily_rob_count ~= nil and daily_rob_count >= 0 and daily_rob_count == math.floor(daily_rob_count) then
+                            request.dailyRobCount = math.floor(daily_rob_count)
+                        end
                         finish_truck_quick_rob(request, "proven", nil, true)
                         return
                     end

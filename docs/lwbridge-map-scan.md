@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Truck durable execution worker ? LWB-R7-045, 2026-09-19
+
+**OFFLINE-TESTED; public schedule command still blocked.** The recovered Truck worker uses a 10-second arm lead, expires rows first, defers due work to `waiting_connection / game disconnected` when the owned game is unavailable, then executes the earliest eligible `scheduled`/`waiting_connection` row. Entering `running` increments attempts exactly once. `invalid scheduled target` fails before that increment; sent response timeout and all other post-send ambiguity become terminal `failed` and are never retried.
+
+The worker shares the existing Map Data live source and operation gate; it does not create another bridge owner. It revalidates status + `jobId` transactionally before `running`, preserving cancel/reschedule race safety. The scheduled-row key is the WorldMarch UUID, while the real Train UUID comes from `truck_json.trainUuid`. Current-v19 execution is allowed only when the job server equals the current live server; no implicit server jump is performed. The rebuild also uses a stricter crash rule than the original: stale `running` is terminalized unknown on restart instead of being made retryable, preventing a possible duplicate robbery. `bridge://truck-plunder-changed` now reaches the frontend subscription. Evidence: [`2026-09-19-r7-truck-durable-worker.json`](../evidence/lwbridge-implementation/2026-09-19-r7-truck-durable-worker.json).
+
 ## Truck archive/reschedule transaction ? LWB-R7-044, 2026-09-19
 
 **OFFLINE-TESTED; public scheduling still blocked.** Static disassembly of the verified original binary recovers the complete attempt replacement transaction. Terminal prior rows (`succeeded`, `failed`, `cancelled`, `expired`) archive before replacement; active `scheduled`/`waiting_connection` rows are replaced in place without history and keep their attempt count; `running` rows are protected by the original conflict guard and cause the transaction to roll back. Old result fields are cleared, fresh `jobId` is installed, history insertion is idempotent by `job_id`, and conflict updates intentionally leave `created_at` untouched.

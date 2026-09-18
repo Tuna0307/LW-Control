@@ -96,7 +96,8 @@ internal static class MapPlunderPersistenceChecks
                         battleWon: true,
                         plunderRewards,
                         rewardNormalizationComplete: true,
-                        updatedAt: 150),
+                        updatedAt: 150,
+                        dailyRobCount: 7),
                     "authoritative Truck result updates the active persisted attempt");
                 Check(!store.RecordTruckPlunderSuccess(
                         88,
@@ -115,10 +116,39 @@ internal static class MapPlunderPersistenceChecks
                       succeeded.GetProperty("plunderRewards")[0].GetProperty("key").GetString() == "reward:1:1001" &&
                       succeeded.GetProperty("plunderRewards")[0].GetProperty("count").GetInt32() == 25 &&
                       succeeded.GetProperty("plunderRewardsComplete").GetBoolean() &&
+                      succeeded.GetProperty("robTimes").GetInt32() == 1 &&
+                      !succeeded.TryGetProperty("remainingLootCount", out _) &&
+                      succeeded.GetProperty("dailyRobCount").GetInt32() == 7 &&
                       succeeded.GetProperty("attempts").GetInt32() == 2 &&
                       succeeded.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
                       succeeded.GetProperty("scheduleUpdatedAt").GetInt64() == 150,
-                    "Truck success persists battle/reward result while preserving attempt count and clearing the prior connection error");
+                    "Truck success merges only supplied authoritative counters, preserves absent counters and clears the prior connection error");
+
+                store.UpsertTruckPlunderJobForTest(
+                    88,
+                    "truck-result-counts",
+                    """{"uuid":"truck-result-counts","ownerName":"Counts"}""",
+                    executeAt: 1_500, expireAt: 9_000, status: "running", attempts: 1,
+                    lastError: null, createdAt: 95, updatedAt: 145);
+                Check(store.RecordTruckPlunderSuccess(
+                        88,
+                        "truck-result-counts",
+                        battleWon: false,
+                        plunderRewards,
+                        rewardNormalizationComplete: true,
+                        updatedAt: 152,
+                        robTimes: 2,
+                        remainingLootCount: 0,
+                        dailyRobCount: 8),
+                    "original Truck result merger accepts all three recovered optional counters when supplied");
+                JsonElement counted = store.ReadPlunderJobs().TruckJobs.Single(
+                    row => row.GetProperty("uuid").GetString() == "truck-result-counts");
+                Check(counted.GetProperty("robTimes").GetInt32() == 2 &&
+                      counted.GetProperty("remainingLootCount").GetInt32() == 0 &&
+                      counted.GetProperty("dailyRobCount").GetInt32() == 8 &&
+                      counted.GetProperty("scheduleStatus").GetString() == "succeeded" &&
+                      counted.GetProperty("attempts").GetInt32() == 1,
+                    "all authoritative Truck result counters persist without changing attempts");
 
                 JsonElement schedule = Payload(new
                 {
@@ -189,6 +219,7 @@ internal static class MapPlunderPersistenceChecks
             }
 
             RunTruckScheduleTransaction(Path.Combine(root, "schedule-map-data.db"));
+            RunTruckWorkerPersistence(Path.Combine(root, "worker-map-data.db"));
         }
         finally
         {
@@ -385,6 +416,101 @@ internal static class MapPlunderPersistenceChecks
               runningRows[0].GetProperty("executeAt").GetInt64() == 2_400 &&
               runningRows[0].GetProperty("ownerName").GetString() == "Running",
             "failed running-row replacement rolls the scheduling transaction back without fabricating history or mutating the active job");
+    }
+
+    private static void RunTruckWorkerPersistence(string databasePath)
+    {
+        using var store = new MapDataStore(databasePath);
+        store.UpsertTruckPlunderJobForTest(
+            88, "worker-waiting",
+            """{"uuid":"worker-waiting","jobId":"truck-waiting","marchUuid":"101","robTimes":0,"maxLootCount":2}""",
+            executeAt: 900, expireAt: 2_000, status: "waiting_connection", attempts: 2,
+            lastError: "game disconnected", createdAt: 100, updatedAt: 110);
+        store.UpsertTruckPlunderJobForTest(
+            88, "worker-scheduled",
+            """{"uuid":"worker-scheduled","jobId":"truck-scheduled","marchUuid":"102","robTimes":0,"maxLootCount":2}""",
+            executeAt: 1_050, expireAt: 2_000, status: "scheduled", attempts: 3,
+            lastError: null, createdAt: 120, updatedAt: 130);
+        store.UpsertTruckPlunderJobForTest(
+            88, "worker-far",
+            """{"uuid":"worker-far","jobId":"truck-far","marchUuid":"103"}""",
+            executeAt: 1_500, expireAt: 2_000, status: "scheduled", attempts: 0,
+            lastError: null, createdAt: 140, updatedAt: 150);
+        store.UpsertTruckPlunderJobForTest(
+            88, "worker-expired",
+            """{"uuid":"worker-expired","jobId":"truck-expired","marchUuid":"104"}""",
+            executeAt: 800, expireAt: 1_000, status: "scheduled", attempts: 1,
+            lastError: null, createdAt: 160, updatedAt: 170);
+
+        Check(store.ExpireTruckPlunder(1_000) == 1,
+            "Truck worker expires only scheduled/waiting jobs whose expire_at has elapsed");
+        JsonElement expired = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "worker-expired");
+        Check(expired.GetProperty("scheduleStatus").GetString() == "expired" &&
+              expired.GetProperty("lastError").GetString() == "truck expired" &&
+              expired.GetProperty("scheduleUpdatedAt").GetInt64() == 1_000,
+            "Truck expiry uses the recovered terminal status/error and update time");
+
+        TruckPlunderWorkItem? first = store.ReadArmableTruckPlunder(1_000, 100);
+        Check(first is not null &&
+              first.TrainUuid == "worker-waiting" &&
+              first.Status == "waiting_connection" &&
+              first.Attempts == 2 &&
+              first.ExecuteAt == 900 &&
+              first.ExpireAt == 2_000 &&
+              first.Truck.GetProperty("jobId").GetString() == "truck-waiting",
+            "armable Truck read accepts scheduled/waiting rows, excludes expired rows, and orders by execute_at");
+
+        Check(store.UpdateTruckPlunderStatus(
+                88, "worker-waiting", "running", null, incrementAttempts: true, updatedAt: 1_010),
+            "Truck worker can atomically mark the selected job running");
+        JsonElement running = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "worker-waiting");
+        Check(running.GetProperty("scheduleStatus").GetString() == "running" &&
+              running.GetProperty("attempts").GetInt32() == 3 &&
+              running.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              running.GetProperty("scheduleUpdatedAt").GetInt64() == 1_010,
+            "running transition increments attempts exactly once and clears the prior connection error");
+
+        Check(store.UpdateTruckPlunderStatus(
+                88, "worker-waiting", "failed", "server response timeout", incrementAttempts: false, updatedAt: 1_020),
+            "post-arm response timeout can be terminalized without a second attempt increment");
+        JsonElement timedOut = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "worker-waiting");
+        Check(timedOut.GetProperty("scheduleStatus").GetString() == "failed" &&
+              timedOut.GetProperty("attempts").GetInt32() == 3 &&
+              timedOut.GetProperty("lastError").GetString() == "server response timeout",
+            "server response timeout is terminal failed and preserves the one running-transition attempt increment");
+
+        TruckPlunderWorkItem? second = store.ReadArmableTruckPlunder(1_000, 100);
+        Check(second is not null && second.TrainUuid == "worker-scheduled" && second.Status == "scheduled",
+            "after the first terminal result the next due scheduled Truck becomes armable");
+        Check(store.MarkDueTruckPlunderWaitingConnection(1_000, 100) == 1,
+            "offline worker marks only due scheduled jobs waiting_connection");
+        JsonElement disconnected = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "worker-scheduled");
+        JsonElement far = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "worker-far");
+        Check(disconnected.GetProperty("scheduleStatus").GetString() == "waiting_connection" &&
+              disconnected.GetProperty("lastError").GetString() == "game disconnected" &&
+              disconnected.GetProperty("attempts").GetInt32() == 3 &&
+              far.GetProperty("scheduleStatus").GetString() == "scheduled",
+            "offline deferral preserves attempts and does not touch jobs outside the arm lead window");
+
+        Check(store.UpdateTruckPlunderStatus(
+                88, "worker-scheduled", "running", null, incrementAttempts: true, updatedAt: 1_030),
+            "recovered restart fixture can create a stale running row");
+        Check(store.RecoverTruckPlunderJobsOriginal(1_040) == 1,
+            "original restart recovery helper finds the stale running Truck row");
+        JsonElement recovered = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "worker-scheduled");
+        Check(recovered.GetProperty("scheduleStatus").GetString() == "waiting_connection" &&
+              recovered.GetProperty("lastError").GetString() == "client restarted" &&
+              recovered.GetProperty("attempts").GetInt32() == 4,
+            "original restart SQL is preserved as a reference helper without hiding the prior running attempt");
+        Check(!store.UpdateTruckPlunderStatus(
+                88, "worker-missing", "failed", "missing", incrementAttempts: false, updatedAt: 1_050),
+            "Truck worker status update never fabricates a missing job");
     }
 
     private static JsonElement Payload(object value)

@@ -25,7 +25,8 @@ internal sealed record CurrentClientTruckQuickRobResult(
     bool BattleWon,
     int RewardCount,
     JsonElement PlunderRewards,
-    bool RewardNormalizationComplete);
+    bool RewardNormalizationComplete,
+    int? DailyRobCount);
 
 internal sealed partial class CurrentClientMapBlockSource
 {
@@ -306,6 +307,14 @@ internal sealed partial class CurrentClientMapBlockSource
             {
                 throw new InvalidDataException("Truck quick-rob result rewardNormalizationComplete must be a boolean.");
             }
+            int? dailyRobCount = null;
+            if (root.TryGetProperty("dailyRobCount", out JsonElement dailyRobValue) &&
+                dailyRobValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+            {
+                if (!dailyRobValue.TryGetInt32(out int parsedDailyRobCount) || parsedDailyRobCount < 0)
+                    throw new InvalidDataException("Truck quick-rob result dailyRobCount is invalid.");
+                dailyRobCount = parsedDailyRobCount;
+            }
 
             return new CurrentClientTruckQuickRobResult(
                 currentServerId,
@@ -314,7 +323,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 battleWonValue.GetBoolean(),
                 rewardCount,
                 plunderRewards.Clone(),
-                normalizationValue.GetBoolean());
+                normalizationValue.GetBoolean(),
+                dailyRobCount);
         }
 
         string error = ReadOptionalString(root, "error") ?? "truck_quick_rob_failed";

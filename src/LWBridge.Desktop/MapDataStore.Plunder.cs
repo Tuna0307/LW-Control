@@ -12,6 +12,18 @@ internal sealed record TruckPlunderScheduleResult(
     int Attempts,
     bool ArchivedPreviousAttempt);
 
+internal sealed record TruckPlunderWorkItem(
+    int ServerId,
+    string TrainUuid,
+    JsonElement Truck,
+    long ExecuteAt,
+    long? ExpireAt,
+    string Status,
+    int Attempts,
+    string? LastError,
+    long CreatedAt,
+    long UpdatedAt);
+
 internal sealed record MapPlunderJobsSnapshot(
     IReadOnlyList<JsonElement> DispatchJobs,
     IReadOnlyList<JsonElement> TruckJobs);
@@ -263,13 +275,18 @@ internal sealed partial class MapDataStore
         bool battleWon,
         JsonElement plunderRewards,
         bool rewardNormalizationComplete,
-        long updatedAt)
+        long updatedAt,
+        int? robTimes = null,
+        int? remainingLootCount = null,
+        int? dailyRobCount = null)
     {
         ValidateServerId(serverId);
         if (string.IsNullOrWhiteSpace(trainUuid))
             throw new BridgeCommandException("INVALID_TARGET", "truck target is required");
         if (plunderRewards.ValueKind != JsonValueKind.Array)
             throw new BridgeCommandException("INVALID_MAP_DATA", "truck plunder rewards must be an array");
+        if (robTimes < 0 || remainingLootCount < 0 || dailyRobCount < 0)
+            throw new BridgeCommandException("INVALID_MAP_DATA", "truck plunder counters must be nonnegative");
 
         lock (gate)
         {
@@ -313,6 +330,12 @@ internal sealed partial class MapDataStore
             // while durable execution can distinguish complete display normalization
             // from a successful attack whose reward metadata was only partially resolved.
             row["plunderRewardsComplete"] = rewardNormalizationComplete;
+            // RECOVERED original result merger: these counters are copied only
+            // when supplied by the execution result. Missing values stay missing;
+            // do not synthesize local increments for a one-shot robbery.
+            if (robTimes.HasValue) row["robTimes"] = robTimes.Value;
+            if (remainingLootCount.HasValue) row["remainingLootCount"] = remainingLootCount.Value;
+            if (dailyRobCount.HasValue) row["dailyRobCount"] = dailyRobCount.Value;
 
             using (SqliteCommand update = connection.CreateCommand())
             {
@@ -336,6 +359,212 @@ internal sealed partial class MapDataStore
             transaction.Commit();
             return true;
         }
+    }
+
+    internal TruckPlunderWorkItem? ReadArmableTruckPlunder(long now, long leadMilliseconds)
+    {
+        if (now < 0 || leadMilliseconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT server_id,train_uuid,truck_json,execute_at,expire_at,status,
+                       attempts,last_error,created_at,updated_at
+                FROM truck_plunder_jobs
+                WHERE status IN ('scheduled','waiting_connection')
+                  AND execute_at<=$now+$lead
+                  AND (expire_at IS NULL OR expire_at>$now)
+                ORDER BY execute_at ASC LIMIT 1
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            command.Parameters.AddWithValue("$lead", leadMilliseconds);
+            using SqliteDataReader reader = command.ExecuteReader();
+            if (!reader.Read()) return null;
+            return ReadTruckPlunderWorkItem(reader);
+        }
+    }
+
+    internal int ExpireTruckPlunder(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE truck_plunder_jobs
+                SET status='expired',last_error='truck expired',updated_at=$now
+                WHERE status IN ('scheduled','waiting_connection')
+                  AND expire_at IS NOT NULL AND expire_at<=$now
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal int MarkDueTruckPlunderWaitingConnection(long now, long leadMilliseconds)
+    {
+        if (now < 0 || leadMilliseconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE truck_plunder_jobs
+                SET status='waiting_connection',last_error='game disconnected',updated_at=$now
+                WHERE status='scheduled' AND execute_at<=$now+$lead
+                  AND (expire_at IS NULL OR expire_at>$now)
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            command.Parameters.AddWithValue("$lead", leadMilliseconds);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal bool TryMarkTruckPlunderRunning(
+        int serverId,
+        string trainUuid,
+        string expectedJobId,
+        long updatedAt)
+    {
+        ValidateServerId(serverId);
+        if (string.IsNullOrWhiteSpace(trainUuid) || string.IsNullOrWhiteSpace(expectedJobId))
+            return false;
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            string? truckJson = null;
+            string? status = null;
+            using (SqliteCommand read = connection.CreateCommand())
+            {
+                read.Transaction = transaction;
+                read.CommandText = """
+                    SELECT truck_json,status FROM truck_plunder_jobs
+                    WHERE server_id=$server AND train_uuid=$uuid
+                    """;
+                read.Parameters.AddWithValue("$server", serverId);
+                read.Parameters.AddWithValue("$uuid", trainUuid);
+                using SqliteDataReader reader = read.ExecuteReader();
+                if (reader.Read())
+                {
+                    truckJson = reader.GetString(0);
+                    status = reader.GetString(1);
+                }
+            }
+            if (truckJson is null || status is not ("scheduled" or "waiting_connection"))
+            {
+                transaction.Rollback();
+                return false;
+            }
+            JsonObject row = ParseTruckPlunderJson(truckJson);
+            if (!string.Equals(ReadOptionalJsonString(row, "jobId"), expectedJobId, StringComparison.Ordinal))
+            {
+                transaction.Rollback();
+                return false;
+            }
+            using SqliteCommand update = connection.CreateCommand();
+            update.Transaction = transaction;
+            update.CommandText = """
+                UPDATE truck_plunder_jobs
+                SET status='running',last_error=NULL,attempts=attempts+1,updated_at=$updated
+                WHERE server_id=$server AND train_uuid=$uuid
+                  AND status IN ('scheduled','waiting_connection')
+                """;
+            update.Parameters.AddWithValue("$server", serverId);
+            update.Parameters.AddWithValue("$uuid", trainUuid);
+            update.Parameters.AddWithValue("$updated", updatedAt);
+            if (update.ExecuteNonQuery() != 1)
+            {
+                transaction.Rollback();
+                return false;
+            }
+            transaction.Commit();
+            return true;
+        }
+    }
+
+    internal int FailStaleRunningTruckPlunderConservatively(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE truck_plunder_jobs
+                SET status='failed',
+                    last_error='truck plunder execution state is unknown after client restart',
+                    updated_at=$now
+                WHERE status='running'
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal bool UpdateTruckPlunderStatus(
+        int serverId,
+        string trainUuid,
+        string status,
+        string? lastError,
+        bool incrementAttempts,
+        long updatedAt)
+    {
+        ValidateServerId(serverId);
+        if (string.IsNullOrWhiteSpace(trainUuid))
+            throw new BridgeCommandException("INVALID_TARGET", "truck target is required");
+        if (string.IsNullOrWhiteSpace(status))
+            throw new BridgeCommandException("INVALID_MAP_DATA", "truck plunder status is required");
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE truck_plunder_jobs
+                SET status=$status,last_error=$error,
+                    attempts=attempts+CASE WHEN $increment THEN 1 ELSE 0 END,
+                    updated_at=$updated
+                WHERE server_id=$server AND train_uuid=$uuid
+                """;
+            command.Parameters.AddWithValue("$server", serverId);
+            command.Parameters.AddWithValue("$uuid", trainUuid);
+            command.Parameters.AddWithValue("$status", status);
+            command.Parameters.AddWithValue("$error", (object?)lastError ?? DBNull.Value);
+            command.Parameters.AddWithValue("$increment", incrementAttempts ? 1 : 0);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            return command.ExecuteNonQuery() > 0;
+        }
+    }
+
+    internal int RecoverTruckPlunderJobsOriginal(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE truck_plunder_jobs
+                SET status='waiting_connection',last_error='client restarted',updated_at=$now
+                WHERE status='running'
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    private static TruckPlunderWorkItem ReadTruckPlunderWorkItem(SqliteDataReader reader)
+    {
+        JsonObject row = ParseTruckPlunderJson(reader.GetString(2));
+        using JsonDocument document = JsonDocument.Parse(row.ToJsonString(JsonOptions.Default));
+        return new TruckPlunderWorkItem(
+            reader.GetInt32(0),
+            reader.GetString(1),
+            document.RootElement.Clone(),
+            reader.GetInt64(3),
+            reader.IsDBNull(4) ? null : reader.GetInt64(4),
+            reader.GetString(5),
+            reader.GetInt32(6),
+            reader.IsDBNull(7) ? null : reader.GetString(7),
+            reader.GetInt64(8),
+            reader.GetInt64(9));
     }
 
     internal bool CancelTruckPlunder(int serverId, string trainUuid, long updatedAt)

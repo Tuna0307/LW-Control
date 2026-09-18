@@ -1256,7 +1256,8 @@ internal static class CurrentClientMapBlockSourceChecks
                     error: null,
                     requestSent: true,
                     battleWon: won,
-                    rewardCount: won ? 3 : 0);
+                    rewardCount: won ? 3 : 0,
+                    dailyRobCount: won ? 7 : null);
             });
 
         CurrentClientTruckQuickRobResult win = await source.ExecuteTruckQuickRobAsync(
@@ -1274,10 +1275,12 @@ internal static class CurrentClientMapBlockSourceChecks
               win.PlunderRewards.GetArrayLength() == 1 &&
               win.PlunderRewards[0].GetProperty("key").GetString() == "reward:1:1001" &&
               win.PlunderRewards[0].GetProperty("count").GetInt32() == 25 &&
+              win.DailyRobCount == 7 &&
               !loss.BattleWon &&
               loss.RewardCount == 0 &&
               loss.RewardNormalizationComplete &&
-              loss.PlunderRewards.GetArrayLength() == 0,
+              loss.PlunderRewards.GetArrayLength() == 0 &&
+              loss.DailyRobCount is null,
             "Truck quick-rob host protocol must preserve exact identity, normalized rewards and authoritative win/loss orientation");
 
         CurrentClientMapBlockSource incompleteRewards = CreateSource(
@@ -1577,7 +1580,8 @@ internal static class CurrentClientMapBlockSourceChecks
         bool requestSent,
         bool? battleWon,
         int? rewardCount,
-        bool rewardNormalizationComplete = true) =>
+        bool rewardNormalizationComplete = true,
+        int? dailyRobCount = null) =>
         JsonSerializer.Serialize(new
         {
             schemaVersion = 1,
@@ -1610,6 +1614,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 }
                 : Array.Empty<object>(),
             rewardNormalizationComplete,
+            dailyRobCount,
             method = "RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain",
             error,
         }, JsonOptions.Default);

@@ -4758,13 +4758,43 @@ foreach (string sourceLine in overviewBridgeSource.Replace("\r\n", "\n", StringC
 Check(overviewBridgeTopLevelLocalCount < 200,
     $"current Overview bridge uses {overviewBridgeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
 string plunderStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs"));
+int truckResultStart = plunderStoreSource.IndexOf("internal bool RecordTruckPlunderSuccess(", StringComparison.Ordinal);
+int truckResultEnd = plunderStoreSource.IndexOf("internal TruckPlunderWorkItem? ReadArmableTruckPlunder(", truckResultStart, StringComparison.Ordinal);
+string truckResultSource = truckResultStart >= 0 && truckResultEnd > truckResultStart
+    ? plunderStoreSource[truckResultStart..truckResultEnd]
+    : string.Empty;
 Check(
-    plunderStoreSource.Contains("RecordTruckPlunderSuccess(", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("row[\"battleWon\"] = battleWon", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("row[\"plunderRewards\"] = JsonNode.Parse", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("status='succeeded',last_error=NULL", StringComparison.Ordinal) &&
-    !plunderStoreSource.Contains("attempts=attempts+1", StringComparison.Ordinal),
-    "Truck result persistence must enrich the current truck_json and mark succeeded without incrementing attempts; archiving remains a separate reschedule operation");
+    truckResultSource.Contains("row[\"battleWon\"] = battleWon", StringComparison.Ordinal) &&
+    truckResultSource.Contains("row[\"plunderRewards\"] = JsonNode.Parse", StringComparison.Ordinal) &&
+    truckResultSource.Contains("row[\"robTimes\"] = robTimes.Value", StringComparison.Ordinal) &&
+    truckResultSource.Contains("row[\"remainingLootCount\"] = remainingLootCount.Value", StringComparison.Ordinal) &&
+    truckResultSource.Contains("row[\"dailyRobCount\"] = dailyRobCount.Value", StringComparison.Ordinal) &&
+    truckResultSource.Contains("status='succeeded',last_error=NULL", StringComparison.Ordinal) &&
+    !truckResultSource.Contains("attempts=attempts+1", StringComparison.Ordinal),
+    "Truck result persistence must merge recovered optional result fields and mark succeeded without incrementing attempts; archiving remains a separate reschedule operation");
+string truckWorkerSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "TruckPlunderWorker.cs"));
+Check(
+    truckWorkerSource.Contains("internal const long ArmLeadMilliseconds = 10_000", StringComparison.Ordinal) &&
+    truckWorkerSource.Contains("FailStaleRunningTruckPlunderConservatively", StringComparison.Ordinal) &&
+    truckWorkerSource.Contains("TryMarkTruckPlunderRunning", StringComparison.Ordinal) &&
+    truckWorkerSource.Contains("TRUCK_PLUNDER_RESPONSE_TIMEOUT", StringComparison.Ordinal) &&
+    truckWorkerSource.Contains("TRUCK_PLUNDER_RESULT_AMBIGUOUS", StringComparison.Ordinal) &&
+    truckWorkerSource.Contains("server response timeout", StringComparison.Ordinal) &&
+    truckWorkerSource.Contains("truck plunder execution state is unknown after client restart", StringComparison.Ordinal),
+    "Truck worker must preserve recovered 10-second arm lead and conservative non-retryable restart/ambiguity handling");
+string manualMapServiceSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "ManualMapScanCommandService.cs"));
+Check(
+    manualMapServiceSource.Contains("truckPlundering", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("TryEnterTruckPlunderOperation", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("currentClientSource.ExecuteTruckQuickRobAsync", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("TruckPlunderChanged", StringComparison.Ordinal),
+    "Truck worker must share the existing live current-client source and game-operation gate with Map Data actions");
+string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+Check(
+    windowSource.Contains("\"bridge://truck-plunder-changed\"", StringComparison.Ordinal) &&
+    windowSource.Contains("manualMapScanService.TruckPlunderChanged += OnTruckPlunderChanged", StringComparison.Ordinal) &&
+    windowSource.Contains("SendEvent(session, \"bridge://truck-plunder-changed\"", StringComparison.Ordinal),
+    "Scheduled Plunder frontend event must be allowed and forwarded from the durable Truck worker");
 Check(
     plunderStoreSource.Contains("CreateTruckPlunderJobId(", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("$\"truck-{unixTimeMilliseconds}-{randomValue:x}\"", StringComparison.Ordinal) &&
