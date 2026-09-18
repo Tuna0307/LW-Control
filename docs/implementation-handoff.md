@@ -1,5 +1,14 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Moving-march Follow checkpoint - LWB-R7-040, 2026-09-19
+
+Truck/Train row Follow is implemented through the existing owned current-v19 Overview session. Original 0.3.1 recovery proves public `map_march_follow({serverId,marchUuid})`, exact invalid-target text, native `gotoWorldMarch`, and a 5,000 ms native timeout; no coordinate/world/type values are supplied by the original frontend/backend. Current-v19 source maps that contract to `GoToUtil.JumpToMarchByUuid(marchUuid, serverId, 0)`: an already loaded march uses `GotoMarchCurPos`/`OnClickWorldPoint`, while an unloaded march sends `MsgDefines.GetMarchPos`, whose response calls `MoveToWorldMarchAndOpen`.
+
+Live acceptance first exposed an independent persisted-row defect: `map_search` returned `data_json` without the authoritative indexed `server_id`, so the recovered React stale-server guard rejected every Truck Follow before native invocation. `SearchIndexed` now selects and injects the authoritative `server_id` into every returned row; a deterministic regression deliberately omits `serverId` from stored JSON and proves reconstruction from the index. Live retest showed 50/50 sampled Truck rows correctly scoped to the current server and carrying march identity. A rendered Truck Follow then reached the new bridge and returned `state=proven`, `error=null`, method `GoToUtil.JumpToMarchByUuid`, with current-server match and an observed moving-march world position. Current Railway search contained zero active rows, so positive Railway Follow remains population-pending. Aggregate evidence: `evidence/lwbridge-implementation/2026-09-19-r7-moving-march-follow.json`.
+
+**Next:** continue Truck/Train Map Data parity with remaining filters and plunder/action behavior. Rerun the same rendered Follow acceptance for Railway when a positive live row exists; do not synthesize a train target.
+
+
 ## Auto Scan scheduler completion checkpoint - LWB-R7-039, 2026-09-19
 
 The existing top-level React Auto Scan scheduler is now LIVE-PROVEN for one cycle containing multiple configured targets, disable-during-cycle behavior, and persisted clock-triggered execution after a full desktop/game restart. One real two-target Zombie Boss cycle scanned the original/current server and then a different server in order; both shared Fast runs completed 2,500/2,500 with zero failed/unread and the scheduler returned to the original server.

@@ -13,6 +13,8 @@ local ready_path = root .. [[\ready.json]]
 local heartbeat_path = root .. [[\heartbeat.json]]
 local navigation_path = root .. [[\map-navigation.txt]]
 local navigation_result_path = root .. [[\map-navigation-result.json]]
+local march_follow_path = root .. [[\march-follow.txt]]
+local march_follow_result_path = root .. [[\march-follow-result.json]]
 local server_jump_path = root .. [[\server-jump.txt]]
 local server_jump_result_path = root .. [[\server-jump-result.json]]
 local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
@@ -37,6 +39,7 @@ local recovery_action_hooks = {}
 local pending_navigation = nil
 local pending_world_ready = nil
 local pending_server_jump = nil
+local pending_march_follow = nil
 local NAVIGATION_TIMEOUT_SECONDS = 5
 local WORLD_READY_TIMEOUT_SECONDS = 10
 local SERVER_JUMP_TIMEOUT_SECONDS = 15
@@ -248,6 +251,31 @@ local function read_navigation(control)
     elseif target_x == nil or target_y == nil or target_x ~= math.floor(target_x) or target_y ~= math.floor(target_y) or
        target_x < 0 or target_y < 0 or target_x > 2147483647 or target_y > 2147483647 then
         request.error = "navigation_target_invalid"
+    end
+    return request
+end
+
+local function read_march_follow(control)
+    local values = read_kv(march_follow_path)
+    if values == nil then return nil end
+    pcall(os.remove, march_follow_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local server_id = tonumber(values.serverId)
+    local march_uuid = tonumber(values.marchUuid)
+    local request = {
+        requestId = values.requestId,
+        serverId = server_id,
+        marchUuid = march_uuid,
+    }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "march_follow_identity_mismatch"
+        return request
+    end
+    if server_id == nil or server_id ~= math.floor(server_id) or server_id < 1 or server_id > 99999 or
+       march_uuid == nil or march_uuid ~= math.floor(march_uuid) or march_uuid <= 0 then
+        request.error = "march_follow_target_invalid"
     end
     return request
 end
@@ -755,6 +783,162 @@ local function pump_server_jump(control)
     if runtime_clock() - request.startedClock >= SERVER_JUMP_TIMEOUT_SECONDS then
         write_server_jump_result(request, "failed", "server_jump_timeout")
         pending_server_jump = nil
+    end
+end
+
+local function write_march_follow_result(request, state, error_text)
+    write_json(march_follow_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        marchUuid = request.marchUuid,
+        currentServerId = request.currentServerId,
+        worldX = request.worldX,
+        worldY = request.worldY,
+        worldZ = request.worldZ,
+        method = request.method,
+        error = error_text,
+    })
+end
+
+local function begin_march_follow(request)
+    if request.error ~= nil then
+        write_march_follow_result(request, "failed", request.error)
+        return
+    end
+
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok_cur, cur_value = call(player, "GetCurServerId")
+    local cur_server_id = ok_cur and tonumber(cur_value) or nil
+    if cur_server_id == nil or cur_server_id <= 0 or cur_server_id ~= math.floor(cur_server_id) then
+        write_march_follow_result(request, "failed", "current_server_id_unavailable")
+        return
+    end
+    request.currentServerId = math.floor(cur_server_id)
+    if request.currentServerId ~= request.serverId then
+        write_march_follow_result(request, "failed", "march_follow_server_mismatch")
+        return
+    end
+
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "WorldMarchDataManager") or nil
+    if manager == nil then
+        write_march_follow_result(request, "failed", "world_march_manager_unavailable")
+        return
+    end
+    local goto_util = rawget(_G, "GoToUtil")
+    local jump_march = goto_util and safe_get(goto_util, "JumpToMarchByUuid") or nil
+    if type(jump_march) ~= "function" then
+        write_march_follow_result(request, "failed", "goto_world_march_unavailable")
+        return
+    end
+
+    -- Current-v19 GoToUtil.JumpToMarchByUuid is the source-backed shared
+    -- moving-march route. It follows an already loaded march immediately;
+    -- otherwise it sends MsgDefines.GetMarchPos. GetMarchPosMessage defaults
+    -- worldId to 0 and moves/opens the returned march. The original
+    -- map_march_follow -> gotoWorldMarch call supplied only serverId/marchUuid
+    -- with a 5000 ms native timeout, so do not invent coordinates or march type.
+    request.method = "GoToUtil.JumpToMarchByUuid"
+    request.startedClock = runtime_clock()
+    pending_march_follow = request
+    local ok_jump = pcall(jump_march, request.marchUuid, request.serverId, 0)
+    if not ok_jump then
+        request.invokeError = "goto_world_march_failed"
+    end
+end
+
+local function pump_march_follow(control)
+    if pending_march_follow == nil then
+        local request = read_march_follow(control)
+        if request ~= nil then
+            local ok_begin, begin_error = pcall(begin_march_follow, request)
+            if not ok_begin then
+                write_march_follow_result(request, "failed", "march_follow_exception:" .. tostring(begin_error))
+            end
+        end
+    end
+    if pending_march_follow == nil then return end
+    local request = pending_march_follow
+    if request.invokeError ~= nil then
+        write_march_follow_result(request, "failed", request.invokeError)
+        pending_march_follow = nil
+        return
+    end
+
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok_cur, cur_value = call(player, "GetCurServerId")
+    local cur_server_id = ok_cur and tonumber(cur_value) or nil
+    if cur_server_id == nil or cur_server_id <= 0 or cur_server_id ~= math.floor(cur_server_id) then
+        write_march_follow_result(request, "failed", "current_server_id_unavailable")
+        pending_march_follow = nil
+        return
+    end
+    request.currentServerId = math.floor(cur_server_id)
+    if request.currentServerId ~= request.serverId then
+        write_march_follow_result(request, "failed", "march_follow_server_mismatch")
+        pending_march_follow = nil
+        return
+    end
+
+    local observed = false
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "WorldMarchDataManager") or nil
+    if manager ~= nil then
+        local ok_march, march = call(manager, "GetMarch", request.marchUuid)
+        if ok_march and march ~= nil then
+            local actual_uuid = tonumber(safe_get(march, "uuid") or safe_get(march, "_uuid"))
+            if actual_uuid ~= nil and actual_uuid ~= request.marchUuid then
+                write_march_follow_result(request, "failed", "march_identity_mismatch")
+                pending_march_follow = nil
+                return
+            end
+            local march_server_id = tonumber(safe_get(march, "serverId"))
+            if march_server_id ~= nil and march_server_id > 0 and math.floor(march_server_id) ~= request.serverId then
+                write_march_follow_result(request, "failed", "march_server_mismatch")
+                pending_march_follow = nil
+                return
+            end
+            local ok_pos, world_pos = call(march, "GetMarchCurPos")
+            request.worldX = ok_pos and tonumber(world_pos and safe_get(world_pos, "x")) or nil
+            request.worldY = ok_pos and tonumber(world_pos and safe_get(world_pos, "y")) or nil
+            request.worldZ = ok_pos and tonumber(world_pos and safe_get(world_pos, "z")) or nil
+            observed = true
+        end
+    end
+
+    if not observed then
+        local cs = rawget(_G, "CS")
+        local scene_manager = cs and safe_get(cs, "SceneManager") or nil
+        local world = scene_manager and safe_get(scene_manager, "World") or nil
+        local ok_world_march, world_march = call(world, "GetMarch", request.marchUuid)
+        if ok_world_march and world_march ~= nil then
+            local world_server_id = tonumber(safe_get(world_march, "serverId"))
+            if world_server_id ~= nil and world_server_id > 0 and math.floor(world_server_id) ~= request.serverId then
+                write_march_follow_result(request, "failed", "march_server_mismatch")
+                pending_march_follow = nil
+                return
+            end
+            observed = true
+        end
+    end
+
+    if observed then
+        write_march_follow_result(request, "proven", nil)
+        pending_march_follow = nil
+        return
+    end
+    if runtime_clock() - request.startedClock >= NAVIGATION_TIMEOUT_SECONDS then
+        write_march_follow_result(request, "failed", "march_follow_completion_timeout")
+        pending_march_follow = nil
     end
 end
 
@@ -1539,6 +1723,7 @@ function M.Pump()
         pending_navigation = nil
         pending_world_ready = nil
         pending_server_jump = nil
+        pending_march_follow = nil
         destroy_message()
         write_heartbeat(now, false, control == nil and "control_unavailable" or "host_lease_stale")
         return true
@@ -1550,12 +1735,14 @@ function M.Pump()
         pending_navigation = nil
         pending_world_ready = nil
         pending_server_jump = nil
+        pending_march_follow = nil
         active = control
     end
 
     install_recovery_action_hooks()
     pump_world_ready(control)
     pump_server_jump(control)
+    pump_march_follow(control)
     pump_navigation(control)
     local rendered, render_error = ensure_message()
     if rendered then

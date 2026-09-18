@@ -9,6 +9,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly CurrentClientMapBlockSource currentClientSource;
     private readonly Func<CancellationToken, Task<CurrentClientMapContext>> getContext;
     private readonly Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer;
+    private readonly Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch;
     private readonly Func<int?>? getLiveServerId;
     private readonly IMapScanBlockSource blockSource;
     private CancellationTokenSource? activeCancellation;
@@ -43,6 +44,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         currentClientSource = new CurrentClientMapBlockSource(lifecycle);
         getContext = currentClientSource.GetCurrentContextAsync;
         jumpToServer = currentClientSource.JumpToServerAsync;
+        followMarch = currentClientSource.FollowMarchAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
     }
@@ -52,20 +54,22 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         Func<CancellationToken, Task<CurrentClientMapContext>> getContext,
         IMapScanBlockSource blockSource,
         Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer = null,
-        Func<int?>? getLiveServerId = null)
+        Func<int?>? getLiveServerId = null,
+        Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
         this.blockSource = blockSource ?? throw new ArgumentNullException(nameof(blockSource));
         this.jumpToServer = jumpToServer;
         this.getLiveServerId = getLiveServerId;
+        this.followMarch = followMarch;
         currentClientSource = null!;
     }
 
     public event Action<object>? StatusChanged;
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump" or "server_jump";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump" or "map_march_follow" or "server_jump";
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -77,6 +81,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return await JumpToServerAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_coordinate_jump")
             return await JumpToCoordinateAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command == "map_march_follow")
+            return await FollowMarchAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_scan_stop")
         {
             await StopAsync(cancellationToken).ConfigureAwait(false);
@@ -151,6 +157,69 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         }
     }
 
+
+    private async Task<object> FollowMarchAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("serverId", out JsonElement serverValue) ||
+            !serverValue.TryGetInt32(out int requestedServerId) ||
+            requestedServerId <= 0 ||
+            !payload.TryGetProperty("marchUuid", out JsonElement marchValue) ||
+            !TryReadPositiveInt64(marchValue, out long marchUuid))
+        {
+            throw new BridgeCommandException(
+                "INVALID_MARCH",
+                "server ID and march UUID are required");
+        }
+
+        lock (gate)
+        {
+            if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            if (coordinateJumping)
+                throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
+            if (followMarch is null)
+                throw new BridgeCommandException(
+                    "COMMAND_NOT_IMPLEMENTED",
+                    "March Follow requires the live current-client source.");
+            coordinateJumping = true;
+        }
+
+        try
+        {
+            CurrentClientMarchFollowResult result = await followMarch(
+                requestedServerId, marchUuid, cancellationToken).ConfigureAwait(false);
+            return new
+            {
+                serverId = result.ServerId,
+                marchUuid = result.MarchUuid.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            };
+        }
+        finally
+        {
+            lock (gate) coordinateJumping = false;
+        }
+    }
+
+    private static bool TryReadPositiveInt64(JsonElement value, out long parsed)
+    {
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out parsed))
+            return parsed > 0;
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out parsed))
+        {
+            return parsed > 0;
+        }
+        parsed = 0;
+        return false;
+    }
 
     private async Task<object> JumpToCoordinateAsync(JsonElement payload, CancellationToken cancellationToken)
     {

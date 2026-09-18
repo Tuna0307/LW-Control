@@ -14,6 +14,8 @@ internal sealed record CurrentClientMapContext(
 
 internal sealed record CurrentClientCoordinateJumpResult(int ServerId, int X, int Y);
 
+internal sealed record CurrentClientMarchFollowResult(int ServerId, long MarchUuid);
+
 internal sealed record CurrentClientServerJumpResult(int PreviousServerId, bool Changed);
 
 internal sealed partial class CurrentClientMapBlockSource
@@ -49,6 +51,99 @@ internal sealed partial class CurrentClientMapBlockSource
         _ = await NavigateCoreAsync(session, context.ServerId, context.WorldId, x, y, cancellationToken).ConfigureAwait(false);
         RequireSameSession(session);
         return new CurrentClientCoordinateJumpResult(context.ServerId, x, y);
+    }
+
+    internal async Task<CurrentClientMarchFollowResult> FollowMarchAsync(
+        int requestedServerId,
+        long marchUuid,
+        CancellationToken cancellationToken)
+    {
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+
+        string requestId = "follow" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string requestPath = Path.Combine(overviewRuntimeRoot, "march-follow.txt");
+        string resultPath = Path.Combine(overviewRuntimeRoot, "march-follow-result.json");
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"bridgeVersion={OverviewBridgeVersion}",
+            $"profileId={session.ProfileId}",
+            $"sessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"requestId={requestId}",
+            $"serverId={requestedServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"marchUuid={marchUuid.ToString(CultureInfo.InvariantCulture)}",
+            string.Empty,
+        });
+        await WriteCommandAsync(requestPath, command, cancellationToken).ConfigureAwait(false);
+
+        DateTimeOffset deadline = Now() + NavigationTimeout;
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            RequireSameSession(session);
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                CurrentClientMarchFollowResult result =
+                    ValidateMarchFollowResult(root.Value, session, requestedServerId, marchUuid);
+                RequireSameSession(session);
+                return result;
+            }
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+
+        throw new TimeoutException("The current-client march Follow did not return a correlated result.");
+    }
+
+    private static CurrentClientMarchFollowResult ValidateMarchFollowResult(
+        JsonElement root,
+        OverviewMapScanSession session,
+        int requestedServerId,
+        long marchUuid)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "bridgeVersion", OverviewBridgeVersion) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "sessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesInt(root, "serverId", requestedServerId) ||
+            !MatchesLong(root, "marchUuid", marchUuid))
+        {
+            throw new InvalidDataException(
+                "March Follow result did not match the active owned game session or requested march.");
+        }
+
+        string state = ReadOptionalString(root, "state") ?? string.Empty;
+        if (state == "proven")
+        {
+            int currentServerId = RequirePositiveInt(root, "currentServerId");
+            if (currentServerId != requestedServerId)
+                throw new InvalidDataException("March Follow did not prove the requested live server.");
+            if (!MatchesString(
+                    root,
+                    "method",
+                    "GoToUtil.JumpToMarchByUuid"))
+                throw new InvalidDataException("March Follow did not prove the supported current-client route.");
+            return new CurrentClientMarchFollowResult(currentServerId, marchUuid);
+        }
+
+        if (state == "failed")
+        {
+            string error = ReadOptionalString(root, "error") ?? "march_follow_failed";
+            if (string.Equals(error, "current_server_id_unavailable", StringComparison.Ordinal))
+                throw new BridgeCommandException("SERVER_UNAVAILABLE", "current server id unavailable");
+            throw new BridgeCommandException("MARCH_FOLLOW_FAILED", error);
+        }
+
+        throw new InvalidDataException("March Follow result did not contain a supported terminal state.");
     }
 
     internal async Task<CurrentClientServerJumpResult> JumpToServerAsync(

@@ -4714,6 +4714,13 @@ Check(liveProbeHelperSource.Contains("closing_owned_game_after_failure_for_resto
       liveProbeHelperSource.Contains("close_owned_game_process_for_restore(p, owned_game)", StringComparison.Ordinal),
     "live helper failure cleanup retains exact helper-owned PID normal-close restoration fallback");
 string liveCityProbeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+string overviewBridgeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_overview_bridge.lua"));
+Check(
+    overviewBridgeSource.Contains("GoToUtil.JumpToMarchByUuid", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("pcall(jump_march, request.marchUuid, request.serverId, 0)", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("local NAVIGATION_TIMEOUT_SECONDS = 5", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("write_march_follow_result(request, \"failed\", \"march_unavailable\")", StringComparison.Ordinal),
+    "March Follow must use the current-v19 JumpToMarchByUuid server-position fallback, preserve the recovered 5-second native window, and never fail merely because the march is not already locally loaded");
 int liveProbeTopLevelLocalCount = 0;
 foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
 {

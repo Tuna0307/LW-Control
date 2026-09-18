@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Current moving-march Follow acceptance — LWB-R7-040, 2026-09-19
+
+**Truck Follow is LIVE-PROVEN; Railway positive-row Follow is population-pending.** Original 0.3.1 disassembly ties `map_march_follow` directly to `gotoWorldMarch` with only `serverId` and `marchUuid` plus a recovered 5,000 ms native timeout. Current-v19 `GoToUtil.JumpToMarchByUuid(marchUuid, serverId, 0)` is the matching source-backed route: it uses the local `WorldMarchDataManager` when possible and otherwise sends `MsgDefines.GetMarchPos`; `GetMarchPosMessage` then calls `GoToUtil.MoveToWorldMarchAndOpen` using the authoritative response position/server/world.
+
+The first live UI attempt uncovered a distinct search-row contract bug: stored `data_json` is not required to duplicate enclosing `server_id`, but the recovered frontend requires `row.serverId` for stale-row/action guards. `SearchIndexed` now selects `page.server_id` beside `data_json` and injects that authoritative scope into the returned row. A regression test deliberately stores JSON without `serverId`; live retest then observed server scope on all 50/50 sampled Truck rows. A rendered Truck **Follow** click produced a correlated `proven` result via `GoToUtil.JumpToMarchByUuid` and observed the requested moving march on the current server. The acceptance-time Railway query returned zero active rows, so no positive Railway Follow claim is made. Evidence: [`2026-09-19-r7-moving-march-follow.json`](../evidence/lwbridge-implementation/2026-09-19-r7-moving-march-follow.json).
+
 ## Active implementation direction - shared scanner first, 2026-09-13
 
 The owner has explicitly chosen the shared Manual Scan engine as the next Map Data priority. Treat the recovered scan architecture as one world-map acquisition lifecycle with `selectedTypes`, not eight independent category scanners. Player City remains the first acceptance category because its current-client source/identity/storage/render path is already proven; Resource follows only after the common worker exists, subject to SB-97.

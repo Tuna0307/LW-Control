@@ -31,6 +31,8 @@ internal static class MapDataStoreScanEngineChecks
         Check(result.Total == 1, "completed engine publication replaces the selected published kind");
         string key = result.Rows[0].GetProperty("recordKey").GetString() ?? string.Empty;
         Check(key == "fresh", "completed engine publication exposes only freshly staged row");
+        Check(result.Rows[0].GetProperty("serverId").GetInt32() == 2212,
+            "indexed search must attach the authoritative indexed server scope even when data_json omits serverId");
         Check(store.ReadScanBlockCheckpointsForTest(request.RunId).Count == 0,
             "completed publication removes block staging after commit");
     }
@@ -199,7 +201,7 @@ internal static class MapDataStoreScanEngineChecks
         new(
             "city", 2212, key, 1, key, key, null,
             30, null, null, null, null, updatedAt,
-            $"{{\"recordKey\":\"{key}\",\"kind\":\"city\",\"serverId\":2212,\"updatedAt\":{updatedAt}}}");
+            $"{{\"recordKey\":\"{key}\",\"kind\":\"city\",\"updatedAt\":{updatedAt}}}");
 
     private static MapDataQueryOptions Query() =>
         new(

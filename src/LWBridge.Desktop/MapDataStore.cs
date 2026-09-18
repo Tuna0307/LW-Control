@@ -748,8 +748,8 @@ internal sealed partial class MapDataStore : IDisposable
             using SqliteCommand page = connection.CreateCommand();
             page.Transaction = snapshot;
             page.CommandText = city
-                ? $"SELECT page.data_json, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset"
-                : $"SELECT page.data_json FROM map_records page WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset";
+                ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset"
+                : $"SELECT page.data_json, page.server_id FROM map_records page WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset";
             AddSearchParameters(page, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
             page.Parameters.AddWithValue("$limit", options.PageSize);
             page.Parameters.AddWithValue("$offset", offset);
@@ -757,7 +757,10 @@ internal sealed partial class MapDataStore : IDisposable
             var rows = new List<JsonElement>();
             using SqliteDataReader reader = page.ExecuteReader();
             while (reader.Read())
-                rows.Add(ReadSearchRow(reader.GetString(0), city ? reader.GetInt32(1) != 0 : null));
+                rows.Add(ReadSearchRow(
+                    reader.GetString(0),
+                    reader.GetInt32(1),
+                    city ? reader.GetInt32(2) != 0 : null));
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
@@ -1178,13 +1181,18 @@ internal sealed partial class MapDataStore : IDisposable
         reader.GetInt64(12),
         reader.GetString(13));
 
-    private static JsonElement ReadSearchRow(string dataJson, bool? marked)
+    private static JsonElement ReadSearchRow(string dataJson, int serverId, bool? marked)
     {
         try
         {
             JsonNode? node = JsonNode.Parse(dataJson);
             if (node is not JsonObject row)
                 throw new BridgeCommandException("MAP_INDEX_CORRUPT", "Stored map row is not a JSON object.");
+            // The indexed server scope is authoritative. The recovered Map Data
+            // frontend expects every returned row to carry serverId for stale-row
+            // guards and row actions, while source payload JSON is not required to
+            // duplicate the enclosing store key.
+            row["serverId"] = serverId;
             if (marked.HasValue) row["marked"] = marked.Value;
             using JsonDocument document = JsonDocument.Parse(row.ToJsonString());
             return document.RootElement.Clone();

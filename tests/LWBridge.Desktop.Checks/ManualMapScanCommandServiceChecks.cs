@@ -25,6 +25,7 @@ internal static class ManualMapScanCommandServiceChecks
         await TreasureTypeIsAccepted();
         await MixedTypesAreAccepted();
         await AllEightTypesAreAccepted();
+        await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
         await ZombieBossMixedTypesFailClosed();
     }
@@ -298,6 +299,85 @@ internal static class ManualMapScanCommandServiceChecks
               source.LastSelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),
             "all eight recovered Map Data kinds should use one shared Manual Scan run");
         service.Close();
+    }
+
+    private static async Task MarchFollowPublicContractIsRecoveredAndUsesLiveSource()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource());
+
+        Check(service.CanHandle("map_march_follow"),
+            "Manual Map Scan service should expose the recovered map_march_follow command");
+
+        foreach (JsonElement invalid in new[]
+        {
+            JsonSerializer.SerializeToElement(new { serverId = 0, marchUuid = "123" }, JsonOptions.Default),
+            JsonSerializer.SerializeToElement(new { serverId = 2212, marchUuid = "" }, JsonOptions.Default),
+            JsonSerializer.SerializeToElement(new { serverId = 2212, marchUuid = "not-a-number" }, JsonOptions.Default),
+        })
+        {
+            try
+            {
+                _ = await service.InvokeAsync("map_march_follow", invalid, CancellationToken.None);
+                throw new InvalidOperationException("invalid march Follow payload should fail before touching the live source");
+            }
+            catch (BridgeCommandException error) when (
+                error.Code == "INVALID_MARCH" &&
+                error.Message == "server ID and march UUID are required")
+            {
+            }
+        }
+
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_march_follow",
+                JsonSerializer.SerializeToElement(
+                    new { serverId = 2212, marchUuid = "7654321090123" },
+                    JsonOptions.Default),
+                CancellationToken.None);
+            throw new InvalidOperationException("synthetic service should not fabricate a live march Follow");
+        }
+        catch (BridgeCommandException error) when (error.Code == "COMMAND_NOT_IMPLEMENTED")
+        {
+        }
+        service.Close();
+
+        const int SyntheticServerId = 2212;
+        const long SyntheticMarchUuid = 7654321090123;
+        int requestedServerId = 0;
+        long requestedMarchUuid = 0;
+        var liveService = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            jumpToServer: null,
+            getLiveServerId: null,
+            followMarch: (serverId, marchUuid, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                requestedServerId = serverId;
+                requestedMarchUuid = marchUuid;
+                return Task.FromResult(new CurrentClientMarchFollowResult(serverId, marchUuid));
+            });
+
+        object? result = await liveService.InvokeAsync(
+            "map_march_follow",
+            JsonSerializer.SerializeToElement(
+                new { serverId = SyntheticServerId, marchUuid = SyntheticMarchUuid.ToString() },
+                JsonOptions.Default),
+            CancellationToken.None);
+        JsonElement json = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
+        Check(
+            requestedServerId == SyntheticServerId &&
+            requestedMarchUuid == SyntheticMarchUuid &&
+            json.GetProperty("serverId").GetInt32() == SyntheticServerId &&
+            json.GetProperty("marchUuid").GetString() == SyntheticMarchUuid.ToString(),
+            "march Follow must preserve exact server and 64-bit march identity through the live source and result");
+        liveService.Close();
     }
 
     private static async Task ServerJumpPublicContractIsRecoveredAndBusyGated()

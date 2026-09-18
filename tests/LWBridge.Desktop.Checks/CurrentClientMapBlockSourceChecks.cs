@@ -30,6 +30,8 @@ internal static class CurrentClientMapBlockSourceChecks
         await TargetedCityFallbackFailsClosed();
         await FastCityBatchReturnsFiveLogicalCaptures();
         await CoordinateJumpUsesOwnedNavigation();
+        await MarchFollowUsesOwnedNavigation();
+        await MarchFollowMapsUnavailableServerAndRejectsForeignSession();
         await ServerJumpProvesNoOpAndChangedTransition();
         await ServerJumpMapsRecoveredTimeoutContract();
         await ServerJumpRejectsForeignSessionResult();
@@ -1091,6 +1093,76 @@ internal static class CurrentClientMapBlockSourceChecks
         catch (BridgeCommandException error) when (error.Code == "STALE_MAP_SERVER") { }
     }
 
+    private static async Task MarchFollowUsesOwnedNavigation()
+    {
+        const long SyntheticMarchUuid = 7654321090123;
+        int followWrites = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("march-follow.txt", StringComparison.OrdinalIgnoreCase)) followWrites++;
+            },
+            marchFollowResult: fields => MarchFollowResult(
+                fields,
+                "proven",
+                null,
+                int.Parse(fields["serverId"])));
+
+        CurrentClientMarchFollowResult result =
+            await source.FollowMarchAsync(2212, SyntheticMarchUuid, CancellationToken.None);
+
+        Check(
+            followWrites == 1 &&
+            result.ServerId == 2212 &&
+            result.MarchUuid == SyntheticMarchUuid,
+            "march Follow must use one correlated owned-session request and preserve the 64-bit march UUID");
+    }
+
+    private static async Task MarchFollowMapsUnavailableServerAndRejectsForeignSession()
+    {
+        const long SyntheticMarchUuid = 7654321090123;
+        CurrentClientMapBlockSource unavailable = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            marchFollowResult: fields => MarchFollowResult(
+                fields,
+                "failed",
+                "current_server_id_unavailable",
+                0));
+        try
+        {
+            _ = await unavailable.FollowMarchAsync(2212, SyntheticMarchUuid, CancellationToken.None);
+            throw new InvalidOperationException("unavailable current server should fail with the recovered public contract");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "SERVER_UNAVAILABLE" &&
+            error.Message == "current server id unavailable")
+        {
+        }
+
+        CurrentClientMapBlockSource foreign = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            marchFollowResult: fields =>
+            {
+                using JsonDocument document = JsonDocument.Parse(MarchFollowResult(
+                    fields,
+                    "proven",
+                    null,
+                    int.Parse(fields["serverId"])));
+                JsonObject root = JsonNode.Parse(document.RootElement.GetRawText())!.AsObject();
+                root["sessionId"] = "foreign-session";
+                return root.ToJsonString(JsonOptions.Default);
+            });
+        try
+        {
+            _ = await foreign.FollowMarchAsync(2212, SyntheticMarchUuid, CancellationToken.None);
+            throw new InvalidOperationException("foreign-session Follow result should fail closed");
+        }
+        catch (InvalidDataException)
+        {
+        }
+    }
+
     private static async Task ServerJumpProvesNoOpAndChangedTransition()
     {
         int jumpWrites = 0;
@@ -1229,7 +1301,8 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<OverviewMapScanSession?>? sessionProvider = null,
         Func<OverviewMapScanSession, bool>? matchesOwnedSession = null,
         Func<IReadOnlyDictionary<string, string>, string>? resourceDetailResult = null,
-        Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -1266,6 +1339,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     if (serverJumpResult is null) throw new InvalidOperationException("unexpected server Jump request");
                     string result = serverJumpResult(fields);
                     files[Path.Combine(overviewRoot, "server-jump-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(overviewRoot, "march-follow.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (marchFollowResult is null) throw new InvalidOperationException("unexpected march Follow request");
+                    string result = marchFollowResult(fields);
+                    files[Path.Combine(overviewRoot, "march-follow-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 if (string.Equals(path, Path.Combine(probeRoot, "command.txt"), StringComparison.OrdinalIgnoreCase))
@@ -1312,6 +1392,31 @@ internal static class CurrentClientMapBlockSourceChecks
             .Select(line => line.Split('=', 2))
             .Where(parts => parts.Length == 2)
             .ToDictionary(parts => parts[0], parts => parts[1], StringComparer.Ordinal);
+
+    private static string MarchFollowResult(
+        IReadOnlyDictionary<string, string> fields,
+        string state,
+        string? error,
+        int currentServerId) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = "lwbridge-overview-bridge-1",
+            profileId = fields["profileId"],
+            sessionId = fields["sessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            requestId = fields["requestId"],
+            state,
+            serverId = int.Parse(fields["serverId"]),
+            marchUuid = long.Parse(fields["marchUuid"]),
+            currentServerId,
+            worldX = 123.5,
+            worldY = 0.0,
+            worldZ = 456.5,
+            method = "GoToUtil.JumpToMarchByUuid",
+            error,
+        }, JsonOptions.Default);
 
     private static string ServerJumpResult(
         IReadOnlyDictionary<string, string> fields,
