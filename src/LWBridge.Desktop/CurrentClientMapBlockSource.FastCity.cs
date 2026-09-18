@@ -59,16 +59,12 @@ internal sealed partial class CurrentClientMapBlockSource
 
             if (IsMonsterOnly(request) && hooks?.DisableCoarseMonsterMap != true)
             {
-                try
-                {
-                    return await CaptureFullMonsterMapViaCoarseLodAsync(
-                        session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
-                {
-                    // Keep the exact owned run/session anchor so an outer retry can wait out
-                    // transient readiness loss before the conservative LOD0 fallback resumes.
-                }
+                // Monster/Zombie Boss are fast-only. A failed whole-world LOD2 acquisition
+                // must surface truthfully instead of silently falling back to the much slower
+                // LOD0 adaptive sweep. The same-run session anchor remains available to an
+                // outer retry when readiness itself was only transient.
+                return await CaptureFullMonsterMapViaCoarseLodAsync(
+                    session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
             }
             return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
                 .ConfigureAwait(false);

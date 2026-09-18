@@ -4667,11 +4667,19 @@ Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", Strin
       liveCityProbeSource.Contains("capture.responses[target.uuid] = {", StringComparison.Ordinal) &&
       !liveCityProbeSource.Contains("monster_protection_response_uuid_mismatch", StringComparison.Ordinal),
     "Monster Protection detail must serialize the shared-UUID game message, request authoritative detail for every boss, ignore stale cross-scan replies, and use the original protected/visible deadline fallback when the coarse scan cannot instantiate the manager object");
+Check(liveCityProbeSource.Contains("try_recover_zoom_aoi_geometry", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("UpdateLWAoi_Normal", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("details.zoomRecoveryAttempted ~= true", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("zoom_restore_confirmation_timeout", StringComparison.Ordinal),
+    "whole-world zoom restore timeout must make one bounded native AOI-grid recovery attempt before failing");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
     "optional Monster Protection detail must not pause each AOI acquisition step");
 Check(fastCitySource.Contains("MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35)", StringComparison.Ordinal),
     "dedicated Zombie Boss enrichment must allow the bounded target-count-sized serialized detail window");
+Check(fastCitySource.Contains("Monster/Zombie Boss are fast-only", StringComparison.Ordinal) &&
+      !fastCitySource.Contains("conservative LOD0 fallback resumes", StringComparison.Ordinal),
+    "Monster and Zombie Boss whole-world scans must fail fast instead of silently entering the slow LOD0 fallback");
 
 string mapDataPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));

@@ -1,5 +1,15 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current superseding owner follow-up - LWB-R7-030, 2026-09-18
+
+The owner reported two repeated-scan failures in Monster/Zombie Boss: scans could suddenly become extremely slow, and a later scan could appear stuck/unable to scan again. Failure-first inspection found two independent causes. First, coarse LOD2 timeout/invalid-data/I/O was silently caught and routed into the conservative LOD0 whole-world scanner. Second, one failed run restored the camera tile and `svLod=0` but left `WorldPointManager` AOI geometry at coarse `blockSize=1000/blockCount=1`, then returned `zoom_restore_confirmation_timeout`.
+
+Production is now fast-only for Monster and dedicated Zombie Boss. A failed whole-world LOD2 acquisition surfaces truthfully instead of entering the slow coverage scanner. Zoom restoration still requires the exact original camera tile, LOD0 and 10x100 AOI grid; after a three-second confirmation timeout it makes one bounded native `WorldPointManager.UpdateLWAoi_Normal(true)` recovery attempt through reflection (with the normal public update as the bounded fallback call), then gives restoration one final bounded confirmation window. If exact restoration still fails, the request terminates with `zoom_restore_confirmation_timeout`; there is no unlimited retry.
+
+This is LIVE-PROVEN. A clean Zombie Boss run completed 2,500/2,500 with zero failed/unread blocks in 36.673 s and restored 10x100/LOD0. A same-owned-session proof then ran Scan twice without restarting Last War and completed in 38.414 s / 30.715 s with 117 / 112 dynamic Zombie Boss rows and exact 10x100/LOD0 restoration after both runs. A controlled confirmation-delay run proved the recovery branch, and after all test forcing was removed a final clean production run naturally exercised recovery: 2,500/2,500 in 41.053 s, 135 rows, `zoomRecoveryAttempted=true`, `zoomRecoveryIssued=true`, method `WorldPointManager.UpdateLWAoi_Normal(true)-reflection`, final 10x100/LOD0, stable camera and position restored before response.
+
+Release build is 0-warning/0-error, all six deterministic groups pass, `git diff --check` is clean, current official content v18 compatibility is `ok=true`, and cleanup left no LastWar/LWBridge process or recovery journal. Durable evidence is aggregate-only at `evidence/lwbridge-implementation/2026-09-18-r7-monster-fast-only-recovery.json`. Historical R7-026/R7-027 wording about the automatic LOD0 fallback is superseded by R7-030. Railway/Train remains the next category acceptance after this checkpoint is committed/pushed.
+
 ## Current superseding owner follow-up - LWB-R7-029, 2026-09-18
 
 The owner confirmed Zombie Boss shield deadlines were now present but the displayed Remaining value stayed frozen until another scan. The stored deadline was already correct; the defect was frontend-only. The existing one-second Map Data `currentTime` effect ran for Monster but omitted `zombie_boss`, so Zombie Boss rows kept rendering against the timestamp captured when the tab last rerendered.

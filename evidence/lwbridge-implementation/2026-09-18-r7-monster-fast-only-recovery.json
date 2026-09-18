@@ -1,0 +1,108 @@
+{
+  "findingId": "LWB-R7-030",
+  "status": "LIVE-PROVEN",
+  "date": "2026-09-18",
+  "scope": "Monster/Zombie Boss whole-world fast-path stability and AOI restoration recovery",
+  "ownerIssue": {
+    "reportedSymptoms": [
+      "repeated scans can suddenly become very slow",
+      "a later scan can appear stuck and stop scanning"
+    ],
+    "diagnosis": [
+      "coarse LOD2 failure previously fell back silently to the conservative LOD0 full-world scanner",
+      "one observed failed run restored camera tile and svLod=0 but left WorldPointManager AOI geometry at blockSize=1000/blockCount=1, then returned zoom_restore_confirmation_timeout"
+    ]
+  },
+  "correction": {
+    "fastOnly": "Monster and Zombie Boss whole-world scans no longer fall back to the slow LOD0 coverage path after coarse failure; the fast-path error is surfaced truthfully.",
+    "boundedRecovery": "On zoom-restore confirmation timeout, the probe makes one bounded native WorldPointManager.UpdateLWAoi_Normal(true) recovery attempt, then rechecks exact LOD0 geometry/camera state before accepting the result.",
+    "failClosed": "A second failed restore confirmation still terminates the request; no unlimited retry or fabricated completion is permitted."
+  },
+  "liveAcceptance": {
+    "cleanSingleRun": {
+      "blocks": "2500/2500",
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 36.6728515,
+      "publishedZombieBossRows": 121,
+      "restoredBlockSize": 10,
+      "restoredBlockCount": 100,
+      "restoredServerLod": 0
+    },
+    "sameOwnedSessionRepeat": [
+      {
+        "iteration": 1,
+        "blocks": "2500/2500",
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "scanWallSeconds": 38.4138947,
+        "publishedZombieBossRows": 117,
+        "restoredBlockSize": 10,
+        "restoredBlockCount": 100,
+        "restoredServerLod": 0
+      },
+      {
+        "iteration": 2,
+        "blocks": "2500/2500",
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "scanWallSeconds": 30.7149617,
+        "publishedZombieBossRows": 112,
+        "restoredBlockSize": 10,
+        "restoredBlockCount": 100,
+        "restoredServerLod": 0
+      }
+    ],
+    "boundedRecoveryProof": {
+      "controlledConfirmationDelay": {
+        "scanWallSeconds": 41.0826887,
+        "blocks": "2500/2500",
+        "recoveryAttempted": true,
+        "recoveryIssued": true,
+        "recoveryMethod": "WorldPointManager.UpdateLWAoi_Normal(true)-reflection",
+        "recoveryBlockSize": 10,
+        "recoveryBlockCount": 100,
+        "recoveryServerLod": 0
+      },
+      "finalCleanNaturalRecovery": {
+        "scanWallSeconds": 41.0532011,
+        "blocks": "2500/2500",
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "publishedZombieBossRows": 135,
+        "recoveryAttempted": true,
+        "recoveryIssued": true,
+        "recoveryMethod": "WorldPointManager.UpdateLWAoi_Normal(true)-reflection",
+        "recoveryBlockSize": 10,
+        "recoveryBlockCount": 100,
+        "recoveryServerLod": 0,
+        "restoredBlockSize": 10,
+        "restoredBlockCount": 100,
+        "restoredServerLod": 0,
+        "cameraTileStable": true,
+        "positionRestoredBeforeResponse": true
+      }
+    }
+  },
+  "deterministicValidation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "groups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "gitDiffCheck": true
+  },
+  "finalCompatibility": {
+    "ok": true,
+    "contentVersion": 18,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "recoveryJournalPresent": false,
+    "gameOrBridgeProcessPresent": false
+  },
+  "privacy": "Durable evidence is aggregate-only. No live player identity, UUID, coordinates, session/challenge identifiers or account data are retained."
+}

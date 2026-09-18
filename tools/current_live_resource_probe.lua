@@ -2503,6 +2503,13 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         zoomWholeWorldCoarse = details.zoomWholeWorldCoarse,
         restoredTileX = details.restoredTileX, restoredTileY = details.restoredTileY,
         restoredBlockSize = details.restoredBlockSize, restoredBlockCount = details.restoredBlockCount, restoredServerLod = details.restoredServerLod,
+        zoomRecoveryAttempted = details.zoomRecoveryAttempted,
+        zoomRecoveryMethod = details.zoomRecoveryMethod,
+        zoomRecoveryIssued = details.zoomRecoveryIssued,
+        zoomRecoveryError = details.zoomRecoveryError,
+        zoomRecoveryBlockSize = details.zoomRecoveryBlockSize,
+        zoomRecoveryBlockCount = details.zoomRecoveryBlockCount,
+        zoomRecoveryServerLod = details.zoomRecoveryServerLod,
         registrationMethod = registration_method,
         anchorDebug = details.anchorDebug,
         expandedAnchorCells = details.expandedAnchorCells,
@@ -2511,6 +2518,25 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         postInvokeMsgViewCount = details.postInvokeMsgViewCount,
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
+end
+
+local function try_recover_zoom_aoi_geometry(point_manager, details)
+    details = details or {}
+    details.zoomRecoveryAttempted = true
+    local ok, _, error_text = reflected_call_bool(point_manager, "UpdateLWAoi_Normal", true)
+    if ok then
+        details.zoomRecoveryMethod = "WorldPointManager.UpdateLWAoi_Normal(true)-reflection"
+        details.zoomRecoveryIssued = true
+    else
+        local direct_ok = select(1, call(point_manager, "UpdateViewRequest", true))
+        details.zoomRecoveryMethod = "WorldPointManager.UpdateViewRequest(true)"
+        details.zoomRecoveryIssued = direct_ok == true
+        details.zoomRecoveryError = direct_ok and nil or tostring(error_text or "zoom_recovery_update_failed")
+    end
+    details.zoomRecoveryBlockSize = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+    details.zoomRecoveryBlockCount = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+    details.zoomRecoveryServerLod = integer_field(point_manager, { "svLod" })
+    return details.zoomRecoveryIssued == true
 end
 
 local function fail_bulk_aoi(request, error_text, details, point_manager)
@@ -3060,6 +3086,12 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         if details.zoomRestoreStartedAt ~= nil and runtime_clock() - details.zoomRestoreStartedAt >= 3 then
+            if details.zoomRecoveryAttempted ~= true then
+                try_recover_zoom_aoi_geometry(point_manager, details)
+                details.zoomRestoreStartedAt = runtime_clock()
+                bulk_aoi_request.details = details
+                return true
+            end
             write_bulk_aoi_result(bulk_aoi_request, "failed", "zoom_restore_confirmation_timeout", details)
             bulk_aoi_request = nil; bulk_aoi_started_at = nil
             return true

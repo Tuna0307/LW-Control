@@ -38,7 +38,8 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastMonsterCoarseLodReturnsAllLogicalCaptures();
         await FastZombieBossCoarseLodPublishesOnlyZombieBosses();
-        await FastMonsterCoarseFailureFallsBackToExactCoverage();
+        await FastMonsterCoarseFailureFailsFastWithoutCoverageFallback();
+        await FastZombieBossCoarseFailureFailsFastWithoutCoverageFallback();
         await FastMonsterAcceptsAccumulatedProtectionTargets();
         await FastMonsterKnownInactiveProtectionSuppressesRemaining();
         await FastMonsterAllowsIncompleteMonsterProtectionDetail();
@@ -518,11 +519,10 @@ internal static class CurrentClientMapBlockSourceChecks
             "Zombie Boss rows must preserve level, Distance, Remaining, and dedicated result identity");
     }
 
-    private static async Task FastMonsterCoarseFailureFallsBackToExactCoverage()
+    private static async Task FastMonsterCoarseFailureFailsFastWithoutCoverageFallback()
     {
         int zoomCalls = 0;
         int coverageCalls = 0;
-        bool inserted = false;
         CurrentClientMapBlockSource source = CreateSource(
             (fields, _) => ProvenEmptyCityCurrentView(fields),
             bulkResult: fields =>
@@ -536,24 +536,58 @@ internal static class CurrentClientMapBlockSourceChecks
                     return failed.ToJsonString(JsonOptions.Default);
                 }
                 coverageCalls++;
-                if (!inserted)
-                {
-                    inserted = true;
-                    int x = int.Parse(fields["targetTileX"]);
-                    int y = int.Parse(fields["targetTileY"]);
-                    return ProvenFastMonsterBatch(fields, ("m-fallback", x, y, 1002009, 9, "2000005", false));
-                }
                 return ProvenFastMonsterBatch(fields);
             },
             useCoarseMonsterMap: true);
-        MapScanExecutionRequest request = new("run_fallback", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_fast_only", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
-        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
-            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(zoomCalls == 1 && coverageCalls > 0 && captures.Count == 2500,
-            "coarse Monster failure must fall back to the conservative exact-coverage scanner");
-        Check(captures.SelectMany(capture => capture.Records).Any(record => record.RecordKey == "m-fallback"),
-            "LOD0 fallback must still publish the recovered Monster rows");
+        try
+        {
+            _ = await source.CaptureBatchAsync(
+                request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+            throw new InvalidOperationException("synthetic coarse failure should fail the fast-only Monster scan");
+        }
+        catch (InvalidDataException error) when (error.Message.Contains("synthetic_coarse_failure", StringComparison.Ordinal))
+        {
+        }
+        Check(zoomCalls == 1 && coverageCalls == 0,
+            "Monster coarse failure must fail fast without entering the conservative LOD0 coverage scanner");
+    }
+
+    private static async Task FastZombieBossCoarseFailureFailsFastWithoutCoverageFallback()
+    {
+        int zoomCalls = 0;
+        int coverageCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                if (fields["requestMode"] == "zoom")
+                {
+                    zoomCalls++;
+                    JsonObject failed = JsonNode.Parse(ProvenCoarseMonsterBatch(fields))!.AsObject();
+                    failed["state"] = "failed";
+                    failed["error"] = "synthetic_zombie_coarse_failure";
+                    return failed.ToJsonString(JsonOptions.Default);
+                }
+                coverageCalls++;
+                return ProvenFastMonsterBatch(fields);
+            },
+            useCoarseMonsterMap: true);
+        MapScanExecutionRequest request = new(
+            "run_zombie_fast_only", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        try
+        {
+            _ = await source.CaptureBatchAsync(
+                request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+            throw new InvalidOperationException("synthetic Zombie Boss coarse failure should fail the fast-only scan");
+        }
+        catch (InvalidDataException error) when (error.Message.Contains("synthetic_zombie_coarse_failure", StringComparison.Ordinal))
+        {
+        }
+        Check(zoomCalls == 1 && coverageCalls == 0,
+            "Zombie Boss coarse failure must fail fast without entering the conservative LOD0 coverage scanner");
     }
 
     private static async Task FastMonsterAcceptsAccumulatedProtectionTargets()
