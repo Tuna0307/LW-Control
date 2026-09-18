@@ -361,6 +361,59 @@ internal static class ManualMapScanCommandServiceChecks
         }
 
         service.Close();
+
+        const int SyntheticOriginalServerId = 101;
+        const int SyntheticTargetServerId = 202;
+        int requestedTarget = 0;
+        int statusEvents = 0;
+        var liveService = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            (targetServerId, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                requestedTarget = targetServerId;
+                return Task.FromResult(new CurrentClientServerJumpResult(
+                    SyntheticOriginalServerId,
+                    targetServerId != SyntheticOriginalServerId));
+            });
+        liveService.StatusChanged += _ => statusEvents++;
+        object? jumpResult = await liveService.InvokeAsync(
+            "server_jump",
+            JsonSerializer.SerializeToElement(new { serverId = SyntheticTargetServerId }, JsonOptions.Default),
+            CancellationToken.None);
+        JsonElement jumpJson = JsonSerializer.SerializeToElement(jumpResult, JsonOptions.Default);
+        JsonElement liveStatus = Status(liveService);
+        Check(requestedTarget == SyntheticTargetServerId &&
+              jumpJson.GetProperty("previousServerId").GetInt32() == SyntheticOriginalServerId &&
+              jumpJson.GetProperty("changed").GetBoolean() &&
+              Int(liveStatus, "serverId") == SyntheticTargetServerId &&
+              String(liveStatus, "serverIdSource") == "live" &&
+              statusEvents > 0,
+            "successful server Jump must publish the authoritative target as the shared live server status");
+        liveService.Close();
+
+        int heartbeatReads = 0;
+        var freshStatusService = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            jumpToServer: null,
+            getLiveServerId: () =>
+            {
+                heartbeatReads++;
+                return SyntheticOriginalServerId;
+            });
+        JsonElement freshStatus = Status(freshStatusService);
+        Check(Int(freshStatus, "serverId") == SyntheticOriginalServerId &&
+              String(freshStatus, "serverIdSource") == "live" &&
+              heartbeatReads == 1,
+            "fresh idle Map Scan status must initialize its unknown server from the owned live heartbeat");
+        _ = Status(freshStatusService);
+        Check(heartbeatReads == 1,
+            "known idle Map Scan status must not repeatedly overwrite server ownership from heartbeat snapshots");
+        freshStatusService.Close();
     }
 
     private static async Task ZombieBossMixedTypesFailClosed()

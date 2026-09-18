@@ -8,6 +8,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly MapDataStore store;
     private readonly CurrentClientMapBlockSource currentClientSource;
     private readonly Func<CancellationToken, Task<CurrentClientMapContext>> getContext;
+    private readonly Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer;
+    private readonly Func<int?>? getLiveServerId;
     private readonly IMapScanBlockSource blockSource;
     private CancellationTokenSource? activeCancellation;
     private Task? activeTask;
@@ -40,17 +42,23 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         currentClientSource = new CurrentClientMapBlockSource(lifecycle);
         getContext = currentClientSource.GetCurrentContextAsync;
+        jumpToServer = currentClientSource.JumpToServerAsync;
+        getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
     }
 
     internal ManualMapScanCommandService(
         MapDataStore store,
         Func<CancellationToken, Task<CurrentClientMapContext>> getContext,
-        IMapScanBlockSource blockSource)
+        IMapScanBlockSource blockSource,
+        Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer = null,
+        Func<int?>? getLiveServerId = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
         this.blockSource = blockSource ?? throw new ArgumentNullException(nameof(blockSource));
+        this.jumpToServer = jumpToServer;
+        this.getLiveServerId = getLiveServerId;
         currentClientSource = null!;
     }
 
@@ -114,7 +122,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
-            if (currentClientSource is null)
+            if (jumpToServer is null)
                 throw new BridgeCommandException(
                     "COMMAND_NOT_IMPLEMENTED",
                     "Server jump requires the live current-client source.");
@@ -123,9 +131,14 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
         try
         {
-            CurrentClientServerJumpResult result = await currentClientSource
-                .JumpToServerAsync(targetServerId, cancellationToken)
-                .ConfigureAwait(false);
+            CurrentClientServerJumpResult result = await jumpToServer(
+                targetServerId, cancellationToken).ConfigureAwait(false);
+            lock (gate)
+            {
+                serverId = targetServerId;
+                lastError = null;
+            }
+            PublishStatusChanged();
             return new
             {
                 previousServerId = result.PreviousServerId,
@@ -430,6 +443,22 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
     public object CreateStatus()
     {
+        bool shouldResolveLiveServer;
+        lock (gate)
+            shouldResolveLiveServer = !closed && !isReading && serverId <= 0;
+        if (shouldResolveLiveServer && getLiveServerId is not null)
+        {
+            int? resolvedServerId = getLiveServerId();
+            if (resolvedServerId is > 0)
+            {
+                lock (gate)
+                {
+                    if (!closed && !isReading && serverId <= 0)
+                        serverId = resolvedServerId.Value;
+                }
+            }
+        }
+
         lock (gate)
         {
             MapScanDerivedProgress derived = MapScanProgress.Derive(

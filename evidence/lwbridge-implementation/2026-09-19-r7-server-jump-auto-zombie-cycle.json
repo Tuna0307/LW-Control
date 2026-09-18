@@ -82,19 +82,16 @@
   "liveServerJumpRoundTrip": {
     "ok": true,
     "proof": "server_jump_owned_session_roundtrip",
-    "homeServerId": 2212,
-    "targetServerId": 2213,
     "sameServerProven": true,
     "crossServerAccepted": true,
-    "visitedServerId": 2213,
     "returnedToHome": true,
     "processExitCode": 0,
-    "harnessRuntimeSeconds": 25.11
+    "harnessRuntimeSeconds": 25.11,
+    "route": "original -> different target -> original"
   },
   "liveAutoZombieBackendCycle": {
     "ok": true,
     "proof": "auto_scan_backend_cycle_zombie_boss",
-    "serverId": 2212,
     "sequence": [
       "server_jump(current server)",
       "map_scan_start fast zombie_boss",
@@ -109,7 +106,8 @@
     "zombieBossCount": 56,
     "scanWallSeconds": 19.3625476,
     "processExitCode": 0,
-    "harnessRuntimeSeconds": 42.18
+    "harnessRuntimeSeconds": 42.18,
+    "serverRelation": "current/original server"
   },
   "postRunRestoration": {
     "gameRunning": false,

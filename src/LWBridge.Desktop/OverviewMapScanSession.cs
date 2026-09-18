@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace LWBridge.Desktop;
 
 internal sealed record OverviewMapScanSession(
@@ -23,6 +25,42 @@ internal sealed partial class OverviewLifecycleService
             snapshot.GamePid,
             snapshot.GamePath,
             snapshot.GameStartedAtUtc);
+    }
+
+    internal int? GetLiveServerId()
+    {
+        OverviewMapScanSession? session = GetReadyMapScanSession();
+        if (session is null) return null;
+
+        try
+        {
+            byte[] bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(
+                Path.Combine(runtimeRoot, "heartbeat.json"));
+            using JsonDocument heartbeat = JsonDocument.Parse(bytes);
+            JsonElement root = heartbeat.RootElement;
+            if (!HeartbeatMatches(
+                    root,
+                    session.ProfileId,
+                    session.SessionId,
+                    session.Challenge,
+                    session.GamePid,
+                    RecoveryNow().ToUnixTimeSeconds()) ||
+                !MatchesBool(root, "gameStateObserved", true) ||
+                !MatchesBool(root, "gameReady", true) ||
+                !MatchesBool(root, "loggedIn", true) ||
+                !MatchesBool(root, "connected", true) ||
+                !root.TryGetProperty("serverId", out JsonElement server) ||
+                !server.TryGetInt32(out int serverId) ||
+                serverId <= 0)
+            {
+                return null;
+            }
+            return serverId;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     internal bool MatchesOwnedMapScanSession(OverviewMapScanSession expected)

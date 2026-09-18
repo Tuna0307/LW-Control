@@ -4825,6 +4825,23 @@ Check(mapDataPanelSource.Contains(
       mapDataPanelSource.Contains("window.setInterval(()=>nn(Date.now()),1e3)", StringComparison.Ordinal),
     "Zombie Boss Remaining must share the one-second live countdown clock with Monster");
 
+string generatedIndexSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "index-sfL2sT3K.js"));
+Check(generatedIndexSource.Contains(
+          "var Un=new Set([`city`,`resource`,`monster`,`zombie_boss`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "localStorage.setItem(`lwbridge.mapAutoScan.${e}`",
+          StringComparison.Ordinal),
+    "Auto Scan config sanitizer/persistence must preserve dedicated Zombie Boss selection");
+Check(generatedIndexSource.Contains("MAP_AUTO_SCAN_TIMEOUT", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("automatic map scan cycle started servers=", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "Mt(await Te({selectedTypes:i.selectedTypes,scanMode:i.scanMode,resume:!1}))",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("automatic map scan returned to server", StringComparison.Ordinal),
+    "Auto Scan parent scheduler must sequence server jump -> shared map scan -> terminal wait -> optional return");
+
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),
     "generated API injects active profile when wrapper omits profileId");

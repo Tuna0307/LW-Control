@@ -1,12 +1,22 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current server travel / Auto Scan integration checkpoint - LWB-R7-037, 2026-09-19
+## Actual Auto Scan scheduler checkpoint - LWB-R7-038, 2026-09-19
+
+The real desktop React Auto Scan scheduler is now LIVE-PROVEN for dedicated Zombie Boss current/cross-server operation. Failure-first UI driving found that the parent sanitizer omitted `zombie_boss`, so the visible Zombie Boss choice was silently normalized back to the recovered default Auto kinds. Production generation now preserves `zombie_boss` in the parent allow-list while keeping the recovered default list unchanged.
+
+The same live acceptance exposed two server-status ownership defects. A successful `server_jump` now immediately publishes its authoritative target into shared Map Scan status, and a fresh idle Map Scan status with no known server initializes once from the exact owned Overview heartbeat's authoritative `GetCurServerId()`. Heartbeat initialization is deliberately limited to unknown idle state so it cannot overwrite an active scan or a just-proven jump.
+
+A brand-new desktop/game session reported a positive live server before any jump or scan. Two consecutive real UI **Run now** cycles then each began on the original server, jumped to a different target, ran the existing shared Fast `zombie_boss` scanner over 2,500/2,500 blocks with zero failed/unread, returned to the original server, and immediately reported the original server in `map_scan_status`. The status between cycles was also the original server, so the second cycle independently preserved return ownership. The original Auto Scan configuration was restored and the owned game stopped cleanly. Aggregate-only evidence: `evidence/lwbridge-implementation/2026-09-19-r7-auto-scheduler-cross-server.json`.
+
+**Next:** finish Auto Scan acceptance with one scheduler cycle containing multiple configured target servers plus disable/stop/failure behavior. A naturally elapsed unattended `nextRunAt` after full app restart is still not separately live-proven; the scheduler remains owned by the running desktop React application rather than a native background service.
+
+## Prior server travel / Auto Scan integration checkpoint - LWB-R7-037, 2026-09-19
 
 Production `server_jump({serverId})` is now implemented on the same owned current-v19 Overview session used by Map Data. Current-client source recovery proves ordinary travel uses `GoToUtil.GoToServerPreCheck` plus `CrossServerUtil.OnCrossServer(serverId)`, return-to-self uses `CrossServerUtil.OnBackSelfServer()`, and authoritative arrival is `LuaEntry.Player:GetCurServerId()`. `GoToUtil.GotoServerZone` is season/Nine-Nation specific and is deliberately not used as the generic travel primitive. The original public invalid-server, busy-operation and timeout code/message contracts are preserved; only the numeric timeout duration remains rebuild policy rather than recovered fact.
 
-A bounded live proof passed same-server no-op and **2212 -> 2213 -> 2212**. A second bounded owned-session proof then executed the Auto Scan backend sequence `server_jump(current) -> map_scan_start(fast,zombie_boss)`, completed 2,500/2,500 logical blocks with zero failed/unread in 19.3625476 s, and published 56 Zombie Boss rows. Exact v19 restoration and no-process cleanup passed. Evidence is `evidence/lwbridge-implementation/2026-09-19-r7-server-jump-auto-zombie-cycle.json`.
+A bounded live proof passed same-server no-op and **original -> different target -> original**. A second bounded owned-session proof then executed the Auto Scan backend sequence `server_jump(current) -> map_scan_start(fast,zombie_boss)`, completed 2,500/2,500 logical blocks with zero failed/unread in 19.3625476 s, and published 56 Zombie Boss rows. Exact v19 restoration and no-process cleanup passed. Evidence is `evidence/lwbridge-implementation/2026-09-19-r7-server-jump-auto-zombie-cycle.json`.
 
-**Next:** drive the actual Auto Scan page scheduler/timer, then prove multi-server sequencing and configured return-to-origin. Keep using the same `ManualMapScanCommandService`/shared scanner; do not create another acquisition engine. Durable scheduler ownership across page navigation/restart is still open.
+**Historical next at R7-037:** drive the actual Auto Scan page scheduler/timer and configured return-to-origin. `LWB-R7-038` subsequently closes the real parent-scheduler/repeated-return/status portion; multi-target-list plus disable/stop/failure acceptance remains open.
 
 ## Prior shared Manual selection/mode acceptance - LWB-R7-036, 2026-09-19
 

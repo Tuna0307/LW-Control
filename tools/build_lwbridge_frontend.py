@@ -70,6 +70,14 @@ def build(check=False):
                             '[p,m]=(0,j.useState)(window.LWBridgePreview.view)')
             s = replace_once(s, 'new Set([`overview`])',
                             'new Set([window.LWBridgePreview.view])')
+            # LWB-R7-038: Zombie Boss is a dedicated ninth Map Data kind. The
+            # Map Data Auto Scan controls already make it mutually exclusive,
+            # so the parent scheduler sanitizer must preserve it too. Keep the
+            # recovered Auto Scan default list unchanged.
+            s = replace_once(
+                s,
+                'var Un=new Set([`city`,`resource`,`monster`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=',
+                'var Un=new Set([`city`,`resource`,`monster`,`zombie_boss`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=')
             # PM13-01b: preserve the recovered error formatter, but teach it
             # rebuild-only bounded resource/search errors. These strings are
             # IMPLEMENTATION POLICY, not recovered original LWBridge wording.
