@@ -4765,6 +4765,18 @@ Check(
     plunderStoreSource.Contains("status='succeeded',last_error=NULL", StringComparison.Ordinal) &&
     !plunderStoreSource.Contains("attempts=attempts+1", StringComparison.Ordinal),
     "Truck result persistence must enrich the current truck_json and mark succeeded without incrementing attempts; archiving remains a separate reschedule operation");
+Check(
+    plunderStoreSource.Contains("CreateTruckPlunderJobId(", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("$\"truck-{unixTimeMilliseconds}-{randomValue:x}\"", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("$\"legacy-{serverId}-{trainUuid}-{createdAt}\"", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("previousStatus is \"succeeded\" or \"failed\" or \"cancelled\" or \"expired\"", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("ON CONFLICT(job_id) DO NOTHING", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("attempts=CASE WHEN truck_plunder_jobs.status IN ('scheduled','waiting_connection')", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("WHERE truck_plunder_jobs.status<>'running'", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("nextRow.Remove(\"battleWon\")", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("nextRow.Remove(\"plunderRewards\")", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("scheduled truck job is missing", StringComparison.Ordinal),
+    "Truck archive/reschedule persistence must preserve the recovered terminal archive set, history conflict behavior, fresh/legacy job identities, stale result clearing, attempt rule and running-row guard");
 int liveProbeTopLevelLocalCount = 0;
 foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
 {

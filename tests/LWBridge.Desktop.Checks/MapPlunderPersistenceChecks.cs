@@ -187,11 +187,204 @@ internal static class MapPlunderPersistenceChecks
                       snapshot.DispatchJobs[0].GetProperty("scheduleStatus").GetString() == "running",
                     "combined list preserves unrelated dispatch job state across reopen");
             }
+
+            RunTruckScheduleTransaction(Path.Combine(root, "schedule-map-data.db"));
         }
         finally
         {
             try { Directory.Delete(root, recursive: true); } catch { }
         }
+    }
+
+    private static void RunTruckScheduleTransaction(string databasePath)
+    {
+        Check(MapDataStore.CreateTruckPlunderJobId(1_700_000_000_123L, 0xabcdUL) ==
+              "truck-1700000000123-abcd",
+            "fresh Truck job id uses recovered truck-{unixMs}-{randomU64LowerHex} shape");
+        Check(MapDataStore.CreateTruckPlunderJobId(1_700_000_000_123L, 0UL) ==
+              "truck-1700000000123-0",
+            "fresh Truck job id does not invent hex zero padding");
+        Check(MapDataStore.CreateLegacyTruckPlunderJobId(88, "train-legacy", 600) ==
+              "legacy-88-train-legacy-600",
+            "legacy Truck archive id uses recovered server/train/created_at tuple");
+
+        using var store = new MapDataStore(databasePath);
+
+        TruckPlunderScheduleResult fresh = store.ScheduleTruckPlunderForTest(
+            88,
+            "truck-fresh",
+            """{"uuid":"truck-fresh","ownerName":"Fresh","battleWon":true,"plunderRewards":[{"key":"old"}],"plunderRewardsComplete":true,"jobId":"stale"}""",
+            executeAt: 2_000,
+            expireAt: 9_000,
+            now: 1_000,
+            randomValue: 0x10UL);
+        Check(fresh.JobId == "truck-1000-10" && fresh.Attempts == 0 && !fresh.ArchivedPreviousAttempt,
+            "fresh Truck schedule returns recovered new identity with zero attempts and no archive");
+        JsonElement freshRow = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "truck-fresh");
+        Check(freshRow.GetProperty("jobId").GetString() == "truck-1000-10" &&
+              freshRow.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              freshRow.GetProperty("attempts").GetInt32() == 0 &&
+              freshRow.GetProperty("scheduledAt").GetInt64() == 1_000 &&
+              freshRow.GetProperty("scheduleUpdatedAt").GetInt64() == 1_000 &&
+              freshRow.GetProperty("executeAt").GetInt64() == 2_000 &&
+              !freshRow.TryGetProperty("battleWon", out _) &&
+              !freshRow.TryGetProperty("plunderRewards", out _) &&
+              !freshRow.TryGetProperty("plunderRewardsComplete", out _),
+            "fresh Truck schedule strips stale result state and persists the fresh job id");
+
+        store.UpsertTruckPlunderJobForTest(
+            88,
+            "truck-wait",
+            """{"uuid":"truck-wait","ownerName":"Waiting","jobId":"truck-old-wait","battleWon":false,"plunderRewards":[]}""",
+            executeAt: 2_100,
+            expireAt: 9_000,
+            status: "waiting_connection",
+            attempts: 4,
+            lastError: "game disconnected",
+            createdAt: 700,
+            updatedAt: 710);
+        TruckPlunderScheduleResult waiting = store.ScheduleTruckPlunderForTest(
+            88,
+            "truck-wait",
+            """{"uuid":"truck-wait","ownerName":"Waiting New","battleWon":true,"plunderRewards":[{"key":"stale"}]}""",
+            executeAt: 3_000,
+            expireAt: 9_500,
+            now: 1_100,
+            randomValue: 0x20UL);
+        Check(waiting.JobId == "truck-1100-20" &&
+              waiting.Attempts == 4 &&
+              !waiting.ArchivedPreviousAttempt,
+            "waiting_connection reschedule preserves attempts and does not archive a nonterminal attempt");
+        JsonElement waitingRow = store.ReadPlunderJobs().TruckJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "truck-wait");
+        Check(waitingRow.GetProperty("jobId").GetString() == "truck-1100-20" &&
+              waitingRow.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              waitingRow.GetProperty("attempts").GetInt32() == 4 &&
+              waitingRow.GetProperty("scheduledAt").GetInt64() == 700 &&
+              waitingRow.GetProperty("scheduleUpdatedAt").GetInt64() == 1_100 &&
+              waitingRow.GetProperty("executeAt").GetInt64() == 3_000 &&
+              waitingRow.GetProperty("ownerName").GetString() == "Waiting New",
+            "rescheduling a waiting row preserves original created_at while replacing current target JSON/time");
+
+        store.UpsertTruckPlunderJobForTest(
+            88,
+            "truck-terminal",
+            """{"uuid":"truck-terminal","ownerName":"Terminal","jobId":"truck-old-terminal","battleWon":true,"plunderRewards":[{"key":"reward:1:1001","count":25}]}""",
+            executeAt: 2_200,
+            expireAt: 9_000,
+            status: "succeeded",
+            attempts: 2,
+            lastError: null,
+            createdAt: 500,
+            updatedAt: 550);
+        TruckPlunderScheduleResult terminal = store.ScheduleTruckPlunderForTest(
+            88,
+            "truck-terminal",
+            """{"uuid":"truck-terminal","ownerName":"Terminal Again","battleWon":false,"plunderRewards":[{"key":"stale"}]}""",
+            executeAt: 3_100,
+            expireAt: 9_600,
+            now: 1_200,
+            randomValue: 0x30UL);
+        Check(terminal.JobId == "truck-1200-30" &&
+              terminal.Attempts == 0 &&
+              terminal.ArchivedPreviousAttempt,
+            "terminal reschedule archives the previous attempt and resets attempts");
+        JsonElement[] terminalRows = store.ReadPlunderJobs().TruckJobs
+            .Where(row => row.GetProperty("uuid").GetString() == "truck-terminal")
+            .ToArray();
+        Check(terminalRows.Length == 2,
+            "terminal reschedule exposes one fresh active row plus one archived previous attempt");
+        JsonElement terminalActive = terminalRows.Single(
+            row => row.GetProperty("scheduleStatus").GetString() == "scheduled");
+        JsonElement terminalHistory = terminalRows.Single(
+            row => row.GetProperty("scheduleStatus").GetString() == "succeeded");
+        Check(terminalActive.GetProperty("jobId").GetString() == "truck-1200-30" &&
+              terminalActive.GetProperty("attempts").GetInt32() == 0 &&
+              terminalActive.GetProperty("scheduledAt").GetInt64() == 500 &&
+              terminalActive.GetProperty("scheduleUpdatedAt").GetInt64() == 1_200 &&
+              !terminalActive.TryGetProperty("battleWon", out _) &&
+              !terminalActive.TryGetProperty("plunderRewards", out _),
+            "terminal replacement keeps original active-row created_at but removes prior battle result state");
+        Check(terminalHistory.GetProperty("jobId").GetString() == "truck-old-terminal" &&
+              terminalHistory.GetProperty("battleWon").GetBoolean() &&
+              terminalHistory.GetProperty("attempts").GetInt32() == 2 &&
+              terminalHistory.GetProperty("scheduledAt").GetInt64() == 500 &&
+              terminalHistory.GetProperty("scheduleUpdatedAt").GetInt64() == 550,
+            "terminal archive preserves previous job identity, result metadata, attempts and timestamps");
+
+        store.UpsertTruckPlunderJobForTest(
+            88,
+            "truck-legacy",
+            """{"uuid":"truck-legacy","ownerName":"Legacy","battleWon":false,"plunderRewards":[]}""",
+            executeAt: 2_300,
+            expireAt: 9_000,
+            status: "failed",
+            attempts: 5,
+            lastError: "previous failure",
+            createdAt: 600,
+            updatedAt: 650);
+        TruckPlunderScheduleResult legacy = store.ScheduleTruckPlunderForTest(
+            88,
+            "truck-legacy",
+            """{"uuid":"truck-legacy","ownerName":"Legacy Again"}""",
+            executeAt: 3_200,
+            expireAt: null,
+            now: 1_300,
+            randomValue: 0x40UL);
+        Check(legacy.JobId == "truck-1300-40" && legacy.Attempts == 0 && legacy.ArchivedPreviousAttempt,
+            "legacy terminal reschedule still produces a fresh active job");
+        JsonElement[] legacyRows = store.ReadPlunderJobs().TruckJobs
+            .Where(row => row.GetProperty("uuid").GetString() == "truck-legacy")
+            .ToArray();
+        JsonElement legacyHistory = legacyRows.Single(
+            row => row.GetProperty("scheduleStatus").GetString() == "failed");
+        JsonElement legacyActive = legacyRows.Single(
+            row => row.GetProperty("scheduleStatus").GetString() == "scheduled");
+        Check(legacyHistory.GetProperty("jobId").GetString() == "legacy-88-truck-legacy-600" &&
+              legacyHistory.GetProperty("attempts").GetInt32() == 5 &&
+              legacyHistory.GetProperty("lastError").GetString() == "previous failure",
+            "missing legacy jobId is synthesized from recovered server/train/created_at identity and persisted in history JSON");
+        Check(legacyActive.GetProperty("jobId").GetString() == "truck-1300-40" &&
+              legacyActive.GetProperty("attempts").GetInt32() == 0 &&
+              legacyActive.GetProperty("scheduledAt").GetInt64() == 600,
+            "legacy terminal replacement resets attempts while preserving the conflict-row created_at");
+
+        store.UpsertTruckPlunderJobForTest(
+            88,
+            "truck-running",
+            """{"uuid":"truck-running","ownerName":"Running","jobId":"truck-running-old"}""",
+            executeAt: 2_400,
+            expireAt: 9_000,
+            status: "running",
+            attempts: 6,
+            lastError: null,
+            createdAt: 650,
+            updatedAt: 660);
+        ExpectBridgeError(
+            "MAP_DATA_ERROR",
+            "scheduled truck job is missing",
+            () => store.ScheduleTruckPlunderForTest(
+                88,
+                "truck-running",
+                """{"uuid":"truck-running","ownerName":"Replacement"}""",
+                executeAt: 3_300,
+                expireAt: 9_700,
+                now: 1_400,
+                randomValue: 0x50UL),
+            "running Truck row cannot be replaced by the recovered schedule upsert");
+        JsonElement[] runningRows = store.ReadPlunderJobs().TruckJobs
+            .Where(row => row.GetProperty("uuid").GetString() == "truck-running")
+            .ToArray();
+        Check(runningRows.Length == 1 &&
+              runningRows[0].GetProperty("jobId").GetString() == "truck-running-old" &&
+              runningRows[0].GetProperty("scheduleStatus").GetString() == "running" &&
+              runningRows[0].GetProperty("attempts").GetInt32() == 6 &&
+              runningRows[0].GetProperty("scheduledAt").GetInt64() == 650 &&
+              runningRows[0].GetProperty("scheduleUpdatedAt").GetInt64() == 660 &&
+              runningRows[0].GetProperty("executeAt").GetInt64() == 2_400 &&
+              runningRows[0].GetProperty("ownerName").GetString() == "Running",
+            "failed running-row replacement rolls the scheduling transaction back without fabricating history or mutating the active job");
     }
 
     private static JsonElement Payload(object value)

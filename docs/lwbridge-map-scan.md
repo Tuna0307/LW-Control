@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Truck archive/reschedule transaction ? LWB-R7-044, 2026-09-19
+
+**OFFLINE-TESTED; public scheduling still blocked.** Static disassembly of the verified original binary recovers the complete attempt replacement transaction. Terminal prior rows (`succeeded`, `failed`, `cancelled`, `expired`) archive before replacement; active `scheduled`/`waiting_connection` rows are replaced in place without history and keep their attempt count; `running` rows are protected by the original conflict guard and cause the transaction to roll back. Old result fields are cleared, fresh `jobId` is installed, history insertion is idempotent by `job_id`, and conflict updates intentionally leave `created_at` untouched.
+
+Recovered identities are `legacy-{serverId}-{trainUuid}-{createdAt}` for old terminal rows lacking a string ID and `truck-{unixMs}-{u64LowerHex}` for new attempts. Only the format is claimed exact here; the rebuild uses cryptographic u64 entropy without claiming the original generator algorithm. Production now contains the internal atomic store primitive and readback verification, but the public command remains fail-closed until durable worker/restart/ambiguous-send ownership is complete. Evidence: [`2026-09-19-r7-truck-archive-reschedule.json`](../evidence/lwbridge-implementation/2026-09-19-r7-truck-archive-reschedule.json).
+
 ## Truck result/reward reconciliation ? LWB-R7-043, 2026-09-19
 
 **OFFLINE-TESTED; scheduling still blocked.** v19 `FakePVPLogic` combines `msg.reward`, `extraPlunder`, and `retake` into the Truck attack reward list; `TruckRobData` exposes the same three reward classes historically. The rebuild now converts those authoritative reward entries to `plunderRewards[{key,name,iconPath,count,rewardType,itemId}]` using the game Item/Reward managers and carries `rewardNormalizationComplete` separately, so metadata gaps never become retryable execution failures.
