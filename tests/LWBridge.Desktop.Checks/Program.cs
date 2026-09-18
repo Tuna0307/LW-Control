@@ -4597,8 +4597,10 @@ Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", Strin
       liveCityProbeSource.Contains("capture.responses[target.uuid] = nil", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("requestProtectionDetail = true", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("monster_protection_manager_end_time", StringComparison.Ordinal) &&
-      !liveCityProbeSource.Contains("pending.sourceProtectionEndTime", StringComparison.Ordinal),
-    "Monster Protection detail must serialize the shared-UUID game message, request authoritative detail for every boss, and reuse game-owned cache safely");
+      liveCityProbeSource.Contains("monster_protection_should_show", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("pending.sourceProtectionEndTime", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("server has confirmed isProtected=true", StringComparison.Ordinal),
+    "Monster Protection detail must serialize the shared-UUID game message, request authoritative detail for every boss, and use the original protected/visible deadline fallback when the coarse scan cannot instantiate the manager object");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
     "optional Monster Protection detail must not pause each AOI acquisition step");

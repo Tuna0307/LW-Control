@@ -1427,6 +1427,30 @@ local function monster_protection_server_time_ms()
     return value ~= nil and value > 0 and value or nil
 end
 
+local function monster_protection_same_identity(left, right)
+    if left == nil or right == nil then return false end
+    return tostring(left) == tostring(right)
+end
+
+local function monster_protection_should_show(msg, pending)
+    local active_value = scalar_field(msg, { "isProtected", "IsProtected" })
+    local active = active_value == true or tonumber(active_value) == 1
+    if not active then return false end
+
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local player_alliance = player and scalar_field(player, { "allianceId", "AllianceId" }) or nil
+    local player_uid = player and scalar_field(player, { "uid", "Uid" }) or nil
+    local alliance_uid = scalar_field(msg, { "allianceUid", "AllianceUid" })
+    local belong_uid = type(pending) == "table" and pending.sourceBelongUid or nil
+
+    local alliance_text = alliance_uid ~= nil and tostring(alliance_uid) or ""
+    local same_alliance = alliance_text ~= "" and
+        monster_protection_same_identity(alliance_uid, player_alliance)
+    local own_boss = monster_protection_same_identity(belong_uid, player_uid)
+    return not same_alliance and not own_boss
+end
+
 local function ensure_monster_protection_capture()
     local data_center = rawget(_G, "DataCenter")
     local manager = data_center and safe_get(data_center, "MonsterProtectionManager") or nil
@@ -1446,9 +1470,24 @@ local function ensure_monster_protection_capture()
         if key ~= nil and pending ~= nil then
             local active_value = scalar_field(msg, { "isProtected", "IsProtected" })
             local active = active_value == true or tonumber(active_value) == 1
+            local should_show = monster_protection_should_show(msg, pending)
             local ok_end, end_time = call(manager, "GetMonsterProtectionEndTime", uuid)
             end_time = ok_end and tonumber(end_time) or 0
-            if not active then end_time = 0 end
+            if active and should_show and end_time <= 0 and type(pending) == "table" then
+                -- The original MonsterProtection.Refresh computes this exact deadline
+                -- from the live WorldMarch createTime plus monster_invasion.k12. During
+                -- the coarse whole-world scan the manager can receive the authoritative
+                -- detail reply while being unable to instantiate its visual protection
+                -- object (GetTroop/position may be unavailable), leaving its getter at 0.
+                -- Reuse the same game formula from the just-captured march only after
+                -- the server has confirmed isProtected=true.
+                local candidate = tonumber(pending.sourceProtectionEndTime) or 0
+                local server_time = tonumber(monster_protection_server_time_ms()) or 0
+                if candidate > 0 and (server_time <= 0 or candidate > server_time) then
+                    end_time = candidate
+                end
+            end
+            if not active or not should_show then end_time = 0 end
             state.responses[key] = { received = true, isProtected = active_value, protectionEndTime = end_time }
             state.pending[key] = nil
         end
@@ -1514,6 +1553,7 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
                         targets[#targets + 1] = {
                             uuid = uuid, wireUuid = wire_uuid, serverId = server_id,
                             sourceProtectionEndTime = source_end_time,
+                            sourceBelongUid = scalar_field(march, { "belongUid", "BelongUid", "ownerUid", "OwnerUid" }),
                             -- The reconstructed createTime + k12 deadline is useful diagnostic
                             -- context only. It is not authoritative enough to suppress the
                             -- game's MonsterInvasionBossDetail request.
