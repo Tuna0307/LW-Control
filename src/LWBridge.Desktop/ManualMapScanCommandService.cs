@@ -29,6 +29,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private double scanRate;
     private double? acquisitionProgressPercent;
     private bool coordinateJumping;
+    private bool serverJumping;
     private string? lastError;
 
     public ManualMapScanCommandService(
@@ -56,7 +57,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public event Action<object>? StatusChanged;
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump" or "server_jump";
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -64,6 +65,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         CancellationToken cancellationToken)
     {
         if (command == "map_scan_status") return CreateStatus();
+        if (command == "server_jump")
+            return await JumpToServerAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_coordinate_jump")
             return await JumpToCoordinateAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_scan_stop")
@@ -92,6 +95,50 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     }
 
 
+    private async Task<object> JumpToServerAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("serverId", out JsonElement value) ||
+            !value.TryGetInt32(out int targetServerId) ||
+            targetServerId is < 1 or > 99999)
+        {
+            throw new BridgeCommandException(
+                "INVALID_SERVER_ID",
+                "server ID must be an integer from 1 to 99999");
+        }
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            if (isReading || coordinateJumping || serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            if (currentClientSource is null)
+                throw new BridgeCommandException(
+                    "COMMAND_NOT_IMPLEMENTED",
+                    "Server jump requires the live current-client source.");
+            serverJumping = true;
+        }
+
+        try
+        {
+            CurrentClientServerJumpResult result = await currentClientSource
+                .JumpToServerAsync(targetServerId, cancellationToken)
+                .ConfigureAwait(false);
+            return new
+            {
+                previousServerId = result.PreviousServerId,
+                changed = result.Changed,
+            };
+        }
+        finally
+        {
+            lock (gate) serverJumping = false;
+        }
+    }
+
+
     private async Task<object> JumpToCoordinateAsync(JsonElement payload, CancellationToken cancellationToken)
     {
         int requestedServerId = RequirePayloadInt(payload, "serverId", positive: true);
@@ -101,6 +148,10 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
             if (coordinateJumping) throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
             if (currentClientSource is null) throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Map coordinate jump requires the live current-client source.");
             coordinateJumping = true;
@@ -138,6 +189,10 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SCAN_CLOSED",
                     "The Map Data window is closing and cannot start another scan.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
             if (coordinateJumping)
                 throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
             isReading = true;

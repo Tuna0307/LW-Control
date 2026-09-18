@@ -2,6 +2,18 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+if (args.Contains("--live-auto-zombie-cycle-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAutoZombieCycleProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-server-jump-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveServerJumpProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-block-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunAsync();

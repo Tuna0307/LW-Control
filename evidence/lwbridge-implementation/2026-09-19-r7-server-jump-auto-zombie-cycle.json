@@ -1,0 +1,127 @@
+{
+  "evidenceId": "LWB-R7-037",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "c64752ce2aaf01f94dc0e3e3604cb282a9e16d89",
+  "status": {
+    "serverJump": "IMPLEMENTED_TECHNICAL_LIVE_PROVEN",
+    "autoScanCurrentServerBackendCycle": "LIVE_PROVEN",
+    "autoScanDurableUiScheduler": "PENDING"
+  },
+  "currentClient": {
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "recoveredCurrentV19Lua": {
+    "GoToUtilDecodedSha256": "9f9e0526ac5948f74eb6e7ecf283f6fa366c9584d8ede706ba70257448dcb9e7",
+    "CrossServerUtilDecodedSha256": "381d03b8ec12a740faaf661019d81fedad5bc9d41ddf87b8f1a96a9dce377522",
+    "SceneUtilsDecodedSha256": "c2f72482b9350d361ddb73e1523bc63dd926967cde00f06821dc9956f2cc3e0",
+    "facts": [
+      "GoToUtil.GoToServerPreCheck(serverId) is exported and performs current-client cross-server resource/limit checks.",
+      "Ordinary cross-server viewing uses CrossServerUtil.OnCrossServer(serverId).",
+      "Returning to the login/self server uses CrossServerUtil.OnBackSelfServer().",
+      "LuaEntry.Player.GetCurServerId() is the authoritative observed live server.",
+      "GoToUtil.GotoServerZone is Nine-Nation/season shared-map specific and is not used as the generic server_jump implementation."
+    ]
+  },
+  "recoveredOriginalPublicContract": {
+    "invalidServer": {
+      "code": "INVALID_SERVER_ID",
+      "message": "server ID must be an integer from 1 to 99999"
+    },
+    "busy": {
+      "code": "GAME_OPERATION_IN_PROGRESS",
+      "message": "another game operation is already in progress"
+    },
+    "timeout": {
+      "code": "SERVER_JUMP_TIMEOUT",
+      "message": "the game did not switch to the target server"
+    }
+  },
+  "implementationPolicy": {
+    "transport": "owned Overview session file protocol with profile/session/challenge/PID correlation",
+    "bridgeTimeoutSeconds": 15,
+    "hostEnvelopeSeconds": 18,
+    "timeoutDurationRecoveredFromOriginal": false,
+    "sameServer": "truthful no-op proven from LuaEntry.Player.GetCurServerId()",
+    "conflictOwnership": "server jump is mutually exclusive with active map scan and coordinate navigation"
+  },
+  "deterministicValidation": {
+    "releaseBuild": {
+      "succeeded": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "fullSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "luaParse": true,
+    "overviewCheckOnly": {
+      "ok": true,
+      "installedFilesChanged": false
+    },
+    "serverJumpCoverage": [
+      "same-server no-op",
+      "changed-server proof",
+      "recovered timeout mapping",
+      "foreign-session rejection",
+      "invalid server contract",
+      "busy operation contract"
+    ]
+  },
+  "liveServerJumpRoundTrip": {
+    "ok": true,
+    "proof": "server_jump_owned_session_roundtrip",
+    "homeServerId": 2212,
+    "targetServerId": 2213,
+    "sameServerProven": true,
+    "crossServerAccepted": true,
+    "visitedServerId": 2213,
+    "returnedToHome": true,
+    "processExitCode": 0,
+    "harnessRuntimeSeconds": 25.11
+  },
+  "liveAutoZombieBackendCycle": {
+    "ok": true,
+    "proof": "auto_scan_backend_cycle_zombie_boss",
+    "serverId": 2212,
+    "sequence": [
+      "server_jump(current server)",
+      "map_scan_start fast zombie_boss",
+      "wait terminal completed"
+    ],
+    "serverJumpNoOpProven": true,
+    "scanMode": "fast",
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "zombieBossCount": 56,
+    "scanWallSeconds": 19.3625476,
+    "processExitCode": 0,
+    "harnessRuntimeSeconds": 42.18
+  },
+  "postRunRestoration": {
+    "gameRunning": false,
+    "launcherRunning": false,
+    "lwbridgeRunning": false,
+    "compatibilityOk": true,
+    "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+  },
+  "remaining": [
+    "Drive the actual Auto Scan UI scheduler/timer path and prove status/render behavior.",
+    "Prove multi-server Auto Scan sequencing and configured return-to-original behavior through the scheduler.",
+    "Decide durable scheduler ownership across navigation/restart; the recovered frontend timer is page-owned and is not yet promoted to durable service ownership.",
+    "The exact original numeric server-jump timeout duration remains unrecovered; only its public error code/message are recovered."
+  ]
+}

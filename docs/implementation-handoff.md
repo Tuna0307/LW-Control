@@ -1,6 +1,14 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current shared Manual selection/mode acceptance - LWB-R7-036, 2026-09-19
+## Current server travel / Auto Scan integration checkpoint - LWB-R7-037, 2026-09-19
+
+Production `server_jump({serverId})` is now implemented on the same owned current-v19 Overview session used by Map Data. Current-client source recovery proves ordinary travel uses `GoToUtil.GoToServerPreCheck` plus `CrossServerUtil.OnCrossServer(serverId)`, return-to-self uses `CrossServerUtil.OnBackSelfServer()`, and authoritative arrival is `LuaEntry.Player:GetCurServerId()`. `GoToUtil.GotoServerZone` is season/Nine-Nation specific and is deliberately not used as the generic travel primitive. The original public invalid-server, busy-operation and timeout code/message contracts are preserved; only the numeric timeout duration remains rebuild policy rather than recovered fact.
+
+A bounded live proof passed same-server no-op and **2212 -> 2213 -> 2212**. A second bounded owned-session proof then executed the Auto Scan backend sequence `server_jump(current) -> map_scan_start(fast,zombie_boss)`, completed 2,500/2,500 logical blocks with zero failed/unread in 19.3625476 s, and published 56 Zombie Boss rows. Exact v19 restoration and no-process cleanup passed. Evidence is `evidence/lwbridge-implementation/2026-09-19-r7-server-jump-auto-zombie-cycle.json`.
+
+**Next:** drive the actual Auto Scan page scheduler/timer, then prove multi-server sequencing and configured return-to-origin. Keep using the same `ManualMapScanCommandService`/shared scanner; do not create another acquisition engine. Durable scheduler ownership across page navigation/restart is still open.
+
+## Prior shared Manual selection/mode acceptance - LWB-R7-036, 2026-09-19
 
 The shared current-v19 Manual Scan engine is now LIVE-PROVEN for mixed selected types, the recovered original all-eight selection, same-owned-session repeated scans, and all-eight Normal/Fast. The original default set is exactly `city, resource, monster, truck, railway, dispatch, ghost, treasure`. Dedicated `zombie_boss` remains a separate ninth extension and must be selected alone; its Monster-source normalizer intentionally maps output to `zombie_boss` only for the dedicated run.
 

@@ -30,6 +30,9 @@ internal static class CurrentClientMapBlockSourceChecks
         await TargetedCityFallbackFailsClosed();
         await FastCityBatchReturnsFiveLogicalCaptures();
         await CoordinateJumpUsesOwnedNavigation();
+        await ServerJumpProvesNoOpAndChangedTransition();
+        await ServerJumpMapsRecoveredTimeoutContract();
+        await ServerJumpRejectsForeignSessionResult();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
         await FastResourceFullMapReturnsAllLogicalCaptures();
@@ -1088,6 +1091,70 @@ internal static class CurrentClientMapBlockSourceChecks
         catch (BridgeCommandException error) when (error.Code == "STALE_MAP_SERVER") { }
     }
 
+    private static async Task ServerJumpProvesNoOpAndChangedTransition()
+    {
+        int jumpWrites = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            serverJumpResult: fields =>
+            {
+                jumpWrites++;
+                int target = int.Parse(fields["serverId"]);
+                return ServerJumpResult(fields, 2212, target, "proven", null);
+            });
+
+        CurrentClientServerJumpResult same =
+            await source.JumpToServerAsync(2212, CancellationToken.None);
+        CurrentClientServerJumpResult changed =
+            await source.JumpToServerAsync(2213, CancellationToken.None);
+
+        Check(jumpWrites == 2 &&
+              same.PreviousServerId == 2212 && !same.Changed &&
+              changed.PreviousServerId == 2212 && changed.Changed,
+            "server Jump must accept a proven same-server no-op and a proven changed transition");
+    }
+
+    private static async Task ServerJumpMapsRecoveredTimeoutContract()
+    {
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            serverJumpResult: fields =>
+                ServerJumpResult(fields, 2212, 2212, "failed", "server_jump_timeout"));
+
+        try
+        {
+            _ = await source.JumpToServerAsync(2213, CancellationToken.None);
+            throw new InvalidOperationException("server-jump timeout should fail with the recovered public contract");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "SERVER_JUMP_TIMEOUT" &&
+            error.Message == "the game did not switch to the target server")
+        {
+        }
+    }
+
+    private static async Task ServerJumpRejectsForeignSessionResult()
+    {
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            serverJumpResult: fields =>
+            {
+                JsonObject root = JsonNode.Parse(
+                    ServerJumpResult(fields, 2212, 2213, "proven", null))!.AsObject();
+                root["sessionId"] = "foreign_session";
+                return root.ToJsonString(JsonOptions.Default);
+            });
+
+        try
+        {
+            _ = await source.JumpToServerAsync(2213, CancellationToken.None);
+            throw new InvalidOperationException("foreign server-jump result should fail closed");
+        }
+        catch (InvalidDataException)
+        {
+        }
+    }
+
     private static async Task HealthyGateRunsBeforeWorldReadyProtocol()
     {
         bool healthGatePassed = false;
@@ -1161,7 +1228,8 @@ internal static class CurrentClientMapBlockSourceChecks
         bool useCoarseMonsterMap = false,
         Func<OverviewMapScanSession?>? sessionProvider = null,
         Func<OverviewMapScanSession, bool>? matchesOwnedSession = null,
-        Func<IReadOnlyDictionary<string, string>, string>? resourceDetailResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? resourceDetailResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -1191,6 +1259,13 @@ internal static class CurrentClientMapBlockSourceChecks
                 {
                     string result = NavigationResult(fields, currentLod, serverLod);
                     files[Path.Combine(overviewRoot, "map-navigation-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(overviewRoot, "server-jump.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (serverJumpResult is null) throw new InvalidOperationException("unexpected server Jump request");
+                    string result = serverJumpResult(fields);
+                    files[Path.Combine(overviewRoot, "server-jump-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 if (string.Equals(path, Path.Combine(probeRoot, "command.txt"), StringComparison.OrdinalIgnoreCase))
@@ -1237,6 +1312,30 @@ internal static class CurrentClientMapBlockSourceChecks
             .Select(line => line.Split('=', 2))
             .Where(parts => parts.Length == 2)
             .ToDictionary(parts => parts[0], parts => parts[1], StringComparer.Ordinal);
+
+    private static string ServerJumpResult(
+        IReadOnlyDictionary<string, string> fields,
+        int previousServerId,
+        int currentServerId,
+        string state,
+        string? error) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = "lwbridge-overview-bridge-1",
+            profileId = fields["profileId"],
+            sessionId = fields["sessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            requestId = fields["requestId"],
+            state,
+            serverId = int.Parse(fields["serverId"]),
+            previousServerId,
+            currentServerId,
+            changed = previousServerId != int.Parse(fields["serverId"]),
+            method = "test-server-jump",
+            error,
+        }, JsonOptions.Default);
 
     private static string WorldReadyResult(IReadOnlyDictionary<string, string> fields) =>
         JsonSerializer.Serialize(new

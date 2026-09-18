@@ -13,6 +13,8 @@ local ready_path = root .. [[\ready.json]]
 local heartbeat_path = root .. [[\heartbeat.json]]
 local navigation_path = root .. [[\map-navigation.txt]]
 local navigation_result_path = root .. [[\map-navigation-result.json]]
+local server_jump_path = root .. [[\server-jump.txt]]
+local server_jump_result_path = root .. [[\server-jump-result.json]]
 local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
 local aoi_diagnostic_result_path = root .. [[\aoi-diagnostic-result.json]]
 local world_ready_path = root .. [[\world-ready.txt]]
@@ -34,8 +36,10 @@ local pending_recovery_signal_until_clock = nil
 local recovery_action_hooks = {}
 local pending_navigation = nil
 local pending_world_ready = nil
+local pending_server_jump = nil
 local NAVIGATION_TIMEOUT_SECONDS = 5
 local WORLD_READY_TIMEOUT_SECONDS = 10
+local SERVER_JUMP_TIMEOUT_SECONDS = 15
 
 local function safe_get(target, key)
     if target == nil then return nil end
@@ -581,6 +585,176 @@ local function pump_world_ready(control)
     if runtime_clock() - pending_world_ready.startedClock >= WORLD_READY_TIMEOUT_SECONDS then
         write_world_ready_result(pending_world_ready, "failed", "world_map_failed", pending_world_ready.transitionMethod)
         pending_world_ready = nil
+    end
+end
+
+local function read_server_jump(control)
+    local values = read_kv(server_jump_path)
+    if values == nil then return nil end
+    pcall(os.remove, server_jump_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local server_id = tonumber(values.serverId)
+    local request = { requestId = values.requestId, serverId = server_id }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "server_jump_identity_mismatch"
+        return request
+    end
+    if server_id == nil or server_id ~= math.floor(server_id) or server_id < 1 or server_id > 99999 then
+        request.error = "server_jump_server_id_invalid"
+    end
+    return request
+end
+
+local function write_server_jump_result(request, state, error_text)
+    write_json(server_jump_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        previousServerId = request.previousServerId,
+        currentServerId = request.currentServerId,
+        changed = request.previousServerId ~= nil and request.previousServerId ~= request.serverId or false,
+        method = request.method,
+        error = error_text,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+local function resolve_go_to_util()
+    local value = rawget(_G, "GoToUtil")
+    if value ~= nil then return value end
+    local ok_require, loaded = pcall(require, "Util.GoToUtil")
+    if ok_require and loaded ~= nil then return loaded end
+    return rawget(_G, "GoToUtil")
+end
+
+local function resolve_cross_server_util()
+    local value = rawget(_G, "CrossServerUtil")
+    if value ~= nil then return value end
+    local ok_require, loaded = pcall(require, "Util.CrossServerUtil")
+    if ok_require and loaded ~= nil then return loaded end
+    return rawget(_G, "CrossServerUtil")
+end
+
+local function begin_server_jump(request)
+    if request.error ~= nil then
+        write_server_jump_result(request, "failed", request.error)
+        return
+    end
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    if player == nil then
+        write_server_jump_result(request, "failed", "live_world_player_unavailable")
+        return
+    end
+    local ok_cur, cur_value = call(player, "GetCurServerId")
+    local ok_self, self_value = call(player, "GetSelfServerId")
+    local cur_server_id = ok_cur and tonumber(cur_value) or nil
+    local self_server_id = ok_self and tonumber(self_value) or nil
+    if cur_server_id == nil or cur_server_id <= 0 or cur_server_id ~= math.floor(cur_server_id) or
+       self_server_id == nil or self_server_id <= 0 or self_server_id ~= math.floor(self_server_id) then
+        write_server_jump_result(request, "failed", "live_server_id_unavailable")
+        return
+    end
+    request.previousServerId = math.floor(cur_server_id)
+    request.currentServerId = math.floor(cur_server_id)
+    if request.serverId == request.previousServerId then
+        request.method = "LuaEntry.Player:GetCurServerId:no-op"
+        write_server_jump_result(request, "proven", nil)
+        return
+    end
+    local goto_util = resolve_go_to_util()
+    local cross_util = resolve_cross_server_util()
+    if goto_util == nil or cross_util == nil then
+        write_server_jump_result(request, "failed", "server_jump_util_unavailable")
+        return
+    end
+    local precheck = safe_get(goto_util, "GoToServerPreCheck")
+    if type(precheck) ~= "function" then
+        write_server_jump_result(request, "failed", "server_jump_precheck_unavailable")
+        return
+    end
+    local ok_precheck, allowed = pcall(precheck, request.serverId)
+    if not ok_precheck or allowed ~= true then
+        write_server_jump_result(request, "failed", "server_jump_precheck_failed")
+        return
+    end
+    local scene_utils = resolve_scene_utils()
+    local change_to_world = scene_utils and safe_get(scene_utils, "ChangeToWorld") or nil
+    if type(change_to_world) ~= "function" then
+        write_server_jump_result(request, "failed", "scene_utils_change_to_world_unavailable")
+        return
+    end
+    request.startedClock = runtime_clock()
+    request.method = request.serverId == self_server_id
+        and "SceneUtils.ChangeToWorld+GoToUtil.CheckCrossWar+CrossServerUtil.OnBackSelfServer"
+        or "SceneUtils.ChangeToWorld+GoToUtil.CheckCrossWar+CrossServerUtil.OnCrossServer"
+    pending_server_jump = request
+    local switched = function()
+        if pending_server_jump ~= request then return end
+        local check_cross_war = safe_get(goto_util, "CheckCrossWar")
+        if type(check_cross_war) == "function" and not pcall(check_cross_war, request.previousServerId) then
+            request.invokeError = "check_cross_war_failed"
+            return
+        end
+        local fn = request.serverId == self_server_id
+            and safe_get(cross_util, "OnBackSelfServer")
+            or safe_get(cross_util, "OnCrossServer")
+        if type(fn) ~= "function" then
+            request.invokeError = "cross_server_function_unavailable"
+            return
+        end
+        local ok_call = request.serverId == self_server_id
+            and pcall(fn)
+            or pcall(fn, request.serverId)
+        if not ok_call then request.invokeError = "cross_server_function_failed" end
+    end
+    local ok_change = pcall(change_to_world, switched, true)
+    if not ok_change then
+        pending_server_jump = nil
+        write_server_jump_result(request, "failed", "change_to_world_failed")
+    end
+end
+
+local function pump_server_jump(control)
+    if pending_server_jump == nil then
+        local request = read_server_jump(control)
+        if request ~= nil then
+            local ok_begin, begin_error = pcall(begin_server_jump, request)
+            if not ok_begin then
+                write_server_jump_result(request, "failed", "server_jump_exception:" .. tostring(begin_error))
+            end
+        end
+    end
+    if pending_server_jump == nil then return end
+    local request = pending_server_jump
+    if request.invokeError ~= nil then
+        write_server_jump_result(request, "failed", request.invokeError)
+        pending_server_jump = nil
+        return
+    end
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok_cur, cur_value = call(player, "GetCurServerId")
+    local cur_server_id = ok_cur and tonumber(cur_value) or nil
+    if cur_server_id ~= nil and cur_server_id > 0 and cur_server_id == math.floor(cur_server_id) then
+        request.currentServerId = math.floor(cur_server_id)
+        if request.currentServerId == request.serverId then
+            write_server_jump_result(request, "proven", nil)
+            pending_server_jump = nil
+            return
+        end
+    end
+    if runtime_clock() - request.startedClock >= SERVER_JUMP_TIMEOUT_SECONDS then
+        write_server_jump_result(request, "failed", "server_jump_timeout")
+        pending_server_jump = nil
     end
 end
 
@@ -1364,6 +1538,7 @@ function M.Pump()
         active = control
         pending_navigation = nil
         pending_world_ready = nil
+        pending_server_jump = nil
         destroy_message()
         write_heartbeat(now, false, control == nil and "control_unavailable" or "host_lease_stale")
         return true
@@ -1373,11 +1548,14 @@ function M.Pump()
        active.profileId ~= control.profileId or active.gamePid ~= control.gamePid then
         destroy_message()
         pending_navigation = nil
+        pending_world_ready = nil
+        pending_server_jump = nil
         active = control
     end
 
     install_recovery_action_hooks()
     pump_world_ready(control)
+    pump_server_jump(control)
     pump_navigation(control)
     local rendered, render_error = ensure_message()
     if rendered then

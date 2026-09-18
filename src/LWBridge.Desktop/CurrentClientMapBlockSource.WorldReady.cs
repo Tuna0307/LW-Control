@@ -14,6 +14,8 @@ internal sealed record CurrentClientMapContext(
 
 internal sealed record CurrentClientCoordinateJumpResult(int ServerId, int X, int Y);
 
+internal sealed record CurrentClientServerJumpResult(int PreviousServerId, bool Changed);
+
 internal sealed partial class CurrentClientMapBlockSource
 {
     internal async Task<CurrentClientMapContext> GetCurrentContextAsync(CancellationToken cancellationToken)
@@ -47,6 +49,101 @@ internal sealed partial class CurrentClientMapBlockSource
         _ = await NavigateCoreAsync(session, context.ServerId, context.WorldId, x, y, cancellationToken).ConfigureAwait(false);
         RequireSameSession(session);
         return new CurrentClientCoordinateJumpResult(context.ServerId, x, y);
+    }
+
+    internal async Task<CurrentClientServerJumpResult> JumpToServerAsync(
+        int targetServerId,
+        CancellationToken cancellationToken)
+    {
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+
+        string requestId = "server" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string requestPath = Path.Combine(overviewRuntimeRoot, "server-jump.txt");
+        string resultPath = Path.Combine(overviewRuntimeRoot, "server-jump-result.json");
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"bridgeVersion={OverviewBridgeVersion}",
+            $"profileId={session.ProfileId}",
+            $"sessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"requestId={requestId}",
+            $"serverId={targetServerId.ToString(CultureInfo.InvariantCulture)}",
+            string.Empty,
+        });
+        await WriteCommandAsync(requestPath, command, cancellationToken).ConfigureAwait(false);
+
+        // IMPLEMENTATION POLICY: the original public timeout code/message are recovered,
+        // but the exact original duration is not yet proven. Keep the bridge-side 15 s
+        // deadline inside an 18 s host envelope.
+        DateTimeOffset deadline = Now() + TimeSpan.FromSeconds(18);
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            RequireSameSession(session);
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                CurrentClientServerJumpResult result =
+                    ValidateServerJumpResult(root.Value, session, targetServerId);
+                RequireSameSession(session);
+                return result;
+            }
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+
+        throw new BridgeCommandException(
+            "SERVER_JUMP_TIMEOUT",
+            "the game did not switch to the target server");
+    }
+
+    private static CurrentClientServerJumpResult ValidateServerJumpResult(
+        JsonElement root,
+        OverviewMapScanSession session,
+        int targetServerId)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "bridgeVersion", OverviewBridgeVersion) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "sessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesInt(root, "serverId", targetServerId))
+        {
+            throw new InvalidDataException(
+                "Server-jump result did not match the active owned game session or target server.");
+        }
+
+        string state = ReadOptionalString(root, "state") ?? string.Empty;
+        if (state == "proven")
+        {
+            int previousServerId = RequirePositiveInt(root, "previousServerId");
+            int currentServerId = RequirePositiveInt(root, "currentServerId");
+            if (currentServerId != targetServerId)
+                throw new InvalidDataException("Server-jump result did not prove the requested target server.");
+            bool expectedChanged = previousServerId != targetServerId;
+            if (!MatchesBool(root, "changed", expectedChanged))
+                throw new InvalidDataException("Server-jump result changed flag did not match the proven server transition.");
+            return new CurrentClientServerJumpResult(previousServerId, expectedChanged);
+        }
+
+        if (state == "failed")
+        {
+            string error = ReadOptionalString(root, "error") ?? "server_jump_failed";
+            if (string.Equals(error, "server_jump_timeout", StringComparison.Ordinal))
+                throw new BridgeCommandException(
+                    "SERVER_JUMP_TIMEOUT",
+                    "the game did not switch to the target server");
+            throw new BridgeCommandException("SERVER_JUMP_FAILED", error);
+        }
+
+        throw new InvalidDataException("Server-jump result did not contain a supported terminal state.");
     }
 
     private async Task<CurrentClientMapContext> EnsureWorldReadyAsync(

@@ -25,6 +25,7 @@ internal static class ManualMapScanCommandServiceChecks
         await TreasureTypeIsAccepted();
         await MixedTypesAreAccepted();
         await AllEightTypesAreAccepted();
+        await ServerJumpPublicContractIsRecoveredAndBusyGated();
         await ZombieBossMixedTypesFailClosed();
     }
 
@@ -296,6 +297,69 @@ internal static class ManualMapScanCommandServiceChecks
         Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0 &&
               source.LastSelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),
             "all eight recovered Map Data kinds should use one shared Manual Scan run");
+        service.Close();
+    }
+
+    private static async Task ServerJumpPublicContractIsRecoveredAndBusyGated()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource());
+
+        Check(service.CanHandle("server_jump"),
+            "Manual Map Scan service should expose the recovered server_jump command");
+
+        try
+        {
+            _ = await service.InvokeAsync(
+                "server_jump",
+                JsonSerializer.SerializeToElement(new { serverId = 0 }, JsonOptions.Default),
+                CancellationToken.None);
+            throw new InvalidOperationException("invalid server Jump should fail before touching the live source");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_SERVER_ID" &&
+            error.Message == "server ID must be an integer from 1 to 99999")
+        {
+        }
+
+        var busyField = typeof(ManualMapScanCommandService).GetField(
+            "serverJumping",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+            ?? throw new MissingFieldException("ManualMapScanCommandService.serverJumping");
+        busyField.SetValue(service, true);
+        try
+        {
+            _ = await service.InvokeAsync(
+                "server_jump",
+                JsonSerializer.SerializeToElement(new { serverId = 2212 }, JsonOptions.Default),
+                CancellationToken.None);
+            throw new InvalidOperationException("overlapping server Jump should fail with the recovered busy contract");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "GAME_OPERATION_IN_PROGRESS" &&
+            error.Message == "another game operation is already in progress")
+        {
+        }
+        finally
+        {
+            busyField.SetValue(service, false);
+        }
+
+        try
+        {
+            _ = await service.InvokeAsync(
+                "server_jump",
+                JsonSerializer.SerializeToElement(new { serverId = 2212 }, JsonOptions.Default),
+                CancellationToken.None);
+            throw new InvalidOperationException("synthetic service should not fabricate a live server Jump");
+        }
+        catch (BridgeCommandException error) when (error.Code == "COMMAND_NOT_IMPLEMENTED")
+        {
+        }
+
         service.Close();
     }
 
