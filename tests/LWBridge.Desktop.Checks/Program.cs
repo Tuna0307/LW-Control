@@ -49,6 +49,12 @@ if (args.Contains("--live-current-client-full-ghost-manual", StringComparer.Ordi
     return 0;
 }
 
+if (args.Contains("--live-current-client-full-treasure-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullTreasureProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();

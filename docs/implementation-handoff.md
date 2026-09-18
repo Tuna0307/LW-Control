@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current Treasure category acceptance - LWB-R7-035, 2026-09-18
+
+Treasure is now LIVE-PROVEN through the ordinary shared Manual Start production path on current v19. A Treasure-only Normal run completed 2,500/2,500 logical blocks with zero failed/unread blocks in 123.1499154 s at recovered Normal concurrency 8, published one authentic live Treasure row, and a fresh store reopen returned exactly one. The strict positive-row gate was not weakened.
+
+The accepted live row was native point type 21 `TreasurePointInfo`, with positive ordinary `treasureType`, zero `suppliesType`, exact source `WorldPointManager._pointInfos+TreasurePointInfo`, and source-backed `rewardedCount`, `diggingCount`, `rewardMax`, and `remainingBoxes`. Production also contains the separately recovered point type 27 `WorldSuppliesPoint` path: it requires positive config resolved from `TableName.LWIceSupplies`, positive `suppliesType`, zero `treasureType`, and exact Supplies source identity. The current live population contained zero Supplies rows, so positive Supplies ingestion remains live-unobserved; do not claim it as live-proven or fabricate a row.
+
+Post-run current-v19 compatibility is `ok=true` under `lwbridge-current-client-critical-anchors-2`, exact official package identity is restored, and no game/launcher/LWBridge process or recovery journal remains. Release build is 0-warning/0-error and all six deterministic groups pass. Aggregate-only evidence is `evidence/lwbridge-implementation/2026-09-18-r7-treasure-full-manual.json`. Next, run mixed-selection and all-eight acceptance on the same scanner; rerun Ghost when a positive type-29 population exists. Treasure refresh/status/claims are separate later work and must distinguish queued work from confirmed claim results.
+
 ## Current Resource truth/filter acceptance - LWB-R7-034, 2026-09-18
 
 Resource is now LIVE-PROVEN with authoritative remaining/full truth on the shared current-v19 Manual scanner. The game-native `WorldGetDetail` path populates `WorldPointDetailManager`; production queues each occupancy-known idle Resource once while the ordinary LOD0 sweep continues, then performs one bounded end-of-scan cache harvest. Missing/late detail stays unknown and cannot pass Full-only. Full means **known idle + authoritative `resourceRemainingAmount == resourceFullAmount`**; occupancy alone is never treated as full. Resource name key/config, level, max capacity, occupancy and black-tile classification remain source-backed.
@@ -14,7 +22,7 @@ Ghost Ops is implemented on the same shared current-v19 full-world scanner, but 
 
 Release build is 0-warning/0-error and all six deterministic groups pass, including full-world Ghost normalization and ordinary Manual Start acceptance. The strict live Ghost-only Normal proof reached the post-scan positive-row gate after all 2,500 logical blocks completed with zero failed/unread blocks; native state was proven and restored to LOD0 / blockSize 10 / blockCount 100. The current map exposed zero authentic Ghost rows, so the harness truthfully failed `Ordinary Manual Ghost scan published no Ghost Ops records.` rather than weakening the positive-row gate. Cleanup left no game/launcher/LWBridge process and no recovery journal. Evidence: `evidence/lwbridge-implementation/2026-09-18-r7-ghost-live-pending.json`.
 
-Do not mark Ghost LIVE-PROVEN until a future complete run publishes at least one authentic type-29 row and reopen count matches. Treasure is the active engineering task while that external population condition is absent.
+Do not mark Ghost LIVE-PROVEN until a future complete run publishes at least one authentic type-29 row and reopen count matches. Treasure is now LIVE-PROVEN under `LWB-R7-035`; mixed/all-eight acceptance is next while that external Ghost population condition is absent.
 
 ## Current category acceptance - LWB-R7-032, 2026-09-18
 

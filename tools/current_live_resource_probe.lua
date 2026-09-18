@@ -1139,6 +1139,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeDispatch = include_dispatch_raw == "true"
     local include_ghost_raw = tostring(values.includeGhost or "false")
     request.includeGhost = include_ghost_raw == "true"
+    local include_treasure_raw = tostring(values.includeTreasure or "false")
+    request.includeTreasure = include_treasure_raw == "true"
     local include_resource_details_raw = tostring(values.includeResourceDetails or "false")
     request.includeResourceDetails = include_resource_details_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
@@ -1166,6 +1168,7 @@ local function read_bulk_aoi_diagnostic(now)
        (include_train_raw ~= "true" and include_train_raw ~= "false") or
        (include_dispatch_raw ~= "true" and include_dispatch_raw ~= "false") or
        (include_ghost_raw ~= "true" and include_ghost_raw ~= "false") or
+       (include_treasure_raw ~= "true" and include_treasure_raw ~= "false") or
        (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
@@ -1218,7 +1221,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
-    local matched, cities, resources, dispatches, ghosts = 0, 0, 0, 0, 0
+    local matched, cities, resources, dispatches, ghosts, treasures = 0, 0, 0, 0, 0, 0
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
@@ -1236,11 +1239,12 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
             if point_type == 1 or point_type == 7 or point_type == 26 then resources = resources + 1 end
             if point_type == 17 then dispatches = dispatches + 1 end
             if point_type == 29 then ghosts = ghosts + 1 end
+            if point_type == 21 or point_type == 27 then treasures = treasures + 1 end
         end
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
-    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, loadedPointCount = expected }, nil
+    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, treasures = treasures, loadedPointCount = expected }, nil
 end
 
 local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -1581,6 +1585,140 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
             protectTime = scalar_field(cfg, { "protect_times", "protectTime", "ProtectTime" }),
             stealMaxTimes = scalar_field(cfg, { "steal_maxtimes", "stealMaxtimes", "StealMaxtimes" }),
             source = "WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask",
+        }
+        return true
+    end)
+    if record_error ~= nil then return nil, record_error end
+    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    return records, nil
+end
+
+local function treasure_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
+    local collection = reflected_value(point_manager, "_pointInfos")
+    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    local expected = collection_count(collection)
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+
+    local controller_type = rawget(_G, "LocalController")
+    local ok_controller, controller = call(controller_type, "instance")
+    local table_name = rawget(_G, "TableName")
+    local supplies_table = table_name and safe_get(table_name, "LWIceSupplies") or nil
+
+    local records = {}
+    local record_error = nil
+    local scanned = each(collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        local point_type = integer_field(info, { "pointType", "PointType" })
+        if point_type ~= 21 and point_type ~= 27 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        if id == nil or id <= 0 then record_error = "treasure_point_index_invalid"; return false end
+        local tile = index_to_tile(world, id)
+        if tile == nil then record_error = "treasure_tile_unavailable"; return false end
+        local cell_x = math.floor(tile.x / block_size)
+        local cell_y = math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        local aoi_index = cell_y * block_count + cell_x
+        if selected_lookup[aoi_index] ~= true then return true end
+
+        local runtime_class = reflected_type_name(info)
+        local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
+        local world_id = integer_field(info, { "worldId", "WorldId" }) or 0
+        local uuid = scalar_field(info, { "uuid", "Uuid" })
+        if server_id == nil or server_id <= 0 or uuid == nil or tostring(uuid) == "" or tostring(uuid) == "0" then
+            record_error = "treasure_identity_invalid"
+            return false
+        end
+
+        if point_type == 21 then
+            if runtime_class == nil or not string.find(runtime_class, "TreasurePointInfo", 1, true) then
+                record_error = "treasure_runtime_class_invalid"
+                return false
+            end
+            local ok_type, observed_type = call(info, "GetWorldTreasureType")
+            local treasure_type = ok_type and tonumber(observed_type) or
+                tonumber(scalar_field(info, { "type", "Type" }))
+            if treasure_type == nil or treasure_type <= 0 then
+                record_error = "treasure_type_invalid"
+                return false
+            end
+            local reward_users = safe_get(info, "rewardUserList") or safe_get(info, "RewardUserList")
+            local digging_users = safe_get(info, "diggingUserList") or safe_get(info, "DiggingUserList")
+            local rewarded_count = collection_count(reward_users)
+            local digging_count = collection_count(digging_users)
+            local ok_reward_max, observed_reward_max = call(info, "GetRewardMaxNum")
+            local reward_max = ok_reward_max and tonumber(observed_reward_max) or nil
+            local remaining_boxes = nil
+            if reward_max ~= nil and reward_max >= 0 and rewarded_count ~= nil and rewarded_count >= 0 then
+                remaining_boxes = math.max(0, math.floor(reward_max) - rewarded_count)
+            end
+            records[#records + 1] = {
+                id = id, pointId = id, pointType = 21, kind = "treasure_point",
+                runtimeClass = runtime_class, serverId = math.floor(server_id),
+                srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
+                worldId = world_id, x = tile.x, y = tile.y, uuid = tostring(uuid),
+                ownerUid = tostring(scalar_field(info, { "ownerUid", "OwnerUid" }) or ""),
+                ownerName = scalar_field(info, { "ownerName", "OwnerName" }),
+                eventId = scalar_field(info, { "eventId", "EventId" }),
+                treasureType = math.floor(treasure_type), suppliesType = 0,
+                startTime = scalar_field(info, { "startTime", "StartTime" }),
+                completionTime = scalar_field(info, { "completionTime", "CompletionTime" }),
+                expireTime = scalar_field(info, { "expireTime", "ExpireTime" }),
+                createTime = scalar_field(info, { "createTime", "CreateTime" }),
+                complete = scalar_field(info, { "complete", "Complete" }),
+                speed = scalar_field(info, { "speed", "Speed" }),
+                allianceId = scalar_field(info, { "allianceId", "AllianceId" }),
+                allianceAbbr = scalar_field(info, { "allianceAbbr", "AllianceAbbr" }),
+                rewardedCount = rewarded_count, diggingCount = digging_count,
+                rewardMax = reward_max, remainingBoxes = remaining_boxes,
+                fromPoint = integer_field(info, { "fromPoint", "FromPoint" }),
+                multiple = integer_field(info, { "multiple", "Multiple" }),
+                killerId = scalar_field(info, { "killerId", "KillerId" }),
+                customInfo = scalar_field(info, { "customInfoStr", "CustomInfoStr" }),
+                source = "WorldPointManager._pointInfos+TreasurePointInfo",
+            }
+            return true
+        end
+
+        if runtime_class == nil or not string.find(runtime_class, "WorldSuppliesPoint", 1, true) then
+            record_error = "supplies_runtime_class_invalid"
+            return false
+        end
+        local cfg_id = integer_field(info, { "configId", "ConfigId" })
+        if cfg_id == nil then
+            local ok_cfg_id, observed_cfg_id = call(info, "get_configId")
+            cfg_id = ok_cfg_id and tonumber(observed_cfg_id) or nil
+        end
+        if cfg_id == nil or cfg_id <= 0 or not ok_controller or controller == nil or supplies_table == nil then
+            record_error = "supplies_config_identity_invalid"
+            return false
+        end
+        local ok_cfg, cfg = call(controller, "getLine", supplies_table, math.floor(cfg_id))
+        if not ok_cfg or cfg == nil then
+            record_error = "supplies_config_unavailable:" .. tostring(cfg_id)
+            return false
+        end
+        local supplies_type = tonumber(scalar_field(cfg, { "type", "Type" }))
+        if supplies_type == nil or supplies_type <= 0 then
+            record_error = "supplies_type_invalid:" .. tostring(cfg_id)
+            return false
+        end
+        local uid_list = safe_get(info, "uidList") or safe_get(info, "_uidList") or safe_get(info, "UidList")
+        records[#records + 1] = {
+            id = id, pointId = id, pointType = 27, kind = "supplies_point",
+            runtimeClass = runtime_class, serverId = math.floor(server_id),
+            srcServerId = integer_field(info, { "srcServerId", "SrcServerId" }) or 0,
+            worldId = world_id, x = tile.x, y = tile.y, uuid = tostring(uuid),
+            treasureType = 0, suppliesType = math.floor(supplies_type),
+            configId = math.floor(cfg_id),
+            state = integer_field(info, { "state", "State" }),
+            userCount = integer_field(info, { "userCount", "UserCount" }),
+            rewardedCount = collection_count(uid_list),
+            createTime = scalar_field(info, { "createTime", "CreateTime" }),
+            discovererAllianceId = scalar_field(info, { "discovererAllianceId", "DiscovererAllianceId" }),
+            discovererUid = scalar_field(info, { "discovererUid", "DiscovererUid" }),
+            workEndTime = scalar_field(info, { "workEndTime", "WorkEndTime" }),
+            workState = integer_field(info, { "workState", "WorkState" }),
+            source = "WorldPointManager._pointInfos+WorldSuppliesPoint+TableName.LWIceSupplies",
         }
         return true
     end)
@@ -3227,6 +3365,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         matchedResourceCount = details.matchedResourceCount,
         matchedDispatchCount = details.matchedDispatchCount,
         matchedGhostCount = details.matchedGhostCount,
+        matchedTreasureCount = details.matchedTreasureCount,
         beforeLoadedPointCount = details.beforeLoadedPointCount,
         afterLoadedPointCount = details.afterLoadedPointCount,
         targetTileX = details.targetTileX,
@@ -3309,6 +3448,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         includeTrain = request.includeTrain == true,
         includeDispatch = request.includeDispatch == true,
         includeGhost = request.includeGhost == true,
+        includeTreasure = request.includeTreasure == true,
         includeResourceDetails = request.includeResourceDetails == true,
         requestMethod = details.requestMethod or "WorldPointManager.SendAoiRequest(private-reflection)",
         zoomFinalBlockSize = details.zoomFinalBlockSize,
@@ -3990,6 +4130,7 @@ local function pump_bulk_aoi_diagnostic(now)
     details.matchedResourceCount = observed.resources
     details.matchedDispatchCount = observed.dispatches
     details.matchedGhostCount = observed.ghosts
+    details.matchedTreasureCount = observed.treasures
     details.afterLoadedPointCount = observed.loadedPointCount
     local point_records, point_records_error = city_aoi_records(
         world, point_manager, details.blockSize, details.blockCount, lookup)
@@ -4021,6 +4162,15 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         for index = 1, #ghost_records do point_records[#point_records + 1] = ghost_records[index] end
+    end
+    if bulk_aoi_request.includeTreasure == true then
+        local treasure_records, treasure_records_error = treasure_aoi_records(
+            world, point_manager, details.blockSize, details.blockCount, lookup)
+        if treasure_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, treasure_records_error, details, point_manager)
+            return true
+        end
+        for index = 1, #treasure_records do point_records[#point_records + 1] = treasure_records[index] end
     end
     details.pointRecords = point_records
     details.trainMarchRecords = {}

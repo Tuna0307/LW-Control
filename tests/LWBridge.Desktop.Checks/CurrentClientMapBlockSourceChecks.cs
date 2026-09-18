@@ -49,6 +49,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastRailwayFullMapReturnsAllLogicalCaptures();
         await FastDispatchFullMapReturnsAllLogicalCaptures();
         await FastGhostFullMapReturnsAllLogicalCaptures();
+        await FastTreasureFullMapReturnsAllLogicalCaptures();
         await FastFullMapFillsMeasuredCoverageHole();
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await HealthyGateRunsBeforeWorldReadyProtocol();
@@ -933,6 +934,58 @@ internal static class CurrentClientMapBlockSourceChecks
             "fast full-Ghost source did not preserve authoritative GhostreconPointInfo fields");
     }
 
+    private static async Task FastTreasureFullMapReturnsAllLogicalCaptures()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                if (x == 5 && y == 75)
+                    return ProvenFastTreasureBatch(fields,
+                        (false, "treasure-u1", 90010, 9, 9, 5));
+                if (x == 995 && y == 975)
+                    return ProvenFastTreasureBatch(fields,
+                        (true, "supplies-u2", 985986, 985, 985, 3));
+                return ProvenFastTreasureBatch(fields);
+            });
+
+        MapScanExecutionRequest request = Request("treasure", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+
+        Check(bulkCalls == 270 && captures.Count == 2500,
+            "fast full-Treasure source should adapt to measured four-column interior footprints");
+        MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
+        MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
+        Check(first.Kind == "treasure" && first.RecordKey == "90010" && first.PointIndex == 90010 &&
+              first.Uuid == "treasure-u1" &&
+              last.Kind == "treasure" && last.RecordKey == "985986" && last.PointIndex == 985986 &&
+              last.Uuid == "supplies-u2",
+            "fast full-Treasure source did not preserve original point-index record identity at map extremes");
+        using JsonDocument firstTreasure = JsonDocument.Parse(first.DataJson);
+        using JsonDocument lastTreasure = JsonDocument.Parse(last.DataJson);
+        JsonElement firstData = firstTreasure.RootElement;
+        JsonElement lastData = lastTreasure.RootElement;
+        Check(firstData.GetProperty("pointType").GetInt32() == 21 &&
+              firstData.GetProperty("runtimeClass").GetString() == "TreasurePointInfo" &&
+              firstData.GetProperty("treasureType").GetInt32() == 5 &&
+              firstData.GetProperty("suppliesType").GetInt32() == 0 &&
+              firstData.GetProperty("remainingBoxes").GetInt32() == 3 &&
+              firstData.GetProperty("source").GetString() == "WorldPointManager._pointInfos+TreasurePointInfo" &&
+              lastData.GetProperty("pointType").GetInt32() == 27 &&
+              lastData.GetProperty("runtimeClass").GetString() == "WorldSuppliesPoint" &&
+              lastData.GetProperty("treasureType").GetInt32() == 0 &&
+              lastData.GetProperty("suppliesType").GetInt32() == 3 &&
+              lastData.GetProperty("configId").GetInt32() == 7003 &&
+              lastData.GetProperty("source").GetString() == "WorldPointManager._pointInfos+WorldSuppliesPoint+TableName.LWIceSupplies",
+            "fast full-Treasure source did not preserve the recovered ordinary-treasure/supplies split");
+    }
+
     private static async Task FastFullMapFillsMeasuredCoverageHole()
     {
         int bulkCalls = 0;
@@ -1432,6 +1485,7 @@ internal static class CurrentClientMapBlockSourceChecks
         bool includeTrain = fields.TryGetValue("includeTrain", out string? includeTrainText) && includeTrainText == "true";
         bool includeDispatch = fields.TryGetValue("includeDispatch", out string? includeDispatchText) && includeDispatchText == "true";
         bool includeGhost = fields.TryGetValue("includeGhost", out string? includeGhostText) && includeGhostText == "true";
+        bool includeTreasure = fields.TryGetValue("includeTreasure", out string? includeTreasureText) && includeTreasureText == "true";
         bool includeResourceDetails = fields.TryGetValue("includeResourceDetails", out string? includeResourceDetailsText) && includeResourceDetailsText == "true";
         return JsonSerializer.Serialize(new
         {
@@ -1439,9 +1493,9 @@ internal static class CurrentClientMapBlockSourceChecks
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
-            includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeResourceDetails,
+            includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeTreasure, includeResourceDetails,
             state = "proven", error = (string?)null, requestedIndices = requested,
-            matchedCityCount = points.Length, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0,
+            matchedCityCount = points.Length, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0, matchedTreasureCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,
             monsterProtectionDetailRequestCount = 0, monsterProtectionDetailReadyCount = 0,
             serverLod = 0, blockSize = 10, blockCount = 100,
@@ -1589,6 +1643,56 @@ internal static class CurrentClientMapBlockSourceChecks
             stealMaxTimes = 3,
             source = "WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask",
         }).ToArray(), JsonOptions.Default);
+        return root.ToJsonString(JsonOptions.Default);
+    }
+
+    private static string ProvenFastTreasureBatch(
+        IReadOnlyDictionary<string, string> fields,
+        params (bool Supplies, string Uuid, int PointId, int X, int Y, int Type)[] points)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
+        root["includeTreasure"] = true;
+        root["matchedCityCount"] = 0;
+        root["matchedResourceCount"] = 0;
+        root["matchedDispatchCount"] = 0;
+        root["matchedGhostCount"] = 0;
+        root["matchedTreasureCount"] = points.Length;
+        var pointRows = new JsonArray();
+        foreach (var point in points)
+        {
+            JsonObject row = point.Supplies
+                ? new JsonObject
+                {
+                    ["id"] = point.PointId, ["pointId"] = point.PointId, ["pointType"] = 27,
+                    ["kind"] = "supplies_point", ["runtimeClass"] = "WorldSuppliesPoint",
+                    ["serverId"] = 2212, ["srcServerId"] = 0, ["worldId"] = 0,
+                    ["x"] = point.X, ["y"] = point.Y, ["uuid"] = point.Uuid,
+                    ["treasureType"] = 0, ["suppliesType"] = point.Type, ["configId"] = 7000 + point.Type,
+                    ["state"] = 1, ["userCount"] = 2, ["rewardedCount"] = 1,
+                    ["createTime"] = 1_789_616_000_000L,
+                    ["discovererAllianceId"] = "supply-alliance", ["discovererUid"] = "supply-owner",
+                    ["workEndTime"] = 1_789_620_000_000L, ["workState"] = 1,
+                    ["source"] = "WorldPointManager._pointInfos+WorldSuppliesPoint+TableName.LWIceSupplies",
+                }
+                : new JsonObject
+                {
+                    ["id"] = point.PointId, ["pointId"] = point.PointId, ["pointType"] = 21,
+                    ["kind"] = "treasure_point", ["runtimeClass"] = "TreasurePointInfo",
+                    ["serverId"] = 2212, ["srcServerId"] = 0, ["worldId"] = 0,
+                    ["x"] = point.X, ["y"] = point.Y, ["uuid"] = point.Uuid,
+                    ["ownerUid"] = "treasure-owner", ["ownerName"] = "Owner", ["eventId"] = "event",
+                    ["treasureType"] = point.Type, ["suppliesType"] = 0,
+                    ["startTime"] = 1_789_615_000_000L, ["completionTime"] = 1_789_616_000_000L,
+                    ["expireTime"] = 1_789_630_000_000L, ["createTime"] = 1_789_614_000_000L,
+                    ["complete"] = false, ["speed"] = 1.0,
+                    ["allianceId"] = "treasure-alliance", ["allianceAbbr"] = "TAG",
+                    ["rewardedCount"] = 2, ["diggingCount"] = 1, ["rewardMax"] = 5, ["remainingBoxes"] = 3,
+                    ["fromPoint"] = 0, ["multiple"] = 1, ["killerId"] = "", ["customInfo"] = "",
+                    ["source"] = "WorldPointManager._pointInfos+TreasurePointInfo",
+                };
+            pointRows.Add(row);
+        }
+        root["point_records"] = pointRows;
         return root.ToJsonString(JsonOptions.Default);
     }
 
