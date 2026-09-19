@@ -9,7 +9,9 @@ The owner has explicitly changed two product requirements and these override rec
 
 Acceptance for the scan planner requires that the same category/server produces the same trustworthy published dataset regardless of which internal strategy is selected, that transient Fast/AOI failures retry or fall back only according to proven safe rules, and that the UI truthfully shows one Start/Stop/Clear flow without exposing implementation strategy controls.
 
-**Latest checkpoint — `LWB-R7-065`, 2026-09-20:** Truck/reward game artwork is LIVE-PROVEN on current-v19 through the public `game_asset_image({assetPath})` path. Production now uses the game-owned xLua `SpriteRenderer:LoadSpriteAuto` extension, extracts the returned Sprite by `textureRect` with GPU `Graphics.Blit`, encodes PNG/base64, validates the PNG and dimensions in the host, and reuses a bounded exact-source cache. Four representative authoritative Truck reward paths passed live, including a packed atlas Sprite, and pixel checks prove populated artwork rather than a transparent PNG. `spriteName` remains fail-closed and is not required by Truck `currentGoods`. Durable evidence: `evidence/lwbridge-implementation/2026-09-20-r7-truck-game-asset-image.json`. The next owner-priority implementation item after delivery is complete removal of City Excel export.
+**Latest checkpoint — `LWB-R7-066`, 2026-09-20:** the owner-requested City Excel export removal is complete. The shipped Map Data UI/API and all nine locale bundles no longer contain the export control/invocation/strings; production no longer routes `map_city_export`; the desktop save-dialog path, OOXML writer, export-only SQLite full-snapshot branch and export-only tests are deleted. A negative backend regression requires the retired command to return `COMMAND_NOT_IMPLEMENTED`, a candidate-only browser test proves Map Data loads with no Export Excel surface or invocation, and the full deterministic suite is green. Historical R6/R7 export evidence remains archival provenance only. The next owner priority is the automatic scan strategy planner and removal of Manual/Auto Normal/Fast controls.
+
+**Previous checkpoint — `LWB-R7-065`, 2026-09-20:** Truck/reward game artwork is LIVE-PROVEN on current-v19 through the public `game_asset_image({assetPath})` path. Production now uses the game-owned xLua `SpriteRenderer:LoadSpriteAuto` extension, extracts the returned Sprite by `textureRect` with GPU `Graphics.Blit`, encodes PNG/base64, validates the PNG and dimensions in the host, and reuses a bounded exact-source cache. Four representative authoritative Truck reward paths passed live, including a packed atlas Sprite, and pixel checks prove populated artwork rather than a transparent PNG. `spriteName` remains fail-closed and is not required by Truck `currentGoods`. Durable evidence: `evidence/lwbridge-implementation/2026-09-20-r7-truck-game-asset-image.json`. City Excel export removal was subsequently completed by `LWB-R7-066`.
 
 ## Retained shared Manual Scan direction - 2026-09-13
 
@@ -530,7 +532,7 @@ These are original **frontend command names**, not proof of working native handl
 | Scan lifecycle | `map_scan_status()`; `map_scan_stop()`; `map_scan_clear({serverId})` |
 | Indexed data | `map_summary({profileId?})`; `map_data_options({serverId})`; `map_search({kind, query})` |
 | Marks | `map_player_mark_set({row, marked})` |
-| Export | `map_city_export({query, headers, sheetName, yesLabel, noLabel, ...recoveredOptions})` |
+| Export | **RETIRED BY OWNER OVERRIDE (`LWB-R7-066`)** — no production `map_city_export` command is shipped |
 | Server travel/history | `server_jump({serverId})`; `server_jump_history_set({profileId?, history})`; `server_jump_history_import({profileId?, history})` |
 | Navigation | `map_coordinate_jump(payload)`; `map_march_follow(payload)`; recover precise payload keys |
 | Localization | `lastwar_localize({language, keys})`; runtime assets/images if visible cells require them |

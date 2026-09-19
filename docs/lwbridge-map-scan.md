@@ -1,5 +1,9 @@
 # LWBridge Map Scan recovery
 
+## Owner-retired City Excel export — LWB-R7-066, 2026-09-20
+
+**REMOVED BY OWNER OVERRIDE.** The earlier R6-017/018 and R7-057..060 sections remain historical recovery evidence for the original LWBridge export contract, but they no longer describe a shipped rebuild feature. The current product has no Export Excel control, `map_city_export` frontend/backend path, Excel save dialog, OOXML writer or export-only storage/tests. A negative production-backend regression returns `COMMAND_NOT_IMPLEMENTED`, a candidate-only browser check proves no export UI/invocation remains, and the full deterministic suite passes. Evidence: [`2026-09-20-r7-city-export-removal.json`](../evidence/lwbridge-implementation/2026-09-20-r7-city-export-removal.json).
+
 ## Server-2207 Fast Secret Task stability - LWB-R7-064, 2026-09-19
 
 **LIVE-PROVEN read-only for repeated cross-server acquisition; historical three-attempt malformed footprint not reproduced.** The owner had a later server-2207 Fast Secret Task run stop at 2499/2500 with the R7-063 `non-rectangular v18 AOI footprint` validator still failing after all three local attempts. R7-064 therefore kept the exact rectangular/10,000-AOI proof gate unchanged and instrumented the existing bounded retry rather than adding a slow fallback or guessed reset.

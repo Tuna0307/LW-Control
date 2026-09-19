@@ -30,7 +30,7 @@ internal static class OwnerEvidenceResourceContract
         "profile_instance_stop", "profile_instances_reconcile", "profile_instances_update_and_restart",
         "set_automation", "automation_configure", "local_config_set", "call_lua",
         "map_scan_start", "map_scan_stop", "map_scan_clear", "map_player_mark_set",
-        "map_city_export", "server_jump", "server_jump_history_set", "server_jump_history_import",
+        "server_jump", "server_jump_history_set", "server_jump_history_import",
         "map_coordinate_jump", "map_march_follow", "map_treasure_state_refresh",
         "map_treasure_state_refresh_all", "map_treasure_claim",
         "map_dispatch_plunder_schedule", "map_dispatch_plunder_cancel", "map_dispatch_share_alliance",

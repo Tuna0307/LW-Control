@@ -1,0 +1,163 @@
+{
+  "evidenceId": "LWB-R7-066",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "14f121568a26e5d6fed9f52f856c865c99b1411c",
+  "scope": {
+    "cityExcelExport": "REMOVED_BY_OWNER_OVERRIDE",
+    "visibleExportControl": "REMOVED",
+    "frontendInvocation": "REMOVED",
+    "productionCommand": "REMOVED",
+    "workbookWriter": "REMOVED",
+    "saveDialog": "REMOVED",
+    "exportStoragePath": "REMOVED",
+    "exportOnlyTests": "REMOVED",
+    "historicalRecoveryEvidence": "RETAINED_AS_PROVENANCE"
+  },
+  "authority": {
+    "type": "OWNER_OVERRIDE",
+    "effectiveDate": "2026-09-19",
+    "requirement": "Remove City Excel export completely from the shipped product. Historical recovered evidence remains archival only.",
+    "parityNote": "This intentionally supersedes original LWBridge 0.3.1 export parity in the rebuilt product."
+  },
+  "removedProductionSurface": {
+    "frontend": {
+      "mapDataPanel": [
+        "City Export Excel button",
+        "export busy state",
+        "export handler/status messaging",
+        "map_city_export API import"
+      ],
+      "apiBundle": [
+        "map_city_export wrapper",
+        "exported wrapper alias"
+      ],
+      "locales": [
+        "map.exportExcel",
+        "map.exportingExcel",
+        "map.exportExcelSuccess"
+      ],
+      "localeCount": 9
+    },
+    "desktopBackend": {
+      "file": "src/LWBridge.Desktop/LWBridgeBackend.cs",
+      "removed": [
+        "map_city_export switch route",
+        "CityExportRequest",
+        "PrepareCityExport",
+        "WriteCityExport",
+        "CreateCityExportCanceledResult",
+        "BuildCityExportDefaultFileName",
+        "export header/label parsing"
+      ]
+    },
+    "desktopHost": {
+      "file": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "removed": [
+        "map_city_export special dispatch",
+        "ExportCityAsync",
+        "City SaveFileDialog / Excel workbook filter"
+      ]
+    },
+    "storage": {
+      "file": "src/LWBridge.Desktop/MapDataStore.cs",
+      "removed": [
+        "MaxCityExportRows",
+        "SearchAllCityRowsForExport",
+        "allRows SearchIndexedCore mode",
+        "export row-limit validation",
+        "export-only shield/updated projection",
+        "ReadCityExportSearchRow"
+      ],
+      "remainingBehavior": "Ordinary Map Data search remains paginated with LIMIT/OFFSET and existing City mark projection."
+    },
+    "runtimeWriter": {
+      "deletedFile": "src/LWBridge.Desktop/CityExportWorkbookWriter.cs"
+    },
+    "tests": {
+      "deletedFile": "tests/LWBridge.Desktop.Checks/CityExportWorkbookChecks.cs",
+      "removed": [
+        "XLSX writer/reopen tests",
+        "export filename/result tests",
+        "host-dialog gating test"
+      ],
+      "addedRegression": "Production backend invocation of map_city_export with the active profile must return COMMAND_NOT_IMPLEMENTED."
+    },
+    "ownerEvidenceContract": "Removed map_city_export from the read-only blocked-command inventory because the production command no longer exists."
+  },
+  "frontendPreservation": {
+    "method": "Surgical edit of the current shipped R7 bundle rather than regeneration from the older recovered-bundle generator.",
+    "reason": "A trial regeneration exposed that the older generator predates later R7 frontend patches. The current known-good 14f1215 bundles were restored before export-only surgery.",
+    "preservedRegressionAnchors": [
+      "localeKeywordRefreshRef",
+      "lwbridge.mapResultFilters.v1",
+      "manualDefaultTypes excluding zombie_boss",
+      "scanTypeSelection",
+      "Zombie Boss one-second Remaining clock"
+    ],
+    "result": "All later R7 deterministic frontend-source assertions pass."
+  },
+  "validation": {
+    "releaseBuild": {
+      "command": "dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --nologo",
+      "warnings": 0,
+      "errors": 0
+    },
+    "browser": {
+      "command": "NODE_PATH=.codex-live/pm15-ui-check/node_modules node tools/check_city_export_removed.cjs",
+      "result": "PASS",
+      "assertions": [
+        "generated Map Data loads without JavaScript errors",
+        "Export Excel button absent",
+        "export status UI absent",
+        "map_city_export never invoked",
+        "API bundle contains no map_city_export",
+        "Map Data bundle contains no export translation key",
+        "all nine shipped locale bundles omit export translations"
+      ]
+    },
+    "staticAudit": {
+      "productionReferences": 0,
+      "patterns": [
+        "map_city_export",
+        "map.exportExcel",
+        "map.exportingExcel",
+        "map.exportExcelSuccess",
+        "CityExport",
+        "MaxCityExportRows",
+        "Excel workbook",
+        ".xlsx"
+      ],
+      "saveFileDialogReferencesInLWBridgeWindow": 0,
+      "testMapCityExportReferences": 1,
+      "testReferencePurpose": "intentional negative COMMAND_NOT_IMPLEMENTED regression"
+    },
+    "fullDeterministicSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "processCleanup": {
+      "gameRunning": false,
+      "launcherRunning": false
+    }
+  },
+  "historicalEvidence": {
+    "retained": [
+      "LWB-R6-017",
+      "LWB-R6-018",
+      "LWB-R7-057",
+      "LWB-R7-058",
+      "LWB-R7-059",
+      "LWB-R7-060"
+    ],
+    "status": "HISTORICAL_SUPERSEDED_BY_OWNER_OVERRIDE",
+    "note": "These findings remain valid evidence about original/recovered export behavior but do not describe a currently shipped rebuild feature."
+  },
+  "nextPriority": "Automatic scan strategy planner: remove Manual/Auto Normal/Fast user controls and let the backend choose the fastest proven-safe strategy."
+}

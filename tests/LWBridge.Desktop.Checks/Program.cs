@@ -161,7 +161,6 @@ if (args.Contains("--overview-official-settle-check", StringComparer.OrdinalIgno
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
-LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 
 void Check(bool condition, string name)
@@ -657,6 +656,11 @@ finally
 
 // Profile routing and command-boundary checks use an in-memory config.
 var backend = new LWBridgeBackend(new LocalConfigStore(persistent: false));
+using (JsonDocument retiredCityExport = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = backend.ProfileId })))
+    await ExpectBridgeError(
+        "COMMAND_NOT_IMPLEMENTED",
+        "owner-retired City Excel export command is not reachable in the production backend",
+        async () => await backend.InvokeAsync("map_city_export", retiredCityExport.RootElement.Clone(), CancellationToken.None));
 using (JsonDocument readOnlyBootstrap = JsonDocument.Parse(JsonSerializer.Serialize(
     backend.GetBootstrap(fixture: false, sessionId: "test-session", suppressAutoLaunch: true), JsonOptions.Default)))
 {
@@ -3728,48 +3732,6 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         Check(sortJson.RootElement.GetProperty("rows")[0].GetProperty("uuid").GetString() == "monster-b" &&
               sortJson.RootElement.GetProperty("rows")[1].GetProperty("uuid").GetString() == "monster-a",
             "Monster visible sort arrows execute normalized level/distance ordering without clearing rows");
-
-    using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
-    {
-        profileId = mapBackend.ProfileId,
-        query = new
-        {
-            serverId = 91,
-            page = 1,
-            pageSize = 200,
-            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
-        },
-        headers = new[] { "Server", "X", "Y", "Player", "UID", "UUID", "Alliance", "Level", "HP", "Shield Ends", "Marked", "Updated At" },
-        sheetName = "City",
-        yesLabel = "Yes",
-        noLabel = "No",
-    }));
-    CityExportRequest preparedExport = mapBackend.PrepareCityExport(
-        exportPayload.RootElement.Clone(),
-        new DateTimeOffset(2026, 9, 19, 1, 2, 3, TimeSpan.Zero));
-    Check(preparedExport.DefaultFileName == "map-cities-91-20260919-010203.xlsx",
-        "city export preparation uses the recovered UTC default filename contract");
-    string exportPath = Path.Combine(
-        Path.GetTempPath(),
-        "lwbridge-city-export-" + Guid.NewGuid().ToString("N") + ".xlsx");
-    try
-    {
-        object exportResult = mapBackend.WriteCityExport(preparedExport, exportPath);
-        using JsonDocument exportJson = JsonDocument.Parse(
-            JsonSerializer.Serialize(exportResult, JsonOptions.Default));
-        Check(exportJson.RootElement.GetProperty("canceled").ValueKind == JsonValueKind.False &&
-              exportJson.RootElement.GetProperty("path").GetString() == exportPath &&
-              exportJson.RootElement.GetProperty("rowCount").GetInt32() > 0 &&
-              File.Exists(exportPath) && new FileInfo(exportPath).Length > 0,
-            "city export backend writes the filtered XLSX and returns the recovered success envelope");
-    }
-    finally
-    {
-        try { if (File.Exists(exportPath)) File.Delete(exportPath); }
-        catch { }
-    }
-    await ExpectBridgeError("NATIVE_DIALOG_REQUIRED", "direct backend City export remains host-dialog gated", async () =>
-        await mapBackend.InvokeAsync("map_city_export", exportPayload.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument markPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

@@ -1668,8 +1668,6 @@ internal sealed class LWBridgeWindow : Form
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>
                     command == "game_root_select"
                         ? SelectGameRootAsync(cancellationToken)
-                        : command == "map_city_export"
-                            ? ExportCityAsync(payload, cancellationToken)
                         : command == "game_root_status" && hostProbeService?.ForceMissingGameRoot == true
                             ? Task.FromResult<object?>(new GameRootStatus(
                                 false, string.Empty, "host-probe", "GAME_ROOT_NOT_FOUND",
@@ -1760,42 +1758,6 @@ internal sealed class LWBridgeWindow : Form
         string selectedPath = dialog.SelectedPath;
         GameRootStatus selected = await Task.Run(() => backend.SaveGameRoot(selectedPath), cancellationToken);
         return selected;
-    }
-
-    private async Task<object?> ExportCityAsync(
-        JsonElement payload,
-        CancellationToken cancellationToken)
-    {
-        CityExportRequest request = backend.PrepareCityExport(payload);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        string selectedPath;
-        try
-        {
-            using var dialog = new SaveFileDialog
-            {
-                FileName = request.DefaultFileName,
-                Filter = "Excel workbook|*.xlsx",
-                DefaultExt = "xlsx",
-                AddExtension = true,
-                OverwritePrompt = true,
-                CheckPathExists = true,
-            };
-            if (dialog.ShowDialog(this) != DialogResult.OK)
-                return LWBridgeBackend.CreateCityExportCanceledResult();
-            selectedPath = dialog.FileName;
-        }
-        catch
-        {
-            // RECOVERED LWB-R7-059: rfd 0.16 synchronous save_file() maps both
-            // user cancellation and dialog build/show/get-result failure to None.
-            return LWBridgeBackend.CreateCityExportCanceledResult();
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-        return await Task.Run(
-            () => backend.WriteCityExport(request, selectedPath),
-            cancellationToken);
     }
 
     private async Task EmitOverviewStateAsync(DocumentSession session)
