@@ -619,11 +619,26 @@ internal sealed partial class MapDataStore : IDisposable
     internal MapSearchResult SearchIndexedAtForTest(MapDataQueryOptions options, long nowUnixMilliseconds) =>
         SearchIndexedCore(options, nowUnixMilliseconds, afterCountObserved: null);
 
+    internal MapSearchResult SearchAllCityRowsForExport(MapDataQueryOptions options)
+    {
+        if (!string.Equals(options.Kind, "city", StringComparison.Ordinal))
+            throw new BridgeCommandException(
+                "INVALID_MAP_KIND",
+                "city export requires a City query.");
+        return SearchIndexedCore(
+            options,
+            RecoveredWallClock.UnixTimeMilliseconds(),
+            afterCountObserved: null,
+            monsterNameKeys: null,
+            allRows: true);
+    }
+
     private MapSearchResult SearchIndexedCore(
         MapDataQueryOptions options,
         long nowUnixMilliseconds,
         Action? afterCountObserved,
-        IReadOnlyList<string>? monsterNameKeys = null)
+        IReadOnlyList<string>? monsterNameKeys = null,
+        bool allRows = false)
     {
         ValidateKind(options.Kind);
         ValidateServerId(options.ServerId);
@@ -775,20 +790,33 @@ internal sealed partial class MapDataStore : IDisposable
 
             using SqliteCommand page = connection.CreateCommand();
             page.Transaction = snapshot;
-            page.CommandText = city
-                ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset"
-                : $"SELECT page.data_json, page.server_id FROM map_records page WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset";
+            string select = city
+                ? allRows
+                    ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END, page.shield_end_time, page.updated_at FROM map_records page{join} WHERE {where} ORDER BY {orderBy}"
+                    : $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY {orderBy}"
+                : $"SELECT page.data_json, page.server_id FROM map_records page WHERE {where} ORDER BY {orderBy}";
+            page.CommandText = allRows ? select : select + " LIMIT $limit OFFSET $offset";
             AddSearchParameters(page, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
-            page.Parameters.AddWithValue("$limit", options.PageSize);
-            page.Parameters.AddWithValue("$offset", offset);
+            if (!allRows)
+            {
+                page.Parameters.AddWithValue("$limit", options.PageSize);
+                page.Parameters.AddWithValue("$offset", offset);
+            }
 
             var rows = new List<JsonElement>();
             using SqliteDataReader reader = page.ExecuteReader();
             while (reader.Read())
-                rows.Add(ReadSearchRow(
-                    reader.GetString(0),
-                    reader.GetInt32(1),
-                    city ? reader.GetInt32(2) != 0 : null));
+                rows.Add(city && allRows
+                    ? ReadCityExportSearchRow(
+                        reader.GetString(0),
+                        reader.GetInt32(1),
+                        reader.GetInt32(2) != 0,
+                        reader.IsDBNull(3) ? null : reader.GetInt64(3),
+                        reader.GetInt64(4))
+                    : ReadSearchRow(
+                        reader.GetString(0),
+                        reader.GetInt32(1),
+                        city ? reader.GetInt32(2) != 0 : null));
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
@@ -1404,6 +1432,22 @@ internal sealed partial class MapDataStore : IDisposable
         reader.IsDBNull(11) ? null : reader.GetInt64(11),
         reader.GetInt64(12),
         reader.GetString(13));
+
+    private static JsonElement ReadCityExportSearchRow(
+        string dataJson,
+        int serverId,
+        bool marked,
+        long? shieldEndTime,
+        long updatedAt)
+    {
+        JsonElement row = ReadSearchRow(dataJson, serverId, marked);
+        JsonObject exportRow = JsonNode.Parse(row.GetRawText())!.AsObject();
+        exportRow["updatedAt"] = updatedAt;
+        if (shieldEndTime.HasValue)
+            exportRow["shieldEndTime"] = shieldEndTime.Value;
+        using JsonDocument document = JsonDocument.Parse(exportRow.ToJsonString());
+        return document.RootElement.Clone();
+    }
 
     private static JsonElement ReadSearchRow(string dataJson, int serverId, bool? marked)
     {

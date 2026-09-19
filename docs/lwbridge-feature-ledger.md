@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-057, 2026-09-19
+
+City Excel export infrastructure is **IMPLEMENTED/OFFLINE-TESTED internally, not public-enabled**. The rebuild can snapshot all filtered/sorted City rows in one SQLite transaction and write/reopen the recovered six-part OOXML structure with exact large-ID text, formula-safe strings, mark labels and style-3 dates; a 235-row case proves the export path is not accidentally capped by the frontend's pageSize 200. Applying full-filter scope and unresolved per-column styles/types is explicitly IMPLEMENTATION POLICY, not a claim about the original host. Static continuation identifies `rfd 0.16.0`, CodeView `lwbridge.pdb` identity and the exact four-XF style table; original pagination/picker/typing/default-filename semantics remain blocked, so `map_city_export` stays fail-closed. Evidence: [R7-057](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-infrastructure.json).
+
 ## Current implementation checkpoint — LWB-R7-056, 2026-09-19
 
 Durable Map Scan run identity is **IMPLEMENTED/OFFLINE-TESTED**. Profile scope is the profile-specific Map Data DB; run rows additionally persist launch session, server/world, geometry, home tile, ordered selected types, mode, concurrency and retry bound. All run mutations revalidate that identity transactionally, legacy schemas migrate additively, and stale/foreign identity is rejected before mutation. Public resume stays unavailable because no original `resumeAvailable=true` producer is recovered. Evidence: [R7-056](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-run-identity.json).

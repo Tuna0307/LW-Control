@@ -1,5 +1,15 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Internal City export infrastructure checkpoint - LWB-R7-057, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED internally; public `map_city_export` remains fail-closed.** `MapDataStore.SearchAllCityRowsForExport` now evaluates the normal recovered City filters/order inside one SQLite read snapshot and deliberately omits LIMIT/OFFSET for export. The implementation-policy scope is therefore the full filtered result set, not the frontend request's `page=1/pageSize=200`. The export-only projection overlays authoritative indexed `serverId`, `updatedAt`, `shieldEndTime` and current mark state without changing public `map_search` rows.
+
+`CityExportWorkbookWriter` writes the six package parts recovered in R6-018, the A:L width/freeze/filter/margin layout, and the exact four-XF style table. Where direct original writer coercion is still unknown, policy is explicit: style 1 is applied to headers, style 2 to integer-like display values, UID/UUID/text/mark labels are inline strings, formula-looking game text is never emitted as formulas, and positive seconds/milliseconds timestamps are written as UTC Excel serials with recovered style 3. The R6-049 normalized shield rule (`shieldEndTime`, otherwise `protectEndTime`) is reused for column J but is not misrepresented as direct export-writer proof.
+
+Deterministic acceptance seeds 235 matching City rows while the query declares `pageSize=200`, verifies all 235 are returned in the recovered sort order, writes/reopens the package, verifies 236 worksheet rows including the header, exact 36-digit UID text, formula safety, authoritative overlays, style-3 dates, marks and the recovered styles. New static recovery identifies CodeView `lwbridge.pdb` GUID `3870da6b-b304-4290-8e29-001adcf19d83` age 1 and Windows dialog crate `rfd 0.16.0`; no local PDB/source or public source was found. SB-08/SB-09 were not replayed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-city-export-infrastructure.json`.
+
+**Next:** do not wire the public Export button yet. Continue only the unresolved original host contract: original pagination/scope, direct A-C/J typing/coercion, filename timestamp/default directory, `rfd` cancel/error/overwrite behavior and original large-ID workbook behavior. Population-dependent Railway/Ghost acceptance remains separate; Ghost positive-row proof is owner-deferred until 2026-09-24.
+
 ## Durable full-run identity checkpoint - LWB-R7-056, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED; public resume remains deliberately unavailable.** The profile boundary is already the per-profile `map-data.db`. Production runs now persist launch session, server/world, tile dimensions, home tile, ordered selected types, mode, concurrency and retry bound. Block success/batch success/failure, Stop/Fail and final publication all transactionally revalidate those fields against the active request before mutation. A reused run ID with any stale/foreign field is rejected as `INVALID_SCAN / map scan identity does not match the active run`.

@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-057, 2026-09-19
+
+City Excel export now has an internal full-filter snapshot plus OOXML writer and deterministic reopen acceptance, while the public command intentionally remains unavailable. The rebuilt path exports all filtered/sorted City rows from one SQLite snapshot by implementation policy and proves 235 rows are not truncated by the frontend's 200-row request. The writer reproduces the recovered six-part package/layout/style scaffold and preserves large identifiers/formula-like strings as inline text plus style-3 usable dates. New static evidence pins `rfd 0.16.0`, CodeView `lwbridge.pdb` identity and the exact four-XF style table. Original host pagination, direct per-column coercion, filename/default-directory and complete picker behavior are still unresolved and are not papered over; `map_city_export` stays fail-closed. See [R7-057 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-infrastructure.json).
+
 ## Latest implementation checkpoint — LWB-R7-056, 2026-09-19
 
 Durable full-run identity is IMPLEMENTED/OFFLINE-TESTED. Production Map Scan rows now persist and enforce launch session, server/world, geometry, home tile, selected types, mode, concurrency and retry policy in addition to the unique run ID, with additive migration for old databases. Any stale/foreign identity is rejected before checkpoint, failure, Stop or final publication mutation. Public resume remains explicitly unavailable because the verified original exposes the resume input gate but no recovered state producer ever sets `resumeAvailable=true`. With R7-054/055/056, Clear, completion integrity and run identity are no longer the active shared-scanner blockers. See [R7-056 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-run-identity.json).
