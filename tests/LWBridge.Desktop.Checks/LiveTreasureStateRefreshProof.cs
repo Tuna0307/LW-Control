@@ -24,6 +24,22 @@ internal static class LiveTreasureStateRefreshProof
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
         string? instanceId = null;
         Exception? operationError = null;
+        int originalServerId = 0;
+        int targetServerId = 0;
+        bool targetServerJumped = false;
+        bool requireSupplies = string.Equals(
+            Environment.GetEnvironmentVariable("LWBRIDGE_REQUIRE_SUPPLIES"),
+            "1",
+            StringComparison.Ordinal);
+        string? targetServerText =
+            Environment.GetEnvironmentVariable("LWBRIDGE_SUPPLIES_TARGET_SERVER");
+        if (!string.IsNullOrWhiteSpace(targetServerText) &&
+            (!int.TryParse(targetServerText, out targetServerId) ||
+             targetServerId is < 1 or > 99_999))
+        {
+            throw new InvalidDataException(
+                "LWBRIDGE_SUPPLIES_TARGET_SERVER must be an integer from 1 to 99999.");
+        }
 
         try
         {
@@ -38,8 +54,39 @@ internal static class LiveTreasureStateRefreshProof
 
             using var store = new MapDataStore(databasePath);
             var service = new ManualMapScanCommandService(lifecycle, store);
+            var source = new CurrentClientMapBlockSource(lifecycle);
             try
             {
+                CurrentClientMapContext initialContext =
+                    await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
+                originalServerId = initialContext.ServerId;
+                if (targetServerId == 0) targetServerId = originalServerId;
+                if (targetServerId != originalServerId)
+                {
+                    JsonElement jumpPayload = JsonSerializer.SerializeToElement(
+                        new { serverId = targetServerId },
+                        JsonOptions.Default);
+                    JsonElement jumpResult = JsonSerializer.SerializeToElement(
+                        await service.InvokeAsync(
+                            "server_jump",
+                            jumpPayload,
+                            operationCts.Token).ConfigureAwait(false),
+                        JsonOptions.Default);
+                    if (!jumpResult.GetProperty("changed").GetBoolean())
+                    {
+                        throw new InvalidDataException(
+                            "Supplies proof target server jump did not report a changed transition.");
+                    }
+                    targetServerJumped = true;
+                    CurrentClientMapContext targetContext =
+                        await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
+                    if (targetContext.ServerId != targetServerId)
+                    {
+                        throw new InvalidDataException(
+                            "Supplies proof live context did not settle on the requested target server.");
+                    }
+                }
+
                 JsonElement scanPayload = JsonSerializer.SerializeToElement(new
                 {
                     profileId = "treasure-state-refresh-proof",
@@ -112,6 +159,20 @@ internal static class LiveTreasureStateRefreshProof
                 if (published.Count <= 0)
                     throw new InvalidDataException(
                         "Treasure state proof requires at least one live Treasure row.");
+                var suppliesUuids = published
+                    .Where(IsSuppliesRecord)
+                    .Where(row => !string.IsNullOrWhiteSpace(row.Uuid))
+                    .Select(row => row.Uuid!)
+                    .ToHashSet(StringComparer.Ordinal);
+                int publishedSuppliesCount = suppliesUuids.Count;
+                int publishedOrdinaryTreasureCount =
+                    published.Count - publishedSuppliesCount;
+                if (requireSupplies && publishedSuppliesCount <= 0)
+                {
+                    throw new InvalidDataException(
+                        $"Supplies proof requires a positive live Supplies row; " +
+                        $"published ordinary={publishedOrdinaryTreasureCount}, supplies=0.");
+                }
 
                 JsonElement claimStatusPayload = JsonSerializer.SerializeToElement(
                     new { profileId = "treasure-state-refresh-proof" },
@@ -173,6 +234,10 @@ internal static class LiveTreasureStateRefreshProof
                 int remainingBoxesRows = 0;
                 int rewardedCountRows = 0;
                 int diggingCountRows = 0;
+                int returnedSuppliesStateCount = 0;
+                int suppliesChargePercentRows = 0;
+                int suppliesRewardedCountRows = 0;
+                int suppliesRemainingBoxesRows = 0;
 
                 foreach (JsonElement state in states.EnumerateArray())
                 {
@@ -194,15 +259,26 @@ internal static class LiveTreasureStateRefreshProof
                     }
                     worldCounts[world] = worldCounts.GetValueOrDefault(world) + 1;
                     playerCounts[player] = playerCounts.GetValueOrDefault(player) + 1;
+                    bool suppliesState = suppliesUuids.Contains(uuid);
+                    if (suppliesState) returnedSuppliesStateCount++;
                     if (state.TryGetProperty("chargePercent", out JsonElement charge) &&
                         charge.ValueKind == JsonValueKind.Number)
+                    {
                         chargePercentRows++;
+                        if (suppliesState) suppliesChargePercentRows++;
+                    }
                     if (state.TryGetProperty("remainingBoxes", out JsonElement remaining) &&
                         remaining.ValueKind == JsonValueKind.Number)
+                    {
                         remainingBoxesRows++;
+                        if (suppliesState) suppliesRemainingBoxesRows++;
+                    }
                     if (state.TryGetProperty("rewardedCount", out JsonElement rewarded) &&
                         rewarded.ValueKind == JsonValueKind.Number)
+                    {
                         rewardedCountRows++;
+                        if (suppliesState) suppliesRewardedCountRows++;
+                    }
                     if (state.TryGetProperty("diggingCount", out JsonElement digging) &&
                         digging.ValueKind == JsonValueKind.Number)
                         diggingCountRows++;
@@ -213,6 +289,13 @@ internal static class LiveTreasureStateRefreshProof
                         throw new InvalidDataException(
                             "Treasure refresh state was not persisted in the recovered cache.");
                     cacheCount++;
+                }
+                if (requireSupplies &&
+                    returnedSuppliesStateCount != publishedSuppliesCount)
+                {
+                    throw new InvalidDataException(
+                        $"Supplies refresh returned {returnedSuppliesStateCount}/" +
+                        $"{publishedSuppliesCount} Supplies states.");
                 }
 
                 MapSearchResult overlay = store.SearchIndexed(new MapDataQueryOptions(
@@ -254,8 +337,15 @@ internal static class LiveTreasureStateRefreshProof
                     ok = true,
                     proof = "current_v19_treasure_state_refresh_read_only",
                     serverId,
+                    originalServerId,
+                    targetServerId,
+                    targetServerJumped,
+                    requireSupplies,
                     publishedTreasureCount = published.Count,
+                    publishedOrdinaryTreasureCount,
+                    publishedSuppliesCount,
                     returnedStateCount = states.GetArrayLength(),
+                    returnedSuppliesStateCount,
                     cacheCount,
                     playerUidPresent = !string.IsNullOrWhiteSpace(playerUid),
                     allianceIdPresent = !string.IsNullOrWhiteSpace(allianceId),
@@ -274,6 +364,9 @@ internal static class LiveTreasureStateRefreshProof
                     remainingBoxesRows,
                     rewardedCountRows,
                     diggingCountRows,
+                    suppliesChargePercentRows,
+                    suppliesRemainingBoxesRows,
+                    suppliesRewardedCountRows,
                     overlayFirstPageRows = overlay.Rows.Count,
                     overlayStateRows,
                 }, JsonOptions.Default);
@@ -294,6 +387,57 @@ internal static class LiveTreasureStateRefreshProof
         }
         finally
         {
+            if (targetServerJumped &&
+                originalServerId > 0 &&
+                lifecycle.GetReadyMapScanSession() is not null &&
+                lifecycle.GetLiveServerId() is int liveServerId &&
+                liveServerId != originalServerId)
+            {
+                try
+                {
+                    using MapDataStore returnStore = MapDataStore.CreateInMemory();
+                    var returnService =
+                        new ManualMapScanCommandService(lifecycle, returnStore);
+                    try
+                    {
+                        JsonElement returnPayload = JsonSerializer.SerializeToElement(
+                            new { serverId = originalServerId },
+                            JsonOptions.Default);
+                        JsonElement returnResult = JsonSerializer.SerializeToElement(
+                            await returnService.InvokeAsync(
+                                "server_jump",
+                                returnPayload,
+                                CancellationToken.None).ConfigureAwait(false),
+                            JsonOptions.Default);
+                        if (!returnResult.GetProperty("changed").GetBoolean())
+                        {
+                            throw new InvalidDataException(
+                                "Supplies proof return jump did not report a changed transition.");
+                        }
+                        CurrentClientMapContext returnContext =
+                            await new CurrentClientMapBlockSource(lifecycle)
+                                .GetCurrentContextAsync(CancellationToken.None)
+                                .ConfigureAwait(false);
+                        if (returnContext.ServerId != originalServerId)
+                        {
+                            throw new InvalidDataException(
+                                "Supplies proof live context did not return to the original server.");
+                        }
+                    }
+                    finally
+                    {
+                        returnService.Close();
+                    }
+                }
+                catch (Exception returnError)
+                {
+                    Console.Error.WriteLine(
+                        "LIVE_TREASURE_STATE_RETURN_FAILED: " +
+                        returnError.Message);
+                    if (operationError is null) throw;
+                }
+            }
+
             instanceId ??= lifecycle.GetReadyMapScanSession()?.SessionId;
             if (!string.IsNullOrWhiteSpace(instanceId))
             {
@@ -319,6 +463,25 @@ internal static class LiveTreasureStateRefreshProof
             }
             TryDelete(databasePath);
         }
+    }
+
+    private static bool IsSuppliesRecord(MapStoredRecord row)
+    {
+        using JsonDocument document = JsonDocument.Parse(row.DataJson);
+        JsonElement root = document.RootElement;
+        return root.TryGetProperty("pointType", out JsonElement pointType) &&
+            pointType.TryGetInt32(out int parsedPointType) &&
+            parsedPointType == 27 &&
+            root.TryGetProperty("suppliesType", out JsonElement suppliesType) &&
+            suppliesType.TryGetInt32(out int parsedSuppliesType) &&
+            parsedSuppliesType > 0 &&
+            root.TryGetProperty("treasureType", out JsonElement treasureType) &&
+            treasureType.TryGetInt32(out int parsedTreasureType) &&
+            parsedTreasureType == 0 &&
+            root.TryGetProperty("runtimeClass", out JsonElement runtimeClass) &&
+            runtimeClass.ValueKind == JsonValueKind.String &&
+            (runtimeClass.GetString() ?? string.Empty)
+                .EndsWith("WorldSuppliesPoint", StringComparison.Ordinal);
     }
 
     private static void TryDelete(string path)

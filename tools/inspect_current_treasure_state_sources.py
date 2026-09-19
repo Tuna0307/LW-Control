@@ -24,6 +24,17 @@ MODULES = {
         "decoded": "b5bed9517de2381242c0fea7796baac190d332d2e0692e12bbe92ebd1addeb21",
         "anchors": ["GetPercent", "HasPlayer", "getReward"],
     },
+    "DataCenter/SeasonManager/Activity/SeasonSuppliesShareDataManager.luac": {
+        "encoded": "b5ef00c90b08ec2f12a80c6b628925cf0920af3be7c3113f519091bd1190c4b8",
+        "decoded": "301f040aa7fa336a1e991ce6fd1e69930db781bdb5336702a9629b41cd88660d",
+        "anchors": [
+            "GetActivityInfo",
+            "IsSeasonActivityOpen",
+            "GetServerCurrentSeasonConfig",
+            "lw_supplies_refresh",
+            "supplies_para",
+        ],
+    },
     "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": {
         "encoded": "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
         "decoded": "4e738cdd076dde56239461d3f011703885d1d4b55facf1c3aa283abcd8675f0e",
@@ -113,6 +124,8 @@ def main() -> int:
             "WorldSuppliesPointData.CheckBtnState owns CanGet/AlreadyGet/Limit/Over eligibility",
             "WorldSuppliesPointData.HasPlayer delegates to chargeData.HasPlayer for charging supplies",
             "WorldChargeData exposes per-player getReward plus charge percentage",
+            "SeasonSuppliesShareDataManager resolves current-server season config and Supplies activity state through GetServerCurrentSeasonConfig/GetActivityInfo/IsSeasonActivityOpen",
+            "Season Supplies configuration consumes lw_supplies_refresh and supplies_para from the current server season config",
         ],
         "limits": [
             "This inspector pins package/module identity and source anchors; it does not infer unrecovered claimPriority.",

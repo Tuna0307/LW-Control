@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-072",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "8fbf4beb353f47157a15c3821f077faf617e2d86",
+  "status": "POPULATION_PENDING / CURRENT_REACHABLE_GROUP_EXHAUSTED",
+  "scope": {
+    "feature": "current-v19 Supplies positive-row acquisition and read-only state-detail acceptance",
+    "productionSemanticsChanged": false,
+    "readOnly": true,
+    "stateChangingGameplayActionInvoked": false
+  },
+  "acceptanceHarness": {
+    "path": "tests/LWBridge.Desktop.Checks/LiveTreasureStateRefreshProof.cs",
+    "targetServerSetting": "LWBRIDGE_SUPPLIES_TARGET_SERVER",
+    "positiveGateSetting": "LWBRIDGE_REQUIRE_SUPPLIES=1",
+    "targetReadiness": "CurrentClientMapBlockSource.GetCurrentContextAsync",
+    "positiveRowContract": {
+      "pointType": 27,
+      "runtimeClassSuffix": "WorldSuppliesPoint",
+      "treasureType": 0,
+      "suppliesType": "> 0"
+    },
+    "positiveProofPolicy": "A full 2500-block Treasure scan must publish at least one authentic Supplies row before read-only refresh/detail acceptance can pass.",
+    "returnPolicy": "Cross-server proof returns to the original server and revalidates live context before owned-session stop."
+  },
+  "currentV19StaticRecovery": {
+    "luaPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "contentVersion": 19,
+    "seasonSuppliesManager": {
+      "entry": "DataCenter/SeasonManager/Activity/SeasonSuppliesShareDataManager.luac",
+      "encodedSha256": "b5ef00c90b08ec2f12a80c6b628925cf0920af3be7c3113f519091bd1190c4b8",
+      "decodedSha256": "301f040aa7fa336a1e991ce6fd1e69930db781bdb5336702a9629b41cd88660d",
+      "anchors": [
+        "GetActivityInfo",
+        "IsSeasonActivityOpen",
+        "GetServerCurrentSeasonConfig",
+        "lw_supplies_refresh",
+        "supplies_para"
+      ]
+    },
+    "sourceFacts": [
+      "SeasonSuppliesShareDataManager resolves Supplies activity from current-server season state.",
+      "WorldSuppliesPointData owns CheckBtnState/HasPlayer and detail parsing.",
+      "WorldGetSuppliesPointDetail remains the only network read used by the read-only Supplies state lane.",
+      "No claim/scout/march action is part of the acceptance harness."
+    ]
+  },
+  "authoritativeNegativeScan": {
+    "serverId": 2204,
+    "scanMode": "fast",
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "completed",
+    "ordinaryTreasureCount": 3,
+    "suppliesCount": 0,
+    "positiveGateResult": "FAILED_AS_DESIGNED",
+    "reason": "No authentic WorldSuppliesPoint was present in the full-world published population."
+  },
+  "additionalAuthoritativeNegativeScan": {
+    "serverId": 2213,
+    "scanMode": "fast",
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "completed",
+    "ordinaryTreasureCount": 2,
+    "suppliesCount": 0,
+    "positiveGateResult": "FAILED_AS_DESIGNED",
+    "processRuntimeSeconds": 159.21,
+    "returnToOriginalServerId": 2212,
+    "reason": "The strict positive Supplies gate rejected a second complete full-world population with zero WorldSuppliesPoint rows."
+  },
+  "reachablePopulationDiscovery": {
+    "method": "temporary aggregate-only read-only season/activity metadata diagnostic; removed before checkpoint",
+    "acceptanceAuthority": "not acceptance evidence; used only to avoid blind full-world scans",
+    "homeServerId": 2212,
+    "baseline2212": {
+      "suppliesActivityInfoExists": false,
+      "historicalR7069PublishedOrdinaryTreasureCount": 8,
+      "historicalR7069PublishedSuppliesCount": 0
+    },
+    "metadataSweepBand": {
+      "firstServerId": 2149,
+      "lastServerId": 2211,
+      "everyServerAttempted": true,
+      "activeSuppliesActivityCount": 0,
+      "seasonConfigPresentAcrossSuccessfulSamples": true,
+      "suppliesParametersPresentAcrossSuccessfulSamples": true
+    },
+    "upperEndpoint2213": {
+      "reachable": true,
+      "authoritativeFullWorldScanCompleted": true,
+      "ordinaryTreasureCount": 2,
+      "suppliesCount": 0
+    },
+    "travelBoundaryObservations": {
+      "server2149Reachable": true,
+      "rejectedByServerJumpPrecheck": [
+        2148,
+        2147,
+        2146,
+        2145,
+        2140,
+        2120,
+        2100
+      ]
+    },
+    "transientObservation": "One server-2204 return attempt reported game connection unavailable; the same owned session recovered on the following iteration and final cleanup returned to server 2212. It is not treated as population evidence.",
+    "temporaryDiscoveryCodeRetained": false
+  },
+  "validation": {
+    "sourceInspector": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixDeterministicGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "conclusion": {
+    "suppliesImplementationReadiness": "READY_FOR_POSITIVE_POPULATION",
+    "positiveLiveAcceptance": "OPEN",
+    "reason": "No active Supplies activity was found in the exhaustive 2149-2211 metadata sweep; home server 2212 was already Supplies-negative under R7-069, and strict full-world scans on reachable servers 2204 and 2213 both published zero Supplies rows.",
+    "nextAction": "Rerun the unchanged strict harness when SeasonSuppliesShareDataManager exposes an active Supplies activity or a full-world scan publishes pointType 27 WorldSuppliesPoint."
+  },
+  "limits": [
+    "No positive Supplies state/detail claim is made.",
+    "Servers rejected by the game's server_jump_precheck were not bypassed.",
+    "No claim, scout, march, attack, plunder, collection, messaging, alliance-share, or consumable action occurred."
+  ],
+  "privacy": "Aggregate-only evidence. No player identity, UUID, coordinates, session/challenge identifiers, process identifiers, raw rows, databases, or raw diagnostic logs are retained."
+}
