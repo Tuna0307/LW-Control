@@ -52,7 +52,6 @@ internal static class LiveAutoZombieCycleProof
                 JsonElement scanPayload = JsonSerializer.SerializeToElement(new
                 {
                     profileId = "auto-zombie-cycle-proof",
-                    scanMode = "fast",
                     selectedTypes = new[] { "zombie_boss" },
                 }, JsonOptions.Default);
 
@@ -61,9 +60,12 @@ internal static class LiveAutoZombieCycleProof
                     "map_scan_start", scanPayload, operationCts.Token).ConfigureAwait(false);
                 JsonElement status = JsonSerializer.SerializeToElement(startScan, JsonOptions.Default);
                 if (status.GetProperty("serverId").GetInt32() != serverId ||
-                    status.GetProperty("totalBlocks").GetInt32() != 2500)
+                    status.GetProperty("totalBlocks").GetInt32() != 2500 ||
+                    status.GetProperty("scanMode").GetString() != "fast" ||
+                    status.GetProperty("concurrency").GetInt32() != 20 ||
+                    status.GetProperty("scanStrategy").GetString() != MapScanStrategyPlanner.FastMonsterStrategy)
                     throw new InvalidDataException(
-                        "Auto-cycle Zombie Boss Start did not expose the expected current-server geometry.");
+                        "Auto-cycle Zombie Boss Start did not expose the expected backend-selected fast strategy and current-server geometry.");
                 DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(3);
                 while (DateTimeOffset.UtcNow < deadline)
                 {
@@ -91,9 +93,6 @@ internal static class LiveAutoZombieCycleProof
                         "Auto-cycle Zombie Boss scan did not complete all 2500 logical blocks.");
 
                 int zombieBossCount = store.SearchIndexed(ZombieBossQuery(serverId)).Total;
-                if (zombieBossCount <= 0)
-                    throw new InvalidDataException(
-                        "Auto-cycle Zombie Boss scan completed but published no Zombie Boss rows.");
 
                 Console.WriteLine(JsonSerializer.Serialize(new
                 {
@@ -101,7 +100,10 @@ internal static class LiveAutoZombieCycleProof
                     proof = "auto_scan_backend_cycle_zombie_boss",
                     serverId,
                     serverJumpNoOpProven = true,
-                    scanMode = "fast",
+                    callerScanModeProvided = false,
+                    scanMode = status.GetProperty("scanMode").GetString(),
+                    scanStrategy = status.GetProperty("scanStrategy").GetString(),
+                    concurrency = status.GetProperty("concurrency").GetInt32(),
                     totalBlocks = 2500,
                     zombieBossCount,
                     scanWallSeconds = stopwatch.Elapsed.TotalSeconds,

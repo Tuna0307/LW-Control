@@ -170,7 +170,9 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             activeCancellation = operationCancellation;
             isReading = true;
             phase = "reading";
-            scanMode = options.ScanMode;
+            // Bounded proof adapter keeps its one proven ordinary acquisition shape;
+            // public Normal/Fast ownership was retired by LWB-R7-067.
+            scanMode = "normal";
             selectedMapKind = requestedMapKind;
             lastError = null;
             lastHelperResult = null;

@@ -45,6 +45,9 @@ internal static class ManualMapScanCommandServiceChecks
     private static CurrentClientMapContext Context(int width = 20, int height = 20) =>
         new(2212, 0, width, height);
 
+    private static CurrentClientMapContext StandardContext() =>
+        new(2212, 0, 1000, 1000);
+
     private static async Task NormalStartOwnsOneRunAndStopCancels()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
@@ -112,7 +115,7 @@ internal static class ManualMapScanCommandServiceChecks
         var source = new BlockingSource();
         var service = new ManualMapScanCommandService(
             store,
-            _ => Task.FromResult(Context()),
+            _ => Task.FromResult(StandardContext()),
             source);
         var backend = new LWBridgeBackend(
             new LocalConfigStore(persistent: false),
@@ -338,13 +341,15 @@ internal static class ManualMapScanCommandServiceChecks
         status = Status(service);
 
         Check(String(status, "phase") == "completed" && !Bool(status, "isReading") && !Bool(status, "resumeAvailable"),
-            "fast scan should publish after all blocks succeed without advertising unsupported resume");
-        Check(Int(status, "concurrency") == 20, "fast Start must preserve recovered concurrency 20");
+            "ordinary fallback should publish after all blocks succeed without advertising unsupported resume");
+        Check(Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal" &&
+              String(status, "scanStrategy") == MapScanStrategyPlanner.NormalBlockStrategy,
+            "caller fast preference must not override the backend ordinary fallback plan");
         Check(Int(status, "totalBlocks") == 2 && Int(status, "readBlocks") == 2,
-            "40x20 map should traverse two recovered 20-tile blocks");
+            "40x20 map should traverse two proven ordinary 20-tile blocks");
         Check(Double(status, "progressPercent") == 100.0,
-            "completed fast scan should expose recovered 100 percent state");
-        Check(source.Calls == 2, "fast scan must use the same block source for each traversal block");
+            "completed ordinary fallback should expose 100 percent state");
+        Check(source.Calls == 2, "ordinary fallback must use the block source for each traversal block");
         string runId = String(status, "scanRunId");
         Check(store.ReadScanBlockCheckpointsForTest(runId).Count == 0,
             "successful publication should clean block staging");
@@ -384,11 +389,12 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "zombie_boss"), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
             "Zombie Boss should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
@@ -397,11 +403,12 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "railway"), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
             "Railway/Train should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
@@ -410,11 +417,12 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "dispatch"), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
             "Dispatch should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
@@ -423,11 +431,12 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "ghost"), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
             "Ghost Ops should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
@@ -436,11 +445,12 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "treasure"), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0,
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
             "Treasure should use the same ordinary Manual Scan worker as supported kinds");
         service.Close();
     }
@@ -449,12 +459,13 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync(
             "map_scan_start", Payload("normal", "city", "resource"), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0 &&
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast" &&
               status.GetProperty("selectedTypes").EnumerateArray().Select(value => value.GetString()).SequenceEqual(new[] { "city", "resource" }) &&
               source.LastSelectedTypes.SequenceEqual(new[] { "city", "resource" }),
             "mixed original Map Data kinds should flow unchanged through the shared Manual Scan worker");
@@ -465,12 +476,13 @@ internal static class ManualMapScanCommandServiceChecks
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(Context()), source);
+        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync(
             "map_scan_start", Payload("normal", MapScanContract.RecoveredDefaultTypes), CancellationToken.None);
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 1 && Int(status, "failedBlocks") == 0 &&
+        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
+              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast" &&
               source.LastSelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),
             "all eight recovered Map Data kinds should use one shared Manual Scan run");
         service.Close();
@@ -843,7 +855,7 @@ internal static class ManualMapScanCommandServiceChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private sealed class ImmediateSource : IMapScanBlockSource
+    private sealed class ImmediateSource : IMapScanBatchSource
     {
         public int Calls { get; private set; }
         public IReadOnlyList<string> LastSelectedTypes { get; private set; } = Array.Empty<string>();
@@ -862,6 +874,42 @@ internal static class ManualMapScanCommandServiceChecks
                 block.BlockIndex,
                 "{}",
                 []));
+        }
+
+        public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(
+            MapScanExecutionRequest request,
+            MapScanTargetBlock seedBlock,
+            IReadOnlySet<int> pendingBlockIndices,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            Calls++;
+            LastSelectedTypes = request.SelectedTypes.ToArray();
+            if (!string.Equals(request.ScanMode, "fast", StringComparison.Ordinal))
+            {
+                return Task.FromResult<IReadOnlyList<MapScanBlockCapture>>(
+                [
+                    new MapScanBlockCapture(
+                        request.ServerId,
+                        request.WorldId,
+                        seedBlock.BlockIndex,
+                        "{}",
+                        [])
+                ]);
+            }
+
+            MapScanBlockCapture[] captures = MapScanTraversal.Build(
+                    request.TileWidth,
+                    request.TileHeight)
+                .Where(block => pendingBlockIndices.Contains(block.BlockIndex))
+                .Select(block => new MapScanBlockCapture(
+                    request.ServerId,
+                    request.WorldId,
+                    block.BlockIndex,
+                    "{}",
+                    []))
+                .ToArray();
+            return Task.FromResult<IReadOnlyList<MapScanBlockCapture>>(captures);
         }
     }
 

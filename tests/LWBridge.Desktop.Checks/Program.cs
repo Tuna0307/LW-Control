@@ -3789,17 +3789,17 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         await mapBackend.InvokeAsync("map_player_mark_set", invalidMarkPayload.RootElement.Clone(), CancellationToken.None));
 }
 
-// Recovered Map Scan input contract.
-using JsonDocument normalScan = JsonDocument.Parse("{}");
-MapScanStartOptions normalOptions = MapScanContract.NormalizeStart(normalScan.RootElement);
-Check(normalOptions.ScanMode == "normal" && normalOptions.Concurrency == 8, "normal scan concurrency is recovered as 8");
-Check(normalOptions.SelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes), "missing selectedTypes defaults to all eight recovered kinds without implicitly adding dedicated Zombie Boss");
+// Owner-overridden Map Scan input + backend strategy contract (LWB-R7-067).
+using JsonDocument defaultScan = JsonDocument.Parse("{}");
+MapScanStartOptions defaultOptions = MapScanContract.NormalizeStart(defaultScan.RootElement);
+Check(defaultOptions.SelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),
+    "missing selectedTypes defaults to all eight recovered kinds without implicitly adding dedicated Zombie Boss");
 
-using JsonDocument fastScan = JsonDocument.Parse(
-    "{\"scanMode\":\"fast\",\"selectedTypes\":[\"truck\",\"bogus\",\"city\",\"truck\",7,\"treasure\"]}");
-MapScanStartOptions fastOptions = MapScanContract.NormalizeStart(fastScan.RootElement);
-Check(fastOptions.ScanMode == "fast" && fastOptions.Concurrency == 20, "fast scan concurrency is recovered as 20");
-Check(fastOptions.SelectedTypes.SequenceEqual(new[] { "truck", "city", "treasure" }), "scan types filter unknown/non-string values and deduplicate in first-seen order");
+using JsonDocument retiredModeScan = JsonDocument.Parse(
+    "{\"scanMode\":\"turbo\",\"selectedTypes\":[\"truck\",\"bogus\",\"city\",\"truck\",7,\"treasure\"]}");
+MapScanStartOptions retiredModeOptions = MapScanContract.NormalizeStart(retiredModeScan.RootElement);
+Check(retiredModeOptions.SelectedTypes.SequenceEqual(new[] { "truck", "city", "treasure" }),
+    "retired caller scanMode is ignored while scan types still filter unknown/non-string values and deduplicate in first-seen order");
 
 using JsonDocument invalidTypes = JsonDocument.Parse("{\"selectedTypes\":[\"unknown\",5]}");
 try
@@ -3812,15 +3812,39 @@ catch (BridgeCommandException error)
     Check(error.Code == "INVALID_SCAN_TYPES", "empty normalized scan type list is rejected");
 }
 
-using JsonDocument invalidMode = JsonDocument.Parse("{\"scanMode\":\"turbo\"}");
+var standardScanContext = new CurrentClientMapContext(2212, 0, 1000, 1000);
+MapScanStrategyPlan allEightPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    MapScanContract.RecoveredDefaultTypes);
+Check(allEightPlan.ScanMode == "fast" &&
+      allEightPlan.Concurrency == 20 &&
+      allEightPlan.StrategyId == MapScanStrategyPlanner.FastFullWorldStrategy,
+    "backend planner selects proven fast full-world acquisition for standard-world original-eight/mixed scans");
+MapScanStrategyPlan zombiePlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    new[] { "zombie_boss" });
+Check(zombiePlan.ScanMode == "fast" &&
+      zombiePlan.Concurrency == 20 &&
+      zombiePlan.StrategyId == MapScanStrategyPlanner.FastMonsterStrategy,
+    "backend planner selects proven coarse Monster/Zombie Boss strategy for dedicated standard-world scans");
+MapScanStrategyPlan fallbackCityPlan = MapScanStrategyPlanner.Plan(
+    new CurrentClientMapContext(2212, 0, 40, 20),
+    new[] { "city" });
+Check(fallbackCityPlan.ScanMode == "normal" &&
+      fallbackCityPlan.Concurrency == 8 &&
+      fallbackCityPlan.StrategyId == MapScanStrategyPlanner.NormalBlockStrategy,
+    "backend planner retains ordinary block fallback only where the current-client source proves it");
 try
 {
-    MapScanContract.NormalizeStart(invalidMode.RootElement);
-    failures.Add("unknown scan mode is rejected");
+    MapScanStrategyPlanner.Plan(
+        new CurrentClientMapContext(2212, 0, 40, 20),
+        new[] { "railway" });
+    failures.Add("backend planner rejects unsupported nonstandard-world category acquisition");
 }
 catch (BridgeCommandException error)
 {
-    Check(error.Code == "INVALID_SCAN_MODE", "unknown scan mode is rejected");
+    Check(error.Code == "LIVE_BLOCK_TYPES_UNSUPPORTED",
+        "backend planner rejects unsupported nonstandard-world category acquisition");
 }
 
 // LWB-R6-052: recovered direct-scan block-grid cardinality and scalar completion prerequisite.
@@ -5686,8 +5710,12 @@ Check(mapDataPanelSource.Contains("manualDefaultTypes=O.filter(e=>e!==`zombie_bo
       mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("selectedTypes:scanTypeSelection(S.selectedTypes,e.key,t.target.checked)", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading||F===`scheduledPlunder`", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("map-speed-toggle", StringComparison.Ordinal),
-    "Manual/Auto scan selectors must preserve original-eight mixed selection, dedicated Zombie Boss exclusivity, speed controls, and Scheduled Plunder Start blocking");
+      mapDataPanelSource.Contains("v(await ae({selectedTypes:e}))", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("map-speed-toggle", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("lwbridge.mapScanMode", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("scanMode:P", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
+    "Manual/Auto scan selectors must preserve content selection and Start blocking while removing all user-owned Normal/Fast controls and persistence");
 Check(mapDataPanelSource.Contains(
           "F!==`truck`&&F!==`monster`&&F!==`zombie_boss`&&F!==`scheduledPlunder`",
           StringComparison.Ordinal) &&
@@ -5706,10 +5734,12 @@ Check(generatedIndexSource.Contains(
 Check(generatedIndexSource.Contains("MAP_AUTO_SCAN_TIMEOUT", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan cycle started servers=", StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "Mt(await Te({selectedTypes:i.selectedTypes,scanMode:i.scanMode,resume:!1}))",
+          "Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))",
           StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("scanMode:i.scanMode", StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("e?.scanMode", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan returned to server", StringComparison.Ordinal),
-    "Auto Scan parent scheduler must sequence server jump -> shared map scan -> terminal wait -> optional return");
+    "Auto Scan parent scheduler must sequence server jump -> backend-planned shared scan -> terminal wait -> optional return without persisting a speed preference");
 
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),

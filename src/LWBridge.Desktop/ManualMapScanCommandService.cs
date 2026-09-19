@@ -21,7 +21,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private bool isReading;
     private string phase = "idle";
     private string scanRunId = string.Empty;
-    private string scanMode = "normal";
+    private string scanMode = "auto";
+    private string scanStrategy = "none";
     private IReadOnlyList<string> selectedTypes = ["city"];
     private int serverId;
     private long worldId;
@@ -192,7 +193,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             store.ClearServer(requestedServerId);
             scanRunId = string.Empty;
             phase = "idle";
-            scanMode = "normal";
+            scanMode = "auto";
+            scanStrategy = "none";
             worldId = 0;
             concurrency = 0;
             totalBlocks = 0;
@@ -471,9 +473,10 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
             isReading = true;
             phase = "starting";
-            scanMode = options.ScanMode;
+            scanMode = "auto";
+            scanStrategy = "pending";
             selectedTypes = options.SelectedTypes.ToArray();
-            concurrency = options.Concurrency;
+            concurrency = 0;
             lastError = null;
             serverId = 0;
             worldId = 0;
@@ -507,6 +510,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SIZE_UNAVAILABLE",
                     "world map dimensions are unavailable");
 
+            MapScanStrategyPlan strategy = MapScanStrategyPlanner.Plan(context, selectedTypes);
             var request = new MapScanExecutionRequest(
                 runId,
                 context.ServerId,
@@ -514,11 +518,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 context.TileWidth,
                 context.TileHeight,
                 selectedTypes,
-                options.Concurrency,
+                strategy.Concurrency,
                 MaxAttemptsPerBlock: 2,
                 PlayerTileX: context.PlayerTileX,
                 PlayerTileY: context.PlayerTileY,
-                ScanMode: options.ScanMode,
+                ScanMode: strategy.ScanMode,
                 LaunchSessionId: context.LaunchSessionId);
 
             lock (gate)
@@ -528,6 +532,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     throw new OperationCanceledException(scanCancellation.Token);
                 serverId = context.ServerId;
                 worldId = context.WorldId;
+                scanMode = strategy.ScanMode;
+                scanStrategy = strategy.StrategyId;
+                concurrency = strategy.Concurrency;
                 totalBlocks = checked((int)grid.TotalBlocks);
                 unreadBlocks = totalBlocks;
                 phase = "scanning";
@@ -764,6 +771,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 failedBlocks,
                 inflightBlocks,
                 scanMode,
+                scanStrategy,
                 concurrency,
                 retryCount = (int?)null,
                 scanRate,
