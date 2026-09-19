@@ -107,6 +107,8 @@ internal sealed record MapOptionSourceSelection(
 
 internal sealed partial class MapDataStore : IDisposable
 {
+    internal const int MaxCityExportRows = 200_000;
+
     private static readonly HashSet<string> AllowedKinds = new(MapScanContract.AllTypes, StringComparer.Ordinal);
 
     private const string SchemaSql = """
@@ -786,6 +788,13 @@ internal sealed partial class MapDataStore : IDisposable
                 total = Convert.ToInt32(count.ExecuteScalar());
             }
 
+            // RECOVERED LWB-R7-060: the original City exporter fetches pages
+            // 1..1000 at pageSize 200 and fails if the accumulated result still
+            // has not reached total. The direct SQLite snapshot is equivalent but
+            // can reject the same >200,000-row condition before materialization.
+            if (allRows)
+                RequireCityExportRowLimit(total);
+
             afterCountObserved?.Invoke();
 
             using SqliteCommand page = connection.CreateCommand();
@@ -820,6 +829,14 @@ internal sealed partial class MapDataStore : IDisposable
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
+    }
+
+    internal static void RequireCityExportRowLimit(int total)
+    {
+        if (total > MaxCityExportRows)
+            throw new BridgeCommandException(
+                "MAP_EXPORT_FAILED",
+                "city export exceeded the row limit");
     }
 
     private static string BuildCityOrderBy(

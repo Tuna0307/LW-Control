@@ -15,6 +15,7 @@ internal static class CityExportWorkbookChecks
     internal static void Run()
     {
         FullFilteredSnapshotExceedsFrontendPageAndWorkbookRoundTrips();
+        RecoveredRowLimitAndCoercionRules();
         InvalidWorkbookOptionsFailClosed();
     }
 
@@ -178,14 +179,15 @@ internal static class CityExportWorkbookChecks
               (string?)Cell(root, "I2").Attribute("s") == "2",
             "numeric display columns must use the recovered style-2 slot");
 
-        double expectedShieldSerial =
-            DateTimeOffset.FromUnixTimeMilliseconds(authoritativeShieldMs).UtcDateTime.ToOADate();
-        double actualShieldSerial = double.Parse(
+        long originalProtectSeconds = 1_900_000_000L + rowCount - 1;
+        double expectedProtectSerial =
+            originalProtectSeconds * 1000d / 86_400_000d + 25_569d;
+        double actualProtectSerial = double.Parse(
             CellValue(Cell(root, "J2")),
             CultureInfo.InvariantCulture);
-        Check(Math.Abs(actualShieldSerial - expectedShieldSerial) < 1e-9 &&
+        Check(Math.Abs(actualProtectSerial - expectedProtectSerial) < 1e-9 &&
               (string?)Cell(root, "J2").Attribute("s") == "3",
-            "shield timestamp must reopen as a style-3 Excel datetime");
+            "column J must prefer present protectEndTime over authoritative shieldEndTime");
 
         double expectedUpdatedSerial =
             DateTimeOffset.FromUnixTimeMilliseconds(updatedBase + rowCount - 1).UtcDateTime.ToOADate();
@@ -217,6 +219,112 @@ internal static class CityExportWorkbookChecks
                 .Single()
                 .Attribute("name") == "Cities",
             "workbook must preserve the caller-provided localized sheet name");
+    }
+
+    private static void RecoveredRowLimitAndCoercionRules()
+    {
+        Check(MapDataStore.MaxCityExportRows == 200_000,
+            "City export row ceiling must remain the recovered 1000 pages x 200 rows");
+        MapDataStore.RequireCityExportRowLimit(200_000);
+        bool rejected = false;
+        try
+        {
+            MapDataStore.RequireCityExportRowLimit(200_001);
+        }
+        catch (BridgeCommandException error)
+        {
+            rejected = error.Code == "MAP_EXPORT_FAILED" &&
+                error.Message == "city export exceeded the row limit";
+        }
+        Check(rejected,
+            "City export must fail with the recovered code/message above 200,000 rows");
+
+        using JsonDocument rowDocument = JsonDocument.Parse("""
+            [
+              {
+                "serverId": 1,
+                "x": 1e3,
+                "y": 20,
+                "ownerName": 123,
+                "ownerUid": 9007199254740993,
+                "uuid": true,
+                "allianceName": false,
+                "level": 30,
+                "health": 100,
+                "protectEndTime": "1800000000",
+                "shieldEndTime": 1800000000000,
+                "marked": "true",
+                "updatedAt": 99999999999
+              },
+              {
+                "serverId": 1,
+                "x": 11,
+                "y": 21,
+                "ownerName": "Player",
+                "ownerUid": "900719925474099312345678901234567890",
+                "uuid": "uuid-text",
+                "allianceName": "A",
+                "level": 31,
+                "health": 101,
+                "shieldEndTime": 100000000000,
+                "marked": true,
+                "updatedAt": 100000000000
+              }
+            ]
+            """);
+        JsonElement[] rows = rowDocument.RootElement
+            .EnumerateArray()
+            .Select(row => row.Clone())
+            .ToArray();
+        string[] headers =
+        [
+            "Server", "X", "Y", "Player", "UID", "UUID",
+            "Alliance", "Level", "HP", "Shield Ends", "Marked", "Updated At",
+        ];
+
+        using var workbook = new MemoryStream();
+        CityExportWorkbookWriter.Write(
+            workbook,
+            rows,
+            new CityExportWorkbookOptions(headers, "Cities", "Yes", "No"));
+        workbook.Position = 0;
+        using var archive = new ZipArchive(workbook, ZipArchiveMode.Read, leaveOpen: true);
+        XDocument sheet = LoadXml(archive, "xl/worksheets/sheet1.xml");
+        XElement root = sheet.Root ?? throw new InvalidOperationException("worksheet root missing");
+
+        Check(CellValue(Cell(root, "B2")) == "1000",
+            "numeric cells must format the parsed JSON number rather than preserving exponent token text");
+        Check(InlineText(Cell(root, "D2")) == string.Empty &&
+              InlineText(Cell(root, "E2")) == string.Empty &&
+              InlineText(Cell(root, "F2")) == string.Empty &&
+              InlineText(Cell(root, "G2")) == string.Empty,
+            "original City text cells must not coerce JSON numbers/booleans to text");
+        Check(CellValue(Cell(root, "J2")) == string.Empty,
+            "present non-number protectEndTime must blank J instead of falling back to shieldEndTime");
+        Check(InlineText(Cell(root, "K2")) == "No",
+            "marked must use Yes only for JSON true, not string truthiness");
+
+        double belowThresholdSerial =
+            99_999_999_999d * 1000d / 86_400_000d + 25_569d;
+        double actualBelowThresholdSerial = double.Parse(
+            CellValue(Cell(root, "L2")),
+            CultureInfo.InvariantCulture);
+        Check(Math.Abs(actualBelowThresholdSerial - belowThresholdSerial) < 1e-9,
+            "timestamps below 1e11 must be interpreted as Unix seconds");
+
+        double thresholdSerial = 100_000_000_000d / 86_400_000d + 25_569d;
+        double actualFallbackSerial = double.Parse(
+            CellValue(Cell(root, "J3")),
+            CultureInfo.InvariantCulture);
+        double actualThresholdSerial = double.Parse(
+            CellValue(Cell(root, "L3")),
+            CultureInfo.InvariantCulture);
+        Check(Math.Abs(actualFallbackSerial - thresholdSerial) < 1e-9 &&
+              Math.Abs(actualThresholdSerial - thresholdSerial) < 1e-9,
+            "absent protectEndTime must fall back to shieldEndTime and 1e11 must be milliseconds");
+        Check(InlineText(Cell(root, "K3")) == "Yes" &&
+              InlineText(Cell(root, "E3")) == "900719925474099312345678901234567890",
+            "JSON true must use Yes and large UID strings must remain lossless inline text");
     }
 
     private static void InvalidWorkbookOptionsFailClosed()

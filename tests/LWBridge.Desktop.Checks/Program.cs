@@ -3726,7 +3726,31 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         yesLabel = "Yes",
         noLabel = "No",
     }));
-    await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "recovered city export envelope reaches the explicit writer gate without enabling guessed export behavior", async () =>
+    CityExportRequest preparedExport = mapBackend.PrepareCityExport(
+        exportPayload.RootElement.Clone(),
+        new DateTimeOffset(2026, 9, 19, 1, 2, 3, TimeSpan.Zero));
+    Check(preparedExport.DefaultFileName == "map-cities-91-20260919-010203.xlsx",
+        "city export preparation uses the recovered UTC default filename contract");
+    string exportPath = Path.Combine(
+        Path.GetTempPath(),
+        "lwbridge-city-export-" + Guid.NewGuid().ToString("N") + ".xlsx");
+    try
+    {
+        object exportResult = mapBackend.WriteCityExport(preparedExport, exportPath);
+        using JsonDocument exportJson = JsonDocument.Parse(
+            JsonSerializer.Serialize(exportResult, JsonOptions.Default));
+        Check(exportJson.RootElement.GetProperty("canceled").ValueKind == JsonValueKind.False &&
+              exportJson.RootElement.GetProperty("path").GetString() == exportPath &&
+              exportJson.RootElement.GetProperty("rowCount").GetInt32() > 0 &&
+              File.Exists(exportPath) && new FileInfo(exportPath).Length > 0,
+            "city export backend writes the filtered XLSX and returns the recovered success envelope");
+    }
+    finally
+    {
+        try { if (File.Exists(exportPath)) File.Delete(exportPath); }
+        catch { }
+    }
+    await ExpectBridgeError("NATIVE_DIALOG_REQUIRED", "direct backend City export remains host-dialog gated", async () =>
         await mapBackend.InvokeAsync("map_city_export", exportPayload.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument markPayload = JsonDocument.Parse(JsonSerializer.Serialize(new

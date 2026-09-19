@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-060, 2026-09-19
+
+City Excel export is now public-enabled and OFFLINE-TESTED against the recovered original contract. The original host fetches the full filtered City set in 200-row pages through page 1000 and rejects overflow above 200,000 rows. Direct writer recovery closes the A-L map and cell types, proves UID/UUID are inline text, proves J's absent-only `protectEndTime -> shieldEndTime` fallback and exact `1e11` timestamp-unit boundary, and pins success `{canceled:false,path,rowCount}` alongside R7-059's cancel result. The WinForms host owns the native save dialog and runs snapshot/workbook generation off the UI thread. Deterministic XLSX reopen plus the full six-group suite pass; no interactive user save was performed. See [R7-060 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-row-contract.json).
+
 ## Latest implementation checkpoint — LWB-R7-059, 2026-09-19
 
 City export save-dialog/default-location semantics are now recovered. The original rfd 0.16.0 builder leaves `starting_directory` and custom title unset, applies `Excel workbook` / `xlsx`, uses the R7-058 UTC filename, and invokes the native Windows Save dialog. Windows owns the remembered/system folder and default overwrite confirmation. rfd collapses both user cancel and dialog errors to `None`, which LWBridge returns exactly as `{canceled:true,path:"",rowCount:0}`. Public export remains gated only on the original row/data contract: pagination/scope, direct A-C/J typing/coercion and original large-ID workbook behavior. See [R7-059 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json).

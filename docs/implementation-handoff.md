@@ -1,5 +1,15 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## City export row/data contract + public enablement - LWB-R7-060, 2026-09-19
+
+**RECOVERED static + IMPLEMENTED/OFFLINE-TESTED.** `tools/inspect_lwbridge_city_export_rows.py` hash-locks the original `lwbridge-0.3.1.exe` and closes the remaining City-export host contract. Original row acquisition starts at page 1, forcibly uses pageSize 200, appends each returned `rows` array, stops when the page is empty or accumulated rows reach returned `total`, and permits pages through 1000. If page 1000 is still nonempty while accumulated rows remain below `total`, the host throws exact `MAP_EXPORT_FAILED / city export exceeded the row limit`. The rebuild's single SQLite snapshot is externally equivalent for a stable export and now applies the same 200,000-row ceiling before materialization.
+
+The original writer maps A-L exactly: A `serverId`, B `x`, C `y`, D `ownerName`, E `ownerUid`, F `uuid`, G `allianceName`, H `level`, I `health`, J `protectEndTime` with `shieldEndTime` fallback only when the primary key is absent, K localized marked yes/no, L `updatedAt`. A/B/C/H/I use numeric cells; D/E/F/G/K use escaped `inlineStr`; J/L use style 3 datetimes. Text extraction accepts JSON String only, so UID/UUID are original lossless text rather than spreadsheet numbers. Marked uses yes only for JSON `true`. Datetime input must be a positive finite JSON Number; values below `1e11` are seconds and multiply by 1000, values at/above `1e11` are milliseconds, then Excel serial is `ms / 86400000 + 25569`.
+
+Production now intercepts `map_city_export` on the WinForms UI thread, shows a native save dialog with the R7-058 UTC filename, `Excel workbook|*.xlsx`, no app-set directory/title and native overwrite confirmation, then performs the full-filter snapshot/write off the UI thread. Cancel/dialog failure returns R7-059's exact `{canceled:true,path:"",rowCount:0}`; success returns `{canceled:false,path:<selected path>,rowCount:<actual count>}`. Direct backend invocation remains `NATIVE_DIALOG_REQUIRED` so callers cannot bypass dialog ownership. Deterministic acceptance writes/reopens >200 frontend-page rows, preserves a 36-digit UID, proves strict coercion/J fallback/timestamp boundaries and passes the full six-group suite. No interactive user file was created. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-city-export-row-contract.json`.
+
+**Next:** City export itself is no longer a Map-tab blocker. Continue the remaining downstream query/options/navigation and population-dependent Railway/Ghost acceptance work; Ghost positive-row proof remains deferred until 2026-09-24.
+
 ## City export save-dialog checkpoint - LWB-R7-059, 2026-09-19
 
 **RECOVERED static + immutable upstream-source corroboration; public export still gated.** `tools/inspect_lwbridge_city_export_dialog.py` hash-locks the original binary and verifies the City builder state/callsite. The recovered rfd version is 0.16.0 (tag commit `5d32eec3a7930eb43b7e864eb773831bbd3d91b4`). LWBridge leaves `starting_directory=None` and `title=None`, sets only the R7-058 file name plus one filter `Excel workbook` / `xlsx`, then invokes synchronous `save_file()`.
@@ -8,7 +18,7 @@ On Windows rfd 0.16, `build_save_file` calls `add_filters`, `set_path`, `set_fil
 
 The binary's `None` branch is now decoded exactly with embedded `serde_json 1.0.151`: `Bool(true)`, empty `String`, and `Number(0)` under `canceled`, `path`, and `rowCount`, giving `{canceled:true,path:"",rowCount:0}`. This also refines R6-018 wording: `Excel workbook` is the filter display name, not a custom dialog title. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json`.
 
-**Next:** picker/default-location/cancel/overwrite behavior is no longer an export blocker. Keep `map_city_export` fail-closed while recovering only the original row/data contract: internal pagination/full-filter scope, direct A-C/J mapping and per-column coercion, and original large-ID workbook typing/reopen behavior.
+**Historical next at R7-059:** picker/default-location/cancel/overwrite behavior was no longer an export blocker; the remaining row/data contract was still gated here. R7-060 subsequently recovers that contract and enables public `map_city_export`.
 
 ## City export default filename checkpoint - LWB-R7-058, 2026-09-19
 
@@ -16,7 +26,7 @@ The binary's `None` branch is now decoded exactly with embedded `serde_json 1.0.
 
 The bounded picker path proves the first City argument is positive parsed `serverId`; the clock helper imports `kernel32!GetSystemTimePreciseAsFileTime`, subtracts the Windows FILETIME-to-Unix epoch constant, builds the `time 0.3.54` value and stores zero UTC offset. Its Date/Time storage extraction matches calendar year/month/day and hour/minute/second. One final narrow request to inspect an earlier RSI assignment was automatically rejected; it is recorded as **SB-99**, was not replayed/rerouted, and is not used as evidence. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-city-export-filename.json`.
 
-**Next:** filename/timestamp is no longer an export blocker. Keep `map_city_export` fail-closed and continue only the unresolved original host contract: internal pagination/full-filter scope, direct A-C/J typing/coercion, default save directory, `rfd` cancel/error/existing-destination behavior and original large-ID workbook behavior.
+**Historical next at R7-058:** filename/timestamp was no longer an export blocker; picker and row/data semantics were still gated at this checkpoint. R7-059 later closes the picker slice and R7-060 closes the row/data slice and public enablement.
 
 ## Internal City export infrastructure checkpoint - LWB-R7-057, 2026-09-19
 

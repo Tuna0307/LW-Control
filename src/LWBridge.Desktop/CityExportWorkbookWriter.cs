@@ -22,12 +22,10 @@ internal static class CityExportWorkbookWriter
     private const string RelationshipNamespace =
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
-    // RECOVERED LWB-R6-018: original writer package has these six parts,
-    // A:L widths, frozen row 1, a four-XF style table whose style 1 is the
-    // bold white/blue header format, and an explicit style-3 datetime template.
-    // IMPLEMENTATION POLICY R7: until original per-column coercion is recovered,
-    // this writer applies style 1 to headers, style 2 to integer-like display
-    // columns, inlineStr to identifiers/text, and UTC Excel serials with style 3.
+    // RECOVERED LWB-R6-018/R7-060: original writer package has these six parts,
+    // A:L widths, frozen row 1, a four-XF style table, and exact City cell
+    // coercion: A/B/C/H/I numeric, D/E/F/G/K inlineStr, J/L style-3 datetime.
+    // UID/UUID are therefore text in the original writer rather than Excel numbers.
     internal static CityExportWorkbookWriteResult Write(
         Stream destination,
         IReadOnlyList<JsonElement> rows,
@@ -166,14 +164,19 @@ internal static class CityExportWorkbookWriter
         WriteJsonNumberCell(writer, $"H{rowNumber}", row, "level", styleIndex: 2);
         WriteJsonNumberCell(writer, $"I{rowNumber}", row, "health", styleIndex: 2);
 
-        long? shield = ReadPositiveTimestamp(row, "shieldEndTime") ??
-            ReadPositiveTimestamp(row, "protectEndTime");
-        WriteTimestampCell(writer, $"J{rowNumber}", shield);
+        // RECOVERED LWB-R7-060: J prefers protectEndTime by key presence.
+        // shieldEndTime is consulted only when protectEndTime is absent; an
+        // existing-but-invalid protectEndTime deliberately produces a blank cell.
+        JsonElement? protection = SelectPresentValue(row, "protectEndTime", "shieldEndTime");
+        WriteTimestampCell(writer, $"J{rowNumber}", ReadPositiveTimestamp(protection));
 
         bool marked = ReadBoolean(row, "marked");
         WriteInlineStringCell(writer, $"K{rowNumber}", marked ? options.YesLabel : options.NoLabel);
 
-        WriteTimestampCell(writer, $"L{rowNumber}", ReadPositiveTimestamp(row, "updatedAt"));
+        WriteTimestampCell(
+            writer,
+            $"L{rowNumber}",
+            ReadPositiveTimestamp(SelectPresentValue(row, "updatedAt")));
         writer.WriteEndElement();
     }
 
@@ -195,15 +198,21 @@ internal static class CityExportWorkbookWriter
         int styleIndex)
     {
         if (!row.TryGetProperty(property, out JsonElement value) ||
-            value.ValueKind != JsonValueKind.Number)
+            value.ValueKind != JsonValueKind.Number ||
+            !value.TryGetDouble(out double parsed) ||
+            !double.IsFinite(parsed))
         {
             WriteEmptyCell(writer, reference, styleIndex);
             return;
         }
-        WriteValueCell(writer, reference, value.GetRawText(), styleIndex);
+        WriteValueCell(
+            writer,
+            reference,
+            parsed.ToString("R", CultureInfo.InvariantCulture),
+            styleIndex);
     }
 
-    private static void WriteTimestampCell(XmlWriter writer, string reference, long? unixTimestamp)
+    private static void WriteTimestampCell(XmlWriter writer, string reference, double? unixTimestamp)
     {
         if (!unixTimestamp.HasValue)
         {
@@ -211,11 +220,14 @@ internal static class CityExportWorkbookWriter
             return;
         }
 
-        DateTimeOffset instant = unixTimestamp.Value >= 1_000_000_000_000L
-            ? DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp.Value)
-            : DateTimeOffset.FromUnixTimeSeconds(unixTimestamp.Value);
-        double serial = instant.UtcDateTime.ToOADate();
-        WriteValueCell(writer, reference, serial.ToString("G17", CultureInfo.InvariantCulture), 3);
+        // RECOVERED LWB-R7-060: the original tests timestamp < 1e11; values
+        // below the threshold are seconds and are multiplied by 1000. It then
+        // converts milliseconds directly to Excel's 1899-12-30 serial epoch.
+        double milliseconds = unixTimestamp.Value < 100_000_000_000d
+            ? unixTimestamp.Value * 1000d
+            : unixTimestamp.Value;
+        double serial = milliseconds / 86_400_000d + 25_569d;
+        WriteValueCell(writer, reference, serial.ToString("R", CultureInfo.InvariantCulture), 3);
     }
 
     private static void WriteValueCell(
@@ -265,45 +277,37 @@ internal static class CityExportWorkbookWriter
 
     private static string? ReadText(JsonElement row, string property)
     {
-        if (!row.TryGetProperty(property, out JsonElement value))
+        if (!row.TryGetProperty(property, out JsonElement value) ||
+            value.ValueKind != JsonValueKind.String)
             return null;
-        return value.ValueKind switch
-        {
-            JsonValueKind.String => value.GetString(),
-            JsonValueKind.Number => value.GetRawText(),
-            JsonValueKind.True => "true",
-            JsonValueKind.False => "false",
-            _ => null,
-        };
+        return value.GetString();
     }
 
-    private static long? ReadPositiveTimestamp(JsonElement row, string property)
+    private static JsonElement? SelectPresentValue(
+        JsonElement row,
+        string property,
+        string? fallbackProperty = null)
     {
-        if (!row.TryGetProperty(property, out JsonElement value))
-            return null;
-        long parsed;
-        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out parsed))
-            return parsed > 0 ? parsed : null;
-        if (value.ValueKind == JsonValueKind.String &&
-            long.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed))
-            return parsed > 0 ? parsed : null;
+        if (row.TryGetProperty(property, out JsonElement value))
+            return value;
+        if (fallbackProperty is not null &&
+            row.TryGetProperty(fallbackProperty, out JsonElement fallback))
+            return fallback;
         return null;
     }
 
-    private static bool ReadBoolean(JsonElement row, string property)
+    private static double? ReadPositiveTimestamp(JsonElement? value)
     {
-        if (!row.TryGetProperty(property, out JsonElement value))
-            return false;
-        return value.ValueKind switch
-        {
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            JsonValueKind.Number => value.TryGetInt64(out long n) && n != 0,
-            JsonValueKind.String => string.Equals(value.GetString(), "true", StringComparison.OrdinalIgnoreCase) ||
-                                    string.Equals(value.GetString(), "1", StringComparison.Ordinal),
-            _ => false,
-        };
+        if (!value.HasValue || value.Value.ValueKind != JsonValueKind.Number ||
+            !value.Value.TryGetDouble(out double parsed) ||
+            !double.IsFinite(parsed) || parsed <= 0d)
+            return null;
+        return parsed;
     }
+
+    private static bool ReadBoolean(JsonElement row, string property) =>
+        row.TryGetProperty(property, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.True;
 
     private static string CellReference(int zeroBasedColumn, int row) =>
         $"{(char)('A' + zeroBasedColumn)}{row}";

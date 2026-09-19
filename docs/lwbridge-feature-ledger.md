@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-060, 2026-09-19
+
+City Excel export is **RECOVERED and PUBLIC-ENABLED/OFFLINE-TESTED**. Original pagination is page 1..1000 at 200 rows/page with full filtered-row accumulation and exact overflow `MAP_EXPORT_FAILED / city export exceeded the row limit`, so the effective maximum is 200,000 rows rather than the frontend's first 200. A-L mapping and coercion are now exact: A/B/C/H/I numeric; D/E/F/G/K inline strings; J/L style-3 datetimes; UID/UUID remain lossless text; J uses `protectEndTime` and consults `shieldEndTime` only when the primary key is absent; datetime units switch at `1e11`. The desktop host owns the recovered save dialog and exact cancel/success result envelopes. Deterministic workbook reopen and the full suite pass; no interactive user save was performed. Evidence: [R7-060](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-row-contract.json).
+
 ## Current implementation checkpoint — LWB-R7-059, 2026-09-19
 
 The original City-export Windows save-dialog contract is **RECOVERED static**. LWBridge uses rfd 0.16.0, leaves the starting directory and custom title unset, sets the R7-058 filename plus filter `Excel workbook` / `xlsx`, and calls synchronous `save_file()`. The Windows Common Item Dialog therefore chooses its persisted/system location and retains the default overwrite prompt. rfd maps user cancellation and any dialog build/show/get-result error to `None`; the original host serializes that branch exactly as `{canceled:true,path:"",rowCount:0}`. Remaining export blockers are original pagination/scope, direct A-C/J typing/coercion and original large-ID workbook behavior. Evidence: [R7-059](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json).
