@@ -324,6 +324,8 @@ This work can advance while R5 semantic research remains incomplete or a particu
   - [x] `LWB-R7-051` closes the public Resource alternate-sort surface: `level` + `updatedAt`, ordered multi-sort, nulls-last ASC/DESC and stable record-key ties; exact current-v19 proof passed 5 scenarios before DB reopen and the same 5 after across 1,870 rows.
   - [x] `LWB-R7-052` closes the public City alternate-sort surface: `level`, `health`, clock-aware `shield`, and `updatedAt`, ordered multi-sort, nulls-last ASC/DESC and stable record-key ties; exact current-v19 proof passed 9 scenarios before DB reopen and the same 9 after across 1,319 rows. Dispatch/Ghost alternate sorts were still fail-closed at this checkpoint.
   - [x] `LWB-R7-053` recovers and production-enables the shared Dispatch/Ghost alternate-sort surface: `level`, special-aware `quality`, zero-to-NULL `completionTime`, and `updatedAt`, with ordered multi-sort, nulls-last ASC/DESC and stable record-key ties. Exact current-v19 Dispatch proof completed 2,500/2,500, published/reopened 386 rows, and passed 9 scenarios before reopen plus the same 9 after. Ghost uses the same recovered/implemented contract and is deterministically tested; positive-row live acceptance is deferred until Thursday, 2026-09-24 per owner availability.
+  - [x] `LWB-R7-060` closes City Excel export end-to-end and public-enables `map_city_export` with the recovered 200,000-row ceiling, A-L typing/coercion, UTC filename and native save-dialog result contract.
+  - [x] `LWB-R7-061` live-proves non-moving result navigation through public `map_coordinate_jump`: current-v19 server 2212 normal-world camera moved from the player tile to an in-bounds target through the owned-session `GotoWorldPos` completion callback, then returned to the player tile. Shipped result UI wiring is static-proven: Truck/Railway use moving `map_march_follow`; every other result kind uses coordinate Jump. Truck Follow is already live-proven; Railway positive-row Follow remains population-pending.
 
 ## R8 — Automatic scanning and server travel (P0)
 
@@ -333,7 +335,7 @@ This work can advance while R5 semantic research remains incomplete or a particu
 
 ## R9 — Conditional actions and scheduled jobs (P0)
 
-- [ ] **ARTIFACT-REVIEW DB-06 → IMPLEMENTATION → LIVE-VALIDATION:** implement coordinate jump and march follow with authoritative visible outcomes.
+- [ ] **ARTIFACT-REVIEW DB-06 → IMPLEMENTATION → LIVE-VALIDATION:** coordinate Jump is LIVE-PROVEN by `LWB-R7-061`; Truck moving Follow is LIVE-PROVEN by `LWB-R7-040`; Railway uses the same implemented Follow route but still needs a positive live Railway row before this family can be fully closed.
 - [ ] Implement treasure refresh/status/claims; distinguish queued work from confirmed claim results.
 - [ ] Implement dispatch/truck plunder schedules, cancellation, recovered train actions and Scheduled Plunder list; persist and reconcile jobs across expiry/restart/reconnect.
 - [ ] Implement and test alliance-sharing payloads offline; live message delivery requires explicit messaging authorization.

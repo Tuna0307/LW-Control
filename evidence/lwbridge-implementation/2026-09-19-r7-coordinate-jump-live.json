@@ -1,0 +1,67 @@
+{
+  "evidenceId": "LWB-R7-061",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "981d0025347ab343f8bdae650ca2b8dbe74c495d",
+  "status": {
+    "coordinateJump": "LIVE_PROVEN",
+    "truckFollow": "LIVE_PROVEN_BY_LWB-R7-040",
+    "railwayFollow": "IMPLEMENTED_SHARED_ROUTE_POSITIVE_POPULATION_PENDING",
+    "resultTabNavigationWiring": "STATIC_PROVEN"
+  },
+  "currentClient": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+  },
+  "frontendWiring": {
+    "asset": "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+    "movingKinds": ["truck", "railway"],
+    "movingAction": "map_march_follow({serverId,marchUuid})",
+    "nonMovingAction": "map_coordinate_jump({serverId,x,y})",
+    "staleServerGuard": "row.serverId must equal current scan-state server before invoking navigation",
+    "disabledWhile": ["offline", "map scan active", "another navigation is in progress"]
+  },
+  "liveProof": {
+    "command": "map_coordinate_jump",
+    "entryPoint": "ManualMapScanCommandService.InvokeAsync",
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "playerTile": {"x": 309, "y": 682},
+    "targetTile": {"x": 346, "y": 735},
+    "targetResultMatched": true,
+    "returnToPlayerAttempted": true,
+    "returnToPlayerProven": true,
+    "proof": "owned-session correlated normal-world GotoWorldPos completion callback"
+  },
+  "authoritativeValidation": {
+    "ownedSessionIdentityRequired": true,
+    "requestedServerWorldRequired": true,
+    "currentLiveServerRequired": true,
+    "requestedTargetRequired": true,
+    "normalWorldCompletionCallbackTileRequired": true,
+    "supportedMethodRequired": "SceneUtils.TileToWorld(ForceChangeScene.World,serverId)+GoToUtil.GotoWorldPos(serverId,worldId)+completionCallbackCurTarget"
+  },
+  "safety": {
+    "cameraNavigationOnly": true,
+    "mapScanStarted": false,
+    "attackOrPlunder": false,
+    "claimOrCollect": false,
+    "messaging": false,
+    "gameClosedAfterProof": true,
+    "launcherClosedAfterProof": true
+  },
+  "validation": {
+    "liveHarness": "tests/LWBridge.Desktop.Checks/LiveCoordinateJumpProof.cs",
+    "liveHarnessExitCode": 0,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0
+  },
+  "remaining": [
+    "Positive Railway Follow live acceptance still requires an active Railway row.",
+    "Ghost positive-row live acceptance remains owner-deferred until 2026-09-24.",
+    "Other downstream per-kind filters/options/actions remain separate work."
+  ]
+}

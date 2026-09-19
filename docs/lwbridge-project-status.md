@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-061, 2026-09-19
+
+Coordinate Jump is now LIVE-PROVEN on current-v19 through the public `map_coordinate_jump` service path. The shipped Map Data result UI uses moving Follow only for Truck/Railway and coordinate Jump for every other result kind. A bounded read-only navigation proof on server 2212 moved the normal-world camera from the current player tile to a distinct in-bounds target, required the exact owned-session/server/world/target `GotoWorldPos` completion callback, then returned to the player tile and proved that callback too. No scan or gameplay action was used; game and launcher were closed afterward. Truck Follow remains live-proven; Railway positive-row Follow is population-pending. See [R7-061 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-coordinate-jump-live.json).
+
 ## Latest implementation checkpoint — LWB-R7-060, 2026-09-19
 
 City Excel export is now public-enabled and OFFLINE-TESTED against the recovered original contract. The original host fetches the full filtered City set in 200-row pages through page 1000 and rejects overflow above 200,000 rows. Direct writer recovery closes the A-L map and cell types, proves UID/UUID are inline text, proves J's absent-only `protectEndTime -> shieldEndTime` fallback and exact `1e11` timestamp-unit boundary, and pins success `{canceled:false,path,rowCount}` alongside R7-059's cancel result. The WinForms host owns the native save dialog and runs snapshot/workbook generation off the UI thread. Deterministic XLSX reopen plus the full six-group suite pass; no interactive user save was performed. See [R7-060 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-row-contract.json).

@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Coordinate Jump live acceptance - LWB-R7-061, 2026-09-19
+
+**LIVE-PROVEN on current-v19.** The shipped `MapDataPanel` uses `map_march_follow({serverId,marchUuid})` only for Truck/Railway rows and uses `map_coordinate_jump({serverId,x,y})` for every other result kind, with offline/active-scan/navigation/stale-server gating. The public `ManualMapScanCommandService` path was exercised against the owned current-client session on server 2212. Normal-world context was 1000×1000 with player tile 309,682; the command moved to 346,735 and the game bridge returned `proven` only after the requested target matched the `GotoWorldPos` completion callback. A second public command returned to 309,682 and was also proven. No scan or gameplay action was invoked; game/launcher were closed cleanly. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-coordinate-jump-live.json`.
+
+**Next:** coordinate Jump itself is no longer a downstream blocker. Railway Follow remains population-pending; continue remaining per-kind filters/options/actions and the Thursday 2026-09-24 Ghost positive-row proof when available.
+
 ## City export row/data contract + public enablement - LWB-R7-060, 2026-09-19
 
 **RECOVERED static + IMPLEMENTED/OFFLINE-TESTED.** `tools/inspect_lwbridge_city_export_rows.py` hash-locks the original `lwbridge-0.3.1.exe` and closes the remaining City-export host contract. Original row acquisition starts at page 1, forcibly uses pageSize 200, appends each returned `rows` array, stops when the page is empty or accumulated rows reach returned `total`, and permits pages through 1000. If page 1000 is still nonempty while accumulated rows remain below `total`, the host throws exact `MAP_EXPORT_FAILED / city export exceeded the row limit`. The rebuild's single SQLite snapshot is externally equivalent for a stable export and now applies the same 200,000-row ceiling before materialization.

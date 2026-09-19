@@ -14,6 +14,12 @@ if (args.Contains("--live-server-jump-proof", StringComparer.OrdinalIgnoreCase))
     return 0;
 }
 
+if (args.Contains("--live-coordinate-jump-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCoordinateJumpProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-block-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunAsync();
