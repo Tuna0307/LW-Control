@@ -41,10 +41,19 @@ internal static class LiveManualFullRailwayProof
         string? sampleItemKey = null;
         long sortSampledAt = 0;
         double scanWallSeconds = 0;
+        int originalServerId = 0;
+        int targetServerId = 0;
+        bool targetServerJumped = false;
+        bool returnedToOriginalServer = false;
+        bool followProven = false;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
             "fast", StringComparison.OrdinalIgnoreCase) ? "fast" : "normal";
         int expectedConcurrency = scanMode == "fast" ? 20 : 8;
+        string? targetServerText = Environment.GetEnvironmentVariable("LWBRIDGE_RAILWAY_TARGET_SERVER");
+        if (!string.IsNullOrWhiteSpace(targetServerText) &&
+            (!int.TryParse(targetServerText, out targetServerId) || targetServerId is < 1 or > 99_999))
+            throw new InvalidDataException("LWBRIDGE_RAILWAY_TARGET_SERVER must be an integer from 1 to 99999.");
         try
         {
             using JsonDocument empty = JsonDocument.Parse("{}");
@@ -58,8 +67,28 @@ internal static class LiveManualFullRailwayProof
             using (var store = new MapDataStore(databasePath))
             {
                 var service = new ManualMapScanCommandService(lifecycle, store);
+                var source = new CurrentClientMapBlockSource(lifecycle);
                 try
                 {
+                    CurrentClientMapContext initialContext =
+                        await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
+                    originalServerId = initialContext.ServerId;
+                    if (targetServerId == 0) targetServerId = originalServerId;
+                    if (targetServerId != originalServerId)
+                    {
+                        JsonElement jumpPayload = JsonSerializer.SerializeToElement(
+                            new { serverId = targetServerId }, JsonOptions.Default);
+                        JsonElement jumpResult = JsonSerializer.SerializeToElement(
+                            await service.InvokeAsync(
+                                "server_jump",
+                                jumpPayload,
+                                operationCts.Token).ConfigureAwait(false),
+                            JsonOptions.Default);
+                        if (!jumpResult.GetProperty("changed").GetBoolean())
+                            throw new InvalidDataException("Railway target server jump did not change server.");
+                        targetServerJumped = true;
+                    }
+
                     JsonElement payload = JsonSerializer.SerializeToElement(new
                     {
                         profileId = "manual-full-railway-proof",
@@ -110,9 +139,36 @@ internal static class LiveManualFullRailwayProof
                         int secondAttempts = partial.Count(item => item.Attempts > 1);
                         throw new InvalidDataException($"Ordinary Manual Railway scan incomplete: phase={status.GetProperty("phase").GetString()}, read={status.GetProperty("readBlocks").GetInt32()}, failed={status.GetProperty("failedBlocks").GetInt32()}, unread={status.GetProperty("unreadBlocks").GetInt32()}, checkpoints={partial.Count}, secondAttempts={secondAttempts}.");
                     }
-                    publishedRailwayCount = store.SearchIndexed(RailwayQuery(serverId)).Total;
+                    MapSearchResult liveRailway = store.SearchIndexed(RailwayQuery(serverId));
+                    publishedRailwayCount = liveRailway.Total;
                     if (publishedRailwayCount <= 0)
                         throw new InvalidDataException("Ordinary Manual Railway scan published no Railway/Train records.");
+
+                    JsonElement followRow = liveRailway.Rows.FirstOrDefault();
+                    string? followMarchUuid =
+                        followRow.ValueKind == JsonValueKind.Object &&
+                        followRow.TryGetProperty("marchUuid", out JsonElement marchValue) &&
+                        marchValue.ValueKind == JsonValueKind.String
+                            ? marchValue.GetString()
+                            : null;
+                    if (string.IsNullOrWhiteSpace(followMarchUuid))
+                        throw new InvalidDataException("Positive Railway row omitted marchUuid required for Follow.");
+                    JsonElement followPayload = JsonSerializer.SerializeToElement(
+                        new { serverId, marchUuid = followMarchUuid }, JsonOptions.Default);
+                    JsonElement followResult = JsonSerializer.SerializeToElement(
+                        await service.InvokeAsync(
+                            "map_march_follow",
+                            followPayload,
+                            operationCts.Token).ConfigureAwait(false),
+                        JsonOptions.Default);
+                    if (followResult.GetProperty("serverId").GetInt32() != serverId ||
+                        !string.Equals(
+                            followResult.GetProperty("marchUuid").GetString(),
+                            followMarchUuid,
+                            StringComparison.Ordinal))
+                        throw new InvalidDataException("Railway Follow result did not preserve live row identity.");
+                    followProven = true;
+
                     CollectRailwayMetrics(store, serverId, out trainTypeCount, out qualityCount,
                         out powerCount, out trainCfgCount, out trainDataCount, out arriveTsCount, out robTimesCount,
                         out marchUuidCount, out maxLootCountCount, out protectTimeCount,
@@ -169,6 +225,11 @@ internal static class LiveManualFullRailwayProof
                 sortCheckCount,
                 reopenedSortCheckCount,
                 sampleItemKey,
+                originalServerId,
+                targetServerId = serverId,
+                targetServerJumped,
+                followProven,
+                relativeSortProven = sortComparedRowCount >= 2,
             }, JsonOptions.Default));
         }
         catch (Exception error)
@@ -178,6 +239,38 @@ internal static class LiveManualFullRailwayProof
         }
         finally
         {
+            if (targetServerJumped && originalServerId > 0 &&
+                lifecycle.GetReadyMapScanSession() is not null &&
+                lifecycle.GetLiveServerId() is int liveServerId &&
+                liveServerId != originalServerId)
+            {
+                try
+                {
+                    using MapDataStore returnStore = MapDataStore.CreateInMemory();
+                    var returnService = new ManualMapScanCommandService(lifecycle, returnStore);
+                    try
+                    {
+                        JsonElement returnPayload = JsonSerializer.SerializeToElement(
+                            new { serverId = originalServerId }, JsonOptions.Default);
+                        _ = await returnService.InvokeAsync(
+                            "server_jump",
+                            returnPayload,
+                            CancellationToken.None).ConfigureAwait(false);
+                        returnedToOriginalServer = lifecycle.GetLiveServerId() == originalServerId;
+                    }
+                    finally
+                    {
+                        returnService.Close();
+                    }
+                }
+                catch (Exception returnError)
+                {
+                    Console.Error.WriteLine(
+                        "LIVE_MANUAL_FULL_RAILWAY_RETURN_FAILED: " + returnError.Message);
+                    if (operationError is null) throw;
+                }
+            }
+
             instanceId ??= lifecycle.GetReadyMapScanSession()?.SessionId;
             if (!string.IsNullOrWhiteSpace(instanceId))
             {
