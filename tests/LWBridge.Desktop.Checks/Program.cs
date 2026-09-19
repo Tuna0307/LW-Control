@@ -4600,6 +4600,176 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         await indexedSearchBackend.InvokeAsync("map_search", unrecoveredLevelSort.RootElement.Clone(), CancellationToken.None));
 }
 
+// LWB-R7-049: hash-locked native Truck sort expressions and order assembly.
+using (var truckSortStore = MapDataStore.CreateInMemory())
+{
+    const int truckSortServer = 91;
+    const long truckSortNow = 1_800_000_000_000L;
+
+    void SeedTruckSort(
+        string recordKey,
+        string uuid,
+        int? quality,
+        long? power,
+        long updatedAt,
+        string fields)
+    {
+        string json = $"{{\"serverId\":{truckSortServer},\"uuid\":\"{uuid}\",{fields},\"updatedAt\":{updatedAt}}}";
+        truckSortStore.UpsertRecord(new MapStoredRecord(
+            "truck", truckSortServer, recordKey, null, uuid, uuid, null,
+            null, quality, power, null, null, updatedAt, json));
+    }
+
+    SeedTruckSort("key-a", "sort-a", 5, 100, 1000,
+        $"\"quality\":5,\"isSpecialURQuality\":false,\"remainingLootCount\":2,\"arriveTs\":{truckSortNow + 100},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":3}}]");
+    SeedTruckSort("key-b", "sort-b", 4, 50, 900,
+        $"\"quality\":4,\"isSpecialURQuality\":true,\"remainingLootCount\":0,\"arriveTs\":{truckSortNow + 300},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":1}}]");
+    SeedTruckSort("key-c", "sort-c", 7, null, 1100,
+        "\"quality\":7,\"isSpecialURQuality\":false,\"remainingLootCount\":1,\"currentGoods\":[{\"key\":\"item:y\",\"count\":9}]");
+    SeedTruckSort("key-d", "sort-d", 5, 100, 1200,
+        $"\"quality\":5,\"isSpecialURQuality\":false,\"remainingLootCount\":2,\"arriveTs\":{truckSortNow + 200},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":3}}]");
+    SeedTruckSort("key-e", "sort-e", null, 200, 800,
+        $"\"isSpecialURQuality\":false,\"arriveTs\":{truckSortNow + 400},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":2}}]");
+    SeedTruckSort("key-f", "sort-f", 5, 100, 1200,
+        $"\"quality\":5,\"isSpecialURQuality\":false,\"remainingLootCount\":2,\"arriveTs\":{truckSortNow + 200},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":3}}]");
+
+    MapDataQueryOptions TruckSortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "truck",
+            query = new
+            {
+                serverId = truckSortServer,
+                page,
+                pageSize,
+                itemKey,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] TruckSortUuids(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+
+    void ExpectTruckSort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = TruckSortQuery(sorts, itemKey, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered Truck sort");
+        MapSearchResult result = truckSortStore.SearchIndexedAtForTest(options, truckSortNow);
+        Check(TruckSortUuids(result).SequenceEqual(expected),
+            $"{label} preserves recovered Truck order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allTruckSorts = TruckSortQuery(
+    [
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("power", "asc"),
+        new MapDataSort("itemCount", "desc"),
+        new MapDataSort("remainingLootCount", "asc"),
+        new MapDataSort("arriveTime", "desc"),
+        new MapDataSort("updatedAt", "asc"),
+    ], "item:x");
+    Check(allTruckSorts.UnsupportedFeatures.Count == 0,
+        "all six public Truck sort keys are recovered when itemCount has the frontend-required itemKey");
+
+    MapDataQueryOptions itemSortWithoutKey = TruckSortQuery([new MapDataSort("itemCount", "desc")]);
+    Check(itemSortWithoutKey.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "Truck itemCount sort stays fail-closed without the frontend-required itemKey");
+
+    MapDataQueryOptions duplicateTruckSort = TruckSortQuery(
+    [
+        new MapDataSort("power", "desc"),
+        new MapDataSort("power", "asc"),
+    ]);
+    Check(duplicateTruckSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate Truck sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownTruckSort = TruckSortQuery([new MapDataSort("distance", "asc")]);
+    Check(unknownTruckSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public Truck sort keys remain fail-closed");
+
+    using (JsonDocument railwayAlternateSort = JsonDocument.Parse(
+        "{\"kind\":\"railway\",\"query\":{\"serverId\":91,\"sorts\":[{\"sortBy\":\"power\",\"sortOrder\":\"desc\"}]}}"))
+    {
+        Check(MapDataQueryContract.NormalizeSearch(railwayAlternateSort.RootElement).UnsupportedFeatures
+                .SequenceEqual(new[] { "sorts" }),
+            "Railway alternate sorts remain fail-closed outside the R7-049 Truck scope");
+    }
+
+    ExpectTruckSort(
+        "Truck quality desc",
+        [new MapDataSort("quality", "desc")],
+        ["sort-b", "sort-c", "sort-a", "sort-d", "sort-f", "sort-e"]);
+    ExpectTruckSort(
+        "Truck quality asc",
+        [new MapDataSort("quality", "asc")],
+        ["sort-a", "sort-d", "sort-f", "sort-c", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck power asc",
+        [new MapDataSort("power", "asc")],
+        ["sort-b", "sort-a", "sort-d", "sort-f", "sort-e", "sort-c"]);
+    ExpectTruckSort(
+        "Truck power desc",
+        [new MapDataSort("power", "desc")],
+        ["sort-e", "sort-a", "sort-d", "sort-f", "sort-b", "sort-c"]);
+    ExpectTruckSort(
+        "Truck remaining loot asc",
+        [new MapDataSort("remainingLootCount", "asc")],
+        ["sort-b", "sort-e", "sort-c", "sort-a", "sort-d", "sort-f"]);
+    ExpectTruckSort(
+        "Truck remaining loot desc",
+        [new MapDataSort("remainingLootCount", "desc")],
+        ["sort-a", "sort-d", "sort-f", "sort-c", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck arrival asc",
+        [new MapDataSort("arriveTime", "asc")],
+        ["sort-a", "sort-d", "sort-f", "sort-b", "sort-e", "sort-c"]);
+    ExpectTruckSort(
+        "Truck arrival desc",
+        [new MapDataSort("arriveTime", "desc")],
+        ["sort-e", "sort-b", "sort-d", "sort-f", "sort-a", "sort-c"]);
+    ExpectTruckSort(
+        "Truck updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["sort-d", "sort-f", "sort-c", "sort-a", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck itemCount desc",
+        [new MapDataSort("itemCount", "desc")],
+        ["sort-a", "sort-d", "sort-f", "sort-e", "sort-b"],
+        itemKey: "item:x");
+    ExpectTruckSort(
+        "Truck itemCount asc",
+        [new MapDataSort("itemCount", "asc")],
+        ["sort-b", "sort-e", "sort-a", "sort-d", "sort-f"],
+        itemKey: "item:x");
+    ExpectTruckSort(
+        "Truck ordered multi-sort",
+        [
+            new MapDataSort("quality", "asc"),
+            new MapDataSort("power", "desc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["sort-d", "sort-f", "sort-a", "sort-c", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck sorted pagination page 2",
+        [new MapDataSort("quality", "desc")],
+        ["sort-a", "sort-d"],
+        page: 2,
+        pageSize: 2);
+}
+
 // LWB-R6-014: deterministic wall-clock boundaries use an isolated store so the
 // recovered time predicates cannot change the older quality/count fixtures.
 using (var timeFilterStore = MapDataStore.CreateInMemory())

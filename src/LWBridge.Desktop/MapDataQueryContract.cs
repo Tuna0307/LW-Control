@@ -225,11 +225,34 @@ internal static class MapDataQueryContract
                 if (hasMaxLevel && maxLevel is not > 0) unsupported.Add("maxLevel");
             }
         }
-        bool recoveredSort = kind is "monster" or "zombie_boss"
-            ? sorts.Count is >= 1 and <= 3 &&
-              sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
-              sorts.All(sort => sort.SortBy is "level" or "distance" or "updatedAt")
-            : sorts.Count == 1 && string.Equals(sorts[0].SortBy, "updatedAt", StringComparison.Ordinal);
+        bool recoveredSort;
+        if (kind is "monster" or "zombie_boss")
+        {
+            recoveredSort =
+                sorts.Count is >= 1 and <= 3 &&
+                sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
+                sorts.All(sort => sort.SortBy is "level" or "distance" or "updatedAt");
+        }
+        else if (kind == "truck")
+        {
+            bool hasItemKey =
+                query.TryGetProperty("itemKey", out JsonElement itemKeyValue) &&
+                itemKeyValue.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrEmpty(itemKeyValue.GetString());
+            recoveredSort =
+                sorts.Count is >= 1 and <= 6 &&
+                sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
+                sorts.All(sort => sort.SortBy is
+                    "quality" or "power" or "itemCount" or
+                    "remainingLootCount" or "arriveTime" or "updatedAt") &&
+                (hasItemKey || sorts.All(sort => sort.SortBy != "itemCount"));
+        }
+        else
+        {
+            recoveredSort =
+                sorts.Count == 1 &&
+                string.Equals(sorts[0].SortBy, "updatedAt", StringComparison.Ordinal);
+        }
         if (!recoveredSort) unsupported.Add("sorts");
         return unsupported.Distinct(StringComparer.Ordinal).ToArray();
     }

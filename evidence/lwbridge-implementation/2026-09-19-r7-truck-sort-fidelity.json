@@ -1,0 +1,86 @@
+{
+  "evidenceId": "LWB-R7-049",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "d8ea1063e719d4bb5e08238dcdd12416bfc63ce4",
+  "scope": {
+    "feature": "current-v19 Truck alternate sort fidelity",
+    "liveProven": true,
+    "readOnly": true,
+    "robberyOrConsumingAction": false
+  },
+  "staticRecovery": {
+    "originalBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendMapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "sortKeys": [
+      "quality",
+      "power",
+      "itemCount",
+      "remainingLootCount",
+      "arriveTime",
+      "updatedAt"
+    ],
+    "nullOrder": "nulls last for ASC and DESC",
+    "stableTieBreak": "record_key ASC",
+    "multiSort": "preserves frontend sort-array order",
+    "specialUrQuality": 100,
+    "itemCountGate": "requires itemKey",
+    "verifier": "tools/inspect_lwbridge_truck_sort_assembly.py"
+  },
+  "implementation": {
+    "contract": "Truck accepts ordered unique subsets of the six recovered public keys; itemCount requires itemKey",
+    "sql": "recovered Truck expressions are applied directly in SQLite with equivalent null-last/order/tie semantics",
+    "outOfScope": [
+      "Railway alternate sorts",
+      "City alternate sorts",
+      "Resource alternate sorts",
+      "Dispatch/Ghost alternate sorts",
+      "unknown Truck sort keys"
+    ]
+  },
+  "deterministicAcceptance": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixSuites": "PASS",
+    "failures": 0,
+    "coverage": [
+      "ASC and DESC for every recovered Truck key",
+      "nulls-last behavior",
+      "special-UR quality=100",
+      "itemCount/itemKey coupling",
+      "ordered multi-sort precedence",
+      "stable record-key ties",
+      "sorted pagination",
+      "unsupported/duplicate/out-of-scope fail-closed behavior"
+    ]
+  },
+  "finalLiveProof": {
+    "totalBlocks": 2500,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "scanWallSeconds": 130.1751043,
+    "publishedTruckCount": 469,
+    "reopenedTruckCount": 469,
+    "trainDataCount": 0,
+    "currentGoodsRowCount": 469,
+    "currentGoodsItemCount": 3418,
+    "maxLootCountCount": 469,
+    "remainingLootCountCount": 469,
+    "specialUrCount": 14,
+    "ordinaryUrFilterCount": 364,
+    "reindeerFilterCount": 14,
+    "plunderableFilterCount": 455,
+    "rewardOptionCount": 18,
+    "sampleItemKey": "reward:7:600002",
+    "itemFilterCount": 312,
+    "sortCheckCount": 15,
+    "reopenedSortCheckCount": 15,
+    "totalLiveSortAssertions": 30
+  },
+  "validation": {
+    "currentClientCompatibilityBefore": "exact v19 PASS",
+    "currentClientCompatibilityAfter": "exact v19 PASS",
+    "postProofProcesses": "LastWar/Launcher absent",
+    "stateChangingActions": "none"
+  }
+}

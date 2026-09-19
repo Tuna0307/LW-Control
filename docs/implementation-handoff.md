@@ -1,12 +1,18 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current-v19 Truck alternate sort checkpoint - LWB-R7-049, 2026-09-19
+
+**LIVE-PROVEN read-only; no consuming action was used.** Original 0.3.1 recovery now pins the complete public Truck sort assembly needed for production: `quality`, `power`, `itemCount`, `remainingLootCount`, `arriveTime`, and `updatedAt`; ordered multi-sort in frontend array order; nulls last for both ASC and DESC; special-UR quality promoted to 100; item-count coupled to an active item key; and `record_key ASC` as the final stable tie-break. A new hash-locked verifier, `tools/inspect_lwbridge_truck_sort_assembly.py`, guards the original binary/frontend bytes and the recovered parser/formatter branches.
+
+Production accepts only ordered unique subsets of those six Truck keys and keeps all other kind-specific alternate sorts fail-closed. Deterministic tests cover every key/direction, null behavior, item-count gating, multi-sort precedence, stable ties and pagination. Final exact-code current-v19 acceptance completed 2,500/2,500 Fast blocks in **130.175 s**, published/reopened **469 Trucks**, and passed **15 independent sort comparisons before reopen plus 15 after reopen**. Exact v19 restoration and no-process cleanup passed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-truck-sort-fidelity.json`.
+
 ## Current-v19 Truck result filter/options checkpoint - LWB-R7-048, 2026-09-19
 
 **LIVE-PROVEN read-only; no robbery/consuming action was used.** R7-048 closes the Truck ordinary-UR, reindeer-only, plunderable-only and retained-item option/filter path on current v19. A failure-first full Fast run proved the old fallback was wrong for special-UR/reindeer: backend `plunderableOnly` returned 317 Trucks while the shipped frontend formula expected 304 because frontend effective max loot is exactly 1 for `isSpecialURQuality`. Production now writes original `remainingLootCount` post-acquisition from that exact effective-max rule and persisted `robTimes`.
 
 A second failure-first run got past plunderability but found zero retained-item options. The recovered option query requires source-backed `currentGoods.name`, while R7-047 intentionally preserved only reward type/item/count. The probe now reuses game-owned `ItemTemplateManager` / `RewardManager` display resolution and caches metadata by reward type/item ID. Host reward aggregation remains post-acquisition; full Truck `TrainData` JSON remains off the AOI hot path.
 
-Final exact-code acceptance: 2,500/2,500 Fast blocks, zero failed/unread, **131.059 s**, **435** Trucks published/reopened, **435/435** `currentGoods`, `maxLootCount` and `remainingLootCount`, **3,207** normalized reward entries, **20** reindeer, **325** ordinary UR, **415** plunderable, **18** retained-item options, and selective item `reward:7:600002` matched exactly **283/435** rows before and after reopen. Exact v19 restoration and no-process cleanup passed. Alternate non-`updatedAt` sort composition is still open and must remain fail-closed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-truck-filter-options.json`.
+Final exact-code acceptance: 2,500/2,500 Fast blocks, zero failed/unread, **131.059 s**, **435** Trucks published/reopened, **435/435** `currentGoods`, `maxLootCount` and `remainingLootCount`, **3,207** normalized reward entries, **20** reindeer, **325** ordinary UR, **415** plunderable, **18** retained-item options, and selective item `reward:7:600002` matched exactly **283/435** rows before and after reopen. Exact v19 restoration and no-process cleanup passed. Truck alternate sorting was still open at this checkpoint and is subsequently closed by `LWB-R7-049`. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-truck-filter-options.json`.
 
 ## Current-v19 Truck goods fidelity/performance checkpoint - LWB-R7-047, 2026-09-19
 

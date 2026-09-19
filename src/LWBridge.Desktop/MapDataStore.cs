@@ -623,7 +623,9 @@ internal sealed partial class MapDataStore : IDisposable
                 "updatedAt" => "page.updated_at",
                 _ => throw new BridgeCommandException("MAP_QUERY_UNRECOVERED", "Unsupported Monster sort column."),
             }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
-            : $"page.updated_at {direction}, page.record_key ASC";
+            : options.Kind == "truck"
+                ? BuildTruckOrderBy(options.Sorts)
+                : $"page.updated_at {direction}, page.record_key ASC";
         string[] resolvedMonsterNameKeys = monsterLike
             ? (monsterNameKeys ?? Array.Empty<string>())
                 .Where(key => !string.IsNullOrWhiteSpace(key))
@@ -764,6 +766,39 @@ internal sealed partial class MapDataStore : IDisposable
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
+    }
+
+    private static string BuildTruckOrderBy(IReadOnlyList<MapDataSort> sorts)
+    {
+        // RECOVERED LWB-R7-049: native map_search assigns each public Truck sort
+        // expression a sort_value_N alias in frontend order, then orders nulls last
+        // for either direction and finally record_key ASC. Repeating the exact
+        // expression here is SQL-equivalent to the native subquery/alias assembly.
+        var clauses = new List<string>(sorts.Count * 2 + 1);
+        foreach (MapDataSort sort in sorts)
+        {
+            string expression = sort.SortBy switch
+            {
+                "quality" =>
+                    "CASE WHEN CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER)=1 THEN 100 ELSE page.quality END",
+                "power" => "page.power",
+                "itemCount" =>
+                    "COALESCE((SELECT SUM(CAST(json_extract(good.value,'$.count') AS REAL)) FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey),0)",
+                "remainingLootCount" =>
+                    "COALESCE(CAST(json_extract(page.data_json,'$.remainingLootCount') AS INTEGER),0)",
+                "arriveTime" =>
+                    "NULLIF(CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER),0)",
+                "updatedAt" => "page.updated_at",
+                _ => throw new BridgeCommandException(
+                    "MAP_QUERY_UNRECOVERED",
+                    "Unsupported Truck sort column."),
+            };
+            string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
+            clauses.Add($"({expression} IS NULL) ASC");
+            clauses.Add($"{expression} {direction}");
+        }
+        clauses.Add("page.record_key ASC");
+        return string.Join(", ", clauses);
     }
 
     public void InsertScanRun(MapScanRunSeed run)

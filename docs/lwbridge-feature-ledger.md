@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-049, 2026-09-19
+
+Truck result sorting is **LIVE-PROVEN read-only on current v19**. The public Truck sort surface now includes the recovered six keys (`quality`, `power`, `itemCount`, `remainingLootCount`, `arriveTime`, `updatedAt`) with ordered multi-sort, nulls-last in either direction, special-UR quality=100, itemCount/itemKey coupling, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500, published/reopened 469 Trucks, and passed 15 independent sort scenarios both before and after DB reopen. All non-Truck alternate sort families remain gated/fail-closed. Evidence: [R7-049](../evidence/lwbridge-implementation/2026-09-19-r7-truck-sort-fidelity.json).
+
 ## Current owner priority - shared Manual Scan engine first, 2026-09-13
 
 **PM17 correction delivery is complete.** `LWB-PM17-001/002` remain IMPLEMENTED/OFFLINE-TESTED at their documented revision. Player City `LWB-PC-001/002/003` remains credited for two fresh city-only acquisitions, correct profile/server persistence, normal `map_search`/summary, newer second result, fresh-process reopen/search and owner-visible saved-row rendering. The initial Map Data page may auto-query persisted City data before manual Search; that is not a fresh scan.

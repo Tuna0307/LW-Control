@@ -315,7 +315,8 @@ This work can advance while R5 semantic research remains incomplete or a particu
 - [ ] Enable `resource`, then `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure` on the same worker; validate representative add/update/removal/expiry behavior and typed normalization for each.
 - [x] `LWB-R7-036` proves mixed selected types, all-eight selection, same-owned-session repeated completion and all-eight Normal/Fast. The shared Manual acquisition layer is now eligible for completion; Auto Scan must reuse it.
 - [ ] Finish downstream per-kind query/options/filter/sort/export/navigation against committed data; keep Scan Content acquisition selection distinct from result filtering.
-  - [x] `LWB-R7-048` closes current-v19 Truck ordinary-UR, reindeer-only, plunderable-only, retained-item option and retained-item filter behavior with exact live UUID-set/reopen proof. Non-`updatedAt` Truck sorts remain open/fail-closed pending complete recovered native multi-sort/null/tie-break composition.
+  - [x] `LWB-R7-048` closes current-v19 Truck ordinary-UR, reindeer-only, plunderable-only, retained-item option and retained-item filter behavior with exact live UUID-set/reopen proof.
+  - [x] `LWB-R7-049` closes the public Truck alternate-sort surface: six recovered keys, ordered multi-sort, nulls-last ASC/DESC, special-UR quality=100, itemCount/itemKey coupling and stable record-key ties; exact current-v19 proof passed 15 scenarios before DB reopen and the same 15 after. Other kind-specific alternate sorts remain fail-closed.
 
 ## R8 — Automatic scanning and server travel (P0)
 

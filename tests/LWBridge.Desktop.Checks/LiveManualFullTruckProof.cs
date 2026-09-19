@@ -45,6 +45,8 @@ internal static class LiveManualFullTruckProof
         int rewardOptionCount = 0;
         int itemFilterCount = 0;
         int remainingLootCountCount = 0;
+        int sortCheckCount = 0;
+        int reopenedSortCheckCount = 0;
         string? sampleItemKey = null;
         long filterSampledAt = 0;
         double scanWallSeconds = 0;
@@ -142,6 +144,8 @@ internal static class LiveManualFullTruckProof
                     itemFilterCount = filters.ItemFilterCount;
                     remainingLootCountCount = filters.RemainingLootCountCount;
                     sampleItemKey = filters.SampleItemKey;
+                    sortCheckCount = ValidateTruckSorts(
+                        store, serverId, filterSampledAt, filters.SampleItemKey);
                 }
                 finally
                 {
@@ -161,6 +165,10 @@ internal static class LiveManualFullTruckProof
                     reopenedFilters.RemainingLootCountCount != remainingLootCountCount ||
                     !string.Equals(reopenedFilters.SampleItemKey, sampleItemKey, StringComparison.Ordinal))
                     throw new InvalidDataException("Truck filter/options results changed after database reopen.");
+                reopenedSortCheckCount = ValidateTruckSorts(
+                    reopened, serverId, filterSampledAt, reopenedFilters.SampleItemKey);
+                if (reopenedSortCheckCount != sortCheckCount)
+                    throw new InvalidDataException("Truck sort proof count changed after database reopen.");
             }
             if (reopenedTruckCount != publishedTruckCount)
                 throw new InvalidDataException("Ordinary Manual Truck count changed after database reopen.");
@@ -193,6 +201,8 @@ internal static class LiveManualFullTruckProof
                 rewardOptionCount,
                 itemFilterCount,
                 remainingLootCountCount,
+                sortCheckCount,
+                reopenedSortCheckCount,
                 sampleItemKey,
                 rawBaseGoodsRows,
                 rawExtraGoodsRows,
@@ -439,6 +449,247 @@ internal static class LiveManualFullTruckProof
             itemActual.Count,
             remainingLootCountCount,
             selected.Key);
+    }
+
+    private static int ValidateTruckSorts(
+        MapDataStore store,
+        int serverId,
+        long sampledAt,
+        string itemKey)
+    {
+        IReadOnlyList<JsonElement> allRows = ReadAllTruckRows(
+            store, TruckQuery(serverId), sampledAt);
+        if (allRows.Count < 2)
+            throw new InvalidDataException("Truck sort proof requires at least two active Truck rows.");
+
+        int checks = 0;
+        foreach (string sortBy in new[]
+        {
+            "quality",
+            "power",
+            "itemCount",
+            "remainingLootCount",
+            "arriveTime",
+            "updatedAt",
+        })
+        {
+            foreach (string sortOrder in new[] { "asc", "desc" })
+            {
+                ValidateTruckSortOrder(
+                    store,
+                    serverId,
+                    sampledAt,
+                    allRows,
+                    [new MapDataSort(sortBy, sortOrder)],
+                    sortBy == "itemCount" ? itemKey : null);
+                checks++;
+            }
+        }
+
+        ValidateTruckSortOrder(
+            store,
+            serverId,
+            sampledAt,
+            allRows,
+            [
+                new MapDataSort("quality", "desc"),
+                new MapDataSort("power", "asc"),
+                new MapDataSort("remainingLootCount", "desc"),
+                new MapDataSort("arriveTime", "asc"),
+                new MapDataSort("updatedAt", "desc"),
+            ],
+            itemKey: null);
+        checks++;
+
+        ValidateTruckSortOrder(
+            store,
+            serverId,
+            sampledAt,
+            allRows,
+            [
+                new MapDataSort("itemCount", "desc"),
+                new MapDataSort("quality", "desc"),
+                new MapDataSort("power", "asc"),
+                new MapDataSort("updatedAt", "desc"),
+            ],
+            itemKey);
+        checks++;
+
+        ValidateTruckSortOrder(
+            store,
+            serverId,
+            sampledAt,
+            allRows,
+            [
+                new MapDataSort("quality", "asc"),
+                new MapDataSort("power", "desc"),
+                new MapDataSort("itemCount", "desc"),
+                new MapDataSort("remainingLootCount", "asc"),
+                new MapDataSort("arriveTime", "desc"),
+                new MapDataSort("updatedAt", "desc"),
+            ],
+            itemKey);
+        checks++;
+
+        return checks;
+    }
+
+    private static void ValidateTruckSortOrder(
+        MapDataStore store,
+        int serverId,
+        long sampledAt,
+        IReadOnlyList<JsonElement> allRows,
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey)
+    {
+        IReadOnlyList<JsonElement> expectedSource = itemKey is null
+            ? allRows
+            : allRows.Where(row => TruckContainsItem(row, itemKey)).ToArray();
+        var expected = expectedSource.ToList();
+        expected.Sort((left, right) => CompareTruckRows(left, right, sorts, itemKey));
+
+        MapDataQueryOptions query = TruckSortQuery(serverId, sorts, itemKey);
+        IReadOnlyList<JsonElement> actual = ReadAllTruckRows(store, query, sampledAt);
+        if (actual.Count != expected.Count)
+            throw new InvalidDataException(
+                $"Truck sort row count mismatch for {DescribeSorts(sorts)}: actual={actual.Count}, expected={expected.Count}.");
+
+        for (int index = 0; index < expected.Count; index++)
+        {
+            string expectedUuid = TruckUuid(expected[index]);
+            string actualUuid = TruckUuid(actual[index]);
+            if (!string.Equals(actualUuid, expectedUuid, StringComparison.Ordinal))
+                throw new InvalidDataException(
+                    $"Truck sort mismatch for {DescribeSorts(sorts)} at {index}: actual={actualUuid}, expected={expectedUuid}.");
+        }
+    }
+
+    private static int CompareTruckRows(
+        JsonElement left,
+        JsonElement right,
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey)
+    {
+        foreach (MapDataSort sort in sorts)
+        {
+            double? leftValue = TruckSortValue(left, sort.SortBy, itemKey);
+            double? rightValue = TruckSortValue(right, sort.SortBy, itemKey);
+            int comparison;
+            if (!leftValue.HasValue && !rightValue.HasValue)
+            {
+                comparison = 0;
+            }
+            else if (!leftValue.HasValue)
+            {
+                comparison = 1;
+            }
+            else if (!rightValue.HasValue)
+            {
+                comparison = -1;
+            }
+            else
+            {
+                comparison = leftValue.Value.CompareTo(rightValue.Value);
+                if (sort.SortOrder == "desc") comparison = -comparison;
+            }
+
+            if (comparison != 0) return comparison;
+        }
+
+        // Current Truck record identity is the march/train UUID, so this independently
+        // mirrors the recovered final record_key ASC tie-breaker without using SQL order.
+        return StringComparer.Ordinal.Compare(TruckUuid(left), TruckUuid(right));
+    }
+
+    private static double? TruckSortValue(JsonElement row, string sortBy, string? itemKey)
+    {
+        if (sortBy == "quality")
+        {
+            if (row.TryGetProperty("isSpecialURQuality", out JsonElement special) &&
+                special.ValueKind == JsonValueKind.True)
+                return 100d;
+            return OptionalJsonNumber(row, "quality");
+        }
+        if (sortBy == "power")
+            return OptionalJsonNumber(row, "power");
+        if (sortBy == "itemCount")
+            return TruckItemCount(row, itemKey);
+        if (sortBy == "remainingLootCount")
+            return OptionalJsonNumber(row, "remainingLootCount") ?? 0d;
+        if (sortBy == "arriveTime")
+        {
+            double? value = OptionalJsonNumber(row, "arriveTs");
+            return value is > 0d ? value : null;
+        }
+        if (sortBy == "updatedAt")
+            return OptionalJsonNumber(row, "updatedAt");
+        throw new InvalidDataException("Unexpected Truck sort key: " + sortBy);
+    }
+
+    private static double TruckItemCount(JsonElement row, string? itemKey)
+    {
+        if (string.IsNullOrWhiteSpace(itemKey) ||
+            !row.TryGetProperty("currentGoods", out JsonElement goods) ||
+            goods.ValueKind != JsonValueKind.Array)
+            return 0d;
+
+        double total = 0d;
+        foreach (JsonElement good in goods.EnumerateArray())
+        {
+            if (!good.TryGetProperty("key", out JsonElement key) ||
+                key.ValueKind != JsonValueKind.String ||
+                !string.Equals(key.GetString(), itemKey, StringComparison.Ordinal))
+                continue;
+            if (good.TryGetProperty("count", out JsonElement count) &&
+                count.ValueKind == JsonValueKind.Number &&
+                count.TryGetDouble(out double quantity))
+                total += quantity;
+        }
+        return total;
+    }
+
+    private static double? OptionalJsonNumber(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.Number &&
+        value.TryGetDouble(out double parsed)
+            ? parsed
+            : null;
+
+    private static string TruckUuid(JsonElement row) =>
+        row.TryGetProperty("uuid", out JsonElement uuid) &&
+        uuid.ValueKind == JsonValueKind.String &&
+        !string.IsNullOrWhiteSpace(uuid.GetString())
+            ? uuid.GetString()!
+            : throw new InvalidDataException("Truck sort proof row has no UUID.");
+
+    private static string DescribeSorts(IReadOnlyList<MapDataSort> sorts) =>
+        string.Join(",", sorts.Select(sort => $"{sort.SortBy}:{sort.SortOrder}"));
+
+    private static MapDataQueryOptions TruckSortQuery(
+        int serverId,
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "truck",
+            query = new
+            {
+                serverId,
+                itemKey,
+                sorts = sorts.Select(sort => new
+                {
+                    sortBy = sort.SortBy,
+                    sortOrder = sort.SortOrder,
+                }).ToArray(),
+            },
+        }, JsonOptions.Default);
+        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
+        if (query.UnsupportedFeatures.Count != 0)
+            throw new InvalidDataException(
+                "Recovered Truck sort unexpectedly failed contract gate: " +
+                string.Join(",", query.UnsupportedFeatures));
+        return query;
     }
 
     private static IReadOnlyList<JsonElement> ReadAllTruckRows(
