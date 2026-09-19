@@ -3756,8 +3756,9 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
     {
         Check(clearJson.RootElement.GetProperty("serverId").GetInt32() == 91 &&
               clearJson.RootElement.GetProperty("phase").GetString() == "idle" &&
-              clearJson.RootElement.GetProperty("lastError").ValueKind == JsonValueKind.Null,
-            "backend map_scan_clear returns the selected server in an idle post-clear scan status");
+              clearJson.RootElement.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              clearJson.RootElement.GetProperty("resumeAvailable").ValueKind == JsonValueKind.False,
+            "backend map_scan_clear returns the selected server in an idle non-resumable post-clear scan status");
     }
     Check(backendMapStore.CountRecords("city", 91) == 0 && backendMapStore.CountScanRuns(91) == 0 &&
           backendMapStore.GetPlayerMark(91, "12345678901234567890") is not null,
@@ -5552,6 +5553,14 @@ foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringCo
 }
 Check(liveProbeTopLevelLocalCount < 200,
     $"current live Resource probe uses {liveProbeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
+int boundedMarchCompletionGuardCalls = liveCityProbeSource
+    .Split("collection, enumerator, scanned, MAX_POINTS, \"march\")", StringSplitOptions.None).Length - 1;
+Check(boundedMarchCompletionGuardCalls == 3 &&
+      liveCityProbeSource.Contains("local function bounded_enumerator_completion_error", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("prefix .. \"_count_outside_bounded_limit\"", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("prefix .. \"_enumeration_mismatch\"", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if moved == true then return prefix .. \"_count_outside_bounded_limit\" end", StringComparison.Ordinal),
+    "bounded WorldMarch enumeration must prove exhaustion for Train, Monster and protection-target capture instead of publishing a silently truncated 50,000-row prefix");
 Check(liveCityProbeSource.Contains("local resource_scan_detail_runtime = {", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("function resource_scan_detail_runtime.pump(now)", StringComparison.Ordinal),
     "Resource detail scan state/helpers must remain collapsed behind one top-level runtime table to protect the Lua local budget");

@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-055, 2026-09-19
+
+Map Scan progress/completion for the production **direct-snapshot architecture** is now closed. Real scheduler counters and acquisition progress remain capped below 100 until durable completion; exact logical coverage and zero failures are mandatory; stopped/failed/foreign/duplicate capture paths cannot publish; final publication owns the exact running row transactionally. R7-055 explicitly publishes `resumeAvailable=false` and makes bounded WorldMarch enumeration fail closed on overflow/mismatch instead of silently truncating at 50,000 entries. Original queue-only pending/ack/drop metrics are intentionally not fabricated in this architecture. Resume serialization remains unsupported. Evidence: [R7-055](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-completion-integrity.json).
+
 ## Current implementation checkpoint — LWB-R7-054, 2026-09-19
 
 Map Scan Clear is **production-owned and OFFLINE-TESTED against the hash-locked original contract**. `map_scan_clear` now shares Manual Scan ownership with Start/Stop/Status, enforces the recovered active-scan and current-`live`-server gates before deletion, serializes Clear against a competing Start, atomically removes only the selected current server's scan/index scope, preserves player marks and unrelated servers, and publishes an idle/zero-progress state. Fresh Clear may resolve the authoritative lifecycle server without initiating a scan; saved/replay-only context fails closed. Destructive acceptance used only in-memory stores. Evidence: [R7-054](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-clear-ownership.json).

@@ -548,6 +548,20 @@ local function collection_count(value)
     return tonumber(safe_get(value, "Count") or safe_get(value, "Length"))
 end
 
+local function bounded_enumerator_completion_error(collection, enumerator, scanned, limit, prefix)
+    local expected = collection_count(collection)
+    if expected ~= nil then
+        if expected < 0 or expected > limit then return prefix .. "_count_outside_bounded_limit" end
+        if scanned ~= expected then return prefix .. "_enumeration_mismatch" end
+        return nil
+    end
+    if scanned < limit then return nil end
+    local ok_move, moved = call(enumerator, "MoveNext")
+    if not ok_move then return prefix .. "_enumerator_failed" end
+    if moved == true then return prefix .. "_count_outside_bounded_limit" end
+    return nil
+end
+
 local function collection_int_values(value, limit)
     local expected = collection_count(value)
     if expected == nil or expected < 0 or expected > limit then return nil, "count_invalid" end
@@ -2103,6 +2117,9 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
             end
         end
     end
+    local completion_error = bounded_enumerator_completion_error(
+        collection, enumerator, scanned, MAX_POINTS, "march")
+    if completion_error ~= nil then return nil, completion_error end
     return records, nil
 end
 
@@ -2281,6 +2298,9 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
             end
         end
     end
+    local completion_error = bounded_enumerator_completion_error(
+        collection, enumerator, scanned, MAX_POINTS, "march")
+    if completion_error ~= nil then return nil, nil, completion_error end
     return targets, total, nil
 end
 
@@ -3229,6 +3249,9 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
             end
         end
     end
+    local completion_error = bounded_enumerator_completion_error(
+        collection, enumerator, scanned, MAX_POINTS, "march")
+    if completion_error ~= nil then return nil, completion_error end
     return records, nil
 end
 

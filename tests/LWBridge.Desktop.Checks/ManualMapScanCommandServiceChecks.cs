@@ -97,8 +97,9 @@ internal static class ManualMapScanCommandServiceChecks
             Payload("normal", "resource"),
             CancellationToken.None);
         status = JsonSerializer.SerializeToElement(stop, JsonOptions.Default);
-        Check(!Bool(status, "isReading") && String(status, "phase") == "idle" && Int(status, "inflightBlocks") == 0,
-            "one Stop response should be terminal and release scan ownership");
+        Check(!Bool(status, "isReading") && String(status, "phase") == "idle" && Int(status, "inflightBlocks") == 0 &&
+              !Bool(status, "resumeAvailable"),
+            "one Stop response should be terminal, release scan ownership and explicitly keep unsupported resume unavailable");
         Check(observedPhases.Contains("cancelling") && observedPhases.Contains("idle"),
             "scan status notifications should expose cancelling and terminal idle states");
         Check(contextCalls == 1, "duplicate Start must not reacquire live context");
@@ -268,7 +269,8 @@ internal static class ManualMapScanCommandServiceChecks
               Int(status, "inflightBlocks") == 0 &&
               Int(status, "concurrency") == 0 &&
               Double(status, "scanRate") == 0 &&
-              Double(status, "progressPercent") == 0,
+              Double(status, "progressPercent") == 0 &&
+              !Bool(status, "resumeAvailable"),
             "successful Clear should reset owner-visible progress while retaining the authoritative live server");
         Check(statusEvents > eventsBeforeClear,
             "successful Clear should publish the reset scan status");
@@ -335,8 +337,8 @@ internal static class ManualMapScanCommandServiceChecks
             WaitForPhase(service, "completed");
         status = Status(service);
 
-        Check(String(status, "phase") == "completed" && !Bool(status, "isReading"),
-            "fast scan should publish after all blocks succeed");
+        Check(String(status, "phase") == "completed" && !Bool(status, "isReading") && !Bool(status, "resumeAvailable"),
+            "fast scan should publish after all blocks succeed without advertising unsupported resume");
         Check(Int(status, "concurrency") == 20, "fast Start must preserve recovered concurrency 20");
         Check(Int(status, "totalBlocks") == 2 && Int(status, "readBlocks") == 2,
             "40x20 map should traverse two recovered 20-tile blocks");

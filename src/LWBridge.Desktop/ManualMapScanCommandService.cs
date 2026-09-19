@@ -729,6 +729,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 nativeCaptureReady = (bool?)null,
                 nativePendingRecords = (int?)null,
                 nativeDroppedRecords = (int?)null,
+                resumeAvailable = false,
                 homeServerId = (int?)null,
                 seasonServerIds = (int[]?)null,
                 truckMatchServerIds = (int[]?)null,

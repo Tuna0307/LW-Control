@@ -478,6 +478,7 @@ internal sealed class LiveResourceProbeCommandService : INativeAsyncCommandServi
             nativeCaptureReady = (bool?)null,
             nativePendingRecords = (int?)null,
             nativeDroppedRecords = (int?)null,
+            resumeAvailable = false,
             homeServerId = (int?)null,
             seasonServerIds = (int[]?)null,
             truckMatchServerIds = (int[]?)null,

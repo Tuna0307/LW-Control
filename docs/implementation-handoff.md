@@ -1,12 +1,20 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Direct-snapshot completion integrity checkpoint - LWB-R7-055, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED; the existing full-world live proofs remain the runtime coverage evidence.** Hash-locked R6-053/054/055/056/059 recovery still passes. The production architecture differs from the original event/queue scanner: it owns correlated direct snapshots and does not instantiate the original pending-points/marches/removals/acks queue. Therefore `nativePendingRecords`/`nativeDroppedRecords` remain unknown/null rather than being synthesized.
+
+The direct path already requires exact block coverage and zero failures before publication, rejects foreign/duplicate captures, records block checkpoints before publish, prevents stopped/failed runs from publishing, conditionally transitions the exact SQLite run from `running` to `completed`, and verifies the post-commit run. R7-055 adds explicit `resumeAvailable=false` to Manual/fallback/bounded-proof status and closes a semantic-completeness hole in `current_live_resource_probe.lua`: three WorldMarch enumerators previously stopped at `MAX_POINTS=50000` without proving exhaustion. They now compare collection Count/Length when available, otherwise probe `MoveNext` once beyond the cap; overflow, mismatch or enumerator failure marks the bulk AOI result failed, which the C# source rejects and the engine retries/fails rather than publishing truncation. Lua top-level locals remain 194 (<200).
+
+**Next:** the main remaining R7 lifecycle item is full durable run identity/resume semantics; resumability stays deliberately unavailable. Downstream per-kind/export work and the Thursday Ghost positive-row proof are separate.
+
 ## Map Scan Clear ownership checkpoint - LWB-R7-054, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED against the recovered original contract; no destructive live-user-data test was needed.** The verified 0.3.1 binary (`LWB-R6-057`) requires active scans to reject Clear with `SCAN_RUNNING / stop the map scan first`; otherwise requested `serverId` must be positive, equal the current scan-state server and have exact `serverIdSource=live`, or Clear rejects with `SERVER_UNAVAILABLE / current server id unavailable`. Only after those gates does server-scoped Clear execute and publish idle state.
 
 Production now routes `map_scan_clear` through `ManualMapScanCommandService`, where the same lock owns active-scan validation, current-live-server admission, `MapDataStore.ClearServer`, and status reset. This prevents a new Start from racing between Clear validation and deletion. Clear before any prior scan can resolve the lifecycle's authoritative live server without starting a scan; saved/replay-only context fails closed. Deterministic destructive tests use in-memory SQLite and prove active/mismatched rejection without deletion, current-server-only deletion, player-mark preservation, other-server preservation, block-checkpoint cascade through scan-run deletion, idle/zero-progress publication and idempotent empty repeat Clear. Because active Clear is rejected and Stop waits for terminal ownership, successful Clear occurs only after the prior run is no longer accepted as active. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-map-scan-clear-ownership.json`.
 
-**Next:** return to the separate progress/completion lifecycle gap. Clear closure does not claim unresolved native acknowledgement/drain or resume serialization behavior.
+**Historical note:** progress/completion was still open at R7-054. `LWB-R7-055` subsequently closes completion integrity for the direct-snapshot transport; durable full run identity/resume semantics remain open and resumability stays unavailable.
 
 ## Current-v19 Dispatch/Ghost alternate sort checkpoint - LWB-R7-053, 2026-09-19
 

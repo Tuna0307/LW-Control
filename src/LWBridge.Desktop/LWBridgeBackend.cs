@@ -530,6 +530,7 @@ internal sealed class LWBridgeBackend
         nativeCaptureReady = false,
         nativePendingRecords = 0,
         nativeDroppedRecords = 0,
+        resumeAvailable = false,
         homeServerId = 0,
         seasonServerIds = Array.Empty<int>(),
         truckMatchServerIds = Array.Empty<int>(),
