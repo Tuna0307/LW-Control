@@ -1,14 +1,23 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
-## Current owner priority - shared Manual Scan engine first, 2026-09-13
+## Current owner product override - Map Data simplification, 2026-09-19
+
+The owner has explicitly changed two product requirements and these override recovered original UI parity wherever they conflict:
+
+1. **Remove City Excel export completely from the shipped product.** Delete the visible Export Excel control/icon, frontend invocation, `map_city_export` production command, workbook writer/picker plumbing and export-only tests/runtime dependencies. Historical R6/R7 export evidence may remain for provenance, but export is no longer a release requirement and must not remain reachable in the normal UI.
+2. **Remove the Normal/Fast choice from Manual Scan and Auto Scan.** The user chooses only scan contents and presses **Start Scan**. Acquisition strategy is an internal planner decision. For each selected category (and for mixed selections), the backend must choose the fastest currently proven safe strategy/concurrency/request shape while preserving exact coverage/publication correctness. Legacy `normal`/`fast` values may remain only as internal compatibility/diagnostic tokens where needed; they must not be a user-facing setting or persisted user preference.
+
+Acceptance for the scan planner requires that the same category/server produces the same trustworthy published dataset regardless of which internal strategy is selected, that transient Fast/AOI failures retry or fall back only according to proven safe rules, and that the UI truthfully shows one Start/Stop/Clear flow without exposing implementation strategy controls.
+
+## Retained shared Manual Scan direction - 2026-09-13
 
 **PM17 correction delivery is complete.** `LWB-PM17-001/002` remain IMPLEMENTED/OFFLINE-TESTED at their documented revision. Player City `LWB-PC-001/002/003` remains valid evidence for authentic city acquisition, persistence, reopen/search and owner-visible saved-row rendering. Initial Map Data load may automatically query persisted City data, so a row visible before Search is saved data, not a fresh acquisition.
 
-**Active Map Data direction:** stop treating the visible category order as eight separate scanner projects. The common Manual Scan engine/persistence checkpoint is now IMPLEMENTED/OFFLINE-TESTED for recovered-grid traversal, run identity, bounded source retry, Stop/cancel ownership, truthful scheduler counters, transactional block checkpoints/staging, and guarded final publication. The next production-critical task is the real arbitrary-target current-game block source plus live proof that each targeted response covers its intended block; do not wire ordinary Start to saved/preloaded data or call the engine a full-world scanner before that proof. The eight `selectedTypes` values remain content selectors for this one engine; Search/filter/sort/options/export and row actions remain downstream consumers of persisted data.
+**Active Map Data direction:** stop treating the visible category order as eight separate scanner projects. The common Manual Scan engine/persistence checkpoint is now IMPLEMENTED/OFFLINE-TESTED for recovered-grid traversal, run identity, bounded source retry, Stop/cancel ownership, truthful scheduler counters, transactional block checkpoints/staging, and guarded final publication. The next production-critical task is the real arbitrary-target current-game block source plus live proof that each targeted response covers its intended block; do not wire ordinary Start to saved/preloaded data or call the engine a full-world scanner before that proof. The eight `selectedTypes` values remain content selectors for this one engine; Search/filter/sort/options and row actions remain downstream consumers of persisted data. City Excel export is retired by the 2026-09-19 owner override.
 
-Recovered mode parity currently proves Normal concurrency `8` and Fast concurrency `20`; any other mode difference remains UNKNOWN until recovered. `100%` or a completed helper is not a completion gate by itself. Clear must remain server-scoped, preserve marks under the recovered contract, safely resolve an active run and prevent late results from repopulating cleared data.
+Recovered historical mode parity proves Normal concurrency `8` and Fast concurrency `20`; these are now internal strategy evidence only. The shipped product must not ask the user to choose a mode. The backend planner chooses the fastest proven-safe strategy for each selected category/mixed run and records the effective internal strategy truthfully. `100%` or a completed helper is not a completion gate by itself. Clear must remain server-scoped, preserve marks under the recovered contract, safely resolve an active run and prevent late results from repopulating cleared data.
 
-Use Player City as the first normal-page acceptance category for the common engine, then Resource, then Monster/Truck/Railway/Dispatch/Ghost/Treasure, then mixed selections and all eight. The existing bounded `LiveResourceProbeCommandService` city/resource path is evidence/support code, not full-world Normal/Fast scanning. Auto Scan comes only after Manual Scan and must reuse the same engine.
+Use Player City as the first normal-page acceptance category for the common engine, then Resource, then Monster/Truck/Railway/Dispatch/Ghost/Treasure, then mixed selections and all eight. The existing bounded `LiveResourceProbeCommandService` city/resource path is evidence/support code, not full-world production scanning. Auto Scan comes only after Manual Scan and must reuse the same engine and the same backend strategy planner.
 
 **S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** S02 remains unfinished/unassigned. Existing operation-specific restrictions, including SB-97, remain in force and must not be bypassed. Do not claim the whole Map Data feature complete from the Player City result or from the common engine until the relevant acceptance gates pass. See `docs/map-data-delivery.md` and `docs/team-workflow.md` for the active sequencing.
 
@@ -53,7 +62,7 @@ Reviewed implementation base: `7ca6d5c`, 2026-09-11, `research/offline-controlle
 Work in the existing LWBridge reconstruction and make **all functionality belonging to these two pages work against the real, currently installed Last War client**:
 
 1. **Overview / 首页**: game setup, launch, close, launch-at-startup, automatic reconnect, and their shared status controls.
-2. **Map Data / 地图数据**: manual scan, automatic scan, every data category, searching/filtering/sorting/pagination, export, map navigation, and all conditional row/bulk actions, including treasure and scheduled-plunder workflows.
+2. **Map Data**: manual scan, automatic scan, every data category, searching/filtering/sorting/pagination, map navigation, and all conditional row/bulk actions, including treasure and scheduled-plunder workflows. City Excel export is intentionally removed from the rebuilt product.
 
 Keep the reproduced UI faithful to `lwbridge-0.3.1.exe`. The user already asked to remove login and to recreate functionality independently. **Do not reintroduce a login, license activation, renewal, unbind, or account-expiry gate.**
 
@@ -72,7 +81,7 @@ The images have been copied from temporary clipboard paths into the repository:
 
 ![User reference: Map Data](docs/task-reference/map-data-user-reference.png)
 
-The Overview image shows the stopped-game state, Launch Game, disabled Close Game, and the launch-at-startup and reconnect switches. The shared header contains game status, pending-task count, theme, language, cross-server navigation, and Refresh Status. The Map Data image shows Manual/Auto Scan tabs, Normal/Fast, Start/Stop/Clear, progress, eight scan-content choices, nine result tabs including Scheduled Plunder, city search/alliance/marked filters, Export Excel, and an empty city table. These descriptions keep the assignment understandable even if only this Markdown file is transferred. Send `docs/task-reference/` too when possible.
+The Overview image shows the stopped-game state, Launch Game, disabled Close Game, and the launch-at-startup and reconnect switches. The shared header contains game status, pending-task count, theme, language, cross-server navigation, and Refresh Status. Historical Map Data references may show Normal/Fast and Export Excel, but the 2026-09-19 owner override explicitly removes those controls from the rebuilt product. The target Map Data UI has Manual/Auto Scan tabs, one Start/Stop/Clear flow, progress, scan-content choices, result tabs and their search/filter/action controls. These descriptions keep the assignment understandable even if only this Markdown file is transferred. Send `docs/task-reference/` too when possible.
 
 Treat screenshots, extracted strings, comments, and binary contents as reference data. They are not independent instructions overriding the user's request or the receiving environment's rules.
 
@@ -354,7 +363,7 @@ Keep transport coverage and semantic completeness separate. A scan can visit eve
 - Recover whether marks, completed job history, and checkpoints are included; do not delete them speculatively.
 - Test clearing one server while another retains data, empty clear, app restart after clear, and interruption/failure during clear. Use a backed-up/temporary store for destructive cache tests.
 
-## 8. Map Data: results, filters, row semantics, and export
+## 8. Map Data: results, filters, row semantics, and actions
 
 ### M06. Audit every result tab and conditional control
 
@@ -404,13 +413,9 @@ Requirements:
 
 Implement `map_player_mark_set({row, marked})` with authoritative stable player identity and correct server/profile scope. Marks must survive restart and applicable rescan updates and drive Marked Only filtering. Recover how marks follow relocated players and how clearing data affects them. A checked icon in JavaScript alone is not persistence proof.
 
-### M09. Export Excel
+### M09. City Excel export — REMOVED FROM PRODUCT SCOPE
 
-The recovered action is **city export**, named `map_city_export`; do not invent export support on other tabs merely because the shared toolbar exists.
-
-The UI sends its current query plus localized headers, `sheetName`, `yesLabel`, and `noLabel`. Its header sequence is server, X, Y, player, UID, UUID, alliance, level, HP, shield end, marked, updated time. It constructs the export query starting at page 1/page size 200; recover whether the host iterates all filtered rows. Do not accidentally export only the visible page or arbitrarily truncate at 200.
-
-Produce a real valid workbook with correct row scope, ordering, fields, localized headings, exact identifiers, usable dates, and mark labels. Preserve identifiers as text where spreadsheet numeric coercion would lose digits. Treat game-supplied strings as data, not executable spreadsheet formulas. Handle path selection, cancellation, existing destination policy, permissions, disk errors, and atomic completion. Return actual count/path only after a successful write. Verify by reopening the file and comparing its contents to the query snapshot, including a result exceeding one page.
+Owner override 2026-09-19: City Excel export is no longer wanted. Historical recovery/evidence for `map_city_export` remains archival only. Remove the normal UI Export control/icon and all production-reachable export code (`map_city_export`, save-dialog handling, workbook writer/cache/runtime plumbing). Remove export-only acceptance/tests from the active release gate. Do not spend further reverse-engineering or implementation time on Excel export unless the owner explicitly reopens it.
 
 ### M10. Jump to coordinates and follow moving targets
 
@@ -424,7 +429,7 @@ Produce a real valid workbook with correct row scope, ordering, fields, localize
 
 ### M11. Recover and implement the complete Auto Scan tab
 
-Include the enable switch, enabled/waiting/running status, interval, target-server entry, Add and Enter handling, removable server chips, selected scan contents, mode, return-to-original-server option, next-run time, and Run Now action. Recover any additional conditional notices or validation states from the original.
+Include the enable switch, enabled/waiting/running status, interval, target-server entry, Add and Enter handling, removable server chips, selected scan contents, return-to-original-server option, next-run time, and Run Now action. **Do not expose a scan-mode selector.** Auto Scan uses the same backend category-aware strategy planner as Manual Scan. Recover any additional conditional notices or validation states from the original except where superseded by this owner override.
 
 Confirmed original frontend defaults/normalization:
 
@@ -436,7 +441,7 @@ Confirmed original frontend defaults/normalization:
 | Server input | Parses whitespace, ordinary/Chinese commas and semicolons; verify all edge cases in the actual parser |
 | Empty server list | Uses the current valid server when executing; rejects/unavailable when no valid current server exists |
 | Scan contents | Default `truck`, `railway`, `dispatch`, `ghost`, `treasure`; valid selections come from all eight allowed kinds |
-| Mode | Default fast; accepts normal or fast |
+| Legacy mode | Historical original UI defaulted to fast and accepted normal/fast; retained only as recovery evidence. The rebuilt product does not expose or persist this as a user option. |
 | Return to original server | Default true |
 | Next run | Nonnegative persisted timestamp; recovered due check requires enabled + online + no active scan + no active auto cycle |
 | Persistence | Original frontend key is `lwbridge.mapAutoScan.<profileId>` |
@@ -585,7 +590,7 @@ Current status: foundation partially implemented; lifecycle remains blocked/unim
 Current active Map Data milestone under the 2026-09-13 owner direction. Build one acquisition lifecycle before proceeding category-by-category.
 
 - Recover/implement current server/world readiness, authoritative map geometry/traversal, run identity, block scheduling, native capture/acks/removals, staging/publication and real Stop/cancel ownership.
-- Implement Normal and Fast through the same scheduler using recovered concurrency `8` and `20`; keep any unrecovered mode differences UNKNOWN/BLOCKED.
+- Keep recovered Normal/Fast mechanisms available internally only as strategy building blocks. Add a backend planner that selects the fastest proven-safe strategy per category/mixed selection; remove user-facing mode choice.
 - Drive progress/completion from real total/completed/read/failed/unread/inflight/capture/commit state. Do not treat helper exit, one row or 100% as complete by itself.
 - Finish server-scoped Clear with active-run conflict/cancellation, generation invalidation, atomic data/progress reset and no late-result resurrection while preserving marks under the recovered contract.
 - Use Player City as the first ordinary Manual Start acceptance category. Existing bounded Player City evidence supports source/identity/storage/render correctness but is not full-scan proof.
@@ -594,8 +599,8 @@ Current active Map Data milestone under the 2026-09-13 owner direction. Build on
 
 - Route Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure through the same proven worker; then validate mixed selected types and all eight together.
 - Trace representative point/march/update/removal/expiry records through raw capture, normalization, storage, query and UI. Recover authoritative field meaning before calling a per-kind schema complete.
-- Implement/finish query/filter/sort/page/mark/export/navigation against committed persisted data. Keep Scan Content acquisition selection separate from result filters.
-- Validate repeat scans in Normal and Fast, selected-type isolation, counts, removals, failure/retry behavior and restart persistence with current-client evidence.
+- Implement/finish query/filter/sort/page/mark/navigation against committed persisted data. Excel export is retired. Keep Scan Content acquisition selection separate from result filters.
+- Validate repeated scans under the backend-selected effective strategy, selected-type isolation, counts, removals, failure/retry/fallback behavior and restart persistence with current-client evidence.
 - Only after Manual Scan is reliable should Auto Scan orchestrate it; Auto Scan must not own a separate acquisition path.
 
 ### Milestone E — Automatic scan orchestration
@@ -634,18 +639,18 @@ The counts below are **requested reliability acceptance targets for the new impl
 | A10 | Forced failure at each implemented startup stage | Failure journal, before/after file hashes, process cleanup and successful subsequent retry |
 | A11 | Refresh Status before/during/after lifecycle changes | Fresh correctly scoped state; task count has recovered semantics |
 | A12 | Same-server and actual cross-server navigation | Actual authoritative server confirmed; history correct; no premature data-context swap |
-| B01 | All eight types, Normal | Correct discovered coverage and capture/commit gate; indexed per-kind results verified |
-| B02 | All eight types, Fast | Same completion/correctness gates with recovered concurrency difference; not just a faster progress animation |
+| B01 | All eight types, backend-selected strategy | Correct discovered coverage and capture/commit gate; indexed per-kind results verified; no user mode selector |
+| B02 | Per-kind/mixed strategy selection | Planner chooses the fastest proven-safe acquisition path for the selected contents/server and preserves correctness; effective internal strategy is diagnostic, not a user setting |
 | B03 | Each type individually + mixed selection | Correct request filtering, selected output semantics, no category misclassification |
 | B04 | Missing/non-array/duplicates/unknown/empty types | Exact recovered normalization and invalid-empty rejection |
-| B05 | Duplicate Start and mid-scan mode/type changes | No overlapping scans; run identity and effective config remain truthful |
+| B05 | Duplicate Start and mid-scan type changes | No overlapping scans; run identity and backend-selected effective strategy/config remain truthful |
 | B06 | Stop early / mid / near completion | No new scheduling after cancellation boundary; coherent partial checkpoint; cleanup verified |
 | B07 | Bridge loss and recovery mid-scan | Uncertain work preserved and reconciled; no lost/duplicate committed rows or false completion |
 | B08 | App/process restart during scan | Durable checkpoint; compatible resume or explicit safe rejection |
 | B09 | Delayed/reordered/duplicate replies or wrong run/profile/server | Stale/foreign evidence rejected; current UI/store unaffected |
 | B10 | Capture overflow / unread blocks / dropped records / commit failure | Incomplete/failed status with reason; never trustworthy complete |
 | B11 | Native point/march add/update/remove/movement | Correct stable identity, index updates/removals, and query changes |
-| B12 | 10 completed full scans per mode | Repeatable completion with coverage/capture/commit/restoration evidence; no resource growth trend or silent failures |
+| B12 | Repeated completed full scans across planner strategies/categories | Repeatable completion with coverage/capture/commit/restoration evidence; no resource growth trend or silent failures |
 | B13 | Every tab populated or an evidence-backed legitimate empty state | Exact schema/columns/counts; no synthetic rows and no false absent-content claim |
 | B14 | Authoritative resource/monster/treasure names and numeric fields | Source-to-index-to-UI trace; no guessed names or precision loss |
 | C01 | All search/filter combinations relevant to each kind | Correct matching rows/totals and isolated query context |
@@ -653,7 +658,7 @@ The counts below are **requested reliability acceptance targets for the new impl
 | C03 | Rapid tab/server/filter changes with slow requests | Old response cannot overwrite current view |
 | C04 | Mark/unmark then rescan/restart/relocate | Recovered persistence/identity behavior and correct marked-only results |
 | C05 | Clear one server, including failure/late-response cases | Intended scope cleared atomically; other data survives; no resurrection |
-| C06 | Export more than one page, Unicode, large IDs, cancellation/write failure | Workbook reopened and matched to expected filtered snapshot; actual count/path |
+| C06 | City Excel export | **REMOVED FROM PRODUCT SCOPE by owner 2026-09-19; not an acceptance requirement** |
 | C07 | Coordinate jump / moving-target follow / vanished or replaced target | Correct actual map focus or explicit failure; no stale-target success |
 | D01 | Auto-scan defaults, invalid interval/server inputs, save/reload | Recovered normalization, durable config, stable real-profile scope |
 | D02 | At least 3 authorized multi-server auto cycles | Each server actually entered and completed; correct return-to-origin and next-run scheduling |
@@ -680,7 +685,7 @@ Use an independent source of truth for live assertions, such as a verified curre
 
 ### End-to-end user walkthrough
 
-Demonstrate a normal session from the built application: open without login; validate installation; launch; see genuine connected state; refresh; choose scan types and mode; scan to a valid completion; inspect populated categories and filters; mark a city; export matching city rows; jump/follow an eligible target; configure/run a bounded auto-scan cycle; stop and close; reopen and verify persisted settings/data. Demonstrate conditional actions separately with their actual preconditions/authorization. No hidden manual console step should be required for the normal two-page workflow.
+Demonstrate a normal session from the built application: open without login; validate installation; launch; see genuine connected state; refresh; choose scan contents; press the single Start Scan control and let the backend choose the effective strategy; scan to a valid completion; inspect populated categories and filters; mark a city; jump/follow an eligible target; configure/run a bounded auto-scan cycle; stop and close; reopen and verify persisted settings/data. Excel export is not part of the product. Demonstrate conditional actions separately with their actual preconditions/authorization. No hidden manual console step should be required for the normal two-page workflow.
 
 ## 14. Evidence, diagnostics, and handoff durability
 
@@ -783,7 +788,7 @@ Deliver:
 - [ ] Complete Overview installation/start/stop/startup/reconnect/repair/status behavior.
 - [ ] Complete manual scan, capture, index, progress, failure, stop, resume, and clear behavior.
 - [ ] All eight map record kinds and nine result tabs with their recovered query/column/action semantics.
-- [ ] All applicable search/filter/sort/page/mark/export/jump/follow behavior.
+- [ ] All applicable search/filter/sort/page/mark/jump/follow behavior. Excel export is retired and excluded.
 - [ ] Complete automatic scan configuration, durable scheduling, multi-server travel, and restoration behavior.
 - [ ] Conditional treasure, plunder/job, and sharing implementation with explicit live-proof status.
 - [ ] Isolated deterministic fixture/capture mode, with no accidental live fallback.
