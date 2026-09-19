@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scope": "PM15-01/02 offline owner-evidence collector package; no live test",
+  "implementationCommit": "1e9af6e87bfbff6155ad4b9b4340b2f6928c5fd0",
+  "branch": "research/offline-controller",
+  "buildCommand": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+  "buildStableAcrossTwoRuns": true,
+  "app": {
+    "path": "src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+    "sha256": "9f4f4857453139094279866ea85b3b2c95a53ef5fa2d87caa566c3c96dfe220b",
+    "size": 163328
+  },
+  "managedDll": {
+    "path": "src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.dll",
+    "sha256": "5c859de9cf25c2fbc68b4e80abb7f1abfc6243a466b76778e2dfb9f297155848",
+    "size": 444928
+  },
+  "collector": {
+    "path": "tools/collect_owner_resource_evidence.py",
+    "sha256": "0c30afad67308e2ef40f2b9bc039734cb087a4c9879b5a4925925d4545fbfe67",
+    "size": 36137
+  },
+  "isolatedRegression": {
+    "path": "tools/check_owner_resource_evidence_collector.py",
+    "sha256": "acd6a2041dee28f371c69f4e27c00032304cfebfbd41db55e59b4761485c3f59",
+    "size": 8398
+  },
+  "shortcut": {
+    "path": "Start Owner Resource Check.cmd",
+    "sha256": "9354f5b3d99362ac5e4b7d629b870c0aa01ae6afc70efe0c455ffd16e8993d90",
+    "size": 416
+  },
+  "ciWorkflow": {
+    "path": ".github/workflows/csharp.yml",
+    "sha256": "07c405cd3427cb8c22ecd2858d988597f01e7364e141f54bf2e9e0adc5dc50df",
+    "size": 2680
+  },
+  "ownerRetestRequested": false,
+  "freshLiveTestRun": false
+}

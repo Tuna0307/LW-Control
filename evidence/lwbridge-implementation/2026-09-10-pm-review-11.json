@@ -1,0 +1,65 @@
+{
+  "findingId": "LWB-PM-REVIEW-011",
+  "date": "2026-09-10",
+  "reviewedCommit": "37a1dac724def9eb6635764cdda12573736abc65",
+  "reviewedCommits": [
+    "b102423",
+    "3208bf2",
+    "37a1dac"
+  ],
+  "branch": "research/offline-controller",
+  "scope": "code/evidence audit and offline validation; no live acquisition or current UI capture",
+  "checks": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministicSuite": {
+      "ok": true,
+      "failures": [],
+      "groups": [
+        "profileRouting",
+        "persistence",
+        "requestLifetime",
+        "mapPersistence",
+        "mapContract",
+        "bridgeControlPipeContract"
+      ],
+      "realConfigPreservationFlag": true
+    },
+    "frontendIntegrity": true,
+    "preferenceMatrix": true,
+    "liveTransportMissingNative": true,
+    "transportBoundary": true,
+    "acceptanceCasesPreserved": 47,
+    "localMarkdownLinksVerified": 222
+  },
+  "findings": {
+    "PM10-01": "PARTIAL; recipe indexed and pipe discovery recovered; production handshake/request and fresh acquisition blocked",
+    "PM10-02": "IMPLEMENTED; visual proof pending as PM11-02",
+    "PM10-03": "IMPLEMENTED/OFFLINE-TESTED",
+    "PM11-01": "Corrected unsupported inference from limited keyword-history searches",
+    "PM11-02": "Current replay UI validation unavailable; prior rejected operation not retried"
+  },
+  "productionServiceInventory": "Only HostProbeCommandService implements INativeAsyncCommandService in src; ControlledAsyncCommandService is test-only. Pipe helper callers are tests.",
+  "sourceEvidence": [
+    "evidence/lwbridge-implementation/2026-09-10-pm10-replay-acquisition-recipe.json",
+    "evidence/lwbridge-implementation/2026-09-10-r5-control-pipe-contract.json"
+  ],
+  "limits": {
+    "freshGameAcquisition": false,
+    "currentUiCapture": false,
+    "historicalSourceInspection": false,
+    "binaryAnalysis": false,
+    "newFullAcceptanceCases": 0,
+    "daybreakAssignment": false
+  },
+  "reproduction": [
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+    "python tools/build_lwbridge_frontend.py --check",
+    "node tools/check_lwbridge_preference_provider.cjs",
+    "node tools/check_lwbridge_live_transport.cjs",
+    "node tools/check_lwbridge_transport_boundary.cjs"
+  ]
+}

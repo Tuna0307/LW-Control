@@ -1,0 +1,194 @@
+[
+  {
+    "view": "automation-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "automation-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "automation-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "automation-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "city-layout-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "city-layout-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "city-layout-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "city-layout-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "hotkeys-dark-en",
+    "mae": 3.4106877310740937e-06,
+    "highDeltaRate": 0.0,
+    "identical": false
+  },
+  {
+    "view": "hotkeys-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "hotkeys-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "hotkeys-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "map-data-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "map-data-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "map-data-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "map-data-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "march-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "march-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "march-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "march-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "mini-games-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "mini-games-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "mini-games-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "mini-games-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "overview-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "overview-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "overview-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "overview-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "settings-dark-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "settings-dark-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "settings-light-en",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  },
+  {
+    "view": "settings-light-zh-CN",
+    "mae": 0.0,
+    "highDeltaRate": 0.0,
+    "identical": true
+  }
+]

@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-PM7-001",
+  "scope": "PM audit, instruction cleanup and next-task decisions; no new native recovery or executable behavior change",
+  "reviewedCommit": "02735690ed8c61c249a997e274a536d4e5f69c53",
+  "previousPmCommit": "ff36e6fa0cd662224f963472843c8256ca0806bf",
+  "branch": "research/offline-controller",
+  "startingWorktreeClean": true,
+  "reviewedCommits": [
+    {
+      "commit": "d3d80ec968b050ea7a1a6336c4d62990de6e9e84",
+      "subject": "Bound native host probe cleanup"
+    },
+    {
+      "commit": "159db1aee33d78c1bdcf487b9bb62acff31300a4",
+      "subject": "Recover map option source candidates"
+    },
+    {
+      "commit": "adde6ebc4ffd662d0b758256e62569547734362d",
+      "subject": "Recover map summary native flow"
+    },
+    {
+      "commit": "29701b8002891e55411b638f24484b2aaec75b68",
+      "subject": "Recover map sort parser inventory"
+    },
+    {
+      "commit": "0e7a582a13205eacc6ed5091306427f131615c2a",
+      "subject": "Recover map sort direction branch"
+    },
+    {
+      "commit": "2ba7d3923e0600fdb080d722dfa7e596043730a0",
+      "subject": "Add scan block checkpoint persistence"
+    },
+    {
+      "commit": "b65c78d67125ce479c3970450c9052c74ce7c113",
+      "subject": "Record current runtime map identity search"
+    },
+    {
+      "commit": "d6fc1961acd5a02acd41588c7b76359aa59ee0d5",
+      "subject": "Recover map option source selector"
+    },
+    {
+      "commit": "c89bcd6d0e6e062013fdd97b9c28e13548a98942",
+      "subject": "Recover map option response assembly"
+    },
+    {
+      "commit": "f3fe362427def190f7fa1cfb980dc73b00152b34",
+      "subject": "Record scan progress serializer boundary"
+    },
+    {
+      "commit": "a80f8f21756e8c4879c014313eef52548faa40ad",
+      "subject": "Record map summary error propagation"
+    },
+    {
+      "commit": "e272c6af6f844f8bf8ab367884b42294b110561f",
+      "subject": "Recover current runtime server state contracts"
+    },
+    {
+      "commit": "4721f33c7e87bb1c5a69e804d6dc5d9bf7a72dbc",
+      "subject": "Recover current DCPlayer access chain"
+    },
+    {
+      "commit": "3dda56d0d0633a73d22329adda8b19ab12966d2b",
+      "subject": "Recover shared scan state producer"
+    },
+    {
+      "commit": "02735690ed8c61c249a997e274a536d4e5f69c53",
+      "subject": "Recover current server unavailable mapping"
+    }
+  ],
+  "sourceFilesSha256": {
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "724307d3def3cfeebad3d59fc3af257037743d3af0fbdf68acff29a603a8fbe1",
+    "src/LWBridge.Desktop/MapDataStore.cs": "dc417ef71d2dc2f8e9e6991b5e6fc5752cc43580d99fe144fdcbd4612819a8af",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "e393910edfe20359cc6aa512f443e197af3863ab96594d95f284b32208474ee2",
+    "tools/check_lwbridge_host_probe.ps1": "97ca66efa2e77c041775569c82d7fb18e9a2cf4fae1e6056424b25bdf9a431b9",
+    ".github/workflows/csharp.yml": "bd0f4832978bcf7173de4a936b019b566215b2f582a007cf0a0d19d6d39daef9",
+    "tools/inspect_lastwar_rdl_metadata.py": "0990343a73f4426ef36475275fb4c28819129dc7e5e8fa7183ca992bfb69d765",
+    "tools/inspect_lwbridge_map_sorts.py": "36b24ca4bc8e30a2c3d1241a50214c93b1d4be2504ad527e7446cc10024acd94",
+    "tools/inspect_lwbridge_map_sort_direction.py": "28aece0c5c5cf16d6c7a03d3bcf84d205f74656028f65b04db7d86a8676b7cc0"
+  },
+  "recordedEvidenceReviewed": [
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-pm6-host-cleanup.json",
+      "sha256": "5d3ae74ea6a5178765e35d18dc022e5de20a4b0598cce9ddb625812b23eaadad",
+      "findingId": "LWB-PM6-001",
+      "scope": "PM6-01 isolated native-host probe cleanup bound and termination-failure regression"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-current-server-access-chain.json",
+      "sha256": "b6f8b86a597e37e9ad24333aad49eeaf95179653d0d60798ecdac03335674982",
+      "findingId": "LWB-R6-035",
+      "scope": "Current build-1078 managed/xLua ownership and access chain for the DCPlayer current-server source"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-current-server-error-mapping.json",
+      "sha256": "c61ad6a58b321f971ec178d16e4870648fbb2e713f66f0066a7058cd3044a5b7",
+      "findingId": "LWB-R6-037",
+      "scope": "LWBridge getCurrentServerId bridge-wrapper result validation and exact SERVER_UNAVAILABLE mapping"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-current-server-world-contract.json",
+      "sha256": "a57501cb14dd89d56d6572d2ac332dd17b11e73cf7383236a3604dde4319a706",
+      "findingId": "LWB-R6-034",
+      "scope": "Current official Last War build-1078 current-server and in-world managed contracts for the unresolved map_summary shared-state seam"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-option-response-assembly.json",
+      "sha256": "f6105a3ab8feafe70a5e1bac6e272d2cc377ae0a6baf66c6d0a9785ea9c85cd0",
+      "findingId": "LWB-R6-031",
+      "scope": "Native map_data_options noAllianceCount production, top-level assembly order, and scanProgress record selection"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-option-source-candidates.json",
+      "sha256": "01c1f97777a85ef15ccefb89b9e36c4ff1d28ce98be5946fd5740df6169d5c6e",
+      "findingId": "LWB-R6-024",
+      "scope": "Map Data public option source/scope candidate recovery and ESC-003 method exhaustion"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-option-source-selector.json",
+      "sha256": "f90a7ff53b43717e6cdded722c5a92d92a687a722f3dd25a21a6b9baf916ab38",
+      "findingId": "LWB-R6-030",
+      "scope": "Native map_data_options/map_summary optional run-scope selector and internal rebuild decision helper"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-sort-direction.json",
+      "sha256": "a3fa24e15b34818756426ae806fc074b5dd0400d7258c2261a0f81fd6b94b0e2",
+      "findingId": "LWB-R6-027",
+      "scope": "Map Data native sort direction literals and distance-desc override"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-sort-inventory.json",
+      "sha256": "ac7a5c2f7d27a36035bc2ea0424ed0db32ffe0781f20eb21b08554e7be4636c5",
+      "findingId": "LWB-R6-026",
+      "scope": "Map Data native sort parser/expression inventory and frontend ordered multi-sort state"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-sort-validation.json",
+      "sha256": "8e9c03f6e83ee716c6a9b2ee3c2b5dd5dabaf0192ff4f5c3b1a9697728c76a6d",
+      "findingId": "LWB-R6-026",
+      "scope": "Validation of the recovered Map Data sort inventory checkpoint"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-summary-error-propagation.json",
+      "sha256": "c1d3be65c765f2df337cdff532e04e0628f3edaa10036ee39385dd20214ff27c",
+      "findingId": "LWB-R6-033",
+      "scope": "Native map_summary scan-state/count error propagation and production fail-closed boundary"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-summary-native-flow.json",
+      "sha256": "dab3482164fbe77bfc655da0ff9c50613ec7a47222273dc85e4d63700a0efcfd",
+      "findingId": "LWB-R6-025",
+      "scope": "Native map_summary server/count/scan-state data flow and fail-closed rebuild boundary"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-record-key-current-runtime-search.json",
+      "sha256": "dcaa1770269455de42c0e07c267fc810dc2f8935209665edca3c7f50f94402d5",
+      "findingId": "LWB-R6-029",
+      "scope": "Current-runtime readable-evidence search for native per-kind map record_key derivation"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-scan-block-checkpoint-infrastructure.json",
+      "sha256": "a27a3200ee9492e78381ea900ef706d19dad9896dfefa1727ea15c72b493d103",
+      "findingId": "LWB-R6-028",
+      "scope": "Restart-safe scan block checkpoint infrastructure over the recovered scan_blocks schema"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-scan-progress-serializer-edge.json",
+      "sha256": "567737004e2e55e2151a0beac3c840e6ad5e61ac06ed623ba17a33e43af0f107",
+      "findingId": "LWB-R6-032",
+      "scope": "Native scanProgress post-query conversion edge and remaining serializer boundary"
+    },
+    {
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-shared-scan-state-producer.json",
+      "sha256": "e7fa3025a2f6848d73a4e8a6df0ec84b5399d883327a66f3c5e497d5968fa56e",
+      "findingId": "LWB-R6-036",
+      "scope": "LWBridge shared map-scan-state producer bridge request order, recovered field normalization, and current-client handoff boundary"
+    }
+  ],
+  "sourceAuthority": {
+    "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "referenceScope": "recorded source identities and committed findings reviewed; no fresh reference-binary analysis in this PM audit",
+    "currentClientScope": "R6-034/035 recorded build-1078 RDL findings; decoder source reviewed/syntax-parsed, not re-executed on installed artifact"
+  },
+  "checks": [
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    {
+      "command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+      "result": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "result": "PASS",
+      "ok": true,
+      "deterministic": {
+        "profileRouting": true,
+        "persistence": true,
+        "requestLifetime": true,
+        "mapPersistence": true,
+        "mapContract": true
+      },
+      "failures": [],
+      "gameRunning": false,
+      "launcherRunning": false
+    },
+    {
+      "command": "python tools/build_lwbridge_frontend.py --check",
+      "result": "PASS"
+    },
+    {
+      "command": "node tools/check_lwbridge_preference_provider.cjs",
+      "result": "PASS",
+      "scenarios": [
+        "bothFail",
+        "failThenSuccess",
+        "successThenFail",
+        "bothSuccess",
+        "recovery"
+      ]
+    },
+    {
+      "command": "node tools/check_lwbridge_live_transport.cjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tools/check_lwbridge_transport_boundary.cjs",
+      "result": "PASS"
+    },
+    {
+      "command": "./tools/check_lwbridge_host_probe.ps1 -RunTerminationFailureSelfTest",
+      "result": "PASS",
+      "terminationFailureReported": true,
+      "bounded": true,
+      "elapsedMs": 158
+    },
+    {
+      "command": "./tools/check_lwbridge_host_probe.ps1",
+      "result": "PASS",
+      "ok": true,
+      "mode": "isolated-native-host-probe",
+      "slowStorageUiResponsive": true,
+      "sessionRotated": true,
+      "startupAutoLaunchSuppressed": true,
+      "userConfigTouched": false,
+      "liveGameCommandsPerformed": false
+    },
+    {
+      "method": "Python ast.parse of tools/inspect*.py sources without importing or executing analyzers",
+      "result": "PASS",
+      "fileCount": 22
+    },
+    {
+      "method": "Compare all task.md A-F acceptance rows against reviewed HEAD",
+      "result": "PASS",
+      "unchangedRows": 47
+    },
+    {
+      "method": "Validate local Markdown link target existence across tracked Markdown plus new audit archive",
+      "result": "PASS",
+      "checkedTargets": 222,
+      "failures": []
+    }
+  ],
+  "pmFindings": [
+    {
+      "id": "PM6-01",
+      "result": "CLOSED; fresh normal/termination-failure checks pass"
+    },
+    {
+      "id": "PM7-01",
+      "result": "Corrected stale source/no-alliance and ESC-003 status descriptions"
+    },
+    {
+      "id": "PM7-02",
+      "result": "Confirmed selector, persisted aggregation, staging publication and block checkpoint helper calls remain tests-only; PM7-A integration task created"
+    },
+    {
+      "id": "PM7-03",
+      "result": "Archived review6/follow-ups; concise current audit/handoffs and ledger; all 47 acceptance rows preserved"
+    }
+  ],
+  "specialistDecisions": {
+    "ESC-001": "CLOSED; resolved clock",
+    "ESC-002": "NEEDS_INFORMATION; method/alternative inventory and permitted specialist value missing",
+    "ESC-003": "NOT_ASSIGNED after PM review; attempt log adequate for decision but no specific permissible specialist approach identified for remaining serializer; reopen on concrete permissible approach/new evidence or target",
+    "ESC-004": "NEEDS_INFORMATION; method/alternative inventory and permitted specialist value missing",
+    "approvedAssignments": []
+  },
+  "regularTasks": [
+    "PM7-A integrate recovered published/staged option/count scopes behind remaining public prerequisites",
+    "PM7-B recover bridge handler/readiness and implement proven authoritative provider",
+    "PM7-C native identity/normalization and smallest scan path with R5 launch/handshake prerequisites",
+    "PM7-D schema/export/sort gaps and specific escalation packets"
+  ],
+  "publicBehaviorChangeInReviewedCommits": "map_summary now throws MAP_INDEX_UNAVAILABLE instead of returning synthetic zero-valued success; no production launch/scan/options/summary/export enabled",
+  "completion": {
+    "kind": "subjective PM planning estimate; not measured live coverage",
+    "combinedPercentRange": [
+      25,
+      30
+    ],
+    "overviewPercentRange": [
+      20,
+      25
+    ],
+    "mapDataPercentRange": [
+      25,
+      35
+    ],
+    "fullAcceptanceSignedOff": 0,
+    "fullAcceptanceTotal": 47,
+    "rangeChanged": false
+  },
+  "limits": [
+    "No live feature acceptance",
+    "No screenshot/pixel parity recapture",
+    "No original reference verifier/disassembly or installed RDL decoder rerun",
+    "No reproduction or rerouting of a denied operation in this audit",
+    "Prior tasks reported some later successful reads; audit does not certify every historical alternative was permitted",
+    "Only comments and a test description changed in source; no executable behavior changed by this PM checkpoint"
+  ],
+  "githubObservationBeforePmCommit": {
+    "remote": "https://github.com/Tuna0307/LW-Control.git",
+    "ref": "refs/heads/research/offline-controller",
+    "commit": "02735690ed8c61c249a997e274a536d4e5f69c53",
+    "command": "git ls-remote --heads origin research/offline-controller"
+  },
+  "delivery": "This evidence records the reviewed implementation. The subsequent PM commit must be pushed and verified; delivery is reported with the final commit, not self-referentially hashed here."
+}

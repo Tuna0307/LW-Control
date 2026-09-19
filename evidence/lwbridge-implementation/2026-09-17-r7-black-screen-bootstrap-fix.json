@@ -1,0 +1,40 @@
+{
+  "findingId": "LWB-R7-022",
+  "date": "2026-09-17",
+  "status": "LIVE-PROVEN",
+  "scope": "Monster protection refactor launch/bootstrap regression",
+  "ownerObservation": "Game window opened black and LWBridge remained Launching game / Disconnected.",
+  "rootCause": {
+    "source": "Player.log",
+    "error": "DataCenter.Global.LuaEntry: attempt to call a nil value (global pump_monster_protection_batch_retry)",
+    "reason": "R7-021 removed the per-batch retry helper but left one stale call in M.Pump(), so the update tick faulted before bridge readiness."
+  },
+  "correction": [
+    "Removed the stale M.Pump reference to pump_monster_protection_batch_retry.",
+    "Added a deterministic source guard that rejects the removed helper reference and requires the replacement unanswered_monster_protection_targets path."
+  ],
+  "validation": {
+    "luaParse": true,
+    "deterministicSuite": {
+      "ok": true,
+      "failures": []
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "packagedLuaMatchesSource": true,
+    "liveLifecycleProof": {
+      "manualLaunchConnected": true,
+      "autoStartConnected": true,
+      "bothClosedCleanly": true,
+      "staleErrorAbsentFromNewLogTail": true
+    },
+    "currentClient": {
+      "contentVersion": 18,
+      "compatibilityOk": true,
+      "recoveryJournalPresent": false
+    }
+  },
+  "remainingGate": "Zombie Boss positive Remaining still requires owner retest after the separate R7-021 deadline extraction fix."
+}

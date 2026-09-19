@@ -1,0 +1,42 @@
+{
+  "findingId": "LWB-R7-031",
+  "status": "LIVE-PROVEN",
+  "date": "2026-09-18",
+  "scope": "Railway/Train-only ordinary Manual Start on the shared full-world scanner",
+  "acceptance": {
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 112.3266952,
+    "publishedRailwayCount": 1,
+    "reopenedRailwayCount": 1
+  },
+  "liveRowCoverage": {
+    "trainTypeRows": 1,
+    "qualityRows": 1,
+    "powerRows": 1,
+    "trainCfgRows": 1,
+    "trainDataRows": 1,
+    "arriveTsRows": 1,
+    "robTimesRows": 1,
+    "marchUuidRows": 1,
+    "protectTimeRows": 1,
+    "maxLootCountRows": 0,
+    "currentGoodsRows": 0,
+    "currentGoodsItems": 0,
+    "currentGoodsAuditableRows": 0
+  },
+  "limits": "The one live Railway row did not expose maxLootCount/currentGoods in this dynamic population. Those fields remain source-backed optional enrichment and no values or reward labels were fabricated.",
+  "postRun": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "compatibilityOk": true,
+    "gameLauncherBridgeProcessesPresent": false,
+    "recoveryJournalPresent": false
+  },
+  "privacy": "Aggregate-only evidence. No player identity, UUID, coordinates, session/challenge identifiers, process identifiers, databases or logs are retained."
+}

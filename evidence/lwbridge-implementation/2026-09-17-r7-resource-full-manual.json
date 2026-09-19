@@ -1,0 +1,60 @@
+{
+  "findingId": "LWB-R7-015",
+  "date": "2026-09-17",
+  "status": "LIVE-PROVEN current-v17 Resource-only ordinary Manual Start complete-world acquisition/publication/reopen",
+  "validatedBaseCommit": "d23530da3a93899f5e7f2ed04586c11d8b004a82",
+  "currentClient": {
+    "contentVersion": 17,
+    "packageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "packageSize": 41293716,
+    "packageCrc32": 2113157353,
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "implementation": {
+    "route": "ordinary production map_scan_start -> ManualMapScanCommandService -> MapScanEngine -> CurrentClientMapBlockSource",
+    "fullWorldPlanner": "Resource joins the existing current-v17 200-request full-world native AOI planner with the exact 10,000/10,000 union gate unchanged",
+    "source": "WorldPointManager._pointInfos filtered to pointType 1/7/26; GetResourcePointInfoByIndex supplies ResPointInfo when available",
+    "resourceFields": "point identity/coordinates/server/world/level/resourceTypeId plus gatherMarchUuid/gatherUid-derived occupancy-known and occupied state",
+    "publication": "same transactional per-kind staging/publication and database reopen path already used by City/Monster"
+  },
+  "liveProof": {
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalLogicalBlocks": 2500,
+    "completedLogicalBlocks": 2500,
+    "failedLogicalBlocks": 0,
+    "unreadLogicalBlocks": 0,
+    "scanWallSeconds": 70.9584005,
+    "publishedResourceCount": 442,
+    "reopenedResourceCount": 442,
+    "resourceTypeCount": 442,
+    "levelCount": 442,
+    "occupancyKnownCount": 442,
+    "occupiedCount": 71,
+    "result": "complete full-world Resource run reached completed, published, and reopened with exact count equality"
+  },
+  "privacy": "aggregate-only durable evidence; no resource point identity, coordinate, owner/player identity, or raw live row is committed",
+  "validation": {
+    "checksReleaseBuild": "0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; all six deterministic groups true; failures=[]",
+    "resourceFullWorldRegression": "offline test requires 200 native responses, 2,500 logical captures, edge-block record placement, resourceTypeId, and source-backed occupancy normalization",
+    "liveRunner": "LWBridge.Desktop.Checks.exe --live-current-client-full-resource-manual exited 0",
+    "postRunCompatibility": "check_current_client_compat.py ok=true; exact current-v17 package/game/xLua/Assembly anchors restored",
+    "finalProcessState": "no LastWar/launcher/updater/sync/LWBridge process remained"
+  },
+  "limits": [
+    "The observed Resource population is dynamic; 442 rows and 71 occupied rows are observations from this run, not fixed invariants.",
+    "This checkpoint proves Resource acquisition/publication/reopen, not the unresolved numeric resourceTypeId -> original public resourceNameKey mapping.",
+    "Truck, Railway/Train, Dispatch/Secret Task, Ghost Ops, Treasure, mixed/all-eight selections, and Auto Scan remain open.",
+    "Native acknowledgement/removal/drain and full original scheduler parity remain separately unrecovered; this checkpoint does not infer them."
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "9c9089cba8a31de8ea3ee4020a0c1b22a3276c62fa17e706631b24d176f861ae",
+    "tools/current_live_resource_probe.lua": "aeb9d9f6006d8683eec279a96a07b10e2f70833c31720ac7e3cb8d49088b0c74",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "d5aa02378b35834cd672da62167c9bc90efe328ce1660b4c42c866f0043dccf2",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullResourceProof.cs": "891a5a2d1c034c31ff45869556e840a6e16a50bf2cd4f8a83a7dc3b27eaca609",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "635018ae47164409d5b4739850b079a479e47ba241347cd8d502be66bd562a44"
+  }
+}

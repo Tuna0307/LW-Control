@@ -1,0 +1,107 @@
+{
+  "currentClient": {
+    "appVersion": "1.0.361",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "build": 1078,
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+  },
+  "id": "LWB-OVL-001",
+  "implementation": {
+    "bridgeVersion": "lwbridge-overview-bridge-1",
+    "closePolicy": "exact owned PID/path revalidation + Process.CloseMainWindow + bounded wait; no broad process-name kill",
+    "failedStartPolicy": "restore exact script triplet and normally close any helper-owned game PID before returning failure; retain recovery journal when cleanup cannot complete",
+    "files": {
+      "evidence/lwbridge-implementation/2026-09-11-ovl-current-ui-contract.txt": {
+        "sha256": "0e8871879f836af0477dca27d5dff5cf5160c42db60ebfc96d50e53cd30d3a8a",
+        "size": 3910
+      },
+      "src/LWBridge.Desktop/CompositeAsyncCommandService.cs": {
+        "sha256": "da00d3f886044c96c95b428ff7df6f2ac552ed24c0e6d5fd4adca0fa8916d2ed",
+        "size": 857
+      },
+      "src/LWBridge.Desktop/LWBridgeBackend.cs": {
+        "sha256": "d26b3341091a2aea5e2cbc4dfe2140cb139d0e6754dcae58c73936b865aa93a0",
+        "size": 24907
+      },
+      "src/LWBridge.Desktop/LWBridgeWindow.cs": {
+        "sha256": "06d7a8b91d5ab58d9df7e299a27e51d753e162930909fb0b91866df985c7e778",
+        "size": 96920
+      },
+      "src/LWBridge.Desktop/OverviewLifecycleService.cs": {
+        "sha256": "8fa826c70d54ab6d3b505c13f182631f34f860602b9b69f72d1da6c2fd056c1c",
+        "size": 30432
+      },
+      "tests/LWBridge.Desktop.Checks/Program.cs": {
+        "sha256": "2107cbadf5f32d6b5763a6350ac2e9e30722292a4fd4648723d75b1e3cbba731",
+        "size": 186268
+      },
+      "tools/current_overview_bridge.lua": {
+        "sha256": "1d20ebcea98f1a35cf2c9042cb352375be7e105f4f1b8d8b38ac8e81cf3ed7ce",
+        "size": 13340
+      },
+      "tools/run_overview_bridge.py": {
+        "sha256": "4c2198b1740eb7ab0028c9819417131314ebcdb1421acb22faa5a01d9a5f67f6",
+        "size": 18359
+      }
+    },
+    "message": "LWbridge is running",
+    "readyRequirements": [
+      "exact profileId",
+      "new sessionId",
+      "new random challenge",
+      "exact owned game PID/path",
+      "fresh game-side heartbeat",
+      "messageVisible=true",
+      "exact message text"
+    ],
+    "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message"
+  },
+  "liveGate": {
+    "bridgeReady": false,
+    "close": false,
+    "launch": false,
+    "messageVisible": false,
+    "reason": "No live current-game run has been performed with this new Overview implementation yet. Offline checks are not promoted to LIVE-PROVEN."
+  },
+  "observedAtUtc": "2026-09-11",
+  "offlineValidation": {
+    "desktopChecks": {
+      "failures": [],
+      "ok": true
+    },
+    "helperCheckOnly": {
+      "candidatePackageSha256": "8056492adfb2ac9750bda4f213c48feac795bb8536d7619b79838cb0bd528dfd",
+      "installedFilesChanged": false,
+      "ok": true
+    },
+    "lifecycleRegressions": [
+      "same-session ready required",
+      "stale heartbeat rejected",
+      "foreign challenge rejected",
+      "duplicate start rejected",
+      "foreign instance close rejected",
+      "close clears ownership",
+      "second start uses a new session and challenge"
+    ],
+    "releaseBuild": {
+      "errors": 0,
+      "ok": true,
+      "warnings": 0
+    }
+  },
+  "originalProtocolBoundary": {
+    "policy": "The delivered Overview route is explicitly an independent rebuild policy reusing the already live-proven current-v14 LuaEntry execution mechanics; it is not labelled recovered original protocol.",
+    "status": "UNKNOWN/BLOCKED for exact original launch-proof/ticket and hello.ack/request-result grammar"
+  },
+  "reference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "schemaVersion": 1,
+  "scope": "Overview Launch -> same-session game-side readiness -> in-game text -> exact owned Close",
+  "startingHead": "cc4bc7788c2502681546cede187a4daee6c0c26a",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "uiRecoveryEvidence": "evidence/lwbridge-implementation/2026-09-11-ovl-current-ui-contract.txt"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-024",
+  "scope": "Map Data public option source/scope candidate recovery and ESC-003 method exhaustion",
+  "evidenceStatus": "RECOVERED static partial; selector condition UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets; preferred-image VAs derived from PE section mapping"
+  },
+  "frontend": {
+    "finding": "LWB-R6-004",
+    "contract": "map_data_options is invoked with only {serverId}; no runId is supplied by the recovered frontend",
+    "implication": "any active-run/staging selection is backend-owned rather than chosen by the frontend"
+  },
+  "nativeStringCluster": {
+    "servicePath": "src\\services\\map_index.rs",
+    "candidatePairs": [
+      {
+        "source": "map_records",
+        "sourceFileOffset": "0x00C82F97",
+        "sourcePreferredImageVa": "0x0000000140C83B97",
+        "scope": "server_id=?1",
+        "scopeFileOffset": "0x00C83021",
+        "scopePreferredImageVa": "0x0000000140C83C21",
+        "structuralReason": "map_records has no run_id column in the recovered schema"
+      },
+      {
+        "source": "scan_records",
+        "sourceFileOffset": "0x00C83015",
+        "sourcePreferredImageVa": "0x0000000140C83C15",
+        "scope": "server_id=?1 AND run_id=?2",
+        "scopeFileOffset": "0x00C8302D",
+        "scopePreferredImageVa": "0x0000000140C83C2D",
+        "runIdLiteralFileOffset": "0x00C8303E",
+        "runIdLiteralPreferredImageVa": "0x0000000140C83C3E",
+        "structuralReason": "scan_records primary key includes run_id and the recovered scope explicitly binds it"
+      }
+    ],
+    "optionSqlStart": {
+      "fileOffset": "0x00C83048",
+      "preferredImageVa": "0x0000000140C83C48",
+      "text": "SELECT alliance_name,COUNT(*) FROM <dynamic source> WHERE kind='city' AND <dynamic scope> ..."
+    },
+    "result": "the two exact source/scope candidates are stored immediately before the recovered option SQL family; the branch that chooses between them is not established by string adjacency alone"
+  },
+  "countHelper": {
+    "sqlFileOffset": "0x00C8935C",
+    "sqlPreferredImageVa": "0x0000000140C89F5C",
+    "sql": "SELECT kind,COUNT(*) FROM <dynamic source> WHERE <dynamic scope> GROUP BY kind",
+    "diagnostics": [
+      "read map counts",
+      "query map counts",
+      "prepare map counts"
+    ],
+    "diagnosticOffsets": [
+      "0x00C893C0",
+      "0x00C893CF",
+      "0x00C893DF"
+    ],
+    "limit": "the raw SQL proves count aggregation is source/scope-parameterized, but it does not prove the map_data_options caller's selector condition or noAllianceCount producer"
+  },
+  "relatedNativeEvidence": {
+    "optionAssemblyFunctionVaRange": [
+      "0x0000000140257AA4",
+      "0x000000014025B436"
+    ],
+    "savedFinding": "LWB-R6-023",
+    "result": "saved bounded disassembly proves treasure option assembly and result-field construction, but the saved evidence does not contain direct references to the newly identified source/scope literal VAs"
+  },
+  "permittedMethodInventory": [
+    {
+      "method": "hash verification and bounded raw-string location using ripgrep 15.2.0",
+      "result": "verified the immutable reference hash and located map_records, scan_records, server_id=?1, server_id=?1 AND run_id=?2 and the option SQL cluster"
+    },
+    {
+      "method": "bounded printable raw-byte reads using Python 3.12.10",
+      "result": "confirmed the source/scope strings are adjacent to the option SQL family without reconstructing missing binary bytes into invented SQL"
+    },
+    {
+      "method": "PE offset-to-VA mapping using pefile 2024.8.26",
+      "result": "derived preferred-image VAs for the exact source/scope/count strings"
+    },
+    {
+      "method": "recovered frontend consumer review",
+      "result": "map_data_options supplies serverId only; no frontend runId/source selector exists"
+    },
+    {
+      "method": "existing persisted-option/count implementation and deterministic tests",
+      "result": "validates recovered SQL families only for map_records as explicit IMPLEMENTATION POLICY; does not establish original source choice"
+    },
+    {
+      "method": "existing saved bounded native option-assembly evidence",
+      "result": "proves result-field/key assembly slices but contains no direct hit for the source/scope candidate VAs"
+    },
+    {
+      "method": "current official-runtime readable-text search",
+      "result": "zero matches for map_data_options, map_records, scan_records, noAllianceCount or scanProgress in the maintained official-runtime evidence/docs/inspector; this LWBridge-local persistence selector is not exposed by those readable current-client artifacts"
+    },
+    {
+      "method": "local runtime-target check",
+      "result": "no LastWar or LWBridge process was running during this checkpoint, so no active-run observation target was available"
+    },
+    {
+      "method": "repository source search",
+      "result": "no recovered map_index.rs or map_scan.rs source file exists in the repository; only original source-path strings are present in the reference binary"
+    }
+  ],
+  "environmentRestrictions": [
+    "SB-06 remains historical: the denied whole-executable source-selector xref inspector was not recreated, retried or rerouted",
+    "SB-11 remains historical: the denied broad saved-evidence search was not replayed",
+    "SB-16 records a separate denied structured PowerShell parse of the already generated R6-023 JSON during this continuation; plain bounded reads remained available and the denied parse contributed no technical finding"
+  ],
+  "result": {
+    "recovered": [
+      "persisted candidate source/scope = map_records + server_id=?1",
+      "staging candidate source/scope = scan_records + server_id=?1 AND run_id=?2",
+      "frontend does not supply runId",
+      "kind counts use a source/scope-parameterized native SQL helper"
+    ],
+    "unknownBlocked": [
+      "the exact condition/state that chooses persisted versus staging source",
+      "which scan run identity is selected when staging is chosen",
+      "exact native noAllianceCount producer SQL and empty/null behavior at the public assembly boundary",
+      "the complete object-assembly order/default/error behavior tying counts/options/scanProgress to the chosen source"
+    ]
+  },
+  "reproduction": [
+    "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256",
+    "rg -a -b -o \"map_records|scan_records|run_id|server_id|SELECT alliance_name|SELECT kind,COUNT\\(\\*\\)\" ..\\LW\\lwbridge-0.3.1.exe",
+    "python -c \"from pathlib import Path; b=Path(r'..\\LW\\lwbridge-0.3.1.exe').read_bytes(); s=13119360; e=13120550; x=b[s:e]; print(''.join(chr(c) if 32<=c<127 else '\\\\n' for c in x))\"",
+    "python -c \"import pefile; pe=pefile.PE(r'..\\LW\\lwbridge-0.3.1.exe',fast_load=True); base=pe.OPTIONAL_HEADER.ImageBase; offs=[0xc82f97,0xc83015,0xc83021,0xc8302d,0xc8303e,0xc83048,0xc8935c]; print('\\n'.join(f'{hex(o)} -> {hex(base+pe.get_rva_from_offset(o))}' for o in offs))\"",
+    "rg -n -S \"map_data_options|map_records|scan_records|noAllianceCount|scanProgress\" evidence\\official-runtime docs\\official-runtime-architecture.md tools\\inspect_official_runtime.py"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "validation": "reference hash verified; raw offsets and derived VAs reproduced; source/scope pairing cross-checked against the recovered SQLite schemas and frontend payload",
+    "limit": "this checkpoint narrows the native selector inputs but does not recover its control-flow decision; map_data_options must remain fail-closed"
+  },
+  "implementationImpact": {
+    "production": "no public UI operation becomes usable in this checkpoint",
+    "classification": "research/test-only checkpoint",
+    "escalation": "ESC-003 now has a concrete permitted-method inventory and a narrowed unresolved question suitable for PM review; no Daybreak task is self-assigned"
+  }
+}

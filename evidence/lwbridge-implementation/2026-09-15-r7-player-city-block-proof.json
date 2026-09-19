@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-005",
+  "date": "2026-09-15",
+  "status": ["LIVE-PROVEN", "IMPLEMENTED/OFFLINE-TESTED"],
+  "scope": "current-v16 arbitrary Player City block coverage with current-view-only zero-row semantics",
+  "officialClient": {
+    "packageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpRdlSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
+  },
+  "candidate": {
+    "packageSha256": "d50dbcba4a5ec9e1c190027a0a91e63a95296ca4f3ee4bf90fcbe9fb7e91a4c6",
+    "bridgeSourceSha256": "d8beadc71c89b4f2ea1c24e15c68a8197be749151588786aa62a72ac41146398"
+  },
+  "liveContext": {"serverId": 2212, "worldId": 0, "tileWidth": 1000, "tileHeight": 1000},
+  "cityContainingBlock": {
+    "targetSource": "sanitized_prior_city_tile",
+    "targetX": 495,
+    "targetY": 40,
+    "blockIndex": 124,
+    "bounds": [480, 40, 499, 59],
+    "recordsInBlock": 1,
+    "cellMatchedCounts": [3, 3, 3, 3]
+  },
+  "emptyCurrentViewBlock": {
+    "blockIndex": 0,
+    "bounds": [0, 0, 19, 19],
+    "recordsInBlock": 0,
+    "cellMatchedCounts": [0, 1, 0, 1],
+    "fallbackAllowed": false,
+    "result": "fresh zero-city AOI cells accepted without PlayerWorldPointId targeted fallback"
+  },
+  "playerTileMetadata": {
+    "status": "unavailable_in_live_context",
+    "proofFallback": "sanitized LWB-PC-001 coordinate only; no identity fields emitted"
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicSuiteOk": true,
+    "luaSyntaxOk": true,
+    "liveProofExitCode": 0,
+    "postRunInstalledFilesChanged": false,
+    "postRunRecovery": null,
+    "postRunGameRunning": false,
+    "postRunLauncherRunning": false
+  },
+  "limits": [
+    "This proves bounded arbitrary Player City block acquisition, not a complete 2500-block run or publication.",
+    "The legacy bounded Player City helper still defaults to its same-server PlayerWorldPointId fallback when the new block-only flag is omitted.",
+    "Native acknowledgement/removal/drain semantics and original XluaBridgeMapScanTick pacing remain unresolved.",
+    "Committed proof contains no player name, UID, alliance identity, or raw City data_json."
+  ]
+}

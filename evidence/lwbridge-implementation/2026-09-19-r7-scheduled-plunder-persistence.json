@@ -1,0 +1,140 @@
+{
+  "evidenceId": "LWB-R7-041",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "53c6a50b2fb57dec81e18338ab919d4b36626e3a",
+  "scope": {
+    "mapPlunderJobsList": "IMPLEMENTED_OFFLINE_TESTED",
+    "truckCancelPersistence": "IMPLEMENTED_OFFLINE_TESTED",
+    "truckSchedule": "FAIL_CLOSED",
+    "truckGameExecution": "UNRECOVERED_CURRENT_V19"
+  },
+  "originalReference": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontend": {
+      "listCommand": "map_plunder_jobs_list",
+      "listEnvelope": ["dispatchJobs", "truckJobs"],
+      "truckScheduleCommand": "map_truck_plunder_schedule",
+      "truckCancelCommand": "map_truck_plunder_cancel",
+      "cancelPayload": ["serverId", "trainUuid"],
+      "scheduleExecuteAtRule": "max(Date.now(), protectTime)"
+    },
+    "truckListSql": {
+      "sources": ["truck_plunder_jobs", "truck_plunder_history"],
+      "union": "UNION ALL",
+      "columns": [
+        "truck_json",
+        "status",
+        "attempts",
+        "last_error",
+        "created_at",
+        "updated_at",
+        "execute_at"
+      ],
+      "ordering": [
+        "scheduled/waiting_connection/running before terminal rows",
+        "execute_at ASC",
+        "updated_at DESC"
+      ]
+    },
+    "dispatchListSql": {
+      "source": "dispatch_plunder_jobs",
+      "columns": [
+        "task_json",
+        "status",
+        "attempts",
+        "last_error",
+        "created_at",
+        "updated_at",
+        "plunder_at"
+      ],
+      "ordering": [
+        "scheduled/waiting_connection/running before terminal rows",
+        "plunder_at ASC",
+        "updated_at DESC"
+      ]
+    },
+    "truckCancelSql": "UPDATE truck_plunder_jobs SET status='cancelled',last_error=NULL,updated_at=?3 WHERE server_id=?1 AND train_uuid=?2 AND status IN ('scheduled','waiting_connection')",
+    "notFound": {
+      "code": "NOT_FOUND",
+      "message": "scheduled truck job not found"
+    },
+    "targetValidationMessage": "truck target is required",
+    "schedulerMetadataFieldsConsumedByFrontend": [
+      "scheduleStatus",
+      "attempts",
+      "lastError",
+      "scheduledAt",
+      "scheduleUpdatedAt",
+      "executeAt"
+    ],
+    "originalInjectedExecutionSeam": {
+      "arm": "armMapPlunder",
+      "clear": "clearMapPlunderPending",
+      "offlineStatus": "waiting_connection",
+      "timeoutError": "server response timeout",
+      "changeEvent": "bridge://truck-plunder-changed"
+    }
+  },
+  "currentV19": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "officialLuaEntryCount": 18734,
+    "officialLuaSearch": {
+      "armMapPlunder": false,
+      "clearMapPlunderPending": false,
+      "mapPlunder": false,
+      "MapPlunder": false
+    },
+    "claimLimit": "The original execution functions were injected bridge functions, not proven current-v19 official Lua APIs. No replacement robbery primitive is claimed."
+  },
+  "implementation": {
+    "storePartial": "src/LWBridge.Desktop/MapDataStore.Plunder.cs",
+    "backendCommands": [
+      "map_plunder_jobs_list",
+      "map_truck_plunder_cancel"
+    ],
+    "combinedList": "Returns persisted Dispatch and Truck jobs; Truck history is included through the recovered UNION ALL query.",
+    "truckCancel": "Only scheduled/waiting_connection rows can transition to cancelled; last_error is cleared.",
+    "scheduleGuard": "map_truck_plunder_schedule remains COMMAND_NOT_IMPLEMENTED."
+  },
+  "deterministicValidation": {
+    "truckActiveAndHistoryOrdering": true,
+    "truckSchedulerMetadataOverlay": true,
+    "dispatchSchedulerMetadataOverlay": true,
+    "combinedBackendEnvelope": true,
+    "eligibleTruckCancel": true,
+    "secondCancelNotFound": true,
+    "cancelPersistsAfterDatabaseReopen": true,
+    "unrelatedDispatchStatePreserved": true,
+    "truckScheduleFailClosed": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "profileRouting": true,
+    "persistence": true,
+    "requestLifetime": true,
+    "mapPersistence": true,
+    "mapContract": true,
+    "bridgeControlPipeContract": true,
+    "gitDiffCheck": true,
+    "currentClientCompatibility": true
+  },
+  "policyNotes": {
+    "invalidTruckTargetCode": "INVALID_TARGET is rebuild policy; only the original message 'truck target is required' was recovered directly.",
+    "cancelSuccessPayload": "null is returned because the recovered frontend ignores the cancel result; no unused result object is invented."
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "marchOrTrainIdsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Recover a current-v19 source-backed replacement for the original injected armMapPlunder/clearMapPlunderPending execution seam.",
+    "Do not enable map_truck_plunder_schedule until authoritative game execution and result reconciliation are proven.",
+    "Live Scheduled Plunder UI acceptance requires a real persisted/scheduled job after execution support exists."
+  ]
+}

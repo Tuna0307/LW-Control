@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM13-006",
+  "date": "2026-09-11",
+  "state": "IMPLEMENTED/OFFLINE-TESTED + NORMAL-WINDOW-SAVED-REOPEN-PROVEN",
+  "baseCommit": "a8c1b73e8bdffb9f2c90e7d0e0404502165dd51a",
+  "scope": "PM13-04 prerequisite: correct real Resource coordinate-cell matching and add a repeatable ordinary-window saved-reopen verifier; no fresh game acquisition",
+  "referenceExecutableSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "recoveredFrontend": {
+    "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "locator": "minified Resource table coordinate renderer in memoized table component `rt`; `.map-coordinate-button` contains icon span + coordinate span + Jump/Follower strong text",
+    "result": "A real Resource coordinate td has raw innerText such as `481,32\\nJump`; treating the full td text as the coordinate is incorrect."
+  },
+  "defect": {
+    "previousPredicate": "PM13-004 ResourceTableSnapshotScript compared the complete first td innerText with `x,y`.",
+    "reproduction": "The ordinary saved-row reopen rendered first-cell text `481,32\\nJump` while the correlated query row was x=481,y=32, causing a false proof rejection.",
+    "impact": "A valid fresh PM13-04 live result could have been rejected even when source/query/render were correct."
+  },
+  "implementation": {
+    "src/LWBridge.Desktop/NormalUiResourceProofContract.cs": "750c31067a6a8c6978ab4623196b8ed44922eed2a843c4ca3dd053cd7dcc27a2",
+    "tools/check_pm13_resource_proof.cjs": "9c8459450693d53a59e44fbd614468d66d6d9871a83ed5e2628e644b05e1ff85",
+    "tools/check_pm13_saved_reopen.cjs": "64642172bbebbd4ebcb68b8cb08cd311cd8c07f01f40a91285526ed616622e3e",
+    "tools/run_pm13_saved_reopen_proof.ps1": "965a77e1a60da89f3a42180553029dda9a45744dfd724c7dc9d07941cdf7d252"
+  },
+  "repair": [
+    "The production snapshot extracts coordinate text from the recovered `.map-coordinate-button span:not(.map-coordinate-icon)` and falls back to td text only when that structure is absent.",
+    "The PM13 browser regression now uses the recovered coordinate-button structure, including visible Jump text, for same-point stale and exact-row cases.",
+    "A new saved-reopen verifier launches the ordinary Release app, selects Resource, clicks the normal Search button, captures the real native map_search payload/result, and requires exact profile/server/record/point/coordinates/level/updatedAt plus rendered coordinate/level/localized-time agreement.",
+    "The verifier accepts a PM13-04 two-read proof directly by selecting its `second` acquisition, so the final live run can be followed by a separate app reopen without changing proof semantics."
+  ],  "historicalSavedReopenValidation": {
+    "sourceFinding": "LWB-PM13-001B",
+    "sourceConfigSha256": "b3792e7004f562e9d090720eae9b714eee2f7d692aa480d45adeb99b3d5ca459",
+    "sourceDatabaseSha256": "29ddb3f162b45d2899d8e89f7241f568b5099f4a8e1aafc36460fcc0ae5c4ff6",
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "serverId": 2212,
+    "recordKey": "32482",
+    "pointIndex": 32482,
+    "coordinates": [481, 32],
+    "level": 3,
+    "updatedAt": 1789033099000,
+    "renderedCoordinateText": "481,32",
+    "renderedRawFirstCell": "481,32\\nJump",
+    "renderedStatus": "Idle",
+    "evidence": {
+      "input": {"path": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-expected.json", "sha256": "761168940666dc266b942e60c70de954447e96628e9178707cef8f965cf6de16"},
+      "result": {"path": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-reopen.json", "sha256": "2ab7b56804d85cdd82356e69a3d3a46d1b54f86adfe1137bd1439c0890c1ffa1"},
+      "screenshot": {"path": "evidence/lwbridge-implementation/pm13-saved-reopen-harness/historical-reopen-reopen.png", "sha256": "8830102d7b10b460c847a7a1f81ed66cc7e72e069903d571a86a16fe1a3dd4c1"}
+    },
+    "cleanup": "After the check the temporary direct-desktop config/profile copy was removed; only the pre-existing Presentation directory remained. LastWar, LastWarLauncher and LWBridge.Desktop were not running.",
+    "classification": "NORMAL-WINDOW SAVED-REOPEN PROVEN for the historical source-backed row; not a fresh acquisition."
+  },
+  "verification": {
+    "frontendRecoveredHashCheck": true,
+    "targetedPm13ResourceProofBrowserCheck": true,
+    "desktopChecks": "passed; ok=true, all six deterministic groups true, real config unchanged",
+    "releaseBuild": "passed; 0 warnings, 0 errors",
+    "pm12RecoveryRegression": true,
+    "pm12SessionIdentityRegression": true,
+    "pm12ScopedCloseRegression": true,
+    "pm13FeedbackBrowserCheck": true,
+    "preferenceProviderFiveScenarios": true,
+    "liveTransportCheck": true,
+    "transportBoundaryCheck": true,
+    "standardBrowserChecks": "35/35 passed with corrected production snapshot source"
+  },  "limits": [
+    "No fresh game/helper acquisition was executed for LWB-PM13-006.",
+    "Historical saved-row verification does not satisfy PM13-04's required two fresh normal-window acquisitions.",
+    "SB-97 remains in force; this checkpoint does not replay or reroute the denied operation.",
+    "Resource naming remains unknown and live Gathering remains unobserved.",
+    "PM13-04 remains ACTIVE/BLOCKED until a permitted fresh Start #1 -> Search/render -> newer Start #2 -> Search/render run is followed by this saved-reopen verifier."
+  ],
+  "implementationImpact": {
+    "pm13_02": "Corrects the coordinate-cell observation used by the proof contract without weakening source/query/timestamp correlation.",
+    "pm13_04": "Removes a false-negative proof defect and provides the exact reopen verifier needed immediately after a permitted two-read live run.",
+    "nextFunction": "Monster remains queued and is not started while PM13-04 is open."
+  }
+}

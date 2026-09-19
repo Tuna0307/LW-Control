@@ -1,0 +1,479 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PC-001",
+  "stage": "complete",
+  "generatedAtUtc": "2026-09-12T21:57:34.5627759+00:00",
+  "implementation": "LWBridge.Desktop LiveResourceProbeCommandService",
+  "mapKind": "city",
+  "source": "current game WorldPointManager._pointInfos after a fresh StartViewRequest/UpdateViewRequest(true) response",
+  "originalPipeClaimed": false,
+  "first": {
+    "status": {
+      "serverId": 2212,
+      "serverIdSource": "current_live_city_probe",
+      "scanRunId": "27695a10954e4fb4b0b4b7983f13d064",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "city"
+      ],
+      "totalBlocks": null,
+      "readBlocks": null,
+      "unreadBlocks": null,
+      "failedBlocks": null,
+      "inflightBlocks": null,
+      "scanMode": "normal",
+      "concurrency": null,
+      "retryCount": null,
+      "scanRate": null,
+      "progressPercent": null,
+      "nativeCaptureReady": null,
+      "nativePendingRecords": null,
+      "nativeDroppedRecords": null,
+      "homeServerId": null,
+      "seasonServerIds": null,
+      "truckMatchServerIds": null,
+      "lastError": null,
+      "liveResourceCapturedAt": 1789250230000,
+      "liveResourceAcquisitionOrdinal": 1
+    },
+    "helper": {
+      "ok": true,
+      "mode": "install_launch_restore",
+      "requestId": "27695a10954e4fb4b0b4b7983f13d064",
+      "profileId": "<active-profile>",
+      "mapKind": "city",
+      "launchSessionId": "08655dcde3404b81b9f1dac163348d08",
+      "gamePid": 21100,
+      "gamePath": "%USERPROFILE%\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-12T21:56:58.1327957Z",
+      "launcherPid": 31704,
+      "probeVersion": "lwbridge-live-resource-probe-2",
+      "resultPath": "%USERPROFILE%\\AppData\\Local\\LWBridgeRebuild\\live-resource\\results\\27695a10954e4fb4b0b4b7983f13d064.json",
+      "result": {
+        "acquisitionOrdinal": 1,
+        "capturedAt": "2026-09-12T21:57:10Z",
+        "cityPointCount": 1,
+        "gamePid": 21100,
+        "launchSessionId": "08655dcde3404b81b9f1dac163348d08",
+        "loadedPointCount": 11,
+        "mapKind": "city",
+        "point_records": [
+          {
+            "health": 8800,
+            "id": 40496,
+            "kind": "player_base",
+            "level": 27,
+            "pointId": 40496,
+            "pointType": 6,
+            "protectEndTime": 0,
+            "runtimeClass": "BuildPointInfo",
+            "serverId": 2212,
+            "source": "WorldPointManager._pointInfos",
+            "srcServerId": 2212,
+            "worldId": 0,
+            "x": 495,
+            "y": 40
+          }
+        ],
+        "probeVersion": "lwbridge-live-resource-probe-2",
+        "profileId": "<active-profile>",
+        "requestId": "27695a10954e4fb4b0b4b7983f13d064",
+        "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+        "responseEvidence": "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+        "schemaVersion": 1,
+        "selectedCityIndex": 1,
+        "source": "WorldPointManager._pointInfos",
+        "state": "proven"
+      },
+      "currentClient": {
+        "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+        "packageSize": 41269242,
+        "packageCrc32": 3541420783,
+        "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+        "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+        "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "entryCount": 18731
+      },
+      "candidate": {
+        "packageSha256": "835bdbf3401fea1f30eb1ecac1a79d97aac8a72218713d617f9e9268d3f2676d",
+        "packageSize": 41276860,
+        "packageCrc32": 2021751780,
+        "probeSourceSha256": "e77529a22045c60da4015659b5741838580cb79860418f0a52d57125f5e0713a",
+        "wrapperPlaintextSha256": "a841318231fdb13a049adfac4404cf9acdde814c930812a86596d909798ae447",
+        "entryCount": 18732
+      },
+      "restore": {
+        "restored": true,
+        "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+        "originalFiles": {
+          "data": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+            "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+            "size": 41269242
+          },
+          "metadata": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+            "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+            "size": 19
+          },
+          "version": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+            "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+            "size": 2
+          }
+        },
+        "restoredFiles": {
+          "data": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+            "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+            "size": 41269242
+          },
+          "metadata": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+            "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+            "size": 19
+          },
+          "version": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+            "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+            "size": 2
+          }
+        },
+        "normalClose": {
+          "method": "Process.CloseMainWindow",
+          "pid": 21100,
+          "path": "%USERPROFILE%\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+          "startedAtUtc": "2026-09-12T21:56:58.1327957Z",
+          "waitMilliseconds": 10000,
+          "accepted": true,
+          "processExited": true
+        }
+      },
+      "gameRunning": false,
+      "installedFilesChanged": false,
+      "interruptedRecovery": null,
+      "resultSha256": "4cc90604f14c5450f9c0bc9318f9dc367d6a7c47114bbff2ef31869dec1b5d3f"
+    },
+    "result": {
+      "acquisitionOrdinal": 1,
+      "capturedAt": "2026-09-12T21:57:10Z",
+      "cityPointCount": 1,
+      "gamePid": 21100,
+      "launchSessionId": "08655dcde3404b81b9f1dac163348d08",
+      "loadedPointCount": 11,
+      "mapKind": "city",
+      "point_records": [
+        {
+          "health": 8800,
+          "id": 40496,
+          "kind": "player_base",
+          "level": 27,
+          "pointId": 40496,
+          "pointType": 6,
+          "protectEndTime": 0,
+          "runtimeClass": "BuildPointInfo",
+          "serverId": 2212,
+          "source": "WorldPointManager._pointInfos",
+          "srcServerId": 2212,
+          "worldId": 0,
+          "x": 495,
+          "y": 40
+        }
+      ],
+      "probeVersion": "lwbridge-live-resource-probe-2",
+      "profileId": "<active-profile>",
+      "requestId": "27695a10954e4fb4b0b4b7983f13d064",
+      "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+      "responseEvidence": "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+      "schemaVersion": 1,
+      "selectedCityIndex": 1,
+      "source": "WorldPointManager._pointInfos",
+      "state": "proven"
+    },
+    "search": {
+      "rows": [
+        {
+          "health": 8800,
+          "id": 40496,
+          "kind": "city",
+          "level": 27,
+          "pointId": 40496,
+          "pointType": 6,
+          "protectEndTime": 0,
+          "runtimeClass": "BuildPointInfo",
+          "serverId": 2212,
+          "source": "WorldPointManager._pointInfos",
+          "srcServerId": 2212,
+          "worldId": 0,
+          "x": 495,
+          "y": 40,
+          "sourceKind": "player_base",
+          "recordKey": "40496",
+          "pointIndex": 40496,
+          "updatedAt": 1789250230000,
+          "marked": false
+        }
+      ],
+      "total": 1
+    }
+  },
+  "second": {
+    "status": {
+      "serverId": 2212,
+      "serverIdSource": "current_live_city_probe",
+      "scanRunId": "78eaa1b353414718b0f1ebd64ff429d6",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "city"
+      ],
+      "totalBlocks": null,
+      "readBlocks": null,
+      "unreadBlocks": null,
+      "failedBlocks": null,
+      "inflightBlocks": null,
+      "scanMode": "normal",
+      "concurrency": null,
+      "retryCount": null,
+      "scanRate": null,
+      "progressPercent": null,
+      "nativeCaptureReady": null,
+      "nativePendingRecords": null,
+      "nativeDroppedRecords": null,
+      "homeServerId": null,
+      "seasonServerIds": null,
+      "truckMatchServerIds": null,
+      "lastError": null,
+      "liveResourceCapturedAt": 1789250251000,
+      "liveResourceAcquisitionOrdinal": 1
+    },
+    "helper": {
+      "ok": true,
+      "mode": "install_launch_restore",
+      "requestId": "78eaa1b353414718b0f1ebd64ff429d6",
+      "profileId": "<active-profile>",
+      "mapKind": "city",
+      "launchSessionId": "8d9372d9f5cf4730a28f285adcc61def",
+      "gamePid": 22800,
+      "gamePath": "%USERPROFILE%\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+      "gameStartedAtUtc": "2026-09-12T21:57:19.5651508Z",
+      "launcherPid": 23096,
+      "probeVersion": "lwbridge-live-resource-probe-2",
+      "resultPath": "%USERPROFILE%\\AppData\\Local\\LWBridgeRebuild\\live-resource\\results\\78eaa1b353414718b0f1ebd64ff429d6.json",
+      "result": {
+        "acquisitionOrdinal": 1,
+        "capturedAt": "2026-09-12T21:57:31Z",
+        "cityPointCount": 1,
+        "gamePid": 22800,
+        "launchSessionId": "8d9372d9f5cf4730a28f285adcc61def",
+        "loadedPointCount": 11,
+        "mapKind": "city",
+        "point_records": [
+          {
+            "health": 8800,
+            "id": 40496,
+            "kind": "player_base",
+            "level": 27,
+            "pointId": 40496,
+            "pointType": 6,
+            "protectEndTime": 0,
+            "runtimeClass": "BuildPointInfo",
+            "serverId": 2212,
+            "source": "WorldPointManager._pointInfos",
+            "srcServerId": 2212,
+            "worldId": 0,
+            "x": 495,
+            "y": 40
+          }
+        ],
+        "probeVersion": "lwbridge-live-resource-probe-2",
+        "profileId": "<active-profile>",
+        "requestId": "78eaa1b353414718b0f1ebd64ff429d6",
+        "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+        "responseEvidence": "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+        "schemaVersion": 1,
+        "selectedCityIndex": 1,
+        "source": "WorldPointManager._pointInfos",
+        "state": "proven"
+      },
+      "currentClient": {
+        "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+        "packageSize": 41269242,
+        "packageCrc32": 3541420783,
+        "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+        "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+        "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "entryCount": 18731
+      },
+      "candidate": {
+        "packageSha256": "835bdbf3401fea1f30eb1ecac1a79d97aac8a72218713d617f9e9268d3f2676d",
+        "packageSize": 41276860,
+        "packageCrc32": 2021751780,
+        "probeSourceSha256": "e77529a22045c60da4015659b5741838580cb79860418f0a52d57125f5e0713a",
+        "wrapperPlaintextSha256": "a841318231fdb13a049adfac4404cf9acdde814c930812a86596d909798ae447",
+        "entryCount": 18732
+      },
+      "restore": {
+        "restored": true,
+        "packageSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+        "originalFiles": {
+          "data": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+            "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+            "size": 41269242
+          },
+          "metadata": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+            "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+            "size": 19
+          },
+          "version": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+            "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+            "size": 2
+          }
+        },
+        "restoredFiles": {
+          "data": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+            "sha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+            "size": 41269242
+          },
+          "metadata": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+            "sha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+            "size": 19
+          },
+          "version": {
+            "path": "%USERPROFILE%\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+            "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+            "size": 2
+          }
+        },
+        "normalClose": {
+          "method": "Process.CloseMainWindow",
+          "pid": 22800,
+          "path": "%USERPROFILE%\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+          "startedAtUtc": "2026-09-12T21:57:19.5651508Z",
+          "waitMilliseconds": 10000,
+          "accepted": true,
+          "processExited": true
+        }
+      },
+      "gameRunning": false,
+      "installedFilesChanged": false,
+      "interruptedRecovery": null,
+      "resultSha256": "cb4f14b955786b92c9d815ed4daff5218a033f04b577ba47f5e96b29ad738c07"
+    },
+    "result": {
+      "acquisitionOrdinal": 1,
+      "capturedAt": "2026-09-12T21:57:31Z",
+      "cityPointCount": 1,
+      "gamePid": 22800,
+      "launchSessionId": "8d9372d9f5cf4730a28f285adcc61def",
+      "loadedPointCount": 11,
+      "mapKind": "city",
+      "point_records": [
+        {
+          "health": 8800,
+          "id": 40496,
+          "kind": "player_base",
+          "level": 27,
+          "pointId": 40496,
+          "pointType": 6,
+          "protectEndTime": 0,
+          "runtimeClass": "BuildPointInfo",
+          "serverId": 2212,
+          "source": "WorldPointManager._pointInfos",
+          "srcServerId": 2212,
+          "worldId": 0,
+          "x": 495,
+          "y": 40
+        }
+      ],
+      "probeVersion": "lwbridge-live-resource-probe-2",
+      "profileId": "<active-profile>",
+      "requestId": "78eaa1b353414718b0f1ebd64ff429d6",
+      "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+      "responseEvidence": "isRecvViewPoints=false->true;hasReceiveViewPointsReply=false->true",
+      "schemaVersion": 1,
+      "selectedCityIndex": 1,
+      "source": "WorldPointManager._pointInfos",
+      "state": "proven"
+    },
+    "search": {
+      "rows": [
+        {
+          "health": 8800,
+          "id": 40496,
+          "kind": "city",
+          "level": 27,
+          "pointId": 40496,
+          "pointType": 6,
+          "protectEndTime": 0,
+          "runtimeClass": "BuildPointInfo",
+          "serverId": 2212,
+          "source": "WorldPointManager._pointInfos",
+          "srcServerId": 2212,
+          "worldId": 0,
+          "x": 495,
+          "y": 40,
+          "sourceKind": "player_base",
+          "recordKey": "40496",
+          "pointIndex": 40496,
+          "updatedAt": 1789250251000,
+          "marked": false
+        }
+      ],
+      "total": 1
+    }
+  },
+  "summary": {
+    "serverId": 2212,
+    "counts": {
+      "city": 1,
+      "resource": 0,
+      "monster": 0,
+      "truck": 0,
+      "railway": 0,
+      "dispatch": 0,
+      "ghost": 0,
+      "treasure": 0
+    },
+    "scanState": {
+      "serverId": 2212,
+      "serverIdSource": "current_live_city_probe",
+      "scanRunId": "78eaa1b353414718b0f1ebd64ff429d6",
+      "isReading": false,
+      "phase": "idle",
+      "selectedTypes": [
+        "city"
+      ],
+      "totalBlocks": null,
+      "readBlocks": null,
+      "unreadBlocks": null,
+      "failedBlocks": null,
+      "inflightBlocks": null,
+      "scanMode": "normal",
+      "concurrency": null,
+      "retryCount": null,
+      "scanRate": null,
+      "progressPercent": null,
+      "nativeCaptureReady": null,
+      "nativePendingRecords": null,
+      "nativeDroppedRecords": null,
+      "homeServerId": null,
+      "seasonServerIds": null,
+      "truckMatchServerIds": null,
+      "lastError": null,
+      "liveResourceCapturedAt": 1789250251000,
+      "liveResourceAcquisitionOrdinal": 1
+    }
+  },
+  "probeOnlineAfterSecond": false,
+  "mapDatabase": "%USERPROFILE%\\AppData\\Local\\LWBridgeRebuild\\profiles\\<active-profile>\\map-data.db",
+  "identityFieldsRedacted": true,
+  "rawIdentityEvidence": "retained locally only under ignored .codex-live; not committed",
+  "localProfileAndUserPathRedacted": true
+}

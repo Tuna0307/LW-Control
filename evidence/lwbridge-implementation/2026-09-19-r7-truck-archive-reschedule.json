@@ -1,0 +1,173 @@
+{
+  "evidenceId": "LWB-R7-044",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "28099cfe19fdfcdb0a3b8cb7aeef69225ef743f5",
+  "scope": {
+    "truckArchivePreviousAttempt": "IMPLEMENTED_OFFLINE_TESTED",
+    "truckRescheduleUpsert": "IMPLEMENTED_OFFLINE_TESTED",
+    "jobIdFormat": "RECOVERED",
+    "originalEntropyGenerator": "NOT_CLAIMED",
+    "publicTruckSchedule": "FAIL_CLOSED",
+    "durableWorker": "PENDING",
+    "liveRobberyAcceptance": "NOT_RUN"
+  },
+  "originalReference": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "scheduleFunction": {
+      "beginVa": "0x14026515B",
+      "endVa": "0x140266840",
+      "size": "0x16E5"
+    },
+    "xrefs": {
+      "resultFields": {
+        "va": "0x14026542C",
+        "raw": "0x00C86663",
+        "fields": ["battleWon", "plunderRewards", "jobId"]
+      },
+      "readPreviousAttemptSql": {
+        "va": "0x14026582A",
+        "raw": "0x00C86698"
+      },
+      "historyInsertSql": {
+        "va": "0x1402660EA",
+        "raw": "0x00C86770"
+      },
+      "scheduleUpsertSql": {
+        "va": "0x140266290",
+        "raw": "0x00C868D0"
+      }
+    },
+    "archiveEligibility": [
+      "succeeded",
+      "failed",
+      "cancelled",
+      "expired"
+    ],
+    "archiveEligibilityDisassembly": {
+      "range": "0x140265CEB-0x140265DAB",
+      "interpretation": "Only the four terminal statuses branch to the archive path; scheduled/waiting_connection/running do not."
+    },
+    "jobId": {
+      "freshFormat": "truck-{unixTimeMilliseconds}-{u64LowerHex}",
+      "freshPrefixRaw": "0x00C86652",
+      "legacyFormat": "legacy-{serverId}-{trainUuid}-{createdAt}",
+      "legacyPrefixRaw": "0x00C86C7B",
+      "legacyInputs": ["server_id", "train_uuid", "created_at"],
+      "jsonBehavior": [
+        "Remove stale battleWon.",
+        "Remove stale plunderRewards.",
+        "Insert fresh jobId before active-row persistence.",
+        "When archiving a terminal legacy row without a string jobId, synthesize the legacy id and insert it into archived truck_json."
+      ],
+      "entropyBoundary": "The second fresh-ID component is formatted as lowercase hexadecimal u64. This checkpoint does not claim the exact original entropy-generator implementation."
+    },
+    "historyInsert": "INSERT INTO truck_plunder_history(job_id,server_id,train_uuid,truck_json,execute_at,status,attempts,last_error,created_at,updated_at) VALUES (...) ON CONFLICT(job_id) DO NOTHING",
+    "scheduleUpsert": {
+      "insertStatus": "scheduled",
+      "insertAttempts": 0,
+      "insertLastError": null,
+      "conflictFieldsUpdated": [
+        "truck_json",
+        "execute_at",
+        "expire_at",
+        "status",
+        "attempts",
+        "last_error",
+        "updated_at"
+      ],
+      "createdAtConflictBehavior": "created_at is intentionally not updated on conflict",
+      "attemptRule": "Preserve attempts only when prior status is scheduled or waiting_connection; otherwise reset to 0.",
+      "runningGuard": "WHERE truck_plunder_jobs.status<>'running'",
+      "verificationFailure": {
+        "code": "MAP_DATA_ERROR",
+        "message": "scheduled truck job is missing"
+      }
+    }
+  },
+  "implementation": {
+    "storeFile": "src/LWBridge.Desktop/MapDataStore.Plunder.cs",
+    "entryPoints": [
+      "ScheduleTruckPlunder",
+      "ScheduleTruckPlunderForTest",
+      "CreateTruckPlunderJobId",
+      "CreateLegacyTruckPlunderJobId"
+    ],
+    "transaction": [
+      "Parse incoming Truck JSON, remove stale result fields and assign a fresh jobId.",
+      "Read the exact prior active row inside one SQLite transaction.",
+      "Archive prior row only if status is succeeded/failed/cancelled/expired.",
+      "Reuse a string prior jobId or synthesize legacy-{server}-{train}-{createdAt}.",
+      "Insert history with ON CONFLICT(job_id) DO NOTHING.",
+      "Run recovered scheduled upsert with conditional attempt preservation and running-row guard.",
+      "Read back and prove exact scheduled status plus fresh jobId before commit.",
+      "Rollback and raise MAP_DATA_ERROR / scheduled truck job is missing if the active row was not replaced."
+    ],
+    "freshEntropyPolicy": "Production uses RandomNumberGenerator.Fill to supply a u64; deterministic tests inject fixed u64 values. Exact original entropy generator is not claimed.",
+    "rebuildOnlyCleanup": "plunderRewardsComplete is also removed because it is rebuild diagnostic state and must not leak into a new attempt."
+  },
+  "deterministicValidation": {
+    "freshIdShape": true,
+    "freshIdNoHexZeroPadding": true,
+    "legacyIdShape": true,
+    "freshSchedule": true,
+    "staleBattleWonRemoved": true,
+    "stalePlunderRewardsRemoved": true,
+    "waitingConnectionDoesNotArchive": true,
+    "waitingConnectionPreservesAttempts": true,
+    "conflictPreservesCreatedAt": true,
+    "terminalArchivesPreviousAttempt": true,
+    "terminalRescheduleResetsAttempts": true,
+    "historyPreservesPreviousResult": true,
+    "legacyMissingJobIdGetsFallback": true,
+    "runningReplacementFails": true,
+    "runningReplacementRollsBack": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSuite": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "currentV19Validation": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "contentVersion": 19,
+    "checkOnlyCandidate": {
+      "ok": true,
+      "installedFilesChanged": false,
+      "packageSha256": "8fb5b1285bc610b87df6685dc198d20a177dfb06d2120126812d1a5e8f499fbb",
+      "packageSize": 41356755,
+      "packageCrc32": 2823672389,
+      "bridgeSourceSha256": "5f3c69219ab7c4dd9896d16d9eb42d04b1af7dc0eefc527edf2dde37db965591",
+      "wrapperPlaintextSha256": "3c70dbeccfec6b709cb2118433b149394040d18d56e424b353a7a13beca4121d",
+      "entryCount": 18735
+    }
+  },
+  "safety": {
+    "publicMapTruckPlunderScheduleEnabled": false,
+    "liveRobberyAttempted": false,
+    "officialPackageChanged": false,
+    "automaticRetryAfterAmbiguousSendEnabled": false
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "marchOrTrainIdsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Implement durable single-owner Truck worker state transitions.",
+    "Recover and reproduce running/waiting_connection/restart/offline state ownership around the one-shot current-v19 executor.",
+    "Persist terminal rejection/failure/ambiguous outcomes without allowing an ambiguous post-send retry.",
+    "Add change notification semantics expected by the Scheduled Plunder frontend.",
+    "Only then expose map_truck_plunder_schedule."
+  ]
+}

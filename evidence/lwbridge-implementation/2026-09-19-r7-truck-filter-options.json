@@ -1,0 +1,83 @@
+{
+  "evidenceId": "LWB-R7-048",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "24cf097046fd693c7963be9bac1d6cc37413945f",
+  "scope": {
+    "feature": "current-v19 Truck result filters/options fidelity",
+    "liveProven": true,
+    "readOnly": true,
+    "robberyOrConsumingAction": false
+  },
+  "recoveredContracts": {
+    "frontendEffectiveMaxLoot": "isSpecialURQuality ? 1 : positive maxLootCount",
+    "frontendFullState": "robTimes >= effectiveMaxLoot",
+    "nativeRemainingLootField": "remainingLootCount",
+    "rewardOptionSource": "currentGoods rows with source-backed name/icon metadata",
+    "rewardMetadataManagers": [
+      "DataCenter.ItemTemplateManager",
+      "DataCenter.RewardManager"
+    ]
+  },
+  "failureFirstFindings": [
+    {
+      "stage": "plunderableOnly",
+      "observed": 317,
+      "frontendExpected": 304,
+      "rootCause": "special-UR/reindeer effective max is 1 while fallback maxLootCount remained generic"
+    },
+    {
+      "stage": "map_data_options retained items",
+      "observedOptions": 0,
+      "rootCause": "R7-047 preserved reward type/item/count but option SQL requires source-backed currentGoods.name"
+    }
+  ],
+  "implementation": {
+    "remainingLootCount": "post-acquisition derived as max(effectiveMaxLoot - max(robTimes,0),0)",
+    "specialUrEffectiveMaxLoot": 1,
+    "rewardDisplayMetadata": "resolved read-only from ItemTemplateManager/RewardManager and cached by rewardType:itemId",
+    "truckFullTrainDataJson": "still absent; ToJson/GetDump remains Railway-only",
+    "hostRewardAggregation": "post-acquisition on final deduplicated Truck rows"
+  },
+  "finalLiveProof": {
+    "totalBlocks": 2500,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "scanWallSeconds": 131.0586879,
+    "publishedTruckCount": 435,
+    "reopenedTruckCount": 435,
+    "trainDataCount": 0,
+    "currentGoodsRowCount": 435,
+    "currentGoodsItemCount": 3207,
+    "maxLootCountCount": 435,
+    "remainingLootCountCount": 435,
+    "specialUrCount": 20,
+    "ordinaryUrFilterCount": 325,
+    "reindeerFilterCount": 20,
+    "plunderableFilterCount": 415,
+    "rewardOptionCount": 18,
+    "sampleItemKey": "reward:7:600002",
+    "itemFilterCount": 283
+  },
+  "validation": {
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroups": [
+      "profileRouting",
+      "persistence",
+      "requestLifetime",
+      "mapPersistence",
+      "mapContract",
+      "bridgeControlPipeContract"
+    ],
+    "deterministicFailures": 0,
+    "currentClientCompatibilityBefore": "exact v19 PASS",
+    "currentClientCompatibilityAfter": "exact v19 PASS",
+    "postProofProcesses": "LastWar/Launcher absent"
+  },
+  "limits": [
+    "non-updatedAt Truck sort composition remains separately gated by unrecovered native multi-sort/null-order semantics",
+    "no live robbery/attack/collection/consuming action was used"
+  ]
+}

@@ -1,0 +1,12 @@
+﻿{
+  "ok": true,
+  "checks": {
+    "secondSessionWithoutSearchRejected": true,
+    "uncorrelatedOrMismatchingSecondEvidenceRejected": true,
+    "fileOrderAndPidReuseCannotSelectOldProof": true,
+    "distinctValidSecondSessionCanPass": true,
+    "processObservationFailureAndEmptySeparated": true,
+    "missingOrMalformedCurrentSessionEvidenceRejected": true,
+    "appOrEvidenceFailureAfterPriorSuccessRejected": true
+  }
+}

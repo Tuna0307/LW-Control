@@ -1,0 +1,33 @@
+{
+  "findingId": "LWB-R6-012",
+  "date": "2026-09-08",
+  "scope": "LWBridge 0.3.1 Map Data backend ordinary-quality branch",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets"
+  },
+  "reproduction": {
+    "readOffset": "0x00C89E20",
+    "readLength": "0xC0",
+    "method": "read-only bounded binary read rendered as printable ASCII"
+  },
+  "locators": {
+    "qualityField": "0x00C89E59",
+    "specialUrExclusionPredicate": "0x00C89E60",
+    "nextItemKeyField": "0x00C89EAF"
+  },
+  "predicate": "COALESCE(CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0",
+  "recovered": [
+    "ordinary quality matching explicitly excludes nonzero isSpecialURQuality rows"
+  ],
+  "unknownBlocked": [
+    "numeric ordinary-quality comparison and parameter binding",
+    "whether ordinary ur uses equality to 5, >=5, another range, or another transformation"
+  ],
+  "implementationImpact": {
+    "productionQualityFilterChanged": false,
+    "reason": "numeric ordinary-quality binding remains unrecovered; keep MAP_QUERY_UNRECOVERED fail-closed"
+  },
+  "validation": "RECOVERED static bounded read; not LIVE-PROVEN"
+}

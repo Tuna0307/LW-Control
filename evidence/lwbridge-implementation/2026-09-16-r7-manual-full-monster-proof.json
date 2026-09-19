@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-010",
+  "capturedAtUtc": "2026-09-16T06:29:03Z",
+  "officialLuaPackageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+  "officialXluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+  "baseAssemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+  "candidateLuaPackageSha256": "5b9d97f19417e1156ad125e278cb6bd522d2536be28061b44c68df0839f286cc",
+  "probeSourceSha256": "1d8938c6c76dc07d94dfae8f70bce3f0b5e568c45e53165b5728957210284b59",
+  "productionManualStart": {
+    "result": "live_proven",
+    "selectedKind": "monster",
+    "logicalBlocks": 2500,
+    "failedBlocks": 0,
+    "requiredAoiUnion": 10000,
+    "primaryNativeRequests": 250,
+    "publishedMonsters": 6934,
+    "reopenedMonsters": 6934,
+    "scanWallSeconds": 71.161414,
+    "processExitCode": 0
+  },
+  "sourceContract": {
+    "collection": "WorldScene.MarchDataManager.GetAllMarchesByCS",
+    "classification": "game-owned IsMonsterOrBoss with IsMonster/IsBoss validation",
+    "configLookup": "DataCenter.MonsterTemplateManager.TryGetMonsterTemplate(monsterId)",
+    "normalizedFields": [
+      "uuid",
+      "coordinates",
+      "monsterId",
+      "monsterNameKey",
+      "level",
+      "configType",
+      "configSpecial",
+      "configBoss",
+      "HP/lifetime/rally fields when present"
+    ]
+  },
+  "privacy": "No monster UUIDs, coordinates, raw records, player identities, session challenge or request identifiers are stored in this evidence file.",
+  "limits": [
+    "Live Monster counts are not a fixed invariant; full AOI coverage plus zero failed blocks and publish/reopen equality is the acceptance invariant.",
+    "This finding promotes Monster acquisition/publication, including normal monsters and bosses, not only Zombie Invasion event entities.",
+    "Readable display names still depend on the separate lastwar_localize presentation path.",
+    "Resource, Truck, Railway, Dispatch, Ghost, Treasure, mixed selections and all-eight acceptance remain open.",
+    "No raw live map dataset is committed."
+  ]
+}

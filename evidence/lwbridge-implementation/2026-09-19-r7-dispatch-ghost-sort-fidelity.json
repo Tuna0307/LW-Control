@@ -1,0 +1,121 @@
+{
+  "evidenceId": "LWB-R7-053",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "34b4ebf8a88d308995aa79d80277a4c297ba980e",
+  "scope": {
+    "feature": "current-v19 Dispatch/Ghost alternate sort fidelity",
+    "dispatchLiveProven": true,
+    "ghostPositiveRowLiveProven": false,
+    "ghostPositiveRowLiveProofDeferredUntil": "2026-09-24",
+    "readOnly": true,
+    "stateChangingActions": false
+  },
+  "staticRecovery": {
+    "originalBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendMapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "dispatchSortKeys": ["level", "quality", "completionTime", "updatedAt"],
+    "ghostSortKeys": ["level", "quality", "completionTime", "updatedAt"],
+    "levelExpression": "level",
+    "qualityExpression": "CASE WHEN CAST(json_extract(data_json,'$.isSpecial') AS INTEGER)=1 THEN 100 ELSE quality END",
+    "completionTimeExpression": "NULLIF(CAST(json_extract(data_json,'$.completionTime') AS INTEGER),0)",
+    "updatedAtExpression": "updated_at",
+    "orderedMultiSort": true,
+    "nullOrder": "nulls last for ASC and DESC",
+    "stableTieBreak": "record_key ASC",
+    "defaultSort": "updatedAt desc",
+    "verifier": "tools/inspect_lwbridge_dispatch_ghost_sort_assembly.py",
+    "verifierResult": "PASS"
+  },
+  "implementation": {
+    "contract": "Dispatch/Ghost accept ordered unique subsets of the four recovered public keys",
+    "queryContract": "src/LWBridge.Desktop/MapDataQueryContract.cs",
+    "store": "src/LWBridge.Desktop/MapDataStore.cs",
+    "liveComparator": "tests/LWBridge.Desktop.Checks/DispatchGhostSortProofHelper.cs",
+    "dispatchProof": "tests/LWBridge.Desktop.Checks/LiveManualFullDispatchProof.cs",
+    "ghostProof": "tests/LWBridge.Desktop.Checks/LiveManualFullGhostProof.cs"
+  },
+  "deterministicAcceptance": {
+    "allSixSuites": "PASS",
+    "failures": 0,
+    "coverage": [
+      "all four public keys accepted for Dispatch and Ghost",
+      "duplicate and unknown keys rejected",
+      "ASC and DESC for level, quality, completionTime and updatedAt",
+      "isSpecial=true uses effective quality 100",
+      "completionTime zero becomes NULL",
+      "nulls-last behavior in both directions",
+      "ordered multi-sort precedence",
+      "stable record-key ties",
+      "pagination and database reopen"
+    ]
+  },
+  "failureFirstLiveAttempt": {
+    "result": "scan acquisition failure before sort verification",
+    "phase": "scanning",
+    "readBlocks": 0,
+    "failedBlocks": 1,
+    "unreadBlocks": 2498,
+    "checkpoints": 1,
+    "secondAttempts": 1,
+    "preservedProbeError": "bulk_aoi_response_timeout",
+    "requestedAoiCount": 40,
+    "netSendCount": 2,
+    "netReceiveCount": 0,
+    "responseFlagsTransitioned": false,
+    "elapsedSeconds": 8.006,
+    "interpretation": "whole-world Fast AOI request was queued but no view response arrived; sorting was never reached and no sort gate was weakened"
+  },
+  "finalDispatchLiveProof": {
+    "proof": "ordinary_manual_start_full_dispatch",
+    "totalBlocks": 2500,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "scanWallSeconds": 145.41264,
+    "publishedDispatchCount": 386,
+    "reopenedDispatchCount": 386,
+    "sortComparedRowCount": 386,
+    "specialSortValueCount": 20,
+    "completionSortValueCount": 380,
+    "sortCheckCount": 9,
+    "reopenedSortCheckCount": 9,
+    "totalLiveSortAssertions": 18,
+    "processExitCode": 0
+  },
+  "ghostLiveStatus": {
+    "classification": "RECOVERED/IMPLEMENTED/OFFLINE-TESTED; positive-row live proof pending",
+    "reason": "owner availability/time-window constraint",
+    "resumeDate": "2026-09-24",
+    "blockingR7053Closure": false
+  },
+  "validation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "staticVerifier": "PASS",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "ownerEvidenceCollectorSelfTest": "PASS",
+    "ownerEvidenceCollectorChecks": "PASS; seven checks true",
+    "preferenceProvider": "PASS",
+    "liveTransport": "PASS; missing-native boundary",
+    "transportBoundary": "PASS",
+    "terminationFailureHostSelfTest": "PASS; bounded=true",
+    "isolatedHostProbe": "PASS",
+    "userConfigTouched": false,
+    "liveGameCommandsPerformed": false,
+    "currentClientCompatibility": "exact v19 PASS",
+    "postProofGameRunning": false,
+    "postProofLauncherRunning": false
+  },
+  "currentClientIdentity": {
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "safety": {
+    "stateChangingGameActionsPerformed": false,
+    "attacksOrRobberyPerformed": false,
+    "claimsOrCollectionsPerformed": false,
+    "messagesSent": false
+  }
+}

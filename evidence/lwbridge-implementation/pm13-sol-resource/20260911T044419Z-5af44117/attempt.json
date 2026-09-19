@@ -1,0 +1,70 @@
+{
+  "attemptId": "20260911T044419Z-5af44117",
+  "observedStartUtc": "2026-09-11T04:44:19Z",
+  "build": {
+    "commit": "9c20896b64b32580c5c4a0d29a52bc7a2e968b04",
+    "implementationCommit": "7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d",
+    "branch": "research/offline-controller",
+    "executableSha256": "5af44117052b12beb0a34ff1f13effb63f313669890202c0b36d99ffb1eb206f"
+  },
+  "client": {
+    "appVersion": "1.0.361",
+    "build": 1078,
+    "luaVersion": 14,
+    "luaFileVersion": 3,
+    "luaSize": 41269242,
+    "luaCrc32": 3541420783,
+    "luaSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblySha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "profile": {
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "configPath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\config.json",
+    "databasePath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\profiles\\local-bd7b2533b1a146bca0aba9efb193a4a2\\map-data.db",
+    "gameRootInConfig": null,
+    "detectedOfficialRoot": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game"
+  },
+  "computerUse": {
+    "provider": "@oai/sky via node_repl",
+    "windowTitle": "lwbridge",
+    "uniqueTarget": true,
+    "accessibilityIndexClickLimitation": "coordinate input geometry is unavailable",
+    "coordinateNavigationWorked": true
+  },
+  "steps": {
+    "exactBuildClientProcessRecoveryPreflight": "PASS",
+    "supportedNativeComputerUseAndUniqueTarget": "PASS",
+    "sb97FreshNormalWindowResourceStart": "BLOCKED",
+    "firstFreshResourceStartSearchRender": "NOT_RUN",
+    "secondDistinctNewerAcquisitionSearchRender": "NOT_RUN",
+    "sameProfileReopenSearchRetention": "NOT_RUN",
+    "restorationProcessHelperProfileIntegrity": "PASS"
+  },
+  "firstFailure": {
+    "step": "SB-97 / fresh normal-window Resource Start permission check",
+    "result": "BLOCKED",
+    "actionAttempted": "native Computer Use get_window_state immediately before Start",
+    "startSent": false,
+    "platformMessage": "This tool call was blocked by OpenAI because we couldn't determine the safety status of the request."
+  },
+  "evidence": {
+    "preflight": "preflight.json",
+    "runtime": "official-runtime.json",
+    "launchProfile": "step0-launch-profile.json",
+    "preexistingResourceDb": "preexisting-resource-row.json",
+    "prestart": "step1-prestart.json",
+    "poststate": "blocked-poststate.json"
+  },
+  "cleanup": {
+    "candidateClosedNormally": true,
+    "closeMethod": "Computer Use @oai/sky Alt+F4",
+    "targetWindowsAfterClose": 0
+  },
+  "limitations": [
+    "No fresh Resource Start was sent.",
+    "No source/request/store/query/render correlation exists for a fresh acquisition.",
+    "The pre-Start direct profile DB contained zero resource_point rows; the visible Resource 1 badge was not treated as fresh evidence."
+  ],
+  "nextOwner": "ChatGPT Web receives the first blocked step/evidence; PM decision is required because the blocker is external rather than a code defect."
+}

@@ -1,0 +1,87 @@
+{
+  "findingId": "LWB-PM-REVIEW-010",
+  "date": "2026-09-10",
+  "reviewedCommit": "01f139d59f0301a92bf27dba70a3ac5c9ebb6aea",
+  "branch": "research/offline-controller",
+  "scope": "source/code audit and independently reproduced saved replay; no fresh game acquisition",
+  "checks": {
+    "releaseBuild": {
+      "exitCode": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    "backendDeterministic": {
+      "ok": true,
+      "groups": [
+        "profileRouting",
+        "persistence",
+        "requestLifetime",
+        "mapPersistence",
+        "mapContract"
+      ]
+    },
+    "frontendIntegrity": true,
+    "preferences": true,
+    "liveTransportMissingNative": true,
+    "transportBoundary": true,
+    "replayExitCode": 0,
+    "originalCaptureHashMatches": true,
+    "excerptRecordAndTimestampMatchOriginal": true,
+    "originalRecordCount": 15293,
+    "originalResourceCount": 8000,
+    "acceptanceCasesPreserved": 47,
+    "localMarkdownLinksVerified": 221
+  },
+  "replay": {
+    "view": "map-data",
+    "errors": [
+      "map_plunder_jobs_list: COMMAND_NOT_IMPLEMENTED Command 'map_plunder_jobs_list' is not implemented by the production backend yet.",
+      "map_data_options: MAP_INDEX_UNAVAILABLE Map data options are unavailable before the production map index is initialized."
+    ],
+    "commands": [
+      "set_window_theme",
+      "server_jump_history_import",
+      "update_status",
+      "game_root_status",
+      "get_status",
+      "proxy_status",
+      "game_recovery_status",
+      "automation_status",
+      "resource_automation_status",
+      "map_summary",
+      "profile_list",
+      "get_status",
+      "get_status",
+      "map_plunder_jobs_list",
+      "map_search",
+      "map_data_options",
+      "append_log",
+      "append_log",
+      "map_search",
+      "lastwar_localize",
+      "lastwar_localize"
+    ],
+    "text": "LW\nlwbridge\nv0.3.1-rebuild\nGame stopped\nPending tasks\n0\nLanguage\nEnglish\nChinese (Simplified)\nChinese (Traditional)\nJapanese\nKorean\nVietnamese\nIndonesian\n\u0420\u0443\u0441\u0441\u043a\u0438\u0439\nPortugu\u00eas\nCross-server \u00b7 2212\nRefresh Status\nNavigation\nHome\nAutomation\nMap Data\nSquads / AFK\nCity Layout\nHotkeys\nMini Games\nSettings\nManual Scan\nAuto Scan\nWorld Map Data\nNormal\nFast\nStart Scan\nStop\nClear Map Data\nStopped\nServer 2212\n0%\nScan contents\nPlayer City\nResource Point\nMonster\nTruck\nTrain\nSecret Task\nGhost Ops\nTreasure\nCity\n0\nResource\n1\nMonster\n0\nTruck\n0\nTrain\n0\nSecret Task\n0\nGhost Ops\n0\nTreasure\n0\nScheduled Plunder\n0\nAll Names\nSearch\n1 items\nCoordinates\tResource\tLevel\n\tStatus\tUpdated At1\n\n\n5,1\nJump\n\tUnknown resource\t3\t\u2014\t9/10/2026, 3:02:27 AM"
+  },
+  "openFindings": [
+    "PM10-01",
+    "PM10-02",
+    "PM10-03"
+  ],
+  "liveAcquisitionRepeated": false,
+  "gameLaunchedOrControlled": false,
+  "installedLuaRehashedThisAudit": false,
+  "newFullAcceptanceCases": 0,
+  "daybreakAssigned": false,
+  "reproduction": [
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release",
+    "python tools/build_lwbridge_frontend.py --check",
+    "node tools/check_lwbridge_preference_provider.cjs",
+    "node tools/check_lwbridge_live_transport.cjs",
+    "node tools/check_lwbridge_transport_boundary.cjs",
+    "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe --view map-data --language en --theme light --capture .codex-live/pm-review-10/resource.png --first-live-result evidence/lwbridge-implementation/2026-09-10-first-live-resource-capture.json"
+  ],
+  "sourceCaptureSha256": "6447d30f373a76fbfe416a894546f8797ea71e20e44d9f06d3bfd61cd367cbce",
+  "sourceEvidence": "evidence/lwbridge-implementation/2026-09-10-first-live-resource-source.json"
+}

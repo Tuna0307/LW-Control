@@ -1,0 +1,86 @@
+{
+    "findingId":  "LWB-PM16-003",
+    "date":  "2026-09-12",
+    "scope":  "PM16-03 evidence/document reconciliation for review-16 O01/O06 corrections",
+    "status":  "DOCUMENTATION_RECONCILED; READY_FOR_PM_REVIEW",
+    "correctedCodeRevision":  "c3d77e272bbd47a6bf59188a975bf0813caec8fd",
+    "correctedCodeCi":  {
+                            "workflow":  "LWBridge build and recovery checks",
+                            "runId":  34696597174,
+                            "headSha":  "c3d77e272bbd47a6bf59188a975bf0813caec8fd",
+                            "conclusion":  "success"
+                        },
+    "priorPm16_02":  {
+                         "revision":  "9f181941c73b0b5b99e1640137c51d1063c3302e",
+                         "runId":  34690077820,
+                         "conclusion":  "success"
+                     },
+    "correctedBuildIdentity":  {
+                                   "exeSha256":  "fc8b3f140b3441e814d9d3d51dd285d77814ec35422b7181ac992be33d1acdb0",
+                                   "dllSha256":  "846ab46fe49b1cc24591d6f5f6aa4288a0a2efe871c1271d955e815c7e94aa2d",
+                                   "overviewHelperSha256":  "103224b89fb972ff82b75c6be925ce40054a5d1a197d045d51c7d7bfba79410e",
+                                   "scope":  "Fresh local Release build of corrected code revision c3d77e2 produced during PM16-03 validation. CI 34696597174 verifies the exact source revision; no claim is made that CI emitted byte-identical local binaries."
+                               },
+    "o01Disposition":  "PM16-01 corrected/offline-tested under LWB-PM16-002: validated selection and lifecycle root now move together only at a stopped journal-free boundary; active/recovery/repair ownership cannot retarget; invalid root cannot match an arbitrary same-named process.",
+    "o06Disposition":  "PM16-02 corrected/offline-tested under LWB-PM16-001: durable process-incarnation identity is required across repair/close/recovery; replacement or unknown identity fails closed. Existing successful live repair evidence remains credited within its recorded scope.",
+    "ovr012Reproduction":  {
+                               "sourceOriginal":  "../LW/lwbridge-0.3.1.exe",
+                               "sourceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+                               "method":  "Reuse of already-saved Capstone/pefile disassembly outputs; no new binary experiment",
+                               "toolVersions":  {
+                                                    "python":  "3.12.10",
+                                                    "capstone":  "5.0.7",
+                                                    "pefile":  "2024.8.26"
+                                                },
+                               "historicalGeneratorCommand":  "UNAVAILABLE in durable notes; not reconstructed or guessed",
+                               "durableExcerpt":  "evidence/lwbridge-implementation/2026-09-12-overview-repair-contract-saved-disassembly.txt",
+                               "durableExcerptSha256":  "322e7a634ec7ecd664061cf7229731a5bb0718bda6a89b7e4802ad43035ca4f3",
+                               "savedArtifactHashes":  {
+                                                           "abi-select-fn.txt":  "ccc0d394db6903e04e1274fd948bdfcc4776c15fd223227e8ec767694e444199",
+                                                           "proxy-select-fn.txt":  "ded9ed32953fe4572311eab9a6f83909d673df17db76b6aa0d6d21275a193fc9",
+                                                           "repair_command_mid.txt":  "6d88e5550401302e04d17a2b0388aa6fc31fa46a992acb0857bf550f9932b916",
+                                                           "repair_command_tail.txt":  "9e49eb731d658154e5ea69fbf4367c71f92ff7095029b4dab5034ec816d680cc",
+                                                           "api-ClPPi2JT.js":  "bfebc6cab4a4c36bae667b8d028bf1ebc7b9f8bdb769b3154809ba26e920647d",
+                                                           "index-sfL2sT3K.js":  "cb05a5935087524375fb0fa6400b297d5cfbf415528adc98b9a0383cf8d50963"
+                                                       }
+                           },
+    "focusedValidation":  {
+                              "frontendRecoveredHashes":  true,
+                              "releaseBuild":  "0 warnings / 0 errors",
+                              "desktopDeterministic":  "ok=true; failures=[]",
+                              "overviewHelperLifecycle":  "pass",
+                              "ownerEvidenceCollector":  "pass",
+                              "preferenceProvider":  "pass",
+                              "nativeHostProbe":  "pass including termination-failure self-test",
+                              "liveTransportBoundary":  "pass",
+                              "transportBoundary":  "pass",
+                              "diffCheck":  "pass except Git line-ending notices",
+                              "realGameTouched":  false
+                          },
+    "validationCommands":  [
+                               "python tools/build_lwbridge_frontend.py --check",
+                               "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release",
+                               "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release",
+                               "python tools/test_overview_bridge_lifecycle.py",
+                               "python tools/check_owner_resource_evidence_collector.py",
+                               "node tools/check_lwbridge_preference_provider.cjs",
+                               "pwsh -NoProfile -File tools/check_lwbridge_host_probe.ps1 -RunTerminationFailureSelfTest",
+                               "pwsh -NoProfile -File tools/check_lwbridge_host_probe.ps1",
+                               "node tools/check_lwbridge_live_transport.cjs",
+                               "node tools/check_lwbridge_transport_boundary.cjs",
+                               "git diff --check"
+                           ],
+    "remainingGaps":  [
+                          "S02 pending-task counter exact original semantics remain UNKNOWN/BLOCKED",
+                          "S03 full runtime Refresh Status remains partial; recovered call_lua(\"getStatus\") operation is not implemented in production dispatch",
+                          "S06 authoritative cross-server travel remains unimplemented",
+                          "S05 game-derived localization remains consumer-scoped; no blanket full-parity claim",
+                          "Protected-original bootstrap parity, broader event/update live coverage, and the 47-case release matrix remain separate"
+                      ],
+    "limits":  [
+                   "No new game run was requested or performed for PM16-03.",
+                   "Historical successful Launch/message/Close, startup/reconnect and repair evidence is preserved within its recorded scope; PM16-01/02 add offline negative-edge coverage rather than a new owner live acceptance.",
+                   "The historical command that generated the saved LWB-OVR-012 disassembly outputs was not durably recorded, so PM16-03 preserves hashes, versions and excerpts instead of inventing a command.",
+                   "Whole Overview is not claimed 100% complete. Player City, Map Data and cross-server implementation were not started."
+               ]
+}

@@ -1,0 +1,96 @@
+LWB-R6-048 current-client world-point identity surface
+
+Source: installed build-1078 Assembly-CSharp.rdl
+SHA-256: 871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd
+RGMD root: 0x9a88a8; TypeDef=5828; MethodDef=54474
+Tool: tools/inspect_lastwar_rdl_metadata.py (read-only RG/RGMD metadata/CIL parser)
+
+Reproduction:
+  python tools\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl --method WorldPointManager::GetWorldTileInfo
+  python tools\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl --method WorldPointManager::GetPointInfoByUuid
+  python tools\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl --method WorldPointManager::GetResourcePointInfoByIndex
+  python tools\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl --type Protobuf.WorldPointInfo
+  python tools\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\FunFly\Last War-Survival Game\Game\LastWar_Data\Assemblies\Assembly-CSharp.rdl --type ResPointInfo
+
+A later combined references-to-type/wrapper query and a later broader WorldPointManager field-inventory query were rejected by automatic safety review and were not replayed or rerouted.
+
+=== get-world-tile-info.txt ===
+RGMD=0x9a88a8 TypeDef=5828 MethodDef=54474
+METHOD 13619 WorldPointManager::GetWorldTileInfo RVA 0x1555a0: WorldTileInfo(int32 pointIndex)
+  IL_000c: ldarg.0
+  IL_000d: ldfld token(0x67928B42)
+  IL_0012: ldarg.1
+  IL_0013: ldloca.s local(0x0000)
+  IL_0015: callvirt token(0x279C8D63)
+  IL_001a: brfalse.s 30
+  IL_001c: ldloc.0
+  IL_001d: ret
+  IL_001e: ldnull
+  IL_001f: ret
+
+=== get-point-info-by-uuid.txt ===
+RGMD=0x9a88a8 TypeDef=5828 MethodDef=54474
+METHOD 13627 WorldPointManager::GetPointInfoByUuid RVA 0x1556e4: PointInfo(int64 uuid)
+  IL_000c: ldarg.0
+  IL_000d: ldfld token(0x67928B82)
+  IL_0012: ldarg.1
+  IL_0013: ldloca.s local(0x0000)
+  IL_0015: callvirt token(0x279C8CA3)
+  IL_001a: brfalse.s 40
+  IL_001c: ldloc.0
+  IL_001d: callvirt token(0xA79118C2)
+  IL_0022: stloc.1
+  IL_0023: ldloc.1
+  IL_0024: brfalse.s 40
+  IL_0026: ldloc.1
+  IL_0027: ret
+  IL_0028: ldnull
+  IL_0029: ret
+
+=== get-resource-point-by-index.txt ===
+RGMD=0x9a88a8 TypeDef=5828 MethodDef=54474
+METHOD 13638 WorldPointManager::GetResourcePointInfoByIndex RVA 0x1558dc: ResPointInfo(int32 pointIndex)
+  IL_000c: ldarg.0
+  IL_000d: ldarg.1
+  IL_000e: call token(0xA7913E02)
+  IL_0013: stloc.0
+  IL_0014: ldloc.0
+  IL_0015: brfalse.s 39
+  IL_0017: ldloc.0
+  IL_0018: ldfld token(0x67932102)
+  IL_001d: ldc.i4.7
+  IL_001e: bne.un.s 39
+  IL_0020: ldloc.0
+  IL_0021: isinst token(0x279F2502)
+  IL_0026: ret
+  IL_0027: ldnull
+  IL_0028: ret
+
+=== Protobuf.WorldPointInfo focused metadata ===
+TYPE 4309: Protobuf.WorldPointInfo extends System.Object
+  FIELD 19114: int32 IdFieldNumber = 1
+  FIELD 19122: int32 CollectResourceInfoFieldNumber = 5
+  FIELD 19124: int32 ResourceInfoFieldNumber = 6
+  FIELD 19165: int32 UuidFieldNumber = 100
+  FIELD 19169: int32 ServerIdFieldNumber = 102
+  FIELD 19171: int32 SrcServerIdFieldNumber = 103
+  FIELD 19173: int32 WorldIdFieldNumber = 104
+  METHOD 45249 RVA 0x45ac29: int32 get_Id()
+  METHOD 45259 RVA 0x45ac7e: Protobuf.ResourceInfo get_ResourceInfo()
+  METHOD 45298 RVA 0x45adc9: int64 get_Uuid()
+  METHOD 45302 RVA 0x45adf5: int32 get_ServerId()
+  METHOD 45304 RVA 0x45ae06: int32 get_SrcServerId()
+  METHOD 45306 RVA 0x45ae17: int32 get_WorldId()
+
+=== ResPointInfo focused metadata ===
+TYPE 1753: ResPointInfo extends PointInfo
+  FIELD 10137: int32 id
+  FIELD 10138: int32 state
+  FIELD 10139: int64 gatherMarchUuid
+  FIELD 10140: string gatherUid
+  FIELD 10141: string gatherAllianceId
+  FIELD 10142: Protobuf.SpecialType specialType
+  METHOD 13461 RVA 0x1512c0: void .ctor(Protobuf.WorldPointInfo pi)
+  METHOD 13463 RVA 0x151388: int32 GetResPointType()
+  METHOD 13464 RVA 0x1513c4: int32 GetResType()
+  METHOD 13465 RVA 0x151400: int32 GetResLevel()

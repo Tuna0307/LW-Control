@@ -1,0 +1,135 @@
+{
+  "evidenceId": "LWB-R7-055",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "70e6114658570c4a3d64ed4e4e83264ee3ad73e1",
+  "scope": {
+    "feature": "direct-snapshot Map Scan progress and completion integrity",
+    "implementationStatus": "IMPLEMENTED/OFFLINE-TESTED",
+    "existingFullWorldLiveCoverage": true,
+    "newLiveExceptionalPopulationTestPerformed": false,
+    "stateChangingGameActionsPerformed": false
+  },
+  "architecture": {
+    "transport": "correlated direct snapshots owned by ManualMapScanCommandService/MapScanEngine",
+    "originalNativePendingQueueInstantiated": false,
+    "nativePendingRecordsClaimed": false,
+    "nativeDroppedRecordsClaimed": false,
+    "queueMetricsPolicy": "unknown/null rather than fabricated",
+    "removalModel": "successful selected-kind publication atomically replaces the prior selected-kind server dataset; absent authoritative fresh rows are removed"
+  },
+  "hashLockedRecovery": {
+    "originalBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "findings": {
+      "LWB-R6-053": "RECOVERED",
+      "LWB-R6-054": "RECOVERED",
+      "LWB-R6-055": "RECOVERED",
+      "LWB-R6-056": "RECOVERED",
+      "LWB-R6-059": "RECOVERED"
+    },
+    "verifiers": [
+      "tools/inspect_lwbridge_map_scan_progress.py",
+      "tools/inspect_lwbridge_map_scan_scheduler_progress.py",
+      "tools/inspect_lwbridge_map_scan_completion_safety.py",
+      "tools/inspect_lwbridge_map_scan_terminal_publication.py",
+      "tools/inspect_lwbridge_map_scan_start_resume.py"
+    ]
+  },
+  "existingProductionCompletionGates": {
+    "realSchedulerCounters": true,
+    "scanRateFromCompletedBlocksPerSecond": true,
+    "nonCompletedProgressCapPercent": 98,
+    "completedProgressPercent": 100,
+    "captureRetryThenFailure": true,
+    "cancellationStopsWithoutPublication": true,
+    "foreignServerWorldCaptureRejected": true,
+    "duplicateLogicalCaptureRejected": true,
+    "logicalBlockCheckpointBeforePublication": true,
+    "exactCoverageRequired": true,
+    "zeroFailedBlocksRequired": true,
+    "stoppedRunCannotPublish": true,
+    "failedRunCannotPublish": true,
+    "transactionalRunningToCompletedOwnership": true,
+    "postCommitExactRunVerification": true,
+    "shutdownOrdering": "LWBridgeWindow closes ManualMapScanCommandService before lifecycle/store; service Close cancels and synchronously waits its terminal task"
+  },
+  "r7055Changes": {
+    "explicitResumeState": {
+      "value": false,
+      "surfaces": [
+        "ManualMapScanCommandService status",
+        "LWBridgeBackend fallback status",
+        "LiveResourceProbeCommandService bounded proof status"
+      ],
+      "enablesResume": false
+    },
+    "boundedWorldMarchExhaustion": {
+      "limit": 50000,
+      "helper": "bounded_enumerator_completion_error",
+      "guardedPaths": [
+        "Train/Truck/Railway WorldMarch rows",
+        "Monster/Zombie Boss WorldMarch rows",
+        "Zombie Boss protection targets"
+      ],
+      "countLengthAvailable": {
+        "countGreaterThanLimit": "fail march_count_outside_bounded_limit",
+        "scannedCountMismatch": "fail march_enumeration_mismatch",
+        "exactLimit": "accepted only when Count/Length proves exact exhaustion"
+      },
+      "unknownLengthEnumerator": {
+        "scannedBelowLimit": "accepted because MoveNext already ended",
+        "scannedAtLimitAndMoveNextFails": "fail march_enumerator_failed",
+        "scannedAtLimitAndNextExists": "fail march_count_outside_bounded_limit",
+        "scannedAtLimitAndNextAbsent": "accepted as exactly exhausted"
+      },
+      "propagation": "Lua fail_bulk_aoi -> result state is not proven -> C# ValidateFastCityBatchResult throws -> engine retry -> exhausted retry fails run -> no publication",
+      "luaTopLevelLocalCount": 194,
+      "luaTopLevelLocalLimit": 200
+    }
+  },
+  "deterministicAcceptance": {
+    "boundedMarchGuardCallSites": 3,
+    "normalStopTerminalIdle": true,
+    "completedScanResumeAvailableFalse": true,
+    "clearResetResumeAvailableFalse": true,
+    "backendClearResumeAvailableFalse": true,
+    "retryFailureNoPublication": true,
+    "cancelNoPublication": true,
+    "foreignCaptureNoPublication": true,
+    "duplicateBatchNoPublication": true,
+    "stoppedRunCannotPublish": true,
+    "failedRunCannotPublish": true,
+    "stagedPublicationAndPostCommitOwnership": true,
+    "allSixSuites": "PASS",
+    "failures": []
+  },
+  "discardedHarnessExperiments": {
+    "productionCodeChangedBecauseOfThem": false,
+    "experiments": [
+      "module-initializer delayed-cancellation Close drain concurrency test",
+      "module-initializer concurrent Stop during context acquisition test"
+    ],
+    "result": "both synthetic concurrent harness experiments hung the checks process and were removed; existing production shutdown/Stop ownership code was re-read and left unchanged"
+  },
+  "validation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "currentClientCompatibility": "exact v19 PASS",
+    "transportBoundary": "PASS",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "gameRunningAfterDeterministicChecks": false,
+    "launcherRunningAfterDeterministicChecks": false
+  },
+  "currentClientIdentity": {
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "remainingOpen": [
+    "durable full run identity across restart/session/profile/world/geometry/type/mode compatibility",
+    "true resume serialization/reconciliation; resume remains explicitly unavailable",
+    "original event/queue-specific acknowledgement semantics are not claimed because this rebuild uses direct snapshots",
+    "no live population above the 50,000 WorldMarch bound was manufactured; exceptional overflow branch is deterministic/static fail-closed coverage"
+  ]
+}

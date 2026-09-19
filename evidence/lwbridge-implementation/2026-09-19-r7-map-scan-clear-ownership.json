@@ -1,0 +1,88 @@
+{
+  "evidenceId": "LWB-R7-054",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "4a507ff335e3c94f28087cd39116c57dca853857",
+  "scope": {
+    "feature": "Map Scan Clear ownership, current-live-server admission and visible state reset",
+    "implementationStatus": "IMPLEMENTED/OFFLINE-TESTED",
+    "destructiveLiveUserDataTestPerformed": false,
+    "stateChangingGameActionPerformed": false
+  },
+  "originalRecovery": {
+    "findingId": "LWB-R6-057",
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "verifier": "tools/inspect_lwbridge_map_scan_clear_ownership.py",
+    "verifierResult": "RECOVERED",
+    "activeScanError": {
+      "code": "SCAN_RUNNING",
+      "message": "stop the map scan first"
+    },
+    "serverUnavailableError": {
+      "code": "SERVER_UNAVAILABLE",
+      "message": "current server id unavailable"
+    },
+    "serverGate": "requested serverId > 0, equals current scan-state serverId, serverIdSource == live",
+    "postClear": "server-scoped clear then idle state publication"
+  },
+  "implementation": {
+    "commandOwner": "ManualMapScanCommandService",
+    "command": "map_scan_clear",
+    "authoritativeServerSource": "existing lifecycle GetLiveServerId / ManualMapScanCommandService.CreateStatus",
+    "fabricatedLiveServerSource": false,
+    "serialization": "Clear admission, SQLite ClearServer call and status reset execute under the same service ownership lock used by Start",
+    "storageTransaction": "MapDataStore.ClearServer deletes scan_runs and map_records for one server in one SQLite transaction",
+    "scanCheckpointBehavior": "scan_records/scan_blocks cascade through scan_runs deletion",
+    "playerMarksPreserved": true,
+    "otherServersPreserved": true,
+    "postClearStatus": {
+      "isReading": false,
+      "phase": "idle",
+      "scanRunId": "",
+      "totalBlocks": 0,
+      "readBlocks": 0,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "inflightBlocks": 0,
+      "concurrency": 0,
+      "scanRate": 0,
+      "progressPercent": 0
+    }
+  },
+  "deterministicAcceptance": {
+    "databaseScope": "in-memory SQLite only",
+    "activeClearRejectedWithoutDeletion": true,
+    "mismatchedServerRejectedWithoutDeletion": true,
+    "freshClearResolvesAuthoritativeLiveServerWithoutStartingScan": true,
+    "savedReplayOnlyBackendFailsClosed": true,
+    "authorizedCurrentServerRowsCleared": true,
+    "otherServerRowsSurvive": true,
+    "playerMarksSurvive": true,
+    "scanCheckpointsCascadeWithRunDeletion": true,
+    "idleZeroProgressPublished": true,
+    "emptyRepeatClearSafe": true,
+    "startClearRacePolicy": "same service lock prevents a new Start between admission and deletion",
+    "lateOldRunPolicy": "active Clear is rejected and Stop waits for terminal scan ownership before successful Clear"
+  },
+  "validation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "transportBoundary": "PASS",
+    "currentClientCompatibility": "exact v19 PASS",
+    "gameRunningAfterChecks": false,
+    "launcherRunningAfterChecks": false,
+    "realUserMapDatabaseCleared": false
+  },
+  "currentClientIdentity": {
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "remainingSeparateWork": [
+    "native acknowledgement/drain completion ownership",
+    "resume serialization/compatibility semantics",
+    "remaining truthful terminal completion/progress lifecycle"
+  ]
+}

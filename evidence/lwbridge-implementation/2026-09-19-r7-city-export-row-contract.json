@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-19",
+  "findingId": "LWB-R7-060",
+  "scope": "original City export pagination, row mapping, cell coercion and success result",
+  "evidenceStatus": "RECOVERED static + IMPLEMENTED/OFFLINE-TESTED",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "pagination": {
+    "pageStart": 1,
+    "pageSize": 200,
+    "lastPage": 1000,
+    "maximumRows": 200000,
+    "accumulatesRowsAcrossPages": true,
+    "successStops": [
+      "returned page rows is empty",
+      "accumulated row count is greater than or equal to returned total"
+    ],
+    "overflow": {
+      "code": "MAP_EXPORT_FAILED",
+      "message": "city export exceeded the row limit"
+    }
+  },
+  "columns": {
+    "A": {
+      "field": "serverId",
+      "cellType": "numeric"
+    },
+    "B": {
+      "field": "x",
+      "cellType": "numeric"
+    },
+    "C": {
+      "field": "y",
+      "cellType": "numeric"
+    },
+    "D": {
+      "field": "ownerName",
+      "cellType": "inlineStr"
+    },
+    "E": {
+      "field": "ownerUid",
+      "cellType": "inlineStr"
+    },
+    "F": {
+      "field": "uuid",
+      "cellType": "inlineStr"
+    },
+    "G": {
+      "field": "allianceName",
+      "cellType": "inlineStr"
+    },
+    "H": {
+      "field": "level",
+      "cellType": "numeric"
+    },
+    "I": {
+      "field": "health",
+      "cellType": "numeric"
+    },
+    "J": {
+      "field": "protectEndTime",
+      "fallbackField": "shieldEndTime",
+      "fallbackOnlyWhenPrimaryKeyAbsent": true,
+      "cellType": "style3-datetime"
+    },
+    "K": {
+      "field": "marked",
+      "cellType": "inlineStr",
+      "true": "yesLabel",
+      "otherwise": "noLabel"
+    },
+    "L": {
+      "field": "updatedAt",
+      "cellType": "style3-datetime"
+    }
+  },
+  "coercion": {
+    "numeric": "JSON Number only; non-number/non-finite emits empty numeric cell",
+    "text": "JSON String only; missing or non-string emits empty inlineStr",
+    "ownerUidAndUuid": "lossless inlineStr, never spreadsheet numeric coercion",
+    "marked": "JSON true selects yesLabel; all other values select noLabel",
+    "datetime": {
+      "input": "positive finite JSON Number only",
+      "secondsThresholdExclusive": 100000000000,
+      "millisecondsFormula": "value_ms / 86400000 + 25569",
+      "secondsFormula": "(value * 1000) / 86400000 + 25569"
+    }
+  },
+  "successResult": {
+    "canceled": false,
+    "path": "<selected path>",
+    "rowCount": "<actual written row count>"
+  },
+  "implementation": {
+    "publicCommand": "map_city_export",
+    "enabledThroughDesktopDialogHost": true,
+    "directBackendInvocation": "NATIVE_DIALOG_REQUIRED",
+    "queryScope": "one SQLite full filtered/sorted City snapshot with original 200000-row ceiling",
+    "writer": "recovered six-part OOXML with recovered per-column cell coercion",
+    "picker": "UI-thread SaveFileDialog; no app starting directory/title; Excel workbook/xlsx; native overwrite prompt",
+    "cancelResult": {
+      "canceled": true,
+      "path": "",
+      "rowCount": 0
+    }
+  },
+  "acceptance": {
+    "fullDeterministicSuite": "PASS",
+    "deterministicGroups": [
+      "profileRouting",
+      "persistence",
+      "requestLifetime",
+      "mapPersistence",
+      "mapContract",
+      "bridgeControlPipeContract"
+    ],
+    "gameRunningAfterSuite": false,
+    "launcherRunningAfterSuite": false,
+    "liveDialogWritePerformed": false
+  },
+  "restrictions": {
+    "replayed": [],
+    "preserved": [
+      "SB-08",
+      "SB-09",
+      "SB-99"
+    ],
+    "note": "Uses accepted command-owned row/pagination/writer functions; denied template-xref/register requests were not replayed."
+  }
+}

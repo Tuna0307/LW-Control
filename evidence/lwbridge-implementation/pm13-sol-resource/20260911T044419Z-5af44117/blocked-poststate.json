@@ -1,0 +1,83 @@
+{
+  "observedUtc": "2026-09-11T04:50:08.2153025Z",
+  "firstFailure": {
+    "step": "SB-97 / fresh normal-window Resource Start permission check",
+    "result": "BLOCKED",
+    "actionAttempted": "native Computer Use get_window_state immediately before Start",
+    "startSent": false,
+    "platformMessage": "This tool call was blocked by OpenAI because we couldn't determine the safety status of the request."
+  },
+  "cleanup": {
+    "candidateClosedNormally": true,
+    "closeMethod": "Computer Use @oai/sky Alt+F4",
+    "targetWindowsAfterClose": 0
+  },
+  "candidateProcesses": [],
+  "selectedGameOrLauncherProcesses": [],
+  "recoveryExists": false,
+  "operationOwnerExists": false,
+  "resultFiles": [
+    {
+      "Name": "160a51f4671249a69dc87944efb14229.json",
+      "Length": 871,
+      "LastWriteTimeUtc": "2026-09-10T09:19:11.2307462Z"
+    },
+    {
+      "Name": "17e85a3099504ce7a6001604bc8b37e0.json",
+      "Length": 806,
+      "LastWriteTimeUtc": "2026-09-10T07:39:51.0225728Z"
+    },
+    {
+      "Name": "5835378f29dd45028abe1566fe7cded3.json",
+      "Length": 806,
+      "LastWriteTimeUtc": "2026-09-10T07:35:36.7549104Z"
+    },
+    {
+      "Name": "ab30032ceb5a410391fd666888ab7f34.json",
+      "Length": 806,
+      "LastWriteTimeUtc": "2026-09-10T07:39:22.4589612Z"
+    },
+    {
+      "Name": "ac41ff0cdda8447d9599b7711151779a.json",
+      "Length": 871,
+      "LastWriteTimeUtc": "2026-09-10T09:19:36.8988461Z"
+    },
+    {
+      "Name": "bfa59bfd07214e1b919ef89acfb46b12.json",
+      "Length": 894,
+      "LastWriteTimeUtc": "2026-09-10T09:37:53.7093035Z"
+    },
+    {
+      "Name": "cb854633e81043e4992289fe6ef77da3.json",
+      "Length": 806,
+      "LastWriteTimeUtc": "2026-09-10T07:17:21.6573518Z"
+    },
+    {
+      "Name": "e88314dc6673451cb139c23c369359f6.json",
+      "Length": 806,
+      "LastWriteTimeUtc": "2026-09-10T07:35:08.0059092Z"
+    },
+    {
+      "Name": "f4a66c92f0f04e54aa33ba9e278e2e8b.json",
+      "Length": 894,
+      "LastWriteTimeUtc": "2026-09-10T09:38:19.7846204Z"
+    }
+  ],
+  "resourceRows": [],
+  "configSha256": "b3792e7004f562e9d090720eae9b714eee2f7d692aa480d45adeb99b3d5ca459",
+  "databaseSha256": "29ddb3f162b45d2899d8e89f7241f568b5099f4a8e1aafc36460fcc0ae5c4ff6",
+  "officialHotupdate": {
+    "dataPath": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+    "dataSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "dataSize": 41269242,
+    "dataCrc32": 3541420783,
+    "metadataPath": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+    "metadataSha256": "a165f3e643161ef1d64958e6e09ea9fa0f5e61e7abc61d0bf2fdcd0142184b48",
+    "metadataValue": "41269242|3541420783",
+    "versionPath": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+    "versionSha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+    "versionValue": "14",
+    "xLuaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblySha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  }
+}

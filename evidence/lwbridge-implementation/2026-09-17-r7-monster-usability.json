@@ -1,0 +1,89 @@
+{
+  "findingId": "LWB-R7-013",
+  "date": "2026-09-17",
+  "status": "LIVE-PROVEN current-v17 Monster timer-field acquisition; IMPLEMENTED/OFFLINE-TESTED localized Monster name search, exact-level filtering, populated Monster level options and ticking countdown UI",
+  "validatedBaseCommit": "03523409e34148f7ed9222acfe13ce9feb88b295",
+  "currentClient": {
+    "contentVersion": 17,
+    "packageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "packageSize": 41293716,
+    "packageCrc32": 2113157353,
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "liveTimerFieldObservation": {
+    "route": "ordinary production full Monster scan through the shared Manual engine with the current probe serializer",
+    "privacy": "aggregate-only evidence; no Monster UUID, player identity or map coordinate is committed",
+    "monsterRows": 3853,
+    "positiveFieldCounts": {
+      "endTime": 11,
+      "expireTime": 1,
+      "actEndTime": 1,
+      "startTime": 1,
+      "zMBossNextStageTime": 1,      "zMBossTransferEndTime": 0,
+      "zMBossShieldEndTime": 0,
+      "zMBossFrenzyEndTime": 0,
+      "isActBerserkBoss": 11
+    },
+    "positiveEndTimeRows": {
+      "count": 11,
+      "configType": 2,
+      "isBossTrue": 11,
+      "isMonsterTrue": 0,
+      "isActBerserkBossTrue": 11
+    },
+    "result": "current client supplies a real positive endTime deadline for a bounded subset of live Monster/Boss rows; unsupported/nonpositive rows remain without a countdown"
+  },
+  "implementation": {
+    "mapDataOptions": "production map_data_options now uses the recovered published/staging source selector and one-snapshot aggregate reader; Monster level options come only from persisted/staged Monster rows",
+    "monsterExactLevel": "frontend sends the selected level as equal minLevel/maxLevel; backend accepts Monster level filters only when both are positive and exactly equal",
+    "localizedNameSearch": "frontend resolves visible localized Monster names through lastwar_localize and sends matching monsterNameKeys; backend searches Monster visible/identity values plus those exact name keys instead of raw JSON property names",
+    "keywordCollisionFix": "the Monster-specific keyword path prevents schema keys such as zombieRushId from turning an unrelated visible keyword into an all-row match",
+    "countdown": "Monster rows render a locally ticking countdown from supported positive current-client deadline fields and show '-' when no supported positive deadline exists; ticking does not issue a new backend search"
+  },
+  "policy": {
+    "exactMonsterLevel": "IMPLEMENTATION POLICY requested for rebuild usability; not claimed as original LWBridge 0.3.1 frontend behavior",
+    "monsterVisibleKeywordOverride": "IMPLEMENTATION POLICY layered over the recovered generic keyword contract because raw data_json property names create false user-visible Monster matches",
+    "countdownPresentation": "IMPLEMENTATION POLICY presentation over source-backed current-client timestamps; no deadline is synthesized when the source has none"
+  },  "deterministicProof": {
+    "monsterLevels": "fixture options expose sorted Monster levels [5,9]",
+    "exactLevel": "level 9 returns the intended Monster row",
+    "rangeRejection": "Monster level 5..9 rejects with MAP_QUERY_UNRECOVERED",
+    "localizedKeyword": "Synthetic Beast resolves to monsterNameKey 2000001 and returns the intended row",
+    "rawSchemaKeyword": "Zombie returns zero instead of matching zombieRushId property names",
+    "invalidNameKeys": "non-array monsterNameKeys rejects with INVALID_MAP_QUERY",
+    "countdown": "isolated browser fixture proves the displayed countdown changes across time without a new map_search request"
+  },
+  "validation": {
+    "desktopReleaseBuild": "0 warnings / 0 errors",
+    "checksReleaseBuild": "0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; all six deterministic groups true; failures=[]",
+    "frontendGeneratorCheck": "passed",
+    "frontendBrowserChecks": 36,
+    "frontendComparison": "31/32 pixel-identical on the final fresh capture; maxMae=3.4106877310740937e-06; maxHighDeltaRate=0.0",
+    "pythonCompile": "passed",
+    "javascriptSyntax": "passed",
+    "preferenceProvider": "all five scenarios passed",
+    "transportChecks": "live-transport missing-native and transport-boundary checks passed",
+    "pm12IsolatedRegressions": "recovery, selected-session identity and scoped-close regressions all ok=true",
+    "gitDiffCheck": "passed after final documentation delivery",
+    "finalProcessState": "game, launcher and LWBridge app stopped"
+  },
+  "limits": [
+    "The live current-v17 sample exposed positive endTime on 11 of 3853 Monster rows; a countdown is therefore conditional, not universal.",
+    "Monster population, row counts and remaining durations are dynamic and are not scan-completeness invariants.",
+    "The UI search/filter/countdown behaviors are offline/browser-proven; this checkpoint does not claim a separate owner-visible live UI acceptance.",
+    "This checkpoint does not complete Resource common-engine acceptance or the remaining Truck/Railway/Dispatch/Ghost/Treasure categories."
+  ],
+  "sourceHashes": {    "src/LWBridge.Desktop/LWBridgeBackend.cs": "6d43ff46c38eb3873f5173ac1287a577b55cd2874612a6cd89b1551a72681ccc",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "fe42c870b796874644be43023b599ab967cc4b37e4bfddd646daf82cfc17c18b",
+    "src/LWBridge.Desktop/MapDataStore.cs": "a7f837fa8b277c66210c467f9aee072e5d30054b0488e494e98aa193e9e035d5",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js": "a7e8e6edae0b6fd73992e233b2079bd216683815ccaf3ef7019935b3c2f96491",
+    "src/LWBridge.Desktop/WebUi/preview-host.js": "e64b089b562d1f6557cedbd74df96e1dce0b78b51e67c46eb314017d5467fd53",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "6475aa27bcaa9175e0f51e27e567b303688dff59e4047571e289ec88f6e0fd67",
+    "tools/build_lwbridge_frontend.py": "12a0bae7ce5f574a68a2cba17ad230070935cc6781cba08473cbbb7041b277a7",
+    "tools/check_lwbridge_frontend.cjs": "1d17a7caaa49ab0bd25e9075d7d460e34f3565c339668a50dd40becdeedbce96",
+    "tools/current_live_resource_probe.lua": "e3d88f42994000a87aa2a5c4e3bdfb0946a06c5bd36e5a50d0306997a57c7368"
+  }
+}

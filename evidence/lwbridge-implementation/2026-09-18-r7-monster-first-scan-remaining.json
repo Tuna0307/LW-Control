@@ -1,0 +1,78 @@
+{
+  "findingId": "LWB-R7-025",
+  "date": "2026-09-18",
+  "status": "LIVE-PROVEN",
+  "scope": "Current-v18 ordinary Normal Monster full-world scan, automatic Zombie Boss Remaining on the first scan",
+  "runtime": {
+    "contentVersion": 18,
+    "officialPackageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "v18FootprintCorrection": {
+    "priorPlanner": "LWB-R7-012 v17 measured 5 AOI columns x 10 rows / 200 full-world requests",
+    "liveV18Observation": "ordinary coverage response exposed 30 AOIs as 3 consecutive columns x 10 rows",
+    "firstAttemptFailure": "Fast world batch returned an invalid native AOI footprint.",
+    "correction": "conservative 3-column horizontal stride, one logical block-column validator slice, exact 10,000-AOI final union",
+    "fullWorldRequestCount": 340
+  },
+  "acceptanceConditions": {
+    "freshLaunch": true,
+    "singleNormalMonsterScan": true,
+    "manualJump": false,
+    "manualBossClick": false,
+    "primingScan": false
+  },
+  "liveProof": {
+    "proof": "ordinary_manual_start_full_monster",
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedMonsterCount": 4735,
+    "reopenedMonsterCount": 4735,
+    "scanWallSeconds": 108.1437786,
+    "distanceCount": 4735,
+    "monsterInvasionBossCount": 21,
+    "monsterProtectionDetailTargetCount": 21,
+    "monsterProtectionDetailRequestCount": 2,
+    "monsterProtectionDetailRetryCount": 0,
+    "monsterProtectionDetailReadyCount": 2,
+    "monsterProtectionDetailError": null,
+    "shieldDeadlineCount": 2,
+    "activeShieldDeadlineCount": 2,
+    "zMBossInfoCount": 0,
+    "result": "Two authoritative future Zombie Boss protection deadlines were persisted during the first scan."
+  },
+  "interpretation": [
+    "The automatic detail path no longer requires Jump, manual click, or a second scan to obtain an active shield deadline.",
+    "The serial MonsterInvasionBossDetail queue completed both requests without retry or error.",
+    "Only bosses whose local source deadline was not already source-proven expired required network detail in this population.",
+    "Positive shield deadlines feed the existing Monster shieldEndTime/Remaining renderer; no unrelated march timer is substituted."
+  ],
+  "validation": {
+    "luaParse": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicSuite": "ok=true; all six deterministic groups true",
+    "frontendGeneratorCheck": true,
+    "browserRerun": "not rerun in this checkpoint because the repository-local Node invocation lacked the playwright module; prior R7-023 browser Remaining regression remains unchanged by this C#/planner correction"
+  },
+  "cleanup": {
+    "gameProcessRemaining": false,
+    "launcherProcessRemaining": false,
+    "lwbridgeProcessRemaining": false,
+    "recoveryJournalRemaining": false,
+    "currentClientCompatibilityOk": true,
+    "restoredOfficialPackageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1"
+  },
+  "privacy": {
+    "liveUuidsRetained": false,
+    "liveCoordinatesRetained": false,
+    "accountIdentifiersRetained": false,
+    "sessionIdentifiersRetained": false
+  },
+  "next": "Monster first-scan Remaining gate is closed. Continue Railway/Train on the same shared Manual Scan engine."
+}

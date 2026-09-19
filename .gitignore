@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.venv/
+upload/
+analysis/
+*.exe
+*.dll
+*.zip
+*.log
+.env
+**/bin/
+**/obj/
+.vs/
+.codex-live/
+
+# Local reverse-engineering/build scratch (never commit).
+tmp*/
+tmp_*
+tmp-*

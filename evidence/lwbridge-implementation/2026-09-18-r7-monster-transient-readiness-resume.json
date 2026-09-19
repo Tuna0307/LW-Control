@@ -1,0 +1,60 @@
+{
+  "findingId": "LWB-R7-027",
+  "date": "2026-09-18",
+  "status": "LIVE-PROVEN",
+  "scope": "same-owned-session transient readiness loss during ordinary Normal Monster full-world acquisition",
+  "client": {
+    "contentVersion": 18,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "packageSize": 41296021,
+    "packageCrc32": 738537259
+  },
+  "failureFirst": {
+    "pauseSeconds": 7,
+    "completedBlocks": 2406,
+    "failedBlocks": 94,
+    "failureError": "game connection unavailable",
+    "failureCountWithThatError": 94,
+    "terminalError": "direct map scan contains failed batches",
+    "interpretation": "instantaneous ready-state loss was incorrectly consumed as logical block failures before an early full-world resume anchor existed"
+  },
+  "correction": {
+    "identityRule": "transient readiness is separate from exact owned session identity",
+    "resumeAnchor": "established for the exact full-world run/session before the Monster LOD2 attempt",
+    "fallbackRule": "LOD2 failure does not erase the exact run/session anchor before conservative LOD0 fallback",
+    "staleSessionRule": "unchanged; a different owned-session identity still fails closed"
+  },
+  "correctedLiveRun": {
+    "pauseSeconds": 7,
+    "totalBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedMonsterCount": 6912,
+    "reopenedMonsterCount": 6912,
+    "scanMode": "normal",
+    "concurrency": 8,
+    "scanWallSeconds": 18.2935673,
+    "distanceCount": 6912,
+    "monsterInvasionBossCount": 56,
+    "monsterProtectionDetailTargetCount": 56,
+    "monsterProtectionDetailRequestCount": 12,
+    "monsterProtectionDetailRetryCount": 0,
+    "monsterProtectionDetailReadyCount": 12,
+    "activeShieldDeadlineCount": 12,
+    "monsterProtectionDetailError": null
+  },
+  "validation": {
+    "focusedEarlyReadyLossRegression": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroupsAllTrue": true,
+    "gitDiffCheckClean": true,
+    "officialV18Restored": true,
+    "compatibilityOk": true,
+    "gameProcessPresentAfterCleanup": false,
+    "launcherProcessPresentAfterCleanup": false,
+    "lwbridgeProcessPresentAfterCleanup": false,
+    "recoveryJournalPresent": false
+  },
+  "privacy": "Aggregate-only evidence; no live UUIDs, coordinates, account identifiers, profile identifiers, session identifiers, challenges, or process identifiers retained."
+}

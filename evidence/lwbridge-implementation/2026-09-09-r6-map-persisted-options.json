@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-015",
+  "scope": "Offline persisted-source Map Data option aggregation kernel",
+  "evidenceStatus": "IMPLEMENTED/OFFLINE-TESTED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "sourceFindings": [
+    {
+      "id": "LWB-R6-009",
+      "path": "evidence/lwbridge-implementation/2026-09-08-r6-map-options-advanced-filters.json",
+      "resultUsed": "alliance, name, dispatch-level, treasure, reward-item and newest non-discarded scan-progress SQL families"
+    },
+    {
+      "id": "LWB-R6-014",
+      "path": "evidence/lwbridge-implementation/2026-09-09-r6-map-time-filters.json",
+      "resultUsed": "reward-item arriveTs cutoff uses the recovered Unix-millisecond wall clock"
+    },
+    {
+      "id": "LWB map-index static recovery",
+      "path": "evidence/lwbridge-implementation/2026-09-08-map-index-static-recovery.json",
+      "resultUsed": "map_records is the completed published index and scan_runs is the persisted scan-run table"
+    }
+  ],
+  "implementationPolicy": {
+    "source": "map_records scoped by one explicit serverId",
+    "transaction": "one deferred SQLite read transaction for the complete offline aggregate set",
+    "boundary": "This helper is test-only/offline. It does not assert that the original public map_data_options command always selects map_records, does not choose a scan run, and does not assemble the public response envelope."
+  },
+  "implemented": {
+    "file": "src/LWBridge.Desktop/MapDataStore.cs",
+    "entryPoint": "ReadPersistedOptionAggregatesAtForTest(serverId, nowUnixMilliseconds)",
+    "aggregates": [
+      "city alliance_name counts with recovered ordering",
+      "resource/monster name-key counts excluding empty keys",
+      "distinct positive dispatch levels ordered ascending",
+      "treasure supplies/ordinary normalized option pairs with recovered grouping/order",
+      "truck/railway currentGoods option rows with recovered arrival cutoff, grouping and ordering",
+      "newest non-discarded scan_runs row for the requested server"
+    ],
+    "publicCommand": "map_data_options remains fail-closed with MAP_INDEX_UNAVAILABLE"
+  },
+  "reproduction": [
+    "python tools\\build_lwbridge_frontend.py --check",
+    "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+    "node tools\\check_lwbridge_preference_provider.cjs",
+    "node tools\\check_lwbridge_live_transport.cjs",
+    "node tools\\check_lwbridge_transport_boundary.cjs"
+  ],
+  "validation": {
+    "testFile": "tests/LWBridge.Desktop.Checks/Program.cs",
+    "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+    "result": "ok=true; failures=[]",
+    "cases": [
+      "alliance grouping including null/empty persisted values and server isolation",
+      "resource/monster name grouping and empty-key exclusion",
+      "dispatch level distinct/order behavior",
+      "treasure ordinary/supplies normalization, grouping and order",
+      "reward-item deduplication, missing-name exclusion, expired-arrival exclusion and server isolation",
+      "newest non-discarded scan-progress selection",
+      "public map_data_options still rejects instead of exposing the offline helper"
+    ],
+    "build": "Release build succeeded with 0 warnings and 0 errors",
+    "liveProven": false
+  },
+  "unknownBlocked": [
+    "original dynamic option source selection between persisted and scan-run/staging contexts",
+    "public counts/noAllianceCount/full response assembly and any source-dependent empty/null filtering",
+    "authoritative map_summary profile-to-server selection and scan-state producer",
+    "treasure foreign-radar/lucky semantics and remaining alternate sorts",
+    "production native ingestion and live scan publication"
+  ],
+  "implementationImpact": {
+    "nowTestable": "The recovered option SQL families can be regression-tested against the completed persisted index without guessing the public source selector.",
+    "stillGated": "map_data_options, map_summary, complete option counts/no-alliance assembly, production scan ingestion and live result tabs remain unavailable until their original contracts are recovered."
+  },
+  "environmentRestriction": {
+    "operation": "creation of a new hash-locked bounded PE xref inspector intended to resolve the map_data_options dynamic source branch",
+    "result": "automatic review rejected the operation because it could not determine the safety status",
+    "handling": "The operation was not retried or rerouted. Existing durable R6-009/R6-014 evidence was used and the unresolved source selector remains UNKNOWN/BLOCKED."
+  }
+}

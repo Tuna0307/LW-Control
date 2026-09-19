@@ -1,0 +1,129 @@
+{
+  "evidenceId": "LWB-R7-064",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "6016d9392fb194e4b1bbcf49fc183626e76013b5",
+  "scope": "Cross-server Fast Secret Task stability on server 2207 and truthful decoding of recoverable early probe failures.",
+  "priorObservation": {
+    "serverId": 2207,
+    "kind": "dispatch",
+    "scanMode": "fast",
+    "result": "failed",
+    "completedBlocks": 2499,
+    "failedBlocks": 1,
+    "error": "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint.",
+    "note": "This prior owner-visible failure occurred after R7-063 had moved footprint validation inside the three-attempt probe loop."
+  },
+  "investigationLiveRuns": {
+    "freshSessionRuns": [
+      {"serverId": 2207, "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 179},
+      {"serverId": 2207, "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 62}
+    ],
+    "sameSessionStressPass1": [
+      {"runId": "8a3a45b03a544254bc366bedc779e9e4", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 59, "scanWallSeconds": 128.1660628},
+      {"runId": "437c09cf461c4f588ff204e6cd450174", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 174, "scanWallSeconds": 125.5989687},
+      {"runId": "2e1c56123a8640949439a5cbd3914441", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 150, "scanWallSeconds": 125.3881054}
+    ],
+    "sameSessionStressPass2": [
+      {"runId": "084a5bca9e8f4fe3a2f7fb7e19ea4693", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 63, "scanWallSeconds": 118.9396405},
+      {"runId": "108174cbf19c4b19b5328382941195cd", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 172, "scanWallSeconds": 118.7073857},
+      {"runId": "c6b116a362654842b56bc254afe68273", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 80, "scanWallSeconds": 120.0551691}
+    ],
+    "correctedDecoderPass": [
+      {"runId": "d46cc5da6d964c6995a978fbe030951a", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 93, "scanWallSeconds": 127.4929870},
+      {"runId": "ca513cbb6f484c728a68affc16894ad4", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 90, "scanWallSeconds": 122.2755701},
+      {"runId": "3c96381934f14c6f81907747d06ac174", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 156, "scanWallSeconds": 122.1176652}
+    ],
+    "finalExactCodePass": [
+      {"runId": "e926291ec0d149a3a2369dfb2d82baba", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 67, "scanWallSeconds": 124.3693603},
+      {"runId": "b65b3f4350fc4b71a5bc47cfab1e3ac0", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 80, "scanWallSeconds": 121.4615663},
+      {"runId": "217a93c367c3426a869046dc9e19c877", "completedBlocks": 2500, "failedBlocks": 0, "publishedRows": 126, "scanWallSeconds": 121.0203434}
+    ]
+  },
+  "liveTransientFindings": [
+    {
+      "phase": "sameSessionStressPass1",
+      "serverId": 2207,
+      "target": {"x": 495, "y": 975},
+      "rowStart": 90,
+      "attempt": 1,
+      "observedHostError": "Fast world batch result did not match the requested acquisition parameters.",
+      "outcome": "retry recovered and the 2500-block scan completed"
+    },
+    {
+      "phase": "sameSessionStressPass2",
+      "serverId": 2207,
+      "target": {"x": 935, "y": 275},
+      "rowStart": 20,
+      "attempt": 1,
+      "observedHostError": "Fast world batch result did not match the requested acquisition parameters.",
+      "diagnostic": "The correlated failed result omitted holdMilliseconds, viewLevel, targetTileX and targetTileY because those are success-detail fields. This proved the host was masking an early probe failure by validating success-only parameters before state=failed.",
+      "outcome": "retry recovered and the 2500-block scan completed"
+    },
+    {
+      "phase": "finalExactCodePass",
+      "serverId": 2207,
+      "target": {"x": 685, "y": 275},
+      "rowStart": 20,
+      "attempt": 1,
+      "decodedProbeError": "overview_session_unavailable",
+      "source": "current_live_resource_probe.active_overview_identity: control.txt or lease.txt could not be read for that single probe admission",
+      "outcome": "attempt 2 recovered; iteration completed 2500/2500 with 67 rows"
+    }
+  ],
+  "implementation": {
+    "files": [
+      "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+      "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+      "tests/LWBridge.Desktop.Checks/LiveDispatchSameSessionStressProof.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "changes": [
+      "Failed correlated Fast results are now freshness-checked and decoded through their native error before success-only acquisition fields are required.",
+      "Successful Fast results retain the same strict session, request-parameter, geometry, response/restoration, exact-footprint and exact-10000-AOI union validation.",
+      "Recoverable Fast retries log target/row/attempt and detailed malformed-footprint shape only in live production-backed runs, not deterministic fixture runs.",
+      "A bounded same-owned-session Dispatch stress proof was added for repeated cross-server Fast acceptance."
+    ],
+    "coverageTruthRelaxed": false,
+    "slowFallbackAdded": false,
+    "retryBudgetChanged": false,
+    "newAlwaysOnResetAdded": false
+  },
+  "deterministicAcceptance": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-restore",
+    "result": "PASS",
+    "exitCode": 0,
+    "failures": 0,
+    "newRegression": "An early state=failed Fast result with missing success-only target/view/hold fields exhausts three local attempts and preserves the native failure text instead of being misclassified as a request-parameter mismatch."
+  },
+  "finalLiveAcceptance": {
+    "serverId": 2207,
+    "kind": "dispatch",
+    "scanMode": "fast",
+    "sameOwnedSession": true,
+    "iterations": 3,
+    "allCompletedBlocks": 2500,
+    "allFailedBlocks": 0,
+    "publishedRows": [67, 80, 126],
+    "recoverableRetries": 1,
+    "recoverableRetryError": "overview_session_unavailable",
+    "nonRectangularFootprintFailures": 0,
+    "result": "PASS"
+  },
+  "interpretation": {
+    "oldThreeAttemptNonRectangularFailureReproduced": false,
+    "fullLiveScansInThisInvestigation": 14,
+    "allFullLiveScansCompleted": true,
+    "finding": "The investigation found a distinct intermittent early overview-session admission gap that was previously masked as a parameter mismatch. The existing bounded retry recovers it. The historical all-three-attempt non-rectangular footprint did not recur across 14 full server-2207 scans, so no speculative AOI reset/re-anchor was added.",
+    "remainingDiagnosticIfItRecurs": "Malformed-footprint retries now report exact target, row band, rows, columns, count and indices, so a future recurrence can be repaired from the actual native shape without weakening coverage."
+  },
+  "safety": {
+    "readOnlyMapScanning": true,
+    "serverNavigationOnly": true,
+    "attackOrPlunder": false,
+    "claimOrCollect": false,
+    "messaging": false,
+    "gameplayConsumables": false,
+    "credentialsOrPlayerIdentityStored": false
+  }
+}

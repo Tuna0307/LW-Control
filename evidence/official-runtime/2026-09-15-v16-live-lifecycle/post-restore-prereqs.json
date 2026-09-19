@@ -1,0 +1,48 @@
+﻿{
+  "checks": {
+    "assemblyCSharpSha256": true,
+    "contentVersion": true,
+    "criticalEntries": true,
+    "entryCount": true,
+    "fileVersion": true,
+    "metadata": true,
+    "packageCrc32": true,
+    "packageSha256": true,
+    "packageSize": true,
+    "version": true,
+    "xluaSha256": true
+  },
+  "criticalEntries": {
+    "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+    "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+    "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+  },
+  "launcherEvidence": [
+    "[2026-09-14 12:08:31.020][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-14 19:22:35.956][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-14 19:47:03.846][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-14 20:13:34.880][Launcher][INFO] Downloading LWLuaFile Patch { remote_file_name: \"LWScripts_16_14_u440.patch\", save_file_name: \"LWScripts_16_14_u440.patch\", size: 429388, crc: 3398512614 } from https://lastwar-cdn.akamaized.net/hotupdate/com.lastwar.pc/Windows/lw_encrypt_new/LWScripts_16_14_u440.patch",
+    "[2026-09-14 20:30:50.054][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-14 20:42:19.613][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-14 20:57:06.141][Launcher][INFO] Downloading LWLuaFile Patch { remote_file_name: \"LWScripts_16_14_u440.patch\", save_file_name: \"LWScripts_16_14_u440.patch\", size: 429388, crc: 3398512614 } from https://lastwar-cdn.akamaized.net/hotupdate/com.lastwar.pc/Windows/lw_encrypt_new/LWScripts_16_14_u440.patch",
+    "[2026-09-14 21:20:19.859][Launcher][INFO] Downloading LWLuaFile Patch { remote_file_name: \"LWScripts_16_14_u440.patch\", save_file_name: \"LWScripts_16_14_u440.patch\", size: 429388, crc: 3398512614 } from https://lastwar-cdn.akamaized.net/hotupdate/com.lastwar.pc/Windows/lw_encrypt_new/LWScripts_16_14_u440.patch",
+    "[2026-09-14 21:20:21.150][Launcher][INFO] Applied LWLuaFile update: Some(AppliedLwLuaUpdate { version: 16, file_version: 3, size: 41278785, crc: 3454076078 })",
+    "[2026-09-14 21:20:24.262][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-15 00:28:32.641][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\"",
+    "[2026-09-15 00:31:32.836][Launcher][INFO] Starting game at: \"C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\FunFly\\\\Last War-Survival Game\\\\Game\\\\LastWar.exe\""
+  ],
+  "observed": {
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "contentVersion": 16,
+    "entryCount": 18734,
+    "fileVersion": 3,
+    "metadata": "41278785|3454076078",
+    "packageCrc32": 3454076078,
+    "packageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+    "packageSize": 41278785,
+    "version": "16",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+  },
+  "ok": true
+}

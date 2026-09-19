@@ -1,0 +1,56 @@
+{
+  "evidenceId": "LWB-R7-062",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "a295ae1fb16615f982368412aa006918646c96dd",
+  "scope": "Home/Overview launch robustness after owner UI launch failure",
+  "ownerObserved": {
+    "uiState": "Game stopped",
+    "toast": "The Overview bridge launch failed.",
+    "secondaryText": "The action could not be completed.",
+    "failedSessionId": "f686b1bb8ae64bfb852ccf92771ccf6a"
+  },
+  "failureEvidence": {
+    "helperError": "the selected launcher did not create a matching LastWar process before timeout",
+    "recordedAtUtc": "2026-09-19T10:39:40Z",
+    "launcherLog": {
+      "officialPreflightGameStartLocal": "2026-09-19T18:37:21.944",
+      "candidatePackVerificationSucceededLocal": "2026-09-19T18:37:44.740",
+      "candidateStartGameLineObservedBeforeTimeout": false,
+      "subsequentSuccessfulStartGameLocal": [
+        "2026-09-19T18:41:09.417",
+        "2026-09-19T18:41:24.642"
+      ]
+    },
+    "classification": "transient official-launcher handoff stall after pack verification; bridge injection/readiness path not implicated",
+    "cleanup": "helper closed its owned launcher and restored original Lua package before surfacing the failure"
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "behavior": "retry exactly once only for the exact launcher-spawn timeout",
+    "sessionIdentity": "same session/challenge",
+    "officialSettleRepeated": false,
+    "productionRetryDelayMs": 750,
+    "minimumRemainingBudgetMs": 11000,
+    "overallStartBudgetUnchanged": true,
+    "unrelatedErrorsRetried": false
+  },
+  "validation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicRetry": "PASS; first helper exact timeout, second succeeds, official recover/settle each once, helper exactly twice",
+    "patchedLiveOverviewProof": {
+      "manual": {"connectionState": "connected", "gamePid": 6552},
+      "autoStart": {"connectionState": "connected", "gamePid": 36612}
+    },
+    "fullDeterministicSuite": "PASS; six groups true; failures=[]",
+    "gameRunningAfterChecks": false,
+    "launcherRunningAfterChecks": false
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "attackOrPlunder": false,
+    "claimOrCollect": false,
+    "messaging": false
+  }
+}

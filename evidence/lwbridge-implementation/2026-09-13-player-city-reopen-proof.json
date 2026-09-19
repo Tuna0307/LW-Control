@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PC-002",
+  "stage": "reopen_complete",
+  "generatedAtUtc": "2026-09-12T22:05:51.3168393+00:00",
+  "profileId": "<active-profile>",
+  "serverId": 2212,
+  "mapDatabase": "%USERPROFILE%\\AppData\\Local\\LWBridgeRebuild\\profiles\\<active-profile>\\map-data.db",
+  "summary": {
+    "serverId": 2212,
+    "counts": {
+      "city": 1,
+      "resource": 0,
+      "monster": 0,
+      "truck": 0,
+      "railway": 0,
+      "dispatch": 0,
+      "ghost": 0,
+      "treasure": 0
+    },
+    "scanState": {
+      "serverId": 2212,
+      "serverIdSource": "saved_profile_index",
+      "scanRunId": "",
+      "isReading": false,
+      "phase": "unavailable",
+      "selectedTypes": [
+        "city",
+        "resource",
+        "monster",
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "totalBlocks": 0,
+      "readBlocks": 0,
+      "unreadBlocks": 0,
+      "failedBlocks": 0,
+      "inflightBlocks": 0,
+      "scanMode": "normal",
+      "concurrency": 0,
+      "retryCount": 0,
+      "scanRate": 0,
+      "progressPercent": 0,
+      "nativeCaptureReady": false,
+      "nativePendingRecords": 0,
+      "nativeDroppedRecords": 0,
+      "homeServerId": 0,
+      "seasonServerIds": [],
+      "truckMatchServerIds": [],
+      "lastError": null
+    }
+  },
+  "search": {
+    "rows": [
+      {
+        "health": 8800,
+        "id": 40496,
+        "kind": "city",
+        "level": 27,
+        "pointId": 40496,
+        "pointType": 6,
+        "protectEndTime": 0,
+        "runtimeClass": "BuildPointInfo",
+        "serverId": 2212,
+        "source": "WorldPointManager._pointInfos",
+        "srcServerId": 2212,
+        "worldId": 0,
+        "x": 495,
+        "y": 40,
+        "sourceKind": "player_base",
+        "recordKey": "40496",
+        "pointIndex": 40496,
+        "updatedAt": 1789250251000,
+        "marked": false
+      }
+    ],
+    "total": 1
+  },
+  "identityFieldsRedacted": true,
+  "localProfileAndUserPathRedacted": true
+}

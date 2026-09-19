@@ -1,0 +1,169 @@
+{
+  "findingId": "LWB-R7-012",
+  "date": "2026-09-16",
+  "status": "LIVE-PROVEN current-v17 full-world Monster performance and single-Stop backend; UI status integration deterministic/browser-validated",
+  "validatedBaseCommit": "18f63e11fc6e4d8dd6ebbd5054d4f72954c39af9",
+  "currentClient": {
+    "contentVersion": 17,
+    "packageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "packageSize": 41293716,
+    "packageCrc32": 2113157353,
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "liveFootprintMeasurements": [
+    {
+      "target": [
+        25,
+        75
+      ],
+      "repeats": 1,
+      "requestedCountParameter": 8,
+      "nativeAoiCount": 50,
+      "cellBounds": {
+        "x": [
+          0,
+          4
+        ],
+        "y": [
+          0,
+          9
+        ]
+      },
+      "shape": "5x10",
+      "elapsedSeconds": 0.28798650205135,
+      "responseFlagsTransitioned": true,
+      "cameraTileStable": true,
+      "positionRestoredBeforeResponse": true
+    },
+    {
+      "target": [
+        495,
+        475
+      ],
+      "repeats": 3,
+      "requestedCountParameter": 8,
+      "nativeAoiCount": 50,
+      "cellBounds": {
+        "x": [
+          47,
+          51
+        ],
+        "y": [
+          40,
+          49
+        ]
+      },
+      "shape": "5x10",
+      "elapsedSeconds": [
+        0.30820339918137,
+        0.26673609856516,
+        0.3122271974571
+      ],
+      "responseFlagsTransitioned": true,
+      "cameraTileStable": true,
+      "positionRestoredBeforeResponse": true
+    },
+    {
+      "target": [
+        975,
+        975
+      ],
+      "repeats": 1,
+      "requestedCountParameter": 8,
+      "nativeAoiCount": 50,
+      "cellBounds": {
+        "x": [
+          95,
+          99
+        ],
+        "y": [
+          90,
+          99
+        ]
+      },
+      "shape": "5x10",
+      "elapsedSeconds": 0.29229240398854,
+      "responseFlagsTransitioned": true,
+      "cameraTileStable": true,
+      "positionRestoredBeforeResponse": true
+    }
+  ],
+  "planner": {
+    "previousSequentialRequests": 250,
+    "currentSequentialRequests": 200,
+    "requestReductionPercent": 20,
+    "worldAoiCells": 10000,
+    "measuredFootprintPerRequest": "5x10 LOD0 AOIs",
+    "publicationGate": "covered.Count must equal exactly 10000 before logical captures return",
+    "negativeRegression": "removing the fifth-column strip from one measured footprint leaves 9990/10000 and is rejected"
+  },
+  "liveFullMonsterRuns": [
+    {
+      "scanMode": "normal",
+      "concurrencyField": 8,
+      "totalLogicalBlocks": 2500,
+      "failedBlocks": 0,
+      "publishedMonsterCount": 3850,
+      "reopenedMonsterCount": 3850,
+      "scanWallSeconds": 43.6199383,
+      "exitCode": 0
+    },
+    {
+      "scanMode": "fast",
+      "concurrencyField": 20,
+      "totalLogicalBlocks": 2500,
+      "failedBlocks": 0,
+      "publishedMonsterCount": 11500,
+      "reopenedMonsterCount": 11500,
+      "scanWallSeconds": 70.7457797,
+      "exitCode": 0
+    }
+  ],
+  "singleStopLiveProof": {
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000,
+    "scanMode": "normal",
+    "concurrencyField": 8,
+    "totalBlocks": 2500,
+    "completedBlocksBeforeStop": 1,
+    "finalPhase": "idle",
+    "stopped": true,
+    "exitCode": 0
+  },
+  "uiIntegration": {
+    "backend": "map_summary now reads the active ManualMapScanCommandService status/provider and active run scope instead of stale saved-profile scan state",
+    "event": "ManualMapScanCommandService publishes bridge://map-scan-status changes through LWBridgeWindow",
+    "stop": "map_scan_stop waits for the owned run terminal state and returns idle after one request",
+    "deterministicRegression": "Start -> active map_summary scanning -> one Stop -> idle map_summary; status stream includes cancelling then idle",
+    "browserRegression": "36 browser checks passed after integration; no frontend asset change was required"
+  },
+  "validation": {
+    "desktopReleaseBuild": "0 warnings / 0 errors",
+    "checksReleaseBuild": "0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; all six deterministic groups true; failures=[]",
+    "frontendGeneratorCheck": "passed",
+    "frontendBrowserChecks": 36,
+    "currentV17Compatibility": "ok=true; problems=[]",
+    "gitDiffCheck": "passed",
+    "finalProcessState": "game, launcher and LWBridge app stopped"
+  },
+  "limits": [
+    "Monster row count is dynamic and is not a scan-completeness invariant; exact 10000-AOI coverage plus zero failed blocks and publish/reopen equality are the acceptance invariants.",
+    "The current full-world native camera acquisition remains single-owner/sequential. Normal/Fast retain recovered concurrency fields 8/20, but Fast does not invent parallel camera navigation and is not guaranteed to beat Normal wall time.",
+    "The 70.746-second Fast live run is around the owner requested one-minute-plus target, not a guarantee of exactly 60 seconds under every live server/map load.",
+    "A broader historical live proof command hit an unrelated data-dependent zero-city edge-search precondition before reaching its Stop portion; the dedicated single-Stop live proof isolates and passes the Stop path."
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "4e7ff5ff29120adce4f2ef4c054aa2e13457672e91e5046ea820bd848462ba76",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs": "a5dafbf4f1655ae2be1fc34791b88e1e7d54c2d7b0b9d0959c776b884d6c01d7",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "93e203bb6a1eb0ea9f4c525637092697d0b5503eca2740ccac068db1d405458c",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "709d7c6c84386c83638c53acfbc78fd2bcd71236dc9ad1387b52c3810bf6b3a4",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "c1b5e5bed2c7096f90e6f314b88a9b6c0bdde61b883c5ff15ad996ef1f126842",
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs": "6407196dff5fde3c5d55cc9393ca1da2ea5ce3167eff11ea0a00094b936f6cf9",
+    "tests/LWBridge.Desktop.Checks/LiveManualStopProof.cs": "c47da22eccb50a1edcb18cf3b76424c2d2a5eb807684c9a2811b7fec73219ac3"
+  }
+}

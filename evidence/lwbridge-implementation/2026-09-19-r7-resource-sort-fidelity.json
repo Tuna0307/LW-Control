@@ -1,0 +1,79 @@
+{
+  "evidenceId": "LWB-R7-051",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "4811c5b36bfc881a06a6b65eed9195762a19a38c",
+  "scope": {
+    "feature": "current-v19 Resource alternate sort fidelity",
+    "liveProven": true,
+    "readOnly": true,
+    "consumingAction": false
+  },
+  "staticRecovery": {
+    "originalBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendMapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "sortKeys": [
+      "level",
+      "updatedAt"
+    ],
+    "levelRule": "plain indexed level with no Resource-specific transform",
+    "nullOrder": "nulls last for ASC and DESC",
+    "stableTieBreak": "record_key ASC",
+    "multiSort": "preserves frontend sort-array order",
+    "verifier": "tools/inspect_lwbridge_resource_sort_assembly.py"
+  },
+  "implementation": {
+    "contract": "Resource accepts ordered unique subsets of the two recovered public keys",
+    "sql": "recovered level/updatedAt expressions use the shared native null-last/order/tie assembly",
+    "outOfScope": [
+      "City alternate sorts",
+      "Dispatch/Ghost alternate sorts",
+      "unknown Resource sort keys"
+    ]
+  },
+  "deterministicAcceptance": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixSuites": "PASS",
+    "failures": 0,
+    "coverage": [
+      "ASC and DESC for level and updatedAt",
+      "nulls-last behavior",
+      "ordered multi-sort precedence",
+      "stable record-key ties",
+      "sorted pagination",
+      "unsupported/duplicate key fail-closed behavior"
+    ]
+  },
+  "finalLiveProof": {
+    "totalBlocks": 2500,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "scanWallSeconds": 126.0286002,
+    "publishedResourceCount": 1870,
+    "reopenedResourceCount": 1870,
+    "resourceTypeCount": 1870,
+    "occupancyKnownCount": 1870,
+    "occupiedCount": 17,
+    "levelCount": 1870,
+    "resourceNameCount": 1870,
+    "resourceMaxAmountCount": 1870,
+    "blackTileKnownCount": 1870,
+    "blackTileCount": 0,
+    "detailKnownCount": 1853,
+    "fullResourceCount": 1623,
+    "partialResourceCount": 230,
+    "invalidAmountCount": 0,
+    "defaultFilteredCount": 1623,
+    "sortComparedRowCount": 1870,
+    "sortCheckCount": 5,
+    "reopenedSortCheckCount": 5,
+    "totalLiveSortAssertions": 10
+  },
+  "validation": {
+    "currentClientCompatibilityBefore": "exact v19 PASS",
+    "currentClientCompatibilityAfter": "exact v19 PASS",
+    "postProofProcesses": "LastWar/Launcher absent",
+    "stateChangingActions": "none"
+  }
+}

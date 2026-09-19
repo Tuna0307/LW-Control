@@ -1,0 +1,201 @@
+{
+  "evidenceId": "LWB-R7-045",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "fb264d350c08bdb9fdab566b904311bafca47edd",
+  "scope": {
+    "truckDurableWorker": "IMPLEMENTED_OFFLINE_TESTED",
+    "singleOwnerGameOperationGate": "IMPLEMENTED_OFFLINE_TESTED",
+    "changeEvent": "IMPLEMENTED_OFFLINE_TESTED",
+    "postSendNoRetry": "IMPLEMENTED_OFFLINE_TESTED",
+    "staleRunningCrashRecovery": "CONSERVATIVE_REBUILD_POLICY_OFFLINE_TESTED",
+    "publicTruckSchedule": "FAIL_CLOSED",
+    "liveRobberyAcceptance": "NOT_RUN"
+  },
+  "originalReference": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "truckWorkerFunction": {
+      "beginVa": "0x1400E9CD2",
+      "endVa": "0x1400EBE34"
+    },
+    "armableRead": {
+      "helperBeginVa": "0x140268DA4",
+      "helperEndVa": "0x140269062",
+      "workerCallVa": "0x1400EA508",
+      "leadArgumentHex": "0x2710",
+      "leadMilliseconds": 10000,
+      "predicate": "status IN ('scheduled','waiting_connection') AND execute_at<=now+10000 AND (expire_at IS NULL OR expire_at>now), ordered by execute_at ASC LIMIT 1"
+    },
+    "transitions": {
+      "validDueTarget": {
+        "status": "running",
+        "lastError": null,
+        "attemptIncrement": 1
+      },
+      "invalidScheduledTarget": {
+        "status": "failed",
+        "lastError": "invalid scheduled target",
+        "attemptIncrement": 0
+      },
+      "serverResponseTimeout": {
+        "status": "failed",
+        "lastError": "server response timeout",
+        "additionalAttemptIncrement": 0
+      },
+      "offlineDue": {
+        "status": "waiting_connection",
+        "lastError": "game disconnected",
+        "attemptIncrement": 0
+      },
+      "restartOriginal": {
+        "status": "waiting_connection",
+        "lastError": "client restarted",
+        "note": "Recovered original behavior is retained as a reference helper only; production rebuild intentionally does not apply this retryable transition to stale running rows."
+      }
+    },
+    "bridgeCallTimeoutMilliseconds": 5000,
+    "bridgeCalls": [
+      "armMapPlunder",
+      "clearMapPlunderPending"
+    ],
+    "resultFields": [
+      "battleWon",
+      "plunderRewards",
+      "robTimes",
+      "remainingLootCount",
+      "dailyRobCount"
+    ],
+    "event": "bridge://truck-plunder-changed"
+  },
+  "currentV19": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "dailyRobCountSource": "Successful AttackTrainMessage is retained by the current-v19 bridge and supplies authoritative dailyRobCount.",
+    "robTimesPolicy": "Store supports the recovered optional field but the worker does not synthesize it.",
+    "remainingLootCountPolicy": "Store supports the recovered optional field but the worker does not synthesize it."
+  },
+  "implementation": {
+    "worker": "src/LWBridge.Desktop/TruckPlunderWorker.cs",
+    "armLeadMilliseconds": 10000,
+    "tickCadence": {
+      "milliseconds": 1000,
+      "classification": "IMPLEMENTATION_POLICY",
+      "reason": "Original tick cadence remains unrecovered; cadence only drives observation while eligibility uses recovered 10-second lead."
+    },
+    "ownership": {
+      "source": "ManualMapScanCommandService-owned CurrentClientMapBlockSource",
+      "sharedBusyFlag": "truckPlundering",
+      "blockedConcurrentOperations": [
+        "manual map scan",
+        "server jump",
+        "coordinate jump",
+        "march follow",
+        "truck plunder"
+      ],
+      "secondCurrentClientSourceCreated": false
+    },
+    "selection": [
+      "Expire due terminal rows first.",
+      "When no healthy live server is present, mark due scheduled rows waiting_connection/game disconnected.",
+      "Read earliest armable scheduled/waiting_connection row within recovered 10-second lead.",
+      "Current-v19 rebuild executes only when job server equals current live server; it never performs an implicit server jump."
+    ],
+    "identity": {
+      "databaseTrainUuidColumn": "Frontend-selected row uuid / WorldMarch UUID; this is the scheduled-row key.",
+      "marchUuid": "Parsed from the scheduled-row key.",
+      "attackTrainUuid": "Parsed from truck_json.trainUuid and passed separately to the one-shot executor.",
+      "jobId": "Must match the exact selected persisted row before scheduled/waiting_connection -> running transition."
+    },
+    "raceProtection": "TryMarkTruckPlunderRunning rechecks active status and expected jobId in one SQLite transaction, so cancel/reschedule cannot resurrect stale work.",
+    "execution": {
+      "runningTransition": "status=running, last_error=NULL, attempts += 1 exactly once",
+      "oneShotExecutor": "CurrentClientMapBlockSource.ExecuteTruckQuickRobAsync",
+      "success": "RecordTruckPlunderSuccess writes battle/rewards and authoritative dailyRobCount when present.",
+      "responseTimeout": "terminal failed/server response timeout; never retried",
+      "ambiguousResult": "terminal failed/truck plunder execution state is unknown; never retried",
+      "serverRejected": "terminal failed with executor rejection message; never retried",
+      "cancellationAfterRunning": "terminal failed/unknown before cancellation escapes; never retryable",
+      "unexpectedExceptionAfterRunning": "terminal failed/unknown; never retryable"
+    },
+    "restartSafety": {
+      "originalBehavior": "running -> waiting_connection / client restarted",
+      "rebuildBehavior": "running -> failed / truck plunder execution state is unknown after client restart",
+      "reason": "After process death the rebuild cannot prove whether train.attack was already sent; a retry could duplicate the robbery."
+    },
+    "events": {
+      "event": "bridge://truck-plunder-changed",
+      "frontendAlreadySubscribed": true,
+      "hostAllowlistAdded": true,
+      "profileScoped": true,
+      "workerForwardingAdded": true
+    },
+    "publicScheduleEnabled": false
+  },
+  "deterministicValidation": {
+    "workerSuccessExecutesOnce": true,
+    "identitySplitMarchVsTrainUuid": true,
+    "successAttemptsIncrementExactlyOnce": true,
+    "successResultPersisted": true,
+    "dailyRobCountPersistedAuthoritatively": true,
+    "responseTimeoutSecondTickDoesNotExecuteAgain": true,
+    "responseTimeoutAttemptCountRemainsOne": true,
+    "busyGameOperationDefersWithoutAttempt": true,
+    "wrongServerDefersWithoutAttempt": true,
+    "offlineDueBecomesWaitingConnection": true,
+    "invalidTargetFailsBeforeAttempt": true,
+    "staleRunningBecomesTerminalFailed": true,
+    "conditionalJobIdRunningTransition": true,
+    "expiryAndArmableOrdering": true,
+    "originalRestartHelperRetainedForReference": true,
+    "changeEventSourceContract": true,
+    "sharedOperationGateSourceContract": true,
+    "overviewTopLevelLocalCount": 114,
+    "luaParse": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSuite": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "checkOnlyCandidate": {
+    "ok": true,
+    "installedFilesChanged": false,
+    "packageSha256": "419c9c22211b1c53882ba3cc120a1f7432b0e2ea2034d4a49b5930ecee120e41",
+    "packageSize": 41356822,
+    "packageCrc32": 1148589539,
+    "bridgeSourceSha256": "9df78b9045e9670bf4622683d32345bc43eedf8655b4c9229ff6e80dedd3b235",
+    "wrapperPlaintextSha256": "5287839ee4bba09661f07eb69a1ce9eb9308459bfc919d9d011157c6f95a2714",
+    "entryCount": 18735
+  },
+  "safety": {
+    "liveRobberyAttempted": false,
+    "implicitServerJumpEnabled": false,
+    "automaticRetryAfterAmbiguousSendEnabled": false,
+    "automaticRetryAfterStaleRunningRestartEnabled": false,
+    "officialPackageChanged": false
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "marchOrTrainIdsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Expose map_truck_plunder_schedule only after its public payload validation and schedule result contract are deterministic-test proven against the existing UI.",
+    "Decide/document behavior for a scheduled job whose target server is not currently live; current worker deliberately waits and never jumps implicitly.",
+    "Run bounded live acceptance only with explicit user-safe test conditions; no live robbery was attempted in this checkpoint."
+  ]
+}

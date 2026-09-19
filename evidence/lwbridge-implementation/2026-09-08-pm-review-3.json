@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "type": "project-manager-review-3",
+  "implementationRevision": "04237c2518a8f0abe09a450f526bde1603937d36",
+  "branch": "research/offline-controller",
+  "scope": "Audit, tool-authorization instructions and handoff updates; production implementation unchanged",
+  "sourceFileSha256": {
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "1be4c1afbf514912999cd26d74b15ddc89c2bce3523313cd0e13c637f79b0fa4",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "328ec16e5cc87e1f261892d4b16d3475d9144480c9d799341b455de7689cd754",
+    "src/LWBridge.Desktop/HostProbeCommandService.cs": "90a454dddfc273aa8dfb3bb4b1b9ecc07044bfe5659ff121fcb780b54e4e2418",
+    "src/LWBridge.Desktop/LocalConfigStore.cs": "a42dfa8f27d7496fa21d33bb69d0f430d9bf5dfe2c73152ce3c9f72722b4f7c6",
+    "src/LWBridge.Desktop/NativeRequestExecutor.cs": "e4182486c2855a09843accbf792ee68af6e0871ac0a164b86e081f390661d9b5",
+    "src/LWBridge.Desktop/NativeRequestRegistry.cs": "230e9667bad6512ac446aad1d0572e012d82518925812bd5073793ee1ebb3080",
+    "src/LWBridge.Desktop/MapDataStore.cs": "0aa56d588fedf3c889dd17abeb9af64cbb0f301071cbc604087c4d90d91f9eef",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "980aefec72326f3817f55bffbb8fa97d94cb365eb153b47fc44703e170e96e21",
+    "src/LWBridge.Desktop/WebUi/local-providers.js": "25f61d31c81ddc3a0a479a78cf7e7d633db0c4b3100c23a5587939cbe53fe0ff",
+    "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js": "d0cc43412fd07770f8e986e3ea0dd99d022efc22fd8a7ed1dd88d70be09ecf9f",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "e5a0ce9b28506a1c2acaef9cd4ea012234651982e3b84f151f870f745dddc382",
+    "tools/inspect_lwbridge_launch_contract.py": "f4ae3c80dac6850634b3d50a074138f9309ea7cb72940493edb8e885040ae863",
+    "tools/inspect_lwbridge_xlua_abi.py": "7cbc2196544b30809a5bfdfa8f88701f2dffc0b2ff9450c23f776db0726c6543",
+    "tools/inspect_lwbridge_map_query_frontend.py": "1f1acfa39eed85adfd4463db7b2856d8227aed126cae6501af6c109a2a822b2e",
+    ".github/workflows/csharp.yml": "d197af96cbb350dbecab79fec9ab2e7a96aba81744e1c8d73c07f78e3eeb245a"
+  },
+  "checks": {
+    "frontendIntegrity": {
+      "passed": true
+    },
+    "releaseBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "standardBackend": {
+      "passed": true,
+      "failures": [],
+      "verifyRealConfigUnchanged": true,
+      "installedDiagnosticOptional": true,
+      "gameRunning": false,
+      "launcherRunning": false
+    },
+    "independentPm2Regression": {
+      "passed": true,
+      "results": [
+        {
+          "id": "PM2-01",
+          "scenario": "backend partial save preserves another owner's committed AutoReconnect",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "id": "PM2-02",
+          "scenario": "missing primary with valid backup preserves profile identity",
+          "expected": true,
+          "actual": true,
+          "passed": true
+        },
+        {
+          "id": "PM2-03",
+          "scenario": "foreign-owner primary with valid backup is not automatically replaced",
+          "actual": "CONFIG_OWNER_MISMATCH",
+          "primaryPreserved": true,
+          "passed": true
+        },
+        {
+          "id": "PM2-04",
+          "scenario": "noncooperative operation returns after close",
+          "actual": "Cancelled",
+          "passed": true
+        }
+      ]
+    },
+    "nodeMissingNative": {
+      "passed": true
+    },
+    "nodeTransportBoundary": {
+      "passed": true
+    },
+    "isolatedNativeHost": {
+      "command": "LWBridge.Desktop.exe --host-probe .codex-live/pm-review-3/host-probe.json",
+      "reportedAggregatePassed": true,
+      "completeR4Acceptance": false,
+      "observations": {
+        "ok": true,
+        "mode": "isolated-native-host-probe",
+        "implementationPolicy": true,
+        "slowStorageUiResponsive": true,
+        "timerDelayMs": 52.09999996423721,
+        "slowStorageElapsedMs": 860.2999999523163,
+        "sessionRotated": true,
+        "documentGeneration": 3,
+        "reloadCancelledOldWork": true,
+        "reloadResetSubscriptions": true,
+        "lastClosedRequestCount": 1,
+        "lastClosedSubscriptionCount": 7,
+        "staleSessionIgnored": true,
+        "slowBeforeStale": 0,
+        "slowAfterStale": 0,
+        "structuredError": true,
+        "expectedErrorCode": "DIAGNOSTIC_EXPECTED",
+        "duplicateRequestRejected": true,
+        "duplicateCodes": [
+          "DUPLICATE_REQUEST_ID",
+          "COMMAND_CANCELLED"
+        ],
+        "preferenceRollbackVisible": true,
+        "preferenceRollbackErrorVisible": false,
+        "preferenceRollbackErrorText": "",
+        "preferenceRollbackBefore": false,
+        "preferenceRollbackOptimistic": true,
+        "preferenceRollbackAfter": false,
+        "preferenceConfigBefore": false,
+        "preferenceConfigAfter": false,
+        "overlappingPreferenceSavesOrdered": true,
+        "overlapInitial": false,
+        "overlapFirstDraft": true,
+        "overlapLatest": false,
+        "overlapFinal": false,
+        "overlapConfig": false,
+        "overlapStartedBefore": 2,
+        "overlapStartedAfter": 4,
+        "overlapMaxActive": 1,
+        "pickerCancelAndInvalidHandled": true,
+        "pickerCancelBusy": true,
+        "pickerInvalidBusy": true,
+        "pickerBaselineText": "\u672a\u68c0\u6d4b\u5230",
+        "pickerAfterCancelText": "\u672a\u68c0\u6d4b\u5230",
+        "pickerAfterInvalidText": "\u9009\u62e9\u7684\u6e38\u620f\u5b89\u88c5\u76ee\u5f55\u65e0\u6548\u3002",
+        "pickerCancelledBefore": 0,
+        "pickerCancelledAfter": 1,
+        "pickerInvalidBefore": 0,
+        "pickerInvalidAfter": 1,
+        "externalNavigationRejected": true,
+        "rejectedNavigationCount": 1,
+        "closedWindowLateResponseSuppressed": true,
+        "activeRequestsBeforeClose": 1,
+        "activeRequestsAfterLateCompletion": 0,
+        "postedMessagesBeforeClose": 79,
+        "postedMessagesAfterLateCompletion": 79,
+        "startupAutoLaunchSuppressed": true,
+        "isolatedPersistentConfig": true,
+        "userConfigTouched": false,
+        "liveGameCommandsPerformed": false
+      },
+      "realConfigIsolation": {
+        "unchanged": true,
+        "after": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9",
+        "before": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9"
+      }
+    },
+    "providerFailureCombination": {
+      "command": "node evidence/lwbridge-implementation/pm-review-3-repro/check-overlap-failures.cjs",
+      "result": {
+        "id": "PM3-02",
+        "scenario": "false -> true -> false, both serialized saves fail",
+        "lastCommitted": false,
+        "finalUi": true,
+        "sentValues": [
+          true,
+          false
+        ],
+        "passed": false
+      },
+      "limitation": "Actual provider source in a Node VM with deterministic hook storage; native WebView reproduction of this case is pending"
+    },
+    "fixtureCaptures": [
+      {
+        "view": "overview",
+        "passed": true,
+        "imageSha256": "70153a1ebb7d01b04b5ec5544eba252698e91bfc7a9432b5377eb3ccb887e326"
+      },
+      {
+        "view": "automation",
+        "passed": true,
+        "imageSha256": "6090b2729c43b82e70183f5539eadbcbd56d760b3002c489ea210eb4fcf7b19c"
+      },
+      {
+        "view": "map-data",
+        "passed": true,
+        "imageSha256": "ff77ca85fe99a16e50c15c41a73e91a48ce348af5ccf1ff4438cbe6f81661c49"
+      },
+      {
+        "view": "march",
+        "passed": true,
+        "imageSha256": "34882311dd70df16ad0c8df3b37f3a5145c80af1dd3f4366f3b5ba855f6606ec"
+      },
+      {
+        "view": "city-layout",
+        "passed": true,
+        "imageSha256": "8996c6067a330f61f1875cc0cf02b93a3dfa27c071eebe2186e1ccb7b9dd3e04"
+      },
+      {
+        "view": "hotkeys",
+        "passed": true,
+        "imageSha256": "451415db1f5994a3a5b9582446c810474e2f3c7794f79b7eca12e960591b896c"
+      },
+      {
+        "view": "mini-games",
+        "passed": true,
+        "imageSha256": "2c3f3461a3951c5fb8e6db6db4c9d2b667c15ac89c610f2f5defe5309d191030"
+      },
+      {
+        "view": "advanced",
+        "passed": true,
+        "imageSha256": "1137c6589a54581677dbfdc733bea426ce5a3fe803d4d4cc72ca3acadb1b3b34"
+      },
+      {
+        "view": "settings",
+        "passed": true,
+        "imageSha256": "be5a7fec9db0c9a3382107b211717cf45672f1275e65ddd28866221b5814b05d"
+      }
+    ],
+    "sourceReferenceBrowser": {
+      "passed": true,
+      "checks": 35,
+      "pairs": 32,
+      "identical": 31,
+      "maxMae": 7.332978621809302e-05,
+      "maxHighDeltaRate": 0.0,
+      "syntheticNativeResponses": true
+    },
+    "staticInspectors": {
+      "launchContract": {
+        "findingId": "LWB-R5-001",
+        "passed": true
+      },
+      "xluaAbi": {
+        "findingId": "LWB-R5-002",
+        "passed": true,
+        "currentFile": {
+          "sourceLabel": "official-current-install",
+          "sha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+          "exportBase": 1,
+          "namedExportCount": 254,
+          "canonicalPrefixHex": "4c575845310a",
+          "recordFormat": "<decimal export ordinal>:<UTF-8 export name>\\n",
+          "sort": "ascending export ordinal; export-name byte order breaks equal-ordinal ties",
+          "fingerprintSha256": "69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9",
+          "classification": "secure"
+        }
+      },
+      "mapQuery": {
+        "findingId": "LWB-R6-003",
+        "passed": true
+      },
+      "liveProof": false
+    },
+    "inspectorSyntax": {
+      "checked": 4,
+      "passed": true
+    }
+  },
+  "findings": [
+    {
+      "id": "PM3-01",
+      "status": "IMPLEMENTED/OFFLINE-TESTED observation; unresolved UI requirement",
+      "source": "LWBridgeWindow.RunHostProbeAsync preference phase and final ok conjunction; local-providers.js failure path",
+      "result": "Real host reports preferenceRollbackErrorVisible=false and empty error text, while overall ok=true; existing R4 evidence already records this hidden-pane limitation",
+      "next": "Expose single-profile save error and require it in host pass gate"
+    },
+    {
+      "id": "PM3-02",
+      "status": "IMPLEMENTED/OFFLINE-TESTED defect",
+      "source": "local-providers.js Xt.setAutoLaunchGame previous-value rollback and save revision/chain",
+      "result": {
+        "id": "PM3-02",
+        "scenario": "false -> true -> false, both serialized saves fail",
+        "lastCommitted": false,
+        "finalUi": true,
+        "sentValues": [
+          true,
+          false
+        ],
+        "passed": false
+      },
+      "next": "Track confirmed persisted state separately; test both-fail/mixed-failure/successful sequences in standard and native-host suites"
+    }
+  ],
+  "toolAuthorization": {
+    "standingInstallationPermission": true,
+    "missingIntegrationIsNotBlocker": true,
+    "newToolsInstalledThisReview": false,
+    "availableUsed": [
+      "Python",
+      "Node",
+      "dotnet",
+      "WebView2",
+      "pefile",
+      "capstone"
+    ],
+    "notResolvedOnInspectedPath": [
+      "java",
+      "ghidra",
+      "analyzeHeadless",
+      "llvm-objdump",
+      "7z"
+    ],
+    "inventoryLimit": "PATH lookup only; not a full installed-software inventory",
+    "actualEnvironmentRestrictionsStillApply": true
+  },
+  "fullAcceptanceCases": 47,
+  "fullCasesNewlySignedOff": 0,
+  "next": [
+    "PM3-01",
+    "PM3-02",
+    "R5 remaining proof/ticket/child-input contracts and lifecycle",
+    "R6 remaining filters/options/counts/export/native schemas",
+    "R7 capture and scan publication",
+    "R8/R9 auto-scan/actions/jobs",
+    "recurring host/new-inspector CI coverage"
+  ],
+  "historicalAudit": "docs/reviews/2026-09-08-review-2-and-followups.md",
+  "liveGameSideEffectsPerformed": false
+}

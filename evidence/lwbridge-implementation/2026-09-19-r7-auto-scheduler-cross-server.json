@@ -1,0 +1,107 @@
+{
+  "evidenceId": "LWB-R7-038",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "d01c2fc26cfeb2bd92c6765c0bb56785d7af7fa7",
+  "status": {
+    "autoScanParentScheduler": "LIVE_PROVEN",
+    "zombieBossAutoSelectionPersistence": "LIVE_PROVEN",
+    "freshSessionServerInitialization": "LIVE_PROVEN",
+    "crossServerReturnStatus": "LIVE_PROVEN",
+    "consecutiveSchedulerCycles": "LIVE_PROVEN",
+    "unattendedClockTriggerAfterRestart": "PENDING"
+  },
+  "currentClient": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+  },
+  "defectsClosed": [
+    "The parent Auto Scan sanitizer omitted the dedicated zombie_boss kind and silently replaced Zombie Boss-only configuration with the recovered default Auto Scan kinds.",
+    "A successful server_jump changed the authoritative live game server but did not update shared Map Scan status, allowing return-to-origin to leave a stale target serverId.",
+    "A fresh desktop/game session began with Map Scan serverId=0 even though the exact owned Overview heartbeat already carried authoritative GetCurServerId()."
+  ],
+  "implementation": {
+    "schedulerOwnership": "existing top-level React parent scheduler",
+    "scanner": "shared map_scan_start / ManualMapScanCommandService",
+    "configPersistence": "existing per-profile localStorage Auto Scan config",
+    "freshServerSource": "fresh exact-session owned Overview heartbeat GetCurServerId()",
+    "serverStatusPolicy": "heartbeat initializes only an unknown idle server; successful server_jump publishes the authoritative target immediately"
+  },
+  "deterministicValidation": {
+    "releaseBuild": {
+      "succeeded": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "fullSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "javascriptSyntax": true,
+    "gitDiffCheck": true
+  },
+  "freshSessionLiveProof": {
+    "beforeAnyJumpOrScan": true,
+    "phase": "idle",
+    "serverIdPositive": true,
+    "serverIdSource": "live",
+    "source": "owned heartbeat"
+  },
+  "actualUiSchedulerProof": {
+    "trigger": "Auto Scan Run now sets nextRunAt and the existing parent scheduler executes the cycle",
+    "selectedTypes": [
+      "zombie_boss"
+    ],
+    "scanMode": "fast",
+    "targetRelation": "different from original",
+    "returnToOriginalServer": true,
+    "cycleCount": 2,
+    "cycles": [
+      {
+        "beganOnOriginal": true,
+        "targetJumpChangedServer": true,
+        "totalBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "scanRate": 140.96,
+        "returnJumpChangedServer": true,
+        "postReturnStatusIsOriginal": true,
+        "authoritativeOriginalNoOpProven": true
+      },
+      {
+        "beganOnOriginal": true,
+        "targetJumpChangedServer": true,
+        "totalBlocks": 2500,
+        "readBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "scanRate": 8417.51,
+        "returnJumpChangedServer": true,
+        "postReturnStatusIsOriginal": true,
+        "authoritativeOriginalNoOpProven": true
+      }
+    ],
+    "betweenCyclesStatusIsOriginal": true,
+    "finalSummaryIsOriginal": true,
+    "finalOriginalZombieBossCount": 52
+  },
+  "restoration": {
+    "originalAutoScanConfigRestored": true,
+    "ownedGameStoppedCleanly": true,
+    "numericServerIdsExcludedFromEvidence": true
+  },
+  "remaining": [
+    "The scheduler remains owned by the running desktop React application rather than a native background service.",
+    "A naturally elapsed unattended nextRunAt trigger after a full app restart has not been separately live-proven.",
+    "Auto Scan disable/stop behavior across an active multi-target cycle and explicit injected failure recovery remain separate acceptance work.",
+    "A single scheduler cycle containing more than one configured target server remains to be live-proven."
+  ]
+}

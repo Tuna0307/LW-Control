@@ -1,0 +1,149 @@
+{
+  "evidenceId": "LWB-R7-057",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "e612b7b625aefd220d3ab66f9fee93811c3f2795",
+  "scope": {
+    "feature": "internal City Excel export snapshot and OOXML writer infrastructure",
+    "implementationStatus": "IMPLEMENTED/OFFLINE-TESTED internal only",
+    "publicMapCityExportEnabled": false,
+    "liveGameActionPerformed": false
+  },
+  "originalSources": {
+    "lwbridge": {
+      "path": "..\\LW\\lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "frontend": {
+      "finding": "LWB-R6-017",
+      "mapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "nativeWorkbook": {
+      "finding": "LWB-R6-018",
+      "packageParts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "xl/workbook.xml",
+        "xl/_rels/workbook.xml.rels",
+        "xl/styles.xml",
+        "xl/worksheets/sheet1.xml"
+      ],
+      "sheetColumns": "A:L",
+      "frozenHeader": "row 1; topLeftCell A2",
+      "columnWidths": [11, 11, 11, 22, 24, 24, 18, 12, 12, 21, 10, 21],
+      "datetimeFormat": "yyyy-mm-dd hh:mm:ss",
+      "datetimeStyleIndex": 3
+    }
+  },
+  "newStaticRecovery": {
+    "codeView": {
+      "rawOffset": "0x00E4604C",
+      "signature": "RSDS",
+      "pdbName": "lwbridge.pdb",
+      "guid": "3870da6b-b304-4290-8e29-001adcf19d83",
+      "age": 1
+    },
+    "fileDialogLibrary": {
+      "rawOffset": "0x00DB3C68",
+      "crate": "rfd",
+      "version": "0.16.0",
+      "embeddedSourcePath": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rfd-0.16.0\\src\\backend\\win_cid\\file_dialog\\dialog_ffi.rs",
+      "backend": "Windows win_cid / COM file dialog"
+    },
+    "styleTable": {
+      "rawRegion": "0x00C98B35-0x00C98FC0",
+      "cellXfs": [
+        {"index": 0, "numFmtId": 0, "role": "default"},
+        {"index": 1, "numFmtId": 0, "fontId": 1, "fillId": 2, "appearance": "bold white font / solid 004F81BD fill"},
+        {"index": 2, "numFmtId": 3, "applyNumberFormat": true},
+        {"index": 3, "numFmtId": 164, "applyNumberFormat": true}
+      ],
+      "customNumFmt164": "yyyy-mm-dd hh:mm:ss"
+    },
+    "sourceAvailabilityChecks": {
+      "localPdbSearch": "no lwbridge.pdb found under C:\\Users\\chimw",
+      "LWControlZip": "contains only E900fix.cmd, LWControl.exe, Repair-LastWar-E900.ps1; no source/PDB",
+      "publicGitHubExactSearch": "no source result for map_city_export; no relevant source for exact export strings",
+      "timestampFormatLiteralSearch": "no exact %Y... filename format literal recovered"
+    }
+  },
+  "reusedRecoveredSemantics": {
+    "shieldFallback": {
+      "finding": "LWB-R6-049",
+      "rule": "normalized shieldEndTime uses shieldEndTime when present, otherwise protectEndTime",
+      "exportWriterDirectUseProven": false
+    }
+  },
+  "implementation": {
+    "store": {
+      "method": "MapDataStore.SearchAllCityRowsForExport",
+      "scope": "City only",
+      "snapshot": "one deferred SQLite read transaction",
+      "filtersAndSorts": "same recovered City predicates/order assembly as map_search",
+      "pagination": "implementation policy: omit LIMIT/OFFSET and return the full filtered set",
+      "authoritativeOverlays": ["serverId", "marked", "shieldEndTime when indexed", "updatedAt"]
+    },
+    "writer": {
+      "file": "src/LWBridge.Desktop/CityExportWorkbookWriter.cs",
+      "reachableFromPublicCommand": false,
+      "packageParts": "six recovered R6-018 parts only",
+      "recoveredLayout": "A:L widths, frozen row 1/A2, header height 20, A1:L<last> autofilter, recovered margins, exact four-XF style table",
+      "implementationPolicies": [
+        "apply recovered style slot 1 to header cells",
+        "apply recovered style slot 2 to integer-like Server/X/Y/Level/HP cells",
+        "emit UID/UUID/player/alliance/mark labels as inlineStr",
+        "emit positive Unix seconds or milliseconds as UTC Excel serial values with recovered style slot 3",
+        "use normalized shieldEndTime first and protectEndTime fallback for column J",
+        "treat formula-like game strings as inline text, never formula nodes"
+      ]
+    }
+  },
+  "deterministicAcceptance": {
+    "inputRows": 235,
+    "queryPage": 1,
+    "queryPageSize": 200,
+    "filteredRowsReturnedForExport": 235,
+    "worksheetRowsAfterReopen": 236,
+    "packagePartsVerified": 6,
+    "sort": "updatedAt DESC; newest row is first",
+    "largeUid": "900719925474099312345678901234567890 round-trips exactly as inlineStr",
+    "formulaSafety": "formula-like UUID/player name round-trip as inlineStr and worksheet contains zero <f> nodes",
+    "authoritativeOverlayChecks": ["serverId", "updatedAt", "shieldEndTime", "marked"],
+    "dateChecks": ["shield style=3 and serial matches UTC instant", "updatedAt style=3 and serial matches UTC instant"],
+    "styles": "cellXfs count=4 and numFmtId 164 format verified",
+    "invalidHeaderEnvelope": "rejected",
+    "fullDeterministicSuite": "PASS; six groups true; failures=[]"
+  },
+  "publicBoundary": {
+    "map_city_export": "unchanged fail-closed backend gate",
+    "filePickerOpened": false,
+    "fileWrittenToUserFilesystem": false,
+    "reason": "original picker/default filename/existing-destination and complete original writer typing/scope semantics remain unresolved"
+  },
+  "remainingUnknownOriginalSemantics": [
+    "whether original host internally exports all filtered rows beyond frontend pageSize=200",
+    "direct original writer A-C mapping and per-column cell coercion",
+    "direct original writer J selection despite recovered normalized shield fallback",
+    "exact default filename timestamp pattern",
+    "default save directory",
+    "complete rfd cancellation/error/existing-destination behavior as used by LWBridge",
+    "original large UID/UUID workbook typing and reopen behavior"
+  ],
+  "restrictionsPreserved": {
+    "SB-08": "denied template-xref disassembly was not replayed or rerouted",
+    "SB-09": "denied bounded frontend snippet operation was not replayed or rerouted"
+  },
+  "validation": {
+    "exportFrontendVerifier": "PASS; LWB-R6-017 hash-locked frontend contract",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSuite": "PASS; six groups true; failures=[]",
+    "currentClientCompatibility": "exact v19 PASS",
+    "preferenceProvider": "PASS",
+    "liveTransport": "PASS",
+    "transportBoundary": "PASS",
+    "terminationFailureSelfTest": "PASS",
+    "isolatedHostProbe": "PASS; userConfigTouched=false; liveGameCommandsPerformed=false",
+    "gameRunningAfterChecks": false,
+    "launcherRunningAfterChecks": false
+  }
+}

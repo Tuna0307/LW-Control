@@ -1,0 +1,107 @@
+LWB-R6-009 focused static excerpt
+Date: 2026-09-08
+Source: ..\LW\lwbridge-0.3.1.exe
+SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+Coordinate system: raw PE file byte offsets
+
+The excerpts below were captured by bounded printable-ASCII inspection of the verified
+reference bytes. Rust string/slice metadata appears between some fragments; those bytes
+are not reconstructed into invented SQL here.
+
+[0x00C83048-0x00C830C7] alliance options
+SELECT alliance_name,COUNT(*) FROM <dynamic source>
+ WHERE kind='city' AND <dynamic scope>
+ GROUP BY alliance_name ORDER BY alliance_name COLLATE NOCASE,alliance_name
+
+[0x00C830D5-0x00C832F4] resource/monster name options
+SELECT kind,
+  CASE kind
+    WHEN 'resource' THEN CAST(json_extract(data_json,'$.resourceNameKey') AS TEXT)
+    ELSE CAST(json_extract(data_json,'$.monsterNameKey') AS TEXT)
+  END AS name_key,
+  COUNT(*)
+FROM <dynamic source>
+WHERE <dynamic scope> AND kind IN ('resource','monster')
+GROUP BY kind,name_key
+HAVING name_key IS NOT NULL AND name_key<>''
+ORDER BY kind,name_key COLLATE NOCASE
+
+[0x00C832F6-0x00C83359] dispatch level options
+SELECT DISTINCT CAST(level AS INTEGER) FROM <dynamic source>
+WHERE <dynamic scope> AND kind='dispatch' AND level>=1 ORDER BY 1
+
+[0x00C8335D-0x00C83764] treasure options
+WITH treasure_options AS (
+  SELECT
+    CASE WHEN COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0)>0
+      THEN CAST(json_extract(data_json,'$.suppliesType') AS INTEGER) ELSE 0 END AS supplies_type,
+    CASE WHEN COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0)>0
+      THEN 0 ELSE COALESCE(CAST(json_extract(data_json,'$.treasureType') AS INTEGER),0) END AS treasure_type,
+    COALESCE(CAST(json_extract(data_json,'$.treasureNameKey') AS TEXT),'') AS name_key
+  FROM <dynamic source> WHERE <dynamic scope> AND kind='treasure'
+)
+SELECT supplies_type,treasure_type,MAX(name_key),COUNT(*)
+FROM treasure_options
+WHERE supplies_type>0 OR treasure_type>0
+GROUP BY supplies_type,treasure_type
+ORDER BY CASE WHEN supplies_type>0 THEN 1 ELSE 0 END,treasure_type,supplies_type
+
+[0x00C83768-0x00C83A72] reward-item options
+SELECT map_records.kind,
+  CAST(json_extract(good.value,'$.key') AS TEXT),
+  CAST(json_extract(good.value,'$.name') AS TEXT),
+  CAST(json_extract(good.value,'$.iconPath') AS TEXT)
+FROM <dynamic source> AS map_records,json_each(map_records.data_json,'$.currentGoods') AS good
+WHERE <dynamic scope> AND map_records.kind IN ('truck','railway')
+  AND (json_extract(map_records.data_json,'$.arriveTs') IS NULL
+    OR CAST(json_extract(map_records.data_json,'$.arriveTs') AS INTEGER)>?)
+  AND json_extract(good.value,'$.key') IS NOT NULL
+  AND json_extract(good.value,'$.name') IS NOT NULL
+GROUP BY map_records.kind,2,3,4 ORDER BY 3 COLLATE NOCASE,2
+
+[0x00C83A90-0x00C83AF0] option result field vocabulary
+counts alliances names dispatchLevels noAllianceCount rewardItems treasureTypes scanProgress key
+
+[0x00C849FF-0x00C84AC5] latest per-server scan summary
+SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error
+FROM scan_runs WHERE server_id=?1 AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1
+
+[0x00C89BE4-0x00C89C1A] level filter builder
+minPower maxPower level >= ? level <= ? power >= ? power <= ?
+
+[0x00C89D3E-0x00C89F37] treasure selector predicates
+CAST(json_extract(data_json,'$.suppliesType') AS INTEGER) = ?
+CAST(json_extract(data_json,'$.treasureType') AS INTEGER) = ?
+COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) = 0
+
+[0x00C89F38-0x00C8A12E] time-dependent adjacent predicates, not implemented by LWB-R6-009
+specialOnly
+CAST(json_extract(data_json,'$.isSpecial') AS INTEGER) = 1
+completionStatus
+(CAST(json_extract(data_json,'$.completionTime') AS INTEGER) IS NULL OR CAST(json_extract(data_json,'$.completionTime') AS INTEGER) <= 0 OR CAST(json_extract(data_json,'$.completionTime') AS INTEGER) > ?)
+CAST(json_extract(data_json,'$.completionTime') AS INTEGER) > 0 AND CAST(json_extract(data_json,'$.completionTime') AS INTEGER) <= ?
+reindeerOnly
+CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER) = 1
+
+[0x00C8A918-0x00C8ABEB] derived sort-expression vocabulary, mapping still only partially recovered
+distance
+power
+COALESCE((SELECT SUM(CAST(json_extract(good.value,'$.count') AS REAL)) FROM json_each(<candidate>.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = ?),0)
+NULLIF(CAST(json_extract(data_json,'$.completionTime') AS INTEGER),0)
+COALESCE(CAST(json_extract(data_json,'$.remainingLootCount') AS INTEGER),0)
+NULLIF(CAST(json_extract(data_json,'$.protectTime') AS INTEGER),0)
+NULLIF(CAST(json_extract(data_json,'$.arriveTs') AS INTEGER),0)
+CASE WHEN CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER)=1 THEN 100 ELSE quality END
+CASE WHEN CAST(json_extract(data_json,'$.isSpecial') AS INTEGER)=1 THEN 100 ELSE quality END
+NULLIF(CAST(json_extract(data_json,'$.health') AS REAL),0)
+
+Boundary:
+- RECOVERED: exact strings/ranges above from the verified original artifact.
+- IMPLEMENTED/OFFLINE-TESTED in LWB-R6-009: treasure selected-option dimensions and dispatch selected level.
+- UNKNOWN/BLOCKED: reward-item arriveTs cutoff parameter producer/unit, completion-status clock,
+  per-kind plunderability parameter mapping, ordinary quality string-to-integer binding,
+  treasure foreign-radar/lucky-first parameter mapping, authoritative map_summary server selection,
+  and remaining non-updatedAt sort mapping.
+- A convenience binary verifier attempted during this checkpoint was rejected by the active environment's
+  automatic safety review. It was not retried or routed through another executor. These saved excerpts come
+  from the successful bounded raw-byte inspections that preceded that rejected verifier invocation.

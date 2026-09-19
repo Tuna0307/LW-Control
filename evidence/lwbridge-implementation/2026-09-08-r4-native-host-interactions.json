@@ -1,0 +1,132 @@
+{
+  "checkpoint": "R4 production-mode WebView interaction matrix",
+  "date": "2026-09-08",
+  "startingRevision": "e48fc73e71ba850fc3d5aacb7fb420192c661ecf",
+  "branch": "research/offline-controller",
+  "classification": [
+    "RECOVERED",
+    "IMPLEMENTATION POLICY",
+    "IMPLEMENTED/OFFLINE-TESTED"
+  ],
+  "reference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredFrontend": {
+    "path": "evidence/lwbridge-0.3.1/frontend/assets/index-sfL2sT3K.js",
+    "sha256": "4d18cbc036a417b1a13a2c9905f1abc5dda1427531ad1ab4f7b03f4b269704b3",
+    "locator": "line 32, recovered Overview handler async function en()",
+    "result": "game_root_select resolves an object whose canceled and valid fields are read by the original UI; canceled selection is a no-op and a non-canceled invalid result sets INVALID_GAME_ROOT"
+  },
+  "sourceHashes": {
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "328ec16e5cc87e1f261892d4b16d3475d9144480c9d799341b455de7689cd754",
+    "src/LWBridge.Desktop/HostProbeCommandService.cs": "90a454dddfc273aa8dfb3bb4b1b9ecc07044bfe5659ff121fcb780b54e4e2418",
+    "src/LWBridge.Desktop/Program.cs": "b1194af8d14d66a7d1e6cc06432086f0d23855ee3aa5ca9cd3622a1bfe7b0be2",
+    "src/LWBridge.Desktop/WebUi/local-providers.js": "25f61d31c81ddc3a0a479a78cf7e7d633db0c4b3100c23a5587939cbe53fe0ff",
+    "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js": "d0cc43412fd07770f8e986e3ea0dd99d022efc22fd8a7ed1dd88d70be09ecf9f"
+  },
+  "findings": [
+    {
+      "id": "R4-HOST-01",
+      "scope": "duplicate active request ownership",
+      "label": "IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED",
+      "locator": "LWBridgeWindow.RunHostProbeAsync line 247; OnWebMessageReceived line 812; HostProbeCommandService delayed command",
+      "reproduction": "real WebView2 posts the same request ID twice for diagnostic_host_delayed, waits for the duplicate response, then cancels the owned request",
+      "result": "exactly one delayed service operation starts; responses are DUPLICATE_REQUEST_ID and COMMAND_CANCELLED; service ownership drains to zero",
+      "validationLimits": "isolated deterministic diagnostic service; no live game operation or production retry threshold is inferred",
+      "implementationImpact": "the production WebView request registry duplicate-ID path is exercised through the real host rather than only console tests"
+    },
+    {
+      "id": "R4-PREF-02",
+      "scope": "actual React preference rollback and overlapping saves",
+      "label": "IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED",
+      "locator": "WebUi/local-providers.js lines 7-41; LWBridgeWindow.RunHostProbeAsync lines 417-506; HostProbeCommandService.BeforeProductionCommandAsync line 86",
+      "reproduction": "real recovered Overview auto-launch switch is clicked in WebView2; probe-only isolated config save first delays then rejects, followed by two rapid successful toggles with the first save delayed",
+      "result": "failed save changes the rendered switch false -> true -> false while durable autoLaunchGame remains false; rapid false -> true -> false saves are serialized, configSaveMaxActive=1, and both final DOM state and durable config are false",
+      "validationLimits": "the login-free single-profile layout hides the recovered profile-error pane, so preferenceRollbackErrorVisible=false is retained as an observed UI limit; the adapter now preserves the recovered {profileId,error} error shape. Save ordering is rebuild policy, not a recovered original concurrency rule",
+      "implementationImpact": "auto-launch preference writes are sequenced and stale save failures cannot roll back a newer UI revision"
+    },
+    {
+      "id": "R4-PICKER-03",
+      "scope": "game-root picker cancel, invalid selection, and busy state",
+      "label": "RECOVERED + IMPLEMENTED/OFFLINE-TESTED",
+      "locator": "recovered index-sfL2sT3K.js line 32 async function en(); LWBridgeWindow.SelectGameRootAsync line 916",
+      "reproduction": "isolated probe forces only its game_root_status to missing, reloads the real Overview, then drives the rendered .game-root-missing button through probe-only cancel and invalid outcomes",
+      "result": "button is disabled while both picker operations are active; cancel preserves the missing-root text; invalid returns a non-canceled invalid status and the recovered UI displays its localized INVALID_GAME_ROOT text",
+      "validationLimits": "probe outcome selection is deterministic policy; outside --host-probe the normal FolderBrowserDialog remains the picker and GameInstallationService performs the real validation",
+      "implementationImpact": "normal native cancel now returns {canceled:true}; invalid GameRootStatus is returned to the recovered UI instead of being converted to a host exception"
+    },
+    {
+      "id": "R4-HOST-04",
+      "scope": "real window close with late noncooperative completion",
+      "label": "IMPLEMENTATION POLICY + IMPLEMENTED/OFFLINE-TESTED",
+      "locator": "LWBridgeWindow.RunHostProbeAsync late phase; SendMessage line 1000; Program.cs lines 20-30; HostProbeCommandService LateCommand line 12/150",
+      "reproduction": "start diagnostic_host_late, confirm one active request, close the real WinForms window, then release a service completion that intentionally ignores cancellation",
+      "result": "late service completes, request ownership drains 1 -> 0, and native posted-message count remains 79 -> 79 after close; no late success/error is published",
+      "validationLimits": "host-probe ApplicationContext lifetime is explicit diagnostic policy so evidence can be persisted after the real window closes; normal application lifetime is unchanged",
+      "implementationImpact": "the closed-window publication gate is now verified through the production WebView host path"
+    }
+  ],
+  "nativeHostProbe": {
+    "command": "dotnet run --project src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release -- --host-probe .codex-live/r4-native-host/result.json",
+    "ok": true,
+    "mode": "isolated-native-host-probe",
+    "duplicateRequestRejected": true,
+    "duplicateCodes": [
+      "DUPLICATE_REQUEST_ID",
+      "COMMAND_CANCELLED"
+    ],
+    "preferenceRollbackVisible": true,
+    "preferenceRollbackErrorVisible": false,
+    "preferenceRollbackBefore": false,
+    "preferenceRollbackOptimistic": true,
+    "preferenceRollbackAfter": false,
+    "preferenceConfigBefore": false,
+    "preferenceConfigAfter": false,
+    "overlappingPreferenceSavesOrdered": true,
+    "overlapFirstDraft": true,
+    "overlapLatest": false,
+    "overlapFinal": false,
+    "overlapConfig": false,
+    "overlapMaxActive": 1,
+    "pickerCancelAndInvalidHandled": true,
+    "pickerCancelBusy": true,
+    "pickerInvalidBusy": true,
+    "closedWindowLateResponseSuppressed": true,
+    "activeRequestsBeforeClose": 1,
+    "activeRequestsAfterLateCompletion": 0,
+    "postedMessagesBeforeClose": 79,
+    "postedMessagesAfterLateCompletion": 79,
+    "slowStorageUiResponsive": true,
+    "timerDelayMs": 56.8,
+    "slowStorageElapsedMs": 887.5,
+    "sessionRotated": true,
+    "documentGeneration": 3,
+    "reloadCancelledOldWork": true,
+    "reloadResetSubscriptions": true,
+    "staleSessionIgnored": true,
+    "structuredError": true,
+    "externalNavigationRejected": true,
+    "startupAutoLaunchSuppressed": true,
+    "userConfigTouched": false,
+    "liveGameCommandsPerformed": false
+  },
+  "verification": [
+    "python tools/build_lwbridge_frontend.py --check => pass",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release => pass, 0 warnings, 0 errors",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release => ok:true, failures:[]",
+    "node tools/check_lwbridge_live_transport.cjs => pass",
+    "node tools/check_lwbridge_transport_boundary.cjs => pass",
+    "./tools/capture_lwbridge_ui.ps1 -OutputDirectory .codex-live/r4-host-captures => all nine views produced valid captures without UI errors",
+    "reference executable SHA-256 rechecked => 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  ],
+  "remainingGates": [
+    "R3 durable correlated diagnostics on the first real lifecycle/scan worker",
+    "R5 exact LaunchEnvelope descriptor/proof/ticket producer and validation",
+    "R5 secure/plain xLua ABI fingerprint selection",
+    "R5 owned launch/status/stop and verified bridge heartbeat/readiness",
+    "R6 remaining query/options/count/export and run-publication contracts",
+    "47 complete Overview/Map Data acceptance cases remain unsigned until their full required evidence exists"
+  ],
+  "liveProof": false
+}

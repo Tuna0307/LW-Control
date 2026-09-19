@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-007",
+  "date": "2026-09-10",
+  "scope": "Bounded current-view resource gather occupancy for the accepted R7-003 route",
+  "labels": {
+    "originalFormatter": "RECOVERED",
+    "currentManagedFields": "RECOVERED",
+    "rebuildImplementation": "IMPLEMENTED/OFFLINE-TESTED",
+    "currentIdleObservation": "LIVE-PROVEN",
+    "liveGatheringObservation": "UNKNOWN/BLOCKED",
+    "normalWindowVisualProof": "UNKNOWN/BLOCKED"
+  },
+  "sources": {
+    "lwbridgeReference": {
+      "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+      "locator": "minified line 1 resource status formatter",
+      "result": "The recovered resource row chooses Gathering versus Idle from gatherMarchUuid/gatherUid presence."
+    },
+    "currentManagedArtifact": {
+      "path": "%LOCALAPPDATA%/FunFly/Last War-Survival Game/Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+      "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "locators": [
+        "ResPointInfo type row 1753",
+        "gatherMarchUuid field row 10139",
+        "gatherUid:string and gatherAllianceId:string recorded by LWB-R6-048",
+        "GetResourcePointInfoByIndex method row 13638 / RVA 0x1558dc"
+      ],
+      "result": "The current managed client owns both gather identifiers on ResPointInfo and exposes a typed resource-point lookup."
+    },
+    "currentClientRuntime": {
+      "lwscriptsDataSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+    }
+  },
+  "implementation": [
+    {
+      "file": "tools/current_live_resource_probe.lua",
+      "sha256": "a9808f28d43134cdc20171d38de833ac27580b185d18f90bb2f4cef1aa0cd8ac",
+      "locators": [
+        "114-123 reflected_field_value",
+        "135-139 occupancy_value_present",
+        "375-380 gather field read/derivation",
+        "405-406 result fields"
+      ],
+      "result": "The bounded probe marks occupancy known only when both recovered fields exist and are readable; it derives occupied only from a nonempty/nonzero gather identifier."
+    },
+    {
+      "file": "src/LWBridge.Desktop/FirstLiveResultImporter.cs",
+      "sha256": "3acc952128b4974e5b6e4fc11c52dc745fac61894e3334daa309b8385b2c0e75",
+      "locators": [
+        "145-151 occupancy validation/normalization",
+        "208-223 TryReadBool"
+      ],
+      "result": "The importer preserves a source-backed boolean only when the probe supplies both the known marker and occupied value; older/incomplete captures remain unknown."
+    },
+    {
+      "file": "tools/build_lwbridge_frontend.py",
+      "sha256": "084cde9055fd4bd437013b9100449e4be5255f9ebf8372f84f59de3f5db49c7f",
+      "locator": "80 bounded_status replacement",
+      "result": "Bounded rows use rebuildGatherOccupied only when rebuildGatherOccupancyKnown is true; false stays unknown and ordinary recovered rows keep the original formatter."
+    },
+    {
+      "file": "tests/LWBridge.Desktop.Checks/Program.cs",
+      "sha256": "bad1df76b5140915d8e44673f442fa80e2ecfd9f32f63bb529b80f07316e4029",
+      "locators": [
+        "574-599 known-idle importer regression",
+        "602-627 known-gathering importer regression"
+      ]
+    }
+  ],
+  "reproduction": [
+    "python tools/build_lwbridge_frontend.py --check",
+    "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+    "$env:NODE_PATH=(npm root -g).Trim(); node tools/check_lwbridge_frontend.cjs",
+    "node tools/check_lwbridge_preference_provider.cjs",
+    "node tools/check_lwbridge_transport_boundary.cjs",
+    "node tools/check_lwbridge_live_transport.cjs",
+    "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe --live-resource-proof evidence/lwbridge-implementation/2026-09-10-pm12-resource-occupancy-live-proof.json"
+  ],
+  "validation": {
+    "frontendIntegrity": "PASS: recovered hashes verified and generated frontend current",
+    "releaseBuild": "PASS: 0 warnings, 0 errors",
+    "deterministicDesktop": "PASS: six deterministic groups true; failures=[]; selected installation diagnostic valid; game and launcher stopped before live proof",
+    "browser": "PASS: 35 browser checks",
+    "preference": "PASS",
+    "transportBoundary": "PASS",
+    "liveTransportMissingNative": "PASS"
+  },
+  "liveProof": {
+    "path": "evidence/lwbridge-implementation/2026-09-10-pm12-resource-occupancy-live-proof.json",
+    "sha256": "283bedc73794422b5b2b2d325e60dd3bdd7015262837ea0569ddff25eb34ca45",
+    "probeSourceSha256": "a9808f28d43134cdc20171d38de833ac27580b185d18f90bb2f4cef1aa0cd8ac",
+    "first": {
+      "capturedAt": "2026-09-10T09:37:53Z",
+      "requestId": "bfa59bfd07214e1b919ef89acfb46b12",
+      "gamePid": 43980,
+      "serverId": 2212,
+      "pointId": 32482,
+      "x": 481,
+      "y": 32,
+      "resourceSourceType": "ResPointInfo",
+      "gatherOccupancyKnown": true,
+      "gatherOccupied": false,
+      "importedRebuildGatherOccupancyKnown": true,
+      "importedRebuildGatherOccupied": false,
+      "normalCloseAccepted": true,
+      "normalCloseExited": true,
+      "restoredOriginalHashes": true
+    },
+    "second": {
+      "capturedAt": "2026-09-10T09:38:19Z",
+      "requestId": "f4a66c92f0f04e54aa33ba9e278e2e8b",
+      "gamePid": 15140,
+      "serverId": 2212,
+      "pointId": 32482,
+      "x": 481,
+      "y": 32,
+      "resourceSourceType": "ResPointInfo",
+      "gatherOccupancyKnown": true,
+      "gatherOccupied": false,
+      "importedRebuildGatherOccupancyKnown": true,
+      "importedRebuildGatherOccupied": false,
+      "normalCloseAccepted": true,
+      "normalCloseExited": true,
+      "restoredOriginalHashes": true
+    },
+    "postRun": {
+      "probeOnlineAfterSecond": false,
+      "gameLauncherHelperProcessesRemaining": false
+    }
+  },
+  "supersededAttempt": {
+    "path": "evidence/lwbridge-implementation/2026-09-10-pm12-resource-occupancy-live-proof-attempt1.json",
+    "sha256": "49e324e96e4b959c8679bdbf90b6dd0da26808d4563228cfe1d6cd791d91d3e3",
+    "probeSourceSha256": "8a4b981b8357294285eaccd6babb05d60034ecf8b4b671f4a4022b5912459dc6",
+    "limit": "Preserved as incomplete evidence: it reported gatherOccupancyKnown=true but did not serialize gatherOccupied=false, so it is not accepted for occupancy-state semantics."
+  },
+  "restriction": {
+    "id": "SB-96",
+    "operation": "One bundled read-only search/read of the probe serializer and gather-field code during resume",
+    "result": "Automatic review rejected the operation because safety status could not be determined. It was not repeated as a bundle; narrower exact line reads were permitted and supplied the needed evidence.",
+    "technicalImpact": "none"
+  },
+  "limits": [
+    "The final live observations prove the current selected point is idle; no live point with a nonempty gather identifier was observed, so the true/Gathering branch is recovered-static plus offline-tested rather than LIVE-PROVEN.",
+    "Resource-name mapping remains unknown; resourceTypeId=14 is not promoted to an LWBridge resourceNameKey.",
+    "The backend two-read proof does not create or verify the normal Map Data window, so PM12-D screenshot/interaction proof remains open.",
+    "This route does not establish persistent bridge readiness, original pipe grammar, full-world scanning, or different Normal/Fast scan behavior; probeOnlineAfterSecond remains false."
+  ],
+  "implementationImpact": {
+    "enabled": "For bounded current-view resource rows from probe version 2, source-backed idle/gather occupancy may flow into the existing recovered Idle/Gathering renderer when both gather fields are readable.",
+    "stillGated": "Normal-window visual acceptance, live Gathering observation, resourceNameKey mapping, persistent bridge readiness, broader scan lifecycle and unsupported map kinds."
+  }
+}

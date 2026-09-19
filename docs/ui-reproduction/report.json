@@ -1,0 +1,337 @@
+{
+  "results": [
+    {
+      "id": "overview-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "automation-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "map-data-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "march-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "city-layout-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "hotkeys-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "mini-games-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "settings-light-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "overview-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "automation-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "map-data-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "march-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "city-layout-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "hotkeys-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "mini-games-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "settings-light-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "overview-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "automation-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "map-data-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "march-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "city-layout-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "hotkeys-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "mini-games-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "settings-dark-zh-CN",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "overview-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "automation-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "map-data-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "march-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "city-layout-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "hotkeys-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "mini-games-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "id": "settings-dark-en",
+      "region": {
+        "x": 186,
+        "y": 74,
+        "width": 922,
+        "height": 636
+      },
+      "errors": []
+    },
+    {
+      "interaction": ".automation-categories button",
+      "count": 6
+    },
+    {
+      "interaction": ".map-tabs button",
+      "count": 9
+    },
+    {
+      "interaction": ".squad-tabs button",
+      "count": 2
+    }
+  ],
+  "errors": []
+}

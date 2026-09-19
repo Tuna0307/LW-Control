@@ -1,0 +1,56 @@
+{
+  "findingId": "LWB-OVR-017",
+  "date": "2026-09-17",
+  "status": "LIVE-PROVEN diagnosis + IMPLEMENTED/OFFLINE-TESTED recovery policy",
+  "incident": {
+    "fromLuaVersion": 17,
+    "toLuaVersion": 18,
+    "patch": "LWScripts_18_17_u440.patch",
+    "patchSize": 175274,
+    "patchCrc32": 967647119,
+    "failedExpectedOutputCrc32": 738537259,
+    "failedObservedOutputCrc32": 2093359558
+  },
+  "diagnosis": {
+    "previousSettleMarkerPackageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "cause": "The exact-package settle cache skipped the untouched official launcher warm-up while v17 was still installed. The bridge helper then installed its temporary candidate before launching the official launcher, so the official 18<-17 delta was applied to modified bytes.",
+    "confirmation": "Launching the official launcher once against restored untouched v17 bytes applied the same 18<-17 update successfully and started the game."
+  },
+  "acceptedV18": {
+    "contentVersion": 18,
+    "fileVersion": 3,
+    "packageSize": 41296021,
+    "packageCrc32": 738537259,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "entryCount": 18734
+  },
+  "unchangedCompatibilityAnchors": {
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "criticalLuaEntriesUnchanged": true
+  },
+  "implementation": {
+    "helper": "tools/run_overview_bridge.py now tails only new launcher-log bytes during owned candidate launch and raises official_lua_update_failed on a new LWLua CRC mismatch.",
+    "lifecycle": "OverviewLifecycleService catches only that cleanup-complete error once, invalidates the settle marker, forces untouched official settlement/update, revalidates compatibility, and retries the bridge helper once.",
+    "retryLimit": 1,
+    "unrelatedFailuresRetry": false
+  },
+  "validation": {
+    "currentClientCompatibilityOk": true,
+    "currentClientContentVersion": 18,
+    "pythonCompile": true,
+    "dedicatedOfficialSettleChecks": "ok",
+    "deterministicSuiteOk": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "clean",
+    "finalGameRunning": false,
+    "finalLauncherRunning": false
+  },
+  "limits": [
+    "The automatic recovery policy is rebuild implementation policy, not a recovered original LWBridge updater algorithm.",
+    "Critical executable/xLua/managed/Lua-anchor changes still fail closed as unsupported.",
+    "The Monster Zombie Boss Remaining work remains a separate uncommitted owner-test-pending change set."
+  ]
+}

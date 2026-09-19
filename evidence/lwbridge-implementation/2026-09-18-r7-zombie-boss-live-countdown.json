@@ -1,0 +1,27 @@
+{
+  "findingId": "LWB-R7-029",
+  "date": "2026-09-18",
+  "status": "LIVE-PROVEN",
+  "scope": "Zombie Boss Remaining live one-second UI countdown without rescanning",
+  "rootCause": "The existing one-second Map Data currentTime effect included Monster but omitted zombie_boss, so stored absolute shield deadlines were correct while the Zombie Boss table rendered against a frozen currentTime value.",
+  "fix": "Zombie Boss now participates in the same one-second currentTime interval as Monster and the other time-sensitive result tabs.",
+  "liveUiProof": {
+    "rescanDuringProof": false,
+    "observationWindowSeconds": 4.2,
+    "sampledRemainingBefore": ["00:01:58", "00:02:59", "00:03:22"],
+    "sampledRemainingAfter": ["00:01:54", "00:02:55", "00:03:18"],
+    "observedDecreaseSeconds": [4, 4, 4],
+    "countdownMoved": true
+  },
+  "validation": {
+    "javascriptSyntaxCheck": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroupsAllTrue": true,
+    "gitDiffCheckClean": true,
+    "officialV18Restored": true,
+    "compatibilityOk": true,
+    "gameLauncherAndDesktopProcessesAfterCleanup": 0
+  },
+  "privacy": "Aggregate-only evidence; no live UUIDs, coordinates, account identifiers, player identities, profile identifiers, session identifiers, challenge identifiers, logs, databases, or raw live records retained."
+}

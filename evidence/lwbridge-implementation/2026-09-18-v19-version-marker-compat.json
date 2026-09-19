@@ -1,0 +1,39 @@
+{
+  "findingId": "LWB-OVR-018",
+  "status": "LIVE-PROVEN",
+  "date": "2026-09-18",
+  "scope": "Current-client v19 compatibility when the official LocalLow version marker remains one content revision behind",
+  "failureFirst": {
+    "contentVersion": 19,
+    "versionMarker": 18,
+    "previousResult": "GAME_UPDATE_UNSUPPORTED",
+    "launcherEvidence": "The untouched official launcher applied 19<-18, then on a second untouched launch reported local LWLuaFile version 19 current against remote version 19."
+  },
+  "correction": {
+    "policy": "lwbridge-current-client-critical-anchors-2",
+    "authoritativeIdentity": "LWLF header plus exact package size/CRC metadata and recovered executable/xLua/managed/critical-Lua anchors",
+    "versionMarkerRule": "version.txt remains required, positive and numeric; an older marker is diagnostic/advisory, while a marker newer than the LWLF content version still fails closed",
+    "verification": "The dynamic verifier re-inspects the full authoritative identity before accepting the client instead of delegating to the historical exact-marker verifier."
+  },
+  "currentClient": {
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "packageSize": 41296373,
+    "packageCrc32": 1913170558,
+    "versionMarker": 18,
+    "versionMarkerMatchesContentVersion": false,
+    "compatibilityOk": true
+  },
+  "validation": {
+    "markerPolicyRegression": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixDeterministicGroups": true,
+    "manualLifecycleConnectedAndClosed": true,
+    "autoStartLifecycleConnectedAndClosed": true,
+    "postRestoreCompatibilityOk": true,
+    "gameLauncherBridgeProcessesPresent": false,
+    "recoveryJournalPresent": false
+  },
+  "privacy": "Aggregate-only evidence. No player identity, UUID, coordinates, session/challenge identifiers, process identifiers, databases or logs are retained."
+}

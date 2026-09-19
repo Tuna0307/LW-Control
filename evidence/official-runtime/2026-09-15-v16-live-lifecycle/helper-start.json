@@ -1,0 +1,72 @@
+{
+  "bridgeVersion": "lwbridge-overview-bridge-1",
+  "candidate": {
+    "bridgeSourceSha256": "d5ab65e87936a5b85014ec22107c0390292165dca67be13637a6aa5f6f294d82",
+    "entryCount": 18735,
+    "packageCrc32": 3191175317,
+    "packageSha256": "d13bdf539109173c468bf6db85d6929577edeecb930111942fa2ca65eb155eca",
+    "packageSize": 41293155,
+    "wrapperPlaintextSha256": "f24aec9188bdb8992923aee6c795030b02cfc8655058838de11f959692712526"
+  },
+  "challengeSha256": "249ab2dcee71ab35f8366ef3e7ff867f93b5f782a1792adc5c6ad4758f039a89",
+  "currentClient": {
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "entryCount": 18734,
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "packageCrc32": 3454076078,
+    "packageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+    "packageSize": 41278785,
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+  },
+  "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+  "gamePid": 39688,
+  "gameRunning": true,
+  "gameStartedAtUtc": "2026-09-14T16:31:32.8375313Z",
+  "heartbeatPath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\heartbeat.json",
+  "installedFilesChanged": true,
+  "interruptedRecovery": null,
+  "launcherPid": 35920,
+  "leasePath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\lease.txt",
+  "mode": "overview_install_launch_ready_deferred_restore",
+  "ok": true,
+  "profileId": "livev16proof",
+  "ready": {
+    "bridgeVersion": "lwbridge-overview-bridge-1",
+    "challengeSha256": "249ab2dcee71ab35f8366ef3e7ff867f93b5f782a1792adc5c6ad4758f039a89",
+    "gamePid": 39688,
+    "messageText": "LWbridge is running",
+    "messageVisible": true,
+    "profileId": "livev16proof",
+    "ready": true,
+    "readyAt": 1789403500,
+    "registrationMethod": "UpdateManager.AddUpdate",
+    "renderPath": "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
+    "schemaVersion": 1,
+    "sessionId": "livev16proof20260915a"
+  },
+  "readyPath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge\\ready.json",
+  "restore": {
+    "backupPath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\overview-bridge-backups\\20260914-163127-db736c31464c4c2e8e8d921f799d1f3f",
+    "deferred": true,
+    "originalFiles": {
+      "data": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+        "sha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+        "size": 41278785
+      },
+      "metadata": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+        "sha256": "be4805caa5caa062b741a51cf30b9165a57b3e9e4e42a3c9e7a0c103f0fe3c06",
+        "size": 19
+      },
+      "version": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+        "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+        "size": 2
+      }
+    },
+    "restored": false,
+    "stage": "active_ready_deferred_restore"
+  },
+  "sessionId": "livev16proof20260915a"
+}
