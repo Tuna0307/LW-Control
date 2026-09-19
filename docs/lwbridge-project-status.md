@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-062, 2026-09-19
+
+Home/Overview launch robustness is repaired after the owner's UI test hit a real official-launcher handoff stall. The failed helper evidence says `the selected launcher did not create a matching LastWar process before timeout`; Launcher.log shows candidate pack verification succeeded but no `Starting game` line followed. Two controlled launches immediately afterward connected, isolating the failure from bridge injection/readiness. Production now retries exactly once only for that exact error, within the original bounded start budget and after transactional helper cleanup. Deterministic retry coverage, patched manual+auto live proof and the full six-group suite pass; game and launcher end closed. See [R7-062 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-overview-launcher-handoff-retry.json).
+
 ## Latest implementation checkpoint — LWB-R7-061, 2026-09-19
 
 Coordinate Jump is now LIVE-PROVEN on current-v19 through the public `map_coordinate_jump` service path. The shipped Map Data result UI uses moving Follow only for Truck/Railway and coordinate Jump for every other result kind. A bounded read-only navigation proof on server 2212 moved the normal-world camera from the current player tile to a distinct in-bounds target, required the exact owned-session/server/world/target `GotoWorldPos` completion callback, then returned to the player tile and proved that callback too. No scan or gameplay action was used; game and launcher were closed afterward. Truck Follow remains live-proven; Railway positive-row Follow is population-pending. See [R7-061 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-coordinate-jump-live.json).

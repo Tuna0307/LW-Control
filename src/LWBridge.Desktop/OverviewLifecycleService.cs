@@ -586,6 +586,28 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 }
                 helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             }
+            catch (InvalidOperationException error) when (IsLauncherGameSpawnTimeout(error))
+            {
+                // R7-062: the official launcher can occasionally finish pack verification
+                // but fail to issue its LastWar start command. The helper has already
+                // closed its owned launcher and restored the exact original package before
+                // surfacing this error, so one same-session retry is transactionally safe.
+                if (testHooks is null)
+                {
+                    long retryDeadline = startDeadline!.Value;
+                    if (retryDeadline - RecoveryClockMilliseconds() < 11_000)
+                        throw;
+                    await RecoveryDelayAsync(TimeSpan.FromMilliseconds(750), cancellationToken).ConfigureAwait(false);
+                    startInvocation = CreateBoundedStartInvocation(
+                        newSession, newChallenge, retryDeadline);
+                }
+                else
+                {
+                    startInvocation = new OverviewHelperInvocation(
+                        "start", profileId, newSession, newChallenge, null, null, null);
+                }
+                helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
+            }
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
             lock (stateGate)
@@ -657,6 +679,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private static bool IsOfficialLuaUpdateFailure(InvalidOperationException error) =>
         error.Message.StartsWith("official_lua_update_failed:", StringComparison.Ordinal);
+
+    private static bool IsLauncherGameSpawnTimeout(InvalidOperationException error) =>
+        string.Equals(
+            error.Message,
+            "the selected launcher did not create a matching LastWar process before timeout",
+            StringComparison.Ordinal);
 
     private async Task<object?> StopAsync(JsonElement payload, CancellationToken cancellationToken)
     {

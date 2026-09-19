@@ -13,6 +13,7 @@ internal static class OverviewOfficialSettleChecks
         await OfficialRecoveryFailureBlocksSettleAndHelper();
         await OfficialSettleFailureBlocksHelper();
         await OfficialLuaUpdateFailureForcesSettleAndRetriesOnce();
+        await LauncherGameSpawnTimeoutRetriesOnceWithoutRepeatingSettle();
     }
 
     private static async Task OfficialSettleRunsBeforeHelper()
@@ -181,6 +182,54 @@ internal static class OverviewOfficialSettleChecks
             .WaitAsync(TimeSpan.FromSeconds(5));
         Check(recoverCalls == 2 && settleCalls == 2 && helperCalls == 2,
             "Lua update CRC failure should force exactly one fresh official settle and one helper retry");
+    }
+
+    private static async Task LauncherGameSpawnTimeoutRetriesOnceWithoutRepeatingSettle()
+    {
+        int recoverCalls = 0;
+        int settleCalls = 0;
+        int helperCalls = 0;
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-overview-launcher-spawn-retry");
+        string gamePath = Path.Combine(root, "Game", "LastWar.exe");
+        const int gamePid = 34123;
+        const int launcherPid = 34124;
+        const string startedAt = "2026-09-19T10:41:09.0000000Z";
+        string? session = null;
+        string? challenge = null;
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => { recoverCalls++; return Task.CompletedTask; },
+            RunOfficialSettleAsync = (_, _) => { settleCalls++; return Task.CompletedTask; },
+            RunHelperAsync = (invocation, _) =>
+            {
+                helperCalls++;
+                if (helperCalls == 1)
+                {
+                    throw new InvalidOperationException(
+                        "the selected launcher did not create a matching LastWar process before timeout");
+                }
+                session = invocation.SessionId;
+                challenge = invocation.Challenge;
+                return Task.FromResult(StartResult(invocation, gamePath, gamePid, launcherPid, startedAt));
+            },
+            ProcessMatches = (pid, path, created) => pid == gamePid && created == startedAt &&
+                string.Equals(Path.GetFullPath(path), Path.GetFullPath(gamePath), StringComparison.OrdinalIgnoreCase),
+            ReadAllBytes = _ => Heartbeat(session!, challenge!, gamePid),
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+        };
+
+        using var lifecycle = new OverviewLifecycleService(
+            "profile-settle-order", root, helperPath: Path.Combine(root, "fake-helper.py"),
+            requireCurrentClientEvidence: false, testHooks: hooks, startRecoveryMonitor: false);
+        await lifecycle.InvokeAsync(
+                "profile_instance_start",
+                JsonSerializer.SerializeToElement(new { }),
+                CancellationToken.None)
+            .WaitAsync(TimeSpan.FromSeconds(5));
+
+        Check(recoverCalls == 1 && settleCalls == 1 && helperCalls == 2,
+            "launcher spawn timeout should retry exactly once without repeating official settle");
     }
 
     private static JsonElement StartResult(
