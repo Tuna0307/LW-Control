@@ -625,7 +625,9 @@ internal sealed partial class MapDataStore : IDisposable
             }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
             : options.Kind == "truck"
                 ? BuildTruckOrderBy(options.Sorts)
-                : $"page.updated_at {direction}, page.record_key ASC";
+                : options.Kind == "railway"
+                    ? BuildRailwayOrderBy(options.Sorts)
+                    : $"page.updated_at {direction}, page.record_key ASC";
         string[] resolvedMonsterNameKeys = monsterLike
             ? (monsterNameKeys ?? Array.Empty<string>())
                 .Where(key => !string.IsNullOrWhiteSpace(key))
@@ -792,6 +794,34 @@ internal sealed partial class MapDataStore : IDisposable
                 _ => throw new BridgeCommandException(
                     "MAP_QUERY_UNRECOVERED",
                     "Unsupported Truck sort column."),
+            };
+            string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
+            clauses.Add($"({expression} IS NULL) ASC");
+            clauses.Add($"{expression} {direction}");
+        }
+        clauses.Add("page.record_key ASC");
+        return string.Join(", ", clauses);
+    }
+
+    private static string BuildRailwayOrderBy(IReadOnlyList<MapDataSort> sorts)
+    {
+        // RECOVERED LWB-R7-050: Railway uses the shared native sort assembly with
+        // plain quality, power, itemCount(itemKey), protectTime and updatedAt.
+        var clauses = new List<string>(sorts.Count * 2 + 1);
+        foreach (MapDataSort sort in sorts)
+        {
+            string expression = sort.SortBy switch
+            {
+                "quality" => "page.quality",
+                "power" => "page.power",
+                "itemCount" =>
+                    "COALESCE((SELECT SUM(CAST(json_extract(good.value,'$.count') AS REAL)) FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey),0)",
+                "protectTime" =>
+                    "NULLIF(CAST(json_extract(page.data_json,'$.protectTime') AS INTEGER),0)",
+                "updatedAt" => "page.updated_at",
+                _ => throw new BridgeCommandException(
+                    "MAP_QUERY_UNRECOVERED",
+                    "Unsupported Railway sort column."),
             };
             string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
             clauses.Add($"({expression} IS NULL) ASC");

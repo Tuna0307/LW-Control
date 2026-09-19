@@ -1,8 +1,12 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-050, 2026-09-19
+
+Railway result sorting is **IMPLEMENTED/OFFLINE-TESTED; positive-row live ordering is population-pending**. The public Railway sort surface now accepts the five recovered keys (`quality`, `power`, `itemCount`, `protectTime`, `updatedAt`) with ordered multi-sort, nulls-last in either direction, plain Railway quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and final record-key tie-breaking. Hash-locked original recovery plus deterministic multi-row acceptance are green. The current-v19 Fast live attempt completed 2,500/2,500 but exposed zero Railway rows, so the positive-population gate intentionally withheld live acceptance. City, Resource and Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-050](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
+
 ## Current implementation checkpoint — LWB-R7-049, 2026-09-19
 
-Truck result sorting is **LIVE-PROVEN read-only on current v19**. The public Truck sort surface now includes the recovered six keys (`quality`, `power`, `itemCount`, `remainingLootCount`, `arriveTime`, `updatedAt`) with ordered multi-sort, nulls-last in either direction, special-UR quality=100, itemCount/itemKey coupling, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500, published/reopened 469 Trucks, and passed 15 independent sort scenarios both before and after DB reopen. All non-Truck alternate sort families remain gated/fail-closed. Evidence: [R7-049](../evidence/lwbridge-implementation/2026-09-19-r7-truck-sort-fidelity.json).
+Truck result sorting is **LIVE-PROVEN read-only on current v19**. The public Truck sort surface now includes the recovered six keys (`quality`, `power`, `itemCount`, `remainingLootCount`, `arriveTime`, `updatedAt`) with ordered multi-sort, nulls-last in either direction, special-UR quality=100, itemCount/itemKey coupling, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500, published/reopened 469 Trucks, and passed 15 independent sort scenarios both before and after DB reopen. At this checkpoint all non-Truck alternate sort families were gated; Railway is subsequently recovered/implemented by `LWB-R7-050`. Evidence: [R7-049](../evidence/lwbridge-implementation/2026-09-19-r7-truck-sort-fidelity.json).
 
 ## Current owner priority - shared Manual Scan engine first, 2026-09-13
 

@@ -4700,12 +4700,12 @@ using (var truckSortStore = MapDataStore.CreateInMemory())
     Check(unknownTruckSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
         "non-public Truck sort keys remain fail-closed");
 
-    using (JsonDocument railwayAlternateSort = JsonDocument.Parse(
-        "{\"kind\":\"railway\",\"query\":{\"serverId\":91,\"sorts\":[{\"sortBy\":\"power\",\"sortOrder\":\"desc\"}]}}"))
+    using (JsonDocument cityAlternateSort = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":91,\"sorts\":[{\"sortBy\":\"power\",\"sortOrder\":\"desc\"}]}}"))
     {
-        Check(MapDataQueryContract.NormalizeSearch(railwayAlternateSort.RootElement).UnsupportedFeatures
+        Check(MapDataQueryContract.NormalizeSearch(cityAlternateSort.RootElement).UnsupportedFeatures
                 .SequenceEqual(new[] { "sorts" }),
-            "Railway alternate sorts remain fail-closed outside the R7-049 Truck scope");
+            "non-Train alternate sorts remain fail-closed outside the recovered Truck/Railway scopes");
     }
 
     ExpectTruckSort(
@@ -4766,6 +4766,160 @@ using (var truckSortStore = MapDataStore.CreateInMemory())
         "Truck sorted pagination page 2",
         [new MapDataSort("quality", "desc")],
         ["sort-a", "sort-d"],
+        page: 2,
+        pageSize: 2);
+}
+
+// LWB-R7-050: hash-locked native Railway sort expressions and shared order assembly.
+using (var railwaySortStore = MapDataStore.CreateInMemory())
+{
+    const int railwaySortServer = 92;
+    const long railwaySortNow = 1_800_000_000_000L;
+
+    void SeedRailwaySort(
+        string recordKey,
+        string uuid,
+        int? quality,
+        long? power,
+        long updatedAt,
+        string fields)
+    {
+        string json = $"{{\"serverId\":{railwaySortServer},\"uuid\":\"{uuid}\",{fields},\"updatedAt\":{updatedAt}}}";
+        railwaySortStore.UpsertRecord(new MapStoredRecord(
+            "railway", railwaySortServer, recordKey, null, uuid, uuid, null,
+            null, quality, power, null, null, updatedAt, json));
+    }
+
+    SeedRailwaySort("key-a", "rail-sort-a", 5, 100, 1000,
+        "\"quality\":5,\"protectTime\":2000,\"currentGoods\":[{\"key\":\"item:x\",\"count\":3}]");
+    SeedRailwaySort("key-b", "rail-sort-b", 4, 50, 900,
+        "\"quality\":4,\"protectTime\":0,\"currentGoods\":[{\"key\":\"item:x\",\"count\":1}]");
+    SeedRailwaySort("key-c", "rail-sort-c", 7, null, 1100,
+        "\"quality\":7,\"protectTime\":1000,\"currentGoods\":[{\"key\":\"item:y\",\"count\":9}]");
+    SeedRailwaySort("key-d", "rail-sort-d", 5, 100, 1200,
+        "\"quality\":5,\"protectTime\":2000,\"currentGoods\":[{\"key\":\"item:x\",\"count\":3}]");
+    SeedRailwaySort("key-e", "rail-sort-e", null, 200, 800,
+        "\"currentGoods\":[{\"key\":\"item:x\",\"count\":2}]");
+    SeedRailwaySort("key-f", "rail-sort-f", 5, 100, 1200,
+        "\"quality\":5,\"protectTime\":2000,\"currentGoods\":[{\"key\":\"item:x\",\"count\":3}]");
+
+    MapDataQueryOptions RailwaySortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "railway",
+            query = new
+            {
+                serverId = railwaySortServer,
+                page,
+                pageSize,
+                itemKey,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] RailwaySortUuids(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+
+    void ExpectRailwaySort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = RailwaySortQuery(sorts, itemKey, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered Railway sort");
+        MapSearchResult result = railwaySortStore.SearchIndexedAtForTest(options, railwaySortNow);
+        Check(RailwaySortUuids(result).SequenceEqual(expected),
+            $"{label} preserves recovered Railway order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allRailwaySorts = RailwaySortQuery(
+    [
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("power", "asc"),
+        new MapDataSort("itemCount", "desc"),
+        new MapDataSort("protectTime", "asc"),
+        new MapDataSort("updatedAt", "asc"),
+    ], "item:x");
+    Check(allRailwaySorts.UnsupportedFeatures.Count == 0,
+        "all five public Railway sort keys are recovered when itemCount has the frontend-required itemKey");
+
+    MapDataQueryOptions railwayItemSortWithoutKey = RailwaySortQuery([new MapDataSort("itemCount", "desc")]);
+    Check(railwayItemSortWithoutKey.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "Railway itemCount sort stays fail-closed without the frontend-required itemKey");
+
+    MapDataQueryOptions duplicateRailwaySort = RailwaySortQuery(
+    [
+        new MapDataSort("power", "desc"),
+        new MapDataSort("power", "asc"),
+    ]);
+    Check(duplicateRailwaySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate Railway sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownRailwaySort = RailwaySortQuery([new MapDataSort("remainingLootCount", "asc")]);
+    Check(unknownRailwaySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public Railway sort keys remain fail-closed");
+
+    ExpectRailwaySort(
+        "Railway quality desc",
+        [new MapDataSort("quality", "desc")],
+        ["rail-sort-c", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway quality asc",
+        [new MapDataSort("quality", "asc")],
+        ["rail-sort-b", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-c", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway power asc",
+        [new MapDataSort("power", "asc")],
+        ["rail-sort-b", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-e", "rail-sort-c"]);
+    ExpectRailwaySort(
+        "Railway power desc",
+        [new MapDataSort("power", "desc")],
+        ["rail-sort-e", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-b", "rail-sort-c"]);
+    ExpectRailwaySort(
+        "Railway protection asc",
+        [new MapDataSort("protectTime", "asc")],
+        ["rail-sort-c", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway protection desc",
+        [new MapDataSort("protectTime", "desc")],
+        ["rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-c", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["rail-sort-d", "rail-sort-f", "rail-sort-c", "rail-sort-a", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway itemCount desc",
+        [new MapDataSort("itemCount", "desc")],
+        ["rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-e", "rail-sort-b"],
+        itemKey: "item:x");
+    ExpectRailwaySort(
+        "Railway itemCount asc",
+        [new MapDataSort("itemCount", "asc")],
+        ["rail-sort-b", "rail-sort-e", "rail-sort-a", "rail-sort-d", "rail-sort-f"],
+        itemKey: "item:x");
+    ExpectRailwaySort(
+        "Railway ordered multi-sort",
+        [
+            new MapDataSort("quality", "asc"),
+            new MapDataSort("power", "desc"),
+            new MapDataSort("protectTime", "asc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["rail-sort-b", "rail-sort-d", "rail-sort-f", "rail-sort-a", "rail-sort-c", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway sorted pagination page 2",
+        [new MapDataSort("quality", "desc")],
+        ["rail-sort-d", "rail-sort-f"],
         page: 2,
         pageSize: 2);
 }

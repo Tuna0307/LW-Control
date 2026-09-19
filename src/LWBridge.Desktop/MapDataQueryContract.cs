@@ -247,6 +247,19 @@ internal static class MapDataQueryContract
                     "remainingLootCount" or "arriveTime" or "updatedAt") &&
                 (hasItemKey || sorts.All(sort => sort.SortBy != "itemCount"));
         }
+        else if (kind == "railway")
+        {
+            bool hasItemKey =
+                query.TryGetProperty("itemKey", out JsonElement itemKeyValue) &&
+                itemKeyValue.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrEmpty(itemKeyValue.GetString());
+            recoveredSort =
+                sorts.Count is >= 1 and <= 5 &&
+                sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
+                sorts.All(sort => sort.SortBy is
+                    "quality" or "power" or "itemCount" or "protectTime" or "updatedAt") &&
+                (hasItemKey || sorts.All(sort => sort.SortBy != "itemCount"));
+        }
         else
         {
             recoveredSort =

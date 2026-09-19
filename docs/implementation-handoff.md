@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current-v19 Railway alternate sort checkpoint - LWB-R7-050, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED; current-v19 positive-row live proof is population-pending.** Original 0.3.1 recovery pins Railway `quality`, `power`, `itemCount`, `protectTime`, and `updatedAt`, plus the shared ordered multi-sort/null-last/record-key tie assembly. Railway quality is plain `quality`; `itemCount` is admitted only with an item key; and protectTime maps to the recovered zero-to-NULL JSON expression. `tools/inspect_lwbridge_railway_sort_assembly.py` hash-locks those Railway-specific branches and the shared formatter.
+
+Production accepts only ordered unique subsets of the five public Railway keys. Deterministic acceptance is green across all six suites and covers every key/direction, nulls, item-count coupling, multi-sort, ties and pagination. The read-only current-v19 Fast Railway attempt itself completed 2,500/2,500 but published **0 Railway rows**, so the positive-population gate intentionally failed before any sort assertion. Exact v19 restoration and no-process cleanup passed. Do not call R7-050 live-proven until a real Railway population returns; meaningful relative ordering requires at least two rows, and live itemCount additionally requires nonempty Railway currentGoods. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json`.
+
 ## Current-v19 Truck alternate sort checkpoint - LWB-R7-049, 2026-09-19
 
 **LIVE-PROVEN read-only; no consuming action was used.** Original 0.3.1 recovery now pins the complete public Truck sort assembly needed for production: `quality`, `power`, `itemCount`, `remainingLootCount`, `arriveTime`, and `updatedAt`; ordered multi-sort in frontend array order; nulls last for both ASC and DESC; special-UR quality promoted to 100; item-count coupled to an active item key; and `record_key ASC` as the final stable tie-break. A new hash-locked verifier, `tools/inspect_lwbridge_truck_sort_assembly.py`, guards the original binary/frontend bytes and the recovered parser/formatter branches.

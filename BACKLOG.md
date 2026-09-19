@@ -316,7 +316,8 @@ This work can advance while R5 semantic research remains incomplete or a particu
 - [x] `LWB-R7-036` proves mixed selected types, all-eight selection, same-owned-session repeated completion and all-eight Normal/Fast. The shared Manual acquisition layer is now eligible for completion; Auto Scan must reuse it.
 - [ ] Finish downstream per-kind query/options/filter/sort/export/navigation against committed data; keep Scan Content acquisition selection distinct from result filtering.
   - [x] `LWB-R7-048` closes current-v19 Truck ordinary-UR, reindeer-only, plunderable-only, retained-item option and retained-item filter behavior with exact live UUID-set/reopen proof.
-  - [x] `LWB-R7-049` closes the public Truck alternate-sort surface: six recovered keys, ordered multi-sort, nulls-last ASC/DESC, special-UR quality=100, itemCount/itemKey coupling and stable record-key ties; exact current-v19 proof passed 15 scenarios before DB reopen and the same 15 after. Other kind-specific alternate sorts remain fail-closed.
+  - [x] `LWB-R7-049` closes the public Truck alternate-sort surface: six recovered keys, ordered multi-sort, nulls-last ASC/DESC, special-UR quality=100, itemCount/itemKey coupling and stable record-key ties; exact current-v19 proof passed 15 scenarios before DB reopen and the same 15 after.
+  - [x] `LWB-R7-050` implements the public Railway alternate-sort surface from hash-locked original recovery plus deterministic multi-row acceptance: five keys, ordered multi-sort, nulls-last ASC/DESC, plain quality, itemCount/itemKey coupling, protectTime zero-to-NULL and stable record-key ties. Current-v19 acquisition completed 2,500/2,500 with zero Railway rows, so positive-row live ordering remains population-pending. City, Resource and Dispatch/Ghost alternate sorts remain fail-closed.
 
 ## R8 — Automatic scanning and server travel (P0)
 

@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-050, 2026-09-19
+
+Railway alternate sorting is IMPLEMENTED/OFFLINE-TESTED from hash-locked original recovery and deterministic multi-row acceptance. Five public Railway keys are production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and stable record-key ties. The final read-only current-v19 Fast attempt completed 2,500/2,500 but the live map contained zero Railway rows; the positive-population gate failed by design and no live ordering claim is made. Exact v19 restoration and clean process shutdown passed. City, Resource and Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-050 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
+
 ## Latest implementation checkpoint — LWB-R7-049, 2026-09-19
 
 Current implementation has advanced beyond the historical review snapshot below. Truck alternate sorting is LIVE-PROVEN read-only on current v19: six public Truck keys are recovered and production-enabled with ordered multi-sort, nulls-last ASC/DESC, special-UR quality=100, itemCount/itemKey coupling and stable record-key ties. The final exact-code Fast run completed 2,500/2,500 in 130.175 s, published/reopened 469 Trucks, and passed 15 independently computed sort scenarios before reopen and the same 15 after reopen. Exact v19 restoration and clean process shutdown passed. No consuming game action was used. Other kind-specific alternate sorts remain open/fail-closed. See [R7-049 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-truck-sort-fidelity.json).
