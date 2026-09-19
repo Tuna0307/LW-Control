@@ -62,6 +62,14 @@ internal sealed record MapClearResult(int ServerId, int DeletedRuns, int Deleted
 
 internal sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total);
 
+internal sealed record MapTreasureClaimState(
+    int ServerId,
+    string PlayerUid,
+    string TreasureUuid,
+    long? ExpireTime,
+    long UpdatedAt,
+    string StateJson);
+
 internal sealed record MapAllianceOptionAggregate(string? Name, int Count);
 
 internal sealed record MapNameOptionAggregate(string Kind, string Key, int Count);
@@ -632,9 +640,12 @@ internal sealed partial class MapDataStore : IDisposable
         string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
         long offset = checked(((long)options.Page - 1L) * options.PageSize);
         bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
+        bool treasure = string.Equals(options.Kind, "treasure", StringComparison.Ordinal);
         bool monsterLike = options.Kind is "monster" or "zombie_boss";
         string orderBy = city
             ? BuildCityOrderBy(options.Sorts, nowUnixMilliseconds)
+            : treasure
+                ? BuildTreasureOrderBy(options)
             : monsterLike
                 ? string.Join(", ", options.Sorts.Select(sort => (sort.SortBy switch
                 {
@@ -665,9 +676,17 @@ internal sealed partial class MapDataStore : IDisposable
             // IMPLEMENTATION POLICY LWB-R6-008: count and page must describe one SQLite
             // read snapshot even when another process/connection publishes new rows.
             using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);
-            string join = city
+            string countJoin = city
                 ? " LEFT JOIN player_marks mark ON mark.server_id=page.server_id AND mark.owner_uid=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)"
                 : string.Empty;
+            string treasureStatePlayer = options.ViewerUid is { Length: > 0 }
+                ? "$viewerUid"
+                : "COALESCE(CAST(json_extract(page.data_json,'$.viewerUid') AS TEXT),'')";
+            string pageJoin = city
+                ? countJoin
+                : treasure
+                    ? $" LEFT JOIN treasure_claim_states state ON state.server_id=page.server_id AND state.player_uid={treasureStatePlayer} AND state.treasure_uuid=page.uuid"
+                    : string.Empty;
             var predicates = new List<string>
             {
                 "page.kind=$kind",
@@ -727,6 +746,27 @@ internal sealed partial class MapDataStore : IDisposable
                 predicates.Add("CAST(json_extract(page.data_json,'$.treasureType') AS INTEGER) = $treasureType");
                 predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.suppliesType') AS INTEGER),0) = 0");
             }
+            // RECOVERED LWB-R7-068: includeForeignRadarTreasures=false keeps all
+            // non-radar Treasure/Supplies rows, but radar treasureType=1 is visible
+            // only to the viewer's alliance. The original uses the explicit query
+            // viewerAllianceId when present, otherwise the row-embedded identity.
+            if (treasure && !options.IncludeForeignRadarTreasures)
+            {
+                if (options.ViewerAllianceId is { Length: > 0 })
+                {
+                    predicates.Add(
+                        "(COALESCE(CAST(json_extract(page.data_json,'$.treasureType') AS INTEGER),0)<>1 " +
+                        "OR CAST(json_extract(page.data_json,'$.allianceId') AS TEXT)=$viewerAllianceId)");
+                }
+                else
+                {
+                    predicates.Add(
+                        "(COALESCE(CAST(json_extract(page.data_json,'$.treasureType') AS INTEGER),0)<>1 " +
+                        "OR (COALESCE(CAST(json_extract(page.data_json,'$.allianceId') AS TEXT),'')<>'' " +
+                        "AND CAST(json_extract(page.data_json,'$.allianceId') AS TEXT)=" +
+                        "COALESCE(CAST(json_extract(page.data_json,'$.viewerAllianceId') AS TEXT),'')))");
+                }
+            }
             if (options.Quality is "n" or "r" or "sr" or "ssr")
                 predicates.Add("page.quality = $quality");
             else if (options.Quality == "ur")
@@ -766,7 +806,7 @@ internal sealed partial class MapDataStore : IDisposable
             using (SqliteCommand count = connection.CreateCommand())
             {
                 count.Transaction = snapshot;
-                count.CommandText = $"SELECT COUNT(*) FROM map_records page{join} WHERE {where}";
+                count.CommandText = $"SELECT COUNT(*) FROM map_records page{countJoin} WHERE {where}";
                 AddSearchParameters(count, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
                 total = Convert.ToInt32(count.ExecuteScalar());
             }
@@ -776,8 +816,10 @@ internal sealed partial class MapDataStore : IDisposable
             using SqliteCommand page = connection.CreateCommand();
             page.Transaction = snapshot;
             string select = city
-                ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{join} WHERE {where} ORDER BY {orderBy}"
-                : $"SELECT page.data_json, page.server_id FROM map_records page WHERE {where} ORDER BY {orderBy}";
+                ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{pageJoin} WHERE {where} ORDER BY {orderBy}"
+                : treasure
+                    ? $"SELECT page.data_json, page.server_id, state.state_json FROM map_records page{pageJoin} WHERE {where} ORDER BY {orderBy}"
+                    : $"SELECT page.data_json, page.server_id FROM map_records page WHERE {where} ORDER BY {orderBy}";
             page.CommandText = select + " LIMIT $limit OFFSET $offset";
             AddSearchParameters(page, options, nowUnixMilliseconds, resolvedMonsterNameKeys);
             page.Parameters.AddWithValue("$limit", options.PageSize);
@@ -789,10 +831,32 @@ internal sealed partial class MapDataStore : IDisposable
                 rows.Add(ReadSearchRow(
                     reader.GetString(0),
                     reader.GetInt32(1),
-                    city ? reader.GetInt32(2) != 0 : null));
+                    city ? reader.GetInt32(2) != 0 : null,
+                    treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null));
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
+    }
+
+    private static string BuildTreasureOrderBy(MapDataQueryOptions options)
+    {
+        string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
+        string ordinary = $"page.updated_at {direction}, page.record_key ASC";
+        if (!options.LuckyFirst) return ordinary;
+
+        // RECOVERED LWB-R7-068: luckyFirst prepends claimPriority ASC, defaulting
+        // missing cached state to 1. The player identity is the explicit viewerUid
+        // when supplied, otherwise the row-embedded viewerUid.
+        string player = options.ViewerUid is { Length: > 0 }
+            ? "$viewerUid"
+            : "COALESCE(CAST(json_extract(page.data_json,'$.viewerUid') AS TEXT),'')";
+        string priority =
+            "COALESCE((SELECT CAST(json_extract(treasure_state.state_json,'$.claimPriority') AS INTEGER) " +
+            "FROM treasure_claim_states AS treasure_state " +
+            "WHERE treasure_state.server_id=page.server_id " +
+            $"AND treasure_state.player_uid={player} " +
+            "AND treasure_state.treasure_uuid=page.uuid),1)";
+        return $"{priority} ASC, {ordinary}";
     }
 
     private static string BuildCityOrderBy(
@@ -1152,6 +1216,94 @@ internal sealed partial class MapDataStore : IDisposable
         }
     }
 
+    public void UpsertTreasureClaimStates(
+        IReadOnlyList<MapTreasureClaimState> states,
+        long nowUnixMilliseconds)
+    {
+        ArgumentNullException.ThrowIfNull(states);
+        foreach (MapTreasureClaimState state in states)
+        {
+            ValidateServerId(state.ServerId);
+            if (string.IsNullOrWhiteSpace(state.PlayerUid) ||
+                string.IsNullOrWhiteSpace(state.TreasureUuid))
+                throw new BridgeCommandException(
+                    "INVALID_TREASURE_STATE",
+                    "treasure claim state requires serverId, playerUid and treasureUuid.");
+            ValidateJsonObject(state.StateJson, "treasure claim state");
+        }
+
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            using (SqliteCommand cleanup = connection.CreateCommand())
+            {
+                cleanup.Transaction = transaction;
+                cleanup.CommandText =
+                    "DELETE FROM treasure_claim_states " +
+                    "WHERE expire_time IS NOT NULL AND expire_time>0 AND expire_time<=$now";
+                cleanup.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+                cleanup.ExecuteNonQuery();
+            }
+
+            foreach (MapTreasureClaimState state in states)
+            {
+                using SqliteCommand upsert = connection.CreateCommand();
+                upsert.Transaction = transaction;
+                upsert.CommandText = """
+                    INSERT INTO treasure_claim_states(
+                      server_id,player_uid,treasure_uuid,expire_time,updated_at,state_json
+                    ) VALUES ($server,$player,$treasure,$expire,$updated,$json)
+                    ON CONFLICT(server_id,player_uid,treasure_uuid) DO UPDATE SET
+                      expire_time=excluded.expire_time,updated_at=excluded.updated_at,
+                      state_json=excluded.state_json
+                    """;
+                upsert.Parameters.AddWithValue("$server", state.ServerId);
+                upsert.Parameters.AddWithValue("$player", state.PlayerUid);
+                upsert.Parameters.AddWithValue("$treasure", state.TreasureUuid);
+                upsert.Parameters.AddWithValue("$expire", (object?)state.ExpireTime ?? DBNull.Value);
+                upsert.Parameters.AddWithValue("$updated", state.UpdatedAt);
+                upsert.Parameters.AddWithValue("$json", state.StateJson);
+                upsert.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+        }
+    }
+
+    internal MapTreasureClaimState? ReadTreasureClaimStateForTest(
+        int serverId,
+        string playerUid,
+        string treasureUuid)
+    {
+        ValidateServerId(serverId);
+        if (string.IsNullOrWhiteSpace(playerUid) || string.IsNullOrWhiteSpace(treasureUuid))
+            throw new BridgeCommandException(
+                "INVALID_TREASURE_STATE",
+                "treasure claim state requires serverId, playerUid and treasureUuid.");
+
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT expire_time,updated_at,state_json
+                FROM treasure_claim_states
+                WHERE server_id=$server AND player_uid=$player AND treasure_uuid=$treasure
+                """;
+            command.Parameters.AddWithValue("$server", serverId);
+            command.Parameters.AddWithValue("$player", playerUid);
+            command.Parameters.AddWithValue("$treasure", treasureUuid);
+            using SqliteDataReader reader = command.ExecuteReader();
+            if (!reader.Read()) return null;
+            return new MapTreasureClaimState(
+                serverId,
+                playerUid,
+                treasureUuid,
+                reader.IsDBNull(0) ? null : reader.GetInt64(0),
+                reader.GetInt64(1),
+                reader.GetString(2));
+        }
+    }
+
     public void UpsertPlayerMark(MapPlayerMark mark)
     {
         ValidateServerId(mark.ServerId);
@@ -1361,6 +1513,12 @@ internal sealed partial class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$suppliesType", options.SuppliesType.Value);
         if (options.TreasureType > 0)
             command.Parameters.AddWithValue("$treasureType", options.TreasureType.Value);
+        if (options.ViewerUid is { Length: > 0 })
+            command.Parameters.AddWithValue("$viewerUid", options.ViewerUid);
+        if (options.Kind == "treasure" &&
+            !options.IncludeForeignRadarTreasures &&
+            options.ViewerAllianceId is { Length: > 0 })
+            command.Parameters.AddWithValue("$viewerAllianceId", options.ViewerAllianceId);
         if (options.Quality is "n" or "r" or "sr" or "ssr")
             command.Parameters.AddWithValue("$quality", options.Quality switch
             {
@@ -1406,13 +1564,32 @@ internal sealed partial class MapDataStore : IDisposable
         reader.GetInt64(12),
         reader.GetString(13));
 
-    private static JsonElement ReadSearchRow(string dataJson, int serverId, bool? marked)
+    private static JsonElement ReadSearchRow(
+        string dataJson,
+        int serverId,
+        bool? marked,
+        string? treasureStateJson = null)
     {
         try
         {
             JsonNode? node = JsonNode.Parse(dataJson);
             if (node is not JsonObject row)
                 throw new BridgeCommandException("MAP_INDEX_CORRUPT", "Stored map row is not a JSON object.");
+
+            // RECOVERED LWB-R7-068: Treasure page SQL selects state.state_json from
+            // treasure_claim_states and the frontend overlays state over the stored
+            // row by uuid. Apply the same state-over-row precedence here.
+            if (!string.IsNullOrEmpty(treasureStateJson))
+            {
+                JsonNode? stateNode = JsonNode.Parse(treasureStateJson);
+                if (stateNode is not JsonObject state)
+                    throw new BridgeCommandException(
+                        "MAP_INDEX_CORRUPT",
+                        "Stored treasure claim state is not a JSON object.");
+                foreach ((string key, JsonNode? value) in state)
+                    row[key] = value?.DeepClone();
+            }
+
             // The indexed server scope is authoritative. The recovered Map Data
             // frontend expects every returned row to carry serverId for stale-row
             // guards and row actions, while source payload JSON is not required to

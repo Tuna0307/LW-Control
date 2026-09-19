@@ -29,7 +29,11 @@ internal sealed record MapDataQueryOptions(
     IReadOnlyList<string> UnsupportedFeatures,
     bool ResourceIdleOnly = false,
     bool ResourceFullOnly = false,
-    bool ExcludeBlackTile = false);
+    bool ExcludeBlackTile = false,
+    bool IncludeForeignRadarTreasures = false,
+    bool LuckyFirst = false,
+    string? ViewerUid = null,
+    string? ViewerAllianceId = null);
 
 internal static class MapDataQueryContract
 {
@@ -97,6 +101,10 @@ internal static class MapDataQueryContract
         bool plunderableOnly = OptionalTrue(query, "plunderableOnly");
         bool specialOnly = OptionalTrue(query, "specialOnly");
         bool reindeerOnly = OptionalTrue(query, "reindeerOnly");
+        bool includeForeignRadarTreasures = OptionalBoolean(query, "includeForeignRadarTreasures", false);
+        bool luckyFirst = OptionalBoolean(query, "luckyFirst", false);
+        string? viewerUid = OptionalString(query, "viewerUid");
+        string? viewerAllianceId = OptionalString(query, "viewerAllianceId");
         int? minLevel = OptionalNonNegativeInt(query, "minLevel");
         int? maxLevel = OptionalNonNegativeInt(query, "maxLevel");
         IReadOnlyList<string> unsupported = CollectUnsupportedFeatures(
@@ -133,7 +141,11 @@ internal static class MapDataQueryContract
             unsupported,
             resourceIdleOnly,
             resourceFullOnly,
-            excludeBlackTile);
+            excludeBlackTile,
+            includeForeignRadarTreasures,
+            luckyFirst,
+            viewerUid,
+            viewerAllianceId);
     }
 
     public static void RequireRecoveredIndexedSearch(MapDataQueryOptions options)
@@ -317,6 +329,16 @@ internal static class MapDataQueryContract
         "plunderableOnly" => kind is "truck" or "railway" or "dispatch" && value.ValueKind == JsonValueKind.True,
         "specialOnly" => kind is "dispatch" or "ghost" && value.ValueKind == JsonValueKind.True,
         "reindeerOnly" => kind == "truck" && value.ValueKind == JsonValueKind.True,
+        // LWB-R7-068: original Treasure queries always emit these booleans; both
+        // explicit false and true are meaningful and statically recovered.
+        "includeForeignRadarTreasures" => kind == "treasure" &&
+                                          value.ValueKind is JsonValueKind.True or JsonValueKind.False,
+        "luckyFirst" => kind == "treasure" &&
+                        value.ValueKind is JsonValueKind.True or JsonValueKind.False,
+        "viewerUid" => kind == "treasure" && value.ValueKind == JsonValueKind.String &&
+                       !string.IsNullOrEmpty(value.GetString()),
+        "viewerAllianceId" => kind == "treasure" && value.ValueKind == JsonValueKind.String &&
+                              !string.IsNullOrEmpty(value.GetString()),
         "minLevel" => kind is "resource" or "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
         "maxLevel" => kind is "resource" or "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
         _ => false,

@@ -4082,7 +4082,7 @@ var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)
     ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
     ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
-    ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"suppliesType\":0,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", ["includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId"]),
+    ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"suppliesType\":0,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
 };
 foreach ((string name, string json, string[] unsupported) in frontendMapQueryCases)
 {
@@ -4189,6 +4189,14 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         "treasure", 7, "treasure-supplies", 54, "treasure-b", "Treasure B", null,
         null, null, null, null, null, 1640,
         "{\"serverId\":7,\"uuid\":\"treasure-b\",\"treasureType\":5,\"suppliesType\":3,\"treasureNameKey\":\"supplies-three\",\"updatedAt\":1640}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-radar-own", 55, "treasure-radar-own", "Radar Own", null,
+        null, null, null, null, null, 1630,
+        "{\"serverId\":7,\"uuid\":\"treasure-radar-own\",\"treasureType\":1,\"suppliesType\":0,\"allianceId\":\"20002\",\"viewerAllianceId\":\"20002\",\"viewerUid\":\"10001\",\"updatedAt\":1630}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-radar-foreign", 56, "treasure-radar-foreign", "Radar Foreign", null,
+        null, null, null, null, null, 1620,
+        "{\"serverId\":7,\"uuid\":\"treasure-radar-foreign\",\"treasureType\":1,\"suppliesType\":0,\"allianceId\":\"99999\",\"viewerAllianceId\":\"20002\",\"viewerUid\":\"10001\",\"updatedAt\":1620}"));
     indexedSearchStore.UpsertRecord(new MapStoredRecord(
         "city", 8, "city-literal-wildcards", 61, "literal-a", "A%_\\B", "LIT",
         null, null, null, null, null, 1600,
@@ -4620,14 +4628,126 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
             "keyword escapes backslash, percent and underscore before literal-substring matching");
     }
 
-    using JsonDocument unrecoveredFalseFilter = JsonDocument.Parse(JsonSerializer.Serialize(new
+    // LWB-R7-068: exact original Treasure visibility/lucky/state-cache SQL.
+    const long treasureStateNow = 10_000;
+    indexedSearchStore.UpsertTreasureClaimStates(
+    [
+        new MapTreasureClaimState(
+            7, "10001", "treasure-a", 50_000, 9_000,
+            "{\"uuid\":\"treasure-a\",\"claimPriority\":1,\"worldClaimState\":\"claimable\",\"playerClaimState\":\"claimed\",\"rewardedCount\":7}"),
+        new MapTreasureClaimState(
+            7, "10001", "treasure-radar-own", 50_000, 9_100,
+            "{\"uuid\":\"treasure-radar-own\",\"claimPriority\":0,\"worldClaimState\":\"claimable\",\"playerClaimState\":\"unclaimed\",\"rewardedCount\":2}"),
+        new MapTreasureClaimState(
+            7, "10001", "treasure-radar-foreign", 9_000, 8_000,
+            "{\"uuid\":\"treasure-radar-foreign\",\"claimPriority\":0,\"worldClaimState\":\"expired\"}"),
+    ],
+    treasureStateNow);
+    Check(indexedSearchStore.ReadTreasureClaimStateForTest(7, "10001", "treasure-radar-foreign") is not null,
+        "treasure state update cleans expired rows before inserting the current update batch");
+
+    indexedSearchStore.UpsertTreasureClaimStates(
+    [
+        new MapTreasureClaimState(
+            7, "10001", "treasure-b", 50_000, 9_200,
+            "{\"uuid\":\"treasure-b\",\"claimPriority\":1,\"worldClaimState\":\"charging\",\"playerClaimState\":\"digging\",\"chargePercent\":0.5}"),
+    ],
+    treasureStateNow);
+    Check(indexedSearchStore.ReadTreasureClaimStateForTest(7, "10001", "treasure-radar-foreign") is null,
+        "treasure state update prunes positive expired claim-state rows with expire_time <= sampled now");
+
+    using JsonDocument hiddenForeignRadar = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new
+        {
+            serverId = 7,
+            includeForeignRadarTreasures = false,
+            viewerUid = "10001",
+            viewerAllianceId = "20002",
+        },
+    }));
+    object? hiddenForeignResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", hiddenForeignRadar.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(hiddenForeignResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        string[] uuids = rows.EnumerateArray().Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 3 &&
+              uuids.Contains("treasure-radar-own", StringComparer.Ordinal) &&
+              !uuids.Contains("treasure-radar-foreign", StringComparer.Ordinal),
+            "includeForeignRadarTreasures=false keeps non-radar rows and same-alliance radar while excluding foreign radar");
+        JsonElement cached = rows.EnumerateArray().Single(row => row.GetProperty("uuid").GetString() == "treasure-a");
+        Check(cached.GetProperty("playerClaimState").GetString() == "claimed" &&
+              cached.GetProperty("worldClaimState").GetString() == "claimable" &&
+              cached.GetProperty("rewardedCount").GetInt32() == 7 &&
+              cached.GetProperty("serverId").GetInt32() == 7,
+            "Treasure map_search overlays cached state_json while indexed server scope remains authoritative");
+    }
+
+    using JsonDocument rowIdentityFallback = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = indexedSearchBackend.ProfileId,
         kind = "treasure",
         query = new { serverId = 7, includeForeignRadarTreasures = false },
     }));
-    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "explicit false treasure filter stays fail-closed until exact predicate is recovered", async () =>
-        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredFalseFilter.RootElement.Clone(), CancellationToken.None));
+    object? fallbackVisibilityResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", rowIdentityFallback.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(fallbackVisibilityResult, JsonOptions.Default)))
+    {
+        string[] uuids = resultJson.RootElement.GetProperty("rows").EnumerateArray()
+            .Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+        Check(uuids.Contains("treasure-radar-own", StringComparer.Ordinal) &&
+              !uuids.Contains("treasure-radar-foreign", StringComparer.Ordinal),
+            "Treasure foreign-radar visibility falls back to each row's embedded viewerAllianceId when query identity is absent");
+    }
+
+    using JsonDocument includeForeignLucky = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new
+        {
+            serverId = 7,
+            includeForeignRadarTreasures = true,
+            luckyFirst = true,
+            viewerUid = "10001",
+            viewerAllianceId = "20002",
+        },
+    }));
+    object? luckyResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", includeForeignLucky.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(luckyResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 4 &&
+              rows[0].GetProperty("uuid").GetString() == "treasure-radar-own" &&
+              rows.EnumerateArray().Any(row => row.GetProperty("uuid").GetString() == "treasure-radar-foreign"),
+            "includeForeignRadarTreasures=true skips visibility predicate and luckyFirst orders cached claimPriority=0 before default/1");
+    }
+
+    using JsonDocument luckyRowViewerFallback = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new { serverId = 7, includeForeignRadarTreasures = true, luckyFirst = true },
+    }));
+    object? luckyFallbackResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", luckyRowViewerFallback.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(luckyFallbackResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(rows[0].GetProperty("uuid").GetString() == "treasure-radar-own" &&
+              rows[0].GetProperty("playerClaimState").GetString() == "unclaimed",
+            "luckyFirst and cached-state join fall back to row viewerUid when query viewerUid is absent");
+    }
+
+    using JsonDocument treasureFieldsWrongKind = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\"}}");
+    Check(MapDataQueryContract.NormalizeSearch(treasureFieldsWrongKind.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId" }),
+        "Treasure visibility/lucky/viewer fields remain fail-closed on non-Treasure kinds");
 
     using JsonDocument unrecoveredCityPowerSort = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
