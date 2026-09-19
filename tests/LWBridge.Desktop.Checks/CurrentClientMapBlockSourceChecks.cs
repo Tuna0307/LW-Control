@@ -778,11 +778,29 @@ internal static class CurrentClientMapBlockSourceChecks
                 {
                     JsonObject root = JsonNode.Parse(ProvenFastTruckBatch(fields, ("t-first", 9, 9, 86, 3, 1, "Driver A", 4_152_318L)))!.AsObject();
                     JsonObject row = root["train_march_records"]!.AsArray()[0]!.AsObject();
-                    row.Remove("trainType");
-                    row["trainDataJson"] = "{\"type\":1,\"arriveTime\":1789615774078,\"marchInfo\":{\"robTimes\":2}}";
+                    row["arriveTs"] = 1_789_615_774_078L;
+                    row["robTimes"] = 2;
+                    row["protectTime"] = 1_789_616_000_000L;
+                    row["truckMetadataKnown"] = true;
+                    row["truckVipOn"] = false;
+                    row["truckMaxLootCount"] = 3;
+                    row["truckCurrentGoodsRaw"] = JsonNode.Parse("[{\"type\":7,\"value\":{\"id\":\"200364\",\"num\":1}},{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}},{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}},{\"type\":1,\"value\":3807500}]");
+                    // Retain split arrays too; the direct game GetCurRewardData result above must win
+                    // rather than being double-counted with these fallback fields.
+                    row["truckExtraGoodsCur"] = JsonNode.Parse("[{\"type\":7,\"value\":{\"id\":\"200364\",\"num\":1}},{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}}]");
+                    row["truckBaseGoodsCur"] = JsonNode.Parse("[{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}},{\"type\":1,\"value\":3807500}]");
                     return root.ToJsonString(JsonOptions.Default);
                 }
-                if (x == 995 && y == 975) return ProvenFastTruckBatch(fields, ("t-last", 985, 985, 87, 5, 2, "Driver B", 9_000_000L));
+                if (x == 995 && y == 975)
+                {
+                    JsonObject root = JsonNode.Parse(ProvenFastTruckBatch(fields, ("t-last", 985, 985, 87, 10, 2, "Driver B", 9_000_000L)))!.AsObject();
+                    JsonObject row = root["train_march_records"]!.AsArray()[0]!.AsObject();
+                    row["robTimes"] = 1;
+                    row["truckMetadataKnown"] = true;
+                    row["truckVipOn"] = true;
+                    row["truckMaxLootCount"] = 2;
+                    return root.ToJsonString(JsonOptions.Default);
+                }
                 return ProvenFastTruckBatch(fields);
             });
         MapScanExecutionRequest request = Request("truck", 1000, 1000, worldId: 0);
@@ -793,13 +811,25 @@ internal static class CurrentClientMapBlockSourceChecks
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
         Check(first.Kind == "truck" && first.RecordKey == "t-first" && first.Quality == 3 && first.Power == 4_152_318L &&
-              last.Kind == "truck" && last.RecordKey == "t-last" && last.Quality == 5 && last.Power == 9_000_000L,
-            "fast full-Truck source did not preserve live train identity/quality/power at map extremes");
+              last.Kind == "truck" && last.RecordKey == "t-last" && last.Quality == 10 && last.Power == 9_000_000L &&
+              last.DataJson.Contains("\"isSpecialURQuality\":true", StringComparison.Ordinal),
+            "fast full-Truck source did not preserve live train identity/quality/power/special-UR state at map extremes");
         Check(first.Name == "Driver A" && first.DataJson.Contains("\"trainType\":1", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"trainCfgId\":86", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"arriveTs\":1789615774078", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"robTimes\":2", StringComparison.Ordinal),
-            "fast full-Truck source did not preserve source-backed truck metadata");
+              first.DataJson.Contains("\"robTimes\":2", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"protectTime\":1789616000000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"maxLootCount\":3", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"currentGoods\":[", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"reward:7:200364\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"reward:7:2270000\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"count\":2", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"reward:1:1\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"count\":3807500", StringComparison.Ordinal) &&
+              !first.DataJson.Contains("\"trainDataJson\"", StringComparison.Ordinal) &&
+              !last.DataJson.Contains("\"trainDataJson\"", StringComparison.Ordinal) &&
+              last.DataJson.Contains("\"maxLootCount\":2", StringComparison.Ordinal),
+            "fast full-Truck source did not reconstruct current-v19 GetCurRewardData/maxLootPerTrain metadata, aggregate string-ID rewards, or preserve exact VIP-adjusted max loot");
     }
 
     private static async Task FastRailwayFullMapReturnsAllLogicalCaptures()
@@ -2209,7 +2239,7 @@ internal static class CurrentClientMapBlockSourceChecks
             ownerUid = "owner-" + truck.Uuid, ownerName = truck.OwnerName, allianceName = "Alliance", ownerServer = 2212,
             power = truck.Power, startTime = 1_789_588_788_959L, endTime = 1_789_589_236_172L,
             trainUuid = 1_417_409_824_803_038_247L, trainCfgId = truck.TrainCfgId, trainType = 1,
-            trainQuality = truck.Quality, carriageNum = truck.CarriageNum, trainDataJson = "{}",
+            trainQuality = truck.Quality, carriageNum = truck.CarriageNum,
             source = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
         }).ToArray(), JsonOptions.Default);
         return root.ToJsonString(JsonOptions.Default);

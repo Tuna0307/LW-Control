@@ -359,6 +359,18 @@ internal sealed partial class CurrentClientMapBlockSource
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
 
+        // Truck reward/max-loot enrichment is deliberately post-acquisition. The AOI hot path
+        // carries only lightweight game-owned TrainData fields/reward arrays; full TrainData JSON
+        // is Railway-only because current-v19 Truck plunder history makes that blob very large.
+        if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
+        {
+            foreach ((string key, FastTrainPrepared prepared) in trainRecords.ToArray())
+            {
+                if (prepared.Record.Kind != "truck") continue;
+                trainRecords[key] = ApplyFinalTruckMetadataEnrichment(prepared);
+            }
+        }
+
         ResourceScanDetailObservation resourceDetails = ResourceScanDetailObservation.Empty;
         int idleResourceCount = request.SelectedTypes.Contains("resource", StringComparer.Ordinal)
             ? resourceRecords.Values.Count(item => IsKnownIdleResource(item.Record))
@@ -1378,20 +1390,29 @@ internal sealed partial class CurrentClientMapBlockSource
         return result;
     }
 
-    private static IReadOnlyList<FastTrainPrepared> PrepareTrainRecords(JsonElement root, MapScanExecutionRequest request, HashSet<int> requestedSet, DateTimeOffset capturedAt)
+    private static IReadOnlyList<FastTrainPrepared> PrepareTrainRecords(
+        JsonElement root,
+        MapScanExecutionRequest request,
+        HashSet<int> requestedSet,
+        DateTimeOffset capturedAt)
     {
         if (!root.TryGetProperty("train_march_records", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its Train march snapshot.");
         var result = new List<FastTrainPrepared>(rows.GetArrayLength());
         foreach (JsonElement row in rows.EnumerateArray())
         {
-            TrainDataMetadata trainData = ReadTrainDataMetadata(row);
-            int? trainType = OptionalInt(row, "trainType") ?? trainData.Type;
+            string uuid = RequiredString(row, "uuid");
+            TrainDataMetadata? parsedTrainData = null;
+            int? trainType = OptionalInt(row, "trainType");
+            if (trainType is null)
+            {
+                parsedTrainData = ReadTrainDataMetadata(row);
+                trainType = parsedTrainData.Type;
+            }
             if (trainType is null) continue; // unclassifiable train rows stay unknown.
             // Current-v18 Assembly-CSharp.rdl: TrainType.Truck = 1, TrainType.Train = 2.
             string? kind = trainType.Value switch { 1 => "truck", 2 => "railway", _ => null };
             if (kind is null || !request.SelectedTypes.Contains(kind, StringComparer.Ordinal)) continue;
-            string uuid = RequiredString(row, "uuid");
             int serverId = RequiredInt(row, "serverId");
             int worldId = RequiredInt(row, "worldId");
             int x = RequiredInt(row, "x");
@@ -1408,11 +1429,24 @@ internal sealed partial class CurrentClientMapBlockSource
             string? ownerName = OptionalStringValue(row, "ownerName");
             string? allianceName = OptionalStringValue(row, "allianceName");
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
+            long? arriveTs = OptionalPositiveInt64(row, "arriveTs");
+            int? robTimes = OptionalNonNegativeInt(row, "robTimes");
+            long? protectTime = OptionalPositiveInt64(row, "protectTime");
+            if (kind == "railway" && (arriveTs is null || robTimes is null || protectTime is null))
+            {
+                parsedTrainData ??= ReadTrainDataMetadata(row);
+                arriveTs ??= parsedTrainData.ArriveTs;
+                robTimes ??= parsedTrainData.RobTimes;
+                protectTime ??= parsedTrainData.ProtectTime;
+            }
+            TruckSourceMetadata? truckMetadata = kind == "truck" ? ReadTruckSourceMetadata(row) : null;
             var data = new JsonObject
             {
                 ["uuid"] = uuid, ["marchUuid"] = OptionalStringValue(row, "marchUuid") ?? uuid,
                 ["ownerName"] = ownerName, ["allianceName"] = allianceName,
                 ["quality"] = quality, ["power"] = power, ["x"] = x, ["y"] = y,
+                // Current-v19 TrainData.Refresh: self.isSpecialURQuality = self.quality == 10.
+                ["isSpecialURQuality"] = quality == 10,
                 ["positionIndex"] = pointIndex, ["trainType"] = trainType.Value,
                 ["trainCfgId"] = RequiredInt(row, "trainCfgId"),
                 ["carriageNum"] = RequiredInt(row, "carriageNum"),
@@ -1430,25 +1464,51 @@ internal sealed partial class CurrentClientMapBlockSource
             if (row.TryGetProperty("srcServer", out JsonElement srcServerValue) && srcServerValue.TryGetInt32(out int srcServer)) data["srcServer"] = srcServer;
             if (row.TryGetProperty("startTime", out JsonElement startValue) && startValue.TryGetInt64(out long startTime)) data["startTime"] = startTime;
             if (row.TryGetProperty("endTime", out JsonElement endValue) && endValue.TryGetInt64(out long endTime)) data["endTime"] = endTime;
-            if (trainData.ArriveTs is long arriveTs) data["arriveTs"] = arriveTs;
-            if (trainData.RobTimes is int robTimes) data["robTimes"] = robTimes;
-            if (trainData.ProtectTime is long protectTime) data["protectTime"] = protectTime;
+            if (arriveTs is long sourceArriveTs) data["arriveTs"] = sourceArriveTs;
+            if (robTimes is int sourceRobTimes) data["robTimes"] = sourceRobTimes;
+            if (protectTime is long sourceProtectTime) data["protectTime"] = sourceProtectTime;
             if (row.TryGetProperty("maxLootCount", out JsonElement maxLootValue) &&
                 maxLootValue.TryGetInt32(out int maxLootCount) && maxLootCount >= 0)
                 data["maxLootCount"] = maxLootCount;
             if (row.TryGetProperty("currentGoods", out JsonElement currentGoodsValue) &&
                 currentGoodsValue.ValueKind == JsonValueKind.Array && currentGoodsValue.GetArrayLength() > 0)
                 data["currentGoods"] = JsonNode.Parse(currentGoodsValue.GetRawText());
-            if (row.TryGetProperty("trainDataJson", out JsonElement trainDataValue) && trainDataValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(trainDataValue.GetString())) data["trainDataJson"] = trainDataValue.GetString();
+            if (kind == "railway" && row.TryGetProperty("trainDataJson", out JsonElement trainDataValue) &&
+                trainDataValue.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(trainDataValue.GetString()))
+                data["trainDataJson"] = trainDataValue.GetString();
             result.Add(new FastTrainPrepared(x, y, new MapStoredRecord(
                 kind, serverId, uuid, pointIndex, uuid, ownerName, allianceName, null, quality, power, null, null, updatedAt,
-                data.ToJsonString(JsonOptions.Default))));
+                data.ToJsonString(JsonOptions.Default)), truckMetadata));
         }
         return result;
     }
 
     private static int? OptionalInt(JsonElement row, string name) =>
         row.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed) ? parsed : null;
+
+    private static int? OptionalNonNegativeInt(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed) && parsed >= 0 ? parsed : null;
+
+    private static long? OptionalPositiveInt64(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) && value.TryGetInt64(out long parsed) && parsed > 0 ? parsed : null;
+
+    private static TruckSourceMetadata? ReadTruckSourceMetadata(JsonElement row)
+    {
+        bool metadataKnown = row.TryGetProperty("truckMetadataKnown", out JsonElement knownValue) &&
+            knownValue.ValueKind == JsonValueKind.True;
+        if (!metadataKnown) return null;
+        string? currentGoods = row.TryGetProperty("truckCurrentGoodsRaw", out JsonElement currentValue) &&
+            currentValue.ValueKind == JsonValueKind.Array ? currentValue.GetRawText() : null;
+        int? exactMaxLootCount = row.TryGetProperty("truckMaxLootCount", out JsonElement maxLootValue) &&
+            maxLootValue.TryGetInt32(out int parsedMaxLoot) && parsedMaxLoot >= 0 ? parsedMaxLoot : null;
+        string? extraGoodsCur = row.TryGetProperty("truckExtraGoodsCur", out JsonElement extraValue) &&
+            extraValue.ValueKind == JsonValueKind.Array ? extraValue.GetRawText() : null;
+        string? baseGoodsCur = row.TryGetProperty("truckBaseGoodsCur", out JsonElement baseValue) &&
+            baseValue.ValueKind == JsonValueKind.Array ? baseValue.GetRawText() : null;
+        bool vipOn = row.TryGetProperty("truckVipOn", out JsonElement vipValue) &&
+            vipValue.ValueKind == JsonValueKind.True;
+        return new TruckSourceMetadata(currentGoods, exactMaxLootCount, extraGoodsCur, baseGoodsCur, vipOn);
+    }
 
     private static TrainDataMetadata ReadTrainDataMetadata(JsonElement row)
     {
@@ -1475,6 +1535,132 @@ internal sealed partial class CurrentClientMapBlockSource
             return new TrainDataMetadata(type, arriveTs, robTimes, protectTime);
         }
         catch (JsonException) { return new TrainDataMetadata(null, null, null, null); }
+    }
+
+    private static FastTrainPrepared ApplyFinalTruckMetadataEnrichment(FastTrainPrepared prepared)
+    {
+        TruckSourceMetadata? source = prepared.TruckMetadata;
+        if (source is null) return prepared;
+
+        JsonObject? data;
+        try { data = JsonNode.Parse(prepared.Record.DataJson)?.AsObject(); }
+        catch (JsonException) { return prepared; }
+        if (data is null) return prepared;
+
+        if (data["maxLootCount"] is null && TryReadSourceSafeTruckMaxLootCount(source, out int maxLootCount))
+            data["maxLootCount"] = maxLootCount;
+        if (data["currentGoods"] is not JsonArray existingGoods || existingGoods.Count == 0)
+        {
+            JsonArray? goods = ReadTruckCurrentGoods(source);
+            if (goods is not null && goods.Count > 0) data["currentGoods"] = goods;
+        }
+
+        return prepared with
+        {
+            Record = prepared.Record with { DataJson = data.ToJsonString(JsonOptions.Default) },
+        };
+    }
+
+    private static bool TryReadSourceSafeTruckMaxLootCount(TruckSourceMetadata source, out int maxLootCount)
+    {
+        maxLootCount = 0;
+        if (source.ExactMaxLootCount is int exact)
+        {
+            maxLootCount = exact;
+            return true;
+        }
+
+        // Fallback for deterministic/older captures that do not expose the already-computed
+        // TrainData.maxLootPerTrain field. Current-v19 TrainData.Refresh starts from
+        // LWAllyStationDataManager.MAX_LOOT_PER_TRAIN (default 3) and only subtracts under
+        // truthy vipOn. Never guess the VIP reduction when the exact runtime field is absent.
+        if (source.VipOn) return false;
+        maxLootCount = 3;
+        return true;
+    }
+
+    private static JsonArray? ReadTruckCurrentGoods(TruckSourceMetadata source)
+    {
+        var totals = new Dictionary<(int RewardType, long ItemId), long>();
+        AppendTruckGoods(source.CurrentGoodsJson, totals);
+        if (totals.Count == 0)
+        {
+            AppendTruckGoods(source.ExtraGoodsCurJson, totals);
+            AppendTruckGoods(source.BaseGoodsCurJson, totals);
+        }
+        if (totals.Count == 0) return null;
+
+        var goods = new JsonArray();
+        foreach (((int rewardType, long itemId), long count) in totals.OrderBy(item => item.Key.RewardType).ThenBy(item => item.Key.ItemId))
+        {
+            if (count <= 0) continue;
+            goods.Add(new JsonObject
+            {
+                // Internal rebuild identity only; original LWBridge key producer remains unrecovered.
+                ["key"] = $"reward:{rewardType}:{itemId}",
+                ["count"] = count,
+                ["rewardType"] = rewardType,
+                ["itemId"] = itemId,
+            });
+        }
+        return goods.Count > 0 ? goods : null;
+    }
+
+    private static void AppendTruckGoods(
+        string? currentJson,
+        Dictionary<(int RewardType, long ItemId), long> totals)
+    {
+        if (string.IsNullOrWhiteSpace(currentJson)) return;
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(currentJson);
+            JsonElement current = document.RootElement;
+            if (current.ValueKind != JsonValueKind.Array) return;
+
+            foreach (JsonElement reward in current.EnumerateArray())
+            {
+                if (reward.ValueKind != JsonValueKind.Object ||
+                    !reward.TryGetProperty("type", out JsonElement typeValue) || !typeValue.TryGetInt32(out int rewardType) ||
+                    !reward.TryGetProperty("value", out JsonElement value))
+                    continue;
+
+                long? itemId = null;
+                long? count = null;
+                if (value.ValueKind == JsonValueKind.Object)
+                {
+                    if (value.TryGetProperty("id", out JsonElement idValue) && TryReadInt64(idValue, out long parsedId)) itemId = parsedId;
+                    if (value.TryGetProperty("num", out JsonElement numValue) && TryReadInt64(numValue, out long parsedCount)) count = parsedCount;
+                }
+                else if (TryReadInt64(value, out long scalarCount))
+                {
+                    // This is the existing game/rebuild reward shape used by TrainData normalization:
+                    // scalar rewards carry their identity in reward.type and their amount in reward.value.
+                    itemId = rewardType;
+                    count = scalarCount;
+                }
+
+                if (itemId is not long id || count is not long quantity || id <= 0 || quantity <= 0) continue;
+                var key = (rewardType, id);
+                if (totals.TryGetValue(key, out long existing))
+                {
+                    if (existing > long.MaxValue - quantity) continue;
+                    totals[key] = existing + quantity;
+                }
+                else totals[key] = quantity;
+            }
+        }
+        catch (JsonException)
+        {
+            // Optional source metadata must remain fail-closed; malformed rewards are not synthesized.
+        }
+    }
+
+    private static bool TryReadInt64(JsonElement value, out long parsed)
+    {
+        parsed = 0;
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out parsed)) return true;
+        return value.ValueKind == JsonValueKind.String &&
+            long.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed);
     }
 
     private static string? OptionalStringValue(JsonElement row, string name) =>
@@ -1544,6 +1730,12 @@ internal sealed partial class CurrentClientMapBlockSource
     internal sealed record MonsterProtectionDetailMetrics(
         int BossCount, int TargetCount, int RequestCount, int RetryCount, int ReadyCount, string? Error);
     private sealed record TrainDataMetadata(int? Type, long? ArriveTs, int? RobTimes, long? ProtectTime);
+    private sealed record TruckSourceMetadata(
+        string? CurrentGoodsJson,
+        int? ExactMaxLootCount,
+        string? ExtraGoodsCurJson,
+        string? BaseGoodsCurJson,
+        bool VipOn);
     private sealed record FastDispatchPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastGhostPrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastTreasurePrepared(int X, int Y, MapStoredRecord Record);
@@ -1578,7 +1770,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal static MonsterProtectionDetailObservation Failed(string error) =>
             new(0, 0, 0, 0, new Dictionary<string, MonsterProtectionDetail>(StringComparer.Ordinal), error);
     }
-    private sealed record FastTrainPrepared(int X, int Y, MapStoredRecord Record);
+    private sealed record FastTrainPrepared(int X, int Y, MapStoredRecord Record, TruckSourceMetadata? TruckMetadata = null);
     private sealed record FastCityBatchObservation(
         int[] RequestedIndices,
         IReadOnlyList<FirstLivePreparedResource> Prepared,

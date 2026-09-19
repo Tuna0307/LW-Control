@@ -1044,6 +1044,7 @@ local function pump_runtime_diagnostic(now)
     local world_pos = cs_player and safe_get(cs_player, "PlayerWorldPointId") or nil
     local server_numeric = tonumber(server_id)
     local world_pos_numeric = tonumber(world_pos)
+
     write_runtime_diagnostic_result(request, "proven", nil, {
         globalGameEntry = object_shape(global_entry),
         csGameEntry = object_shape(cs_entry),
@@ -1923,10 +1924,40 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                 local aoi_index = cell_y * block_count + cell_x
                 if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and selected_lookup[aoi_index] == true then
                     local config = safe_get(train, "config")
+                    local march_uuid = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+                    local raw_train_data = safe_get(train, "trainData")
+                    local train_data = nil
+                    local data_center = rawget(_G, "DataCenter")
+                    local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
+                    if manager ~= nil then
+                        local train_uuid = scalar_field(train, { "uuid", "Uuid" })
+                        if train_uuid ~= nil then
+                            local ok_train, value = call(manager, "GetOneTrain", train_uuid)
+                            if ok_train and value ~= nil then train_data = value end
+                        end
+                        if train_data == nil and march_uuid ~= "" then
+                            local ok_train, value = call(manager, "GetOneTrainByMarchUuid", march_uuid)
+                            if ok_train and value ~= nil then train_data = value end
+                        end
+                    end
+                    if train_data == nil and raw_train_data ~= nil then train_data = raw_train_data end
+                    local train_type_raw = scalar_field(train, { "type", "Type" })
+                    local train_data_type_raw = train_data and scalar_field(train_data, { "type", "Type" }) or nil
                     local train_type = integer_field(train, { "type", "Type" })
-                    local train_data = safe_get(train, "trainData")
+                    if train_type == nil and train_type_raw ~= nil then
+                        train_type = tonumber(tostring(train_type_raw):match(":%s*(-?%d+)%s*$"))
+                    end
+                    if train_type == nil and train_data ~= nil then
+                        train_type = integer_field(train_data, { "type", "Type" })
+                        if train_type == nil and train_data_type_raw ~= nil then
+                            train_type = tonumber(tostring(train_data_type_raw):match(":%s*(-?%d+)%s*$"))
+                        end
+                    end
                     local train_data_json = nil
-                    if train_data ~= nil then
+                    -- TrainData:ToJson() is large on current-v19 Trucks because it includes
+                    -- plunder history. Keep that blob only for Railway fallback; Truck uses
+                    -- the lightweight game-owned TrainData fields below.
+                    if train_type == 2 and train_data ~= nil then
                         local ok_json, value = call(train_data, "ToJson")
                         if ok_json and value ~= nil then train_data_json = tostring(value) end
                         if train_data_json == nil then
@@ -1934,11 +1965,27 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                             if ok_dump and dump ~= nil then train_data_json = tostring(dump) end
                         end
                     end
+                    local train_arrive_ts = train_data and scalar_field(train_data, { "arriveTs", "arriveTime", "ArriveTs", "ArriveTime" }) or nil
+                    local train_march_info = train_data and safe_get(train_data, "marchInfo") or nil
+                    local train_rob_times = train_march_info and integer_field(train_march_info, { "robTimes", "RobTimes" }) or nil
+                    local train_protect_time = train_march_info and scalar_field(train_march_info, { "protectTime", "ProtectTime" }) or nil
+                    local truck_base_goods_cur, truck_extra_goods_cur, truck_vip_on = nil, nil, nil
+                    local truck_current_goods_raw, truck_max_loot_count = nil, nil
+                    local truck_metadata_known = train_type == 1 and train_data ~= nil
+                    if truck_metadata_known then
+                        local base_goods = safe_get(train_data, "baseGoods")
+                        local extra_goods = safe_get(train_data, "extraGoods")
+                        truck_base_goods_cur = base_goods and safe_get(base_goods, "cur") or nil
+                        truck_extra_goods_cur = extra_goods and safe_get(extra_goods, "cur") or nil
+                        truck_vip_on = train_march_info and safe_get(train_march_info, "vipOn") or nil
+                        local ok_rewards, rewards = call(train_data, "GetCurRewardData")
+                        if ok_rewards and type(rewards) == "table" then truck_current_goods_raw = rewards end
+                        truck_max_loot_count = tonumber(safe_get(train_data, "maxLootPerTrain"))
+                    end
                     local current_goods, max_loot_count = nil, nil
                     if train_type == 2 then
                         current_goods, max_loot_count = normalize_train_current_goods(march, train, train_data_json)
                     end
-                    local march_uuid = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
                     records[#records + 1] = {
                         uuid = march_uuid,
                         marchUuid = march_uuid,
@@ -1962,6 +2009,15 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                         trainType = train_type,
                         trainQuality = config and integer_field(config, { "quality", "Quality" }) or nil,
                         carriageNum = config and integer_field(config, { "carriageNum", "CarriageNum" }) or nil,
+                        arriveTs = train_arrive_ts,
+                        robTimes = train_rob_times,
+                        protectTime = train_protect_time,
+                        truckMetadataKnown = truck_metadata_known,
+                        truckCurrentGoodsRaw = truck_current_goods_raw,
+                        truckMaxLootCount = truck_max_loot_count,
+                        truckBaseGoodsCur = truck_base_goods_cur,
+                        truckExtraGoodsCur = truck_extra_goods_cur,
+                        truckVipOn = truck_vip_on,
                         trainDataJson = train_data_json,
                         currentGoods = current_goods,
                         maxLootCount = max_loot_count,

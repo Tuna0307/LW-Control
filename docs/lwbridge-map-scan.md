@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Current-v19 Truck goods fidelity/performance - LWB-R7-047, 2026-09-19
+
+**LIVE-PROVEN, read-only.** Fast Truck now keeps the full Truck `TrainData` blob off the AOI hot path while retaining authoritative reward/loot metadata. Current-v19 XLua exposes the Train enum as strings such as `Truck: 1`; production therefore parses the trailing numeric enum value, prefers `LWTrainDataManager:GetOneTrain/GetOneTrainByMarchUuid` over the raw WorldMarch TrainData proxy, and uses game-owned `GetCurRewardData()` plus exact `maxLootPerTrain`. Full `TrainData:ToJson/GetDump` remains Railway-only. Final Truck enrichment runs once after the 10,000-AOI acquisition on deduplicated rows, aggregates duplicate reward entries, accepts numeric-string item IDs, and preserves split `baseGoods.cur/extraGoods.cur` only as fallback without double-counting.
+
+The cleaned acceptance run completed **2,500/2,500** Fast blocks in **125.451 s**, published/reopened **244 Trucks**, reconstructed `currentGoods` for all 244 (**1,782 reward items**) and `maxLootCount` for all 244, retained **19 special-UR** rows, and persisted **0 Truck `trainDataJson`** rows. Exact v19 restoration and process cleanup passed; no robbery, attack, collection, or other consuming action occurred. Earlier reflection, per-AOI host parsing, enum-number-only classification, and raw-TrainData-first paths are rejected by this checkpoint. Evidence: [`2026-09-19-r7-truck-goods-fidelity.json`](../evidence/lwbridge-implementation/2026-09-19-r7-truck-goods-fidelity.json).
+
 ## Public Truck Scheduled Plunder command - LWB-R7-046, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED; live robbery acceptance remains pending.** The recovered public command is `map_truck_plunder_schedule({rows})`. Exact validation is now reproduced: required `rows`, 1..200 batch size, and `INVALID_REQUEST` messages `truck rows are required`, `select between 1 and 200 trucks`, and `truck scheduling data is invalid`. Each row must carry a positive server ID, decimal-string WorldMarch `uuid`, positive `executeAt` and `maxLootCount`, with the original literal `robTimes < maxLootCount` rule. Public validation covers the entire batch before any write.

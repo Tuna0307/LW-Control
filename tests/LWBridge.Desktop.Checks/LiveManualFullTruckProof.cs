@@ -29,6 +29,16 @@ internal static class LiveManualFullTruckProof
         int trainDataCount = 0;
         int arriveTsCount = 0;
         int robTimesCount = 0;
+        int maxLootCountCount = 0;
+        int protectTimeCount = 0;
+        int specialUrCount = 0;
+        int currentGoodsRowCount = 0;
+        int currentGoodsItemCount = 0;
+        int rawBaseGoodsRows = 0;
+        int rawExtraGoodsRows = 0;
+        int rawBaseCurRows = 0;
+        int rawExtraCurRows = 0;
+        int rawRewardEntries = 0;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -103,7 +113,17 @@ internal static class LiveManualFullTruckProof
                     if (publishedTruckCount <= 0)
                         throw new InvalidDataException("Ordinary Manual Truck scan published no Truck records.");
                     CollectTruckMetrics(store, serverId, out trainTypeCount, out qualityCount,
-                        out powerCount, out trainCfgCount, out trainDataCount, out arriveTsCount, out robTimesCount);
+                        out powerCount, out trainCfgCount, out trainDataCount, out arriveTsCount, out robTimesCount,
+                        out maxLootCountCount, out protectTimeCount, out specialUrCount,
+                        out currentGoodsRowCount, out currentGoodsItemCount,
+                        out rawBaseGoodsRows, out rawExtraGoodsRows, out rawBaseCurRows,
+                        out rawExtraCurRows, out rawRewardEntries);
+                    if (currentGoodsRowCount <= 0 || currentGoodsItemCount <= 0)
+                        throw new InvalidDataException("Ordinary Manual Truck scan reconstructed no authoritative currentGoods.");
+                    if (maxLootCountCount <= 0)
+                        throw new InvalidDataException("Ordinary Manual Truck scan reconstructed no source-safe maxLootCount.");
+                    if (trainDataCount != 0)
+                        throw new InvalidDataException($"Ordinary Manual Truck scan retained {trainDataCount} full trainDataJson payloads on the hot path.");
                 }
                 finally
                 {
@@ -132,6 +152,16 @@ internal static class LiveManualFullTruckProof
                 trainDataCount,
                 arriveTsCount,
                 robTimesCount,
+                maxLootCountCount,
+                protectTimeCount,
+                specialUrCount,
+                currentGoodsRowCount,
+                currentGoodsItemCount,
+                rawBaseGoodsRows,
+                rawExtraGoodsRows,
+                rawBaseCurRows,
+                rawExtraCurRows,
+                rawRewardEntries,
             }, JsonOptions.Default));
         }
         catch (Exception error)
@@ -200,9 +230,14 @@ internal static class LiveManualFullTruckProof
     private static void CollectTruckMetrics(
         MapDataStore store, int serverId, out int trainTypeCount, out int qualityCount,
         out int powerCount, out int trainCfgCount, out int trainDataCount,
-        out int arriveTsCount, out int robTimesCount)
+        out int arriveTsCount, out int robTimesCount, out int maxLootCountCount,
+        out int protectTimeCount, out int specialUrCount, out int currentGoodsRowCount,
+        out int currentGoodsItemCount, out int rawBaseGoodsRows, out int rawExtraGoodsRows,
+        out int rawBaseCurRows, out int rawExtraCurRows, out int rawRewardEntries)
     {
         trainTypeCount = qualityCount = powerCount = trainCfgCount = trainDataCount = arriveTsCount = robTimesCount = 0;
+        maxLootCountCount = protectTimeCount = specialUrCount = currentGoodsRowCount = currentGoodsItemCount = 0;
+        rawBaseGoodsRows = rawExtraGoodsRows = rawBaseCurRows = rawExtraCurRows = rawRewardEntries = 0;
         int page = 1; int observed = 0; int expectedTotal = -1;
         while (true)
         {
@@ -215,9 +250,46 @@ internal static class LiveManualFullTruckProof
                 if (row.TryGetProperty("quality", out JsonElement quality) && quality.TryGetInt32(out int q) && q > 0) qualityCount++;
                 if (row.TryGetProperty("power", out JsonElement power) && power.TryGetInt64(out long pwr) && pwr >= 0) powerCount++;
                 if (row.TryGetProperty("trainCfgId", out JsonElement cfg) && cfg.TryGetInt32(out int cfgId) && cfgId > 0) trainCfgCount++;
-                if (row.TryGetProperty("trainDataJson", out JsonElement raw) && raw.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(raw.GetString())) trainDataCount++;
+                if (row.TryGetProperty("trainDataJson", out JsonElement raw) && raw.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(raw.GetString()))
+                {
+                    trainDataCount++;
+                    try
+                    {
+                        using JsonDocument rawDoc = JsonDocument.Parse(raw.GetString()!);
+                        JsonElement root = rawDoc.RootElement;
+                        if (root.TryGetProperty("baseGoods", out JsonElement baseGoods) && baseGoods.ValueKind == JsonValueKind.Object)
+                        {
+                            rawBaseGoodsRows++;
+                            if (baseGoods.TryGetProperty("cur", out JsonElement cur) && cur.ValueKind == JsonValueKind.Array && cur.GetArrayLength() > 0)
+                            {
+                                rawBaseCurRows++;
+                                rawRewardEntries += cur.GetArrayLength();
+                            }
+                        }
+                        if (root.TryGetProperty("extraGoods", out JsonElement extraGoods) && extraGoods.ValueKind == JsonValueKind.Object)
+                        {
+                            rawExtraGoodsRows++;
+                            if (extraGoods.TryGetProperty("cur", out JsonElement cur) && cur.ValueKind == JsonValueKind.Array && cur.GetArrayLength() > 0)
+                            {
+                                rawExtraCurRows++;
+                                rawRewardEntries += cur.GetArrayLength();
+                            }
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                    }
+                }
                 if (row.TryGetProperty("arriveTs", out JsonElement arriveTs) && arriveTs.TryGetInt64(out long arrival) && arrival > 0) arriveTsCount++;
                 if (row.TryGetProperty("robTimes", out JsonElement robTimes) && robTimes.TryGetInt32(out int robberies) && robberies >= 0) robTimesCount++;
+                if (row.TryGetProperty("maxLootCount", out JsonElement maxLootCount) && maxLootCount.TryGetInt32(out int maxLoot) && maxLoot >= 0) maxLootCountCount++;
+                if (row.TryGetProperty("protectTime", out JsonElement protectTime) && protectTime.TryGetInt64(out long protection) && protection > 0) protectTimeCount++;
+                if (row.TryGetProperty("isSpecialURQuality", out JsonElement specialUr) && specialUr.ValueKind == JsonValueKind.True) specialUrCount++;
+                if (row.TryGetProperty("currentGoods", out JsonElement goods) && goods.ValueKind == JsonValueKind.Array && goods.GetArrayLength() > 0)
+                {
+                    currentGoodsRowCount++;
+                    currentGoodsItemCount += goods.GetArrayLength();
+                }
             }
             if (observed >= expectedTotal || result.Rows.Count == 0) break;
             page++;

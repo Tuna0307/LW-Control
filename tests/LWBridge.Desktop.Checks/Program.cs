@@ -4863,11 +4863,18 @@ Check(liveCityProbeSource.Contains("try_recover_zoom_aoi_geometry", StringCompar
       liveCityProbeSource.Contains("zoom_restore_confirmation_timeout", StringComparison.Ordinal),
     "whole-world zoom restore timeout must make one bounded native AOI-grid recovery attempt before failing");
 Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringComparison.Ordinal) &&
-      liveCityProbeSource.Contains("GetOneTrainByMarchUuid", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("local raw_train_data = safe_get(train, \"trainData\")", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("local train_data = nil", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("call(manager, \"GetOneTrain\", train_uuid)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("call(manager, \"GetOneTrainByMarchUuid\", march_uuid)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if train_data == nil and raw_train_data ~= nil then train_data = raw_train_data end", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("tostring(train_type_raw):match(\":%s*(-?%d+)%s*$\")", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("GetCurRewardData", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckCurrentGoodsRaw = truck_current_goods_raw", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckMaxLootCount = truck_max_loot_count", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("tonumber(safe_get(train_data, \"maxLootPerTrain\"))", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("marchInfo.carriageList", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("train_goods.cur", StringComparison.Ordinal) &&
-      liveCityProbeSource.Contains("maxLootPerTrain", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("MAX_LOOT_PER_TRAIN", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("Delete_Train_Times", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("alliance_train_vip", StringComparison.Ordinal) &&
@@ -4876,8 +4883,10 @@ Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringCompar
       liveCityProbeSource.Contains("Internal rebuild identity only", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("marchUuid = march_uuid", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("allianceAbbr = scalar_field(march", StringComparison.Ordinal) &&
-      liveCityProbeSource.Contains("if train_type == 2 then", StringComparison.Ordinal),
-    "Railway rows must preserve moving-march identity/alliance abbreviation, derive retained goods from game TrainData/current carriage goods, and recover maxLootPerTrain from the current-v18 game formula without inventing display data");
+      liveCityProbeSource.Contains("if train_type == 2 then", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if train_type == 2 and train_data ~= nil then", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckMetadataKnown = truck_metadata_known", StringComparison.Ordinal),
+    "Train rows must parse current-v19 XLua enum strings, prefer game LWTrainDataManager objects, keep full TrainData JSON Railway-only, and expose Truck GetCurRewardData/maxLootPerTrain as lightweight metadata");
 Check(liveCityProbeSource.Contains("ghost_aoi_records", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("GetGhostreconPointInfoByIndex", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("LwGhostreconTask", StringComparison.Ordinal) &&
@@ -4891,6 +4900,22 @@ Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringCom
     "optional Monster Protection detail must not pause each AOI acquisition step");
 Check(fastCitySource.Contains("MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35)", StringComparison.Ordinal),
     "dedicated Zombie Boss enrichment must allow the bounded target-count-sized serialized detail window");
+Check(fastCitySource.Contains("[\"isSpecialURQuality\"] = quality == 10", StringComparison.Ordinal),
+    "Truck/Train row normalization must preserve current-v19 TrainData special-UR quality semantics");
+Check(fastCitySource.Contains("ApplyFinalTruckMetadataEnrichment", StringComparison.Ordinal) &&
+      fastCitySource.Contains("TruckSourceMetadata", StringComparison.Ordinal) &&
+      fastCitySource.Contains("CurrentGoodsJson", StringComparison.Ordinal) &&
+      fastCitySource.Contains("ExactMaxLootCount", StringComparison.Ordinal) &&
+      fastCitySource.Contains("ReadTruckCurrentGoods", StringComparison.Ordinal) &&
+      fastCitySource.Contains("TryReadSourceSafeTruckMaxLootCount", StringComparison.Ordinal) &&
+      fastCitySource.Contains("source.ExactMaxLootCount is int exact", StringComparison.Ordinal) &&
+      fastCitySource.Contains("TryReadInt64", StringComparison.Ordinal) &&
+      fastCitySource.Contains("post-acquisition", StringComparison.Ordinal) &&
+      fastCitySource.Contains("kind == \"railway\" && row.TryGetProperty(\"trainDataJson\"", StringComparison.Ordinal) &&
+      !fastCitySource.Contains("data[\"trainDataJson\"] is not JsonValue rawValue", StringComparison.Ordinal) &&
+      fastCitySource.Contains("AppendTruckGoods(source.CurrentGoodsJson, totals)", StringComparison.Ordinal) &&
+      fastCitySource.Contains("reward:{rewardType}:{itemId}", StringComparison.Ordinal),
+    "Truck goods/max-loot enrichment must run post-acquisition from deduplicated GetCurRewardData/exact max-loot metadata, accept current-v19 numeric-string item IDs, avoid double-counting split arrays, and keep full TrainData JSON off the Truck hot path");
 Check(fastCitySource.Contains("Monster/Zombie Boss are fast-only", StringComparison.Ordinal) &&
       !fastCitySource.Contains("conservative LOD0 fallback resumes", StringComparison.Ordinal),
     "Monster and Zombie Boss whole-world scans must fail fast instead of silently entering the slow LOD0 fallback");
