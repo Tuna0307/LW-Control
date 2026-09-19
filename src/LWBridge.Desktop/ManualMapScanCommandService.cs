@@ -80,7 +80,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_coordinate_jump" or "map_march_follow" or "server_jump" or "map_truck_plunder_schedule";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or "map_coordinate_jump" or "map_march_follow" or "server_jump" or "map_truck_plunder_schedule";
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -93,6 +93,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return null;
         }
         if (command == "map_scan_status") return CreateStatus();
+        if (command == "map_scan_clear") return ClearMapScan(payload);
         if (command == "server_jump")
             return await JumpToServerAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_coordinate_jump")
@@ -124,6 +125,48 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+
+    private object ClearMapScan(JsonElement payload)
+    {
+        int requestedServerId = MapDataQueryContract.RequiredServerId(payload);
+        bool shouldResolveLiveServer;
+        lock (gate)
+            shouldResolveLiveServer = !closed && !isReading && serverId <= 0;
+
+        int? resolvedServerId = shouldResolveLiveServer ? getLiveServerId?.Invoke() : null;
+        lock (gate)
+        {
+            if (!closed && !isReading && serverId <= 0 && resolvedServerId is > 0)
+                serverId = resolvedServerId.Value;
+
+            MapScanClearOwnership.Validate(
+                requestedServerId,
+                isReading,
+                serverId,
+                serverId > 0 ? MapScanClearOwnership.LiveServerSource : "none");
+
+            // R7-054: Clear is owned by the same scan gate as Start so a new scan
+            // cannot begin between the recovered ownership check and the atomic
+            // server-scoped SQLite clear. Player marks stay outside ClearServer.
+            store.ClearServer(requestedServerId);
+            scanRunId = string.Empty;
+            phase = "idle";
+            scanMode = "normal";
+            worldId = 0;
+            concurrency = 0;
+            totalBlocks = 0;
+            completedBlocks = 0;
+            failedBlocks = 0;
+            inflightBlocks = 0;
+            unreadBlocks = 0;
+            scanRate = 0;
+            acquisitionProgressPercent = null;
+            lastError = null;
+        }
+
+        PublishStatusChanged();
+        return CreateStatus();
+    }
 
     private sealed record TruckScheduleRow(
         int ServerId,

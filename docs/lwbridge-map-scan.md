@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Map Scan Clear ownership - LWB-R7-054, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED with in-memory destructive acceptance.** Hash-locked `LWB-R6-057` recovery proves the original pre-clear contract: active `isReading` rejects with `SCAN_RUNNING / stop the map scan first`; otherwise requested server must be positive, equal current scan-state `serverId`, and current `serverIdSource` must be exact `live`, or Clear rejects with `SERVER_UNAVAILABLE / current server id unavailable`. Server-scoped clear and idle publication occur only after those gates.
+
+The production desktop already had an authoritative live server source in `ManualMapScanCommandService.CreateStatus`; R7-054 does not fabricate one. Instead the service now handles `map_scan_clear` itself. Under its existing ownership lock it admits/rejects the request, atomically calls `MapDataStore.ClearServer`, resets run/progress/error fields to idle/zero, and publishes status. Start uses the same lock, eliminating validation-to-delete Start races. `ClearServer` deletes `scan_runs` and `map_records` for one server in one SQLite transaction; dependent scan staging/checkpoints cascade from run deletion, while `player_marks` are deliberately outside that scope. Active Clear never deletes; mismatched server never deletes; other servers survive; repeated empty Clear is safe; and saved/replay-only status cannot authorize deletion. No real user Map Data was cleared. Evidence: [`2026-09-19-r7-map-scan-clear-ownership.json`](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-clear-ownership.json).
+
 ## Current-v19 Dispatch/Ghost alternate sort fidelity - LWB-R7-053, 2026-09-19
 
 **Dispatch LIVE-PROVEN, read-only; Ghost shared implementation/deterministic acceptance complete, positive-row live proof deferred until 2026-09-24.** Hash-locked original 0.3.1 recovery pins the same public sort set for both kinds: `level`, `quality`, `completionTime`, and `updatedAt`. The native quality expression is `CASE WHEN CAST(json_extract(data_json,'$.isSpecial') AS INTEGER)=1 THEN 100 ELSE quality END`; completion time is `NULLIF(CAST(json_extract(data_json,'$.completionTime') AS INTEGER),0)`; the shared formatter preserves frontend sort-array order, puts NULL last for ASC and DESC, and ends with `record_key ASC`.

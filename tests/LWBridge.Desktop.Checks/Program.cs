@@ -3516,7 +3516,16 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
 
 using (var backendMapStore = MapDataStore.CreateInMemory())
 {
-    var mapBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: backendMapStore);
+    var mapBackend = new LWBridgeBackend(
+        new LocalConfigStore(persistent: false),
+        mapData: backendMapStore,
+        mapScanStatusProvider: () => new
+        {
+            serverId = 91,
+            serverIdSource = MapScanClearOwnership.LiveServerSource,
+            scanRunId = "",
+            isReading = false,
+        });
     backendMapStore.UpsertRecord(new MapStoredRecord(
         "city", 91, "backend-city-key", 7, "backend-city-uuid", "Backend City", "XYZ",
         28, null, 1234567890123456789L, null, null, 1000,

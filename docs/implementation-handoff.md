@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Map Scan Clear ownership checkpoint - LWB-R7-054, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED against the recovered original contract; no destructive live-user-data test was needed.** The verified 0.3.1 binary (`LWB-R6-057`) requires active scans to reject Clear with `SCAN_RUNNING / stop the map scan first`; otherwise requested `serverId` must be positive, equal the current scan-state server and have exact `serverIdSource=live`, or Clear rejects with `SERVER_UNAVAILABLE / current server id unavailable`. Only after those gates does server-scoped Clear execute and publish idle state.
+
+Production now routes `map_scan_clear` through `ManualMapScanCommandService`, where the same lock owns active-scan validation, current-live-server admission, `MapDataStore.ClearServer`, and status reset. This prevents a new Start from racing between Clear validation and deletion. Clear before any prior scan can resolve the lifecycle's authoritative live server without starting a scan; saved/replay-only context fails closed. Deterministic destructive tests use in-memory SQLite and prove active/mismatched rejection without deletion, current-server-only deletion, player-mark preservation, other-server preservation, block-checkpoint cascade through scan-run deletion, idle/zero-progress publication and idempotent empty repeat Clear. Because active Clear is rejected and Stop waits for terminal ownership, successful Clear occurs only after the prior run is no longer accepted as active. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-map-scan-clear-ownership.json`.
+
+**Next:** return to the separate progress/completion lifecycle gap. Clear closure does not claim unresolved native acknowledgement/drain or resume serialization behavior.
+
 ## Current-v19 Dispatch/Ghost alternate sort checkpoint - LWB-R7-053, 2026-09-19
 
 **Dispatch is LIVE-PROVEN read-only; Ghost is RECOVERED/IMPLEMENTED/OFFLINE-TESTED with positive-row live proof deferred to Thursday, 2026-09-24.** Hash-locked original 0.3.1 recovery proves both kinds expose `level`, `quality`, `completionTime`, and `updatedAt`. The shared native quality expression promotes `isSpecial=true` to effective quality 100; completion time is `NULLIF(...,0)`; frontend sort-array order is preserved; NULL is last in either direction; and final ties use `record_key ASC`. `tools/inspect_lwbridge_dispatch_ghost_sort_assembly.py` locks the original binary/frontend identity and those shared branches.

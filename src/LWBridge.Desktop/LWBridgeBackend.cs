@@ -194,9 +194,15 @@ internal sealed class LWBridgeBackend
             case "map_scan_clear":
                 {
                     int serverId = MapDataQueryContract.RequiredServerId(payload);
+                    (bool isReading, int currentServerId, string? serverIdSource) = ReadMapScanOwnership();
+                    MapScanClearOwnership.Validate(serverId, isReading, currentServerId, serverIdSource);
                     MapDataStore store = RequireMapDataStore();
                     store.ClearServer(serverId);
-                    return CreateMapScanStatus(serverId, "idle", null);
+                    return CreateMapScanStatus(
+                        serverId,
+                        "idle",
+                        null,
+                        MapScanClearOwnership.LiveServerSource);
                 }
             case "map_data_options":
                 {
@@ -533,6 +539,24 @@ internal sealed class LWBridgeBackend
     private MapDataStore RequireMapDataStore() => mapData ?? throw new BridgeCommandException(
         "MAP_INDEX_UNAVAILABLE",
         "Map data is unavailable before the profile map index is initialized.");
+
+    private (bool IsReading, int ServerId, string? ServerIdSource) ReadMapScanOwnership()
+    {
+        if (mapScanStatusProvider is null) return (false, 0, null);
+
+        JsonElement status = JsonSerializer.SerializeToElement(mapScanStatusProvider(), JsonOptions.Default);
+        bool isReading = status.TryGetProperty("isReading", out JsonElement reading) &&
+                         reading.ValueKind == JsonValueKind.True;
+        int serverId = status.TryGetProperty("serverId", out JsonElement server) &&
+                       server.TryGetInt32(out int parsedServerId)
+            ? parsedServerId
+            : 0;
+        string? serverIdSource = status.TryGetProperty("serverIdSource", out JsonElement source) &&
+                                 source.ValueKind == JsonValueKind.String
+            ? source.GetString()
+            : null;
+        return (isReading, serverId, serverIdSource);
+    }
 
     private MapOptionSourceSelection SelectMapOptionSource(int serverId)
     {

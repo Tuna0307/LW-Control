@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-054, 2026-09-19
+
+Map Scan Clear is **production-owned and OFFLINE-TESTED against the hash-locked original contract**. `map_scan_clear` now shares Manual Scan ownership with Start/Stop/Status, enforces the recovered active-scan and current-`live`-server gates before deletion, serializes Clear against a competing Start, atomically removes only the selected current server's scan/index scope, preserves player marks and unrelated servers, and publishes an idle/zero-progress state. Fresh Clear may resolve the authoritative lifecycle server without initiating a scan; saved/replay-only context fails closed. Destructive acceptance used only in-memory stores. Evidence: [R7-054](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-clear-ownership.json).
+
 ## Current implementation checkpoint — LWB-R7-053, 2026-09-19
 
 Dispatch/Ghost result sorting is **RECOVERED and production-enabled; Dispatch is LIVE-PROVEN read-only on current v19, while Ghost positive-row live ordering is deferred until 2026-09-24**. Both share the four public keys `level`, `quality`, `completionTime`, and `updatedAt`. Special missions use effective quality 100, completionTime 0 becomes NULL, frontend multi-sort order is retained, NULL is last for ASC/DESC, and final ties use `record_key ASC`. Final Fast Dispatch acceptance scanned 2,500/2,500 in 145.413 s, published/reopened 386 rows, and passed 9 independently computed sort scenarios both before and after DB reopen. The population contained 20 special rows and 380 nonzero completion-time values. Ghost shares the same production path and deterministic coverage; only positive-row live acceptance remains time-window pending. Evidence: [R7-053](../evidence/lwbridge-implementation/2026-09-19-r7-dispatch-ghost-sort-fidelity.json).
