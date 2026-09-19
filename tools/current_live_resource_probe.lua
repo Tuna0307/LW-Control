@@ -62,6 +62,14 @@ local asset_image_runtime = {
     startedAt = nil,
     timeoutSeconds = 12,
 }
+M._treasureStateRuntime = {
+    path = root .. [[\treasure-state.txt]],
+    resultPath = root .. [[\treasure-state-result.json]],
+    request = nil,
+    startedAt = nil,
+    timeoutSeconds = 6,
+    detailWaitSeconds = 2,
+}
 local bulk_aoi_original_start_view_request = nil
 local bulk_aoi_original_block_count = nil
 local bulk_aoi_block_count_touched = false
@@ -1171,6 +1179,501 @@ function asset_image_runtime.pump(now)
     return true
 end
 
+function M._treasureStateRuntime.optional_integer(values, key)
+    local text = values[key]
+    if text == nil or text == "" then return nil end
+    local value = tonumber(text)
+    if value == nil or value < 0 or value ~= math.floor(value) then return false end
+    return math.floor(value)
+end
+
+function M._treasureStateRuntime.optional_boolean(values, key)
+    local text = values[key]
+    if text == nil or text == "" then return nil end
+    if text == "true" then return true end
+    if text == "false" then return false end
+    return "invalid"
+end
+
+function M._treasureStateRuntime.safe_text(values, key)
+    local value = tostring(values[key] or "")
+    if #value > 128 or string.find(value, "[%z\r\n]") ~= nil then return nil end
+    return value
+end
+
+function M._treasureStateRuntime.read_request(now)
+    local values = read_kv_file(M._treasureStateRuntime.path, 131072)
+    if values == nil then return nil end
+    pcall(os.remove, M._treasureStateRuntime.path)
+
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "treasure_state_request_invalid"
+        return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    request.serverId = tonumber(values.serverId)
+    request.refreshDetails = values.refreshDetails == "true"
+    local record_count = tonumber(values.recordCount)
+    if values.refreshDetails ~= "true" and values.refreshDetails ~= "false" then
+        request.error = "treasure_state_request_invalid"
+        return request
+    end
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) or
+       request.serverId == nil or request.serverId < 1 or request.serverId > 99999 or
+       request.serverId ~= math.floor(request.serverId) or
+       record_count == nil or record_count < 0 or record_count > 100 or
+       record_count ~= math.floor(record_count) then
+        request.error = "treasure_state_request_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    request.serverId = math.floor(request.serverId)
+    request.records = {}
+    local seen = {}
+    for index = 1, math.floor(record_count) do
+        local prefix = "record" .. tostring(index)
+        local point_index = M._treasureStateRuntime.optional_integer(values, prefix .. "PointIndex")
+        local uuid = M._treasureStateRuntime.safe_text(values, prefix .. "Uuid")
+        local treasure_type = M._treasureStateRuntime.optional_integer(values, prefix .. "TreasureType")
+        local supplies_type = M._treasureStateRuntime.optional_integer(values, prefix .. "SuppliesType")
+        local alliance_id = M._treasureStateRuntime.safe_text(values, prefix .. "AllianceId")
+        local viewer_uid = M._treasureStateRuntime.safe_text(values, prefix .. "ViewerUid")
+        local viewer_alliance_id = M._treasureStateRuntime.safe_text(values, prefix .. "ViewerAllianceId")
+        local viewer_has_reward = M._treasureStateRuntime.optional_boolean(values, prefix .. "ViewerHasReward")
+        local viewer_is_working = M._treasureStateRuntime.optional_boolean(values, prefix .. "ViewerIsWorking")
+        local complete = M._treasureStateRuntime.optional_boolean(values, prefix .. "Complete")
+        local expire_time = M._treasureStateRuntime.optional_integer(values, prefix .. "ExpireTime")
+        local start_time = M._treasureStateRuntime.optional_integer(values, prefix .. "StartTime")
+        local completion_time = M._treasureStateRuntime.optional_integer(values, prefix .. "CompletionTime")
+        local rewarded_count = M._treasureStateRuntime.optional_integer(values, prefix .. "RewardedCount")
+        local digging_count = M._treasureStateRuntime.optional_integer(values, prefix .. "DiggingCount")
+        local reward_max = M._treasureStateRuntime.optional_integer(values, prefix .. "RewardMax")
+        local remaining_boxes = M._treasureStateRuntime.optional_integer(values, prefix .. "RemainingBoxes")
+        local create_time = M._treasureStateRuntime.optional_integer(values, prefix .. "CreateTime")
+        local discoverer_alliance_id = M._treasureStateRuntime.safe_text(values, prefix .. "DiscovererAllianceId")
+        local discoverer_uid = M._treasureStateRuntime.safe_text(values, prefix .. "DiscovererUid")
+        local work_state = M._treasureStateRuntime.optional_integer(values, prefix .. "WorkState")
+        local user_count = M._treasureStateRuntime.optional_integer(values, prefix .. "UserCount")
+        local ordinary = treasure_type ~= false and supplies_type ~= false and
+            treasure_type ~= nil and treasure_type > 0 and supplies_type == 0
+        local supplies = treasure_type ~= false and supplies_type ~= false and
+            treasure_type == 0 and supplies_type ~= nil and supplies_type > 0
+        if point_index == false or point_index == nil or point_index <= 0 or
+           uuid == nil or #uuid < 1 or seen[uuid] or
+           alliance_id == nil or viewer_uid == nil or viewer_alliance_id == nil or
+           discoverer_alliance_id == nil or discoverer_uid == nil or
+           viewer_has_reward == "invalid" or viewer_is_working == "invalid" or
+           complete == "invalid" or expire_time == false or start_time == false or
+           completion_time == false or rewarded_count == false or digging_count == false or
+           reward_max == false or remaining_boxes == false or create_time == false or
+           work_state == false or user_count == false or not (ordinary or supplies) then
+            request.error = "treasure_state_request_invalid"
+            return request
+        end
+        seen[uuid] = true
+        request.records[#request.records + 1] = {
+            pointIndex = point_index,
+            uuid = uuid,
+            treasureType = treasure_type,
+            suppliesType = supplies_type,
+            allianceId = alliance_id,
+            viewerUid = viewer_uid,
+            viewerAllianceId = viewer_alliance_id,
+            viewerHasReward = viewer_has_reward,
+            viewerIsWorking = viewer_is_working,
+            complete = complete,
+            expireTime = expire_time,
+            startTime = start_time,
+            completionTime = completion_time,
+            rewardedCount = rewarded_count,
+            diggingCount = digging_count,
+            rewardMax = reward_max,
+            remainingBoxes = remaining_boxes,
+            createTime = create_time,
+            discovererAllianceId = discoverer_alliance_id,
+            discovererUid = discoverer_uid,
+            workState = work_state,
+            userCount = user_count,
+        }
+    end
+
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "treasure_state_identity_mismatch"
+    end
+    return request
+end
+
+function M._treasureStateRuntime.player_identity()
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    if player == nil then return nil, nil end
+    local uid = safe_get(player, "uid")
+    if uid == nil then
+        local ok_uid, observed_uid = call(player, "GetUid")
+        uid = ok_uid and observed_uid or nil
+    end
+    local alliance_id = safe_get(player, "allianceId")
+    if alliance_id == nil then
+        local ok_alliance, observed_alliance = call(player, "GetAllianceUid")
+        alliance_id = ok_alliance and observed_alliance or nil
+    end
+    local uid_text = uid ~= nil and tostring(uid) or ""
+    if #uid_text < 1 then return nil, nil end
+    return uid_text, alliance_id ~= nil and tostring(alliance_id) or ""
+end
+
+function M._treasureStateRuntime.server_time()
+    local manager = rawget(_G, "UITimeManager")
+    if manager == nil then return nil end
+    local ok_instance, instance = call(manager, "GetInstance")
+    if not ok_instance or instance == nil then return nil end
+    local ok_time, value = call(instance, "GetServerTime")
+    local numeric = ok_time and tonumber(value) or nil
+    return numeric and numeric >= 0 and numeric or nil
+end
+
+function M._treasureStateRuntime.world_object()
+    local cs = rawget(_G, "CS")
+    local scene_manager = cs and safe_get(cs, "SceneManager") or rawget(_G, "SceneManager")
+    return scene_manager and safe_get(scene_manager, "World") or nil
+end
+
+function M._treasureStateRuntime.resolve_point(record)
+    local world = M._treasureStateRuntime.world_object()
+    if world == nil then return nil end
+    local ok_info, info = call(world, "GetPointInfo", record.pointIndex)
+    if not ok_info or info == nil then return nil end
+    local class_name = reflected_type_name(info) or ""
+    if record.treasureType > 0 then
+        if not string.find(class_name, "TreasurePointInfo", 1, true) then return nil end
+        local ok_type, observed_type = call(info, "GetWorldTreasureType")
+        local point_type = ok_type and tonumber(observed_type) or nil
+        if point_type ~= nil and math.floor(point_type) ~= record.treasureType then return nil end
+    else
+        if not string.find(class_name, "WorldSuppliesPoint", 1, true) then return nil end
+    end
+    local point_uuid = safe_get(info, "uuid") or safe_get(info, "Uuid")
+    if point_uuid ~= nil and tostring(point_uuid) ~= record.uuid then return nil end
+    return info
+end
+
+function M._treasureStateRuntime.int64_uuid(text)
+    local cs = rawget(_G, "CS")
+    local int64 = cs and cs.System and cs.System.Int64 or nil
+    if int64 == nil then return nil end
+    local ok, value = pcall(function() return int64.Parse(text) end)
+    return ok and value or nil
+end
+
+function M._treasureStateRuntime.get_supplies_detail(record)
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "WorldPointDetailManager") or nil
+    if manager == nil then return nil end
+    local uuid = M._treasureStateRuntime.int64_uuid(record.uuid)
+    if uuid == nil then return nil end
+    local ok, detail = call(manager, "GetWorldSuppliesPointDetailData", uuid)
+    return ok and detail or nil
+end
+
+function M._treasureStateRuntime.send_supplies_detail(record, server_id)
+    local detail = M._treasureStateRuntime.get_supplies_detail(record)
+    if detail ~= nil then return false end
+    local sfs = rawget(_G, "SFSNetwork")
+    local msg_defines = rawget(_G, "MsgDefines")
+    local message = msg_defines and safe_get(msg_defines, "WorldGetSuppliesPointDetail") or nil
+    local uuid = M._treasureStateRuntime.int64_uuid(record.uuid)
+    if sfs == nil or message == nil or uuid == nil then return false end
+    local ok = select(1, call(sfs, "SendMessage", message, uuid, server_id, record.pointIndex))
+    return ok == true
+end
+
+function M._treasureStateRuntime.clamp_percent(value)
+    local numeric = tonumber(value)
+    if numeric == nil then return nil end
+    if numeric < 0 then return 0 end
+    if numeric > 1 then return 1 end
+    return numeric
+end
+
+function M._treasureStateRuntime.nonnegative(value)
+    local numeric = tonumber(value)
+    if numeric == nil or numeric < 0 then return nil end
+    return numeric
+end
+
+function M._treasureStateRuntime.inspect_ordinary(record, player_uid, server_time)
+    local state = { uuid = record.uuid }
+    local info = M._treasureStateRuntime.resolve_point(record)
+    local expire_time = record.expireTime
+    local start_time = record.startTime
+    local complete = record.complete
+    local rewarded_count = record.rewardedCount
+    local digging_count = record.diggingCount
+    local reward_max = record.rewardMax
+    local all_rewards = nil
+    local has_reward = nil
+    local has_working = nil
+    if record.viewerUid == player_uid then
+        has_reward = record.viewerHasReward
+        has_working = record.viewerIsWorking
+    end
+
+    if info ~= nil then
+        expire_time = M._treasureStateRuntime.nonnegative(safe_get(info, "expireTime") or safe_get(info, "ExpireTime")) or expire_time
+        start_time = M._treasureStateRuntime.nonnegative(safe_get(info, "startTime") or safe_get(info, "StartTime")) or start_time
+        local rewards = safe_get(info, "rewardUserList") or safe_get(info, "RewardUserList")
+        local digging = safe_get(info, "diggingUserList") or safe_get(info, "DiggingUserList")
+        rewarded_count = collection_count(rewards) or rewarded_count
+        digging_count = collection_count(digging) or digging_count
+        local ok_max, observed_max = call(info, "GetRewardMaxNum")
+        reward_max = ok_max and M._treasureStateRuntime.nonnegative(observed_max) or reward_max
+        local ok_all, observed_all = call(info, "IsReceiveAllReward")
+        if ok_all then all_rewards = observed_all == true end
+        local ok_complete, observed_complete = call(info, "IsComplete")
+        if ok_complete then complete = observed_complete == true end
+        local ok_reward, observed_reward = call(info, "IsHaveGetReward", player_uid)
+        if ok_reward then has_reward = observed_reward == true end
+        local ok_working, observed_working = call(info, "IsHaveWorking", player_uid)
+        if ok_working then has_working = observed_working == true end
+    end
+
+    if all_rewards == nil and reward_max ~= nil and reward_max > 0 and
+       rewarded_count ~= nil and rewarded_count >= reward_max then
+        all_rewards = true
+    end
+
+    if expire_time ~= nil and expire_time > 0 and server_time ~= nil and server_time >= expire_time then
+        state.worldClaimState = "expired"
+    elseif all_rewards == true then
+        state.worldClaimState = "depleted"
+    elseif complete == true then
+        state.worldClaimState = "claimable"
+    elseif start_time ~= nil and start_time > 0 then
+        state.worldClaimState = "charging"
+    else
+        state.worldClaimState = "unknown"
+    end
+
+    if has_working == true then
+        state.playerClaimState = "digging"
+    elseif has_reward == true then
+        state.playerClaimState = "claimed"
+    elseif has_working ~= nil and has_reward ~= nil then
+        state.playerClaimState = "unclaimed"
+    else
+        state.playerClaimState = "unknown"
+    end
+
+    if rewarded_count ~= nil then state.rewardedCount = math.floor(rewarded_count) end
+    if digging_count ~= nil then state.diggingCount = math.floor(digging_count) end
+    if reward_max ~= nil and rewarded_count ~= nil then
+        state.remainingBoxes = math.max(0, math.floor(reward_max - rewarded_count))
+    elseif record.remainingBoxes ~= nil then
+        state.remainingBoxes = math.floor(record.remainingBoxes)
+    end
+    if expire_time ~= nil and expire_time > 0 then state.expireTime = math.floor(expire_time) end
+    return state
+end
+
+function M._treasureStateRuntime.charge_player_state(detail, player_uid)
+    local charge_data = detail and safe_get(detail, "chargeData") or nil
+    local index_dic = charge_data and safe_get(charge_data, "indexDic") or nil
+    if type(index_dic) ~= "table" then return nil, nil, 0 end
+    local has_player, got_reward, count = false, false, 0
+    for _, value in pairs(index_dic) do
+        count = count + 1
+        if tostring(safe_get(value, "uid") or "") == player_uid then
+            has_player = true
+            got_reward = tonumber(safe_get(value, "getReward")) == 1
+        end
+    end
+    return has_player, got_reward, count
+end
+
+function M._treasureStateRuntime.inspect_supplies(record, player_uid, server_time)
+    local state = { uuid = record.uuid }
+    local detail = M._treasureStateRuntime.get_supplies_detail(record)
+    if detail == nil then
+        state.worldClaimState = record.expireTime ~= nil and record.expireTime > 0 and
+            server_time ~= nil and server_time >= record.expireTime and "expired" or "unknown"
+        state.playerClaimState = "unknown"
+        if record.rewardedCount ~= nil then state.rewardedCount = math.floor(record.rewardedCount) end
+        if record.expireTime ~= nil and record.expireTime > 0 then state.expireTime = math.floor(record.expireTime) end
+        return state
+    end
+
+    local expire_time = M._treasureStateRuntime.nonnegative(safe_get(detail, "expireTime"))
+    local reward_count = M._treasureStateRuntime.nonnegative(safe_get(detail, "rewardCount"))
+    local reward_max = M._treasureStateRuntime.nonnegative(safe_get(detail, "rewardMax"))
+    local reward_left = M._treasureStateRuntime.nonnegative(safe_get(detail, "rewardLeftCount"))
+    local btn_state = tonumber(safe_get(detail, "btnState"))
+    local charge_data = safe_get(detail, "chargeData")
+    local charge_percent = nil
+    if charge_data ~= nil then
+        local ok_percent, observed_percent = call(charge_data, "GetPercent")
+        charge_percent = ok_percent and M._treasureStateRuntime.clamp_percent(observed_percent) or nil
+    end
+    local ok_has, observed_has = call(detail, "HasPlayer", player_uid)
+    local has_player = ok_has and observed_has == true or nil
+    local charge_has_player, charge_got_reward, charge_count =
+        M._treasureStateRuntime.charge_player_state(detail, player_uid)
+    if charge_has_player ~= nil then has_player = charge_has_player end
+    local ok_can_get, observed_can_get = call(detail, "CheckBtnState")
+    local can_get = ok_can_get and observed_can_get == true or false
+
+    if expire_time ~= nil and expire_time > 0 and server_time ~= nil and server_time >= expire_time then
+        state.worldClaimState = "expired"
+    elseif charge_percent ~= nil and charge_percent < 1 then
+        state.worldClaimState = "charging"
+    elseif reward_left ~= nil and reward_left <= 0 then
+        state.worldClaimState = "depleted"
+    elseif can_get then
+        state.worldClaimState = "claimable"
+    else
+        state.worldClaimState = "unknown"
+    end
+
+    if charge_percent ~= nil and charge_percent < 1 and has_player == true then
+        state.playerClaimState = "digging"
+    elseif charge_got_reward == true or btn_state == 1 or
+           (charge_data == nil and has_player == true) then
+        state.playerClaimState = "claimed"
+    elseif has_player ~= nil or ok_can_get then
+        state.playerClaimState = "unclaimed"
+    else
+        state.playerClaimState = "unknown"
+    end
+
+    if reward_count ~= nil then state.rewardedCount = math.floor(reward_count)
+    elseif record.rewardedCount ~= nil then state.rewardedCount = math.floor(record.rewardedCount) end
+    if charge_count > 0 and charge_percent ~= nil and charge_percent < 1 then
+        state.diggingCount = charge_count
+    end
+    if reward_left ~= nil then
+        state.remainingBoxes = math.floor(reward_left)
+    elseif reward_max ~= nil and reward_count ~= nil then
+        state.remainingBoxes = math.max(0, math.floor(reward_max - reward_count))
+    end
+    if expire_time ~= nil and expire_time > 0 then state.expireTime = math.floor(expire_time) end
+    if charge_percent ~= nil then state.chargePercent = charge_percent end
+    return state
+end
+
+function M._treasureStateRuntime.write_result(request, state, error_text, player_uid, alliance_id, states)
+    write_json(M._treasureStateRuntime.resultPath, {
+        schemaVersion = 1,
+        probeVersion = M.VERSION,
+        requestId = request.requestId,
+        launchSessionId = request.launchSessionId,
+        profileId = request.profileId,
+        challenge = request.challenge,
+        gamePid = request.gamePid,
+        serverId = request.serverId,
+        state = state,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+        error = error_text,
+        playerUid = player_uid,
+        allianceId = alliance_id,
+        states = states or {},
+        detailRequests = request.detailRequests or 0,
+        source = "current-v19 TreasurePointInfo/WorldSuppliesPointData read-only reconstruction",
+    })
+end
+
+function M._treasureStateRuntime.finish(request)
+    local player_uid, alliance_id = M._treasureStateRuntime.player_identity()
+    if player_uid == nil then
+        M._treasureStateRuntime.write_result(
+            request, "failed", "player_identity_unavailable", nil, nil, nil)
+        return
+    end
+    local server_time = M._treasureStateRuntime.server_time()
+    local states = {}
+    for _, record in ipairs(request.records) do
+        if record.treasureType > 0 then
+            states[#states + 1] =
+                M._treasureStateRuntime.inspect_ordinary(record, player_uid, server_time)
+        else
+            states[#states + 1] =
+                M._treasureStateRuntime.inspect_supplies(record, player_uid, server_time)
+        end
+    end
+    M._treasureStateRuntime.write_result(
+        request, "proven", nil, player_uid, alliance_id, states)
+end
+
+function M._treasureStateRuntime.cleanup()
+    M._treasureStateRuntime.request = nil
+    M._treasureStateRuntime.startedAt = nil
+end
+
+function M._treasureStateRuntime.pump(now)
+    if M._treasureStateRuntime.request == nil then
+        local request = M._treasureStateRuntime.read_request(now)
+        if request ~= nil then
+            M._treasureStateRuntime.request = request
+            M._treasureStateRuntime.startedAt = runtime_clock()
+            request.detailRequests = 0
+            if request.error == nil then
+                local current_server = current_server_id()
+                if current_server == nil then
+                    request.error = "world_unavailable"
+                elseif current_server ~= request.serverId then
+                    request.error = "server_mismatch"
+                elseif request.refreshDetails then
+                    for _, record in ipairs(request.records) do
+                        if record.suppliesType > 0 and
+                           M._treasureStateRuntime.send_supplies_detail(record, request.serverId) then
+                            request.detailRequests = request.detailRequests + 1
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local request = M._treasureStateRuntime.request
+    if request == nil then return false end
+    if request.error ~= nil then
+        M._treasureStateRuntime.write_result(request, "failed", request.error, nil, nil, nil)
+        M._treasureStateRuntime.cleanup()
+        return true
+    end
+
+    if request.detailRequests > 0 and M._treasureStateRuntime.startedAt ~= nil and
+       runtime_clock() - M._treasureStateRuntime.startedAt < M._treasureStateRuntime.detailWaitSeconds then
+        local all_ready = true
+        for _, record in ipairs(request.records) do
+            if record.suppliesType > 0 and M._treasureStateRuntime.get_supplies_detail(record) == nil then
+                all_ready = false
+                break
+            end
+        end
+        if not all_ready then return true end
+    end
+
+    if M._treasureStateRuntime.startedAt ~= nil and
+       runtime_clock() - M._treasureStateRuntime.startedAt >= M._treasureStateRuntime.timeoutSeconds then
+        M._treasureStateRuntime.write_result(
+            request, "failed", "treasure_state_timeout", nil, nil, nil)
+        M._treasureStateRuntime.cleanup()
+        return true
+    end
+
+    M._treasureStateRuntime.finish(request)
+    M._treasureStateRuntime.cleanup()
+    return true
+end
+
 local function read_aoi_diagnostic(now)
     local values = read_kv_file(aoi_diagnostic_path, 4096)
     if values == nil then return nil, nil end
@@ -1917,6 +2420,9 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
     local ok_controller, controller = call(controller_type, "instance")
     local table_name = rawget(_G, "TableName")
     local supplies_table = table_name and safe_get(table_name, "LWIceSupplies") or nil
+    local viewer_uid, viewer_alliance_id = M._treasureStateRuntime.player_identity()
+    viewer_uid = viewer_uid or ""
+    viewer_alliance_id = viewer_alliance_id or ""
 
     local records = {}
     local record_error = nil
@@ -1961,6 +2467,13 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
             local digging_count = collection_count(digging_users)
             local ok_reward_max, observed_reward_max = call(info, "GetRewardMaxNum")
             local reward_max = ok_reward_max and tonumber(observed_reward_max) or nil
+            local viewer_has_reward, viewer_is_working = nil, nil
+            if viewer_uid ~= "" then
+                local ok_reward, observed_reward = call(info, "IsHaveGetReward", viewer_uid)
+                if ok_reward then viewer_has_reward = observed_reward == true end
+                local ok_working, observed_working = call(info, "IsHaveWorking", viewer_uid)
+                if ok_working then viewer_is_working = observed_working == true end
+            end
             local remaining_boxes = nil
             if reward_max ~= nil and reward_max >= 0 and rewarded_count ~= nil and rewarded_count >= 0 then
                 remaining_boxes = math.max(0, math.floor(reward_max) - rewarded_count)
@@ -1984,6 +2497,8 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
                 allianceAbbr = scalar_field(info, { "allianceAbbr", "AllianceAbbr" }),
                 rewardedCount = rewarded_count, diggingCount = digging_count,
                 rewardMax = reward_max, remainingBoxes = remaining_boxes,
+                viewerUid = viewer_uid, viewerAllianceId = viewer_alliance_id,
+                viewerHasReward = viewer_has_reward, viewerIsWorking = viewer_is_working,
                 fromPoint = integer_field(info, { "fromPoint", "FromPoint" }),
                 multiple = integer_field(info, { "multiple", "Multiple" }),
                 killerId = scalar_field(info, { "killerId", "KillerId" }),
@@ -2027,6 +2542,7 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
             state = integer_field(info, { "state", "State" }),
             userCount = integer_field(info, { "userCount", "UserCount" }),
             rewardedCount = collection_count(uid_list),
+            viewerUid = viewer_uid, viewerAllianceId = viewer_alliance_id,
             createTime = scalar_field(info, { "createTime", "CreateTime" }),
             discovererAllianceId = scalar_field(info, { "discovererAllianceId", "DiscovererAllianceId" }),
             discovererUid = scalar_field(info, { "discovererUid", "DiscovererUid" }),
@@ -4947,6 +5463,9 @@ function M.Pump()
     -- Read-only asset rendering is an independent lane. It reuses the same
     -- owned Overview session and must not block map acquisition.
     asset_image_runtime.pump(now)
+    -- Read-only Treasure status inspection is independent of acquisition and
+    -- reuses the same owned Overview identity. It never claims/dispatches.
+    M._treasureStateRuntime.pump(now)
     -- Optional Zombie Boss detail runs beside AOI acquisition. Never block map
     -- progress waiting for a protection reply.
     pump_monster_protection_queue()

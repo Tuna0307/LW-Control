@@ -31,8 +31,7 @@ internal static class OwnerEvidenceResourceContract
         "set_automation", "automation_configure", "local_config_set", "call_lua",
         "map_scan_start", "map_scan_stop", "map_scan_clear", "map_player_mark_set",
         "server_jump", "server_jump_history_set", "server_jump_history_import",
-        "map_coordinate_jump", "map_march_follow", "map_treasure_state_refresh",
-        "map_treasure_state_refresh_all", "map_treasure_claim",
+        "map_coordinate_jump", "map_march_follow", "map_treasure_claim",
         "map_dispatch_plunder_schedule", "map_dispatch_plunder_cancel", "map_dispatch_share_alliance",
         "map_truck_plunder_schedule", "map_truck_plunder_cancel"
     };

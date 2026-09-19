@@ -297,6 +297,29 @@ internal sealed partial class MapDataStore : IDisposable
         }
     }
 
+    public IReadOnlyList<MapStoredRecord> ReadRecords(string kind, int serverId)
+    {
+        ValidateKind(kind);
+        ValidateServerId(serverId);
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT kind,server_id,record_key,point_index,uuid,name,alliance_name,
+                       level,quality,power,distance,shield_end_time,updated_at,data_json
+                FROM map_records
+                WHERE kind=$kind AND server_id=$server
+                ORDER BY record_key ASC
+                """;
+            command.Parameters.AddWithValue("$kind", kind);
+            command.Parameters.AddWithValue("$server", serverId);
+            using SqliteDataReader reader = command.ExecuteReader();
+            var rows = new List<MapStoredRecord>();
+            while (reader.Read()) rows.Add(ReadRecord(reader));
+            return rows;
+        }
+    }
+
     public int CountRecords(string kind, int serverId)
     {
         ValidateKind(kind);

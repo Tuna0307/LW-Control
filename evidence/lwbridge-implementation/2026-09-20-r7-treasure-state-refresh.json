@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-069",
+  "capturedAt": "2026-09-20",
+  "scope": "Current-v19 read-only Treasure claim-state refresh/status plumbing",
+  "status": "IMPLEMENTED/OFFLINE-TESTED + LIVE-PROVEN",
+  "baseCommit": "e1ceff56266e4210240d0ba1449834cf54f60169",
+  "predecessor": "LWB-R7-068",
+  "ownerRequirement": "Finish Treasure result/status plumbing read-only before enabling any state-changing claim behavior.",
+  "originalFrontendContract": {
+    "map_treasure_state_refresh": "map_treasure_state_refresh({serverId,records})",
+    "map_treasure_state_refresh_all": "map_treasure_state_refresh_all({serverId})",
+    "map_treasure_claim_status": "map_treasure_claim_status()",
+    "pageBehavior": "Search results overlay returned states by Treasure uuid.",
+    "stateChangingClaim": "map_treasure_claim remains blocked."
+  },
+  "currentV19Source": {
+    "luaPackage": {
+      "path": "LocalLow/FunFly/Last War-Survival Game/lwScripts/LWScripts.data",
+      "sha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "fileVersion": 3,
+      "contentVersion": 19,
+      "entryCount": 18734,
+      "inspector": "tools/inspect_current_treasure_state_sources.py"
+    },
+    "managedAssembly": {
+      "path": "Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+      "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "TreasurePointInfo": {
+        "IsHaveGetReward": {
+          "methodDef": 13530,
+          "signature": "bool(string playerUid)",
+          "rva": "0x152b83"
+        },
+        "IsHaveWorking": {
+          "methodDef": 13531,
+          "signature": "bool(string playerUid)",
+          "rva": "0x152bb7"
+        },
+        "GetRewardMaxNum": {
+          "methodDef": 13532,
+          "rva": "0x152bd0"
+        },
+        "IsReceiveAllReward": {
+          "methodDef": 13533,
+          "rva": "0x152c18"
+        },
+        "IsComplete": {
+          "methodDef": 13534,
+          "rva": "0x152c4c"
+        }
+      }
+    },
+    "luaModules": {
+      "DataCenter/WorldPointDetail/WorldSuppliesPointData.luac": {
+        "encodedSha256": "42295ef48ea4067f538dd010bde8e5a9f4ba708716d646b2683e75107f6f69b3",
+        "decodedSha256": "b51e78625e58221ef536a880a71d2b7e5bef883049e85df0563086818ba3fa4f",
+        "sourceFacts": [
+          "CheckBtnState owns CanGet/AlreadyGet/Limit/Over.",
+          "HasPlayer delegates to chargeData.HasPlayer when charge data is present.",
+          "btnState=AlreadyGet is authoritative already-rewarded state."
+        ]
+      },
+      "DataCenter/WorldPointDetail/WorldChargeData.luac": {
+        "encodedSha256": "30dcd64d2a8a0866e82f19305992e340e3706f40de53d7ab0263d2f3696e7346",
+        "decodedSha256": "b5bed9517de2381242c0fea7796baac190d332d2e0692e12bbe92ebd1addeb21",
+        "sourceFacts": [
+          "GetPercent exposes current charging percentage.",
+          "HasPlayer exposes participation.",
+          "Per-player entries expose getReward."
+        ]
+      },
+      "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": {
+        "encodedSha256": "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
+        "decodedSha256": "4e738cdd076dde56239461d3f011703885d1d4b55facf1c3aa283abcd8675f0e",
+        "sourceFacts": [
+          "Ordinary Treasure UI uses TreasurePointInfo:IsHaveWorking(playerUid).",
+          "Supplies detail uses WorldGetSuppliesPointDetail and GetWorldSuppliesPointDetailData."
+        ]
+      }
+    }
+  },
+  "implementation": {
+    "commands": [
+      "map_treasure_state_refresh",
+      "map_treasure_state_refresh_all",
+      "map_treasure_claim_status"
+    ],
+    "serviceOwnership": [
+      "requires active local profile through normal backend command scope",
+      "rejects disconnected game",
+      "rejects current-server mismatch",
+      "rejects while Manual/Auto map scan is active with SCAN_RUNNING / stop the map scan first",
+      "shares the existing game-operation ownership gate",
+      "refresh-all reads the deterministic published Treasure set rather than re-running query filters",
+      "internal live batches are capped at 100 records"
+    ],
+    "liveTransport": {
+      "source": "tools/current_live_resource_probe.lua",
+      "correlation": [
+        "probeVersion",
+        "requestId",
+        "profileId",
+        "launchSessionId",
+        "challenge",
+        "gamePid",
+        "serverId",
+        "fresh capturedAt"
+      ],
+      "readOnlyNetworkUse": "WorldGetSuppliesPointDetail only, for Supplies detail.",
+      "forbiddenActionsAbsent": [
+        "DetectEventClaimTreasure",
+        "ClaimTreasure",
+        "LaunchScout",
+        "OnClickStartMarch",
+        "reward/claim fetch action"
+      ]
+    },
+    "ordinaryTreasure": {
+      "worldStateInputs": [
+        "expireTime",
+        "startTime",
+        "complete/IsComplete",
+        "rewardUserList count",
+        "diggingUserList count",
+        "GetRewardMaxNum",
+        "IsReceiveAllReward"
+      ],
+      "playerStateInputs": [
+        "IsHaveGetReward(playerUid)",
+        "IsHaveWorking(playerUid)"
+      ],
+      "nonResidentFallback": "During full-world acquisition, scan rows persist only viewerUid/viewerAllianceId plus viewerHasReward/viewerIsWorking booleans while the remote Treasure object is resident. No other players' reward/digging identities are stored. Refresh uses those booleans only when the stored viewerUid equals the current playerUid."
+    },
+    "supplies": {
+      "detailSource": "WorldPointDetailManager:GetWorldSuppliesPointDetailData(uuid)",
+      "inputs": [
+        "CheckBtnState",
+        "HasPlayer",
+        "chargeData:GetPercent",
+        "chargeData per-player getReward",
+        "rewardCount",
+        "rewardMax",
+        "rewardLeftCount",
+        "expireTime"
+      ]
+    },
+    "stateVocabulary": {
+      "worldClaimState": [
+        "charging",
+        "claimable",
+        "depleted",
+        "expired",
+        "unknown"
+      ],
+      "playerClaimState": [
+        "unclaimed",
+        "digging",
+        "claimed",
+        "unknown"
+      ],
+      "policy": "Ambiguous cases remain unknown; no optimistic state is fabricated."
+    },
+    "claimPriority": "Not reconstructed. The live inspector rejects/suppresses claimPriority; R7-068 keeps missing priority at the recovered SQL default 1.",
+    "cache": "Returned states are persisted through the recovered treasure_claim_states key/expiry/upsert contract and are overlaid by map_search."
+  },
+  "deterministicAcceptance": {
+    "luaAstParse": "PASS",
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "fullSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "coveredCases": [
+      "page refresh projects only published UUIDs and persists returned state",
+      "refresh-all reads published Treasure set in deterministic record-key order",
+      "claim-status is identity-only and returns no states",
+      "unpublished UUID is rejected before live source",
+      "server mismatch is rejected before live source",
+      "active scan is rejected with recovered SCAN_RUNNING contract",
+      "viewerUid/viewerAllianceId/viewer reward/working booleans survive row-to-inspector projection",
+      "Lua Treasure lane contains official Supplies detail read and no claim/scout/march action",
+      "Lua chunk stays below the recovered 200-local limit"
+    ]
+  },
+  "liveAcceptance": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-restore -- --live-current-treasure-state-refresh",
+    "result": {
+      "ok": true,
+      "proof": "current_v19_treasure_state_refresh_read_only",
+      "serverId": 2212,
+      "publishedTreasureCount": 8,
+      "returnedStateCount": 8,
+      "cacheCount": 8,
+      "playerUidPresent": true,
+      "allianceIdPresent": true,
+      "callerClaimActionInvoked": false,
+      "callerScoutActionInvoked": false,
+      "claimPrioritySynthesized": false,
+      "scanMode": "fast",
+      "scanStrategy": "current_fast_full_world_v2",
+      "concurrency": 20,
+      "scanWallSeconds": 123.3282667,
+      "claimStatusWallSeconds": 0.0627851,
+      "refreshAllWallSeconds": 0.0615052,
+      "worldClaimStates": {
+        "claimable": 8
+      },
+      "playerClaimStates": {
+        "unclaimed": 8
+      },
+      "chargePercentRows": 0,
+      "remainingBoxesRows": 8,
+      "rewardedCountRows": 8,
+      "diggingCountRows": 8,
+      "overlayFirstPageRows": 8,
+      "overlayStateRows": 8,
+      "processExitCode": 0
+    },
+    "populationNote": "This live sample contained eight ordinary Treasure rows and no Supplies rows, so positive Supplies state-detail acceptance remains separately population-dependent.",
+    "cleanup": {
+      "gameRunning": false,
+      "launcherRunning": false,
+      "lwbridgeRunning": false
+    },
+    "sideEffects": "Read-only full-world scan plus identity/detail reads only. No claim, scout, march, attack, plunder, collection, messaging or consumable action."
+  },
+  "ownerFacingStatus": {
+    "treasureResultStatusFilters": "COMPLETE",
+    "stateChangingTreasureClaim": "BLOCKED / NOT IMPLEMENTED",
+    "remainingPopulationDependency": "Positive live Supplies row/detail proof only; ordinary Treasure read-only refresh/status is live-proven."
+  }
+}

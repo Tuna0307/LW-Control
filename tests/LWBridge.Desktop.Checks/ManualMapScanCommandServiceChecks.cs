@@ -31,6 +31,7 @@ internal static class ManualMapScanCommandServiceChecks
         await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
         await TruckSchedulePublicContractIsRecovered();
+        await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
         await ZombieBossMixedTypesFailClosed();
     }
 
@@ -683,6 +684,282 @@ internal static class ManualMapScanCommandServiceChecks
         freshStatusService.Close();
     }
 
+    private static async Task TreasureStateRefreshPublicContractIsReadOnlyAndCached()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        const int ServerId = 2212;
+        const string PlayerUid = "viewer-uid";
+        const string AllianceId = "viewer-alliance";
+
+        void SeedTreasure(
+            int pointIndex,
+            string uuid,
+            int treasureType,
+            int suppliesType,
+            string allianceId,
+            long expireTime)
+        {
+            string json = JsonSerializer.Serialize(new
+            {
+                kind = "treasure",
+                serverId = ServerId,
+                pointId = pointIndex,
+                uuid,
+                treasureType,
+                suppliesType,
+                allianceId,
+                viewerUid = PlayerUid,
+                viewerAllianceId = AllianceId,
+                viewerHasReward = false,
+                viewerIsWorking = false,
+                complete = false,
+                expireTime,
+                startTime = 1000,
+                completionTime = 2000,
+                rewardedCount = 1,
+                diggingCount = 2,
+                rewardMax = 5,
+                remainingBoxes = 4,
+                createTime = 900,
+                discovererAllianceId = allianceId,
+                discovererUid = "discoverer",
+                workState = 1,
+                userCount = 2,
+            }, JsonOptions.Default);
+            store.UpsertRecord(new MapStoredRecord(
+                "treasure",
+                ServerId,
+                pointIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                pointIndex,
+                uuid,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                1_000,
+                json));
+        }
+
+        SeedTreasure(101, "ordinary-101", 7, 0, AllianceId, 10_000);
+        SeedTreasure(102, "supplies-102", 0, 9, AllianceId, 20_000);
+
+        var calls = new List<(int ServerId, bool RefreshDetails, string[] Uuids)>();
+        Task<CurrentClientTreasureInspectionResult> Inspector(
+            int serverId,
+            IReadOnlyList<CurrentClientTreasureInspectionRecord> records,
+            bool refreshDetails,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (records.Any(record =>
+                    record.ViewerUid != PlayerUid ||
+                    record.ViewerAllianceId != AllianceId ||
+                    record.ViewerHasReward != false ||
+                    record.ViewerIsWorking != false))
+                throw new InvalidOperationException(
+                    "Treasure inspector projection lost persisted viewer-relative identity/state.");
+            calls.Add((serverId, refreshDetails, records.Select(record => record.Uuid).ToArray()));
+            JsonElement[] states = records.Select(record =>
+                record.TreasureType > 0
+                    ? JsonSerializer.SerializeToElement(new
+                    {
+                        uuid = record.Uuid,
+                        worldClaimState = "claimable",
+                        playerClaimState = "unclaimed",
+                        claimBlockReason = (string?)null,
+                        rewardedCount = 2,
+                        diggingCount = 1,
+                        remainingBoxes = 3,
+                        expireTime = record.ExpireTime,
+                    }, JsonOptions.Default)
+                    : JsonSerializer.SerializeToElement(new
+                    {
+                        uuid = record.Uuid,
+                        worldClaimState = "charging",
+                        playerClaimState = "digging",
+                        claimBlockReason = (string?)null,
+                        rewardedCount = 1,
+                        diggingCount = 2,
+                        remainingBoxes = 4,
+                        expireTime = record.ExpireTime,
+                        chargePercent = 0.5,
+                    }, JsonOptions.Default))
+                .ToArray();
+            return Task.FromResult(new CurrentClientTreasureInspectionResult(
+                PlayerUid,
+                AllianceId,
+                states));
+        }
+
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(StandardContext()),
+            new ImmediateSource(),
+            getLiveServerId: () => ServerId,
+            inspectTreasureStates: Inspector);
+
+        Check(service.CanHandle("map_treasure_state_refresh") &&
+              service.CanHandle("map_treasure_state_refresh_all") &&
+              service.CanHandle("map_treasure_claim_status"),
+            "production async service should expose all three recovered read-only Treasure state commands");
+
+        JsonElement pagePayload = JsonSerializer.SerializeToElement(new
+        {
+            profileId = "default",
+            serverId = ServerId,
+            records = new object[] { new { uuid = "ordinary-101" } },
+        }, JsonOptions.Default);
+        JsonElement pageResult = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_treasure_state_refresh",
+                pagePayload,
+                CancellationToken.None),
+            JsonOptions.Default);
+        Check(pageResult.GetProperty("playerUid").GetString() == PlayerUid &&
+              pageResult.GetProperty("allianceId").GetString() == AllianceId &&
+              pageResult.GetProperty("states").GetArrayLength() == 1 &&
+              pageResult.GetProperty("states")[0].GetProperty("uuid").GetString() == "ordinary-101",
+            "page Treasure refresh should return authoritative viewer identity and exactly the requested persisted row state");
+        Check(calls.Count == 1 && calls[0].ServerId == ServerId &&
+              calls[0].RefreshDetails &&
+              calls[0].Uuids.SequenceEqual(new[] { "ordinary-101" }),
+            "page Treasure refresh should project only bounded published-row identity into the live inspector");
+
+        MapTreasureClaimState? cached =
+            store.ReadTreasureClaimStateForTest(ServerId, PlayerUid, "ordinary-101");
+        Check(cached is not null &&
+              cached.ExpireTime == 10_000 &&
+              cached.StateJson.Contains("\"worldClaimState\":\"claimable\"", StringComparison.Ordinal) &&
+              !cached.StateJson.Contains("claimPriority", StringComparison.Ordinal),
+            "page Treasure refresh should persist the proven state without synthesizing lucky priority");
+
+        calls.Clear();
+        JsonElement allPayload = JsonSerializer.SerializeToElement(
+            new { profileId = "default", serverId = ServerId },
+            JsonOptions.Default);
+        JsonElement allResult = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_treasure_state_refresh_all",
+                allPayload,
+                CancellationToken.None),
+            JsonOptions.Default);
+        Check(allResult.GetProperty("states").GetArrayLength() == 2 &&
+              calls.Count == 1 &&
+              calls[0].RefreshDetails &&
+              calls[0].Uuids.SequenceEqual(new[] { "ordinary-101", "supplies-102" }),
+            "refresh-all should inspect the deterministic published Treasure set in record-key order");
+        MapTreasureClaimState? suppliesCached =
+            store.ReadTreasureClaimStateForTest(ServerId, PlayerUid, "supplies-102");
+        Check(suppliesCached is not null &&
+              suppliesCached.StateJson.Contains("\"chargePercent\":0.5", StringComparison.Ordinal),
+            "refresh-all should persist Supplies-specific read-only state fields");
+
+        calls.Clear();
+        JsonElement statusPayload = JsonSerializer.SerializeToElement(
+            new { profileId = "default" },
+            JsonOptions.Default);
+        JsonElement statusResult = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_treasure_claim_status",
+                statusPayload,
+                CancellationToken.None),
+            JsonOptions.Default);
+        Check(statusResult.GetProperty("playerUid").GetString() == PlayerUid &&
+              statusResult.GetProperty("allianceId").GetString() == AllianceId &&
+              statusResult.GetProperty("states").GetArrayLength() == 0 &&
+              calls.Count == 1 &&
+              !calls[0].RefreshDetails &&
+              calls[0].Uuids.Length == 0,
+            "claim-status should be identity-only and must not inspect or mutate any Treasure row");
+
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_treasure_state_refresh",
+                JsonSerializer.SerializeToElement(new
+                {
+                    profileId = "default",
+                    serverId = ServerId,
+                    records = new object[] { new { uuid = "not-published" } },
+                }, JsonOptions.Default),
+                CancellationToken.None);
+            throw new InvalidOperationException("expected unpublished Treasure UUID rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_REQUEST" &&
+            error.Message == "Treasure state records must uniquely match published rows.")
+        {
+        }
+
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_treasure_state_refresh_all",
+                JsonSerializer.SerializeToElement(
+                    new { profileId = "default", serverId = 2213 },
+                    JsonOptions.Default),
+                CancellationToken.None);
+            throw new InvalidOperationException("expected Treasure server mismatch");
+        }
+        catch (BridgeCommandException error) when (error.Code == "SERVER_MISMATCH")
+        {
+        }
+
+        var readingField = typeof(ManualMapScanCommandService).GetField(
+            "isReading",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+            ?? throw new MissingFieldException("ManualMapScanCommandService.isReading");
+        readingField.SetValue(service, true);
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_treasure_state_refresh_all",
+                allPayload,
+                CancellationToken.None);
+            throw new InvalidOperationException("expected active-scan Treasure refresh rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "SCAN_RUNNING" &&
+            error.Message == "stop the map scan first")
+        {
+        }
+        finally
+        {
+            readingField.SetValue(service, false);
+        }
+
+        Check(calls.Count == 1,
+            "invalid UUID, server mismatch and active-scan gates must fail before invoking the live Treasure inspector");
+
+        // Deterministically prove the production source remains read-only: the
+        // Treasure lane may issue only the official detail request. It must not
+        // contain claim, march, scout or reward-fetch action calls.
+        string repoRoot = FindRepoRootForChecks();
+        string probeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+        int laneStart = probeSource.IndexOf(
+            "function M._treasureStateRuntime.read_request",
+            StringComparison.Ordinal);
+        int laneEnd = probeSource.IndexOf(
+            "local function read_aoi_diagnostic",
+            laneStart,
+            StringComparison.Ordinal);
+        Check(laneStart >= 0 && laneEnd > laneStart,
+            "Treasure state Lua lane should remain identifiable for deterministic safety inspection");
+        string lane = probeSource[laneStart..laneEnd];
+        Check(lane.Contains("WorldGetSuppliesPointDetail", StringComparison.Ordinal) &&
+              !lane.Contains("DetectEventClaimTreasure", StringComparison.Ordinal) &&
+              !lane.Contains("LaunchScout", StringComparison.Ordinal) &&
+              !lane.Contains("OnClickStartMarch", StringComparison.Ordinal) &&
+              !lane.Contains("Fetch", StringComparison.Ordinal) &&
+              !lane.Contains("ClaimTreasure", StringComparison.Ordinal),
+            "Treasure state Lua lane must stay read-only except for the official Supplies detail request");
+
+        service.Close();
+    }
+
     private static async Task ZombieBossMixedTypesFailClosed()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
@@ -818,6 +1095,20 @@ internal static class ManualMapScanCommandServiceChecks
         Check(store.ReadPlunderJobs().TruckJobs.Count == 2,
             "public validator checks the complete batch before persisting any malformed later row");
         service.Close();
+    }
+
+    private static string FindRepoRootForChecks()
+    {
+        DirectoryInfo? current = new(Directory.GetCurrentDirectory());
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "task.md")) &&
+                Directory.Exists(Path.Combine(current.FullName, "src", "LWBridge.Desktop")))
+                return current.FullName;
+            current = current.Parent;
+        }
+        throw new InvalidOperationException(
+            "Could not locate repository root for Manual Map Scan deterministic checks.");
     }
 
     private static void WaitForPhase(

@@ -11,6 +11,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer;
     private readonly Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch;
     private readonly Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage;
+    private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
     private readonly Func<int?>? getLiveServerId;
     private readonly IMapScanBlockSource blockSource;
     private readonly TruckPlunderWorker? truckPlunderWorker;
@@ -37,6 +38,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private bool coordinateJumping;
     private bool serverJumping;
     private bool truckPlundering;
+    private bool treasureInspecting;
     private string? lastError;
 
     public ManualMapScanCommandService(
@@ -50,6 +52,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         jumpToServer = currentClientSource.JumpToServerAsync;
         followMarch = currentClientSource.FollowMarchAsync;
         getAssetImage = currentClientSource.GetAssetImageAsync;
+        inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
         truckPlunderWorker = new TruckPlunderWorker(
@@ -68,7 +71,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer = null,
         Func<int?>? getLiveServerId = null,
         Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null,
-        Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null)
+        Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null,
+        Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
@@ -77,6 +81,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.getLiveServerId = getLiveServerId;
         this.followMarch = followMarch;
         this.getAssetImage = getAssetImage;
+        this.inspectTreasureStates = inspectTreasureStates;
         currentClientSource = null!;
         truckPlunderWorker = null;
     }
@@ -85,7 +90,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or "map_coordinate_jump" or "map_march_follow" or "server_jump" or "map_truck_plunder_schedule" or "game_asset_image";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
+            "map_coordinate_jump" or "map_march_follow" or "server_jump" or
+            "map_truck_plunder_schedule" or "game_asset_image" or
+            "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
+            "map_treasure_claim_status";
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -99,6 +108,13 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         }
         if (command == "game_asset_image")
             return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command is "map_treasure_state_refresh" or
+            "map_treasure_state_refresh_all" or
+            "map_treasure_claim_status")
+        {
+            return await InspectTreasureStateAsync(command, payload, cancellationToken)
+                .ConfigureAwait(false);
+        }
         if (command == "map_scan_status") return CreateStatus();
         if (command == "map_scan_clear") return ClearMapScan(payload);
         if (command == "server_jump")
@@ -132,6 +148,302 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+
+    private async Task<object> InspectTreasureStateAsync(
+        string command,
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        if (inspectTreasureStates is null)
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                "Treasure state inspection requires the live current-client source.");
+
+        int requestedServerId;
+        if (command == "map_treasure_claim_status")
+        {
+            requestedServerId = getLiveServerId?.Invoke() ?? 0;
+            if (requestedServerId <= 0)
+                throw new BridgeCommandException("GAME_DISCONNECTED", "game disconnected");
+        }
+        else
+        {
+            requestedServerId = MapDataQueryContract.RequiredServerId(payload);
+        }
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException(
+                    "MAP_SCAN_CLOSED",
+                    "The Map Data window is closing.");
+            if (isReading)
+                throw new BridgeCommandException(
+                    "SCAN_RUNNING",
+                    "stop the map scan first");
+            if (coordinateJumping || serverJumping || truckPlundering || treasureInspecting)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            treasureInspecting = true;
+        }
+
+        try
+        {
+            int liveServerId = getLiveServerId?.Invoke() ?? 0;
+            if (liveServerId <= 0)
+                throw new BridgeCommandException("GAME_DISCONNECTED", "game disconnected");
+            if (requestedServerId != liveServerId)
+                throw new BridgeCommandException(
+                    "SERVER_MISMATCH",
+                    "current game server does not match map data server");
+
+            IReadOnlyList<MapStoredRecord> published = store.ReadRecords("treasure", requestedServerId);
+            IReadOnlyList<MapStoredRecord> selected;
+            if (command == "map_treasure_claim_status")
+            {
+                selected = Array.Empty<MapStoredRecord>();
+            }
+            else if (command == "map_treasure_state_refresh_all")
+            {
+                selected = published;
+            }
+            else
+            {
+                selected = SelectRequestedTreasureRecords(payload, published);
+            }
+
+            CurrentClientTreasureInspectionRecord[] records =
+                selected.Select(BuildTreasureInspectionRecord).ToArray();
+
+            string? playerUid = null;
+            string? allianceId = null;
+            var states = new List<JsonElement>(records.Length);
+            if (records.Length == 0)
+            {
+                CurrentClientTreasureInspectionResult empty = await inspectTreasureStates(
+                        requestedServerId,
+                        Array.Empty<CurrentClientTreasureInspectionRecord>(),
+                        false,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                playerUid = empty.PlayerUid;
+                allianceId = empty.AllianceId;
+                states.AddRange(empty.States.Select(state => state.Clone()));
+            }
+            else
+            {
+                for (int offset = 0; offset < records.Length; offset += 100)
+                {
+                    CurrentClientTreasureInspectionRecord[] batch =
+                        records.Skip(offset).Take(Math.Min(100, records.Length - offset)).ToArray();
+                    CurrentClientTreasureInspectionResult result = await inspectTreasureStates(
+                            requestedServerId,
+                            batch,
+                            true,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    if (playerUid is null)
+                    {
+                        playerUid = result.PlayerUid;
+                        allianceId = result.AllianceId;
+                    }
+                    else if (!string.Equals(playerUid, result.PlayerUid, StringComparison.Ordinal) ||
+                             !string.Equals(allianceId, result.AllianceId, StringComparison.Ordinal))
+                    {
+                        throw new InvalidDataException(
+                            "Treasure inspection player identity changed between internal batches.");
+                    }
+                    states.AddRange(result.States.Select(state => state.Clone()));
+                }
+            }
+
+            if (string.IsNullOrEmpty(playerUid) || allianceId is null)
+                throw new InvalidDataException("Treasure inspection omitted player identity.");
+
+            if (states.Count > 0)
+            {
+                var sourceByUuid = records.ToDictionary(record => record.Uuid, StringComparer.Ordinal);
+                long updatedAt = RecoveredWallClock.UnixTimeMilliseconds();
+                var cacheRows = new List<MapTreasureClaimState>(states.Count);
+                foreach (JsonElement state in states)
+                {
+                    string uuid = state.GetProperty("uuid").GetString()!;
+                    CurrentClientTreasureInspectionRecord source = sourceByUuid[uuid];
+                    long? expireTime = ReadOptionalNonNegativeInt64(state, "expireTime") ??
+                                       source.ExpireTime;
+                    cacheRows.Add(new MapTreasureClaimState(
+                        requestedServerId,
+                        playerUid,
+                        uuid,
+                        expireTime,
+                        updatedAt,
+                        state.GetRawText()));
+                }
+                store.UpsertTreasureClaimStates(cacheRows, updatedAt);
+            }
+
+            return new
+            {
+                playerUid,
+                allianceId,
+                states = states.ToArray(),
+            };
+        }
+        finally
+        {
+            lock (gate) treasureInspecting = false;
+        }
+    }
+
+    private static IReadOnlyList<MapStoredRecord> SelectRequestedTreasureRecords(
+        JsonElement payload,
+        IReadOnlyList<MapStoredRecord> published)
+    {
+        if (!payload.TryGetProperty("records", out JsonElement rows) ||
+            rows.ValueKind != JsonValueKind.Array)
+        {
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "Treasure state records are required.");
+        }
+        if (rows.GetArrayLength() > 200)
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "Treasure page refresh cannot exceed 200 records.");
+
+        var byUuid = published
+            .Where(record => !string.IsNullOrEmpty(record.Uuid))
+            .ToDictionary(record => record.Uuid!, StringComparer.Ordinal);
+        var selected = new List<MapStoredRecord>(rows.GetArrayLength());
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object ||
+                !row.TryGetProperty("uuid", out JsonElement uuidValue) ||
+                uuidValue.ValueKind != JsonValueKind.String)
+            {
+                throw new BridgeCommandException(
+                    "INVALID_REQUEST",
+                    "Treasure state record UUID is required.");
+            }
+            string uuid = uuidValue.GetString() ?? string.Empty;
+            if (uuid.Length == 0 || !seen.Add(uuid) || !byUuid.TryGetValue(uuid, out MapStoredRecord? record))
+            {
+                throw new BridgeCommandException(
+                    "INVALID_REQUEST",
+                    "Treasure state records must uniquely match published rows.");
+            }
+            selected.Add(record);
+        }
+        return selected;
+    }
+
+    private static CurrentClientTreasureInspectionRecord BuildTreasureInspectionRecord(
+        MapStoredRecord record)
+    {
+        if (record.PointIndex is not > 0)
+            throw new BridgeCommandException(
+                "TREASURE_STATE_UNAVAILABLE",
+                "Treasure state is unavailable.",
+                "published Treasure row has no point index");
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(record.DataJson);
+            JsonElement row = document.RootElement;
+            string uuid = record.Uuid ??
+                (row.TryGetProperty("uuid", out JsonElement uuidValue) &&
+                 uuidValue.ValueKind == JsonValueKind.String
+                    ? uuidValue.GetString() ?? string.Empty
+                    : string.Empty);
+            int treasureType = checked((int)(ReadOptionalNonNegativeInt64(row, "treasureType") ?? 0));
+            int suppliesType = checked((int)(ReadOptionalNonNegativeInt64(row, "suppliesType") ?? 0));
+            if (uuid.Length == 0 ||
+                !((treasureType > 0 && suppliesType == 0) ||
+                  (treasureType == 0 && suppliesType > 0)))
+            {
+                throw new BridgeCommandException(
+                    "TREASURE_STATE_UNAVAILABLE",
+                    "Treasure state is unavailable.",
+                    "published Treasure row has invalid type identity");
+            }
+
+            return new CurrentClientTreasureInspectionRecord(
+                record.ServerId,
+                record.PointIndex.Value,
+                uuid,
+                treasureType,
+                suppliesType,
+                ReadOptionalString(row, "allianceId") ?? string.Empty,
+                ReadOptionalString(row, "viewerUid") ?? string.Empty,
+                ReadOptionalString(row, "viewerAllianceId") ?? string.Empty,
+                ReadOptionalBoolean(row, "viewerHasReward"),
+                ReadOptionalBoolean(row, "viewerIsWorking"),
+                ReadOptionalBoolean(row, "complete"),
+                ReadOptionalNonNegativeInt64(row, "expireTime"),
+                ReadOptionalNonNegativeInt64(row, "startTime"),
+                ReadOptionalNonNegativeInt64(row, "completionTime"),
+                ReadOptionalNonNegativeInt32(row, "rewardedCount"),
+                ReadOptionalNonNegativeInt32(row, "diggingCount"),
+                ReadOptionalNonNegativeInt32(row, "rewardMax"),
+                ReadOptionalNonNegativeInt32(row, "remainingBoxes"),
+                ReadOptionalNonNegativeInt64(row, "createTime"),
+                ReadOptionalString(row, "discovererAllianceId") ?? string.Empty,
+                ReadOptionalString(row, "discovererUid") ?? string.Empty,
+                ReadOptionalNonNegativeInt32(row, "workState"),
+                ReadOptionalNonNegativeInt32(row, "userCount"));
+        }
+        catch (JsonException error)
+        {
+            throw new BridgeCommandException(
+                "MAP_INDEX_CORRUPT",
+                "Stored Treasure row contains invalid JSON.",
+                error.Message);
+        }
+    }
+
+    private static long? ReadOptionalNonNegativeInt64(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out long numeric))
+            return numeric >= 0 ? numeric : null;
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out long parsed))
+            return parsed >= 0 ? parsed : null;
+        return null;
+    }
+
+    private static int? ReadOptionalNonNegativeInt32(JsonElement row, string name)
+    {
+        long? value = ReadOptionalNonNegativeInt64(row, name);
+        return value is >= 0 and <= int.MaxValue ? checked((int)value.Value) : null;
+    }
+
+    private static string? ReadOptionalString(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+        return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+    }
+
+    private static bool? ReadOptionalBoolean(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value)) return null;
+        return value.ValueKind switch
+        {
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            _ => null,
+        };
+    }
 
     private async Task<object> GetAssetImageAsync(
         JsonElement payload,

@@ -97,6 +97,12 @@ if (args.Contains("--live-current-client-full-treasure-manual", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--live-current-treasure-state-refresh", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveTreasureStateRefreshProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();
