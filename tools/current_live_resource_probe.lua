@@ -1728,6 +1728,58 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
     return records, nil
 end
 
+local function resolve_reward_display_metadata(data_center, reward_type, item_id)
+    if data_center == nil or reward_type == nil or item_id == nil then return nil, nil end
+    M._rewardMetadataCache = M._rewardMetadataCache or {}
+    local cache_key = tostring(reward_type) .. ":" .. tostring(item_id)
+    local cached = M._rewardMetadataCache[cache_key]
+    if cached ~= nil then return cached.name, cached.iconPath end
+
+    local name, icon_path = nil, nil
+    local item_manager = safe_get(data_center, "ItemTemplateManager")
+    local reward_manager = safe_get(data_center, "RewardManager")
+    local reward_type_enum = rawget(_G, "RewardType")
+    local goods_type = reward_type_enum and tonumber(safe_get(reward_type_enum, "GOODS")) or nil
+    local load_path = rawget(_G, "LoadPath")
+    local item_path = load_path and safe_get(load_path, "ItemPath") or nil
+
+    if goods_type ~= nil and reward_type == goods_type and item_manager ~= nil then
+        local ok_template, goods = call(item_manager, "GetItemTemplate", item_id)
+        local ok_name, resolved_name = call(item_manager, "GetName", item_id)
+        if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then name = tostring(resolved_name) end
+        if ok_template and goods ~= nil then
+            local join_method = tonumber(safe_get(goods, "join_method")) or -1
+            local icon_join = safe_get(goods, "icon_join")
+            if join_method > 0 and icon_join ~= nil and tostring(icon_join) ~= "" then
+                local parts = {}
+                for part in string.gmatch(tostring(icon_join), "([^;]+)") do parts[#parts + 1] = part end
+                if #parts > 2 and parts[3] ~= "" then icon_path = parts[3] end
+            end
+            if icon_path == nil then
+                local icon = safe_get(goods, "icon")
+                if icon ~= nil and tostring(icon) ~= "" and item_path ~= nil then
+                    local ok_format, formatted = pcall(string.format, tostring(item_path), tostring(icon))
+                    if ok_format and formatted ~= nil and formatted ~= "" then icon_path = formatted end
+                end
+            end
+        end
+    elseif reward_manager ~= nil then
+        local ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type, item_id)
+        if (not ok_name or resolved_name == nil or tostring(resolved_name) == "") then
+            ok_name, resolved_name = call(reward_manager, "GetNameByType", reward_type)
+        end
+        if ok_name and resolved_name ~= nil and tostring(resolved_name) ~= "" then name = tostring(resolved_name) end
+        local ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type, item_id)
+        if (not ok_icon or resolved_icon == nil or tostring(resolved_icon) == "") then
+            ok_icon, resolved_icon = call(reward_manager, "GetPicByType", reward_type)
+        end
+        if ok_icon and resolved_icon ~= nil and tostring(resolved_icon) ~= "" then icon_path = tostring(resolved_icon) end
+    end
+
+    M._rewardMetadataCache[cache_key] = { name = name, iconPath = icon_path }
+    return name, icon_path
+end
+
 local function normalize_train_current_goods(march, train, train_data_json)
     local data_center = rawget(_G, "DataCenter")
     local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
@@ -1979,7 +2031,31 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                         truck_extra_goods_cur = extra_goods and safe_get(extra_goods, "cur") or nil
                         truck_vip_on = train_march_info and safe_get(train_march_info, "vipOn") or nil
                         local ok_rewards, rewards = call(train_data, "GetCurRewardData")
-                        if ok_rewards and type(rewards) == "table" then truck_current_goods_raw = rewards end
+                        if ok_rewards and type(rewards) == "table" then
+                            truck_current_goods_raw = {}
+                            for _, reward in ipairs(rewards) do
+                                local reward_type = tonumber(safe_get(reward, "type"))
+                                local reward_value = safe_get(reward, "value")
+                                local item_id, count = nil, nil
+                                if type(reward_value) == "table" then
+                                    item_id = tonumber(safe_get(reward_value, "id"))
+                                    count = tonumber(safe_get(reward_value, "num"))
+                                else
+                                    item_id = reward_type
+                                    count = tonumber(reward_value)
+                                end
+                                if reward_type ~= nil and item_id ~= nil and count ~= nil and count > 0 then
+                                    local reward_name, reward_icon = resolve_reward_display_metadata(data_center, reward_type, item_id)
+                                    truck_current_goods_raw[#truck_current_goods_raw + 1] = {
+                                        type = reward_type,
+                                        itemId = item_id,
+                                        count = count,
+                                        name = reward_name,
+                                        iconPath = reward_icon,
+                                    }
+                                end
+                            end
+                        end
                         truck_max_loot_count = tonumber(safe_get(train_data, "maxLootPerTrain"))
                     end
                     local current_goods, max_loot_count = nil, nil

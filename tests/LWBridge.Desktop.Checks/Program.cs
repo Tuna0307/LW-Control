@@ -4631,10 +4631,11 @@ using (var timeFilterStore = MapDataStore.CreateInMemory())
     SeedTimeRecord("truck", 77, "truck-expired", 103, $"\"arriveTs\":{recoveredNow - 1},\"remainingLootCount\":1");
     SeedTimeRecord("truck", 77, "truck-empty", 102, $"\"arriveTs\":{recoveredNow + 10},\"remainingLootCount\":0");
     SeedTimeRecord("truck", 77, "truck-fallback", 101, $"\"arriveTs\":{recoveredNow + 20},\"maxLootCount\":2,\"robTimes\":1");
+    SeedTimeRecord("truck", 77, "truck-special-full", 100, $"\"arriveTs\":{recoveredNow + 30},\"isSpecialURQuality\":true,\"maxLootCount\":3,\"robTimes\":1,\"remainingLootCount\":0");
 
     MapSearchResult truckDefault = SearchAt("truck", 77);
-    Check(truckDefault.Total == 4 && ResultUuids(truckDefault).SetEquals(
-            new[] { "truck-null-arrival", "truck-future", "truck-empty", "truck-fallback" }),
+    Check(truckDefault.Total == 5 && ResultUuids(truckDefault).SetEquals(
+            new[] { "truck-null-arrival", "truck-future", "truck-empty", "truck-fallback", "truck-special-full" }),
         "truck default search keeps null/future arrivals and excludes arriveTs <= sampled now");
 
     MapSearchResult truckPlunderable = SearchAt("truck", 77, ",\"plunderableOnly\":true");
@@ -4872,6 +4873,10 @@ Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringCompar
       liveCityProbeSource.Contains("GetCurRewardData", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("truckCurrentGoodsRaw = truck_current_goods_raw", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("truckMaxLootCount = truck_max_loot_count", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("resolve_reward_display_metadata", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("M._rewardMetadataCache", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("name = reward_name", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("iconPath = reward_icon", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("tonumber(safe_get(train_data, \"maxLootPerTrain\"))", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("marchInfo.carriageList", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("train_goods.cur", StringComparison.Ordinal) &&
@@ -4909,13 +4914,17 @@ Check(fastCitySource.Contains("ApplyFinalTruckMetadataEnrichment", StringCompari
       fastCitySource.Contains("ReadTruckCurrentGoods", StringComparison.Ordinal) &&
       fastCitySource.Contains("TryReadSourceSafeTruckMaxLootCount", StringComparison.Ordinal) &&
       fastCitySource.Contains("source.ExactMaxLootCount is int exact", StringComparison.Ordinal) &&
+      fastCitySource.Contains("ApplyTruckRemainingLootCount", StringComparison.Ordinal) &&
+      fastCitySource.Contains("effectiveMaxLootCount = 1", StringComparison.Ordinal) &&
       fastCitySource.Contains("TryReadInt64", StringComparison.Ordinal) &&
       fastCitySource.Contains("post-acquisition", StringComparison.Ordinal) &&
       fastCitySource.Contains("kind == \"railway\" && row.TryGetProperty(\"trainDataJson\"", StringComparison.Ordinal) &&
       !fastCitySource.Contains("data[\"trainDataJson\"] is not JsonValue rawValue", StringComparison.Ordinal) &&
-      fastCitySource.Contains("AppendTruckGoods(source.CurrentGoodsJson, totals)", StringComparison.Ordinal) &&
+      fastCitySource.Contains("AppendTruckGoods(source.CurrentGoodsJson, totals, metadata)", StringComparison.Ordinal) &&
+      fastCitySource.Contains("good[\"name\"] = display.Name", StringComparison.Ordinal) &&
+      fastCitySource.Contains("good[\"iconPath\"] = display.IconPath", StringComparison.Ordinal) &&
       fastCitySource.Contains("reward:{rewardType}:{itemId}", StringComparison.Ordinal),
-    "Truck goods/max-loot enrichment must run post-acquisition from deduplicated GetCurRewardData/exact max-loot metadata, accept current-v19 numeric-string item IDs, avoid double-counting split arrays, and keep full TrainData JSON off the Truck hot path");
+    "Truck enrichment must remain post-acquisition, derive frontend-compatible remaining loot, retain cached game reward display metadata, avoid double-counting split arrays, and keep full TrainData JSON off the Truck hot path");
 Check(fastCitySource.Contains("Monster/Zombie Boss are fast-only", StringComparison.Ordinal) &&
       !fastCitySource.Contains("conservative LOD0 fallback resumes", StringComparison.Ordinal),
     "Monster and Zombie Boss whole-world scans must fail fast instead of silently entering the slow LOD0 fallback");

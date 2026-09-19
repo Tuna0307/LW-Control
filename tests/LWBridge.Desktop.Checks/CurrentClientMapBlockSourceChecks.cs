@@ -784,7 +784,7 @@ internal static class CurrentClientMapBlockSourceChecks
                     row["truckMetadataKnown"] = true;
                     row["truckVipOn"] = false;
                     row["truckMaxLootCount"] = 3;
-                    row["truckCurrentGoodsRaw"] = JsonNode.Parse("[{\"type\":7,\"value\":{\"id\":\"200364\",\"num\":1}},{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}},{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}},{\"type\":1,\"value\":3807500}]");
+                    row["truckCurrentGoodsRaw"] = JsonNode.Parse("[{\"type\":7,\"itemId\":\"200364\",\"count\":1,\"name\":\"Recovered Item A\",\"iconPath\":\"Assets/Item/a.png\"},{\"type\":7,\"itemId\":\"2270000\",\"count\":1,\"name\":\"Recovered Item B\",\"iconPath\":\"Assets/Item/b.png\"},{\"type\":7,\"itemId\":\"2270000\",\"count\":1,\"name\":\"Recovered Item B\",\"iconPath\":\"Assets/Item/b.png\"},{\"type\":1,\"itemId\":1,\"count\":3807500,\"name\":\"Recovered Resource\",\"iconPath\":\"Assets/Reward/resource.png\"}]");
                     // Retain split arrays too; the direct game GetCurRewardData result above must win
                     // rather than being double-counted with these fallback fields.
                     row["truckExtraGoodsCur"] = JsonNode.Parse("[{\"type\":7,\"value\":{\"id\":\"200364\",\"num\":1}},{\"type\":7,\"value\":{\"id\":\"2270000\",\"num\":1}}]");
@@ -820,16 +820,20 @@ internal static class CurrentClientMapBlockSourceChecks
               first.DataJson.Contains("\"robTimes\":2", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"protectTime\":1789616000000", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"maxLootCount\":3", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"remainingLootCount\":1", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"currentGoods\":[", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"reward:7:200364\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"reward:7:2270000\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"count\":2", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"reward:1:1\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"count\":3807500", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"name\":\"Recovered Item B\"", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"iconPath\":\"Assets/Item/b.png\"", StringComparison.Ordinal) &&
               !first.DataJson.Contains("\"trainDataJson\"", StringComparison.Ordinal) &&
               !last.DataJson.Contains("\"trainDataJson\"", StringComparison.Ordinal) &&
-              last.DataJson.Contains("\"maxLootCount\":2", StringComparison.Ordinal),
-            "fast full-Truck source did not reconstruct current-v19 GetCurRewardData/maxLootPerTrain metadata, aggregate string-ID rewards, or preserve exact VIP-adjusted max loot");
+              last.DataJson.Contains("\"maxLootCount\":2", StringComparison.Ordinal) &&
+              last.DataJson.Contains("\"remainingLootCount\":0", StringComparison.Ordinal),
+            "fast full-Truck source did not reconstruct current-v19 GetCurRewardData/maxLootPerTrain metadata, derive frontend-compatible remaining loot, aggregate string-ID rewards, or preserve exact VIP-adjusted max loot");
     }
 
     private static async Task FastRailwayFullMapReturnsAllLogicalCaptures()

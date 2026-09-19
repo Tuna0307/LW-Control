@@ -39,6 +39,14 @@ internal static class LiveManualFullTruckProof
         int rawBaseCurRows = 0;
         int rawExtraCurRows = 0;
         int rawRewardEntries = 0;
+        int ordinaryUrFilterCount = 0;
+        int reindeerFilterCount = 0;
+        int plunderableFilterCount = 0;
+        int rewardOptionCount = 0;
+        int itemFilterCount = 0;
+        int remainingLootCountCount = 0;
+        string? sampleItemKey = null;
+        long filterSampledAt = 0;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -124,6 +132,16 @@ internal static class LiveManualFullTruckProof
                         throw new InvalidDataException("Ordinary Manual Truck scan reconstructed no source-safe maxLootCount.");
                     if (trainDataCount != 0)
                         throw new InvalidDataException($"Ordinary Manual Truck scan retained {trainDataCount} full trainDataJson payloads on the hot path.");
+
+                    filterSampledAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    TruckFilterMetrics filters = ValidateTruckFilters(store, serverId, filterSampledAt);
+                    ordinaryUrFilterCount = filters.OrdinaryUrCount;
+                    reindeerFilterCount = filters.ReindeerCount;
+                    plunderableFilterCount = filters.PlunderableCount;
+                    rewardOptionCount = filters.RewardOptionCount;
+                    itemFilterCount = filters.ItemFilterCount;
+                    remainingLootCountCount = filters.RemainingLootCountCount;
+                    sampleItemKey = filters.SampleItemKey;
                 }
                 finally
                 {
@@ -132,7 +150,18 @@ internal static class LiveManualFullTruckProof
             }
 
             using (var reopened = new MapDataStore(databasePath))
+            {
                 reopenedTruckCount = reopened.SearchIndexed(TruckQuery(serverId)).Total;
+                TruckFilterMetrics reopenedFilters = ValidateTruckFilters(reopened, serverId, filterSampledAt);
+                if (reopenedFilters.OrdinaryUrCount != ordinaryUrFilterCount ||
+                    reopenedFilters.ReindeerCount != reindeerFilterCount ||
+                    reopenedFilters.PlunderableCount != plunderableFilterCount ||
+                    reopenedFilters.RewardOptionCount != rewardOptionCount ||
+                    reopenedFilters.ItemFilterCount != itemFilterCount ||
+                    reopenedFilters.RemainingLootCountCount != remainingLootCountCount ||
+                    !string.Equals(reopenedFilters.SampleItemKey, sampleItemKey, StringComparison.Ordinal))
+                    throw new InvalidDataException("Truck filter/options results changed after database reopen.");
+            }
             if (reopenedTruckCount != publishedTruckCount)
                 throw new InvalidDataException("Ordinary Manual Truck count changed after database reopen.");
             Console.WriteLine(JsonSerializer.Serialize(new
@@ -157,6 +186,14 @@ internal static class LiveManualFullTruckProof
                 specialUrCount,
                 currentGoodsRowCount,
                 currentGoodsItemCount,
+                filterSampledAt,
+                ordinaryUrFilterCount,
+                reindeerFilterCount,
+                plunderableFilterCount,
+                rewardOptionCount,
+                itemFilterCount,
+                remainingLootCountCount,
+                sampleItemKey,
                 rawBaseGoodsRows,
                 rawExtraGoodsRows,
                 rawBaseCurRows,
@@ -298,10 +335,183 @@ internal static class LiveManualFullTruckProof
             throw new InvalidDataException($"Truck metric read observed {observed}/{expectedTotal} rows.");
     }
 
-    private static MapDataQueryOptions TruckQuery(int serverId, int page = 1) => new(
+    private sealed record TruckFilterMetrics(
+        int OrdinaryUrCount,
+        int ReindeerCount,
+        int PlunderableCount,
+        int RewardOptionCount,
+        int ItemFilterCount,
+        int RemainingLootCountCount,
+        string SampleItemKey);
+
+    private static TruckFilterMetrics ValidateTruckFilters(MapDataStore store, int serverId, long sampledAt)
+    {
+        IReadOnlyList<JsonElement> rows = ReadAllTruckRows(store, TruckQuery(serverId), sampledAt);
+        if (rows.Count == 0)
+            throw new InvalidDataException("Truck filter proof has no active Truck rows.");
+
+        int remainingLootCountCount = rows.Count(row =>
+            row.TryGetProperty("remainingLootCount", out JsonElement remaining) &&
+            remaining.TryGetInt32(out int value) && value >= 0);
+        if (remainingLootCountCount != rows.Count)
+            throw new InvalidDataException($"Truck remainingLootCount coverage is {remainingLootCountCount}/{rows.Count}.");
+
+        static string Uuid(JsonElement row) =>
+            row.TryGetProperty("uuid", out JsonElement uuid) && uuid.ValueKind == JsonValueKind.String
+                ? uuid.GetString() ?? string.Empty
+                : string.Empty;
+
+        var ordinaryUrExpected = rows
+            .Where(row =>
+                row.TryGetProperty("quality", out JsonElement quality) && quality.TryGetInt32(out int q) && q >= 5 &&
+                !(row.TryGetProperty("isSpecialURQuality", out JsonElement special) && special.ValueKind == JsonValueKind.True))
+            .Select(Uuid).Where(uuid => uuid.Length > 0).ToHashSet(StringComparer.Ordinal);
+        var reindeerExpected = rows
+            .Where(row => row.TryGetProperty("isSpecialURQuality", out JsonElement special) && special.ValueKind == JsonValueKind.True)
+            .Select(Uuid).Where(uuid => uuid.Length > 0).ToHashSet(StringComparer.Ordinal);
+        var plunderableExpected = rows
+            .Where(row => IsFrontendPlunderableTruck(row, sampledAt))
+            .Select(Uuid).Where(uuid => uuid.Length > 0).ToHashSet(StringComparer.Ordinal);
+
+        HashSet<string> ordinaryUrActual = ReadAllTruckRows(
+                store, TruckQuery(serverId, quality: "ur"), sampledAt)
+            .Select(Uuid).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> reindeerActual = ReadAllTruckRows(
+                store, TruckQuery(serverId, reindeerOnly: true), sampledAt)
+            .Select(Uuid).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> plunderableActual = ReadAllTruckRows(
+                store, TruckQuery(serverId, plunderableOnly: true), sampledAt)
+            .Select(Uuid).ToHashSet(StringComparer.Ordinal);
+
+        if (!ordinaryUrActual.SetEquals(ordinaryUrExpected))
+            throw new InvalidDataException($"Truck ordinary-UR filter mismatch: actual={ordinaryUrActual.Count}, expected={ordinaryUrExpected.Count}.");
+        if (!reindeerActual.SetEquals(reindeerExpected))
+            throw new InvalidDataException($"Truck reindeer-only filter mismatch: actual={reindeerActual.Count}, expected={reindeerExpected.Count}.");
+        if (!plunderableActual.SetEquals(plunderableExpected))
+            throw new InvalidDataException($"Truck plunderable-only filter mismatch: actual={plunderableActual.Count}, expected={plunderableExpected.Count}.");
+
+        if (ordinaryUrExpected.Count == 0)
+            throw new InvalidDataException("Truck filter proof population contains no ordinary UR Truck.");
+        if (reindeerExpected.Count == 0)
+            throw new InvalidDataException("Truck filter proof population contains no reindeer/special-UR Truck.");
+        if (plunderableExpected.Count == 0)
+            throw new InvalidDataException("Truck filter proof population contains no plunderable Truck.");
+
+        MapOptionAggregates options = store.ReadOptionAggregatesAt(
+            new MapOptionSourceSelection(serverId, null), sampledAt);
+        MapRewardItemOptionAggregate[] truckItems = options.RewardItems
+            .Where(item => item.Kind == "truck" && !string.IsNullOrWhiteSpace(item.Key))
+            .ToArray();
+        if (truckItems.Length == 0)
+            throw new InvalidDataException("Truck map_data_options produced no retained-item options.");
+
+        (string Key, HashSet<string> Uuids)[] itemCandidates = truckItems
+            .Select(item => (
+                item.Key,
+                rows.Where(row => TruckContainsItem(row, item.Key))
+                    .Select(Uuid).Where(uuid => uuid.Length > 0).ToHashSet(StringComparer.Ordinal)))
+            .Where(item => item.Item2.Count > 0)
+            .ToArray();
+        (string Key, HashSet<string> Uuids) selected = itemCandidates
+            .Where(item => item.Uuids.Count < rows.Count)
+            .OrderByDescending(item => item.Uuids.Count)
+            .ThenBy(item => item.Key, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (selected.Uuids is null)
+            selected = itemCandidates
+                .OrderByDescending(item => item.Uuids.Count)
+                .ThenBy(item => item.Key, StringComparer.Ordinal)
+                .First();
+        if (selected.Uuids.Count == 0)
+            throw new InvalidDataException("Truck retained-item option does not match any active Truck row.");
+
+        HashSet<string> itemActual = ReadAllTruckRows(
+                store, TruckQuery(serverId, itemKey: selected.Key), sampledAt)
+            .Select(Uuid).ToHashSet(StringComparer.Ordinal);
+        if (!itemActual.SetEquals(selected.Uuids))
+            throw new InvalidDataException($"Truck retained-item filter mismatch for {selected.Key}: actual={itemActual.Count}, expected={selected.Uuids.Count}.");
+
+        return new TruckFilterMetrics(
+            ordinaryUrActual.Count,
+            reindeerActual.Count,
+            plunderableActual.Count,
+            truckItems.Length,
+            itemActual.Count,
+            remainingLootCountCount,
+            selected.Key);
+    }
+
+    private static IReadOnlyList<JsonElement> ReadAllTruckRows(
+        MapDataStore store,
+        MapDataQueryOptions query,
+        long sampledAt)
+    {
+        var rows = new List<JsonElement>();
+        int page = 1;
+        int expectedTotal = -1;
+        while (true)
+        {
+            MapSearchResult result = store.SearchIndexedAtForTest(query with { Page = page }, sampledAt);
+            if (expectedTotal < 0) expectedTotal = result.Total;
+            else if (result.Total != expectedTotal)
+                throw new InvalidDataException("Truck filter query total changed across pages.");
+            rows.AddRange(result.Rows);
+            if (rows.Count >= expectedTotal || result.Rows.Count == 0) break;
+            page++;
+        }
+        if (rows.Count != expectedTotal)
+            throw new InvalidDataException($"Truck filter query observed {rows.Count}/{expectedTotal} rows.");
+        return rows;
+    }
+
+    private static bool IsFrontendPlunderableTruck(JsonElement row, long sampledAt)
+    {
+        if (!row.TryGetProperty("arriveTs", out JsonElement arrivalValue) ||
+            !arrivalValue.TryGetInt64(out long arrival) || arrival <= sampledAt)
+            return false;
+
+        bool special = row.TryGetProperty("isSpecialURQuality", out JsonElement specialValue) &&
+            specialValue.ValueKind == JsonValueKind.True;
+        int maxLoot = 0;
+        if (special)
+        {
+            maxLoot = 1;
+        }
+        else if (row.TryGetProperty("maxLootCount", out JsonElement maxValue) &&
+                 maxValue.TryGetInt32(out int parsedMax) && parsedMax > 0)
+        {
+            maxLoot = parsedMax;
+        }
+
+        int robTimes = row.TryGetProperty("robTimes", out JsonElement robValue) &&
+                       robValue.TryGetInt32(out int parsedRob)
+            ? Math.Max(0, parsedRob)
+            : 0;
+        return maxLoot > 0 && robTimes < maxLoot;
+    }
+
+    private static bool TruckContainsItem(JsonElement row, string key)
+    {
+        if (!row.TryGetProperty("currentGoods", out JsonElement goods) || goods.ValueKind != JsonValueKind.Array)
+            return false;
+        foreach (JsonElement item in goods.EnumerateArray())
+            if (item.TryGetProperty("key", out JsonElement itemKey) &&
+                itemKey.ValueKind == JsonValueKind.String &&
+                string.Equals(itemKey.GetString(), key, StringComparison.Ordinal))
+                return true;
+        return false;
+    }
+
+    private static MapDataQueryOptions TruckQuery(
+        int serverId,
+        int page = 1,
+        string? quality = null,
+        string? itemKey = null,
+        bool plunderableOnly = false,
+        bool reindeerOnly = false) => new(
         "truck", serverId, page, MapDataQueryContract.RecoveredPageSize,
         [new MapDataSort("updatedAt", "desc")], false, null, null, false,
-        null, null, null, null, null, null, null, false, false, false,
+        null, null, null, null, quality, itemKey, null, plunderableOnly, false, reindeerOnly,
         null, null, Array.Empty<string>());
 
     private static void TryDelete(string path)

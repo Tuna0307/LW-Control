@@ -1549,6 +1549,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (data["maxLootCount"] is null && TryReadSourceSafeTruckMaxLootCount(source, out int maxLootCount))
             data["maxLootCount"] = maxLootCount;
+        ApplyTruckRemainingLootCount(data);
         if (data["currentGoods"] is not JsonArray existingGoods || existingGoods.Count == 0)
         {
             JsonArray? goods = ReadTruckCurrentGoods(source);
@@ -1559,6 +1560,34 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             Record = prepared.Record with { DataJson = data.ToJsonString(JsonOptions.Default) },
         };
+    }
+
+    private static void ApplyTruckRemainingLootCount(JsonObject data)
+    {
+        bool specialUr = data["isSpecialURQuality"] is JsonValue specialValue &&
+            specialValue.TryGetValue<bool>(out bool specialFlag) && specialFlag;
+
+        int effectiveMaxLootCount = 0;
+        if (specialUr)
+        {
+            // Recovered shipped-frontend contract: reindeer/special-UR Trucks can be
+            // robbed at most once regardless of the generic TrainData maxLootPerTrain.
+            effectiveMaxLootCount = 1;
+        }
+        else if (data["maxLootCount"] is JsonValue maxValue &&
+                 maxValue.TryGetValue<int>(out int parsedMax) && parsedMax > 0)
+        {
+            effectiveMaxLootCount = parsedMax;
+        }
+
+        if (effectiveMaxLootCount <= 0) return;
+
+        int robTimes = 0;
+        if (data["robTimes"] is JsonValue robValue &&
+            robValue.TryGetValue<int>(out int parsedRob))
+            robTimes = Math.Max(0, parsedRob);
+
+        data["remainingLootCount"] = Math.Max(effectiveMaxLootCount - robTimes, 0);
     }
 
     private static bool TryReadSourceSafeTruckMaxLootCount(TruckSourceMetadata source, out int maxLootCount)
@@ -1582,11 +1611,12 @@ internal sealed partial class CurrentClientMapBlockSource
     private static JsonArray? ReadTruckCurrentGoods(TruckSourceMetadata source)
     {
         var totals = new Dictionary<(int RewardType, long ItemId), long>();
-        AppendTruckGoods(source.CurrentGoodsJson, totals);
+        var metadata = new Dictionary<(int RewardType, long ItemId), (string? Name, string? IconPath)>();
+        AppendTruckGoods(source.CurrentGoodsJson, totals, metadata);
         if (totals.Count == 0)
         {
-            AppendTruckGoods(source.ExtraGoodsCurJson, totals);
-            AppendTruckGoods(source.BaseGoodsCurJson, totals);
+            AppendTruckGoods(source.ExtraGoodsCurJson, totals, metadata);
+            AppendTruckGoods(source.BaseGoodsCurJson, totals, metadata);
         }
         if (totals.Count == 0) return null;
 
@@ -1594,21 +1624,28 @@ internal sealed partial class CurrentClientMapBlockSource
         foreach (((int rewardType, long itemId), long count) in totals.OrderBy(item => item.Key.RewardType).ThenBy(item => item.Key.ItemId))
         {
             if (count <= 0) continue;
-            goods.Add(new JsonObject
+            var good = new JsonObject
             {
                 // Internal rebuild identity only; original LWBridge key producer remains unrecovered.
                 ["key"] = $"reward:{rewardType}:{itemId}",
                 ["count"] = count,
                 ["rewardType"] = rewardType,
                 ["itemId"] = itemId,
-            });
+            };
+            if (metadata.TryGetValue((rewardType, itemId), out (string? Name, string? IconPath) display))
+            {
+                if (!string.IsNullOrWhiteSpace(display.Name)) good["name"] = display.Name;
+                if (!string.IsNullOrWhiteSpace(display.IconPath)) good["iconPath"] = display.IconPath;
+            }
+            goods.Add(good);
         }
         return goods.Count > 0 ? goods : null;
     }
 
     private static void AppendTruckGoods(
         string? currentJson,
-        Dictionary<(int RewardType, long ItemId), long> totals)
+        Dictionary<(int RewardType, long ItemId), long> totals,
+        Dictionary<(int RewardType, long ItemId), (string? Name, string? IconPath)> metadata)
     {
         if (string.IsNullOrWhiteSpace(currentJson)) return;
         try
@@ -1620,23 +1657,33 @@ internal sealed partial class CurrentClientMapBlockSource
             foreach (JsonElement reward in current.EnumerateArray())
             {
                 if (reward.ValueKind != JsonValueKind.Object ||
-                    !reward.TryGetProperty("type", out JsonElement typeValue) || !typeValue.TryGetInt32(out int rewardType) ||
-                    !reward.TryGetProperty("value", out JsonElement value))
+                    !reward.TryGetProperty("type", out JsonElement typeValue) || !typeValue.TryGetInt32(out int rewardType))
                     continue;
 
                 long? itemId = null;
                 long? count = null;
-                if (value.ValueKind == JsonValueKind.Object)
+                if (reward.TryGetProperty("itemId", out JsonElement flatItemId) &&
+                    reward.TryGetProperty("count", out JsonElement flatCount) &&
+                    TryReadInt64(flatItemId, out long parsedFlatId) &&
+                    TryReadInt64(flatCount, out long parsedFlatCount))
                 {
-                    if (value.TryGetProperty("id", out JsonElement idValue) && TryReadInt64(idValue, out long parsedId)) itemId = parsedId;
-                    if (value.TryGetProperty("num", out JsonElement numValue) && TryReadInt64(numValue, out long parsedCount)) count = parsedCount;
+                    itemId = parsedFlatId;
+                    count = parsedFlatCount;
                 }
-                else if (TryReadInt64(value, out long scalarCount))
+                else if (reward.TryGetProperty("value", out JsonElement value))
                 {
-                    // This is the existing game/rebuild reward shape used by TrainData normalization:
-                    // scalar rewards carry their identity in reward.type and their amount in reward.value.
-                    itemId = rewardType;
-                    count = scalarCount;
+                    if (value.ValueKind == JsonValueKind.Object)
+                    {
+                        if (value.TryGetProperty("id", out JsonElement idValue) && TryReadInt64(idValue, out long parsedId)) itemId = parsedId;
+                        if (value.TryGetProperty("num", out JsonElement numValue) && TryReadInt64(numValue, out long parsedCount)) count = parsedCount;
+                    }
+                    else if (TryReadInt64(value, out long scalarCount))
+                    {
+                        // This is the existing game/rebuild reward shape used by TrainData normalization:
+                        // scalar rewards carry their identity in reward.type and their amount in reward.value.
+                        itemId = rewardType;
+                        count = scalarCount;
+                    }
                 }
 
                 if (itemId is not long id || count is not long quantity || id <= 0 || quantity <= 0) continue;
@@ -1647,6 +1694,20 @@ internal sealed partial class CurrentClientMapBlockSource
                     totals[key] = existing + quantity;
                 }
                 else totals[key] = quantity;
+
+                string? name = reward.TryGetProperty("name", out JsonElement nameValue) &&
+                    nameValue.ValueKind == JsonValueKind.String ? nameValue.GetString() : null;
+                string? iconPath = reward.TryGetProperty("iconPath", out JsonElement iconValue) &&
+                    iconValue.ValueKind == JsonValueKind.String ? iconValue.GetString() : null;
+                if ((!string.IsNullOrWhiteSpace(name) || !string.IsNullOrWhiteSpace(iconPath)) &&
+                    (!metadata.TryGetValue(key, out var existingMetadata) ||
+                     string.IsNullOrWhiteSpace(existingMetadata.Name) ||
+                     string.IsNullOrWhiteSpace(existingMetadata.IconPath)))
+                {
+                    metadata[key] = (
+                        !string.IsNullOrWhiteSpace(name) ? name : existingMetadata.Name,
+                        !string.IsNullOrWhiteSpace(iconPath) ? iconPath : existingMetadata.IconPath);
+                }
             }
         }
         catch (JsonException)
