@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-059, 2026-09-19
+
+The original City-export Windows save-dialog contract is **RECOVERED static**. LWBridge uses rfd 0.16.0, leaves the starting directory and custom title unset, sets the R7-058 filename plus filter `Excel workbook` / `xlsx`, and calls synchronous `save_file()`. The Windows Common Item Dialog therefore chooses its persisted/system location and retains the default overwrite prompt. rfd maps user cancellation and any dialog build/show/get-result error to `None`; the original host serializes that branch exactly as `{canceled:true,path:"",rowCount:0}`. Remaining export blockers are original pagination/scope, direct A-C/J typing/coercion and original large-ID workbook behavior. Evidence: [R7-059](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json).
+
 ## Current implementation checkpoint — LWB-R7-058, 2026-09-19
 
 The original City export default filename is **RECOVERED static** as `map-cities-{serverId}-{YYYY}{MM}{DD}-{HH}{mm}{ss}.xlsx`. Hash-locked Rust format bytecode proves the six timestamp fields are zero-padded widths `4/2/2/2/2/2`; bounded picker/clock evidence ties the first argument to positive `serverId` and the timestamp to UTC `GetSystemTimePreciseAsFileTime` converted into `time 0.3.54`. The original Feedback exporter independently uses the same timestamp suffix. SB-99 records one later rejected narrow register inspection and is not used as evidence. Public `map_city_export` remains fail-closed because original pagination/scope, direct A-C/J coercion, default save directory, complete picker behavior and original large-ID workbook typing remain unresolved. Evidence: [R7-058](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-filename.json).

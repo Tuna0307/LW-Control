@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-059, 2026-09-19
+
+City export save-dialog/default-location semantics are now recovered. The original rfd 0.16.0 builder leaves `starting_directory` and custom title unset, applies `Excel workbook` / `xlsx`, uses the R7-058 UTC filename, and invokes the native Windows Save dialog. Windows owns the remembered/system folder and default overwrite confirmation. rfd collapses both user cancel and dialog errors to `None`, which LWBridge returns exactly as `{canceled:true,path:"",rowCount:0}`. Public export remains gated only on the original row/data contract: pagination/scope, direct A-C/J typing/coercion and original large-ID workbook behavior. See [R7-059 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json).
+
 ## Latest implementation checkpoint — LWB-R7-058, 2026-09-19
 
 The original City export default filename/timestamp is now recovered as `map-cities-{serverId}-{YYYY}{MM}{DD}-{HH}{mm}{ss}.xlsx` in UTC. The result is hash-locked to `lwbridge-0.3.1.exe`, decodes the exact embedded rustc format bytecode, proves zero-padding widths `4/2/2/2/2/2`, ties the first placeholder to positive `serverId`, and ties the timestamp clock to `kernel32!GetSystemTimePreciseAsFileTime` plus the embedded `time 0.3.54` representation. A shared Feedback-export suffix corroborates the timestamp structure. One later narrow register inspection was rejected as SB-99 and was neither replayed nor used. Public export remains gated on original pagination/scope, direct A-C/J typing, default directory, complete picker behavior and original large-ID typing. See [R7-058 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-filename.json).

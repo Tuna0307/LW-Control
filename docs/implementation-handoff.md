@@ -1,5 +1,15 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## City export save-dialog checkpoint - LWB-R7-059, 2026-09-19
+
+**RECOVERED static + immutable upstream-source corroboration; public export still gated.** `tools/inspect_lwbridge_city_export_dialog.py` hash-locks the original binary and verifies the City builder state/callsite. The recovered rfd version is 0.16.0 (tag commit `5d32eec3a7930eb43b7e864eb773831bbd3d91b4`). LWBridge leaves `starting_directory=None` and `title=None`, sets only the R7-058 file name plus one filter `Excel workbook` / `xlsx`, then invokes synchronous `save_file()`.
+
+On Windows rfd 0.16, `build_save_file` calls `add_filters`, `set_path`, `set_file_name`, and `set_title`; `set_path(None)` is a no-op, so LWBridge does not force a folder. The Common Item Dialog therefore controls its remembered/system location. rfd does not replace the Save dialog options, so Windows retains its default `FOS_OVERWRITEPROMPT`. The filter also supplies `xlsx` as the default extension. rfd synchronous `save_file()` ends with `run(self).ok()`, collapsing user cancel and any build/show/get-result COM error to `None`.
+
+The binary's `None` branch is now decoded exactly with embedded `serde_json 1.0.151`: `Bool(true)`, empty `String`, and `Number(0)` under `canceled`, `path`, and `rowCount`, giving `{canceled:true,path:"",rowCount:0}`. This also refines R6-018 wording: `Excel workbook` is the filter display name, not a custom dialog title. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json`.
+
+**Next:** picker/default-location/cancel/overwrite behavior is no longer an export blocker. Keep `map_city_export` fail-closed while recovering only the original row/data contract: internal pagination/full-filter scope, direct A-C/J mapping and per-column coercion, and original large-ID workbook typing/reopen behavior.
+
 ## City export default filename checkpoint - LWB-R7-058, 2026-09-19
 
 **RECOVERED static; no public export wiring yet.** `tools/inspect_lwbridge_city_export_filename.py` hash-locks original `lwbridge-0.3.1.exe` and decodes the embedded Rust format-argument bytecode using the exact embedded rustc commit `4a4ef493e3a1488c6e321570238084b38948f6db`. The original default filename is `map-cities-{serverId}-{YYYY}{MM}{DD}-{HH}{mm}{ss}.xlsx`: `serverId` uses the default decimal placeholder; the six timestamp placeholders are zero-padded widths `4/2/2/2/2/2`. The same timestamp bytecode is independently present in `lwbridge-feedback-{YYYY}{MM}{DD}-{HH}{mm}{ss}.zip`.
