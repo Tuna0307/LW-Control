@@ -28,6 +28,8 @@ internal static class LiveManualFullDispatchProof
         int sortComparedRowCount = 0;
         int specialSortValueCount = 0;
         int completionSortValueCount = 0;
+        long filterSampledAt = 0;
+        DispatchGhostFilterProofHelper.Metrics? filterMetrics = null;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -147,6 +149,13 @@ internal static class LiveManualFullDispatchProof
                     sortComparedRowCount = sortMetrics.RowCount;
                     specialSortValueCount = sortMetrics.SpecialCount;
                     completionSortValueCount = sortMetrics.CompletionTimeValueCount;
+                    filterSampledAt =
+                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    filterMetrics = DispatchGhostFilterProofHelper.Validate(
+                        store,
+                        serverId,
+                        "dispatch",
+                        filterSampledAt);
                 }
                 finally
                 {
@@ -166,9 +175,22 @@ internal static class LiveManualFullDispatchProof
                     reopenedSortMetrics.CompletionTimeValueCount != completionSortValueCount)
                     throw new InvalidDataException(
                         "Dispatch sort proof changed after database reopen.");
+                DispatchGhostFilterProofHelper.Metrics reopenedFilterMetrics =
+                    DispatchGhostFilterProofHelper.Validate(
+                        reopened,
+                        serverId,
+                        "dispatch",
+                        filterSampledAt);
+                if (filterMetrics is null ||
+                    reopenedFilterMetrics != filterMetrics)
+                    throw new InvalidDataException(
+                        "Dispatch filter proof changed after database reopen.");
             }
             if (reopenedDispatchCount != publishedDispatchCount)
                 throw new InvalidDataException("Ordinary Manual Dispatch count changed after database reopen.");
+            if (filterMetrics is null)
+                throw new InvalidDataException(
+                    "Dispatch filter proof did not produce metrics.");
 
             Console.WriteLine(JsonSerializer.Serialize(new
             {
@@ -201,6 +223,22 @@ internal static class LiveManualFullDispatchProof
                 completionSortValueCount,
                 sortCheckCount,
                 reopenedSortCheckCount,
+                filterSampledAt,
+                filterComparedRowCount = filterMetrics.RowCount,
+                filterCheckCount = filterMetrics.CheckCount,
+                filterQualityNCount = filterMetrics.QualityNCount,
+                filterQualityRCount = filterMetrics.QualityRCount,
+                filterQualitySrCount = filterMetrics.QualitySrCount,
+                filterQualitySsrCount = filterMetrics.QualitySsrCount,
+                filterQualityUrCount = filterMetrics.QualityUrCount,
+                filterSpecialCount = filterMetrics.SpecialCount,
+                filterPendingCount = filterMetrics.PendingCount,
+                filterCompletedCount = filterMetrics.CompletedCount,
+                filterSampleLevel = filterMetrics.SampleLevel,
+                filterMinLevelCount = filterMetrics.MinLevelCount,
+                filterMaxLevelCount = filterMetrics.MaxLevelCount,
+                filterExactLevelCount = filterMetrics.ExactLevelCount,
+                filterPlunderableCount = filterMetrics.PlunderableCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
