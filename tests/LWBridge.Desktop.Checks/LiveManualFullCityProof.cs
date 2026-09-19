@@ -22,7 +22,18 @@ internal static class LiveManualFullCityProof
         Exception? operationError = null;
         int publishedCityCount = 0;
         int reopenedCityCount = 0;
+        int healthValueCount = 0;
+        int shieldValueCount = 0;
+        int distinctShieldValueCount = 0;
+        int sortCheckCount = 0;
+        int reopenedSortCheckCount = 0;
+        int sortComparedRowCount = 0;
+        long sortSampledAt = 0;
         double scanWallSeconds = 0;
+        string scanMode = string.Equals(
+            Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
+            "fast", StringComparison.OrdinalIgnoreCase) ? "fast" : "normal";
+        int expectedConcurrency = scanMode == "fast" ? 20 : 8;
         try
         {
             using JsonDocument empty = JsonDocument.Parse("{}");
@@ -41,7 +52,7 @@ internal static class LiveManualFullCityProof
                 JsonElement payload = JsonSerializer.SerializeToElement(new
                 {
                     profileId = "manual-full-city-proof",
-                    scanMode = "normal",
+                    scanMode,
                     selectedTypes = new[] { "city" },
                 }, JsonOptions.Default);
 
@@ -53,7 +64,7 @@ internal static class LiveManualFullCityProof
                 serverId = startStatus.GetProperty("serverId").GetInt32();
                 if (string.IsNullOrWhiteSpace(runId) || serverId <= 0 ||
                     startStatus.GetProperty("totalBlocks").GetInt32() != 2500 ||
-                    startStatus.GetProperty("concurrency").GetInt32() != 8)
+                    startStatus.GetProperty("concurrency").GetInt32() != expectedConcurrency)
                 {
                     throw new InvalidDataException("Ordinary Manual Start did not expose the expected City scan identity/geometry.");
                 }
@@ -95,6 +106,13 @@ internal static class LiveManualFullCityProof
                 publishedCityCount = store.SearchIndexed(CityQuery(serverId)).Total;
                 if (publishedCityCount <= 0)
                     throw new InvalidDataException("Ordinary Manual City scan published no City records.");
+                sortSampledAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                CitySortMetrics sortMetrics = ValidateCitySorts(store, serverId, sortSampledAt);
+                sortCheckCount = sortMetrics.CheckCount;
+                sortComparedRowCount = sortMetrics.RowCount;
+                healthValueCount = sortMetrics.HealthValueCount;
+                shieldValueCount = sortMetrics.ShieldValueCount;
+                distinctShieldValueCount = sortMetrics.DistinctShieldValueCount;
                 }
                 finally
                 {
@@ -103,7 +121,17 @@ internal static class LiveManualFullCityProof
             }
 
             using (var reopened = new MapDataStore(databasePath))
+            {
                 reopenedCityCount = reopened.SearchIndexed(CityQuery(serverId)).Total;
+                CitySortMetrics reopenedSortMetrics = ValidateCitySorts(reopened, serverId, sortSampledAt);
+                reopenedSortCheckCount = reopenedSortMetrics.CheckCount;
+                if (reopenedSortCheckCount != sortCheckCount ||
+                    reopenedSortMetrics.RowCount != sortComparedRowCount ||
+                    reopenedSortMetrics.HealthValueCount != healthValueCount ||
+                    reopenedSortMetrics.ShieldValueCount != shieldValueCount ||
+                    reopenedSortMetrics.DistinctShieldValueCount != distinctShieldValueCount)
+                    throw new InvalidDataException("City sort proof changed after database reopen.");
+            }
             if (reopenedCityCount != publishedCityCount)
                 throw new InvalidDataException("Ordinary Manual City count changed after database reopen.");
             Console.WriteLine(JsonSerializer.Serialize(new
@@ -113,7 +141,16 @@ internal static class LiveManualFullCityProof
                 totalBlocks = 2500,
                 publishedCityCount,
                 reopenedCityCount,
+                scanMode,
+                concurrency = expectedConcurrency,
                 scanWallSeconds,
+                sortSampledAt,
+                sortComparedRowCount,
+                healthValueCount,
+                shieldValueCount,
+                distinctShieldValueCount,
+                sortCheckCount,
+                reopenedSortCheckCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
@@ -142,6 +179,223 @@ internal static class LiveManualFullCityProof
             }
             TryDelete(databasePath);
         }
+    }
+
+    private sealed record CitySortMetrics(
+        int CheckCount,
+        int RowCount,
+        int HealthValueCount,
+        int ShieldValueCount,
+        int DistinctShieldValueCount);
+
+    private static CitySortMetrics ValidateCitySorts(
+        MapDataStore store,
+        int serverId,
+        long sampledAt)
+    {
+        IReadOnlyList<JsonElement> allRows = ReadAllCityRows(
+            store,
+            CitySortQuery(serverId, [new MapDataSort("updatedAt", "desc")]),
+            sampledAt);
+        if (allRows.Count < 2)
+            throw new InvalidDataException("City sort proof requires at least two City rows.");
+
+        int healthValues = allRows.Count(row => CityHealthValue(row).HasValue);
+        long[] shieldValues = allRows
+            .Select(row => CityShieldValue(row, sampledAt))
+            .Where(value => value.HasValue)
+            .Select(value => value!.Value)
+            .ToArray();
+        int distinctShieldValues = shieldValues.Distinct().Count();
+
+        int checks = 0;
+        foreach (string sortBy in new[] { "level", "health", "shield", "updatedAt" })
+        {
+            foreach (string sortOrder in new[] { "asc", "desc" })
+            {
+                ValidateCitySortOrder(
+                    store,
+                    serverId,
+                    sampledAt,
+                    allRows,
+                    [new MapDataSort(sortBy, sortOrder)]);
+                checks++;
+            }
+        }
+
+        ValidateCitySortOrder(
+            store,
+            serverId,
+            sampledAt,
+            allRows,
+            [
+                new MapDataSort("shield", "asc"),
+                new MapDataSort("health", "desc"),
+                new MapDataSort("level", "desc"),
+                new MapDataSort("updatedAt", "desc"),
+            ]);
+        checks++;
+
+        return new CitySortMetrics(
+            checks,
+            allRows.Count,
+            healthValues,
+            shieldValues.Length,
+            distinctShieldValues);
+    }
+
+    private static void ValidateCitySortOrder(
+        MapDataStore store,
+        int serverId,
+        long sampledAt,
+        IReadOnlyList<JsonElement> allRows,
+        IReadOnlyList<MapDataSort> sorts)
+    {
+        var expected = allRows.ToList();
+        expected.Sort((left, right) => CompareCityRows(left, right, sorts, sampledAt));
+
+        IReadOnlyList<JsonElement> actual = ReadAllCityRows(
+            store,
+            CitySortQuery(serverId, sorts),
+            sampledAt);
+        if (actual.Count != expected.Count)
+            throw new InvalidDataException(
+                $"City sort row count mismatch for {DescribeCitySorts(sorts)}: actual={actual.Count}, expected={expected.Count}.");
+
+        for (int index = 0; index < expected.Count; index++)
+        {
+            string expectedKey = CityRecordKey(expected[index]);
+            string actualKey = CityRecordKey(actual[index]);
+            if (!string.Equals(actualKey, expectedKey, StringComparison.Ordinal))
+                throw new InvalidDataException(
+                    $"City sort mismatch for {DescribeCitySorts(sorts)} at {index}: actual={actualKey}, expected={expectedKey}.");
+        }
+    }
+
+    private static int CompareCityRows(
+        JsonElement left,
+        JsonElement right,
+        IReadOnlyList<MapDataSort> sorts,
+        long sampledAt)
+    {
+        foreach (MapDataSort sort in sorts)
+        {
+            double? leftValue = CitySortValue(left, sort.SortBy, sampledAt);
+            double? rightValue = CitySortValue(right, sort.SortBy, sampledAt);
+            int comparison;
+            if (!leftValue.HasValue && !rightValue.HasValue)
+                comparison = 0;
+            else if (!leftValue.HasValue)
+                comparison = 1;
+            else if (!rightValue.HasValue)
+                comparison = -1;
+            else
+            {
+                comparison = leftValue.Value.CompareTo(rightValue.Value);
+                if (sort.SortOrder == "desc") comparison = -comparison;
+            }
+            if (comparison != 0) return comparison;
+        }
+
+        return StringComparer.Ordinal.Compare(
+            CityRecordKey(left),
+            CityRecordKey(right));
+    }
+
+    private static double? CitySortValue(
+        JsonElement row,
+        string sortBy,
+        long sampledAt) =>
+        sortBy switch
+        {
+            "level" => OptionalCityNumber(row, "level"),
+            "health" => CityHealthValue(row),
+            "shield" => CityShieldValue(row, sampledAt),
+            "updatedAt" => OptionalCityNumber(row, "updatedAt"),
+            _ => throw new InvalidDataException("Unexpected City sort key: " + sortBy),
+        };
+
+    private static double? CityHealthValue(JsonElement row)
+    {
+        double? health = OptionalCityNumber(row, "health");
+        return health is not null && health.Value != 0d ? health : null;
+    }
+
+    private static long? CityShieldValue(JsonElement row, long sampledAt)
+    {
+        if (!row.TryGetProperty("protectEndTime", out JsonElement protect) ||
+            protect.ValueKind != JsonValueKind.Number ||
+            !protect.TryGetInt64(out long expiry))
+            return null;
+
+        if (expiry >= 1_000_000_000_000L)
+            return expiry > sampledAt ? expiry : null;
+
+        long sampledSeconds = sampledAt / 1000;
+        return expiry > sampledSeconds ? expiry : null;
+    }
+
+    private static double? OptionalCityNumber(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.Number &&
+        value.TryGetDouble(out double parsed)
+            ? parsed
+            : null;
+
+    private static string CityRecordKey(JsonElement row) =>
+        row.TryGetProperty("recordKey", out JsonElement key) &&
+        key.ValueKind == JsonValueKind.String &&
+        !string.IsNullOrWhiteSpace(key.GetString())
+            ? key.GetString()!
+            : throw new InvalidDataException("City sort proof row has no recordKey.");
+
+    private static string DescribeCitySorts(IReadOnlyList<MapDataSort> sorts) =>
+        string.Join(",", sorts.Select(sort => $"{sort.SortBy}:{sort.SortOrder}"));
+
+    private static MapDataQueryOptions CitySortQuery(
+        int serverId,
+        IReadOnlyList<MapDataSort> sorts)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "city",
+            query = new
+            {
+                serverId,
+                sorts = sorts.Select(sort => new
+                {
+                    sortBy = sort.SortBy,
+                    sortOrder = sort.SortOrder,
+                }).ToArray(),
+            },
+        }, JsonOptions.Default);
+        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
+        if (query.UnsupportedFeatures.Count != 0)
+            throw new InvalidDataException(
+                "Recovered City sort unexpectedly failed contract gate: " +
+                string.Join(",", query.UnsupportedFeatures));
+        return query;
+    }
+
+    private static IReadOnlyList<JsonElement> ReadAllCityRows(
+        MapDataStore store,
+        MapDataQueryOptions query,
+        long sampledAt)
+    {
+        var rows = new List<JsonElement>();
+        int page = 1;
+        int expectedTotal = -1;
+        while (true)
+        {
+            MapSearchResult result = store.SearchIndexedAtForTest(query with { Page = page }, sampledAt);
+            if (expectedTotal < 0) expectedTotal = result.Total;
+            rows.AddRange(result.Rows);
+            if (rows.Count >= expectedTotal || result.Rows.Count == 0) break;
+            page++;
+        }
+        if (rows.Count != expectedTotal)
+            throw new InvalidDataException($"City sort proof observed {rows.Count}/{expectedTotal} rows.");
+        return rows;
     }
 
     private static MapDataQueryOptions CityQuery(int serverId) => new(

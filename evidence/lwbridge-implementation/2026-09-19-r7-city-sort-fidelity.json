@@ -1,0 +1,83 @@
+{
+  "evidenceId": "LWB-R7-052",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "1ae168630a5cf1be887d05154cd0fac7627fd607",
+  "scope": {
+    "feature": "current-v19 City alternate sort fidelity",
+    "liveProven": true,
+    "readOnly": true,
+    "consumingAction": false
+  },
+  "staticRecovery": {
+    "originalBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendMapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "sortKeys": [
+      "level",
+      "health",
+      "shield",
+      "updatedAt"
+    ],
+    "levelExpression": "level",
+    "healthExpression": "NULLIF(CAST(json_extract(data_json,'$.health') AS REAL),0)",
+    "shieldExpression": {
+      "expiry": "COALESCE(shield_end_time,CAST(json_extract(data_json,'$.protectEndTime') AS INTEGER),0)",
+      "millisecondsBranch": "expiry >= 1000000000000 AND expiry > nowMs",
+      "secondsBranch": "expiry < 1000000000000 AND expiry > trunc(nowMs/1000)",
+      "result": "expiry when active, otherwise NULL"
+    },
+    "clock": "one original map_search Unix-millisecond sample; same sample is integer-divided by 1000 for seconds-valued shield expiries",
+    "nullOrder": "nulls last for ASC and DESC",
+    "stableTieBreak": "record_key ASC",
+    "multiSort": "preserves frontend sort-array order",
+    "verifier": "tools/inspect_lwbridge_city_sort_assembly.py"
+  },
+  "implementation": {
+    "contract": "City accepts ordered unique subsets of the four recovered public keys",
+    "sql": "recovered City expressions use the shared native null-last/order/tie assembly; shield SQL embeds one sampled query clock in ms and seconds form",
+    "outOfScope": [
+      "Dispatch/Ghost alternate sorts",
+      "unknown City sort keys"
+    ]
+  },
+  "deterministicAcceptance": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixSuites": "PASS",
+    "failures": 0,
+    "coverage": [
+      "ASC and DESC for level, health, shield and updatedAt",
+      "millisecond-valued active shield",
+      "seconds-valued active shield",
+      "expired shield becomes NULL",
+      "health zero becomes NULL",
+      "nulls-last behavior",
+      "ordered multi-sort precedence",
+      "stable record-key ties",
+      "sorted pagination",
+      "unsupported/duplicate key fail-closed behavior"
+    ]
+  },
+  "finalLiveProof": {
+    "totalBlocks": 2500,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "scanWallSeconds": 132.903499,
+    "publishedCityCount": 1319,
+    "reopenedCityCount": 1319,
+    "sortSampledAt": 1789794138301,
+    "sortComparedRowCount": 1319,
+    "healthValueCount": 1319,
+    "shieldValueCount": 140,
+    "distinctShieldValueCount": 137,
+    "sortCheckCount": 9,
+    "reopenedSortCheckCount": 9,
+    "totalLiveSortAssertions": 18
+  },
+  "validation": {
+    "currentClientCompatibilityBefore": "exact v19 PASS",
+    "currentClientCompatibilityAfter": "exact v19 PASS",
+    "postProofProcesses": "LastWar/Launcher absent",
+    "stateChangingActions": "none"
+  }
+}

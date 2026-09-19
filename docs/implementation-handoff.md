@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current-v19 City alternate sort checkpoint - LWB-R7-052, 2026-09-19
+
+**LIVE-PROVEN read-only; no consuming action was used.** Original 0.3.1 recovery pins City `level`, `health`, `shield`, and `updatedAt`, plus the shared ordered multi-sort/null-last/record-key tie assembly. The nontrivial shield expression is clock-aware and unit-aware: one map-search Unix-millisecond sample is used raw for millisecond deadlines and integer-divided by 1000 for second deadlines; expired values become NULL. `tools/inspect_lwbridge_city_sort_assembly.py` hash-locks the clock sample slots, divide-by-1000 producer, dynamic formatter arguments/fragments, shield consumer, health/level parser paths and shared order formatter.
+
+Production accepts only ordered unique subsets of the four City keys. Deterministic acceptance is green across all six suites. Final exact-code current-v19 Fast acceptance completed 2,500/2,500 in **132.903 s**, published/reopened **1,319 City rows**, and passed **9 independent sort comparisons before reopen plus 9 after reopen**. All 1,319 live rows supplied health, and 140 active shield values / 137 distinct shield deadlines exercised the dynamic shield ordering. Exact v19 restoration and no-process cleanup passed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-city-sort-fidelity.json`.
+
 ## Current-v19 Resource alternate sort checkpoint - LWB-R7-051, 2026-09-19
 
 **LIVE-PROVEN read-only; no consuming action was used.** Original 0.3.1 recovery pins Resource `level` and `updatedAt` as the complete public sort set. Level uses the plain indexed level expression; the shared assembly preserves ordered multi-sort, NULL-last ordering for either direction and final `record_key ASC`. `tools/inspect_lwbridge_resource_sort_assembly.py` hash-locks the original binary/frontend identity, Resource level parser/builder, direction branches and shared formatter.

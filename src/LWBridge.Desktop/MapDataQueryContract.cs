@@ -267,6 +267,13 @@ internal static class MapDataQueryContract
                 sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
                 sorts.All(sort => sort.SortBy is "level" or "updatedAt");
         }
+        else if (kind == "city")
+        {
+            recoveredSort =
+                sorts.Count is >= 1 and <= 4 &&
+                sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
+                sorts.All(sort => sort.SortBy is "level" or "health" or "shield" or "updatedAt");
+        }
         else
         {
             recoveredSort =

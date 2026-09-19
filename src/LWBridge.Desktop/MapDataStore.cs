@@ -615,14 +615,16 @@ internal sealed partial class MapDataStore : IDisposable
         long offset = checked(((long)options.Page - 1L) * options.PageSize);
         bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
         bool monsterLike = options.Kind is "monster" or "zombie_boss";
-        string orderBy = monsterLike
-            ? string.Join(", ", options.Sorts.Select(sort => (sort.SortBy switch
-            {
-                "level" => "page.level",
-                "distance" => "page.distance",
-                "updatedAt" => "page.updated_at",
-                _ => throw new BridgeCommandException("MAP_QUERY_UNRECOVERED", "Unsupported Monster sort column."),
-            }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
+        string orderBy = city
+            ? BuildCityOrderBy(options.Sorts, nowUnixMilliseconds)
+            : monsterLike
+                ? string.Join(", ", options.Sorts.Select(sort => (sort.SortBy switch
+                {
+                    "level" => "page.level",
+                    "distance" => "page.distance",
+                    "updatedAt" => "page.updated_at",
+                    _ => throw new BridgeCommandException("MAP_QUERY_UNRECOVERED", "Unsupported Monster sort column."),
+                }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
             : options.Kind == "truck"
                 ? BuildTruckOrderBy(options.Sorts)
                 : options.Kind == "railway"
@@ -770,6 +772,43 @@ internal sealed partial class MapDataStore : IDisposable
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
+    }
+
+    private static string BuildCityOrderBy(
+        IReadOnlyList<MapDataSort> sorts,
+        long nowUnixMilliseconds)
+    {
+        // RECOVERED LWB-R7-052: City shield sorting samples one Unix-millisecond
+        // wall clock, uses the raw sample for millisecond expiries and integer
+        // now/1000 for seconds-valued expiries, then feeds the shared native
+        // null-last / requested-direction / record-key tie assembly.
+        long nowUnixSeconds = nowUnixMilliseconds / 1000;
+        string shieldExpiry =
+            "COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0)";
+        string shieldExpression =
+            $"CASE WHEN {shieldExpiry} >= 1000000000000 AND {shieldExpiry} > {nowUnixMilliseconds} THEN {shieldExpiry} " +
+            $"WHEN {shieldExpiry} < 1000000000000 AND {shieldExpiry} > {nowUnixSeconds} THEN {shieldExpiry} ELSE NULL END";
+
+        var clauses = new List<string>(sorts.Count * 2 + 1);
+        foreach (MapDataSort sort in sorts)
+        {
+            string expression = sort.SortBy switch
+            {
+                "level" => "page.level",
+                "health" =>
+                    "NULLIF(CAST(json_extract(page.data_json,'$.health') AS REAL),0)",
+                "shield" => shieldExpression,
+                "updatedAt" => "page.updated_at",
+                _ => throw new BridgeCommandException(
+                    "MAP_QUERY_UNRECOVERED",
+                    "Unsupported City sort column."),
+            };
+            string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
+            clauses.Add($"({expression} IS NULL) ASC");
+            clauses.Add($"{expression} {direction}");
+        }
+        clauses.Add("page.record_key ASC");
+        return string.Join(", ", clauses);
     }
 
     private static string BuildTruckOrderBy(IReadOnlyList<MapDataSort> sorts)

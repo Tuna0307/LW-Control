@@ -4014,8 +4014,8 @@ Check(mapOptions.Kind == "city" && mapOptions.ServerId == 7 && mapOptions.Page =
     "map query normalizes recovered kind/server/page contract");
 Check(mapOptions.Sorts.SequenceEqual(new[] { new MapDataSort("level", "asc"), new MapDataSort("updatedAt", "desc") }),
     "map query preserves ordered recovered sort contract");
-Check(mapOptions.UnsupportedFeatures.Contains("sorts", StringComparer.Ordinal),
-    "non-updatedAt sort remains fail-closed until its original SQL expression is recovered");
+Check(mapOptions.UnsupportedFeatures.Count == 0,
+    "recovered City multi-sort envelope is accepted");
 
 using JsonDocument minimalMapQuery = JsonDocument.Parse("{\"kind\":\"monster\",\"query\":{\"serverId\":1}}");
 MapDataQueryOptions minimalMapOptions = MapDataQueryContract.NormalizeSearch(minimalMapQuery.RootElement);
@@ -4590,14 +4590,14 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
     await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "explicit false treasure filter stays fail-closed until exact predicate is recovered", async () =>
         await indexedSearchBackend.InvokeAsync("map_search", unrecoveredFalseFilter.RootElement.Clone(), CancellationToken.None));
 
-    using JsonDocument unrecoveredLevelSort = JsonDocument.Parse(JsonSerializer.Serialize(new
+    using JsonDocument unrecoveredCityPowerSort = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = indexedSearchBackend.ProfileId,
         kind = "city",
-        query = new { serverId = 7, sorts = new[] { new { sortBy = "level", sortOrder = "asc" } } },
+        query = new { serverId = 7, sorts = new[] { new { sortBy = "power", sortOrder = "asc" } } },
     }));
-    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "alternate map sort stays fail-closed until exact SQL expression is recovered", async () =>
-        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredLevelSort.RootElement.Clone(), CancellationToken.None));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "non-public City sort stays fail-closed", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredCityPowerSort.RootElement.Clone(), CancellationToken.None));
 }
 
 // LWB-R7-049: hash-locked native Truck sort expressions and order assembly.
@@ -5028,6 +5028,143 @@ using (var resourceSortStore = MapDataStore.CreateInMemory())
         "Resource sorted pagination page 2",
         [new MapDataSort("level", "desc")],
         ["key-d", "key-f"],
+        page: 2,
+        pageSize: 2);
+}
+
+// LWB-R7-052: hash-locked City level/health/shield/updatedAt sort assembly.
+using (var citySortStore = MapDataStore.CreateInMemory())
+{
+    const int citySortServer = 94;
+    const long citySortNow = 1_800_000_000_000L;
+    const long citySortNowSeconds = citySortNow / 1000;
+
+    void SeedCitySort(
+        string recordKey,
+        int? level,
+        double? health,
+        long? shieldEndTime,
+        long? protectEndTime,
+        long updatedAt)
+    {
+        string levelJson = level.HasValue ? $",\"level\":{level.Value}" : string.Empty;
+        string healthJson = health.HasValue ? $",\"health\":{health.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}" : string.Empty;
+        string protectJson = protectEndTime.HasValue ? $",\"protectEndTime\":{protectEndTime.Value}" : string.Empty;
+        string json = $"{{\"serverId\":{citySortServer},\"recordKey\":\"{recordKey}\"{levelJson}{healthJson}{protectJson},\"updatedAt\":{updatedAt}}}";
+        citySortStore.UpsertRecord(new MapStoredRecord(
+            "city", citySortServer, recordKey, null, null, recordKey, null,
+            level, null, null, null, shieldEndTime, updatedAt, json));
+    }
+
+    SeedCitySort("key-a", 5, 50, citySortNow + 100_000, null, 1000);
+    SeedCitySort("key-b", 3, 0, citySortNowSeconds + 100_000, null, 900);
+    SeedCitySort("key-c", 7, 80, citySortNow - 1_000, null, 1100);
+    SeedCitySort("key-d", 5, 25, null, citySortNowSeconds + 50_000, 1200);
+    SeedCitySort("key-e", null, null, null, null, 800);
+    SeedCitySort("key-f", 5, 50, citySortNow + 100_000, null, 1200);
+
+    MapDataQueryOptions CitySortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "city",
+            query = new
+            {
+                serverId = citySortServer,
+                page,
+                pageSize,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] CitySortKeys(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("recordKey").GetString()!).ToArray();
+
+    void ExpectCitySort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = CitySortQuery(sorts, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered City sort");
+        MapSearchResult result = citySortStore.SearchIndexedAtForTest(options, citySortNow);
+        Check(CitySortKeys(result).SequenceEqual(expected),
+            $"{label} preserves recovered City clock/null/order/tie semantics");
+    }
+
+    MapDataQueryOptions allCitySorts = CitySortQuery(
+    [
+        new MapDataSort("level", "asc"),
+        new MapDataSort("health", "desc"),
+        new MapDataSort("shield", "asc"),
+        new MapDataSort("updatedAt", "desc"),
+    ]);
+    Check(allCitySorts.UnsupportedFeatures.Count == 0,
+        "all four public City sort keys are accepted in frontend order");
+
+    MapDataQueryOptions duplicateCitySort = CitySortQuery(
+    [
+        new MapDataSort("shield", "desc"),
+        new MapDataSort("shield", "asc"),
+    ]);
+    Check(duplicateCitySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate City sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownCitySort = CitySortQuery([new MapDataSort("power", "asc")]);
+    Check(unknownCitySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public City sort keys remain fail-closed");
+
+    ExpectCitySort(
+        "City level desc",
+        [new MapDataSort("level", "desc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City level asc",
+        [new MapDataSort("level", "asc")],
+        ["key-b", "key-a", "key-d", "key-f", "key-c", "key-e"]);
+    ExpectCitySort(
+        "City health desc",
+        [new MapDataSort("health", "desc")],
+        ["key-c", "key-a", "key-f", "key-d", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City health asc",
+        [new MapDataSort("health", "asc")],
+        ["key-d", "key-a", "key-f", "key-c", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City shield desc",
+        [new MapDataSort("shield", "desc")],
+        ["key-a", "key-f", "key-b", "key-d", "key-c", "key-e"]);
+    ExpectCitySort(
+        "City shield asc",
+        [new MapDataSort("shield", "asc")],
+        ["key-d", "key-b", "key-a", "key-f", "key-c", "key-e"]);
+    ExpectCitySort(
+        "City updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City updatedAt asc",
+        [new MapDataSort("updatedAt", "asc")],
+        ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
+    ExpectCitySort(
+        "City ordered multi-sort",
+        [
+            new MapDataSort("shield", "asc"),
+            new MapDataSort("health", "desc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["key-d", "key-b", "key-f", "key-a", "key-c", "key-e"]);
+    ExpectCitySort(
+        "City sorted pagination page 2",
+        [new MapDataSort("shield", "desc")],
+        ["key-b", "key-d"],
         page: 2,
         pageSize: 2);
 }

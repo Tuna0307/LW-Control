@@ -1,8 +1,12 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-052, 2026-09-19
+
+City result sorting is **LIVE-PROVEN read-only on current v19**. The complete public City sort surface is now recovered and production-enabled: `level`, `health`, `shield`, and `updatedAt`, including the original dual-unit active-shield clock expression, ordered multi-sort, nulls-last in either direction, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500 in 132.903 s, published/reopened 1,319 City rows, and passed 9 independently computed sort scenarios both before and after DB reopen. All 1,319 rows carried health and 140 active shield values / 137 distinct deadlines exercised shield ordering. Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-052](../evidence/lwbridge-implementation/2026-09-19-r7-city-sort-fidelity.json).
+
 ## Current implementation checkpoint — LWB-R7-051, 2026-09-19
 
-Resource result sorting is **LIVE-PROVEN read-only on current v19**. The complete public Resource sort surface is now recovered and production-enabled: `level` and `updatedAt`, ordered multi-sort, nulls-last in either direction, plain indexed level, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independently computed sort scenarios both before and after DB reopen. City and Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-051](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
+Resource result sorting is **LIVE-PROVEN read-only on current v19**. The complete public Resource sort surface is now recovered and production-enabled: `level` and `updatedAt`, ordered multi-sort, nulls-last in either direction, plain indexed level, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independently computed sort scenarios both before and after DB reopen. City remained gated at this checkpoint and is subsequently closed by `LWB-R7-052`; Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-051](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
 
 ## Current implementation checkpoint — LWB-R7-050, 2026-09-19
 

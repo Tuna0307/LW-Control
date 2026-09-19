@@ -1,8 +1,12 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-052, 2026-09-19
+
+City alternate sorting is LIVE-PROVEN read-only on current v19. The complete public City sort set (`level`, `health`, `shield`, `updatedAt`) is production-enabled with ordered multi-sort, nulls-last ASC/DESC, clock-aware seconds/milliseconds shield expiry handling and stable record-key ties. Final exact-code Fast acceptance completed 2,500/2,500 in 132.903 s, published/reopened 1,319 City rows, and passed 9 independent sort scenarios before reopen plus the same 9 after reopen. Health covered all 1,319 rows and 140 active shield values with 137 distinct deadlines exercised shield sorting. Exact v19 restoration and clean process shutdown passed; no consuming action was used. Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-052 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-sort-fidelity.json).
+
 ## Latest implementation checkpoint — LWB-R7-051, 2026-09-19
 
-Resource alternate sorting is LIVE-PROVEN read-only on current v19. The complete public Resource sort set (`level`, `updatedAt`) is production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain indexed level and stable record-key ties. Final exact-code Fast acceptance completed 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independent sort scenarios before reopen plus the same 5 after reopen. Exact v19 restoration and clean process shutdown passed; no consuming action was used. City and Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-051 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
+Resource alternate sorting is LIVE-PROVEN read-only on current v19. The complete public Resource sort set (`level`, `updatedAt`) is production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain indexed level and stable record-key ties. Final exact-code Fast acceptance completed 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independent sort scenarios before reopen plus the same 5 after reopen. Exact v19 restoration and clean process shutdown passed; no consuming action was used. City was still open at this checkpoint and is subsequently closed by `LWB-R7-052`; Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-051 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
 
 ## Latest implementation checkpoint — LWB-R7-050, 2026-09-19
 
