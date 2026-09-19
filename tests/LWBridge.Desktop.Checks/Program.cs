@@ -61,6 +61,12 @@ if (args.Contains("--live-current-client-full-dispatch-manual", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--live-current-client-dispatch-stress", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveDispatchSameSessionStressProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-ghost-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullGhostProof.RunAsync();

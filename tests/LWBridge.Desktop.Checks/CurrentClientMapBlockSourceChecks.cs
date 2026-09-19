@@ -61,6 +61,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastAllEightFullMapReturnsAllLogicalCaptures();
         await FastFullMapFillsMeasuredCoverageHole();
         await FastFullMapRetriesTransientNonRectangularFootprint();
+        await FastFailedBatchReportsNativeErrorBeforeSuccessFields();
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await TransientReadyLossKeepsOwnedSessionIdentity();
@@ -1117,6 +1118,38 @@ internal static class CurrentClientMapBlockSourceChecks
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
         Check(captures.Count == 2500 && malformedOnce && bulkCalls >= 271 && bulkCalls < 341,
             "transient non-rectangular fast AOI footprint should retry inside the bounded probe loop instead of failing the full scan");
+    }
+
+    private static async Task FastFailedBatchReportsNativeErrorBeforeSuccessFields()
+    {
+        int bulkCalls = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                JsonObject root = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
+                root["state"] = "failed";
+                root["error"] = "synthetic_pending_native_state";
+                root.Remove("holdMilliseconds");
+                root.Remove("viewLevel");
+                root.Remove("targetTileX");
+                root.Remove("targetTileY");
+                return root.ToJsonString(JsonOptions.Default);
+            });
+        MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        try
+        {
+            _ = await source.CaptureBatchAsync(
+                request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+            throw new InvalidOperationException("failed Fast batch should exhaust the bounded source-local retry");
+        }
+        catch (InvalidDataException error)
+        {
+            Check(error.Message == "Fast world batch failed: synthetic_pending_native_state" && bulkCalls == 3,
+                "failed Fast batch must surface the native failure before requiring success-only acquisition fields");
+        }
     }
 
     private static async Task FastFullMapAdaptsToMeasuredWideFootprints()

@@ -278,7 +278,14 @@ internal sealed partial class CurrentClientMapBlockSource
                         observation = await ProbeFastCityBatchAsync(
                             session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
-                        ValidateAdaptiveRowFootprint(observation.RequestedIndices, aoiRowStart);
+                        ValidateAdaptiveRowFootprint(
+                            observation.RequestedIndices,
+                            aoiRowStart,
+                            request,
+                            session,
+                            targetX,
+                            targetY,
+                            attempt);
                         lastError = null;
                         break;
                     }
@@ -286,6 +293,10 @@ internal sealed partial class CurrentClientMapBlockSource
                         error is BridgeCommandException bridge && bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
                     {
                         lastError = error;
+                        if (hooks is null)
+                            Console.Error.WriteLine(
+                                $"FAST_FULL_WORLD_RETRY server={request.ServerId} world={request.WorldId} " +
+                                $"target=({targetX},{targetY}) rowStart={aoiRowStart} attempt={attempt}/3 error={error.Message}");
                         if (attempt < 3)
                         {
                             if (waitForHealthySession is { } waitForHealthy)
@@ -506,17 +517,32 @@ internal sealed partial class CurrentClientMapBlockSource
         return -1;
     }
 
-    private static void ValidateAdaptiveRowFootprint(int[] indices, int rowStart)
+    private static void ValidateAdaptiveRowFootprint(
+        int[] indices,
+        int rowStart,
+        MapScanExecutionRequest request,
+        OverviewMapScanSession session,
+        int targetX,
+        int targetY,
+        int attempt)
     {
         int[] rows = indices.Select(index => index / FastCityAoiBlockCount).Distinct().Order().ToArray();
         int[] columns = indices.Select(index => index % FastCityAoiBlockCount).Distinct().Order().ToArray();
-        if (rows.Length != FastFullWorldAoiRows || rows[0] != rowStart || rows[^1] != rowStart + FastFullWorldAoiRows - 1 ||
+        string detail =
+            $"server={request.ServerId},world={request.WorldId},session={session.SessionId},attempt={attempt}," +
+            $"target=({targetX},{targetY}),requestedCount=8,nativeCurrentSetCount={indices.Length}," +
+            $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
+            $"indices=[{string.Join(',', indices.Order())}]";
+        if (rows.Length != FastFullWorldAoiRows || rows.Length == 0 ||
+            rows[0] != rowStart || rows[^1] != rowStart + FastFullWorldAoiRows - 1 ||
             columns.Length is < 2 or > 4 || columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
             indices.Length != rows.Length * columns.Length)
-            throw new InvalidDataException("Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint.");
+            throw new InvalidDataException(
+                "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint: " + detail + ".");
         var expected = rows.SelectMany(row => columns.Select(column => checked(row * FastCityAoiBlockCount + column))).ToHashSet();
         if (expected.Count != indices.Length || indices.Any(index => !expected.Contains(index)))
-            throw new InvalidDataException("Fast full-world adaptive acquisition returned an inconsistent AOI footprint.");
+            throw new InvalidDataException(
+                "Fast full-world adaptive acquisition returned an inconsistent AOI footprint: " + detail + ".");
     }
 
     private static bool IncludesMonsterSource(MapScanExecutionRequest request) =>
@@ -1034,6 +1060,12 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeTreasure", request.SelectedTypes.Contains("treasure", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeResourceDetails", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
+        if (!MatchesString(root, "state", "proven"))
+        {
+            string error = ReadOptionalString(root, "error") ?? "unknown fast City batch failure";
+            RequireFreshCaptureTime(root, startedAt);
+            throw new InvalidDataException("Fast world batch failed: " + error);
+        }
         if (!MatchesInt(root, "requestedCount", 8) ||
             !MatchesInt(root, "holdMilliseconds", 0) ||
             !MatchesInt(root, "homeTileX", request.PlayerTileX ?? -1) ||
@@ -1041,12 +1073,15 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesInt(root, "viewLevel", -1) ||
             !MatchesInt(root, "targetTileX", targetX) ||
             !MatchesInt(root, "targetTileY", targetY))
-            throw new InvalidDataException("Fast world batch result did not match the requested acquisition parameters.");
-        if (!MatchesString(root, "state", "proven"))
         {
-            string error = ReadOptionalString(root, "error") ?? "unknown fast City batch failure";
-            RequireFreshCaptureTime(root, startedAt);
-            throw new InvalidDataException("Fast world batch failed: " + error);
+            string Actual(string name) =>
+                root.TryGetProperty(name, out JsonElement value) ? value.GetRawText() : "<missing>";
+            throw new InvalidDataException(
+                "Fast world batch result did not match the requested acquisition parameters: " +
+                $"expected requestedCount=8,holdMilliseconds=0,homeTile=({request.PlayerTileX ?? -1},{request.PlayerTileY ?? -1})," +
+                $"viewLevel=-1,target=({targetX},{targetY}); actual requestedCount={Actual("requestedCount")}," +
+                $"holdMilliseconds={Actual("holdMilliseconds")},homeTile=({Actual("homeTileX")},{Actual("homeTileY")})," +
+                $"viewLevel={Actual("viewLevel")},target=({Actual("targetTileX")},{Actual("targetTileY")}).");
         }
         RequireFreshCaptureTime(root, startedAt);
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
