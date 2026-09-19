@@ -23,6 +23,11 @@ internal static class LiveManualFullDispatchProof
         Exception? operationError = null;
         int publishedDispatchCount = 0;
         int reopenedDispatchCount = 0;
+        int sortCheckCount = 0;
+        int reopenedSortCheckCount = 0;
+        int sortComparedRowCount = 0;
+        int specialSortValueCount = 0;
+        int completionSortValueCount = 0;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -95,11 +100,17 @@ internal static class LiveManualFullDispatchProof
                         IReadOnlyList<MapScanBlockCheckpoint> partial =
                             store.ReadScanBlockCheckpointsForTest(runId);
                         int secondAttempts = partial.Count(item => item.Attempts > 1);
+                        string failedDetails = string.Join(" | ", partial
+                            .Where(item => item.Status == "failed")
+                            .Select(item => $"block={item.BlockIndex},attempts={item.Attempts},error={item.Error ?? "unknown"}"));
+                        string statusError = status.TryGetProperty("lastError", out JsonElement lastStatusError)
+                            ? lastStatusError.GetString() ?? ""
+                            : "";
                         throw new InvalidDataException(
                             $"Ordinary Manual Dispatch scan incomplete: phase={status.GetProperty("phase").GetString()}, " +
                             $"read={status.GetProperty("readBlocks").GetInt32()}, failed={status.GetProperty("failedBlocks").GetInt32()}, " +
                             $"unread={status.GetProperty("unreadBlocks").GetInt32()}, checkpoints={partial.Count}, " +
-                            $"secondAttempts={secondAttempts}.");
+                            $"secondAttempts={secondAttempts}, failedDetails=[{failedDetails}], lastError={statusError}.");
                     }
 
                     publishedDispatchCount = store.SearchIndexed(DispatchQuery(serverId)).Total;
@@ -116,6 +127,12 @@ internal static class LiveManualFullDispatchProof
                         metrics.SourceCount != publishedDispatchCount)
                         throw new InvalidDataException(
                             "Published Dispatch rows did not all preserve required point/config source fields.");
+                    DispatchGhostSortProofHelper.Metrics sortMetrics =
+                        DispatchGhostSortProofHelper.Validate(store, serverId, "dispatch");
+                    sortCheckCount = sortMetrics.CheckCount;
+                    sortComparedRowCount = sortMetrics.RowCount;
+                    specialSortValueCount = sortMetrics.SpecialCount;
+                    completionSortValueCount = sortMetrics.CompletionTimeValueCount;
                 }
                 finally
                 {
@@ -124,7 +141,18 @@ internal static class LiveManualFullDispatchProof
             }
 
             using (var reopened = new MapDataStore(databasePath))
+            {
                 reopenedDispatchCount = reopened.SearchIndexed(DispatchQuery(serverId)).Total;
+                DispatchGhostSortProofHelper.Metrics reopenedSortMetrics =
+                    DispatchGhostSortProofHelper.Validate(reopened, serverId, "dispatch");
+                reopenedSortCheckCount = reopenedSortMetrics.CheckCount;
+                if (reopenedSortCheckCount != sortCheckCount ||
+                    reopenedSortMetrics.RowCount != sortComparedRowCount ||
+                    reopenedSortMetrics.SpecialCount != specialSortValueCount ||
+                    reopenedSortMetrics.CompletionTimeValueCount != completionSortValueCount)
+                    throw new InvalidDataException(
+                        "Dispatch sort proof changed after database reopen.");
+            }
             if (reopenedDispatchCount != publishedDispatchCount)
                 throw new InvalidDataException("Ordinary Manual Dispatch count changed after database reopen.");
 
@@ -154,6 +182,11 @@ internal static class LiveManualFullDispatchProof
                 metrics.AccListCountRows,
                 metrics.NameKeyCount,
                 metrics.SourceCount,
+                sortComparedRowCount,
+                specialSortValueCount,
+                completionSortValueCount,
+                sortCheckCount,
+                reopenedSortCheckCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)

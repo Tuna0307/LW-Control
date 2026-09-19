@@ -5169,6 +5169,148 @@ using (var citySortStore = MapDataStore.CreateInMemory())
         pageSize: 2);
 }
 
+// LWB-R7-053: hash-locked Dispatch/Ghost level/quality/completionTime/updatedAt sort assembly.
+foreach ((string dispatchGhostKind, int dispatchGhostServer) in new[]
+{
+    ("dispatch", 95),
+    ("ghost", 96),
+})
+{
+    using var dispatchGhostSortStore = MapDataStore.CreateInMemory();
+
+    void SeedDispatchGhostSort(
+        string recordKey,
+        int? level,
+        int? quality,
+        bool isSpecial,
+        long? completionTime,
+        long updatedAt)
+    {
+        string levelJson = level.HasValue ? $",\"level\":{level.Value}" : string.Empty;
+        string qualityJson = quality.HasValue ? $",\"quality\":{quality.Value}" : string.Empty;
+        string completionJson = completionTime.HasValue ? $",\"completionTime\":{completionTime.Value}" : string.Empty;
+        string json = $"{{\"serverId\":{dispatchGhostServer},\"recordKey\":\"{recordKey}\"{levelJson}{qualityJson},\"isSpecial\":{isSpecial.ToString().ToLowerInvariant()}{completionJson},\"updatedAt\":{updatedAt}}}";
+        dispatchGhostSortStore.UpsertRecord(new MapStoredRecord(
+            dispatchGhostKind, dispatchGhostServer, recordKey, null, null, recordKey, null,
+            level, quality, null, null, null, updatedAt, json));
+    }
+
+    SeedDispatchGhostSort("key-a", 5, 5, false, 2000, 1000);
+    SeedDispatchGhostSort("key-b", 3, 4, true, 0, 900);
+    SeedDispatchGhostSort("key-c", 7, 7, false, 1000, 1100);
+    SeedDispatchGhostSort("key-d", 5, 5, false, 2000, 1200);
+    SeedDispatchGhostSort("key-e", null, null, false, null, 800);
+    SeedDispatchGhostSort("key-f", 5, 5, false, 2000, 1200);
+
+    MapDataQueryOptions DispatchGhostSortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = dispatchGhostKind,
+            query = new
+            {
+                serverId = dispatchGhostServer,
+                page,
+                pageSize,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] DispatchGhostSortKeys(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("recordKey").GetString()!).ToArray();
+
+    void ExpectDispatchGhostSort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = DispatchGhostSortQuery(sorts, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0,
+            $"{dispatchGhostKind} {label} normalizes as recovered sort");
+        MapSearchResult result = dispatchGhostSortStore.SearchIndexedAtForTest(
+            options, 1_800_000_000_000L);
+        Check(DispatchGhostSortKeys(result).SequenceEqual(expected),
+            $"{dispatchGhostKind} {label} preserves recovered order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allDispatchGhostSorts = DispatchGhostSortQuery(
+    [
+        new MapDataSort("level", "asc"),
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("completionTime", "asc"),
+        new MapDataSort("updatedAt", "desc"),
+    ]);
+    Check(allDispatchGhostSorts.UnsupportedFeatures.Count == 0,
+        $"all four public {dispatchGhostKind} sort keys are accepted in frontend order");
+
+    MapDataQueryOptions duplicateDispatchGhostSort = DispatchGhostSortQuery(
+    [
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("quality", "asc"),
+    ]);
+    Check(duplicateDispatchGhostSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        $"duplicate {dispatchGhostKind} sort keys stay outside the recovered ordered contract");
+
+    MapDataQueryOptions unknownDispatchGhostSort =
+        DispatchGhostSortQuery([new MapDataSort("power", "asc")]);
+    Check(unknownDispatchGhostSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        $"non-public {dispatchGhostKind} sort keys remain fail-closed");
+
+    ExpectDispatchGhostSort(
+        "level desc",
+        [new MapDataSort("level", "desc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "level asc",
+        [new MapDataSort("level", "asc")],
+        ["key-b", "key-a", "key-d", "key-f", "key-c", "key-e"]);
+    ExpectDispatchGhostSort(
+        "quality desc",
+        [new MapDataSort("quality", "desc")],
+        ["key-b", "key-c", "key-a", "key-d", "key-f", "key-e"]);
+    ExpectDispatchGhostSort(
+        "quality asc",
+        [new MapDataSort("quality", "asc")],
+        ["key-a", "key-d", "key-f", "key-c", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "completionTime desc",
+        [new MapDataSort("completionTime", "desc")],
+        ["key-a", "key-d", "key-f", "key-c", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "completionTime asc",
+        [new MapDataSort("completionTime", "asc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "updatedAt asc",
+        [new MapDataSort("updatedAt", "asc")],
+        ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
+    ExpectDispatchGhostSort(
+        "ordered multi-sort",
+        [
+            new MapDataSort("quality", "asc"),
+            new MapDataSort("completionTime", "desc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["key-d", "key-f", "key-a", "key-c", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "sorted pagination page 2",
+        [new MapDataSort("quality", "desc")],
+        ["key-a", "key-d"],
+        page: 2,
+        pageSize: 2);
+}
+
 // LWB-R6-014: deterministic wall-clock boundaries use an isolated store so the
 // recovered time predicates cannot change the older quality/count fixtures.
 using (var timeFilterStore = MapDataStore.CreateInMemory())

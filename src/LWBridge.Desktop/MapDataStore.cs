@@ -631,7 +631,9 @@ internal sealed partial class MapDataStore : IDisposable
                     ? BuildRailwayOrderBy(options.Sorts)
                     : options.Kind == "resource"
                         ? BuildResourceOrderBy(options.Sorts)
-                        : $"page.updated_at {direction}, page.record_key ASC";
+                        : options.Kind is "dispatch" or "ghost"
+                            ? BuildDispatchGhostOrderBy(options.Sorts)
+                            : $"page.updated_at {direction}, page.record_key ASC";
         string[] resolvedMonsterNameKeys = monsterLike
             ? (monsterNameKeys ?? Array.Empty<string>())
                 .Where(key => !string.IsNullOrWhiteSpace(key))
@@ -886,6 +888,34 @@ internal sealed partial class MapDataStore : IDisposable
                 _ => throw new BridgeCommandException(
                     "MAP_QUERY_UNRECOVERED",
                     "Unsupported Resource sort column."),
+            };
+            string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
+            clauses.Add($"({expression} IS NULL) ASC");
+            clauses.Add($"{expression} {direction}");
+        }
+        clauses.Add("page.record_key ASC");
+        return string.Join(", ", clauses);
+    }
+
+    private static string BuildDispatchGhostOrderBy(IReadOnlyList<MapDataSort> sorts)
+    {
+        // RECOVERED LWB-R7-053: Dispatch and Ghost share level, isSpecial-aware
+        // quality, completionTime and updatedAt through the native ordered-sort /
+        // null-last / record-key tie assembly.
+        var clauses = new List<string>(sorts.Count * 2 + 1);
+        foreach (MapDataSort sort in sorts)
+        {
+            string expression = sort.SortBy switch
+            {
+                "level" => "page.level",
+                "quality" =>
+                    "CASE WHEN CAST(json_extract(page.data_json,'$.isSpecial') AS INTEGER)=1 THEN 100 ELSE page.quality END",
+                "completionTime" =>
+                    "NULLIF(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER),0)",
+                "updatedAt" => "page.updated_at",
+                _ => throw new BridgeCommandException(
+                    "MAP_QUERY_UNRECOVERED",
+                    "Unsupported Dispatch/Ghost sort column."),
             };
             string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
             clauses.Add($"({expression} IS NULL) ASC");

@@ -23,6 +23,11 @@ internal static class LiveManualFullGhostProof
         Exception? operationError = null;
         int publishedGhostCount = 0;
         int reopenedGhostCount = 0;
+        int sortCheckCount = 0;
+        int reopenedSortCheckCount = 0;
+        int sortComparedRowCount = 0;
+        int specialSortValueCount = 0;
+        int completionSortValueCount = 0;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -116,6 +121,12 @@ internal static class LiveManualFullGhostProof
                         metrics.SourceCount != publishedGhostCount)
                         throw new InvalidDataException(
                             "Published Ghost rows did not all preserve required point/config source fields.");
+                    DispatchGhostSortProofHelper.Metrics sortMetrics =
+                        DispatchGhostSortProofHelper.Validate(store, serverId, "ghost");
+                    sortCheckCount = sortMetrics.CheckCount;
+                    sortComparedRowCount = sortMetrics.RowCount;
+                    specialSortValueCount = sortMetrics.SpecialCount;
+                    completionSortValueCount = sortMetrics.CompletionTimeValueCount;
                 }
                 finally
                 {
@@ -124,7 +135,18 @@ internal static class LiveManualFullGhostProof
             }
 
             using (var reopened = new MapDataStore(databasePath))
+            {
                 reopenedGhostCount = reopened.SearchIndexed(GhostQuery(serverId)).Total;
+                DispatchGhostSortProofHelper.Metrics reopenedSortMetrics =
+                    DispatchGhostSortProofHelper.Validate(reopened, serverId, "ghost");
+                reopenedSortCheckCount = reopenedSortMetrics.CheckCount;
+                if (reopenedSortCheckCount != sortCheckCount ||
+                    reopenedSortMetrics.RowCount != sortComparedRowCount ||
+                    reopenedSortMetrics.SpecialCount != specialSortValueCount ||
+                    reopenedSortMetrics.CompletionTimeValueCount != completionSortValueCount)
+                    throw new InvalidDataException(
+                        "Ghost sort proof changed after database reopen.");
+            }
             if (reopenedGhostCount != publishedGhostCount)
                 throw new InvalidDataException("Ordinary Manual Ghost count changed after database reopen.");
 
@@ -159,6 +181,11 @@ internal static class LiveManualFullGhostProof
                 metrics.ProtectTimeCount,
                 metrics.StealMaxTimesCount,
                 metrics.SourceCount,
+                sortComparedRowCount,
+                specialSortValueCount,
+                completionSortValueCount,
+                sortCheckCount,
+                reopenedSortCheckCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
