@@ -9,7 +9,8 @@ internal sealed record CurrentClientMapContext(
     int TileWidth,
     int TileHeight,
     int? PlayerTileX = null,
-    int? PlayerTileY = null);
+    int? PlayerTileY = null,
+    string? LaunchSessionId = null);
 
 
 internal sealed record CurrentClientCoordinateJumpResult(int ServerId, int X, int Y);
@@ -556,7 +557,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 playerTileX = parsedX;
                 playerTileY = parsedY;
             }
-            return new CurrentClientMapContext(serverId, worldId, tileWidth, tileHeight, playerTileX, playerTileY);
+            return new CurrentClientMapContext(serverId, worldId, tileWidth, tileHeight, playerTileX, playerTileY, session.SessionId);
         }
         if (state == "failed")
             throw new BridgeCommandException(

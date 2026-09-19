@@ -1,0 +1,114 @@
+{
+  "evidenceId": "LWB-R7-056",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "327f5a2c42dc6cffc581356a8c6b2bba4f1fdde7",
+  "scope": {
+    "feature": "durable full Map Scan run identity and stale/foreign mutation rejection",
+    "implementationStatus": "IMPLEMENTED/OFFLINE-TESTED",
+    "publicResumeEnabled": false,
+    "stateChangingGameActionsPerformed": false
+  },
+  "recoveredOriginal": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "LWB-R6-056": {
+      "status": "RECOVERED",
+      "resumeGate": "resume=true requires current resumeAvailable exact boolean true",
+      "resumeAvailableTrueProducerRecovered": false,
+      "allRecoveredConstructionResetWrites": false
+    },
+    "LWB-R6-060": {
+      "status": "RECOVERED",
+      "activeGate": "events admitted only while current scan is active",
+      "runIdRule": "present nonempty scanRunId must match active run",
+      "serverRule": "present positive serverId must match active server"
+    }
+  },
+  "profileScope": {
+    "mechanism": "one map-data.db under LWBridgeRebuild/profiles/<profileId>/",
+    "duplicateProfileColumnRequired": false
+  },
+  "durableIdentity": {
+    "runId": true,
+    "launchSessionId": true,
+    "serverId": true,
+    "worldId": true,
+    "tileWidth": true,
+    "tileHeight": true,
+    "playerTileX": true,
+    "playerTileY": true,
+    "orderedSelectedTypes": true,
+    "scanMode": true,
+    "requestedConcurrency": true,
+    "maxAttemptsPerBlock": true
+  },
+  "storageMigration": {
+    "table": "scan_runs",
+    "strategy": "additive PRAGMA table_info + ALTER TABLE only for missing identity columns",
+    "legacyRowsRetained": true,
+    "legacyDefaultIdentityMayResume": false,
+    "newColumns": [
+      "world_id",
+      "tile_width",
+      "tile_height",
+      "scan_mode",
+      "requested_concurrency",
+      "launch_session_id",
+      "player_tile_x",
+      "player_tile_y",
+      "max_attempts_per_block"
+    ]
+  },
+  "mutationAdmission": {
+    "checkpointSuccess": "full identity required before transaction mutation",
+    "checkpointBatchSuccess": "full identity required before transaction mutation",
+    "checkpointFailure": "full identity required before transaction mutation",
+    "stop": "full identity required before terminal transition",
+    "fail": "full identity required before terminal transition",
+    "publish": "full identity required before selected-kind replacement/completion",
+    "identityMismatch": {
+      "code": "INVALID_SCAN",
+      "message": "map scan identity does not match the active run"
+    }
+  },
+  "deterministicAcceptance": {
+    "individualMismatchDimensionsRejected": [
+      "serverId",
+      "worldId",
+      "tileWidth",
+      "tileHeight",
+      "selectedTypes",
+      "requestedConcurrency",
+      "maxAttemptsPerBlock",
+      "playerTileX",
+      "playerTileY",
+      "scanMode",
+      "launchSessionId"
+    ],
+    "mismatchBeforeCheckpointMutation": true,
+    "batchSuccessMismatchRejected": true,
+    "failureMismatchRejected": true,
+    "publishMismatchRejectedWithoutExposingStagedRows": true,
+    "foreignTerminalTransitionRejected": true,
+    "exactIdentityCheckpointAccepted": true,
+    "legacySchemaMigration": true,
+    "identitySurvivesDatabaseReopen": true,
+    "sixDeterministicGroups": "PASS; failures=[]"
+  },
+  "resumePolicy": {
+    "resumeAvailable": false,
+    "resumeInputBehavior": "resume:true still falls through to a fresh Start while resumeAvailable is false",
+    "oldRunningRowAutoDiscardOnOpen": false,
+    "reasonNotAutoDiscarded": "a second process/window could share the same profile database; reopening alone does not prove the prior owner is dead",
+    "publicResumeClaimed": false
+  },
+  "validation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "currentClientCompatibility": "exact v19 PASS",
+    "transportBoundary": "PASS",
+    "terminationFailureSelfTest": "PASS",
+    "isolatedHostProbe": "PASS; userConfigTouched=false; liveGameCommandsPerformed=false",
+    "gameRunningAfterDeterministicChecks": false,
+    "launcherRunningAfterDeterministicChecks": false
+  }
+}

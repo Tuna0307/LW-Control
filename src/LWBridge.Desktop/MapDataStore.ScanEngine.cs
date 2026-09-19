@@ -17,7 +17,16 @@ internal sealed partial class MapDataStore
             0,
             updatedAt,
             updatedAt,
-            null));
+            null,
+            request.WorldId,
+            request.TileWidth,
+            request.TileHeight,
+            request.ScanMode,
+            request.RequestedConcurrency,
+            request.LaunchSessionId,
+            request.PlayerTileX,
+            request.PlayerTileY,
+            request.MaxAttemptsPerBlock));
     }
 
     internal void CommitEngineBlockSuccess(
@@ -31,6 +40,7 @@ internal sealed partial class MapDataStore
         lock (gate)
         {
             using SqliteTransaction transaction = connection.BeginTransaction();
+            ValidateEngineRunIdentity(transaction, request);
             UpsertEngineBlock(transaction, request.RunId, block.BlockIndex, capture.PayloadJson,
                 "completed", attempts, null, updatedAt);
             foreach (MapStoredRecord record in capture.Records)
@@ -53,6 +63,7 @@ internal sealed partial class MapDataStore
         lock (gate)
         {
             using SqliteTransaction transaction = connection.BeginTransaction();
+            ValidateEngineRunIdentity(transaction, request);
             foreach (MapScanBlockSuccess success in successes)
             {
                 UpsertEngineBlock(transaction, request.RunId, success.Block.BlockIndex, success.Capture.PayloadJson,
@@ -75,6 +86,7 @@ internal sealed partial class MapDataStore
         lock (gate)
         {
             using SqliteTransaction transaction = connection.BeginTransaction();
+            ValidateEngineRunIdentity(transaction, request);
             UpsertEngineBlock(transaction, request.RunId, block.BlockIndex, "{}",
                 "failed", attempts, error, updatedAt);
             RefreshEngineRunCounters(transaction, request.RunId, updatedAt);
@@ -87,10 +99,8 @@ internal sealed partial class MapDataStore
         lock (gate)
         {
             using SqliteTransaction transaction = connection.BeginTransaction();
-            (string Status, int Total, int Completed, int Failed, int ServerId) run =
-                ReadEngineRun(transaction, request.RunId);
-            if (run.ServerId != request.ServerId || run.Status != "running")
-                throw new BridgeCommandException("INVALID_SCAN", "map scan is not running");
+            (string Status, int Total, int Completed, int Failed) run =
+                ValidateEngineRunIdentity(transaction, request);
             MapScanCompletionSafety.ValidateDirectCompletion(run.Total, run.Completed, run.Failed);
 
             foreach (string kind in request.SelectedTypes)
@@ -138,22 +148,30 @@ internal sealed partial class MapDataStore
     }
 
     internal void FailEngineScan(MapScanExecutionRequest request, string error, long updatedAt) =>
-        TransitionEngineRun(request.RunId, "failed", error, updatedAt);
+        TransitionEngineRun(request, "failed", error, updatedAt);
 
     internal void StopEngineScan(MapScanExecutionRequest request, long updatedAt) =>
-        TransitionEngineRun(request.RunId, "discarded", null, updatedAt);
+        TransitionEngineRun(request, "discarded", null, updatedAt);
 
-    private void TransitionEngineRun(string runId, string status, string? error, long updatedAt)
+    private void TransitionEngineRun(
+        MapScanExecutionRequest request,
+        string status,
+        string? error,
+        long updatedAt)
     {
         lock (gate)
         {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            ValidateEngineRunIdentity(transaction, request);
             using SqliteCommand command = connection.CreateCommand();
+            command.Transaction = transaction;
             command.CommandText = "UPDATE scan_runs SET status=$status,error=$error,updated_at=$updated WHERE id=$run AND status='running'";
             command.Parameters.AddWithValue("$status", status);
             command.Parameters.AddWithValue("$error", (object?)error ?? DBNull.Value);
             command.Parameters.AddWithValue("$updated", updatedAt);
-            command.Parameters.AddWithValue("$run", runId);
+            command.Parameters.AddWithValue("$run", request.RunId);
             MapScanPublicationOwnership.ValidateCompletionTransition(command.ExecuteNonQuery());
+            transaction.Commit();
         }
     }
 
@@ -226,26 +244,48 @@ internal sealed partial class MapDataStore
         command.Parameters.AddWithValue("$updated", updatedAt);
         MapScanPublicationOwnership.ValidateCompletionTransition(command.ExecuteNonQuery());
     }
-    private (string Status, int Total, int Completed, int Failed, int ServerId) ReadEngineRun(
+    private (string Status, int Total, int Completed, int Failed) ValidateEngineRunIdentity(
         SqliteTransaction transaction,
-        string runId)
+        MapScanExecutionRequest request)
     {
         using SqliteCommand command = connection.CreateCommand();
         command.Transaction = transaction;
         command.CommandText = """
-            SELECT status,total_blocks,completed_blocks,failed_blocks,server_id
+            SELECT
+              status,total_blocks,completed_blocks,failed_blocks,server_id,
+              world_id,tile_width,tile_height,scan_mode,requested_concurrency,
+              selected_types,launch_session_id,player_tile_x,player_tile_y,max_attempts_per_block
             FROM scan_runs WHERE id=$run
             """;
-        command.Parameters.AddWithValue("$run", runId);
+        command.Parameters.AddWithValue("$run", request.RunId);
         using SqliteDataReader reader = command.ExecuteReader();
-        if (!reader.Read())
+        if (!reader.Read() || !string.Equals(reader.GetString(0), "running", StringComparison.Ordinal))
             throw new BridgeCommandException("INVALID_SCAN", "map scan is not running");
+
+        string expectedTypes = JsonSerializer.Serialize(request.SelectedTypes);
+        string? storedSession = reader.IsDBNull(11) ? null : reader.GetString(11);
+        bool identityMatches =
+            reader.GetInt32(4) == request.ServerId &&
+            reader.GetInt64(5) == request.WorldId &&
+            reader.GetInt64(6) == request.TileWidth &&
+            reader.GetInt64(7) == request.TileHeight &&
+            string.Equals(reader.GetString(8), request.ScanMode, StringComparison.Ordinal) &&
+            reader.GetInt32(9) == request.RequestedConcurrency &&
+            string.Equals(reader.GetString(10), expectedTypes, StringComparison.Ordinal) &&
+            string.Equals(storedSession, request.LaunchSessionId, StringComparison.Ordinal) &&
+            (reader.IsDBNull(12) ? (int?)null : reader.GetInt32(12)) == request.PlayerTileX &&
+            (reader.IsDBNull(13) ? (int?)null : reader.GetInt32(13)) == request.PlayerTileY &&
+            reader.GetInt32(14) == request.MaxAttemptsPerBlock;
+        if (!identityMatches)
+            throw new BridgeCommandException(
+                "INVALID_SCAN",
+                "map scan identity does not match the active run");
+
         return (
             reader.GetString(0),
             reader.GetInt32(1),
             reader.GetInt32(2),
-            reader.GetInt32(3),
-            reader.GetInt32(4));
+            reader.GetInt32(3));
     }
 
     private void CarryForwardUnresolvedMonsterProtection(

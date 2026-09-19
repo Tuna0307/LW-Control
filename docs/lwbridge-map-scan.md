@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Durable full-run identity - LWB-R7-056, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED.** The database path itself supplies profile scope (`LWBridgeRebuild/profiles/<profileId>/map-data.db`). Each engine run now persists its launch-session ID plus server, world, tile width/height, home tile, ordered selected types, scan mode, requested concurrency and max attempts. Checkpoint success/batch/failure and Stop/Fail/Publish all read the owning `scan_runs` row inside the mutation transaction and require an exact identity match before changing block staging, counters, terminal state or published rows.
+
+Legacy databases are migrated in place by inspecting `scan_runs` columns and adding only missing identity fields with safe defaults/nullability. Those defaults deliberately do not make legacy rows compatible with a new fully identified run. Deterministic acceptance mutates every identity dimension individually and verifies zero checkpoint mutation; exact identity succeeds, survives a database reopen, and a foreign terminal transition is rejected. The launch session is sourced from the already-owned `OverviewMapScanSession`, not synthesized by the store. Public resume remains false per `LWB-R6-056`; storage durability is not advertised as resumability. Evidence: [`2026-09-19-r7-map-scan-run-identity.json`](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-run-identity.json).
+
 ## Direct-snapshot completion integrity - LWB-R7-055, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED against recovered completion invariants plus the rebuild's actual transport.** The shared engine already normalizes real completed/failed/inflight/unread counters, computes scan rate, caps non-completed visible progress at 98%, retries capture failures, rejects foreign/duplicate captures, checkpoints each logical block before publication, requires exact completed coverage with zero failed blocks, and transactionally owns `running -> completed` before replacing published selected-kind rows. Stop/cancellation writes a non-publishable stopped state; source/context failures write a non-publishable failed/error state. Window shutdown invokes `ManualMapScanCommandService.Close()` before lifecycle/store disposal, and `Close()` synchronously waits for its terminal task.

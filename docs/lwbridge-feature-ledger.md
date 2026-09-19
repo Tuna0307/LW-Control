@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-056, 2026-09-19
+
+Durable Map Scan run identity is **IMPLEMENTED/OFFLINE-TESTED**. Profile scope is the profile-specific Map Data DB; run rows additionally persist launch session, server/world, geometry, home tile, ordered selected types, mode, concurrency and retry bound. All run mutations revalidate that identity transactionally, legacy schemas migrate additively, and stale/foreign identity is rejected before mutation. Public resume stays unavailable because no original `resumeAvailable=true` producer is recovered. Evidence: [R7-056](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-run-identity.json).
+
 ## Current implementation checkpoint — LWB-R7-055, 2026-09-19
 
 Map Scan progress/completion for the production **direct-snapshot architecture** is now closed. Real scheduler counters and acquisition progress remain capped below 100 until durable completion; exact logical coverage and zero failures are mandatory; stopped/failed/foreign/duplicate capture paths cannot publish; final publication owns the exact running row transactionally. R7-055 explicitly publishes `resumeAvailable=false` and makes bounded WorldMarch enumeration fail closed on overflow/mismatch instead of silently truncating at 50,000 entries. Original queue-only pending/ack/drop metrics are intentionally not fabricated in this architecture. Resume serialization remains unsupported. Evidence: [R7-055](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-completion-integrity.json).

@@ -1,12 +1,20 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Durable full-run identity checkpoint - LWB-R7-056, 2026-09-19
+
+**IMPLEMENTED/OFFLINE-TESTED; public resume remains deliberately unavailable.** The profile boundary is already the per-profile `map-data.db`. Production runs now persist launch session, server/world, tile dimensions, home tile, ordered selected types, mode, concurrency and retry bound. Block success/batch success/failure, Stop/Fail and final publication all transactionally revalidate those fields against the active request before mutation. A reused run ID with any stale/foreign field is rejected as `INVALID_SCAN / map scan identity does not match the active run`.
+
+Existing databases are migrated additively using `PRAGMA table_info(scan_runs)` and only adding missing columns. A deterministic legacy-schema/reopen acceptance proves the exact identity survives restart at the storage layer. This does not enable UI/service resume: `LWB-R6-056` still recovers no `resumeAvailable=true` producer, and current status remains false. Database reopen alone also does not auto-discard a running row because it cannot prove another process/window is not still its owner. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-map-scan-run-identity.json`.
+
+**Next:** the shared Manual Scan lifecycle core is no longer the active Map-tab blocker. Remaining work is downstream feature fidelity (notably export), population-dependent Railway/Ghost proofs, and the owner-deferred Ghost positive-row test on 2026-09-24.
+
 ## Direct-snapshot completion integrity checkpoint - LWB-R7-055, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED; the existing full-world live proofs remain the runtime coverage evidence.** Hash-locked R6-053/054/055/056/059 recovery still passes. The production architecture differs from the original event/queue scanner: it owns correlated direct snapshots and does not instantiate the original pending-points/marches/removals/acks queue. Therefore `nativePendingRecords`/`nativeDroppedRecords` remain unknown/null rather than being synthesized.
 
 The direct path already requires exact block coverage and zero failures before publication, rejects foreign/duplicate captures, records block checkpoints before publish, prevents stopped/failed runs from publishing, conditionally transitions the exact SQLite run from `running` to `completed`, and verifies the post-commit run. R7-055 adds explicit `resumeAvailable=false` to Manual/fallback/bounded-proof status and closes a semantic-completeness hole in `current_live_resource_probe.lua`: three WorldMarch enumerators previously stopped at `MAX_POINTS=50000` without proving exhaustion. They now compare collection Count/Length when available, otherwise probe `MoveNext` once beyond the cap; overflow, mismatch or enumerator failure marks the bulk AOI result failed, which the C# source rejects and the engine retries/fails rather than publishing truncation. Lua top-level locals remain 194 (<200).
 
-**Next:** the main remaining R7 lifecycle item is full durable run identity/resume semantics; resumability stays deliberately unavailable. Downstream per-kind/export work and the Thursday Ghost positive-row proof are separate.
+**Historical next at R7-055:** durable run identity was still open here; `LWB-R7-056` subsequently closes that storage/ownership gap. Public resumability remains deliberately unavailable. Downstream per-kind/export work and the Thursday Ghost positive-row proof are separate.
 
 ## Map Scan Clear ownership checkpoint - LWB-R7-054, 2026-09-19
 

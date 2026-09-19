@@ -476,7 +476,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 options.Concurrency,
                 MaxAttemptsPerBlock: 2,
                 PlayerTileX: context.PlayerTileX,
-                PlayerTileY: context.PlayerTileY);
+                PlayerTileY: context.PlayerTileY,
+                ScanMode: options.ScanMode,
+                LaunchSessionId: context.LaunchSessionId);
 
             lock (gate)
             {

@@ -39,7 +39,16 @@ internal sealed record MapScanRunSeed(
     int FailedBlocks,
     long CreatedAt,
     long UpdatedAt,
-    string? Error);
+    string? Error,
+    long WorldId = 0,
+    long TileWidth = 0,
+    long TileHeight = 0,
+    string ScanMode = "",
+    int RequestedConcurrency = 0,
+    string? LaunchSessionId = null,
+    int? PlayerTileX = null,
+    int? PlayerTileY = null,
+    int MaxAttemptsPerBlock = 0);
 
 internal sealed record MapScanBlockCheckpoint(
     int BlockIndex,
@@ -116,7 +125,16 @@ internal sealed partial class MapDataStore : IDisposable
           status TEXT NOT NULL, total_blocks INTEGER NOT NULL,
           completed_blocks INTEGER NOT NULL DEFAULT 0,
           failed_blocks INTEGER NOT NULL DEFAULT 0,
-          created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, error TEXT
+          created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, error TEXT,
+          world_id INTEGER NOT NULL DEFAULT 0,
+          tile_width INTEGER NOT NULL DEFAULT 0,
+          tile_height INTEGER NOT NULL DEFAULT 0,
+          scan_mode TEXT NOT NULL DEFAULT '',
+          requested_concurrency INTEGER NOT NULL DEFAULT 0,
+          launch_session_id TEXT,
+          player_tile_x INTEGER,
+          player_tile_y INTEGER,
+          max_attempts_per_block INTEGER NOT NULL DEFAULT 0
         );
         CREATE TABLE IF NOT EXISTS scan_blocks (
           run_id TEXT NOT NULL REFERENCES scan_runs(id) ON DELETE CASCADE,
@@ -938,8 +956,14 @@ internal sealed partial class MapDataStore : IDisposable
         {
             using SqliteCommand command = connection.CreateCommand();
             command.CommandText = """
-                INSERT INTO scan_runs(id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error)
-                VALUES ($id,$server,$types,$status,$total,$completed,$failed,$created,$updated,$error)
+                INSERT INTO scan_runs(
+                  id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,
+                  created_at,updated_at,error,world_id,tile_width,tile_height,scan_mode,
+                  requested_concurrency,launch_session_id,player_tile_x,player_tile_y,max_attempts_per_block)
+                VALUES (
+                  $id,$server,$types,$status,$total,$completed,$failed,
+                  $created,$updated,$error,$world,$width,$height,$mode,$concurrency,$session,
+                  $playerX,$playerY,$maxAttempts)
                 """;
             command.Parameters.AddWithValue("$id", run.Id);
             command.Parameters.AddWithValue("$server", run.ServerId);
@@ -951,6 +975,15 @@ internal sealed partial class MapDataStore : IDisposable
             command.Parameters.AddWithValue("$created", run.CreatedAt);
             command.Parameters.AddWithValue("$updated", run.UpdatedAt);
             command.Parameters.AddWithValue("$error", (object?)run.Error ?? DBNull.Value);
+            command.Parameters.AddWithValue("$world", run.WorldId);
+            command.Parameters.AddWithValue("$width", run.TileWidth);
+            command.Parameters.AddWithValue("$height", run.TileHeight);
+            command.Parameters.AddWithValue("$mode", run.ScanMode);
+            command.Parameters.AddWithValue("$concurrency", run.RequestedConcurrency);
+            command.Parameters.AddWithValue("$session", (object?)run.LaunchSessionId ?? DBNull.Value);
+            command.Parameters.AddWithValue("$playerX", (object?)run.PlayerTileX ?? DBNull.Value);
+            command.Parameters.AddWithValue("$playerY", (object?)run.PlayerTileY ?? DBNull.Value);
+            command.Parameters.AddWithValue("$maxAttempts", run.MaxAttemptsPerBlock);
             command.ExecuteNonQuery();
         }
     }
@@ -1246,6 +1279,38 @@ internal sealed partial class MapDataStore : IDisposable
         using SqliteCommand schema = connection.CreateCommand();
         schema.CommandText = SchemaSql;
         schema.ExecuteNonQuery();
+        EnsureScanRunIdentityColumns();
+    }
+
+    private void EnsureScanRunIdentityColumns()
+    {
+        var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        using (SqliteCommand inspect = connection.CreateCommand())
+        {
+            inspect.CommandText = "PRAGMA table_info(scan_runs)";
+            using SqliteDataReader reader = inspect.ExecuteReader();
+            while (reader.Read()) existing.Add(reader.GetString(1));
+        }
+
+        (string Name, string Definition)[] required =
+        [
+            ("world_id", "INTEGER NOT NULL DEFAULT 0"),
+            ("tile_width", "INTEGER NOT NULL DEFAULT 0"),
+            ("tile_height", "INTEGER NOT NULL DEFAULT 0"),
+            ("scan_mode", "TEXT NOT NULL DEFAULT ''"),
+            ("requested_concurrency", "INTEGER NOT NULL DEFAULT 0"),
+            ("launch_session_id", "TEXT"),
+            ("player_tile_x", "INTEGER"),
+            ("player_tile_y", "INTEGER"),
+            ("max_attempts_per_block", "INTEGER NOT NULL DEFAULT 0"),
+        ];
+        foreach ((string name, string definition) in required)
+        {
+            if (existing.Contains(name)) continue;
+            using SqliteCommand alter = connection.CreateCommand();
+            alter.CommandText = $"ALTER TABLE scan_runs ADD COLUMN {name} {definition}";
+            alter.ExecuteNonQuery();
+        }
     }
 
     private static void AddRecordParameters(SqliteCommand command, MapStoredRecord record)

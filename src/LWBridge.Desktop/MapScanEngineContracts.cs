@@ -10,7 +10,9 @@ internal sealed record MapScanExecutionRequest(
     int RequestedConcurrency,
     int MaxAttemptsPerBlock = 2,
     int? PlayerTileX = null,
-    int? PlayerTileY = null);
+    int? PlayerTileY = null,
+    string ScanMode = "normal",
+    string? LaunchSessionId = null);
 
 internal sealed record MapScanBlockCapture(
     int ServerId,

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using LWBridge.Desktop;
+using Microsoft.Data.Sqlite;
 
 namespace LWBridge.Desktop.Checks;
 
@@ -13,6 +14,8 @@ internal static class MapDataStoreScanEngineChecks
         UnresolvedMonsterProtectionCarriesForwardKnownDeadline();
         UnresolvedZombieBossProtectionCarriesForwardKnownDeadline();
         KnownInactiveMonsterProtectionClearsPriorDeadline();
+        FullRunIdentityRejectsStaleMutations();
+        LegacyScanRunSchemaMigratesAndPersistsIdentity();
         StoppedRunCannotPublish();
         FailedRunCannotPublish();
     }
@@ -129,6 +132,118 @@ internal static class MapDataStoreScanEngineChecks
             "fresh authoritative inactive Monster protection must clear a prior countdown");
     }
 
+    private static void FullRunIdentityRejectsStaleMutations()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var request = new MapScanExecutionRequest(
+            "identity-run", 2212, 7, 20, 20, ["city"], 8, 2,
+            PlayerTileX: 3, PlayerTileY: 4,
+            ScanMode: "normal", LaunchSessionId: "launch-a");
+        var sink = new MapDataStoreScanSink(store);
+        sink.Begin(request, 1, 100);
+        MapScanTargetBlock block = MapScanTraversal.Build(20, 20)[0];
+        var capture = new MapScanBlockCapture(
+            request.ServerId, request.WorldId, block.BlockIndex, "{}", [Record("identity-row", 2)]);
+
+        MapScanExecutionRequest[] stale =
+        [
+            request with { ServerId = 2213 },
+            request with { WorldId = 8 },
+            request with { TileWidth = 21 },
+            request with { TileHeight = 21 },
+            request with { SelectedTypes = ["resource"] },
+            request with { RequestedConcurrency = 20 },
+            request with { MaxAttemptsPerBlock = 3 },
+            request with { PlayerTileX = 4 },
+            request with { PlayerTileY = 5 },
+            request with { ScanMode = "fast" },
+            request with { LaunchSessionId = "launch-b" },
+        ];
+        foreach (MapScanExecutionRequest foreign in stale)
+            ExpectIdentityMismatch(() => sink.CheckpointSuccess(foreign, block, capture, 1, 101));
+        ExpectIdentityMismatch(() =>
+            sink.CheckpointFailure(request with { WorldId = 8 }, block, 1, "foreign", 101));
+        ExpectIdentityMismatch(() =>
+            sink.CheckpointSuccessBatch(
+                request with { LaunchSessionId = "launch-b" },
+                [new MapScanBlockSuccess(block, capture)],
+                1,
+                101));
+
+        Check(store.ReadScanBlockCheckpointsForTest(request.RunId).Count == 0,
+            "stale or foreign run identity must be rejected before checkpoint mutation");
+
+        sink.CheckpointSuccess(request, block, capture, 1, 102);
+        Check(store.ReadScanBlockCheckpointsForTest(request.RunId).Count == 1,
+            "the exact persisted run identity should admit its owned block checkpoint");
+
+        ExpectIdentityMismatch(() => sink.Publish(request with { ScanMode = "fast" }, 103));
+        Check(store.GetRecord("city", 2212, "identity-row") is null,
+            "foreign final publication must not expose staged rows");
+        ExpectIdentityMismatch(() => sink.Stop(request with { LaunchSessionId = "launch-b" }, 104));
+        Check(store.ReadScanBlockCheckpointsForTest(request.RunId).Count == 1,
+            "foreign terminal ownership must not alter the active run");
+        sink.Stop(request, 105);
+    }
+
+    private static void LegacyScanRunSchemaMigratesAndPersistsIdentity()
+    {
+        string path = Path.Combine(
+            Path.GetTempPath(),
+            "lwbridge-map-run-identity-" + Guid.NewGuid().ToString("N") + ".db");
+        try
+        {
+            using (var legacy = new SqliteConnection("Data Source=" + path))
+            {
+                legacy.Open();
+                using SqliteCommand create = legacy.CreateCommand();
+                create.CommandText = """
+                    CREATE TABLE scan_runs (
+                      id TEXT PRIMARY KEY, server_id INTEGER NOT NULL, selected_types TEXT NOT NULL,
+                      status TEXT NOT NULL, total_blocks INTEGER NOT NULL,
+                      completed_blocks INTEGER NOT NULL DEFAULT 0,
+                      failed_blocks INTEGER NOT NULL DEFAULT 0,
+                      created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, error TEXT
+                    );
+                    """;
+                create.ExecuteNonQuery();
+            }
+
+            var request = new MapScanExecutionRequest(
+                "migrated-run", 2212, 9, 20, 20, ["city"], 8, 2,
+                PlayerTileX: 6, PlayerTileY: 7,
+                ScanMode: "normal", LaunchSessionId: "launch-migrated");
+            using (var store = new MapDataStore(path))
+            {
+                new MapDataStoreScanSink(store).Begin(request, 1, 100);
+            }
+
+            using (var reopened = new MapDataStore(path))
+            {
+                var sink = new MapDataStoreScanSink(reopened);
+                MapScanTargetBlock block = MapScanTraversal.Build(20, 20)[0];
+                sink.CheckpointSuccess(
+                    request,
+                    block,
+                    new MapScanBlockCapture(
+                        request.ServerId, request.WorldId, block.BlockIndex, "{}",
+                        [Record("migrated-row", 2)]),
+                    1,
+                    101);
+                Check(reopened.ReadScanBlockCheckpointsForTest(request.RunId).Count == 1,
+                    "legacy scan_runs schema migration must preserve the full run identity across reopen");
+                ExpectIdentityMismatch(() =>
+                    sink.Stop(request with { LaunchSessionId = "different-launch" }, 102));
+                sink.Stop(request, 103);
+            }
+        }
+        finally
+        {
+            foreach (string candidate in new[] { path, path + "-wal", path + "-shm" })
+                try { File.Delete(candidate); } catch { }
+        }
+    }
+
     private static void StoppedRunCannotPublish()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
@@ -209,6 +324,21 @@ internal static class MapDataStoreScanEngineChecks
             [new MapDataSort("updatedAt", "desc")],
             false, null, null, false, null, null, null, null, null, null, null,
             false, false, false, null, null, []);
+
+    private static void ExpectIdentityMismatch(Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_SCAN" &&
+            error.Message == "map scan identity does not match the active run")
+        {
+            return;
+        }
+        throw new InvalidOperationException("expected stale/foreign scan identity rejection");
+    }
 
     private static void ExpectInvalidScan(Action action)
     {
