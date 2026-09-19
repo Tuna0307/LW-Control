@@ -5866,6 +5866,32 @@ Check(generatedIndexSource.Contains("MAP_AUTO_SCAN_TIMEOUT", StringComparison.Or
       !generatedIndexSource.Contains("e?.scanMode", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan returned to server", StringComparison.Ordinal),
     "Auto Scan parent scheduler must sequence server jump -> backend-planned shared scan -> terminal wait -> optional return without persisting a speed preference");
+Check(generatedIndexSource.Contains(
+          "n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "for(let t of n){if(e||!Je.current.enabled)break",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "if(!e&&i.returnToOriginalServer&&a>0",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "window.setInterval(()=>{i()},5e3)",
+          StringComparison.Ordinal),
+    "Auto Scan scheduler must retain durable enable/disable deadlines, mid-cycle disable stop, return-finally and persisted next schedule");
+Check(generatedIndexSource.Contains(
+          "h.has(`map-data`)&&(0,M.jsx)(j.Activity,{mode:p===`map-data`?`visible`:`hidden`",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "autoScanConfig:Ue,autoScanRunning:Ge,onAutoScanConfig:Ft",
+          StringComparison.Ordinal),
+    "Auto Scan scheduler/config ownership must remain in the top-level app while Map Data is a visibility-controlled child");
 
 string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
 Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),

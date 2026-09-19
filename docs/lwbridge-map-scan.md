@@ -1,5 +1,9 @@
 # LWBridge Map Scan recovery
 
+## Auto Scan scheduler closure audit - LWB-R7-070, 2026-09-20
+
+**CORE SCHEDULER CLOSED.** Historical current-v19 live checkpoints R7-038/039 already prove the owner-facing behavior listed in the backlog: repeated Run Now, ordered multi-target scanning, disable-during-cycle skip, return-to-origin/status truth, persisted future scheduling across full restart, unattended deadline execution and next-deadline advancement. The current post-R7-067 bundle is now regression-pinned: per-profile Auto config keeps enable/interval/server list/selected types/return/deadline; enabling schedules immediate eligibility, disabling clears the deadline; the top-level effect polls every 5 seconds, rechecks enable before each target, calls shared `map_scan_start` without a user speed choice, waits for terminal scan state, returns in `finally`, and persists the next schedule. Browser, Release build and full deterministic acceptance pass. Explicit navigation-away/back live proof and a naturally occurring native travel failure remain limited evidence gaps only. Evidence: [`2026-09-20-r7-auto-scheduler-closure-audit.json`](../evidence/lwbridge-implementation/2026-09-20-r7-auto-scheduler-closure-audit.json).
+
 ## Treasure read-only state refresh - LWB-R7-069, 2026-09-20
 
 **LIVE-PROVEN on current-v19.** The shared Map Data owner now services `map_treasure_state_refresh`, `map_treasure_state_refresh_all`, and `map_treasure_claim_status` without enabling `map_treasure_claim`. Requests require the current live server, reject an active scan with the recovered `SCAN_RUNNING / stop the map scan first` contract, serialize with other game operations, and use 100-record correlated internal batches. Returned states are persisted through R7-068's recovered `(server_id,player_uid,treasure_uuid)` cache/upsert/expiry contract and are overlaid by Treasure search.

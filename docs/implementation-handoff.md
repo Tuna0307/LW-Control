@@ -1,12 +1,20 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Auto Scan scheduler closure audit - LWB-R7-070, 2026-09-20
+
+**CORE OWNER-FACING SCHEDULER CLOSED; NO NEW PRODUCTION SCHEDULER CODE REQUIRED.** R7-038/039 already provide current-v19 live proof for repeated Run Now cycles, a real ordered two-target cycle, disable after the first target starts with remaining-target skip, return-to-original/status truth, persisted future `nextRunAt` across full desktop/game restart, unattended deadline execution and next-schedule advancement. R7-070 audits the current post-R7-067 bundle and adds focused browser/deterministic guards so those semantics cannot silently regress when the Auto UI changes.
+
+The shipped scheduler remains owned by the top-level app while Map Data is a visibility-controlled `Activity` child. Per-profile local storage retains enable, 20–1440 minute interval, up to 20 valid server IDs, selected types, return preference and deadline. Enable sets immediate eligibility, disable clears the deadline, each next target rechecks the live enabled flag, the shared scanner is invoked without caller `scanMode`, return-to-original runs in `finally`, and completion persists the next deadline. Release build is 0 warnings/0 errors and the full deterministic suite is green. Dedicated live navigation-away/back acceptance and a naturally occurring native `server_jump` failure remain narrow evidence gaps only; they do not reopen the core scheduler backlog. Evidence: `evidence/lwbridge-implementation/2026-09-20-r7-auto-scheduler-closure-audit.json`.
+
+**Next:** proceed to population-dependent Railway positive-row sort/Follow and Supplies positive-row acceptance; Ghost positive-row proof remains owner-deferred until Thursday 2026-09-24. Then continue the remaining result/action audit and integrated release acceptance.
+
 ## Treasure read-only state refresh - LWB-R7-069, 2026-09-20
 
 **IMPLEMENTED/OFFLINE-TESTED + LIVE-PROVEN on current-v19.** The R7-068 query/cache slice is now fed by a production read-only current-client inspector. `map_treasure_state_refresh({serverId,records})`, `map_treasure_state_refresh_all({serverId})`, and identity-only `map_treasure_claim_status()` reuse the owned Overview session, reject disconnect/server mismatch/active scan/overlapping game operation, batch at 100 records, validate full request/session freshness, persist through the recovered `treasure_claim_states` contract, and return state for frontend overlay. Ordinary Treasure uses current-v19 `TreasurePointInfo` completion/reward/membership methods; Supplies uses the official detail request/cache plus `CheckBtnState`, `HasPlayer`, charge percentage and per-player reward state. Ambiguous mappings remain `unknown`, and `claimPriority` is never synthesized.
 
 The first live run proved the refresh/cache path but exposed that remote ordinary Treasure objects are no longer resident after camera restoration, leaving player state unknown. Production now captures only viewer-relative `viewerUid`, `viewerAllianceId`, `viewerHasReward`, and `viewerIsWorking` while each Treasure object is resident during acquisition; it does not persist other players' reward/digging identities. Final exact-code live proof on server 2212 completed Fast 2,500/2,500 in 123.328 s, published 8 rows, refreshed/cached/overlaid 8/8, and resolved all eight player states to `unclaimed`; status and refresh each completed in about 0.06 s. No claim/scout/march action ran. `map_treasure_claim` remains blocked. Evidence: `evidence/lwbridge-implementation/2026-09-20-r7-treasure-state-refresh.json`.
 
-**Next:** Treasure result/status is no longer a blocker. Continue the remaining owner roadmap: Auto Scan scheduler refinements if still needed, Railway positive-row sort/Follow, Supplies positive-row acceptance, Thursday 2026-09-24 Ghost positive-row proof, remaining actions audit, and integrated release acceptance.
+**Historical next at R7-069:** Treasure result/status was no longer a blocker. R7-070 subsequently closes the core Auto Scan scheduler backlog by audit. The remaining owner roadmap is Railway positive-row sort/Follow, Supplies positive-row acceptance, Thursday 2026-09-24 Ghost positive-row proof, remaining actions audit, and integrated release acceptance.
 
 ## Treasure query/state-cache recovery - LWB-R7-068, 2026-09-20
 

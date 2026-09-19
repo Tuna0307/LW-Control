@@ -53,6 +53,49 @@ async function main() {
     assert.equal(await page.getByText('Speed', {exact:true}).count(), 0,
       'Auto Scan must not expose a Speed label');
 
+    // R7-070: pin the shipped post-R7-067 Auto Scan configuration surface.
+    const card = page.locator('.map-auto-scan-card');
+    const master = card.locator('.map-auto-scan-master input[type="checkbox"]');
+    const serverInput = card.locator('.map-auto-scan-server-input input');
+    const intervalInput = card.locator('input[type="number"]');
+    const returnToggle = card.locator('.map-auto-scan-options input[type="checkbox"]');
+    assert.equal(await master.count(), 1, 'Auto Scan must expose one durable enable toggle');
+    assert.equal(await serverInput.count(), 1, 'Auto Scan must expose target-server entry');
+    assert.equal(await intervalInput.count(), 1, 'Auto Scan must expose one interval input');
+    assert.equal(await intervalInput.getAttribute('min'), '20', 'Auto interval minimum must remain 20 minutes');
+    assert.equal(await intervalInput.getAttribute('max'), '1440', 'Auto interval maximum must remain 1440 minutes');
+    assert.equal(await returnToggle.count(), 1, 'Auto Scan must expose return-to-original option');
+    assert.equal(await card.locator('.map-auto-scan-options button.primary').count(), 1,
+      'Auto Scan must retain its Run Now primary action');
+
+    const before = Date.now();
+    await master.check();
+    await page.waitForTimeout(20);
+    const autoKey = await page.evaluate(() =>
+      Object.keys(localStorage).find(key => key.startsWith('lwbridge.mapAutoScan.')) || '');
+    assert.notEqual(autoKey, '', 'enabling Auto Scan must create per-profile durable config');
+    let persisted = JSON.parse(await page.evaluate(key => localStorage.getItem(key), autoKey));
+    assert.equal(persisted.enabled, true, 'enabled state must persist');
+    assert.equal(persisted.nextRunAt >= before, true,
+      'enabling Auto Scan must schedule an immediate eligible run');
+
+    await serverInput.fill('2212');
+    await card.getByRole('button', {name:'Add'}).click();
+    await intervalInput.fill('20');
+    await intervalInput.dispatchEvent('change');
+    await returnToggle.uncheck();
+    await page.waitForTimeout(20);
+    persisted = JSON.parse(await page.evaluate(key => localStorage.getItem(key), autoKey));
+    assert.deepEqual(persisted.serverIds, [2212], 'target server list must persist');
+    assert.equal(persisted.intervalMinutes, 20, 'scan interval must persist');
+    assert.equal(persisted.returnToOriginalServer, false, 'return-to-original preference must persist');
+
+    await master.uncheck();
+    await page.waitForTimeout(20);
+    persisted = JSON.parse(await page.evaluate(key => localStorage.getItem(key), autoKey));
+    assert.equal(persisted.enabled, false, 'disabling Auto Scan must persist');
+    assert.equal(persisted.nextRunAt, 0, 'disabling Auto Scan must clear the scheduled deadline');
+
     const panel = fs.readFileSync(path.join(assets,'MapDataPanel-C1HVeNHr.js'),'utf8');
     const index = fs.readFileSync(path.join(assets,'index-sfL2sT3K.js'),'utf8');
     for (const token of ['lwbridge.mapScanMode','map-speed-toggle','map-scan-speed','scanMode:P','value:S.scanMode']) {
@@ -65,6 +108,18 @@ async function main() {
       'Manual Start must send selectedTypes without scanMode');
     assert.equal(index.includes('Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))'), true,
       'Auto scheduler must start scans without scanMode');
+    for (const token of [
+      'n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)',
+      'function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}',
+      'for(let t of n){if(e||!Je.current.enabled)break',
+      'if(!e&&i.returnToOriginalServer&&a>0',
+      'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)',
+      'window.setInterval(()=>{i()},5e3)',
+      'h.has(`map-data`)&&(0,M.jsx)(j.Activity,{mode:p===`map-data`?`visible`:`hidden`',
+    ]) {
+      assert.equal(index.includes(token), true,
+        `current top-level Auto scheduler must retain ${token}`);
+    }
 
     const localeNames = fs.readdirSync(assets).filter(name =>
       /^(en|id|ja|ko|pt|ru|vi|zh-CN|zh-TW)-.*\.js$/.test(name));

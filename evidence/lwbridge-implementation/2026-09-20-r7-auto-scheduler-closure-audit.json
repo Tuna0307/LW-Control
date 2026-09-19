@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-070",
+  "capturedAt": "2026-09-20",
+  "scope": "Current shipped Auto Scan scheduler closure audit after automatic scan-strategy owner override",
+  "status": "CORE SCHEDULER CLOSED / CURRENT-BUNDLE REGRESSION-PROTECTED",
+  "baseCommit": "883bd9086b5272dce03c3eb3899d1953f5fd3c2d",
+  "historicalLiveEvidence": [
+    {
+      "evidenceId": "LWB-R7-038",
+      "path": "evidence/lwbridge-implementation/2026-09-19-r7-auto-scheduler-cross-server.json",
+      "proves": [
+        "actual top-level React parent scheduler",
+        "dedicated Zombie Boss Auto selection persistence",
+        "fresh-session live server initialization",
+        "two consecutive Run Now scheduler cycles",
+        "cross-server target travel and return-to-original",
+        "truthful shared status after return"
+      ]
+    },
+    {
+      "evidenceId": "LWB-R7-039",
+      "path": "evidence/lwbridge-implementation/2026-09-19-r7-auto-scheduler-complete.json",
+      "proves": [
+        "one real two-target cycle in configured order",
+        "disable during first target lets the in-flight scan finish and skips remaining targets",
+        "return-to-original after disable",
+        "persisted future nextRunAt survives full desktop/game restart",
+        "unattended clock-triggered run begins after deadline without Run Now",
+        "nextRunAt advances after completion",
+        "frontend scheduler catch/finally behavior under controlled injected jump failure"
+      ]
+    }
+  ],
+  "currentShippedBundleAudit": {
+    "indexBundle": "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js",
+    "mapPanelBundle": "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+    "configuration": {
+      "storageKey": "lwbridge.mapAutoScan.${profileId}",
+      "enabledPersistent": true,
+      "intervalMinutes": {
+        "min": 20,
+        "max": 1440
+      },
+      "serverIds": {
+        "deduplicated": true,
+        "maxCount": 20,
+        "validRange": "1..99999"
+      },
+      "selectedTypesIncludesZombieBoss": true,
+      "returnToOriginalServerPersistent": true,
+      "nextRunAtPersistent": true,
+      "enableSchedulesImmediateEligibility": true,
+      "disableClearsNextRunAt": true
+    },
+    "scheduler": {
+      "owner": "top-level app component, not MapDataPanel",
+      "pollMilliseconds": 5000,
+      "requires": [
+        "Auto enabled",
+        "game connected",
+        "not currently scanning",
+        "not already running an Auto cycle",
+        "Date.now() >= nextRunAt"
+      ],
+      "targets": "configured serverIds in order, falling back to current server when list is empty",
+      "disableDuringCycle": "checks live current config before each next target and breaks",
+      "scanCall": "map_scan_start({selectedTypes,resume:false})",
+      "callerScanMode": "absent; backend automatic strategy planner owns effective mode",
+      "terminalWait": "polls map_scan_status until isReading=false with bounded timeout",
+      "returnPolicy": "return-to-original executes in finally when enabled and original server is known",
+      "nextSchedule": "after cycle finalization, nextRunAt = current time + interval and config is persisted"
+    },
+    "navigationOwnership": {
+      "mapDataView": "React Activity visibility-controlled child",
+      "schedulerEffect": "top-level app component",
+      "interpretation": "navigation-away survival is structurally supported by current ownership; a dedicated live away/back acceptance remains a separate evidence gap rather than missing implementation"
+    }
+  },
+  "regressionAcceptance": {
+    "browserCheck": {
+      "command": "$env:NODE_PATH=(Resolve-Path '.codex-live\\pm15-ui-check\\node_modules').Path; node tools\\check_scan_strategy_auto.cjs",
+      "result": "PASS",
+      "asserts": [
+        "no retired Normal/Fast controls",
+        "durable Auto enable control exists",
+        "target-server input exists",
+        "20..1440 interval input exists",
+        "return-to-original option exists",
+        "Run Now primary action exists",
+        "enable persists and sets immediate eligible nextRunAt",
+        "target server, interval and return preference persist",
+        "disable persists and clears nextRunAt",
+        "scheduler retains mid-cycle disable break, finally return, persisted next schedule and 5-second polling",
+        "scheduler remains top-level while Map Data is visibility-controlled"
+      ]
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "fullDeterministicSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "roadmapConclusion": {
+    "coreAutoScheduler": "COMPLETE",
+    "productionCodeChangeNeeded": false,
+    "reason": "The backlog wording was stale; its listed durable enable/interval/server sequencing/Run Now/disable/return/restart behaviors were already live-proven by R7-038/039 and remain present in the current shipped bundle after R7-067.",
+    "separateLimitedEvidenceGaps": [
+      "Dedicated live navigation-away/back acceptance of a running scheduler cycle.",
+      "Naturally occurring native server_jump timeout/error during an Auto cycle; only deterministic frontend catch/finally injection is proven."
+    ],
+    "nonBlockerPolicy": "These are evidence gaps, not missing core scheduler implementation, and do not reopen the owner-facing core Auto Scan scheduler backlog item."
+  }
+}
