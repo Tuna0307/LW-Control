@@ -38,6 +38,8 @@ internal static class CurrentClientMapBlockSourceChecks
         await TruckQuickRobPreservesExactIdentityAndOutcome();
         await TruckQuickRobMapsRejectedAndAmbiguousWithoutRetry();
         await TruckQuickRobRejectsForeignSessionResult();
+        await AssetImageValidatesCachesAndRetriesSessionGap();
+        await AssetImageRejectsInvalidPng();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
         await FastResourceFullMapReturnsAllLogicalCaptures();
@@ -1492,6 +1494,76 @@ internal static class CurrentClientMapBlockSourceChecks
         }
     }
 
+    private static async Task AssetImageValidatesCachesAndRetriesSessionGap()
+    {
+        const string AssetPath = "Assets/Main/Sprites/ItemIcons/item406";
+        const string PngBase64 =
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+        int writes = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            assetImageResult: fields =>
+            {
+                writes++;
+                Check(fields["sourceMode"] == "assetPath" && fields["assetPath"] == AssetPath,
+                    "asset image protocol must preserve the authoritative game asset path");
+                return AssetImageResult(
+                    fields,
+                    writes == 1 ? "failed" : "proven",
+                    writes == 1 ? "overview_session_unavailable" : null,
+                    writes == 1 ? null : PngBase64,
+                    writes == 1 ? null : 1,
+                    writes == 1 ? null : 1);
+            });
+
+        CurrentClientAssetImageResult first =
+            await source.GetAssetImageAsync(AssetPath, null, CancellationToken.None);
+        CurrentClientAssetImageResult second =
+            await source.GetAssetImageAsync(AssetPath, null, CancellationToken.None);
+
+        Check(writes == 2,
+            "asset image should retry one recoverable Overview admission gap and then serve the second request from host cache");
+        Check(first.DataUrl == "data:image/png;base64," + PngBase64 &&
+              second.DataUrl == first.DataUrl &&
+              first.Width == 1 && first.Height == 1 &&
+              first.SourceMode == "assetPath" && first.SourceValue == AssetPath,
+            "asset image result must preserve validated PNG bytes and exact source identity");
+    }
+
+    private static async Task AssetImageRejectsInvalidPng()
+    {
+        const string AssetPath = "Assets/Main/Sprites/ItemIcons/item230006";
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            assetImageResult: fields => AssetImageResult(
+                fields,
+                "proven",
+                null,
+                Convert.ToBase64String([1, 2, 3, 4, 5, 6]),
+                1,
+                1));
+
+        try
+        {
+            _ = await source.GetAssetImageAsync(AssetPath, null, CancellationToken.None);
+            throw new InvalidOperationException("malformed PNG asset should fail closed");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_ASSET" &&
+            error.Message == "invalid PNG asset")
+        {
+        }
+
+        try
+        {
+            _ = await source.GetAssetImageAsync(AssetPath, "frame_sprite", CancellationToken.None);
+            throw new InvalidOperationException("asset image request with both source forms should fail closed");
+        }
+        catch (BridgeCommandException error) when (error.Code == "INVALID_ASSET")
+        {
+        }
+    }
+
     private static async Task HealthyGateRunsBeforeWorldReadyProtocol()
     {
         bool healthGatePassed = false;
@@ -1568,11 +1640,13 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<IReadOnlyDictionary<string, string>, string>? resourceDetailResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null,
-        Func<IReadOnlyDictionary<string, string>, string>? truckQuickRobResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? truckQuickRobResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? assetImageResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
-        string probeRoot = @"C:\probe";        var hooks = new CurrentClientMapBlockSourceHooks
+        string probeRoot = @"C:\probe";
+        var hooks = new CurrentClientMapBlockSourceHooks
         {
             DisableCoarseMonsterMap = !useCoarseMonsterMap,
             UtcNow = () => Now,
@@ -1621,6 +1695,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     files[Path.Combine(overviewRoot, "truck-quick-rob-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
+                if (string.Equals(path, Path.Combine(probeRoot, "asset-image.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (assetImageResult is null) throw new InvalidOperationException("unexpected asset image request");
+                    string result = assetImageResult(fields);
+                    files[Path.Combine(probeRoot, "asset-image-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
                 if (string.Equals(path, Path.Combine(probeRoot, "command.txt"), StringComparison.OrdinalIgnoreCase))
                 {
                     string mapKind = fields["mapKind"];
@@ -1666,6 +1747,38 @@ internal static class CurrentClientMapBlockSourceChecks
             .Where(parts => parts.Length == 2)
             .ToDictionary(parts => parts[0], parts => parts[1], StringComparer.Ordinal);
 
+
+    private static string AssetImageResult(
+        IReadOnlyDictionary<string, string> fields,
+        string state,
+        string? error,
+        string? base64,
+        int? width,
+        int? height)
+    {
+        string sourceMode = fields["sourceMode"];
+        string sourceValue = sourceMode == "assetPath"
+            ? fields["assetPath"]
+            : fields["spriteName"];
+        return JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"],
+            launchSessionId = fields["launchSessionId"],
+            profileId = fields["profileId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            sourceMode,
+            sourceValue,
+            state,
+            error,
+            base64,
+            width,
+            height,
+            capturedAt = Timestamp(),
+        }, JsonOptions.Default);
+    }
 
     private static string TruckQuickRobResult(
         IReadOnlyDictionary<string, string> fields,

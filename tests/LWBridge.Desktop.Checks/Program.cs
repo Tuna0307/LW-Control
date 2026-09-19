@@ -20,6 +20,12 @@ if (args.Contains("--live-coordinate-jump-proof", StringComparer.OrdinalIgnoreCa
     return 0;
 }
 
+if (args.Contains("--live-current-client-asset-image", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAssetImageProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-block-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunAsync();

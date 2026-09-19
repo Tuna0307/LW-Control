@@ -10,6 +10,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<CancellationToken, Task<CurrentClientMapContext>> getContext;
     private readonly Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer;
     private readonly Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch;
+    private readonly Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage;
     private readonly Func<int?>? getLiveServerId;
     private readonly IMapScanBlockSource blockSource;
     private readonly TruckPlunderWorker? truckPlunderWorker;
@@ -47,6 +48,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         getContext = currentClientSource.GetCurrentContextAsync;
         jumpToServer = currentClientSource.JumpToServerAsync;
         followMarch = currentClientSource.FollowMarchAsync;
+        getAssetImage = currentClientSource.GetAssetImageAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
         truckPlunderWorker = new TruckPlunderWorker(
@@ -64,7 +66,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         IMapScanBlockSource blockSource,
         Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer = null,
         Func<int?>? getLiveServerId = null,
-        Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null)
+        Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null,
+        Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
@@ -72,6 +75,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.jumpToServer = jumpToServer;
         this.getLiveServerId = getLiveServerId;
         this.followMarch = followMarch;
+        this.getAssetImage = getAssetImage;
         currentClientSource = null!;
         truckPlunderWorker = null;
     }
@@ -80,7 +84,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
-        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or "map_coordinate_jump" or "map_march_follow" or "server_jump" or "map_truck_plunder_schedule";
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or "map_coordinate_jump" or "map_march_follow" or "server_jump" or "map_truck_plunder_schedule" or "game_asset_image";
 
     public async Task<object?> InvokeAsync(
         string command,
@@ -92,6 +96,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             ScheduleTruckPlunder(payload, cancellationToken);
             return null;
         }
+        if (command == "game_asset_image")
+            return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_scan_status") return CreateStatus();
         if (command == "map_scan_clear") return ClearMapScan(payload);
         if (command == "server_jump")
@@ -125,6 +131,41 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+
+    private async Task<object> GetAssetImageAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        if (getAssetImage is null)
+            throw new BridgeCommandException(
+                "GAME_CONNECTION_UNAVAILABLE",
+                "game connection unavailable");
+
+        string? assetPath = ReadOptionalAssetImageString(payload, "assetPath");
+        string? spriteName = ReadOptionalAssetImageString(payload, "spriteName");
+        CurrentClientAssetImageResult result = await getAssetImage(
+                assetPath,
+                spriteName,
+                cancellationToken)
+            .ConfigureAwait(false);
+        return new
+        {
+            dataUrl = result.DataUrl,
+        };
+    }
+
+    private static string? ReadOptionalAssetImageString(JsonElement payload, string name)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+        if (value.ValueKind != JsonValueKind.String)
+            throw new BridgeCommandException(
+                "INVALID_ASSET",
+                "invalid PNG asset",
+                $"{name} must be a string");
+        return value.GetString();
+    }
 
     private object ClearMapScan(JsonElement payload)
     {

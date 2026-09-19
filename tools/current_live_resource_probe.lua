@@ -55,6 +55,13 @@ local resource_detail_started_at = nil
 local resource_detail_transition_requested = false
 local resource_detail_refresh_requested = false
 local resource_scan_detail_runtime = { state = nil, request = nil, startedAt = nil }
+local asset_image_runtime = {
+    path = root .. [[\asset-image.txt]],
+    resultPath = root .. [[\asset-image-result.json]],
+    request = nil,
+    startedAt = nil,
+    timeoutSeconds = 12,
+}
 local bulk_aoi_original_start_view_request = nil
 local bulk_aoi_original_block_count = nil
 local bulk_aoi_block_count_touched = false
@@ -870,6 +877,298 @@ local function active_overview_identity(now)
         challenge = control.challenge,
         gamePid = math.floor(game_pid),
     }, nil
+end
+
+function asset_image_runtime.read_request(now)
+    local values = read_kv_file(asset_image_runtime.path, 8192)
+    if values == nil then return nil end
+    pcall(os.remove, asset_image_runtime.path)
+    local request = { requestId = tostring(values.requestId or "") }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or not valid_token(request.requestId) then
+        request.error = "asset_image_request_invalid"
+        return request
+    end
+    request.profileId = tostring(values.profileId or "")
+    request.launchSessionId = tostring(values.launchSessionId or "")
+    request.challenge = tostring(values.challenge or "")
+    request.gamePid = tonumber(values.gamePid)
+    request.sourceMode = tostring(values.sourceMode or "")
+    request.assetPath = tostring(values.assetPath or "")
+    request.spriteName = tostring(values.spriteName or "")
+    if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
+       not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) or
+       (request.sourceMode ~= "assetPath" and request.sourceMode ~= "spriteName") then
+        request.error = "asset_image_request_invalid"
+        return request
+    end
+    local source_value = request.sourceMode == "assetPath" and request.assetPath or request.spriteName
+    local other_value = request.sourceMode == "assetPath" and request.spriteName or request.assetPath
+    if #source_value < 1 or #source_value > 1024 or #other_value ~= 0 or
+       string.find(source_value, "[%z\r\n]") ~= nil then
+        request.error = "asset_image_request_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    request.sourceValue = source_value
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "asset_image_identity_mismatch"
+    end
+    return request
+end
+
+function asset_image_runtime.destroy_object(value)
+    if value == nil then return end
+    local cs = rawget(_G, "CS")
+    local object_type = cs and cs.UnityEngine and cs.UnityEngine.Object or nil
+    if object_type ~= nil then
+        pcall(function() object_type.Destroy(value) end)
+    end
+end
+
+function asset_image_runtime.render_sprite_png(sprite, sprite_renderer)
+    local cs = rawget(_G, "CS")
+    if cs == nil or cs.UnityEngine == nil or cs.System == nil then
+        return nil, "asset_render_api_unavailable"
+    end
+    local render_texture_type = cs.UnityEngine.RenderTexture
+    local render_texture_format = cs.UnityEngine.RenderTextureFormat
+    local texture2d_type = cs.UnityEngine.Texture2D
+    local texture_format = cs.UnityEngine.TextureFormat
+    local image_conversion = cs.UnityEngine.ImageConversion
+    local graphics = cs.UnityEngine.Graphics
+    local vector2_type = cs.UnityEngine.Vector2
+    local rect_type = cs.UnityEngine.Rect
+    local convert_type = cs.System.Convert
+    if render_texture_type == nil or render_texture_format == nil or
+       texture2d_type == nil or texture_format == nil or image_conversion == nil or
+       graphics == nil or vector2_type == nil or rect_type == nil or convert_type == nil then
+        return nil, "asset_render_api_unavailable"
+    end
+
+    local texture = safe_get(sprite, "texture")
+    local texture_rect = safe_get(sprite, "textureRect")
+    local pixels_per_unit = tonumber(safe_get(sprite, "pixelsPerUnit"))
+    local texture_width = tonumber(texture and safe_get(texture, "width"))
+    local texture_height = tonumber(texture and safe_get(texture, "height"))
+    local x = tonumber(texture_rect and (safe_get(texture_rect, "x") or safe_get(texture_rect, "X")))
+    local y = tonumber(texture_rect and (safe_get(texture_rect, "y") or safe_get(texture_rect, "Y")))
+    local width = tonumber(texture_rect and (safe_get(texture_rect, "width") or safe_get(texture_rect, "Width")))
+    local height = tonumber(texture_rect and (safe_get(texture_rect, "height") or safe_get(texture_rect, "Height")))
+    if texture == nil or texture_width == nil or texture_height == nil or
+       x == nil or y == nil or width == nil or height == nil or
+       texture_width <= 0 or texture_height <= 0 then
+        return nil, "asset_sprite_texture_rect_unavailable"
+    end
+    width = math.floor(width + 0.5)
+    height = math.floor(height + 0.5)
+    if width < 1 or height < 1 or width > 4096 or height > 4096 then
+        return nil, "asset_sprite_dimensions_invalid"
+    end
+
+    local packed = safe_get(sprite, "packed") == true
+    local packing_rotation = tostring(safe_get(sprite, "packingRotation") or "")
+    local scale_x = width / texture_width
+    local scale_y = height / texture_height
+    local offset_x = x / texture_width
+    local offset_y = y / texture_height
+    if string.find(packing_rotation, "FlipHorizontal", 1, true) ~= nil then
+        scale_x = -scale_x
+        offset_x = (x + width) / texture_width
+    elseif string.find(packing_rotation, "FlipVertical", 1, true) ~= nil then
+        scale_y = -scale_y
+        offset_y = (y + height) / texture_height
+    elseif string.find(packing_rotation, "Rotate180", 1, true) ~= nil then
+        scale_x = -scale_x
+        scale_y = -scale_y
+        offset_x = (x + width) / texture_width
+        offset_y = (y + height) / texture_height
+    elseif packed and string.find(packing_rotation, "None", 1, true) == nil then
+        return nil, "asset_sprite_packing_rotation_unsupported:" .. packing_rotation
+    end
+
+    local render_texture = nil
+    local readable_texture = nil
+    local previous_active = nil
+    local ok, rendered = pcall(function()
+        render_texture = render_texture_type.GetTemporary(
+            width, height, 0, render_texture_format.ARGB32)
+        if render_texture == nil then error("asset_render_texture_create_failed") end
+        graphics.Blit(
+            texture,
+            render_texture,
+            vector2_type(scale_x, scale_y),
+            vector2_type(offset_x, offset_y))
+
+        previous_active = render_texture_type.active
+        render_texture_type.active = render_texture
+        readable_texture = texture2d_type(width, height, texture_format.RGBA32, false)
+        if readable_texture == nil then error("asset_readable_texture_create_failed") end
+        readable_texture:ReadPixels(rect_type(0, 0, width, height), 0, 0, false)
+        readable_texture:Apply(false, false)
+        local png = image_conversion.EncodeToPNG(readable_texture)
+        if png == nil then error("asset_png_encode_failed") end
+        local base64 = convert_type.ToBase64String(png)
+        if type(base64) ~= "string" or #base64 == 0 then error("asset_base64_encode_failed") end
+        return {
+            base64 = base64,
+            width = width,
+            height = height,
+            packed = packed,
+            packingRotation = packing_rotation,
+            textureWidth = texture_width,
+            textureHeight = texture_height,
+            pixelsPerUnit = pixels_per_unit,
+            textureRectX = x,
+            textureRectY = y,
+        }
+    end)
+
+    if render_texture_type ~= nil then
+        pcall(function() render_texture_type.active = previous_active end)
+    end
+    if render_texture ~= nil then
+        pcall(function() render_texture_type.ReleaseTemporary(render_texture) end)
+    end
+    asset_image_runtime.destroy_object(readable_texture)
+
+    if not ok then
+        return nil, "asset_png_render_failed:" .. tostring(rendered)
+    end
+    return rendered, nil
+end
+
+function asset_image_runtime.write_result(request, state, error_text, details)
+    details = details or {}
+    write_json(asset_image_runtime.resultPath, {
+        schemaVersion = 1,
+        probeVersion = M.VERSION,
+        requestId = request.requestId,
+        launchSessionId = request.launchSessionId,
+        profileId = request.profileId,
+        challenge = request.challenge,
+        gamePid = request.gamePid,
+        sourceMode = request.sourceMode,
+        sourceValue = request.sourceValue or "",
+        itemPathTemplate = request.itemPathTemplate,
+        state = state,
+        error = error_text,
+        base64 = details.base64,
+        width = details.width,
+        height = details.height,
+        packed = details.packed,
+        packingRotation = details.packingRotation,
+        textureWidth = details.textureWidth,
+        textureHeight = details.textureHeight,
+        pixelsPerUnit = details.pixelsPerUnit,
+        textureRectX = details.textureRectX,
+        textureRectY = details.textureRectY,
+        renderMethod = state == "proven" and
+            "SpriteRenderer.LoadSpriteAuto(extension)+Sprite.textureRect+Graphics.Blit+ImageConversion.EncodeToPNG" or nil,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+function asset_image_runtime.cleanup()
+    if asset_image_runtime.request ~= nil then
+        asset_image_runtime.destroy_object(asset_image_runtime.request.gameObject)
+    end
+    asset_image_runtime.request = nil
+    asset_image_runtime.startedAt = nil
+end
+
+function asset_image_runtime.begin(request)
+    if request.error ~= nil then
+        request.done = true
+        return
+    end
+    if request.sourceMode == "spriteName" then
+        request.error = "asset_sprite_name_resolution_unrecovered"
+        request.done = true
+        return
+    end
+
+    local cs = rawget(_G, "CS")
+    local typeof_fn = rawget(_G, "typeof")
+    local game_object_type = cs and cs.UnityEngine and cs.UnityEngine.GameObject or nil
+    local sprite_renderer_type = cs and cs.UnityEngine and cs.UnityEngine.SpriteRenderer or nil
+    local load_path = rawget(_G, "LoadPath")
+    local item_path = load_path and safe_get(load_path, "ItemPath") or nil
+    request.itemPathTemplate = item_path ~= nil and tostring(item_path) or nil
+    if game_object_type == nil or sprite_renderer_type == nil or type(typeof_fn) ~= "function" then
+        request.error = "asset_sprite_loader_unavailable"
+        request.done = true
+        return
+    end
+
+    local ok_create, create_error = pcall(function()
+        request.gameObject = game_object_type("LWBridgeAssetImage")
+        request.renderer = request.gameObject:AddComponent(typeof_fn(sprite_renderer_type))
+    end)
+    if not ok_create or request.renderer == nil then
+        request.error = "asset_sprite_renderer_create_failed:" .. tostring(create_error)
+        request.done = true
+        return
+    end
+
+    request.callback = function(sprite)
+        if asset_image_runtime.request ~= request or request.done == true then return end
+        if sprite == nil then
+            request.error = "asset_sprite_load_failed"
+            request.done = true
+            return
+        end
+        local rendered, render_error = asset_image_runtime.render_sprite_png(sprite, request.renderer)
+        if rendered == nil then
+            request.error = render_error or "asset_png_render_failed"
+        else
+            request.rendered = rendered
+        end
+        request.done = true
+    end
+
+    local ok_load, load_error = pcall(function()
+        request.renderer:LoadSpriteAuto(request.assetPath, request.callback, "")
+    end)
+    if not ok_load then
+        request.error = "asset_sprite_extension_load_failed:" .. tostring(load_error)
+        request.done = true
+    end
+end
+
+function asset_image_runtime.pump(now)
+    if asset_image_runtime.request == nil then
+        local request = asset_image_runtime.read_request(now)
+        if request ~= nil then
+            asset_image_runtime.request = request
+            asset_image_runtime.startedAt = runtime_clock()
+            asset_image_runtime.begin(request)
+        end
+    end
+    local request = asset_image_runtime.request
+    if request == nil then return false end
+
+    if request.done == true then
+        if request.error ~= nil then
+            asset_image_runtime.write_result(request, "failed", request.error, nil)
+        else
+            asset_image_runtime.write_result(request, "proven", nil, request.rendered)
+        end
+        asset_image_runtime.cleanup()
+        return true
+    end
+
+    if asset_image_runtime.startedAt ~= nil and
+       runtime_clock() - asset_image_runtime.startedAt >= asset_image_runtime.timeoutSeconds then
+        request.error = "asset_sprite_load_timeout"
+        asset_image_runtime.write_result(request, "failed", request.error, nil)
+        asset_image_runtime.cleanup()
+        return true
+    end
+    return true
 end
 
 local function read_aoi_diagnostic(now)
@@ -4645,6 +4944,9 @@ end
 
 function M.Pump()
     local now = tonumber(os.time()) or 0
+    -- Read-only asset rendering is an independent lane. It reuses the same
+    -- owned Overview session and must not block map acquisition.
+    asset_image_runtime.pump(now)
     -- Optional Zombie Boss detail runs beside AOI acquisition. Never block map
     -- progress waiting for a protection reply.
     pump_monster_protection_queue()
