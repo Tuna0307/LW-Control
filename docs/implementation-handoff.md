@@ -1,10 +1,16 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current-v19 Resource alternate sort checkpoint - LWB-R7-051, 2026-09-19
+
+**LIVE-PROVEN read-only; no consuming action was used.** Original 0.3.1 recovery pins Resource `level` and `updatedAt` as the complete public sort set. Level uses the plain indexed level expression; the shared assembly preserves ordered multi-sort, NULL-last ordering for either direction and final `record_key ASC`. `tools/inspect_lwbridge_resource_sort_assembly.py` hash-locks the original binary/frontend identity, Resource level parser/builder, direction branches and shared formatter.
+
+Production enables only ordered unique subsets of those two Resource keys. Deterministic acceptance is green across all six suites. Final exact-code current-v19 Fast acceptance completed 2,500/2,500 in **126.029 s**, published/reopened **1,870 Resource rows**, and passed **5 independent sort comparisons before reopen plus 5 after reopen** across the entire population. Exact v19 restoration and no-process cleanup passed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json`.
+
 ## Current-v19 Railway alternate sort checkpoint - LWB-R7-050, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED; current-v19 positive-row live proof is population-pending.** Original 0.3.1 recovery pins Railway `quality`, `power`, `itemCount`, `protectTime`, and `updatedAt`, plus the shared ordered multi-sort/null-last/record-key tie assembly. Railway quality is plain `quality`; `itemCount` is admitted only with an item key; and protectTime maps to the recovered zero-to-NULL JSON expression. `tools/inspect_lwbridge_railway_sort_assembly.py` hash-locks those Railway-specific branches and the shared formatter.
 
-Production accepts only ordered unique subsets of the five public Railway keys. Deterministic acceptance is green across all six suites and covers every key/direction, nulls, item-count coupling, multi-sort, ties and pagination. The read-only current-v19 Fast Railway attempt itself completed 2,500/2,500 but published **0 Railway rows**, so the positive-population gate intentionally failed before any sort assertion. Exact v19 restoration and no-process cleanup passed. Do not call R7-050 live-proven until a real Railway population returns; meaningful relative ordering requires at least two rows, and live itemCount additionally requires nonempty Railway currentGoods. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json`.
+Production accepts only ordered unique subsets of the five public Railway keys. Deterministic acceptance is green across all six suites and covers every key/direction, nulls, item-count coupling, multi-sort, ties and pagination. The read-only current-v19 Fast Railway attempt itself completed 2,500/2,500 but published **0 Railway rows**, so the positive-population gate intentionally failed before any sort assertion. Exact v19 restoration and no-process cleanup passed. Do not call R7-050 live-proven until a real Railway population returns; meaningful relative ordering requires at least two rows, and live itemCount additionally requires nonempty Railway currentGoods. Resource sorting was still open at this checkpoint and is subsequently closed by `LWB-R7-051`. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json`.
 
 ## Current-v19 Truck alternate sort checkpoint - LWB-R7-049, 2026-09-19
 

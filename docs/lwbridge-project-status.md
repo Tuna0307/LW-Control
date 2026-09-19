@@ -1,8 +1,12 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-051, 2026-09-19
+
+Resource alternate sorting is LIVE-PROVEN read-only on current v19. The complete public Resource sort set (`level`, `updatedAt`) is production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain indexed level and stable record-key ties. Final exact-code Fast acceptance completed 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independent sort scenarios before reopen plus the same 5 after reopen. Exact v19 restoration and clean process shutdown passed; no consuming action was used. City and Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-051 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
+
 ## Latest implementation checkpoint — LWB-R7-050, 2026-09-19
 
-Railway alternate sorting is IMPLEMENTED/OFFLINE-TESTED from hash-locked original recovery and deterministic multi-row acceptance. Five public Railway keys are production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and stable record-key ties. The final read-only current-v19 Fast attempt completed 2,500/2,500 but the live map contained zero Railway rows; the positive-population gate failed by design and no live ordering claim is made. Exact v19 restoration and clean process shutdown passed. City, Resource and Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-050 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
+Railway alternate sorting is IMPLEMENTED/OFFLINE-TESTED from hash-locked original recovery and deterministic multi-row acceptance. Five public Railway keys are production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and stable record-key ties. The final read-only current-v19 Fast attempt completed 2,500/2,500 but the live map contained zero Railway rows; the positive-population gate failed by design and no live ordering claim is made. Exact v19 restoration and clean process shutdown passed. Resource was still open at this checkpoint and is subsequently closed by `LWB-R7-051`; City and Dispatch/Ghost alternate sorts remain open/fail-closed. See [R7-050 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
 
 ## Latest implementation checkpoint — LWB-R7-049, 2026-09-19
 

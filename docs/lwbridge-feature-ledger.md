@@ -1,8 +1,12 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint — LWB-R7-051, 2026-09-19
+
+Resource result sorting is **LIVE-PROVEN read-only on current v19**. The complete public Resource sort surface is now recovered and production-enabled: `level` and `updatedAt`, ordered multi-sort, nulls-last in either direction, plain indexed level, and final record-key tie-breaking. Final Fast acceptance scanned 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independently computed sort scenarios both before and after DB reopen. City and Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-051](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
+
 ## Current implementation checkpoint — LWB-R7-050, 2026-09-19
 
-Railway result sorting is **IMPLEMENTED/OFFLINE-TESTED; positive-row live ordering is population-pending**. The public Railway sort surface now accepts the five recovered keys (`quality`, `power`, `itemCount`, `protectTime`, `updatedAt`) with ordered multi-sort, nulls-last in either direction, plain Railway quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and final record-key tie-breaking. Hash-locked original recovery plus deterministic multi-row acceptance are green. The current-v19 Fast live attempt completed 2,500/2,500 but exposed zero Railway rows, so the positive-population gate intentionally withheld live acceptance. City, Resource and Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-050](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
+Railway result sorting is **IMPLEMENTED/OFFLINE-TESTED; positive-row live ordering is population-pending**. The public Railway sort surface now accepts the five recovered keys (`quality`, `power`, `itemCount`, `protectTime`, `updatedAt`) with ordered multi-sort, nulls-last in either direction, plain Railway quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and final record-key tie-breaking. Hash-locked original recovery plus deterministic multi-row acceptance are green. The current-v19 Fast live attempt completed 2,500/2,500 but exposed zero Railway rows, so the positive-population gate intentionally withheld live acceptance. Resource remained gated at this checkpoint and is subsequently closed by `LWB-R7-051`; City and Dispatch/Ghost alternate sorts remain gated/fail-closed. Evidence: [R7-050](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
 
 ## Current implementation checkpoint — LWB-R7-049, 2026-09-19
 

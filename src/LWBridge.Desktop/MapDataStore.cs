@@ -627,7 +627,9 @@ internal sealed partial class MapDataStore : IDisposable
                 ? BuildTruckOrderBy(options.Sorts)
                 : options.Kind == "railway"
                     ? BuildRailwayOrderBy(options.Sorts)
-                    : $"page.updated_at {direction}, page.record_key ASC";
+                    : options.Kind == "resource"
+                        ? BuildResourceOrderBy(options.Sorts)
+                        : $"page.updated_at {direction}, page.record_key ASC";
         string[] resolvedMonsterNameKeys = monsterLike
             ? (monsterNameKeys ?? Array.Empty<string>())
                 .Where(key => !string.IsNullOrWhiteSpace(key))
@@ -822,6 +824,29 @@ internal sealed partial class MapDataStore : IDisposable
                 _ => throw new BridgeCommandException(
                     "MAP_QUERY_UNRECOVERED",
                     "Unsupported Railway sort column."),
+            };
+            string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
+            clauses.Add($"({expression} IS NULL) ASC");
+            clauses.Add($"{expression} {direction}");
+        }
+        clauses.Add("page.record_key ASC");
+        return string.Join(", ", clauses);
+    }
+
+    private static string BuildResourceOrderBy(IReadOnlyList<MapDataSort> sorts)
+    {
+        // RECOVERED LWB-R7-051: Resource exposes only level and updatedAt through
+        // the shared native ordered-sort/null-last/record-key tie assembly.
+        var clauses = new List<string>(sorts.Count * 2 + 1);
+        foreach (MapDataSort sort in sorts)
+        {
+            string expression = sort.SortBy switch
+            {
+                "level" => "page.level",
+                "updatedAt" => "page.updated_at",
+                _ => throw new BridgeCommandException(
+                    "MAP_QUERY_UNRECOVERED",
+                    "Unsupported Resource sort column."),
             };
             string direction = sort.SortOrder == "asc" ? "ASC" : "DESC";
             clauses.Add($"({expression} IS NULL) ASC");

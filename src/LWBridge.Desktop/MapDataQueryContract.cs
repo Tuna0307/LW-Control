@@ -260,6 +260,13 @@ internal static class MapDataQueryContract
                     "quality" or "power" or "itemCount" or "protectTime" or "updatedAt") &&
                 (hasItemKey || sorts.All(sort => sort.SortBy != "itemCount"));
         }
+        else if (kind == "resource")
+        {
+            recoveredSort =
+                sorts.Count is >= 1 and <= 2 &&
+                sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
+                sorts.All(sort => sort.SortBy is "level" or "updatedAt");
+        }
         else
         {
             recoveredSort =

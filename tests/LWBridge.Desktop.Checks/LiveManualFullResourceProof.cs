@@ -35,6 +35,9 @@ internal static class LiveManualFullResourceProof
         int partialResourceCount = 0;
         int invalidAmountCount = 0;
         int defaultFilteredCount = 0;
+        int sortCheckCount = 0;
+        int reopenedSortCheckCount = 0;
+        int sortComparedRowCount = 0;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -117,6 +120,9 @@ internal static class LiveManualFullResourceProof
                         throw new InvalidDataException("Resource detail enrichment published an invalid remaining/full amount pair.");
                     if (detailKnownCount <= 0 || fullResourceCount <= 0)
                         throw new InvalidDataException("Resource detail enrichment produced no authoritative full Resource rows.");
+                    ResourceSortMetrics sortMetrics = ValidateResourceSorts(store, serverId);
+                    sortCheckCount = sortMetrics.CheckCount;
+                    sortComparedRowCount = sortMetrics.RowCount;
                 }
                 finally
                 {
@@ -125,7 +131,14 @@ internal static class LiveManualFullResourceProof
             }
 
             using (var reopened = new MapDataStore(databasePath))
+            {
                 reopenedResourceCount = reopened.SearchIndexed(ResourceQuery(serverId)).Total;
+                ResourceSortMetrics reopenedSortMetrics = ValidateResourceSorts(reopened, serverId);
+                reopenedSortCheckCount = reopenedSortMetrics.CheckCount;
+                if (reopenedSortCheckCount != sortCheckCount ||
+                    reopenedSortMetrics.RowCount != sortComparedRowCount)
+                    throw new InvalidDataException("Resource sort proof changed after database reopen.");
+            }
             if (reopenedResourceCount != publishedResourceCount)
                 throw new InvalidDataException("Ordinary Manual Resource count changed after database reopen.");
             Console.WriteLine(JsonSerializer.Serialize(new
@@ -151,6 +164,9 @@ internal static class LiveManualFullResourceProof
                 partialResourceCount,
                 invalidAmountCount,
                 defaultFilteredCount,
+                sortComparedRowCount,
+                sortCheckCount,
+                reopenedSortCheckCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
@@ -179,6 +195,169 @@ internal static class LiveManualFullResourceProof
             }
             TryDelete(databasePath);
         }
+    }
+
+    private sealed record ResourceSortMetrics(int CheckCount, int RowCount);
+
+    private static ResourceSortMetrics ValidateResourceSorts(MapDataStore store, int serverId)
+    {
+        IReadOnlyList<JsonElement> allRows = ReadAllResourceRows(
+            store,
+            ResourceSortQuery(serverId, [new MapDataSort("updatedAt", "desc")]));
+        if (allRows.Count < 2)
+            throw new InvalidDataException("Resource sort proof requires at least two Resource rows.");
+
+        int checks = 0;
+        foreach (string sortBy in new[] { "level", "updatedAt" })
+        {
+            foreach (string sortOrder in new[] { "asc", "desc" })
+            {
+                ValidateResourceSortOrder(
+                    store,
+                    serverId,
+                    allRows,
+                    [new MapDataSort(sortBy, sortOrder)]);
+                checks++;
+            }
+        }
+
+        ValidateResourceSortOrder(
+            store,
+            serverId,
+            allRows,
+            [
+                new MapDataSort("level", "asc"),
+                new MapDataSort("updatedAt", "desc"),
+            ]);
+        checks++;
+
+        return new ResourceSortMetrics(checks, allRows.Count);
+    }
+
+    private static void ValidateResourceSortOrder(
+        MapDataStore store,
+        int serverId,
+        IReadOnlyList<JsonElement> allRows,
+        IReadOnlyList<MapDataSort> sorts)
+    {
+        var expected = allRows.ToList();
+        expected.Sort((left, right) => CompareResourceRows(left, right, sorts));
+
+        IReadOnlyList<JsonElement> actual = ReadAllResourceRows(
+            store,
+            ResourceSortQuery(serverId, sorts));
+        if (actual.Count != expected.Count)
+            throw new InvalidDataException(
+                $"Resource sort row count mismatch for {DescribeResourceSorts(sorts)}: actual={actual.Count}, expected={expected.Count}.");
+
+        for (int index = 0; index < expected.Count; index++)
+        {
+            string expectedKey = ResourceRecordKey(expected[index]);
+            string actualKey = ResourceRecordKey(actual[index]);
+            if (!string.Equals(actualKey, expectedKey, StringComparison.Ordinal))
+                throw new InvalidDataException(
+                    $"Resource sort mismatch for {DescribeResourceSorts(sorts)} at {index}: actual={actualKey}, expected={expectedKey}.");
+        }
+    }
+
+    private static int CompareResourceRows(
+        JsonElement left,
+        JsonElement right,
+        IReadOnlyList<MapDataSort> sorts)
+    {
+        foreach (MapDataSort sort in sorts)
+        {
+            double? leftValue = ResourceSortValue(left, sort.SortBy);
+            double? rightValue = ResourceSortValue(right, sort.SortBy);
+            int comparison;
+            if (!leftValue.HasValue && !rightValue.HasValue)
+                comparison = 0;
+            else if (!leftValue.HasValue)
+                comparison = 1;
+            else if (!rightValue.HasValue)
+                comparison = -1;
+            else
+            {
+                comparison = leftValue.Value.CompareTo(rightValue.Value);
+                if (sort.SortOrder == "desc") comparison = -comparison;
+            }
+
+            if (comparison != 0) return comparison;
+        }
+
+        return StringComparer.Ordinal.Compare(
+            ResourceRecordKey(left),
+            ResourceRecordKey(right));
+    }
+
+    private static double? ResourceSortValue(JsonElement row, string sortBy) =>
+        sortBy switch
+        {
+            "level" => OptionalResourceNumber(row, "level"),
+            "updatedAt" => OptionalResourceNumber(row, "updatedAt"),
+            _ => throw new InvalidDataException("Unexpected Resource sort key: " + sortBy),
+        };
+
+    private static double? OptionalResourceNumber(JsonElement row, string name) =>
+        row.TryGetProperty(name, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.Number &&
+        value.TryGetDouble(out double parsed)
+            ? parsed
+            : null;
+
+    private static string ResourceRecordKey(JsonElement row) =>
+        row.TryGetProperty("recordKey", out JsonElement key) &&
+        key.ValueKind == JsonValueKind.String &&
+        !string.IsNullOrWhiteSpace(key.GetString())
+            ? key.GetString()!
+            : throw new InvalidDataException("Resource sort proof row has no recordKey.");
+
+    private static string DescribeResourceSorts(IReadOnlyList<MapDataSort> sorts) =>
+        string.Join(",", sorts.Select(sort => $"{sort.SortBy}:{sort.SortOrder}"));
+
+    private static MapDataQueryOptions ResourceSortQuery(
+        int serverId,
+        IReadOnlyList<MapDataSort> sorts)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "resource",
+            query = new
+            {
+                serverId,
+                sorts = sorts.Select(sort => new
+                {
+                    sortBy = sort.SortBy,
+                    sortOrder = sort.SortOrder,
+                }).ToArray(),
+            },
+        }, JsonOptions.Default);
+        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
+        if (query.UnsupportedFeatures.Count != 0)
+            throw new InvalidDataException(
+                "Recovered Resource sort unexpectedly failed contract gate: " +
+                string.Join(",", query.UnsupportedFeatures));
+        return query;
+    }
+
+    private static IReadOnlyList<JsonElement> ReadAllResourceRows(
+        MapDataStore store,
+        MapDataQueryOptions query)
+    {
+        var rows = new List<JsonElement>();
+        int page = 1;
+        int expectedTotal = -1;
+        while (true)
+        {
+            MapSearchResult result = store.SearchIndexed(query with { Page = page });
+            if (expectedTotal < 0) expectedTotal = result.Total;
+            rows.AddRange(result.Rows);
+            if (rows.Count >= expectedTotal || result.Rows.Count == 0) break;
+            page++;
+        }
+        if (rows.Count != expectedTotal)
+            throw new InvalidDataException($"Resource sort proof observed {rows.Count}/{expectedTotal} rows.");
+        return rows;
     }
 
     private static void CollectResourceMetrics(

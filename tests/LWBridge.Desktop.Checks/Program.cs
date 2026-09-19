@@ -4924,6 +4924,114 @@ using (var railwaySortStore = MapDataStore.CreateInMemory())
         pageSize: 2);
 }
 
+// LWB-R7-051: hash-locked native Resource level/updatedAt sort assembly.
+using (var resourceSortStore = MapDataStore.CreateInMemory())
+{
+    const int resourceSortServer = 93;
+
+    void SeedResourceSort(string recordKey, int? level, long updatedAt)
+    {
+        string levelJson = level.HasValue ? $",\"level\":{level.Value}" : string.Empty;
+        string json = $"{{\"serverId\":{resourceSortServer},\"recordKey\":\"{recordKey}\"{levelJson},\"updatedAt\":{updatedAt}}}";
+        resourceSortStore.UpsertRecord(new MapStoredRecord(
+            "resource", resourceSortServer, recordKey, null, null, recordKey, null,
+            level, null, null, null, null, updatedAt, json));
+    }
+
+    SeedResourceSort("key-a", 5, 1000);
+    SeedResourceSort("key-b", 3, 900);
+    SeedResourceSort("key-c", 7, 1100);
+    SeedResourceSort("key-d", 5, 1200);
+    SeedResourceSort("key-e", null, 800);
+    SeedResourceSort("key-f", 5, 1200);
+
+    MapDataQueryOptions ResourceSortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "resource",
+            query = new
+            {
+                serverId = resourceSortServer,
+                page,
+                pageSize,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] ResourceSortKeys(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("recordKey").GetString()!).ToArray();
+
+    void ExpectResourceSort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = ResourceSortQuery(sorts, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered Resource sort");
+        MapSearchResult result = resourceSortStore.SearchIndexedAtForTest(options, 1_800_000_000_000L);
+        Check(ResourceSortKeys(result).SequenceEqual(expected),
+            $"{label} preserves recovered Resource order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allResourceSorts = ResourceSortQuery(
+    [
+        new MapDataSort("level", "asc"),
+        new MapDataSort("updatedAt", "desc"),
+    ]);
+    Check(allResourceSorts.UnsupportedFeatures.Count == 0,
+        "both public Resource sort keys are accepted in frontend order");
+
+    MapDataQueryOptions duplicateResourceSort = ResourceSortQuery(
+    [
+        new MapDataSort("level", "desc"),
+        new MapDataSort("level", "asc"),
+    ]);
+    Check(duplicateResourceSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate Resource sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownResourceSort = ResourceSortQuery([new MapDataSort("power", "asc")]);
+    Check(unknownResourceSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public Resource sort keys remain fail-closed");
+
+    ExpectResourceSort(
+        "Resource level desc",
+        [new MapDataSort("level", "desc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectResourceSort(
+        "Resource level asc",
+        [new MapDataSort("level", "asc")],
+        ["key-b", "key-a", "key-d", "key-f", "key-c", "key-e"]);
+    ExpectResourceSort(
+        "Resource updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
+    ExpectResourceSort(
+        "Resource updatedAt asc",
+        [new MapDataSort("updatedAt", "asc")],
+        ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
+    ExpectResourceSort(
+        "Resource ordered multi-sort",
+        [
+            new MapDataSort("level", "asc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["key-b", "key-d", "key-f", "key-a", "key-c", "key-e"]);
+    ExpectResourceSort(
+        "Resource sorted pagination page 2",
+        [new MapDataSort("level", "desc")],
+        ["key-d", "key-f"],
+        page: 2,
+        pageSize: 2);
+}
+
 // LWB-R6-014: deterministic wall-clock boundaries use an isolated store so the
 // recovered time predicates cannot change the older quality/count fixtures.
 using (var timeFilterStore = MapDataStore.CreateInMemory())

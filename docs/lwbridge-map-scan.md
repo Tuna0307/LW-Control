@@ -1,5 +1,11 @@
 # LWBridge Map Scan recovery
 
+## Current-v19 Resource alternate sort fidelity - LWB-R7-051, 2026-09-19
+
+**LIVE-PROVEN, read-only.** Hash-locked recovery against the original 0.3.1 binary and shipped Map Data frontend pins the complete public Resource sort surface to `level` and `updatedAt`. Resource `level` jumps directly to the generic indexed level expression with no kind-specific transform. The shared native sort assembly preserves frontend sort-array order, places NULL values last for both ASC and DESC, and appends `record_key ASC` as the stable final tie-break.
+
+Production accepts only ordered unique subsets of those two Resource keys; non-public Resource sort keys and the still-unrecovered City / Dispatch-Ghost alternate sort families remain fail-closed. Deterministic acceptance covers both directions, nulls-last behavior, ordered multi-sort precedence, stable ties, pagination, duplicate-key rejection and unknown-key rejection. The final exact-code current-v19 Fast proof completed **2,500/2,500** blocks in **126.029 s**, published/reopened **1,870 Resource rows**, and independently validated **5 sort scenarios before reopen plus the same 5 after reopen** (**10 live sort assertions**) across all 1,870 rows. The same run retained authoritative detail on 1,853 rows, with 1,623 full, 230 partial and zero invalid remaining/full amount pairs. Exact v19 restoration and process cleanup passed; no attack, collection or other consuming action occurred. Evidence: [`2026-09-19-r7-resource-sort-fidelity.json`](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
+
 ## Current-v19 Railway alternate sort fidelity - LWB-R7-050, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED; positive-row live sort proof is population-pending.** Hash-locked recovery against the original 0.3.1 binary and shipped Map Data frontend pins the five public Railway sort keys: `quality`, `power`, `itemCount`, `protectTime`, and `updatedAt`. Railway uses plain indexed quality (it bypasses the Truck/Ghost special-quality branches), itemCount requires a nonempty item key, protectTime is `NULLIF(CAST(json_extract(data_json,'$.protectTime') AS INTEGER),0)`, and the shared native assembly preserves ordered multi-sort, places NULL last for either direction, and finishes with `record_key ASC`.
