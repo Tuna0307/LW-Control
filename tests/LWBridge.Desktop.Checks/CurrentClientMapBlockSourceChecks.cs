@@ -60,6 +60,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastTreasureFullMapReturnsAllLogicalCaptures();
         await FastAllEightFullMapReturnsAllLogicalCaptures();
         await FastFullMapFillsMeasuredCoverageHole();
+        await FastFullMapRetriesTransientNonRectangularFootprint();
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await TransientReadyLossKeepsOwnedSessionIdentity();
@@ -1090,6 +1091,32 @@ internal static class CurrentClientMapBlockSourceChecks
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
         Check(captures.Count == 2500 && narrowedOnce && bulkCalls >= 270 && bulkCalls < 340,
             "adaptive full-world acquisition should fill a measured narrow-footprint hole instead of publishing incomplete coverage");
+    }
+
+    private static async Task FastFullMapRetriesTransientNonRectangularFootprint()
+    {
+        int bulkCalls = 0;
+        bool malformedOnce = false;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                string result = ProvenFastCityBatch(fields);
+                if (malformedOnce) return result;
+                malformedOnce = true;
+                JsonObject root = JsonNode.Parse(result)!.AsObject();
+                JsonArray indices = root["requestedIndices"]!.AsArray();
+                indices.RemoveAt(indices.Count - 1);
+                root["nativeCurrentSetCount"] = indices.Count;
+                return root.ToJsonString(JsonOptions.Default);
+            });
+        MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(captures.Count == 2500 && malformedOnce && bulkCalls >= 271 && bulkCalls < 341,
+            "transient non-rectangular fast AOI footprint should retry inside the bounded probe loop instead of failing the full scan");
     }
 
     private static async Task FastFullMapAdaptsToMeasuredWideFootprints()

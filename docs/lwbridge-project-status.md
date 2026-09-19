@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-063, 2026-09-19
+
+Cross-server Fast Truck/Secret Task scanning is repaired after the owner reproduced both tabs stopping at ~98% with zero rows on server 2204. Durable profile DB evidence showed both runs reached 2499/2500 with one failed synthetic Fast block: `Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint.` A targeted server-2204 diagnostic proved valid 100x3 Fast geometry, isolating the bug to retry placement: footprint validation occurred after the three-attempt recoverable-probe loop, so a transient malformed shape bypassed retry and failed the entire publication gate. Validation now occurs inside that bounded loop. Live server-2204 Fast acceptance passes Truck 2500/2500 with 278 published/reopened rows and Secret Task 2500/2500 with 319 published/reopened rows. See [R7-063 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-cross-server-fast-footprint-retry.json).
+
 ## Latest implementation checkpoint — LWB-R7-062, 2026-09-19
 
 Home/Overview launch robustness is repaired after the owner's UI test hit a real official-launcher handoff stall. The failed helper evidence says `the selected launcher did not create a matching LastWar process before timeout`; Launcher.log shows candidate pack verification succeeded but no `Starting game` line followed. Two controlled launches immediately afterward connected, isolating the failure from bridge injection/readiness. Production now retries exactly once only for that exact error, within the original bounded start budget and after transactional helper cleanup. Deterministic retry coverage, patched manual+auto live proof and the full six-group suite pass; game and launcher end closed. See [R7-062 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-overview-launcher-handoff-retry.json).

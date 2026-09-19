@@ -278,6 +278,7 @@ internal sealed partial class CurrentClientMapBlockSource
                         observation = await ProbeFastCityBatchAsync(
                             session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
+                        ValidateAdaptiveRowFootprint(observation.RequestedIndices, aoiRowStart);
                         lastError = null;
                         break;
                     }
@@ -298,7 +299,6 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 if (lastError is not null || observation is null) throw lastError!;
                 RequireSameSession(session);
-                ValidateAdaptiveRowFootprint(observation.RequestedIndices, aoiRowStart);
 
                 int before = covered.Count;
                 foreach (int index in observation.RequestedIndices)

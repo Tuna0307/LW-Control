@@ -49,6 +49,20 @@ internal static class LiveManualFullDispatchProof
                 var service = new ManualMapScanCommandService(lifecycle, store);
                 try
                 {
+                    string? targetServerRaw =
+                        Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_SERVER");
+                    if (int.TryParse(targetServerRaw, out int targetServerId) &&
+                        targetServerId is >= 1 and <= 99999)
+                    {
+                        JsonElement jumpPayload = JsonSerializer.SerializeToElement(
+                            new { serverId = targetServerId },
+                            JsonOptions.Default);
+                        await service.InvokeAsync(
+                            "server_jump",
+                            jumpPayload,
+                            operationCts.Token).ConfigureAwait(false);
+                    }
+
                     JsonElement payload = JsonSerializer.SerializeToElement(new
                     {
                         profileId = "manual-full-dispatch-proof",

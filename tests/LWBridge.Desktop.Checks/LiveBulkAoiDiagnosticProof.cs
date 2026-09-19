@@ -26,6 +26,18 @@ internal static class LiveBulkAoiDiagnosticProof
             var source = new CurrentClientMapBlockSource(lifecycle);
             CurrentClientMapContext context = await source.GetCurrentContextAsync(operationCts.Token)
                 .ConfigureAwait(false);
+            int homeServerId = context.ServerId;
+            string? requestedServer = Environment.GetEnvironmentVariable("LWBRIDGE_BULK_AOI_SERVER_ID");
+            if (int.TryParse(requestedServer, out int targetServerId) &&
+                targetServerId is >= 1 and <= 99999 &&
+                targetServerId != context.ServerId)
+            {
+                await source.JumpToServerAsync(targetServerId, operationCts.Token).ConfigureAwait(false);
+                context = await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
+                if (context.ServerId != targetServerId)
+                    throw new InvalidDataException(
+                        $"Bulk AOI proof did not settle on requested server {targetServerId}.");
+            }
             if (context.TileWidth != 1000 || context.TileHeight != 1000 || context.WorldId != 0)
                 throw new InvalidDataException(
                     $"Bulk AOI proof expected normal 1000x1000 world, got world={context.WorldId}, size={context.TileWidth}x{context.TileHeight}.");
@@ -60,6 +72,8 @@ internal static class LiveBulkAoiDiagnosticProof
                 proof = "current_client_private_bulk_aoi_request",
                 sessionId = session.SessionId,
                 gamePid = session.GamePid,
+                homeServerId,
+                observedServerId = context.ServerId,
                 bulkAoi = result,
                 bulkAoiRuns = results,
                 aoiGeometry = geometry,
