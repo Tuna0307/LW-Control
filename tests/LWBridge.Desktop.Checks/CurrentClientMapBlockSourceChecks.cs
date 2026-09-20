@@ -50,6 +50,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastMonsterResumesAfterEarlyReadyLoss();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastMonsterCoarseLodReturnsAllLogicalCaptures();
+        await FastMonsterCoarseIncludesDoomsdayBoss();
         await FastZombieBossCoarseLodPublishesOnlyZombieBosses();
         await FastMonsterCoarseFailureFailsFastWithoutCoverageFallback();
         await FastZombieBossCoarseFailureFailsFastWithoutCoverageFallback();
@@ -521,6 +522,43 @@ internal static class CurrentClientMapBlockSourceChecks
         Check(rows.Length == 1 && rows[0].RecordKey == "m-coarse-ordinary" &&
               rows[0].Kind == "monster" && rows[0].ShieldEndTime is null,
             "generic Monster path must exclude Zombie Boss rows after the dedicated category split");
+    }
+
+    private static async Task FastMonsterCoarseIncludesDoomsdayBoss()
+    {
+        int genericCalls = 0;
+        CurrentClientMapBlockSource generic = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                genericCalls++;
+                return ProvenCoarseDoomsdayMonsterBatch(fields);
+            },
+            useCoarseMonsterMap: true);
+        MapScanExecutionRequest genericRequest = new(
+            "run_doomsday_monster", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> genericCaptures = await generic.CaptureBatchAsync(
+            genericRequest, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        MapStoredRecord doom = genericCaptures.SelectMany(capture => capture.Records).Single();
+        Check(genericCalls == 1 && genericCaptures.Count == 2500 &&
+              doom.Kind == "monster" && doom.RecordKey == "doom-manager-1" && doom.Level == 60 &&
+              doom.DataJson.Contains("\"monsterSpecialType\":32", StringComparison.Ordinal) &&
+              doom.DataJson.Contains("\"configSpecial\":32", StringComparison.Ordinal) &&
+              doom.DataJson.Contains("\"runtimeClass\":\"LWDoomsdayManager.BossVO\"", StringComparison.Ordinal) &&
+              doom.DataJson.Contains("\"source\":\"DataCenter.LWDoomsdayManager.theaterBosses\"", StringComparison.Ordinal),
+            "generic Monster coarse scan must preserve current-v20 SuperRunningBoss/Doom Walker manager rows");
+
+        CurrentClientMapBlockSource zombie = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: ProvenCoarseDoomsdayMonsterBatch,
+            useCoarseMonsterMap: true);
+        MapScanExecutionRequest zombieRequest = new(
+            "run_doomsday_zombie", 2212, 0, 1000, 1000, ["zombie_boss"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanBlockCapture> zombieCaptures = await zombie.CaptureBatchAsync(
+            zombieRequest, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(zombieCaptures.SelectMany(capture => capture.Records).Count() == 0,
+            "Doom Walker must remain excluded from the dedicated Zombie Boss category");
     }
 
     private static async Task FastZombieBossCoarseLodPublishesOnlyZombieBosses()
@@ -2695,6 +2733,23 @@ internal static class CurrentClientMapBlockSourceChecks
     }
 
 
+    private static string ProvenCoarseDoomsdayMonsterBatch(
+        IReadOnlyDictionary<string, string> fields)
+    {
+        JsonObject root = JsonNode.Parse(ProvenCoarseMonsterBatch(
+            fields, ("doom-manager-1", 500, 500, 320032, 60, "doom_walker_name_key", false)))!.AsObject();
+        JsonObject row = root["monster_march_records"]!.AsArray()[0]!.AsObject();
+        row["runtimeClass"] = "LWDoomsdayManager.BossVO";
+        row["monsterSpecialType"] = 32;
+        row["configSpecial"] = 32;
+        row["monsterRallyNum"] = 1;
+        row["source"] = "DataCenter.LWDoomsdayManager.theaterBosses";
+        bool zombieBossOnly = fields.TryGetValue("includeMonsterProtection", out string? includeProtection) &&
+            includeProtection == "true";
+        root["doomsdayBossCount"] = zombieBossOnly ? 0 : 1;
+        return root.ToJsonString(JsonOptions.Default);
+    }
+
     private static string ProvenCoarseMonsterBatch(
         IReadOnlyDictionary<string, string> fields,
         params (string Uuid, int X, int Y, int MonsterId, int Level, string NameKey, bool Boss)[] monsters)
@@ -2721,6 +2776,7 @@ internal static class CurrentClientMapBlockSourceChecks
         root["restoredServerLod"] = 0; root["restoredBlockSize"] = 10; root["restoredBlockCount"] = 100;
         root["preTileX"] = 230; root["preTileY"] = 257;
         root["restoredTileX"] = 230; root["restoredTileY"] = 257;
+        root["doomsdayBossCount"] = 0;
         root["monsterInvasionBossCount"] = bossCount;
         root["monsterProtectionDetailTargetCount"] = includeMonsterProtection ? bossCount : 0;
         root["monsterProtectionDetailRequestCount"] = 0;

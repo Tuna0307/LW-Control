@@ -3963,6 +3963,108 @@ local function pump_resource_detail_diagnostic(now)
     return true
 end
 
+local function doomsday_boss_records(world, block_size, block_count, selected_lookup, home_tile, existing_records)
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "LWDoomsdayManager") or nil
+    local template_manager = data_center and safe_get(data_center, "MonsterTemplateManager") or nil
+    if manager == nil or template_manager == nil then return {}, nil end
+    local specials = rawget(_G, "WorldMonsterSpecialType")
+    local super_running_boss = specials and safe_get(specials, "SuperRunningBoss") or nil
+    if super_running_boss == nil then return nil, "WorldMonsterSpecialType.SuperRunningBoss unavailable" end
+
+    local records, seen = {}, {}
+    for index = 1, #(existing_records or {}) do
+        local uuid = existing_records[index].uuid
+        if uuid ~= nil and tostring(uuid) ~= "" then seen[tostring(uuid)] = true end
+    end
+
+    local function append_list(source_name, list)
+        if type(list) ~= "table" then return nil end
+        for _, boss in ipairs(list) do
+            local raw_uuid = safe_get(boss, "uid")
+            local uuid = raw_uuid ~= nil and tostring(raw_uuid) or ""
+            local monster_id = tonumber(safe_get(boss, "monsterId"))
+            local position_index = tonumber(safe_get(boss, "targetPos"))
+            if uuid ~= "" and monster_id ~= nil and monster_id > 0 and
+               position_index ~= nil and position_index > 0 then
+                monster_id = math.floor(monster_id)
+                position_index = math.floor(position_index)
+                local ok_template, template = call(template_manager, "TryGetMonsterTemplate", monster_id)
+                if ok_template and template ~= nil and
+                   same_enum_value(scalar_field(template, { "special", "Special" }), super_running_boss) then
+                    local tile = index_to_tile(world, position_index)
+                    if tile == nil then return "doomsday_target_position_invalid" end
+                    local cell_x = math.floor(tile.x / block_size)
+                    local cell_y = math.floor(tile.y / block_size)
+                    local aoi_index = cell_y * block_count + cell_x
+                    if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and
+                       selected_lookup[aoi_index] == true and seen[uuid] ~= true then
+                        local config_id = integer_field(template, { "id", "Id" })
+                        local name_key = scalar_field(template, { "name", "Name" })
+                        local level = integer_field(template, { "level", "Level" })
+                        if config_id == nil or config_id <= 0 or name_key == nil or tostring(name_key) == "" or level == nil then
+                            return "doomsday_template_identity_incomplete"
+                        end
+                        seen[uuid] = true
+                        records[#records + 1] = {
+                            uuid = uuid,
+                            kind = "monster",
+                            runtimeClass = "LWDoomsdayManager.BossVO",
+                            serverId = current_server_id(),
+                            worldId = 0,
+                            x = tile.x, y = tile.y, positionIndex = position_index,
+                            distanceFromHome = tile_distance(world, home_tile, tile),
+                            monsterId = monster_id,
+                            monsterType = integer_field(template, { "type", "Type" }) or 0,
+                            monsterSpecialType = tonumber(super_running_boss) or 32,
+                            monsterRallyNum = safe_get(boss, "isRally") == true and 1 or 0,
+                            configId = config_id,
+                            monsterNameKey = tostring(name_key),
+                            monsterLevel = level,
+                            configType = integer_field(template, { "type", "Type" }),
+                            configSpecial = integer_field(template, { "special", "Special" }) or 32,
+                            configBoss = integer_field(template, { "boss", "Boss" }),
+                            modelName = scalar_field(template, { "model_name", "modelName" }),
+                            picture = scalar_field(template, { "pic", "Pic" }),
+                            refreshTime = tonumber(safe_get(boss, "refreshTime")),
+                            monsterProtectionEligible = false,
+                            monsterProtectionKnown = false,
+                            monsterProtectionActive = false,
+                            isMonster = true,
+                            isBoss = false,
+                            isActBerserkBoss = false,
+                            isOrdinaryBoss = false,
+                            isWanderMonster = false,
+                            isWanderBoss = false,
+                            isZombieRushAltered = false,
+                            source = "DataCenter.LWDoomsdayManager." .. source_name,
+                        }
+                    end
+                end
+            end
+        end
+        return nil
+    end
+
+    local error_text = append_list("theaterBosses", safe_get(manager, "theaterBosses"))
+    if error_text ~= nil then return nil, error_text end
+    error_text = append_list("allianceBosses", safe_get(manager, "allianceBosses"))
+    if error_text ~= nil then return nil, error_text end
+    return records, nil
+end
+
+local function request_doomsday_main_info()
+    local sfs = rawget(_G, "SFSNetwork")
+    local defs = rawget(_G, "MsgDefines")
+    local message = defs and safe_get(defs, "ActivityDoomsdayMainInfo") or nil
+    local send = sfs and safe_get(sfs, "SendMessage") or nil
+    if message == nil or type(send) ~= "function" then return false, "doomsday_transport_unavailable" end
+    local ok = pcall(send, message)
+    if not ok then ok = pcall(send, sfs, message) end
+    if ok then return true, nil end
+    return false, "doomsday_send_failed"
+end
+
 local function monster_march_aoi_records(world, block_size, block_count, selected_lookup, home_tile)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
@@ -4420,6 +4522,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         point_records = details.pointRecords,
         monster_march_records = details.monsterMarchRecords,
         train_march_records = details.trainMarchRecords,
+        doomsdayBossCount = details.doomsdayBossCount or 0,
         monsterInvasionBossCount = details.monsterInvasionBossCount or 0,
         monsterProtectionDetailTargetCount = details.monsterProtectionDetailTargetCount or 0,
         monsterProtectionDetailRequestCount = details.monsterProtectionDetailRequestCount or 0,
@@ -4494,6 +4597,10 @@ local function pump_bulk_aoi_diagnostic(now)
         if world == nil or point_manager == nil then
             write_bulk_aoi_result(request, "failed", world_error or "world_unavailable", nil)
             return true
+        end
+        if request.includeMonster == true and request.includeMonsterProtection ~= true then
+            request.doomsdayRequestSent = select(1, request_doomsday_main_info())
+            request.doomsdayRequestSentAt = runtime_clock()
         end
         local block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
         local block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
@@ -5169,6 +5276,15 @@ local function pump_bulk_aoi_diagnostic(now)
     end
     details.monsterMarchRecords = {}
     if bulk_aoi_request.includeMonster == true then
+        -- Current-v20 Doom Walker / SuperRunningBoss is owned by the Doomsday
+        -- activity manager and may not yet exist in WorldMarchDataManager. Issue
+        -- the same read-only main-info request used by UIDoomsday and give that
+        -- response a short bounded settle before taking the whole-world snapshot.
+        if bulk_aoi_request.includeMonsterProtection ~= true and
+           bulk_aoi_request.doomsdayRequestSent == true and
+           runtime_clock() - (bulk_aoi_request.doomsdayRequestSentAt or runtime_clock()) < 0.75 then
+            return true
+        end
         if bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" then
             local response_flags = bulk_manager_flags(point_manager)
             if response_flags.isRecvViewPoints ~= true or world_response_flag(world) ~= true then return true end
@@ -5180,6 +5296,19 @@ local function pump_bulk_aoi_diagnostic(now)
         if monster_march_records == nil then
             fail_bulk_aoi(bulk_aoi_request, monster_march_records_error, details, point_manager)
             return true
+        end
+        details.doomsdayBossCount = 0
+        if bulk_aoi_request.includeMonsterProtection ~= true then
+            local doomsday_records, doomsday_error = doomsday_boss_records(
+                world, details.blockSize, details.blockCount, lookup, home_tile, monster_march_records)
+            if doomsday_records == nil then
+                fail_bulk_aoi(bulk_aoi_request, doomsday_error, details, point_manager)
+                return true
+            end
+            details.doomsdayBossCount = #doomsday_records
+            for index = 1, #doomsday_records do
+                monster_march_records[#monster_march_records + 1] = doomsday_records[index]
+            end
         end
         details.monsterMarchRecords = monster_march_records
 

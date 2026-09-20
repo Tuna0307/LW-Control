@@ -763,12 +763,17 @@ internal sealed partial class CurrentClientMapBlockSource
 
         var allAoi = Enumerable.Range(0, FastCityAoiBlockCount * FastCityAoiBlockCount).ToHashSet();
         IReadOnlyList<FastMonsterPrepared> monsters = PrepareMonsterRecords(root, request, allAoi, startedAt);
+        int doomsdayBossCount = RequireNonNegativeInt(root, "doomsdayBossCount");
+        int normalizedDoomsdayBossCount = monsters.Count(item =>
+            item.Record.DataJson.Contains("\"source\":\"DataCenter.LWDoomsdayManager.", StringComparison.Ordinal));
+        bool zombieBossOnly = IsZombieBossOnly(request);
+        if (zombieBossOnly ? doomsdayBossCount != 0 : doomsdayBossCount != normalizedDoomsdayBossCount)
+            throw new InvalidDataException("LOD2 Monster Doomsday boss count changed during normalization.");
         int bossCount = RequireNonNegativeInt(root, "monsterInvasionBossCount");
         int protectionTargets = RequireNonNegativeInt(root, "monsterProtectionDetailTargetCount");
         int protectionRequests = RequireNonNegativeInt(root, "monsterProtectionDetailRequestCount");
         int protectionReady = RequireNonNegativeInt(root, "monsterProtectionDetailReadyCount");
         int normalizedBossCount = monsters.Count(item => item.ProtectionEligible);
-        bool zombieBossOnly = IsZombieBossOnly(request);
         bool countersValid = zombieBossOnly
             ? bossCount == normalizedBossCount &&
               protectionTargets == bossCount &&

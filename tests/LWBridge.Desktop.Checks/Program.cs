@@ -5704,6 +5704,14 @@ Check(
     liveCityProbeSource.Contains("details.matchedCityCount = #point_records", StringComparison.Ordinal),
     "current-v19 City AOI collector must use the unique retained GetAllMainBaseList source and keep matchedCityCount tied to the published City snapshot");
 Check(
+    liveCityProbeSource.Contains("local function doomsday_boss_records", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("WorldMonsterSpecialType.SuperRunningBoss unavailable", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("ActivityDoomsdayMainInfo", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("DataCenter.LWDoomsdayManager.", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("details.doomsdayBossCount = #doomsday_records", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("bulk_aoi_request.includeMonsterProtection ~= true", StringComparison.Ordinal),
+    "current-v20 generic Monster probe must merge source-backed SuperRunningBoss/Doom Walker rows from LWDoomsdayManager while leaving Zombie Boss scans on their separate protection path");
+Check(
     liveCityProbeSource.Contains("protectTimeMinutes = protect_time", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("stealMaxTimes = steal_max_times", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("\"protect_times\"", StringComparison.Ordinal) &&
