@@ -246,6 +246,13 @@ if (args.Contains("--overview-bridge-listener-contract-check", StringComparer.Or
     return 0;
 }
 
+if (args.Contains("--overview-bridge-proxy-environment-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeProxyEnvironmentChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -260,6 +267,7 @@ LWBridge.Desktop.Checks.OverviewBridgeRpcProtocolChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeRegistryChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeTransportLimitsChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeListenerContractChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeProxyEnvironmentChecks.Run();
 
 void Check(bool condition, string name)
 {

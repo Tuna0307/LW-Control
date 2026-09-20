@@ -1,0 +1,144 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-101",
+  "date": "2026-09-20",
+  "status": "RECOVERED-PROXY-ENVIRONMENT/OFFLINE-TESTED/REGISTRY-TOKEN-LINK-PARTIAL",
+  "title": "Recover original bridge proxy launch environment and pipe-token format",
+  "branch": "research/offline-controller",
+  "parentRevision": "b74f6bc541acb8b59a8a4eeb3d0e56e5fbaf9089",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Recovers the embedded profile-launcher's exact LWBRIDGE_PROFILE_ID, LWBRIDGE_INSTANCE_ID, LWBRIDGE_PIPE_TOKEN and LWBRIDGE_BUILD_ID bindings, proves both recovered CreateProcessW launch branches inherit those values through lpEnvironment=NULL, recovers the original pipeToken producer as 32 random bytes encoded as 43-character unpadded Base64URL, and proves that this is a distinct contract from the rebuild's existing 64-character lowercase-hex lifecycle challenge. The implementation is offline-only and does not mutate a process environment or launch a child.",
+    "officialGameLaunchedByThisCheckpoint": false,
+    "productionGameplayActionPerformed": false,
+    "productionCallLuaEnabled": false
+  },
+  "reference": {
+    "outerBinary": "../LW/lwbridge-0.3.1.exe",
+    "outerSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProfileLauncher": {
+      "outerRva": "0xB72B52",
+      "size": "0xA7200",
+      "sha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de"
+    }
+  },
+  "launcherEnvironmentBinding": {
+    "descriptorLayoutProof": {
+      "parserFunction": "embedded RVA 0x19770-0x1AFFB",
+      "profileIdOwnedString": "embedded RVA 0x19863-0x199F3 leaves profileId at [rbp-0x10]",
+      "remainingDescriptorCopy": "embedded RVA 0x199DD-0x199EE copies remaining descriptor beginning at [rbp+0x08], making [rbp+0x08]=instanceId and [rbp+0x20]=pipeToken"
+    },
+    "variables": [
+      {
+        "name": "LWBRIDGE_PROFILE_ID",
+        "source": "LaunchDescriptor.profileId",
+        "bindingRva": "embedded 0x1A259-0x1A269",
+        "length": 19
+      },
+      {
+        "name": "LWBRIDGE_INSTANCE_ID",
+        "source": "LaunchDescriptor.instanceId",
+        "bindingRva": "embedded 0x1A27C-0x1A28C",
+        "length": 20
+      },
+      {
+        "name": "LWBRIDGE_PIPE_TOKEN",
+        "source": "LaunchDescriptor.pipeToken",
+        "bindingRva": "embedded 0x1A291-0x1A2AF",
+        "length": 19
+      },
+      {
+        "name": "LWBRIDGE_BUILD_ID",
+        "source": "LaunchDescriptor.buildId",
+        "bindingRva": "embedded 0x1A2C9-0x1A2D5",
+        "length": 17
+      }
+    ],
+    "setter": {
+      "wrapper": "embedded RVA 0x660F0-0x661DB",
+      "api": "SetEnvironmentVariableW",
+      "apiCall": "embedded RVA 0x66177"
+    },
+    "childInheritance": {
+      "directCreateProcessW": "embedded RVA 0x23373",
+      "alternateCreateProcessW": "embedded RVA 0x25087",
+      "lpEnvironment": "NULL in both branches",
+      "creationFlags": "0x00000004 (CREATE_SUSPENDED) in both recovered branches",
+      "meaning": "the launched child inherits the profile-launcher's process environment, including the four recovered LWBRIDGE identity/build variables"
+    }
+  },
+  "pipeTokenProducer": {
+    "outerLaunchStateSlot": "+0x3A0",
+    "slotInitializationCall": "outer RVA 0x1D511D -> 0x3A2E51",
+    "producerFunction": "outer RVA 0x3A2E51-0x3A2ED7",
+    "entropyBytes": 32,
+    "randomFill": "outer RVA 0x3A2E82-0x3A2E8B fills exactly 0x20 bytes",
+    "encodingCall": "outer RVA 0x3A2EB7-0x3A2EC7 -> 0x401E98",
+    "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",
+    "padding": false,
+    "encodedLength": 43,
+    "descriptorSerialization": "outer RVA 0x1D846E takes LaunchDescriptor.pipeToken from state +0x3A0; field-name write at RVA 0x1D84C9",
+    "protectedArtifact": {
+      "rawTokenForwarding": "outer RVA 0x1D80D1/0x1D80D8 forwards the same launch-state token slice into helper 0x3E002A",
+      "protectionPath": "helper 0x3E002A forwards that slice to RVA 0x39F4C5, which calls CryptProtectData and then Base64-encodes the protected blob",
+      "boundary": "the protected blob is a separate launch artifact and is not treated as the raw control-pipe handshake token"
+    }
+  },
+  "challengeSeparation": {
+    "rebuildCurrentProducer": "OverviewLifecycleService.StartAsync",
+    "rebuildEncoding": "Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant()",
+    "rebuildLength": 64,
+    "originalPipeTokenEncoding": "32 random bytes -> Base64URL without padding",
+    "originalPipeTokenLength": 43,
+    "conclusion": "Do not alias the rebuild lifecycle challenge to the original LWBRIDGE_PIPE_TOKEN."
+  },
+  "registryLink": {
+    "knownStartupRegistration": "outer RVA 0x3A231F -> 0x3CCA38 -> 0x3C2A69",
+    "knownDeadline": "current clock + 0x15F90 = 90000 ms",
+    "knownRegistryContract": "instanceId key with profileId, SHA-256(token), expiry deadline and claimed flag from LWB-R7-098",
+    "currentProof": "the registration worker token ABI is recovered, but this checkpoint does not yet claim a complete instruction-level alias from launch-state +0x3A0 to the registration token slice",
+    "status": "PARTIAL; do not substitute challenge or assume equality without finishing this data-flow trace"
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeProxyLaunchEnvironmentContract.cs",
+    "productionIntegration": false,
+    "processEnvironmentMutation": false,
+    "childProcessLaunch": false,
+    "productionNamedPipeListenerImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": "null"
+  },
+  "tests": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeProxyEnvironmentChecks.cs",
+    "focusedCli": "--overview-bridge-proxy-environment-check",
+    "focusedResult": "PASS",
+    "defaultSuiteGuard": true,
+    "coverage": [
+      "exact four recovered identity/build variable names",
+      "profileId/instanceId/pipeToken/buildId binding model",
+      "32-byte deterministic fixture to exact 43-character unpadded Base64URL",
+      "no '=', '+', or '/' in encoded pipe token",
+      "64-character lowercase-hex rebuild challenge remains distinct from recovered pipe token"
+    ]
+  },
+  "remainingBlocker": "Finish the raw pipeToken-to-registry registration alias trace, then recover/implement authentic production listener ownership and outstanding-call lifecycle before enabling allowlisted call_lua(getStatus) or exposing non-null get_status.pending.",
+  "safety": {
+    "mapScanPerformedByThisCheckpoint": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedProxyEnvironmentGuard": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "defaultDeterministicSuite": "PASS; failures=[]",
+    "frontendGenerationCheck": "PASS",
+    "hashLockedControlPipeInspector": "PASS",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}
