@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-115",
+  "date": "2026-09-21",
+  "status": "ISOLATED-AUTHENTICATED-HELLO-IMPLEMENTED/WINDOWS-PROVEN/PRODUCTION-LISTENER-NOT-WIRED",
+  "title": "Implement and prove isolated authenticated hello transport",
+  "branch": "research/offline-controller",
+  "parentRevision": "36f149a51c11ada008fc399665837adb77f8fbac",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": [
+    "LWB-R5-007 frame + hello schema",
+    "LWB-R7-097 hello.ack envelope",
+    "LWB-R7-098 registry/token/generation semantics",
+    "LWB-R7-100 five-second handshake deadline and cleanup boundary",
+    "LWB-R7-111 exact native server construction",
+    "LWB-R7-112 overlapped ConnectNamedPipe ownership",
+    "LWB-R7-113 PID/build/registry identity gates",
+    "LWB-R7-114 client executable-path normalization"
+  ],
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedHandshake.cs",
+    "frameRead": "4-byte little-endian length + exact payload read, recovered range 1..0x800000",
+    "helloParse": "LWBridgeControlPipeProtocol.ParseProxyHello",
+    "deadline": "default LWBridgeControlPipeListenerContract.HandshakeTimeout = 5 seconds",
+    "clientPid": "GetNamedPipeClientProcessId must equal hello payload.pid",
+    "clientImage": "OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION) + QueryFullProcessImageNameW + R7-114 canonicalization/equality",
+    "buildId": "exact ordinal equality",
+    "registryAdmission": "existing LWBridgeControlPipeRegistry.TryAdmit",
+    "ack": "framed LWBridgeControlPipeProtocol.EncodeHelloAck",
+    "ackFailureRollback": "generation-scoped RemoveConnected",
+    "pipeHandleOwnership": "non-owning FileStream wrapper leaves caller-owned connected server handle open"
+  },
+  "windowsProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeIsolatedHandshakeChecks.cs",
+    "focusedCli": "--overview-bridge-isolated-handshake-check",
+    "result": "PASS",
+    "success": {
+      "framedHelloAck": true,
+      "osClientPidVerified": true,
+      "canonicalClientImageVerified": true,
+      "buildIdVerified": true,
+      "registryTokenAdmission": true,
+      "routeGeneration": 1,
+      "generationScopedCleanup": true
+    },
+    "negativeCases": {
+      "pidMismatch": "PIPE_HANDSHAKE_REJECTED",
+      "connectedClientNoHello": "PIPE_HANDSHAKE_TIMEOUT"
+    },
+    "temporaryLocalPipesOnly": true
+  },
+
+  "productionBoundary": {
+    "LWBridgeControlPipeHostStateCallsAuthenticateAsync": false,
+    "productionHostOpensPipe": false,
+    "productionAcceptLoopStarted": false,
+    "proxyLaunchEnvironmentBound": false,
+    "outboundCommandRoutingImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Build and deterministically test the shared host accept-loop lifecycle around native server creation/connect/authentication: first-instance flag once, replacement instances, failed-accept retry, authenticated route lifetime, shutdown cancellation and generation-scoped disconnect. Keep profile launch binding and outbound Lua RPC disabled until that host loop is proven.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}
