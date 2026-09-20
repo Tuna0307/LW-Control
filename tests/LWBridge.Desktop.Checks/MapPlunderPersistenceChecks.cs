@@ -207,6 +207,7 @@ internal static class MapPlunderPersistenceChecks
             }
 
             RunDispatchSchedulePersistence(Path.Combine(root, "dispatch-schedule-map-data.db"));
+            RunDispatchWorkerPersistence(Path.Combine(root, "dispatch-worker-map-data.db"));
             RunTruckScheduleTransaction(Path.Combine(root, "schedule-map-data.db"));
             RunTruckWorkerPersistence(Path.Combine(root, "worker-map-data.db"));
         }
@@ -362,6 +363,105 @@ internal static class MapPlunderPersistenceChecks
                   failed.GetProperty("ownerName").GetString() == "Failed-old",
                 "Dispatch schedule/cancel persistence survives database reopen without replacing blocked rows");
         }
+    }
+
+
+    private static void RunDispatchWorkerPersistence(string databasePath)
+    {
+        using var store = new MapDataStore(databasePath);
+        store.UpsertDispatchPlunderJobForTest(
+            88, "10001",
+            """{"uuid":"10001","completionTime":500,"plunderAt":900,"stolenCount":1,"maxStealCount":3}""",
+            completionTime: 500, plunderAt: 900, expireAt: 5_000,
+            status: "waiting_connection", attempts: 2,
+            lastError: "DISPATCH_PLUNDER_GAME_DISCONNECTED",
+            createdAt: 100, updatedAt: 110);
+        store.UpsertDispatchPlunderJobForTest(
+            88, "10002",
+            """{"uuid":"10002","completionTime":800,"plunderAt":1100,"stolenCount":0,"maxStealCount":3}""",
+            completionTime: 800, plunderAt: 1_100, expireAt: 5_000,
+            status: "scheduled", attempts: 3,
+            lastError: null, createdAt: 120, updatedAt: 130);
+        store.UpsertDispatchPlunderJobForTest(
+            88, "10003",
+            """{"uuid":"10003","completionTime":1000,"plunderAt":15000,"stolenCount":0,"maxStealCount":3}""",
+            completionTime: 1_000, plunderAt: 15_000, expireAt: null,
+            status: "scheduled", attempts: 0,
+            lastError: null, createdAt: 140, updatedAt: 150);
+        store.UpsertDispatchPlunderJobForTest(
+            88, "10004",
+            """{"uuid":"10004","completionTime":500,"plunderAt":800,"stolenCount":0,"maxStealCount":3}""",
+            completionTime: 500, plunderAt: 800, expireAt: 1_000,
+            status: "scheduled", attempts: 1,
+            lastError: null, createdAt: 160, updatedAt: 170);
+
+        Check(store.ExpireDispatchPlunder(1_000) == 1,
+            "Dispatch worker expiry terminalizes only active rows whose recovered expire_at elapsed");
+        JsonElement expired = store.ReadPlunderJobs().DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "10004");
+        Check(expired.GetProperty("scheduleStatus").GetString() == "expired" &&
+              expired.GetProperty("lastError").GetString() == "DISPATCH_PLUNDER_TASK_EXPIRED" &&
+              expired.GetProperty("scheduleUpdatedAt").GetInt64() == 1_000,
+            "Dispatch expiry uses the exact recovered terminal status/error");
+
+        DispatchPlunderWorkItem? first =
+            store.ReadArmableDispatchPlunder(1_000, 10_000);
+        Check(first is not null &&
+              first.TaskUuid == "10001" &&
+              first.Status == "waiting_connection" &&
+              first.Attempts == 2 &&
+              first.PlunderAt == 900 &&
+              first.ExpireAt == 5_000 &&
+              first.Task.GetProperty("maxStealCount").GetInt32() == 3,
+            "Dispatch armable read preserves the recovered 10-second preparation window and plunder ordering");
+
+        Check(store.UpdateDispatchPlunderStatus(
+                88, "10001", "running", null,
+                incrementAttempts: true, updatedAt: 1_010),
+            "Dispatch worker can apply the recovered running transition");
+        JsonElement running = store.ReadPlunderJobs().DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "10001");
+        Check(running.GetProperty("scheduleStatus").GetString() == "running" &&
+              running.GetProperty("attempts").GetInt32() == 3 &&
+              running.GetProperty("lastError").ValueKind == JsonValueKind.Null,
+            "Dispatch running transition increments attempts exactly once and clears connection error");
+
+        Check(store.RecoverDispatchPlunderJobsOriginal(1_020) == 1,
+            "Dispatch restart recovery finds the stale recovered running row");
+        JsonElement restarted = store.ReadPlunderJobs().DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "10001");
+        Check(restarted.GetProperty("scheduleStatus").GetString() == "waiting_connection" &&
+              restarted.GetProperty("attempts").GetInt32() == 3 &&
+              restarted.GetProperty("lastError").GetString() == "DISPATCH_PLUNDER_CLIENT_RESTARTED",
+            "original Dispatch restart SQL preserves the consumed running attempt");
+
+        Check(store.MarkDueDispatchPlunderWaitingConnection(1_000) == 0,
+            "Dispatch disconnected-due transition does not use the 10-second arm lead");
+        Check(store.MarkDueDispatchPlunderWaitingConnection(1_100) == 1,
+            "Dispatch disconnected-due transition starts only when plunder_at is actually due");
+        JsonElement disconnected = store.ReadPlunderJobs().DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "10002");
+        Check(disconnected.GetProperty("scheduleStatus").GetString() == "waiting_connection" &&
+              disconnected.GetProperty("attempts").GetInt32() == 3 &&
+              disconnected.GetProperty("lastError").GetString() == "DISPATCH_PLUNDER_GAME_DISCONNECTED",
+            "Dispatch offline transition preserves attempts and exact recovered error");
+
+        Check(store.FailActiveDispatchPlunderAtDailyLimit(1_200) == 3,
+            "Dispatch daily limit terminalizes every remaining scheduled/waiting job");
+        JsonElement[] activeTerminalized = store.ReadPlunderJobs().DispatchJobs
+            .Where(row => row.GetProperty("uuid").GetString() is "10001" or "10002" or "10003")
+            .ToArray();
+        Check(activeTerminalized.All(row =>
+                  row.GetProperty("scheduleStatus").GetString() == "failed" &&
+                  row.GetProperty("lastError").GetString() == "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED") &&
+              activeTerminalized.Single(row => row.GetProperty("uuid").GetString() == "10001")
+                  .GetProperty("attempts").GetInt32() == 3,
+            "Dispatch daily-limit shutdown preserves attempts while applying the recovered terminal error");
+
+        Check(!store.UpdateDispatchPlunderStatus(
+                88, "99999", "failed", "missing",
+                incrementAttempts: false, updatedAt: 1_300),
+            "Dispatch status update never fabricates a missing scheduler row");
     }
 
     private static void RunTruckScheduleTransaction(string databasePath)

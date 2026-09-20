@@ -2270,6 +2270,8 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
         local level = tonumber(scalar_field(cfg, { "level", "Level" }))
         local quality = tonumber(scalar_field(cfg, { "color", "Color" }))
         local is_special = tonumber(scalar_field(cfg, { "is_special", "isSpecial", "IsSpecial" }))
+        local protect_time = tonumber(scalar_field(cfg, { "protect_times", "protectTime", "ProtectTime" }))
+        local steal_max_times = tonumber(scalar_field(cfg, { "steal_maxtimes", "stealMaxTimes", "StealMaxTimes" }))
         if level == nil or level < 1 or quality == nil or quality < 1 or is_special == nil then
             record_error = "dispatch_config_shape_invalid:" .. tostring(cfg_id)
             return false
@@ -2302,6 +2304,8 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
             allianceId = scalar_field(info, { "allianceId", "AllianceId" }),
             stealListCount = collection_count(steal_list),
             accListCount = collection_count(acc_list),
+            protectTimeMinutes = protect_time,
+            stealMaxTimes = steal_max_times,
             dispatchNameKey = scalar_field(cfg, { "name", "Name" }),
             source = "WorldPointManager._pointInfos+HeroDispatchMissionPointInfo",
         }

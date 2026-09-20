@@ -932,6 +932,10 @@ internal static class CurrentClientMapBlockSourceChecks
               first.DataJson.Contains("\"cfgId\":3101", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"isSpecial\":true", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"completionTime\":1789616000000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"plunderAt\":1789616300000", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"stolenCount\":1", StringComparison.Ordinal) &&
+              first.DataJson.Contains("\"maxStealCount\":3", StringComparison.Ordinal) &&
+              !first.DataJson.Contains("\"taskExpireTime\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"ownerUid\":\"dispatch-owner-a\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"kind\":\"dispatch\"", StringComparison.Ordinal),
             "fast full-Dispatch source did not preserve authoritative HeroDispatchMissionPointInfo fields");
@@ -2261,6 +2265,8 @@ internal static class CurrentClientMapBlockSourceChecks
             allianceId = "dispatch-alliance",
             stealListCount = 1,
             accListCount = 0,
+            protectTimeMinutes = 5,
+            stealMaxTimes = 3,
             dispatchNameKey = "dispatch_name_key",
             source = "WorldPointManager._pointInfos+HeroDispatchMissionPointInfo",
         }).ToArray(), JsonOptions.Default);

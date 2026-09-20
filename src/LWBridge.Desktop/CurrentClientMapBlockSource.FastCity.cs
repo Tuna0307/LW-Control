@@ -1260,6 +1260,26 @@ internal sealed partial class CurrentClientMapBlockSource
                 specialValue.ValueKind == JsonValueKind.True;
             data["isSpecial"] = isSpecial;
 
+            // Current-v19 UIWorldPointBtn Dispatch steal eligibility uses
+            // completionTime + LwDispatchTask.protect_times * 60000 as the first
+            // legal steal instant, stealList.Count as the current per-task steal
+            // count, and LwDispatchTask.steal_maxtimes as the cap.
+            long? completionTime = OptionalPositiveInt64(row, "completionTime");
+            int? protectMinutes = OptionalNonNegativeInt(row, "protectTimeMinutes");
+            int? stolenCount = OptionalNonNegativeInt(row, "stealListCount");
+            int? maxStealCount = OptionalNonNegativeInt(row, "stealMaxTimes");
+            if (completionTime is long completion &&
+                protectMinutes is int protect &&
+                protect <= (long.MaxValue - completion) / 60_000L)
+            {
+                data["plunderAt"] = completion + protect * 60_000L;
+            }
+            if (stolenCount.HasValue) data["stolenCount"] = stolenCount.Value;
+            if (maxStealCount.HasValue) data["maxStealCount"] = maxStealCount.Value;
+            // Do not map HeroDispatchMissionPointInfo.expiredTime to
+            // taskExpireTime: current-v19 Dispatch Lua does not use that field
+            // as the steal expiry contract.
+
             string recordKey = pointId.ToString(CultureInfo.InvariantCulture);
             result.Add(new FastDispatchPrepared(x, y, new MapStoredRecord(
                 "dispatch", serverId, recordKey, pointId, uuid, null, null,

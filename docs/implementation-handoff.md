@@ -1,8 +1,14 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-080, 2026-09-20
+## Current continuation checkpoint - LWB-R7-081, 2026-09-20
 
-**Dispatch plunder schedule/cancel persistence is RECOVERED and internally OFFLINE-TESTED.** The verified original pins schedule payload validation (1..200 rows; positive server; nonempty decimal-string UUID; completion/plunder/expiry/steal predicates), exact error text, guarded active-only SQLite upsert, cancel eligibility, `NOT_FOUND / scheduled plunder job not found`, and `bridge://dispatch-plunder-changed`. The rebuild reproduces the store transitions and exact schedule validator, and public Dispatch cancel is enabled/offline-tested with the recovered change event. Public Dispatch schedule remains intentionally disabled because no current-v19 durable Dispatch worker/executor has yet been implemented.
+**Dispatch current-v19 send/eligibility and original arming persistence are now recovered.** The official client sends `DispatchSteal(uuid,targetServer)` after source-backed completion/protection/already-stolen/daily/per-task/cross-server checks. Current rows now derive `plunderAt`, `stolenCount` and `maxStealCount` from exactly those inputs; `taskExpireTime` remains unknown because v19 Dispatch Lua does not use it. Original worker recovery pins the 10-second arming lead, running-before-arm, 5-second `armMapPlunder` timeout and 30-second response-horizon constant, and exact worker DB transitions are implemented/offline-tested.
+
+**Next:** close the original post-arm result/runtime branch and implement a session-correlated current-v19 bridge executor that cannot send before `executeAt` and never retries an ambiguous post-send outcome. Keep `map_dispatch_plunder_schedule` fail-closed and do not execute Dispatch plunder live without explicit owner authorization.
+
+## Prior continuation checkpoint - LWB-R7-080, 2026-09-20
+
+**Dispatch plunder schedule/cancel persistence is RECOVERED and internally OFFLINE-TESTED.** The verified original pins schedule payload validation (1..200 rows; positive server; nonempty decimal-string UUID; completion/plunder/expiry/steal predicates), exact error text, guarded active-only SQLite upsert, cancel eligibility, `NOT_FOUND / scheduled plunder job not found`, and `bridge://dispatch-plunder-changed`. The rebuild reproduces the store transitions and exact schedule validator, and public Dispatch cancel is enabled/offline-tested with the recovered change event. Public Dispatch schedule remained intentionally disabled at R7-080; R7-081 subsequently recovers current-v19 send/eligibility plus the original arm/persistence kernel, while result/runtime correlation remains open.
 
 **Next:** recover the original Dispatch worker timing/state machine/result protocol and identify the authoritative current-v19 game execution chain. Keep the public command fail-closed until those pieces are source-backed and offline-tested. Do not execute Dispatch plunder live without explicit owner authorization.
 

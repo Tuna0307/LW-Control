@@ -5603,6 +5603,12 @@ Check(liveProbeHelperSource.Contains("closing_owned_game_after_failure_for_resto
       liveProbeHelperSource.Contains("close_owned_game_process_for_restore(p, owned_game)", StringComparison.Ordinal),
     "live helper failure cleanup retains exact helper-owned PID normal-close restoration fallback");
 string liveCityProbeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+Check(
+    liveCityProbeSource.Contains("protectTimeMinutes = protect_time", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("stealMaxTimes = steal_max_times", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("\"protect_times\"", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("\"steal_maxtimes\"", StringComparison.Ordinal),
+    "current-v19 Dispatch probe must preserve source-backed protection and per-task steal-cap config");
 string overviewBridgeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_overview_bridge.lua"));
 Check(
     overviewBridgeSource.Contains("GoToUtil.JumpToMarchByUuid", StringComparison.Ordinal) &&
@@ -5652,6 +5658,16 @@ int truckResultEnd = plunderStoreSource.IndexOf("internal TruckPlunderWorkItem? 
 string truckResultSource = truckResultStart >= 0 && truckResultEnd > truckResultStart
     ? plunderStoreSource[truckResultStart..truckResultEnd]
     : string.Empty;
+Check(
+    plunderStoreSource.Contains("ReadArmableDispatchPlunder", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("ExpireDispatchPlunder", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("MarkDueDispatchPlunderWaitingConnection", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("RecoverDispatchPlunderJobsOriginal", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("FailActiveDispatchPlunderAtDailyLimit", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("DISPATCH_PLUNDER_CLIENT_RESTARTED", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("DISPATCH_PLUNDER_GAME_DISCONNECTED", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("DISPATCH_PLUNDER_DAILY_LIMIT_REACHED", StringComparison.Ordinal),
+    "Dispatch plunder store must preserve recovered arm, expiry, restart, disconnected-due and daily-limit worker primitives");
 Check(
     truckResultSource.Contains("row[\"battleWon\"] = battleWon", StringComparison.Ordinal) &&
     truckResultSource.Contains("row[\"plunderRewards\"] = JsonNode.Parse", StringComparison.Ordinal) &&
@@ -5823,6 +5839,12 @@ Check(liveCityProbeSource.Contains("ghost_aoi_records", StringComparison.Ordinal
       liveCityProbeSource.Contains("WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask", StringComparison.Ordinal),
     "Ghost Ops rows must remain a distinct type-29 GhostreconPointInfo path with current LwGhostreconTask config and source-backed task/list metadata");
 string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
+Check(
+    fastCitySource.Contains("data[\"plunderAt\"] = completion + protect * 60_000L", StringComparison.Ordinal) &&
+    fastCitySource.Contains("data[\"stolenCount\"] = stolenCount.Value", StringComparison.Ordinal) &&
+    fastCitySource.Contains("data[\"maxStealCount\"] = maxStealCount.Value", StringComparison.Ordinal) &&
+    fastCitySource.Contains("Do not map HeroDispatchMissionPointInfo.expiredTime", StringComparison.Ordinal),
+    "Dispatch row enrichment must derive only source-backed steal timing/capacity and keep task expiry unknown");
 Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
     "optional Monster Protection detail must not pause each AOI acquisition step");
 Check(fastCitySource.Contains("MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35)", StringComparison.Ordinal),

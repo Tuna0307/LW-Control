@@ -12,6 +12,19 @@ internal sealed record TruckPlunderScheduleResult(
     int Attempts,
     bool ArchivedPreviousAttempt);
 
+internal sealed record DispatchPlunderWorkItem(
+    int ServerId,
+    string TaskUuid,
+    JsonElement Task,
+    long CompletionTime,
+    long PlunderAt,
+    long? ExpireAt,
+    string Status,
+    int Attempts,
+    string? LastError,
+    long CreatedAt,
+    long UpdatedAt);
+
 internal sealed record TruckPlunderWorkItem(
     int ServerId,
     string TrainUuid,
@@ -110,6 +123,180 @@ internal sealed partial class MapDataStore
             command.Parameters.AddWithValue("$updated", updatedAt);
             return command.ExecuteNonQuery() > 0;
         }
+    }
+
+
+    internal DispatchPlunderWorkItem? ReadArmableDispatchPlunder(
+        long now,
+        long leadMilliseconds)
+    {
+        if (now < 0 || leadMilliseconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT server_id,task_uuid,task_json,completion_time,plunder_at,expire_at,
+                       status,attempts,last_error,created_at,updated_at
+                FROM dispatch_plunder_jobs
+                WHERE status IN ('scheduled','waiting_connection')
+                  AND plunder_at<=$now+$lead
+                  AND (expire_at IS NULL OR expire_at>$now)
+                ORDER BY plunder_at ASC LIMIT 1
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            command.Parameters.AddWithValue("$lead", leadMilliseconds);
+            using SqliteDataReader reader = command.ExecuteReader();
+            if (!reader.Read()) return null;
+            return ReadDispatchPlunderWorkItem(reader);
+        }
+    }
+
+    internal int ExpireDispatchPlunder(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='expired',
+                    last_error='DISPATCH_PLUNDER_TASK_EXPIRED',
+                    updated_at=$now
+                WHERE status IN ('scheduled','waiting_connection')
+                  AND expire_at IS NOT NULL AND expire_at<=$now
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal int MarkDueDispatchPlunderWaitingConnection(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='waiting_connection',
+                    last_error='DISPATCH_PLUNDER_GAME_DISCONNECTED',
+                    updated_at=$now
+                WHERE status='scheduled' AND plunder_at<=$now
+                  AND (expire_at IS NULL OR expire_at>$now)
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal int RecoverDispatchPlunderJobsOriginal(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='waiting_connection',
+                    last_error='DISPATCH_PLUNDER_CLIENT_RESTARTED',
+                    updated_at=$now
+                WHERE status='running'
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal int FailActiveDispatchPlunderAtDailyLimit(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='failed',
+                    last_error='DISPATCH_PLUNDER_DAILY_LIMIT_REACHED',
+                    updated_at=$now
+                WHERE status IN ('scheduled','waiting_connection')
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
+    internal bool UpdateDispatchPlunderStatus(
+        int serverId,
+        string taskUuid,
+        string status,
+        string? lastError,
+        bool incrementAttempts,
+        long updatedAt)
+    {
+        ValidateServerId(serverId);
+        if (string.IsNullOrWhiteSpace(taskUuid))
+            throw new BridgeCommandException(
+                "DISPATCH_PLUNDER_INVALID_TARGET",
+                "invalid scheduled target");
+        if (string.IsNullOrWhiteSpace(status))
+            throw new BridgeCommandException(
+                "INVALID_MAP_DATA",
+                "dispatch plunder status is required");
+
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status=$status,last_error=$error,
+                    attempts=attempts+CASE WHEN $increment THEN 1 ELSE 0 END,
+                    updated_at=$updated
+                WHERE server_id=$server AND task_uuid=$uuid
+                """;
+            command.Parameters.AddWithValue("$server", serverId);
+            command.Parameters.AddWithValue("$uuid", taskUuid);
+            command.Parameters.AddWithValue("$status", status);
+            command.Parameters.AddWithValue("$error", (object?)lastError ?? DBNull.Value);
+            command.Parameters.AddWithValue("$increment", incrementAttempts ? 1 : 0);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            return command.ExecuteNonQuery() > 0;
+        }
+    }
+
+    private static DispatchPlunderWorkItem ReadDispatchPlunderWorkItem(
+        SqliteDataReader reader)
+    {
+        JsonObject row;
+        try
+        {
+            row = JsonNode.Parse(reader.GetString(2)) as JsonObject
+                ?? throw new BridgeCommandException(
+                    "MAP_DATA_ERROR",
+                    "scheduled plunder job contains invalid JSON");
+        }
+        catch (JsonException ex)
+        {
+            throw new BridgeCommandException(
+                "MAP_DATA_ERROR",
+                "scheduled plunder job contains invalid JSON",
+                ex.Message);
+        }
+
+        using JsonDocument document =
+            JsonDocument.Parse(row.ToJsonString(JsonOptions.Default));
+        return new DispatchPlunderWorkItem(
+            reader.GetInt32(0),
+            reader.GetString(1),
+            document.RootElement.Clone(),
+            reader.GetInt64(3),
+            reader.GetInt64(4),
+            reader.IsDBNull(5) ? null : reader.GetInt64(5),
+            reader.GetString(6),
+            reader.GetInt32(7),
+            reader.IsDBNull(8) ? null : reader.GetString(8),
+            reader.GetInt64(9),
+            reader.GetInt64(10));
     }
 
     internal TruckPlunderScheduleResult ScheduleTruckPlunder(
