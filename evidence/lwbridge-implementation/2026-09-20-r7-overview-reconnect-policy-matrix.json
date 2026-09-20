@@ -1,0 +1,593 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-093",
+  "acceptanceCase": "A07",
+  "date": "2026-09-20",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Home reconnect enabled-versus-disabled policy matrix",
+  "branch": "research/offline-controller",
+  "parentRevision": "88f2d8110d29e8a390a4259426dbc2503d0e803a",
+  "scope": {
+    "claim": "Closes A07 at deterministic/offline scope against the recovered build-specific disconnect/retry policy. No real game or process is launched.",
+    "officialGameLaunched": false,
+    "productionCodeChanged": false,
+    "publicToggleExercised": "set_automation name=autoForceUpdateReload",
+    "doesNotSupersede": [
+      "A06",
+      "A08",
+      "A11"
+    ]
+  },
+  "recoveredPolicy": {
+    "disconnectThresholdSeconds": 60,
+    "stableVerificationSeconds": 15,
+    "normalRetrySeconds": [
+      15,
+      30,
+      60,
+      120,
+      300
+    ],
+    "source": "OverviewRecoveryPolicy; build-specific recovery recovered from lwbridge-0.3.1.exe"
+  },
+  "sourceIdentity": {
+    "OverviewLifecycleService.cs": "b48b6513c5a5a87ec1adfc5156e6b2c574d5dd2955097f4b5d864eaa9c7342b6",
+    "OverviewLifecycleRecovery.cs": "d8556dcd16e4719bf6855fcaf0ff0533399c889c6a888ac3cde7e45c9247c250",
+    "OverviewRecoveryPolicy.cs": "f34406fb224fc9932887d1b0d51e68d008b034aeed0db49b03465f144b9e5fd6",
+    "LWBridgeBackend.cs": "bb20ee44e336f64200482181e19d775535b146821ac4a1a8d493ac3349df0f7e",
+    "Program.cs": "9a4bd0b103af1ad9b0506e033d259a1bf4995c1c1d40c592f5013aa385f53ebd",
+    "OverviewReconnectPolicyChecks.cs": "c426ec25de9836833b4d8354d3360dab3cbd390917e9a61630b395d54696f58f"
+  },
+  "currentClientCompatibility": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "stress": {
+    "iterations": 10,
+    "allEnabledThresholdExact": true,
+    "allEnabledStableVerification": true,
+    "allDisabledNoRecovery": true,
+    "allDisableDuringRetryCancelled": true,
+    "allPolicyThresholds": true,
+    "runs": [
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A07",
+        "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+        "recoveredPolicy": {
+          "disconnectThresholdSeconds": 60,
+          "stableVerificationSeconds": 15,
+          "normalRetrySeconds": [
+            15,
+            30,
+            60,
+            120,
+            300
+          ]
+        },
+        "enabled": {
+          "preThresholdTerminationCount": 0,
+          "thresholdTerminations": 1,
+          "recoveryStartDelta": 1,
+          "recoveryStopDelta": 1,
+          "states": [
+            "repairing",
+            "launching",
+            "verifying",
+            "idle"
+          ],
+          "stableVerificationObserved": true,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterIntentionalStop": false
+        },
+        "disabled": {
+          "autoReconnect": false,
+          "recoveryTerminations": 0,
+          "recoveryStartDelta": 0,
+          "recoveryStopDelta": 0,
+          "recoveryState": "idle",
+          "finalDesiredRunning": false
+        },
+        "disabledDuringRetry": {
+          "firstRetryDelaySeconds": 15,
+          "exactCleanupCount": 1,
+          "attemptedRecoveryStarts": 1,
+          "autoReconnectAfterDisable": false,
+          "desiredRunningAfterDisable": true,
+          "recoveryState": "idle",
+          "futureRecoveryStarts": 0
+        }
+      }
+    ]
+  },
+  "acceptanceMapping": {
+    "enabledObservedDisconnect": "With the owned process still present but bridge heartbeat unavailable, no termination/restart occurs before 60 seconds. At exactly the recovered threshold the exact owned identity is terminated once, the old session is restored once, one lifecycle relaunch occurs, and repairing/launching/verifying states lead to idle restarted after the 15-second stable gate.",
+    "disabledObservedDisconnect": "With AutoReconnect=false and desired-running true, repeated observations beyond the disconnect/login-unavailable thresholds perform zero termination, zero recovery cleanup and zero relaunch; recovery remains idle.",
+    "disableDuringRecovery": "A failed recovery launch enters the recovered first 15-second retry. The public set_automation command disables reconnect during that delay, cancels the active recovery token, returns recovery status to idle, preserves GameDesiredRunning=true, and repeated future observations produce zero more launches.",
+    "intentionalStopSuppression": "After a successful enabled recovery, intentional Stop clears GameDesiredRunning and subsequent recovery observations do not resurrect the game."
+  },
+  "adjacentA06Audit": {
+    "status": "remains_partial",
+    "reason": "R7-012 proves map_scan_stop itself reaches terminal idle, but current evidence does not establish that Home profile_instance_stop owns/cancels an active Manual Map scan. Production lifecycle Stop has no recovered source-backed coupling to ManualMapScanCommandService. Do not invent that coupling."
+  },
+  "supersedes": {
+    "evidence": "LWB-R7-088",
+    "caseId": "A07",
+    "priorStatus": "partial",
+    "newStatus": "pass_current_offline"
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedTenRunReconnectMatrix": "PASS; 10/10",
+    "existingDeferredRestorationRegression": "PASS",
+    "a10StartupFailureMatrix": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

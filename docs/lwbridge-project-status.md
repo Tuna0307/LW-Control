@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-093, 2026-09-20
+
+Acceptance case A07 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten focused policy runs prove reconnect ON waits the recovered 60-second observed-disconnect threshold then performs one exact cleanup/relaunch and the 15-second stable verification; reconnect OFF performs zero recovery work; disabling reconnect during the first failed-recovery retry cancels all future launches while preserving desired-running intent; and intentional Stop prevents later resurrection. R7-088's A07 `partial` row is superseded. A06 remains partial because Home Close-to-active-scan cancellation is not source-backed; A08/A11 remain open. See [R7-093 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-reconnect-policy-matrix.json).
+
 ## Latest implementation checkpoint - LWB-R7-092, 2026-09-20
 
 Acceptance case A05 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten runs use real temporary Windows processes named `LastWar` to exercise production name/path discovery and managed PID/path/start-time identity. Foreign instances are preserved across managed Start/Stop, duplicate managed Start cannot create another process, and selected-root unmanaged instances are surfaced/rejected with `UNMANAGED_GAME_RUNNING` but not killed. R7-088's A05 `partial` row is superseded; A06/A07/A08/A11 remain open. See [R7-092 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-process-ownership-matrix.json).

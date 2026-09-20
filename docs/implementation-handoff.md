@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-093, 2026-09-20
+
+**A07 is closed OFFLINE.** `OverviewReconnectPolicyChecks` isolates the recovered build-specific policy and repeats it ten times: reconnect ON waits the exact 60-second disconnect threshold, terminates/restores only the exact owned session, relaunches once and passes the 15-second stable gate; reconnect OFF does nothing on the same observed disconnect; disabling `autoForceUpdateReload` through public `set_automation` during the first 15-second retry cancels the active recovery token and suppresses every future recovery while retaining desired-running intent. Intentional Stop still clears desired-running and cannot be auto-resurrected. Full Release/deterministic validation remains green.
+
+**A06 remains partial after audit:** R7-012 proves the Manual `map_scan_stop` command reaches terminal idle, but no recovered/current source proves that Home `profile_instance_stop` itself owns or cancels an active Manual Map scan. Do not invent that coupling. **Next:** A08 is the best independent Home target; A11 remains contract-blocked on exact original `get_status.pending` semantics.
+
 ## Current continuation checkpoint - LWB-R7-092, 2026-09-20
 
 **A05 is closed OFFLINE.** `OverviewProcessOwnershipChecks` exercises real Windows `LastWar` process discovery using temporary harmless executables, not the official game. Ten runs prove exact selected-root managed ownership, duplicate-Start rejection, foreign-process coexistence/preservation, selected-root unmanaged conflict reporting/rejection, and preservation of both unmanaged and unrelated processes. The managed Stop validates and closes only the exact PID/path/start-time identity returned by Start. The check is now part of the default deterministic suite and leaves no residual fixture process.
