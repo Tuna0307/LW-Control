@@ -29,6 +29,13 @@ internal sealed record CurrentClientTruckQuickRobResult(
     bool RewardNormalizationComplete,
     int? DailyRobCount);
 
+internal sealed record CurrentClientDispatchPlunderResult(
+    int ServerId,
+    string TaskUuid,
+    bool Succeeded,
+    string? ErrorCode,
+    bool RequestSent);
+
 internal sealed partial class CurrentClientMapBlockSource
 {
     internal async Task<CurrentClientMapContext> GetCurrentContextAsync(CancellationToken cancellationToken)
@@ -383,6 +390,265 @@ internal sealed partial class CurrentClientMapBlockSource
         }
 
         throw new InvalidDataException("Truck quick-rob result did not contain a supported terminal state.");
+    }
+
+    internal async Task<CurrentClientDispatchPlunderResult> ExecuteDispatchPlunderAsync(
+        int requestedServerId,
+        string taskUuid,
+        long executeAt,
+        CancellationToken cancellationToken)
+    {
+        if (requestedServerId is < 1 or > 99999 ||
+            string.IsNullOrWhiteSpace(taskUuid) ||
+            !taskUuid.All(ch => ch is >= '0' and <= '9') ||
+            !long.TryParse(
+                taskUuid,
+                NumberStyles.None,
+                CultureInfo.InvariantCulture,
+                out long parsedTaskUuid) ||
+            parsedTaskUuid <= 0 ||
+            executeAt <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(requestedServerId),
+                "Dispatch plunder target identity or executeAt is invalid.");
+        }
+
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+
+        string requestId =
+            "dispatchplunder" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string requestPath = Path.Combine(overviewRuntimeRoot, "dispatch-plunder.txt");
+        string resultPath = Path.Combine(overviewRuntimeRoot, "dispatch-plunder-result.json");
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"bridgeVersion={OverviewBridgeVersion}",
+            $"profileId={session.ProfileId}",
+            $"sessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"requestId={requestId}",
+            $"serverId={requestedServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"taskUuid={taskUuid}",
+            $"executeAt={executeAt.ToString(CultureInfo.InvariantCulture)}",
+            string.Empty,
+        });
+        await WriteCommandAsync(requestPath, command, cancellationToken).ConfigureAwait(false);
+
+        DateTimeOffset armDeadline = Now() + TimeSpan.FromSeconds(5);
+        DateTimeOffset hostDeadline = Now() + TimeSpan.FromSeconds(50);
+        bool armed = false;
+        while (Now() < hostDeadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            RequireSameSession(session);
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                ValidateDispatchPlunderEnvelope(
+                    root.Value,
+                    session,
+                    requestedServerId,
+                    taskUuid,
+                    executeAt);
+                string state = ReadOptionalString(root.Value, "state") ?? string.Empty;
+                if (state == "armed")
+                {
+                    if (MatchesBool(root.Value, "requestSent", true))
+                        throw new InvalidDataException(
+                            "Armed Dispatch plunder result unexpectedly claimed the request was already sent.");
+                    armed = true;
+                }
+                else
+                {
+                    CurrentClientDispatchPlunderResult result =
+                        ValidateDispatchPlunderTerminal(
+                            root.Value,
+                            requestedServerId,
+                            taskUuid);
+                    RequireSameSession(session);
+                    return result;
+                }
+            }
+
+            if (!armed && Now() >= armDeadline)
+            {
+                throw new BridgeCommandException(
+                    "DISPATCH_PLUNDER_RESPONSE_TIMEOUT",
+                    "server response timeout",
+                    new
+                    {
+                        ambiguous = false,
+                        requestSent = false,
+                        phase = "arm",
+                        serverId = requestedServerId,
+                        taskUuid,
+                        executeAt,
+                    });
+            }
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+
+        throw new BridgeCommandException(
+            "DISPATCH_PLUNDER_STATE_UNKNOWN",
+            "dispatch plunder execution state is unknown",
+            new
+            {
+                ambiguous = true,
+                requestSent = (bool?)null,
+                phase = armed ? "result" : "arm",
+                serverId = requestedServerId,
+                taskUuid,
+                executeAt,
+            });
+    }
+
+    private static void ValidateDispatchPlunderEnvelope(
+        JsonElement root,
+        OverviewMapScanSession session,
+        int requestedServerId,
+        string taskUuid,
+        long executeAt)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "bridgeVersion", OverviewBridgeVersion) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "sessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesInt(root, "serverId", requestedServerId) ||
+            !MatchesString(root, "taskUuid", taskUuid) ||
+            !MatchesLong(root, "executeAt", executeAt))
+        {
+            throw new InvalidDataException(
+                "Dispatch plunder result did not match the active owned game session or requested target.");
+        }
+    }
+
+    private static CurrentClientDispatchPlunderResult ValidateDispatchPlunderTerminal(
+        JsonElement root,
+        int requestedServerId,
+        string taskUuid)
+    {
+        string state = ReadOptionalString(root, "state") ?? string.Empty;
+        bool requestSent = MatchesBool(root, "requestSent", true);
+        string? rawError = ReadOptionalString(root, "errorCode") ??
+            ReadOptionalString(root, "error");
+
+        if (state == "proven")
+        {
+            if (!requestSent || !MatchesBool(root, "success", true) || rawError is not null)
+                throw new InvalidDataException(
+                    "Dispatch plunder success did not prove one sent request without an error.");
+            return new CurrentClientDispatchPlunderResult(
+                requestedServerId,
+                taskUuid,
+                Succeeded: true,
+                ErrorCode: null,
+                RequestSent: true);
+        }
+
+        if (state == "rejected")
+        {
+            if (!requestSent || !MatchesBool(root, "success", false) ||
+                string.IsNullOrWhiteSpace(rawError))
+            {
+                throw new InvalidDataException(
+                    "Dispatch plunder rejection did not prove a sent request and authoritative error.");
+            }
+            return new CurrentClientDispatchPlunderResult(
+                requestedServerId,
+                taskUuid,
+                Succeeded: false,
+                ErrorCode: NormalizeDispatchPlunderError(rawError),
+                RequestSent: true);
+        }
+
+        if (state == "ambiguous")
+        {
+            if (!requestSent)
+                throw new InvalidDataException(
+                    "Ambiguous Dispatch plunder result did not prove that DispatchSteal was sent.");
+            throw new BridgeCommandException(
+                "DISPATCH_PLUNDER_RESPONSE_TIMEOUT",
+                "server response timeout",
+                new
+                {
+                    ambiguous = true,
+                    requestSent = true,
+                    serverId = requestedServerId,
+                    taskUuid,
+                    error = rawError,
+                });
+        }
+
+        if (state == "failed")
+        {
+            string normalized = NormalizeDispatchPlunderError(
+                rawError ?? "DISPATCH_PLUNDER_SEND_FAILED");
+            throw new BridgeCommandException(
+                normalized.StartsWith("DISPATCH_PLUNDER_SERVER_REJECTED:", StringComparison.Ordinal)
+                    ? "DISPATCH_PLUNDER_SERVER_REJECTED"
+                    : normalized,
+                rawError ?? normalized,
+                new
+                {
+                    ambiguous = false,
+                    requestSent,
+                    serverId = requestedServerId,
+                    taskUuid,
+                    normalizedError = normalized,
+                });
+        }
+
+        throw new InvalidDataException(
+            "Dispatch plunder result did not contain a supported terminal state.");
+    }
+
+    internal static string NormalizeDispatchPlunderError(string error)
+    {
+        string value = error.Trim();
+        if (value.Length == 0)
+            return "DISPATCH_PLUNDER_SERVER_REJECTED: empty server error";
+        if (value.StartsWith("DISPATCH_PLUNDER_", StringComparison.Ordinal))
+            return value;
+
+        return value.ToLowerInvariant() switch
+        {
+            "invalid dispatch plunder target" or "invalid scheduled target" =>
+                "DISPATCH_PLUNDER_INVALID_TARGET",
+            "dispatch plunder request already pending" =>
+                "DISPATCH_PLUNDER_REQUEST_PENDING",
+            "dispatch manager unavailable" =>
+                "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE",
+            "dispatch steal limit reached" =>
+                "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED",
+            "cross-server dispatch steal unavailable" =>
+                "DISPATCH_PLUNDER_CROSS_SERVER_UNAVAILABLE",
+            "server response timeout" =>
+                "DISPATCH_PLUNDER_RESPONSE_TIMEOUT",
+            "game disconnected" =>
+                "DISPATCH_PLUNDER_GAME_DISCONNECTED",
+            "dispatch_des040" =>
+                "DISPATCH_PLUNDER_TASK_COMPLETED",
+            "dispatch_des043" =>
+                "DISPATCH_PLUNDER_TASK_DISAPPEARED",
+            "task expired" =>
+                "DISPATCH_PLUNDER_TASK_EXPIRED",
+            "client restarted" =>
+                "DISPATCH_PLUNDER_CLIENT_RESTARTED",
+            "invalid map plunder schedule" =>
+                "DISPATCH_PLUNDER_INVALID_SCHEDULE",
+            "map plunder schedule already armed" =>
+                "DISPATCH_PLUNDER_ALREADY_ARMED",
+            _ => "DISPATCH_PLUNDER_SERVER_REJECTED: " + value,
+        };
     }
 
     internal async Task<CurrentClientServerJumpResult> JumpToServerAsync(

@@ -5628,6 +5628,27 @@ Check(
     overviewBridgeSource.Contains("request.requestSent = true", StringComparison.Ordinal),
     "Truck quick-rob must resolve the live March/Train identities without 64-bit tonumber coercion, use the current-v19 official attack path, distinguish success-only from terminal response events, invert topPlayerWin to player battleWon, and preserve non-retryable post-send ambiguity");
 Check(
+    overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("dispatch-plunder-result.json", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("responseTimeoutMilliseconds = 30000", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("Net.Msgs.DispatchTask.DispatchStealMessage", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("class.HandleMessage = wrapper", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("return original(self, message)", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("safe_get(system, \"Int64\")", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("safe_get(int64, \"Parse\")", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("request.executeAt > server_time + 10000", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("server_time >= request.executeAt", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetTodayStealNum", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("GetDispatchSetting", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("\"steal_count\"", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("IsOpenCrossSteal", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("pcall(send, command, request.wireUuid, request.serverId)", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("math.max(server_time, request.executeAt)", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("dispatch_plunder_runtime.responseTimeoutMilliseconds", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("pending.responseReceived = true", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("dispatch_plunder_runtime.abandon()", StringComparison.Ordinal),
+    "Dispatch plunder bridge must hook the exact current-v19 handler, preserve Int64 identity, arm at most 10 seconds early, gate on authoritative server time/daily/cross-server state, send once, correlate the official response and restore its hook on session loss");
+Check(
     overviewBridgeSource.Contains("normalize_truck_plunder_rewards", StringComparison.Ordinal) &&
     overviewBridgeSource.Contains("GetItemTemplate", StringComparison.Ordinal) &&
     overviewBridgeSource.Contains("GetNameByType", StringComparison.Ordinal) &&

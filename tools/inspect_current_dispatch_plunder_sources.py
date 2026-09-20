@@ -44,6 +44,14 @@ MODULES = {
         "UI/UIActivityCenterTable/Component/DispatchTask/DispatchTaskMarkData.luac",
         "38b80bb72ce756c2b92bbff4524b5722b3da6a4ee4113a740b7c660e3b7f8487",
     ),
+    "msg_defines": (
+        "Net/Config/MsgDefines.luac",
+        "4f0117f3da036315a3e1d9ef8ab15ba87c66efaac561524497cd6eea0e20f8ee",
+    ),
+    "msg_map": (
+        "Net/Config/MsgMap.luac",
+        "23da7680bc49ecb4946839cf853018a163c4b19809695acb29cf623fe5bc4306",
+    ),
 }
 
 OPS = [
@@ -240,6 +248,99 @@ def find_proto(root: dict, expected: list[str]) -> dict:
     return matches[0]
 
 
+def instruction_a(instruction: int) -> int:
+    return (instruction >> 6) & 0xFF
+
+
+def instruction_b(instruction: int) -> int:
+    return (instruction >> 23) & 0x1FF
+
+
+def instruction_c(instruction: int) -> int:
+    return (instruction >> 14) & 0x1FF
+
+
+def instruction_bx(instruction: int) -> int:
+    return (instruction >> 14) & 0x3FFFF
+
+
+def require_msg_define_mapping(
+    root: dict,
+    key: str,
+    command: str,
+) -> dict[str, object]:
+    constants = root["constants"]
+    key_index = constants.index(key)
+    command_index = constants.index(command)
+    code = root["code"]
+    for pc in range(len(code) - 2):
+        first, second, third = code[pc:pc + 3]
+        if (
+            opcode(first) == "LOADK"
+            and instruction_a(first) == 1
+            and instruction_bx(first) == key_index
+            and opcode(second) == "LOADK"
+            and instruction_a(second) == 2
+            and instruction_bx(second) == command_index
+            and opcode(third) == "SETTABLE"
+            and instruction_a(third) == 0
+            and instruction_b(third) == 1
+            and instruction_c(third) == 2
+        ):
+            return {
+                "line": root["line"],
+                "lastLine": root["lastLine"],
+                "verifiedConstants": [key, command],
+                "instructionPc": pc,
+            }
+    raise InspectError(
+        f"MsgDefines did not assign {key!r} -> {command!r} with the expected table pattern"
+    )
+
+
+def require_msg_map_mapping(
+    root: dict,
+    key: str,
+    module: str,
+) -> dict[str, object]:
+    constants = root["constants"]
+    key_index = constants.index(key)
+    module_index = constants.index(module)
+    if not constants or constants[0] != "MsgDefines":
+        raise InspectError("MsgMap constant 0 is no longer MsgDefines")
+    code = root["code"]
+    for pc in range(len(code) - 4):
+        get_global, load_key, get_value, load_module, assign = code[pc:pc + 5]
+        if (
+            opcode(get_global) == "GETTABUP"
+            and instruction_a(get_global) == 1
+            and instruction_c(get_global) == 0x100
+            and opcode(load_key) == "LOADK"
+            and instruction_a(load_key) == 2
+            and instruction_bx(load_key) == key_index
+            and opcode(get_value) == "GETTABLE"
+            and instruction_a(get_value) == 1
+            and instruction_b(get_value) == 1
+            and instruction_c(get_value) == 2
+            and opcode(load_module) == "LOADK"
+            and instruction_a(load_module) == 2
+            and instruction_bx(load_module) == module_index
+            and opcode(assign) == "SETTABLE"
+            and instruction_a(assign) == 0
+            and instruction_b(assign) == 1
+            and instruction_c(assign) == 2
+        ):
+            return {
+                "line": root["line"],
+                "lastLine": root["lastLine"],
+                "verifiedConstants": ["MsgDefines", key, module],
+                "instructionPc": pc,
+            }
+    raise InspectError(
+        f"MsgMap did not map MsgDefines.{key} to {module!r} with the expected table pattern"
+    )
+
+
 def inspect_current(package_path: Path) -> dict[str, object]:
     raw_package = package_path.read_bytes()
     package_hash = hashlib.sha256(raw_package).hexdigest()
@@ -281,6 +382,16 @@ def inspect_current(package_path: Path) -> dict[str, object]:
     mark_data_methods = root_methods(parsed["mark_data"])
 
     checks = {
+        "dispatchStealCommand": require_msg_define_mapping(
+            parsed["msg_defines"],
+            "DispatchSteal",
+            "hero.dispatch.steal",
+        ),
+        "dispatchStealMessageMap": require_msg_map_mapping(
+            parsed["msg_map"],
+            "DispatchSteal",
+            "Net.Msgs.DispatchTask.DispatchStealMessage",
+        ),
         "dispatchStealOnCreate": require_constants(
             "DispatchStealMessage.OnCreate",
             steal_methods["OnCreate"],
@@ -383,6 +494,12 @@ def inspect_current(package_path: Path) -> dict[str, object]:
         "modules": module_report,
         "checks": checks,
         "dispatchNamedTaskExpireTimeMentions": expiry_mentions,
+        "dispatcherContract": {
+            "commandKey": "DispatchSteal",
+            "wireCommand": "hero.dispatch.steal",
+            "messageModule": "Net.Msgs.DispatchTask.DispatchStealMessage",
+            "hookSurface": "module-returned DispatchStealMessage class table HandleMessage",
+        },
         "derivedRowContract": {
             "plunderAt": "completionTime + LwDispatchTask.protect_times * 60000",
             "stolenCount": "stealList.Count",

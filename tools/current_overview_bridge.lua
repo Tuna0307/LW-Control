@@ -17,6 +17,8 @@ local march_follow_path = root .. [[\march-follow.txt]]
 local march_follow_result_path = root .. [[\march-follow-result.json]]
 local truck_quick_rob_path = root .. [[\truck-quick-rob.txt]]
 local truck_quick_rob_result_path = root .. [[\truck-quick-rob-result.json]]
+local dispatch_plunder_path = root .. [[\dispatch-plunder.txt]]
+local dispatch_plunder_result_path = root .. [[\dispatch-plunder-result.json]]
 local server_jump_path = root .. [[\server-jump.txt]]
 local server_jump_result_path = root .. [[\server-jump-result.json]]
 local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
@@ -43,6 +45,12 @@ local pending_world_ready = nil
 local pending_server_jump = nil
 local pending_march_follow = nil
 local pending_truck_quick_rob = nil
+local dispatch_plunder_runtime = {
+    pending = nil,
+    hookedClass = nil,
+    originalHandleMessage = nil,
+    responseTimeoutMilliseconds = 30000,
+}
 local NAVIGATION_TIMEOUT_SECONDS = 5
 local WORLD_READY_TIMEOUT_SECONDS = 10
 local SERVER_JUMP_TIMEOUT_SECONDS = 15
@@ -805,6 +813,275 @@ local function exact_runtime_id(value)
     local text = tostring(value)
     if valid_exact_positive_id(text) then return text end
     return nil
+end
+
+function dispatch_plunder_runtime.server_time()
+    local manager_type = rawget(_G, "UITimeManager")
+    local ok_instance, manager = call(manager_type, "GetInstance")
+    if not ok_instance or manager == nil then return nil end
+    local ok_time, value = call(manager, "GetServerTime")
+    value = ok_time and tonumber(value) or nil
+    return value ~= nil and value > 0 and value == math.floor(value) and value or nil
+end
+
+function dispatch_plunder_runtime.resolve_manager()
+    local data_center = rawget(_G, "DataCenter")
+    return data_center and safe_get(data_center, "ActDispatchTaskDataManager") or nil
+end
+
+function dispatch_plunder_runtime.resolve_message_class()
+    local module_name = "Net.Msgs.DispatchTask.DispatchStealMessage"
+    local loaded = package and package.loaded and package.loaded[module_name] or nil
+    if loaded ~= nil then return loaded end
+    local ok_require, value = pcall(require, module_name)
+    return ok_require and value or nil
+end
+
+function dispatch_plunder_runtime.restore_hook()
+    local class = dispatch_plunder_runtime.hookedClass
+    local wrapper = dispatch_plunder_runtime.hookWrapper
+    local original = dispatch_plunder_runtime.originalHandleMessage
+    if class ~= nil and wrapper ~= nil and original ~= nil and safe_get(class, "HandleMessage") == wrapper then
+        pcall(function() class.HandleMessage = original end)
+    end
+    dispatch_plunder_runtime.hookedClass = nil
+    dispatch_plunder_runtime.hookWrapper = nil
+    dispatch_plunder_runtime.originalHandleMessage = nil
+end
+
+function dispatch_plunder_runtime.abandon()
+    dispatch_plunder_runtime.restore_hook()
+    dispatch_plunder_runtime.pending = nil
+end
+
+function dispatch_plunder_runtime.write_result(request, state, error_code, success)
+    write_json(dispatch_plunder_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        serverId = request.serverId,
+        taskUuid = request.taskUuid,
+        executeAt = request.executeAt,
+        currentServerId = request.currentServerId,
+        requestSent = request.requestSent == true,
+        success = success,
+        errorCode = error_code,
+        error = error_code,
+        serverTime = request.lastServerTime,
+        method = "SFSNetwork.SendMessage(MsgDefines.DispatchSteal)+DispatchStealMessage.HandleMessage",
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+function dispatch_plunder_runtime.finish(request, state, error_code, success)
+    dispatch_plunder_runtime.restore_hook()
+    dispatch_plunder_runtime.pending = nil
+    dispatch_plunder_runtime.write_result(request, state, error_code, success)
+end
+
+function dispatch_plunder_runtime.parse_task_uuid(text)
+    local cs = rawget(_G, "CS")
+    local system = cs and safe_get(cs, "System") or nil
+    local int64 = system and safe_get(system, "Int64") or nil
+    local parse = int64 and safe_get(int64, "Parse") or nil
+    if type(parse) ~= "function" then return nil end
+    local ok, value = pcall(parse, text)
+    if not ok then ok, value = pcall(parse, int64, text) end
+    if not ok or exact_runtime_id(value) ~= text then return nil end
+    return value
+end
+
+function dispatch_plunder_runtime.install_hook(request)
+    dispatch_plunder_runtime.restore_hook()
+    local class = dispatch_plunder_runtime.resolve_message_class()
+    local original = class and safe_get(class, "HandleMessage") or nil
+    if type(original) ~= "function" then return false end
+    local wrapper = function(self, message)
+        local pending = dispatch_plunder_runtime.pending
+        if pending ~= nil and pending.requestId == request.requestId and
+           exact_runtime_id(message and safe_get(message, "uuid")) == pending.taskUuid then
+            local error_code = safe_get(message, "errorCode")
+            pending.responseReceived = true
+            pending.responseSuccess = error_code == nil
+            pending.responseError = error_code ~= nil and tostring(error_code) or nil
+        end
+        return original(self, message)
+    end
+    local ok_set = pcall(function() class.HandleMessage = wrapper end)
+    if not ok_set or safe_get(class, "HandleMessage") ~= wrapper then return false end
+    dispatch_plunder_runtime.hookedClass = class
+    dispatch_plunder_runtime.hookWrapper = wrapper
+    dispatch_plunder_runtime.originalHandleMessage = original
+    return true
+end
+
+function dispatch_plunder_runtime.read_request(control)
+    local values = read_kv(dispatch_plunder_path)
+    if values == nil then return nil end
+    pcall(os.remove, dispatch_plunder_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local server_id = tonumber(values.serverId)
+    local execute_at = tonumber(values.executeAt)
+    local request = {
+        requestId = values.requestId,
+        serverId = server_id,
+        taskUuid = values.taskUuid,
+        executeAt = execute_at,
+        requestSent = false,
+    }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "DISPATCH_PLUNDER_INVALID_SCHEDULE"
+        return request
+    end
+    if server_id == nil or server_id ~= math.floor(server_id) or server_id < 1 or server_id > 99999 or
+       not valid_exact_positive_id(values.taskUuid) or
+       execute_at == nil or execute_at ~= math.floor(execute_at) or execute_at <= 0 then
+        request.error = "DISPATCH_PLUNDER_INVALID_TARGET"
+        return request
+    end
+    request.wireUuid = dispatch_plunder_runtime.parse_task_uuid(request.taskUuid)
+    if request.wireUuid == nil then request.error = "DISPATCH_PLUNDER_INVALID_TARGET" end
+    return request
+end
+
+function dispatch_plunder_runtime.begin(request)
+    if request.error ~= nil then
+        dispatch_plunder_runtime.write_result(request, "failed", request.error, false)
+        return
+    end
+    if dispatch_plunder_runtime.pending ~= nil then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_REQUEST_PENDING", false)
+        return
+    end
+    local manager = dispatch_plunder_runtime.resolve_manager()
+    local server_time = dispatch_plunder_runtime.server_time()
+    if manager == nil or server_time == nil then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
+    if request.executeAt > server_time + 10000 then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_INVALID_SCHEDULE", false)
+        return
+    end
+    if not dispatch_plunder_runtime.install_hook(request) then
+        dispatch_plunder_runtime.write_result(request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
+    request.manager = manager
+    request.lastServerTime = server_time
+    request.startedClock = runtime_clock()
+    dispatch_plunder_runtime.pending = request
+    dispatch_plunder_runtime.write_result(request, "armed", nil, nil)
+end
+
+function dispatch_plunder_runtime.current_server_id()
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok, value = call(player, "GetCurServerId")
+    value = ok and tonumber(value) or nil
+    return value ~= nil and value > 0 and value == math.floor(value) and value or nil
+end
+
+function dispatch_plunder_runtime.pre_send_error(request)
+    local manager = request.manager or dispatch_plunder_runtime.resolve_manager()
+    if manager == nil then return "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE" end
+    local ok_today, today = call(manager, "GetTodayStealNum")
+    local ok_limit, limit = call(manager, "GetDispatchSetting", "steal_count")
+    today = ok_today and tonumber(today) or nil
+    limit = ok_limit and tonumber(limit) or nil
+    if today == nil or limit == nil then return "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE" end
+    if limit > 0 and today >= limit then return "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED" end
+
+    local current_server_id = dispatch_plunder_runtime.current_server_id()
+    request.currentServerId = current_server_id
+    if current_server_id == nil then return "DISPATCH_PLUNDER_GAME_DISCONNECTED" end
+    if current_server_id ~= request.serverId then
+        local ok_cross, cross_open = call(manager, "IsOpenCrossSteal")
+        if not ok_cross or cross_open ~= true then
+            return "DISPATCH_PLUNDER_CROSS_SERVER_UNAVAILABLE"
+        end
+    end
+    return nil
+end
+
+function dispatch_plunder_runtime.send(request, server_time)
+    local pre_send_error = dispatch_plunder_runtime.pre_send_error(request)
+    if pre_send_error ~= nil then
+        dispatch_plunder_runtime.finish(request, "failed", pre_send_error, false)
+        return
+    end
+
+    local network = rawget(_G, "SFSNetwork")
+    local msg_defines = rawget(_G, "MsgDefines")
+    if msg_defines == nil then
+        local ok_defs, value = pcall(require, "Net.Config.MsgDefines")
+        if ok_defs then msg_defines = value end
+    end
+    local send = network and safe_get(network, "SendMessage") or nil
+    local command = msg_defines and safe_get(msg_defines, "DispatchSteal") or nil
+    if type(send) ~= "function" or command == nil then
+        dispatch_plunder_runtime.finish(request, "failed", "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE", false)
+        return
+    end
+
+    request.requestSent = true
+    request.sentClock = runtime_clock()
+    request.responseDeadline = math.max(server_time, request.executeAt) +
+        dispatch_plunder_runtime.responseTimeoutMilliseconds
+    local ok_send = pcall(send, command, request.wireUuid, request.serverId)
+    if not ok_send then
+        request.requestSent = false
+        dispatch_plunder_runtime.finish(request, "failed", "DISPATCH_PLUNDER_SEND_FAILED", false)
+    end
+end
+
+function dispatch_plunder_runtime.pump(control)
+    local incoming = dispatch_plunder_runtime.read_request(control)
+    if incoming ~= nil then dispatch_plunder_runtime.begin(incoming) end
+
+    local request = dispatch_plunder_runtime.pending
+    if request == nil then return end
+    if request.responseReceived == true then
+        if request.responseSuccess == true then
+            dispatch_plunder_runtime.finish(request, "proven", nil, true)
+        else
+            dispatch_plunder_runtime.finish(request, "rejected", request.responseError or "unknown server error", false)
+        end
+        return
+    end
+
+    local server_time = dispatch_plunder_runtime.server_time()
+    request.lastServerTime = server_time
+    if request.requestSent ~= true then
+        if server_time == nil then
+            dispatch_plunder_runtime.finish(request, "failed", "DISPATCH_PLUNDER_GAME_DISCONNECTED", false)
+            return
+        end
+        if server_time >= request.executeAt then
+            dispatch_plunder_runtime.send(request, server_time)
+            if request.responseReceived == true then
+                dispatch_plunder_runtime.pump(control)
+            end
+        end
+        return
+    end
+
+    local timed_out = server_time ~= nil and request.responseDeadline ~= nil and
+        server_time >= request.responseDeadline
+    if not timed_out and request.sentClock ~= nil then
+        timed_out = runtime_clock() - request.sentClock >= 31
+    end
+    if timed_out then
+        dispatch_plunder_runtime.finish(
+            request, "ambiguous", "DISPATCH_PLUNDER_RESPONSE_TIMEOUT", nil)
+    end
 end
 
 local function read_truck_quick_rob(control)
@@ -2238,6 +2515,7 @@ function M.Pump()
         pending_world_ready = nil
         pending_server_jump = nil
         pending_march_follow = nil
+        dispatch_plunder_runtime.abandon()
         abandon_truck_quick_rob()
         destroy_message()
         write_heartbeat(now, false, control == nil and "control_unavailable" or "host_lease_stale")
@@ -2251,6 +2529,7 @@ function M.Pump()
         pending_world_ready = nil
         pending_server_jump = nil
         pending_march_follow = nil
+        dispatch_plunder_runtime.abandon()
         abandon_truck_quick_rob()
         active = control
     end
@@ -2259,6 +2538,7 @@ function M.Pump()
     pump_world_ready(control)
     pump_server_jump(control)
     pump_march_follow(control)
+    dispatch_plunder_runtime.pump(control)
     pump_truck_quick_rob(control)
     pump_navigation(control)
     local rendered, render_error = ensure_message()

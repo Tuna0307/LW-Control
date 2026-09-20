@@ -38,6 +38,9 @@ internal static class CurrentClientMapBlockSourceChecks
         await TruckQuickRobPreservesExactIdentityAndOutcome();
         await TruckQuickRobMapsRejectedAndAmbiguousWithoutRetry();
         await TruckQuickRobRejectsForeignSessionResult();
+        await DispatchPlunderPreservesExactIdentityAndOutcome();
+        await DispatchPlunderMapsRejectedAndAmbiguousWithoutRetry();
+        await DispatchPlunderRejectsForeignSessionResult();
         await AssetImageValidatesCachesAndRetriesSessionGap();
         await AssetImageRejectsInvalidPng();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
@@ -1498,6 +1501,148 @@ internal static class CurrentClientMapBlockSourceChecks
         }
     }
 
+    private static async Task DispatchPlunderPreservesExactIdentityAndOutcome()
+    {
+        const string TaskUuid = "1417409824803038247";
+        const long ExecuteAt = 1_789_616_300_000L;
+        int writes = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("dispatch-plunder.txt", StringComparison.OrdinalIgnoreCase))
+                    writes++;
+            },
+            dispatchPlunderResult: fields =>
+            {
+                Check(fields["taskUuid"] == TaskUuid &&
+                      fields["executeAt"] == ExecuteAt.ToString() &&
+                      fields["serverId"] == "2212",
+                    "Dispatch plunder request must preserve exact decimal task UUID, executeAt and target server");
+                return DispatchPlunderResult(
+                    fields,
+                    state: "proven",
+                    requestSent: true,
+                    success: true,
+                    errorCode: null);
+            });
+
+        CurrentClientDispatchPlunderResult result =
+            await source.ExecuteDispatchPlunderAsync(
+                2212, TaskUuid, ExecuteAt, CancellationToken.None);
+
+        Check(writes == 1 &&
+              result.ServerId == 2212 &&
+              result.TaskUuid == TaskUuid &&
+              result.Succeeded &&
+              result.ErrorCode is null &&
+              result.RequestSent,
+            "Dispatch plunder host protocol must return one authoritative matched success without retry");
+
+        Check(CurrentClientMapBlockSource.NormalizeDispatchPlunderError("dispatch_des040") ==
+                  "DISPATCH_PLUNDER_TASK_COMPLETED" &&
+              CurrentClientMapBlockSource.NormalizeDispatchPlunderError("dispatch_des043") ==
+                  "DISPATCH_PLUNDER_TASK_DISAPPEARED" &&
+              CurrentClientMapBlockSource.NormalizeDispatchPlunderError("123456") ==
+                  "DISPATCH_PLUNDER_SERVER_REJECTED: 123456",
+            "Dispatch error normalization must preserve recovered named outcomes and generic numeric server rejection");
+    }
+
+    private static async Task DispatchPlunderMapsRejectedAndAmbiguousWithoutRetry()
+    {
+        const string TaskUuid = "1417409824803038247";
+        const long ExecuteAt = 1_789_616_300_000L;
+
+        int rejectedWrites = 0;
+        CurrentClientMapBlockSource rejected = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("dispatch-plunder.txt", StringComparison.OrdinalIgnoreCase))
+                    rejectedWrites++;
+            },
+            dispatchPlunderResult: fields => DispatchPlunderResult(
+                fields,
+                state: "rejected",
+                requestSent: true,
+                success: false,
+                errorCode: "457001"));
+
+        CurrentClientDispatchPlunderResult rejection =
+            await rejected.ExecuteDispatchPlunderAsync(
+                2212, TaskUuid, ExecuteAt, CancellationToken.None);
+        Check(rejectedWrites == 1 &&
+              !rejection.Succeeded &&
+              rejection.RequestSent &&
+              rejection.ErrorCode == "DISPATCH_PLUNDER_SERVER_REJECTED: 457001",
+            "explicit Dispatch server rejection must be terminal, normalized and never retried");
+
+        int ambiguousWrites = 0;
+        CurrentClientMapBlockSource ambiguous = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            onProtocolWrite: path =>
+            {
+                if (path.EndsWith("dispatch-plunder.txt", StringComparison.OrdinalIgnoreCase))
+                    ambiguousWrites++;
+            },
+            dispatchPlunderResult: fields => DispatchPlunderResult(
+                fields,
+                state: "ambiguous",
+                requestSent: true,
+                success: null,
+                errorCode: "DISPATCH_PLUNDER_RESPONSE_TIMEOUT"));
+        try
+        {
+            _ = await ambiguous.ExecuteDispatchPlunderAsync(
+                2212, TaskUuid, ExecuteAt, CancellationToken.None);
+            throw new InvalidOperationException(
+                "post-send Dispatch timeout must remain ambiguous");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "DISPATCH_PLUNDER_RESPONSE_TIMEOUT" &&
+            error.Message == "server response timeout")
+        {
+            JsonElement details =
+                JsonSerializer.SerializeToElement(error.Details, JsonOptions.Default);
+            Check(details.GetProperty("ambiguous").GetBoolean() &&
+                  details.GetProperty("requestSent").GetBoolean() &&
+                  details.GetProperty("taskUuid").GetString() == TaskUuid,
+                "post-send Dispatch timeout must retain non-retryable ambiguity and exact task identity");
+        }
+        Check(ambiguousWrites == 1,
+            "ambiguous post-send Dispatch timeout must never auto-retry DispatchSteal");
+    }
+
+    private static async Task DispatchPlunderRejectsForeignSessionResult()
+    {
+        const string TaskUuid = "1417409824803038247";
+        const long ExecuteAt = 1_789_616_300_000L;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            dispatchPlunderResult: fields =>
+            {
+                JsonObject root = JsonNode.Parse(DispatchPlunderResult(
+                    fields,
+                    state: "proven",
+                    requestSent: true,
+                    success: true,
+                    errorCode: null))!.AsObject();
+                root["sessionId"] = "foreign_session";
+                return root.ToJsonString(JsonOptions.Default);
+            });
+
+        try
+        {
+            _ = await source.ExecuteDispatchPlunderAsync(
+                2212, TaskUuid, ExecuteAt, CancellationToken.None);
+            throw new InvalidOperationException(
+                "foreign Dispatch plunder result should fail closed");
+        }
+        catch (InvalidDataException)
+        {
+        }
+    }
+
     private static async Task AssetImageValidatesCachesAndRetriesSessionGap()
     {
         const string AssetPath = "Assets/Main/Sprites/ItemIcons/item406";
@@ -1645,6 +1790,7 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? truckQuickRobResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? dispatchPlunderResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? assetImageResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
@@ -1697,6 +1843,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     if (truckQuickRobResult is null) throw new InvalidOperationException("unexpected Truck quick-rob request");
                     string result = truckQuickRobResult(fields);
                     files[Path.Combine(overviewRoot, "truck-quick-rob-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(overviewRoot, "dispatch-plunder.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (dispatchPlunderResult is null) throw new InvalidOperationException("unexpected Dispatch plunder request");
+                    string result = dispatchPlunderResult(fields);
+                    files[Path.Combine(overviewRoot, "dispatch-plunder-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 if (string.Equals(path, Path.Combine(probeRoot, "asset-image.txt"), StringComparison.OrdinalIgnoreCase))
@@ -1783,6 +1936,33 @@ internal static class CurrentClientMapBlockSourceChecks
             capturedAt = Timestamp(),
         }, JsonOptions.Default);
     }
+
+    private static string DispatchPlunderResult(
+        IReadOnlyDictionary<string, string> fields,
+        string state,
+        bool requestSent,
+        bool? success,
+        string? errorCode) =>
+        JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = "lwbridge-overview-bridge-1",
+            profileId = fields["profileId"],
+            sessionId = fields["sessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            requestId = fields["requestId"],
+            state,
+            serverId = int.Parse(fields["serverId"]),
+            currentServerId = int.Parse(fields["serverId"]),
+            taskUuid = fields["taskUuid"],
+            executeAt = long.Parse(fields["executeAt"]),
+            requestSent,
+            success,
+            errorCode,
+            error = errorCode,
+            method = "SFSNetwork.SendMessage(MsgDefines.DispatchSteal)+DispatchStealMessage.HandleMessage",
+        }, JsonOptions.Default);
 
     private static string TruckQuickRobResult(
         IReadOnlyDictionary<string, string> fields,

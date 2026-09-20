@@ -1,6 +1,12 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-081, 2026-09-20
+## Current continuation checkpoint - LWB-R7-082, 2026-09-20
+
+**Dispatch result semantics and an internal current-v19 executor are now closed offline.** The verified original pins `map.dispatch-plunder-result`, `(serverId,taskUuid)` matching, `success/errorCode`, optional `serverDayStartAt`, exact `max(now,executeAt)+30000 ms` result deadline, and connection-sensitive arm failure. Current-v19 dispatcher mapping is hash-locked to `hero.dispatch.steal` -> `Net.Msgs.DispatchTask.DispatchStealMessage`. The rebuild's internal bridge uses a temporary handler wrapper that always calls the original, safe Int64 parsing, authoritative server-time `executeAt` gating, daily/cross-server rechecks, exactly one send and non-retryable post-send ambiguity.
+
+**Next:** wire the durable Dispatch worker to the R7-081 store primitives plus this R7-082 executor, reproducing running/attempt, disconnected waiting, explicit failed/succeeded outcomes, daily-limit stop-all and conservative ambiguity. Keep `map_dispatch_plunder_schedule` fail-closed until worker wiring is offline-tested. No live Dispatch plunder without explicit owner authorization.
+
+## Prior continuation checkpoint - LWB-R7-081, 2026-09-20
 
 **Dispatch current-v19 send/eligibility and original arming persistence are now recovered.** The official client sends `DispatchSteal(uuid,targetServer)` after source-backed completion/protection/already-stolen/daily/per-task/cross-server checks. Current rows now derive `plunderAt`, `stolenCount` and `maxStealCount` from exactly those inputs; `taskExpireTime` remains unknown because v19 Dispatch Lua does not use it. Original worker recovery pins the 10-second arming lead, running-before-arm, 5-second `armMapPlunder` timeout and 30-second response-horizon constant, and exact worker DB transitions are implemented/offline-tested.
 
