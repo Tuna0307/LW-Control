@@ -36,6 +36,8 @@ internal static class LiveManualFullMonsterProof
         double? maxDistance = null;
         long? minShieldDeadline = null;
         long? maxShieldDeadline = null;
+        long filterSampledAt = 0;
+        MonsterFilterProofHelper.Metrics? filterMetrics = null;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -125,6 +127,12 @@ internal static class LiveManualFullMonsterProof
                 CollectMonsterMetrics(store, serverId, out distanceCount, out zMBossInfoCount,
                     out shieldDeadlineCount, out activeShieldDeadlineCount,
                     out minDistance, out maxDistance, out minShieldDeadline, out maxShieldDeadline);
+                filterSampledAt =
+                    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                filterMetrics = MonsterFilterProofHelper.Validate(
+                    store,
+                    serverId,
+                    filterSampledAt);
                 }
                 finally
                 {
@@ -133,9 +141,23 @@ internal static class LiveManualFullMonsterProof
             }
 
             using (var reopened = new MapDataStore(databasePath))
+            {
                 reopenedMonsterCount = reopened.SearchIndexed(MonsterQuery(serverId)).Total;
+                MonsterFilterProofHelper.Metrics reopenedFilterMetrics =
+                    MonsterFilterProofHelper.Validate(
+                        reopened,
+                        serverId,
+                        filterSampledAt);
+                if (filterMetrics is null ||
+                    reopenedFilterMetrics != filterMetrics)
+                    throw new InvalidDataException(
+                        "Monster filter proof changed after database reopen.");
+            }
             if (reopenedMonsterCount != publishedMonsterCount)
                 throw new InvalidDataException("Ordinary Manual Monster count changed after database reopen.");
+            if (filterMetrics is null)
+                throw new InvalidDataException(
+                    "Monster filter proof did not produce metrics.");
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 ok = true,
@@ -160,6 +182,23 @@ internal static class LiveManualFullMonsterProof
                 monsterProtectionDetailError,
                 minShieldDeadline,
                 maxShieldDeadline,
+                filterSampledAt,
+                filterComparedRowCount = filterMetrics.RowCount,
+                filterCheckCount = filterMetrics.CheckCount,
+                filterMonsterNameCount = filterMetrics.MonsterNameCount,
+                filterMaxLevel = filterMetrics.MaxLevel,
+                filterMaxLevelCount = filterMetrics.MaxLevelCount,
+                filterNameAndMaxCount = filterMetrics.NameAndMaxCount,
+                filterKeywordIdentityCount =
+                    filterMetrics.KeywordIdentityCount,
+                filterKeywordPercentLiteralCount =
+                    filterMetrics.KeywordPercentLiteralCount,
+                filterKeywordUnderscoreLiteralCount =
+                    filterMetrics.KeywordUnderscoreLiteralCount,
+                filterKeywordBackslashLiteralCount =
+                    filterMetrics.KeywordBackslashLiteralCount,
+                filterResolvedNameKeyCount =
+                    filterMetrics.ResolvedNameKeyCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
