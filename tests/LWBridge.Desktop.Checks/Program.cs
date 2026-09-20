@@ -5788,6 +5788,40 @@ Check(
     !manualMapServiceSource.Contains("command == \"map_dispatch_share_alliance\"", StringComparison.Ordinal) &&
     !manualMapServiceSource.Contains("DispatchAllianceShareContract.NormalizeRows(payload)", StringComparison.Ordinal),
     "Dispatch alliance share must remain unavailable in production until explicit messaging authorization enables a live sender");
+string treasureClaimContractSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "TreasureClaimContract.cs"));
+Check(
+    treasureClaimContractSource.Contains("claimScope is not (\"boxes\" or \"season\" or \"single\")", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("claimScope == \"single\" && string.IsNullOrEmpty(targetUuid)", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("priorityValue.ValueKind != JsonValueKind.False", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("CurrentV19Command = \"detect.event.claim.treasure\"", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("targetServer is < 1 or > 99_999", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("NumberStyles.None", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("message.TryGetProperty(\"errorCode\"", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("message.TryGetProperty(\"reward\"", StringComparison.Ordinal),
+    "Treasure claim offline contract must preserve recovered scopes/default lucky priority and current-v19 PutLong/PutInt response boundary");
+string treasureClaimStoreSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "MapDataStore.TreasureClaim.cs"));
+Check(
+    treasureClaimStoreSource.Contains("COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("COALESCE(CAST(json_extract(data_json,'$.complete') AS INTEGER),0)=1", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("CAST(json_extract(data_json,'$.expireTime') AS INTEGER)>?2", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("ORDER BY point_index ASC", StringComparison.Ordinal),
+    "Treasure claim candidate store must preserve the recovered completed-ordinary/Supplies-1-3-4 UUID expiry query");
+Check(
+    !manualMapServiceSource.Contains("\"map_treasure_claim\" or", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("command == \"map_treasure_claim\"", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("TreasureClaimContract.NormalizeRequest(payload)", StringComparison.Ordinal),
+    "Treasure claim must remain unavailable in production while protected claimTreasures scope/lucky/scout orchestration is unrecovered");
 Check(
     manualMapServiceSource.Contains("command == \"map_dispatch_plunder_schedule\"", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("DispatchPlunderContract.NormalizeScheduleRows(payload)", StringComparison.Ordinal) &&

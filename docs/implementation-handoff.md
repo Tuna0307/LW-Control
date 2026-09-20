@@ -1,6 +1,12 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-085, 2026-09-20
+## Current continuation checkpoint - LWB-R7-086, 2026-09-20
+
+**Treasure state-changing claim is narrowed but deliberately still unavailable.** The original host contract now pins `boxes|season|single`, `single` nonempty `targetUuid`, default `prioritizeLuckySlots=true`, the exact persisted claim-candidate SQL, protected `claimTreasures` and `getTreasureClaimStatus` with 5 s timeouts, and the immediate queue/admission counters. Current-v19 direct ordinary Treasure pins `detect.event.claim.treasure(uuid:PutLong,targetServer:PutInt)`, the `IsHaveGetReward(localUid)` duplicate gate, response rejection via `errorCode`, optional-reward success, `OnGetDigTimesMsg`, and UUID-correlated `WorldBuildTopBubbleTreasureGet`; Supplies is separately scout/march-driven. Internal validation/candidate-query/direct-response code and deterministic tests are added, but `map_treasure_claim` remains absent because the protected bridge still owns unrecovered scope/lucky/scout batch orchestration.
+
+**Next:** do not live claim Treasure or launch a Supplies scout without explicit owner authorization. Independent remaining work is the population-bound Ghost proof on Thursday 2026-09-24, Supplies positive population acceptance when the event exists, and authorization-gated live Truck/Dispatch/Alliance/Treasure actions, followed by integrated release acceptance.
+
+## Prior continuation checkpoint - LWB-R7-085, 2026-09-20
 
 **Dispatch Alliance Share payload/validation is now closed offline, while live delivery remains intentionally unavailable.** The verified original accepts 1..200 selected rows and requires nonempty decimal UUID plus positive integer-like `serverId/x/y/cfgId`; each row calls `shareDispatchTaskToAlliance` with a 5,000 ms timeout and contributes to `shared/failed/sharedUuids/failedUuids`. Current-v19 routes Dispatch through `Text_PointShare -> TO_ALLIANCE -> hero.dispatch.share.chat`, writes UUID with `PutLong` and target server with `PutInt`, and encodes `x/y/sid/dispatch=1/cfgId/uuid` plus optional `uname/abbr`. `ShareDecode` uses localization key `456288` for Dispatch, so no `oname` is fabricated. `DispatchAllianceShareContract` and deterministic tests cover the recovered validator and current-v19 payload/transport plan. `ManualMapScanCommandService` still has no public share route by design.
 

@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-086",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "e6d64cc071150d7b8c8f5d12f40d401137c898fe",
+  "status": "TREASURE_CLAIM_HOST_AND_DIRECT_V19_CONTRACT_RECOVERED_OFFLINE_TESTED",
+  "scope": {
+    "feature": "Treasure claim host boundary, candidate admission and current-v19 direct-claim transport/result semantics",
+    "map_treasure_claim": "BLOCKED/NOT_ROUTED",
+    "map_treasure_claim_status": "READ_ONLY/LIVE_PROVEN_BY_R7_069",
+    "liveTreasureClaimAttempted": false,
+    "liveSuppliesScoutAttempted": false
+  },
+  "originalReference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystems": {
+      "claimService": "PE RVA relative to image base",
+      "sqlAndMarkerOffsets": "raw PE file byte offset"
+    },
+    "claimServiceRva": "0x1686E4-0x16A011",
+    "statusWrapperRva": "0x15590D-0x15636E",
+    "inspector": "tools/inspect_treasure_claim_contract.py"
+  },
+  "recoveredHostContract": {
+    "serverId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99999,
+      "invalidCode": "INVALID_SERVER_ID",
+      "invalidMessage": "server ID must be an integer from 1 to 99999"
+    },
+    "claimScope": {
+      "accepted": ["boxes", "season", "single"],
+      "singleRequiresNonemptyTargetUuid": true,
+      "invalidCode": "INVALID_TREASURE_CLAIM_SCOPE",
+      "invalidMessage": "treasure claim scope is invalid",
+      "instructionEvidence": {
+        "boxes": "0x168F67..0x168F77 compares 0x65786f62 plus final byte 0x73",
+        "season": "0x168F7E..0x168F94 compares 0x73616573 plus 0x6e6f",
+        "single": "0x168F96..0x168FAC compares 0x676e6973 plus 0x656c",
+        "singleTargetUuid": "0x168FC2 test rdx,rdx; empty routes to invalid-scope branch"
+      }
+    },
+    "prioritizeLuckySlots": {
+      "defaultWhenAbsent": true,
+      "explicitFalsePreserved": true
+    },
+    "bridgeRequest": {
+      "command": "claimTreasures",
+      "timeoutMilliseconds": 5000,
+      "fields": ["serverId", "records", "claimScope", "targetUuid", "prioritizeLuckySlots"]
+    },
+    "immediateResultVocabulary": [
+      "eligible",
+      "queued",
+      "skipped",
+      "directQueued",
+      "scoutQueued",
+      "scoutDispatched",
+      "claimed",
+      "noScoutSkipped",
+      "otherAllianceSkipped",
+      "failed"
+    ],
+    "interpretation": "The public claim command is queue/admission oriented; queued is not authoritative claim completion.",
+    "statusBridge": {
+      "command": "getTreasureClaimStatus",
+      "timeoutMilliseconds": 5000,
+      "publicCommand": "map_treasure_claim_status",
+      "frontendPolling": "when queued>0 the original frontend polls status; batch.state determines whether the batch is still running"
+    }
+  },
+  "candidatePersistence": {
+    "claimCandidateSqlRawOffset": "0x00C86F98",
+    "claimCandidateHelperRva": "0x266ED6-0x2676B3",
+    "claimCandidateSql": "SELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND (\n                     COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                     OR (\n                       COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0)=0\n                       AND COALESCE(CAST(json_extract(data_json,'$.complete') AS INTEGER),0)=1\n                     )\n                   )\n                   AND uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'\n                   AND (COALESCE(CAST(json_extract(data_json,'$.expireTime') AS INTEGER),0)<=0\n                     OR CAST(json_extract(data_json,'$.expireTime') AS INTEGER)>?2)\n                 ORDER BY point_index ASC",
+    "separateSeasonSuppliesSqlRawOffset": "0x00C88230",
+    "separateSeasonSuppliesSql": "SELECT data_json FROM map_records\n                 WHERE kind='treasure' AND server_id=?1\n                   AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)\n                   AND uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'\n                 ORDER BY point_index ASC",
+    "importantDistinction": "The Supplies-only query is a separate original store path and is not substituted for the claim-candidate query."
+  },
+  "currentV19": {
+    "package": "C:/Users/chimw/AppData/LocalLow/FunFly/Last War-Survival Game/lwScripts/LWScripts.data",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "fileVersion": 3,
+    "contentVersion": 19,
+    "modules": {
+      "DetectEventClaimTreasureMessage": "ecceef817b99de8ce94518e910e3d4c773dbf1d0825a4878c87d00d59b0b4499",
+      "PushDetectTreasureClaimMessage": "e14bafd7b714c7703cd52d35ab60acc5b6f10aec3721184866ba1f590cc103ef",
+      "DetectEventGetTreasureClaimInfoMessage": "a8216497185f8a12ccf5d9608400c0070f6cae692d0a2007b2adf770f1f853ff",
+      "DetectEventGetTreasureClaimInfo": "cb3df2e7ad2c34155cbb49c0d234e1d57a6320e6a64badb76b8af74825bafefe",
+      "UIUtil": "53cdc12c7bc7ee4172322b6945ca1e1f780b6e1263742a27a5e707cfb244c1a8",
+      "UIWorldPointBtn": "d2f099d11172a80e7c8eda63fd410d3360fea965d8269691061be5a7d8f54d79",
+      "MarchUtil": "80effa59728e223053bca2b99ddfdd963cc0c98d2ec420972a5100a5e23990b4"
+    },
+    "ordinaryDirectClaim": {
+      "command": "detect.event.claim.treasure",
+      "request": {
+        "uuid": "PutLong",
+        "targetServer": "PutInt",
+        "type": "optional PutInt"
+      },
+      "ordinaryUiSend": "SFSNetwork.SendMessage(MsgDefines.DetectEventClaimTreasure, uuid, serverId)",
+      "duplicateGate": "UIUtil.GetDetectTreasureReward checks IsHaveGetReward(localUid) before sending",
+      "responseSuccessRule": "a response without errorCode enters the official success path; reward is optional",
+      "responseFailureRule": "present errorCode follows the rejection/tips path and does not run success reward/state mutations",
+      "successMutations": [
+        "optional RewardManager reward handling",
+        "ActDetectTreasureDataManager.OnGetDigTimesMsg(message)"
+      ],
+      "pushSuccessSignal": "PushDetectTreasureClaimMessage broadcasts EventId.WorldBuildTopBubbleTreasureGet with the claimed uuid"
+    },
+    "claimInfo": {
+      "membership": "treasureClaimPlayerInfoList",
+      "selfStateVocabulary": ["DoubleClaim", "NormalClaim", "NoClaim"]
+    },
+    "supplies": {
+      "actionPath": "UIWorldPointBtn.WorldSupplies -> CheckBtnState -> MarchUtil.LaunchScout(..., MarchTargetType.SCOUT_SUPPLIES, ...) -> StartMarch",
+      "directClaimMessageUsed": false
+    }
+  },
+  "implementation": {
+    "contract": "src/LWBridge.Desktop/TreasureClaimContract.cs",
+    "candidateStore": "src/LWBridge.Desktop/MapDataStore.TreasureClaim.cs",
+    "tests": "tests/LWBridge.Desktop.Checks/TreasureClaimContractChecks.cs",
+    "inspector": "tools/inspect_treasure_claim_contract.py",
+    "publicClaimRouteAdded": false
+  },
+  "deterministicCoverage": {
+    "boxesSeasonSingleValidation": true,
+    "singleTargetUuidRequirement": true,
+    "defaultLuckyPriority": true,
+    "exactCandidateSqlBehavior": true,
+    "candidatePointIndexOrdering": true,
+    "currentV19PutLongPutIntPlan": true,
+    "serverErrorVsSuccessClassification": true,
+    "successWithoutRewardAccepted": true,
+    "putLongOverflowFailsClosed": true,
+    "productionClaimRouteRemainsAbsent": true
+  },
+  "unknownBlocked": [
+    "protected claimTreasures scope-specific filtering and ordering after the host candidate query",
+    "protected lucky-slot prioritization formula and duplicate-suppression behavior",
+    "protected Supplies scout-slot selection/reservation and batch state transitions",
+    "exact hidden batch status mapping for queued/direct/scout work through all terminal states"
+  ],
+  "validation": {
+    "originalCurrentInspector": "PASS",
+    "pythonCompile": "PASS",
+    "sourceGuardsFinal": "PASS",
+    "gitDiffCheckFinal": "PASS (line-ending warnings only)",
+    "releaseBuildWarningsFinal": 0,
+    "releaseBuildErrorsFinal": 0,
+    "fullDeterministicSixGroupsFinal": "PASS",
+    "deterministicFailuresFinal": 0,
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false
+  },
+  "safety": {
+    "liveTreasureClaimAttempted": false,
+    "liveSuppliesScoutAttempted": false,
+    "collectionAttempted": false,
+    "messageOrAllianceShareSent": false,
+    "truckRobberyAttempted": false,
+    "dispatchPlunderAttempted": false
+  },
+  "boundary": "R7-086 intentionally does not expose map_treasure_claim. The protected claimTreasures orchestration is still unrecovered, and any live Treasure claim or Supplies scout/collection remains state-changing and requires explicit owner authorization."
+}

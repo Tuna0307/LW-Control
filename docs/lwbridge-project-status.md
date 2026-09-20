@@ -1,6 +1,10 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
-## Latest implementation checkpoint — LWB-R7-085, 2026-09-20
+## Latest implementation checkpoint — LWB-R7-086, 2026-09-20
+
+Treasure claim is now source-backed through the original host boundary and current-v19 direct-claim transport without enabling the action. Original recovery pins `boxes|season|single`, the `single` target UUID requirement, default lucky priority, exact persisted candidate SQL, protected `claimTreasures` plus `getTreasureClaimStatus` 5 s calls and immediate queue counters. Current-v19 pins direct ordinary Treasure to `detect.event.claim.treasure` with PutLong UUID/PutInt server, an `IsHaveGetReward` duplicate gate, explicit `errorCode` rejection, optional-reward success mutations and UUID-correlated push success; Supplies instead launches a scout march. The protected batch scheduler still owns unrecovered scope/lucky/scout orchestration, so `map_treasure_claim` remains absent. No claim/scout/collection ran. See [R7-086 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-offline-contract.json).
+
+## Prior implementation checkpoint — LWB-R7-085, 2026-09-20
 
 Dispatch Alliance Share now has source-backed original and current-v19 contracts plus an offline-tested validator/payload plan, without enabling messaging. The original validates 1..200 rows, requires decimal UUID and positive integer-like `serverId/x/y/cfgId`, invokes `shareDispatchTaskToAlliance` per row with 5 s timeout, and aggregates shared/failed UUIDs. Current-v19 routes `Text_PointShare` to the Alliance channel and `hero.dispatch.share.chat`, using PutLong UUID and PutInt target server; the Dispatch point payload and label key `456288` are hash-locked. Production `map_dispatch_share_alliance` remains absent and no live share was sent. See [R7-085 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-alliance-share-offline.json).
 
