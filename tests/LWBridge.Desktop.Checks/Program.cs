@@ -302,6 +302,13 @@ if (args.Contains("--overview-bridge-isolated-handshake-check", StringComparer.O
     return 0;
 }
 
+if (args.Contains("--overview-bridge-isolated-accept-loop-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeIsolatedAcceptLoopChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -324,6 +331,7 @@ LWBridge.Desktop.Checks.OverviewBridgeNativeConnectChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeHandshakeIdentityChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeClientPathChecks.Run();
 await LWBridge.Desktop.Checks.OverviewBridgeIsolatedHandshakeChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeIsolatedAcceptLoopChecks.RunAsync();
 
 void Check(bool condition, string name)
 {

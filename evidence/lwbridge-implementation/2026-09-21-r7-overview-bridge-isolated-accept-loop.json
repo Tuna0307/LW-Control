@@ -1,0 +1,64 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-116",
+  "date": "2026-09-21",
+  "status": "ISOLATED-SHARED-ACCEPT-LOOP-IMPLEMENTED/WINDOWS-PROVEN/PRODUCTION-HOST-NOT-WIRED",
+  "title": "Implement and prove shared accept-loop lifecycle over authenticated bridge sessions",
+  "branch": "research/offline-controller",
+  "parentRevision": "c85985ccb338879a3335e725747ada827e83ebac",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": [
+    "LWB-R7-100 first-server-only flag, failed-connection retry and cleanup boundary",
+    "LWB-R7-110 application-global listener ownership",
+    "LWB-R7-111 exact native server creation",
+    "LWB-R7-112 overlapped ConnectNamedPipe",
+    "LWB-R7-115 authenticated hello + registry route admission"
+  ],
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedAcceptLoop.cs",
+    "owner": "one loop object per shared host proof",
+    "firstServer": "FILE_FLAG_FIRST_PIPE_INSTANCE used only for the first successfully created server object",
+    "replacementServer": "all subsequent server objects omit first-instance flag",
+    "connectFailure": "failed ConnectNamedPipe disposition drops instance and continues loop",
+    "handshakeFailure": "rejected/timeout/malformed hello drops instance and continues loop",
+    "sessionRoute": "registry route points to LWBridgeControlPipeAcceptedSession",
+    "sessionEnd": "generation-scoped RemoveConnected",
+    "shutdown": "cancellation observed while pending overlapped connect is polled; pending owner disposal issues CancelIoEx"
+  },
+  "windowsProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeIsolatedAcceptLoopChecks.cs",
+    "focusedCli": "--overview-bridge-isolated-accept-loop-check",
+    "result": "PASS",
+    "serverInstancesCreated": 4,
+    "firstInstanceFlagUses": 1,
+    "failedConnects": 0,
+    "rejectedHandshakes": 1,
+    "authenticatedSessions": 2,
+    "replacementGenerationAdvanced": true,
+    "routeRemovedAfterHandler": true,
+    "pendingAcceptCancelledOnStop": true,
+    "stopMilliseconds": 47.8356,
+    "temporaryLocalPipeOnly": true
+  },
+
+  "productionBoundary": {
+    "LWBridgeControlPipeHostStateConstructsLoop": false,
+    "LWBridgeWindowStartsListener": false,
+    "productionPipeOpened": false,
+    "profileLaunchRegistrationBound": false,
+    "proxyLaunchEnvironmentBound": false,
+    "outboundCommandRoutingImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Bind startup registration and the recovered four LWBRIDGE_* launch environment values to the shared host state without yet enabling outbound command/result routing; then the normal host listener can be started before profile launch with source-backed cleanup on launch failure.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}
