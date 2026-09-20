@@ -176,10 +176,18 @@ if (args.Contains("--overview-official-settle-check", StringComparer.OrdinalIgno
     return 0;
 }
 
+if (args.Contains("--overview-launch-spam-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
 
 void Check(bool condition, string name)
 {

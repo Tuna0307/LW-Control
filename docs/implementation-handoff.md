@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-091, 2026-09-20
+
+**A04 is closed OFFLINE.** The new `OverviewLaunchSpamChecks` regression blocks the original lifecycle helper Start, then concurrently issues repeated `profile_instance_start` and `profile_instance_status` requests. Ten independent runs produced 480/480 `GAME_OPERATION_IN_PROGRESS` rejections and 1,200 correctly scoped `starting` refreshes, with one helper Start/Stop per run, no duplicate/stale success and a clean stopped end state. The focused check is also included in the default deterministic suite; full Release validation remains green.
+
+**Next:** A05/A06/A07/A08/A11 remain the Home acceptance gaps. Keep A11 separate from A04: `profile_instance_status` concurrency is now closed, but original `get_status.pending` task-count semantics remain UNKNOWN/BLOCKED under S02/S03.
+
 ## Current continuation checkpoint - LWB-R7-090, 2026-09-20
 
 **A10 is closed OFFLINE for the admitted Home startup pipeline.** Six host-pipeline forced-failure checks and 12 helper transaction-stage checks now form one explicit matrix. The helper test executes production backup, recovery journal, candidate install, rollback and recovery-clear code against temporary client files, while mocking only launcher/game/readiness edges. Exact file hashes, journal state, ownership cleanup and subsequent retry are asserted. Existing release/deterministic/restoration checks remain green, and CI runs this matrix. No real game process or gameplay action is used by R7-090.

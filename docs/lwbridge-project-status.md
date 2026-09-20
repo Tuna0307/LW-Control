@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-091, 2026-09-20
+
+Acceptance case A04 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. A blocked production lifecycle Start was stressed ten times with 48 duplicate Launch attempts and 120 status refreshes per run. All 480 secondary Launch calls rejected with the recovered in-progress error, all 1,200 refreshes stayed responsive and scoped to the original `starting` session, no secondary helper Start or stale success appeared, and all ten sessions stopped cleanly. R7-088's A04 `partial` row is superseded; A05/A06/A07/A08/A11 remain open. See [R7-091 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-launch-spam-refresh.json).
+
 ## Latest implementation checkpoint - LWB-R7-090, 2026-09-20
 
 Acceptance case A10 is now closed at IMPLEMENTED/OFFLINE-TESTED scope for the admitted startup pipeline. The combined matrix covers six host failure/retry branches plus 12 helper transaction stages with real temporary-file backup/journal/install/rollback mechanics. Exact baseline restoration, interrupted-recovery journal retention, clean rollback clearing, unmanaged-process preservation, helper-owned process cleanup and successful subsequent retry are all asserted. R7-088's A10 `partial` row is superseded; separate admission/ownership/interruption/reconnect/status cases remain open. See [R7-090 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-startup-failure-matrix.json).
