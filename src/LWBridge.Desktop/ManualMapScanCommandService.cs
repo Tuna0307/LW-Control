@@ -103,7 +103,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
             "map_coordinate_jump" or "map_march_follow" or "server_jump" or
-            "map_dispatch_plunder_cancel" or "map_truck_plunder_schedule" or "game_asset_image" or
+            "map_dispatch_plunder_schedule" or "map_dispatch_plunder_cancel" or
+            "map_truck_plunder_schedule" or "game_asset_image" or
             "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
             "map_treasure_claim_status";
 
@@ -112,6 +113,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        if (command == "map_dispatch_plunder_schedule")
+            return ScheduleDispatchPlunder(payload);
         if (command == "map_dispatch_plunder_cancel")
         {
             CancelDispatchPlunder(payload);
@@ -539,6 +542,35 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return CreateStatus();
     }
 
+    private IReadOnlyList<JsonElement> ScheduleDispatchPlunder(
+        JsonElement payload)
+    {
+        IReadOnlyList<DispatchPlunderScheduleRow> rows =
+            DispatchPlunderContract.NormalizeScheduleRows(payload);
+        var scheduled = new List<JsonElement>(rows.Count);
+        foreach (DispatchPlunderScheduleRow row in rows)
+        {
+            JsonElement? persisted = store.ScheduleDispatchPlunderRow(
+                row.ServerId,
+                row.Uuid,
+                row.Json,
+                row.CompletionTime,
+                row.PlunderAt,
+                row.ExpireAt,
+                RecoveredWallClock.UnixTimeMilliseconds());
+            if (!persisted.HasValue)
+            {
+                throw new BridgeCommandException(
+                    "MAP_DATA_ERROR",
+                    "scheduled plunder job is missing");
+            }
+            scheduled.Add(persisted.Value);
+        }
+
+        OnDispatchPlunderChanged();
+        return scheduled;
+    }
+
     private void CancelDispatchPlunder(JsonElement payload)
     {
         DispatchPlunderTarget target =
@@ -554,7 +586,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 "scheduled plunder job not found");
         }
 
-        DispatchPlunderChanged?.Invoke();
+        OnDispatchPlunderChanged();
     }
 
     private sealed record TruckScheduleRow(

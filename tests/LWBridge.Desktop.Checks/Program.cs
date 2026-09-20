@@ -5717,13 +5717,16 @@ Check(
     dispatchWorkerSource.Contains("TryMarkDispatchPlunderRunning", StringComparison.Ordinal) &&
     dispatchWorkerSource.Contains("FailActiveDispatchPlunderAtDailyLimit", StringComparison.Ordinal) &&
     dispatchWorkerSource.Contains("DISPATCH_PLUNDER_RESPONSE_TIMEOUT", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("item.ServerId,", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("item.ServerId is < 1 or > 99_999", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("int targetServerId = checked((int)item.ServerId)", StringComparison.Ordinal) &&
     dispatchWorkerSource.Contains("item.TaskUuid,", StringComparison.Ordinal) &&
     dispatchWorkerSource.Contains("item.PlunderAt,", StringComparison.Ordinal) &&
     dispatchWorkerSource.Contains("not have to equal the target server", StringComparison.Ordinal) &&
     !dispatchWorkerSource.Contains("liveServerId.Value != item.ServerId", StringComparison.Ordinal),
     "Dispatch worker must preserve recovered 10-second arm timing, due-only offline deferral, active-only running attempts, daily-limit stop-all and non-retryable ambiguity while leaving cross-server eligibility to the current-v19 executor");
 Check(
+    plunderStoreSource.Contains("ValidateDispatchServerId(long serverId)", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("if (serverId <= 0)", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("FailStaleRunningDispatchPlunderConservatively", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("TryMarkDispatchPlunderRunning", StringComparison.Ordinal) &&
     plunderStoreSource.Contains("status='failed'", StringComparison.Ordinal) &&
@@ -5757,14 +5760,20 @@ Check(
     dispatchPlunderContractSource.Contains("plunderAt < completionTime", StringComparison.Ordinal) &&
     dispatchPlunderContractSource.Contains("taskExpireTime > 0 && taskExpireTime <= plunderAt", StringComparison.Ordinal) &&
     dispatchPlunderContractSource.Contains("maxStealCount > 0 && stolenCount >= maxStealCount", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("TryGetInt64(out long serverId)", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("serverId <= 0", StringComparison.Ordinal) &&
+    !dispatchPlunderContractSource.Contains("serverId > 99_999", StringComparison.Ordinal) &&
     dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal),
-    "Dispatch plunder contract must preserve recovered batch, timing, steal-cap and cancel-target validation");
+    "Dispatch plunder contract must preserve recovered positive-i64 server identity, batch, timing, steal-cap and cancel-target validation");
 Check(
+    manualMapServiceSource.Contains("command == \"map_dispatch_plunder_schedule\"", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("DispatchPlunderContract.NormalizeScheduleRows(payload)", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("ScheduleDispatchPlunderRow(", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("scheduled plunder job is missing", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("scheduled plunder job not found", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("DispatchPlunderChanged", StringComparison.Ordinal) &&
-    !manualMapServiceSource.Contains("command == \"map_dispatch_plunder_schedule\"", StringComparison.Ordinal),
-    "Dispatch public cancel must be enabled with recovered NOT_FOUND/event behavior while schedule remains fail-closed");
+    manualMapServiceSource.Contains("OnDispatchPlunderChanged();", StringComparison.Ordinal),
+    "Dispatch public schedule/cancel must be enabled with recovered batch-store, MAP_DATA_ERROR/NOT_FOUND and change-event behavior");
 Check(
     manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("truck rows are required", StringComparison.Ordinal) &&
@@ -5778,7 +5787,7 @@ Check(
     windowSource.Contains("\"bridge://dispatch-plunder-changed\"", StringComparison.Ordinal) &&
     windowSource.Contains("manualMapScanService.DispatchPlunderChanged += OnDispatchPlunderChanged", StringComparison.Ordinal) &&
     windowSource.Contains("SendEvent(session, \"bridge://dispatch-plunder-changed\"", StringComparison.Ordinal),
-    "Recovered Dispatch plunder change event must be allowlisted and forwarded after successful local cancellation");
+    "Recovered Dispatch plunder change event must be allowlisted and forwarded after successful local schedule/cancel and durable-worker transitions");
 Check(
     windowSource.Contains("\"bridge://truck-plunder-changed\"", StringComparison.Ordinal) &&
     windowSource.Contains("manualMapScanService.TruckPlunderChanged += OnTruckPlunderChanged", StringComparison.Ordinal) &&

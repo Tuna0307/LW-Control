@@ -1,6 +1,12 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-083, 2026-09-20
+## Current continuation checkpoint - LWB-R7-084, 2026-09-20
+
+**Public Dispatch schedule/cancel is now closed offline.** `map_dispatch_plunder_schedule` is production-routed through the recovered whole-batch validator and sequential active-only store. Success returns the accumulated scheduled rows and emits `DispatchPlunderChanged` once after the full batch; a later guarded store conflict leaves earlier writes persisted, returns `MAP_DATA_ERROR / scheduled plunder job is missing`, and emits no success event. The verified original schedule and cancel parsers both accept positive signed-64-bit `serverId` with no 99999 ceiling, so Dispatch-only local scheduler keys are widened to `long`; current-v19 execution still rejects values outside 1..99999 before entering `running`, incrementing attempts, or sending.
+
+**Next:** Dispatch implementation is offline-complete. A real Dispatch schedule/plunder acceptance remains authorization-gated because it consumes a gameplay action. Continue the population-bound Ghost/Supplies/Railway proofs and other explicitly authorized state-changing acceptance work. No live Dispatch schedule or plunder was run in R7-084.
+
+## Prior continuation checkpoint - LWB-R7-083, 2026-09-20
 
 **Dispatch durable worker wiring is now closed offline.** The production Map Data owner creates one `DispatchPlunderWorker` over the R7-081 persistence primitives and R7-082 executor. The worker preserves the recovered 10-second arm lead, due-only disconnected deferral, expiry, daily-limit stop-all, and running-before-execute attempt increment. It shares the existing serialized game-operation gate and forwards `DispatchPlunderChanged`. Cross-server targets are allowed through to the executor rather than forcing a Truck-style same-server rule, because current-v19 `DispatchSteal` carries `targetServer` and rechecks cross-steal availability.
 

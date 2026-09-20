@@ -1,6 +1,10 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
-## Latest implementation checkpoint — LWB-R7-083, 2026-09-20
+## Latest implementation checkpoint — LWB-R7-084, 2026-09-20
+
+Public Dispatch scheduling is now implemented/offline-tested over the recovered validator/store, current-v19 executor and durable worker. Whole-batch validation precedes sequential writes; success returns scheduled rows and emits one `bridge://dispatch-plunder-changed`; a later guarded conflict leaves earlier writes intact but returns exact `MAP_DATA_ERROR` without a success event. Static recovery also closes the server-ID discrepancy: original schedule and cancel accept any positive signed-64-bit value, so Dispatch-only local scheduler keys now use `long`; values outside the current-v19 proven 1..99999 execution domain fail before attempt/send. No live schedule or plunder was run. See [R7-084 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-public-schedule.json).
+
+## Prior implementation checkpoint — LWB-R7-083, 2026-09-20
 
 Dispatch durable worker ownership is now wired/offline-tested without any live steal. The worker connects persisted `scheduled|waiting_connection` jobs to the R7-082 current-v19 executor, preserves the recovered 10-second arm lead, due-only disconnected deferral, expiry, daily-limit stop-all and exactly-one running attempt increment, and shares the serialized Map Data game-operation gate. Cross-server targets are passed directly to the executor because current-v19 `DispatchSteal` carries `targetServer`. Safety is deliberately stricter than the original on restart: stale `running` rows become terminal `failed / DISPATCH_PLUNDER_CLIENT_RESTARTED` because prior send state cannot be reconstructed; an active-only running transition also prevents a cancel-race resurrection. Public Dispatch schedule remains disabled pending final wrapper/event integration. See [R7-083 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-durable-worker.json).
 

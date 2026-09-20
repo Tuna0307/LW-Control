@@ -12,7 +12,7 @@ internal sealed record DispatchPlunderScheduleRow(
     long? ExpireAt);
 
 internal sealed record DispatchPlunderTarget(
-    int ServerId,
+    long ServerId,
     string TaskUuid);
 
 internal static class DispatchPlunderContract
@@ -87,7 +87,7 @@ internal static class DispatchPlunderContract
     internal static DispatchPlunderTarget NormalizeCancel(JsonElement payload)
     {
         if (!payload.TryGetProperty("serverId", out JsonElement serverValue) ||
-            !serverValue.TryGetInt32(out int serverId) ||
+            !serverValue.TryGetInt64(out long serverId) ||
             serverId <= 0 ||
             !payload.TryGetProperty("taskUuid", out JsonElement uuidValue) ||
             uuidValue.ValueKind != JsonValueKind.String)

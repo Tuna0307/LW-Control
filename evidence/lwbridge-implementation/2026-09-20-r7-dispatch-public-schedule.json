@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-084",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "af65e9bc7fd04867bd070b7b17eb168a292989a8",
+  "status": "PUBLIC_SCHEDULE_IMPLEMENTED_OFFLINE_TESTED",
+  "scope": {
+    "feature": "Public Dispatch plunder schedule wrapper/event/result integration",
+    "map_dispatch_plunder_schedule": "PUBLIC/OFFLINE-TESTED",
+    "map_dispatch_plunder_cancel": "PUBLIC/OFFLINE-TESTED",
+    "durableDispatchWorker": "IMPLEMENTED/OFFLINE-TESTED",
+    "currentV19Executor": "IMPLEMENTED/OFFLINE-TESTED",
+    "liveDispatchPlunderAttempted": false
+  },
+  "originalReference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontend": "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "frontendSha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47",
+    "inspector": "tools/inspect_lwbridge_dispatch_plunder.py"
+  },
+  "recoveredPublicSchedule": {
+    "wrapperRva": "0x115331-0x116210",
+    "storeRva": "0x268029-0x2687A1",
+    "payload": "map_dispatch_plunder_schedule({rows})",
+    "validationOrder": "the complete 1..200 row batch is validated before the per-row persistence loop",
+    "persistenceOrder": "validated rows are persisted sequentially through the recovered store call",
+    "guardedWriteFailure": {
+      "code": "MAP_DATA_ERROR",
+      "message": "scheduled plunder job is missing"
+    },
+    "partialWriteSemantics": "if an earlier row persists and a later running/terminal conflict makes the guarded upsert return no row, earlier writes remain persisted and the command fails",
+    "successEvent": "bridge://dispatch-plunder-changed",
+    "eventOrder": "emitted after the full sequential persistence loop succeeds; not emitted on a later guarded-write failure",
+    "return": "accumulated scheduled-row values returned by each successful store call",
+    "frontendConsumption": "the recovered Map Data frontend ignores the command return value and refreshes map_plunder_jobs_list after success",
+    "randomizationOwnership": "frontend wrapper owns maxRandomDelaySeconds/randomDelaySeconds and passes the resulting plunderAt; backend does not add randomness"
+  },
+  "serverIdentityRecovery": {
+    "schedule": "signed 64-bit integer-like serverId, predicate serverId > 0 only",
+    "cancel": "signed 64-bit serverId, predicate serverId > 0 only",
+    "originalUpperBound99999": false,
+    "scheduleEvidence": "public wrapper compares qword serverId to 0 and branches invalid on <=0; no 0x1869f/99999 comparison in the hash-locked function",
+    "cancelEvidence": "typed parser stores serverId in rdi, test rdi,rdi; jle invalid; no 0x1869f/99999 comparison in the hash-locked function",
+    "persistence": "Dispatch-only local scheduler keys were widened to long; ordinary Map Data and server-jump validation remain unchanged",
+    "currentV19ExecutionBoundary": "the current-v19 executor remains proven only for 1..99999; a persisted positive serverId outside that domain is terminalized as DISPATCH_PLUNDER_INVALID_TARGET before running/attempt increment/send"
+  },
+  "implementation": {
+    "contract": "src/LWBridge.Desktop/DispatchPlunderContract.cs",
+    "store": "src/LWBridge.Desktop/MapDataStore.Plunder.cs",
+    "service": "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "worker": "src/LWBridge.Desktop/DispatchPlunderWorker.cs",
+    "eventForwarder": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests": [
+      "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+      "tests/LWBridge.Desktop.Checks/DispatchPlunderWorkerChecks.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ]
+  },
+  "deterministicCoverage": {
+    "publicCanHandleSchedule": true,
+    "completeBatchValidatedBeforeAnyWrite": true,
+    "successfulBatchReturnsScheduledRows": true,
+    "scheduledRowsContainStatusAttemptsErrorAndTimestamps": true,
+    "successfulBatchEmitsExactlyOneChangeEvent": true,
+    "positiveServerIdAbove99999PersistsLocally": true,
+    "positiveServerIdAbove99999CanBeCancelledLocally": true,
+    "laterGuardedConflictLeavesEarlierWritePersisted": true,
+    "laterGuardedConflictEmitsNoSuccessChangeEvent": true,
+    "laterGuardedConflictUsesExactMapDataError": true,
+    "wideServerIdFailsBeforeCurrentV19ExecutionAttempt": true
+  },
+  "validation": {
+    "originalContractInspector": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "liveDispatchScheduleCreated": false,
+    "liveDispatchScheduleCancelled": false,
+    "liveDispatchPlunderAttempted": false,
+    "liveTruckRobberyAttempted": false,
+    "treasureClaimAttempted": false,
+    "messageOrAllianceShareSent": false
+  },
+  "boundary": "Public scheduling is now implemented and offline-tested, but no real schedule or Dispatch steal has been executed. Any live Dispatch plunder acceptance still requires explicit owner authorization and a suitable target."
+}

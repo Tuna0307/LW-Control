@@ -263,6 +263,28 @@ internal static class DispatchPlunderWorkerChecks
                   row.GetProperty("attempts").GetInt32() == 5,
                 "current-v19-incompatible persisted Dispatch identity fails before running and before attempt increment");
         }
+
+        using (var store = new MapDataStore(Path.Combine(root, "wide-server.db")))
+        {
+            InsertScheduled(store, 100_000L, TaskUuid, attempts: 4, plunderAt: 1_000);
+            int calls = 0;
+            using var worker = new DispatchPlunderWorker(
+                store,
+                () => 88,
+                (_, _, _, _) => { calls++; throw new InvalidOperationException(); },
+                () => true,
+                () => { },
+                () => DateTimeOffset.FromUnixTimeMilliseconds(1_000),
+                startLoop: false);
+
+            worker.RunOnceForTestAsync().GetAwaiter().GetResult();
+            JsonElement row = Active(store, TaskUuid);
+            Check(calls == 0 &&
+                  row.GetProperty("scheduleStatus").GetString() == "failed" &&
+                  row.GetProperty("lastError").GetString() == "DISPATCH_PLUNDER_INVALID_TARGET" &&
+                  row.GetProperty("attempts").GetInt32() == 4,
+                "original positive-i64 Dispatch server identity remains persistable but fails before a current-v19 execution attempt when outside the proven transport domain");
+        }
     }
 
     private static void PreSendDisconnectAndConnectedTimeoutSplit(string root)
@@ -351,7 +373,7 @@ internal static class DispatchPlunderWorkerChecks
 
     private static void InsertScheduled(
         MapDataStore store,
-        int serverId,
+        long serverId,
         string taskUuid,
         int attempts,
         long plunderAt)
@@ -371,7 +393,7 @@ internal static class DispatchPlunderWorkerChecks
     }
 
     private static string TaskJson(
-        int serverId,
+        long serverId,
         string taskUuid,
         long plunderAt) =>
         $$"""{"uuid":"{{taskUuid}}","serverId":{{serverId}},"completionTime":500,"plunderAt":{{plunderAt}},"taskExpireTime":20000,"stolenCount":0,"maxStealCount":3}""";

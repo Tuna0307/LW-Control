@@ -116,6 +116,7 @@ internal sealed class DispatchPlunderWorker : IDisposable
                 return;
             }
 
+            int targetServerId = checked((int)item.ServerId);
             if (!tryEnterGameOperation()) return;
             try
             {
@@ -137,7 +138,7 @@ internal sealed class DispatchPlunderWorker : IDisposable
                 try
                 {
                     CurrentClientDispatchPlunderResult result = await execute(
-                        item.ServerId,
+                        targetServerId,
                         item.TaskUuid,
                         item.PlunderAt,
                         cancellationToken).ConfigureAwait(false);
@@ -297,8 +298,11 @@ internal sealed class DispatchPlunderWorker : IDisposable
     private static bool TryValidateExecutionIdentity(
         DispatchPlunderWorkItem item)
     {
-        if (!TryParseExactPositiveInt64(item.TaskUuid, out _))
+        if (item.ServerId is < 1 or > 99_999 ||
+            !TryParseExactPositiveInt64(item.TaskUuid, out _))
+        {
             return false;
+        }
         if (item.PlunderAt <= 0 || item.CompletionTime <= 0 ||
             item.PlunderAt < item.CompletionTime)
         {
@@ -315,7 +319,7 @@ internal sealed class DispatchPlunderWorker : IDisposable
         }
 
         if (task.TryGetProperty("serverId", out JsonElement server) &&
-            (!server.TryGetInt32(out int rowServer) || rowServer != item.ServerId))
+            (!TryReadInt64(server, out long rowServer) || rowServer != item.ServerId))
         {
             return false;
         }

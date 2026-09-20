@@ -995,8 +995,8 @@ internal static class ManualMapScanCommandServiceChecks
             new ImmediateSource());
         Check(service.CanHandle("map_dispatch_plunder_cancel"),
             "production async service handles recovered Dispatch cancel command");
-        Check(!service.CanHandle("map_dispatch_plunder_schedule"),
-            "Dispatch schedule remains fail-closed until a durable current-v19 executor exists");
+        Check(service.CanHandle("map_dispatch_plunder_schedule"),
+            "production async service handles recovered Dispatch schedule command after durable executor/worker closure");
 
         store.UpsertDispatchPlunderJobForTest(
             88,
@@ -1179,7 +1179,7 @@ internal static class ManualMapScanCommandServiceChecks
             {
                 new
                 {
-                    serverId = "88",
+                    serverId = "100000",
                     uuid = "34567",
                     completionTime = "1000",
                     plunderAt = "1000",
@@ -1202,11 +1202,11 @@ internal static class ManualMapScanCommandServiceChecks
         IReadOnlyList<DispatchPlunderScheduleRow> normalized =
             DispatchPlunderContract.NormalizeScheduleRows(valid);
         Check(normalized.Count == 2 &&
-              normalized[0].ServerId == 88 &&
+              normalized[0].ServerId == 100_000 &&
               normalized[0].PlunderAt == normalized[0].CompletionTime &&
               normalized[0].ExpireAt is null &&
               normalized[1].ExpireAt == 1_201,
-            "Dispatch schedule accepts recovered equality/nonpositive-expiry/no-cap boundaries");
+            "Dispatch schedule accepts recovered equality/nonpositive-expiry/no-cap boundaries, including positive server IDs above the rebuild Map Data ceiling");
 
         object[] invalidRows =
         [
@@ -1227,19 +1227,143 @@ internal static class ManualMapScanCommandServiceChecks
                 "Dispatch schedule rejects one recovered invalid-row predicate");
         }
 
+        JsonElement invalidBatch = JsonSerializer.SerializeToElement(new
+        {
+            profileId = config.Snapshot.ProfileId,
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = 88,
+                    uuid = "56780",
+                    completionTime = 1_000,
+                    plunderAt = 1_300,
+                    stolenCount = 0,
+                    maxStealCount = 3,
+                },
+                new
+                {
+                    serverId = 88,
+                    uuid = "bad",
+                    completionTime = 1_000,
+                    plunderAt = 1_300,
+                },
+            },
+        }, JsonOptions.Default);
         try
         {
             _ = await backend.InvokeAsync(
                 "map_dispatch_plunder_schedule",
-                valid,
+                invalidBatch,
                 CancellationToken.None);
             throw new InvalidOperationException(
-                "expected Dispatch schedule to remain unavailable");
+                "expected Dispatch schedule full-batch validation failure");
         }
         catch (BridgeCommandException error)
-            when (error.Code == "COMMAND_NOT_IMPLEMENTED")
+            when (error.Code == "INVALID_REQUEST" &&
+                  error.Message == "secret task scheduling data is invalid")
         {
         }
+        Check(!store.ReadPlunderJobs().DispatchJobs.Any(
+                  row => row.GetProperty("uuid").GetString() == "56780") &&
+              changed == 1,
+            "public Dispatch schedule validates the complete batch before persisting an earlier valid row or emitting change");
+
+        object? scheduleResultObject = await backend.InvokeAsync(
+            "map_dispatch_plunder_schedule",
+            valid,
+            CancellationToken.None);
+        Check(scheduleResultObject is IReadOnlyList<JsonElement>,
+            "recovered Dispatch schedule returns the accumulated scheduled rows");
+        IReadOnlyList<JsonElement> scheduleResult =
+            (IReadOnlyList<JsonElement>)scheduleResultObject!;
+        Check(scheduleResult.Count == 2 &&
+              scheduleResult.All(row =>
+                  row.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+                  row.GetProperty("attempts").GetInt32() == 0 &&
+                  row.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+                  row.GetProperty("scheduledAt").GetInt64() > 0 &&
+                  row.GetProperty("scheduleUpdatedAt").GetInt64() > 0),
+            "Dispatch schedule result overlays recovered scheduler metadata on every persisted source row");
+        Check(changed == 2,
+            "successful Dispatch schedule emits exactly one recovered change event after the whole batch");
+
+        MapPlunderJobsSnapshot scheduledSnapshot = store.ReadPlunderJobs();
+        JsonElement highServer = scheduledSnapshot.DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "34567");
+        JsonElement ordinaryServer = scheduledSnapshot.DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "45678");
+        Check(highServer.GetProperty("serverId").GetString() == "100000" &&
+              highServer.GetProperty("plunderAt").GetInt64() == 1_000 &&
+              highServer.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              ordinaryServer.GetProperty("plunderAt").GetInt64() == 1_200,
+            "public Dispatch schedule preserves source JSON while persisting positive i64 server IDs and recovered timing");
+
+        object? highCancelResult = await backend.InvokeAsync(
+            "map_dispatch_plunder_cancel",
+            JsonSerializer.SerializeToElement(new
+            {
+                profileId = config.Snapshot.ProfileId,
+                serverId = 100_000L,
+                taskUuid = "34567",
+            }, JsonOptions.Default),
+            CancellationToken.None);
+        Check(highCancelResult is null && changed == 3,
+            "recovered Dispatch cancel accepts the same positive i64 server identity and emits one change event");
+        JsonElement highCancelled = store.ReadPlunderJobs().DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "34567");
+        Check(highCancelled.GetProperty("scheduleStatus").GetString() == "cancelled",
+            "positive i64 Dispatch target remains locally cancellable");
+
+        JsonElement partialConflict = JsonSerializer.SerializeToElement(new
+        {
+            profileId = config.Snapshot.ProfileId,
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = 89,
+                    uuid = "56789",
+                    completionTime = 1_000,
+                    plunderAt = 1_300,
+                    stolenCount = 0,
+                    maxStealCount = 3,
+                },
+                new
+                {
+                    serverId = 88,
+                    uuid = "23456",
+                    completionTime = 1_000,
+                    plunderAt = 1_300,
+                    stolenCount = 0,
+                    maxStealCount = 3,
+                },
+            },
+        }, JsonOptions.Default);
+        try
+        {
+            _ = await backend.InvokeAsync(
+                "map_dispatch_plunder_schedule",
+                partialConflict,
+                CancellationToken.None);
+            throw new InvalidOperationException(
+                "expected Dispatch schedule guarded-write failure");
+        }
+        catch (BridgeCommandException error)
+            when (error.Code == "MAP_DATA_ERROR" &&
+                  error.Message == "scheduled plunder job is missing")
+        {
+        }
+        MapPlunderJobsSnapshot partialSnapshot = store.ReadPlunderJobs();
+        JsonElement partialFirst = partialSnapshot.DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "56789");
+        JsonElement runningConflict = partialSnapshot.DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "23456");
+        Check(partialFirst.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              runningConflict.GetProperty("scheduleStatus").GetString() == "running" &&
+              runningConflict.GetProperty("plunderAt").GetInt64() == 1_200 &&
+              changed == 3,
+            "original sequential Dispatch scheduling persists earlier rows but emits no change event when a later guarded write conflicts");
 
         service.Close();
     }

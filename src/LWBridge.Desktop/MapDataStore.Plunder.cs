@@ -13,7 +13,7 @@ internal sealed record TruckPlunderScheduleResult(
     bool ArchivedPreviousAttempt);
 
 internal sealed record DispatchPlunderWorkItem(
-    int ServerId,
+    long ServerId,
     string TaskUuid,
     JsonElement Task,
     long CompletionTime,
@@ -54,7 +54,24 @@ internal sealed partial class MapDataStore
     }
 
     internal bool ScheduleDispatchPlunder(
-        int serverId,
+        long serverId,
+        string taskUuid,
+        string taskJson,
+        long completionTime,
+        long plunderAt,
+        long? expireAt,
+        long now) =>
+        ScheduleDispatchPlunderRow(
+            serverId,
+            taskUuid,
+            taskJson,
+            completionTime,
+            plunderAt,
+            expireAt,
+            now) is not null;
+
+    internal JsonElement? ScheduleDispatchPlunderRow(
+        long serverId,
         string taskUuid,
         string taskJson,
         long completionTime,
@@ -62,7 +79,7 @@ internal sealed partial class MapDataStore
         long? expireAt,
         long now)
     {
-        ValidateServerId(serverId);
+        ValidateDispatchServerId(serverId);
         ValidateJsonObject(taskJson, "dispatch plunder job");
 
         lock (gate)
@@ -88,27 +105,36 @@ internal sealed partial class MapDataStore
             command.Parameters.AddWithValue("$plunder", plunderAt);
             command.Parameters.AddWithValue("$expire", (object?)expireAt ?? DBNull.Value);
             command.Parameters.AddWithValue("$now", now);
-            if (command.ExecuteNonQuery() <= 0) return false;
+            if (command.ExecuteNonQuery() <= 0) return null;
 
             using SqliteCommand read = connection.CreateCommand();
             read.CommandText = """
-                SELECT task_json,status,attempts,last_error,created_at,updated_at
+                SELECT task_json,status,attempts,last_error,created_at,updated_at,plunder_at
                 FROM dispatch_plunder_jobs
                 WHERE server_id=$server AND task_uuid=$uuid
                 """;
             read.Parameters.AddWithValue("$server", serverId);
             read.Parameters.AddWithValue("$uuid", taskUuid);
             using SqliteDataReader reader = read.ExecuteReader();
-            return reader.Read();
+            if (!reader.Read()) return null;
+            return ReadPlunderJobRow(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetInt32(2),
+                reader.IsDBNull(3) ? null : reader.GetString(3),
+                reader.GetInt64(4),
+                reader.GetInt64(5),
+                executeAt: null,
+                plunderAt: reader.GetInt64(6));
         }
     }
 
     internal bool CancelDispatchPlunder(
-        int serverId,
+        long serverId,
         string taskUuid,
         long updatedAt)
     {
-        ValidateServerId(serverId);
+        ValidateDispatchServerId(serverId);
         lock (gate)
         {
             using SqliteCommand command = connection.CreateCommand();
@@ -245,11 +271,11 @@ internal sealed partial class MapDataStore
     }
 
     internal bool TryMarkDispatchPlunderRunning(
-        int serverId,
+        long serverId,
         string taskUuid,
         long updatedAt)
     {
-        ValidateServerId(serverId);
+        ValidateDispatchServerId(serverId);
         if (string.IsNullOrWhiteSpace(taskUuid))
             throw new BridgeCommandException(
                 "DISPATCH_PLUNDER_INVALID_TARGET",
@@ -275,14 +301,14 @@ internal sealed partial class MapDataStore
     }
 
     internal bool UpdateDispatchPlunderStatus(
-        int serverId,
+        long serverId,
         string taskUuid,
         string status,
         string? lastError,
         bool incrementAttempts,
         long updatedAt)
     {
-        ValidateServerId(serverId);
+        ValidateDispatchServerId(serverId);
         if (string.IsNullOrWhiteSpace(taskUuid))
             throw new BridgeCommandException(
                 "DISPATCH_PLUNDER_INVALID_TARGET",
@@ -334,7 +360,7 @@ internal sealed partial class MapDataStore
         using JsonDocument document =
             JsonDocument.Parse(row.ToJsonString(JsonOptions.Default));
         return new DispatchPlunderWorkItem(
-            reader.GetInt32(0),
+            reader.GetInt64(0),
             reader.GetString(1),
             document.RootElement.Clone(),
             reader.GetInt64(3),
@@ -345,6 +371,14 @@ internal sealed partial class MapDataStore
             reader.IsDBNull(8) ? null : reader.GetString(8),
             reader.GetInt64(9),
             reader.GetInt64(10));
+    }
+
+    private static void ValidateDispatchServerId(long serverId)
+    {
+        if (serverId <= 0)
+            throw new BridgeCommandException(
+                "INVALID_SERVER_ID",
+                "serverId must be a positive integer.");
     }
 
     internal TruckPlunderScheduleResult ScheduleTruckPlunder(
@@ -1064,7 +1098,7 @@ internal sealed partial class MapDataStore
     }
 
     internal void UpsertDispatchPlunderJobForTest(
-        int serverId,
+        long serverId,
         string taskUuid,
         string taskJson,
         long completionTime,
@@ -1076,7 +1110,7 @@ internal sealed partial class MapDataStore
         long createdAt,
         long updatedAt)
     {
-        ValidateServerId(serverId);
+        ValidateDispatchServerId(serverId);
         ValidateJsonObject(taskJson, "dispatch plunder job");
         lock (gate)
         {

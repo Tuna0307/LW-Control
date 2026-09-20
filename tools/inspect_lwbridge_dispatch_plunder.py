@@ -120,8 +120,10 @@ def inspect_contract(binary: Path, frontend: Path) -> dict[str, object]:
         string_offsets[name] = f"0x{offset:X}"
 
     function_reports: dict[str, dict[str, object]] = {}
+    raw_reports: dict[str, str] = {}
     for name, (rva, needles) in FUNCTIONS.items():
         report = inspect(binary, (), dump_rva=rva)
+        raw_reports[name] = report
         missing = [needle for needle in needles if needle not in report]
         if missing:
             raise InspectError(
@@ -142,6 +144,34 @@ def inspect_contract(binary: Path, frontend: Path) -> dict[str, object]:
             "verifiedAnnotations": needles,
         }
 
+    public_schedule = raw_reports["public_schedule"]
+    cancel_parser = raw_reports["cancel_target_parser"]
+    server_identity = {
+        "schedulePositiveI64Only": (
+            "cmp     qword ptr [rsp + 0x30], 0" in public_schedule
+            and "jle     0x140115c79" in public_schedule
+            and "0x1869f" not in public_schedule.lower()
+            and "99999" not in public_schedule
+        ),
+        "cancelPositiveI64Only": (
+            "test    rdi, rdi" in cancel_parser
+            and "jle     0x1402316e0" in cancel_parser
+            and "0x1869f" not in cancel_parser.lower()
+            and "99999" not in cancel_parser
+        ),
+    }
+    if not all(server_identity.values()):
+        raise InspectError(
+            "Dispatch server identity no longer matches recovered positive-i64-only semantics"
+        )
+
+    store_call = public_schedule.find("call    0x140268029")
+    changed_event = public_schedule.find("bridge://dispatch-plunder-changed")
+    if store_call < 0 or changed_event < 0 or store_call >= changed_event:
+        raise InspectError(
+            "Dispatch schedule store/change-event ordering no longer matches recovered wrapper"
+        )
+
     return {
         "ok": True,
         "binary": str(binary),
@@ -151,6 +181,12 @@ def inspect_contract(binary: Path, frontend: Path) -> dict[str, object]:
         "frontendSnippets": FRONTEND_SNIPPETS,
         "binaryStringOffsets": string_offsets,
         "functions": function_reports,
+        "serverIdentity": server_identity,
+        "scheduleOrdering": {
+            "storeCallBeforeChangedEvent": True,
+            "storeCall": "0x140268029",
+            "changedEvent": "bridge://dispatch-plunder-changed",
+        },
     }
 
 
@@ -186,6 +222,8 @@ def main() -> int:
             print(f"{name}: {row['runtimeFunction']}")
         for name, offset in result["binaryStringOffsets"].items():
             print(f"{name}: offset={offset}")
+        print("serverIdentity=positive-i64-only (schedule+cancel; no 99999 cap)")
+        print("scheduleOrdering=store-before-bridge://dispatch-plunder-changed")
     return 0
 
 
