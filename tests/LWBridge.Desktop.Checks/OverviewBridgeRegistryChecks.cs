@@ -30,6 +30,13 @@ internal static class OverviewBridgeRegistryChecks
         expired.Register(Profile, Instance, Token, startupDeadline);
         Check(!expired.TryAdmit(Profile, Instance, Token, startupDeadline, new object(), out _),
             "an unclaimed registration expires at the exact deadline boundary");
+        Check(expired.IsPending(Instance),
+            "deadline expiry rejects admission but does not itself delete the retained registration");
+        ExpectError("PIPE_INSTANCE_DUPLICATE", "duplicate-after-expiry-before-unregister", () =>
+            expired.Register(Profile, Instance, Token, startupDeadline + 1));
+        expired.Unregister(Instance);
+        Check(!expired.IsPending(Instance),
+            "explicit unregister is required to release an expired unclaimed instance key");
 
         var registry = new LWBridgeControlPipeRegistry();
         registry.Register(Profile, Instance, Token, startupDeadline);
