@@ -1,0 +1,92 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-113",
+  "date": "2026-09-21",
+  "status": "HANDSHAKE-IDENTITY-GATES-RECOVERED/OFFLINE-TESTED/NATIVE-HANDSHAKE-BLOCKED",
+  "title": "Recover original hello authentication and client-process identity gates",
+  "branch": "research/offline-controller",
+  "parentRevision": "58213139494cca812b0d5376a190213ec8dd2456",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "connectionFuture": "RVA 0x0E2DB5-0x0E4861",
+    "envelopeValidator": "RVA 0x3C40B8-0x3C424B",
+    "clientProcessVerifier": "RVA 0x3C424B-0x3C467E",
+    "registryAdmission": "RVA 0x3C47AB-0x3C4976"
+  },
+  "envelope": {
+    "requiredTypedFields": [
+      "version",
+      "type",
+      "profileId",
+      "instanceId",
+      "requestId",
+      "timestamp",
+      "payload"
+    ],
+    "validator": "RVA 0x3C40B8"
+  },
+  "hello": {
+    "type": "hello",
+    "profileIdLookup": "RVA 0x0E3B2F",
+    "tokenLookup": "RVA 0x0E3B77 /payload/token",
+    "pidLookup": "RVA 0x0E3BC0 /payload/pid",
+    "buildIdLookup": "RVA 0x0E3BFE /payload/buildId",
+    "typeLookup": "RVA 0x0E3C74",
+    "typeLiteralCheck": "RVA 0x0E3C9B-0x0E3CC3"
+  },
+  "claimedPid": {
+    "range": "1..UInt32.MaxValue",
+    "rangeGate": "RVA 0x0E3CED-0x0E3D0C",
+    "osQuery": "RVA 0x3C4283 GetNamedPipeClientProcessId",
+    "equality": "RVA 0x3C4291 compares OS-reported client PID with hello-supplied PID",
+    "mismatch": "handshake rejected"
+  },
+  "clientProcessImage": {
+    "openProcess": "RVA 0x3C42E1 loads PROCESS_QUERY_LIMITED_INFORMATION 0x1000; RVA 0x3C42EB calls OpenProcess",
+    "queryImage": "RVA 0x3C432D calls QueryFullProcessImageNameW",
+    "expectedPathInput": "connection future passes the host-held expected client path at RVA 0x0E3FD7 -> 0x3C424B",
+    "comparison": "length equality followed by ASCII A-Z case-folded byte equality at RVA 0x3C4538-0x3C4584 after helper normalization",
+    "exactNormalizationHelperRecovered": false,
+    "productionPolicy": "Do not implement or bypass this gate until the pre-comparison normalization helpers are source-backed."
+  },
+  "buildId": {
+    "comparison": "exact length and byte equality",
+    "lengthGate": "RVA 0x0E3F87",
+    "bytesGate": "RVA 0x0E3F98 -> 0x79C7F0"
+  },
+  "registryAdmission": {
+    "call": "RVA 0x0E41D0 -> 0x3C47AB",
+    "instanceId": "registry lookup key",
+    "profileId": "exact pending-record length and byte comparison",
+    "firstClaimDeadline": "enforced while claimed=false",
+    "token": "SHA-256(raw token), fixed 32-byte XOR accumulator comparison",
+    "claim": "success writes claimed=true at RVA 0x3C48A4",
+    "generation": "host-global generation advances at RVA 0x3C48AA-0x3C48BC",
+    "route": "connected route installed only after all admission gates pass"
+  },
+  "implementation": {
+    "contract": "src/LWBridge.Desktop/LWBridgeControlPipeHandshakeContract.cs",
+    "test": "tests/LWBridge.Desktop.Checks/OverviewBridgeHandshakeIdentityChecks.cs",
+    "inspector": "tools/inspect_lwbridge_handshake_identity.py",
+    "nativeHandshakeImplemented": false,
+    "productionHostAcceptsAuthenticatedClients": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": null
+  },
+  "validation": {
+    "focusedCli": "--overview-bridge-handshake-identity-check",
+    "focusedResult": "PASS",
+    "hashLockedInspector": "PASS"
+  },
+  "remainingBlocker": "Recover the exact client-image path normalization performed before the case-insensitive comparison, then implement isolated framed hello + five-second timeout + hello.ack using all recovered PID/path/build/token gates before production listener wiring.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}
