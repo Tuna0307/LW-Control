@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-095, 2026-09-20
+
+Acceptance case A06 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Original host/frontend recovery proves Home Close is unavailable while idle/launching and is separate from `map_scan_stop`; ten focused repetitions prove direct fail-closed safeguards, exact post-launch Stop, truthful incomplete scan/checkpoint/no-publication behavior when Home Close removes the owned game mid-scan, and recovery cancellation/restoration with no future restart. R7-088's A06 `partial` row is superseded. A11 is now the only remaining Home acceptance gap. See [R7-095 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-close-timing-matrix.json).
+
 ## Latest implementation checkpoint - LWB-R7-094, 2026-09-20
 
 Acceptance case A08 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten repetitions cover concrete root/path/permission/PE/ABI errors, missing root/helper/closed lifecycle, corrupted helper challenge/path/current-client evidence, stale heartbeat external truth, exact cleanup and corrected retry; the focused lane also executes the existing bounded timeout/retry regression. R7-088's A08 `partial` row is superseded. A06/A11 remain open. See [R7-094 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-fault-admission-matrix.json).

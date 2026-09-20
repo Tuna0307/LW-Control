@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-095, 2026-09-20
+
+**A06 is closed OFFLINE.** Static recovery from `lwbridge-0.3.1.exe` plus the hash-locked original frontend establishes the actual Home semantics: idle and launching cannot invoke Close from the UI; `profile_instance_stop` is separate from `map_scan_stop`; Home Close never issues `stopMapScan`; scanning can still be interrupted by closing the underlying owned game; recovering Close remains reachable. `OverviewCloseTimingChecks` repeats all four states ten times and proves backend fail-closed guards, exact stop/restoration, dependent-scan `INCOMPLETE_SCAN` checkpoint truth/no partial publication, desired-running clear, recovery cancellation and no automatic restart. Full Release/deterministic validation remains green.
+
+**Next:** A11 is the only remaining Home acceptance gap. Do not use local lifecycle status as a substitute for original `get_status.pending`: exact pending/task-count semantics and the original Refresh Status Lua path still need recovery or must remain UNKNOWN/BLOCKED.
+
 ## Current continuation checkpoint - LWB-R7-094, 2026-09-20
 
 **A08 is closed OFFLINE.** `OverviewFaultAdmissionChecks` now consolidates the acceptance wording into one ten-run matrix: root/path/permission/PE/ABI validation errors; missing root/helper/closed-lifecycle admission; corrupt challenge, wrong game path and changed critical current-client anchor; stale-heartbeat external status; corrected same-lifecycle retry; plus the existing bounded timeout/cleanup/retry host regression. No official game is launched and no production runtime behavior changed. Full Release/deterministic validation is green.

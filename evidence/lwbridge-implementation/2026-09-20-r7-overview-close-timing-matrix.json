@@ -1,0 +1,726 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-095",
+  "acceptanceCase": "A06",
+  "date": "2026-09-20",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Home Close timing and dependent-scan interruption matrix",
+  "branch": "research/offline-controller",
+  "parentRevision": "4e6a011fe793266ebe7326e4e84ba1d72845f830",
+  "scope": {
+    "claim": "Closes A06 at deterministic/offline scope according to recovered original Home reachability and command separation. No official game/process is launched and production runtime behavior is unchanged.",
+    "officialGameLaunched": false,
+    "productionCodeChanged": false,
+    "doesNotSupersede": [
+      "A11"
+    ]
+  },
+  "originalRecovery": {
+    "referenceBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "profileInstanceStopFunctionRva": "0x13FCFB-0x141336",
+    "mapScanStopFunctionRva": "0x154421-0x154EF0",
+    "mapScanStopGameOperation": "stopMapScan",
+    "mapScanStopGameOperationTimeoutMilliseconds": 5000,
+    "profileStopDirectlyCallsMapScanStop": false,
+    "profileStopDirectlyCallsStopMapScanTarget": false,
+    "scanFailureVocabulary": [
+      "GAME_CONNECTION_UNAVAILABLE",
+      "INCOMPLETE_SCAN"
+    ],
+    "frontendCloseGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+    "frontendCloseHandler": "refresh profile_instance_status -> profile_instance_stop exact instanceId -> refresh status",
+    "frontendCloseCallsMapScanStop": false
+  },
+  "sourceIdentity": {
+    "OverviewLifecycleService.cs": "b48b6513c5a5a87ec1adfc5156e6b2c574d5dd2955097f4b5d864eaa9c7342b6",
+    "OverviewLifecycleRecovery.cs": "d8556dcd16e4719bf6855fcaf0ff0533399c889c6a888ac3cde7e45c9247c250",
+    "ManualMapScanCommandService.cs": "99671bc5fa301a58b46a535376a9ca794fe79bb4cb8376d1629ddabdc71f34af",
+    "MapScanEngine.cs": "e5ffd83c8ca1619147d733735ab79a8fa9b14437a7c25748b8918686a5e9874f",
+    "MapDataStore.ScanEngine.cs": "5162ffb600d43397e5c3761f533b7bf8617579eff3b46008dbf28d373dffdc9b",
+    "originalFrontendIndex": {
+      "path": "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js",
+      "sha256": "c4dc12dc6320675a8272c3d60e6d31d8e8540b666abc80fc5ebfbc57340db075"
+    },
+    "OverviewCloseTimingChecks.cs": "c3eda67ba5d96815673f00ba19ffd0568bf5432847beb57e0921d5e38fd5b833",
+    "Program.cs": "ee2e1b226fa7a45d53facdea663920a9d322f00e0d09621c045da39954e72e72"
+  },
+  "currentClientCompatibility": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "stress": {
+    "iterations": 10,
+    "allRecoveredFrontendGateExact": true,
+    "allIdleFailClosed": true,
+    "allLaunchingFailClosedThenExactStop": true,
+    "allScanningCheckpointTruth": true,
+    "allRecoveringCloseCancelsRestart": true,
+    "runs": [
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A06",
+        "scope": "recovered Home Close reachability plus lifecycle/scan terminal outcomes; no real game/process",
+        "frontend": {
+          "closeGate": "canStop:e&&t&&(n||i)&&!a&&!o",
+          "idleCloseReachable": false,
+          "launchingCloseReachable": false,
+          "ownedCloseReachable": true,
+          "recoveringCloseReachable": true,
+          "homeCloseCallsMapScanStop": false
+        },
+        "idle": {
+          "uiCloseReachable": false,
+          "directCommandError": "INSTANCE_NOT_OWNED",
+          "finalPhase": "stopped",
+          "finalConnection": "offline"
+        },
+        "launching": {
+          "uiCloseReachable": false,
+          "directCommandDuringStart": "GAME_OPERATION_IN_PROGRESS",
+          "originalStartCompleted": true,
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "finalPhase": "stopped"
+        },
+        "scanning": {
+          "uiCloseReachable": true,
+          "homeCloseCallsMapScanStop": false,
+          "scanTerminalPhase": "error",
+          "scanTerminalError": "direct map scan contains failed batches",
+          "durableRunStatus": "failed",
+          "checkpointStatuses": [
+            {
+              "BlockIndex": 0,
+              "Status": "completed",
+              "Attempts": 1
+            },
+            {
+              "BlockIndex": 1,
+              "Status": "failed",
+              "Attempts": 2
+            }
+          ],
+          "publishedRecordKeys": [
+            "baseline"
+          ],
+          "lifecycleStopCalls": 1,
+          "finalDesiredRunning": false,
+          "automaticRestartAfterClose": false
+        },
+        "recovering": {
+          "uiCloseReachable": true,
+          "recoveryStateBeforeClose": "waiting",
+          "recoveryStateAfterClose": "idle",
+          "exactStopCalls": 1,
+          "finalDesiredRunning": false,
+          "futureRecoveryStarts": 0,
+          "finalPhase": "stopped"
+        }
+      }
+    ]
+  },
+  "acceptanceMapping": {
+    "idle": "Recovered Home Quick Actions make Close unreachable when neither a game nor recovery is active. A direct backend Stop is still fail-closed as INSTANCE_NOT_OWNED and preserves stopped/offline/no-PID state.",
+    "launching": "Recovered Home Quick Actions disable Close while launch is busy/launching. A direct backend Stop during the admitted Start returns GAME_OPERATION_IN_PROGRESS without cancelling or duplicating that Start; once the original Start owns the session, exact Stop succeeds and clears desired-running.",
+    "scanning": "Recovered Home Close does not invoke map_scan_stop/stopMapScan. Closing the exact owned game while a dependent two-block scan is active causes current session acquisition to fail; the engine preserves the first completed checkpoint, records the second block failed after its bounded two attempts, marks the durable run failed/INCOMPLETE_SCAN, leaves the previous published dataset unchanged, restores/stops the game, clears desired-running, and never restarts it.",
+    "recovering": "A confirmed unhealthy recovery request is held in recovered waiting state while the exact owned process remains active. Intentional Close calls SetDesiredRunning(false), resets/cancels recovery to idle, performs one exact stop/restoration, and repeated later recovery observations produce zero starts.",
+    "shutdownCheckpoint": "MapScanEngine writes success/failure checkpoints before terminal publication; only complete zero-failure runs publish. Incomplete Home-Close interruption therefore cannot silently replace published data."
+  },
+  "supersedes": {
+    "evidence": "LWB-R7-088",
+    "caseId": "A06",
+    "priorStatus": "partial",
+    "newStatus": "pass_current_offline"
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedTenRunCloseTimingMatrix": "PASS; 10/10",
+    "existingDeferredRestorationRegression": "PASS",
+    "a10StartupFailureMatrix": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}
