@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-118",
+  "date": "2026-09-21",
+  "status": "OVERVIEW-LAUNCH-TRANSACTION-BINDING-INTEGRATED/DETERMINISTICALLY-PROVEN/NORMAL-COMPOSITION-DISABLED",
+  "title": "Integrate startup registration and proxy environment binding into Overview lifecycle transaction",
+  "branch": "research/offline-controller",
+  "parentRevision": "d7e449174421480d6c1f14b38c5b81b1c6e0ea69",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "implementation": {
+    "file": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "enableFlag": "enableBridgeControlPipeLaunchBinding=false by default",
+    "prepareTiming": "after official-client settle, before helper start",
+    "bindingBuildId": "OverviewLifecycleService.BridgeVersion",
+    "helperInvocation": "carries LWBridgeControlPipeLaunchBinding",
+    "realHelperEnvironment": "invocation.ControlPipeLaunchBinding?.ApplyTo(start) before Process.Start",
+    "retry": "same binding/token reused; registry expiry refreshed to lifecycle monotonic clock + 90000",
+    "terminalFailure": "finally block explicitly unregisters when start transaction does not succeed",
+    "success": "binding retained for future listener admission"
+  },
+  "deterministicProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeLifecycleLaunchBindingChecks.cs",
+    "focusedCli": "--overview-bridge-lifecycle-launch-binding-check",
+    "result": "PASS",
+    "initialClock": 1000,
+    "initialDeadline": 91000,
+    "retryClock": 5000,
+    "proofAdmissionClock": 94000,
+    "sameBindingObjectAcrossRetry": true,
+    "samePipeTokenAcrossRetry": true,
+    "refreshedAdmissionSucceeded": true,
+    "startCalls": 2,
+    "settleCalls": 2,
+    "admittedGeneration": 1,
+    "terminalFailureUnregister": true
+  },
+
+  "productionBoundary": {
+    "LWBridgeWindowPassesEnableBridgeControlPipeLaunchBinding": false,
+    "normalOverviewStartMutatesLWBRIDGEEnvironment": false,
+    "productionListenerStarted": false,
+    "outboundCommandRoutingImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Implement authenticated-session route transport and outstanding call/result correlation over the accepted pipe. After that, wire listener start + launch binding into normal application composition and expose get_status.pending plus allowlisted call_lua(getStatus).",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

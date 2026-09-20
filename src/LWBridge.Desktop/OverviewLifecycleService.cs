@@ -37,7 +37,8 @@ internal sealed record OverviewHelperInvocation(
     string? GamePath,
     string? GameStartedAtUtc,
     int? TimeoutSeconds = null,
-    int? SupervisionMilliseconds = null);
+    int? SupervisionMilliseconds = null,
+    LWBridgeControlPipeLaunchBinding? ControlPipeLaunchBinding = null);
 
 internal sealed partial class OverviewLifecycleService : INativeAsyncCommandService, IDisposable
 {
@@ -56,6 +57,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly LocalConfigStore? config;
     private readonly OverviewLifecycleTestHooks? testHooks;
     private readonly LWBridgeControlPipeHostState? bridgeHostState;
+    private readonly bool bridgeControlPipeLaunchBindingEnabled;
     private readonly bool requireCurrentClientEvidence;
     private readonly bool recoveryMonitorEnabled;
     private System.Threading.Timer? leaseTimer;
@@ -84,7 +86,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         LocalConfigStore? config = null,
         OverviewLifecycleTestHooks? testHooks = null,
         bool startRecoveryMonitor = true,
-        LWBridgeControlPipeHostState? bridgeHostState = null)
+        LWBridgeControlPipeHostState? bridgeHostState = null,
+        bool enableBridgeControlPipeLaunchBinding = false)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -95,6 +98,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         this.config = config;
         this.testHooks = testHooks;
         this.bridgeHostState = bridgeHostState;
+        bridgeControlPipeLaunchBindingEnabled =
+            enableBridgeControlPipeLaunchBinding;
         recoveryMonitorEnabled = startRecoveryMonitor;
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
@@ -551,6 +556,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             readyAtUnix = null;
         }
 
+        LWBridgeControlPipeLaunchBinding? controlPipeLaunchBinding = null;
+        bool startTransactionSucceeded = false;
         try
         {
             OverviewHelperInvocation startInvocation;
@@ -560,13 +567,22 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 startDeadline = checked(
                     RecoveryClockMilliseconds() + (long)helperSupervisionTimeout.TotalMilliseconds);
                 await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken, startDeadline.Value).ConfigureAwait(false);
-                startInvocation = CreateBoundedStartInvocation(newSession, newChallenge, startDeadline.Value);
+                controlPipeLaunchBinding = PrepareControlPipeLaunchBinding(
+                    newSession);
+                startInvocation = CreateBoundedStartInvocation(
+                    newSession,
+                    newChallenge,
+                    startDeadline.Value,
+                    controlPipeLaunchBinding);
             }
             else
             {
                 await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken).ConfigureAwait(false);
+                controlPipeLaunchBinding = PrepareControlPipeLaunchBinding(
+                    newSession);
                 startInvocation = new OverviewHelperInvocation(
-                    "start", profileId, newSession, newChallenge, null, null, null);
+                    "start", profileId, newSession, newChallenge, null, null, null,
+                    ControlPipeLaunchBinding: controlPipeLaunchBinding);
             }
 
             JsonElement helper;
@@ -580,14 +596,21 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 {
                     await EnsureOfficialClientSettledAsync(
                         selectedRoot, cancellationToken, startDeadline!.Value, forceOfficialSettle: true).ConfigureAwait(false);
-                    startInvocation = CreateBoundedStartInvocation(newSession, newChallenge, startDeadline.Value);
+                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
+                    startInvocation = CreateBoundedStartInvocation(
+                        newSession,
+                        newChallenge,
+                        startDeadline.Value,
+                        controlPipeLaunchBinding);
                 }
                 else
                 {
                     await EnsureOfficialClientSettledAsync(
                         selectedRoot, cancellationToken, forceOfficialSettle: true).ConfigureAwait(false);
+                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
                     startInvocation = new OverviewHelperInvocation(
-                        "start", profileId, newSession, newChallenge, null, null, null);
+                        "start", profileId, newSession, newChallenge, null, null, null,
+                        ControlPipeLaunchBinding: controlPipeLaunchBinding);
                 }
                 helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             }
@@ -603,13 +626,19 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     if (retryDeadline - RecoveryClockMilliseconds() < 11_000)
                         throw;
                     await RecoveryDelayAsync(TimeSpan.FromMilliseconds(750), cancellationToken).ConfigureAwait(false);
+                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
                     startInvocation = CreateBoundedStartInvocation(
-                        newSession, newChallenge, retryDeadline);
+                        newSession,
+                        newChallenge,
+                        retryDeadline,
+                        controlPipeLaunchBinding);
                 }
                 else
                 {
+                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
                     startInvocation = new OverviewHelperInvocation(
-                        "start", profileId, newSession, newChallenge, null, null, null);
+                        "start", profileId, newSession, newChallenge, null, null, null,
+                        ControlPipeLaunchBinding: controlPipeLaunchBinding);
                 }
                 helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             }
@@ -634,6 +663,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (!IsReady)
                 throw new BridgeCommandException("BRIDGE_START_TIMEOUT", "The game started, but the current Overview bridge response is not fresh.");
             SetDesiredRunning(true);
+            startTransactionSucceeded = true;
             return CreateInstanceStatus();
         }
         catch (BridgeCommandException)
@@ -664,12 +694,51 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 throw new BridgeCommandException("UNMANAGED_GAME_RUNNING", "Close the game started outside this application first.");
             throw new BridgeCommandException("LAUNCH_FAILED", "The Overview bridge launch failed.", new { error = message });
         }
+        finally
+        {
+            if (!startTransactionSucceeded &&
+                controlPipeLaunchBinding is not null)
+            {
+                bridgeHostState?.CancelLaunchBinding(
+                    controlPipeLaunchBinding.InstanceId);
+            }
+        }
+    }
+
+    private LWBridgeControlPipeLaunchBinding? PrepareControlPipeLaunchBinding(
+        string sessionId)
+    {
+        if (!bridgeControlPipeLaunchBindingEnabled)
+            return null;
+        if (bridgeHostState is null)
+        {
+            throw new BridgeCommandException(
+                "BRIDGE_HOST_UNAVAILABLE",
+                "The shared bridge host is required for control-pipe launch binding.");
+        }
+
+        return bridgeHostState.PrepareLaunchBinding(
+            profileId,
+            sessionId,
+            BridgeVersion,
+            RecoveryClockMilliseconds());
+    }
+
+    private void RefreshControlPipeLaunchBinding(
+        LWBridgeControlPipeLaunchBinding? binding)
+    {
+        if (binding is null)
+            return;
+        bridgeHostState!.RefreshLaunchBinding(
+            binding.InstanceId,
+            RecoveryClockMilliseconds());
     }
 
     private OverviewHelperInvocation CreateBoundedStartInvocation(
         string sessionId,
         string sessionChallenge,
-        long deadline)
+        long deadline,
+        LWBridgeControlPipeLaunchBinding? controlPipeLaunchBinding)
     {
         long remainingMilliseconds = deadline - RecoveryClockMilliseconds();
         if (remainingMilliseconds < 10_000)
@@ -679,7 +748,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         int supervisionMilliseconds = (int)Math.Min(int.MaxValue, remainingMilliseconds);
         return new OverviewHelperInvocation(
             "start", profileId, sessionId, sessionChallenge, null, null, null,
-            timeoutSeconds, supervisionMilliseconds);
+            timeoutSeconds, supervisionMilliseconds,
+            controlPipeLaunchBinding);
     }
 
     private static bool IsOfficialLuaUpdateFailure(InvalidOperationException error) =>
@@ -809,6 +879,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 start.ArgumentList.Add("--game-started-at-utc"); start.ArgumentList.Add(invocation.GameStartedAtUtc);
             }
         }
+
+        invocation.ControlPipeLaunchBinding?.ApplyTo(start);
 
         Process process = Process.Start(start)
             ?? throw new InvalidOperationException("Python Overview bridge helper could not be started.");
