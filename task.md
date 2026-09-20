@@ -1,5 +1,7 @@
 # Implementation handoff: make Overview and Map Data fully functional
 
+**Latest checkpoint - `LWB-R7-098`, 2026-09-20:** **A11 remains PARTIAL/BLOCKED, but the original instance registry lifecycle is recovered and offline-tested.** `instanceId` keys retained registrations containing profile ID, SHA-256 token, deadline and claimed state; Start uses a 90,000 ms first-claim deadline. First handshake claims only exact profile/token before expiry; reconnect reuses the claimed registration, advances a host-global generation and replaces the route. Ordinary teardown removes only the exact generation, explicit unregister removes pending+connected, and `default` resolves only one connected route. The live named-pipe listener/I/O limits, proxy launch environment and pending-call ownership remain unrecovered/unimplemented, so `pending:null` and `call_lua=COMMAND_NOT_IMPLEMENTED` stay deliberate. R7-098 also repairs R7-097's misplaced default-suite guard integration. Evidence: `evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-registry-lifecycle.json`.
+
 ## Current owner product override - Map Data simplification, 2026-09-19
 
 The owner has explicitly changed two product requirements and these override recovered original UI parity wherever they conflict:
@@ -51,7 +53,7 @@ Recovered historical mode parity proves Normal concurrency `8` and Fast concurre
 
 Use Player City as the first normal-page acceptance category for the common engine, then Resource, then Monster/Truck/Railway/Dispatch/Ghost/Treasure, then mixed selections and all eight. The existing bounded `LiveResourceProbeCommandService` city/resource path is evidence/support code, not full-world production scanning. Auto Scan comes only after Manual Scan and must reuse the same engine and the same backend strategy planner.
 
-**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** R7-096 recovers S02 semantics, but S02 implementation and S03 runtime completion remain blocked on unrecovered generic outbound bridge RPC transport. Existing operation-specific restrictions, including SB-97, remain in force and must not be bypassed. Do not claim the whole Map Data feature complete from the Player City result or from the common engine until the relevant acceptance gates pass. See `docs/map-data-delivery.md` and `docs/team-workflow.md` for the active sequencing.
+**S03 complete Refresh Status and S06 cross-server travel remain PENDING/DEFERRED.** R7-096 recovers S02 semantics and R7-097/R7-098 recover the RPC wire + registry lifecycle, but S02 implementation and S03 runtime completion remain blocked on the live pipe listener/I/O, authentic proxy launch binding and pending-call ownership. Existing operation-specific restrictions, including SB-97, remain in force and must not be bypassed. Do not claim the whole Map Data feature complete from the Player City result or from the common engine until the relevant acceptance gates pass. See `docs/map-data-delivery.md` and `docs/team-workflow.md` for the active sequencing.
 
 ### Retained earlier resource/PM15 checkpoint — not the active assignment
 

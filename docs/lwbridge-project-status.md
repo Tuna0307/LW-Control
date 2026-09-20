@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest recovery checkpoint - LWB-R7-098, 2026-09-20
+
+A11 remains partial, but original instance registration/routing semantics are now recovered and offline-tested: 90-second first-claim registration, exact profile + SHA-256 token authentication, retained claimed registrations for reconnect, host-global generation replacement, stale-disconnect protection, explicit unregister and unique `default` routing. The remaining blocker is narrower: the persistent named-pipe listener/I/O behavior and exact queue/timeouts, authentic proxy-launch environment binding, then pending-call/result ownership. Production `call_lua` remains fail-closed and `pending` remains null. R7-098 also repairs the R7-097 default-suite integration defect. See [R7-098 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-registry-lifecycle.json).
+
 ## Latest recovery checkpoint - LWB-R7-097, 2026-09-20
 
 A11 remains partial, but its RPC wire format is recovered and offline-tested. Exact `hello.ack`, generic `command/call` envelopes and correlated `result` payload parsing now live in `LWBridgeControlPipeProtocol`. The current blocker is no longer command serialization: it is the absent persistent original-style named-pipe host and registered-instance lifecycle. Production `call_lua` therefore remains fail-closed and `get_status.pending` remains unknown/null until that host can own the authentic outstanding-call map. See [R7-097 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-rpc-wire-contract.json).

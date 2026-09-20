@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-098, 2026-09-20
+
+**A11 registry/routing lifecycle is recovered and offline-tested.** The original store has retained pending registrations keyed by `instanceId` with profile ID, SHA-256 token, expiry and claimed state. Startup uses a 90,000 ms pending deadline. First claim requires exact profile/token and unexpired pending state; after claim, the registration remains and reconnect can replace the connected route with a newer host-global generation even after the original deadline. Ordinary pipe teardown removes only the matching generation, preventing stale teardown from deleting a new reconnect. Explicit unregister removes both pending and connected state. Literal `default` resolves only when one route is connected.
+
+**Still do not enable production `call_lua`.** The rebuild does not yet have the original persistent pipe listener/I/O loop, recovered queue/byte limits and timeout constants, or the authentic proxy-launch environment (`LWBRIDGE_PROFILE_ID`, `LWBRIDGE_INSTANCE_ID`, `LWBRIDGE_PIPE_TOKEN`). The existing lifecycle `challenge` is not automatically assumed to be that token binding. Pending-call ownership therefore remains absent and `get_status.pending` stays `null`. R7-098 also fixes an R7-097 test-harness insertion mistake: status/RPC checks now execute from the main deterministic sequence rather than only the focused close-timing branch.
+
 ## Current continuation checkpoint - LWB-R7-097, 2026-09-20
 
 **A11 wire schema is recovered; the persistent pipe host is now the blocker.** Original static recovery proves the common envelope `version/type/profileId/instanceId/requestId/timestamp/payload`, exact `hello.ack` with empty payload, generic Lua call commands as `type="command"` + `{id,kind:"call",fn,args,createdAt}`, and result payloads keyed by `id` + `ok` with `result` or `error`. The host generates monotonic `cmd_<n>` and uses the same value for command outer `requestId` and payload `id`. `LWBridgeControlPipeProtocol` now encodes/parses this source-backed wire contract and a focused deterministic guard is part of the default suite.
