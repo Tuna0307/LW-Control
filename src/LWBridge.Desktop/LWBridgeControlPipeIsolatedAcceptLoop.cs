@@ -1,3 +1,4 @@
+using System.IO.Pipes;
 using System.Security.Principal;
 using Microsoft.Win32.SafeHandles;
 
@@ -143,7 +144,8 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                         continue;
                     }
 
-                    var session = new LWBridgeControlPipeAcceptedSession(server);
+                    using var session =
+                        new LWBridgeControlPipeAcceptedSession(server);
                     long now = clockMilliseconds();
 
                     LWBridgeAuthenticatedConnection authenticated;
@@ -159,7 +161,8 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                                     session,
                                     nowMilliseconds: now,
                                     ackTimestamp: now,
-                                    cancellationToken: cancellationToken)
+                                    cancellationToken: cancellationToken,
+                                    streamOverride: session.Stream)
                                 .ConfigureAwait(false);
                     }
                     catch (BridgeCommandException error) when (
@@ -242,20 +245,36 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
     }
 }
 
-internal sealed class LWBridgeControlPipeAcceptedSession
+internal sealed class LWBridgeControlPipeAcceptedSession : IDisposable
 {
+    private readonly SafePipeHandle streamHandle;
     private LWBridgeAuthenticatedConnection? connection;
+    private LWBridgeControlPipeRpcSessionTransport? rpcTransport;
 
     internal LWBridgeControlPipeAcceptedSession(SafeFileHandle pipeHandle)
     {
         PipeHandle = pipeHandle;
+        streamHandle = new SafePipeHandle(
+            pipeHandle.DangerousGetHandle(),
+            ownsHandle: false);
+        Stream = new NamedPipeServerStream(
+            PipeDirection.InOut,
+            isAsync: true,
+            isConnected: true,
+            streamHandle);
     }
 
     internal SafeFileHandle PipeHandle { get; }
 
+    internal NamedPipeServerStream Stream { get; }
+
     internal LWBridgeAuthenticatedConnection Connection =>
         connection ?? throw new InvalidOperationException(
             "Bridge accepted session has not completed authentication.");
+
+    internal LWBridgeControlPipeRpcSessionTransport RpcTransport =>
+        rpcTransport ?? throw new InvalidOperationException(
+            "Bridge accepted session RPC transport is not attached.");
 
     internal void Bind(LWBridgeAuthenticatedConnection value)
     {
@@ -263,5 +282,29 @@ internal sealed class LWBridgeControlPipeAcceptedSession
         if (Interlocked.CompareExchange(ref connection, value, null) is not null)
             throw new InvalidOperationException(
                 "Bridge accepted session authentication is already bound.");
+    }
+
+    internal LWBridgeControlPipeRpcSessionTransport AttachRpcTransport(
+        LWBridgeControlPipeCallRegistry calls)
+    {
+        _ = Connection;
+        var transport =
+            new LWBridgeControlPipeRpcSessionTransport(this, calls);
+        if (Interlocked.CompareExchange(
+                ref rpcTransport,
+                transport,
+                null) is not null)
+        {
+            throw new InvalidOperationException(
+                "Bridge accepted session RPC transport is already attached.");
+        }
+
+        return transport;
+    }
+
+    public void Dispose()
+    {
+        Stream.Dispose();
+        streamHandle.Dispose();
     }
 }

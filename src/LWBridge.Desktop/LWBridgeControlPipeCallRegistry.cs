@@ -151,6 +151,26 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
         return true;
     }
 
+    internal bool TryFailPending(string id, Exception error)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ArgumentNullException.ThrowIfNull(error);
+
+        PendingEntry? entry;
+        lock (gate)
+        {
+            if (!pending.TryGetValue(id, out entry))
+                return false;
+
+            pending.Remove(id);
+            entry.Timeout.Cancel();
+        }
+
+        entry.Completion.TrySetException(error);
+        entry.Timeout.Dispose();
+        return true;
+    }
+
     internal void Stop()
     {
         PendingEntry[] drained;

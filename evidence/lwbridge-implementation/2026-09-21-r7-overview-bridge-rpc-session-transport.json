@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-120",
+  "date": "2026-09-21",
+  "status": "AUTHENTICATED-RPC-SESSION-TRANSPORT-IMPLEMENTED/WINDOWS-PROVEN/NORMAL-COMPOSITION-DISABLED",
+  "title": "Implement framed authenticated command/result transport over the recovered named-pipe session",
+  "branch": "research/offline-controller",
+  "parentRevision": "f992434d7502c91c38afcd70604076877dd6fe1f",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": [
+    "LWB-R7-097 command/call and result wire envelopes",
+    "LWB-R7-099 queue, byte-budget and I/O timeout limits",
+    "LWB-R7-115 authenticated hello and route admission",
+    "LWB-R7-116 shared accept-loop session ownership",
+    "LWB-R7-119 pending-call/result registry and exact 200 ms generic Lua-call timeout"
+  ],
+  "implementation": {
+    "transportFile": "src/LWBridge.Desktop/LWBridgeControlPipeRpcSessionTransport.cs",
+    "sessionOwnerFile": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedAcceptLoop.cs",
+    "handshakeFile": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedHandshake.cs",
+    "protocolFile": "src/LWBridge.Desktop/LWBridgeControlPipeProtocol.cs",
+    "callRegistryFile": "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs",
+    "sessionStreamOwnership": "one non-owning NamedPipeServerStream per accepted native server handle, reused from hello through RPC",
+    "outbound": "pending call -> recovered command/call JSON -> 4-byte little-endian framed write",
+    "inbound": "full common envelope validation -> result/heartbeat dispatch",
+    "resultCorrelation": "payload.id into host-global pending registry bound to authenticated profileId + instanceId",
+    "outerRequestIdEquality": "deliberately not asserted because R7-097 did not recover that validation",
+    "unknownLateResult": "ignored/unmatched rather than fabricated as a pending completion",
+    "outboundQueueItems": 4096,
+    "outboundByteBudget": 67108864,
+    "inboundQueueItems": 4096,
+    "inboundByteBudget": 33554432,
+    "writeTimeoutSeconds": 10,
+    "inboundBackpressureSeconds": 30,
+    "idleActivitySeconds": 30,
+    "luaCallTimeoutMilliseconds": 200
+  },
+
+  "windowsProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeRpcSessionTransportChecks.cs",
+    "focusedCli": "--overview-bridge-rpc-session-transport-check",
+    "result": "PASS",
+    "temporaryLocalPipeOnly": true,
+    "authenticated": true,
+    "commandFramesWritten": 2,
+    "inboundFramesRead": 4,
+    "resultsCorrelated": 2,
+    "unknownResults": 1,
+    "heartbeatsObserved": 1,
+    "successResultReturned": true,
+    "luaFailureMapped": "LUA_CALL_FAILED",
+    "outerRequestIdDifferentButPayloadIdCorrelated": true,
+    "pendingAtEnd": 0
+  },
+  "regressionProof": {
+    "isolatedAcceptLoop": "PASS after shared duplex stream ownership change",
+    "isolatedHandshake": "PASS after shared duplex stream ownership change",
+    "acceptLoopServerInstancesCreated": 4,
+    "acceptLoopFirstInstanceFlagUses": 1,
+    "acceptLoopRejectedHandshakes": 1,
+    "acceptLoopAuthenticatedSessions": 2,
+    "handshakePidMismatchRejected": true,
+    "handshakeNoHelloTimeoutRejected": true
+  },
+  "implementationFindingsDuringProof": [
+    {
+      "finding": "A second async FileStream over the same overlapped native pipe handle cannot re-bind that handle to the .NET thread pool.",
+      "resolution": "Accepted session now owns one long-lived stream reused from handshake through RPC."
+    },
+    {
+      "finding": "A single generic FileStream strategy serialized a long-lived read against writes and prevented duplex RPC traffic.",
+      "resolution": "The accepted native handle is wrapped once in NamedPipeServerStream(InOut,isAsync=true,isConnected=true), preserving native CreateNamedPipeW ownership while allowing concurrent reader/writer loops."
+    },
+    {
+      "finding": "StopAsync cancellation initially escaped through the inbound channel loop.",
+      "resolution": "RunAsync treats host-initiated cancellation as ordinary termination while preserving propagation of the primary non-cancellation loop fault."
+    }
+  ],
+  "productionBoundary": {
+    "LWBridgeControlPipeHostStateStartsRpcSession": false,
+    "LWBridgeWindowStartsProductionListener": false,
+    "normalOverviewLaunchBindingEnabled": false,
+    "getStatusPendingExposed": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Compose the shared listener, accepted-session RPC transport and call registry into LWBridgeControlPipeHostState; start that host before Overview profile launch, enable the already-tested launch binding only while the host is active, and stop/drain it on application shutdown. Keep WebView call_lua fail-closed until get_status.pending is sourced from this live registry and only getStatus is explicitly allowlisted.",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

@@ -177,6 +177,14 @@ internal static class LWBridgeControlPipeProtocol
                string.Equals(hello.BuildId, expectedBuildId, StringComparison.Ordinal);
     }
 
+    internal static LWBridgeEnvelope ParseEnvelope(
+        ReadOnlySpan<byte> utf8Json)
+    {
+        using JsonDocument document =
+            JsonDocument.Parse(utf8Json.ToArray());
+        return ParseEnvelope(document.RootElement);
+    }
+
     private static LWBridgeEnvelope ParseEnvelope(JsonElement root)
     {
         if (root.ValueKind != JsonValueKind.Object)

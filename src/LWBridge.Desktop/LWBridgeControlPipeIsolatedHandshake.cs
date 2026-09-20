@@ -19,7 +19,8 @@ internal static class LWBridgeControlPipeIsolatedHandshake
         long nowMilliseconds,
         long ackTimestamp,
         TimeSpan? timeoutOverride = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        Stream? streamOverride = null)
     {
         ArgumentNullException.ThrowIfNull(connectedPipe);
         ArgumentNullException.ThrowIfNull(registry);
@@ -37,17 +38,31 @@ internal static class LWBridgeControlPipeIsolatedHandshake
         timeoutSource.CancelAfter(timeout);
 
         // The server handle was created FILE_FLAG_OVERLAPPED in R7-111.
-        // Wrap the same OS handle with a non-owning SafeFileHandle so this
-        // isolated handshake cannot close the caller-owned server transport.
-        using var streamHandle = new SafeFileHandle(
-            connectedPipe.DangerousGetHandle(),
-            ownsHandle: false);
-        using var stream = new FileStream(
-            streamHandle,
-            FileAccess.ReadWrite,
-            bufferSize: 4096,
-            isAsync: true);
+        // A session may supply its one long-lived async stream so the same OS
+        // handle is bound to the .NET thread pool exactly once across hello
+        // and RPC transport. Standalone handshake proofs still use a temporary
+        // non-owning stream wrapper.
+        FileStream? ownedStream = null;
+        Stream stream;
+        if (streamOverride is null)
+        {
+            var streamHandle = new SafeFileHandle(
+                connectedPipe.DangerousGetHandle(),
+                ownsHandle: false);
+            ownedStream = new FileStream(
+                streamHandle,
+                FileAccess.ReadWrite,
+                bufferSize: 4096,
+                isAsync: true);
+            stream = ownedStream;
+        }
+        else
+        {
+            stream = streamOverride;
+        }
 
+        try
+        {
         LWBridgeProxyHello hello;
         try
         {
@@ -128,6 +143,11 @@ internal static class LWBridgeControlPipeIsolatedHandshake
         {
             _ = registry.RemoveConnected(hello.InstanceId, generation);
             throw;
+        }
+        }
+        finally
+        {
+            ownedStream?.Dispose();
         }
     }
 
