@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-090, 2026-09-20
+
+Acceptance case A10 is now closed at IMPLEMENTED/OFFLINE-TESTED scope for the admitted startup pipeline. The combined matrix covers six host failure/retry branches plus 12 helper transaction stages with real temporary-file backup/journal/install/rollback mechanics. Exact baseline restoration, interrupted-recovery journal retention, clean rollback clearing, unmanaged-process preservation, helper-owned process cleanup and successful subsequent retry are all asserted. R7-088's A10 `partial` row is superseded; separate admission/ownership/interruption/reconnect/status cases remain open. See [R7-090 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-startup-failure-matrix.json).
+
 ## Latest implementation checkpoint - LWB-R7-089, 2026-09-20
 
 Acceptance case A09 is now closed with a current-v19 technical live stress run. Twenty consecutive production Home lifecycle cycles (10 manual, 10 startup-reconcile) all reached authoritative connected readiness, then closed the exact owned process and restored the client to the exact pre-cycle package/metadata/version hashes. All 20 sessions and game PIDs were unique; every stop reported no installed-file drift and no running game, and the final machine has no Last War/launcher process. This changes only A09 from the R7-088 release-audit snapshot; the remaining partial/blocked/not-run cases are not upgraded. See [R7-089 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-twenty-cycle-stress.json).

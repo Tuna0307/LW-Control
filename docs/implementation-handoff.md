@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-090, 2026-09-20
+
+**A10 is closed OFFLINE for the admitted Home startup pipeline.** Six host-pipeline forced-failure checks and 12 helper transaction-stage checks now form one explicit matrix. The helper test executes production backup, recovery journal, candidate install, rollback and recovery-clear code against temporary client files, while mocking only launcher/game/readiness edges. Exact file hashes, journal state, ownership cleanup and subsequent retry are asserted. Existing release/deterministic/restoration checks remain green, and CI runs this matrix. No real game process or gameplay action is used by R7-090.
+
+**Next:** do not merge A10 with the still-open admission/interaction cases. A04/A05/A06/A07/A08/A11 remain open, alongside Ghost/Supplies population gates, authorization-gated live actions and F04's normal-user built-executable walkthrough.
+
 ## Current continuation checkpoint - LWB-R7-089, 2026-09-20
 
 **A09 is closed LIVE on current-v19.** A dedicated stress wrapper reused the existing production `--live-overview-home-proof` path for 10 proof invocations, each owning one manual and one startup-reconcile lifecycle. All 20 unique sessions/PIDs reached `running/connected`; every exact owned Close exited, restored `LWScripts.data`, `LWScripts.txt` and `version.txt` to the pre-stress hashes, reported `installedFilesChanged=false` and `gameRunning=false`, and left no residual game/launcher process. The current compatibility check identifies contentVersion 19 and package SHA `e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2`. No gameplay action or Map scan ran.

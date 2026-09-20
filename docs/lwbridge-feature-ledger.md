@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint - LWB-R7-090, 2026-09-20
+
+Home **A10 startup failure coverage is IMPLEMENTED/OFFLINE-TESTED**. Eighteen forced-failure checks cover the admitted host startup pipeline and the production helper's transactional stages. The helper matrix preserves real backup/recovery/install/rollback/clear code and proves exact file restoration, journal persistence/clear semantics, ownership cleanup and successful retry. Host checks cover official recover/settle failures, bounded Lua-update and launcher-handoff retries, generic helper failure/retry and post-helper readiness ownership cleanup/retry. CI now runs the isolated helper matrix. This does not upgrade A04/A05/A06/A07/A08/A11. Evidence: [R7-090](../evidence/lwbridge-implementation/2026-09-20-r7-overview-startup-failure-matrix.json).
+
 ## Current implementation checkpoint - LWB-R7-089, 2026-09-20
 
 Home **A09 20-cycle lifecycle stress is LIVE-PROVEN on current-v19**. Ten manual Start/Close cycles and ten startup-reconcile Start/Close cycles all produced unique sessions/PIDs, authoritative `running/connected` readiness, exact owned-process exit and exact client-file restoration. Host stop evidence reports `installedFilesChanged=false` and `gameRunning=false` for every cycle; final package/metadata/version hashes equal the pre-stress baseline and no Last War/launcher process remains. This supersedes only R7-088's A09 `not_run` row; remaining fault-injection, population and authorization-gated cases stay open. Evidence: [R7-089](../evidence/lwbridge-implementation/2026-09-20-r7-overview-twenty-cycle-stress.json).

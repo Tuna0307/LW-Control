@@ -21,6 +21,8 @@ jobs:
         run: dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release
       - name: Run deterministic backend and transport checks
         run: dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release
+      - name: Verify Overview startup failure rollback matrix
+        run: python tools/test_overview_start_failure_matrix.py
       - name: Verify owner evidence collector session and health boundaries
         run: python tools/check_owner_resource_evidence_collector.py
       - name: Verify preference save ordering and rollback recovery

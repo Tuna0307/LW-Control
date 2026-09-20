@@ -14,6 +14,8 @@ internal static class OverviewOfficialSettleChecks
         await OfficialSettleFailureBlocksHelper();
         await OfficialLuaUpdateFailureForcesSettleAndRetriesOnce();
         await LauncherGameSpawnTimeoutRetriesOnceWithoutRepeatingSettle();
+        await GenericHelperFailureAllowsExplicitSubsequentRetry();
+        await PostHelperReadinessFailureCanCloseThenRetry();
     }
 
     private static async Task OfficialSettleRunsBeforeHelper()
@@ -231,6 +233,176 @@ internal static class OverviewOfficialSettleChecks
         Check(recoverCalls == 1 && settleCalls == 1 && helperCalls == 2,
             "launcher spawn timeout should retry exactly once without repeating official settle");
     }
+
+    private static async Task GenericHelperFailureAllowsExplicitSubsequentRetry()
+    {
+        int startCalls = 0;
+        bool processAlive = false;
+        string? session = null;
+        string? challenge = null;
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-overview-generic-helper-retry");
+        string gamePath = Path.Combine(root, "Game", "LastWar.exe");
+        const int gamePid = 35123;
+        const int launcherPid = 35124;
+        const string startedAt = "2026-09-20T07:20:00.0000000Z";
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+            RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+            RunHelperAsync = (invocation, _) =>
+            {
+                if (invocation.Operation == "start")
+                {
+                    startCalls++;
+                    if (startCalls == 1)
+                        throw new InvalidOperationException("A10 synthetic generic helper failure");
+                    session = invocation.SessionId;
+                    challenge = invocation.Challenge;
+                    processAlive = true;
+                    return Task.FromResult(StartResult(invocation, gamePath, gamePid, launcherPid, startedAt));
+                }
+                processAlive = false;
+                return Task.FromResult(StopResult(invocation, gamePath, gamePid, startedAt));
+            },
+            ProcessMatches = (pid, path, created) => processAlive && pid == gamePid && created == startedAt &&
+                string.Equals(Path.GetFullPath(path), Path.GetFullPath(gamePath), StringComparison.OrdinalIgnoreCase),
+            ReadAllBytes = _ => Heartbeat(session!, challenge!, gamePid),
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+        };
+        using var lifecycle = new OverviewLifecycleService(
+            "profile-settle-order", root, helperPath: Path.Combine(root, "fake-helper.py"),
+            requireCurrentClientEvidence: false, testHooks: hooks, startRecoveryMonitor: false);
+
+        try
+        {
+            await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }), CancellationToken.None)
+                .WaitAsync(TimeSpan.FromSeconds(5));
+            throw new InvalidOperationException("expected generic helper failure");
+        }
+        catch (BridgeCommandException error) when (error.Code == "LAUNCH_FAILED")
+        {
+        }
+        JsonElement failed = JsonSerializer.SerializeToElement(lifecycle.CreateInstanceStatus(), JsonOptions.Default);
+        Check(failed.GetProperty("phase").GetString() == "error" && failed.GetProperty("pid").ValueKind == JsonValueKind.Null,
+            "generic helper failure must not fabricate running ownership");
+
+        JsonElement retry = JsonSerializer.SerializeToElement(
+            await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        string retrySession = retry.GetProperty("instanceId").GetString()!;
+        Check(startCalls == 2 && retry.GetProperty("phase").GetString() == "running" &&
+              retry.GetProperty("connectionState").GetString() == "connected",
+            "generic helper failure should allow an explicit subsequent start retry");
+        await lifecycle.InvokeAsync("profile_instance_stop",
+            JsonSerializer.SerializeToElement(new { instanceId = retrySession }), CancellationToken.None);
+        JsonElement stopped = JsonSerializer.SerializeToElement(lifecycle.CreateInstanceStatus(), JsonOptions.Default);
+        Check(stopped.GetProperty("phase").GetString() == "stopped" && !processAlive,
+            "generic helper retry must close and return to stopped");
+    }
+
+    private static async Task PostHelperReadinessFailureCanCloseThenRetry()
+    {
+        int startCalls = 0;
+        bool processAlive = false;
+        bool heartbeatFresh = false;
+        string? session = null;
+        string? challenge = null;
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-overview-post-helper-readiness-retry");
+        string gamePath = Path.Combine(root, "Game", "LastWar.exe");
+        const int gamePid = 36123;
+        const int launcherPid = 36124;
+        const string startedAt = "2026-09-20T07:21:00.0000000Z";
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+            RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+            RunHelperAsync = (invocation, _) =>
+            {
+                if (invocation.Operation == "start")
+                {
+                    startCalls++;
+                    session = invocation.SessionId;
+                    challenge = invocation.Challenge;
+                    processAlive = true;
+                    return Task.FromResult(StartResult(invocation, gamePath, gamePid, launcherPid, startedAt));
+                }
+                processAlive = false;
+                return Task.FromResult(StopResult(invocation, gamePath, gamePid, startedAt));
+            },
+            ProcessMatches = (pid, path, created) => processAlive && pid == gamePid && created == startedAt &&
+                string.Equals(Path.GetFullPath(path), Path.GetFullPath(gamePath), StringComparison.OrdinalIgnoreCase),
+            ReadAllBytes = _ => heartbeatFresh
+                ? Heartbeat(session!, challenge!, gamePid)
+                : JsonSerializer.SerializeToUtf8Bytes(new
+                {
+                    schemaVersion = 1,
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = "profile-settle-order",
+                    sessionId = session,
+                    challenge,
+                    gamePid,
+                    updatedAt = DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds(),
+                    ready = true,
+                    messageVisible = true,
+                    messageText = OverviewLifecycleService.ReadyMessage,
+                }),
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+        };
+        using var lifecycle = new OverviewLifecycleService(
+            "profile-settle-order", root, helperPath: Path.Combine(root, "fake-helper.py"),
+            requireCurrentClientEvidence: false, testHooks: hooks, startRecoveryMonitor: false);
+
+        try
+        {
+            await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }), CancellationToken.None)
+                .WaitAsync(TimeSpan.FromSeconds(5));
+            throw new InvalidOperationException("expected post-helper readiness failure");
+        }
+        catch (BridgeCommandException error) when (error.Code == "BRIDGE_START_TIMEOUT")
+        {
+        }
+        JsonElement retained = JsonSerializer.SerializeToElement(lifecycle.CreateInstanceStatus(), JsonOptions.Default);
+        string retainedSession = retained.GetProperty("instanceId").GetString()!;
+        Check(retained.GetProperty("pid").GetInt32() == gamePid && processAlive,
+            "post-helper readiness failure must retain exact owned process identity for safe cleanup");
+        await lifecycle.InvokeAsync("profile_instance_stop",
+            JsonSerializer.SerializeToElement(new { instanceId = retainedSession }), CancellationToken.None);
+        Check(!processAlive, "post-helper readiness failure cleanup must close the exact owned process");
+
+        heartbeatFresh = true;
+        JsonElement retry = JsonSerializer.SerializeToElement(
+            await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        string retrySession = retry.GetProperty("instanceId").GetString()!;
+        Check(startCalls == 2 && retry.GetProperty("phase").GetString() == "running" &&
+              retry.GetProperty("connectionState").GetString() == "connected",
+            "post-helper readiness cleanup must permit a successful subsequent retry");
+        await lifecycle.InvokeAsync("profile_instance_stop",
+            JsonSerializer.SerializeToElement(new { instanceId = retrySession }), CancellationToken.None);
+        Check(!processAlive, "post-helper readiness retry must close cleanly");
+    }
+
+    private static JsonElement StopResult(
+        OverviewHelperInvocation invocation,
+        string gamePath,
+        int gamePid,
+        string startedAt) => JsonSerializer.SerializeToElement(new
+        {
+            ok = true,
+            mode = "overview_exact_pid_close_restore",
+            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = invocation.ProfileId,
+            sessionId = invocation.SessionId,
+            gamePid,
+            gamePath,
+            gameStartedAtUtc = startedAt,
+            close = new { method = "synthetic", accepted = true, processExited = true, alreadyExited = false },
+            restore = new { restored = true },
+            gameRunning = false,
+            installedFilesChanged = false,
+        });
 
     private static JsonElement StartResult(
         OverviewHelperInvocation invocation,
