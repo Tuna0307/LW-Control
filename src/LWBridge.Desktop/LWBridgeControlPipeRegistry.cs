@@ -5,8 +5,8 @@ namespace LWBridge.Desktop;
 
 // LWB-R7-098: protocol-independent reconstruction of the original bridge-store
 // instance registry. This deliberately does not create a named-pipe listener or
-// own transport queues; those layers remain blocked until their exact lifecycle
-// and limits are recovered.
+// own transport queues. R7-099 separately recovers numeric queue/byte/time limits;
+// the live listener lifecycle and pipe options remain blocked.
 internal sealed class LWBridgeControlPipeRegistry
 {
     public const string DefaultRoute = "default";
