@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-075",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "60226a4c23099d68805302d32d6bc6531dc831c8",
+  "status": "LIVE-PROVEN",
+  "scope": {
+    "feature": "current-v19 City public result-filter fidelity",
+    "gameplayReadOnly": true,
+    "transientDisposableDbMarkSeeded": true,
+    "persistentUserMarkStateChanged": false,
+    "stateChangingGameplayActionInvoked": false
+  },
+  "recoveredAuthority": {
+    "markedOnly": "LWB-R6-003 recovered player_marks server/owner join and marked projection",
+    "allianceWithoutAlliance": "LWB-R6-005 exact alliance_name equality and null/empty predicates",
+    "keyword": "LWB-R6-007 exact case-insensitive literal-substring search across name, alliance_name, uuid and data_json with backslash/percent/underscore escaping"
+  },
+  "implementation": {
+    "liveVerifier": "tests/LWBridge.Desktop.Checks/CityFilterProofHelper.cs",
+    "cityHarness": "tests/LWBridge.Desktop.Checks/LiveManualFullCityProof.cs",
+    "verificationMethod": "Read raw persisted live City records, independently compute expected record-key sets, execute the public query at the same sampled clock, require exact equality, and repeat all checks after database reopen."
+  },
+  "liveAcceptance": {
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 130.4332191,
+    "publishedCityCount": 1546,
+    "reopenedCityCount": 1546,
+    "sortComparedRowCount": 1546,
+    "healthValueCount": 1546,
+    "shieldValueCount": 163,
+    "distinctShieldValueCount": 162,
+    "sortCheckCount": 9,
+    "reopenedSortCheckCount": 9,
+    "filterComparedRowCount": 1546,
+    "filterCheckCount": 7,
+    "reopenedFilterCheckCount": 7,
+    "allianceCount": 70,
+    "withoutAllianceCount": 1136,
+    "markedOnlyCount": 1,
+    "keywordIdentityCount": 1,
+    "keywordPercentLiteralCount": 0,
+    "keywordUnderscoreLiteralCount": 1546,
+    "keywordBackslashLiteralCount": 413
+  },
+  "transientMarkProof": {
+    "setup": "After the authoritative live scan completed, the disposable proof database seeded one player_marks row for an authentic live City ownerUid. No game command was sent and no persistent user database was modified.",
+    "result": "markedOnly returned exactly the independently expected live City set before and after database reopen.",
+    "cleanup": "The proof database, including the transient mark, is deleted by the existing harness finally path."
+  },
+  "keywordCoverage": {
+    "identityKeyword": "positive live UUID-derived literal substring, value not retained",
+    "percentLiteral": "exact zero-set; proves percent is not treated as a wildcard",
+    "underscoreLiteral": "positive exact-set across all 1546 raw live rows; underscore remains a literal",
+    "backslashLiteral": "positive exact-set across 413 raw live rows; backslash remains a literal escape character input"
+  },
+  "acquisitionRetry": {
+    "occurred": true,
+    "error": "overview_session_unavailable",
+    "attempt": "1/3",
+    "result": "bounded retry recovered; final scan completed 2500/2500 with zero failed/unread blocks",
+    "filterAcceptanceAffected": false
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "attacksOrRobberyPerformed": false,
+    "claimsOrCollectionsPerformed": false,
+    "messagesSent": false,
+    "gameplayStateChanged": false
+  },
+  "privacy": "Aggregate-only evidence. Sample alliance, ownerUid, City UUID/coordinates, session/challenge identifiers, process identifiers, databases and raw logs are not retained."
+}

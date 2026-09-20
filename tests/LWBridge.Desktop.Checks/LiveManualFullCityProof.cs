@@ -29,6 +29,7 @@ internal static class LiveManualFullCityProof
         int reopenedSortCheckCount = 0;
         int sortComparedRowCount = 0;
         long sortSampledAt = 0;
+        CityFilterProofHelper.Metrics? filterMetrics = null;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -113,6 +114,14 @@ internal static class LiveManualFullCityProof
                 healthValueCount = sortMetrics.HealthValueCount;
                 shieldValueCount = sortMetrics.ShieldValueCount;
                 distinctShieldValueCount = sortMetrics.DistinctShieldValueCount;
+                CityFilterProofHelper.SeedTransientLiveMark(
+                    store,
+                    serverId,
+                    sortSampledAt);
+                filterMetrics = CityFilterProofHelper.Validate(
+                    store,
+                    serverId,
+                    sortSampledAt);
                 }
                 finally
                 {
@@ -131,9 +140,21 @@ internal static class LiveManualFullCityProof
                     reopenedSortMetrics.ShieldValueCount != shieldValueCount ||
                     reopenedSortMetrics.DistinctShieldValueCount != distinctShieldValueCount)
                     throw new InvalidDataException("City sort proof changed after database reopen.");
+                CityFilterProofHelper.Metrics reopenedFilterMetrics =
+                    CityFilterProofHelper.Validate(
+                        reopened,
+                        serverId,
+                        sortSampledAt);
+                if (filterMetrics is null ||
+                    reopenedFilterMetrics != filterMetrics)
+                    throw new InvalidDataException(
+                        "City filter proof changed after database reopen.");
             }
             if (reopenedCityCount != publishedCityCount)
                 throw new InvalidDataException("Ordinary Manual City count changed after database reopen.");
+            if (filterMetrics is null)
+                throw new InvalidDataException(
+                    "City filter proof did not produce metrics.");
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 ok = true,
@@ -151,6 +172,21 @@ internal static class LiveManualFullCityProof
                 distinctShieldValueCount,
                 sortCheckCount,
                 reopenedSortCheckCount,
+                filterComparedRowCount = filterMetrics.RowCount,
+                filterCheckCount = filterMetrics.CheckCount,
+                filterAllianceCount = filterMetrics.AllianceCount,
+                filterWithoutAllianceCount =
+                    filterMetrics.WithoutAllianceCount,
+                filterMarkedCount = filterMetrics.MarkedCount,
+                filterKeywordIdentityCount =
+                    filterMetrics.KeywordIdentityCount,
+                filterKeywordPercentLiteralCount =
+                    filterMetrics.KeywordPercentLiteralCount,
+                filterKeywordUnderscoreLiteralCount =
+                    filterMetrics.KeywordUnderscoreLiteralCount,
+                filterKeywordBackslashLiteralCount =
+                    filterMetrics.KeywordBackslashLiteralCount,
+                transientLocalMarkSeeded = true,
             }, JsonOptions.Default));
         }
         catch (Exception error)
