@@ -5802,8 +5802,13 @@ Check(
     treasureClaimContractSource.Contains("targetServer is < 1 or > 99_999", StringComparison.Ordinal) &&
     treasureClaimContractSource.Contains("NumberStyles.None", StringComparison.Ordinal) &&
     treasureClaimContractSource.Contains("message.TryGetProperty(\"errorCode\"", StringComparison.Ordinal) &&
-    treasureClaimContractSource.Contains("message.TryGetProperty(\"reward\"", StringComparison.Ordinal),
-    "Treasure claim offline contract must preserve recovered scopes/default lucky priority and current-v19 PutLong/PutInt response boundary");
+    treasureClaimContractSource.Contains("message.TryGetProperty(\"reward\"", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("OriginalFrontendStatusPollIntervalMilliseconds = 1_000", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("OriginalFrontendStatusPollLimit = 1_800", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("!string.Equals(storedValue, \"false\", StringComparison.Ordinal)", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("string uuid = row.Uuid.Trim();", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("hasBatch && !string.Equals(state, \"running\", StringComparison.Ordinal)", StringComparison.Ordinal),
+    "Treasure claim offline/frontend contract must preserve recovered scopes, lucky default, 1s/1800 status polling, trimmed row UUID gate, running-only nonterminal batch semantics and current-v19 direct response boundary");
 string treasureClaimStoreSource = File.ReadAllText(
     Path.Combine(
         repoRoot,

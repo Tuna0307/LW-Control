@@ -19,9 +19,44 @@ internal sealed record CurrentV19DirectTreasureClaimOutcome(
     string? ErrorCode,
     bool HasReward);
 
+internal sealed record TreasureClaimFrontendRow(
+    string Uuid,
+    int SuppliesType,
+    bool? Complete,
+    string PlayerClaimState,
+    string WorldClaimState,
+    string ClaimBlockReason);
+
 internal static class TreasureClaimContract
 {
     internal const string CurrentV19Command = "detect.event.claim.treasure";
+    internal const int OriginalFrontendStatusPollIntervalMilliseconds = 1_000;
+    internal const int OriginalFrontendStatusPollLimit = 1_800;
+
+    internal static bool OriginalFrontendLuckyPriorityEnabled(string? storedValue) =>
+        !string.Equals(storedValue, "false", StringComparison.Ordinal);
+
+    internal static bool OriginalFrontendShouldPollStatus(int queued) => queued > 0;
+
+    internal static bool OriginalFrontendBatchIsTerminal(bool hasBatch, string? state) =>
+        hasBatch && !string.Equals(state, "running", StringComparison.Ordinal);
+
+    internal static bool OriginalFrontendCanClaimRow(
+        TreasureClaimFrontendRow row,
+        bool claimDisabled)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+        string uuid = row.Uuid.Trim();
+        bool isSupplies = row.SuppliesType is 1 or 3 or 4;
+        return !claimDisabled &&
+               uuid.Length > 0 &&
+               uuid != "0" &&
+               (isSupplies || row.Complete is true) &&
+               row.PlayerClaimState is not (
+                   "dispatching" or "scouting" or "digging" or "claiming" or "claimed") &&
+               row.WorldClaimState is not ("depleted" or "expired") &&
+               row.ClaimBlockReason != "other_alliance";
+    }
 
     internal static TreasureClaimRequest NormalizeRequest(JsonElement payload)
     {

@@ -12,6 +12,7 @@ internal static class TreasureClaimContractChecks
         RequestValidationMatchesRecoveredHost();
         CandidateQueryMatchesRecoveredStore();
         CurrentV19DirectTransportIsSourceBacked();
+        OriginalFrontendClaimStatusContractIsPinned();
         ProductionClaimRouteRemainsBlocked();
     }
 
@@ -147,6 +148,62 @@ internal static class TreasureClaimContractChecks
             when (error.Message.Contains("PutLong", StringComparison.Ordinal))
         {
         }
+    }
+
+    private static void OriginalFrontendClaimStatusContractIsPinned()
+    {
+        Check(
+            TreasureClaimContract.OriginalFrontendStatusPollIntervalMilliseconds == 1_000 &&
+            TreasureClaimContract.OriginalFrontendStatusPollLimit == 1_800,
+            "original Treasure frontend polls claim status once per second for at most 1800 polls");
+        Check(
+            TreasureClaimContract.OriginalFrontendLuckyPriorityEnabled(null) &&
+            TreasureClaimContract.OriginalFrontendLuckyPriorityEnabled("true") &&
+            !TreasureClaimContract.OriginalFrontendLuckyPriorityEnabled("false"),
+            "original Treasure frontend lucky priority defaults on unless local storage is exactly false");
+        Check(
+            !TreasureClaimContract.OriginalFrontendShouldPollStatus(0) &&
+            TreasureClaimContract.OriginalFrontendShouldPollStatus(1),
+            "original Treasure frontend polls only when the immediate claim result queued at least one row");
+        Check(
+            !TreasureClaimContract.OriginalFrontendBatchIsTerminal(false, null) &&
+            !TreasureClaimContract.OriginalFrontendBatchIsTerminal(true, "running") &&
+            TreasureClaimContract.OriginalFrontendBatchIsTerminal(true, "completed") &&
+            TreasureClaimContract.OriginalFrontendBatchIsTerminal(true, null),
+            "original Treasure frontend treats only an existing running batch as nonterminal");
+
+        var ordinary = new TreasureClaimFrontendRow(
+            "1417409824803038247", 0, true, "unclaimed", "claimable", string.Empty);
+        Check(
+            TreasureClaimContract.OriginalFrontendCanClaimRow(ordinary, false),
+            "completed ordinary Treasure row is frontend-claimable");
+        Check(
+            TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { PlayerClaimState = "failed" }, false) &&
+            TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { PlayerClaimState = "verifying" }, false) &&
+            TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { ClaimBlockReason = "no_scout" }, false),
+            "original row button does not itself disable failed/verifying or no-scout rows; protected executor eligibility remains separate");
+        Check(
+            TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { SuppliesType = 3, Complete = false }, false),
+            "supported Supplies types bypass the ordinary complete requirement in the frontend");
+        Check(
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { Complete = false }, false) &&
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { Uuid = "   " }, false) &&
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { Uuid = " 0 " }, false) &&
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { PlayerClaimState = "scouting" }, false) &&
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { WorldClaimState = "expired" }, false) &&
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(
+                ordinary with { ClaimBlockReason = "other_alliance" }, false) &&
+            !TreasureClaimContract.OriginalFrontendCanClaimRow(ordinary, true),
+            "original frontend single-claim button trims UUID and blocks incomplete ordinary, active, expired, foreign-alliance and global-disabled rows");
     }
 
     private static void ProductionClaimRouteRemainsBlocked()

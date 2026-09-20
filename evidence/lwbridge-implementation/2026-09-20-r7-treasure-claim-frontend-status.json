@@ -1,0 +1,120 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-087",
+  "sources": {
+    "originalBinary": {
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "mapDataPanel": {
+      "name": "MapDataPanel-C1HVeNHr.js",
+      "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+    },
+    "apiBundle": {
+      "name": "api-ClPPi2JT.js",
+      "sha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+    }
+  },
+  "hostBoundary": {
+    "claimRuntime": "claimTreasures",
+    "claimStatusRuntime": "getTreasureClaimStatus",
+    "rpcTimeoutMilliseconds": 5000,
+    "immediateCounters": [
+      "eligible",
+      "queued",
+      "skipped",
+      "directQueued",
+      "scoutQueued",
+      "scoutDispatched",
+      "claimed",
+      "noScoutSkipped",
+      "otherAllianceSkipped",
+      "failed"
+    ],
+    "statusIdentityMarkers": [
+      "playerUid",
+      "allianceId",
+      "states"
+    ]
+  },
+  "frontend": {
+    "claimScopes": [
+      "boxes",
+      "season",
+      "single"
+    ],
+    "luckyPriorityStorageKey": "lwbridge.mapLuckyTreasurePriority",
+    "luckyPriorityDefault": true,
+    "pollOnlyWhenQueuedPositive": true,
+    "statusPollIntervalMilliseconds": 1000,
+    "statusPollLimit": 1800,
+    "statusPollMaximumSeconds": 1800,
+    "batchOptional": true,
+    "nonterminalBatchState": "running",
+    "terminalRule": "when batch exists, any state other than exact 'running' stops polling",
+    "stateMerge": "states accepts array or object values and overlays rows by String(uuid)",
+    "rowStateFields": [
+      "worldClaimState",
+      "chargePercent",
+      "playerClaimState",
+      "claimBlockReason"
+    ],
+    "playerStateVocabulary": [
+      "unclaimed",
+      "dispatching",
+      "scouting",
+      "digging",
+      "claiming",
+      "claimed",
+      "failed",
+      "verifying"
+    ],
+    "claimBlockReasons": [
+      "other_alliance",
+      "no_scout",
+      "no_squad",
+      "squad_reserved"
+    ],
+    "singleClaimDisabledWhen": [
+      "global claim gate is disabled",
+      "uuid is empty or '0'",
+      "ordinary Treasure complete is not true",
+      "player state is dispatching/scouting/digging/claiming/claimed",
+      "world state is depleted/expired",
+      "claimBlockReason is other_alliance"
+    ],
+    "supportedSuppliesTypesBypassOrdinaryCompleteGate": [
+      1,
+      3,
+      4
+    ]
+  },
+  "limits": {
+    "protectedScopeFilteringAndOrdering": "UNKNOWN/BLOCKED",
+    "protectedLuckySlotPrioritization": "UNKNOWN/BLOCKED",
+    "protectedScoutSlotSelectionAndReservation": "UNKNOWN/BLOCKED",
+    "protectedBatchStateEnumeration": "UNKNOWN/BLOCKED except exact frontend nonterminal 'running' rule",
+    "protectedLoaderBody": "not analyzed; SB-79 restriction preserved",
+    "productionTreasureClaim": "BLOCKED/NOT_ROUTED"
+  },
+  "validation": {
+    "hashLockedFrontendInspector": "PASS",
+    "pythonCompile": "PASS",
+    "jsonSyntax": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "realConfigUnchangedVerification": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false
+  },
+  "safety": {
+    "gameLaunched": false,
+    "treasureClaimPerformed": false,
+    "suppliesScoutOrMarchPerformed": false,
+    "collectionPerformed": false,
+    "truckOrDispatchPlunderPerformed": false,
+    "allianceMessageOrSharePerformed": false
+  }
+}
