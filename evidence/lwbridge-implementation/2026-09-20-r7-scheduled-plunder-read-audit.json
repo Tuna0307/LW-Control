@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-079",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "0f724ed81dfad4f5769209c457525b66bd6f1c63",
+  "status": "AUDITED_OFFLINE_PROVEN",
+  "scope": {
+    "feature": "Scheduled Plunder read/list/status/persistence and current action-boundary audit",
+    "productionCodeChanged": false,
+    "liveGameplayActionInvoked": false,
+    "databaseMutationForAudit": "deterministic disposable test databases only"
+  },
+  "currentPublicReadSurface": {
+    "command": "map_plunder_jobs_list",
+    "envelope": [
+      "dispatchJobs",
+      "truckJobs"
+    ],
+    "backend": "LWBridgeBackend -> MapDataStore.ReadPlunderJobs",
+    "readOnly": true
+  },
+  "truckList": {
+    "sources": [
+      "truck_plunder_jobs",
+      "truck_plunder_history"
+    ],
+    "union": "UNION ALL",
+    "ordering": [
+      "scheduled/waiting_connection/running before terminal rows",
+      "execute_at ASC",
+      "updated_at DESC"
+    ]
+  },
+  "dispatchList": {
+    "source": "dispatch_plunder_jobs",
+    "ordering": [
+      "scheduled/waiting_connection/running before terminal rows",
+      "plunder_at ASC",
+      "updated_at DESC"
+    ]
+  },
+  "projectedSchedulerMetadata": [
+    "scheduleStatus",
+    "attempts",
+    "lastError",
+    "scheduledAt",
+    "scheduleUpdatedAt",
+    "executeAt when Truck value exists",
+    "plunderAt when Dispatch value exists"
+  ],
+  "deterministicCoverage": {
+    "authority": "tests/LWBridge.Desktop.Checks/MapPlunderPersistenceChecks.cs",
+    "combinedBackendEnvelope": true,
+    "truckActiveAndHistoryOrdering": true,
+    "dispatchOrderingAndMetadata": true,
+    "truckResultPersistence": true,
+    "truckCancelPersistence": true,
+    "databaseReopenPersistence": true,
+    "unrelatedDispatchStatePreserved": true
+  },
+  "currentActionBoundary": {
+    "truckSchedule": {
+      "command": "map_truck_plunder_schedule",
+      "status": "IMPLEMENTED_OFFLINE_TESTED",
+      "authority": "LWB-R7-046",
+      "liveRobberyAcceptance": "NOT_RUN"
+    },
+    "truckCancel": {
+      "command": "map_truck_plunder_cancel",
+      "status": "IMPLEMENTED_OFFLINE_TESTED",
+      "mutatesPersistedScheduleState": true
+    },
+    "truckWorker": {
+      "status": "IMPLEMENTED_OFFLINE_TESTED",
+      "authority": "LWB-R7-045",
+      "sameLiveServerOnly": true,
+      "implicitServerJump": false,
+      "liveRobberyAcceptance": "NOT_RUN"
+    },
+    "dispatchSchedule": {
+      "command": "map_dispatch_plunder_schedule",
+      "productionHandlerPresent": false,
+      "status": "UNIMPLEMENTED"
+    },
+    "dispatchCancel": {
+      "command": "map_dispatch_plunder_cancel",
+      "productionHandlerPresent": false,
+      "status": "UNIMPLEMENTED"
+    },
+    "allianceShare": {
+      "command": "map_dispatch_share_alliance",
+      "productionHandlerPresent": false,
+      "status": "BLOCKED_PENDING_OFFLINE_PAYLOAD_IMPLEMENTATION_AND_EXPLICIT_LIVE_MESSAGING_AUTHORIZATION"
+    }
+  },
+  "supersession": {
+    "r7_041": "Its list/cancel findings remain valid; its then-current truckSchedule=FAIL_CLOSED statement was superseded by R7-042 through R7-046.",
+    "r7_046": "Public Truck scheduling is implemented/offline-tested; live robbery remains deliberately unclaimed.",
+    "activeRoadmapCorrection": "R9 must not describe Scheduled Plunder listing or Truck public schedule/cancel as wholly unimplemented."
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "liveScheduleCreated": false,
+    "liveScheduleCancelled": false,
+    "liveRobberyOrPlunderAttempted": false,
+    "treasureClaimAttempted": false,
+    "messageOrAllianceShareSent": false
+  },
+  "privacy": "Audit evidence contains only source/test contract facts. No live target identity, march/train UUID, player identity, coordinates, database or runtime log is retained."
+}

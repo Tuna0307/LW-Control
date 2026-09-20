@@ -1,6 +1,12 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-078, 2026-09-20
+## Current continuation checkpoint - LWB-R7-079, 2026-09-20
+
+**Scheduled Plunder read/list/status persistence is closed and the action boundary is reconciled.** Public `map_plunder_jobs_list` is a pure persisted read over Dispatch jobs plus Truck active/history rows with recovered ordering and scheduler metadata; current deterministic disposable-DB coverage proves the combined envelope and reopen stability. R7-046 superseded R7-041’s historical Truck schedule fail-closed state, so Truck public schedule/cancel + durable worker are implemented/offline-tested, but no live robbery acceptance is claimed. Production still has no `map_dispatch_plunder_schedule` / `_cancel` handler. Alliance share remains blocked pending offline payload implementation and explicit live messaging authorization.
+
+**Next:** continue non-state-changing/offline recovery for Dispatch schedule/cancel and alliance-share payloads. Do not execute Truck robbery, Treasure claim, Dispatch plunder, or messaging/share live without explicit owner authorization. Ghost remains owner-deferred until Thursday 2026-09-24; Railway/Supplies positive gaps remain population-dependent.
+
+## Prior continuation checkpoint - LWB-R7-078, 2026-09-20
 
 **Public `map_summary` is LIVE-PROVEN on current-v19.** One automatic Fast Monster scan exposed the exact recovered `{serverId,counts,scanState}` envelope while the owned run was actively scanning, then completed 2,500/2,500 with zero failed/unread blocks and 5,108 live Monster rows. Completed counts matched the raw persisted store exactly; after DB reopen, the unique saved-profile server reproduced those counts with `phase=unavailable` / `serverIdSource=saved_profile_index`, so saved browsing context is not promoted to live readiness. The active Monster count was zero before the one-batch Fast source checkpointed and is retained as truthful staging-scope behavior, not interpreted as an empty published population.
 

@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint — LWB-R7-079, 2026-09-20
+
+Scheduled Plunder’s read/list/status persistence surface is now current-code audited and closed without any live game action. Public `map_plunder_jobs_list` remains a pure read returning Dispatch persisted jobs plus Truck active/history rows with recovered ordering and scheduler metadata; existing deterministic disposable-DB coverage proves the public combined envelope and database-reopen stability. The audit also corrects the roadmap boundary: R7-046 superseded R7-041’s historical Truck schedule fail-closed state, so Truck public schedule/cancel + durable worker are implemented/offline-tested while live robbery remains NOT_RUN. Production still has no Dispatch schedule/cancel handler, and alliance share remains blocked pending offline payload implementation plus explicit live messaging authorization. See [R7-079 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-scheduled-plunder-read-audit.json).
+
 ## Latest implementation checkpoint — LWB-R7-078, 2026-09-20
 
 Public `map_summary` is now LIVE-PROVEN read-only on current-v19. One automatic Fast Monster scan exposed the exact recovered `{serverId,counts,scanState}` envelope while the owned run was active, with `scanState.phase=scanning` and the exact run identity. The active Monster count was truthfully zero because the one-batch Fast source had not checkpointed staging yet. The run then completed 2,500/2,500 with zero failed/unread blocks and 5,108 live Monster rows; completed summary counts exactly matched the persisted store. After DB reopen, the unique saved-profile server reproduced those counts with `phase=unavailable` and `serverIdSource=saved_profile_index`, preserving browsing context without claiming live readiness. See [R7-078 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-map-summary-live.json).
