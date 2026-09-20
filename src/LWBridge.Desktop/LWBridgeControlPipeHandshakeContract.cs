@@ -47,5 +47,5 @@ internal static class LWBridgeControlPipeHandshakeContract
         string.Equals(expectedBuildId, suppliedBuildId, StringComparison.Ordinal);
 
     public const bool RequiresClientImagePathVerification = true;
-    public const bool ExactClientImageNormalizationRecovered = false;
+    public const bool ExactClientImageNormalizationRecovered = true;
 }

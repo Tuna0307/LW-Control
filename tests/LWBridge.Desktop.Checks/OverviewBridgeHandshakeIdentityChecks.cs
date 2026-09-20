@@ -40,15 +40,15 @@ internal static class OverviewBridgeHandshakeIdentityChecks
 
         Check(LWBridgeControlPipeHandshakeContract.RequiresClientImagePathVerification,
             "original handshake requires client image verification");
-        Check(!LWBridgeControlPipeHandshakeContract.ExactClientImageNormalizationRecovered,
-            "exact client image normalization remains blocked rather than guessed");
+        Check(LWBridgeControlPipeHandshakeContract.ExactClientImageNormalizationRecovered,
+            "exact client image normalization is source-backed by R7-114");
 
         string repo = FindRepoRoot();
         string hostSource = File.ReadAllText(Path.Combine(
             repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeHostState.cs"));
         Check(!hostSource.Contains("Handshake", StringComparison.Ordinal) &&
               !hostSource.Contains("QueryFullProcessImageName", StringComparison.Ordinal),
-            "production host must not enable handshake until exact client-image normalization is recovered");
+            "production host must remain handshake-disabled until isolated authenticated hello I/O is proven");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -72,7 +72,7 @@ internal static class OverviewBridgeHandshakeIdentityChecks
             },
             boundary = new
             {
-                exactClientImageNormalizationRecovered = false,
+                exactClientImageNormalizationRecovered = true,
                 nativeHandshakeImplemented = false,
                 productionHostAcceptsAuthenticatedClients = false,
                 productionCallLuaEnabled = false,
