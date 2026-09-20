@@ -50,7 +50,7 @@ internal static class OverviewStatusContractChecks
             callLuaError = error.Code;
         }
         Check(callLuaError == "COMMAND_NOT_IMPLEMENTED",
-            "generic call_lua must remain fail-closed until the recovered wire contract has a source-backed persistent pipe host");
+            "generic call_lua must remain fail-closed until the source-backed host owner has a live listener, route transport and pending-call lifecycle");
 
         string protocolPath = Path.Combine(repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeProtocol.cs");
         string protocol = File.ReadAllText(protocolPath);
@@ -58,7 +58,7 @@ internal static class OverviewStatusContractChecks
               protocol.Contains("EncodeCallCommand", StringComparison.Ordinal) &&
               protocol.Contains("ParseCallResult", StringComparison.Ordinal) &&
               protocol.Contains("This class remains protocol-only", StringComparison.Ordinal),
-            "control-pipe wire contract must be recovered while the persistent pipe host remains explicitly unimplemented");
+            "control-pipe wire contract must remain protocol-only while the native persistent listener stays explicitly unimplemented");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -75,7 +75,8 @@ internal static class OverviewStatusContractChecks
                 pending = (int?)null,
                 callLuaGetStatusError = callLuaError,
                 outboundControlPipeWireContractRecovered = true,
-                persistentControlPipeHostImplemented = false,
+                sharedControlPipeHostStateOwned = true,
+                persistentControlPipeListenerImplemented = false,
             },
         }, JsonOptions.Default);
     }

@@ -55,6 +55,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly TimeSpan helperSupervisionTimeout;
     private readonly LocalConfigStore? config;
     private readonly OverviewLifecycleTestHooks? testHooks;
+    private readonly LWBridgeControlPipeHostState? bridgeHostState;
     private readonly bool requireCurrentClientEvidence;
     private readonly bool recoveryMonitorEnabled;
     private System.Threading.Timer? leaseTimer;
@@ -82,7 +83,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bool? requireCurrentClientEvidence = null,
         LocalConfigStore? config = null,
         OverviewLifecycleTestHooks? testHooks = null,
-        bool startRecoveryMonitor = true)
+        bool startRecoveryMonitor = true,
+        LWBridgeControlPipeHostState? bridgeHostState = null)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -92,6 +94,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         this.config = config;
         this.testHooks = testHooks;
+        this.bridgeHostState = bridgeHostState;
         recoveryMonitorEnabled = startRecoveryMonitor;
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         runtimeRoot = Path.Combine(localAppData, "LWBridgeRebuild", "overview-bridge");
@@ -102,6 +105,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     public bool CanHandle(string command) =>
         command is "profile_instance_start" or "profile_instance_stop" or "profile_instance_status" or
             "profile_instances_reconcile" or "profile_instances_update_and_restart";
+
+    internal LWBridgeControlPipeHostState? BridgeHostState => bridgeHostState;
 
     public bool IsReady
     {

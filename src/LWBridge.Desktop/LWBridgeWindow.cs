@@ -45,6 +45,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LWBridgeBackend backend;
     private readonly MapDataStore mapData;
     private readonly HostProbeCommandService? hostProbeService;
+    private readonly LWBridgeControlPipeHostState? bridgeHostState;
     private readonly OverviewLifecycleService? overviewLifecycleService;
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly ManualMapScanCommandService? manualMapScanService;
@@ -118,10 +119,12 @@ internal sealed class LWBridgeWindow : Form
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
+            bridgeHostState = new LWBridgeControlPipeHostState();
             overviewLifecycleService = new OverviewLifecycleService(
                 config.Snapshot.ProfileId,
                 liveGameRoot.Valid ? liveGameRoot.Path : null,
-                config: config);
+                config: config,
+                bridgeHostState: bridgeHostState);
             if (normalUiLiveResourceProofPath is null)
             {
                 manualMapScanService = new ManualMapScanCommandService(overviewLifecycleService, mapData);
@@ -138,6 +141,7 @@ internal sealed class LWBridgeWindow : Form
         }
         else
         {
+            bridgeHostState = null;
             overviewLifecycleService = null;
             liveResourceService = null;
             manualMapScanService = null;
@@ -155,7 +159,8 @@ internal sealed class LWBridgeWindow : Form
             mapData: mapData,
             firstLiveResultServerId: firstLiveResult?.ServerId,
             overviewLifecycle: overviewLifecycleService,
-            mapScanStatusProvider: manualMapScanService is null ? null : manualMapScanService.CreateStatus);
+            mapScanStatusProvider: manualMapScanService is null ? null : manualMapScanService.CreateStatus,
+            bridgeHostState: bridgeHostState);
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
         if (manualMapScanService is not null)
@@ -1908,6 +1913,9 @@ internal sealed class LWBridgeWindow : Form
         manualMapScanService?.Close();
         liveResourceService?.Close();
         overviewLifecycleService?.Close();
+        // LWB-R7-110: the shared bridge host is application-owned, so it is
+        // closed after profile/scan lifecycles rather than by any one profile.
+        bridgeHostState?.Close();
         ownerEvidenceRenderCapture?.Cancel();
         ownerEvidenceRenderCapture?.Dispose();
         ownerEvidence?.Record("session-end", new { processId = Environment.ProcessId });

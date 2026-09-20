@@ -27,6 +27,7 @@ internal sealed class LWBridgeBackend
     private readonly GameInstallationService installation;
     private readonly INativeAsyncCommandService? asyncCommands;
     private readonly OverviewLifecycleService? overviewLifecycle;
+    private readonly LWBridgeControlPipeHostState? bridgeHostState;
     private readonly MapDataStore? mapData;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
@@ -39,11 +40,13 @@ internal sealed class LWBridgeBackend
         int? firstLiveResultServerId = null,
         OverviewLifecycleService? overviewLifecycle = null,
         LastWarLocaleService? lastWarLocales = null,
-        Func<object>? mapScanStatusProvider = null)
+        Func<object>? mapScanStatusProvider = null,
+        LWBridgeControlPipeHostState? bridgeHostState = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
         this.overviewLifecycle = overviewLifecycle;
+        this.bridgeHostState = bridgeHostState;
         this.mapData = mapData;
         this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
         this.firstLiveResultServerId = firstLiveResultServerId;
@@ -52,6 +55,8 @@ internal sealed class LWBridgeBackend
     }
 
     public string ProfileId => config.Snapshot.ProfileId;
+
+    internal LWBridgeControlPipeHostState? BridgeHostState => bridgeHostState;
 
     public object GetBootstrap(bool fixture, string sessionId, bool suppressAutoLaunch = false)
     {
