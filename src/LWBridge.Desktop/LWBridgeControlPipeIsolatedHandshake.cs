@@ -5,9 +5,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace LWBridge.Desktop;
 
-// LWB-R7-115: isolated authenticated hello transport. This composes the
+// LWB-R7-115 + R7-123: authenticated hello transport. R7-115 proved the
 // recovered native pipe, frame protocol, client-process identity gates and
-// registry admission, but is deliberately not started by the application host.
+// registry admission in isolation; R7-123 starts it through the shared host.
 internal static class LWBridgeControlPipeIsolatedHandshake
 {
     internal static async Task<LWBridgeAuthenticatedConnection> AuthenticateAsync(

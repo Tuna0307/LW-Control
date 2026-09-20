@@ -344,6 +344,13 @@ if (args.Contains("--overview-bridge-host-transport-check", StringComparer.Ordin
     return 0;
 }
 
+if (args.Contains("--overview-bridge-normal-composition-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeNormalCompositionChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -372,6 +379,7 @@ await LWBridge.Desktop.Checks.OverviewBridgeLifecycleLaunchBindingChecks.RunAsyn
 await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeRpcSessionTransportChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
+LWBridge.Desktop.Checks.OverviewBridgeNormalCompositionChecks.Run();
 
 void Check(bool condition, string name)
 {

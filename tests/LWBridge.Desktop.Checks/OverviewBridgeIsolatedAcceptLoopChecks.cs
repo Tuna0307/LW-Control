@@ -205,10 +205,10 @@ internal static class OverviewBridgeIsolatedAcceptLoopChecks
                 "LWBridgeControlPipeIsolatedAcceptLoop",
                 StringComparison.Ordinal),
             "shared host must retain the now-proven accept-loop composition");
-        Check(!windowSource.Contains(
+        Check(windowSource.Contains(
                 "StartRpcTransport(",
                 StringComparison.Ordinal),
-            "normal application window must remain disconnected from composed accept loop until final production inputs are recovered");
+            "normal application window starts the composed accept loop after R7-123");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -231,8 +231,8 @@ internal static class OverviewBridgeIsolatedAcceptLoopChecks
             boundary = new
             {
                 sharedHostCanStartAcceptLoop = true,
-                normalWindowStartsAcceptLoop = false,
-                productionProxyLaunchBinding = false,
+                normalWindowStartsAcceptLoop = true,
+                productionProxyLaunchBinding = true,
                 outboundCommandRoutingImplementedInSharedHost = true,
                 pendingCallCollectionImplemented = true,
                 productionCallLuaEnabled = false,

@@ -240,7 +240,7 @@ internal static class OverviewBridgeCallRegistryChecks
             boundary = new
             {
                 sharedHostSessionTransportImplemented = true,
-                normalWindowStartsTransport = false,
+                normalWindowStartsTransport = true,
                 productionPendingExposed = false,
                 productionCallLuaEnabled = false,
             },

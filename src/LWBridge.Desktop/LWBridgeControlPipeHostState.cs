@@ -9,9 +9,8 @@ namespace LWBridge.Desktop;
 // host. This shell owns the single registry and pipe identity for the desktop
 // process. R7-121 composes the recovered listener/RPC layers behind explicit
 // startup inputs. R7-122 closes the expected client-path source and original
-// zero command-counter seed; normal LWBridgeWindow composition remains disabled
-// until this source-backed contract is committed and production startup wiring
-// is separately proven.
+// zero command-counter seed. R7-123 wires the same host into normal window
+// startup before Overview launch registration.
 internal sealed class LWBridgeControlPipeHostState : IDisposable
 {
     private readonly object gate = new();
@@ -20,6 +19,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
     private LWBridgeControlPipeCallRegistry? callRegistry;
     private LWBridgeControlPipeIsolatedAcceptLoop? acceptLoop;
     private Task? acceptLoopTask;
+    private string? rpcExpectedBuildId;
+    private string? rpcExpectedCanonicalClientPath;
     private bool stopped;
 
     internal LWBridgeControlPipeHostState(
@@ -74,18 +75,33 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedBuildId);
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedClientPath);
 
+        string canonicalClientPath =
+            LWBridgeControlPipeIsolatedHandshake
+                .CanonicalizeExpectedClientPath(expectedClientPath);
+
         lock (gate)
         {
             ThrowIfStopped();
             if (acceptLoop is not null)
             {
+                if (string.Equals(
+                        rpcExpectedBuildId,
+                        expectedBuildId,
+                        StringComparison.Ordinal) &&
+                    string.Equals(
+                        rpcExpectedCanonicalClientPath,
+                        canonicalClientPath,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return acceptLoopTask ??
+                        throw new InvalidOperationException(
+                            "The shared bridge RPC transport task is missing.");
+                }
+
                 throw new InvalidOperationException(
-                    "The shared bridge RPC transport is already started.");
+                    "The shared bridge RPC transport is already bound to a different build or client image.");
             }
 
-            string canonicalClientPath =
-                LWBridgeControlPipeIsolatedHandshake
-                    .CanonicalizeExpectedClientPath(expectedClientPath);
             var calls = new LWBridgeControlPipeCallRegistry();
             var loop = new LWBridgeControlPipeIsolatedAcceptLoop(
                 PipePath,
@@ -102,7 +118,32 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
 
             callRegistry = calls;
             acceptLoop = loop;
+            rpcExpectedBuildId = expectedBuildId;
+            rpcExpectedCanonicalClientPath = canonicalClientPath;
             acceptLoopTask = loop.StartAsync();
+
+            if (acceptLoopTask.IsCompleted)
+            {
+                try
+                {
+                    acceptLoopTask.GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    calls.Stop();
+                    loop.DisposeAsync()
+                        .AsTask()
+                        .GetAwaiter()
+                        .GetResult();
+                    callRegistry = null;
+                    acceptLoop = null;
+                    acceptLoopTask = null;
+                    rpcExpectedBuildId = null;
+                    rpcExpectedCanonicalClientPath = null;
+                    throw;
+                }
+            }
+
             return acceptLoopTask;
         }
     }
@@ -162,6 +203,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
             acceptLoop = null;
             acceptLoopTask = null;
             callRegistry = null;
+            rpcExpectedBuildId = null;
+            rpcExpectedCanonicalClientPath = null;
         }
 
         calls?.Stop();
@@ -306,6 +349,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
             acceptLoop = null;
             acceptLoopTask = null;
             callRegistry = null;
+            rpcExpectedBuildId = null;
+            rpcExpectedCanonicalClientPath = null;
         }
 
         calls?.Stop();

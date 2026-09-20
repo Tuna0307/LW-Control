@@ -268,10 +268,10 @@ internal static class OverviewBridgeRpcSessionTransportChecks
                 StringComparison.Ordinal),
             "shared host must retain the now-proven RPC session composition");
         Check(
-            !windowSource.Contains(
+            windowSource.Contains(
                 "StartRpcTransport(",
                 StringComparison.Ordinal),
-            "normal application composition remains disconnected from composed RPC transport until final production inputs are recovered");
+            "normal application composition starts the composed RPC transport after R7-123");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -324,7 +324,7 @@ internal static class OverviewBridgeRpcSessionTransportChecks
             boundary = new
             {
                 sharedHostCanRunRpcSession = true,
-                normalWindowStartsRpcSession = false,
+                normalWindowStartsRpcSession = true,
                 productionPendingExposed = false,
                 productionCallLuaEnabled = false,
             },

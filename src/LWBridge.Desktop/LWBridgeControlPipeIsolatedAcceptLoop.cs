@@ -4,9 +4,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace LWBridge.Desktop;
 
-// LWB-R7-116: isolated host-global accept-loop lifecycle. This composes the
-// native server/connect and authenticated hello proof, but is not started by
-// LWBridgeWindow or LWBridgeControlPipeHostState in normal application flow.
+// LWB-R7-116 + R7-123: host-global accept-loop lifecycle. R7-116 proved the
+// native server/connect and authenticated hello path in isolation; R7-123
+// composes that proven loop into the application-owned shared host.
 internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
 {
     private readonly string pipePath;

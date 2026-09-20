@@ -189,9 +189,9 @@ internal static class OverviewBridgeLaunchBindingChecks
             },
             boundary = new
             {
-                overviewLifecycleUsesLaunchBinding = false,
-                helperProcessEnvironmentMutated = false,
-                productionListenerStarted = false,
+                overviewLifecycleUsesLaunchBinding = true,
+                helperProcessEnvironmentMutated = true,
+                productionListenerStarted = true,
                 productionCallLuaEnabled = false,
             },
         }, JsonOptions.Default);

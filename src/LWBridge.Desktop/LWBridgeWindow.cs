@@ -120,11 +120,21 @@ internal sealed class LWBridgeWindow : Form
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
             bridgeHostState = new LWBridgeControlPipeHostState();
+            if (liveGameRoot.Valid)
+            {
+                string expectedClientPath =
+                    LWBridgeControlPipeClientPathContract
+                        .BuildExpectedGameExecutablePath(liveGameRoot.Path);
+                _ = bridgeHostState.StartRpcTransport(
+                    OverviewLifecycleService.BridgeVersion,
+                    expectedClientPath);
+            }
             overviewLifecycleService = new OverviewLifecycleService(
                 config.Snapshot.ProfileId,
                 liveGameRoot.Valid ? liveGameRoot.Path : null,
                 config: config,
-                bridgeHostState: bridgeHostState);
+                bridgeHostState: bridgeHostState,
+                enableBridgeControlPipeLaunchBinding: true);
             if (normalUiLiveResourceProofPath is null)
             {
                 manualMapScanService = new ManualMapScanCommandService(overviewLifecycleService, mapData);

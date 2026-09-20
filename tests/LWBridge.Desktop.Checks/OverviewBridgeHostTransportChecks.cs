@@ -46,6 +46,31 @@ internal static class OverviewBridgeHostTransportChecks
             processPath,
             currentUserSid: sid,
             clockMilliseconds: () => Now);
+        Task sameListener = host.StartRpcTransport(
+            Build,
+            processPath,
+            currentUserSid: sid,
+            clockMilliseconds: () => Now);
+
+        Check(
+            ReferenceEquals(listener, sameListener),
+            "same build/client identity reuses the single application-owned listener task");
+        bool differentIdentityRejected = false;
+        try
+        {
+            _ = host.StartRpcTransport(
+                Build + "-different",
+                processPath,
+                currentUserSid: sid,
+                clockMilliseconds: () => Now);
+        }
+        catch (InvalidOperationException)
+        {
+            differentIdentityRejected = true;
+        }
+        Check(
+            differentIdentityRejected,
+            "already-started host rejects a different build/client identity");
 
         Check(
             host.IsRpcTransportStarted &&
@@ -275,13 +300,13 @@ internal static class OverviewBridgeHostTransportChecks
             "LWBridge.Desktop",
             "LWBridgeWindow.cs"));
         Check(
-            !windowSource.Contains(
+            windowSource.Contains(
                 "StartRpcTransport(",
                 StringComparison.Ordinal) &&
-            !windowSource.Contains(
+            windowSource.Contains(
                 "enableBridgeControlPipeLaunchBinding: true",
                 StringComparison.Ordinal),
-            "normal application composition remains disabled pending separate startup integration proof");
+            "normal application composition starts shared transport and enables launch binding");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -316,8 +341,8 @@ internal static class OverviewBridgeHostTransportChecks
             },
             boundary = new
             {
-                LWBridgeWindowStartsTransport = false,
-                normalOverviewLaunchBindingEnabled = false,
+                LWBridgeWindowStartsTransport = true,
+                normalOverviewLaunchBindingEnabled = true,
                 productionPendingExposed = false,
                 productionCallLuaEnabled = false,
             },

@@ -51,11 +51,11 @@ internal static class OverviewBridgeHandshakeIdentityChecks
         Check(hostSource.Contains("StartRpcTransport(", StringComparison.Ordinal) &&
               hostSource.Contains("CanonicalizeExpectedClientPath", StringComparison.Ordinal),
             "shared host must retain the now-proven handshake/client-path composition");
-        Check(!windowSource.Contains("StartRpcTransport(", StringComparison.Ordinal) &&
-              !windowSource.Contains(
+        Check(windowSource.Contains("StartRpcTransport(", StringComparison.Ordinal) &&
+              windowSource.Contains(
                   "enableBridgeControlPipeLaunchBinding: true",
                   StringComparison.Ordinal),
-            "normal application composition must remain handshake/listener-disabled until final production inputs are recovered");
+            "normal application composition starts the recovered listener and enables launch binding");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -81,8 +81,8 @@ internal static class OverviewBridgeHandshakeIdentityChecks
             {
                 exactClientImageNormalizationRecovered = true,
                 nativeHandshakeImplementedInSharedHost = true,
-                normalWindowStartsSharedHostTransport = false,
-                productionHostAcceptsAuthenticatedClients = false,
+                normalWindowStartsSharedHostTransport = true,
+                productionHostAcceptsAuthenticatedClients = true,
                 productionCallLuaEnabled = false,
             },
         }, JsonOptions.Default);

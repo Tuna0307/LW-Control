@@ -560,6 +560,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bool startTransactionSucceeded = false;
         try
         {
+            EnsureControlPipeHostStarted(selectedRoot);
             OverviewHelperInvocation startInvocation;
             long? startDeadline = null;
             if (testHooks is null)
@@ -702,6 +703,39 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 bridgeHostState?.CancelLaunchBinding(
                     controlPipeLaunchBinding.InstanceId);
             }
+        }
+    }
+
+    private void EnsureControlPipeHostStarted(string selectedRoot)
+    {
+        if (!bridgeControlPipeLaunchBindingEnabled || testHooks is not null)
+            return;
+        if (bridgeHostState is null)
+        {
+            throw new BridgeCommandException(
+                "BRIDGE_HOST_UNAVAILABLE",
+                "The shared bridge host is required for control-pipe launch binding.");
+        }
+
+        string expectedClientPath =
+            LWBridgeControlPipeClientPathContract
+                .BuildExpectedGameExecutablePath(selectedRoot);
+        try
+        {
+            _ = bridgeHostState.StartRpcTransport(
+                BridgeVersion,
+                expectedClientPath);
+        }
+        catch (BridgeCommandException)
+        {
+            throw;
+        }
+        catch (Exception error)
+        {
+            throw new BridgeCommandException(
+                "BRIDGE_HOST_UNAVAILABLE",
+                "The shared bridge control-pipe listener could not start.",
+                new { error = error.Message });
         }
     }
 

@@ -72,10 +72,13 @@ internal static class OverviewBridgeClientPathChecks
                   "CanonicalizeExpectedClientPath",
                   StringComparison.Ordinal),
             "shared host must apply the recovered expected-client-path canonicalization");
-        Check(!windowSource.Contains(
+        Check(windowSource.Contains(
                   "StartRpcTransport(",
+                  StringComparison.Ordinal) &&
+              windowSource.Contains(
+                  "BuildExpectedGameExecutablePath",
                   StringComparison.Ordinal),
-            "normal application composition remains client-path/listener-disabled pending separate startup integration proof");
+            "normal application composition starts the listener with the recovered expected game executable path");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -103,7 +106,7 @@ internal static class OverviewBridgeClientPathChecks
             {
                 nativeHandshakeImplementedInSharedHost = true,
                 sharedHostRunsClientPathGateWhenExplicitlyStarted = true,
-                normalWindowStartsSharedHostTransport = false,
+                normalWindowStartsSharedHostTransport = true,
                 productionCallLuaEnabled = false,
             },
         }, JsonOptions.Default);

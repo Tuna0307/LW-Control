@@ -192,10 +192,13 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 "invocation.ControlPipeLaunchBinding?.ApplyTo(start);",
                 StringComparison.Ordinal),
             "real helper ProcessStartInfo applies the recovered launch environment");
-        Check(!windowSource.Contains(
-                "enableBridgeControlPipeLaunchBinding:",
+        Check(windowSource.Contains(
+                "enableBridgeControlPipeLaunchBinding: true",
+                StringComparison.Ordinal) &&
+              windowSource.Contains(
+                "StartRpcTransport(",
                 StringComparison.Ordinal),
-            "normal application composition keeps lifecycle binding disabled until production listener is ready");
+            "normal application composition enables launch binding only with shared listener startup");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -217,10 +220,10 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
             },
             boundary = new
             {
-                normalWindowEnablesLaunchBinding = false,
-                productionListenerStarted = false,
-                outboundCommandRoutingImplemented = false,
-                pendingCallCollectionImplemented = false,
+                normalWindowEnablesLaunchBinding = true,
+                productionListenerStarted = true,
+                outboundCommandRoutingImplemented = true,
+                pendingCallCollectionImplemented = true,
                 productionCallLuaEnabled = false,
             },
         }, JsonOptions.Default);
