@@ -40,7 +40,77 @@ internal sealed partial class MapDataStore
         }
     }
 
+    internal bool ScheduleDispatchPlunder(
+        int serverId,
+        string taskUuid,
+        string taskJson,
+        long completionTime,
+        long plunderAt,
+        long? expireAt,
+        long now)
+    {
+        ValidateServerId(serverId);
+        ValidateJsonObject(taskJson, "dispatch plunder job");
 
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO dispatch_plunder_jobs(
+                  server_id,task_uuid,task_json,completion_time,plunder_at,expire_at,
+                  status,attempts,last_error,created_at,updated_at
+                ) VALUES ($server,$uuid,$json,$completion,$plunder,$expire,'scheduled',0,NULL,$now,$now)
+                ON CONFLICT(server_id,task_uuid) DO UPDATE SET
+                  task_json=excluded.task_json,
+                  completion_time=excluded.completion_time,
+                  plunder_at=excluded.plunder_at,
+                  expire_at=excluded.expire_at,
+                  updated_at=excluded.updated_at
+                WHERE dispatch_plunder_jobs.status IN ('scheduled','waiting_connection')
+                """;
+            command.Parameters.AddWithValue("$server", serverId);
+            command.Parameters.AddWithValue("$uuid", taskUuid);
+            command.Parameters.AddWithValue("$json", taskJson);
+            command.Parameters.AddWithValue("$completion", completionTime);
+            command.Parameters.AddWithValue("$plunder", plunderAt);
+            command.Parameters.AddWithValue("$expire", (object?)expireAt ?? DBNull.Value);
+            command.Parameters.AddWithValue("$now", now);
+            if (command.ExecuteNonQuery() <= 0) return false;
+
+            using SqliteCommand read = connection.CreateCommand();
+            read.CommandText = """
+                SELECT task_json,status,attempts,last_error,created_at,updated_at
+                FROM dispatch_plunder_jobs
+                WHERE server_id=$server AND task_uuid=$uuid
+                """;
+            read.Parameters.AddWithValue("$server", serverId);
+            read.Parameters.AddWithValue("$uuid", taskUuid);
+            using SqliteDataReader reader = read.ExecuteReader();
+            return reader.Read();
+        }
+    }
+
+    internal bool CancelDispatchPlunder(
+        int serverId,
+        string taskUuid,
+        long updatedAt)
+    {
+        ValidateServerId(serverId);
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='cancelled',last_error=NULL,updated_at=$updated
+                WHERE server_id=$server AND task_uuid=$uuid
+                  AND status IN ('scheduled','waiting_connection')
+                """;
+            command.Parameters.AddWithValue("$server", serverId);
+            command.Parameters.AddWithValue("$uuid", taskUuid);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            return command.ExecuteNonQuery() > 0;
+        }
+    }
 
     internal TruckPlunderScheduleResult ScheduleTruckPlunder(
         int serverId,

@@ -1,6 +1,12 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-079, 2026-09-20
+## Current continuation checkpoint - LWB-R7-080, 2026-09-20
+
+**Dispatch plunder schedule/cancel persistence is RECOVERED and internally OFFLINE-TESTED.** The verified original pins schedule payload validation (1..200 rows; positive server; nonempty decimal-string UUID; completion/plunder/expiry/steal predicates), exact error text, guarded active-only SQLite upsert, cancel eligibility, `NOT_FOUND / scheduled plunder job not found`, and `bridge://dispatch-plunder-changed`. The rebuild reproduces the store transitions and exact schedule validator, and public Dispatch cancel is enabled/offline-tested with the recovered change event. Public Dispatch schedule remains intentionally disabled because no current-v19 durable Dispatch worker/executor has yet been implemented.
+
+**Next:** recover the original Dispatch worker timing/state machine/result protocol and identify the authoritative current-v19 game execution chain. Keep the public command fail-closed until those pieces are source-backed and offline-tested. Do not execute Dispatch plunder live without explicit owner authorization.
+
+## Prior continuation checkpoint - LWB-R7-079, 2026-09-20
 
 **Scheduled Plunder read/list/status persistence is closed and the action boundary is reconciled.** Public `map_plunder_jobs_list` is a pure persisted read over Dispatch jobs plus Truck active/history rows with recovered ordering and scheduler metadata; current deterministic disposable-DB coverage proves the combined envelope and reopen stability. R7-046 superseded R7-041’s historical Truck schedule fail-closed state, so Truck public schedule/cancel + durable worker are implemented/offline-tested, but no live robbery acceptance is claimed. Production still has no `map_dispatch_plunder_schedule` / `_cancel` handler. Alliance share remains blocked pending offline payload implementation and explicit live messaging authorization.
 

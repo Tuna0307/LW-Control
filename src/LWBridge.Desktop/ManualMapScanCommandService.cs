@@ -87,12 +87,13 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     }
 
     public event Action<object>? StatusChanged;
+    public event Action? DispatchPlunderChanged;
     public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
             "map_coordinate_jump" or "map_march_follow" or "server_jump" or
-            "map_truck_plunder_schedule" or "game_asset_image" or
+            "map_dispatch_plunder_cancel" or "map_truck_plunder_schedule" or "game_asset_image" or
             "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
             "map_treasure_claim_status";
 
@@ -101,6 +102,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        if (command == "map_dispatch_plunder_cancel")
+        {
+            CancelDispatchPlunder(payload);
+            return null;
+        }
         if (command == "map_truck_plunder_schedule")
         {
             ScheduleTruckPlunder(payload, cancellationToken);
@@ -521,6 +527,24 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
         PublishStatusChanged();
         return CreateStatus();
+    }
+
+    private void CancelDispatchPlunder(JsonElement payload)
+    {
+        DispatchPlunderTarget target =
+            DispatchPlunderContract.NormalizeCancel(payload);
+        bool cancelled = store.CancelDispatchPlunder(
+            target.ServerId,
+            target.TaskUuid,
+            RecoveredWallClock.UnixTimeMilliseconds());
+        if (!cancelled)
+        {
+            throw new BridgeCommandException(
+                "NOT_FOUND",
+                "scheduled plunder job not found");
+        }
+
+        DispatchPlunderChanged?.Invoke();
     }
 
     private sealed record TruckScheduleRow(

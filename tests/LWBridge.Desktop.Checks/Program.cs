@@ -5678,6 +5678,27 @@ Check(
     manualMapServiceSource.Contains("currentClientSource.ExecuteTruckQuickRobAsync", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("TruckPlunderChanged", StringComparison.Ordinal),
     "Truck worker must share the existing live current-client source and game-operation gate with Map Data actions");
+string dispatchPlunderContractSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "DispatchPlunderContract.cs"));
+Check(
+    dispatchPlunderContractSource.Contains("secret task rows are required", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("select between 1 and 200 secret tasks", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("secret task scheduling data is invalid", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("plunderAt < completionTime", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("taskExpireTime > 0 && taskExpireTime <= plunderAt", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("maxStealCount > 0 && stolenCount >= maxStealCount", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal),
+    "Dispatch plunder contract must preserve recovered batch, timing, steal-cap and cancel-target validation");
+Check(
+    manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("scheduled plunder job not found", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("DispatchPlunderChanged", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("command == \"map_dispatch_plunder_schedule\"", StringComparison.Ordinal),
+    "Dispatch public cancel must be enabled with recovered NOT_FOUND/event behavior while schedule remains fail-closed");
 Check(
     manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("truck rows are required", StringComparison.Ordinal) &&
@@ -5687,6 +5708,11 @@ Check(
     manualMapServiceSource.Contains("ScheduleTruckPlunder(", StringComparison.Ordinal),
     "Truck public schedule command must preserve recovered INVALID_REQUEST messages, 1-200 batch bound, robTimes/maxLoot predicate and durable store handoff");
 string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+Check(
+    windowSource.Contains("\"bridge://dispatch-plunder-changed\"", StringComparison.Ordinal) &&
+    windowSource.Contains("manualMapScanService.DispatchPlunderChanged += OnDispatchPlunderChanged", StringComparison.Ordinal) &&
+    windowSource.Contains("SendEvent(session, \"bridge://dispatch-plunder-changed\"", StringComparison.Ordinal),
+    "Recovered Dispatch plunder change event must be allowlisted and forwarded after successful local cancellation");
 Check(
     windowSource.Contains("\"bridge://truck-plunder-changed\"", StringComparison.Ordinal) &&
     windowSource.Contains("manualMapScanService.TruckPlunderChanged += OnTruckPlunderChanged", StringComparison.Ordinal) &&

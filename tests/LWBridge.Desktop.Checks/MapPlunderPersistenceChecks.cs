@@ -206,12 +206,161 @@ internal static class MapPlunderPersistenceChecks
                     "combined list preserves unrelated dispatch job state across reopen");
             }
 
+            RunDispatchSchedulePersistence(Path.Combine(root, "dispatch-schedule-map-data.db"));
             RunTruckScheduleTransaction(Path.Combine(root, "schedule-map-data.db"));
             RunTruckWorkerPersistence(Path.Combine(root, "worker-map-data.db"));
         }
         finally
         {
             try { Directory.Delete(root, recursive: true); } catch { }
+        }
+    }
+
+    private static void RunDispatchSchedulePersistence(string databasePath)
+    {
+        using (var store = new MapDataStore(databasePath))
+        {
+            Check(store.ScheduleDispatchPlunder(
+                    88,
+                    "12345",
+                    """{"uuid":"12345","ownerName":"Fresh","completionTime":1000,"plunderAt":1200,"taskExpireTime":5000,"stolenCount":0,"maxStealCount":3}""",
+                    completionTime: 1_000,
+                    plunderAt: 1_200,
+                    expireAt: 5_000,
+                    now: 100),
+                "fresh Dispatch schedule inserts the recovered active row");
+
+            JsonElement fresh = store.ReadPlunderJobs().DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "12345");
+            Check(fresh.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+                  fresh.GetProperty("attempts").GetInt32() == 0 &&
+                  fresh.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+                  fresh.GetProperty("scheduledAt").GetInt64() == 100 &&
+                  fresh.GetProperty("scheduleUpdatedAt").GetInt64() == 100 &&
+                  fresh.GetProperty("plunderAt").GetInt64() == 1_200 &&
+                  fresh.GetProperty("ownerName").GetString() == "Fresh",
+                "fresh Dispatch schedule reproduces recovered status/attempt/error/time defaults");
+
+            store.UpsertDispatchPlunderJobForTest(
+                88,
+                "23456",
+                """{"uuid":"23456","ownerName":"Waiting-old","completionTime":900,"plunderAt":1100,"taskExpireTime":4500}""",
+                completionTime: 900,
+                plunderAt: 1_100,
+                expireAt: 4_500,
+                status: "waiting_connection",
+                attempts: 2,
+                lastError: "DISPATCH_PLUNDER_GAME_DISCONNECTED",
+                createdAt: 50,
+                updatedAt: 60);
+            Check(store.ScheduleDispatchPlunder(
+                    88,
+                    "23456",
+                    """{"uuid":"23456","ownerName":"Waiting-new","completionTime":1050,"plunderAt":1350,"taskExpireTime":6200}""",
+                    completionTime: 1_050,
+                    plunderAt: 1_350,
+                    expireAt: 6_200,
+                    now: 200),
+                "waiting Dispatch schedule is rescheduled in place");
+
+            JsonElement waiting = store.ReadPlunderJobs().DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "23456");
+            Check(waiting.GetProperty("scheduleStatus").GetString() == "waiting_connection" &&
+                  waiting.GetProperty("attempts").GetInt32() == 2 &&
+                  waiting.GetProperty("lastError").GetString() == "DISPATCH_PLUNDER_GAME_DISCONNECTED" &&
+                  waiting.GetProperty("scheduledAt").GetInt64() == 50 &&
+                  waiting.GetProperty("scheduleUpdatedAt").GetInt64() == 200 &&
+                  waiting.GetProperty("plunderAt").GetInt64() == 1_350 &&
+                  waiting.GetProperty("ownerName").GetString() == "Waiting-new",
+                "active Dispatch reschedule preserves status/attempts/error/created_at while updating task/timing fields");
+
+            store.UpsertDispatchPlunderJobForTest(
+                88,
+                "34567",
+                """{"uuid":"34567","ownerName":"Running-old","completionTime":1000,"plunderAt":1400}""",
+                completionTime: 1_000,
+                plunderAt: 1_400,
+                expireAt: null,
+                status: "running",
+                attempts: 1,
+                lastError: null,
+                createdAt: 70,
+                updatedAt: 80);
+            Check(!store.ScheduleDispatchPlunder(
+                    88,
+                    "34567",
+                    """{"uuid":"34567","ownerName":"Running-new","completionTime":1100,"plunderAt":1500}""",
+                    completionTime: 1_100,
+                    plunderAt: 1_500,
+                    expireAt: null,
+                    now: 210),
+                "running Dispatch job cannot be replaced by recovered guarded upsert");
+
+            JsonElement running = store.ReadPlunderJobs().DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "34567");
+            Check(running.GetProperty("scheduleStatus").GetString() == "running" &&
+                  running.GetProperty("scheduleUpdatedAt").GetInt64() == 80 &&
+                  running.GetProperty("ownerName").GetString() == "Running-old",
+                "rejected running Dispatch reschedule leaves the stored row unchanged");
+
+            store.UpsertDispatchPlunderJobForTest(
+                88,
+                "45678",
+                """{"uuid":"45678","ownerName":"Failed-old","completionTime":1000,"plunderAt":1450}""",
+                completionTime: 1_000,
+                plunderAt: 1_450,
+                expireAt: null,
+                status: "failed",
+                attempts: 3,
+                lastError: "DISPATCH_PLUNDER_SERVER_REJECTED",
+                createdAt: 75,
+                updatedAt: 85);
+            Check(!store.ScheduleDispatchPlunder(
+                    88,
+                    "45678",
+                    """{"uuid":"45678","ownerName":"Failed-new","completionTime":1150,"plunderAt":1550}""",
+                    completionTime: 1_150,
+                    plunderAt: 1_550,
+                    expireAt: null,
+                    now: 220),
+                "terminal Dispatch job cannot be replaced by recovered guarded upsert");
+
+            Check(store.CancelDispatchPlunder(88, "12345", updatedAt: 300),
+                "scheduled Dispatch job is cancellable");
+            Check(!store.CancelDispatchPlunder(88, "12345", updatedAt: 301),
+                "terminal Dispatch cancel is idempotently rejected");
+            Check(store.CancelDispatchPlunder(88, "23456", updatedAt: 302),
+                "waiting_connection Dispatch job is cancellable");
+            Check(!store.CancelDispatchPlunder(88, "34567", updatedAt: 303),
+                "running Dispatch job is not cancellable");
+
+            JsonElement cancelledFresh = store.ReadPlunderJobs().DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "12345");
+            JsonElement cancelledWaiting = store.ReadPlunderJobs().DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "23456");
+            Check(cancelledFresh.GetProperty("scheduleStatus").GetString() == "cancelled" &&
+                  cancelledFresh.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+                  cancelledFresh.GetProperty("scheduleUpdatedAt").GetInt64() == 300 &&
+                  cancelledWaiting.GetProperty("scheduleStatus").GetString() == "cancelled" &&
+                  cancelledWaiting.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+                  cancelledWaiting.GetProperty("scheduleUpdatedAt").GetInt64() == 302,
+                "Dispatch cancel reproduces recovered status/error/update transition");
+        }
+
+        using (var reopened = new MapDataStore(databasePath))
+        {
+            MapPlunderJobsSnapshot snapshot = reopened.ReadPlunderJobs();
+            JsonElement cancelledFresh = snapshot.DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "12345");
+            JsonElement running = snapshot.DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "34567");
+            JsonElement failed = snapshot.DispatchJobs.Single(
+                row => row.GetProperty("uuid").GetString() == "45678");
+            Check(cancelledFresh.GetProperty("scheduleStatus").GetString() == "cancelled" &&
+                  running.GetProperty("scheduleStatus").GetString() == "running" &&
+                  failed.GetProperty("scheduleStatus").GetString() == "failed" &&
+                  failed.GetProperty("ownerName").GetString() == "Failed-old",
+                "Dispatch schedule/cancel persistence survives database reopen without replacing blocked rows");
         }
     }
 

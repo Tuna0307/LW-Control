@@ -30,6 +30,7 @@ internal static class ManualMapScanCommandServiceChecks
         await AllEightTypesAreAccepted();
         await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
+        await DispatchCancelAndScheduleValidationContractsAreRecovered();
         await TruckSchedulePublicContractIsRecovered();
         await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
         await ZombieBossMixedTypesFailClosed();
@@ -982,6 +983,264 @@ internal static class ManualMapScanCommandServiceChecks
         {
         }
         Check(contextCalls == 0, "mixed dedicated Zombie Boss scan must fail before live-context acquisition");
+        service.Close();
+    }
+
+    private static async Task DispatchCancelAndScheduleValidationContractsAreRecovered()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource());
+        Check(service.CanHandle("map_dispatch_plunder_cancel"),
+            "production async service handles recovered Dispatch cancel command");
+        Check(!service.CanHandle("map_dispatch_plunder_schedule"),
+            "Dispatch schedule remains fail-closed until a durable current-v19 executor exists");
+
+        store.UpsertDispatchPlunderJobForTest(
+            88,
+            "12345",
+            """{"uuid":"12345","ownerName":"Synthetic Dispatch","completionTime":1000,"plunderAt":1200}""",
+            completionTime: 1_000,
+            plunderAt: 1_200,
+            expireAt: 5_000,
+            status: "scheduled",
+            attempts: 0,
+            lastError: "old error",
+            createdAt: 100,
+            updatedAt: 110);
+        store.UpsertDispatchPlunderJobForTest(
+            88,
+            "23456",
+            """{"uuid":"23456","ownerName":"Running Dispatch","completionTime":1000,"plunderAt":1200}""",
+            completionTime: 1_000,
+            plunderAt: 1_200,
+            expireAt: null,
+            status: "running",
+            attempts: 1,
+            lastError: null,
+            createdAt: 100,
+            updatedAt: 110);
+
+        int changed = 0;
+        service.DispatchPlunderChanged += () => changed++;
+        var config = new LocalConfigStore(persistent: false);
+        var backend = new LWBridgeBackend(
+            config,
+            asyncCommands: service,
+            mapData: store);
+
+        JsonElement cancel = JsonSerializer.SerializeToElement(new
+        {
+            profileId = config.Snapshot.ProfileId,
+            serverId = 88,
+            taskUuid = "12345",
+        }, JsonOptions.Default);
+        object? cancelResult = await backend.InvokeAsync(
+            "map_dispatch_plunder_cancel",
+            cancel,
+            CancellationToken.None);
+        Check(cancelResult is null,
+            "recovered Dispatch cancel success uses unit/null result");
+        Check(changed == 1,
+            "successful Dispatch cancel emits exactly one recovered change event");
+        JsonElement cancelled = store.ReadPlunderJobs().DispatchJobs.Single(
+            row => row.GetProperty("uuid").GetString() == "12345");
+        Check(cancelled.GetProperty("scheduleStatus").GetString() == "cancelled" &&
+              cancelled.GetProperty("lastError").ValueKind == JsonValueKind.Null,
+            "public Dispatch cancel persists recovered cancelled/error-cleared state");
+
+        async Task ExpectCancelError(
+            object payload,
+            string code,
+            string message,
+            string name)
+        {
+            try
+            {
+                _ = await backend.InvokeAsync(
+                    "map_dispatch_plunder_cancel",
+                    JsonSerializer.SerializeToElement(
+                        payload,
+                        JsonOptions.Default),
+                    CancellationToken.None);
+                throw new InvalidOperationException(
+                    "expected Dispatch cancel failure");
+            }
+            catch (BridgeCommandException error)
+                when (error.Code == code &&
+                      error.Message == message)
+            {
+            }
+            Check(changed == 1, name);
+        }
+
+        await ExpectCancelError(
+            new
+            {
+                profileId = config.Snapshot.ProfileId,
+                serverId = 0,
+                taskUuid = "12345",
+            },
+            "INVALID_REQUEST",
+            "server ID and secret task UUID are required",
+            "invalid Dispatch cancel does not emit a change event");
+        await ExpectCancelError(
+            new
+            {
+                profileId = config.Snapshot.ProfileId,
+                serverId = 88,
+                taskUuid = "not-decimal",
+            },
+            "INVALID_REQUEST",
+            "server ID and secret task UUID are required",
+            "non-decimal Dispatch UUID is rejected before persistence");
+        await ExpectCancelError(
+            new
+            {
+                profileId = config.Snapshot.ProfileId,
+                serverId = 88,
+                taskUuid = "23456",
+            },
+            "NOT_FOUND",
+            "scheduled plunder job not found",
+            "running Dispatch job is not cancellable through the public contract");
+        await ExpectCancelError(
+            new
+            {
+                profileId = config.Snapshot.ProfileId,
+                serverId = 88,
+                taskUuid = "99999",
+            },
+            "NOT_FOUND",
+            "scheduled plunder job not found",
+            "missing Dispatch job uses recovered NOT_FOUND contract");
+
+        void ExpectScheduleError(
+            JsonElement payload,
+            string message,
+            string name)
+        {
+            try
+            {
+                _ = DispatchPlunderContract.NormalizeScheduleRows(payload);
+                throw new InvalidOperationException(
+                    "expected Dispatch schedule validation failure");
+            }
+            catch (BridgeCommandException error)
+                when (error.Code == "INVALID_REQUEST" &&
+                      error.Message == message)
+            {
+            }
+            Check(true, name);
+        }
+
+        ExpectScheduleError(
+            JsonSerializer.SerializeToElement(
+                new { profileId = config.Snapshot.ProfileId },
+                JsonOptions.Default),
+            "secret task rows are required",
+            "Dispatch schedule requires rows");
+        ExpectScheduleError(
+            JsonSerializer.SerializeToElement(
+                new
+                {
+                    profileId = config.Snapshot.ProfileId,
+                    rows = Array.Empty<object>(),
+                },
+                JsonOptions.Default),
+            "select between 1 and 200 secret tasks",
+            "Dispatch schedule rejects empty selection");
+        ExpectScheduleError(
+            JsonSerializer.SerializeToElement(
+                new
+                {
+                    profileId = config.Snapshot.ProfileId,
+                    rows = Enumerable.Range(0, 201)
+                        .Select(index => (object)new
+                        {
+                            serverId = 88,
+                            uuid = (10000 + index).ToString(
+                                System.Globalization.CultureInfo.InvariantCulture),
+                            completionTime = 1_000,
+                            plunderAt = 1_000,
+                        })
+                        .ToArray(),
+                },
+                JsonOptions.Default),
+            "select between 1 and 200 secret tasks",
+            "Dispatch schedule preserves recovered 200-row maximum");
+
+        JsonElement valid = JsonSerializer.SerializeToElement(new
+        {
+            profileId = config.Snapshot.ProfileId,
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = "88",
+                    uuid = "34567",
+                    completionTime = "1000",
+                    plunderAt = "1000",
+                    taskExpireTime = 0,
+                    stolenCount = 999,
+                    maxStealCount = 0,
+                },
+                new
+                {
+                    serverId = 88,
+                    uuid = "45678",
+                    completionTime = 1_000,
+                    plunderAt = 1_200,
+                    taskExpireTime = 1_201,
+                    stolenCount = 2,
+                    maxStealCount = 3,
+                },
+            },
+        }, JsonOptions.Default);
+        IReadOnlyList<DispatchPlunderScheduleRow> normalized =
+            DispatchPlunderContract.NormalizeScheduleRows(valid);
+        Check(normalized.Count == 2 &&
+              normalized[0].ServerId == 88 &&
+              normalized[0].PlunderAt == normalized[0].CompletionTime &&
+              normalized[0].ExpireAt is null &&
+              normalized[1].ExpireAt == 1_201,
+            "Dispatch schedule accepts recovered equality/nonpositive-expiry/no-cap boundaries");
+
+        object[] invalidRows =
+        [
+            new { serverId = 0, uuid = "1", completionTime = 1, plunderAt = 1 },
+            new { serverId = 88, uuid = "bad", completionTime = 1, plunderAt = 1 },
+            new { serverId = 88, uuid = "1", completionTime = 0, plunderAt = 1 },
+            new { serverId = 88, uuid = "1", completionTime = 2, plunderAt = 1 },
+            new { serverId = 88, uuid = "1", completionTime = 1, plunderAt = 2, taskExpireTime = 2 },
+            new { serverId = 88, uuid = "1", completionTime = 1, plunderAt = 2, stolenCount = 3, maxStealCount = 3 },
+        ];
+        foreach (object invalidRow in invalidRows)
+        {
+            ExpectScheduleError(
+                JsonSerializer.SerializeToElement(
+                    new { rows = new[] { invalidRow } },
+                    JsonOptions.Default),
+                "secret task scheduling data is invalid",
+                "Dispatch schedule rejects one recovered invalid-row predicate");
+        }
+
+        try
+        {
+            _ = await backend.InvokeAsync(
+                "map_dispatch_plunder_schedule",
+                valid,
+                CancellationToken.None);
+            throw new InvalidOperationException(
+                "expected Dispatch schedule to remain unavailable");
+        }
+        catch (BridgeCommandException error)
+            when (error.Code == "COMMAND_NOT_IMPLEMENTED")
+        {
+        }
+
         service.Close();
     }
 
