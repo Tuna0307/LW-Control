@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint - LWB-R7-078, 2026-09-20
+
+Public `map_summary` is **LIVE-PROVEN on current-v19** across active, completed and reopened saved-context states. During one automatic Fast Monster run the exact recovered three-field envelope `{serverId,counts,scanState}` exposed the owned run as `scanning`; the staging count was truthfully zero before the one-batch source checkpointed. The scan then completed 2,500/2,500 with zero failed/unread blocks and 5,108 Monster rows, and summary counts matched raw persisted counts exactly. After DB reopen, the unique saved-profile server reproduced the same counts while `scanState` remained explicitly non-live (`phase=unavailable`, `serverIdSource=saved_profile_index`). Evidence: [R7-078](../evidence/lwbridge-implementation/2026-09-20-r7-map-summary-live.json).
+
 ## Current implementation checkpoint - LWB-R7-077, 2026-09-20
 
 Completed/persisted public `map_data_options` is **LIVE-PROVEN on current-v19**. One automatic Fast all-eight scan completed 2,500/2,500 with zero failed/unread blocks and produced 6,341 rows across 6 positive kinds. The verifier derives the public aggregate families independently from raw persisted rows and requires exact equality for counts, City alliances/no-alliance, Resource/Monster/Zombie Boss name options, Dispatch/Monster levels, Treasure type descriptors, Truck/Railway retained reward items with arrival cutoff, and completed scan-progress identity. The same aggregate metrics reproduce after DB reopen through a new backend instance. The current Fast all-eight capture returns one large logical-block batch, so positive active-staging live observation is not claimed; the recovered active-run selector remains deterministic/static authority. Evidence: [R7-077](../evidence/lwbridge-implementation/2026-09-20-r7-map-data-options-live.json).

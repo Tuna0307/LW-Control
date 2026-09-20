@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-078",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "901634a85b42ecdc66f26e816ff0f0ba133d8df9",
+  "status": "LIVE-PROVEN",
+  "scope": {
+    "feature": "public map_summary active/completed/reopened response",
+    "readOnly": true,
+    "stateChangingGameplayActionInvoked": false
+  },
+  "authority": {
+    "nativeEnvelope": "LWB-R6-025 recovered exactly serverId/counts/scanState",
+    "sourceSelector": "LWB-R6-030 recovered active-run vs published count scope",
+    "failurePropagation": "LWB-R6-033 recovered shared-state/count failure propagation",
+    "activeManualIntegration": "LWB-R7-012 wired map_summary to ManualMapScanCommandService state"
+  },
+  "implementation": {
+    "liveHarness": "tests/LWBridge.Desktop.Checks/LiveMapSummaryProof.cs",
+    "command": "map_summary",
+    "verificationMethod": "Start one automatic Fast Monster scan, require the exact three-field public envelope and owned live scan identity while scanning, then require exact raw-store counts after completion and again through the unique saved-profile-index branch after database reopen."
+  },
+  "liveAcceptance": {
+    "serverId": 2212,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 8.968801,
+    "activePhase": "scanning",
+    "activeMonsterCount": 0,
+    "completedPhase": "completed",
+    "completedMonsterCount": 5108,
+    "completedPositiveKindCount": 1,
+    "reopenedPhase": "unavailable",
+    "reopenedServerIdSource": "saved_profile_index",
+    "reopenedCountsExact": true,
+    "envelopeFields": [
+      "serverId",
+      "counts",
+      "scanState"
+    ]
+  },
+  "activeCountInterpretation": {
+    "activeMonsterCount": 0,
+    "meaning": "The current Fast Monster source returns the logical-block capture set as one large batch, so no staging rows had checkpointed when the active summary was sampled. The zero count is truthful for that exact active source scope and is not treated as an empty published result.",
+    "ownedRunIdentityProven": true
+  },
+  "reopenPolicyProof": {
+    "condition": "database contains exactly one published server and no live scan-state provider is attached",
+    "result": "map_summary selects that saved server only for browsing context, returns exact persisted counts, and marks scanState phase=unavailable with serverIdSource=saved_profile_index",
+    "liveReadinessPromoted": false
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "attacksOrRobberyPerformed": false,
+    "claimsOrCollectionsPerformed": false,
+    "messagesSent": false,
+    "stateChangingGameplayActionsPerformed": false
+  },
+  "privacy": "Aggregate-only evidence. No run UUID, Monster UUID, player identity, coordinates, session/challenge identifiers, process identifiers, database, or raw logs are retained."
+}

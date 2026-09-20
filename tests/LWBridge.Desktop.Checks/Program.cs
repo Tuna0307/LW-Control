@@ -91,6 +91,12 @@ if (args.Contains("--live-current-map-data-options", StringComparer.OrdinalIgnor
     return 0;
 }
 
+if (args.Contains("--live-current-map-summary", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveMapSummaryProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-mixed-all-eight-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualMixedAllEightProof.RunAsync();

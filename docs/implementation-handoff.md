@@ -1,6 +1,10 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-077, 2026-09-20
+## Current continuation checkpoint - LWB-R7-078, 2026-09-20
+
+**Public `map_summary` is LIVE-PROVEN on current-v19.** One automatic Fast Monster scan exposed the exact recovered `{serverId,counts,scanState}` envelope while the owned run was actively scanning, then completed 2,500/2,500 with zero failed/unread blocks and 5,108 live Monster rows. Completed counts matched the raw persisted store exactly; after DB reopen, the unique saved-profile server reproduced those counts with `phase=unavailable` / `serverIdSource=saved_profile_index`, so saved browsing context is not promoted to live readiness. The active Monster count was zero before the one-batch Fast source checkpointed and is retained as truthful staging-scope behavior, not interpreted as an empty published population.
+
+## Prior continuation checkpoint - LWB-R7-077, 2026-09-20
 
 **Completed/persisted public `map_data_options` is LIVE-PROVEN on current-v19.** One automatic Fast all-eight scan completed 2,500/2,500 with zero failed/unread blocks and produced 6,341 persisted rows across 6 positive kinds. Independent raw-row derivation exactly matched every public kind count, City alliances/no-alliance, Resource/Monster/Zombie Boss name options, Dispatch/Monster levels, Treasure type descriptors, Truck/Railway retained-item options and completed scan-progress identity; the same aggregate metrics reproduced after reopening the database. The current Fast all-eight source returns its logical-block capture as one large batch, so a positive active-staging live observation is not claimed; R6-024/R6-030/R6-038 remain the recovered/deterministic authority for staging-source selection.
 
