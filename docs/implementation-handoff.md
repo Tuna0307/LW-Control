@@ -1,6 +1,12 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-084, 2026-09-20
+## Current continuation checkpoint - LWB-R7-085, 2026-09-20
+
+**Dispatch Alliance Share payload/validation is now closed offline, while live delivery remains intentionally unavailable.** The verified original accepts 1..200 selected rows and requires nonempty decimal UUID plus positive integer-like `serverId/x/y/cfgId`; each row calls `shareDispatchTaskToAlliance` with a 5,000 ms timeout and contributes to `shared/failed/sharedUuids/failedUuids`. Current-v19 routes Dispatch through `Text_PointShare -> TO_ALLIANCE -> hero.dispatch.share.chat`, writes UUID with `PutLong` and target server with `PutInt`, and encodes `x/y/sid/dispatch=1/cfgId/uuid` plus optional `uname/abbr`. `ShareDecode` uses localization key `456288` for Dispatch, so no `oname` is fabricated. `DispatchAllianceShareContract` and deterministic tests cover the recovered validator and current-v19 payload/transport plan. `ManualMapScanCommandService` still has no public share route by design.
+
+**Next:** do not send an Alliance message/share without explicit owner authorization. Independent remaining work is population-bound Ghost/Supplies proof and authorization-gated Treasure claim / Truck robbery / Dispatch plunder / Alliance share live acceptance, followed by final integrated release acceptance.
+
+## Prior continuation checkpoint - LWB-R7-084, 2026-09-20
 
 **Public Dispatch schedule/cancel is now closed offline.** `map_dispatch_plunder_schedule` is production-routed through the recovered whole-batch validator and sequential active-only store. Success returns the accumulated scheduled rows and emits `DispatchPlunderChanged` once after the full batch; a later guarded store conflict leaves earlier writes persisted, returns `MAP_DATA_ERROR / scheduled plunder job is missing`, and emits no success event. The verified original schedule and cancel parsers both accept positive signed-64-bit `serverId` with no 99999 ceiling, so Dispatch-only local scheduler keys are widened to `long`; current-v19 execution still rejects values outside 1..99999 before entering `running`, incrementing attempts, or sending.
 

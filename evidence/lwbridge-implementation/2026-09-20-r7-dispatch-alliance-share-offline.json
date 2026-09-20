@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-085",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "0aaa0639ff869c5150333bbf2197c2f056181ded",
+  "status": "PAYLOAD_VALIDATION_IMPLEMENTED_OFFLINE_TESTED_LIVE_DELIVERY_BLOCKED",
+  "scope": {
+    "feature": "Dispatch Secret Task alliance share",
+    "publicCommand": "map_dispatch_share_alliance",
+    "offlineContract": "IMPLEMENTED/OFFLINE-TESTED",
+    "publicProductionSender": "BLOCKED/NOT_IMPLEMENTED",
+    "liveAllianceShareAttempted": false
+  },
+  "originalReference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "handlerRva": "0x163EF2-0x1651C5",
+    "integerLikeHelperRva": "0x23195E-0x231B2A",
+    "apiAsset": "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "apiAssetSha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47",
+    "mapPanelAsset": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "mapPanelAssetSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "inspector": "tools/inspect_dispatch_alliance_share.py"
+  },
+  "originalContract": {
+    "frontendRowEnvelope": [
+      "uuid",
+      "serverId",
+      "x",
+      "y",
+      "cfgId",
+      "ownerName",
+      "allianceAbbr"
+    ],
+    "rowCount": "1..200",
+    "rowValidation": {
+      "uuid": "nonempty decimal-digit string",
+      "serverId": "> 0 after recovered integer-like conversion",
+      "x": "> 0 after recovered integer-like conversion",
+      "y": "> 0 after recovered integer-like conversion",
+      "cfgId": "> 0 after recovered integer-like conversion",
+      "ownerName": "not part of validity predicate",
+      "allianceAbbr": "not part of validity predicate"
+    },
+    "invalidCount": {
+      "code": "INVALID_REQUEST",
+      "message": "select between 1 and 200 dispatch tasks"
+    },
+    "invalidRow": {
+      "code": "INVALID_REQUEST",
+      "message": "selected dispatch task cannot be shared"
+    },
+    "numericHelper": "numbers and signed decimal strings are accepted; finite floating numbers truncate toward zero; invalid/missing/overflow resolves to 0 before positivity checks",
+    "perRowBridgeCommand": "shareDispatchTaskToAlliance",
+    "perRowTimeoutMilliseconds": 5000,
+    "successPredicate": "returned object contains boolean shared=true",
+    "result": {
+      "fields": [
+        "shared",
+        "failed",
+        "sharedUuids",
+        "failedUuids"
+      ],
+      "frontendConsumption": "MapDataPanel removes only sharedUuids from the current selection and displays shared/failed aggregate status"
+    }
+  },
+  "currentV19": {
+    "package": "C:/Users/chimw/AppData/LocalLow/FunFly/Last War-Survival Game/lwScripts/LWScripts.data",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "fileVersion": 3,
+    "contentVersion": 19,
+    "moduleHashes": {
+      "Chat/NetMessage/ChatHeroDispatchShareCommand.luac": "ad3f495a7bc87e55c05a3493d70b8cf680d8a72c3982e2d4079becfccf71909f",
+      "Chat/Controller/ChatController.luac": "0ba3628a5bba07fafc317fd21b6297b4295c74b3a61d6135a4dbbf2e823be434",
+      "Chat/WebMessage/Config/ChatMsgDefines.luac": "ad7fd478b0925445240d49fac251ca172003052043f1591a716abbd01298e976",
+      "Chat/Other/ShareEncode.luac": "9d379f701734bf4c20f1c29c57ea194dd6fb3b68f0cca712969edba5da562591",
+      "Chat/Other/ShareDecode.luac": "fe63553ea832a893ffecb22e1c9a458bbc28cba14b289191a43833bd12fe1ac6",
+      "UI/UIPositionShare/Controller/UIPositionShareCtrl.luac": "bce752b65980dee4f82f70767087133bb23e1578ffd77dd85648838c394082f0",
+      "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": "4e738cdd076dde56239461d3f011703885d1d4b55facf1c3aa283abcd8675f0e"
+    },
+    "sourceLocators": {
+      "ChatHeroDispatchShareCommand.OnCreate": "lines 11-74",
+      "ChatHeroDispatchShareCommand.HandleMessage": "lines 76-106",
+      "ChatController.OnChatShare": "lines 548-650",
+      "ShareEncode.point": "lines 46-118",
+      "ShareDecode.point": "lines 15-98",
+      "UIPositionShareCtrl.GetParamByType": "lines 15-27",
+      "UIWorldPointCtrl.DispatchShareConstruction": "lines 3449-3534",
+      "ChatMsgDefines.ChatHeroDispatchShare": "instruction pc 28",
+      "ChatMsgMap.ChatHeroDispatchShare": "instruction pc 232"
+    },
+    "routing": {
+      "postType": "Text_PointShare",
+      "channel": "TO_ALLIANCE",
+      "commandKey": "ChatHeroDispatchShare",
+      "networkCommand": "hero.dispatch.share.chat",
+      "messageModule": "Chat.NetMessage.ChatHeroDispatchShareCommand"
+    },
+    "networkFields": {
+      "uuid": "PutLong",
+      "targetServer": "PutInt"
+    },
+    "pointPayload": [
+      "x",
+      "y",
+      "sid",
+      "dispatch=1",
+      "cfgId",
+      "uuid",
+      "optional uname",
+      "optional abbr when uname is present"
+    ],
+    "display": {
+      "dispatchLabelKey": "456288",
+      "onameRequiredForDispatch": false,
+      "ownerNameMapsTo": "uname",
+      "allianceAbbrMapsTo": "abbr",
+      "crossServerCoordinates": "sid plus x/y uses POSITION_COORDINATE_CROSS"
+    },
+    "runtimeSafety": "UIWorldPointCtrl rereads the live Dispatch world point before building the share object and sources current cfgId/owner player data. Any future live sender must preserve that freshness check."
+  },
+  "implementation": {
+    "contract": "src/LWBridge.Desktop/DispatchAllianceShareContract.cs",
+    "tests": "tests/LWBridge.Desktop.Checks/DispatchAllianceShareContractChecks.cs",
+    "sourceGuards": "tests/LWBridge.Desktop.Checks/Program.cs",
+    "inspector": "tools/inspect_dispatch_alliance_share.py",
+    "publicRouteAdded": false,
+    "offlinePlan": {
+      "postType": "Text_PointShare",
+      "shareChannel": "TO_ALLIANCE",
+      "networkCommand": "hero.dispatch.share.chat",
+      "payloadFields": [
+        "x",
+        "y",
+        "sid",
+        "dispatch",
+        "cfgId",
+        "uuid",
+        "uname?",
+        "abbr?"
+      ],
+      "transportFailClosed": [
+        "serverId greater than Int32 max cannot enter current-v19 targetServer PutInt",
+        "uuid text outside signed Int64 cannot enter current-v19 uuid PutLong"
+      ]
+    }
+  },
+  "deterministicCoverage": {
+    "missingRowsExactError": true,
+    "emptyRowsExactError": true,
+    "over200ExactError": true,
+    "allRecoveredInvalidRowPredicates": true,
+    "integerLikeStringAndFloatConversion": true,
+    "ownerAllianceOptional": true,
+    "exactCurrentPostChannelCommand": true,
+    "exactPointPayload": true,
+    "noFabricatedOname": true,
+    "putIntServerBoundFailClosed": true,
+    "putLongUuidBoundFailClosed": true,
+    "publicProductionRouteAbsent": true
+  },
+  "validation": {
+    "dedicatedInspector": "PASS",
+    "inspectorPyCompile": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "liveAllianceShareAttempted": false,
+    "messageSent": false,
+    "publicSenderImplemented": false,
+    "stateChangingGameplayAttempted": false
+  },
+  "boundary": "Original and current-v19 alliance-share contracts are source-backed and the rebuild can validate/build the payload offline. Production map_dispatch_share_alliance remains intentionally unavailable; live delivery requires explicit messaging authorization and a separate session-correlated live-sender acceptance checkpoint."
+}

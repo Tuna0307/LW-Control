@@ -1,6 +1,10 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
-## Latest implementation checkpoint — LWB-R7-084, 2026-09-20
+## Latest implementation checkpoint — LWB-R7-085, 2026-09-20
+
+Dispatch Alliance Share now has source-backed original and current-v19 contracts plus an offline-tested validator/payload plan, without enabling messaging. The original validates 1..200 rows, requires decimal UUID and positive integer-like `serverId/x/y/cfgId`, invokes `shareDispatchTaskToAlliance` per row with 5 s timeout, and aggregates shared/failed UUIDs. Current-v19 routes `Text_PointShare` to the Alliance channel and `hero.dispatch.share.chat`, using PutLong UUID and PutInt target server; the Dispatch point payload and label key `456288` are hash-locked. Production `map_dispatch_share_alliance` remains absent and no live share was sent. See [R7-085 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-alliance-share-offline.json).
+
+## Prior implementation checkpoint — LWB-R7-084, 2026-09-20
 
 Public Dispatch scheduling is now implemented/offline-tested over the recovered validator/store, current-v19 executor and durable worker. Whole-batch validation precedes sequential writes; success returns scheduled rows and emits one `bridge://dispatch-plunder-changed`; a later guarded conflict leaves earlier writes intact but returns exact `MAP_DATA_ERROR` without a success event. Static recovery also closes the server-ID discrepancy: original schedule and cancel accept any positive signed-64-bit value, so Dispatch-only local scheduler keys now use `long`; values outside the current-v19 proven 1..99999 execution domain fail before attempt/send. No live schedule or plunder was run. See [R7-084 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-public-schedule.json).
 

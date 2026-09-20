@@ -5765,6 +5765,29 @@ Check(
     !dispatchPlunderContractSource.Contains("serverId > 99_999", StringComparison.Ordinal) &&
     dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal),
     "Dispatch plunder contract must preserve recovered positive-i64 server identity, batch, timing, steal-cap and cancel-target validation");
+string dispatchAllianceShareContractSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "DispatchAllianceShareContract.cs"));
+Check(
+    dispatchAllianceShareContractSource.Contains("select between 1 and 200 dispatch tasks", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("selected dispatch task cannot be shared", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentPostType = \"Text_PointShare\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentShareChannel = \"TO_ALLIANCE\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentCommand = \"hero.dispatch.share.chat\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentDispatchLabelKey = \"456288\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("[\"dispatch\"] = 1", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("[\"cfgId\"] = row.CfgId", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("[\"uuid\"] = row.Uuid", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("targetServer uses PutInt", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("uuid uses PutLong", StringComparison.Ordinal),
+    "Dispatch alliance-share offline contract must preserve recovered original validation and current-v19 point-share transport fields");
+Check(
+    !manualMapServiceSource.Contains("command == \"map_dispatch_share_alliance\"", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("DispatchAllianceShareContract.NormalizeRows(payload)", StringComparison.Ordinal),
+    "Dispatch alliance share must remain unavailable in production until explicit messaging authorization enables a live sender");
 Check(
     manualMapServiceSource.Contains("command == \"map_dispatch_plunder_schedule\"", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("DispatchPlunderContract.NormalizeScheduleRows(payload)", StringComparison.Ordinal) &&
