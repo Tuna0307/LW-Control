@@ -38,6 +38,8 @@ internal static class LiveManualFullResourceProof
         int sortCheckCount = 0;
         int reopenedSortCheckCount = 0;
         int sortComparedRowCount = 0;
+        long filterSampledAt = 0;
+        ResourceFilterProofHelper.Metrics? filterMetrics = null;
         double scanWallSeconds = 0;
         string scanMode = string.Equals(
             Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_MODE"),
@@ -123,6 +125,12 @@ internal static class LiveManualFullResourceProof
                     ResourceSortMetrics sortMetrics = ValidateResourceSorts(store, serverId);
                     sortCheckCount = sortMetrics.CheckCount;
                     sortComparedRowCount = sortMetrics.RowCount;
+                    filterSampledAt =
+                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    filterMetrics = ResourceFilterProofHelper.Validate(
+                        store,
+                        serverId,
+                        filterSampledAt);
                 }
                 finally
                 {
@@ -138,9 +146,21 @@ internal static class LiveManualFullResourceProof
                 if (reopenedSortCheckCount != sortCheckCount ||
                     reopenedSortMetrics.RowCount != sortComparedRowCount)
                     throw new InvalidDataException("Resource sort proof changed after database reopen.");
+                ResourceFilterProofHelper.Metrics reopenedFilterMetrics =
+                    ResourceFilterProofHelper.Validate(
+                        reopened,
+                        serverId,
+                        filterSampledAt);
+                if (filterMetrics is null ||
+                    reopenedFilterMetrics != filterMetrics)
+                    throw new InvalidDataException(
+                        "Resource filter proof changed after database reopen.");
             }
             if (reopenedResourceCount != publishedResourceCount)
                 throw new InvalidDataException("Ordinary Manual Resource count changed after database reopen.");
+            if (filterMetrics is null)
+                throw new InvalidDataException(
+                    "Resource filter proof did not produce metrics.");
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 ok = true,
@@ -167,6 +187,22 @@ internal static class LiveManualFullResourceProof
                 sortComparedRowCount,
                 sortCheckCount,
                 reopenedSortCheckCount,
+                filterSampledAt,
+                filterComparedRowCount = filterMetrics.RowCount,
+                filterCheckCount = filterMetrics.CheckCount,
+                filterSampleResourceNameKey =
+                    filterMetrics.SampleResourceNameKey,
+                filterResourceNameCount =
+                    filterMetrics.ResourceNameCount,
+                filterIdleCount = filterMetrics.IdleCount,
+                filterFullCount = filterMetrics.FullCount,
+                filterNonBlackCount = filterMetrics.NonBlackCount,
+                filterSampleLevel = filterMetrics.SampleLevel,
+                filterMinLevelCount = filterMetrics.MinLevelCount,
+                filterMaxLevelCount = filterMetrics.MaxLevelCount,
+                filterExactLevelCount = filterMetrics.ExactLevelCount,
+                filterDefaultCombinedCount =
+                    filterMetrics.DefaultCombinedCount,
             }, JsonOptions.Default));
         }
         catch (Exception error)
