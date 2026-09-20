@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-111",
+  "date": "2026-09-21",
+  "status": "NATIVE-SERVER-CONSTRUCTION-IMPLEMENTED/WINDOWS-PROVEN/PRODUCTION-NOT-WIRED",
+  "title": "Implement exact native named-pipe server instance construction",
+  "branch": "research/offline-controller",
+  "parentRevision": "ef07d25f57d8ae353ea1690f57884e72756d0f70",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": {
+    "finding": "LWB-R7-100",
+    "createServerFunction": "RVA 0x3C1B68-0x3C1E9C",
+    "createNamedPipeCall": "RVA 0x3C1CB7",
+    "securityDescriptorConversion": "RVA 0x3C1C25",
+    "firstOpenMode": "0x40080003",
+    "replacementOpenMode": "0x40000003",
+    "pipeMode": "0x00000008",
+    "maxInstances": 255,
+    "outboundBufferBytes": 65536,
+    "inboundBufferBytes": 65536,
+    "defaultTimeoutMilliseconds": 0,
+    "securityAttributesLength": 24,
+    "securityDescriptor": "D:P(A;;GA;;;SY)(A;;GA;;;<current-user-SID>)"
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeNativeServer.cs",
+    "operations": [
+      "ConvertStringSecurityDescriptorToSecurityDescriptorW revision 1",
+      "CreateNamedPipeW with exact recovered open/pipe modes",
+      "LocalFree security descriptor after server handle construction"
+    ],
+    "productionHostIntegration": false,
+    "connectNamedPipeImplemented": false
+  },
+  "windowsProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeNativeServerChecks.cs",
+    "focusedCli": "--overview-bridge-native-server-check",
+    "result": "PASS",
+    "temporaryPipeOnly": true,
+    "firstServerInstanceCreated": true,
+    "replacementServerInstanceCreated": true,
+    "duplicateFirstInstanceRejected": true,
+    "duplicateFirstInstanceWin32Error": 5,
+    "proxyConnected": false,
+    "trafficExchanged": false
+  },
+  "guard": {
+    "productionHostSourceContainsCreateServerInstanceCall": false,
+    "meaning": "The normal application still cannot open this pipe until accept/handshake/route lifetime is implemented."
+  },
+  "a11Boundary": {
+    "productionPipeOpened": false,
+    "acceptLoopStarted": false,
+    "handshakeImplemented": false,
+    "routeTransportImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Implement and test overlapped ConnectNamedPipe ownership/result completion using the already recovered 232/535/997 classification, then layer the five-second hello handshake without enabling production routing.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

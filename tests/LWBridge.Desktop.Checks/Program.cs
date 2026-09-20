@@ -267,6 +267,13 @@ if (args.Contains("--overview-bridge-host-ownership-check", StringComparer.Ordin
     return 0;
 }
 
+if (args.Contains("--overview-bridge-native-server-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeNativeServerChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -284,6 +291,7 @@ LWBridge.Desktop.Checks.OverviewBridgeListenerContractChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeProxyEnvironmentChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeStartupContractChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeHostOwnershipChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeNativeServerChecks.Run();
 
 void Check(bool condition, string name)
 {
