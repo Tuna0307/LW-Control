@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-117",
+  "date": "2026-09-21",
+  "status": "HOST-OWNED-LAUNCH-BINDING-IMPLEMENTED/OFFLINE-TESTED/LIFECYCLE-NOT-YET-WIRED",
+  "title": "Implement source-backed startup registration and four-variable proxy launch binding",
+  "branch": "research/offline-controller",
+  "parentRevision": "dedc51c9b0937232a35b23820a838e996c2528c9",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": [
+    "LWB-R7-101 exact four LWBRIDGE_* environment variable names and child inheritance",
+    "LWB-R7-108 raw launch-state pipeToken alias to registry registration",
+    "LWB-R7-109 registration-before-launch ordering, 90-second refresh and explicit failure unregister",
+    "LWB-R7-110 single application-owned host/registry"
+  ],
+  "implementation": {
+    "bindingFile": "src/LWBridge.Desktop/LWBridgeControlPipeLaunchBinding.cs",
+    "hostFile": "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "tokenEntropy": "32 cryptographically random bytes by default",
+    "tokenEncoding": "Base64URL without padding, exactly 43 characters",
+    "prepare": "register profileId + instanceId + SHA-256(token) + now+90000 before child launch",
+    "refresh": "reset pending expiry to current clock + 90000 while unclaimed",
+    "cancel": "explicit unregister of pending and connected route; legal even after host shutdown begins",
+    "environment": [
+      "LWBRIDGE_PROFILE_ID",
+      "LWBRIDGE_INSTANCE_ID",
+      "LWBRIDGE_PIPE_TOKEN",
+      "LWBRIDGE_BUILD_ID"
+    ],
+    "buildIdPolicy": "explicit rebuild build identity input; no invented original literal"
+  },
+  "deterministicProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeLaunchBindingChecks.cs",
+    "focusedCli": "--overview-bridge-launch-binding-check",
+    "result": "PASS",
+    "entropyFixture": "00..1F",
+    "tokenFixture": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+    "registrationLifetimeMilliseconds": 90000,
+    "refreshAdmission": true,
+    "duplicateRegistrationRejected": "PIPE_INSTANCE_DUPLICATE",
+    "shutdownCleanupAllowed": true,
+    "invalidEntropyRejectedBeforeRegistryMutation": true
+  },
+
+  "productionBoundary": {
+    "OverviewLifecycleServiceCallsPrepareLaunchBinding": false,
+    "helperProcessReceivesLWBRIDGEEnvironment": false,
+    "productionListenerStarted": false,
+    "outboundCommandRoutingImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Integrate prepare-before-helper-start, environment application, pending refresh across bounded launch retries, and explicit unregister on every failed start path in OverviewLifecycleService. Keep the production listener disabled until this launch transaction is deterministic.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}
