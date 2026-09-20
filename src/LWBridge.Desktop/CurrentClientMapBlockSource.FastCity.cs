@@ -9,8 +9,9 @@ internal sealed partial class CurrentClientMapBlockSource
 {
     private const int FastCityAoiBlockSize = 10;
     private const int FastCityAoiBlockCount = 100;
-    // Current v18 live measurement with a same-tick temporary camera aspect of 4.0 returns
-    // a variable 2-4 x 10 AOI footprint. Never assume a fixed width: full-world acquisition
+    // Current-client live measurements are not fixed-width. Earlier v18 captures returned
+    // 2-4 x 10 AOI footprints; a current-v19 server-2212 capture on 2026-09-20 proved a valid
+    // contiguous 5 x 10 footprint as well. Never assume a fixed width: full-world acquisition
     // advances from the measured native footprint and still requires the exact 10,000-cell union.
     private const int FastCityGroupColumns = 1;
     private const int FastCityGroupRows = 5;
@@ -259,8 +260,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 if (++requestsThisRow > FastFullWorldMaxRequestsPerRow)
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
 
-                // A 4-column footprint is centered two columns left / one right of the target.
-                // Optimistically step two columns only after we have measured width=4 in this band.
+                // Wide footprints are centered around the target: width 4 has two columns
+                // left / one right, while the observed width 5 has two left / two right.
+                // Optimistically step two columns only after we have measured width >= 4 in this band.
                 // If the footprint contracts, the unchanged first gap forces the next request back
                 // to the conservative +1 target; exact coverage, not the prediction, remains truth.
                 int targetOffset = preferWideStep ? 2 : 1;
@@ -535,7 +537,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"indices=[{string.Join(',', indices.Order())}]";
         if (rows.Length != FastFullWorldAoiRows || rows.Length == 0 ||
             rows[0] != rowStart || rows[^1] != rowStart + FastFullWorldAoiRows - 1 ||
-            columns.Length is < 2 or > 4 || columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
+            columns.Length is < 2 or > 5 || columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
             indices.Length != rows.Length * columns.Length)
             throw new InvalidDataException(
                 "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint: " + detail + ".");

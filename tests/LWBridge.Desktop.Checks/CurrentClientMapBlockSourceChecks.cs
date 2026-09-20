@@ -68,6 +68,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastFullMapRetriesTransientNonRectangularFootprint();
         await FastFailedBatchReportsNativeErrorBeforeSuccessFields();
         await FastFullMapAdaptsToMeasuredWideFootprints();
+        await FastFullMapAcceptsFiveColumnFootprint();
         await HealthyGateRunsBeforeWorldReadyProtocol();
         await TransientReadyLossKeepsOwnedSessionIdentity();
         await MissingOwnedSessionFailsClosed();
@@ -1177,6 +1178,41 @@ internal static class CurrentClientMapBlockSourceChecks
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
         Check(captures.Count == 2500 && bulkCalls > 270 && bulkCalls < 340,
             "adaptive full-world acquisition should use measured mixed three/four-column footprints to reduce request count without weakening exact coverage");
+    }
+
+    private static async Task FastFullMapAcceptsFiveColumnFootprint()
+    {
+        int bulkCalls = 0;
+        bool fiveColumnObserved = false;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                JsonObject root = JsonNode.Parse(ProvenFastDispatchBatch(fields))!.AsObject();
+                int targetX = int.Parse(fields["targetTileX"]);
+                int targetY = int.Parse(fields["targetTileY"]);
+                if (!fiveColumnObserved && targetX == 35 && targetY == 75)
+                {
+                    fiveColumnObserved = true;
+                    int targetCellX = targetX / 10;
+                    int startCellX = targetCellX - 2;
+                    int startCellY = Math.Clamp((targetY / 10) - 7, 0, 90);
+                    int[] requested = Enumerable.Range(startCellY, 10)
+                        .SelectMany(row => Enumerable.Range(startCellX, 5)
+                            .Select(column => row * 100 + column))
+                        .ToArray();
+                    root["requestedIndices"] = JsonSerializer.SerializeToNode(requested, JsonOptions.Default);
+                    root["nativeCurrentSetCount"] = requested.Length;
+                }
+                return root.ToJsonString(JsonOptions.Default);
+            });
+        MapScanExecutionRequest request = Request("dispatch", 1000, 1000, worldId: 0);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(captures.Count == 2500 && fiveColumnObserved && bulkCalls < 340,
+            "current-v19 five-column native AOI footprints must remain rectangular, accepted, and complete the full-world Dispatch sweep");
     }
 
     private static async Task CoordinateJumpUsesOwnedNavigation()
