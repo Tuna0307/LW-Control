@@ -323,6 +323,13 @@ if (args.Contains("--overview-bridge-lifecycle-launch-binding-check", StringComp
     return 0;
 }
 
+if (args.Contains("--overview-bridge-call-registry-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -348,6 +355,7 @@ await LWBridge.Desktop.Checks.OverviewBridgeIsolatedHandshakeChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeIsolatedAcceptLoopChecks.RunAsync();
 LWBridge.Desktop.Checks.OverviewBridgeLaunchBindingChecks.Run();
 await LWBridge.Desktop.Checks.OverviewBridgeLifecycleLaunchBindingChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
 
 void Check(bool condition, string name)
 {
