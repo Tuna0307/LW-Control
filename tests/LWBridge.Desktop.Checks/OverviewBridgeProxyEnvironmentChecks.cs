@@ -33,10 +33,23 @@ internal static class OverviewBridgeProxyEnvironmentChecks
         Check(lifecycleChallengeFixture.Length == 64 && lifecycleChallengeFixture != token,
             "existing rebuild challenge format is distinct from recovered original pipe-token format");
 
+        Check(
+            LWBridgeProxyLaunchEnvironmentContract.PipeTokenPayloadPointerOffset ==
+                LWBridgeProxyLaunchEnvironmentContract.PipeTokenLaunchStateOffset + 8 &&
+            LWBridgeProxyLaunchEnvironmentContract.PipeTokenPayloadLengthOffset ==
+                LWBridgeProxyLaunchEnvironmentContract.PipeTokenLaunchStateOffset + 16,
+            "recovered token payload pointer/length remain the exact +8/+16 slice of the launch-state token object");
+        Check(
+            LWBridgeProxyLaunchEnvironmentContract.PipeTokenProducerCallRva == 0x1D511D &&
+            LWBridgeProxyLaunchEnvironmentContract.DirectStartupRegistrationCallRva == 0x1D7C94 &&
+            LWBridgeProxyLaunchEnvironmentContract.RegistryWrapperRva == 0x3CCA38 &&
+            LWBridgeProxyLaunchEnvironmentContract.RegistryRegisterRva == 0x3C2A69,
+            "recovered original pipe-token producer and startup-registration RVAs remain pinned");
+
         return JsonSerializer.SerializeToElement(new
         {
             ok = true,
-            finding = "LWB-R7-101",
+            finding = "LWB-R7-101/R7-108",
             recovered = new
             {
                 variables = new[]
@@ -49,6 +62,10 @@ internal static class OverviewBridgeProxyEnvironmentChecks
                 pipeTokenEntropyBytes = LWBridgeProxyLaunchEnvironmentContract.PipeTokenEntropyBytes,
                 pipeTokenEncoding = "Base64URL without padding",
                 pipeTokenEncodedLength = LWBridgeProxyLaunchEnvironmentContract.PipeTokenEncodedLength,
+                launchStateTokenObjectOffset = LWBridgeProxyLaunchEnvironmentContract.PipeTokenLaunchStateOffset,
+                launchStateTokenPayloadPointerOffset = LWBridgeProxyLaunchEnvironmentContract.PipeTokenPayloadPointerOffset,
+                launchStateTokenPayloadLengthOffset = LWBridgeProxyLaunchEnvironmentContract.PipeTokenPayloadLengthOffset,
+                startupRegistryAlias = "instruction-level proven: +0x3A8/+0x3B0 pointer/length forwarded unchanged through 0x3CCA38 into 0x3C2A69",
                 childEnvironment = "inherited because both recovered CreateProcessW paths pass lpEnvironment=NULL",
                 challengeRelationship = "distinct contract; do not alias rebuild challenge to original pipeToken",
             },
