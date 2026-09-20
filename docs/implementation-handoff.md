@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-097, 2026-09-20
+
+**A11 wire schema is recovered; the persistent pipe host is now the blocker.** Original static recovery proves the common envelope `version/type/profileId/instanceId/requestId/timestamp/payload`, exact `hello.ack` with empty payload, generic Lua call commands as `type="command"` + `{id,kind:"call",fn,args,createdAt}`, and result payloads keyed by `id` + `ok` with `result` or `error`. The host generates monotonic `cmd_<n>` and uses the same value for command outer `requestId` and payload `id`. `LWBridgeControlPipeProtocol` now encodes/parses this source-backed wire contract and a focused deterministic guard is part of the default suite.
+
+**Do not enable production `call_lua` yet.** The rebuild has no persistent `NamedPipeServerStream`/registered-instance host equivalent. Original instance registration, handshake admission lifecycle, per-instance route ownership, outbound queue/byte-budget backpressure, disconnect cleanup and result delivery still need recovery/implementation. Inbound result outer `requestId == payload.id` is also not asserted because that exact validation has not been statically recovered. Keep production `pending:null` and `COMMAND_NOT_IMPLEMENTED` until an authentic pending-call registry exists.
+
 ## Current continuation checkpoint - LWB-R7-096, 2026-09-20
 
 **S02 semantics are recovered; A11 remains implementation-blocked.** Original `get_status` status snapshot locks the bridge-store mutex at `+0x100` and copies inner field `+0x38` to serialized `pending` (`status+0x50`). The same store shutdown path takes and zeroes the collection at inner `+0x20..+0x38`, uses `+0x38` as the exact item count, iterates 0x50-byte pending entries and completes them with `APP_SHUTTING_DOWN`; timeout handling uses `LUA_CALL_TIMEOUT`. Therefore Pending Tasks means outstanding bridge-to-Lua RPCs awaiting correlated results. The original frontend shows this host field and Refresh Status runs `get_status -> proxy_status -> call_lua("getStatus", {})`; Lua return is only logged.

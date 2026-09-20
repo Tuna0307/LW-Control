@@ -50,16 +50,15 @@ internal static class OverviewStatusContractChecks
             callLuaError = error.Code;
         }
         Check(callLuaError == "COMMAND_NOT_IMPLEMENTED",
-            "generic call_lua must remain fail-closed until outbound host command/result serialization is recovered");
+            "generic call_lua must remain fail-closed until the recovered wire contract has a source-backed persistent pipe host");
 
         string protocolPath = Path.Combine(repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeProtocol.cs");
         string protocol = File.ReadAllText(protocolPath);
-        Check(protocol.Contains(
-                  "This class intentionally stops before hello.ack or\n// command serialization because those outbound host contracts are still\n// unrecovered.",
-                  StringComparison.Ordinal) &&
-              !protocol.Contains("EncodeCommand", StringComparison.Ordinal) &&
-              !protocol.Contains("ParseCommandResult", StringComparison.Ordinal),
-            "control-pipe implementation must continue to disclose that outbound RPC framing/result contracts are unrecovered");
+        Check(protocol.Contains("EncodeHelloAck", StringComparison.Ordinal) &&
+              protocol.Contains("EncodeCallCommand", StringComparison.Ordinal) &&
+              protocol.Contains("ParseCallResult", StringComparison.Ordinal) &&
+              protocol.Contains("This class remains protocol-only", StringComparison.Ordinal),
+            "control-pipe wire contract must be recovered while the persistent pipe host remains explicitly unimplemented");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -75,7 +74,8 @@ internal static class OverviewStatusContractChecks
             {
                 pending = (int?)null,
                 callLuaGetStatusError = callLuaError,
-                outboundControlPipeCommandSerializationRecovered = false,
+                outboundControlPipeWireContractRecovered = true,
+                persistentControlPipeHostImplemented = false,
             },
         }, JsonOptions.Default);
     }

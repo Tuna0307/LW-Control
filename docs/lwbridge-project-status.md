@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest recovery checkpoint - LWB-R7-097, 2026-09-20
+
+A11 remains partial, but its RPC wire format is recovered and offline-tested. Exact `hello.ack`, generic `command/call` envelopes and correlated `result` payload parsing now live in `LWBridgeControlPipeProtocol`. The current blocker is no longer command serialization: it is the absent persistent original-style named-pipe host and registered-instance lifecycle. Production `call_lua` therefore remains fail-closed and `get_status.pending` remains unknown/null until that host can own the authentic outstanding-call map. See [R7-097 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-rpc-wire-contract.json).
+
 ## Latest recovery checkpoint - LWB-R7-096, 2026-09-20
 
 A11 is not closed, but its status semantics are no longer unknown. Static original recovery proves `get_status.pending` is the count of outstanding bridge-to-Lua calls awaiting correlated results, sourced directly from the bridge-store pending collection. Original Refresh Status displays that host count and then executes proxy refresh plus Lua `getStatus`. The current rebuild has no source-backed generic outbound pipe command/result transport, so `pending:null` and `call_lua=COMMAND_NOT_IMPLEMENTED` are intentionally retained. The remaining Home blocker is now specifically outbound bridge RPC recovery/implementation, not pending-counter semantics. See [R7-096 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-status-pending-contract.json).

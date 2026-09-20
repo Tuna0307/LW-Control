@@ -208,6 +208,7 @@ if (args.Contains("--overview-close-timing-check", StringComparer.OrdinalIgnoreC
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewCloseTimingChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
+LWBridge.Desktop.Checks.OverviewBridgeRpcProtocolChecks.Run();
     Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
     return 0;
 }
@@ -215,6 +216,13 @@ await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
 if (args.Contains("--overview-status-contract-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-rpc-protocol-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeRpcProtocolChecks.Run();
     Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
     return 0;
 }
@@ -437,9 +445,8 @@ Check(
         StringComparison.Ordinal),
     "current-user LWBridge control pipe name uses recovered prefix");
 
-// LWB-R5-007: protocol framing and proxy hello parsing are recovered from the
-// secure proxy/original host. These checks do not construct hello.ack or a
-// command request because those host-side contracts remain gated.
+// LWB-R5-007: base framing and proxy hello parsing. R7-097 adds focused
+// hello.ack / command / result wire checks in OverviewBridgeRpcProtocolChecks.
 byte[] helloPayload = System.Text.Encoding.UTF8.GetBytes(
     "{\"version\":1,\"type\":\"hello\",\"profileId\":\"profile-a\",\"instanceId\":\"instance-b\",\"requestId\":\"\",\"timestamp\":123456789,\"payload\":{\"token\":\"token-c\",\"pid\":4321,\"buildId\":\"build-d\"}}");
 byte[] helloFrame = LWBridgeControlPipeProtocol.EncodeFrame(helloPayload);

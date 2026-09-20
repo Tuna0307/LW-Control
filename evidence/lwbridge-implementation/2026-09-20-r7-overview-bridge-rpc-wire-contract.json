@@ -1,0 +1,141 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-097",
+  "date": "2026-09-20",
+  "status": "RECOVERED-CONTRACT/OFFLINE-TESTED/TRANSPORT-HOST-BLOCKED",
+  "title": "Recover original bridge RPC wire contract",
+  "branch": "research/offline-controller",
+  "parentRevision": "9ed96f2293d61e9d862010124063d7162d1d5b44",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Recovers and implements protocol-only hello.ack plus generic call/result JSON wire schemas. Does not implement or claim the persistent named-pipe host, instance registration, backpressure/disconnect lifecycle, or production call_lua.",
+    "officialGameLaunched": false,
+    "productionGameplayActionPerformed": false,
+    "productionCallLuaEnabled": false
+  },
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "genericEnvelopeParser": "RVA 0x3C40B8-0x3C424B",
+    "outboundCallCommandBuilder": "RVA 0x3C4976-0x3C573F",
+    "resultPayloadHandler": "RVA 0x3C6E8D-0x3C72DA",
+    "helloAckBuilder": "RVA 0xE43BE-0xE4796 within 0xE2DB5-0xE4861",
+    "pendingSemanticsPredecessor": "LWB-R7-096"
+  },
+  "wireContract": {
+    "frame": {
+      "prefixBytes": 4,
+      "lengthEndian": "little",
+      "maxPayloadBytes": 8388608
+    },
+    "envelope": [
+      "version",
+      "type",
+      "profileId",
+      "instanceId",
+      "requestId",
+      "timestamp",
+      "payload"
+    ],
+    "version": 1,
+    "helloAck": {
+      "type": "hello.ack",
+      "identity": "echoes profileId, instanceId and incoming hello requestId",
+      "timestamp": "fresh host numeric timestamp",
+      "payload": {}
+    },
+    "callCommand": {
+      "type": "command",
+      "payload": {
+        "id": "<same generated cmd_<n> as outer requestId>",
+        "kind": "call",
+        "fn": "<function>",
+        "args": "<JSON value>",
+        "createdAt": "<numeric timestamp>"
+      },
+      "idGeneration": "monotonic cmd_<n> from original store counter",
+      "outerRequestIdEqualsPayloadId": true
+    },
+    "callResult": {
+      "type": "result",
+      "payloadSuccess": {
+        "id": "<command id>",
+        "ok": true,
+        "result": "<JSON value>"
+      },
+      "payloadFailure": {
+        "id": "<command id>",
+        "ok": false,
+        "error": "<optional string>"
+      },
+      "hostFallbackErrorCode": "LUA_CALL_FAILED",
+      "hostFallbackMessagePrefix": "lua call failed: ",
+      "correlationKey": "payload.id against pending bridge-store call collection",
+      "outerRequestIdEqualsPayloadIdValidationRecovered": false
+    },
+    "resultTypeEvidence": {
+      "proxyEmbeddedMessageVocabulary": [
+        "heartbeat",
+        "result"
+      ],
+      "hostHandlerFields": [
+        "id",
+        "ok",
+        "result",
+        "error"
+      ],
+      "directStaticDispatcherPairingIsolated": false
+    }
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeProtocol.cs",
+    "newProtocolSurface": [
+      "EncodeHelloAck",
+      "EncodeCallCommand",
+      "ParseCallResult"
+    ],
+    "constants": {
+      "CommandType": "command",
+      "ResultType": "result",
+      "CallKind": "call"
+    },
+    "persistentPipeHostImplemented": false,
+    "namedPipeServerStreamProductionUsageFound": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": "null until an authentic pending-call registry exists"
+  },
+  "tests": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeRpcProtocolChecks.cs",
+    "focusedCli": "--overview-bridge-rpc-protocol-check",
+    "focusedResult": "PASS",
+    "statusGuard": "--overview-status-contract-check PASS",
+    "assertions": [
+      "hello.ack exact envelope and empty payload",
+      "command type and call payload fields",
+      "outer command requestId equals payload.id",
+      "success result parsing",
+      "failure error parsing",
+      "non-result type rejection",
+      "inbound outer requestId/payload.id preserved independently because equality validation is unrecovered"
+    ]
+  },
+  "nextBlocker": "Recover and implement the original persistent named-pipe server/instance registration and connection lifecycle, including handshake admission, per-instance routing, outbound queue/backpressure, disconnect cleanup and result delivery, before enabling allowlisted call_lua(getStatus).",
+  "safety": {
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedRpcProtocolGuard": "PASS",
+    "focusedStatusContractGuard": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}
