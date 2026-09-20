@@ -1,6 +1,10 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
-## Latest implementation checkpoint — LWB-R7-082, 2026-09-20
+## Latest implementation checkpoint — LWB-R7-083, 2026-09-20
+
+Dispatch durable worker ownership is now wired/offline-tested without any live steal. The worker connects persisted `scheduled|waiting_connection` jobs to the R7-082 current-v19 executor, preserves the recovered 10-second arm lead, due-only disconnected deferral, expiry, daily-limit stop-all and exactly-one running attempt increment, and shares the serialized Map Data game-operation gate. Cross-server targets are passed directly to the executor because current-v19 `DispatchSteal` carries `targetServer`. Safety is deliberately stricter than the original on restart: stale `running` rows become terminal `failed / DISPATCH_PLUNDER_CLIENT_RESTARTED` because prior send state cannot be reconstructed; an active-only running transition also prevents a cancel-race resurrection. Public Dispatch schedule remains disabled pending final wrapper/event integration. See [R7-083 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-durable-worker.json).
+
+## Prior implementation checkpoint — LWB-R7-082, 2026-09-20
 
 Dispatch post-arm/result behavior is now source-backed and an internal current-v19 executor is implemented/offline-tested without performing a live steal. Original 0.3.1 result handling is pinned to `map.dispatch-plunder-result` with `(serverId,taskUuid)` identity, `success/errorCode`, optional `serverDayStartAt`, and a pending result deadline of `max(now,executeAt)+30000 ms`. Current-v19 dispatcher mapping is hash-locked through `MsgDefines.DispatchSteal = hero.dispatch.steal` and `MsgMap.DispatchSteal -> Net.Msgs.DispatchTask.DispatchStealMessage`. The bridge preserves task UUID through `CS.System.Int64.Parse`, waits for authoritative server time to reach `executeAt`, rechecks daily/cross-server state, sends exactly once, correlates the official handler response, and keeps post-send timeout ambiguous/non-retryable. Build and all six deterministic groups pass. Public Dispatch schedule remains disabled; durable-worker wiring and any live execution remain open. See [R7-082 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-result-executor.json).
 

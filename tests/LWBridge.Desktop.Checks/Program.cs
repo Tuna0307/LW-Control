@@ -5708,13 +5708,42 @@ Check(
     truckWorkerSource.Contains("server response timeout", StringComparison.Ordinal) &&
     truckWorkerSource.Contains("truck plunder execution state is unknown after client restart", StringComparison.Ordinal),
     "Truck worker must preserve recovered 10-second arm lead and conservative non-retryable restart/ambiguity handling");
+string dispatchWorkerSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderWorker.cs"));
+Check(
+    dispatchWorkerSource.Contains("internal const long ArmLeadMilliseconds = 10_000", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("FailStaleRunningDispatchPlunderConservatively", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("ReadArmableDispatchPlunder(now, ArmLeadMilliseconds)", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("MarkDueDispatchPlunderWaitingConnection(now)", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("TryMarkDispatchPlunderRunning", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("FailActiveDispatchPlunderAtDailyLimit", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("DISPATCH_PLUNDER_RESPONSE_TIMEOUT", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("item.ServerId,", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("item.TaskUuid,", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("item.PlunderAt,", StringComparison.Ordinal) &&
+    dispatchWorkerSource.Contains("not have to equal the target server", StringComparison.Ordinal) &&
+    !dispatchWorkerSource.Contains("liveServerId.Value != item.ServerId", StringComparison.Ordinal),
+    "Dispatch worker must preserve recovered 10-second arm timing, due-only offline deferral, active-only running attempts, daily-limit stop-all and non-retryable ambiguity while leaving cross-server eligibility to the current-v19 executor");
+Check(
+    plunderStoreSource.Contains("FailStaleRunningDispatchPlunderConservatively", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("TryMarkDispatchPlunderRunning", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("status='failed'", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("last_error='DISPATCH_PLUNDER_CLIENT_RESTARTED'", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("attempts=attempts+1", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("AND status IN ('scheduled','waiting_connection')", StringComparison.Ordinal),
+    "Dispatch durable store must fail stale running work conservatively and guard the exactly-once running attempt against cancel/reschedule races");
 string manualMapServiceSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "ManualMapScanCommandService.cs"));
 Check(
     manualMapServiceSource.Contains("truckPlundering", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("dispatchPlundering", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("TryEnterTruckPlunderOperation", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("TryEnterDispatchPlunderOperation", StringComparison.Ordinal) &&
     manualMapServiceSource.Contains("currentClientSource.ExecuteTruckQuickRobAsync", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("TruckPlunderChanged", StringComparison.Ordinal),
-    "Truck worker must share the existing live current-client source and game-operation gate with Map Data actions");
+    manualMapServiceSource.Contains("currentClientSource.ExecuteDispatchPlunderAsync", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("dispatchPlunderWorker.Changed += OnDispatchPlunderChanged", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("dispatchPlunderWorker.Dispose()", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("TruckPlunderChanged", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("DispatchPlunderChanged", StringComparison.Ordinal),
+    "Truck and Dispatch workers must share the live current-client source and serialized game-operation gate, with owned change events and disposal");
 string dispatchPlunderContractSource = File.ReadAllText(
     Path.Combine(
         repoRoot,

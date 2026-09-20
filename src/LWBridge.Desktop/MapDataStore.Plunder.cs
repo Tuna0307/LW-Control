@@ -208,6 +208,24 @@ internal sealed partial class MapDataStore
         }
     }
 
+    internal int FailStaleRunningDispatchPlunderConservatively(long now)
+    {
+        if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='failed',
+                    last_error='DISPATCH_PLUNDER_CLIENT_RESTARTED',
+                    updated_at=$now
+                WHERE status='running'
+                """;
+            command.Parameters.AddWithValue("$now", now);
+            return command.ExecuteNonQuery();
+        }
+    }
+
     internal int FailActiveDispatchPlunderAtDailyLimit(long now)
     {
         if (now < 0) throw new ArgumentOutOfRangeException(nameof(now));
@@ -223,6 +241,36 @@ internal sealed partial class MapDataStore
                 """;
             command.Parameters.AddWithValue("$now", now);
             return command.ExecuteNonQuery();
+        }
+    }
+
+    internal bool TryMarkDispatchPlunderRunning(
+        int serverId,
+        string taskUuid,
+        long updatedAt)
+    {
+        ValidateServerId(serverId);
+        if (string.IsNullOrWhiteSpace(taskUuid))
+            throw new BridgeCommandException(
+                "DISPATCH_PLUNDER_INVALID_TARGET",
+                "invalid scheduled target");
+
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE dispatch_plunder_jobs
+                SET status='running',
+                    last_error=NULL,
+                    attempts=attempts+1,
+                    updated_at=$updated
+                WHERE server_id=$server AND task_uuid=$uuid
+                  AND status IN ('scheduled','waiting_connection')
+                """;
+            command.Parameters.AddWithValue("$server", serverId);
+            command.Parameters.AddWithValue("$uuid", taskUuid);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            return command.ExecuteNonQuery() > 0;
         }
     }
 

@@ -14,6 +14,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
     private readonly Func<int?>? getLiveServerId;
     private readonly IMapScanBlockSource blockSource;
+    private readonly DispatchPlunderWorker? dispatchPlunderWorker;
     private readonly TruckPlunderWorker? truckPlunderWorker;
     private CancellationTokenSource? activeCancellation;
     private Task? activeTask;
@@ -37,6 +38,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private double? acquisitionProgressPercent;
     private bool coordinateJumping;
     private bool serverJumping;
+    private bool dispatchPlundering;
     private bool truckPlundering;
     private bool treasureInspecting;
     private string? lastError;
@@ -55,6 +57,13 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
+        dispatchPlunderWorker = new DispatchPlunderWorker(
+            store,
+            lifecycle.GetLiveServerId,
+            currentClientSource.ExecuteDispatchPlunderAsync,
+            TryEnterDispatchPlunderOperation,
+            ExitDispatchPlunderOperation);
+        dispatchPlunderWorker.Changed += OnDispatchPlunderChanged;
         truckPlunderWorker = new TruckPlunderWorker(
             store,
             lifecycle.GetLiveServerId,
@@ -83,6 +92,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.getAssetImage = getAssetImage;
         this.inspectTreasureStates = inspectTreasureStates;
         currentClientSource = null!;
+        dispatchPlunderWorker = null;
         truckPlunderWorker = null;
     }
 
@@ -187,7 +197,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException(
                     "SCAN_RUNNING",
                     "stop the map scan first");
-            if (coordinateJumping || serverJumping || truckPlundering || treasureInspecting)
+            if (coordinateJumping || serverJumping || dispatchPlundering || truckPlundering || treasureInspecting)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -654,7 +664,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed)
                 throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
-            if (isReading || coordinateJumping || serverJumping || truckPlundering)
+            if (isReading || coordinateJumping || serverJumping || dispatchPlundering || truckPlundering)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -705,7 +715,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping || truckPlundering)
+            if (serverJumping || dispatchPlundering || truckPlundering)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -760,7 +770,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping || truckPlundering)
+            if (serverJumping || dispatchPlundering || truckPlundering)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -801,7 +811,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SCAN_CLOSED",
                     "The Map Data window is closing and cannot start another scan.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping || truckPlundering)
+            if (serverJumping || dispatchPlundering || truckPlundering)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -1040,12 +1050,34 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    private bool TryEnterDispatchPlunderOperation()
+    {
+        lock (gate)
+        {
+            if (closed || isReading || coordinateJumping || serverJumping ||
+                dispatchPlundering || truckPlundering || treasureInspecting)
+            {
+                return false;
+            }
+            dispatchPlundering = true;
+            return true;
+        }
+    }
+
+    private void ExitDispatchPlunderOperation()
+    {
+        lock (gate) dispatchPlundering = false;
+    }
+
     private bool TryEnterTruckPlunderOperation()
     {
         lock (gate)
         {
-            if (closed || isReading || coordinateJumping || serverJumping || truckPlundering)
+            if (closed || isReading || coordinateJumping || serverJumping ||
+                dispatchPlundering || truckPlundering)
+            {
                 return false;
+            }
             truckPlundering = true;
             return true;
         }
@@ -1055,6 +1087,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     {
         lock (gate) truckPlundering = false;
     }
+
+    private void OnDispatchPlunderChanged() => DispatchPlunderChanged?.Invoke();
 
     private void OnTruckPlunderChanged() => TruckPlunderChanged?.Invoke();
 
@@ -1139,6 +1173,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         }
         try { cancellation?.Cancel(); }
         catch (ObjectDisposedException) { }
+        if (dispatchPlunderWorker is not null)
+        {
+            dispatchPlunderWorker.Changed -= OnDispatchPlunderChanged;
+            dispatchPlunderWorker.Dispose();
+        }
         if (truckPlunderWorker is not null)
         {
             truckPlunderWorker.Changed -= OnTruckPlunderChanged;

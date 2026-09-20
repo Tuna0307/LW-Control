@@ -1,10 +1,16 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
-## Current continuation checkpoint - LWB-R7-082, 2026-09-20
+## Current continuation checkpoint - LWB-R7-083, 2026-09-20
 
-**Dispatch result semantics and an internal current-v19 executor are now closed offline.** The verified original pins `map.dispatch-plunder-result`, `(serverId,taskUuid)` matching, `success/errorCode`, optional `serverDayStartAt`, exact `max(now,executeAt)+30000 ms` result deadline, and connection-sensitive arm failure. Current-v19 dispatcher mapping is hash-locked to `hero.dispatch.steal` -> `Net.Msgs.DispatchTask.DispatchStealMessage`. The rebuild's internal bridge uses a temporary handler wrapper that always calls the original, safe Int64 parsing, authoritative server-time `executeAt` gating, daily/cross-server rechecks, exactly one send and non-retryable post-send ambiguity.
+**Dispatch durable worker wiring is now closed offline.** The production Map Data owner creates one `DispatchPlunderWorker` over the R7-081 persistence primitives and R7-082 executor. The worker preserves the recovered 10-second arm lead, due-only disconnected deferral, expiry, daily-limit stop-all, and running-before-execute attempt increment. It shares the existing serialized game-operation gate and forwards `DispatchPlunderChanged`. Cross-server targets are allowed through to the executor rather than forcing a Truck-style same-server rule, because current-v19 `DispatchSteal` carries `targetServer` and rechecks cross-steal availability.
 
-**Next:** wire the durable Dispatch worker to the R7-081 store primitives plus this R7-082 executor, reproducing running/attempt, disconnected waiting, explicit failed/succeeded outcomes, daily-limit stop-all and conservative ambiguity. Keep `map_dispatch_plunder_schedule` fail-closed until worker wiring is offline-tested. No live Dispatch plunder without explicit owner authorization.
+**Safety divergence:** the verified original recovered `running -> waiting_connection / CLIENT_RESTARTED`; the rebuild instead terminalizes stale `running` as `failed / DISPATCH_PLUNDER_CLIENT_RESTARTED`, because after a host restart the replacement cannot prove whether the one-shot steal was already sent. The active-only `TryMarkDispatchPlunderRunning` transition also prevents a cancellation race from resurrecting a cancelled job. Ambiguous/state-unknown post-running outcomes are terminal and never automatically retried.
+
+**Next:** recover/reconfirm the public schedule service event/result boundary, then enable `map_dispatch_plunder_schedule` only if full-batch validation, persistence handoff and durable-worker ownership remain exact. Do not live schedule or execute a Dispatch plunder without explicit owner authorization.
+
+## Prior continuation checkpoint - LWB-R7-082, 2026-09-20
+
+**Dispatch result semantics and an internal current-v19 executor are closed offline.** The verified original pins `map.dispatch-plunder-result`, `(serverId,taskUuid)` matching, `success/errorCode`, optional `serverDayStartAt`, exact `max(now,executeAt)+30000 ms` result deadline, and connection-sensitive arm failure. Current-v19 dispatcher mapping is hash-locked to `hero.dispatch.steal` -> `Net.Msgs.DispatchTask.DispatchStealMessage`. The rebuild's internal bridge uses a temporary handler wrapper that always calls the original, safe Int64 parsing, authoritative server-time `executeAt` gating, daily/cross-server rechecks, exactly one send and non-retryable post-send ambiguity.
 
 ## Prior continuation checkpoint - LWB-R7-081, 2026-09-20
 
