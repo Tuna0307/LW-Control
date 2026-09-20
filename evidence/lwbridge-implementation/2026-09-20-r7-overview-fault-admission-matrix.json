@@ -1,0 +1,536 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-094",
+  "acceptanceCase": "A08",
+  "date": "2026-09-20",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Home path/permission/ABI/handshake/timeout fault admission matrix",
+  "branch": "research/offline-controller",
+  "parentRevision": "85d7c36285e510c647595cde4d3152fc4abda183",
+  "scope": {
+    "claim": "Closes A08 at deterministic/offline scope by consolidating concrete installation/admission/handshake/compatibility faults with the already-implemented bounded timeout/cleanup/retry regressions. No official game is launched.",
+    "officialGameLaunched": false,
+    "productionCodeChanged": false,
+    "doesNotSupersede": [
+      "A06",
+      "A11"
+    ]
+  },
+  "sourceIdentity": {
+    "GameInstallationService.cs": "0c4484aad5bfa7f971fbe321575992a77f52830c6c17d2f233244aa96e5a0914",
+    "OverviewLifecycleService.cs": "b48b6513c5a5a87ec1adfc5156e6b2c574d5dd2955097f4b5d864eaa9c7342b6",
+    "CurrentClientCompatibility.cs": "1d2710515a6197965c691bf8bc1cdf4a72c4b6d5ddc1eadcb1923d308e5f3a8c",
+    "OverviewOfficialSettleChecks.cs": "218e251f775aa6d1c13d475f13e5d8b5933839b1412939c48775f41df6dacfa2",
+    "OverviewFaultAdmissionChecks.cs": "8428147b76685a5a66ab4cb31513479b5b61f5ad8aafb066fad85d2620f56783",
+    "Program.cs": "5714f963920965860c7953e480b06a02f86f56c1058f16d39c1afaa1c9a7dde1"
+  },
+  "currentClientCompatibility": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "stress": {
+    "iterations": 10,
+    "allInstallationFaultsExact": true,
+    "allAdmissionFaultsExact": true,
+    "allHandshakeFaultsFailClosed": true,
+    "allBoundedTimeoutRetryRegressionPass": true,
+    "runs": [
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A08",
+        "scope": "path/permission/ABI + lifecycle admission + handshake/current-client compatibility; existing bounded timeout/retry regression optionally executed",
+        "installation": {
+          "blank": "GAME_ROOT_INVALID",
+          "missingRequiredFiles": "GAME_ROOT_REQUIRED_FILES_MISSING",
+          "permissionDenied": "GAME_ROOT_PERMISSION_DENIED",
+          "unreadable": "GAME_ROOT_UNREADABLE",
+          "invalidPe": "GAME_ROOT_PE_INVALID",
+          "unsupportedAbi": "GAME_ROOT_ARCH_UNSUPPORTED",
+          "validRetry": true
+        },
+        "admission": {
+          "missingRoot": "GAME_ROOT_NOT_FOUND",
+          "missingRootHelperCalls": 0,
+          "missingHelper": "OVERVIEW_HELPER_MISSING",
+          "closedLifecycle": "GAME_OPERATION_CANCELLED",
+          "closedHelperCalls": 0,
+          "allRejectedBeforeConnected": true
+        },
+        "handshake": {
+          "corruptAttempts": [
+            {
+              "fault": "challenge-hash",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "game-path",
+              "error": "LAUNCH_FAILED"
+            },
+            {
+              "fault": "critical-current-client-anchor",
+              "error": "LAUNCH_FAILED"
+            }
+          ],
+          "successfulRetryAttempt": 4,
+          "staleHeartbeatExternalStatus": "BRIDGE_DISCONNECTED",
+          "exactCleanupStopCalls": 2,
+          "finalRetryConnected": true,
+          "finalStopped": true
+        },
+        "boundedTimeoutAndRetryRegression": "PASS"
+      }
+    ]
+  },
+  "acceptanceMapping": {
+    "pathPermissionAbi": "Blank root, missing required files, denied read, unreadable I/O, malformed PE and non-AMD64 game image each return their concrete fail-closed code; a valid AMD64 root still succeeds after injection.",
+    "admission": "Missing selected root returns GAME_ROOT_NOT_FOUND, missing helper returns OVERVIEW_HELPER_MISSING, and a closed lifecycle returns GAME_OPERATION_CANCELLED. Missing-root/closed cases prove helper invocation count remains zero and no connected/PID state is fabricated.",
+    "handshake": "Corrupt challenge hash, wrong helper-returned game path and changed critical current-client anchor each fail as LAUNCH_FAILED while external lifecycle status remains error/no PID. The same lifecycle then succeeds when the proofs are corrected.",
+    "heartbeatTruth": "After a valid owned start, a stale heartbeat externally reports phase=error, connectionState=error, error=BRIDGE_DISCONNECTED while retaining the exact PID only for safe cleanup; it never reports connected.",
+    "timeoutsCleanupRetry": "OverviewOfficialSettleChecks remains the bounded host regression: official recovery/settle failure, Lua-update retry, launcher game-spawn timeout retry, generic helper failure retry and post-helper readiness timeout exact cleanup + subsequent retry. The focused A08 command executes this regression too.",
+    "transactionalStartup": "R7-090 A10 separately proves all 12 production-helper transaction failure stages restore/retain journals correctly, clean owned processes, and allow subsequent retry."
+  },
+  "supersedes": {
+    "evidence": "LWB-R7-088",
+    "caseId": "A08",
+    "priorStatus": "partial",
+    "newStatus": "pass_current_offline"
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedTenRunFaultMatrix": "PASS; 10/10",
+    "existingDeferredRestorationRegression": "PASS",
+    "a10StartupFailureMatrix": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

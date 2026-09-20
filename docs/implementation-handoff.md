@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-094, 2026-09-20
+
+**A08 is closed OFFLINE.** `OverviewFaultAdmissionChecks` now consolidates the acceptance wording into one ten-run matrix: root/path/permission/PE/ABI validation errors; missing root/helper/closed-lifecycle admission; corrupt challenge, wrong game path and changed critical current-client anchor; stale-heartbeat external status; corrected same-lifecycle retry; plus the existing bounded timeout/cleanup/retry host regression. No official game is launched and no production runtime behavior changed. Full Release/deterministic validation is green.
+
+**Next:** only A06 and A11 remain as Home acceptance gaps. A06 is specifically blocked on the unrecovered Home Close -> active Manual scan ownership/cancellation coupling. A11 remains blocked on exact original `get_status.pending` / Refresh Status semantics; do not substitute lifecycle heartbeat state for that contract.
+
 ## Current continuation checkpoint - LWB-R7-093, 2026-09-20
 
 **A07 is closed OFFLINE.** `OverviewReconnectPolicyChecks` isolates the recovered build-specific policy and repeats it ten times: reconnect ON waits the exact 60-second disconnect threshold, terminates/restores only the exact owned session, relaunches once and passes the 15-second stable gate; reconnect OFF does nothing on the same observed disconnect; disabling `autoForceUpdateReload` through public `set_automation` during the first 15-second retry cancels the active recovery token and suppresses every future recovery while retaining desired-running intent. Intentional Stop still clears desired-running and cannot be auto-resurrected. Full Release/deterministic validation remains green.
