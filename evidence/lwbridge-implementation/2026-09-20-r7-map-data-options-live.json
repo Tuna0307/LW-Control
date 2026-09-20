@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-077",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "e636513723d1d7ea2cf2fb5d6212ac36d49429a1",
+  "status": "LIVE-PROVEN",
+  "scope": {
+    "feature": "public map_data_options completed/persisted aggregate response",
+    "readOnly": true,
+    "stateChangingGameplayActionInvoked": false,
+    "activeStagingPositiveLiveClaimed": false
+  },
+  "authority": {
+    "sourceSelector": "LWB-R6-024/R6-030 recovered persisted-vs-active-run source/scope selection",
+    "optionFamilies": "LWB-R6-009/R6-015/R6-023/R6-031/R6-038 recovered or policy-scoped option/count aggregation",
+    "publicEnvelope": "LWBridgeBackend.CreateMapDataOptions current production response",
+    "monsterLevels": "explicit rebuild-only aggregate over persisted Monster/Zombie Boss rows"
+  },
+  "implementation": {
+    "liveHarness": "tests/LWBridge.Desktop.Checks/LiveMapDataOptionsProof.cs",
+    "independentVerifier": "tests/LWBridge.Desktop.Checks/MapDataOptionsLiveVerifier.cs",
+    "command": "map_data_options",
+    "verificationMethod": "Run one automatic all-eight Fast scan, invoke the public command after terminal completion, independently derive each returned aggregate from raw persisted rows, then reopen the database and require identical aggregate metrics through the same public command."
+  },
+  "liveAcceptance": {
+    "serverId": 2212,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 131.5735113,
+    "totalRows": 6341,
+    "positiveKindCount": 6,
+    "allianceOptionCount": 72,
+    "noAllianceCount": 1199,
+    "resourceNameOptionCount": 3,
+    "monsterNameOptionCount": 7,
+    "zombieBossNameOptionCount": 0,
+    "dispatchLevelCount": 5,
+    "monsterLevelCount": 36,
+    "treasureTypeOptionCount": 1,
+    "truckRewardItemCount": 18,
+    "railwayRewardItemCount": 0,
+    "reopenedExactMetrics": true
+  },
+  "exactFamiliesCompared": [
+    "counts for every MapScanContract kind",
+    "city alliances and noAllianceCount",
+    "resource/monster/zombie_boss name options with counts",
+    "dispatchLevels",
+    "monsterLevels",
+    "treasureTypes key/type/name/count descriptors",
+    "truck and railway retained rewardItems with arrival-time cutoff",
+    "completed scanProgress id/server/status/timestamps/error"
+  ],
+  "populationLimits": {
+    "zombieBossNameOptionCount": 0,
+    "railwayRewardItemCount": 0,
+    "interpretation": "Empty option families are exact live zero-set results for this population; no positive Zombie Boss or Railway option claim is added."
+  },
+  "activeStagingObservation": {
+    "positiveLiveAcceptance": false,
+    "reason": "The current Fast all-eight batch source returns the logical-block capture set as one large batch. Staging/checkpoint persistence therefore becomes externally meaningful only at the final handoff, where publication atomically promotes rows and removes staging before the service flips isReading false.",
+    "recoveredSelectorStatus": "Retained as recovered/deterministic coverage; no artificial staged population was fabricated for live evidence."
+  },
+  "acquisitionRetries": {
+    "occurred": true,
+    "error": "Fast world batch City snapshot count changed during normalization.",
+    "boundedRetryResult": "Recovered within the existing 3-attempt path; final scan completed 2500/2500 with zero failed/unread blocks.",
+    "optionsAcceptanceAffected": false
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "attacksOrRobberyPerformed": false,
+    "claimsOrCollectionsPerformed": false,
+    "messagesSent": false,
+    "stateChangingGameplayActionsPerformed": false
+  },
+  "privacy": "Aggregate-only evidence. No run UUID, player identity, map coordinates, session/challenge identifiers, process identifiers, database, or raw logs are retained."
+}

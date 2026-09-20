@@ -1,5 +1,13 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-077, 2026-09-20
+
+**Completed/persisted public `map_data_options` is LIVE-PROVEN on current-v19.** One automatic Fast all-eight scan completed 2,500/2,500 with zero failed/unread blocks and produced 6,341 persisted rows across 6 positive kinds. Independent raw-row derivation exactly matched every public kind count, City alliances/no-alliance, Resource/Monster/Zombie Boss name options, Dispatch/Monster levels, Treasure type descriptors, Truck/Railway retained-item options and completed scan-progress identity; the same aggregate metrics reproduced after reopening the database. The current Fast all-eight source returns its logical-block capture as one large batch, so a positive active-staging live observation is not claimed; R6-024/R6-030/R6-038 remain the recovered/deterministic authority for staging-source selection.
+
+**Already closed immediately before R7-077:** R7-073 Dispatch filters, R7-074 Resource filters, R7-075 City filters, and R7-076 Monster filters are all current-v19 live-proven with independent exact-set/reopen checks. R7-071 remains the positive Railway sort/Follow authority; later Railway filter rescan found zero current rows. R7-072 Supplies remains population-pending after strict zero-population scans plus reachable-server activity sweep. Ghost positive-row proof remains owner-deferred until Thursday 2026-09-24.
+
+**Next:** continue the remaining read-only result/action audit where it does not require a currently absent population. Do not fabricate Railway/Ghost/Supplies positive cases. State-changing Treasure/plunder/share/scheduled gameplay actions still require explicit owner authorization and a suitable target. After those gates, perform final integrated release acceptance.
+
 ## Auto Scan scheduler closure audit - LWB-R7-070, 2026-09-20
 
 **CORE OWNER-FACING SCHEDULER CLOSED; NO NEW PRODUCTION SCHEDULER CODE REQUIRED.** R7-038/039 already provide current-v19 live proof for repeated Run Now cycles, a real ordered two-target cycle, disable after the first target starts with remaining-target skip, return-to-original/status truth, persisted future `nextRunAt` across full desktop/game restart, unattended deadline execution and next-schedule advancement. R7-070 audits the current post-R7-067 bundle and adds focused browser/deterministic guards so those semantics cannot silently regress when the Auto UI changes.
