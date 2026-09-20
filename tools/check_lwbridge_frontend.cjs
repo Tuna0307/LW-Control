@@ -80,7 +80,34 @@ async function main() {
    assert.deepEqual(actualRegion,region,`${id}: feature viewport geometry`);
    await reference.screenshot({path:path.join(output,id+'-reference.png'),clip:region,animations:'disabled'});
    await rebuilt.screenshot({path:path.join(output,id+'-rebuilt.png'),clip:region,animations:'disabled'});
-   assert.equal(await rebuilt.locator('.main-view').innerText(),await reference.locator('.main-view').innerText(),`${id}: feature text`);
+   const rebuiltText=await rebuilt.locator('.main-view').innerText();
+   const referenceText=await reference.locator('.main-view').innerText();
+   if(view==='map-data') {
+    // Maintained owner-approved differences from immutable 0.3.1: City Excel
+    // export and user-owned Normal/Fast controls are retired, while Zombie Boss
+    // is a dedicated rebuild-only Map Data kind. Assert those differences first,
+    // then remove only those nodes from these disposable comparison pages and
+    // compare every remaining visible line strictly.
+    assert.equal(await rebuilt.locator('.map-speed-toggle').count(),0,`${id}: retired Manual speed control`);
+    assert.equal(await rebuilt.locator('.map-searchbar button').count(),1,`${id}: retired City export leaves only Search on the default City tab`);
+    assert.equal((rebuiltText.match(/Zombie Boss/g)||[]).length,2,`${id}: dedicated Zombie Boss scan/result labels`);
+    const normalizedReference=await reference.locator('.main-view').evaluate(root=>{
+     root.querySelector('.map-speed-toggle')?.remove();
+     const buttons=root.querySelectorAll('.map-searchbar button');
+     if(buttons.length>1)buttons[1].remove();
+     return root.innerText;
+    });
+    const normalizedRebuilt=await rebuilt.locator('.main-view').evaluate(root=>{
+     for(const label of root.querySelectorAll('.map-types label'))
+      if(label.textContent.trim()==='Zombie Boss')label.remove();
+     for(const button of root.querySelectorAll('.map-tabs button'))
+      if(button.textContent.includes('Zombie Boss'))button.remove();
+     return root.innerText;
+    });
+    assert.equal(normalizedRebuilt,normalizedReference,`${id}: feature text excluding documented Map Data owner overrides`);
+   } else {
+    assert.equal(rebuiltText,referenceText,`${id}: feature text`);
+   }
    const failures=await rebuilt.evaluate(()=>window.LWBridgePreview.failures);
    assert.deepEqual(failures,[],`${id}: local display state`);
    assert.equal(await rebuilt.locator('.auth-account-button').count(),0);

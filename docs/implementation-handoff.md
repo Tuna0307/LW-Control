@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-088, 2026-09-20
+
+**The offline release-integrity gate is closed, but final integrated live acceptance is not.** The audit repaired the canonical frontend generator so R7-066/R7-067 plus the six maintained Map Data panel checkpoints regenerate exactly under SHA-locked base/result checks. It also updated original-parity browser/pixel tests to exclude only the documented Map Data owner overrides while asserting them explicitly. Current CI-style acceptance passes: generator current; Release 0 warnings/0 errors; six deterministic groups green; owner-evidence, preference, live-transport, browser-boundary and isolated native-host checks green; deterministic captures green; 36 browser checks green; Export-removal and automatic-strategy checks green; 28/28 unchanged visual pairs identical and four documented Map Data deltas bounded. No game/launcher process or state-changing action was used.
+
+**Next:** do not call this release-complete yet. Remaining gates are the A09 20-cycle lifecycle stress and several interruption/fault branches, Ghost positive population on Thursday 2026-09-24, Supplies when population exists, suitable explicitly authorized live Truck/Dispatch/Alliance/Treasure action acceptance, and F04's final normal-user built-executable restart/walkthrough. The complete conservative case status is in R7-088 evidence.
+
 ## Current continuation checkpoint - LWB-R7-087, 2026-09-20
 
 **Treasure frontend/status orchestration is now closed offline, but state-changing Claim remains unavailable.** The exact original Map Data/API frontend is hash-locked together with the 0.3.1 host. It proves claim status polling begins only when the immediate result has `queued>0`, waits 1 second between polls, caps at 1,800 attempts, overlays state by Treasure UUID, and stops only when a `batch` exists whose state differs from exact `running`. It also pins the default-on `lwbridge.mapLuckyTreasurePriority` preference, action-phase player/world/block-reason vocabulary, and exact single-row Claim button gate. Pure contract helpers/tests reproduce these rules; no protected batch is fabricated by the read-only production status route.

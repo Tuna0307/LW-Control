@@ -6,6 +6,7 @@ verified 0.3.1 bundle and fails if that bundle changes.
 import hashlib
 import argparse
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +26,46 @@ def replace_between(text, start, end, replacement):
     a = text.index(start)
     b = text.index(end, a)
     return text[:a] + replacement + text[b:]
+
+
+def remove_locale_template_entry(text, key):
+    pattern = re.compile(re.escape(json.dumps(key, ensure_ascii=False)) + r':`[^`]*`,')
+    text, count = pattern.subn('', text, count=1)
+    if count != 1:
+        raise ValueError(f'Expected exactly one locale entry: {key}')
+    return text
+
+
+def apply_hash_locked_delta(text, recipe_path):
+    recipe = json.loads(recipe_path.read_text(encoding='utf-8'))
+    if recipe.get('schemaVersion') != 1:
+        raise ValueError(f'Unsupported frontend delta schema: {recipe_path}')
+    base_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    if base_hash != recipe['baseSha256']:
+        raise ValueError(
+            f'Frontend delta base hash mismatch for {recipe_path.name}: '
+            f'{base_hash} != {recipe["baseSha256"]}')
+    result = text
+    edits = recipe.get('edits')
+    if not isinstance(edits, list):
+        raise ValueError(f'Frontend delta edits are invalid: {recipe_path}')
+    last_start = len(result) + 1
+    for edit in reversed(edits):
+        start = int(edit['start'])
+        delete_length = int(edit['deleteLength'])
+        insert = str(edit['insert'])
+        if start > last_start:
+            raise ValueError(f'Frontend delta edits are not ordered: {recipe_path}')
+        if start < 0 or delete_length < 0 or start + delete_length > len(result):
+            raise ValueError(f'Frontend delta edit is outside the base text: {recipe_path}')
+        result = result[:start] + insert + result[start + delete_length:]
+        last_start = start
+    result_hash = hashlib.sha256(result.encode('utf-8')).hexdigest()
+    if result_hash != recipe['resultSha256']:
+        raise ValueError(
+            f'Frontend delta result hash mismatch for {recipe_path.name}: '
+            f'{result_hash} != {recipe["resultSha256"]}')
+    return result
 
 
 def build(check=False):
@@ -50,6 +91,11 @@ def build(check=False):
                 'function U(e,t){let n=T(),r=t&&typeof t==`object`&&!Array.isArray(t)?{...t}:t==null?{}:{value:t};return n&&!(`profileId`in r)&&(r.profileId=n),window.LWBridgePreview.invoke(e,r)}')
             s = replace_between(s, 'function W(e,t){', 'function G(e){',
                 'function W(e,t){return window.LWBridgePreview.listen(e,e=>{let n=e;if(n&&typeof n==`object`&&`profileId`in n&&`payload`in n){if(n.profileId!==T())return;t(n.payload);return}t(n)})}')
+            # LWB-R7-066 owner override: City Excel export is retired from the
+            # shipped API surface. Keep this transform anchored to the immutable
+            # recovered bundle so regeneration cannot resurrect the command.
+            s = replace_once(s, 'function Vt(e,t){return U(`map_city_export`,{query:e,...t})}', '')
+            s = replace_once(s, ',Vt as T,', ',')
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')
@@ -78,6 +124,11 @@ def build(check=False):
                 s,
                 'var Un=new Set([`city`,`resource`,`monster`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=',
                 'var Un=new Set([`city`,`resource`,`monster`,`zombie_boss`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=')
+            # LWB-R7-067 owner override: Auto Scan no longer owns/persists a
+            # Normal/Fast choice. The backend planner selects the effective strategy.
+            s = replace_once(s, ',scanMode:`fast`', '')
+            s = replace_once(s, ',scanMode:e?.scanMode===`normal`?`normal`:`fast`', '')
+            s = replace_once(s, ',scanMode:i.scanMode', '')
             # PM13-01b: preserve the recovered error formatter, but teach it
             # rebuild-only bounded resource/search errors. These strings are
             # IMPLEMENTATION POLICY, not recovered original LWBridge wording.
@@ -141,8 +192,32 @@ def build(check=False):
             feedback_error_js = json.dumps(feedback_errors, ensure_ascii=True, separators=(',', ':'))[1:-1] + ','
             s = replace_once(s, 'SERVER_JUMP_TIMEOUT:[', feedback_error_js + 'SERVER_JUMP_TIMEOUT:[')
             data = s.encode('utf-8')
+        elif re.match(r'^(en|id|ja|ko|pt|ru|vi|zh-CN|zh-TW)-.*\.js$', path.name):
+            s = data.decode('utf-8')
+            # LWB-R7-066 / R7-067 owner overrides: retired export and scan-speed
+            # labels must not reappear in any shipped locale bundle.
+            for key in (
+                'map.exportExcel', 'map.exportingExcel', 'map.exportExcelSuccess',
+                'map.speed', 'map.normalSpeed', 'map.fastSpeed',
+            ):
+                s = remove_locale_template_entry(s, key)
+            data = s.encode('utf-8')
         elif path.name == 'MapDataPanel-C1HVeNHr.js':
             s = data.decode('utf-8')
+            # LWB-R7-066 owner override: remove City Excel export from the
+            # generated Map Data panel, including import/state/handler/button.
+            s = replace_once(s, ',T as o,', ',')
+            s = replace_once(s, ',[Tn,En]=(0,b.useState)(!1)', '')
+            s = replace_between(s, 'async function lr(){', 'async function ur(){', '')
+            s = replace_once(s, 'F===`city`&&(0,D.jsx)(`button`,{disabled:Tn||L<=0||w.isReading,onClick:lr,children:C(Tn?`map.exportingExcel`:`map.exportExcel`)}),', '')
+            # LWB-R7-067 owner override: Manual/Auto Scan expose no Normal/Fast
+            # user setting; map_scan_start omits scanMode and backend planning owns it.
+            s = replace_once(s, 'ke=`lwbridge.mapScanMode`,', '')
+            s = replace_once(s, ',[P,Xe]=(0,b.useState)(()=>{let e=localStorage.getItem(ke);return e===`normal`||e===`fast`?e:w.scanMode||`normal`})', '')
+            s = replace_once(s, '(0,b.useEffect)(()=>{localStorage.setItem(ke,P)},[P]),', '')
+            s = replace_once(s, 'ae({selectedTypes:e,scanMode:P})', 'ae({selectedTypes:e})')
+            s = replace_between(s, '(0,D.jsxs)(`fieldset`,{className:`map-speed-toggle', '(0,D.jsx)(`button`,{className:w.isReading?``:`primary`', '')
+            s = replace_once(s, '(0,D.jsxs)(`label`,{children:[(0,D.jsx)(`span`,{children:C(`map.speed`)}),(0,D.jsxs)(`select`,{value:S.scanMode,onChange:e=>$({scanMode:e.target.value===`fast`?`fast`:`normal`}),children:[(0,D.jsx)(`option`,{value:`normal`,children:C(`map.normalSpeed`)}),(0,D.jsx)(`option`,{value:`fast`,children:C(`map.fastSpeed`)})]})]})]}),', '')
             # IMPLEMENTATION POLICY: bounded current-view rows use the source-backed
             # occupancy boolean only after the importer proves both recovered gather
             # fields were readable. Preserve the recovered formatter for original
@@ -217,6 +292,14 @@ def build(check=False):
             s = replace_once(s,
                 '()=>L(e,g,h,r,i,d),[r,i,e,h,g,d]',
                 '()=>L(e,g,h,r,i,d,a),[r,i,e,h,g,d,a]')
+            # The six source-attributed Map Data panel checkpoints below predate
+            # generator maintenance and were committed directly to the generated
+            # panel. Apply their exact text delta only after the known generator
+            # base is reproduced; both base and result are SHA-256 locked.
+            # Source commits are recorded in the recipe itself.
+            s = apply_hash_locked_delta(
+                s,
+                ROOT / 'tools' / 'frontend_overrides' / 'map-data-panel.delta.json')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

@@ -48,6 +48,10 @@ jobs:
           $env:NODE_PATH = "$env:RUNNER_TEMP/lwbridge-ui-check/node_modules"
           node tools/check_lwbridge_frontend.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tools/check_city_export_removed.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tools/check_scan_strategy_auto.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/compare_lwbridge_frontend.py
       - name: Compile LWBridge recovery inspectors
-        run: python -m py_compile tools/build_lwbridge_frontend.py tools/inspect_lwbridge_injection.py tools/inspect_lwbridge_map_scan.py tools/inspect_lwbridge_proxy_map_scan.py tools/inspect_official_runtime.py tools/collect_owner_resource_evidence.py tools/check_owner_resource_evidence_collector.py
+        run: python -c "import pathlib, py_compile; [py_compile.compile(str(p), doraise=True) for p in pathlib.Path('tools').glob('*.py')]"
