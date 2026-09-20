@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-121",
+  "date": "2026-09-21",
+  "status": "SHARED-HOST-TRANSPORT-COMPOSED/WINDOWS-PROVEN/NORMAL-WINDOW-WIRING-BLOCKED",
+  "title": "Compose listener, authenticated RPC sessions and pending calls into the application-owned bridge host",
+  "branch": "research/offline-controller",
+  "parentRevision": "605f7df739748d4f43bb387014ca974473c47881",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": [
+    "LWB-R7-109 application-global listener ownership and register-before-launch ordering",
+    "LWB-R7-110 single shared host/registry owner",
+    "LWB-R7-114 exact expected-client-path canonicalization",
+    "LWB-R7-116 shared accept-loop lifecycle",
+    "LWB-R7-117/R7-118 registration and launch-environment transaction",
+    "LWB-R7-119 pending-call lifecycle and 200 ms timeout",
+    "LWB-R7-120 authenticated framed RPC session transport"
+  ],
+  "implementation": {
+    "hostFile": "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "acceptedSessionFile": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedAcceptLoop.cs",
+    "start": "host canonicalizes an explicit expected-client path, creates one host-global call registry, creates one shared accept loop, and attaches one RPC transport per authenticated session",
+    "routeDispatch": "host resolves instanceId or unique literal default route, waits for that accepted session's RPC transport attachment, then sends the recovered call command",
+    "pendingCount": "LWBridgeControlPipeHostState.PendingCallCount is the live call-registry count only while RPC transport is active",
+    "stopTransport": "atomically removes host transport references, drains outstanding calls with APP_SHUTTING_DOWN, then disposes/cancels the accept loop and sessions",
+    "closeHost": "marks application host stopped, drains pending calls, and synchronously disposes the shared accept loop",
+    "transportRestartAfterStop": "host remains active after StopRpcTransportAsync; application Close is separate",
+    "rpcAttachmentRace": "accepted session exposes a TaskCompletionSource-backed wait so route admission cannot race host call dispatch before RPC transport attachment"
+  },
+  "windowsProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeHostTransportChecks.cs",
+    "focusedCli": "--overview-bridge-host-transport-check",
+    "result": "PASS",
+    "temporaryLocalPipeOnly": true,
+    "hostListenerStarted": true,
+    "launchRegistrationPreparedAfterListenerStart": true,
+    "authenticated": true,
+    "instanceRouteCall": true,
+    "defaultRouteCall": true,
+    "commandIdsObserved": ["cmd_7", "cmd_8", "cmd_9"],
+    "pendingObservedWhileOutstanding": 1,
+    "shutdownDrainError": "APP_SHUTTING_DOWN",
+    "routeRemovedOnStop": true,
+    "listenerTaskCompleted": true,
+    "hostRemainedActiveAfterTransportStop": true,
+    "hostCloseIdempotentBoundaryPreserved": true
+  },
+
+  "unresolvedProductionInputs": {
+    "expectedClientPathSource": {
+      "status": "UNRESOLVED ALIAS",
+      "known": "original host constructor canonicalizes its third startup argument and stores it as the expected handshake client path at host +0x78..+0x90",
+      "missing": "the exact startup-state field/name that supplies that third constructor argument has not yet been source-attributed"
+    },
+    "initialCommandCounterSeed": {
+      "status": "UNRESOLVED",
+      "known": "R7-097 proves monotonic cmd_<n>",
+      "missing": "the original process-start numeric seed / first emitted suffix is not yet pinned"
+    }
+  },
+  "productionBoundary": {
+    "LWBridgeWindowCallsStartRpcTransport": false,
+    "normalOverviewLaunchBindingEnabled": false,
+    "getStatusPendingExposed": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Finish the startup alias trace for the host constructor expected-client-path argument and recover the original command-counter initial seed. Only then wire StartRpcTransport into LWBridgeWindow before OverviewLifecycleService/profile launch, enable the already-tested launch binding in normal lifecycle composition, and expose get_status.pending from this live host.",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

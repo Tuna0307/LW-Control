@@ -46,9 +46,16 @@ internal static class OverviewBridgeHandshakeIdentityChecks
         string repo = FindRepoRoot();
         string hostSource = File.ReadAllText(Path.Combine(
             repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeHostState.cs"));
-        Check(!hostSource.Contains("Handshake", StringComparison.Ordinal) &&
-              !hostSource.Contains("QueryFullProcessImageName", StringComparison.Ordinal),
-            "production host must remain handshake-disabled until isolated authenticated hello I/O is proven");
+        string windowSource = File.ReadAllText(Path.Combine(
+            repo, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+        Check(hostSource.Contains("StartRpcTransport(", StringComparison.Ordinal) &&
+              hostSource.Contains("CanonicalizeExpectedClientPath", StringComparison.Ordinal),
+            "shared host must retain the now-proven handshake/client-path composition");
+        Check(!windowSource.Contains("StartRpcTransport(", StringComparison.Ordinal) &&
+              !windowSource.Contains(
+                  "enableBridgeControlPipeLaunchBinding: true",
+                  StringComparison.Ordinal),
+            "normal application composition must remain handshake/listener-disabled until final production inputs are recovered");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -73,7 +80,8 @@ internal static class OverviewBridgeHandshakeIdentityChecks
             boundary = new
             {
                 exactClientImageNormalizationRecovered = true,
-                nativeHandshakeImplemented = false,
+                nativeHandshakeImplementedInSharedHost = true,
+                normalWindowStartsSharedHostTransport = false,
                 productionHostAcceptsAuthenticatedClients = false,
                 productionCallLuaEnabled = false,
             },

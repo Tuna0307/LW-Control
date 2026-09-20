@@ -199,10 +199,16 @@ internal static class OverviewBridgeIsolatedAcceptLoopChecks
         string repo = FindRepoRoot();
         string hostSource = File.ReadAllText(Path.Combine(
             repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeHostState.cs"));
-        Check(!hostSource.Contains(
+        string windowSource = File.ReadAllText(Path.Combine(
+            repo, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+        Check(hostSource.Contains(
                 "LWBridgeControlPipeIsolatedAcceptLoop",
                 StringComparison.Ordinal),
-            "normal application host must remain unbound to isolated accept loop");
+            "shared host must retain the now-proven accept-loop composition");
+        Check(!windowSource.Contains(
+                "StartRpcTransport(",
+                StringComparison.Ordinal),
+            "normal application window must remain disconnected from composed accept loop until final production inputs are recovered");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -224,10 +230,11 @@ internal static class OverviewBridgeIsolatedAcceptLoopChecks
             },
             boundary = new
             {
-                productionHostStartsAcceptLoop = false,
+                sharedHostCanStartAcceptLoop = true,
+                normalWindowStartsAcceptLoop = false,
                 productionProxyLaunchBinding = false,
-                outboundCommandRoutingImplemented = false,
-                pendingCallCollectionImplemented = false,
+                outboundCommandRoutingImplementedInSharedHost = true,
+                pendingCallCollectionImplemented = true,
                 productionCallLuaEnabled = false,
             },
         }, JsonOptions.Default);

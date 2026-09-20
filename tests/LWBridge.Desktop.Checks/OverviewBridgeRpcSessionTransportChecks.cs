@@ -263,13 +263,15 @@ internal static class OverviewBridgeRpcSessionTransportChecks
             "LWBridge.Desktop",
             "LWBridgeWindow.cs"));
         Check(
-            !hostSource.Contains(
-                "LWBridgeControlPipeRpcSessionTransport",
-                StringComparison.Ordinal) &&
-            !windowSource.Contains(
+            hostSource.Contains(
                 "LWBridgeControlPipeRpcSessionTransport",
                 StringComparison.Ordinal),
-            "normal application composition remains disconnected from isolated RPC transport");
+            "shared host must retain the now-proven RPC session composition");
+        Check(
+            !windowSource.Contains(
+                "StartRpcTransport(",
+                StringComparison.Ordinal),
+            "normal application composition remains disconnected from composed RPC transport until final production inputs are recovered");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -321,7 +323,8 @@ internal static class OverviewBridgeRpcSessionTransportChecks
             },
             boundary = new
             {
-                normalHostRunsRpcSession = false,
+                sharedHostCanRunRpcSession = true,
+                normalWindowStartsRpcSession = false,
                 productionPendingExposed = false,
                 productionCallLuaEnabled = false,
             },

@@ -53,9 +53,16 @@ internal static class OverviewBridgeClientPathChecks
         string repo = FindRepoRoot();
         string hostSource = File.ReadAllText(Path.Combine(
             repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeHostState.cs"));
-        Check(!hostSource.Contains("GetFinalPathNameByHandle", StringComparison.Ordinal) &&
-              !hostSource.Contains("ClientPath", StringComparison.Ordinal),
-            "production host still does not run client-path authentication");
+        string windowSource = File.ReadAllText(Path.Combine(
+            repo, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+        Check(hostSource.Contains(
+                  "CanonicalizeExpectedClientPath",
+                  StringComparison.Ordinal),
+            "shared host must apply the recovered expected-client-path canonicalization");
+        Check(!windowSource.Contains(
+                  "StartRpcTransport(",
+                  StringComparison.Ordinal),
+            "normal application composition must remain client-path/listener-disabled until the expected path source is attributed");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -79,8 +86,9 @@ internal static class OverviewBridgeClientPathChecks
             },
             boundary = new
             {
-                nativeHandshakeImplemented = false,
-                productionHostRunsClientPathGate = false,
+                nativeHandshakeImplementedInSharedHost = true,
+                sharedHostRunsClientPathGateWhenExplicitlyStarted = true,
+                normalWindowStartsSharedHostTransport = false,
                 productionCallLuaEnabled = false,
             },
         }, JsonOptions.Default);

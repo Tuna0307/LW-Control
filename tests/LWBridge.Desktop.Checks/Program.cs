@@ -337,6 +337,13 @@ if (args.Contains("--overview-bridge-rpc-session-transport-check", StringCompare
     return 0;
 }
 
+if (args.Contains("--overview-bridge-host-transport-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -364,6 +371,7 @@ LWBridge.Desktop.Checks.OverviewBridgeLaunchBindingChecks.Run();
 await LWBridge.Desktop.Checks.OverviewBridgeLifecycleLaunchBindingChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewBridgeRpcSessionTransportChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
 
 void Check(bool condition, string name)
 {

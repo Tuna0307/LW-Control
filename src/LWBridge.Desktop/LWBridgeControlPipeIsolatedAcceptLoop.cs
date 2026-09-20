@@ -248,6 +248,9 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
 internal sealed class LWBridgeControlPipeAcceptedSession : IDisposable
 {
     private readonly SafePipeHandle streamHandle;
+    private readonly TaskCompletionSource<LWBridgeControlPipeRpcSessionTransport>
+        rpcTransportReady = new(
+            TaskCreationOptions.RunContinuationsAsynchronously);
     private LWBridgeAuthenticatedConnection? connection;
     private LWBridgeControlPipeRpcSessionTransport? rpcTransport;
 
@@ -299,8 +302,13 @@ internal sealed class LWBridgeControlPipeAcceptedSession : IDisposable
                 "Bridge accepted session RPC transport is already attached.");
         }
 
+        rpcTransportReady.TrySetResult(transport);
         return transport;
     }
+
+    internal Task<LWBridgeControlPipeRpcSessionTransport>
+        WaitForRpcTransportAsync(CancellationToken cancellationToken) =>
+        rpcTransportReady.Task.WaitAsync(cancellationToken);
 
     public void Dispose()
     {
