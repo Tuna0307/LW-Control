@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-122",
+  "date": "2026-09-21",
+  "status": "PRODUCTION-CLIENT-PATH-AND-COMMAND-SEED-RECOVERED/HASH-LOCKED/OFFLINE-TESTED",
+  "title": "Recover exact bridge client image input and original command counter seed",
+  "branch": "research/offline-controller",
+  "parentRevision": "4ce86153876526e6035250f46076a030ba8cf9b9",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "inspector": "tools/inspect_lwbridge_host_transport_inputs.py"
+  },
+  "expectedClientImage": {
+    "startupBuilder": "RVA 0x43365C",
+    "startupBuilderCall": "RVA 0x41001F",
+    "gameComponentLiteral": "Game",
+    "gameComponentLiteralRef": "RVA 0x433687",
+    "gameComponentAppend": "RVA 0x433697 -> 0x5C71B0",
+    "executableLiteral": "LastWar.exe",
+    "executableLiteralRef": "RVA 0x4336C4",
+    "executableAppend": "RVA 0x4336D4 -> 0x5C71B0",
+    "recoveredPath": "<selectedGameRoot>\\Game\\LastWar.exe",
+    "hostConstructor": "RVA 0x4100B5 -> 0x3C30BE",
+    "constructorArgument": 2,
+    "constructorCapture": "RVA 0x3C30F0 r13=rdx",
+    "canonicalization": "RVA 0x3C3654 -> 0x5B6630",
+    "handshakeUse": "canonicalized constructor argument 2 is compared against the OS-reported named-pipe client process image"
+  },
+  "commandCounter": {
+    "storeMutexOffset": "0x100",
+    "mutexToCounterOffset": "0x80",
+    "storeCounterOffset": "0x180",
+    "seedConstantLoad": "RVA 0x3C3926",
+    "seedConstantRva": "0xCA2780",
+    "seedConstantQwords": [5381957488, 0],
+    "seedWrite": "RVA 0x3C3AC3 writes xmm6 to store+0x178; second qword lands at store+0x180",
+    "initialValue": 0,
+    "callBuilderMutexAddress": "RVA 0x3C4B4E: store+0x100",
+    "mutexLock": "RVA 0x3C4B68 -> 0x046750",
+    "guardReturnsSameMutexPointer": "0x046756 captures rdx in rdi; 0x046781 returns rdi at result+8",
+    "counterAddress": "RVA 0x3C4BDE: guard+0x80 == store+0x180",
+    "increment": "RVA 0x3C4BE5 increments before formatting",
+    "commandIdLiteralRef": "RVA 0x3C4C16",
+    "commandIdPrefix": "cmd_",
+    "firstCommandId": "cmd_1"
+  },
+
+  "implementation": {
+    "clientPathContract": "src/LWBridge.Desktop/LWBridgeControlPipeClientPathContract.cs",
+    "callRegistry": "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs",
+    "hostState": "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "productionHostAcceptsCallerSeed": false,
+    "productionHostSeed": 0,
+    "expectedGameExecutableBuilder": "BuildExpectedGameExecutablePath",
+    "isolatedTestsMayInjectCounterSeed": true
+  },
+  "proof": {
+    "hashLockedInspector": "PASS",
+    "clientPathFocusedCheck": "PASS",
+    "callRegistryFocusedCheck": "PASS",
+    "hostTransportFocusedCheck": "PASS",
+    "hostObservedCommandIds": ["cmd_1", "cmd_2", "cmd_3"]
+  },
+  "productionBoundary": {
+    "LWBridgeWindowStartsTransport": false,
+    "normalOverviewLaunchBindingEnabled": false,
+    "getStatusPendingExposed": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Integrate the now-source-backed shared host transport into LWBridgeWindow application startup before Overview profile launch; derive the expected client image from the selected profile game root, keep registration-before-launch and launch-failure unregister semantics, then expose get_status.pending from the live host and allow only call_lua(getStatus,{}) after end-to-end normal-composition proof.",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

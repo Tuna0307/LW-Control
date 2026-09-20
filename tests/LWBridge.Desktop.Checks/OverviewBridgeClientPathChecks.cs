@@ -50,6 +50,19 @@ internal static class OverviewBridgeClientPathChecks
         Check(LWBridgeControlPipeHandshakeContract.ExactClientImageNormalizationRecovered,
             "handshake contract marks exact client-image normalization recovered only after R7-114");
 
+        Check(
+            LWBridgeControlPipeClientPathContract.ExpectedGameExecutableBuilderRva == 0x43365C &&
+            LWBridgeControlPipeClientPathContract.GameComponentLiteralRefRva == 0x433687 &&
+            LWBridgeControlPipeClientPathContract.LastWarExecutableLiteralRefRva == 0x4336C4 &&
+            LWBridgeControlPipeClientPathContract.HostConstructorCallRva == 0x4100B5 &&
+            LWBridgeControlPipeClientPathContract.HostExpectedClientCanonicalizationCallRva == 0x3C3654,
+            "R7-122 game executable builder and host constructor callsites remain pinned");
+        Check(
+            LWBridgeControlPipeClientPathContract.BuildExpectedGameExecutablePath(
+                @"C:\Games\LastWarRoot") ==
+                @"C:\Games\LastWarRoot\Game\LastWar.exe",
+            "R7-122 expected pipe-client image is <gameRoot>\\Game\\LastWar.exe");
+
         string repo = FindRepoRoot();
         string hostSource = File.ReadAllText(Path.Combine(
             repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeHostState.cs"));
@@ -62,7 +75,7 @@ internal static class OverviewBridgeClientPathChecks
         Check(!windowSource.Contains(
                   "StartRpcTransport(",
                   StringComparison.Ordinal),
-            "normal application composition must remain client-path/listener-disabled until the expected path source is attributed");
+            "normal application composition remains client-path/listener-disabled pending separate startup integration proof");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -83,6 +96,8 @@ internal static class OverviewBridgeClientPathChecks
                 filesystemCanonicalization = "GetFinalPathNameByHandleW(flags=0)",
                 finalEncoding = "lossy UTF-16 -> UTF-8 / valid UTF-8 lossy view",
                 finalEquality = "equal length + ASCII A-Z case-folded byte comparison",
+                expectedClientImage =
+                    @"<gameRoot>\Game\LastWar.exe",
             },
             boundary = new
             {

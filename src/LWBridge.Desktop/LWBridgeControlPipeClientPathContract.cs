@@ -34,8 +34,25 @@ internal static class LWBridgeControlPipeClientPathContract
     public const int FinalAsciiCaseFoldCompareStartRva = 0x3C4551;
     public const int FinalAsciiCaseFoldCompareEndRva = 0x3C4584;
 
+    public const int ExpectedGameExecutableBuilderRva = 0x43365C;
+    public const int GameComponentLiteralRefRva = 0x433687;
+    public const int GameComponentAppendCallRva = 0x433697;
+    public const int LastWarExecutableLiteralRefRva = 0x4336C4;
+    public const int LastWarExecutableAppendCallRva = 0x4336D4;
+    public const int HostConstructorCallRva = 0x4100B5;
+    public const int HostConstructorRva = 0x3C30BE;
+    public const int HostExpectedClientCanonicalizationCallRva = 0x3C3654;
+
+    public const string GameComponent = "Game";
+    public const string LastWarExecutableName = "LastWar.exe";
     public const string VerbatimDosPrefix = @"\\?\";
     public const string VerbatimUncPrefix = @"\\?\UNC\";
+
+    public static string BuildExpectedGameExecutablePath(string gameRoot)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(gameRoot);
+        return Path.Combine(gameRoot, GameComponent, LastWarExecutableName);
+    }
 
     // The original final equality loop folds only ASCII A-Z by setting bit 0x20.
     // Non-ASCII UTF-8 bytes are compared byte-for-byte after the lossy UTF-8

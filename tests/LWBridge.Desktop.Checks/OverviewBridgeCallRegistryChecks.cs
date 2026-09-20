@@ -11,6 +11,33 @@ internal static class OverviewBridgeCallRegistryChecks
         JsonElement args =
             JsonSerializer.SerializeToElement(new { refresh = true });
 
+        Check(
+            LWBridgeControlPipeCallRegistry.InitialCommandCounter == 0 &&
+            LWBridgeControlPipeCallRegistry.StoreMutexOffset == 0x100 &&
+            LWBridgeControlPipeCallRegistry.MutexToCommandCounterOffset == 0x80 &&
+            LWBridgeControlPipeCallRegistry.StoreCommandCounterOffset == 0x180 &&
+            LWBridgeControlPipeCallRegistry.CommandCounterIncrementRva == 0x3C4BE5 &&
+            LWBridgeControlPipeCallRegistry.CommandIdLiteralRefRva == 0x3C4C16 &&
+            LWBridgeControlPipeCallRegistry.FirstCommandId == "cmd_1",
+            "R7-122 zero command-counter seed and pre-format increment remain pinned");
+
+        using (var sourceRegistry = new LWBridgeControlPipeCallRegistry())
+        {
+            LWBridgePendingCall sourceFirst = sourceRegistry.BeginCall(
+                "profile-source",
+                "instance-source",
+                "getStatus",
+                JsonSerializer.SerializeToElement(new { }),
+                createdAt: 1);
+            Check(sourceFirst.Id == LWBridgeControlPipeCallRegistry.FirstCommandId,
+                "source-backed default registry emits cmd_1 first");
+            sourceRegistry.Stop();
+            await ExpectBridgeErrorAsync(
+                "APP_SHUTTING_DOWN",
+                "source-backed default counter cleanup",
+                async () => _ = await sourceFirst.Completion);
+        }
+
         using var registry =
             new LWBridgeControlPipeCallRegistry(
                 initialCommandCounter: 6);
@@ -192,7 +219,7 @@ internal static class OverviewBridgeCallRegistryChecks
                 timeoutFutureRva =
                     $"0x{LWBridgeControlPipeCallRegistry.CallTimeoutFutureRva:X}",
                 pending = "exact outstanding bridge-to-Lua call/result collection length",
-                id = "monotonic cmd_<n>; initial process seed still intentionally external",
+                id = "monotonic cmd_<n>; process seed 0; first id cmd_1",
                 correlation = "payload.id",
                 outerRequestIdEqualityAsserted = false,
                 luaFailureCode = "LUA_CALL_FAILED",
@@ -212,7 +239,8 @@ internal static class OverviewBridgeCallRegistryChecks
             },
             boundary = new
             {
-                pipeSessionTransportImplemented = false,
+                sharedHostSessionTransportImplemented = true,
+                normalWindowStartsTransport = false,
                 productionPendingExposed = false,
                 productionCallLuaEnabled = false,
             },

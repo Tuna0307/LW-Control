@@ -44,7 +44,6 @@ internal static class OverviewBridgeHostTransportChecks
         Task listener = host.StartRpcTransport(
             Build,
             processPath,
-            initialCommandCounter: 6,
             currentUserSid: sid,
             clockMilliseconds: () => Now);
 
@@ -129,10 +128,10 @@ internal static class OverviewBridgeHostTransportChecks
                 root.GetProperty("type").GetString() ==
                     LWBridgeControlPipeProtocol.CommandType &&
                 root.GetProperty("requestId").GetString() ==
-                    "cmd_7" &&
+                    "cmd_1" &&
                 root.GetProperty("payload")
                     .GetProperty("id").GetString() ==
-                    "cmd_7" &&
+                    "cmd_1" &&
                 root.GetProperty("payload")
                     .GetProperty("fn").GetString() ==
                     "getStatus",
@@ -153,7 +152,7 @@ internal static class OverviewBridgeHostTransportChecks
                 Now + 11,
                 new
                 {
-                    id = "cmd_7",
+                    id = "cmd_1",
                     ok = true,
                     result = new { state = "ready" },
                 }));
@@ -187,7 +186,7 @@ internal static class OverviewBridgeHostTransportChecks
                 defaultDoc.RootElement
                     .GetProperty("payload")
                     .GetProperty("id")
-                    .GetString() == "cmd_8",
+                    .GetString() == "cmd_2",
                 "unique default route reaches same authenticated session");
         }
 
@@ -197,11 +196,11 @@ internal static class OverviewBridgeHostTransportChecks
                 LWBridgeControlPipeProtocol.ResultType,
                 Profile,
                 Instance,
-                "cmd_8",
+                "cmd_2",
                 Now + 21,
                 new
                 {
-                    id = "cmd_8",
+                    id = "cmd_2",
                     ok = true,
                     result = new { route = "default" },
                 }));
@@ -232,7 +231,7 @@ internal static class OverviewBridgeHostTransportChecks
                 shutdownDoc.RootElement
                     .GetProperty("payload")
                     .GetProperty("id")
-                    .GetString() == "cmd_9" &&
+                    .GetString() == "cmd_3" &&
                 host.PendingCallCount == 1,
                 "third command is outstanding before host transport stop");
         }
@@ -266,7 +265,6 @@ internal static class OverviewBridgeHostTransportChecks
             () => host.StartRpcTransport(
                 Build,
                 processPath,
-                initialCommandCounter: 20,
                 currentUserSid: sid,
                 clockMilliseconds: () => Now));
 
@@ -283,7 +281,7 @@ internal static class OverviewBridgeHostTransportChecks
             !windowSource.Contains(
                 "enableBridgeControlPipeLaunchBinding: true",
                 StringComparison.Ordinal),
-            "normal application composition remains disabled pending final production inputs");
+            "normal application composition remains disabled pending separate startup integration proof");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -298,9 +296,9 @@ internal static class OverviewBridgeHostTransportChecks
                 defaultRouteCall = true,
                 commandIds = new[]
                 {
-                    "cmd_7",
-                    "cmd_8",
-                    "cmd_9",
+                    "cmd_1",
+                    "cmd_2",
+                    "cmd_3",
                 },
                 pendingObserved = 1,
                 shutdownDrainedPendingWith =
@@ -308,10 +306,13 @@ internal static class OverviewBridgeHostTransportChecks
                 routeRemovedOnStop = true,
                 listenerTaskCompleted = listener.IsCompleted,
             },
-            unresolvedProductionInputs = new
+            recoveredProductionInputs = new
             {
-                expectedClientPathSource = true,
-                initialCommandCounterSeed = true,
+                expectedClientPathSource = @"<gameRoot>\Game\LastWar.exe",
+                initialCommandCounterSeed =
+                    LWBridgeControlPipeCallRegistry.InitialCommandCounter,
+                firstCommandId =
+                    LWBridgeControlPipeCallRegistry.FirstCommandId,
             },
             boundary = new
             {

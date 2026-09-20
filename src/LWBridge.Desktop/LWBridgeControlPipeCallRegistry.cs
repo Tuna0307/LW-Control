@@ -2,12 +2,23 @@ using System.Text.Json;
 
 namespace LWBridge.Desktop;
 
-// LWB-R7-119: host-global outstanding bridge-to-Lua call/result collection.
-// The initial numeric command-counter value remains an explicit constructor
-// input because R7-097 recovered monotonic cmd_<n> generation, but not the
-// original process-start seed. No production call_lua path uses this yet.
+// LWB-R7-119 + R7-122: host-global outstanding bridge-to-Lua call/result
+// collection. R7-122 closes the original process-start command-counter seed:
+// store+0x180 starts at zero, the builder increments before formatting, and
+// therefore the first original command id is cmd_1.
 internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
 {
+    public const ulong InitialCommandCounter = 0;
+    public const int StoreMutexOffset = 0x100;
+    public const int MutexToCommandCounterOffset = 0x80;
+    public const int StoreCommandCounterOffset = 0x180;
+    public const int StoreCounterSeedConstantLoadRva = 0x3C3926;
+    public const int StoreCounterSeedWriteRva = 0x3C3AC3;
+    public const int CommandCounterIncrementRva = 0x3C4BE5;
+    public const int CommandIdLiteralRefRva = 0x3C4C16;
+    public const string CommandIdPrefix = "cmd_";
+    public const string FirstCommandId = "cmd_1";
+
     public const int CallTimeoutMilliseconds = 200;
     public const int CallTimeoutSeconds = 0;
     public const int CallTimeoutNanoseconds = 200_000_000;
@@ -28,7 +39,8 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
     private ulong commandCounter;
     private bool stopped;
 
-    internal LWBridgeControlPipeCallRegistry(ulong initialCommandCounter)
+    internal LWBridgeControlPipeCallRegistry(
+        ulong initialCommandCounter = InitialCommandCounter)
     {
         commandCounter = initialCommandCounter;
     }
@@ -65,7 +77,7 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
 
             ulong number = checked(commandCounter + 1);
             commandCounter = number;
-            string id = "cmd_" + number.ToString(
+            string id = CommandIdPrefix + number.ToString(
                 System.Globalization.CultureInfo.InvariantCulture);
 
             var completion =

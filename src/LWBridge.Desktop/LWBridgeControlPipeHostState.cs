@@ -8,8 +8,10 @@ namespace LWBridge.Desktop;
 // startup (RVA 0x4100B5 -> 0x3C30BE), while profile start consumes that shared
 // host. This shell owns the single registry and pipe identity for the desktop
 // process. R7-121 composes the recovered listener/RPC layers behind explicit
-// startup inputs; normal LWBridgeWindow composition remains disabled until the
-// expected client-path source and original command-counter seed are pinned.
+// startup inputs. R7-122 closes the expected client-path source and original
+// zero command-counter seed; normal LWBridgeWindow composition remains disabled
+// until this source-backed contract is committed and production startup wiring
+// is separately proven.
 internal sealed class LWBridgeControlPipeHostState : IDisposable
 {
     private readonly object gate = new();
@@ -66,7 +68,6 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
     internal Task StartRpcTransport(
         string expectedBuildId,
         string expectedClientPath,
-        ulong initialCommandCounter,
         string? currentUserSid = null,
         Func<long>? clockMilliseconds = null)
     {
@@ -85,8 +86,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
             string canonicalClientPath =
                 LWBridgeControlPipeIsolatedHandshake
                     .CanonicalizeExpectedClientPath(expectedClientPath);
-            var calls = new LWBridgeControlPipeCallRegistry(
-                initialCommandCounter);
+            var calls = new LWBridgeControlPipeCallRegistry();
             var loop = new LWBridgeControlPipeIsolatedAcceptLoop(
                 PipePath,
                 registry,
