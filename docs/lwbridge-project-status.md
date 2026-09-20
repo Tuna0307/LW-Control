@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-089, 2026-09-20
+
+Acceptance case A09 is now closed with a current-v19 technical live stress run. Twenty consecutive production Home lifecycle cycles (10 manual, 10 startup-reconcile) all reached authoritative connected readiness, then closed the exact owned process and restored the client to the exact pre-cycle package/metadata/version hashes. All 20 sessions and game PIDs were unique; every stop reported no installed-file drift and no running game, and the final machine has no Last War/launcher process. This changes only A09 from the R7-088 release-audit snapshot; the remaining partial/blocked/not-run cases are not upgraded. See [R7-089 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-twenty-cycle-stress.json).
+
 ## Latest implementation checkpoint - LWB-R7-088, 2026-09-20
 
 The current offline Release gate is green and two stale release-maintenance paths were repaired. Frontend generation had drifted behind shipped owner overrides/Map Data checkpoints; it is now exact and SHA-locked, with `--check` reproducing all tracked WebUi bytes. The original-parity browser/pixel suite was also stale; it now keeps strict parity everywhere except the explicitly asserted Export/speed-removal + Zombie Boss Map Data differences. Fresh Release builds 0/0, all six deterministic groups and transport/host/security checks pass, deterministic captures and 36 browser checks pass, and unchanged visuals are 28/28 pixel-identical. R7-088 records all 47 acceptance cases without promoting open branches. Final integrated live acceptance therefore remains open. See [R7-088 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-release-integrity-audit.json).

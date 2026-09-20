@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-089, 2026-09-20
+
+**A09 is closed LIVE on current-v19.** A dedicated stress wrapper reused the existing production `--live-overview-home-proof` path for 10 proof invocations, each owning one manual and one startup-reconcile lifecycle. All 20 unique sessions/PIDs reached `running/connected`; every exact owned Close exited, restored `LWScripts.data`, `LWScripts.txt` and `version.txt` to the pre-stress hashes, reported `installedFilesChanged=false` and `gameRunning=false`, and left no residual game/launcher process. The current compatibility check identifies contentVersion 19 and package SHA `e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2`. No gameplay action or Map scan ran.
+
+**Next:** R7-088 remains the full 47-row historical snapshot, but its A09 `not_run` row is superseded by R7-089. Final release remains open for the remaining interruption/fault lifecycle matrices, Ghost positive proof on 2026-09-24, Supplies population, authorization-gated live Truck/Dispatch/Alliance/Treasure actions, and F04's normal-user built-executable restart/walkthrough.
+
 ## Current continuation checkpoint - LWB-R7-088, 2026-09-20
 
 **The offline release-integrity gate is closed, but final integrated live acceptance is not.** The audit repaired the canonical frontend generator so R7-066/R7-067 plus the six maintained Map Data panel checkpoints regenerate exactly under SHA-locked base/result checks. It also updated original-parity browser/pixel tests to exclude only the documented Map Data owner overrides while asserting them explicitly. Current CI-style acceptance passes: generator current; Release 0 warnings/0 errors; six deterministic groups green; owner-evidence, preference, live-transport, browser-boundary and isolated native-host checks green; deterministic captures green; 36 browser checks green; Export-removal and automatic-strategy checks green; 28/28 unchanged visual pairs identical and four documented Map Data deltas bounded. No game/launcher process or state-changing action was used.
