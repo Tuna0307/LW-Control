@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-112",
+  "date": "2026-09-21",
+  "status": "OVERLAPPED-CONNECT-OWNERSHIP-IMPLEMENTED/WINDOWS-PROVEN/PRODUCTION-NOT-WIRED",
+  "title": "Implement and prove overlapped ConnectNamedPipe ownership",
+  "branch": "research/offline-controller",
+  "parentRevision": "3decde15faa7a82de8cf2d16b4015eb813f56266",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": {
+    "finding": "LWB-R7-100",
+    "connectHelper": "RVA 0x47FD44-0x47FE0C",
+    "connectNamedPipeCall": "RVA 0x47FD86",
+    "errorNoData": 232,
+    "errorPipeConnected": 535,
+    "errorIoPending": 997,
+    "classification": {
+      "true": "connected",
+      "232": "connected",
+      "535": "connected",
+      "997": "pending",
+      "other": "failed"
+    }
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeNativeServer.cs",
+    "pendingOwner": "LWBridgeControlPipePendingConnect",
+    "overlappedMemoryLifetime": "owned from ConnectNamedPipe call through completion/disposal",
+    "eventLifetime": "owned with pending connect",
+    "pipeHandleLifetime": "DangerousAddRef/DangerousRelease pins server handle while I/O is outstanding",
+    "disposePendingBehavior": "CancelIoEx then free OVERLAPPED/event ownership",
+    "productionHostIntegration": false
+  },
+  "windowsProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeNativeConnectChecks.cs",
+    "focusedCli": "--overview-bridge-native-connect-check",
+    "result": "PASS",
+    "pendingPath": {
+      "initialWin32Error": 997,
+      "initialDisposition": "Pending",
+      "completedAfterClientOpen": true
+    },
+    "preconnectedRacePath": {
+      "initialWin32Error": 535,
+      "initialDisposition": "Connected",
+      "meaning": "client connected after CreateNamedPipeW but before ConnectNamedPipe"
+    },
+    "temporaryLocalPipesOnly": true
+  },
+  "guard": {
+    "productionHostSourceContainsBeginConnectCall": false,
+    "meaning": "Normal app still cannot accept clients until hello/authentication/route ownership is implemented."
+  },
+  "a11Boundary": {
+    "productionHostAcceptsClients": false,
+    "handshakeImplemented": false,
+    "proxyIdentityAdmitted": false,
+    "routeTransportImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Implement the framed hello read and five-second handshake timeout on an isolated connection, validate profileId/instanceId/token/buildId through the shared registry, and emit the already recovered hello.ack without yet enabling outbound call routing.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}
