@@ -30,7 +30,7 @@ internal static class OverviewStatusContractChecks
         JsonElement status = JsonSerializer.SerializeToElement(
             await backend.InvokeAsync("get_status", payload, CancellationToken.None), JsonOptions.Default);
         Check(status.TryGetProperty("pending", out JsonElement pending) && pending.ValueKind == JsonValueKind.Null,
-            "rebuild get_status.pending must stay unknown/null until the original bridge-store pending-call registry has an authentic implementation");
+            "an isolated backend without the shared host keeps pending null; production host-backed status is proven separately");
 
         string callLuaError = "UNEXPECTED_SUCCESS";
         try
@@ -49,8 +49,28 @@ internal static class OverviewStatusContractChecks
         {
             callLuaError = error.Code;
         }
-        Check(callLuaError == "COMMAND_NOT_IMPLEMENTED",
-            "generic call_lua must remain fail-closed until the source-backed host owner has a live listener, route transport and pending-call lifecycle");
+        Check(callLuaError == "LUA_CALL_FAILED",
+            "exact getStatus is enabled but fails with recovered Lua-call fallback when no shared transport exists");
+
+        string genericCallError = "UNEXPECTED_SUCCESS";
+        try
+        {
+            await backend.InvokeAsync(
+                "call_lua",
+                JsonSerializer.SerializeToElement(new
+                {
+                    profileId = backend.ProfileId,
+                    fnName = "otherFunction",
+                    args = new { },
+                }, JsonOptions.Default),
+                CancellationToken.None);
+        }
+        catch (BridgeCommandException error)
+        {
+            genericCallError = error.Code;
+        }
+        Check(genericCallError == "COMMAND_NOT_IMPLEMENTED",
+            "generic call_lua remains fail-closed outside exact getStatus with empty args");
 
         string protocolPath = Path.Combine(repo, "src", "LWBridge.Desktop", "LWBridgeControlPipeProtocol.cs");
         string protocol = File.ReadAllText(protocolPath);
@@ -58,7 +78,7 @@ internal static class OverviewStatusContractChecks
               protocol.Contains("EncodeCallCommand", StringComparison.Ordinal) &&
               protocol.Contains("ParseCallResult", StringComparison.Ordinal) &&
               protocol.Contains("This class remains protocol-only", StringComparison.Ordinal),
-            "control-pipe wire contract must remain protocol-only while the native persistent listener stays explicitly unimplemented");
+            "control-pipe wire contract remains protocol-only while listener/RPC lifecycle lives in separate host classes");
 
         return JsonSerializer.SerializeToElement(new
         {
@@ -72,11 +92,14 @@ internal static class OverviewStatusContractChecks
             },
             currentImplementation = new
             {
-                pending = (int?)null,
-                callLuaGetStatusError = callLuaError,
+                isolatedNoHostPending = (int?)null,
+                productionPendingSource = "LWBridgeControlPipeHostState.PendingCallCount",
+                callLuaGetStatusWithoutTransportError = callLuaError,
+                genericCallLuaError = genericCallError,
                 outboundControlPipeWireContractRecovered = true,
                 sharedControlPipeHostStateOwned = true,
-                persistentControlPipeListenerImplemented = false,
+                persistentControlPipeListenerImplemented = true,
+                exactGetStatusCallEnabled = true,
             },
         }, JsonOptions.Default);
     }

@@ -5,9 +5,10 @@ namespace LWBridge.Desktop;
 
 // LWB-R5-007 + LWB-R7-097: framing, hello/hello.ack and the generic call/result
 // wire schemas are recovered from the hash-identified LWBridge 0.3.1 proxy and
-// original host. This class remains protocol-only: R7-098 separately recovers
-// the instance registry and R7-099 recovers numeric transport limits. The live
-// listener, production queues, pipe options and proxy-launch binding remain absent.
+// original host. This class remains protocol-only: later R7 checkpoints recover
+// registry, limits, listener, RPC queues and launch binding in separate owners.
+// R7-123 composes those owners into normal startup without moving transport
+// lifecycle into this wire-format class.
 internal static class LWBridgeControlPipeProtocol
 {
     public const int ProtocolVersion = 1;

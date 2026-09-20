@@ -103,6 +103,13 @@ internal sealed class LWBridgeBackend
     public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        if (string.Equals(command, "call_lua", StringComparison.Ordinal))
+        {
+            ValidateCommandScope(command, payload);
+            return await CallLuaAsync(payload, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         if (asyncCommands?.CanHandle(command) == true)
         {
             ValidateCommandScope(command, payload);
@@ -376,6 +383,70 @@ internal sealed class LWBridgeBackend
         }
     }
 
+    private async Task<JsonElement?> CallLuaAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        string functionName = GetRequiredString(payload, "fnName");
+        if (!string.Equals(
+                functionName,
+                "getStatus",
+                StringComparison.Ordinal))
+        {
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                $"Lua function '{functionName}' is not enabled by the production backend.");
+        }
+
+        if (!payload.TryGetProperty("args", out JsonElement args) ||
+            args.ValueKind != JsonValueKind.Object)
+        {
+            throw new BridgeCommandException(
+                "INVALID_PAYLOAD",
+                "call_lua getStatus requires args to be an object.");
+        }
+
+        using JsonElement.ObjectEnumerator properties =
+            args.EnumerateObject();
+        if (properties.MoveNext())
+        {
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                "Only call_lua(getStatus,{}) is enabled by the production backend.");
+        }
+
+        if (bridgeHostState is null ||
+            !bridgeHostState.IsRpcTransportStarted)
+        {
+            throw new BridgeCommandException(
+                "LUA_CALL_FAILED",
+                "lua call failed: shared bridge transport is unavailable");
+        }
+
+        long now = RecoveredWallClock.UnixTimeMilliseconds();
+        try
+        {
+            return await bridgeHostState.CallLuaAsync(
+                    LWBridgeControlPipeRegistry.DefaultRoute,
+                    functionName,
+                    args,
+                    timestamp: now,
+                    createdAt: now,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (BridgeCommandException)
+        {
+            throw;
+        }
+        catch (Exception error)
+        {
+            throw new BridgeCommandException(
+                "LUA_CALL_FAILED",
+                "lua call failed: " + error.Message);
+        }
+    }
+
     private object SetAutomation(JsonElement payload)
     {
         string name = GetRequiredString(payload, "name");
@@ -431,7 +502,7 @@ internal sealed class LWBridgeBackend
             // OVL-02: only the current owned Overview session's fresh, exact
             // game-side heartbeat is authoritative bridge readiness.
             xluaOnline = overviewLifecycle?.IsReady ?? false,
-            pending = (int?)null,
+            pending = bridgeHostState?.PendingCallCount,
             config = new
             {
                 auto_weekend_shield = false,
