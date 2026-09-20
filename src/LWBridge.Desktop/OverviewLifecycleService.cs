@@ -822,6 +822,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 cancellationToken).ConfigureAwait(false);
             ValidateStopResult(result, profileId, snapshot.InstanceId, snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
+            if (bridgeControlPipeLaunchBindingEnabled)
+                bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId);
             StopLeaseTimer(deleteLease: true);
             ClearRuntimeSessionFiles();
             lock (stateGate)

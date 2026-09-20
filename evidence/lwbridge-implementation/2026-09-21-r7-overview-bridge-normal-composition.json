@@ -61,12 +61,13 @@
     }
   },
   "remainingA11Boundary": {
-    "getStatusPendingExposed": false,
-    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
-    "successfulProfileStopRegistryUnregister": "not source-recovered; not invented",
+    "getStatusPendingExposed": true,
+    "exactGetStatusCall": "enabled by R7-124",
+    "genericCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "successfulProfileStopRegistryUnregister": "source-recovered and implemented by R7-125",
     "realGamePositiveHandshake": "not performed in this checkpoint"
   },
-  "nextExactGap": "Expose get_status.pending from the live application-owned call registry, then enable only call_lua(getStatus,{}) through the authenticated default/instance route with the recovered 200 ms timeout. Keep generic call_lua fail-closed.",
+  "nextExactGap": "R7-124/125 supersede the offline data-path and successful-stop cleanup gaps. Next, prove the normal managed game launch authenticates the production route and answers only read-only get_status / call_lua(getStatus,{}) end-to-end, then close the owned game and verify route unregister/restoration.",
   "safety": {
     "realGameLaunched": false,
     "realLauncherLaunched": false,

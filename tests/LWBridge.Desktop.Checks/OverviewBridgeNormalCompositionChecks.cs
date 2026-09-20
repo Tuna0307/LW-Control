@@ -156,9 +156,10 @@ internal static class OverviewBridgeNormalCompositionChecks
             },
             boundary = new
             {
-                getStatusPendingExposed = false,
-                productionCallLuaEnabled = false,
-                successfulStopUnregisterRecovered = false,
+                getStatusPendingExposed = true,
+                exactGetStatusCallEnabled = true,
+                genericCallLuaEnabled = false,
+                successfulStopUnregisterRecovered = true,
             },
         }, JsonOptions.Default);
     }

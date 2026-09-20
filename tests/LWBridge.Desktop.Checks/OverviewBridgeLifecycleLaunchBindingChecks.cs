@@ -159,10 +159,9 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
               registry.Resolve(session)?.Generation == admittedGeneration,
             "successful synthetic listener admission remains correlated to lifecycle session");
 
-        host.CancelLaunchBinding(session);
-        Check(host.PendingRegistrationCount == 0 &&
-              host.ConnectedRouteCount == 0,
-            "test cleanup removes successful retained launch binding/route");
+        Check(host.PendingRegistrationCount == 1 &&
+              host.ConnectedRouteCount == 1,
+            "successful running session retains its claimed registration/route until stop");
 
         JsonElement stopPayload =
             JsonSerializer.SerializeToElement(new { instanceId = session });
@@ -171,6 +170,9 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
             stopPayload,
             CancellationToken.None);
         Check(!processAlive, "success proof stops synthetic owned game cleanly");
+        Check(host.PendingRegistrationCount == 0 &&
+              host.ConnectedRouteCount == 0,
+            "successful profile stop explicitly unregisters the retained launch binding/route");
 
         await ProveTerminalFailureCleanupAsync(
             root,
@@ -192,6 +194,28 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 "invocation.ControlPipeLaunchBinding?.ApplyTo(start);",
                 StringComparison.Ordinal),
             "real helper ProcessStartInfo applies the recovered launch environment");
+
+        int stopValidation = lifecycleSource.IndexOf(
+            "ValidateStopResult(result, profileId, snapshot.InstanceId",
+            StringComparison.Ordinal);
+        int successfulStopUnregister = stopValidation < 0
+            ? -1
+            : lifecycleSource.IndexOf(
+                "bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId);",
+                stopValidation,
+                StringComparison.Ordinal);
+        int stopLeaseCleanup = successfulStopUnregister < 0
+            ? -1
+            : lifecycleSource.IndexOf(
+                "StopLeaseTimer(deleteLease: true);",
+                successfulStopUnregister,
+                StringComparison.Ordinal);
+        Check(
+            stopValidation >= 0 &&
+            successfulStopUnregister > stopValidation &&
+            stopLeaseCleanup > successfulStopUnregister,
+            "successful owned stop unregisters retained bridge instance after validation and before lease cleanup");
+
         Check(windowSource.Contains(
                 "enableBridgeControlPipeLaunchBinding: true",
                 StringComparison.Ordinal) &&
@@ -216,6 +240,7 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 startCalls,
                 settleCalls,
                 admittedGeneration,
+                successfulStopUnregister = true,
                 terminalFailureUnregister = true,
             },
             boundary = new
@@ -224,7 +249,8 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 productionListenerStarted = true,
                 outboundCommandRoutingImplemented = true,
                 pendingCallCollectionImplemented = true,
-                productionCallLuaEnabled = false,
+                exactGetStatusCallEnabled = true,
+                genericCallLuaEnabled = false,
             },
         }, JsonOptions.Default);
     }
