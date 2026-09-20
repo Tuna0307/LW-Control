@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest recovery checkpoint - LWB-R7-096, 2026-09-20
+
+A11 is not closed, but its status semantics are no longer unknown. Static original recovery proves `get_status.pending` is the count of outstanding bridge-to-Lua calls awaiting correlated results, sourced directly from the bridge-store pending collection. Original Refresh Status displays that host count and then executes proxy refresh plus Lua `getStatus`. The current rebuild has no source-backed generic outbound pipe command/result transport, so `pending:null` and `call_lua=COMMAND_NOT_IMPLEMENTED` are intentionally retained. The remaining Home blocker is now specifically outbound bridge RPC recovery/implementation, not pending-counter semantics. See [R7-096 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-status-pending-contract.json).
+
 ## Latest implementation checkpoint - LWB-R7-095, 2026-09-20
 
 Acceptance case A06 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Original host/frontend recovery proves Home Close is unavailable while idle/launching and is separate from `map_scan_stop`; ten focused repetitions prove direct fail-closed safeguards, exact post-launch Stop, truthful incomplete scan/checkpoint/no-publication behavior when Home Close removes the owned game mid-scan, and recovery cancellation/restoration with no future restart. R7-088's A06 `partial` row is superseded. A11 is now the only remaining Home acceptance gap. See [R7-095 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-close-timing-matrix.json).

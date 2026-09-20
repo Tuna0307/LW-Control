@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-096, 2026-09-20
+
+**S02 semantics are recovered; A11 remains implementation-blocked.** Original `get_status` status snapshot locks the bridge-store mutex at `+0x100` and copies inner field `+0x38` to serialized `pending` (`status+0x50`). The same store shutdown path takes and zeroes the collection at inner `+0x20..+0x38`, uses `+0x38` as the exact item count, iterates 0x50-byte pending entries and completes them with `APP_SHUTTING_DOWN`; timeout handling uses `LUA_CALL_TIMEOUT`. Therefore Pending Tasks means outstanding bridge-to-Lua RPCs awaiting correlated results. The original frontend shows this host field and Refresh Status runs `get_status -> proxy_status -> call_lua("getStatus", {})`; Lua return is only logged.
+
+**Do not substitute** `NativeRequestRegistry.ActiveCount`, automation jobs, scan blocks or constant zero. Current `LWBridgeControlPipeProtocol` is intentionally recovered only through inbound `hello` identity; `hello.ack`, outbound command serialization and result correlation remain unrecovered. Consequently production `pending:null` and `call_lua -> COMMAND_NOT_IMPLEMENTED` remain the correct fail-closed boundary. **Next A11 work:** recover the original outbound bridge command/result protocol, then expose only the required allowlisted `getStatus` runtime call and authoritative outstanding-call count.
+
 ## Current continuation checkpoint - LWB-R7-095, 2026-09-20
 
 **A06 is closed OFFLINE.** Static recovery from `lwbridge-0.3.1.exe` plus the hash-locked original frontend establishes the actual Home semantics: idle and launching cannot invoke Close from the UI; `profile_instance_stop` is separate from `map_scan_stop`; Home Close never issues `stopMapScan`; scanning can still be interrupted by closing the underlying owned game; recovering Close remains reachable. `OverviewCloseTimingChecks` repeats all four states ten times and proves backend fail-closed guards, exact stop/restoration, dependent-scan `INCOMPLETE_SCAN` checkpoint truth/no partial publication, desired-running clear, recovery cancellation and no automatic restart. Full Release/deterministic validation remains green.

@@ -1,0 +1,137 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-096",
+  "date": "2026-09-20",
+  "status": "RECOVERED-CONTRACT/IMPLEMENTATION-BLOCKED",
+  "title": "Recover Home get_status.pending and Refresh Status contract",
+  "branch": "research/offline-controller",
+  "parentRevision": "24be70112d9e222a83d1703c6e5815fd4883c91b",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Recovers S02 pending semantics and the exact original Refresh Status frontend sequence. Does not claim A11 complete because the rebuild still lacks source-backed outbound generic bridge command/result serialization and call_lua(getStatus).",
+    "officialGameLaunched": false,
+    "productionBehaviorChanged": false,
+    "gameplayActionsPerformed": false
+  },
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "getStatusCommandFunction": "RVA 0x152388-0x152C2E",
+    "statusSerializerA": "RVA 0x3D204E-0x3D21F6",
+    "statusSerializerB": "RVA 0x3D21F6-0x3D2351",
+    "statusSnapshotHelper": "RVA 0x3CEA9A (cold path through 0x3CEE28)",
+    "storeDrainFunction": "RVA 0x3CEE28-0x3CF086",
+    "bridgeEventLoop": "RVA 0x3CF0E7-0x3D1965"
+  },
+  "recoveredPendingContract": {
+    "jsonField": "pending",
+    "type": "unsigned numeric/integer",
+    "statusStructOffset": "0x50",
+    "authoritativeSource": "bridge-store mutex-protected inner-state collection length",
+    "storeMutexOffset": "0x100",
+    "innerCollectionRegion": "0x20..0x38",
+    "innerLengthOffset": "0x38",
+    "snapshotDataflow": [
+      "lock store+0x100",
+      "read inner+0x38",
+      "write status+0x50",
+      "serialize as pending"
+    ],
+    "drainProof": {
+      "takesCollectionRegion": "inner+0x20..+0x38",
+      "readsItemCountFrom": "inner+0x38",
+      "zerosCollectionRegion": true,
+      "entrySizeBytes": 80,
+      "shutdownErrorCode": "APP_SHUTTING_DOWN",
+      "shutdownMessage": "application is shutting down"
+    },
+    "timeoutProof": {
+      "errorCode": "LUA_CALL_TIMEOUT",
+      "location": "bridge event loop"
+    },
+    "interpretation": "number of outstanding bridge-to-Lua calls awaiting their correlated result; not automation jobs, map blocks, lifecycle requests, or WebView/native request count"
+  },
+  "recoveredRefreshStatusFrontend": {
+    "visiblePendingExpression": "status.pending with ?? 0 display fallback",
+    "orderedOperations": [
+      "get_status",
+      "proxy_status",
+      "call_lua(fnName=getStatus,args={})"
+    ],
+    "luaResultUse": "log sent/error only; does not overwrite visible pending value",
+    "frontendIndex": {
+      "path": "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js",
+      "sha256": "c4dc12dc6320675a8272c3d60e6d31d8e8540b666abc80fc5ebfbc57340db075"
+    },
+    "apiBundle": {
+      "path": "src/LWBridge.Desktop/WebUi/assets/api-ClPPi2JT.js",
+      "sha256": "1e23ce9873501d6e0cd8ee91c8c768759e63f0e5e7e5dc7b10bc8fd52e38b230"
+    }
+  },
+  "currentImplementationBoundary": {
+    "getStatusPending": "null/unknown",
+    "genericCallLuaGetStatus": "COMMAND_NOT_IMPLEMENTED",
+    "controlPipeCurrentRecovery": "inbound hello parsing/identity only",
+    "outboundHelloAckAndCommandSerializationRecovered": false,
+    "outboundResultCorrelationRecovered": false,
+    "whyNotUseNativeRequestRegistryActiveCount": "it counts WebView-to-native request execution, not original bridge-store outstanding Lua RPC results",
+    "whyNotUseConstantZero": "would fabricate an authoritative value while generic Lua RPC transport is absent"
+  },
+  "deterministicGuard": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewStatusContractChecks.cs",
+    "focusedCli": "--overview-status-contract-check",
+    "assertions": [
+      "frontend host pending display",
+      "Refresh Status operation order",
+      "separate get_status/call_lua API surfaces",
+      "production pending remains null",
+      "call_lua getStatus remains fail-closed",
+      "outbound control-pipe contract still explicitly unrecovered"
+    ]
+  },
+  "currentClientCompatibility": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "nextBlocker": "Recover source-backed hello.ack/outbound command envelope/result-correlation transport (or an equally authoritative current-v19 generic Lua RPC implementation), then implement only the allowlisted getStatus runtime call and expose its outstanding-call count.",
+  "safety": {
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false,
+    "mapScanPerformed": false
+  },
+  "postValidation": {
+    "focusedStatusContractGuard": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

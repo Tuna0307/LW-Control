@@ -207,6 +207,14 @@ if (args.Contains("--overview-fault-admission-check", StringComparer.OrdinalIgno
 if (args.Contains("--overview-close-timing-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewCloseTimingChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-status-contract-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
     Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
     return 0;
 }
