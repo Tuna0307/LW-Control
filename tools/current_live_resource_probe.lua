@@ -2065,10 +2065,17 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
 end
 
 local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
-    local collection = reflected_value(point_manager, "_pointInfos")
-    if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
+    -- Current-v19 responses can omit already-retained City rows from _pointInfos.
+    -- The public/xLua-wrapped GetAllMainBaseList() returns the unique retained
+    -- BuildPointInfo main bases for the current manager state; filter that list
+    -- back to the exact native AOIs proven by the response.
+    local ok_list, collection = call(point_manager, "GetAllMainBaseList")
+    if not ok_list or collection == nil then
+        ok_list, collection = reflected_call(point_manager, "GetAllMainBaseList")
+    end
+    if not ok_list or collection == nil then return nil, "WorldPointManager.GetAllMainBaseList unavailable" end
     local expected = collection_count(collection)
-    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
+    if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "main_base_list_count_invalid" end
     local records = {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
@@ -2104,11 +2111,11 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
             level = scalar_field(info, { "level", "Level" }),
             health = scalar_field(info, { "curHp", "CurHp" }),
             protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
-            source = "WorldPointManager._pointInfos",
+            source = "WorldPointManager.GetAllMainBaseList",
         }
         return true
     end)
-    if scanned ~= expected then return nil, "point_enumeration_mismatch" end
+    if scanned ~= expected then return nil, "main_base_list_enumeration_mismatch" end
     return records, nil
 end
 
@@ -5112,6 +5119,9 @@ local function pump_bulk_aoi_diagnostic(now)
         fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
         return true
     end
+    -- City count follows the retained unique-main-base source, not the current
+    -- response delta in _pointInfos.
+    details.matchedCityCount = #point_records
     local resource_records, resource_records_error = resource_aoi_records(
         world, point_manager, details.blockSize, details.blockCount, lookup, bulk_aoi_request)
     if resource_records == nil then

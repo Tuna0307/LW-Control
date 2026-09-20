@@ -5690,6 +5690,19 @@ Check(liveProbeHelperSource.Contains("closing_owned_game_after_failure_for_resto
       liveProbeHelperSource.Contains("close_owned_game_process_for_restore(p, owned_game)", StringComparison.Ordinal),
     "live helper failure cleanup retains exact helper-owned PID normal-close restoration fallback");
 string liveCityProbeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+int cityCollectorStart = liveCityProbeSource.IndexOf("local function city_aoi_records", StringComparison.Ordinal);
+int cityCollectorEnd = cityCollectorStart >= 0
+    ? liveCityProbeSource.IndexOf("local function resource_aoi_records", cityCollectorStart, StringComparison.Ordinal)
+    : -1;
+string cityCollectorSource = cityCollectorStart >= 0 && cityCollectorEnd > cityCollectorStart
+    ? liveCityProbeSource[cityCollectorStart..cityCollectorEnd]
+    : string.Empty;
+Check(
+    cityCollectorSource.Contains("GetAllMainBaseList", StringComparison.Ordinal) &&
+    cityCollectorSource.Contains("source = \"WorldPointManager.GetAllMainBaseList\"", StringComparison.Ordinal) &&
+    !cityCollectorSource.Contains("WorldPointManager._pointInfos", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("details.matchedCityCount = #point_records", StringComparison.Ordinal),
+    "current-v19 City AOI collector must use the unique retained GetAllMainBaseList source and keep matchedCityCount tied to the published City snapshot");
 Check(
     liveCityProbeSource.Contains("protectTimeMinutes = protect_time", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("stealMaxTimes = steal_max_times", StringComparison.Ordinal) &&

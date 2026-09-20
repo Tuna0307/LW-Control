@@ -2396,7 +2396,7 @@ internal static class CurrentClientMapBlockSourceChecks
             {
                 kind = "player_base", pointType = 6, serverId = 2212, pointId = point.PointId,
                 x = point.X, y = point.Y, ownerUid = "u" + point.PointId, ownerName = "Player",
-                level = 30, source = "WorldPointManager._pointInfos",
+                level = 30, source = "WorldPointManager.GetAllMainBaseList",
             }).ToArray(),
             monster_march_records = Array.Empty<object>(),
             train_march_records = Array.Empty<object>(),
