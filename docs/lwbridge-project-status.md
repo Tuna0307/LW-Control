@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-092, 2026-09-20
+
+Acceptance case A05 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten runs use real temporary Windows processes named `LastWar` to exercise production name/path discovery and managed PID/path/start-time identity. Foreign instances are preserved across managed Start/Stop, duplicate managed Start cannot create another process, and selected-root unmanaged instances are surfaced/rejected with `UNMANAGED_GAME_RUNNING` but not killed. R7-088's A05 `partial` row is superseded; A06/A07/A08/A11 remain open. See [R7-092 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-process-ownership-matrix.json).
+
 ## Latest implementation checkpoint - LWB-R7-091, 2026-09-20
 
 Acceptance case A04 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. A blocked production lifecycle Start was stressed ten times with 48 duplicate Launch attempts and 120 status refreshes per run. All 480 secondary Launch calls rejected with the recovered in-progress error, all 1,200 refreshes stayed responsive and scoped to the original `starting` session, no secondary helper Start or stale success appeared, and all ten sessions stopped cleanly. R7-088's A04 `partial` row is superseded; A05/A06/A07/A08/A11 remain open. See [R7-091 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-launch-spam-refresh.json).

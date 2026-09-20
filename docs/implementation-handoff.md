@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-092, 2026-09-20
+
+**A05 is closed OFFLINE.** `OverviewProcessOwnershipChecks` exercises real Windows `LastWar` process discovery using temporary harmless executables, not the official game. Ten runs prove exact selected-root managed ownership, duplicate-Start rejection, foreign-process coexistence/preservation, selected-root unmanaged conflict reporting/rejection, and preservation of both unmanaged and unrelated processes. The managed Stop validates and closes only the exact PID/path/start-time identity returned by Start. The check is now part of the default deterministic suite and leaves no residual fixture process.
+
+**Next:** A06/A07/A08/A11 remain the Home acceptance gaps. A11 stays contract-blocked on original `get_status.pending`; do not infer that task count from lifecycle process state.
+
 ## Current continuation checkpoint - LWB-R7-091, 2026-09-20
 
 **A04 is closed OFFLINE.** The new `OverviewLaunchSpamChecks` regression blocks the original lifecycle helper Start, then concurrently issues repeated `profile_instance_start` and `profile_instance_status` requests. Ten independent runs produced 480/480 `GAME_OPERATION_IN_PROGRESS` rejections and 1,200 correctly scoped `starting` refreshes, with one helper Start/Stop per run, no duplicate/stale success and a clean stopped end state. The focused check is also included in the default deterministic suite; full Release validation remains green.
