@@ -239,6 +239,13 @@ if (args.Contains("--overview-bridge-transport-limits-check", StringComparer.Ord
     return 0;
 }
 
+if (args.Contains("--overview-bridge-listener-contract-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeListenerContractChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
@@ -252,6 +259,7 @@ await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
 LWBridge.Desktop.Checks.OverviewBridgeRpcProtocolChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeRegistryChecks.Run();
 LWBridge.Desktop.Checks.OverviewBridgeTransportLimitsChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeListenerContractChecks.Run();
 
 void Check(bool condition, string name)
 {
