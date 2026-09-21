@@ -1,0 +1,152 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-128",
+  "date": "2026-09-21",
+  "status": "NORMAL-EXECUTABLE-UI-RESPONSIVE/CLOSE-DURING-START-LIVE-PROVEN",
+  "title": "Keep normal WinForms startup responsive and rollback exact owned startup when LWBridge closes",
+  "branch": "research/offline-controller",
+  "parentRevision": "db281db36c4001fd833fbbe6a138fb6df2b92ee7",
+  "scope": {
+    "uiStartup": "Normal Release executable listener startup",
+    "closeDuringStart": "Normal Release executable production Overview startup reconcile",
+    "postHelperRace": "Host cancellation after helper success but before ownership publication",
+    "launcherOwnership": "Exact selected-root launcher lineage spawned by the helper-owned launcher"
+  },
+  "uiResponsiveness": {
+    "overview": {
+      "title": "lwbridge",
+      "responding": true,
+      "isHungAppWindow": false,
+      "wmNullSucceeded": true
+    },
+    "mapData": {
+      "title": "lwbridge",
+      "responding": true,
+      "isHungAppWindow": false,
+      "wmNullSucceeded": true
+    },
+    "fix": "Pending named-pipe connect polling detaches from the caller WinForms SynchronizationContext before native WaitForSingleObject polling."
+  },
+  "closeCancellation": {
+    "marker": "cancel-start.txt",
+    "schema": 1,
+    "correlation": ["sessionId", "challenge"],
+    "helperChecks": [
+      "before install/launch transitions",
+      "while waiting for selected LastWar.exe",
+      "while waiting for same-session readiness",
+      "before deferred-restore ownership publication",
+      "immediately before successful return"
+    ],
+    "earlyLiveAcceptance": {
+      "trigger": "recovery-journal",
+      "gameSeenBeforeClose": false,
+      "gameSeenAfterClose": false,
+      "remainingHelper": false,
+      "remainingLauncher": false,
+      "remainingGame": false,
+      "recoveryJournalExists": false,
+      "cancelMarkerExists": false,
+      "hashesMatchOriginals": true
+    },
+    "launcherWindowLiveAcceptance": {
+      "trigger": "launcher",
+      "sessionId": "privacy-redacted",
+      "gameSeenBeforeClose": false,
+      "gameSeenAfterClose": false,
+      "remainingHelper": false,
+      "remainingLauncher": false,
+      "remainingGame": false,
+      "recoveryJournalExists": false,
+      "cancelMarkerExists": false,
+      "hashesMatchOriginals": true,
+      "helperCleanupEvidence": {
+        "launcherCleanupError": null,
+        "recoveryCleared": true,
+        "ownedGamePid": null,
+        "launcherProcessExited": true
+      }
+    },
+    "launcherPolicy": "Only exact selected-root LastWarLauncher.exe processes in the helper-started launcher lineage and absent from the pre-launch baseline are eligible for cleanup. Path, parent PID and start-time identity are revalidated immediately before close/force termination. Normal CloseMainWindow is attempted first; a bounded force fallback is allowed only for those correlated launcher processes. LastWar.exe keeps the existing exact-PID normal-close-only policy.",
+    "postHelperSuccessRace": "If cancellation/Close lands after a valid helper Start result but before host ownership publication, the host invokes exact Stop using returned session/PID/path/start-time identity, validates restoration, cancels the launch binding and clears lifecycle state."
+  },
+  "deterministicAcceptance": {
+    "closeBeforeGameSpawn": {
+      "error": "GAME_OPERATION_CANCELLED",
+      "correlatedMarker": true,
+      "compensatingStopCalls": 0,
+      "finalPhase": "stopped",
+      "finalConnection": "offline",
+      "ownsPid": false,
+      "ownsInstance": false
+    },
+    "closeAfterHelperSuccess": {
+      "error": "GAME_OPERATION_CANCELLED",
+      "correlatedMarker": true,
+      "compensatingStopCalls": 1,
+      "processAlive": false,
+      "finalDesiredRunning": false,
+      "finalPhase": "stopped",
+      "ownsPid": false,
+      "ownsInstance": false
+    },
+    "launcherLineageSelfTest": true,
+    "listenerSynchronizationContextRegression": true
+  },
+  "a11Regression": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build -- --live-overview-a11-transport-proof",
+    "diagnosticOk": true,
+    "ownedInstance": true,
+    "connectionState": "connected",
+    "authenticatedRouteCount": 1,
+    "xluaOnline": true,
+    "pendingBefore": 0,
+    "exactGetStatusSucceeded": true,
+    "luaResultKind": "Object",
+    "luaResultPropertyCount": 4,
+    "pendingAfter": 0,
+    "genericCallBlocked": true,
+    "managedStop": {
+      "stopped": true,
+      "routeUnregistered": true,
+      "restoreValidated": true,
+      "gameRunningAfterStop": false
+    }
+  },
+  "originalPackage": {
+    "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+    "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+    "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+  },
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "generatedBundleNodeSyntax": true,
+    "pythonCompile": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministic": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "finalProcessCleanup": {
+      "lastWarRunning": false,
+      "launcherRunning": false
+    }
+  },
+  "safety": {
+    "mapScanPerformed": false,
+    "scoutPerformed": false,
+    "collectPerformed": false,
+    "attackPerformed": false,
+    "claimPerformed": false,
+    "plunderPerformed": false,
+    "messagePerformed": false,
+    "sharePerformed": false
+  },
+  "remainingBoundary": "R7-128 closes the normal executable startup-hang and close-during-start orphan window. Unrelated Map Data scan diagnostics and population/action acceptance remain separate work."
+}

@@ -17,6 +17,7 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<int, string, string?, bool>? ProcessMatches { get; init; }
     public Func<string, byte[]>? ReadAllBytes { get; init; }
     public Action<string, string, string>? WriteLease { get; init; }
+    public Action<string, string, string>? WriteStartCancellation { get; init; }
     public Action<string>? DeleteFile { get; init; }
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<long>? MonotonicMilliseconds { get; init; }
@@ -44,6 +45,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 {
     internal const string BridgeVersion = "lwbridge-overview-bridge-1";
     internal const string ReadyMessage = "LWbridge is running";
+    private const string StartCancellationFileName = "cancel-start.txt";
     private static readonly TimeSpan HeartbeatFreshness = TimeSpan.FromSeconds(5);
 
     private readonly object stateGate = new();
@@ -354,7 +356,19 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public void Close()
     {
-        lock (stateGate) closed = true;
+        string? cancellingSession = null;
+        string? cancellingChallenge = null;
+        lock (stateGate)
+        {
+            closed = true;
+            if (phase == "starting" && instanceId is not null && challenge is not null)
+            {
+                cancellingSession = instanceId;
+                cancellingChallenge = challenge;
+            }
+        }
+        if (cancellingSession is not null && cancellingChallenge is not null)
+            TryWriteStartCancellationMarker(cancellingSession, cancellingChallenge);
         StopRecoveryMonitor();
         StopLeaseTimer(deleteLease: true);
     }
@@ -645,39 +659,80 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStartEvidence(newSession, start);
+            bool cancelBeforePublication;
             lock (stateGate)
             {
-                if (closed)
-                    throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge closed while the game was starting.");
-                phase = "running";
-                connectionState = "connected";
-                instanceId = newSession;
-                challenge = newChallenge;
-                gamePid = start.GamePid;
-                launcherPid = start.LauncherPid;
-                gamePath = start.GamePath;
-                gameStartedAtUtc = start.GameStartedAtUtc;
-                readyAtUnix = start.ReadyAtUnix;
-                lastError = null;
+                cancelBeforePublication = closed || cancellationToken.IsCancellationRequested;
+                if (!cancelBeforePublication)
+                {
+                    phase = "running";
+                    connectionState = "connected";
+                    instanceId = newSession;
+                    challenge = newChallenge;
+                    gamePid = start.GamePid;
+                    launcherPid = start.LauncherPid;
+                    gamePath = start.GamePath;
+                    gameStartedAtUtc = start.GameStartedAtUtc;
+                    readyAtUnix = start.ReadyAtUnix;
+                    lastError = null;
+                }
             }
+            if (cancelBeforePublication)
+            {
+                await StopCancelledSuccessfulStartAsync(
+                    start, newSession, newChallenge).ConfigureAwait(false);
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_CANCELLED",
+                    "LWBridge closed while the game was starting.");
+            }
+
             StartLeaseTimer();
             if (!IsReady)
                 throw new BridgeCommandException("BRIDGE_START_TIMEOUT", "The game started, but the current Overview bridge response is not fresh.");
             SetDesiredRunning(true);
-            startTransactionSucceeded = true;
-            return CreateInstanceStatus();
-        }
-        catch (BridgeCommandException)
-        {
+
+            bool cancelAfterPublication;
             lock (stateGate)
             {
-                if (gamePid is null)
+                cancelAfterPublication = closed || cancellationToken.IsCancellationRequested;
+                if (!cancelAfterPublication)
+                    startTransactionSucceeded = true;
+            }
+            if (cancelAfterPublication)
+            {
+                await StopCancelledSuccessfulStartAsync(
+                    start, newSession, newChallenge).ConfigureAwait(false);
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_CANCELLED",
+                    "LWBridge closed while the game was starting.");
+            }
+            return CreateInstanceStatus();
+        }
+        catch (BridgeCommandException ex)
+        {
+            if (ex.Code == "GAME_OPERATION_CANCELLED")
+            {
+                ResetCancelledStartState();
+            }
+            else
+            {
+                lock (stateGate)
                 {
-                    phase = "error";
-                    connectionState = "error";
+                    if (gamePid is null)
+                    {
+                        phase = "error";
+                        connectionState = "error";
+                    }
                 }
             }
             throw;
+        }
+        catch (OperationCanceledException)
+        {
+            ResetCancelledStartState();
+            throw new BridgeCommandException(
+                "GAME_OPERATION_CANCELLED",
+                "LWBridge closed while the game was starting.");
         }
         catch (Exception ex)
         {
@@ -704,6 +759,68 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     controlPipeLaunchBinding.InstanceId);
             }
         }
+    }
+
+    private async Task StopCancelledSuccessfulStartAsync(
+        OverviewStartResult start,
+        string session,
+        string nonce)
+    {
+        try
+        {
+            JsonElement result = await RunHelperAsync(
+                new OverviewHelperInvocation(
+                    "stop",
+                    profileId,
+                    session,
+                    nonce,
+                    start.GamePid,
+                    start.GamePath,
+                    start.GameStartedAtUtc),
+                CancellationToken.None).ConfigureAwait(false);
+            ValidateStopResult(
+                result,
+                profileId,
+                session,
+                start.GamePid,
+                start.GamePath,
+                start.GameStartedAtUtc,
+                requireCurrentClientEvidence);
+            if (testHooks is null)
+                WriteHostStopEvidence(session, result);
+        }
+        catch (Exception ex)
+        {
+            try { SetDesiredRunning(false); } catch { }
+            throw new BridgeCommandException(
+                "GAME_CLOSE_FAILED",
+                "LWBridge closed while the game was starting, but the owned game could not be restored cleanly.",
+                new { error = ex.Message });
+        }
+
+        if (bridgeControlPipeLaunchBindingEnabled)
+            bridgeHostState?.CancelLaunchBinding(session);
+        ResetCancelledStartState();
+    }
+
+    private void ResetCancelledStartState()
+    {
+        StopLeaseTimer(deleteLease: true);
+        ClearRuntimeSessionFiles();
+        lock (stateGate)
+        {
+            phase = "stopped";
+            connectionState = "offline";
+            instanceId = null;
+            challenge = null;
+            gamePid = null;
+            launcherPid = null;
+            gamePath = null;
+            gameStartedAtUtc = null;
+            lastError = "GAME_OPERATION_CANCELLED";
+            readyAtUnix = null;
+        }
+        try { SetDesiredRunning(false); } catch { }
     }
 
     private void EnsureControlPipeHostStarted(string selectedRoot)
@@ -868,6 +985,27 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private async Task<JsonElement> RunHelperAsync(OverviewHelperInvocation invocation, CancellationToken cancellationToken)
     {
+        bool isStart = invocation.Operation == "start" &&
+            invocation.SessionId is not null &&
+            invocation.Challenge is not null;
+        CancellationTokenRegistration startCancellationRegistration = isStart
+            ? cancellationToken.Register(() =>
+                TryWriteStartCancellationMarker(invocation.SessionId!, invocation.Challenge!))
+            : default;
+        try
+        {
+            return await RunHelperCoreAsync(invocation, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            startCancellationRegistration.Dispose();
+            if (isStart)
+                ClearStartCancellationMarker();
+        }
+    }
+
+    private async Task<JsonElement> RunHelperCoreAsync(OverviewHelperInvocation invocation, CancellationToken cancellationToken)
+    {
         if (testHooks?.RunHelperAsync is { } testRunner)
             return await testRunner(invocation, cancellationToken).ConfigureAwait(false);
 
@@ -966,6 +1104,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     string? errorType = root.TryGetProperty("errorType", out JsonElement errorTypeElement) && errorTypeElement.ValueKind == JsonValueKind.String
                         ? errorTypeElement.GetString()
                         : null;
+                    if (invocation.Operation == "start" &&
+                        error.StartsWith("Overview start cancelled by closing LWBridge", StringComparison.Ordinal))
+                    {
+                        throw new BridgeCommandException(
+                            "GAME_OPERATION_CANCELLED",
+                            "LWBridge closed while the game was starting.",
+                            new { error });
+                    }
                     if (string.Equals(errorType, "CurrentClientCompatibilityError", StringComparison.Ordinal))
                         throw new BridgeCommandException(
                             "GAME_UPDATE_UNSUPPORTED",
@@ -1261,6 +1407,54 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
     }
 
+    private void TryWriteStartCancellationMarker(string session, string nonce)
+    {
+        try { WriteStartCancellationMarker(session, nonce); }
+        catch { }
+    }
+
+    private void WriteStartCancellationMarker(string session, string nonce)
+    {
+        lock (leaseWriteGate)
+        {
+            if (testHooks?.WriteStartCancellation is { } test)
+            {
+                test(session, nonce, runtimeRoot);
+                return;
+            }
+            Directory.CreateDirectory(runtimeRoot);
+            string path = Path.Combine(runtimeRoot, StartCancellationFileName);
+            string temp = path + ".tmp-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+            try
+            {
+                File.WriteAllText(temp,
+                    "schema=1\n" +
+                    $"sessionId={session}\n" +
+                    $"challenge={nonce}\n");
+                File.Move(temp, path, overwrite: true);
+            }
+            finally
+            {
+                try { if (File.Exists(temp)) DeleteFile(temp); } catch { }
+            }
+        }
+    }
+
+    private void ClearStartCancellationMarker()
+    {
+        lock (leaseWriteGate)
+        {
+            try { DeleteFile(Path.Combine(runtimeRoot, StartCancellationFileName)); } catch { }
+            try
+            {
+                if (Directory.Exists(runtimeRoot))
+                    foreach (string temp in Directory.EnumerateFiles(runtimeRoot, StartCancellationFileName + ".tmp-*"))
+                        try { DeleteFile(temp); } catch { }
+            }
+            catch { }
+        }
+    }
+
     private void WriteHostStartEvidence(string session, OverviewStartResult start)
     {
         try
@@ -1321,6 +1515,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             try { DeleteFile(Path.Combine(runtimeRoot, name)); }
             catch { }
         }
+        ClearStartCancellationMarker();
     }
 
     private void DeleteFile(string path)

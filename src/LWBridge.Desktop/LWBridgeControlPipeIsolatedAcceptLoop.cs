@@ -236,6 +236,12 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
         if (disposition != LWBridgePipeConnectDisposition.Pending)
             return disposition;
 
+        // The listener may be started while the WinForms synchronization
+        // context is already installed but before Application.Run begins.
+        // Detach pending native-connect polling from that caller/UI context so
+        // each bounded WaitForSingleObject poll cannot starve the message pump.
+        await Task.Delay(1, cancellationToken).ConfigureAwait(false);
+
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();

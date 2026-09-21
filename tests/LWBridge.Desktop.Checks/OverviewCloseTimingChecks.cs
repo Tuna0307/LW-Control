@@ -19,6 +19,8 @@ internal static class OverviewCloseTimingChecks
             JsonElement frontend = VerifyRecoveredFrontendContract();
             JsonElement idle = await RunIdleAsync(Path.Combine(root, "idle"));
             JsonElement launching = await RunLaunchingAsync(Path.Combine(root, "launching"));
+            JsonElement closeDuringStart = await RunCloseDuringStartAsync(Path.Combine(root, "close-during-start"));
+            JsonElement closeAfterHelperSuccess = await RunCloseAfterHelperSuccessAsync(Path.Combine(root, "close-after-helper-success"));
             JsonElement scanning = await RunScanningAsync(Path.Combine(root, "scanning"));
             JsonElement recovering = await RunRecoveringAsync(Path.Combine(root, "recovering"));
             return JsonSerializer.SerializeToElement(new
@@ -29,6 +31,8 @@ internal static class OverviewCloseTimingChecks
                 frontend,
                 idle,
                 launching,
+                closeDuringStart,
+                closeAfterHelperSuccess,
                 scanning,
                 recovering,
             });
@@ -163,6 +167,203 @@ internal static class OverviewCloseTimingChecks
             exactStopCalls = stopCalls,
             finalDesiredRunning = config.Snapshot.GameDesiredRunning,
             finalPhase = stopped.GetProperty("phase").GetString(),
+        });
+    }
+
+    private static async Task<JsonElement> RunCloseDuringStartAsync(string root)
+    {
+        Directory.CreateDirectory(Path.Combine(root, "Game"));
+        const string profile = "profile-r7-128-close-start";
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var markerObserved = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        string? startSession = null;
+        string? startChallenge = null;
+        string? markerSession = null;
+        string? markerChallenge = null;
+        int startCalls = 0;
+        int stopCalls = 0;
+
+        var hooks = BaseHooks(
+            async (invocation, _) =>
+            {
+                if (invocation.Operation != "start")
+                {
+                    stopCalls++;
+                    throw new InvalidOperationException("pre-spawn cancellation must not need compensating Stop");
+                }
+                startCalls++;
+                startSession = invocation.SessionId;
+                startChallenge = invocation.Challenge;
+                entered.TrySetResult();
+                await markerObserved.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_CANCELLED",
+                    "synthetic helper observed correlated close cancellation");
+            },
+            writeStartCancellation: (session, challenge, _) =>
+            {
+                markerSession = session;
+                markerChallenge = challenge;
+                markerObserved.TrySetResult();
+            });
+
+        using var lifecycle = new OverviewLifecycleService(
+            profile, root,
+            helperPath: Path.Combine(root, "fake.py"),
+            requireCurrentClientEvidence: false,
+            testHooks: hooks,
+            startRecoveryMonitor: false);
+
+        Task<object?> startTask = lifecycle.InvokeAsync(
+            "profile_instance_start",
+            JsonSerializer.SerializeToElement(new { }),
+            CancellationToken.None);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        lifecycle.Close();
+
+        string code;
+        try
+        {
+            _ = await startTask.ConfigureAwait(false);
+            code = "UNEXPECTED_SUCCESS";
+        }
+        catch (BridgeCommandException error)
+        {
+            code = error.Code;
+        }
+
+        JsonElement status = Status(lifecycle.CreateInstanceStatus());
+        Check(code == "GAME_OPERATION_CANCELLED",
+            "Close during pre-spawn Start must surface GAME_OPERATION_CANCELLED");
+        Check(startCalls == 1 && stopCalls == 0,
+            "pre-spawn cancellation must use helper rollback rather than inventing a Stop");
+        Check(startSession is not null && startChallenge is not null &&
+              markerSession == startSession && markerChallenge == startChallenge,
+            "start cancellation marker must bind to the exact session and challenge");
+        Check(status.GetProperty("phase").GetString() == "stopped" &&
+              status.GetProperty("connectionState").GetString() == "offline" &&
+              status.GetProperty("pid").ValueKind == JsonValueKind.Null &&
+              status.GetProperty("instanceId").ValueKind == JsonValueKind.Null,
+            "cancelled pre-spawn Start must leave no lifecycle ownership");
+
+        return JsonSerializer.SerializeToElement(new
+        {
+            error = code,
+            correlatedMarker = true,
+            helperStartCalls = startCalls,
+            compensatingStopCalls = stopCalls,
+            finalPhase = status.GetProperty("phase").GetString(),
+            finalConnection = status.GetProperty("connectionState").GetString(),
+            ownsPid = status.GetProperty("pid").ValueKind != JsonValueKind.Null,
+            ownsInstance = status.GetProperty("instanceId").ValueKind != JsonValueKind.Null,
+        });
+    }
+
+    private static async Task<JsonElement> RunCloseAfterHelperSuccessAsync(string root)
+    {
+        Directory.CreateDirectory(Path.Combine(root, "Game"));
+        string gamePath = Path.Combine(root, "Game", "LastWar.exe");
+        const string profile = "profile-r7-128-close-after-success";
+        const int pid = 49151;
+        const string startedAt = "2026-09-21T08:00:00.0000000Z";
+        bool processAlive = false;
+        int startCalls = 0;
+        int stopCalls = 0;
+        string? session = null;
+        string? challenge = null;
+        string? markerSession = null;
+        string? markerChallenge = null;
+        OverviewLifecycleService? lifecycle = null;
+        var config = new LocalConfigStore(Path.Combine(root, "config"));
+        config.Update(c => c with { ProfileId = profile, AutoReconnect = true });
+
+        var hooks = BaseHooks(
+            (invocation, _) =>
+            {
+                if (invocation.Operation == "start")
+                {
+                    startCalls++;
+                    session = invocation.SessionId;
+                    challenge = invocation.Challenge;
+                    processAlive = true;
+                    lifecycle!.Close();
+                    return Task.FromResult(StartResult(invocation, gamePath, pid, startedAt));
+                }
+
+                stopCalls++;
+                Check(invocation.SessionId == session &&
+                      invocation.GamePid == pid &&
+                      invocation.GamePath is not null &&
+                      string.Equals(
+                          Path.GetFullPath(invocation.GamePath),
+                          Path.GetFullPath(gamePath),
+                          StringComparison.OrdinalIgnoreCase) &&
+                      invocation.GameStartedAtUtc == startedAt,
+                    "post-helper cancellation must invoke exact returned ownership Stop");
+                processAlive = false;
+                return Task.FromResult(StopResult(invocation, gamePath, pid, startedAt));
+            },
+            processMatches: (p, path, created) =>
+                processAlive && p == pid && created == startedAt &&
+                string.Equals(
+                    Path.GetFullPath(path),
+                    Path.GetFullPath(gamePath),
+                    StringComparison.OrdinalIgnoreCase),
+            writeStartCancellation: (observedSession, observedChallenge, _) =>
+            {
+                markerSession = observedSession;
+                markerChallenge = observedChallenge;
+            });
+
+        using var ownedLifecycle = new OverviewLifecycleService(
+            profile, root,
+            helperPath: Path.Combine(root, "fake.py"),
+            requireCurrentClientEvidence: false,
+            config: config,
+            testHooks: hooks,
+            startRecoveryMonitor: false);
+        lifecycle = ownedLifecycle;
+
+        string code;
+        try
+        {
+            _ = await lifecycle.InvokeAsync(
+                "profile_instance_start",
+                JsonSerializer.SerializeToElement(new { }),
+                CancellationToken.None).ConfigureAwait(false);
+            code = "UNEXPECTED_SUCCESS";
+        }
+        catch (BridgeCommandException error)
+        {
+            code = error.Code;
+        }
+
+        JsonElement status = Status(lifecycle.CreateInstanceStatus());
+        Check(code == "GAME_OPERATION_CANCELLED",
+            "Close after helper success must surface GAME_OPERATION_CANCELLED");
+        Check(startCalls == 1 && stopCalls == 1 && !processAlive,
+            "post-helper cancellation must run one exact compensating Stop and leave no game");
+        Check(session is not null && challenge is not null &&
+              markerSession == session && markerChallenge == challenge,
+            "post-helper close marker must remain correlated to the successful Start identity");
+        Check(status.GetProperty("phase").GetString() == "stopped" &&
+              status.GetProperty("connectionState").GetString() == "offline" &&
+              status.GetProperty("pid").ValueKind == JsonValueKind.Null &&
+              status.GetProperty("instanceId").ValueKind == JsonValueKind.Null &&
+              !config.Snapshot.GameDesiredRunning,
+            "compensated close-after-success must clear ownership and desired-running state");
+
+        return JsonSerializer.SerializeToElement(new
+        {
+            error = code,
+            correlatedMarker = true,
+            helperStartCalls = startCalls,
+            compensatingStopCalls = stopCalls,
+            processAlive,
+            finalDesiredRunning = config.Snapshot.GameDesiredRunning,
+            finalPhase = status.GetProperty("phase").GetString(),
+            ownsPid = status.GetProperty("pid").ValueKind != JsonValueKind.Null,
+            ownsInstance = status.GetProperty("instanceId").ValueKind != JsonValueKind.Null,
         });
     }
 
@@ -356,7 +557,8 @@ internal static class OverviewCloseTimingChecks
         Func<string, byte[]>? readAllBytes = null,
         Func<long>? monotonicMilliseconds = null,
         Func<bool>? updateProcessRunning = null,
-        Func<int, string, bool>? processHung = null) => new()
+        Func<int, string, bool>? processHung = null,
+        Action<string, string, string>? writeStartCancellation = null) => new()
     {
         RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
         RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
@@ -364,6 +566,7 @@ internal static class OverviewCloseTimingChecks
         ProcessMatches = processMatches,
         ReadAllBytes = readAllBytes,
         WriteLease = (_, _, _) => { },
+        WriteStartCancellation = writeStartCancellation,
         DeleteFile = _ => { },
         UtcNow = () => DateTimeOffset.UtcNow,
         MonotonicMilliseconds = monotonicMilliseconds,

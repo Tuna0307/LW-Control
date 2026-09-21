@@ -153,6 +153,39 @@ def write_kv_atomic(path: Path, values: dict[str, object]) -> None:
             pass
 
 
+def read_kv(path: Path) -> dict[str, str] | None:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    values: dict[str, str] = {}
+    for line in lines:
+        key, separator, value = line.partition("=")
+        if not separator or not key:
+            return None
+        values[key] = value
+    return values
+
+
+def start_cancel_matches(
+    p: dict[str, Path], session_id: str, challenge: str,
+) -> bool:
+    value = read_kv(p["runtime"] / "cancel-start.txt")
+    return bool(
+        value is not None
+        and value.get("schema") == "1"
+        and value.get("sessionId") == session_id
+        and value.get("challenge") == challenge
+    )
+
+
+def throw_if_start_cancelled(
+    p: dict[str, Path], session_id: str, challenge: str,
+) -> None:
+    if start_cancel_matches(p, session_id, challenge):
+        raise OverviewBridgeError("Overview start cancelled by closing LWBridge")
+
+
 def require_control_pipe_path(value: str | None) -> str | None:
     if value is None:
         return None
@@ -202,7 +235,10 @@ def write_lease(p: dict[str, Path], session_id: str, challenge: str) -> None:
     })
 
 
-def clear_stale_runtime(p: dict[str, Path]) -> None:
+def clear_stale_runtime(
+    p: dict[str, Path],
+    preserve_start_cancel: tuple[str, str] | None = None,
+) -> None:
     p["runtime"].mkdir(parents=True, exist_ok=True)
     for name in (
         "control.txt",
@@ -216,6 +252,22 @@ def clear_stale_runtime(p: dict[str, Path]) -> None:
             (p["runtime"] / name).unlink()
         except FileNotFoundError:
             pass
+    cancel_path = p["runtime"] / "cancel-start.txt"
+    preserve_cancel = (
+        preserve_start_cancel is not None
+        and start_cancel_matches(p, preserve_start_cancel[0], preserve_start_cancel[1])
+    )
+    if not preserve_cancel:
+        try:
+            cancel_path.unlink()
+        except FileNotFoundError:
+            pass
+    for stale_cancel in p["runtime"].glob("cancel-start.txt.tmp-*"):
+        try:
+            stale_cancel.unlink()
+        except FileNotFoundError:
+            pass
+
     for pattern in (
         "pipe-inbound-*.json",
         "pipe-inbound-*.json.tmp",
@@ -240,6 +292,7 @@ def launcher_log_offset(p: dict[str, Path]) -> int:
 
 def await_owned_game_process_update_aware(
     p: dict[str, Path], deadline: float, initial_log_offset: int,
+    session_id: str, challenge: str,
 ) -> dict[str, object]:
     log = p["launcher"].parent / "Launcher.log"
     offset = max(0, initial_log_offset)
@@ -249,6 +302,7 @@ def await_owned_game_process_update_aware(
             raise OverviewBridgeError("multiple LastWar processes match the selected installation")
         if len(processes) == 1:
             return processes[0]
+        throw_if_start_cancelled(p, session_id, challenge)
         try:
             size = log.stat().st_size
             if size < offset:
@@ -267,27 +321,218 @@ def await_owned_game_process_update_aware(
         time.sleep(0.25)
     raise OverviewBridgeError("the selected launcher did not create a matching LastWar process before timeout")
 
-def close_owned_launcher_process(launcher_process, wait_seconds: float = 10.0) -> None:
-    if launcher_process is None or launcher_process.poll() is not None:
-        return
-    command = (
-        f"$process = Get-Process -Id {launcher_process.pid} -ErrorAction Stop; "
-        "if (-not $process.CloseMainWindow()) { exit 4 }"
+def parse_selected_launcher_processes(
+    stdout: str, expected_launcher: Path,
+) -> list[dict[str, object]]:
+    text = stdout.strip()
+    if not text:
+        return []
+    try:
+        value = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise OverviewBridgeError("could not parse selected LastWar launcher process inventory") from exc
+    items = value if isinstance(value, list) else [value]
+    expected = os.path.normcase(os.path.abspath(os.fspath(expected_launcher)))
+    matched: list[dict[str, object]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        process_path = item.get("path")
+        pid = item.get("pid")
+        parent_pid = item.get("parentPid")
+        if (
+            not isinstance(process_path, str)
+            or not isinstance(pid, int)
+            or pid <= 0
+            or not isinstance(parent_pid, int)
+            or parent_pid < 0
+        ):
+            continue
+        if os.path.normcase(os.path.abspath(process_path)) != expected:
+            continue
+        matched.append({
+            "pid": pid,
+            "parentPid": parent_pid,
+            "path": os.path.abspath(process_path),
+            "startedAtUtc": item.get("startedAtUtc")
+            if isinstance(item.get("startedAtUtc"), str) else None,
+        })
+    return matched
+
+
+def selected_launcher_processes(p: dict[str, Path]) -> list[dict[str, object]]:
+    script = (
+        "$ErrorActionPreference='SilentlyContinue';"
+        "@(Get-CimInstance Win32_Process -Filter \"Name='LastWarLauncher.exe'\" | ForEach-Object {"
+        "$id=[int]$_.ProcessId;$path=$_.ExecutablePath;$started=$null;"
+        "try{$started=(Get-Process -Id $id -ErrorAction Stop).StartTime.ToUniversalTime().ToString('o')}catch{};"
+        "[pscustomobject]@{pid=$id;parentPid=[int]$_.ParentProcessId;path=$path;startedAtUtc=$started}"
+        "}) | ConvertTo-Json -Compress"
     )
     result = lr.subprocess.run(
-        ["powershell.exe", "-NoProfile", "-Command", command],
-        capture_output=True, text=True, timeout=5, check=False,
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True, text=True, check=False,
     )
     if result.returncode != 0:
+        raise OverviewBridgeError("could not inspect the selected LastWar launcher process")
+    return parse_selected_launcher_processes(result.stdout, p["launcher"])
+
+
+def select_helper_owned_launcher_processes(
+    processes: list[dict[str, object]],
+    root_pid: int,
+    baseline_pids: set[int],
+) -> list[dict[str, object]]:
+    candidates = [
+        item for item in processes
+        if isinstance(item.get("pid"), int) and int(item["pid"]) not in baseline_pids
+    ]
+    owned_pids = {root_pid}
+    changed = True
+    while changed:
+        changed = False
+        for item in candidates:
+            pid = int(item["pid"])
+            parent_pid = item.get("parentPid")
+            if pid in owned_pids:
+                continue
+            if isinstance(parent_pid, int) and parent_pid in owned_pids:
+                owned_pids.add(pid)
+                changed = True
+    owned = [item for item in candidates if int(item["pid"]) in owned_pids]
+    return sorted(owned, key=lambda item: int(item["pid"]) == root_pid)
+
+
+def close_correlated_launcher_process(
+    item: dict[str, object],
+    normal_wait_milliseconds: int = 2000,
+    force_wait_milliseconds: int = 5000,
+) -> dict[str, object]:
+    pid = item.get("pid")
+    parent_pid = item.get("parentPid")
+    process_path = item.get("path")
+    started_at_utc = item.get("startedAtUtc")
+    if (
+        not isinstance(pid, int)
+        or pid <= 0
+        or not isinstance(parent_pid, int)
+        or parent_pid < 0
+        or not isinstance(process_path, str)
+    ):
+        raise OverviewBridgeError("helper-owned launcher identity is incomplete")
+    if normal_wait_milliseconds < 1 or force_wait_milliseconds < 1:
+        raise OverviewBridgeError("launcher cleanup waits must be positive")
+
+    cleanup_env = os.environ.copy()
+    cleanup_env["LWBRIDGE_OWNED_LAUNCHER_PID"] = str(pid)
+    cleanup_env["LWBRIDGE_OWNED_LAUNCHER_PARENT_PID"] = str(parent_pid)
+    cleanup_env["LWBRIDGE_OWNED_LAUNCHER_PATH"] = os.path.abspath(process_path)
+    cleanup_env["LWBRIDGE_OWNED_LAUNCHER_STARTED_AT_UTC"] = (
+        started_at_utc if isinstance(started_at_utc, str) else ""
+    )
+    cleanup_env["LWBRIDGE_LAUNCHER_NORMAL_WAIT_MS"] = str(normal_wait_milliseconds)
+    cleanup_env["LWBRIDGE_LAUNCHER_FORCE_WAIT_MS"] = str(force_wait_milliseconds)
+    script = (
+        "$ErrorActionPreference='Stop';"
+        "$ownedPid=[int]$env:LWBRIDGE_OWNED_LAUNCHER_PID;"
+        "$expectedParent=[int]$env:LWBRIDGE_OWNED_LAUNCHER_PARENT_PID;"
+        "$expected=[IO.Path]::GetFullPath($env:LWBRIDGE_OWNED_LAUNCHER_PATH);"
+        "$expectedStarted=$env:LWBRIDGE_OWNED_LAUNCHER_STARTED_AT_UTC;"
+        "$normalWait=[int]$env:LWBRIDGE_LAUNCHER_NORMAL_WAIT_MS;"
+        "$forceWait=[int]$env:LWBRIDGE_LAUNCHER_FORCE_WAIT_MS;"
+        "$process=Get-Process -Id $ownedPid -ErrorAction SilentlyContinue;"
+        "if($null -eq $process){exit 0};"
+        "$cim=Get-CimInstance Win32_Process -Filter ('ProcessId=' + $ownedPid) -ErrorAction Stop;"
+        "if($null -eq $cim){exit 0};"
+        "$actual=[IO.Path]::GetFullPath($process.Path);"
+        "if(-not [StringComparer]::OrdinalIgnoreCase.Equals($actual,$expected)){exit 43};"
+        "if([int]$cim.ParentProcessId -ne $expectedParent){exit 45};"
+        "$actualStarted=$process.StartTime.ToUniversalTime().ToString('o');"
+        "if($expectedStarted -and -not [StringComparer]::Ordinal.Equals($actualStarted,$expectedStarted)){exit 44};"
+        "$accepted=$process.CloseMainWindow();"
+        "if($accepted -and $process.WaitForExit($normalWait)){exit 0};"
+        "$process=Get-Process -Id $ownedPid -ErrorAction SilentlyContinue;"
+        "if($null -eq $process){exit 0};"
+        "$cim=Get-CimInstance Win32_Process -Filter ('ProcessId=' + $ownedPid) -ErrorAction Stop;"
+        "if($null -eq $cim){exit 0};"
+        "$actual=[IO.Path]::GetFullPath($process.Path);"
+        "if(-not [StringComparer]::OrdinalIgnoreCase.Equals($actual,$expected)){exit 43};"
+        "if([int]$cim.ParentProcessId -ne $expectedParent){exit 45};"
+        "$actualStarted=$process.StartTime.ToUniversalTime().ToString('o');"
+        "if($expectedStarted -and -not [StringComparer]::Ordinal.Equals($actualStarted,$expectedStarted)){exit 44};"
+        "Stop-Process -Id $ownedPid -Force -ErrorAction Stop;"
+        "$deadline=[DateTime]::UtcNow.AddMilliseconds($forceWait);"
+        "while([DateTime]::UtcNow -lt $deadline){"
+        "if($null -eq (Get-Process -Id $ownedPid -ErrorAction SilentlyContinue)){exit 10};"
+        "Start-Sleep -Milliseconds 50};"
+        "exit 46"
+    )
+    timeout = (normal_wait_milliseconds + force_wait_milliseconds) / 1000.0 + 5.0
+    result = lr.subprocess.run(
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True, text=True, timeout=timeout, check=False, env=cleanup_env,
+    )
+    if result.returncode not in (0, 10):
+        reasons = {
+            43: "path changed",
+            44: "creation identity changed",
+            45: "parent identity changed",
+            46: "remained present after force termination",
+        }
+        reason = reasons.get(result.returncode, "cleanup command failed")
+        detail = (result.stderr or result.stdout).strip()
+        suffix = f": {detail}" if detail else ""
         raise OverviewBridgeError(
-            f"helper-owned launcher normal close was not accepted (pid {launcher_process.pid})"
+            f"helper-owned launcher pid {pid} {reason}{suffix}"
         )
-    try:
-        launcher_process.wait(timeout=wait_seconds)
-    except lr.subprocess.TimeoutExpired as exc:
+    return {
+        "pid": pid,
+        "parentPid": parent_pid,
+        "path": os.path.abspath(process_path),
+        "startedAtUtc": started_at_utc,
+        "method": "Process.CloseMainWindow"
+        if result.returncode == 0 else "Stop-Process -Force",
+        "processExited": True,
+    }
+
+
+def close_helper_owned_launcher_processes(
+    p: dict[str, Path],
+    root_pid: int,
+    baseline_pids: set[int],
+) -> list[dict[str, object]]:
+    cleaned: list[dict[str, object]] = []
+    cleaned_pids: set[int] = set()
+    quiet_deadline = time.monotonic() + 1.0
+    while True:
+        processes = selected_launcher_processes(p)
+        owned = select_helper_owned_launcher_processes(
+            processes, root_pid, baseline_pids,
+        )
+        pending = [
+            item for item in owned
+            if isinstance(item.get("pid"), int) and int(item["pid"]) not in cleaned_pids
+        ]
+        if pending:
+            for item in pending:
+                cleanup = close_correlated_launcher_process(item)
+                cleaned.append(cleanup)
+                cleaned_pids.add(int(item["pid"]))
+            quiet_deadline = time.monotonic() + 0.75
+            continue
+        if time.monotonic() >= quiet_deadline:
+            break
+        time.sleep(0.1)
+
+    remaining = select_helper_owned_launcher_processes(
+        selected_launcher_processes(p), root_pid, baseline_pids,
+    )
+    if remaining:
+        pids = ",".join(str(item["pid"]) for item in remaining)
         raise OverviewBridgeError(
-            f"helper-owned launcher did not exit after normal close (pid {launcher_process.pid})"
-        ) from exc
+            f"helper-owned launcher process remained after cleanup (pid {pids})"
+        )
+    return cleaned
 
 
 def read_json(path: Path) -> dict[str, object] | None:
@@ -305,6 +550,7 @@ def await_ready(
     ready_path = p["runtime"] / "ready.json"
     started_epoch = int(time.time()) - 2
     while time.monotonic() < deadline:
+        throw_if_start_cancelled(p, session_id, challenge)
         value = read_json(ready_path)
         if value is not None:
             if (
@@ -345,6 +591,7 @@ def run_start(
     }
     p["runtime"].mkdir(parents=True, exist_ok=True)
     with lr.OperationLease(p["runtime"], owner):
+        throw_if_start_cancelled(p, session_id, challenge)
         # Never attempt to overwrite a journaled candidate while the selected game
         # still owns the script files. Recovery is safe only after no selected game exists.
         lr.require_no_selected_game_process(p)
@@ -357,26 +604,41 @@ def run_start(
         candidate_info: dict[str, object] | None = None
         owned_game: dict[str, object] | None = None
         launcher_process = None
+        baseline_launcher_pids: set[int] = set()
+        launcher_cleanup: list[dict[str, object]] = []
         try:
+            throw_if_start_cancelled(p, session_id, challenge)
             candidate_info = make_candidate(p, candidate_root)
+            throw_if_start_cancelled(p, session_id, challenge)
             lr.install_candidate(
                 p, candidate_root,
                 lambda index, key: lr.update_recovery_stage(p, recovery_state, f"installed_{index}_{key}"),
             )
-            clear_stale_runtime(p)
+            throw_if_start_cancelled(p, session_id, challenge)
+            clear_stale_runtime(p, preserve_start_cancel=(session_id, challenge))
+            throw_if_start_cancelled(p, session_id, challenge)
             launch_log_offset = launcher_log_offset(p)
             launch_started = time.monotonic()
             launch_env = os.environ.copy()
             validated_control_pipe_path = require_control_pipe_path(control_pipe_path)
             if validated_control_pipe_path is not None:
                 launch_env["LWBRIDGE_REBUILD_CONTROL_PIPE_PATH"] = validated_control_pipe_path
+            baseline_launcher_pids = {
+                int(item["pid"])
+                for item in selected_launcher_processes(p)
+                if isinstance(item.get("pid"), int)
+            }
             launcher_process = lr.subprocess.Popen(
                 [str(p["launcher"])],
                 cwd=str(p["launcher"].parent),
                 env=launch_env,
             )
             deadline = launch_started + timeout_seconds
-            owned_game = await_owned_game_process_update_aware(p, deadline, launch_log_offset)
+            throw_if_start_cancelled(p, session_id, challenge)
+            owned_game = await_owned_game_process_update_aware(
+                p, deadline, launch_log_offset, session_id, challenge,
+            )
+            throw_if_start_cancelled(p, session_id, challenge)
             game_started_at_utc = lr.require_process_started_at(owned_game.get("startedAtUtc"), "owned game startedAtUtc")
             write_control(
                 p,
@@ -387,10 +649,12 @@ def run_start(
                 control_pipe_path,
             )
             ready = await_ready(p, profile_id, session_id, challenge, int(owned_game["pid"]), deadline)
+            throw_if_start_cancelled(p, session_id, challenge)
 
             # IMPLEMENTATION POLICY: Windows keeps the active script package locked while
             # LastWar is running. Preserve the exact originals in the recovery journal and
             # defer restoration until Overview Close has released that exact owned process.
+            throw_if_start_cancelled(p, session_id, challenge)
             recovery_state.update({
                 "profileId": profile_id,
                 "sessionId": session_id,
@@ -400,8 +664,9 @@ def run_start(
                 "gameStartedAtUtc": game_started_at_utc,
                 "candidate": candidate_info,
             })
+            throw_if_start_cancelled(p, session_id, challenge)
             lr.update_recovery_stage(p, recovery_state, "active_ready_deferred_restore")
-            recovery_armed = False
+            throw_if_start_cancelled(p, session_id, challenge)
             result = {
                 "ok": True,
                 "mode": "overview_install_launch_ready_deferred_restore",
@@ -431,6 +696,8 @@ def run_start(
                 "interruptedRecovery": interrupted_recovery,
             }
             result["evidencePath"] = write_session_evidence(p, session_id, "helper-start.json", result)
+            throw_if_start_cancelled(p, session_id, challenge)
+            recovery_armed = False
             return result
         except Exception as run_error:
             try:
@@ -447,9 +714,11 @@ def run_start(
             except Exception:
                 pass
             launcher_close_error: Exception | None = None
-            if owned_game is None and launcher_process is not None:
+            if launcher_process is not None:
                 try:
-                    close_owned_launcher_process(launcher_process)
+                    launcher_cleanup = close_helper_owned_launcher_processes(
+                        p, launcher_process.pid, baseline_launcher_pids,
+                    )
                 except Exception as exc:
                     launcher_close_error = exc
             if recovery_armed:
@@ -493,6 +762,22 @@ def run_start(
                     raise OverviewBridgeError(
                         f"Overview start failed: {run_error}; cleanup incomplete: {'; '.join(details)}"
                     ) from run_error
+            try:
+                write_session_evidence(p, session_id, "helper-start-cleanup.json", {
+                    "ok": launcher_close_error is None and not recovery_armed,
+                    "mode": "overview_start_cleanup",
+                    "bridgeVersion": BRIDGE_VERSION,
+                    "profileId": profile_id,
+                    "sessionId": session_id,
+                    "launcherRootPid": launcher_process.pid if launcher_process is not None else None,
+                    "launcherCleanup": launcher_cleanup,
+                    "launcherCleanupError": str(launcher_close_error) if launcher_close_error is not None else None,
+                    "ownedGamePid": owned_game.get("pid") if isinstance(owned_game, dict) else None,
+                    "recoveryCleared": not recovery_armed,
+                    "recordedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                })
+            except Exception:
+                pass
             if launcher_close_error is not None:
                 raise OverviewBridgeError(
                     f"Overview start failed: {run_error}; helper-owned launcher cleanup failed: {launcher_close_error}"

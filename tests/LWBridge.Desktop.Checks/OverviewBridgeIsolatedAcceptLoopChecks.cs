@@ -89,7 +89,21 @@ internal static class OverviewBridgeIsolatedAcceptLoopChecks
             currentUserSid: sid,
             clockMilliseconds: () => Clock);
 
-        Task runTask = loop.StartAsync();
+        SynchronizationContext? originalContext =
+            SynchronizationContext.Current;
+        var recordingContext = new RecordingSynchronizationContext();
+        Task runTask;
+        try
+        {
+            SynchronizationContext.SetSynchronizationContext(recordingContext);
+            runTask = loop.StartAsync();
+        }
+        finally
+        {
+            SynchronizationContext.SetSynchronizationContext(originalContext);
+        }
+        Check(recordingContext.PostCount == 0,
+            "listener pending-connect path must not capture/post back to the caller synchronization context");
 
         await using ClientLease client1 = await OpenAndHelloAsync(
             pipePath,
@@ -391,6 +405,19 @@ internal static class OverviewBridgeIsolatedAcceptLoopChecks
             throw new InvalidOperationException(
                 "Overview bridge isolated accept-loop check failed: " +
                 message);
+    }
+
+    private sealed class RecordingSynchronizationContext :
+        SynchronizationContext
+    {
+        private int postCount;
+
+        internal int PostCount => Volatile.Read(ref postCount);
+
+        public override void Post(SendOrPostCallback d, object? state)
+        {
+            Interlocked.Increment(ref postCount);
+        }
     }
 
     private sealed class ClientLease : IAsyncDisposable
