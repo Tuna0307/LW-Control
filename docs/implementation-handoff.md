@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-135, 2026-09-22
+
+**R10 production-vs-fixture verification is closed and the S/O/M ledger is current.** A maintained passive normal-Release checker launches Overview and Map Data with production service composition while suppressing auto-launch and blocking state-changing owner commands. Both windows pass Responding/IsHungAppWindow/WM_NULL checks, no game/launcher/helper appears, real config hashes are unchanged, existing Presentation state is restored, and Map Data executes a real saved City search/render path. R7-134 remains the separate fixture/browser/pixel authority. The old R7-096–098 statements below that production `call_lua`/pending were still blocked are historical and superseded by R7-127: current-v19 live proof authenticates the production pipe, returns exact allowlisted `getStatus`, exposes truthful zero/idle pending before/after, blocks generic Lua, and unregisters on exact owned Stop. See `docs/reviews/2026-09-22-r7-135-normal-production-window-smoke.md` and `evidence/lwbridge-implementation/2026-09-22-r7-normal-production-window-smoke.json`.
+
+**Still open:** positive Ghost/Supplies population, positive nonzero pending observation, B08/D04 active-scan/app restart proof, D02's requested three full authorized multi-server Auto cycles, simultaneous real multi-account UI population, final human F04 two-page walkthrough, and explicitly authorized state-changing Treasure/Truck/Dispatch/Alliance acceptance.
+
 ## Current continuation checkpoint - LWB-R7-098, 2026-09-20
 
 **A11 registry/routing lifecycle is recovered and offline-tested.** The original store has retained pending registrations keyed by `instanceId` with profile ID, SHA-256 token, expiry and claimed state. Startup uses a 90,000 ms pending deadline. First claim requires exact profile/token and unexpired pending state; after claim, the registration remains and reconnect can replace the connected route with a newer host-global generation even after the original deadline. Ordinary pipe teardown removes only the matching generation, preventing stale teardown from deleting a new reconnect. Explicit unregister removes both pending and connected state. Literal `default` resolves only when one route is connected.

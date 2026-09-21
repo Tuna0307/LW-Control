@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-135",
+  "date": "2026-09-22",
+  "title": "Separate normal-production window smoke from fixture visual verification",
+  "branch": "research/offline-controller",
+  "parentRevision": "83eb1604b7d26c2949e20ba7ec663fdb54a86273",
+  "scope": {
+    "claim": "Normal Release Overview and Map Data presentation using production service composition with passive owner-evidence safety; fixture visual proof remains separately owned by R7-134.",
+    "notClaimed": [
+      "No live game launch or gameplay action.",
+      "No human click-through of the final end-to-end workflow.",
+      "No state-changing Map/Overview action.",
+      "No replacement for R7-134 fixture/browser/pixel validation."
+    ]
+  },
+  "harness": {
+    "path": "tools/check_normal_release_windows.ps1",
+    "sha256": "15314E2B566E77BD5D815051F7A45BC16780848F9714F5E14F9AC6B55FDAE55F",
+    "mode": "normal-production-services-with-passive-owner-evidence",
+    "autoLaunchSuppressed": true,
+    "stateChangingOwnerCommandsBlocked": true,
+    "presentationIsolation": "Existing WebView Presentation directory is moved atomically to a unique temporary path before launch; a fresh Presentation directory is used; the temporary directory is deleted and the original directory restored in finally.",
+    "configProtection": "config.json and config.backup.json SHA-256 values must remain unchanged.",
+    "processSafety": "Refuses to run if LWBridge.Desktop, LastWar, or LastWarLauncher is already active; fails if LastWar, launcher, or Overview helper appears.",
+    "webViewCleanupWaitMilliseconds": 20000,
+    "successPublication": "The result file is written only after temporary Presentation/evidence cleanup and original Presentation restoration complete successfully."
+  },
+  "release": {
+    "executable": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe",
+    "canonicalWorktreeSha256": "1983E5A90FE93CD48246E39828027176E05ECBD6914558E55F064D908B9EB1BB",
+    "canonicalWorktreeInformationalVersion": "1.0.0+83eb1604b7d26c2949e20ba7ec663fdb54a86273",
+    "stagedIndexSnapshotSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
+    "stagedIndexSnapshotInformationalVersion": "1.0.0",
+    "hashDifferenceReason": "The .NET SDK embeds Git SourceRevisionId in AssemblyInformationalVersion when building inside a Git worktree. The index-only validation snapshot intentionally has no .git metadata; application source is identical.",
+    "buildWarnings": 0,
+    "buildErrors": 0
+  },
+  "productionWindowSmoke": {
+    "overview": {
+      "responding": true,
+      "isHungAppWindow": false,
+      "wmNullSucceeded": true,
+      "lastWarProcesses": 0,
+      "launcherProcesses": 0,
+      "helperProcesses": 0,
+      "evidenceEvents": [
+        "session-start",
+        "owner-command-blocked"
+      ],
+      "blockedCommands": [
+        "server_jump_history_import"
+      ]
+    },
+    "mapData": {
+      "responding": true,
+      "isHungAppWindow": false,
+      "wmNullSucceeded": true,
+      "lastWarProcesses": 0,
+      "launcherProcesses": 0,
+      "helperProcesses": 0,
+      "evidenceEvents": [
+        "session-start",
+        "owner-command-blocked",
+        "city-search-response",
+        "city-render-observation"
+      ],
+      "blockedCommands": [
+        "server_jump_history_import"
+      ],
+      "readOnlyObservation": "A real saved City search/render path executed under normal production composition and rendered a correlated empty-state table."
+    },
+    "configSha256Unchanged": true,
+    "configBackupSha256Unchanged": true,
+    "presentationProfileHadExistingState": true,
+    "presentationProfileRestoredOnSuccessfulExit": true,
+    "finalProcesses": {
+      "desktop": 0,
+      "lastWar": 0,
+      "launcher": 0,
+      "helper": 0
+    }
+  },
+  "defectFoundAndRepaired": {
+    "defect": "A staged validation run closed both LWBridge windows successfully but WebView2 still held Presentation/EBWebView/lockfile briefly, causing immediate temporary-profile deletion to fail before the original Presentation directory was restored.",
+    "recovery": "The existing 386-file/41,490,264-byte Presentation profile was confirmed in the unique temporary backup, the fresh 4-file temporary profile was removed after the lock released, and the original profile was restored before continuing.",
+    "repair": "Temporary directory removal now retries for up to 20 seconds after WebView shutdown. The checker delays result publication until cleanup/restoration has completed, so cleanup failure cannot leave a success artifact.",
+    "forceKillPolicy": "No WebView2/game/launcher process is force-killed to make cleanup pass."
+  },
+  "fixtureVisualSeparation": {
+    "evidenceRef": "LWB-R7-134",
+    "browserChecks": 36,
+    "screenshotPairs": 32,
+    "strictPairs": 28,
+    "strictIdentical": 28,
+    "cityExportRemoval": "PASS",
+    "note": "R7-135 does not reuse fixture mode as production evidence; R7-134 remains the separate fixture/browser/pixel gate."
+  },
+  "conclusion": "R10 production-mode versus fixture-mode verification is separately evidenced and current. The final human built-executable end-to-end walkthrough remains open."
+}
