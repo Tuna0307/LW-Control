@@ -90,7 +90,7 @@ internal static class LiveMapSummaryProof
                             20 ||
                         status.GetProperty("scanStrategy").GetString() !=
                             MapScanStrategyPlanner
-                                .FastMonsterStrategy)
+                                .FastFullWorldStrategy)
                     {
                         throw new InvalidDataException(
                             "Map summary proof did not start with the expected automatic Monster strategy.");

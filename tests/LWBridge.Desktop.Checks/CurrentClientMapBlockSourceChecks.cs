@@ -417,9 +417,9 @@ internal static class CurrentClientMapBlockSourceChecks
                     ready = false;
                     throw new BridgeCommandException(
                         "GAME_CONNECTION_UNAVAILABLE",
-                        "synthetic transient readiness loss before coarse Monster completion");
+                        "synthetic transient readiness loss before LOD0 Monster coverage");
                 }
-                return ProvenCoarseMonsterBatch(fields);
+                return ProvenFastMonsterBatch(fields);
             },
             useCoarseMonsterMap: true,
             sessionProvider: () => ready ? Session : null,
@@ -430,19 +430,10 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlySet<int> pending = blocks.Select(block => block.BlockIndex).ToHashSet();
 
-        try
-        {
-            _ = await source.CaptureBatchAsync(request, blocks[0], pending, CancellationToken.None);
-            throw new InvalidOperationException("synthetic transient readiness loss should escape the first coarse attempt");
-        }
-        catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
-        {
-        }
-
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], pending, CancellationToken.None);
-        Check(captures.Count == 2500 && bulkCalls == 2 && healthWaits >= 3,
-            "same-run Monster retry must retain its owned-session anchor while instantaneous readiness is absent");
+        Check(captures.Count == 2500 && bulkCalls == 271 && healthWaits >= 2,
+            "generic Monster LOD0 coverage must recover a transient readiness loss without changing the owned session");
     }
 
     private static async Task FastMonsterFullMapReturnsAllLogicalCaptures()
@@ -492,36 +483,45 @@ internal static class CurrentClientMapBlockSourceChecks
 
     private static async Task FastMonsterCoarseLodReturnsAllLogicalCaptures()
     {
-        int bulkCalls = 0;
-        int protectionCalls = 0;
+        int coverageCalls = 0;
+        int zoomCalls = 0;
         CurrentClientMapBlockSource source = CreateSource(
             (fields, _) => ProvenEmptyCityCurrentView(fields),
             bulkResult: fields =>
             {
-                bulkCalls++;
-                Check(fields["requestMode"] == "zoom",
-                    "coarse Monster path must use the native zoom/LOD2 whole-world request");
-                return ProvenCoarseMonsterBatch(fields,
-                    ("m-coarse", 500, 500, 1031015, 55, "2901012", true),
-                    ("m-coarse-ordinary", 10, 990, 1002009, 9, "2000005", false));
-            },
-            monsterProtectionResult: fields =>
-            {
-                protectionCalls++;
-                return ProvenMonsterProtectionResult(fields,
-                    ("m-coarse", true, true, 2_000_000_000_000L));
+                if (fields["requestMode"] == "zoom")
+                {
+                    zoomCalls++;
+                    return ProvenCoarseMonsterBatch(fields);
+                }
+                coverageCalls++;
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                return x == 5 && y == 75
+                    ? ProvenFastDoomWalkerBatch(fields)
+                    : ProvenFastMonsterBatch(fields);
             },
             useCoarseMonsterMap: true);
-        MapScanExecutionRequest request = new("run_coarse", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_complete_monster", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 1 && protectionCalls == 0 && captures.Count == 2500,
-            "coarse generic Monster path should use one whole-world snapshot and skip Zombie Boss detail requests");
-        MapStoredRecord[] rows = captures.SelectMany(capture => capture.Records).ToArray();
-        Check(rows.Length == 1 && rows[0].RecordKey == "m-coarse-ordinary" &&
-              rows[0].Kind == "monster" && rows[0].ShieldEndTime is null,
-            "generic Monster path must exclude Zombie Boss rows after the dedicated category split");
+        Check(zoomCalls == 0 && coverageCalls == 270 && captures.Count == 2500,
+            "generic Monster must use the exact LOD0 AOI union even when the old coarse test hook is enabled");
+        MapStoredRecord[] doomRows = captures.SelectMany(capture => capture.Records)
+            .OrderBy(row => row.Level)
+            .ToArray();
+        Check(doomRows.Length == 2 &&
+              doomRows[0].RecordKey == "doom-walker-160" && doomRows[0].Kind == "monster" && doomRows[0].Level == 160 &&
+              doomRows[0].Name == "monster_boss_name_001" &&
+              doomRows[0].DataJson.Contains("\"configId\":1040007", StringComparison.Ordinal) &&
+              doomRows[0].DataJson.Contains("\"configType\":8", StringComparison.Ordinal) &&
+              doomRows[0].DataJson.Contains("\"configSpecial\":11", StringComparison.Ordinal) &&
+              doomRows[1].RecordKey == "doom-walker-220" && doomRows[1].Level == 220 &&
+              doomRows[1].DataJson.Contains("\"configId\":1040013", StringComparison.Ordinal) &&
+              doomRows[1].DataJson.Contains("\"configType\":8", StringComparison.Ordinal) &&
+              doomRows[1].DataJson.Contains("\"configSpecial\":11", StringComparison.Ordinal),
+            "complete generic Monster coverage must preserve type-8/special-11 Doom Walker rows beyond the old level-200 ceiling");
     }
 
     private static async Task FastMonsterCoarseIncludesDoomsdayBoss()
@@ -532,7 +532,11 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 genericCalls++;
-                return ProvenCoarseDoomsdayMonsterBatch(fields);
+                int x = int.Parse(fields["targetTileX"]);
+                int y = int.Parse(fields["targetTileY"]);
+                return x == 5 && y == 75
+                    ? ProvenFastDoomsdayMonsterBatch(fields)
+                    : ProvenFastMonsterBatch(fields);
             },
             useCoarseMonsterMap: true);
         MapScanExecutionRequest genericRequest = new(
@@ -540,14 +544,14 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> genericCaptures = await generic.CaptureBatchAsync(
             genericRequest, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        MapStoredRecord doom = genericCaptures.SelectMany(capture => capture.Records).Single();
-        Check(genericCalls == 1 && genericCaptures.Count == 2500 &&
-              doom.Kind == "monster" && doom.RecordKey == "doom-manager-1" && doom.Level == 60 &&
-              doom.DataJson.Contains("\"monsterSpecialType\":32", StringComparison.Ordinal) &&
-              doom.DataJson.Contains("\"configSpecial\":32", StringComparison.Ordinal) &&
-              doom.DataJson.Contains("\"runtimeClass\":\"LWDoomsdayManager.BossVO\"", StringComparison.Ordinal) &&
-              doom.DataJson.Contains("\"source\":\"DataCenter.LWDoomsdayManager.theaterBosses\"", StringComparison.Ordinal),
-            "generic Monster coarse scan must preserve current-v20 SuperRunningBoss/Doom Walker manager rows");
+        MapStoredRecord superBoss = genericCaptures.SelectMany(capture => capture.Records).Single();
+        Check(genericCalls == 270 && genericCaptures.Count == 2500 &&
+              superBoss.Kind == "monster" && superBoss.RecordKey == "doom-manager-1" && superBoss.Level == 60 &&
+              superBoss.DataJson.Contains("\"monsterSpecialType\":32", StringComparison.Ordinal) &&
+              superBoss.DataJson.Contains("\"configSpecial\":32", StringComparison.Ordinal) &&
+              superBoss.DataJson.Contains("\"runtimeClass\":\"LWDoomsdayManager.BossVO\"", StringComparison.Ordinal) &&
+              superBoss.DataJson.Contains("\"source\":\"DataCenter.LWDoomsdayManager.theaterBosses\"", StringComparison.Ordinal),
+            "generic Monster LOD0 scan must preserve the separate current-v20 SuperRunningBoss manager rows");
 
         CurrentClientMapBlockSource zombie = CreateSource(
             (fields, _) => ProvenEmptyCityCurrentView(fields),
@@ -558,7 +562,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanBlockCapture> zombieCaptures = await zombie.CaptureBatchAsync(
             zombieRequest, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
         Check(zombieCaptures.SelectMany(capture => capture.Records).Count() == 0,
-            "Doom Walker must remain excluded from the dedicated Zombie Boss category");
+            "SuperRunningBoss must remain excluded from the dedicated Zombie Boss category");
     }
 
     private static async Task FastZombieBossCoarseLodPublishesOnlyZombieBosses()
@@ -621,19 +625,12 @@ internal static class CurrentClientMapBlockSourceChecks
                 return ProvenFastMonsterBatch(fields);
             },
             useCoarseMonsterMap: true);
-        MapScanExecutionRequest request = new("run_fast_only", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        MapScanExecutionRequest request = new("run_complete_only", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
-        try
-        {
-            _ = await source.CaptureBatchAsync(
-                request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-            throw new InvalidOperationException("synthetic coarse failure should fail the fast-only Monster scan");
-        }
-        catch (InvalidDataException error) when (error.Message.Contains("synthetic_coarse_failure", StringComparison.Ordinal))
-        {
-        }
-        Check(zoomCalls == 1 && coverageCalls == 0,
-            "Monster coarse failure must fail fast without entering the conservative LOD0 coverage scanner");
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+        Check(zoomCalls == 0 && coverageCalls == 270 && captures.Count == 2500,
+            "generic Monster must bypass the lossy coarse route and complete the conservative LOD0 coverage scanner");
     }
 
     private static async Task FastZombieBossCoarseFailureFailsFastWithoutCoverageFallback()
@@ -2732,6 +2729,42 @@ internal static class CurrentClientMapBlockSourceChecks
         return root.ToJsonString(JsonOptions.Default);
     }
 
+
+    private static string ProvenFastDoomWalkerBatch(
+        IReadOnlyDictionary<string, string> fields)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(
+            fields,
+            ("doom-walker-160", 9, 9, 1040007, 160, "monster_boss_name_001", false),
+            ("doom-walker-220", 19, 19, 1040013, 220, "monster_boss_name_001", false)))!.AsObject();
+        foreach (JsonNode? node in root["monster_march_records"]!.AsArray())
+        {
+            JsonObject row = node!.AsObject();
+            row["runtimeClass"] = "WorldMarch";
+            row["monsterType"] = 0;
+            row["monsterSpecialType"] = 0;
+            row["configType"] = 8;
+            row["configSpecial"] = 11;
+            row["source"] = "WorldScene.MarchDataManager.GetAllMarchesByCS";
+        }
+        return root.ToJsonString(JsonOptions.Default);
+    }
+
+
+    private static string ProvenFastDoomsdayMonsterBatch(
+        IReadOnlyDictionary<string, string> fields)
+    {
+        JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(
+            fields, ("doom-manager-1", 9, 9, 320032, 60, "super_running_boss_name_key", false)))!.AsObject();
+        JsonObject row = root["monster_march_records"]!.AsArray()[0]!.AsObject();
+        row["runtimeClass"] = "LWDoomsdayManager.BossVO";
+        row["monsterSpecialType"] = 32;
+        row["configSpecial"] = 32;
+        row["monsterRallyNum"] = 1;
+        row["source"] = "DataCenter.LWDoomsdayManager.theaterBosses";
+        root["doomsdayBossCount"] = 1;
+        return root.ToJsonString(JsonOptions.Default);
+    }
 
     private static string ProvenCoarseDoomsdayMonsterBatch(
         IReadOnlyDictionary<string, string> fields)

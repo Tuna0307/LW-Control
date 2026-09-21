@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Hash-lock the current-v20 Doom Walker / SuperRunningBoss source contract."""
+"""Hash-lock the current-v20 Doomsday SuperRunningBoss (special 32) source contract.
+
+Historical R7-107 called this "Doom Walker"; live type-8/special-11 proof now
+shows ordinary Doom Walker is a separate RunningMonster family.
+"""
 
 from __future__ import annotations
 

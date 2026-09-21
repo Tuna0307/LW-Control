@@ -59,6 +59,13 @@ internal static class LiveManualFullMonsterProof
                 var service = new ManualMapScanCommandService(store, source.GetCurrentContextAsync, source);
                 try
                 {
+                string? targetServerRaw = Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_SERVER");
+                if (int.TryParse(targetServerRaw, out int targetServerId) &&
+                    targetServerId is >= 1 and <= 99999)
+                {
+                    await source.JumpToServerAsync(targetServerId, operationCts.Token).ConfigureAwait(false);
+                }
+
                 JsonElement payload = JsonSerializer.SerializeToElement(new
                 {
                     profileId = "manual-full-monster-proof",
@@ -74,9 +81,10 @@ internal static class LiveManualFullMonsterProof
                 serverId = startStatus.GetProperty("serverId").GetInt32();
                 if (string.IsNullOrWhiteSpace(runId) || serverId <= 0 ||
                     startStatus.GetProperty("totalBlocks").GetInt32() != 2500 ||
-                    startStatus.GetProperty("concurrency").GetInt32() != expectedConcurrency)
+                    startStatus.GetProperty("concurrency").GetInt32() != expectedConcurrency ||
+                    startStatus.GetProperty("scanStrategy").GetString() != MapScanStrategyPlanner.FastFullWorldStrategy)
                 {
-                    throw new InvalidDataException("Ordinary Manual Start did not expose the expected Monster scan identity/geometry.");
+                    throw new InvalidDataException("Ordinary Manual Start did not expose the expected complete Monster scan identity/geometry/strategy.");
                 }
 
                 JsonElement status = startStatus;
@@ -162,6 +170,8 @@ internal static class LiveManualFullMonsterProof
             {
                 ok = true,
                 proof = "ordinary_manual_start_full_monster",
+                databasePath,
+                serverId,
                 totalBlocks = 2500,
                 publishedMonsterCount,
                 reopenedMonsterCount,
@@ -225,7 +235,8 @@ internal static class LiveManualFullMonsterProof
                     if (operationError is null) throw;
                 }
             }
-            TryDelete(databasePath);
+            if (!string.Equals(Environment.GetEnvironmentVariable("LWBRIDGE_KEEP_PROOF_DB"), "1", StringComparison.Ordinal))
+                TryDelete(databasePath);
         }
     }
 

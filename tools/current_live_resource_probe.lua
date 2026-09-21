@@ -4598,9 +4598,13 @@ local function pump_bulk_aoi_diagnostic(now)
             write_bulk_aoi_result(request, "failed", world_error or "world_unavailable", nil)
             return true
         end
-        if request.includeMonster == true and request.includeMonsterProtection ~= true then
+        if request.includeMonster == true and request.includeMonsterProtection ~= true and
+           M._doomsdayMainInfoScanRunId ~= request.scanRunId then
             request.doomsdayRequestSent = select(1, request_doomsday_main_info())
             request.doomsdayRequestSentAt = runtime_clock()
+            if request.doomsdayRequestSent == true then
+                M._doomsdayMainInfoScanRunId = request.scanRunId
+            end
         end
         local block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
         local block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })

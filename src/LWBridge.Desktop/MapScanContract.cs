@@ -51,7 +51,7 @@ internal static class MapScanContract
 internal static class MapScanStrategyPlanner
 {
     internal const string FastFullWorldStrategy = "current_fast_full_world_v2";
-    internal const string FastMonsterStrategy = "current_fast_monster_lod2_v1";
+    internal const string FastZombieBossStrategy = "current_fast_zombie_boss_lod2_v1";
     internal const string NormalBlockStrategy = "current_lod0_block_v1";
 
     internal static MapScanStrategyPlan Plan(
@@ -70,13 +70,13 @@ internal static class MapScanStrategyPlanner
 
         if (standardCurrentWorld)
         {
-            bool monsterOnly =
+            bool zombieBossOnly =
                 selectedTypes.Count == 1 &&
-                selectedTypes[0] is "monster" or "zombie_boss";
+                selectedTypes[0] == "zombie_boss";
             return new MapScanStrategyPlan(
                 "fast",
                 20,
-                monsterOnly ? FastMonsterStrategy : FastFullWorldStrategy);
+                zombieBossOnly ? FastZombieBossStrategy : FastFullWorldStrategy);
         }
 
         if (selectedTypes.Count == 1 && selectedTypes[0] is "city" or "resource")

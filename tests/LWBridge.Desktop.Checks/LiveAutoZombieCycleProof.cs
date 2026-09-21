@@ -63,7 +63,7 @@ internal static class LiveAutoZombieCycleProof
                     status.GetProperty("totalBlocks").GetInt32() != 2500 ||
                     status.GetProperty("scanMode").GetString() != "fast" ||
                     status.GetProperty("concurrency").GetInt32() != 20 ||
-                    status.GetProperty("scanStrategy").GetString() != MapScanStrategyPlanner.FastMonsterStrategy)
+                    status.GetProperty("scanStrategy").GetString() != MapScanStrategyPlanner.FastZombieBossStrategy)
                     throw new InvalidDataException(
                         "Auto-cycle Zombie Boss Start did not expose the expected backend-selected fast strategy and current-server geometry.");
                 DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(3);

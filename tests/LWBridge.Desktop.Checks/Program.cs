@@ -3918,6 +3918,14 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
               levelJson.RootElement.GetProperty("rows")[0].GetProperty("level").GetInt32() == 7,
             "Monster level selector uses inclusive maximum semantics");
 
+    using JsonDocument doomWalkerMaximum = JsonDocument.Parse(
+        "{\"kind\":\"monster\",\"query\":{\"serverId\":2212,\"maxLevel\":220}}");
+    MapDataQueryOptions doomWalkerMaximumOptions =
+        MapDataQueryContract.NormalizeSearch(doomWalkerMaximum.RootElement);
+    Check(doomWalkerMaximumOptions.MaxLevel == 220 &&
+          doomWalkerMaximumOptions.UnsupportedFeatures.Count == 0,
+        "Monster maximum-level filter accepts live-proven Doom Walker levels through 220 without a legacy ceiling");
+
     using JsonDocument monsterLevelRange = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = mapBackend.ProfileId,
@@ -4045,13 +4053,20 @@ Check(allEightPlan.ScanMode == "fast" &&
       allEightPlan.Concurrency == 20 &&
       allEightPlan.StrategyId == MapScanStrategyPlanner.FastFullWorldStrategy,
     "backend planner selects proven fast full-world acquisition for standard-world original-eight/mixed scans");
+MapScanStrategyPlan monsterPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    new[] { "monster" });
+Check(monsterPlan.ScanMode == "fast" &&
+      monsterPlan.Concurrency == 20 &&
+      monsterPlan.StrategyId == MapScanStrategyPlanner.FastFullWorldStrategy,
+    "backend planner selects complete LOD0 full-world acquisition for generic Monster scans");
 MapScanStrategyPlan zombiePlan = MapScanStrategyPlanner.Plan(
     standardScanContext,
     new[] { "zombie_boss" });
 Check(zombiePlan.ScanMode == "fast" &&
       zombiePlan.Concurrency == 20 &&
-      zombiePlan.StrategyId == MapScanStrategyPlanner.FastMonsterStrategy,
-    "backend planner selects proven coarse Monster/Zombie Boss strategy for dedicated standard-world scans");
+      zombiePlan.StrategyId == MapScanStrategyPlanner.FastZombieBossStrategy,
+    "backend planner retains the proven coarse LOD2 strategy only for dedicated Zombie Boss scans");
 MapScanStrategyPlan fallbackCityPlan = MapScanStrategyPlanner.Plan(
     new CurrentClientMapContext(2212, 0, 40, 20),
     new[] { "city" });
@@ -5829,8 +5844,10 @@ Check(
     liveCityProbeSource.Contains("ActivityDoomsdayMainInfo", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("DataCenter.LWDoomsdayManager.", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("details.doomsdayBossCount = #doomsday_records", StringComparison.Ordinal) &&
-    liveCityProbeSource.Contains("bulk_aoi_request.includeMonsterProtection ~= true", StringComparison.Ordinal),
-    "current-v20 generic Monster probe must merge source-backed SuperRunningBoss/Doom Walker rows from LWDoomsdayManager while leaving Zombie Boss scans on their separate protection path");
+    liveCityProbeSource.Contains("bulk_aoi_request.includeMonsterProtection ~= true", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("M._doomsdayMainInfoScanRunId ~= request.scanRunId", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("M._doomsdayMainInfoScanRunId = request.scanRunId", StringComparison.Ordinal),
+    "current-v20 generic Monster probe must merge source-backed SuperRunningBoss rows, refresh their read-only main info only once per scan run, and leave Zombie Boss scans on their separate protection path");
 Check(
     liveCityProbeSource.Contains("protectTimeMinutes = protect_time", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("stealMaxTimes = steal_max_times", StringComparison.Ordinal) &&
@@ -6218,15 +6235,19 @@ Check(fastCitySource.Contains("ApplyFinalTruckMetadataEnrichment", StringCompari
       fastCitySource.Contains("good[\"iconPath\"] = display.IconPath", StringComparison.Ordinal) &&
       fastCitySource.Contains("reward:{rewardType}:{itemId}", StringComparison.Ordinal),
     "Truck enrichment must remain post-acquisition, derive frontend-compatible remaining loot, retain cached game reward display metadata, avoid double-counting split arrays, and keep full TrainData JSON off the Truck hot path");
-Check(fastCitySource.Contains("Monster/Zombie Boss are fast-only", StringComparison.Ordinal) &&
-      !fastCitySource.Contains("conservative LOD0 fallback resumes", StringComparison.Ordinal),
-    "Monster and Zombie Boss whole-world scans must fail fast instead of silently entering the slow LOD0 fallback");
+Check(fastCitySource.Contains("Generic Monster intentionally does not use this shortcut", StringComparison.Ordinal) &&
+      fastCitySource.Contains("exact 10,000-cell", StringComparison.Ordinal) &&
+      fastCitySource.Contains("Zombie Boss keeps the proven whole-world LOD2", StringComparison.Ordinal),
+    "Generic Monster must use complete LOD0 coverage for Doom Walker while Zombie Boss retains its proven LOD2 detail route");
 
 string mapDataPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
 Check(mapDataPanelSource.Contains(
           "function Ue(e){return e===`resource`||e===`monster`||e===`zombie_boss`}",
           StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("function monsterLevelSteps(e)", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("Math.max(...t)", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("Math.ceil(n/5)", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("function monsterKeywordKeyList(", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains(
           "monsterNameKey:(n===`monster`||n===`zombie_boss`)?Ot[n]:void 0",

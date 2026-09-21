@@ -59,12 +59,14 @@ internal sealed partial class CurrentClientMapBlockSource
             if (fastFullWorldResumeState is not { } resume || !resume.Matches(session, request))
                 fastFullWorldResumeState = new FastFullWorldResumeState(session, request);
 
-            if (IsMonsterOnly(request) && hooks?.DisableCoarseMonsterMap != true)
+            if (IsZombieBossOnly(request) && hooks?.DisableCoarseMonsterMap != true)
             {
-                // Monster/Zombie Boss are fast-only. A failed whole-world LOD2 acquisition
-                // must surface truthfully instead of silently falling back to the much slower
-                // LOD0 adaptive sweep. The same-run session anchor remains available to an
-                // outer retry when readiness itself was only transient.
+                // Zombie Boss keeps the proven whole-world LOD2 + serialized detail route.
+                // Generic Monster intentionally does not use this shortcut: current-v20
+                // RunningMonster/Doom Walker templates (type 8, special 11, levels 100..220)
+                // are not reliably materialized in the LOD2 MarchDataManager snapshot.
+                // The generic Monster scan therefore falls through to the exact 10,000-cell
+                // LOD0 AOI union below so those WorldMarch rows can be observed when active.
                 return await CaptureFullMonsterMapViaCoarseLodAsync(
                     session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
             }
@@ -200,9 +202,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 block.BlockIndex, out MapStoredRecord[]? value) ? value : Array.Empty<MapStoredRecord>();
             string payload = JsonSerializer.Serialize(new
             {
-                protocol = "current_fast_monster_lod2_v1",
+                protocol = "current_fast_zombie_boss_lod2_v1",
                 blockIndex = block.BlockIndex,
-                coverage = "native_lod2_whole_world_monster_snapshot_restored_to_original_lod",
+                coverage = "native_lod2_whole_world_zombie_boss_snapshot_restored_to_original_lod",
                 recordsInBlock = records.Count,
                 monsterInvasionBossCount,
                 monsterProtectionDetailTargetCount = protection.TargetCount,
