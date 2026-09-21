@@ -153,7 +153,26 @@ def write_kv_atomic(path: Path, values: dict[str, object]) -> None:
             pass
 
 
-def write_control(p: dict[str, Path], profile_id: str, session_id: str, challenge: str, game_pid: int) -> None:
+def require_control_pipe_path(value: str | None) -> str | None:
+    if value is None:
+        return None
+    prefix = r"\\.\pipe\lwbridge-control-v1-"
+    if not value.startswith(prefix):
+        raise OverviewBridgeError("control pipe path does not match the recovered prefix")
+    suffix = value[len(prefix):]
+    if len(suffix) != 16 or any(ch not in "0123456789abcdef" for ch in suffix):
+        raise OverviewBridgeError("control pipe path suffix must be 16 lowercase hexadecimal characters")
+    return value
+
+
+def write_control(
+    p: dict[str, Path],
+    profile_id: str,
+    session_id: str,
+    challenge: str,
+    game_pid: int,
+    control_pipe_path: str | None = None,
+) -> None:
     common = {
         "schema": 1,
         "bridgeVersion": BRIDGE_VERSION,
@@ -162,6 +181,13 @@ def write_control(p: dict[str, Path], profile_id: str, session_id: str, challeng
         "challenge": require_token(challenge, "challenge"),
         "gamePid": int(game_pid),
     }
+    validated_pipe_path = require_control_pipe_path(control_pipe_path)
+    if validated_pipe_path is not None:
+        adapter_path = (HERE / "LWBridge.GamePipeAdapter.dll").resolve()
+        if not adapter_path.is_file():
+            raise OverviewBridgeError("packaged game pipe adapter is missing")
+        common["controlPipePath"] = validated_pipe_path
+        common["pipeAdapterPath"] = str(adapter_path)
     write_kv_atomic(p["runtime"] / "control.txt", common)
     write_lease(p, session_id, challenge)
 
@@ -178,11 +204,29 @@ def write_lease(p: dict[str, Path], session_id: str, challenge: str) -> None:
 
 def clear_stale_runtime(p: dict[str, Path]) -> None:
     p["runtime"].mkdir(parents=True, exist_ok=True)
-    for name in ("control.txt", "lease.txt", "ready.json", "heartbeat.json"):
+    for name in (
+        "control.txt",
+        "lease.txt",
+        "ready.json",
+        "heartbeat.json",
+        "pipe-adapter-state.txt",
+        "pipe-transport.json",
+    ):
         try:
             (p["runtime"] / name).unlink()
         except FileNotFoundError:
             pass
+    for pattern in (
+        "pipe-inbound-*.json",
+        "pipe-inbound-*.json.tmp",
+        "pipe-outbound-*.json",
+        "pipe-outbound-*.json.tmp",
+    ):
+        for path in p["runtime"].glob(pattern):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
 
 
 OFFICIAL_LUA_UPDATE_FAILURE = "official_lua_update_failed"
@@ -288,6 +332,7 @@ def await_ready(
 def run_start(
     profile_id: str, session_id: str, challenge: str,
     timeout_seconds: int, game_root: str | Path | None,
+    control_pipe_path: str | None = None,
 ) -> dict[str, object]:
     p = overview_paths(game_root)
     owner = {
@@ -321,11 +366,26 @@ def run_start(
             clear_stale_runtime(p)
             launch_log_offset = launcher_log_offset(p)
             launch_started = time.monotonic()
-            launcher_process = lr.subprocess.Popen([str(p["launcher"])], cwd=str(p["launcher"].parent))
+            launch_env = os.environ.copy()
+            validated_control_pipe_path = require_control_pipe_path(control_pipe_path)
+            if validated_control_pipe_path is not None:
+                launch_env["LWBRIDGE_REBUILD_CONTROL_PIPE_PATH"] = validated_control_pipe_path
+            launcher_process = lr.subprocess.Popen(
+                [str(p["launcher"])],
+                cwd=str(p["launcher"].parent),
+                env=launch_env,
+            )
             deadline = launch_started + timeout_seconds
             owned_game = await_owned_game_process_update_aware(p, deadline, launch_log_offset)
             game_started_at_utc = lr.require_process_started_at(owned_game.get("startedAtUtc"), "owned game startedAtUtc")
-            write_control(p, profile_id, session_id, challenge, int(owned_game["pid"]))
+            write_control(
+                p,
+                profile_id,
+                session_id,
+                challenge,
+                int(owned_game["pid"]),
+                control_pipe_path,
+            )
             ready = await_ready(p, profile_id, session_id, challenge, int(owned_game["pid"]), deadline)
 
             # IMPLEMENTATION POLICY: Windows keeps the active script package locked while
@@ -588,6 +648,7 @@ def main() -> int:
     start.add_argument("--challenge", required=True)
     start.add_argument("--timeout-seconds", type=int, default=120)
     start.add_argument("--game-root")
+    start.add_argument("--control-pipe-path")
     stop = sub.add_parser("stop")
     stop.add_argument("--profile-id", required=True)
     stop.add_argument("--session-id", required=True)
@@ -608,6 +669,7 @@ def main() -> int:
                 require_token(args.challenge, "challenge"),
                 args.timeout_seconds,
                 args.game_root,
+                args.control_pipe_path,
             )
         else:
             if args.game_pid <= 0:

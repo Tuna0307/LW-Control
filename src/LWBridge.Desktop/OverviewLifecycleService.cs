@@ -755,7 +755,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             profileId,
             sessionId,
             BridgeVersion,
-            RecoveryClockMilliseconds());
+            ControlPipeClockMilliseconds());
     }
 
     private void RefreshControlPipeLaunchBinding(
@@ -765,8 +765,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             return;
         bridgeHostState!.RefreshLaunchBinding(
             binding.InstanceId,
-            RecoveryClockMilliseconds());
+            ControlPipeClockMilliseconds());
     }
+
+    private long ControlPipeClockMilliseconds() =>
+        testHooks?.MonotonicMilliseconds?.Invoke() ??
+        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
     private OverviewHelperInvocation CreateBoundedStartInvocation(
         string sessionId,
@@ -903,6 +907,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             int timeoutSeconds = invocation.TimeoutSeconds ?? 120;
             start.ArgumentList.Add("--timeout-seconds");
             start.ArgumentList.Add(timeoutSeconds.ToString(CultureInfo.InvariantCulture));
+            if (invocation.ControlPipeLaunchBinding is not null)
+            {
+                start.ArgumentList.Add("--control-pipe-path");
+                start.ArgumentList.Add(LWBridgeControlPipeContract.GetCurrentUserFullPath());
+            }
         }
         else
         {

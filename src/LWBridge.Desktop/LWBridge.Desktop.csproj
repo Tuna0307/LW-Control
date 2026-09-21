@@ -22,6 +22,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LWBridge.GamePipeAdapter\LWBridge.GamePipeAdapter.csproj"
+                      ReferenceOutputAssembly="false" />
+    <Content Include="..\LWBridge.GamePipeAdapter\bin\$(Configuration)\netstandard2.0\LWBridge.GamePipeAdapter.dll"
+             Link="OverviewBridge\LWBridge.GamePipeAdapter.dll"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
   </ItemGroup>

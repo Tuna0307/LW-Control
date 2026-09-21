@@ -27,6 +27,9 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
     private int failedConnects;
     private int rejectedHandshakes;
     private int authenticatedSessions;
+    private string? lastHandshakeError;
+    private string? lastConnectInitialDisposition;
+    private int lastConnectInitialError;
 
     internal LWBridgeControlPipeIsolatedAcceptLoop(
         string pipePath,
@@ -70,6 +73,9 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
     public int FailedConnects => Volatile.Read(ref failedConnects);
     public int RejectedHandshakes => Volatile.Read(ref rejectedHandshakes);
     public int AuthenticatedSessions => Volatile.Read(ref authenticatedSessions);
+    public string? LastHandshakeError => Volatile.Read(ref lastHandshakeError);
+    public string? LastConnectInitialDisposition => Volatile.Read(ref lastConnectInitialDisposition);
+    public int LastConnectInitialError => Volatile.Read(ref lastConnectInitialError);
 
     internal Task StartAsync(CancellationToken cancellationToken = default)
     {
@@ -133,6 +139,12 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
 
                     pendingConnect =
                         LWBridgeControlPipeNativeServer.BeginConnect(server);
+                    Volatile.Write(
+                        ref lastConnectInitialDisposition,
+                        pendingConnect.InitialDisposition.ToString());
+                    Volatile.Write(
+                        ref lastConnectInitialError,
+                        pendingConnect.InitialLastError);
 
                     LWBridgePipeConnectDisposition disposition =
                         await WaitForConnectAsync(
@@ -169,21 +181,25 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                         error.Code is "PIPE_HANDSHAKE_REJECTED" or
                                       "PIPE_HANDSHAKE_TIMEOUT")
                     {
+                        Volatile.Write(ref lastHandshakeError, $"{error.Code}: {error.Message}");
                         Interlocked.Increment(ref rejectedHandshakes);
                         continue;
                     }
-                    catch (InvalidDataException)
+                    catch (InvalidDataException error)
                     {
+                        Volatile.Write(ref lastHandshakeError, $"InvalidDataException: {error.Message}");
                         Interlocked.Increment(ref rejectedHandshakes);
                         continue;
                     }
-                    catch (EndOfStreamException)
+                    catch (EndOfStreamException error)
                     {
+                        Volatile.Write(ref lastHandshakeError, $"EndOfStreamException: {error.Message}");
                         Interlocked.Increment(ref rejectedHandshakes);
                         continue;
                     }
 
                     session.Bind(authenticated);
+                    Volatile.Write(ref lastHandshakeError, null);
                     Interlocked.Increment(ref authenticatedSessions);
 
                     try

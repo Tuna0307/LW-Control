@@ -25,9 +25,12 @@ local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
 local aoi_diagnostic_result_path = root .. [[\aoi-diagnostic-result.json]]
 local world_ready_path = root .. [[\world-ready.txt]]
 local world_ready_result_path = root .. [[\world-ready-result.json]]
+local pipe_transport_result_path = root .. [[\pipe-transport.json]]
+local pipe_adapter_state_path = root .. [[\pipe-adapter-state.txt]]
 local MESSAGE = "LWbridge is running"
 local OBJECT_NAME = "LWBridgeOverviewReady"
 local LEASE_MAX_AGE_SECONDS = 5
+local CONTROL_PIPE_PREFIX = [[\\.\pipe\lwbridge-control-v1-]]
 
 local active = nil
 local root_object = nil
@@ -50,6 +53,19 @@ local dispatch_plunder_runtime = {
     hookedClass = nil,
     originalHandleMessage = nil,
     responseTimeoutMilliseconds = 30000,
+}
+local pipe_runtime = {
+    adapterLoaded = false,
+    adapterConnect = nil,
+    adapterPath = nil,
+    adapterActive = false,
+    sessionId = nil,
+    state = "idle",
+    error = nil,
+    pipeName = nil,
+    lastDiagnostic = nil,
+    inboundSequence = 0,
+    outboundSequence = 0,
 }
 local NAVIGATION_TIMEOUT_SECONDS = 5
 local WORLD_READY_TIMEOUT_SECONDS = 10
@@ -79,6 +95,57 @@ local function runtime_clock()
     local cs = rawget(_G, "CS")
     local time = cs and cs.UnityEngine and cs.UnityEngine.Time
     return tonumber(time and safe_get(time, "realtimeSinceStartup")) or tonumber(os.clock()) or 0
+end
+
+local function pipe_transport_capabilities()
+    local cs = rawget(_G, "CS")
+    local system = cs and safe_get(cs, "System") or nil
+    local io = system and safe_get(system, "IO") or nil
+    local pipes = io and safe_get(io, "Pipes") or nil
+    local threading = system and safe_get(system, "Threading") or nil
+    local threading_tasks = threading and safe_get(threading, "Tasks") or nil
+    local text = system and safe_get(system, "Text") or nil
+    local diagnostics = system and safe_get(system, "Diagnostics") or nil
+    local security = system and safe_get(system, "Security") or nil
+    local principal = security and safe_get(security, "Principal") or nil
+    local cryptography = security and safe_get(security, "Cryptography") or nil
+    local profile_id = os.getenv("LWBRIDGE_PROFILE_ID")
+    local instance_id = os.getenv("LWBRIDGE_INSTANCE_ID")
+    local pipe_token = os.getenv("LWBRIDGE_PIPE_TOKEN")
+    local build_id = os.getenv("LWBRIDGE_BUILD_ID")
+    return {
+        profileIdPresent = type(profile_id) == "string" and #profile_id > 0,
+        instanceIdPresent = type(instance_id) == "string" and #instance_id > 0,
+        pipeTokenPresent = type(pipe_token) == "string" and #pipe_token > 0,
+        pipeTokenLength = type(pipe_token) == "string" and #pipe_token or 0,
+        buildIdPresent = type(build_id) == "string" and #build_id > 0,
+        namedPipeClientStreamAvailable =
+            pipes ~= nil and safe_get(pipes, "NamedPipeClientStream") ~= nil,
+        pipeDirectionAvailable =
+            pipes ~= nil and safe_get(pipes, "PipeDirection") ~= nil,
+        threadAvailable =
+            threading ~= nil and safe_get(threading, "Thread") ~= nil,
+        encodingUtf8Available =
+            text ~= nil and safe_get(text, "Encoding") ~= nil,
+        processApiAvailable =
+            diagnostics ~= nil and safe_get(diagnostics, "Process") ~= nil,
+        windowsIdentityAvailable =
+            principal ~= nil and safe_get(principal, "WindowsIdentity") ~= nil,
+        sha256Available =
+            cryptography ~= nil and safe_get(cryptography, "SHA256") ~= nil,
+        systemArrayAvailable =
+            system ~= nil and safe_get(system, "Array") ~= nil,
+        bitConverterAvailable =
+            system ~= nil and safe_get(system, "BitConverter") ~= nil,
+        taskApiAvailable =
+            threading_tasks ~= nil and safe_get(threading_tasks, "Task") ~= nil,
+        state = pipe_runtime.state,
+        error = pipe_runtime.error,
+        pipeName = pipe_runtime.pipeName,
+        clientConnected = pipe_runtime.clientConnected == true,
+        adapterLoaded = pipe_runtime.adapterLoaded == true,
+        adapterActive = pipe_runtime.adapterActive == true,
+    }
 end
 
 local function json_escape(value)
@@ -128,6 +195,177 @@ local function write_json(path, value)
     file:write(json_encode(value)); file:close(); return true
 end
 
+local valid_control_pipe_path
+local valid_pipe_adapter_path
+
+local function write_pipe_transport_diagnostic()
+    local value = pipe_transport_capabilities()
+    local encoded = json_encode(value)
+    if pipe_runtime.lastDiagnostic ~= encoded then
+        write_json(pipe_transport_result_path, value)
+        pipe_runtime.lastDiagnostic = encoded
+    end
+end
+
+local function close_pipe_runtime()
+    pipe_runtime.adapterActive = false
+    pipe_runtime.sessionId = nil
+    pipe_runtime.inboundSequence = 0
+    pipe_runtime.outboundSequence = 0
+    pipe_runtime.pipeName = nil
+    pipe_runtime.clientConnected = false
+    pipe_runtime.state = "idle"
+    pipe_runtime.error = nil
+    pipe_runtime.retryAt = 0
+end
+
+local function load_pipe_adapter(path)
+    if pipe_runtime.adapterLoaded and pipe_runtime.adapterConnect ~= nil and
+       pipe_runtime.adapterPath == path then
+        return true, nil
+    end
+    local cs = rawget(_G, "CS")
+    local system = cs and safe_get(cs, "System") or nil
+    local reflection = system and safe_get(system, "Reflection") or nil
+    local assembly_api = reflection and safe_get(reflection, "Assembly") or nil
+    if assembly_api == nil then
+        return false, "pipe_adapter_load_runtime_unavailable"
+    end
+
+    local ok_load, connect_or_error = pcall(function()
+        local assembly = assembly_api.LoadFrom(path)
+        if assembly == nil then error("assembly_loadfrom_returned_nil") end
+        local adapter_type =
+            assembly:GetType("LWBridge.GamePipe.PipeClientAdapter", true)
+        if adapter_type == nil then error("pipe_adapter_type_unavailable") end
+        local field = adapter_type:GetField("Connect", 24)
+        if field == nil then error("pipe_adapter_connect_delegate_unavailable") end
+        local connect = field:GetValue(nil)
+        if connect == nil then error("pipe_adapter_connect_delegate_nil") end
+        return connect
+    end)
+    if not ok_load or connect_or_error == nil then
+        return false, "pipe_adapter_load_failed:" .. tostring(connect_or_error)
+    end
+    pipe_runtime.adapterLoaded = true
+    pipe_runtime.adapterConnect = connect_or_error
+    pipe_runtime.adapterPath = path
+    return true, nil
+end
+
+local function refresh_pipe_adapter_state()
+    local file = io.open(pipe_adapter_state_path, "rb")
+    if file == nil then return end
+    local value = file:read("*a") or ""
+    file:close()
+    if value == "connected" then
+        pipe_runtime.clientConnected = true
+        pipe_runtime.state = "connected"
+        pipe_runtime.error = nil
+    elseif value == "connecting" then
+        pipe_runtime.clientConnected = false
+        pipe_runtime.state = "connecting"
+        pipe_runtime.error = nil
+    elseif value == "closed" or value == "idle" then
+        pipe_runtime.clientConnected = false
+        pipe_runtime.state = value
+        pipe_runtime.error = nil
+    elseif string.sub(value, 1, 6) == "error:" then
+        pipe_runtime.clientConnected = false
+        pipe_runtime.state = "error"
+        pipe_runtime.error = string.sub(value, 7)
+    elseif string.sub(value, 1, 11) == "send_error:" then
+        pipe_runtime.error = value
+    end
+end
+
+local function ensure_pipe_hello(control)
+    if pipe_runtime.adapterActive and pipe_runtime.sessionId == control.sessionId then
+        return true, nil
+    end
+    if pipe_runtime.adapterActive then close_pipe_runtime() end
+    local now_clock = runtime_clock()
+    if now_clock < (pipe_runtime.retryAt or 0) then
+        return false, pipe_runtime.error
+    end
+
+    local profile_id = os.getenv("LWBRIDGE_PROFILE_ID")
+    local instance_id = os.getenv("LWBRIDGE_INSTANCE_ID")
+    local pipe_token = os.getenv("LWBRIDGE_PIPE_TOKEN")
+    local build_id = os.getenv("LWBRIDGE_BUILD_ID")
+    if profile_id ~= control.profileId or instance_id ~= control.sessionId or
+       build_id ~= M.VERSION or type(pipe_token) ~= "string" or #pipe_token ~= 43 then
+        pipe_runtime.state = "error"
+        pipe_runtime.error = "pipe_environment_identity_mismatch"
+        pipe_runtime.retryAt = now_clock + 1.0
+        return false, pipe_runtime.error
+    end
+
+    if not valid_control_pipe_path(control.controlPipePath) then
+        pipe_runtime.state = "error"
+        pipe_runtime.error = "control_pipe_path_unavailable"
+        pipe_runtime.retryAt = now_clock + 1.0
+        return false, pipe_runtime.error
+    end
+    local pipe_name = string.sub(control.controlPipePath, #CONTROL_PIPE_PREFIX + 1)
+    if not valid_pipe_adapter_path(control.pipeAdapterPath) then
+        pipe_runtime.state = "error"
+        pipe_runtime.error = "pipe_adapter_path_unavailable"
+        pipe_runtime.retryAt = now_clock + 1.0
+        return false, pipe_runtime.error
+    end
+    local loaded, load_error = load_pipe_adapter(control.pipeAdapterPath)
+    if not loaded then
+        pipe_runtime.state = "error"
+        pipe_runtime.error = load_error
+        pipe_runtime.retryAt = now_clock + 1.0
+        return false, pipe_runtime.error
+    end
+
+    local hello = json_encode({
+        version = 1,
+        type = "hello",
+        profileId = profile_id,
+        instanceId = instance_id,
+        requestId = "",
+        timestamp = (tonumber(os.time()) or 0) * 1000,
+        payload = {
+            token = pipe_token,
+            pid = control.gamePid,
+            buildId = build_id,
+        },
+    })
+    local connect = pipe_runtime.adapterConnect
+    local ok_connect, connect_error = pcall(function()
+        if type(connect) == "function" then
+            return connect(control.controlPipePath, hello, root)
+        end
+        local invoke = safe_get(connect, "Invoke")
+        if type(invoke) == "function" then
+            return invoke(connect, control.controlPipePath, hello, root)
+        end
+        return connect(control.controlPipePath, hello, root)
+    end)
+    if not ok_connect then
+        pipe_runtime.state = "error"
+        pipe_runtime.error =
+            "pipe_adapter_connect_failed:" .. tostring(connect_error)
+        pipe_runtime.retryAt = now_clock + 1.0
+        return false, pipe_runtime.error
+    end
+
+    pipe_runtime.adapterActive = true
+    pipe_runtime.clientConnected = false
+    pipe_runtime.inboundSequence = 0
+    pipe_runtime.outboundSequence = 0
+    pipe_runtime.sessionId = control.sessionId
+    pipe_runtime.pipeName = pipe_name
+    pipe_runtime.state = "hello_sent"
+    pipe_runtime.error = nil
+    pipe_runtime.retryAt = 0
+    return true, nil
+end
+
 local function read_kv(path)
     local file = io.open(path, "rb")
     if file == nil then return nil end
@@ -146,6 +384,25 @@ local function valid_token(value)
         string.match(value, "^[%w_-]+$") ~= nil
 end
 
+valid_control_pipe_path = function(value)
+    if type(value) ~= "string" or string.sub(value, 1, #CONTROL_PIPE_PREFIX) ~= CONTROL_PIPE_PREFIX then
+        return false
+    end
+    local suffix = string.sub(value, #CONTROL_PIPE_PREFIX + 1)
+    return #suffix == 16 and string.match(suffix, "^[0-9a-f]+$") ~= nil
+end
+
+valid_pipe_adapter_path = function(value)
+    if type(value) ~= "string" or #value == 0 or #value > 1024 then
+        return false
+    end
+    if string.match(value, "^[A-Za-z]:[\\/]") == nil then
+        return false
+    end
+    local file_name = "lwbridge.gamepipeadapter.dll"
+    return string.lower(string.sub(value, -#file_name)) == file_name
+end
+
 local function read_control()
     local values = read_kv(control_path)
     if values == nil or values.schema ~= "1" or values.bridgeVersion ~= M.VERSION then return nil end
@@ -153,11 +410,21 @@ local function read_control()
     if not valid_token(values.profileId) or not valid_token(values.sessionId) or
        not valid_token(values.challenge) or game_pid == nil or game_pid <= 0 or
        game_pid ~= math.floor(game_pid) then return nil end
+    if values.controlPipePath ~= nil then
+        if not valid_control_pipe_path(values.controlPipePath) or
+           not valid_pipe_adapter_path(values.pipeAdapterPath) then
+            return nil
+        end
+    elseif values.pipeAdapterPath ~= nil then
+        return nil
+    end
     return {
         profileId = values.profileId,
         sessionId = values.sessionId,
         challenge = values.challenge,
         gamePid = game_pid,
+        controlPipePath = values.controlPipePath,
+        pipeAdapterPath = values.pipeAdapterPath,
     }
 end
 
@@ -2366,6 +2633,145 @@ local function observe_game_connection()
     }
 end
 
+local function pipe_mailbox_path(direction, sequence)
+    return root .. "\\pipe-" .. direction .. "-" ..
+        string.format("%08d", sequence) .. ".json"
+end
+
+local function read_pipe_mailbox(path)
+    local file = io.open(path, "rb")
+    if file == nil then return nil end
+    local text = file:read("*a") or ""
+    file:close()
+    if #text == 0 or #text > 0x800000 then
+        return nil
+    end
+    return text
+end
+
+local function pipe_json_string(text, name)
+    return string.match(
+        text,
+        '"' .. tostring(name) .. '":"([^"]*)"')
+end
+
+local function pipe_json_number(text, name)
+    local value = string.match(
+        text,
+        '"' .. tostring(name) .. '":([0-9]+)')
+    return tonumber(value)
+end
+
+local function write_pipe_result(control, request_id, result)
+    pipe_runtime.outboundSequence =
+        (pipe_runtime.outboundSequence or 0) + 1
+    local sequence = pipe_runtime.outboundSequence
+    local final_path = pipe_mailbox_path("outbound", sequence)
+    local temp_path = final_path .. ".tmp"
+    local envelope = {
+        version = 1,
+        type = "result",
+        profileId = control.profileId,
+        instanceId = control.sessionId,
+        requestId = request_id,
+        timestamp = (tonumber(os.time()) or 0) * 1000,
+        payload = {
+            id = request_id,
+            ok = true,
+            result = result,
+        },
+    }
+    if not write_json(temp_path, envelope) then
+        pipe_runtime.error = "pipe_result_write_failed"
+        return false
+    end
+    pcall(os.remove, final_path)
+    local renamed, rename_error = os.rename(temp_path, final_path)
+    if not renamed then
+        pcall(os.remove, temp_path)
+        pipe_runtime.error =
+            "pipe_result_publish_failed:" .. tostring(rename_error)
+        return false
+    end
+    return true
+end
+
+local function process_pipe_inbound(control)
+    if not pipe_runtime.adapterActive then return end
+    while true do
+        local sequence = (pipe_runtime.inboundSequence or 0) + 1
+        local path = pipe_mailbox_path("inbound", sequence)
+        local text = read_pipe_mailbox(path)
+        if text == nil then return end
+        pcall(os.remove, path)
+        pipe_runtime.inboundSequence = sequence
+
+        local version = pipe_json_number(text, "version")
+        local message_type = pipe_json_string(text, "type")
+        local profile_id = pipe_json_string(text, "profileId")
+        local instance_id = pipe_json_string(text, "instanceId")
+        local request_id = pipe_json_string(text, "requestId")
+        if version ~= 1 or profile_id ~= control.profileId or
+           instance_id ~= control.sessionId or request_id == nil then
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_inbound_identity_invalid"
+            return
+        end
+
+        if message_type == "hello.ack" then
+            if request_id ~= "" then
+                pipe_runtime.state = "error"
+                pipe_runtime.error = "pipe_hello_ack_request_id_invalid"
+                return
+            end
+            pipe_runtime.state = "connected"
+            pipe_runtime.clientConnected = true
+        elseif message_type == "command" then
+            local payload_id = pipe_json_string(text, "id")
+            local kind = pipe_json_string(text, "kind")
+            local function_name = pipe_json_string(text, "fn")
+            local empty_args =
+                string.find(text, '"args":{}', 1, true) ~= nil
+            if request_id == "" or payload_id ~= request_id or
+               kind ~= "call" or function_name ~= "getStatus" or
+               not empty_args then
+                pipe_runtime.state = "error"
+                pipe_runtime.error = "pipe_command_unsupported"
+                return
+            end
+
+            -- IMPLEMENTATION POLICY: the original getStatus result object was
+            -- not recovered. The rebuild returns only fields already observed
+            -- by this same Overview bridge and required only as an object by
+            -- the current Home call path.
+            local game = observe_game_connection()
+            local result = {
+                bridgeVersion = M.VERSION,
+                profileId = control.profileId,
+                instanceId = control.sessionId,
+                gameStateObserved = game.observed == true,
+                gameReady = game.ready,
+                loggedIn = game.loggedIn,
+                connected = game.connected,
+                connecting = game.connecting,
+                gameUid = game.gameUid,
+                serverId = game.serverId,
+                worldPos = game.worldPos,
+            }
+            if not write_pipe_result(
+                    control,
+                    request_id,
+                    result) then
+                return
+            end
+        else
+            pipe_runtime.state = "error"
+            pipe_runtime.error = "pipe_inbound_type_unsupported"
+            return
+        end
+    end
+end
+
 local RECOVERY_WINDOWS = {
     { windowName = "UIForceUpdateTip", reason = "forceUpdate", updateDetected = true },
     { windowName = "UICrossDisconnect", reason = "crossDisconnect", updateDetected = false },
@@ -2511,6 +2917,7 @@ function M.Pump()
     local control = read_control()
     if control == nil or not lease_is_fresh(control, now) then
         active = control
+        close_pipe_runtime()
         pending_navigation = nil
         pending_world_ready = nil
         pending_server_jump = nil
@@ -2531,6 +2938,7 @@ function M.Pump()
         pending_march_follow = nil
         dispatch_plunder_runtime.abandon()
         abandon_truck_quick_rob()
+        close_pipe_runtime()
         active = control
     end
 
@@ -2544,6 +2952,7 @@ function M.Pump()
     local rendered, render_error = ensure_message()
     if rendered then
         if last_ready_session ~= active.sessionId then
+            local transport_capabilities = pipe_transport_capabilities()
             write_json(ready_path, {
                 schemaVersion = 1,
                 bridgeVersion = M.VERSION,
@@ -2557,6 +2966,7 @@ function M.Pump()
                 messageText = MESSAGE,
                 renderPath = "GameFramework/UI/UIContainer/LWBridgeOverviewReady/Message",
                 registrationMethod = registration_method,
+                pipeTransport = transport_capabilities,
             })
             last_ready_session = active.sessionId
         end
@@ -2564,6 +2974,10 @@ function M.Pump()
     else
         write_heartbeat(now, false, render_error)
     end
+    ensure_pipe_hello(active)
+    refresh_pipe_adapter_state()
+    process_pipe_inbound(active)
+    write_pipe_transport_diagnostic()
     return true
 end
 

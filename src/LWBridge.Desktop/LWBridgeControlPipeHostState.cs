@@ -48,6 +48,46 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
 
     public int ConnectedRouteCount => registry.ConnectedCount;
 
+    internal int ServerInstanceCount
+    {
+        get { lock (gate) return acceptLoop?.ServerInstancesCreated ?? 0; }
+    }
+
+    internal int FirstInstanceFlagUseCount
+    {
+        get { lock (gate) return acceptLoop?.FirstInstanceFlagUses ?? 0; }
+    }
+
+    internal string? LastConnectInitialDisposition
+    {
+        get { lock (gate) return acceptLoop?.LastConnectInitialDisposition; }
+    }
+
+    internal int LastConnectInitialError
+    {
+        get { lock (gate) return acceptLoop?.LastConnectInitialError ?? 0; }
+    }
+
+    internal int FailedConnectCount
+    {
+        get { lock (gate) return acceptLoop?.FailedConnects ?? 0; }
+    }
+
+    internal int RejectedHandshakeCount
+    {
+        get { lock (gate) return acceptLoop?.RejectedHandshakes ?? 0; }
+    }
+
+    internal int AuthenticatedSessionCount
+    {
+        get { lock (gate) return acceptLoop?.AuthenticatedSessions ?? 0; }
+    }
+
+    internal string? LastHandshakeError
+    {
+        get { lock (gate) return acceptLoop?.LastHandshakeError; }
+    }
+
     public int? PendingCallCount
     {
         get

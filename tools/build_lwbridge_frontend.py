@@ -129,6 +129,26 @@ def build(check=False):
             s = replace_once(s, ',scanMode:`fast`', '')
             s = replace_once(s, ',scanMode:e?.scanMode===`normal`?`normal`:`fast`', '')
             s = replace_once(s, ',scanMode:i.scanMode', '')
+            # LWB-R7-127 IMPLEMENTATION POLICY: Home's account rail represents
+            # active LWBridge-owned game instances, not every configured profile.
+            # Ownership requires both the live PID and instanceId returned by
+            # profile_instance_status; an unmanaged game has no instanceId.
+            s = replace_once(
+                s,
+                '},[ae]),!ae)return null;let oe=ae.profiles,se=oe.length>=ae.maxProfiles',
+                '},[ae]),(0,j.useEffect)(()=>{if(!ae)return;let e=ae.profiles.filter(e=>{let t=s[e.id];return t?.pid!=null&&typeof t.instanceId==`string`&&t.instanceId.length>0});e.length>0&&!e.some(e=>e.id===ae.selectedProfileId)&&r.select(e[0].id,!1)},[ae,s]),!ae)return null;let oe=ae.profiles,Pe=oe.filter(e=>{let t=s[e.id];return t?.pid!=null&&typeof t.instanceId==`string`&&t.instanceId.length>0}),se=oe.length>=ae.maxProfiles')
+            s = replace_once(
+                s,
+                'children:oe.map(t=>{let n=O(t,o)',
+                'children:Pe.map(t=>{let n=O(t,o)')
+            s = replace_once(
+                s,
+                'children:oe.map(t=>{let n=t.id===ae.selectedProfileId',
+                'children:Pe.map(t=>{let n=t.id===ae.selectedProfileId')
+            s = replace_once(
+                s,
+                'f=s[t.id],p=f?.phase===`error`&&f.pid==null,m=',
+                'f=s[t.id],p=!(f?.pid!=null&&typeof f.instanceId==`string`&&f.instanceId.length>0),m=')
             # PM13-01b: preserve the recovered error formatter, but teach it
             # rebuild-only bounded resource/search errors. These strings are
             # IMPLEMENTATION POLICY, not recovered original LWBridge wording.

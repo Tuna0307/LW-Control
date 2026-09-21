@@ -163,6 +163,12 @@ if (args.Contains("--live-overview-home-proof", StringComparer.OrdinalIgnoreCase
     return 0;
 }
 
+if (args.Contains("--live-overview-a11-transport-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveOverviewA11TransportProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--local-lastwar-locale-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunLocalCacheProofAsync();
