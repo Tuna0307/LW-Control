@@ -361,6 +361,20 @@ def build(check=False):
             s = replace_once(s,
                 'F!==`scheduledPlunder`&&(0,D.jsxs)(`div`,{className:`map-searchbar`,children:[(0,D.jsx)(`input`,{value:I,',
                 'F!==`scheduledPlunder`&&(0,D.jsxs)(`div`,{className:`map-searchbar`,children:[Array.isArray(p?.savedServerIds)&&p.savedServerIds.length>1&&(0,D.jsx)(`select`,{\"aria-label\":C(`map.server`),value:L,onChange:e=>{E.current+=1,Pe.current+=1,O.current.clear(),ct(Number(e.target.value)),B(1),H([]),U(0),Yt(!0)},children:p.savedServerIds.map(e=>(0,D.jsx)(`option`,{value:e,children:`${C(`map.server`)} ${e}`},e))}),(0,D.jsx)(`input`,{value:I,')
+            # LWB-R7-131: Clear already invalidates the in-flight saved-search
+            # generation. It must also suppress the one automatic search effect
+            # caused by Clear's own state resets, otherwise the cleared server is
+            # queried again immediately and can surface the same transient SQLite
+            # error that R7-130 intended to make stale.
+            s = replace_once(s,
+                'we=(0,b.useRef)(v),Ee=(0,b.useRef)(y),T=(0,b.useRef)(x),E=(0,b.useRef)(0),O=(0,b.useRef)(new Map),Pe=(0,b.useRef)(0),',
+                'we=(0,b.useRef)(v),Ee=(0,b.useRef)(y),T=(0,b.useRef)(x),E=(0,b.useRef)(0),O=(0,b.useRef)(new Map),Pe=(0,b.useRef)(0),clearAutoSearchOnce=(0,b.useRef)(!1),')
+            s = replace_once(s,
+                '(0,b.useEffect)(()=>{if(F!==`scheduledPlunder`&&!(F===`treasure`&&h&&J&&!Nn.playerUid)){if(!L){E.current+=1,B(1),H([]),U(0);return}er(z)}},[F,Et,L,z,Pt,It,Rt,Bt,Ht,Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile,Ot,Kt,At,Mt,mn,An,h,J,Nn]),',
+                '(0,b.useEffect)(()=>{if(clearAutoSearchOnce.current){clearAutoSearchOnce.current=!1;return}if(F!==`scheduledPlunder`&&!(F===`treasure`&&h&&J&&!Nn.playerUid)){if(!L){E.current+=1,B(1),H([]),U(0);return}er(z)}},[F,Et,L,z,Pt,It,Rt,Bt,Ht,Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile,Ot,Kt,At,Mt,mn,An,h,J,Nn]),')
+            s = replace_once(s,
+                'async function Qn(){E.current+=1,Pe.current+=1,Yt(!1),q(!1),yn(``);try{let e=await ne(L);Ie.current+=1,',
+                'async function Qn(){E.current+=1,Pe.current+=1,Yt(!1),q(!1),yn(``);try{let e=await ne(L);clearAutoSearchOnce.current=!0,Ie.current+=1,')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

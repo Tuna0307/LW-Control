@@ -1,0 +1,119 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-131",
+  "date": "2026-09-22",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Generated-frontend acceptance for Map Data persistence, saved-server browsing, Auto Stop, and Clear/search race",
+  "branch": "research/offline-controller",
+  "baseRevision": "6aa0b240b2fb340b3716b39409202465222d5672",
+  "scope": {
+    "officialGameActionPerformed": false,
+    "stateChangingGameplayActionPerformed": false,
+    "browserGeneratedFrontendAcceptance": true,
+    "normalWinFormsWebViewHumanWalkthrough": false
+  },
+  "sourceIdentity": {
+    "tools/build_lwbridge_frontend.py.sha256": "52DA93262E8054ACDCB368623807C37972F2439ABB236315FCE482B6BAF33C23",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js.sha256": "91757A4E344EA31076BFA6FF4ADFD0B80D39E70C843B112A55C4E61CE60B3334",
+    "tools/check_map_data_r7131.cjs.sha256": "4EE1976B131D67039ECAAFF6450A44A8D6EA6E11E49876D2BC1DF85845364520"
+  },
+  "toolchain": {
+    "localPlaywrightVersion": "1.63.0",
+    "localPlaywrightLocation": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwbridge-playwright",
+    "microsoftEdgeVersion": "153.0.4234.32",
+    "ciPlaywrightPinnedVersion": "1.62.1"
+  },
+  "failureFirst": {
+    "scenario": "start delayed saved City search, immediately Clear server data, allow delayed failure to return",
+    "preFixObservedCommandOrder": [
+      "map_search keyword=stale-race",
+      "map_scan_clear serverId=2212",
+      "map_search keyword=stale-race"
+    ],
+    "preFixVisibleError": "Saved map search failed. Try Search again. Technical details remain in the application log.",
+    "rootCause": "R7-130 invalidated the pre-Clear request, but Clear state resets changed automatic-query effect dependencies and launched a new post-Clear search using retained filters"
+  },
+  "implementation": {
+    "canonicalGeneratorOwnsFix": true,
+    "mechanism": "clearAutoSearchOnce ref suppresses exactly the automatic query-effect turn caused by successful Clear",
+    "oldInFlightGenerationStillInvalidated": true,
+    "explicitFutureSearchesRemainEnabled": true,
+    "ciRunsPermanentBrowserRegression": true
+  },
+  "browserAcceptance": {
+    "savedServerIds": [2212, 2213],
+    "initialPersistedState": {
+      "manualSelectedTypes": ["city", "monster"],
+      "scanTab": "auto",
+      "resultTab": "monster",
+      "browseServer": 2213
+    },
+    "changedPersistedState": {
+      "manualSelectedTypes": ["monster", "truck"],
+      "scanTab": "auto",
+      "resultTab": "truck",
+      "browseServer": 2212
+    },
+    "fullDocumentReloadPreservedChangedState": true,
+    "savedServerSelectorContainsAllStoredServers": true,
+    "autoStop": {
+      "configuredServers": [2212, 2213],
+      "mapScanStartCount": 1,
+      "mapScanStopCount": 1,
+      "jumpedToSecondTargetAfterStop": false,
+      "persistedEnabledAfterStop": false
+    },
+    "clearRacePostFix": {
+      "visibleError": false,
+      "mapScanClearCount": 1,
+      "mapSearchAfterClear": false,
+      "postClearRefreshObserved": "map_data_options"
+    }
+  },
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "browserAutoStrategyCheck": true,
+    "r7131BrowserCheck": true,
+    "existingInteractionBrowserChecks": 4,
+    "fullBrowserChecks": 36,
+    "cityExportRemovalBrowserCheck": true,
+    "visualComparison": {
+      "pairs": 32,
+      "strictPairs": 28,
+      "intentionalMapDataPairs": 4,
+      "identicalStrictPairs": 28,
+      "strictMaxMae": 0.0,
+      "strictMaxHighDeltaRate": 0.0,
+      "mapDataMaxMae": 7.029053943437155,
+      "mapDataMaxHighDeltaRate": 0.03264880830570676
+    },
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": []
+  },
+  "reproduction": [
+    "python tools\\build_lwbridge_frontend.py --check",
+    "node --check tools\\check_map_data_r7131.cjs",
+    "node --check src\\LWBridge.Desktop\\WebUi\\assets\\MapDataPanel-C1HVeNHr.js",
+    "node tools\\check_scan_strategy_auto.cjs",
+    "node tools\\check_map_data_r7131.cjs",
+    "set LWBRIDGE_INTERACTIONS_ONLY=1 then node tools\\check_lwbridge_frontend.cjs",
+    "dotnet build tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-restore",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-build",
+    "node tools\\check_lwbridge_frontend.cjs; node tools\\check_city_export_removed.cjs; python tools\\compare_lwbridge_frontend.py"
+  ],
+  "limits": {
+    "normalUserBuiltExecutableRestartWalkthrough": "OPEN",
+    "ghostPositivePopulation": "OPEN; owner-deferred to 2026-09-24",
+    "suppliesPositivePopulation": "OPEN; population unavailable in prior bounded proof",
+    "stateChangingTruckDispatchAllianceTreasureAcceptance": "OPEN; not exercised by R7-131"
+  }
+}
