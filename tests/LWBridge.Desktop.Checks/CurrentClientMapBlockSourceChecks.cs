@@ -48,6 +48,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastResourceFullMapReturnsAllLogicalCaptures();
         await FastFullWorldResumesAfterOuterRetry();
         await FastMonsterResumesAfterEarlyReadyLoss();
+        await FastFullMapRetriesOverviewAdmissionGapWithoutHealthWindow();
         await FastMonsterFullMapReturnsAllLogicalCaptures();
         await FastMonsterCoarseLodReturnsAllLogicalCaptures();
         await FastMonsterCoarseIncludesDoomsdayBoss();
@@ -434,6 +435,43 @@ internal static class CurrentClientMapBlockSourceChecks
             request, blocks[0], pending, CancellationToken.None);
         Check(captures.Count == 2500 && bulkCalls == 271 && healthWaits >= 2,
             "generic Monster LOD0 coverage must recover a transient readiness loss without changing the owned session");
+    }
+
+    private static async Task FastFullMapRetriesOverviewAdmissionGapWithoutHealthWindow()
+    {
+        int bulkCalls = 0;
+        int healthWaits = 0;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            waitForHealthySession: (session, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                healthWaits++;
+                Check(session == Session, "Overview admission-gap retry changed the owned session");
+                return Task.CompletedTask;
+            },
+            bulkResult: fields =>
+            {
+                bulkCalls++;
+                if (bulkCalls == 1)
+                {
+                    JsonObject failed = JsonNode.Parse(ProvenFastMonsterBatch(fields))!.AsObject();
+                    failed["state"] = "failed";
+                    failed["error"] = "overview_session_unavailable";
+                    return failed.ToJsonString(JsonOptions.Default);
+                }
+                return ProvenFastMonsterBatch(fields);
+            },
+            matchesOwnedSession: session => session == Session);
+
+        MapScanExecutionRequest request = new(
+            "run_overview_admission_gap", 2212, 0, 1000, 1000, ["monster"], 8, 2, 230, 257);
+        IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
+        IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
+            request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
+
+        Check(captures.Count == 2500 && bulkCalls == 271 && healthWaits == 1,
+            "one correlated overview_session_unavailable result must retry the same owned session without entering the 180-second Home health window");
     }
 
     private static async Task FastMonsterFullMapReturnsAllLogicalCaptures()
@@ -2401,6 +2439,8 @@ internal static class CurrentClientMapBlockSourceChecks
         int[] requested = Enumerable.Range(startCellY, 10)
             .SelectMany(row => Enumerable.Range(startCellX, columnCount).Select(column => row * 100 + column))
             .ToArray();
+        bool includeCity = fields.TryGetValue("includeCity", out string? includeCityText) && includeCityText == "true";
+        bool includeResource = fields.TryGetValue("includeResource", out string? includeResourceText) && includeResourceText == "true";
         bool includeMonster = fields.TryGetValue("includeMonster", out string? includeMonsterText) && includeMonsterText == "true";
         bool includeMonsterProtection = fields.TryGetValue("includeMonsterProtection", out string? includeMonsterProtectionText) &&
             includeMonsterProtectionText == "true";
@@ -2415,9 +2455,9 @@ internal static class CurrentClientMapBlockSourceChecks
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
-            includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeTreasure, includeResourceDetails,
+            includeCity, includeResource, includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeTreasure, includeResourceDetails,
             state = "proven", error = (string?)null, requestedIndices = requested,
-            matchedCityCount = points.Length, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0, matchedTreasureCount = 0,
+            matchedCityCount = includeCity ? points.Length : 0, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0, matchedTreasureCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,
             monsterProtectionDetailRequestCount = 0, monsterProtectionDetailReadyCount = 0,
             serverLod = 0, blockSize = 10, blockCount = 100,

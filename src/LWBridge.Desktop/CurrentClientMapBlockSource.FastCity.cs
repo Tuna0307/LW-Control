@@ -303,12 +303,24 @@ internal sealed partial class CurrentClientMapBlockSource
                                 $"target=({targetX},{targetY}) rowStart={aoiRowStart} attempt={attempt}/3 error={error.Message}");
                         if (attempt < 3)
                         {
-                            if (waitForHealthySession is { } waitForHealthy)
+                            if (IsOverviewSessionAdmissionGap(error))
                             {
-                                await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+                                // A correlated Lua result can briefly observe the Overview lease/control
+                                // handoff between ticks even while the exact owned game session is still
+                                // intact. Do not route that one-response admission gap through the recovered
+                                // 180-second login-unavailable Home recovery window.
                                 RequireSameSession(session);
+                                await DelayAsync(TimeSpan.FromMilliseconds(500), cancellationToken).ConfigureAwait(false);
                             }
-                            await DelayAsync(TimeSpan.FromMilliseconds(150), cancellationToken).ConfigureAwait(false);
+                            else
+                            {
+                                if (waitForHealthySession is { } waitForHealthy)
+                                {
+                                    await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+                                    RequireSameSession(session);
+                                }
+                                await DelayAsync(TimeSpan.FromMilliseconds(150), cancellationToken).ConfigureAwait(false);
+                            }
                         }
                     }
                 }
@@ -560,6 +572,13 @@ internal sealed partial class CurrentClientMapBlockSource
     private static bool IsMonsterOnly(MapScanExecutionRequest request) =>
         request.SelectedTypes.Count == 1 && IncludesMonsterSource(request);
 
+    private static bool IsOverviewSessionAdmissionGap(Exception error) =>
+        error is InvalidDataException &&
+        string.Equals(
+            error.Message,
+            "Fast world batch failed: overview_session_unavailable",
+            StringComparison.Ordinal);
+
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
         request.SelectedTypes.Count is >= 1 and <= 8 &&
         request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway" or "dispatch" or "ghost" or "treasure") &&
@@ -596,6 +615,8 @@ internal sealed partial class CurrentClientMapBlockSource
             "holdMilliseconds=0",
             $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
+            $"includeCity={request.SelectedTypes.Contains("city", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            $"includeResource={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeMonster={IncludesMonsterSource(request).ToString().ToLowerInvariant()}",
             $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
@@ -1060,6 +1081,8 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesString(root, "challenge", session.Challenge) ||
             !MatchesInt(root, "gamePid", session.GamePid) ||
             !MatchesString(root, "requestMode", "coverage") ||
+            !MatchesBool(root, "includeCity", request.SelectedTypes.Contains("city", StringComparer.Ordinal)) ||
+            !MatchesBool(root, "includeResource", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeMonster", IncludesMonsterSource(request)) ||
             !MatchesBool(root, "includeMonsterProtection", IsZombieBossOnly(request)) ||
             !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||

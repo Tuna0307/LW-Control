@@ -756,6 +756,119 @@ local function resource_record(world, point_manager)
     return candidates[selected_index], nil, #candidates, expected, selected_index, ordered
 end
 
+local function player_city_health_snapshot(info)
+    local function server_seconds()
+        local manager_type = rawget(_G, "UITimeManager")
+        local ok_instance, manager = call(manager_type, "GetInstance")
+        if not ok_instance or manager == nil then return nil end
+        local ok_seconds, seconds = call(manager, "GetServerSeconds")
+        seconds = ok_seconds and tonumber(seconds) or nil
+        if seconds ~= nil and seconds >= 0 then return seconds end
+        local ok_time, millis = call(manager, "GetServerTime")
+        millis = ok_time and tonumber(millis) or nil
+        if millis ~= nil and millis >= 0 then return millis / 1000 end
+        return nil
+    end
+
+    local function recover_speed(observed)
+        local speed = tonumber(observed)
+        if speed ~= nil and speed > 0 then return speed end
+        local data_center = rawget(_G, "DataCenter")
+        local manager = data_center and safe_get(data_center, "BuildTemplateManager") or nil
+        local item_id = integer_field(info, { "itemId", "ItemId" })
+        local level = integer_field(info, { "level", "Level" })
+        if manager ~= nil and item_id ~= nil and level ~= nil then
+            local ok_template, template = call(manager, "GetBuildingLevelTemplate", item_id, level)
+            if ok_template and template ~= nil then
+                local ok_cover, cover = call(template, "GetDefenceWallCoverSpeed")
+                cover = ok_cover and tonumber(cover) or nil
+                if cover ~= nil and cover > 0 then return cover end
+            end
+        end
+        return speed
+    end
+
+    local function fire_speed(observed)
+        local speed = tonumber(observed)
+        if speed ~= nil and speed ~= 0 then return speed end
+        local get_table_data = rawget(_G, "GetTableData")
+        local table_name = rawget(_G, "TableName")
+        local status_tab = table_name and safe_get(table_name, "StatusTab") or nil
+        if type(get_table_data) == "function" and status_tab ~= nil then
+            local ok, value = pcall(get_table_data, status_tab, 500300, "effect_num")
+            value = ok and tonumber(value) or nil
+            if value ~= nil then return value end
+        end
+        return speed
+    end
+
+    local raw_hp = tonumber(scalar_field(info, { "curHp", "CurHp" }))
+    local last_hp_time = tonumber(scalar_field(info, { "lastHpTime", "LastHpTime" }))
+    local observed_recover_speed = recover_speed(
+        scalar_field(info, { "recoverSpeed", "RecoverSpeed" }))
+    local unavailable_time = tonumber(scalar_field(info, { "unavailableTime", "UnavailableTime" }))
+    local observed_fire_speed = tonumber(scalar_field(info, { "fireSpeed", "FireSpeed" }))
+    local item_id = integer_field(info, { "itemId", "ItemId" })
+    local result = {
+        effectiveHp = raw_hp,
+        rawCurHp = raw_hp,
+        maxHp = nil,
+        lastHpTime = last_hp_time,
+        recoverSpeed = observed_recover_speed,
+        unavailableTime = unavailable_time,
+        fireSpeed = observed_fire_speed,
+        calculationMode = "source_curHp",
+    }
+    if raw_hp == nil then return result end
+
+    local ok_normal, is_normal = call(info, "IsNormalType")
+    local building_types = rawget(_G, "BuildingTypes")
+    local main_build_id = building_types and tonumber(safe_get(building_types, "FUN_BUILD_MAIN")) or nil
+    if not ok_normal or is_normal ~= true or item_id == nil or main_build_id == nil or
+       item_id ~= math.floor(main_build_id) then
+        return result
+    end
+
+    local max_hp = 10000
+    result.maxHp = max_hp
+    local now = server_seconds()
+    if now == nil or last_hp_time == nil then
+        result.effectiveHp = math.floor(math.max(0, math.min(raw_hp, max_hp)))
+        result.calculationMode = "normal_main_clamped_raw"
+        return result
+    end
+
+    local hp = raw_hp
+    local delta_time = now - last_hp_time
+    if delta_time > 0 and observed_recover_speed ~= nil and observed_recover_speed > 0 then
+        if unavailable_time ~= nil and unavailable_time ~= 0 then
+            local fire_end = unavailable_time / 1000
+            local max_fire_time = fire_end - last_hp_time
+            local fire_time = math.min(math.max(max_fire_time, 0), delta_time)
+            local normal_time = delta_time - fire_time
+            if fire_time > 0 then
+                local effective_fire_speed = fire_speed(observed_fire_speed)
+                if effective_fire_speed == nil then
+                    result.effectiveHp = math.floor(math.max(0, math.min(raw_hp, max_hp)))
+                    result.calculationMode = "normal_main_fire_source_incomplete"
+                    return result
+                end
+                result.fireSpeed = effective_fire_speed
+                hp = math.max(hp - fire_time * effective_fire_speed, 1)
+            end
+            if normal_time > 0 then hp = hp + normal_time * observed_recover_speed end
+            result.calculationMode = "normal_main_fire_then_recover"
+        else
+            hp = hp + delta_time * observed_recover_speed
+            result.calculationMode = "normal_main_recover"
+        end
+    else
+        result.calculationMode = "normal_main_no_elapsed_recovery"
+    end
+    result.effectiveHp = math.floor(math.max(0, math.min(hp, max_hp)))
+    return result
+end
+
 local function city_record(world, point_manager)
     local collection = reflected_value(point_manager, "_pointInfos")
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
@@ -782,6 +895,7 @@ local function city_record(world, point_manager)
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
+        local health = player_city_health_snapshot(info)
         candidates[#candidates + 1] = {
             id = id,
             pointId = id,
@@ -799,7 +913,14 @@ local function city_record(world, point_manager)
             allianceId = alliance_id ~= nil and tostring(alliance_id) or nil,
             allianceName = alliance_name ~= nil and tostring(alliance_name) or nil,
             level = scalar_field(info, { "level", "Level" }),
-            health = scalar_field(info, { "curHp", "CurHp" }),
+            health = health.effectiveHp,
+            healthRawCurHp = health.rawCurHp,
+            healthMaxHp = health.maxHp,
+            healthLastHpTime = health.lastHpTime,
+            healthRecoverSpeed = health.recoverSpeed,
+            healthUnavailableTime = health.unavailableTime,
+            healthFireSpeed = health.fireSpeed,
+            healthCalculationMode = health.calculationMode,
             protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
             source = "WorldPointManager._pointInfos",
         }
@@ -1946,6 +2067,10 @@ local function read_bulk_aoi_diagnostic(now)
     request.holdMilliseconds = tonumber(values.holdMilliseconds or "1000")
     request.homeTileX = tonumber(values.homeTileX or "-1")
     request.homeTileY = tonumber(values.homeTileY or "-1")
+    local include_city_raw = tostring(values.includeCity or "false")
+    request.includeCity = include_city_raw == "true"
+    local include_resource_raw = tostring(values.includeResource or "false")
+    request.includeResource = include_resource_raw == "true"
     local include_monster_raw = tostring(values.includeMonster or "false")
     request.includeMonster = include_monster_raw == "true"
     local include_monster_protection_raw = tostring(values.includeMonsterProtection or "false")
@@ -1979,6 +2104,8 @@ local function read_bulk_aoi_diagnostic(now)
        request.homeTileX < -1 or request.homeTileX >= 1000 or request.homeTileY < -1 or request.homeTileY >= 1000 or
        request.homeTileX ~= math.floor(request.homeTileX) or request.homeTileY ~= math.floor(request.homeTileY) or
        ((request.homeTileX == -1) ~= (request.homeTileY == -1)) or
+       (include_city_raw ~= "true" and include_city_raw ~= "false") or
+       (include_resource_raw ~= "true" and include_resource_raw ~= "false") or
        (include_monster_raw ~= "true" and include_monster_raw ~= "false") or
        (include_monster_protection_raw ~= "true" and include_monster_protection_raw ~= "false") or
        (request.includeMonsterProtection == true and request.includeMonster ~= true) or
@@ -2098,6 +2225,7 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
+        local health = player_city_health_snapshot(info)
         records[#records + 1] = {
             id = id, pointId = id, pointType = 6, kind = "player_base",
             runtimeClass = reflected_type_name(info), serverId = math.floor(server_id),
@@ -2109,7 +2237,14 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
             allianceId = alliance_id ~= nil and tostring(alliance_id) or nil,
             allianceName = alliance_name ~= nil and tostring(alliance_name) or nil,
             level = scalar_field(info, { "level", "Level" }),
-            health = scalar_field(info, { "curHp", "CurHp" }),
+            health = health.effectiveHp,
+            healthRawCurHp = health.rawCurHp,
+            healthMaxHp = health.maxHp,
+            healthLastHpTime = health.lastHpTime,
+            healthRecoverSpeed = health.recoverSpeed,
+            healthUnavailableTime = health.unavailableTime,
+            healthFireSpeed = health.fireSpeed,
+            healthCalculationMode = health.calculationMode,
             protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
             source = "WorldPointManager.GetAllMainBaseList",
         }
@@ -4527,6 +4662,8 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         monsterProtectionDetailTargetCount = details.monsterProtectionDetailTargetCount or 0,
         monsterProtectionDetailRequestCount = details.monsterProtectionDetailRequestCount or 0,
         monsterProtectionDetailReadyCount = details.monsterProtectionDetailReadyCount or 0,
+        includeCity = request.includeCity == true,
+        includeResource = request.includeResource == true,
         includeMonster = request.includeMonster == true,
         includeMonsterProtection = request.includeMonsterProtection == true,
         includeTrain = request.includeTrain == true,
@@ -5224,22 +5361,33 @@ local function pump_bulk_aoi_diagnostic(now)
     details.matchedGhostCount = observed.ghosts
     details.matchedTreasureCount = observed.treasures
     details.afterLoadedPointCount = observed.loadedPointCount
-    local point_records, point_records_error = city_aoi_records(
-        world, point_manager, details.blockSize, details.blockCount, lookup)
-    if point_records == nil then
-        fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
-        return true
+    local point_records = {}
+    if bulk_aoi_request.includeCity == true then
+        local city_records, point_records_error = city_aoi_records(
+            world, point_manager, details.blockSize, details.blockCount, lookup)
+        if city_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
+            return true
+        end
+        -- City count follows the retained unique-main-base source, not the current
+        -- response delta in _pointInfos.
+        details.matchedCityCount = #city_records
+        for index = 1, #city_records do point_records[#point_records + 1] = city_records[index] end
+    else
+        details.matchedCityCount = 0
     end
-    -- City count follows the retained unique-main-base source, not the current
-    -- response delta in _pointInfos.
-    details.matchedCityCount = #point_records
-    local resource_records, resource_records_error = resource_aoi_records(
-        world, point_manager, details.blockSize, details.blockCount, lookup, bulk_aoi_request)
-    if resource_records == nil then
-        fail_bulk_aoi(bulk_aoi_request, resource_records_error, details, point_manager)
-        return true
+    if bulk_aoi_request.includeResource == true then
+        local resource_records, resource_records_error = resource_aoi_records(
+            world, point_manager, details.blockSize, details.blockCount, lookup, bulk_aoi_request)
+        if resource_records == nil then
+            fail_bulk_aoi(bulk_aoi_request, resource_records_error, details, point_manager)
+            return true
+        end
+        details.matchedResourceCount = #resource_records
+        for index = 1, #resource_records do point_records[#point_records + 1] = resource_records[index] end
+    else
+        details.matchedResourceCount = 0
     end
-    for index = 1, #resource_records do point_records[#point_records + 1] = resource_records[index] end
     if bulk_aoi_request.includeDispatch == true then
         local dispatch_records, dispatch_records_error = dispatch_aoi_records(
             world, point_manager, details.blockSize, details.blockCount, lookup)

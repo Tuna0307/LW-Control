@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-130, 2026-09-22
+
+The seven reported Map Data defects have code fixes and current validation. On installed Lua package v20, the reported `(67,858)` city now publishes effective HP `10000` from raw `1222`; Truck/Monster scans are ~75–78 s instead of ~135–137 s; all-eight completes 2,500/2,500 in 77.89 s; and 2212/2213 both complete, persist, reopen and return to origin in one owned session despite naturally occurring transient Overview-admission gaps. Active fast Stop returns idle. Auto target failures are isolated, saved servers are selectable/browseable, key Map UI choices persist per profile, and Clear invalidates stale async search/treasure generations. Release 0/0 and all deterministic groups pass. UI-only click/reopen/timing confirmation remains an owner-visible follow-up, not a live-proof claim. See [R7-130 finding](reviews/2026-09-22-r7-130-map-corrections.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-map-correctness-multiserver-speed.json).
+
 ## Latest recovery checkpoint - LWB-R7-098, 2026-09-20
 
 A11 remains partial, but original instance registration/routing semantics are now recovered and offline-tested: 90-second first-claim registration, exact profile + SHA-256 token authentication, retained claimed registrations for reconnect, host-global generation replacement, stale-disconnect protection, explicit unregister and unique `default` routing. The remaining blocker is narrower: the persistent named-pipe listener/I/O behavior and exact queue/timeouts, authentic proxy-launch environment binding, then pending-call/result ownership. Production `call_lua` remains fail-closed and `pending` remains null. R7-098 also repairs the R7-097 default-suite integration defect. See [R7-098 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-registry-lifecycle.json).

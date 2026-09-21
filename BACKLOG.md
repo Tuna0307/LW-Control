@@ -1,5 +1,7 @@
 # LWBridge implementation backlog
 
+- [x] **MAP DATA OWNER CORRECTIONS (`LWB-R7-130`):** current-v20 live proof closes the reported Player City HP defect at `(67,858)` (`rawCurHp=1222` retained diagnostically, effective published HP `10000`), reduces Truck/Monster full-world scan wall from ~135–137 s to ~75–78 s by skipping unselected City/Resource serialization without weakening exact 10,000-cell coverage, and proves all-eight 2,500/2,500 at 77.89 s. A two-server 2212/2213 run retains/reopens both datasets and returns to origin while short same-session retries recover transient `overview_session_unavailable` gaps. Auto Scan now isolates per-server failures; Stop disables scheduling before backend cancellation; all saved server IDs are browseable; Manual/Auto/result/server choices persist per profile; Clear invalidates stale search/treasure generations. Release 0/0 and all deterministic groups pass. Normal-window click/reopen confirmation for the UI-only persistence/server-selector/Clear timing remains owner-visible follow-up. Evidence: `2026-09-22-r7-map-correctness-multiserver-speed.json`.
+
 ## Current owner prerequisite - Home current-client regression, 2026-09-16
 
 - [x] `LWB-OVR-015` TECHNICALLY LIVE-PROVES **Launch Game -> connected -> Close Game** on current Last War Lua content v17.

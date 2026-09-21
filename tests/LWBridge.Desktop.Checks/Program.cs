@@ -2422,8 +2422,17 @@ try
             "saved browse server discovery is distinct, ordered and profile-store scoped");
         var ambiguousSavedBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: ambiguousSavedStore);
         using JsonDocument profile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = ambiguousSavedBackend.ProfileId }));
-        await ExpectBridgeError("MAP_SAVED_CONTEXT_AMBIGUOUS", "multiple saved servers are not silently selected on reopen", async () =>
-            await ambiguousSavedBackend.InvokeAsync("map_summary", profile.RootElement.Clone(), CancellationToken.None));
+        object? summary = await ambiguousSavedBackend.InvokeAsync(
+            "map_summary", profile.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument summaryJson = JsonDocument.Parse(JsonSerializer.Serialize(summary, JsonOptions.Default));
+        JsonElement summaryRoot = summaryJson.RootElement;
+        int[] savedIds = summaryRoot.GetProperty("savedServerIds").EnumerateArray()
+            .Select(value => value.GetInt32()).ToArray();
+        Check(summaryRoot.GetProperty("serverId").GetInt32() == 2212 &&
+              savedIds.SequenceEqual(new[] { 2212, 2213 }) &&
+              summaryRoot.GetProperty("scanState").GetProperty("phase").GetString() == "unavailable" &&
+              summaryRoot.GetProperty("scanState").GetProperty("serverIdSource").GetString() == "saved_profile_index",
+            "multiple saved servers reopen with deterministic saved browsing context and expose the complete server list");
     }
 
     using (var profileAStore = MapDataStore.CreateInMemory())
@@ -5842,8 +5851,36 @@ Check(
     cityCollectorSource.Contains("GetAllMainBaseList", StringComparison.Ordinal) &&
     cityCollectorSource.Contains("source = \"WorldPointManager.GetAllMainBaseList\"", StringComparison.Ordinal) &&
     !cityCollectorSource.Contains("WorldPointManager._pointInfos", StringComparison.Ordinal) &&
-    liveCityProbeSource.Contains("details.matchedCityCount = #point_records", StringComparison.Ordinal),
+    liveCityProbeSource.Contains("if bulk_aoi_request.includeCity == true then", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("details.matchedCityCount = #city_records", StringComparison.Ordinal),
     "current-v19 City AOI collector must use the unique retained GetAllMainBaseList source and keep matchedCityCount tied to the published City snapshot");
+string r7130GeneratedIndexSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "index-sfL2sT3K.js"));
+string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
+Check(
+    r7130GeneratedIndexSource.Contains("if(e||!Je.current.enabled)break;try{", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}", StringComparison.Ordinal),
+    "Auto Scan must isolate one target-server failure and continue the configured server cycle");
+Check(
+    r7130GeneratedMapPanelSource.Contains("function mapPrefKey(e,t)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapManualScanTypes", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapScanTab", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapResultTab", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapBrowseServer", StringComparison.Ordinal),
+    "Map Data user choices must persist per profile across app reopen");
+Check(
+    r7130GeneratedMapPanelSource.Contains("async function stopAutoScan(){$({enabled:!1});await Zn()}", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("Je.current=n,We(n),$n(u.selectedProfileId,n)", StringComparison.Ordinal),
+    "Auto Scan Stop must synchronously disable scheduler state before stopping the active backend scan");
+Check(
+    r7130GeneratedMapPanelSource.Contains("async function Qn(){E.current+=1,Pe.current+=1", StringComparison.Ordinal),
+    "Map Clear must invalidate in-flight saved search and treasure refresh generations before mutating SQLite");
+Check(
+    r7130GeneratedMapPanelSource.Contains("savedServerIds.length>1", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("p.savedServerIds.map", StringComparison.Ordinal),
+    "Map Data must expose a selector for every saved server dataset");
 Check(
     liveCityProbeSource.Contains("local function doomsday_boss_records", StringComparison.Ordinal) &&
     liveCityProbeSource.Contains("WorldMonsterSpecialType.SuperRunningBoss unavailable", StringComparison.Ordinal) &&

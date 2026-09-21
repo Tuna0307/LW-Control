@@ -1,0 +1,132 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-130",
+  "date": "2026-09-22",
+  "status": "MAP-OWNER-REPORTED-CORRECTIONS-CHECKPOINT",
+  "title": "Player City HP, scan speed, transient crawl, multi-server Auto Scan, saved browsing, persistence, Clear race, and Stop",
+  "branch": "research/offline-controller",
+  "baseRevision": "41bca21987c2b5121dd0f1c14af42f45a36bf73f",
+  "installedLuaPackage": {
+    "version": 20,
+    "LWScripts.data.sha256": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+    "LWScripts.txt.sha256": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+    "version.txt.sha256": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+  },
+  "hpStaticRecovery": {
+    "sourceBuild": "preserved current-v19 Lua recovery",
+    "WorldPlayerDes-current.lua.sha256": "2F3908BAE09394F61B82EBB355C4A1E1D89D31A009884E6D20ABD92AECECC645",
+    "BuildFireEffectManager-current.lua.sha256": "0709F03B25ED08BD96751F8228EF6EDF62887265D9B7C0709DADC26B5F446F11",
+    "BuildingUtils-current.lua.sha256": "C59545AA81E9922FD4F81BCADF40093E8E66B0D1439F240E989C8156FB32650B",
+    "formula": "effective main-city durability derives from curHp, elapsed server time, recoverSpeed, fire expiry/fireSpeed where present, and a 10000 normal-city cap"
+  },
+  "playerCityHpLiveV20": {
+    "serverId": 2212,
+    "x": 67,
+    "y": 858,
+    "rawCurHp": 1222,
+    "recoverSpeed": 0.38100001215935,
+    "lastHpTime": 1789856054,
+    "maxHp": 10000,
+    "publishedHealth": 10000,
+    "calculationMode": "normal_main_fire_then_recover",
+    "result": "LIVE-PROVEN"
+  },
+  "speed": {
+    "truckR7_129BaselineSeconds": 135.165346,
+    "truckR7_130Seconds": 74.7213523,
+    "monsterR7_129BaselineSeconds": 137.0355255,
+    "monsterR7_130Seconds": 77.7809171,
+    "allEight": {
+      "serverId": 2212,
+      "scanWallSeconds": 77.8903951,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "counts": {"city":6675,"resource":466,"monster":7803,"truck":96,"railway":1,"dispatch":38,"ghost":0,"treasure":1},
+      "reopenedCountsMatched": true
+    },
+    "mixed": {
+      "selectedTypes": ["city","truck","dispatch","treasure"],
+      "scanWallSeconds": 78.0272254,
+      "totalBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0
+    }
+  },
+  "twoServerLive": {
+    "homeServerId": 2212,
+    "targetServerId": 2213,
+    "jumpRoundTripProven": true,
+    "server2212": {
+      "scanWallSeconds": 82.6769287,
+      "totalBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "counts": {"city":6675,"resource":412,"monster":7181,"truck":93,"railway":1,"dispatch":26,"ghost":0,"treasure":1}
+    },
+    "server2213": {
+      "scanWallSeconds": 78.1995665,
+      "totalBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "counts": {"city":3378,"resource":493,"monster":7879,"truck":84,"railway":0,"dispatch":40,"ghost":0,"treasure":1}
+    },
+    "bothPublishedServerIdsRetained": true,
+    "targetServerReopenMatched": true,
+    "returnedToHomeServer": true,
+    "transientOverviewAdmissionRetriesRecovered": true
+  },
+  "stopLive": {
+    "scanMode": "fast",
+    "concurrency": 20,
+    "completedBlocksBeforeStop": 0,
+    "totalBlocks": 2500,
+    "finalPhase": "idle",
+    "stopped": true
+  },
+  "implementedOfflineContracts": {
+    "autoScanPerServerFailureIsolation": true,
+    "savedServerIdsExposed": true,
+    "savedServerSelector": true,
+    "idleSavedServerBrowsingIndependentOfLiveServer": true,
+    "manualSelectedTypesPersistPerProfile": true,
+    "manualAutoTabPersistsPerProfile": true,
+    "resultTabPersistsPerProfile": true,
+    "savedBrowseServerPersistsPerProfile": true,
+    "autoStopDisablesSchedulerBeforeBackendStop": true,
+    "clearInvalidatesOlderSavedSearchAndTreasureGenerations": true
+  },
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "generatedIndexNodeCheck": true,
+    "generatedMapPanelNodeCheck": true,
+    "releaseWarnings": 0,
+    "releaseErrors": 0,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": []
+  },
+  "rejectedExperiment": {
+    "requestMode": "direct",
+    "requestedCount": 160,
+    "result": "failed-closed",
+    "error": "target_aoi_still_current",
+    "productionPromoted": false
+  },
+  "limits": {
+    "normalWindowPersistenceClickReopen": "not run; current remote interface exposes shell/files but no native GUI input",
+    "normalWindowClearSearchRaceRepetition": "not run for the same interface reason",
+    "autoSchedulerInjectedTargetFailureInNormalUi": "not run; per-server continuation is deterministic/source-contract tested and two real server acquisition/storage is live-proven"
+  },
+  "safety": {
+    "scanReadOnly": true,
+    "stateChangingGameActionPerformed": false
+  }
+}

@@ -34,6 +34,44 @@ internal static class ManualMapScanCommandServiceChecks
         await TruckSchedulePublicContractIsRecovered();
         await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
         await ZombieBossMixedTypesFailClosed();
+        CurrentPlayerCityHealthContractIsRecovered();
+    }
+
+    private static void CurrentPlayerCityHealthContractIsRecovered()
+    {
+        string repoRoot = FindRepoRootForChecks();
+        string probeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+        int start = probeSource.IndexOf(
+            "local function player_city_health_snapshot(info)",
+            StringComparison.Ordinal);
+        int end = probeSource.IndexOf(
+            "local function read_command()",
+            start,
+            StringComparison.Ordinal);
+        Check(start >= 0 && end > start,
+            "Player City effective-health lane should remain identifiable in the production probe");
+        string lane = probeSource[start..end];
+        Check(lane.Contains("call(info, \"IsNormalType\")", StringComparison.Ordinal) &&
+              lane.Contains("FUN_BUILD_MAIN", StringComparison.Ordinal) &&
+              lane.Contains("GetDefenceWallCoverSpeed", StringComparison.Ordinal) &&
+              lane.Contains("unavailable_time / 1000", StringComparison.Ordinal) &&
+              lane.Contains("500300", StringComparison.Ordinal) &&
+              lane.Contains("local max_hp = 10000", StringComparison.Ordinal) &&
+              lane.Contains("math.floor(math.max(0, math.min(hp, max_hp)))", StringComparison.Ordinal),
+            "Player City health must preserve the recovered current-v19 normal-city recovery/fire/cap contract");
+        int effectiveAssignments = probeSource.Split(
+            "health = health.effectiveHp",
+            StringSplitOptions.None).Length - 1;
+        Check(effectiveAssignments == 2 &&
+              probeSource.Contains("healthRawCurHp = health.rawCurHp", StringComparison.Ordinal) &&
+              probeSource.Contains("healthCalculationMode = health.calculationMode", StringComparison.Ordinal),
+            "both Player City acquisition paths must publish effective HP while retaining raw source diagnostics");
+
+        double screenshotRecoveredHp = Math.Floor(Math.Min(
+            1_222d + ((1_790_001_233d - 1_789_856_054d) * 0.38100001215935d),
+            10_000d));
+        Check(screenshotRecoveredHp == 10_000d,
+            "the recovered normal-city formula must resolve the reproduced (67,858) stale 1,222 baseline to full 10,000 HP");
     }
 
     private static JsonElement Payload(string mode, params string[] types) =>

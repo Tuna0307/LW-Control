@@ -129,6 +129,19 @@ def build(check=False):
             s = replace_once(s, ',scanMode:`fast`', '')
             s = replace_once(s, ',scanMode:e?.scanMode===`normal`?`normal`:`fast`', '')
             s = replace_once(s, ',scanMode:i.scanMode', '')
+            # LWB-R7-130: one failed target server must not abort the rest of an
+            # Auto Scan cycle. Keep return-to-origin in the outer finally, but
+            # isolate jump/scan/wait errors per target and continue the list.
+            s = replace_once(
+                s,
+                'F(`automatic map scan cycle started servers=${n.join(`,`)}`);for(let t of n){if(e||!Je.current.enabled)break;let n=await Se(t);F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}));let a=await r();a?.lastError?F(`automatic map scan server=${t} error=${a.lastError}`):a&&F(`automatic map scan server=${t} completed`)}',
+                'F(`automatic map scan cycle started servers=${n.join(`,`)}`);let o=[],s=[];for(let t of n){if(e||!Je.current.enabled)break;try{let n=await Se(t);F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}));let a=await r();a?.lastError?(s.push(t),F(`automatic map scan server=${t} error=${a.lastError}`)):(o.push(t),a&&F(`automatic map scan server=${t} completed`))}catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}}F(`automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}`)')
+            # Give Map Data per-profile preference keys without moving scheduler
+            # ownership out of the top-level app.
+            s = replace_once(
+                s,
+                'children:(0,M.jsx)(dr,{activeTab:Et?bt:void 0,',
+                'children:(0,M.jsx)(dr,{profileId:u.selectedProfileId,activeTab:Et?bt:void 0,')
             # LWB-R7-127 IMPLEMENTATION POLICY: Home's account rail represents
             # active LWBridge-owned game instances, not every configured profile.
             # Ownership requires both the live PID and instanceId returned by
@@ -320,6 +333,34 @@ def build(check=False):
             s = apply_hash_locked_delta(
                 s,
                 ROOT / 'tools' / 'frontend_overrides' / 'map-data-panel.delta.json')
+            # LWB-R7-130: durable Map Data preferences, saved-server browsing,
+            # stale-query invalidation during Clear, and an Auto Scan Stop control.
+            s = replace_once(s,
+                'filterStoreKey=`lwbridge.mapResultFilters.v1`;function readResultFilters(){try{let e=JSON.parse(localStorage.getItem(filterStoreKey)||`{}`);return e&&typeof e===`object`&&!Array.isArray(e)?e:{}}catch{return{}}}',
+                'filterStoreKey=`lwbridge.mapResultFilters.v1`;function readResultFilters(){try{let e=JSON.parse(localStorage.getItem(filterStoreKey)||`{}`);return e&&typeof e===`object`&&!Array.isArray(e)?e:{}}catch{return{}}}function mapPrefKey(e,t){return `lwbridge.${e}.${t||`default`}`}function readManualTypes(e,t){try{let n=JSON.parse(localStorage.getItem(mapPrefKey(`mapManualScanTypes`,e))||`null`),r=Array.isArray(n)?n.filter(e=>Pe.has(e)):[];return r.length?r:tt(t)}catch{return tt(t)}}function readScanTab(e){let t=localStorage.getItem(mapPrefKey(`mapScanTab`,e));return t===`auto`?`auto`:`manual`}function readResultTab(e){let t=localStorage.getItem(mapPrefKey(`mapResultTab`,e));return t&&Pe.has(t)?t:`city`}function readBrowseServer(e,t){let n=Number(localStorage.getItem(mapPrefKey(`mapBrowseServer`,e)));return Number.isInteger(n)&&n>0?n:Number(t)||0}')
+            s = replace_once(s, 'function ct({activeTab:s,onActiveTabChange:d,scanState:ee,', 'function ct({profileId:profileId,activeTab:s,onActiveTabChange:d,scanState:ee,')
+            s = replace_once(s,
+                'savedResultFilters=readResultFilters(),[We,Ge]=(0,b.useState)(()=>tt(w.selectedTypes)),[Ze,Qe]=(0,b.useState)(`city`),F=s??Ze,[I,$e]',
+                'savedResultFilters=readResultFilters(),[We,Ge]=(0,b.useState)(()=>readManualTypes(profileId,w.selectedTypes)),[Ze,Qe]=(0,b.useState)(()=>readResultTab(profileId)),F=s??Ze,[I,$e]')
+            s = replace_once(s,
+                '[I,$e]=(0,b.useState)(()=>typeof savedResultFilters.keyword===`string`?savedResultFilters.keyword:``),[L,ct]=(0,b.useState)(()=>w.serverId),',
+                '[I,$e]=(0,b.useState)(()=>typeof savedResultFilters.keyword===`string`?savedResultFilters.keyword:``),[L,ct]=(0,b.useState)(()=>readBrowseServer(profileId,w.serverId)),')
+            s = replace_once(s, '[Y,Fn]=(0,b.useState)(`manual`),[In,Ln]', '[Y,Fn]=(0,b.useState)(()=>readScanTab(profileId)),[In,Ln]')
+            s = replace_once(s,
+                '(0,b.useEffect)(()=>{localStorage.setItem(Ae,String(An))},[An]),',
+                '(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapManualScanTypes`,profileId),JSON.stringify(We))},[profileId,We]),(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapScanTab`,profileId),Y)},[profileId,Y]),(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapResultTab`,profileId),F)},[profileId,F]),(0,b.useEffect)(()=>{L>0&&localStorage.setItem(mapPrefKey(`mapBrowseServer`,profileId),String(L))},[profileId,L]),(0,b.useEffect)(()=>{let e=readResultTab(profileId);d?d(e):Qe(e)},[profileId]),(0,b.useEffect)(()=>{localStorage.setItem(Ae,String(An))},[An]),')
+            s = replace_once(s,
+                '(0,b.useEffect)(()=>{if(w.serverId!==L){if(E.current+=1,O.current.clear(),w.serverId<=0){ct(0),B(1),H([]),U(0),Yt(!1);return}ct(w.serverId),B(1),H([]),U(0),Yt(!0)}},[L,w.serverId]),',
+                '(0,b.useEffect)(()=>{if(w.isReading&&w.serverId!==L){E.current+=1,Pe.current+=1,O.current.clear(),ct(w.serverId),B(1),H([]),U(0),Yt(!0);return}!w.isReading&&L<=0&&w.serverId>0&&ct(w.serverId)},[L,w.serverId,w.isReading]),')
+            s = replace_once(s,
+                'async function Zn(){try{v(await l()),x(`full map scan stopped`)}catch(e){x(`map scan stop error `+String(e))}}async function Qn(){yn(``);try{',
+                'async function Zn(){try{v(await l()),x(`full map scan stopped`)}catch(e){x(`map scan stop error `+String(e))}}async function stopAutoScan(){$({enabled:!1});await Zn()}async function Qn(){E.current+=1,Pe.current+=1,Yt(!1),q(!1),yn(``);try{')
+            s = replace_once(s,
+                '(0,D.jsx)(`button`,{type:`button`,className:`primary`,disabled:!h||!S.enabled||be||w.isReading,onClick:()=>$({nextRunAt:Date.now()}),children:C(`map.runAutoScanNow`)})',
+                '(0,D.jsx)(`button`,{type:`button`,className:`primary`,disabled:!h||!S.enabled||be||w.isReading,onClick:()=>$({nextRunAt:Date.now()}),children:C(`map.runAutoScanNow`)}),(0,D.jsx)(`button`,{type:`button`,className:be?`danger`:`` ,disabled:!be,onClick:stopAutoScan,children:C(`common.stop`)})')
+            s = replace_once(s,
+                'F!==`scheduledPlunder`&&(0,D.jsxs)(`div`,{className:`map-searchbar`,children:[(0,D.jsx)(`input`,{value:I,',
+                'F!==`scheduledPlunder`&&(0,D.jsxs)(`div`,{className:`map-searchbar`,children:[Array.isArray(p?.savedServerIds)&&p.savedServerIds.length>1&&(0,D.jsx)(`select`,{\"aria-label\":C(`map.server`),value:L,onChange:e=>{E.current+=1,Pe.current+=1,O.current.clear(),ct(Number(e.target.value)),B(1),H([]),U(0),Yt(!0)},children:p.savedServerIds.map(e=>(0,D.jsx)(`option`,{value:e,children:`${C(`map.server`)} ${e}`},e))}),(0,D.jsx)(`input`,{value:I,')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

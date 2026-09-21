@@ -275,6 +275,7 @@ internal sealed class LWBridgeBackend
                         return new
                         {
                             serverId = activeServerId,
+                            savedServerIds = store.ReadPublishedServerIds(),
                             counts = aggregates.Counts,
                             scanState,
                         };
@@ -298,6 +299,7 @@ internal sealed class LWBridgeBackend
                     return new
                     {
                         serverId = liveServerId,
+                        savedServerIds = store.ReadPublishedServerIds(),
                         counts = aggregates.Counts,
                         scanState = liveResource.CreateStatus(),
                     };
@@ -321,6 +323,7 @@ internal sealed class LWBridgeBackend
                     return new
                     {
                         serverId = firstLiveServerId,
+                        savedServerIds = store.ReadPublishedServerIds(),
                         counts = aggregates.Counts,
                         scanState = CreateCurrentMapScanStatus(),
                     };
@@ -345,6 +348,7 @@ internal sealed class LWBridgeBackend
                     return new
                     {
                         serverId = savedServerId,
+                        savedServerIds,
                         counts = aggregates.Counts,
                         scanState = CreateMapScanStatus(
                             savedServerId,
@@ -355,10 +359,30 @@ internal sealed class LWBridgeBackend
                 }
                 if (savedServerIds.Count > 1)
                 {
-                    throw new BridgeCommandException(
-                        "MAP_SAVED_CONTEXT_AMBIGUOUS",
-                        "Saved map data spans multiple servers; choose or establish a server context before browsing it.",
-                        new { serverIds = savedServerIds });
+                    // IMPLEMENTATION POLICY R7-130: multi-server Auto Scan is a first-class
+                    // saved-data state. Select one deterministic initial browse server while
+                    // exposing the complete savedServerIds list to the frontend; this is saved
+                    // browsing context only and never claims the selected server is live.
+                    int savedServerId = savedServerIds[0];
+                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
+                        savedServerId,
+                        isReading: false,
+                        scanStateServerId: savedServerId,
+                        scanRunId: null);
+                    MapOptionAggregates aggregates = savedStore.ReadOptionAggregatesAt(
+                        source,
+                        RecoveredWallClock.UnixTimeMilliseconds());
+                    return new
+                    {
+                        serverId = savedServerId,
+                        savedServerIds,
+                        counts = aggregates.Counts,
+                        scanState = CreateMapScanStatus(
+                            savedServerId,
+                            phase: "unavailable",
+                            lastError: null,
+                            serverIdSource: "saved_profile_index"),
+                    };
                 }
                 throw new BridgeCommandException(
                     "MAP_SAVED_CONTEXT_UNAVAILABLE",
