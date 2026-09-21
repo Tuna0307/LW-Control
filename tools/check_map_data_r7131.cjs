@@ -24,9 +24,14 @@ async function main() {
       res.writeHead(404);
       res.end();
     }
-  }).listen(0, '127.0.0.1');
-  await new Promise(resolve => server.once('listening', resolve));
-  const origin = `http://127.0.0.1:${server.address().port}`;
+  });
+  const listenPort = Number(process.env.LWBRIDGE_R7131_PORT || 18081);
+  server.listen(listenPort, '127.0.0.1');
+  await new Promise((resolve, reject) => {
+    server.once('listening', resolve);
+    server.once('error', reject);
+  });
+  const origin = `http://127.0.0.1:${listenPort}`;
 
   const browser = await chromium.launch({ channel: process.env.LWBRIDGE_BROWSER || 'msedge', headless: true });
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });

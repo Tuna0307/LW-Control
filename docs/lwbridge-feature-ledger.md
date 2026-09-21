@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint - LWB-R7-134, 2026-09-22
+
+The full **47-case acceptance ledger is refreshed and machine-readable**. R7-134 folds R7-089–095 and R7-127–133 into the old R7-088 snapshot, closing stale A04–A11 and C05 status rows only where later evidence supports it. The same clean rerun found/fixed a nondeterministic Chromium unsafe-port problem in the R7-131/R7-132 fixtures (`listen(0)` selected 10080); dedicated safe ports 18081/18082 now stabilize those checks. Fresh Release is 0/0, all six deterministic groups pass, 36 browser checks pass, and all 28 strict screenshot pairs are pixel-identical. Population/action/active-restart/F04 human walkthrough gaps remain open. Evidence: [R7-134](../evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-refresh.json); details: [finding](reviews/2026-09-22-r7-134-acceptance-matrix-refresh.md).
+
 ## Current implementation checkpoint - LWB-R7-133, 2026-09-22
 
 Auto Scan now has a **LIVE-PROVEN native travel failure followed by same-session continuation**. Public `server_jump` against server 2148 returned exact `SERVER_JUMP_FAILED / server_jump_precheck_failed`; authoritative context stayed on 2212, a same-server no-op still worked, and the same owned session then completed backend-planned `current_fast_zombie_boss_lod2_v1` at concurrency 20 with 2,500/2,500 read, 0 failed/unread in 5.53 s. R7-132 remains the generated-frontend authority that one target failure is caught/isolated and that navigation/Refresh Status/reconnect cannot duplicate the cycle. R7-133 therefore closes the earlier native-failure evidence gap without claiming an unobserved live React cycle. Exact restoration/cleanup passed. Evidence: [R7-133](../evidence/lwbridge-implementation/2026-09-22-r7-native-auto-failure-continuation.json); details: [finding](reviews/2026-09-22-r7-133-native-auto-failure-continuation.md).

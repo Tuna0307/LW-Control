@@ -28,9 +28,14 @@ async function serve() {
       res.writeHead(404);
       res.end();
     }
-  }).listen(0, '127.0.0.1');
-  await new Promise(resolve => server.once('listening', resolve));
-  return { server, origin: `http://127.0.0.1:${server.address().port}` };
+  });
+  const listenPort = Number(process.env.LWBRIDGE_R7132_PORT || 18082);
+  server.listen(listenPort, '127.0.0.1');
+  await new Promise((resolve, reject) => {
+    server.once('listening', resolve);
+    server.once('error', reject);
+  });
+  return { server, origin: `http://127.0.0.1:${listenPort}` };
 }
 
 async function newScenario(browser, origin, { delaySecondJump = false } = {}) {
