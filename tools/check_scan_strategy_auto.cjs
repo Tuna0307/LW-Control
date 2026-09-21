@@ -111,7 +111,8 @@ async function main() {
     for (const token of [
       'n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)',
       'function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}',
-      'for(let t of n){if(e||!Je.current.enabled)break',
+      'for(let t of n){if(e||!Je.current.enabled||!autoOnlineRef.current)break',
+      'try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?',
       'if(!e&&i.returnToOriginalServer&&a>0',
       'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)',
       'window.setInterval(()=>{i()},5e3)',

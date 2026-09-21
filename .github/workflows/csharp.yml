@@ -56,6 +56,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node tools/check_map_data_r7131.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tools/check_map_auto_r7132.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/compare_lwbridge_frontend.py
       - name: Compile LWBridge recovery inspectors
         run: python -c "import pathlib, py_compile; [py_compile.compile(str(p), doraise=True) for p in pathlib.Path('tools').glob('*.py')]"

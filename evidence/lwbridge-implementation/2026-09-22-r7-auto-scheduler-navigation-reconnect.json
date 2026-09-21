@@ -1,0 +1,121 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-132",
+  "date": "2026-09-22",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Auto Scan single-owner navigation, refresh and reconnect closure",
+  "branch": "research/offline-controller",
+  "baseRevision": "542119c0c54ed6c6e12571207b4e196376a795a8",
+  "scope": {
+    "officialGameActionPerformed": false,
+    "stateChangingGameplayActionPerformed": false,
+    "generatedFrontendBrowserAcceptance": true,
+    "normalWinFormsWebViewHumanWalkthrough": false
+  },
+  "sourceIdentity": {
+    "tools/build_lwbridge_frontend.py.sha256": "1D316B66C92294B57B5BC510402DA054367C6BF5678908AF96FC8F5617D23DA9",
+    "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js.sha256": "67742732E126B677D8D1DADD01E862B94BDC253C77CB7B1B292337B49DB828F9",
+    "tools/check_scan_strategy_auto.cjs.sha256": "6D1B2C7867B90B2DB8C6EE791D17F215885A6DED16C10E690BA1253D646414F7",
+    "tools/check_map_auto_r7132.cjs.sha256": "4C578C8BBDD776ED112719C67285F047DACB393852F5771C49D4BEE5909B7F5A"
+  },
+  "failureFirst": {
+    "scenario": "disconnect and reconnect through shipped Refresh Status while one due Auto Scan cycle is active",
+    "preFixMapScanStartCount": 2,
+    "expectedMapScanStartCount": 1,
+    "rootCause": "the top-level Auto scheduler effect depended on connected state P; disconnect cleanup cancelled the active effect before its finally persisted nextRunAt, then reconnect recreated a scheduler effect that saw the same cycle still due",
+    "preFixRelevantDependency": "[selectedProfileId,P]"
+  },
+  "implementation": {
+    "schedulerEffectOwner": "selected profile only",
+    "onlineTruth": "autoOnlineRef.current mirrors current connected state without recreating scheduler effect",
+    "cycleAdmissionUsesOnlineRef": true,
+    "preTargetGuardUsesOnlineRef": true,
+    "postJumpPreScanGuardUsesOnlineRef": true,
+    "perTargetFailureIsolationPreserved": true,
+    "persistedNextDeadlinePreserved": true,
+    "ciRunsPermanentBrowserRegression": true
+  },
+  "browserAcceptance": {
+    "navigationRefresh": {
+      "configuredServers": [2212, 2213],
+      "navigationAwayAndBack": true,
+      "refreshStatusCallsDuringFirstTarget": 3,
+      "mapScanStartCount": 2,
+      "serverJumpOrder": [2212, 2213],
+      "scanBeforeSecondJumpConfirmation": false,
+      "duplicateCycleObserved": false,
+      "nextRunAtAdvanced": true
+    },
+    "disconnectReconnect": {
+      "firstTargetMapScanStarts": 1,
+      "secondTargetJumpWhileDisconnected": false,
+      "nextRunAtAdvancedBeforeReconnect": true,
+      "mapScanStartCountAfterReconnectPolling": 1,
+      "retroactiveTargetResume": false
+    },
+    "disconnectDuringPendingJump": {
+      "jumpToSecondTargetRequested": true,
+      "disconnectBeforeJumpConfirmation": true,
+      "jumpAllowedToFinish": true,
+      "mapScanStartCount": 1,
+      "secondTargetScanStartedAfterOwnershipLoss": false,
+      "nextRunAtAdvanced": true
+    }
+  },
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "generatedIndexSyntax": true,
+    "automaticStrategyBrowserCheck": true,
+    "r7131BrowserCheck": true,
+    "r7132BrowserCheck": true,
+    "interactionBrowserChecks": 4,
+    "fullBrowserChecks": 36,
+    "cityExportRemovalBrowserCheck": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "visualComparison": {
+      "pairs": 32,
+      "strictPairs": 28,
+      "intentionalMapDataPairs": 4,
+      "finalIdenticalStrictPairs": 28,
+      "finalStrictMaxMae": 0.0,
+      "finalStrictMaxHighDeltaRate": 0.0,
+      "mapDataMaxMae": 7.029053943437155,
+      "mapDataMaxHighDeltaRate": 0.03264880830570676,
+      "note": "one full-suite Hotkeys dark zh-CN capture initially produced MAE 3.4106877310740937e-06 with highDeltaRate 0; an isolated recapture returned exact equality and restored 28/28 strict pairs"
+    },
+    "mainWorktreeRegenerationCheck": true,
+    "mainWorktreeR7132BrowserCheck": true
+  },
+  "reproduction": [
+    "python tools\\build_lwbridge_frontend.py --check",
+    "node --check src\\LWBridge.Desktop\\WebUi\\assets\\index-sfL2sT3K.js",
+    "node --check tools\\check_map_auto_r7132.cjs",
+    "node tools\\check_scan_strategy_auto.cjs",
+    "node tools\\check_map_data_r7131.cjs",
+    "node tools\\check_map_auto_r7132.cjs",
+    "set LWBRIDGE_INTERACTIONS_ONLY=1 then node tools\\check_lwbridge_frontend.cjs",
+    "dotnet build tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-restore",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-build",
+    "node tools\\check_lwbridge_frontend.cjs",
+    "node tools\\check_city_export_removed.cjs",
+    "python tools\\compare_lwbridge_frontend.py"
+  ],
+  "limits": {
+    "fullDesktopGameRestartPersistence": "already LIVE-PROVEN by LWB-R7-039; not repeated here",
+    "normalUserBuiltExecutableRestartWalkthrough": "OPEN",
+    "ghostPositivePopulation": "OPEN; owner-deferred to 2026-09-24",
+    "suppliesPositivePopulation": "OPEN",
+    "stateChangingTruckDispatchAllianceTreasureAcceptance": "OPEN",
+    "simultaneousRealMultiAccountUiPopulation": "OPEN"
+  }
+}

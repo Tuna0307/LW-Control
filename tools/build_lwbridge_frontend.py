@@ -136,6 +136,31 @@ def build(check=False):
                 s,
                 'F(`automatic map scan cycle started servers=${n.join(`,`)}`);for(let t of n){if(e||!Je.current.enabled)break;let n=await Se(t);F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}));let a=await r();a?.lastError?F(`automatic map scan server=${t} error=${a.lastError}`):a&&F(`automatic map scan server=${t} completed`)}',
                 'F(`automatic map scan cycle started servers=${n.join(`,`)}`);let o=[],s=[];for(let t of n){if(e||!Je.current.enabled)break;try{let n=await Se(t);F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}));let a=await r();a?.lastError?(s.push(t),F(`automatic map scan server=${t} error=${a.lastError}`)):(o.push(t),a&&F(`automatic map scan server=${t} completed`))}catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}}F(`automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}`)')
+            # LWB-R7-132 IMPLEMENTATION POLICY: connection-state changes must not
+            # tear down/recreate the single-owner Auto Scan scheduler effect. Keep
+            # the scheduler keyed only by profile, mirror current online state in a
+            # ref, and stop admitting additional targets while disconnected. This
+            # prevents a reconnect from re-admitting the same still-due cycle.
+            s = replace_once(
+                s,
+                'P=Dt===`connected`,Ot=(0,j.useRef)(new Map),kt=(0,j.useRef)(``),At=(0,j.useRef)(Pn());At.current=',
+                'P=Dt===`connected`,autoOnlineRef=(0,j.useRef)(P),Ot=(0,j.useRef)(new Map),kt=(0,j.useRef)(``),At=(0,j.useRef)(Pn());autoOnlineRef.current=P,At.current=')
+            s = replace_once(
+                s,
+                'if(!Zn(i,Date.now(),P,qe.current,Ye.current))return;',
+                'if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return;')
+            s = replace_once(
+                s,
+                'for(let t of n){if(e||!Je.current.enabled)break;try{',
+                'for(let t of n){if(e||!Je.current.enabled||!autoOnlineRef.current)break;try{')
+            s = replace_once(
+                s,
+                'try{let n=await Se(t);F(n.changed?',
+                'try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?')
+            s = replace_once(
+                s,
+                'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId,P]),(0,M.jsxs)(M.Fragment',
+                'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment')
             # Give Map Data per-profile preference keys without moving scheduler
             # ownership out of the top-level app.
             s = replace_once(

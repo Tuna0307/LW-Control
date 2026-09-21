@@ -5859,7 +5859,8 @@ string r7130GeneratedIndexSource = File.ReadAllText(Path.Combine(
 string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
 Check(
-    r7130GeneratedIndexSource.Contains("if(e||!Je.current.enabled)break;try{", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("if(e||!Je.current.enabled||!autoOnlineRef.current)break;try{", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}", StringComparison.Ordinal),
     "Auto Scan must isolate one target-server failure and continue the configured server cycle");
@@ -6346,7 +6347,19 @@ Check(generatedIndexSource.Contains(
           "function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "for(let t of n){if(e||!Je.current.enabled)break",
+          "autoOnlineRef=(0,j.useRef)(P)",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "for(let t of n){if(e||!Je.current.enabled||!autoOnlineRef.current)break",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "if(!e&&i.returnToOriginalServer&&a>0",
