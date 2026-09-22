@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint - LWB-R7-143, 2026-09-22
+
+F04 packaged/built Release restart navigation is closed. Read-only calibration proves the physical Map Data click reaches the actual saved City search/render path; two acceptance runs then launch with zero application arguments, move the shipped sidebar active state Overview -> Map Data -> Overview through Win32 mouse input, close normally, restart into a distinct process and repeat. No `--view` or capture/probe path participates in the acceptance runs. State identities and cleanup pass. The current acceptance matrix has zero ordinary partial rows.
+
 ## Current implementation checkpoint - LWB-R7-142, 2026-09-22
 
 B11 native point/march transitions are closed as current deterministic + live evidence. The production parser/index has an explicit two-scan full-world Dispatch+Truck transition matrix covering stable point update, point add/remove, stable march movement across map blocks, march add/remove and second-snapshot query replacement. A fresh same-session live Truck pair on server 2212 published 244 then 255 rows; 58 exact UUIDs were common and all 58 moved, with 197 added and 186 removed, while exact 64-bit UUID text remained the indexed record key. F04 is the only ordinary partial acceptance row left.

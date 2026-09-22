@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-143, 2026-09-22
+
+F04 is now **PASS_CURRENT_NORMAL_USER**. A maintained user-path verifier correlates the Map Data click read-only, then performs two real zero-argument Release launches with physical Overview -> Map Data -> Overview clicks, normal close and process restart. The shipped active-nav indicator is proven on both runs; no application test mode participates. Config/backup/package identities remain unchanged and final desktop/game/launcher/helper counts are zero. The current 47-case matrix is R7-143 and has **zero ordinary `partial` rows**. Population-, authorization- and implementation-blocked rows remain separate. See [R7-143 finding](reviews/2026-09-22-r7-143-normal-user-restart-walkthrough.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough.json).
+
 ## Latest implementation checkpoint - LWB-R7-142, 2026-09-22
 
 B11 is now **PASS_CURRENT_PLUS_LIVE**. Current end-to-end Dispatch+Truck transition coverage proves stable point/march keys, point update/add/remove, cross-map march movement, march add/remove and query replacement. A fresh same-session live Truck pair on server 2212 completed 2,500/2,500 twice with zero failed/unread, publishing 244 then 255 rows; 58 exact UUIDs were common and all 58 moved, while 197 were added and 186 removed. Exact 64-bit UUID record identity was preserved. Release 0/0, all six deterministic groups, exact package restoration and zero process cleanup pass. The current 47-case matrix is R7-142; F04 is now the only ordinary `partial` row. See [R7-142 finding](reviews/2026-09-22-r7-142-native-transition-matrix.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json).

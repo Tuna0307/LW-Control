@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-143, 2026-09-22
+
+**F04 is closed as `PASS_CURRENT_NORMAL_USER`.** The maintained normal-user verifier calibrates only the physical Map Data coordinate under read-only evidence, then launches the real Release executable twice with zero application arguments and drives Overview -> Map Data -> Overview through OS mouse clicks, normal close and restart. Active-nav pixels prove the actual shipped sidebar state; no `--view`, capture/probe mode, backend shortcut or DOM injection participates in the acceptance runs. Config/package identity and final process cleanup pass. The R7-143 matrix has zero ordinary partial rows. See `docs/reviews/2026-09-22-r7-143-normal-user-restart-walkthrough.md`, `evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough.json`, and `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7143.json`.
+
+**Remaining gates are no longer ordinary implementation partials:** Ghost/Supplies population, explicitly authorized state-changing actions, simultaneous real multi-account population, and documented blocked implementation/authorization categories remain separate.
+
 ## Current continuation checkpoint - LWB-R7-142, 2026-09-22
 
 **B11 is closed as `PASS_CURRENT_PLUS_LIVE`.** Current deterministic full-world Dispatch+Truck scans prove point/march stable identity plus add/update/remove/movement and exact query replacement through the production parser/index. Current live same-session Truck scans on 2212 produced 244/255 rows with 58 common exact UUIDs, all 58 moved, 197 added and 186 removed; exact 64-bit UUID text remained the indexed key. Cleanup restored package v20 hashes exactly and left no owned game/launcher process. See `docs/reviews/2026-09-22-r7-142-native-transition-matrix.md`, `evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7142.json`.
