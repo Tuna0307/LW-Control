@@ -1,5 +1,9 @@
 # LWBridge Overview and Map Data feature ledger
 
+## Current implementation checkpoint - LWB-R7-144, 2026-09-22
+
+Supplies positive-row acceptance remains population-pending. Current-v20 strict read-only full-world rechecks completed 2,500/2,500 with 0 failed/unread on 2212 and 2213, publishing 7/2 ordinary Treasure rows respectively but zero Supplies on both. R7-072 remains the earlier reachable-band discovery authority; R7-144 deliberately does not overclaim a new exhaustive sweep. No production code changed, package-v20 identity was restored exactly, and B13/B14/C01 remain `partial_population`; Ghost remains deferred until 2026-09-24.
+
 ## Current implementation checkpoint - LWB-R7-143, 2026-09-22
 
 F04 packaged/built Release restart navigation is closed. Read-only calibration proves the physical Map Data click reaches the actual saved City search/render path; two acceptance runs then launch with zero application arguments, move the shipped sidebar active state Overview -> Map Data -> Overview through Win32 mouse input, close normally, restart into a distinct process and repeat. No `--view` or capture/probe path participates in the acceptance runs. State identities and cleanup pass. The current acceptance matrix has zero ordinary partial rows.

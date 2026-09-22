@@ -1,5 +1,9 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-144, 2026-09-22
+
+**Supplies remains `partial_population`, now with a fresh current-v20 negative recheck.** The unchanged strict read-only Treasure/Supplies harness completed 2,500/2,500 with 0 failed/unread on 2212 (7 ordinary Treasure, 0 Supplies) and 2213 (2 ordinary Treasure, 0 Supplies). No production behavior changed; cleanup restored exact package-v20 identity with no owned processes left. R7-072 remains the prior broad reachable-band authority; R7-144 does not claim a new exhaustive sweep. B13/B14/C01 remain population-pending, while B03 Ghost remains owner-deferred until 2026-09-24. See `docs/reviews/2026-09-22-r7-144-supplies-population-recheck.md`, `evidence/lwbridge-implementation/2026-09-22-r7-supplies-population-recheck.json`, and `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7144.json`.
+
 ## Current continuation checkpoint - LWB-R7-143, 2026-09-22
 
 **F04 is closed as `PASS_CURRENT_NORMAL_USER`.** The maintained normal-user verifier calibrates only the physical Map Data coordinate under read-only evidence, then launches the real Release executable twice with zero application arguments and drives Overview -> Map Data -> Overview through OS mouse clicks, normal close and restart. Active-nav pixels prove the actual shipped sidebar state; no `--view`, capture/probe mode, backend shortcut or DOM injection participates in the acceptance runs. Config/package identity and final process cleanup pass. The R7-143 matrix has zero ordinary partial rows. See `docs/reviews/2026-09-22-r7-143-normal-user-restart-walkthrough.md`, `evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough.json`, and `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7143.json`.

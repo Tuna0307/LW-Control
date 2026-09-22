@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-144",
+  "capturedAt": "2026-09-22",
+  "branch": "research/offline-controller",
+  "baseCommit": "65355677cccc8f4a64c8847923d073ff686c0a97",
+  "status": "POPULATION_PENDING / CURRENT_RECHECK_NEGATIVE",
+  "scope": {
+    "feature": "current-v20 Supplies positive-row population recheck",
+    "productionSemanticsChanged": false,
+    "readOnly": true
+  },
+  "harness": {
+    "path": "tests/LWBridge.Desktop.Checks/LiveTreasureStateRefreshProof.cs",
+    "positiveGateSetting": "LWBRIDGE_REQUIRE_SUPPLIES=1",
+    "targetServerSetting": "LWBRIDGE_SUPPLIES_TARGET_SERVER",
+    "positiveRowContract": {
+      "pointType": 27,
+      "runtimeClassSuffix": "WorldSuppliesPoint",
+      "treasureType": 0,
+      "suppliesType": "> 0"
+    }
+  },
+  "liveRechecks": [
+    {
+      "serverId": 2212,
+      "scanMode": "fast",
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "phase": "completed",
+      "ordinaryTreasureCount": 7,
+      "suppliesCount": 0,
+      "positiveGateResult": "FAILED_AS_DESIGNED",
+      "reason": "No authentic WorldSuppliesPoint was present in the full-world published population."
+    },
+    {
+      "serverId": 2213,
+      "scanMode": "fast",
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "phase": "completed",
+      "ordinaryTreasureCount": 2,
+      "suppliesCount": 0,
+      "positiveGateResult": "FAILED_AS_DESIGNED",
+      "processRuntimeSeconds": 116.88,
+      "returnCleanup": "completed without reported return error",
+      "reason": "No authentic WorldSuppliesPoint was present in the full-world published population."
+    }
+  ],
+  "historicalContext": {
+    "reference": "LWB-R7-072",
+    "date": "2026-09-20",
+    "scope": "prior exhaustive reachable-band population discovery plus strict full-world negative scans",
+    "note": "R7-144 refreshes only servers 2212 and 2213 and does not claim a new exhaustive server-band sweep."
+  },
+  "cleanup": {
+    "desktopRunning": false,
+    "gameRunning": false,
+    "launcherRunning": false,
+    "overviewHelperRunning": false,
+    "packageVersion": 20,
+    "packageHashes": {
+      "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+      "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+      "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+    }
+  },
+  "acceptanceEffect": {
+    "suppliesImplementationReadiness": "READY_FOR_POSITIVE_POPULATION",
+    "positiveLiveAcceptance": "OPEN",
+    "unchangedCaseStatuses": {
+      "B13": "partial_population",
+      "B14": "partial_population",
+      "C01": "partial_population"
+    },
+    "ghostCaseB03": "unchanged; owner-deferred until 2026-09-24",
+    "reason": "Current full-world scans on 2212 and 2213 again exposed zero Supplies rows."
+  },
+  "safety": {
+    "readOnlyObservation": true,
+    "stateChangingOperations": false,
+    "messagingOperations": false
+  },
+  "nextAction": "Rerun the unchanged strict harness when an active Supplies population appears.",
+  "privacy": "Aggregate-only evidence; no player identity, UUID, coordinates, database, session token, or raw row is retained."
+}

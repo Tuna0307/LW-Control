@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-144, 2026-09-22
+
+Supplies positive-row acceptance is still **POPULATION-PENDING** after a fresh current-v20 read-only recheck. The unchanged strict harness completed 2,500/2,500 with zero failed/unread on 2212 (7 ordinary Treasure, 0 Supplies) and 2213 (2 ordinary Treasure, 0 Supplies). R7-072 remains the earlier broad reachable-band authority; this checkpoint does not claim a new exhaustive sweep. No production behavior changed, package-v20 identity remained exact, and B13/B14/C01 stay `partial_population`; Ghost remains owner-deferred until 2026-09-24. See [R7-144 finding](reviews/2026-09-22-r7-144-supplies-population-recheck.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-supplies-population-recheck.json).
+
 ## Latest implementation checkpoint - LWB-R7-143, 2026-09-22
 
 F04 is now **PASS_CURRENT_NORMAL_USER**. A maintained user-path verifier correlates the Map Data click read-only, then performs two real zero-argument Release launches with physical Overview -> Map Data -> Overview clicks, normal close and process restart. The shipped active-nav indicator is proven on both runs; no application test mode participates. Config/backup/package identities remain unchanged and final desktop/game/launcher/helper counts are zero. The current 47-case matrix is R7-143 and has **zero ordinary `partial` rows**. Population-, authorization- and implementation-blocked rows remain separate. See [R7-143 finding](reviews/2026-09-22-r7-143-normal-user-restart-walkthrough.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough.json).
