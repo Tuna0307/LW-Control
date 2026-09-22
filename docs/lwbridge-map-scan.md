@@ -1,5 +1,7 @@
 # LWBridge Map Scan recovery
 
+> **Cumulative recovery ledger, not current project status.** For current Map Data feature/completion/performance status use [`tabs/map-data.md`](tabs/map-data.md) and the current acceptance matrix. Older “current/pending/next” statements below retain their dated evidence scope only.
+
 ## Treasure claim frontend/status contract - LWB-R7-087, 2026-09-20
 
 **RECOVERED + OFFLINE-TESTED FRONTEND/STATUS LAYER; PUBLIC CLAIM STILL BLOCKED.** A new hash-locked inspector binds the verified 0.3.1 executable to the exact extracted original `MapDataPanel-C1HVeNHr.js` and `api-ClPPi2JT.js`. The API wrapper sends `map_treasure_claim({serverId,claimScope,prioritizeLuckySlots,targetUuid})` and exposes `map_treasure_claim_status`. After a claim request, the original UI starts status polling only when the immediate result reports `queued > 0`; it waits exactly 1,000 ms between polls, performs at most 1,800 polls (30 minutes), merges returned `states` into visible rows by `String(uuid)` whether the payload is an array or object-values collection, and stops only when a `batch` exists whose `state` is not exact `running`. An absent `batch` therefore does not prove terminal completion.

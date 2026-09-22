@@ -1,344 +1,53 @@
-# Project-manager status — Player City owner-visible gate complete, 2026-09-13
+# Current project status — Home and Map Data
 
-## Latest implementation checkpoint - LWB-R7-144, 2026-09-22
+**Date:** 2026-09-22
+**Current checkpoint:** `LWB-R7-145`; parent revision `eb6f36babdd57a6236f0b96d42d647a07c769f4c`
 
-Supplies positive-row acceptance is still **POPULATION-PENDING** after a fresh current-v20 read-only recheck. The unchanged strict harness completed 2,500/2,500 with zero failed/unread on 2212 (7 ordinary Treasure, 0 Supplies) and 2213 (2 ordinary Treasure, 0 Supplies). R7-072 remains the earlier broad reachable-band authority; this checkpoint does not claim a new exhaustive sweep. No production behavior changed, package-v20 identity remained exact, and B13/B14/C01 stay `partial_population`; Ghost remains owner-deferred until 2026-09-24. See [R7-144 finding](reviews/2026-09-22-r7-144-supplies-population-recheck.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-supplies-population-recheck.json).
+## Executive status
 
-## Latest implementation checkpoint - LWB-R7-143, 2026-09-22
+The ordinary Home / Overview and Map Data implementation is complete at the scopes represented by the current 47-case acceptance matrix. The matrix has **0 ordinary `partial` rows**.
 
-F04 is now **PASS_CURRENT_NORMAL_USER**. A maintained user-path verifier correlates the Map Data click read-only, then performs two real zero-argument Release launches with physical Overview -> Map Data -> Overview clicks, normal close and process restart. The shipped active-nav indicator is proven on both runs; no application test mode participates. Config/backup/package identities remain unchanged and final desktop/game/launcher/helper counts are zero. The current 47-case matrix is R7-143 and has **zero ordinary `partial` rows**. Population-, authorization- and implementation-blocked rows remain separate. See [R7-143 finding](reviews/2026-09-22-r7-143-normal-user-restart-walkthrough.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough.json).
+That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, state-changing authorization/target availability, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance.
 
-## Latest implementation checkpoint - LWB-R7-142, 2026-09-22
+## Home / Overview
 
-B11 is now **PASS_CURRENT_PLUS_LIVE**. Current end-to-end Dispatch+Truck transition coverage proves stable point/march keys, point update/add/remove, cross-map march movement, march add/remove and query replacement. A fresh same-session live Truck pair on server 2212 completed 2,500/2,500 twice with zero failed/unread, publishing 244 then 255 rows; 58 exact UUIDs were common and all 58 moved, while 197 were added and 186 removed. Exact 64-bit UUID record identity was preserved. Release 0/0, all six deterministic groups, exact package restoration and zero process cleanup pass. The current 47-case matrix is R7-142; F04 is now the only ordinary `partial` row. See [R7-142 finding](reviews/2026-09-22-r7-142-native-transition-matrix.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json).
+A01-A12 are closed at their recorded evidence levels. Production lifecycle, owned process handling, startup rollback, reconnect, status/bridge behavior, cross-server navigation, Release responsiveness, and normal user Home/Map navigation across restart all have current or composed evidence.
 
-## Latest implementation checkpoint - LWB-R7-141, 2026-09-22
+Current detail: `docs/tabs/home.md`.
 
-C07 is now **PASS_CURRENT_PLUS_HISTORICAL**. Current regressions prove vanished moving targets fail with explicit timeout, replaced identity/server fail explicitly, a forged wrong-UUID success is rejected, and public Follow releases ownership after failure. The shipped Lua is source-guarded to re-resolve the exact requested UUID before `proven`. Existing live coordinate/Truck/Railway Follow evidence supplies the successful-focus side. Release is 0 warnings/0 errors and all six deterministic groups pass. The current 47-case matrix is R7-141; only B11 and F04 remain ordinary `partial` rows. See [R7-141 finding](reviews/2026-09-22-r7-141-moving-target-failure.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-moving-target-failure.json).
+## Map Data
 
-## Latest implementation checkpoint - LWB-R7-140, 2026-09-22
+Manual/Auto acquisition, persistence, multi-server saved data, Stop, restart safety, Clear race handling, search/filter/sort/paging, marks, coordinate Jump, moving Follow, and native transition behavior are accepted at their current evidence scopes.
 
-C04 is now **PASS_CURRENT_PLUS_HISTORICAL**. A real file-backed regression proves mark identity survives transactional City replacement from `(111,222)` to `(333,444)`, application-style reopen, `markedOnly` search, public backend relocation routing with the moved coordinates, durable unmark and a second reopen. `LWB-R7-061` remains the separate live authority for owned-session `map_coordinate_jump`. Release is 0 warnings/0 errors and all six deterministic groups pass. The current 47-case matrix is R7-140; remaining ordinary partials are B11, C07 and F04. See [R7-140 finding](reviews/2026-09-22-r7-140-player-mark-relocation.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-player-mark-relocation.json).
+Player City, Resource, Monster/Doom Walker, Zombie Boss, Truck, Railway, Dispatch, and ordinary Treasure have positive live evidence. Ghost and Supplies remain population-gated, not implementation-failure-gated.
 
-## Latest implementation checkpoint - LWB-R7-139, 2026-09-22
+Current detail and performance audit: `docs/tabs/map-data.md`.
 
-B07 is now **LIVE-PROVEN** with a production failure-boundary repair. Deliberately stopping the exact owned game/bridge during an active Fast Monster scan originally degraded to generic incomplete-scan after ~65.9 s. `MapScanEngine` now rethrows only recovered `GAME_CONNECTION_UNAVAILABLE` as run-terminal; generic/transient capture errors keep existing retry semantics. The repaired live run ended in 18.324 s scan wall with phase `error`, exact `game connection unavailable`, durable `failed`, `failedBlocks=0`, no partial publication, prior Monster data preserved and resume unavailable. Release 0/0, six deterministic groups, exact package restoration and zero owned processes pass. Current matrix is R7-139; remaining read-only technical gaps are B11, C04 and C07. See [R7-139 finding](reviews/2026-09-22-r7-139-bridge-loss-scan-failfast.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-bridge-loss-scan-failfast.json).
+## Current acceptance counts
 
-## Latest implementation checkpoint - LWB-R7-138, 2026-09-22
+R7-145 status counts (unchanged from R7-144):
 
-B05/B06 are now accepted without a production code change. A changed-type duplicate Start is deterministically rejected while preserving the active run identity, selected types and backend strategy/config with no second context acquisition. Stop is now exercised at early/mid/near-completion boundaries on a five-block run: 0/2/4 checkpoints are retained, the in-flight block is canceled and never checkpointed, terminal idle counters are exact, no work appears after Stop, and prior published data remains. R7-130 supplies the live public Stop-to-idle component. Release is 0/0 and all six deterministic groups pass. The current 47-case matrix is R7-138; remaining read-only technical gaps are B07, B11, C04 and C07. See [R7-138 finding](reviews/2026-09-22-r7-138-scan-ownership-stop-timing.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-scan-ownership-stop-timing.json).
+| Status | Count |
+|---|---:|
+| `pass_current_offline` | 18 |
+| `pass_current_plus_historical` | 10 |
+| `pass_historical_live` | 5 |
+| `pass_current_plus_live` | 1 |
+| `pass_live` | 1 |
+| `pass_current_normal_user` | 1 |
+| `partial_population` | 4 |
+| `partial_offline_action` | 2 |
+| `partial_offline_authorization` | 1 |
+| `not_run_authorization` | 1 |
+| `blocked_implementation_authorization` | 1 |
+| `blocked_implementation` | 1 |
+| `retired_by_owner` | 1 |
 
-## Latest implementation checkpoint - LWB-R7-137, 2026-09-22
+## Remaining externally gated work
 
-D02's three-cycle multi-server requirement is now **PASS_CURRENT_PLUS_HISTORICAL**. In one owned live session, three cycles executed real server order 2212 -> 2213 with a full Fast Zombie Boss scan on each server: six unique scan runs, every run 2,500/2,500 with zero failed/unread, authoritative destination confirmation, return to 2212 after every cycle and final server 2212. R7-039 supplies the already-live persisted `nextRunAt` scheduling/advancement component; R7-132/R7-136 supply current scheduler ownership/restart behavior. Cleanup restored exact package hashes and left no game/launcher/helper process. The current 47-case matrix is R7-137. Remaining release gates are now population/authorization/multi-account/human-GUI dependent. See [R7-137 finding](reviews/2026-09-22-r7-137-three-multiserver-auto-cycles.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-three-multiserver-auto-cycles.json).
-
-## Latest implementation checkpoint - LWB-R7-136, 2026-09-22
-
-B08/D04 restart safety is now **IMPLEMENTED/OFFLINE+BROWSER-ACCEPTED**. Manual scans hold an exclusive per-profile scan lease from Start through terminal completion; an orphaned persisted `running` run is failed with the explicit app-restart reason only after the new process owns the lease, retaining checkpoints while preventing stale publication and cross-process takeover. Auto Scan persists a separate in-flight cycle marker before travel; a later app instance processes that marker before due-time admission, never resumes the interrupted target list, restores the original server first when configured, retains/retries the marker after failed restoration, and advances `nextRunAt` only after recovery. Existing R7-131/R7-132 browser regressions, new R7-136 restart browser proof, 36 browser checks, final 28/28 strict pixel identity, Release 0/0, all six deterministic groups and the normal-production smoke pass. No intentional live-game process kill is claimed. See [R7-136 finding](reviews/2026-09-22-r7-136-scan-restart-safety.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-scan-restart-safety.json).
-
-## Latest implementation checkpoint - LWB-R7-135, 2026-09-22
-
-R10 now has separate current evidence for **normal production composition** and **fixture/browser visuals**. `tools/check_normal_release_windows.ps1` passively launches real Release Overview and Map Data windows, suppresses auto-launch, blocks state-changing owner commands, isolates/restores the existing WebView Presentation directory and requires real config/config-backup hash identity. Both windows pass Responding/IsHungAppWindow/WM_NULL checks, no game/launcher/helper appears, Map Data performs a real saved City search/render, and all processes close cleanly. R7-134 remains the separate fixture/browser/pixel authority. The S/O/M ledger was refreshed from R7-127 through R7-133 so bridge pending/Refresh Status, navigation, common scan engine, native capture, persistent index, progress/Stop, Clear, results/search and Auto Scan no longer carry obsolete pre-production status. Remaining population/action/active-restart/human-GUI gates stay explicit. See [R7-135 finding](reviews/2026-09-22-r7-135-normal-production-window-smoke.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-normal-production-window-smoke.json).
-
-## Latest implementation checkpoint - LWB-R7-134, 2026-09-22
-
-The 47-case release ledger is now **CURRENT**. A clean R7-133 worktree rerun found one test-harness defect before assertions: R7-131's `listen(0)` received Chromium-blocked port 10080. R7-131/R7-132 browser fixtures now use safe loopback defaults 18081/18082 with overrides. Fresh validation passes the generator, both Map browser regressions, 36 browser checks, City-export removal, 32-pair visual audit with 28/28 strict identity, Python compile, Release 0/0 and all deterministic groups. The new matrix integrates later A04–A11 closure evidence and R7-131 Clear-race proof instead of preserving R7-088's stale partial/not-run rows. Remaining incomplete cases are still explicitly population-, authorization-, active-restart-, or human-GUI-dependent. See [R7-134 finding](reviews/2026-09-22-r7-134-acceptance-matrix-refresh.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-refresh.json).
-
-## Latest implementation checkpoint - LWB-R7-133, 2026-09-22
-
-The remaining native Auto travel-failure evidence gap is now **LIVE-PROVEN at the public backend/session boundary**. In one owned session, server 2148 produced exact `SERVER_JUMP_FAILED / server_jump_precheck_failed`; current server remained 2212 and the same session then completed a Fast Zombie Boss scan 2,500/2,500 with zero failed/unread in 5.53 s. This complements, rather than replaces, R7-132's real-browser proof of the shipped scheduler's per-target error isolation, confirmed-travel ordering and navigation/refresh/reconnect ownership. No live React click-through is claimed. Cleanup restored all three original package hashes and left no game/launcher/helper process. See [R7-133 finding](reviews/2026-09-22-r7-133-native-auto-failure-continuation.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-native-auto-failure-continuation.json).
-
-## Latest implementation checkpoint - LWB-R7-132, 2026-09-22
-
-Auto Scan's remaining navigation/Refresh Status/reconnect ownership gap is **IMPLEMENTED/OFFLINE-TESTED**. A failure-first generated-frontend run reproduced two `map_scan_start` calls for one due cycle after disconnect/reconnect: the old `[profile,P]` effect was cancelled before persisting its next deadline, then reconnect re-created it against the still-due config. Production now keeps one scheduler effect per profile, mirrors online truth through `autoOnlineRef`, and rechecks scheduler ownership before each target and after server-jump confirmation. Browser acceptance proves navigation away/back plus repeated Refresh Status cannot duplicate a two-target cycle, a held second jump cannot start a scan before confirmation, disconnect stops later targets and advances the deadline, reconnect does not re-admit the interrupted cycle, and disconnect during a pending jump prevents the post-jump scan. Release 0/0, all six deterministic groups and 36 browser checks pass; the final strict visual set is 28/28 pixel-identical. See [R7-132 finding](reviews/2026-09-22-r7-132-auto-scheduler-ownership.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-auto-scheduler-navigation-reconnect.json).
-
-## Latest implementation checkpoint - LWB-R7-131, 2026-09-22
-
-The R7-130 browser-only follow-up is now closed at **IMPLEMENTED/OFFLINE-TESTED** scope. A backend-contract-correct two-server fixture drives the generated shipped Map Data bundle in real headless Edge and proves Manual categories, Manual/Auto tab, result tab and saved browse server survive a full reload; both stored servers remain browseable; and Auto Stop disables the scheduler before backend cancellation so no second target starts. Failure-first timing also found one remaining Clear race: after invalidating the old request, Clear's own state resets could launch a new automatic search with the retained filter. The canonical generator now suppresses exactly that one effect turn. The permanent regression observes no `map_search` after `map_scan_clear` and no false alert. Release is 0 warnings/0 errors, all six deterministic groups pass, 36 browser checks pass, and all 28 strict screenshot pairs remain pixel-identical. Final normal-user built-executable restart/walkthrough remains open. See [R7-131 finding](reviews/2026-09-22-r7-131-map-browser-acceptance.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-map-browser-acceptance-clear-race.json).
-
-## Latest implementation checkpoint - LWB-R7-130, 2026-09-22
-
-The seven reported Map Data defects have code fixes and current validation. On installed Lua package v20, the reported `(67,858)` city now publishes effective HP `10000` from raw `1222`; Truck/Monster scans are ~75–78 s instead of ~135–137 s; all-eight completes 2,500/2,500 in 77.89 s; and 2212/2213 both complete, persist, reopen and return to origin in one owned session despite naturally occurring transient Overview-admission gaps. Active fast Stop returns idle. Auto target failures are isolated, saved servers are selectable/browseable, key Map UI choices persist per profile, and Clear invalidates stale async search/treasure generations. Release 0/0 and all deterministic groups pass. UI-only click/reopen/timing confirmation remains an owner-visible follow-up, not a live-proof claim. See [R7-130 finding](reviews/2026-09-22-r7-130-map-corrections.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-map-correctness-multiserver-speed.json).
-
-## Latest recovery checkpoint - LWB-R7-098, 2026-09-20
-
-A11 remains partial, but original instance registration/routing semantics are now recovered and offline-tested: 90-second first-claim registration, exact profile + SHA-256 token authentication, retained claimed registrations for reconnect, host-global generation replacement, stale-disconnect protection, explicit unregister and unique `default` routing. The remaining blocker is narrower: the persistent named-pipe listener/I/O behavior and exact queue/timeouts, authentic proxy-launch environment binding, then pending-call/result ownership. Production `call_lua` remains fail-closed and `pending` remains null. R7-098 also repairs the R7-097 default-suite integration defect. See [R7-098 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-registry-lifecycle.json).
-
-## Latest recovery checkpoint - LWB-R7-097, 2026-09-20
-
-A11 remains partial, but its RPC wire format is recovered and offline-tested. Exact `hello.ack`, generic `command/call` envelopes and correlated `result` payload parsing now live in `LWBridgeControlPipeProtocol`. The current blocker is no longer command serialization: it is the absent persistent original-style named-pipe host and registered-instance lifecycle. Production `call_lua` therefore remains fail-closed and `get_status.pending` remains unknown/null until that host can own the authentic outstanding-call map. See [R7-097 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-bridge-rpc-wire-contract.json).
-
-## Latest recovery checkpoint - LWB-R7-096, 2026-09-20
-
-A11 is not closed, but its status semantics are no longer unknown. Static original recovery proves `get_status.pending` is the count of outstanding bridge-to-Lua calls awaiting correlated results, sourced directly from the bridge-store pending collection. Original Refresh Status displays that host count and then executes proxy refresh plus Lua `getStatus`. The current rebuild has no source-backed generic outbound pipe command/result transport, so `pending:null` and `call_lua=COMMAND_NOT_IMPLEMENTED` are intentionally retained. The remaining Home blocker is now specifically outbound bridge RPC recovery/implementation, not pending-counter semantics. See [R7-096 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-status-pending-contract.json).
-
-## Latest implementation checkpoint - LWB-R7-095, 2026-09-20
-
-Acceptance case A06 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Original host/frontend recovery proves Home Close is unavailable while idle/launching and is separate from `map_scan_stop`; ten focused repetitions prove direct fail-closed safeguards, exact post-launch Stop, truthful incomplete scan/checkpoint/no-publication behavior when Home Close removes the owned game mid-scan, and recovery cancellation/restoration with no future restart. R7-088's A06 `partial` row is superseded. A11 is now the only remaining Home acceptance gap. See [R7-095 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-close-timing-matrix.json).
-
-## Latest implementation checkpoint - LWB-R7-094, 2026-09-20
-
-Acceptance case A08 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten repetitions cover concrete root/path/permission/PE/ABI errors, missing root/helper/closed lifecycle, corrupted helper challenge/path/current-client evidence, stale heartbeat external truth, exact cleanup and corrected retry; the focused lane also executes the existing bounded timeout/retry regression. R7-088's A08 `partial` row is superseded. A06/A11 remain open. See [R7-094 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-fault-admission-matrix.json).
-
-## Latest implementation checkpoint - LWB-R7-093, 2026-09-20
-
-Acceptance case A07 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten focused policy runs prove reconnect ON waits the recovered 60-second observed-disconnect threshold then performs one exact cleanup/relaunch and the 15-second stable verification; reconnect OFF performs zero recovery work; disabling reconnect during the first failed-recovery retry cancels all future launches while preserving desired-running intent; and intentional Stop prevents later resurrection. R7-088's A07 `partial` row is superseded. A06 remains partial because Home Close-to-active-scan cancellation is not source-backed; A08/A11 remain open. See [R7-093 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-reconnect-policy-matrix.json).
-
-## Latest implementation checkpoint - LWB-R7-092, 2026-09-20
-
-Acceptance case A05 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. Ten runs use real temporary Windows processes named `LastWar` to exercise production name/path discovery and managed PID/path/start-time identity. Foreign instances are preserved across managed Start/Stop, duplicate managed Start cannot create another process, and selected-root unmanaged instances are surfaced/rejected with `UNMANAGED_GAME_RUNNING` but not killed. R7-088's A05 `partial` row is superseded; A06/A07/A08/A11 remain open. See [R7-092 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-process-ownership-matrix.json).
-
-## Latest implementation checkpoint - LWB-R7-091, 2026-09-20
-
-Acceptance case A04 is now closed at IMPLEMENTED/OFFLINE-TESTED scope. A blocked production lifecycle Start was stressed ten times with 48 duplicate Launch attempts and 120 status refreshes per run. All 480 secondary Launch calls rejected with the recovered in-progress error, all 1,200 refreshes stayed responsive and scoped to the original `starting` session, no secondary helper Start or stale success appeared, and all ten sessions stopped cleanly. R7-088's A04 `partial` row is superseded; A05/A06/A07/A08/A11 remain open. See [R7-091 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-launch-spam-refresh.json).
-
-## Latest implementation checkpoint - LWB-R7-090, 2026-09-20
-
-Acceptance case A10 is now closed at IMPLEMENTED/OFFLINE-TESTED scope for the admitted startup pipeline. The combined matrix covers six host failure/retry branches plus 12 helper transaction stages with real temporary-file backup/journal/install/rollback mechanics. Exact baseline restoration, interrupted-recovery journal retention, clean rollback clearing, unmanaged-process preservation, helper-owned process cleanup and successful subsequent retry are all asserted. R7-088's A10 `partial` row is superseded; separate admission/ownership/interruption/reconnect/status cases remain open. See [R7-090 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-startup-failure-matrix.json).
-
-## Latest implementation checkpoint - LWB-R7-089, 2026-09-20
-
-Acceptance case A09 is now closed with a current-v19 technical live stress run. Twenty consecutive production Home lifecycle cycles (10 manual, 10 startup-reconcile) all reached authoritative connected readiness, then closed the exact owned process and restored the client to the exact pre-cycle package/metadata/version hashes. All 20 sessions and game PIDs were unique; every stop reported no installed-file drift and no running game, and the final machine has no Last War/launcher process. This changes only A09 from the R7-088 release-audit snapshot; the remaining partial/blocked/not-run cases are not upgraded. See [R7-089 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-overview-twenty-cycle-stress.json).
-
-## Latest implementation checkpoint - LWB-R7-088, 2026-09-20
-
-The current offline Release gate is green and two stale release-maintenance paths were repaired. Frontend generation had drifted behind shipped owner overrides/Map Data checkpoints; it is now exact and SHA-locked, with `--check` reproducing all tracked WebUi bytes. The original-parity browser/pixel suite was also stale; it now keeps strict parity everywhere except the explicitly asserted Export/speed-removal + Zombie Boss Map Data differences. Fresh Release builds 0/0, all six deterministic groups and transport/host/security checks pass, deterministic captures and 36 browser checks pass, and unchanged visuals are 28/28 pixel-identical. R7-088 records all 47 acceptance cases without promoting open branches. Final integrated live acceptance therefore remains open. See [R7-088 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-release-integrity-audit.json).
-
-## Latest implementation checkpoint - LWB-R7-087, 2026-09-20
-
-Treasure claim recovery now includes the original frontend/status state machine without enabling the action. Exact original assets prove `queued>0` is the polling admission gate; status is polled every 1,000 ms for at most 1,800 attempts; returned states overlay rows by UUID; and only an existing batch with exact state `running` keeps polling. Lucky priority defaults on unless `lwbridge.mapLuckyTreasurePriority` stores exact `false`; the single-row button gate and action-phase world/player/block-reason vocabulary are now pinned and deterministic-tested. This does not recover the protected executor: scope filtering/order, lucky-slot scheduling, scout-slot reservation and exact terminal batch-state enumeration remain unknown. SB-79 was preserved, `map_treasure_claim` remains absent, and no game/state-changing action ran. See [R7-087 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-frontend-status.json).
-
-## Latest implementation checkpoint — LWB-R7-086, 2026-09-20
-
-Treasure claim is now source-backed through the original host boundary and current-v19 direct-claim transport without enabling the action. Original recovery pins `boxes|season|single`, the `single` target UUID requirement, default lucky priority, exact persisted candidate SQL, protected `claimTreasures` plus `getTreasureClaimStatus` 5 s calls and immediate queue counters. Current-v19 pins direct ordinary Treasure to `detect.event.claim.treasure` with PutLong UUID/PutInt server, an `IsHaveGetReward` duplicate gate, explicit `errorCode` rejection, optional-reward success mutations and UUID-correlated push success; Supplies instead launches a scout march. The protected batch scheduler still owns unrecovered scope/lucky/scout orchestration, so `map_treasure_claim` remains absent. No claim/scout/collection ran. See [R7-086 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-offline-contract.json).
-
-## Prior implementation checkpoint — LWB-R7-085, 2026-09-20
-
-Dispatch Alliance Share now has source-backed original and current-v19 contracts plus an offline-tested validator/payload plan, without enabling messaging. The original validates 1..200 rows, requires decimal UUID and positive integer-like `serverId/x/y/cfgId`, invokes `shareDispatchTaskToAlliance` per row with 5 s timeout, and aggregates shared/failed UUIDs. Current-v19 routes `Text_PointShare` to the Alliance channel and `hero.dispatch.share.chat`, using PutLong UUID and PutInt target server; the Dispatch point payload and label key `456288` are hash-locked. Production `map_dispatch_share_alliance` remains absent and no live share was sent. See [R7-085 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-alliance-share-offline.json).
-
-## Prior implementation checkpoint — LWB-R7-084, 2026-09-20
-
-Public Dispatch scheduling is now implemented/offline-tested over the recovered validator/store, current-v19 executor and durable worker. Whole-batch validation precedes sequential writes; success returns scheduled rows and emits one `bridge://dispatch-plunder-changed`; a later guarded conflict leaves earlier writes intact but returns exact `MAP_DATA_ERROR` without a success event. Static recovery also closes the server-ID discrepancy: original schedule and cancel accept any positive signed-64-bit value, so Dispatch-only local scheduler keys now use `long`; values outside the current-v19 proven 1..99999 execution domain fail before attempt/send. No live schedule or plunder was run. See [R7-084 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-public-schedule.json).
-
-## Prior implementation checkpoint — LWB-R7-083, 2026-09-20
-
-Dispatch durable worker ownership is now wired/offline-tested without any live steal. The worker connects persisted `scheduled|waiting_connection` jobs to the R7-082 current-v19 executor, preserves the recovered 10-second arm lead, due-only disconnected deferral, expiry, daily-limit stop-all and exactly-one running attempt increment, and shares the serialized Map Data game-operation gate. Cross-server targets are passed directly to the executor because current-v19 `DispatchSteal` carries `targetServer`. Safety is deliberately stricter than the original on restart: stale `running` rows become terminal `failed / DISPATCH_PLUNDER_CLIENT_RESTARTED` because prior send state cannot be reconstructed; an active-only running transition also prevents a cancel-race resurrection. Public Dispatch schedule remains disabled pending final wrapper/event integration. See [R7-083 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-durable-worker.json).
-
-## Prior implementation checkpoint — LWB-R7-082, 2026-09-20
-
-Dispatch post-arm/result behavior is now source-backed and an internal current-v19 executor is implemented/offline-tested without performing a live steal. Original 0.3.1 result handling is pinned to `map.dispatch-plunder-result` with `(serverId,taskUuid)` identity, `success/errorCode`, optional `serverDayStartAt`, and a pending result deadline of `max(now,executeAt)+30000 ms`. Current-v19 dispatcher mapping is hash-locked through `MsgDefines.DispatchSteal = hero.dispatch.steal` and `MsgMap.DispatchSteal -> Net.Msgs.DispatchTask.DispatchStealMessage`. The bridge preserves task UUID through `CS.System.Int64.Parse`, waits for authoritative server time to reach `executeAt`, rechecks daily/cross-server state, sends exactly once, correlates the official handler response, and keeps post-send timeout ambiguous/non-retryable. Build and all six deterministic groups pass. Public Dispatch schedule remains disabled; durable-worker wiring and any live execution remain open. See [R7-082 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-result-executor.json).
-
-## Prior implementation checkpoint — LWB-R7-080, 2026-09-20
-
-Dispatch plunder schedule/cancel persistence is now RECOVERED from the verified original and reproduced as an internal OFFLINE-TESTED store kernel. The original public schedule wrapper requires 1..200 rows and exact server/decimal-task-UUID/timing/expiry/steal eligibility; guarded SQLite upsert permits only fresh or existing `scheduled`/`waiting_connection` jobs, preserving status/attempts/error/created-at on active reschedule. Cancel only transitions those two states to `cancelled`, clears error, and missing/non-cancellable targets map to `NOT_FOUND / scheduled plunder job not found`. Disposable database tests cover fresh/reschedule/rejection/cancel/reopen behavior. Public Dispatch cancel is now enabled/offline-tested as local scheduler state mutation with exact recovered event/error behavior; public schedule remained disabled at R7-080; R7-081 subsequently recovers the current-v19 send/eligibility chain and original arm/persistence kernel, while post-arm result/runtime correlation remains open. No live plunder action was performed. See [R7-080 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-schedule-persistence.json).
-
-## Latest implementation checkpoint — LWB-R7-079, 2026-09-20
-
-Scheduled Plunder’s read/list/status persistence surface is now current-code audited and closed without any live game action. Public `map_plunder_jobs_list` remains a pure read returning Dispatch persisted jobs plus Truck active/history rows with recovered ordering and scheduler metadata; existing deterministic disposable-DB coverage proves the public combined envelope and database-reopen stability. The audit also corrects the roadmap boundary: R7-046 superseded R7-041’s historical Truck schedule fail-closed state, so Truck public schedule/cancel + durable worker are implemented/offline-tested while live robbery remains NOT_RUN. At R7-079 production had no Dispatch action handler; R7-080 subsequently enables public local-scheduler cancel while schedule remains blocked. Alliance share remains blocked pending offline payload implementation plus explicit live messaging authorization. See [R7-079 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-scheduled-plunder-read-audit.json).
-
-## Latest implementation checkpoint — LWB-R7-078, 2026-09-20
-
-Public `map_summary` is now LIVE-PROVEN read-only on current-v19. One automatic Fast Monster scan exposed the exact recovered `{serverId,counts,scanState}` envelope while the owned run was active, with `scanState.phase=scanning` and the exact run identity. The active Monster count was truthfully zero because the one-batch Fast source had not checkpointed staging yet. The run then completed 2,500/2,500 with zero failed/unread blocks and 5,108 live Monster rows; completed summary counts exactly matched the persisted store. After DB reopen, the unique saved-profile server reproduced those counts with `phase=unavailable` and `serverIdSource=saved_profile_index`, preserving browsing context without claiming live readiness. See [R7-078 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-map-summary-live.json).
-
-## Latest implementation checkpoint — LWB-R7-077, 2026-09-20
-
-Completed/persisted public `map_data_options` is now LIVE-PROVEN read-only on current-v19. One automatic Fast all-eight scan completed 2,500/2,500 with zero final failed/unread blocks and produced 6,341 persisted rows across 6 positive kinds. The public command exactly matched independent raw-row derivation for every kind count, City alliances/no-alliance, Resource/Monster/Zombie Boss name options, Dispatch/Monster levels, Treasure type descriptors, Truck/Railway retained reward items and completed scan-progress identity, then reproduced the same aggregate metrics after DB reopen. The population provided 72 alliance options, 1,199 no-alliance Cities, 3 Resource names, 7 Monster names, 5 Dispatch levels, 36 Monster levels, one Treasure descriptor and 18 Truck reward items; Zombie Boss names/Railway reward items were exact zero sets. Positive active-staging live observation is not claimed because the current Fast all-eight source returns its logical blocks as one large batch before final publication. See [R7-077 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-map-data-options-live.json).
-
-## Latest implementation checkpoint — LWB-R7-076, 2026-09-20
-
-Monster result-filter fidelity is now LIVE-PROVEN read-only on current-v19. A Fast 2,500/2,500 scan published/reopened 5,105 Monster rows. Independent UUID sets matched eight current filter scenarios before and after reopen: `monsterNameKey`, the current five-level-bucket inclusive maximum level, name+max composition, direct identity/literal keyword escaping, and the R7-013 bounded resolved-name-key localization path. The chosen max level 20 matched 2,916 rows, selected name matched 1,584, name+max matched 861, and resolved name keys matched 3,101. The localized-name expansion remains rebuild usability policy, not an original 0.3.1 frontend claim. No positive Zombie/Boss protection-detail or shield-deadline population existed. See [R7-076 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-monster-filter-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-075, 2026-09-20
-
-City result-filter fidelity is now LIVE-PROVEN on current-v19. A Fast 2,500/2,500 City scan published/reopened 1,546 rows and retained the nine existing City sort checks. The new verifier independently compares public query results against raw persisted live records for alliance equality, no-alliance, marked-only, identity keyword, and literal percent/underscore/backslash keyword inputs, then repeats after database reopen. `markedOnly` is positive without changing game or persistent user state: one authentic live owner is marked only inside the disposable proof database, yielding exactly one marked row before/after reopen. Literal `_` matched all 1,546 raw rows and literal `\\` matched 413; `%` correctly remained a zero-set rather than acting as a wildcard. One bounded `overview_session_unavailable` acquisition retry recovered and final failed/unread remained zero. See [R7-075 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-city-filter-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-074, 2026-09-20
-
-Resource result/truth filtering is now LIVE-PROVEN read-only on current-v19. A Fast 2,500/2,500 scan published/reopened 1,788 Resource rows with authoritative name, level, occupancy, detail/fullness and black-tile truth. An independent verifier then matched eight public/current filter scenarios by exact row identity before and after reopen: resource name, idle-only, full-only, non-black, min/max/exact level and the combined default. The live population contained 1,783 idle rows, 1,665 full rows, 1,788 known non-black rows, and 420 exact level-3 rows; there was no positive black-tile row, so that exclusion branch remains population-unobserved rather than synthesized. No state-changing gameplay action or message ran. See [R7-074 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-resource-filter-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-073, 2026-09-20
-
-Dispatch/Secret Task result-filter fidelity is now LIVE-PROVEN read-only on current-v19. A reusable Dispatch/Ghost verifier independently derives expected live row sets and compares them against the production public query at a frozen wall clock. The Fast Dispatch run completed 2,500/2,500 with zero scan failures, published/reopened 69 rows, retained the existing nine sort scenarios, and passed 12 filter scenarios before and after reopen: N/R/SR/SSR/UR quality, special-only, pending/completed completion state, minimum level, maximum level, exact-level composition and plunderable-only. Positive live branches covered SR=20, SSR=12, UR=37, special=6, pending=6, completed=63, exact level 4=24 and plunderable=69; N/R were exact empty-set checks. A Railway follow-up on server 2204 completed 2,500/2,500 but the current population exposed zero Railway rows, so no new Railway filter claim is made and R7-071 remains its positive authority. No claim, robbery, collection or message action ran. See [R7-073 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-filter-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-072, 2026-09-20
-
-Supplies positive-row acceptance is implementation-ready but currently population-blocked. The read-only Treasure-state harness now supports a bounded target-server jump, requires an authentic `WorldSuppliesPoint` when `LWBRIDGE_REQUIRE_SUPPLIES=1`, records Supplies-specific returned-state/detail metrics, and returns to the original server through the proven live-context readiness path. Server 2204 completed a full Fast 2,500/2,500 Treasure scan with zero failed/unread blocks but published 3 ordinary Treasure and 0 Supplies. A second strict full-world run on reachable server 2213 also completed 2,500/2,500, published 2 ordinary Treasure and 0 Supplies, and returned to original server 2212. Static current-v19 inspection additionally pins `SeasonSuppliesShareDataManager` activity/current-season configuration semantics. A temporary aggregate-only metadata sweep then checked every reachable server 2149-2211 and found no active Supplies activity; 2148/2147/2146 and earlier sampled lower servers were rejected by the game's own server-jump precheck. The temporary diagnostic lane was removed before finalization. No positive Supplies row/detail claim is made; rerun the unchanged strict harness when population exists. See [R7-072 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-supplies-population-gate.json).
-
-## Latest implementation checkpoint — LWB-R7-071, 2026-09-20
-
-Railway positive-row acceptance is LIVE-PROVEN read-only on current-v19. The startup race in the Railway proof harness was fixed by resolving initial context through `CurrentClientMapBlockSource.GetCurrentContextAsync`. An authoritative server-2213 scan then completed 2,500/2,500 with zero Railway rows, invalidating the earlier stale Train-list population hint. A bounded read-only diagnostic identified server 2204 as the candidate source server and was removed before finalization. The authoritative server-2204 Fast scan completed 2,500/2,500 with zero failed/unread blocks, published/reopened 3 Railway rows, passed 12 sort scenarios before and after reopen, live-exercised `itemCount`, proved relative ordering across all 3 rows, and proved public moving Follow on an exact published march identity. The session returned to original server 2212. `maxLootCount` was present on all 3 rows and `currentGoods` contained 46 auditable reward entries; raw `trainData` was absent in this population and is not claimed. See [R7-071 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-railway-positive-follow.json).
-
-## Latest implementation checkpoint — LWB-R7-066, 2026-09-20
-
-The owner-requested City Excel export removal is complete. Production has no visible Export Excel control, frontend export handler/API wrapper, `map_city_export` route, Excel save-dialog path, OOXML writer, export-only full-City storage branch or export-only workbook test suite. All nine shipped locale bundles drop the export strings. A negative backend regression verifies the retired command returns `COMMAND_NOT_IMPLEMENTED`; a candidate-only headless-browser check verifies Map Data loads without JavaScript errors and never exposes/invokes the export path; the full six-group deterministic suite passes. Historical R6-017/018 and R7-057..060 evidence is intentionally retained only to document the original/recovered contract that the owner chose to retire. See [R7-066 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-city-export-removal.json).
-
-## Latest implementation checkpoint — LWB-R7-065, 2026-09-20
-
-Truck/reward game artwork is now LIVE-PROVEN on current-v19. The missing public `game_asset_image({assetPath})` host/game bridge is implemented with strict owned-session/request correlation, PNG signature/IHDR/dimension validation and bounded exact-source caching. On the game side, the current-v19 xLua extension call `SpriteRenderer:LoadSpriteAuto` resolves the authoritative extensionless or suffixed game path; the returned Sprite is cropped through its actual `textureRect` using `Graphics.Blit` and encoded to PNG/base64. Four representative Truck reward assets passed in one owned session, including a packed atlas sprite. Pixel-level validation proved both `item406` and the packed UI-resource sample contain nontransparent, multicolor artwork; the prior camera-render experiment that produced a transparent PNG was rejected rather than accepted. Full deterministic acceptance is green, current-v19 compatibility is exact, and game/launcher cleanup is clean. `spriteName` remains fail-closed outside the Truck `assetPath` use case. See [R7-065 evidence](../evidence/lwbridge-implementation/2026-09-20-r7-truck-game-asset-image.json).
-
-## Latest implementation checkpoint — LWB-R7-064, 2026-09-19
-
-Server-2207 Fast Secret Task stability is now LIVE-PROVEN under repeated same-owned-session use. The historical post-R7-063 2499/2500 non-rectangular failure did not recur across fourteen full 2207 scans, so exact rectangular/10,000-AOI validation remains unchanged and no speculative reset/fallback was added. Stress did expose a distinct early probe failure that omitted success-only target/view fields; C# had been validating those fields before decoding `state=failed`, masking the native cause as a parameter mismatch. Failed correlated results now surface the native error first while successful results retain every strict request/geometry/restoration/footprint check. Final exact-code three-scan acceptance completed 2500/2500 three times with 67/80/126 rows; iteration 1 decoded `overview_session_unavailable` and recovered on attempt 2, iterations 2-3 were clean. Deterministic full-suite acceptance is green. See [R7-064 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-server-2207-fast-stability.json).
-
-## Latest implementation checkpoint — LWB-R7-063, 2026-09-19
-
-Cross-server Fast Truck/Secret Task scanning is repaired after the owner reproduced both tabs stopping at ~98% with zero rows on server 2204. Durable profile DB evidence showed both runs reached 2499/2500 with one failed synthetic Fast block: `Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint.` A targeted server-2204 diagnostic proved valid 100x3 Fast geometry, isolating the bug to retry placement: footprint validation occurred after the three-attempt recoverable-probe loop, so a transient malformed shape bypassed retry and failed the entire publication gate. Validation now occurs inside that bounded loop. Live server-2204 Fast acceptance passes Truck 2500/2500 with 278 published/reopened rows and Secret Task 2500/2500 with 319 published/reopened rows. See [R7-063 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-cross-server-fast-footprint-retry.json).
-
-## Latest implementation checkpoint — LWB-R7-062, 2026-09-19
-
-Home/Overview launch robustness is repaired after the owner's UI test hit a real official-launcher handoff stall. The failed helper evidence says `the selected launcher did not create a matching LastWar process before timeout`; Launcher.log shows candidate pack verification succeeded but no `Starting game` line followed. Two controlled launches immediately afterward connected, isolating the failure from bridge injection/readiness. Production now retries exactly once only for that exact error, within the original bounded start budget and after transactional helper cleanup. Deterministic retry coverage, patched manual+auto live proof and the full six-group suite pass; game and launcher end closed. See [R7-062 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-overview-launcher-handoff-retry.json).
-
-## Latest implementation checkpoint — LWB-R7-061, 2026-09-19
-
-Coordinate Jump is now LIVE-PROVEN on current-v19 through the public `map_coordinate_jump` service path. The shipped Map Data result UI uses moving Follow only for Truck/Railway and coordinate Jump for every other result kind. A bounded read-only navigation proof on server 2212 moved the normal-world camera from the current player tile to a distinct in-bounds target, required the exact owned-session/server/world/target `GotoWorldPos` completion callback, then returned to the player tile and proved that callback too. No scan or gameplay action was used; game and launcher were closed afterward. Truck Follow remains live-proven; Railway positive-row Follow was population-pending at R7-061 and is subsequently closed by R7-071. See [R7-061 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-coordinate-jump-live.json).
-
-## Historical implementation checkpoint — LWB-R7-060, 2026-09-19 (superseded by R7-066 owner removal)
-
-City Excel export was public-enabled and OFFLINE-TESTED against the recovered original contract at this historical checkpoint. The original host fetches the full filtered City set in 200-row pages through page 1000 and rejects overflow above 200,000 rows. Direct writer recovery closes the A-L map and cell types, proves UID/UUID are inline text, proves J's absent-only `protectEndTime -> shieldEndTime` fallback and exact `1e11` timestamp-unit boundary, and pins success `{canceled:false,path,rowCount}` alongside R7-059's cancel result. The WinForms host owns the native save dialog and runs snapshot/workbook generation off the UI thread. Deterministic XLSX reopen plus the full six-group suite pass; no interactive user save was performed. See [R7-060 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-row-contract.json).
-
-## Latest implementation checkpoint — LWB-R7-059, 2026-09-19
-
-City export save-dialog/default-location semantics are now recovered. The original rfd 0.16.0 builder leaves `starting_directory` and custom title unset, applies `Excel workbook` / `xlsx`, uses the R7-058 UTC filename, and invokes the native Windows Save dialog. Windows owns the remembered/system folder and default overwrite confirmation. rfd collapses both user cancel and dialog errors to `None`, which LWBridge returns exactly as `{canceled:true,path:"",rowCount:0}`. Public export remains gated only on the original row/data contract: pagination/scope, direct A-C/J typing/coercion and original large-ID workbook behavior. See [R7-059 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-dialog.json).
-
-## Latest implementation checkpoint — LWB-R7-058, 2026-09-19
-
-The original City export default filename/timestamp is now recovered as `map-cities-{serverId}-{YYYY}{MM}{DD}-{HH}{mm}{ss}.xlsx` in UTC. The result is hash-locked to `lwbridge-0.3.1.exe`, decodes the exact embedded rustc format bytecode, proves zero-padding widths `4/2/2/2/2/2`, ties the first placeholder to positive `serverId`, and ties the timestamp clock to `kernel32!GetSystemTimePreciseAsFileTime` plus the embedded `time 0.3.54` representation. A shared Feedback-export suffix corroborates the timestamp structure. One later narrow register inspection was rejected as SB-99 and was neither replayed nor used. Public export remains gated on original pagination/scope, direct A-C/J typing, default directory, complete picker behavior and original large-ID typing. See [R7-058 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-filename.json).
-
-## Latest implementation checkpoint — LWB-R7-057, 2026-09-19
-
-City Excel export now has an internal full-filter snapshot plus OOXML writer and deterministic reopen acceptance, while the public command intentionally remains unavailable. The rebuilt path exports all filtered/sorted City rows from one SQLite snapshot by implementation policy and proves 235 rows are not truncated by the frontend's 200-row request. The writer reproduces the recovered six-part package/layout/style scaffold and preserves large identifiers/formula-like strings as inline text plus style-3 usable dates. New static evidence pins `rfd 0.16.0`, CodeView `lwbridge.pdb` identity and the exact four-XF style table. Original host pagination, direct per-column coercion, default-directory and complete picker behavior are still unresolved and are not papered over; R7-058 subsequently closes the filename/timestamp itself, while `map_city_export` stays fail-closed. See [R7-057 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-export-infrastructure.json).
-
-## Latest implementation checkpoint — LWB-R7-056, 2026-09-19
-
-Durable full-run identity is IMPLEMENTED/OFFLINE-TESTED. Production Map Scan rows now persist and enforce launch session, server/world, geometry, home tile, selected types, mode, concurrency and retry policy in addition to the unique run ID, with additive migration for old databases. Any stale/foreign identity is rejected before checkpoint, failure, Stop or final publication mutation. Public resume remains explicitly unavailable because the verified original exposes the resume input gate but no recovered state producer ever sets `resumeAvailable=true`. With R7-054/055/056, Clear, completion integrity and run identity are no longer the active shared-scanner blockers. See [R7-056 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-run-identity.json).
-
-## Latest implementation checkpoint — LWB-R7-055, 2026-09-19
-
-Progress/completion integrity for the production direct-snapshot scanner is IMPLEMENTED/OFFLINE-TESTED and backed by the existing full-world live scan history. R7-055 makes unsupported resume explicit (`resumeAvailable=false`) and closes silent WorldMarch truncation: all bounded Train/Monster/protection-target enumerators must now prove exhaustion at the 50,000 safety limit, otherwise the bulk acquisition fails and cannot publish. Existing exact-coverage/zero-failure, cancellation, staged checkpoint, stopped/failed-run and transactional final-publication gates remain unchanged and green. Original queue-only pending/ack/drop counters are not fabricated because this rebuild does not instantiate that native queue. Durable full run identity was still the remaining lifecycle gap at this checkpoint and is subsequently closed by `LWB-R7-056`; public resume remains unavailable. See [R7-055 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-completion-integrity.json).
-
-## Latest implementation checkpoint — LWB-R7-054, 2026-09-19
-
-Map Scan Clear is production-owned and OFFLINE-TESTED against the verified original contract. The real shared Manual Scan service now handles `map_scan_clear`, preserving the original active-scan rejection and exact current-live-server ownership gate, serializing Clear against Start, clearing only the authorized server's scan/index scope, preserving marks and unrelated servers, and publishing idle/zero progress. Fresh Clear can resolve the authoritative lifecycle server without starting a scan; saved/replay-only contexts fail closed. Destructive acceptance used in-memory SQLite only, so no real user map database was deleted. At this checkpoint completion integrity was still open; `LWB-R7-055` subsequently closes it for the direct-snapshot transport, while durable full run identity/resume remains open. See [R7-054 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-map-scan-clear-ownership.json).
-
-## Latest implementation checkpoint — LWB-R7-053, 2026-09-19
-
-Dispatch/Ghost alternate sorting is recovered and production-enabled from the same hash-locked original contract. Dispatch is LIVE-PROVEN read-only on current v19: `level`, special-aware `quality`, zero-to-NULL `completionTime`, and `updatedAt`, with ordered multi-sort, nulls-last ASC/DESC and stable record-key ties. A failure-first live attempt stopped before sort verification on a first-batch AOI response timeout; preserved diagnostics showed sends but no receives, so the sort proof was not weakened. One controlled retry completed 2,500/2,500 in 145.413 s, published/reopened 386 Dispatch rows, and passed 9 independent scenarios before reopen plus the same 9 after reopen. Twenty special rows and 380 nonzero completion times exercised the nontrivial expressions. Ghost shares the same recovered production path and deterministic tests, but positive-row live acceptance is explicitly deferred until Thursday, September 24, 2026. No state-changing game action was used. See [R7-053 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-dispatch-ghost-sort-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-052, 2026-09-19
-
-City alternate sorting is LIVE-PROVEN read-only on current v19. The complete public City sort set (`level`, `health`, `shield`, `updatedAt`) is production-enabled with ordered multi-sort, nulls-last ASC/DESC, clock-aware seconds/milliseconds shield expiry handling and stable record-key ties. Final exact-code Fast acceptance completed 2,500/2,500 in 132.903 s, published/reopened 1,319 City rows, and passed 9 independent sort scenarios before reopen plus the same 9 after reopen. Health covered all 1,319 rows and 140 active shield values with 137 distinct deadlines exercised shield sorting. Exact v19 restoration and clean process shutdown passed; no consuming action was used. Dispatch/Ghost were still open/fail-closed at this checkpoint and are subsequently recovered/production-enabled by `LWB-R7-053`. See [R7-052 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-city-sort-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-051, 2026-09-19
-
-Resource alternate sorting is LIVE-PROVEN read-only on current v19. The complete public Resource sort set (`level`, `updatedAt`) is production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain indexed level and stable record-key ties. Final exact-code Fast acceptance completed 2,500/2,500 in 126.029 s, published/reopened 1,870 Resource rows, and passed 5 independent sort scenarios before reopen plus the same 5 after reopen. Exact v19 restoration and clean process shutdown passed; no consuming action was used. City was still open at this checkpoint and is subsequently closed by `LWB-R7-052`; Dispatch/Ghost are subsequently recovered/production-enabled by `LWB-R7-053`. See [R7-051 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-resource-sort-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-050, 2026-09-19
-
-Railway alternate sorting is IMPLEMENTED/OFFLINE-TESTED from hash-locked original recovery and deterministic multi-row acceptance. Five public Railway keys are production-enabled with ordered multi-sort, nulls-last ASC/DESC, plain quality, itemCount/itemKey coupling, protectTime zero-to-NULL handling and stable record-key ties. The final read-only current-v19 Fast attempt completed 2,500/2,500 but the live map contained zero Railway rows; the positive-population gate failed by design and no live ordering claim is made. Exact v19 restoration and clean process shutdown passed. Resource was still open at this checkpoint and is subsequently closed by `LWB-R7-051`; City is subsequently closed by `LWB-R7-052`, and Dispatch/Ghost are subsequently recovered/production-enabled by `LWB-R7-053`. See [R7-050 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-railway-sort-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-049, 2026-09-19
-
-Current implementation has advanced beyond the historical review snapshot below. Truck alternate sorting is LIVE-PROVEN read-only on current v19: six public Truck keys are recovered and production-enabled with ordered multi-sort, nulls-last ASC/DESC, special-UR quality=100, itemCount/itemKey coupling and stable record-key ties. The final exact-code Fast run completed 2,500/2,500 in 130.175 s, published/reopened 469 Trucks, and passed 15 independently computed sort scenarios before reopen and the same 15 after reopen. Exact v19 restoration and clean process shutdown passed. No consuming game action was used. Other kind-specific alternate sorts remain open/fail-closed. See [R7-049 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-truck-sort-fidelity.json).
-
-## Latest implementation checkpoint — LWB-R7-048, 2026-09-19
-
-Current implementation has advanced well beyond the historical Review 18 snapshot below. **Truck result filters/options are LIVE-PROVEN read-only on current-v19.** A final exact-code Fast Truck run completed 2,500/2,500 in 131.059 s and published/reopened 435 Trucks. All 435 carried `currentGoods`, `maxLootCount` and frontend-compatible `remainingLootCount`; ordinary-UR/reindeer/plunderable queries matched independently derived expected UUID sets; 18 retained-item options were produced; and selective item `reward:7:600002` matched exactly 283/435 rows across database reopen. Exact v19 restoration and clean process shutdown passed. No robbery/attack/collection/consuming action was used. Truck alternate sorting was still open at R7-048 and is subsequently closed by `LWB-R7-049`. See [R7-048 evidence](../evidence/lwbridge-implementation/2026-09-19-r7-truck-filter-options.json) and [Map Scan recovery](lwbridge-map-scan.md).
-
-**Review 18 decision: APPROVED for the prepared read-only owner-visible saved-row check.** The audited implementation is `7da866595089698a00d89b14cd650b849a5bac90` on `research/offline-controller`; local/remote matched and GitHub Actions run `34726315539` completed SUCCESS, including Windows job `103640930629`.
-
-`LWB-PC-001` is accepted as LIVE-PROVEN for the bounded technical Player City core: two distinct fresh city-only current-client acquisitions, exact `WorldPointManager._pointInfos` source, real `BuildPointInfo` / pointType 6, strictly newer second capture, active-profile/server persistence, normal `map_search`/summary, exact package restoration and clean owned process/recovery state. `LWB-PC-002` is accepted as the separate fresh-process same-profile reopen/search proof. `LWB-PC-003` now closes the selected owner-visible gate: the reviewed normal Map Data page rendered the persisted row, the owner's later Search correlated to that same row, the app exited 0, same-profile/same-saved-city checks passed and cleanup remained clean.
-
-PM independently parsed the committed evidence and rechecked the implementation boundaries. Shared City evidence is identity/path redacted; owner-evidence startup suppresses game auto-launch; state-changing commands are blocked before backend dispatch; City Search payload/results are sanitized; and the City DOM correlator reads only coordinates, level and updated time rather than Player/Alliance cells. The collector requires the exact launched PID/session, existing saved City context, Search→render correlation, clean postflight and no identity leak.
-
-The successful live runs used only `StartViewRequest+UpdateViewRequest(true)`. The recovered targeted `SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)` fallback remains IMPLEMENTED/OFFLINE-TESTED, not LIVE-PROVEN. Resource SB-97, S02/S03/S06, the corrected-build Overview live regression and non-Player-City Map Data work are unchanged and not accepted by this review.
-
-**No Player City owner action remains.** Attempt `20260913T042954Z-c20cd9c6-2b81ad37` completed the Review 18 read-only check. The first City query/render happened automatically during initial page load and the second followed the owner's manual Search, explaining why the persisted row was already visible before Search; neither query launched the game or performed a fresh scan. The next ordered Map Data category is Resource Point, but fresh Resource Start remains blocked by SB-97. [Detailed review 18](reviews/2026-09-13-review-18-player-city.md).
-
-## Historical review 15 — deferred resource recorder work
-
-### Project-manager checkpoint — review 15
-
-Reviewed 2026-09-11 at `154ce35`, branch `research/offline-controller`, clean at entry. This review covers the three owner-evidence commits after `3a9278a`. [Detailed source findings and acceptance criteria](reviews/2026-09-11-review-15-owner-evidence.md).
-
-## Result for the owner
-
-**Automatic collection has been implemented, and the owner already completed the permitted empty-profile check. No repeat is needed.** There was no saved map server/resource in that profile; Search cannot display a resource that has never been acquired there. This is not owner error. The no-context recorder repair is supported by the reviewed source and Web's offline report.
-
-**The recorder is not yet accepted for a future saved-row reopen test.** Two source-level defects need Web fixes: session-two validation can reuse session-one proof, and a failed process observation can be mistaken for no running processes. These flaws concern how the recorder decides a test passed. They do not prove the app's saved-data feature itself is broken.
-
-The live resource feature remains incomplete: no fresh scan was performed in these owner checks. SB-97 remains unresolved; monster acquisition and the remaining two-page scope remain unfinished.
-
-## Review decisions
-
-| Item | Decision |
-|---|---|
-| Owner attempt `20260911T085114Z-eb1cd35e-7f21ad24` | Accept the documented no-saved-context observation; four original evidence hashes verified. No new live success. |
-| LWB-PM13-009 no-context diagnosis/repair | Accept interpretation and source-backed offline repair scope; five current source/guide hashes verified. Repaired build was not retested by the owner. |
-| PM15-01 / P1 | OPEN: bind reopen proof to its own app session; prior-session Search/render must not pass the new session. |
-| PM15-02 / P2 | OPEN: failed/unknown process and evidence observations must not count as clean/success. |
-| PM13-04 / PM12-D | ACTIVE/BLOCKED: recorder fixes do not clear fresh acquisition or full acceptance. |
-| Next owner | Web, two bounded recorder fixes with isolated regressions. No owner, Sol or Daybreak task. |
-
-## Evidence and validation scope
-
-PM reviewed the collector, host recorder/command gate, normal map_summary error capture, worker check reports and original stored attempt. The original postflight has exit code 0, matching runtime fingerprints, cleanupClean=true, zero rows and zero Search responses. The old INCOMPLETE result remains preserved rather than rewritten as live success.
-
-Web reports Release build, collector/preflight, deterministic/native/browser checks passing. This PM audit did **not** run those suites, launch the app/game, interact with the desktop or implement repairs. PM15-01/02 are source-confirmed findings with offline reproduction assigned to Web; they are not newly executed live reproductions. All 47 acceptance cases remain required; none is newly signed off.
-
-## Next instruction
-
-Read [the detailed review](reviews/2026-09-11-review-15-owner-evidence.md), [Web prompt](team-workflow.md), [technical packet](live-test-handoff.md) and [owner guide](user-test-checklist.md). Preserve the owner's evidence and do not ask for another empty-profile check. Fix PM15-01/02, verify the collector offline, document/build/commit/push/verify and return to PM. No repeated rejection diagnosis, speculative application fix, new acquisition attempt or unrelated research is assigned.
-
-## Historical review 14 and contributor follow-ups
-
-The following is retained historical context. Review 15 above supersedes its readiness and next-task statements.
-
-### Project-manager checkpoint — review 14
-
-Audited 2026-09-11 at `7ca6d5cc8d47f14fde6b73af21cf19d2bedbb23d`, branch `research/offline-controller`, clean and synchronized at entry. Eight commits since `d4571bd` were reviewed. [Review 13 and contributor follow-ups](reviews/2026-09-11-review-13-and-followups.md) are historical.
-
-## Current coordination and diagnosis — 2026-09-11
-
-Web preparation `9c20896`, attempt `ccb74b0` and diagnosis `537a5b9` are recorded. Native navigation worked in the former adapter session; a get_window_state was rejected upstream before local dispatch, and no fresh Start was sent. The diagnosed route was codex-chatgpt-web 5.0.6 / chatgpt-web/high. Ordinary quota/spend exhaustion is not indicated; reviewer-specific cause remains UNKNOWN. [Saved diagnosis](../evidence/lwbridge-implementation/pm13-sol-resource/20260911T044419Z-5af44117/rejection-diagnostics.md).
-
-The owner removed the separate Sol role. Web is the single primary implementation/technical verification worker. Its current session has files/shell access but no native UI observation/control. The owner provides guided permitted UI actions, descriptions and screenshots only. `LWB-PM13-008` delivered and passed PM review for the passive saved Resource check. The owner then ran attempt `20260911T085114Z-eb1cd35e-7f21ad24`: the direct profile had no saved map server, the UI displayed the expected `MAP_SAVED_CONTEXT_UNAVAILABLE` guidance, no scan/game action ran, runtime/cleanup stayed clean, and the old collector returned a false `INCOMPLETE` because the recovered frontend intentionally returns before `map_search` on that branch. `LWB-PM13-009` records that result and repairs the collector/guide; no owner repeat is required.
-
-[Workflow/prompts](team-workflow.md), [technical packet](live-test-handoff.md) and [owner guide](user-test-checklist.md) define the assignment. The passive owner result is not fresh live acceptance. SB-97 is not cleared and owner assistance is not a reroute. No Daybreak assignment. Prior PM/native checks below are historical, not an instruction for PM to resume testing.
-
-## Result for the owner
-
-**Resource scanning is an implemented test candidate, not a completed live feature. The two pages are not fully working.** The latest work includes real implementation repairs, not just research. Saved resource browsing/reopening has recorded normal-window proof; fresh acquisition through the latest ordinary window still lacks its final two-read/Search/render/reopen proof.
-
-Computer Use setup and a real-game feature test are different tasks. A working screen/click tool proves only that an AI can operate the app. It does not prove a scan works or clear a restriction on a specific operation. The standard AI owns final resource verification; no new Daybreak assignment is warranted for a validation/capability gap.
-
-## Accepted repairs and remaining deliverable
-
-| Item | Audit decision |
-|---|---|
-| PM13-01 saved browsing | Closed for the documented historical real resource: server 2212, point 32482, coordinates 481,32, level 3. Existing normal-window evidence shows explicit Resource Search across restart. Saved context is distinct from live readiness; no fresh acquisition is claimed. |
-| PM13-01b feedback | Closed at offline scope, with recorded ordinary-window unsupported-selection/missing-context checks. Unsupported categories are not silently discarded. |
-| PM13-03 lifecycle | Closed at bounded offline scope. Commit/cancel ownership and helper-start ownership have deterministic race coverage. This is not all live fault acceptance. |
-| PM13-02 proof correlation | Closed offline; subsequent coordinate-button correction and historical saved-reopen proof accepted. Empty/loading/stale/wrong-source results cannot satisfy the exact proof contract. |
-| PM13-04 / PM12-D | **ACTIVE/BLOCKED final resource gate.** Passive owner check of the current empty profile is complete and correctly shows no saved server context. Need a permitted real Resource-only Start to create legitimate context, then correlated normal Search/render, second newer read/Search/render, saved reopen and cleanup evidence. SB-97 still blocks that fresh operation. |
-| Monster and other categories | Acquisition unavailable; monster acquisition/search is queued after resource acceptance. An empty Monster table is not evidence it scanned successfully. |
-| Remaining two-page scope | Overview launch/close/reconnect integration, automatic/full-world scanning, Normal/Fast parity, remaining filters/options/export and conditional game actions are incomplete. A visible control or persisted switch is not functional acceptance. |
-
-The historical bounded helper route already acquired real resources twice. Those results make the work useful, but do not sign off the latest user-facing workflow. Resource naming and live Gathering also remain limited. All 47 full acceptance cases remain required; no full case is newly signed off in this review. Do not convert four closed repair items into an overall percentage.
-
-## Verification in this PM audit
-
-Fresh Release build passed with 0 warnings/errors. Desktop checks with `--verify-real-config-unchanged` passed: six groups true, no failures. Frontend regeneration/hash check, resource feedback checks, five resource proof browser cases, and the three isolated PM12 recovery/session/scoped-close regressions passed. These are build/offline checks, not a new live-game run.
-
-Source review covered saved-server selection, validate-before-store and commit/cancel boundaries, helper ownership, exact query/result/render matching, and the saved-reopen verifier. Contributor evidence reviewed includes `2026-09-10-pm13-saved-target-rediscovered.json`, `2026-09-11-pm13-normal-window-gate.json`, and `2026-09-11-pm13-reopen-proof-correction.json` under `evidence/lwbridge-implementation/`.
-
-The later owner-assisted passive attempt supplied the missing direct-profile observation: no saved map server exists, so saved Search/reopen cannot proceed on that profile until legitimate fresh data exists. `LWB-PM13-009` fixes only the collector classification for that state; it does not create data or clear SB-97.
-
-[Audit evidence](../evidence/lwbridge-implementation/pm-review-14/audit.json) records seven matching historical proof/source hashes and unchanged full acceptance sections.
-
-## Exact next task and restriction status
-
-Follow [the test checklist](user-test-checklist.md) and [regular-AI handoff](implementation-handoff.md). Verify the current installed client fingerprint before live testing; historical client proof does not automatically cover a game update. Stay on the resource function and repair its first failed step before continuing.
-
-SB-97 records automatic-review rejection of execution of the prepared live persistent-window proof because its safety status could not be determined. It remains unresolved. Do not replay or repackage that operation through a different model, native clicking, WebView or another executor. Tool availability is a separate question. A PM cannot waive an environment/platform restriction: any new live test must be independently permitted, otherwise record the exact required external change and stop that action. Do not ask the user to run the rejected harness as a workaround.
-
-No Daybreak assignment. ESC-005 remains NOT_ASSIGNED/deferred original-pipe parity. No unrelated research or filler checkpoint replaces this final resource gate.
+1. Ghost positive-row proof, owner-deferred until 2026-09-24.
+2. Supplies positive-row proof when an authentic live population exists.
+3. Treasure protected claim scheduler recovery remains blocked under SB-79; do not reroute the denied operation or invent the contract.
+4. Suitable explicitly authorized live Truck/Dispatch plunder and Alliance-message actions.
+5. Simultaneous real multi-account UI population when multiple active accounts are available.
+6. Final integrated release acceptance.

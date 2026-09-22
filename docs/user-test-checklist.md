@@ -1,16 +1,16 @@
-# Owner guide - Player City visible-row check
+# Owner test checklist — current
 
-**Completed 2026-09-13 under `LWB-PC-003`. Do not rerun this check unless ChatGPT/PM explicitly requests a regression retest.** The owner-visible normal Map Data row, Search correlation and clean close are already recorded.
+There is **no ordinary Home/Map retest currently required from the owner**.
 
-The completed check was deliberately read-only. It did **not** start Last War, run a scan, travel cross-server, clear data, export, jump coordinates, or modify the saved map row. The saved row was already visible because Map Data automatically performs a local persisted-data City query when the page opens; pressing Search simply repeated that local query.
+The historical Player City visible-row check was completed under `LWB-PC-003` and should not be repeated unless a future regression specifically requires it.
 
-## Historical retest steps - only if explicitly requested later
+Current owner-dependent tests are only:
 
-1. Make sure **Last War** and **LWBridge** are closed.
-2. Open the `LW-Control` folder and double-click **Start Owner Player City Check.cmd**.
-3. Wait for the message titled **LWBridge Player City check**; if preparation is blocked or failed, stop and send ChatGPT a screenshot. Do not retry.
-4. LWBridge opens directly on **Map Data**. Do not press **Start Scan / Start Reading**.
-5. Click the **City / Player City** tab if needed, then click **Search** once.
-6. Confirm a saved city row is visible, take one screenshot, send it to ChatGPT, and close LWBridge normally.
+1. Ghost positive-row proof when the event/population exists (owner-deferred until 2026-09-24).
+2. Supplies positive-row proof when an authentic Supplies event/population exists.
+3. Simultaneous real multi-account UI population when several usable accounts/sessions are available.
+4. Explicitly authorized state-changing Treasure/Truck/Dispatch/Alliance acceptance when suitable safe targets exist.
 
-If anything differs from the expected read-only flow, stop and send a screenshot plus a short description. Do not use other Map Data buttons to troubleshoot.
+ChatGPT should prepare/operate the technical collection path and give only simple UI instructions when owner interaction is genuinely needed.
+
+See `docs/live-test-handoff.md` for the current detailed live-test boundary.

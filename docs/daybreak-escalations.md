@@ -1,5 +1,7 @@
 # Daybreak escalation register
 
+> **Current status, 2026-09-22:** no specialist is assigned. Ordinary Home/Map work is not specialist-blocked. The only current protected-contract implementation blocker is Treasure E02; SB-79 remains preserved and must not be rerouted. The metadata-only proposal recorded below remains retained/not approved. All older “current priority” sections are historical escalation states at their dates.
+
 ## Current priority reset — 2026-09-11
 
 [Overview launch/verified bridge/message/close](overview-live-delivery.md) is now the only active feature. Resource work is deferred. ESC-005's remaining bootstrap/session grammar may be relevant to this new dependency chain; Web must check applicability and prior permitted attempts before submitting a focused updated request. Preserve existing restrictions and historical statuses below. No specialist is assigned by this priority change, and no denied operation is transferred to Daybreak. The owner, not an automatic queue, selects what follows successful Overview verification.

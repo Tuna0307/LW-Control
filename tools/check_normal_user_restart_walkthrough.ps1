@@ -51,6 +51,18 @@ function Get-OptionalSha256([string]$Path) {
     return $null
 }
 
+function Set-TemporaryAutoLaunchSuppression([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+    $value = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+    if ($null -eq $value.PSObject.Properties["autoLaunchGame"]) {
+        $value | Add-Member -NotePropertyName "autoLaunchGame" -NotePropertyValue $false
+    } else {
+        $value.autoLaunchGame = $false
+    }
+    $json = $value | ConvertTo-Json -Depth 100
+    [IO.File]::WriteAllText($Path, $json, [Text.UTF8Encoding]::new($false))
+}
+
 function Get-ProcessCount([string]$Name) {
     return @(Get-Process -Name $Name -ErrorAction SilentlyContinue).Count
 }
@@ -277,6 +289,10 @@ function Invoke-NormalUserRun([string]$Label) {
 
 $configBefore = Get-OptionalSha256 $configPath
 $configBackupBefore = Get-OptionalSha256 $configBackupPath
+$configOriginalCopy = Join-Path $tempRoot "config.json.original"
+$configBackupOriginalCopy = Join-Path $tempRoot "config.backup.json.original"
+$hadConfig = Test-Path -LiteralPath $configPath -PathType Leaf
+$hadConfigBackup = Test-Path -LiteralPath $configBackupPath -PathType Leaf
 $packageBefore = Get-PackageIdentity
 $result = $null
 
@@ -287,6 +303,18 @@ try {
         (Get-ProcessCount "LWBridge.OverviewHelper") -ne 0) {
         throw "Normal-user walkthrough requires exclusive ownership and no pre-existing LWBridge/game processes."
     }
+    if (-not $hadConfig) {
+        throw "Normal-user walkthrough requires an existing user config so auto-launch can be suppressed and restored exactly."
+    }
+
+    Copy-Item -LiteralPath $configPath -Destination $configOriginalCopy
+    if ($hadConfigBackup) {
+        Copy-Item -LiteralPath $configBackupPath -Destination $configBackupOriginalCopy
+    }
+    Set-TemporaryAutoLaunchSuppression $configPath
+    Set-TemporaryAutoLaunchSuppression $configBackupPath
+    $acceptanceConfigBefore = Get-OptionalSha256 $configPath
+    $acceptanceConfigBackupBefore = Get-OptionalSha256 $configBackupPath
 
     $calibration = Invoke-Calibration
     if ((Get-ProcessCount "LWBridge.Desktop") -ne 0) {
@@ -301,8 +329,8 @@ try {
     $run2 = Invoke-NormalUserRun "run2"
     Start-Sleep -Seconds 2
 
-    $configAfter = Get-OptionalSha256 $configPath
-    $configBackupAfter = Get-OptionalSha256 $configBackupPath
+    $acceptanceConfigAfter = Get-OptionalSha256 $configPath
+    $acceptanceConfigBackupAfter = Get-OptionalSha256 $configBackupPath
     $packageAfter = Get-PackageIdentity
     $finalProcesses = [ordered]@{
         desktop = Get-ProcessCount "LWBridge.Desktop"
@@ -313,9 +341,7 @@ try {
 
     $packageSame = (($packageBefore | ConvertTo-Json -Depth 8 -Compress) -eq
                     ($packageAfter | ConvertTo-Json -Depth 8 -Compress))
-    $ok = $configBefore -eq $configAfter -and
-        $configBackupBefore -eq $configBackupAfter -and
-        $packageSame -and
+    $ok = $packageSame -and
         $finalProcesses.desktop -eq 0 -and
         $finalProcesses.lastWar -eq 0 -and
         $finalProcesses.launcher -eq 0 -and
@@ -341,8 +367,11 @@ try {
             secondProcessIdDiffers = ($run1.processId -ne $run2.processId)
             presentationProfileNotIsolated = $true
         }
-        configSha256Unchanged = ($configBefore -eq $configAfter)
-        configBackupSha256Unchanged = ($configBackupBefore -eq $configBackupAfter)
+        autoLaunchSuppressed = $true
+        acceptanceConfigSha256Unchanged = ($acceptanceConfigBefore -eq $acceptanceConfigAfter)
+        acceptanceConfigBackupSha256Unchanged = ($acceptanceConfigBackupBefore -eq $acceptanceConfigBackupAfter)
+        configSha256Unchanged = $null
+        configBackupSha256Unchanged = $null
         packageIdentityUnchanged = [bool]$packageSame
         package = $packageAfter
         finalProcesses = $finalProcesses
@@ -356,12 +385,25 @@ try {
         }
     }
 } finally {
+    if ($hadConfig -and (Test-Path -LiteralPath $configOriginalCopy -PathType Leaf)) {
+        Copy-Item -LiteralPath $configOriginalCopy -Destination $configPath -Force
+    } elseif (-not $hadConfig -and (Test-Path -LiteralPath $configPath -PathType Leaf)) {
+        Remove-Item -LiteralPath $configPath -Force
+    }
+    if ($hadConfigBackup -and (Test-Path -LiteralPath $configBackupOriginalCopy -PathType Leaf)) {
+        Copy-Item -LiteralPath $configBackupOriginalCopy -Destination $configBackupPath -Force
+    } elseif (-not $hadConfigBackup -and (Test-Path -LiteralPath $configBackupPath -PathType Leaf)) {
+        Remove-Item -LiteralPath $configBackupPath -Force
+    }
     if (Test-Path -LiteralPath $tempRoot) {
         Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
 if ($null -eq $result) { throw "Normal-user restart walkthrough produced no result." }
+$result.configSha256Unchanged = ($configBefore -eq (Get-OptionalSha256 $configPath))
+$result.configBackupSha256Unchanged = ($configBackupBefore -eq (Get-OptionalSha256 $configBackupPath))
+$result.ok = [bool]($result.ok -and $result.configSha256Unchanged -and $result.configBackupSha256Unchanged)
 $result | ConvertTo-Json -Depth 14 | Set-Content -LiteralPath $OutputPath -Encoding UTF8
 $result | ConvertTo-Json -Depth 14
 if (-not $result.ok) { exit 2 }

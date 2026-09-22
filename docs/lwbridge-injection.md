@@ -1,5 +1,7 @@
 # LWBridge injection/bootstrap recovery
 
+> **Cumulative bootstrap/proxy recovery history.** The old Overview delivery sequence below is superseded by current Home acceptance. Use [`tabs/home.md`](tabs/home.md) and [`implementation-handoff.md`](implementation-handoff.md) for current status. Protected-original unknowns remain evidence limits, not proof that the independent current lifecycle is unfinished.
+
 > Current delivery, 2026-09-11: use these findings as a source index for [Overview launch, verified injected bridge, in-game message and close](overview-live-delivery.md). The exact new owner text is **LWbridge is running**, top-centre inside the real game and conditional on current bridge readiness. This requirement is not a newly recovered original string. Old resource-first or next-feature directions below are historical; all source/build limits and operation restrictions remain.
 
 ## OVL-01 independent current-client route - 2026-09-11

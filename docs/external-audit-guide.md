@@ -1,0 +1,63 @@
+# External AI audit guide
+
+Use this document when handing the repository to another AI or reviewer. It is intentionally short and points to the current sources of truth instead of asking the auditor to reconstruct status from hundreds of chronological files.
+
+## Read in this order
+
+1. `AGENTS.md` — mandatory evidence/recovery/safety/delivery rules.
+2. `docs/README.md` — canonical documentation map.
+3. `docs/tabs/home.md` — current Home / Overview status.
+4. `docs/tabs/map-data.md` — current Map Data status and scan-performance audit.
+5. `docs/tabs/shared-release.md` — shared runtime and Release status.
+6. `docs/lwbridge-project-status.md` — current project-manager summary.
+7. `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json` — current 47-case status after this documentation/evidence self-audit.
+8. `evidence/lwbridge-implementation/README.md` and the current evidence index — curated evidence navigation.
+
+## Audit method
+
+Do not treat the newest-looking sentence in an old checkpoint as current status. This repository preserves superseded findings on purpose. Resolve conflicts by date/checkpoint and by the current acceptance matrix.
+
+Check claims at their stated evidence scope:
+
+- `RECOVERED` is static/original-artifact evidence, not live proof.
+- `IMPLEMENTED/OFFLINE-TESTED` proves the rebuild/tests, not a live outcome.
+- `LIVE-PROVEN` requires current-client runtime evidence.
+- composed statuses explicitly combine current deterministic evidence with historical live authority.
+- `UNKNOWN/BLOCKED` must remain blocked rather than being filled with plausible behavior.
+
+## High-value code paths to inspect
+
+- `src/LWBridge.Desktop/OverviewLifecycleService.cs`
+- `src/LWBridge.Desktop/ManualMapScanCommandService.cs`
+- `src/LWBridge.Desktop/MapScanContract.cs`
+- `src/LWBridge.Desktop/CurrentClientMapBlockSource*.cs`
+- `src/LWBridge.Desktop/MapScanEngine.cs`
+- `src/LWBridge.Desktop/MapDataStore*.cs`
+- `src/LWBridge.Desktop/LWBridgeBackend.cs`
+
+## Claims worth challenging
+
+An auditor should specifically verify:
+
+- the standard-world planner really selects Fast/concurrency 20 and does not expose a slower user mode;
+- exact full-world coverage is preserved by the R7-130 optimization;
+- Player City effective HP does not regress to stale raw current HP;
+- generic Monster still includes ordinary Doom Walker and level-by-10 variants;
+- Truck/Railway moving identity uses exact march UUID and does not duplicate moved rows;
+- Auto Scan cannot duplicate a due cycle across navigation/Refresh/reconnect/restart;
+- interrupted scans cannot publish partial staging over trusted data;
+- Clear cannot resurrect stale search results;
+- normal Release Home/Map navigation is not fixture-only.
+
+## Known remaining gaps — do not report these as newly discovered defects
+
+- Ghost positive-row population: owner-deferred until 2026-09-24.
+- Supplies positive-row population: 2026-09-22 full-world rechecks on 2212/2213 still returned zero Supplies.
+- Treasure protected claim scheduler: `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary; public claim is intentionally unrouted.
+- Truck/Dispatch live plunder outcomes and Alliance live message delivery: require suitable targets and explicit authorization.
+- Simultaneous real multi-account UI population: target availability gap.
+- Final integrated release acceptance remains a separate release-level gate even though ordinary technical `partial` rows are zero.
+
+## Historical material
+
+`docs/reviews/`, `docs/lwbridge-map-scan.md`, `docs/lwbridge-overview-recovery.md`, `docs/lwbridge-injection.md`, and older evidence JSON/TXT files are retained to make prior claims reproducible. They should not be deleted merely because their old status language is superseded.

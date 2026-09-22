@@ -1,5 +1,7 @@
 # Update comparison and future automatic-update readiness
 
+> **Historical update-planning record.** The Review 9 priority/defer wording below is superseded. Current lifecycle/update compatibility status is tracked by the Home/Shared tab pages and later R7 evidence. Preserve the comparisons as dated provenance only.
+
 **Priority correction after review 9:** PM9-A and future automatic-update implementation are deferred until [the first real resource point demonstration](first-live-result.md). This document preserves the comparison and future requirements. Existing minimal current-client integrity/fingerprint checks still apply before live tests.
 
 ## LWB-PM9-001 — verified result, 2026-09-10

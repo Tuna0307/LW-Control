@@ -1,0 +1,106 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-145",
+  "date": "2026-09-22",
+  "title": "Documentation/evidence organization and Home/Map self-audit",
+  "branch": "research/offline-controller",
+  "parentRevision": "eb6f36babdd57a6236f0b96d42d647a07c769f4c",
+  "scope": {
+    "claim": "Current docs/evidence were reorganized by Home, Map Data, Shared/Release, and historical provenance; stale current-status duplication was removed from canonical files; scan strategy/performance and ordinary feature acceptance were re-audited without manufacturing population/state-changing proof.",
+    "acceptanceStatusChanges": 0,
+    "ordinaryPartialCount": 0
+  },
+  "documentation": {
+    "canonical": [
+      "docs/README.md",
+      "docs/implementation-handoff.md",
+      "docs/tabs/home.md",
+      "docs/tabs/map-data.md",
+      "docs/tabs/shared-release.md",
+      "docs/lwbridge-project-status.md",
+      "docs/lwbridge-feature-ledger.md",
+      "docs/external-audit-guide.md",
+      "BACKLOG.md"
+    ],
+    "historicalPolicy": "Keep dated/recovery evidence in place; mark superseded planning/status documents as historical or redirect them instead of deleting provenance.",
+    "brokenRelativeMarkdownLinks": 0,
+    "invalidImplementationJsonFiles": 0,
+    "exactDuplicateEvidenceGroups": 0
+  },
+  "scanStrategyAudit": {
+    "plannerSource": "src/LWBridge.Desktop/MapScanContract.cs",
+    "plannerSha256": "E336358E15D73B4C58E09506203329066763D90887C88564E463A48E80384C26",
+    "standardWorld": {
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "strategy": "current_fast_full_world_v2",
+      "concurrency": 20
+    },
+    "zombieBossOnly": {
+      "strategy": "current_fast_zombie_boss_lod2_v1",
+      "concurrency": 20
+    },
+    "nonstandardGeometry": {
+      "singleCityOrResourceStrategy": "current_lod0_block_v1",
+      "concurrency": 8,
+      "otherSelections": "fail closed without a proven acquisition strategy"
+    },
+    "conclusion": "No additional evidence-backed safe speed optimization is currently known. This is not a claim that future software can never be faster."
+  },
+  "livePerformanceAuthority": {
+    "evidence": "evidence/lwbridge-implementation/2026-09-22-r7-map-correctness-multiserver-speed.json",
+    "truckBaselineSeconds": 135.165346,
+    "truckR7130Seconds": 74.7213523,
+    "monsterBaselineSeconds": 137.0355255,
+    "monsterR7130Seconds": 77.7809171,
+    "allEightSeconds": 77.8903951,
+    "allEightBlocks": "2500/2500",
+    "allEightFailed": 0,
+    "allEightUnread": 0,
+    "server2212AllEightSeconds": 82.6769287,
+    "server2213AllEightSeconds": 78.1995665
+  },
+  "validation": {
+    "frontendGeneratorCheck": "PASS",
+    "releaseBuild": "PASS (0 warnings, 0 errors)",
+    "checksBuild": "PASS (0 warnings, 0 errors)",
+    "deterministic": "PASS; profileRouting/persistence/requestLifetime/mapPersistence/mapContract/bridgeControlPipeContract all true; failures=[]",
+    "browserSourceParity": "PASS (36 checks)",
+    "cityExportRemovalBrowser": "PASS",
+    "automaticScanStrategyBrowser": "PASS",
+    "mapDataR7131": "PASS (exit 0)",
+    "mapAutoR7132": "PASS (exit 0)",
+    "mapAutoR7136Restart": "PASS (exit 0)",
+    "normalProductionWindowSmoke": "PASS",
+    "normalUserRestartWalkthrough": "PASS after failure-first auto-launch harness repair and one external mouse-input flaky rerun",
+    "normalUserEvidence": "evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough-autolaunch.json"
+  },
+  "runtimeAfterAudit": {
+    "releaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
+    "releaseExecutableSize": 163328,
+    "autoLaunchGameRestored": true,
+    "autoReconnectRestored": false,
+    "desktopProcesses": 0,
+    "lastWarProcesses": 0,
+    "launcherProcesses": 0,
+    "helperProcesses": 0,
+    "gamePackageVersion": "20",
+    "LWScripts.data.sha256": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+    "LWScripts.txt.sha256": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+    "version.txt.sha256": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+  },
+  "remainingGates": [
+    "Ghost positive-row proof owner-deferred until 2026-09-24.",
+    "Supplies positive-row proof population-pending; R7-144 2212/2213 rechecks found zero Supplies.",
+    "Treasure protected executor remains blocked behind preserved SB-79; do not reroute or invent.",
+    "Truck/Dispatch plunder and Alliance-share live acceptance require suitable explicitly authorized targets/actions.",
+    "Simultaneous real multi-account UI population remains unavailable.",
+    "Final integrated release acceptance remains open."
+  ],
+  "safety": {
+    "stateChangingGameActionsPerformed": false,
+    "mapScansRepeatedForThisAudit": false,
+    "reason": "Existing current live scan evidence was sufficient; audit did not manufacture unavailable population or consuming action proof."
+  }
+}

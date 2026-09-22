@@ -1,5 +1,7 @@
 # Last War v16 update-safe Overview lifecycle — 2026-09-14
 
+> **Historical version-specific lifecycle evidence.** The installed game-side package later advanced through v19 to v20. Keep this document as the v16 source/history record; do not use it as current package/status authority.
+
 ## LWB-V16-001 — modified-package launcher patch failure is causally isolated
 
 **Date / scope:** 2026-09-14, Overview lifecycle update safety. **Status:** LIVE-PROVEN diagnosis.

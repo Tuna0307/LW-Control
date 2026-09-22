@@ -1,5 +1,7 @@
 # Overview startup and automatic-reconnection recovery
 
+> **Cumulative recovery ledger, not current project status.** Home A01-A12 are now closed at their documented evidence scopes. Use [`tabs/home.md`](tabs/home.md) for current status; older pending/deferred statements below are historical at their checkpoint dates.
+
 **Owner update, 2026-09-19:** `LWB-R7-062` fixes an owner-observed transient Home launch failure on current v19. Durable helper evidence showed the official launcher completed pack verification but never emitted its `Starting game` handoff before the bounded timeout; two immediate controlled launches then connected successfully. Production now retries exactly once only for that exact launcher-spawn timeout, using the same session/challenge and remaining start budget after the helper has transactionally closed its owned launcher and restored the original Lua package. Deterministic retry coverage, patched manual+auto live Overview proof and the full six-group suite pass; game/launcher end closed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-overview-launcher-handoff-retry.json`.
 
 **Owner update, 2026-09-17:** `LWB-OVR-015` live-proves Home Launch/Close and startup launch on current v17. `LWB-OVR-016` additionally stops the official update-safety warm-up from launching/closing the game on every unchanged start by reusing an exact root + validated-package marker while retaining read-only compatibility checks each time. Map Data work has resumed; S03/S06 remain deferred.

@@ -1,5 +1,7 @@
 # Official Last War PC runtime architecture
 
+> **Historical/runtime-source ledger.** This document contains dated official-client snapshots and architecture findings. It is not the current project-status page. The latest project live evidence uses installed Lua package version 20; use `docs/tabs/shared-release.md` and current evidence for present runtime acceptance.
+
 Historical baseline: 2026-09-08. This document records read-only findings from the
 then-installed official PC client. It deliberately separates official
 client facts from recovered LWBridge behavior.

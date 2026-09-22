@@ -1,0 +1,214 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-145-F04-AUTOLAUNCH-VERIFIER",
+  "date": "2026-09-22",
+  "branch": "research/offline-controller",
+  "parentRevision": "eb6f36babdd57a6236f0b96d42d647a07c769f4c",
+  "scope": "Harden and rerun the built-Release zero-argument normal-user restart/navigation verifier when the owner configuration has autoLaunchGame=true.",
+  "failureFirst": {
+    "initialObservedCause": "The unchanged zero-argument app correctly honored owner autoLaunchGame=true, while the verifier incorrectly required final LastWar count zero.",
+    "repair": "Verifier snapshots exact config/backup bytes, temporarily sets autoLaunchGame=false outside the acceptance app, runs both acceptance launches with zero application arguments, restores exact original bytes in finally, then hashes the restored files.",
+    "intermediateFlake": "One rerun missed the run2 Map Data -> Overview OS mouse click; cleanup/config restoration succeeded and the unchanged rerun passed. This is retained as external Win32 input flakiness rather than a product defect."
+  },
+  "verifierSha256": "134D5FFFA8AB2AF92998DBB7763843031307A9E1CCBC91A1818FA28542336A0B",
+  "walkthrough": {
+    "ok": true,
+    "mode": "built-release-zero-argument-normal-user-restart-walkthrough",
+    "executableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
+    "acceptanceApplicationArguments": [],
+    "acceptanceUsesViewFlag": false,
+    "acceptanceUsesCaptureOrProbeMode": false,
+    "input": {
+      "mechanism": "Win32 foreground mouse click",
+      "mapDataClient": {
+        "x": 94,
+        "y": 229
+      },
+      "overviewClient": {
+        "x": 94,
+        "y": 143
+      }
+    },
+    "calibration": {
+      "applicationArguments": [
+        "--owner-evidence",
+        "<temporary-read-only-directory>"
+      ],
+      "clickClient": {
+        "x": 94,
+        "y": 229
+      },
+      "eventTypes": [
+        "session-start",
+        "owner-command-blocked",
+        "city-search-response",
+        "city-render-observation",
+        "session-end"
+      ],
+      "mapDataCorrelated": true
+    },
+    "run1": {
+      "label": "run1",
+      "processId": 2364,
+      "applicationArguments": [],
+      "responding": true,
+      "overview": {
+        "capture": {
+          "width": 1120,
+          "height": 720,
+          "sha256": "877593BC9B1384F4D7BEE73B27A1C6793C8888FAB92D9DED73762FC21D3AAAB6",
+          "bytes": 39864
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 227
+        },
+        "mapIndicatorPixel": {
+          "r": 235,
+          "g": 235,
+          "b": 237
+        }
+      },
+      "mapData": {
+        "capture": {
+          "width": 1120,
+          "height": 720,
+          "sha256": "4EBC6FE4154CEB7990FE535746EB2F91226BB996BEB4C304FC5477A53F1FFAD6",
+          "bytes": 63961
+        },
+        "overviewIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 227
+        }
+      },
+      "overviewReturn": {
+        "capture": {
+          "width": 1120,
+          "height": 720,
+          "sha256": "9170CDA898CD84E3542D66259CBA19A9E56AA75EC329538D2F56342BBA644AD1",
+          "bytes": 39760
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 226
+        },
+        "mapIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      }
+    },
+    "run2": {
+      "label": "run2",
+      "processId": 21284,
+      "applicationArguments": [],
+      "responding": true,
+      "overview": {
+        "capture": {
+          "width": 1120,
+          "height": 720,
+          "sha256": "2F79F78971F120F823FD41AF9B90929B339E26205923A1B7714B7691E9CF478D",
+          "bytes": 39784
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 226
+        },
+        "mapIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      },
+      "mapData": {
+        "capture": {
+          "width": 1120,
+          "height": 720,
+          "sha256": "F5FD868E11AC3BCB9214EFD3BEFD76EBDD85508252CD7041AF8A3B817FA11CEC",
+          "bytes": 63972
+        },
+        "overviewIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 227
+        }
+      },
+      "overviewReturn": {
+        "capture": {
+          "width": 1120,
+          "height": 720,
+          "sha256": "B116DBCA93F91B0B5FE913FEB28A1CB281E2A246EAC63B6013A912EFD17E5903",
+          "bytes": 39761
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 226
+        },
+        "mapIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      }
+    },
+    "restartBoundary": {
+      "firstProcessClosedNormally": true,
+      "secondProcessIdDiffers": true,
+      "presentationProfileNotIsolated": true
+    },
+    "autoLaunchSuppressed": true,
+    "acceptanceConfigSha256Unchanged": false,
+    "acceptanceConfigBackupSha256Unchanged": false,
+    "configSha256Unchanged": true,
+    "configBackupSha256Unchanged": true,
+    "packageIdentityUnchanged": true,
+    "package": {
+      "version": "20",
+      "files": {
+        "LWScripts.data": {
+          "length": 41297404,
+          "sha256": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9"
+        },
+        "LWScripts.txt": {
+          "length": 19,
+          "sha256": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F"
+        },
+        "version.txt": {
+          "length": 2,
+          "sha256": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+        }
+      }
+    },
+    "finalProcesses": {
+      "desktop": 0,
+      "lastWar": 0,
+      "launcher": 0,
+      "helper": 0
+    },
+    "safety": {
+      "navigationOnly": true,
+      "mapScanInvoked": false,
+      "followInvoked": false,
+      "attackOrPlunder": false,
+      "claimOrCollect": false,
+      "messaging": false
+    }
+  },
+  "limits": "Navigation-only. No map scan, Follow, attack/plunder, claim/collect, or messaging action was invoked."
+}
