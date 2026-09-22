@@ -2,14 +2,14 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-145`; parent revision `eb6f36babdd57a6236f0b96d42d647a07c769f4c`
+**Current checkpoint:** `LWB-R7-147`; parent revision `91d07d04ada09b1cfd143c6171a0d45c19760828`
 **Date:** 2026-09-22
 
 Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
 
 ## Current product state
 
-Home / Overview and ordinary Map Data functionality are technically mature. The R7-145 acceptance matrix contains 47 cases with **zero ordinary `partial` rows**.
+Home / Overview remains at its accepted evidence scope. Map Data received owner-workflow corrections in R7-147; the R7-145 acceptance matrix still contains 47 cases with **zero ordinary `partial` rows**, and R7-147 does not promote any population/authorization gate.
 
 Use these current summaries instead of reconstructing status from chronological checkpoint prose:
 
@@ -31,7 +31,7 @@ No ordinary Home defect is currently open. Simultaneous real multi-account UI po
 
 ## Map Data
 
-The shared Manual Scan engine, Auto Scan scheduler, transactional SQLite publication, saved-server browsing, Clear, filtering/sorting/paging, marks, coordinate Jump, Truck/Railway Follow, moving-target failure handling, restart safety, and native point/march transitions are accepted at their current evidence scopes.
+The shared Manual Scan engine, Auto Scan scheduler, transactional SQLite publication, filtering/sorting/paging, marks, navigation, restart safety, and native point/march transitions remain accepted at their current evidence scopes. R7-147 corrected eight owner-observed workflow defects: session-scoped scan data, Auto **All**, one-shot Run Now while recurring Auto is off, cross-server row navigation, stopped/session-wide Clear, Doom Walker Follow, current-v20 official Train-list acquisition, and removal of the misleading Manual server filter.
 
 On the standard 1000x1000 world, `MapScanStrategyPlanner` automatically selects the current proven Fast strategy at concurrency 20; Zombie Boss-only uses the dedicated LOD2 strategy. R7-130 reduced representative Truck wall time from ~135.2 s to ~74.7 s and Monster from ~137.0 s to ~77.8 s while keeping exact 2,500 logical blocks / 10,000 AOI cells and zero failed/unread in those acceptance runs.
 
@@ -46,7 +46,7 @@ Do not claim that no future optimization is possible. The supported conclusion i
 - Simultaneous real multi-account UI population remains unavailable.
 - Final integrated release acceptance remains separate from ordinary technical completion.
 
-Ghost positive-row proof remains owner-deferred until 2026-09-24. Current Supplies rechecks on 2212 and 2213 produced zero authentic Supplies rows.
+Ghost positive-row proof remains owner-deferred until 2026-09-24. Current Supplies rechecks on 2212 and 2213 produced zero authentic Supplies rows. R7-147 current-v20 official Train-list probes on 2175/2180/2185/2190/2195/2196/2204 also produced zero rows, so a fresh positive Railway row remains population-dependent even though the source path was corrected.
 
 ## What not to do
 

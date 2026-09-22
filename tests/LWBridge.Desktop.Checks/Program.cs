@@ -79,6 +79,12 @@ if (args.Contains("--live-current-client-full-railway-manual", StringComparer.Or
     return 0;
 }
 
+if (args.Contains("--live-current-client-train-list-population", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveTrainListPopulationProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-dispatch-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullDispatchProof.RunAsync();
@@ -2701,6 +2707,10 @@ try
     string ownerWindowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
     Check(ownerWindowSource.Contains("firstLiveResult is not null || ownerEvidence is not null", StringComparison.Ordinal),
         "owner evidence mode suppresses startup auto-launch before the normal page is shown");
+    Check(ownerWindowSource.Contains("sessionScopedMapData = !isolated", StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("mapData.ClearAllScanData();", StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("if (sessionScopedMapData)", StringComparison.Ordinal),
+        "normal LWBridge window must treat published map scan rows as session data and clear them on startup/teardown while isolated proofs remain untouched");
 
     string ownerRecorderRoot = Path.Combine(Path.GetTempPath(), "lwbridge-owner-recorder-" + Guid.NewGuid().ToString("N"));
     try
@@ -4488,6 +4498,45 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         7, "10000000000000000001", "active", 4000, null,
         "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\"}"));
 
+    using JsonDocument allServersSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new
+        {
+            serverId = 0,
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? allServersResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", allServersSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(allServersResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        int[] rowServers = rows.EnumerateArray().Select(row => row.GetProperty("serverId").GetInt32()).Distinct().Order().ToArray();
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 5 &&
+              rowServers.SequenceEqual(new[] { 7, 8 }),
+            "serverId=0 map_search must page/sort across every current-session published server while preserving each row server identity");
+    }
+
+    using JsonDocument allServersOptions = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        serverId = 0,
+    }));
+    object? allOptionsResult = await indexedSearchBackend.InvokeAsync(
+        "map_data_options", allServersOptions.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument optionsJson = JsonDocument.Parse(JsonSerializer.Serialize(allOptionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = optionsJson.RootElement;
+        Check(root.GetProperty("serverId").GetInt32() == 0 &&
+              root.GetProperty("counts").GetProperty("city").GetInt32() == 5 &&
+              root.GetProperty("scanProgress").ValueKind == JsonValueKind.Null,
+            "serverId=0 map_data_options must aggregate published rows across current-session servers without inventing one-server scan progress");
+    }
+
     using JsonDocument firstPageSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = indexedSearchBackend.ProfileId,
@@ -5883,8 +5932,8 @@ string r7130GeneratedIndexSource = File.ReadAllText(Path.Combine(
 string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
 Check(
-    r7130GeneratedIndexSource.Contains("if(e||!Je.current.enabled||!autoOnlineRef.current)break;try{", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}", StringComparison.Ordinal),
     "Auto Scan must isolate one target-server failure and continue the configured server cycle");
@@ -5896,12 +5945,27 @@ Check(
     r7130GeneratedMapPanelSource.Contains("mapBrowseServer", StringComparison.Ordinal),
     "Map Data user choices must persist per profile across app reopen");
 Check(
-    r7130GeneratedMapPanelSource.Contains("async function stopAutoScan(){$({enabled:!1});await Zn()}", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("async function stopAutoScan(){$({enabled:!1,runOnceRequestedAt:0});await Zn()}", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("Je.current=n,We(n),$n(u.selectedProfileId,n)", StringComparison.Ordinal),
     "Auto Scan Stop must synchronously disable scheduler state before stopping the active backend scan");
 Check(
     r7130GeneratedMapPanelSource.Contains("async function Qn(){E.current+=1,Pe.current+=1", StringComparison.Ordinal),
     "Map Clear must invalidate in-flight saved search and treasure refresh generations before mutating SQLite");
+Check(
+    r7130GeneratedMapPanelSource.Contains("let e=await ne(0);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("Y===`auto`&&Array.isArray(p?.savedServerIds)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("value:0,children:C(`map.allServers`)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("runOnceRequestedAt:Date.now()", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("await serverJump(rowServer)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("n===8&&r===11", StringComparison.Ordinal) &&
+    !r7130GeneratedMapPanelSource.Contains("map jump blocked stale server=", StringComparison.Ordinal),
+    "Map Data owner workflow must support session-wide Clear, Auto All, one-shot multi-server Run Now, cross-server row navigation and Doom Walker Follow");
+Check(
+    r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).map", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).forEach", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("(dt.resource??[]).forEach", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("e=Array.isArray(e)?e:[];let a=", StringComparison.Ordinal),
+    "Map Data must render/localize missing option-name/reward families as empty arrays instead of crashing a result tab");
 Check(
     r7130GeneratedMapPanelSource.Contains("savedServerIds.length>1", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("p.savedServerIds.map", StringComparison.Ordinal),
@@ -6368,7 +6432,7 @@ Check(generatedIndexSource.Contains(
           "n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}",
+          "function Zn(e,t,n,r,i){return n&&!r&&!i&&(e.runOnceRequestedAt>0||e.enabled&&t>=e.nextRunAt)}",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "autoOnlineRef=(0,j.useRef)(P)",
@@ -6377,10 +6441,16 @@ Check(generatedIndexSource.Contains(
           "if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "for(let t of n){if(e||!Je.current.enabled||!autoOnlineRef.current)break",
+          "function autoCycleRequested(e,t)",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?",
+          "runOnceRequestedAt:Math.max(0,Math.trunc(Number(e?.runOnceRequestedAt)||0))",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment",
@@ -6389,7 +6459,7 @@ Check(generatedIndexSource.Contains(
           "if(!e&&i.returnToOriginalServer&&a>0",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)",
+          "let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e)",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "window.setInterval(()=>{i()},5e3)",

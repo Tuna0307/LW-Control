@@ -922,55 +922,47 @@ internal static class CurrentClientMapBlockSourceChecks
     private static async Task FastRailwayFullMapReturnsAllLogicalCaptures()
     {
         int bulkCalls = 0;
+        int trainListCalls = 0;
         CurrentClientMapBlockSource source = CreateSource(
             (fields, _) => ProvenEmptyCityCurrentView(fields),
             bulkResult: fields =>
             {
                 bulkCalls++;
-                int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75)
-                {
-                    JsonObject root = JsonNode.Parse(ProvenFastRailwayBatch(fields, ("r-first", 9, 9, 201, 4, 3, "Conductor A", 5_500_000L)))!.AsObject();
-                    JsonObject row = root["train_march_records"]!.AsArray()[0]!.AsObject();
-                    row.Remove("trainType");
-                    row["trainDataJson"] = "{\"type\":2,\"arriveTime\":1789616774078,\"marchInfo\":{\"robTimes\":1,\"protectTime\":1789616000000}}";
-                    row["maxLootCount"] = 3;
-                    row["currentGoods"] = new JsonArray(
-                        new JsonObject
-                        {
-                            ["key"] = "reward:7:650053",
-                            ["name"] = "Recovered Rail Reward",
-                            ["iconPath"] = "Assets/Main/Sprites/UI/Item/recovered.png",
-                            ["count"] = 1234,
-                            ["rewardType"] = 7,
-                            ["itemId"] = 650053,
-                        });
-                    return root.ToJsonString(JsonOptions.Default);
-                }
-                if (x == 995 && y == 975) return ProvenFastRailwayBatch(fields, ("r-last", 985, 985, 202, 5, 4, "Conductor B", 11_000_000L));
+                // Current-v20 owner regression: a full AOI walk may contain no
+                // materialized WorldMarch.train rows even while the official Train
+                // list has active alliance trains. Keep the AOI lane empty here.
                 return ProvenFastRailwayBatch(fields);
+            },
+            trainListResult: fields =>
+            {
+                trainListCalls++;
+                return ProvenTrainListResult(fields,
+                    ("r-first", 9, 9, 201, 4, 3, "Conductor A", 5_500_000L),
+                    ("r-last", 985, 985, 202, 5, 4, "Conductor B", 11_000_000L));
             });
         MapScanExecutionRequest request = Request("railway", 1000, 1000, worldId: 0);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 270 && captures.Count == 2500, "fast full-Railway source should adapt to measured four-column interior footprints");
+        Check(bulkCalls == 270 && trainListCalls == 1 && captures.Count == 2500,
+            "fast full-Railway source should prove all AOIs then refresh the official Train list exactly once");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
         Check(first.Kind == "railway" && first.RecordKey == "r-first" && first.Quality == 4 && first.Power == 5_500_000L &&
               last.Kind == "railway" && last.RecordKey == "r-last" && last.Quality == 5 && last.Power == 11_000_000L,
-            "fast full-Railway source did not preserve game TrainType.Train identity/quality/power at map extremes");
+            "fast full-Railway source did not preserve official Train-list identity/quality/power at map extremes");
         Check(first.Name == "Conductor A" && first.DataJson.Contains("\"trainType\":2", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"trainCfgId\":201", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"marchUuid\":\"r-first\"", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"arriveTs\":1789616774078", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"robTimes\":1", StringComparison.Ordinal) &&
               first.DataJson.Contains("\"protectTime\":1789616000000", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"maxLootCount\":3", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"key\":\"reward:7:650053\"", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"name\":\"Recovered Rail Reward\"", StringComparison.Ordinal) &&
-              first.DataJson.Contains("\"count\":1234", StringComparison.Ordinal),
-            "fast full-Railway source did not preserve source-backed train metadata including protectTime/currentGoods");
+              first.DataJson.Contains("\"maxLootCount\":3", StringComparison.Ordinal),
+            "fast full-Railway source did not preserve current-v20 official Train-list metadata");
+        using (JsonDocument railwayData = JsonDocument.Parse(first.DataJson))
+            Check(railwayData.RootElement.GetProperty("source").GetString() ==
+                  "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(allianceTrainList)",
+                "fast full-Railway source did not preserve the exact current-v20 Train-list source identity");
     }
 
     private static async Task FastDispatchFullMapReturnsAllLogicalCaptures()
@@ -1127,7 +1119,8 @@ internal static class CurrentClientMapBlockSourceChecks
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
                 return ProvenFastAllEightBatch(fields, x == 5 && y == 75);
-            });
+            },
+            trainListResult: fields => ProvenTrainListResult(fields));
 
         var request = new MapScanExecutionRequest(
             "run_all_eight", 2212, 0, 1000, 1000,
@@ -2092,7 +2085,8 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? truckQuickRobResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? dispatchPlunderResult = null,
-        Func<IReadOnlyDictionary<string, string>, string>? assetImageResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? assetImageResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? trainListResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -2172,6 +2166,13 @@ internal static class CurrentClientMapBlockSourceChecks
                     if (bulkResult is null) throw new InvalidOperationException("unexpected fast City bulk request");
                     string result = bulkResult(fields);
                     files[Path.Combine(probeRoot, "bulk-aoi-diagnostic-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
+                if (string.Equals(path, Path.Combine(probeRoot, "train-list-diagnostic.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (trainListResult is null) throw new InvalidOperationException("unexpected Train-list refresh request");
+                    string result = trainListResult(fields);
+                    files[Path.Combine(probeRoot, "train-list-diagnostic-result.json")] = Encoding.UTF8.GetBytes(result);
                     return;
                 }
                 if (string.Equals(path, Path.Combine(probeRoot, "resource-scan-detail.txt"), StringComparison.OrdinalIgnoreCase))
@@ -2928,6 +2929,45 @@ internal static class CurrentClientMapBlockSourceChecks
             source = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
         }).ToArray(), JsonOptions.Default);
         return root.ToJsonString(JsonOptions.Default);
+    }
+
+    private static string ProvenTrainListResult(
+        IReadOnlyDictionary<string, string> fields,
+        params (string Uuid, int X, int Y, int TrainCfgId, int Quality, int CarriageNum, string OwnerName, long Power)[] trains)
+    {
+        JsonArray rows = JsonSerializer.SerializeToNode(trains.Select(train => new
+        {
+            uuid = train.Uuid, marchUuid = train.Uuid, runtimeClass = "TrainData",
+            serverId = int.Parse(fields["serverId"]), worldId = 0,
+            x = train.X, y = train.Y, positionIndex = train.Y * 1000 + train.X + 1,
+            ownerUid = "owner-" + train.Uuid, ownerName = train.OwnerName, allianceName = "Alliance",
+            ownerServer = int.Parse(fields["serverId"]), power = train.Power,
+            startTime = 1_789_588_788_959L, endTime = 1_789_589_236_172L,
+            trainUuid = "1417409824803038247", trainCfgId = train.TrainCfgId, trainType = 2,
+            trainQuality = train.Quality, carriageNum = train.CarriageNum,
+            arriveTs = 1_789_616_774_078L, robTimes = 1, protectTime = 1_789_616_000_000L,
+            trainDataJson = "{\"type\":2,\"arriveTime\":1789616774078,\"marchInfo\":{\"robTimes\":1,\"protectTime\":1789616000000}}",
+            maxLootCount = 3,
+            source = "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(allianceTrainList)",
+        }).ToArray(), JsonOptions.Default)!.AsArray();
+        return JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = fields["requestId"],
+            profileId = fields["profileId"],
+            launchSessionId = fields["launchSessionId"],
+            challenge = fields["challenge"],
+            gamePid = int.Parse(fields["gamePid"]),
+            serverId = int.Parse(fields["serverId"]),
+            scanRunId = fields["scanRunId"],
+            state = "proven",
+            error = (string?)null,
+            refreshObserved = true,
+            refreshArgument = 1,
+            train_march_records = rows,
+            capturedAt = Timestamp(),
+        }, JsonOptions.Default);
     }
 
     private static string ProvenFastMonsterBatch(

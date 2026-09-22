@@ -44,6 +44,10 @@ An auditor should specifically verify:
 - Player City effective HP does not regress to stale raw current HP;
 - generic Monster still includes ordinary Doom Walker and level-by-10 variants;
 - Truck/Railway moving identity uses exact march UUID and does not duplicate moved rows;
+- current-v20 Railway performs the official `LWTrainDataManager.TryGetTrainList(true)` refresh once per full scan rather than relying only on world marches;
+- Manual has no server filter while Auto/saved-data browsing has **All** + saved servers;
+- one-shot Run Now works with recurring Auto disabled and does not enable future scheduling;
+- cross-server row Jump/Follow enters the row server before navigation;
 - Auto Scan cannot duplicate a due cycle across navigation/Refresh/reconnect/restart;
 - interrupted scans cannot publish partial staging over trusted data;
 - Clear cannot resurrect stale search results;
@@ -53,6 +57,7 @@ An auditor should specifically verify:
 
 - Ghost positive-row population: owner-deferred until 2026-09-24.
 - Supplies positive-row population: 2026-09-22 full-world rechecks on 2212/2213 still returned zero Supplies.
+- Fresh current-v20 Railway positive row: official-list probes on 2175/2180/2185/2190/2195/2196/2204 were authoritative but empty in R7-147; do not misreport that as a source failure or as a fresh positive pass.
 - Treasure protected claim scheduler: `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary; public claim is intentionally unrouted.
 - Truck/Dispatch live plunder outcomes and Alliance live message delivery: require suitable targets and explicit authorization.
 - Simultaneous real multi-account UI population: target availability gap.

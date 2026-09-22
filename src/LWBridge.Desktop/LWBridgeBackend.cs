@@ -205,22 +205,28 @@ internal sealed class LWBridgeBackend
                 return CreateCurrentMapScanStatus();
             case "map_scan_clear":
                 {
-                    int serverId = MapDataQueryContract.RequiredServerId(payload);
+                    int serverId = MapDataQueryContract.RequiredServerIdOrAll(payload);
                     (bool isReading, int currentServerId, string? serverIdSource) = ReadMapScanOwnership();
-                    MapScanClearOwnership.Validate(serverId, isReading, currentServerId, serverIdSource);
+                    if (isReading)
+                        throw new BridgeCommandException(
+                            MapScanClearOwnership.ActiveScanErrorCode,
+                            MapScanClearOwnership.ActiveScanErrorMessage);
                     MapDataStore store = RequireMapDataStore();
-                    store.ClearServer(serverId);
+                    if (serverId == 0) store.ClearAllScanData();
+                    else store.ClearServer(serverId);
                     return CreateMapScanStatus(
-                        serverId,
+                        currentServerId,
                         "idle",
                         null,
-                        MapScanClearOwnership.LiveServerSource);
+                        serverIdSource ?? "none");
                 }
             case "map_data_options":
                 {
-                    int serverId = MapDataQueryContract.RequiredServerId(payload);
+                    int serverId = MapDataQueryContract.RequiredServerIdOrAll(payload);
                     MapDataStore store = RequireMapDataStore();
-                    MapOptionSourceSelection source = SelectMapOptionSource(serverId);
+                    MapOptionSourceSelection source = serverId == 0
+                        ? new MapOptionSourceSelection(0, null)
+                        : SelectMapOptionSource(serverId);
                     MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
                         source, RecoveredWallClock.UnixTimeMilliseconds());
                     return CreateMapDataOptions(serverId, aggregates);

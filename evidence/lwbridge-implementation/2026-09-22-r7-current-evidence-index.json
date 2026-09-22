@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-145-CURRENT-EVIDENCE-INDEX",
+  "indexId": "LWB-R7-147-CURRENT-EVIDENCE-INDEX",
   "generatedAt": "2026-09-22",
-  "parentRevision": "eb6f36babdd57a6236f0b96d42d647a07c769f4c",
+  "parentRevision": "91d07d04ada09b1cfd143c6171a0d45c19760828",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-map-owner-workflow-corrections.json",
+        "sha256": "ABCE82EEC050F02B5F6D6B2DA04FAEE606E1FA75EEC6E6E93D7E03D27AF35250"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-20-r7-automatic-scan-strategy.json",
         "sha256": "D5B8BACD32024C6A952699B8F77A1EA38673593FC23E28C766A6E8C891036FB3"
@@ -149,7 +153,7 @@
     ]
   },
   "inventory": {
-    "jsonFiles": 293,
+    "jsonFiles": 294,
     "txtFiles": 13,
     "markdownIndexFiles": 1,
     "exactDuplicateGroups": 0

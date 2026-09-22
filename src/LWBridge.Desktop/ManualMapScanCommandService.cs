@@ -504,7 +504,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
     private object ClearMapScan(JsonElement payload)
     {
-        int requestedServerId = MapDataQueryContract.RequiredServerId(payload);
+        int requestedServerId = MapDataQueryContract.RequiredServerIdOrAll(payload);
         bool shouldResolveLiveServer;
         lock (gate)
             shouldResolveLiveServer = !closed && !isReading && serverId <= 0;
@@ -512,19 +512,20 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         int? resolvedServerId = shouldResolveLiveServer ? getLiveServerId?.Invoke() : null;
         lock (gate)
         {
-            if (!closed && !isReading && serverId <= 0 && resolvedServerId is > 0)
-                serverId = resolvedServerId.Value;
+            if (closed)
+                throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            if (isReading)
+                throw new BridgeCommandException(
+                    MapScanClearOwnership.ActiveScanErrorCode,
+                    MapScanClearOwnership.ActiveScanErrorMessage);
+            if (serverId <= 0 && resolvedServerId is > 0) serverId = resolvedServerId.Value;
 
-            MapScanClearOwnership.Validate(
-                requestedServerId,
-                isReading,
-                serverId,
-                serverId > 0 ? MapScanClearOwnership.LiveServerSource : "none");
-
-            // R7-054: Clear is owned by the same scan gate as Start so a new scan
-            // cannot begin between the recovered ownership check and the atomic
-            // server-scoped SQLite clear. Player marks stay outside ClearServer.
-            store.ClearServer(requestedServerId);
+            // OWNER WORKFLOW R7-147: Clear manages locally published scan data. It
+            // must not require the currently viewed data server to equal the live
+            // game server after an Auto Scan has returned to its origin. serverId=0
+            // clears all scan rows from this LWBridge session; marks/jobs survive.
+            if (requestedServerId == 0) store.ClearAllScanData();
+            else store.ClearServer(requestedServerId);
             scanRunId = string.Empty;
             phase = "idle";
             scanMode = "auto";

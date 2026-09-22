@@ -1,11 +1,11 @@
 # Current project status — Home and Map Data
 
 **Date:** 2026-09-22
-**Current checkpoint:** `LWB-R7-145`; parent revision `eb6f36babdd57a6236f0b96d42d647a07c769f4c`
+**Current checkpoint:** `LWB-R7-147`; parent revision `91d07d04ada09b1cfd143c6171a0d45c19760828`
 
 ## Executive status
 
-The ordinary Home / Overview and Map Data implementation is complete at the scopes represented by the current 47-case acceptance matrix. The matrix has **0 ordinary `partial` rows**.
+The Home / Overview acceptance state is unchanged. Map Data received R7-147 owner-workflow corrections after direct testing exposed eight usability/correctness gaps. The current 47-case R7-145 acceptance matrix still has **0 ordinary `partial` rows**; R7-147 does not promote population/authorization gates.
 
 That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, state-changing authorization/target availability, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance.
 
@@ -17,15 +17,15 @@ Current detail: `docs/tabs/home.md`.
 
 ## Map Data
 
-Manual/Auto acquisition, persistence, multi-server saved data, Stop, restart safety, Clear race handling, search/filter/sort/paging, marks, coordinate Jump, moving Follow, and native transition behavior are accepted at their current evidence scopes.
+Manual/Auto acquisition, Stop, restart safety, search/filter/sort/paging, marks, moving navigation, and native transition behavior remain accepted at their current evidence scopes. R7-147 adds session-scoped scan data, Auto **All**, one-shot multi-server Run Now while recurring Auto is disabled, cross-server row navigation, session-wide stopped Clear, Doom Walker Follow, the official current-v20 Train-list source, and removal of the Manual server filter.
 
-Player City, Resource, Monster/Doom Walker, Zombie Boss, Truck, Railway, Dispatch, and ordinary Treasure have positive live evidence. Ghost and Supplies remain population-gated, not implementation-failure-gated.
+Player City, Resource, Monster/Doom Walker, Zombie Boss, Truck, Dispatch, and ordinary Treasure retain positive live evidence. Railway retains historical positive live evidence, but the fresh R7-147 current-v20 official-list probes were empty on all sampled servers; a fresh positive Railway row is therefore population-dependent. Ghost and Supplies remain population-gated.
 
 Current detail and performance audit: `docs/tabs/map-data.md`.
 
 ## Current acceptance counts
 
-R7-145 status counts (unchanged from R7-144):
+R7-145 acceptance status counts (unchanged by R7-147):
 
 | Status | Count |
 |---|---:|
@@ -50,4 +50,5 @@ R7-145 status counts (unchanged from R7-144):
 3. Treasure protected claim scheduler recovery remains blocked under SB-79; do not reroute the denied operation or invent the contract.
 4. Suitable explicitly authorized live Truck/Dispatch plunder and Alliance-message actions.
 5. Simultaneous real multi-account UI population when multiple active accounts are available.
-6. Final integrated release acceptance.
+6. Fresh positive current-v20 Railway row/Follow when Train population is present.
+7. Final integrated release acceptance.

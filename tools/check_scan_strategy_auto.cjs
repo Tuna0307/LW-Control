@@ -110,11 +110,13 @@ async function main() {
       'Auto scheduler must start scans without scanMode');
     for (const token of [
       'n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)',
-      'function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}',
-      'for(let t of n){if(e||!Je.current.enabled||!autoOnlineRef.current)break',
-      'try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?',
+      'function Zn(e,t,n,r,i){return n&&!r&&!i&&(e.runOnceRequestedAt>0||e.enabled&&t>=e.nextRunAt)}',
+      'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}',
+      'runOnceRequestedAt:Math.max(0,Math.trunc(Number(e?.runOnceRequestedAt)||0))',
+      'for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break',
+      'try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?',
       'if(!e&&i.returnToOriginalServer&&a>0',
-      'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)',
+      'let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e)',
       'window.setInterval(()=>{i()},5e3)',
       'lwbridge.mapAutoScanCycle.${e}',
       'function readAutoCycleMarker(e)',

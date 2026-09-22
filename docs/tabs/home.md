@@ -1,6 +1,6 @@
 # Home / Overview — current status
 
-**Current through:** `LWB-R7-145`, 2026-09-22
+**Current through:** `LWB-R7-147`, 2026-09-22
 **Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
 
 This page is the current owner/auditor entry point for the Home / Overview tab. Older Home recovery and review documents remain historical evidence and should not be read as current status unless this page links to them.

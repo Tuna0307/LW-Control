@@ -50,6 +50,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly ManualMapScanCommandService? manualMapScanService;
     private readonly string? isolatedConfigRoot;
+    private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
     private DocumentSession documentSession = new(1, EventAllowlist);
     private bool documentReady;
@@ -91,6 +92,7 @@ internal sealed class LWBridgeWindow : Form
         this.language = language;
         this.theme = theme;
         bool isolated = capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null;
+        sessionScopedMapData = !isolated;
         LocalConfigStore config;
         if (hostProbePath is not null)
         {
@@ -114,6 +116,13 @@ internal sealed class LWBridgeWindow : Form
                 : new MapDataStore(Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db"));
+        }
+        if (sessionScopedMapData)
+        {
+            // OWNER WORKFLOW R7-147: published scan rows are session data. Clear
+            // leftovers from either a prior normal close or an interrupted process
+            // before exposing any map summary. Durable marks/settings/jobs remain.
+            mapData.ClearAllScanData();
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
         if (!isolated)
@@ -1930,6 +1939,11 @@ internal sealed class LWBridgeWindow : Form
         ownerEvidenceRenderCapture?.Dispose();
         ownerEvidence?.Record("session-end", new { processId = Environment.ProcessId });
         ownerEvidence?.Dispose();
+        if (sessionScopedMapData)
+        {
+            try { mapData.ClearAllScanData(); }
+            catch { }
+        }
         mapData.Dispose();
         if (isolatedConfigRoot is not null)
         {

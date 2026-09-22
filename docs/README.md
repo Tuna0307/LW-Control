@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-145`, 2026-09-22.
+**Current checkpoint:** `LWB-R7-147`, 2026-09-22.
 This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
 
 ## Start here
@@ -22,7 +22,7 @@ The current 47-case baseline is:
 
 `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
 
-At R7-145, ordinary status `partial` count is **0**. The remaining non-pass cases are explicitly population-, authorization-, or blocked-implementation categories; City Excel export is `retired_by_owner`.
+Acceptance statuses remain those of the R7-145 matrix (ordinary `partial` count **0**); R7-147 adds owner-workflow corrections without promoting population/authorization gates. The remaining non-pass cases are explicitly population-, authorization-, or blocked-implementation categories; City Excel export is `retired_by_owner`.
 
 ## Current unresolved gates
 
@@ -42,7 +42,7 @@ These remain cumulative evidence/recovery documents rather than current-status p
 - [`lwbridge-injection.md`](lwbridge-injection.md) — injection/bootstrap/proxy recovery history.
 - [`official-runtime-architecture.md`](official-runtime-architecture.md) — official Last War runtime architecture/evidence.
 - [`daybreak-escalations.md`](daybreak-escalations.md) — specialist/restriction register; denials must not be rerouted.
-- [`reviews/`](reviews/) — dated checkpoint findings, including R7-130 through the current R7-145 audit.
+- [`reviews/`](reviews/) — dated checkpoint findings, including R7-130 through the current R7-147 Map owner-workflow correction review.
 
 ## Historical/superseded delivery documents
 

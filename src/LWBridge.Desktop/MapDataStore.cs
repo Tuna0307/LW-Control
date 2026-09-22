@@ -392,22 +392,27 @@ internal sealed partial class MapDataStore : IDisposable
         long nowUnixMilliseconds,
         Action? afterFirstAggregateRead)
     {
-        ValidateServerId(source.ServerId);
+        bool allPublishedServers = source.ServerId == 0 && !source.UsesStagingRecords;
+        if (!allPublishedServers) ValidateServerId(source.ServerId);
 
-        // RECOVERED LWB-R6-024/R6-030: only these two internal source/scope
-        // shapes exist. Values remain bound parameters; only the recovered SQL
-        // structure is selected here.
+        // RECOVERED LWB-R6-024/R6-030 retain their exact single-server shapes.
+        // OWNER WORKFLOW R7-147 adds a published-only aggregate scope across all
+        // current-session servers; active staging remains single-server only.
         string sourceTable = source.UsesStagingRecords ? "scan_records" : "map_records";
-        string sourceScope = source.UsesStagingRecords
-            ? "server_id=$server AND run_id=$run"
-            : "server_id=$server";
-        string qualifiedSourceScope = source.UsesStagingRecords
-            ? "source.server_id=$server AND source.run_id=$run"
-            : "source.server_id=$server";
+        string sourceScope = allPublishedServers
+            ? "1=1"
+            : source.UsesStagingRecords
+                ? "server_id=$server AND run_id=$run"
+                : "server_id=$server";
+        string qualifiedSourceScope = allPublishedServers
+            ? "1=1"
+            : source.UsesStagingRecords
+                ? "source.server_id=$server AND source.run_id=$run"
+                : "source.server_id=$server";
 
         void BindSource(SqliteCommand command)
         {
-            command.Parameters.AddWithValue("$server", source.ServerId);
+            if (!allPublishedServers) command.Parameters.AddWithValue("$server", source.ServerId);
             if (source.UsesStagingRecords)
                 command.Parameters.AddWithValue("$run", source.ScanRunId!);
         }
@@ -592,8 +597,9 @@ internal sealed partial class MapDataStore : IDisposable
             }
 
             MapScanProgressAggregateRow? scanProgress = null;
-            using (SqliteCommand command = connection.CreateCommand())
+            if (!allPublishedServers)
             {
+                using SqliteCommand command = connection.CreateCommand();
                 command.Transaction = snapshot;
                 command.CommandText = source.UsesStagingRecords
                     ? """
@@ -658,7 +664,7 @@ internal sealed partial class MapDataStore : IDisposable
         IReadOnlyList<string>? monsterNameKeys = null)
     {
         ValidateKind(options.Kind);
-        ValidateServerId(options.ServerId);
+        if (options.ServerId > 0) ValidateServerId(options.ServerId);
         MapDataQueryContract.RequireRecoveredIndexedSearch(options);
 
         string direction = options.Sorts[0].SortOrder == "asc" ? "ASC" : "DESC";
@@ -714,8 +720,8 @@ internal sealed partial class MapDataStore : IDisposable
             var predicates = new List<string>
             {
                 "page.kind=$kind",
-                "page.server_id=$server",
             };
+            if (options.ServerId > 0) predicates.Add("page.server_id=$server");
             // LWB-R6-005/006/007/013/014: verified original predicate shapes; unresolved filters remain gated by MapDataQueryContract.
             if (options.Kind is "truck" or "railway")
                 predicates.Add("(json_extract(page.data_json,'$.arriveTs') IS NULL OR CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER) > $nowUnixMs)");
@@ -1429,6 +1435,35 @@ internal sealed partial class MapDataStore : IDisposable
         }
     }
 
+    public void ClearAllScanData()
+    {
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            // Scan blocks/records cascade from scan_runs. Player marks, app settings,
+            // and plunder job/history tables are intentionally preserved.
+            using (SqliteCommand states = connection.CreateCommand())
+            {
+                states.Transaction = transaction;
+                states.CommandText = "DELETE FROM treasure_claim_states";
+                states.ExecuteNonQuery();
+            }
+            using (SqliteCommand records = connection.CreateCommand())
+            {
+                records.Transaction = transaction;
+                records.CommandText = "DELETE FROM map_records";
+                records.ExecuteNonQuery();
+            }
+            using (SqliteCommand runs = connection.CreateCommand())
+            {
+                runs.Transaction = transaction;
+                runs.CommandText = "DELETE FROM scan_runs";
+                runs.ExecuteNonQuery();
+            }
+            transaction.Commit();
+        }
+    }
+
     public IReadOnlyDictionary<string, string> ReadSchemaDefinitions()
     {
         lock (gate)
@@ -1515,7 +1550,7 @@ internal sealed partial class MapDataStore : IDisposable
         IReadOnlyList<string>? resolvedMonsterNameKeys = null)
     {
         command.Parameters.AddWithValue("$kind", options.Kind);
-        command.Parameters.AddWithValue("$server", options.ServerId);
+        if (options.ServerId > 0) command.Parameters.AddWithValue("$server", options.ServerId);
         if (options.Keyword is not null)
         {
             string keyword = BuildRecoveredKeywordPattern(options.Keyword);

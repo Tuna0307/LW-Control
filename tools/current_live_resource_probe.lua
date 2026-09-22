@@ -55,6 +55,12 @@ local resource_detail_started_at = nil
 local resource_detail_transition_requested = false
 local resource_detail_refresh_requested = false
 local resource_scan_detail_runtime = { state = nil, request = nil, startedAt = nil }
+local train_list_runtime = {
+    path = root .. [[\train-list-diagnostic.txt]],
+    resultPath = root .. [[\train-list-diagnostic-result.json]],
+    request = nil, startedAt = nil, manager = nil, eventManager = nil, eventId = nil,
+    listener = nil, refreshObserved = false, refreshArgument = nil,
+}
 local asset_image_runtime = {
     path = root .. [[\asset-image.txt]],
     resultPath = root .. [[\asset-image-result.json]],
@@ -2755,11 +2761,11 @@ local function resolve_reward_display_metadata(data_center, reward_type, item_id
     return name, icon_path
 end
 
-local function normalize_train_current_goods(march, train, train_data_json)
+local function normalize_train_current_goods(march, train, train_data_json, explicit_train_data)
     local data_center = rawget(_G, "DataCenter")
     local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
 
-    local lua_train = nil
+    local lua_train = explicit_train_data
     if manager ~= nil then
         local train_uuid = train and scalar_field(train, { "uuid", "Uuid" }) or nil
         if train_uuid ~= nil then
@@ -5753,6 +5759,279 @@ local function begin_targeted_city_refresh(world, point_manager)
     return true, nil
 end
 
+function train_list_runtime.cleanup()
+    if train_list_runtime.eventManager ~= nil and train_list_runtime.eventId ~= nil and train_list_runtime.listener ~= nil then
+        call(train_list_runtime.eventManager, "RemoveListener", train_list_runtime.eventId, train_list_runtime.listener)
+    end
+    train_list_runtime.request = nil
+    train_list_runtime.startedAt = nil
+    train_list_runtime.manager = nil
+    train_list_runtime.eventManager = nil
+    train_list_runtime.eventId = nil
+    train_list_runtime.listener = nil
+    train_list_runtime.refreshObserved = false
+    train_list_runtime.refreshArgument = nil
+end
+
+function train_list_runtime.read(now)
+    local values = read_kv_file(train_list_runtime.path, 4096)
+    if values == nil then return nil end
+    pcall(os.remove, train_list_runtime.path)
+    local request = {
+        requestId = tostring(values.requestId or ""),
+        profileId = tostring(values.profileId or ""),
+        launchSessionId = tostring(values.launchSessionId or ""),
+        challenge = tostring(values.challenge or ""),
+        gamePid = tonumber(values.gamePid),
+        serverId = tonumber(values.serverId),
+        scanRunId = tostring(values.scanRunId or ""),
+    }
+    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or
+       not valid_token(request.requestId) or not valid_token(request.profileId) or
+       not valid_token(request.launchSessionId) or not valid_token(request.challenge) or
+       not valid_token(request.scanRunId) or request.gamePid == nil or request.gamePid <= 0 or
+       request.gamePid ~= math.floor(request.gamePid) or request.serverId == nil or
+       request.serverId <= 0 or request.serverId > 99999 or request.serverId ~= math.floor(request.serverId) then
+        request.error = "train_list_diagnostic_invalid"
+        return request
+    end
+    request.gamePid = math.floor(request.gamePid)
+    request.serverId = math.floor(request.serverId)
+    local identity, identity_error = active_overview_identity(now)
+    if identity == nil then request.error = identity_error; return request end
+    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
+       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
+        request.error = "train_list_diagnostic_identity_mismatch"
+        return request
+    end
+    local live_server = current_server_id()
+    if live_server == nil or math.floor(live_server) ~= request.serverId then
+        request.error = "train_list_diagnostic_server_mismatch"
+    end
+    return request
+end
+
+function train_list_runtime.worldMarchPositions(world)
+    local positions = {}
+    if world == nil then return positions end
+    local march_manager = safe_get(world, "MarchDataManager") or reflected_value(world, "<MarchDataManager>k__BackingField")
+    if march_manager == nil then
+        local ok_manager, value = call(world, "get_MarchDataManager")
+        if ok_manager then march_manager = value end
+    end
+    if march_manager == nil then return positions end
+    local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
+    if not ok_all or collection == nil then collection = reflected_value(march_manager, "allMarches") end
+    if collection == nil then return positions end
+    each(collection, MAX_POINTS, function(raw)
+        local pair = safe_get(raw, "Value") or raw
+        local march = pair
+        local uuid = march and scalar_field(march, { "uuid", "Uuid", "_uuid" }) or nil
+        if uuid == nil then return true end
+        local key = tostring(uuid)
+        if key == "" then return true end
+        local ok_index, position_index = call(march, "GetMarchCurPosIndex")
+        local index = ok_index and tonumber(position_index) or nil
+        if index == nil or index <= 0 then index = integer_field(march, { "targetPos", "TargetPos" }) end
+        local tile = index and index > 0 and index_to_tile(world, index) or nil
+        if tile ~= nil then
+            positions[key] = {
+                x = tile.x, y = tile.y, positionIndex = math.floor(index),
+                worldId = integer_field(march, { "worldId", "WorldId" }) or 0,
+                ownerUid = scalar_field(march, { "ownerUid", "OwnerUid" }),
+                ownerName = scalar_field(march, { "ownerName", "OwnerName" }),
+                allianceUid = scalar_field(march, { "allianceUid", "AllianceUid" }),
+                allianceName = scalar_field(march, { "allianceName", "AllianceName" }),
+                allianceAbbr = scalar_field(march, { "allianceAbbr", "AllianceAbbr" }),
+                power = scalar_field(march, { "power", "Power" }),
+            }
+        end
+        return true
+    end)
+    return positions
+end
+
+function train_list_runtime.currentTile(train_data, world, world_positions, march_uuid)
+    local from_march = world_positions[march_uuid]
+    if from_march ~= nil then return from_march end
+    local ui_time = rawget(_G, "UITimeManager")
+    local ok_time_manager, time_manager = call(ui_time, "GetInstance")
+    if not ok_time_manager or time_manager == nil then return nil, "ui_time_manager_unavailable" end
+    local ok_time, server_time = call(time_manager, "GetServerTime")
+    if not ok_time or tonumber(server_time) == nil then return nil, "server_time_unavailable" end
+    local ok_pos, world_pos = call(train_data, "CalculateTransform", tonumber(server_time))
+    if not ok_pos or world_pos == nil then return nil, "train_calculate_transform_failed" end
+    local scene_utils = rawget(_G, "SceneUtils")
+    if scene_utils == nil then
+        local ok_require, value = pcall(require, "Util.SceneUtils")
+        if ok_require then scene_utils = value end
+    end
+    local world_to_tile = scene_utils and safe_get(scene_utils, "WorldToTile") or nil
+    if type(world_to_tile) ~= "function" then return nil, "scene_utils_world_to_tile_unavailable" end
+    local ok_tile, tile = pcall(world_to_tile, world_pos)
+    if not ok_tile or tile == nil then return nil, "scene_utils_world_to_tile_failed" end
+    local x = tonumber(safe_get(tile, "x") or safe_get(tile, "X"))
+    local y = tonumber(safe_get(tile, "y") or safe_get(tile, "Y"))
+    if x == nil or y == nil then return nil, "train_tile_invalid" end
+    x = math.floor(x); y = math.floor(y)
+    if x < 0 or x >= 1000 or y < 0 or y >= 1000 then return nil, "train_tile_out_of_bounds" end
+    local vector_type = rawget(_G, "CS") and CS.UnityEngine and CS.UnityEngine.Vector2Int or nil
+    local position_index = nil
+    if vector_type ~= nil and world ~= nil then
+        local ok_index, raw_index = call(world, "TilePosToIndex", vector_type(x, y))
+        if ok_index and tonumber(raw_index) ~= nil then position_index = math.floor(tonumber(raw_index)) end
+    end
+    return { x = x, y = y, positionIndex = position_index, worldId = 0 }, nil
+end
+
+function train_list_runtime.snapshot(request)
+    local data_center = rawget(_G, "DataCenter")
+    local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
+    if manager == nil then return nil, "lw_train_data_manager_unavailable" end
+    local enemy_trains = safe_get(manager, "enemyTrains")
+    if type(enemy_trains) ~= "table" then return nil, "enemy_trains_unavailable" end
+    local world = select(1, runtime_world())
+    if world == nil then return nil, "world_unavailable" end
+    local world_positions = train_list_runtime.worldMarchPositions(world)
+    local train_type_enum = rawget(_G, "TrainType")
+    local official_train_type = train_type_enum and tonumber(safe_get(train_type_enum, "Train")) or nil
+    if official_train_type == nil then return nil, "train_type_enum_unavailable" end
+    local rows = {}
+    for _, train_data in ipairs(enemy_trains) do
+        local train_type = integer_field(train_data, { "type", "Type" })
+        local source_server = integer_field(train_data, { "serverId", "ServerId" })
+        if train_type == official_train_type and source_server == request.serverId then
+            local train_uuid_value = scalar_field(train_data, { "uuid", "Uuid" })
+            local march_uuid_value = scalar_field(train_data, { "marchUid", "MarchUid", "marchUuid", "MarchUuid" })
+            local train_uuid = train_uuid_value ~= nil and tostring(train_uuid_value) or ""
+            local march_uuid = march_uuid_value ~= nil and tostring(march_uuid_value) or ""
+            if train_uuid ~= "" and march_uuid ~= "" then
+                local position, position_error = train_list_runtime.currentTile(train_data, world, world_positions, march_uuid)
+                if position == nil then return nil, position_error end
+                local quality = integer_field(train_data, { "quality", "Quality" })
+                local cfg_id = integer_field(train_data, { "cfgId", "CfgId" })
+                local carriage_num = integer_field(train_data, { "carriageCount", "CarriageCount" })
+                if quality == nil or quality < 1 or cfg_id == nil or carriage_num == nil then
+                    return nil, "train_list_required_metadata_unavailable"
+                end
+                local march_info = safe_get(train_data, "marchInfo")
+                local train_data_json = nil
+                local ok_json, value = call(train_data, "ToJson")
+                if ok_json and value ~= nil then train_data_json = tostring(value) end
+                local current_goods, max_loot_count = normalize_train_current_goods(nil, nil, train_data_json, train_data)
+                local from_march = world_positions[march_uuid]
+                rows[#rows + 1] = {
+                    uuid = march_uuid,
+                    marchUuid = march_uuid,
+                    runtimeClass = "TrainData",
+                    serverId = request.serverId,
+                    worldId = position.worldId or 0,
+                    x = position.x, y = position.y, positionIndex = position.positionIndex,
+                    ownerUid = (from_march and from_march.ownerUid) or scalar_field(train_data, { "ownerId", "OwnerId" }),
+                    ownerName = (from_march and from_march.ownerName) or scalar_field(train_data, { "name", "Name" }),
+                    allianceUid = (from_march and from_march.allianceUid) or scalar_field(train_data, { "allianceId", "AllianceId" }),
+                    allianceName = (from_march and from_march.allianceName) or scalar_field(train_data, { "allianceName", "AllianceName" }),
+                    allianceAbbr = (from_march and from_march.allianceAbbr) or scalar_field(train_data, { "abbr", "Abbr" }),
+                    ownerServer = source_server,
+                    power = (from_march and from_march.power) or scalar_field(train_data, { "power", "Power" }),
+                    startTime = scalar_field(train_data, { "departureTs", "sendTime", "StartTime" }),
+                    endTime = scalar_field(train_data, { "arriveTs", "arriveTime", "EndTime" }),
+                    trainUuid = train_uuid,
+                    trainCfgId = cfg_id,
+                    trainType = train_type,
+                    trainQuality = quality,
+                    carriageNum = carriage_num,
+                    arriveTs = scalar_field(train_data, { "arriveTs", "arriveTime", "ArriveTs", "ArriveTime" }),
+                    robTimes = march_info and integer_field(march_info, { "robTimes", "RobTimes" }) or nil,
+                    protectTime = march_info and scalar_field(march_info, { "protectTime", "ProtectTime" }) or nil,
+                    trainDataJson = train_data_json,
+                    currentGoods = current_goods,
+                    maxLootCount = max_loot_count,
+                    source = "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(allianceTrainList)",
+                }
+            end
+        end
+    end
+    return rows, nil
+end
+
+function train_list_runtime.write(request, state, error_text, rows)
+    write_json(train_list_runtime.resultPath, {
+        schemaVersion = 1, probeVersion = M.VERSION, requestId = request.requestId,
+        profileId = request.profileId, launchSessionId = request.launchSessionId,
+        challenge = request.challenge, gamePid = request.gamePid, serverId = request.serverId,
+        scanRunId = request.scanRunId, state = state, error = error_text,
+        refreshObserved = train_list_runtime.refreshObserved == true,
+        refreshArgument = train_list_runtime.refreshArgument,
+        train_march_records = rows or {},
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
+    })
+end
+
+function train_list_runtime.pump(now)
+    if train_list_runtime.request == nil then
+        local request = train_list_runtime.read(now)
+        if request == nil then return false end
+        train_list_runtime.startedAt = runtime_clock()
+        if request.error ~= nil then
+            train_list_runtime.write(request, "failed", request.error, nil)
+            train_list_runtime.cleanup()
+            return true
+        end
+        local data_center = rawget(_G, "DataCenter")
+        local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
+        local event_type = rawget(_G, "EventManager")
+        local event_ids = rawget(_G, "EventId")
+        local event_id = event_ids and safe_get(event_ids, "RefreshTrainListData") or nil
+        local ok_event_manager, event_manager = call(event_type, "GetInstance")
+        if manager == nil or not ok_event_manager or event_manager == nil or event_id == nil then
+            train_list_runtime.write(request, "failed", "train_list_refresh_dependencies_unavailable", nil)
+            train_list_runtime.cleanup()
+            return true
+        end
+        train_list_runtime.request = request
+        train_list_runtime.manager = manager
+        train_list_runtime.eventManager = event_manager
+        train_list_runtime.eventId = event_id
+        train_list_runtime.listener = function(argument)
+            if train_list_runtime.request ~= request then return end
+            train_list_runtime.refreshObserved = true
+            local numeric = tonumber(argument)
+            train_list_runtime.refreshArgument = numeric ~= nil and math.floor(numeric) or tostring(argument or "")
+        end
+        local added = select(1, call(event_manager, "AddListener", event_id, train_list_runtime.listener))
+        if not added then
+            train_list_runtime.write(request, "failed", "train_list_refresh_listener_failed", nil)
+            train_list_runtime.cleanup()
+            return true
+        end
+        local sent = select(1, call(manager, "TryGetTrainList", true))
+        if not sent then
+            train_list_runtime.write(request, "failed", "train_list_refresh_send_failed", nil)
+            train_list_runtime.cleanup()
+            return true
+        end
+        return true
+    end
+    local request = train_list_runtime.request
+    if train_list_runtime.refreshObserved == true then
+        local rows, snapshot_error = train_list_runtime.snapshot(request)
+        if rows == nil then
+            train_list_runtime.write(request, "failed", snapshot_error, nil)
+        else
+            train_list_runtime.write(request, "proven", nil, rows)
+        end
+        train_list_runtime.cleanup()
+        return true
+    end
+    if runtime_clock() - (train_list_runtime.startedAt or runtime_clock()) >= 8 then
+        train_list_runtime.write(request, "failed", "train_list_refresh_timeout", nil)
+        train_list_runtime.cleanup()
+        return true
+    end
+    return true
+end
+
 function M.Pump()
     local now = tonumber(os.time()) or 0
     -- Read-only asset rendering is an independent lane. It reuses the same
@@ -5774,6 +6053,10 @@ function M.Pump()
             return true
         end
         if resource_scan_detail_runtime.pump(now) then
+            write_heartbeat(now)
+            return true
+        end
+        if train_list_runtime.pump(now) then
             write_heartbeat(now)
             return true
         end

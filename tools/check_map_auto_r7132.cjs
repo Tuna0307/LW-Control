@@ -337,8 +337,9 @@ async function main() {
       'autoOnlineRef=(0,j.useRef)(P)',
       'autoOnlineRef.current=P',
       'if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return',
-      'if(e||!Je.current.enabled||!autoOnlineRef.current)break',
-      'try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;F(n.changed?',
+      'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}',
+      'if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break',
+      'try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?',
       'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment'
     ]) {
       assert.equal(index.includes(token), true,

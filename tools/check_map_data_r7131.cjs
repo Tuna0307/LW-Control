@@ -154,8 +154,17 @@ async function main() {
     const scanTabs = page.locator('.map-scan-tabs button');
     assert.equal(await scanTabs.nth(1).getAttribute('aria-selected'), 'true', 'Auto Scan tab must restore');
 
+    // Auto browsing owns saved-server selection and exposes an aggregate All view.
+    const serverSelect = page.locator('.map-searchbar select[aria-label="Server"]');
+    await serverSelect.waitFor();
+    assert.deepEqual(await serverSelect.locator('option').evaluateAll(options => options.map(o => o.value)),
+      ['0', '2212', '2213'], 'Auto browsing must expose All plus every saved server dataset');
+    assert.equal(await serverSelect.inputValue(), '2213', 'saved browse server must restore independently of live server');
+
     await scanTabs.nth(0).click();
     await page.waitForTimeout(100);
+    assert.equal(await page.locator('.map-searchbar select[aria-label="Server"]').count(), 0,
+      'Manual Scan must not show a server filter because it scans only the current live server');
     const manualTypes = await page.locator('.map-controls .map-types label').evaluateAll(labels =>
       labels.map(label => ({
         text: label.textContent.trim(),
@@ -169,20 +178,15 @@ async function main() {
       .evaluateAll(buttons => buttons.find(button => button.classList.contains('active'))?.textContent || '');
     assert.match(activeResultText, /Monster/, 'Result tab must restore per profile');
 
-    const serverSelect = page.locator('.map-searchbar select[aria-label="Server"]');
-    await serverSelect.waitFor();
-    assert.deepEqual(await serverSelect.locator('option').evaluateAll(options => options.map(o => o.value)),
-      ['2212', '2213'], 'all saved server datasets must be selectable');
-    assert.equal(await serverSelect.inputValue(), '2213', 'saved browse server must restore independently of live server');
-
-    // Change all four persisted choices.
+    // Change all four persisted choices. Manual owns scan types; Auto owns saved-server browsing.
     const labels = page.locator('.map-controls .map-types label');
     await labels.filter({ hasText: 'Truck' }).click();
     await labels.filter({ hasText: 'Player City' }).click();
     await page.locator('.map-tabs button').filter({ hasText: 'Truck' }).click();
     await page.waitForTimeout(150);
-    await serverSelect.selectOption('2212');
     await scanTabs.nth(1).click();
+    await page.waitForTimeout(100);
+    await page.locator('.map-searchbar select[aria-label="Server"]').selectOption('2212');
     await page.waitForTimeout(100);
     const persisted = await page.evaluate(() => ({
       types: JSON.parse(localStorage.getItem('lwbridge.mapManualScanTypes.local-1')),
@@ -200,14 +204,17 @@ async function main() {
     await page.waitForTimeout(400);
     assert.equal(await page.locator('.map-scan-tabs button').nth(1).getAttribute('aria-selected'), 'true',
       'Auto Scan tab must survive full reload');
+    const reloadedServerSelect = page.locator('.map-searchbar select[aria-label="Server"]');
+    await reloadedServerSelect.waitFor();
+    assert.equal(await reloadedServerSelect.inputValue(), '2212', 'saved server choice must survive reload');
     await page.locator('.map-scan-tabs button').nth(0).click();
     await page.waitForTimeout(100);
+    assert.equal(await page.locator('.map-searchbar select[aria-label="Server"]').count(), 0,
+      'Manual Scan must still omit the saved-server filter after reload');
     const reloadedSelected = await page.locator('.map-controls .map-types label').evaluateAll(labels =>
       labels.filter(label => label.querySelector('input').checked).map(label => label.textContent.trim()));
     assert.deepEqual(reloadedSelected, ['Monster', 'Truck'], 'Manual types must survive full reload');
     assert.match(await page.locator('.map-tabs button.active').innerText(), /Truck/, 'result tab must survive reload');
-    const reloadedServerSelect = page.locator('.map-searchbar select[aria-label="Server"]');
-    assert.equal(await reloadedServerSelect.inputValue(), '2212', 'saved server choice must survive reload');
 
     // R7-130 Auto Stop: two targets are configured, but Stop during the first scan must disable
     // the scheduler synchronously so target two never starts.

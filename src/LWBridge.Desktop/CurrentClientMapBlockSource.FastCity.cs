@@ -386,6 +386,23 @@ internal sealed partial class CurrentClientMapBlockSource
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
 
+        // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
+        // WorldScene.MarchDataManager. It explicitly refreshes LWTrainDataManager
+        // and consumes the response allianceTrainList. Reproduce that read-only
+        // source once per completed full-world scan, then merge by exact march UUID.
+        if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+        {
+            IReadOnlyList<FastTrainPrepared> refreshedRailway = await ProbeTrainListAsync(
+                session, request, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+            foreach (FastTrainPrepared prepared in refreshedRailway)
+            {
+                if (prepared.Record.Kind != "railway")
+                    throw new InvalidDataException("The current-client Train-list refresh returned a non-Railway row.");
+                trainRecords[prepared.Record.RecordKey] = prepared;
+            }
+        }
+
         // Truck reward/max-loot enrichment is deliberately post-acquisition. The AOI hot path
         // carries only lightweight game-owned TrainData fields/reward arrays; full TrainData JSON
         // is Railway-only because current-v19 Truck plunder history makes that blob very large.
@@ -651,6 +668,84 @@ internal sealed partial class CurrentClientMapBlockSource
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client fast City batch did not return a correlated result.");
+    }
+
+    internal async Task<IReadOnlyList<MapStoredRecord>> CaptureRailwayListSnapshotForTestAsync(
+        CancellationToken cancellationToken)
+    {
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+        CurrentClientMapContext context = await GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);
+        var request = new MapScanExecutionRequest(
+            "trainlist" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture),
+            context.ServerId, context.WorldId, context.TileWidth, context.TileHeight,
+            ["railway"], 20, 2, context.PlayerTileX, context.PlayerTileY);
+        IReadOnlyList<FastTrainPrepared> rows = await ProbeTrainListAsync(
+            session, request, cancellationToken).ConfigureAwait(false);
+        return rows.Select(row => row.Record).ToArray();
+    }
+
+    private async Task<IReadOnlyList<FastTrainPrepared>> ProbeTrainListAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        CancellationToken cancellationToken)
+    {
+        string requestId = "trainlist" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        string commandPath = Path.Combine(probeRuntimeRoot, "train-list-diagnostic.txt");
+        string resultPath = Path.Combine(probeRuntimeRoot, "train-list-diagnostic-result.json");
+        DateTimeOffset startedAt = Now();
+        string command = string.Join('\n', new[]
+        {
+            "schema=1",
+            $"probeVersion={ProbeVersion}",
+            $"requestId={requestId}",
+            $"profileId={session.ProfileId}",
+            $"launchSessionId={session.SessionId}",
+            $"challenge={session.Challenge}",
+            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
+            $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"scanRunId={request.RunId}",
+            string.Empty,
+        });
+        await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset deadline = startedAt + ProbeTimeout;
+        while (Now() < deadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            JsonElement? root = TryReadJson(resultPath);
+            if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                JsonElement value = root.Value;
+                if (!MatchesInt(value, "schemaVersion", 1) ||
+                    !MatchesString(value, "probeVersion", ProbeVersion) ||
+                    !MatchesString(value, "profileId", session.ProfileId) ||
+                    !MatchesString(value, "launchSessionId", session.SessionId) ||
+                    !MatchesString(value, "challenge", session.Challenge) ||
+                    !MatchesInt(value, "gamePid", session.GamePid) ||
+                    !MatchesInt(value, "serverId", request.ServerId) ||
+                    !MatchesString(value, "scanRunId", request.RunId))
+                    throw new InvalidDataException("Train-list result did not match the active owned game session.");
+                RequireFreshCaptureTime(value, startedAt);
+                if (!MatchesString(value, "state", "proven"))
+                {
+                    string error = ReadOptionalString(value, "error") ?? "unknown Train-list refresh failure";
+                    throw new InvalidDataException("Train-list refresh failed: " + error);
+                }
+                if (!MatchesBool(value, "refreshObserved", true))
+                    throw new InvalidDataException("Train-list refresh did not observe the official RefreshTrainListData event.");
+
+                // A Train-list snapshot is a whole-list source, not an AOI response.
+                // Reuse exact Train normalization with every valid LOD0 AOI admitted.
+                HashSet<int> allAoi = Enumerable.Range(0, FastCityAoiBlockCount * FastCityAoiBlockCount).ToHashSet();
+                return PrepareTrainRecords(value, request, allAoi, startedAt);
+            }
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
+        }
+        throw new TimeoutException("The current-client Train-list refresh did not return a correlated result.");
     }
 
     private async Task<IReadOnlyList<FastMonsterPrepared>> ProbeCoarseMonsterMapAsync(
@@ -1538,7 +1633,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 ["trainCfgId"] = RequiredInt(row, "trainCfgId"),
                 ["carriageNum"] = RequiredInt(row, "carriageNum"),
                 ["updatedAt"] = updatedAt,
-                ["source"] = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
+                ["source"] = OptionalStringValue(row, "source") ??
+                    "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
             };
             if (row.TryGetProperty("trainUuid", out JsonElement trainUuidValue)) data["trainUuid"] = JsonNode.Parse(trainUuidValue.GetRawText());
             if (row.TryGetProperty("ownerUid", out JsonElement ownerUidValue) && ownerUidValue.ValueKind == JsonValueKind.String) data["ownerUid"] = ownerUidValue.GetString();

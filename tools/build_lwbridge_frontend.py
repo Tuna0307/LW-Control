@@ -36,6 +36,15 @@ def remove_locale_template_entry(text, key):
     return text
 
 
+def add_locale_template_entry(text, anchor_key, key, value):
+    anchor_pattern = re.compile(re.escape(json.dumps(anchor_key, ensure_ascii=False)) + r':`[^`]*`,')
+    replacement = json.dumps(key, ensure_ascii=False) + ':`' + value.replace('`', '\\`') + '`,'
+    text, count = anchor_pattern.subn(lambda match: match.group(0) + replacement, text, count=1)
+    if count != 1:
+        raise ValueError(f'Expected exactly one locale anchor: {anchor_key}')
+    return text
+
+
 def apply_hash_locked_delta(text, recipe_path):
     recipe = json.loads(recipe_path.read_text(encoding='utf-8'))
     if recipe.get('schemaVersion') != 1:
@@ -186,6 +195,25 @@ def build(check=False):
                 s,
                 'finally{if(!e&&i.returnToOriginalServer&&a>0)try{await Se(a),F(`automatic map scan returned to server ${a}`)}catch(e){F(`automatic map scan return error `+String(e))}if(Ye.current=!1,!e){let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),Ke(!1),Nt(n).catch(()=>void 0)}}}',
                 'finally{let r=!0;if(!e&&i.returnToOriginalServer&&a>0)try{await Se(a),F(`automatic map scan returned to server ${a}`)}catch(e){r=!1,F(`automatic map scan return error `+String(e))}if(Ye.current=!1,!e){let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null),Ke(!1),Nt(n).catch(()=>void 0)}}}')
+            # R7-147 owner workflow: "Enable automatic scanning" controls the
+            # recurring schedule only. Run Now is a one-shot multi-server cycle and
+            # remains available while recurring scheduling is disabled.
+            s = replace_once(s,
+                'function Jn(e){let t=Math.min(1440,Math.max(20,Math.trunc(Number(e?.intervalMinutes??Wn.intervalMinutes)))),n=Gn((e?.serverIds||[]).join(`,`)),r=[...new Set((e?.selectedTypes||[]).filter(e=>Un.has(e)))];return{enabled:e?.enabled===!0,intervalMinutes:t,serverIds:n,selectedTypes:r.length>0?r:[...Wn.selectedTypes],returnToOriginalServer:e?.returnToOriginalServer!==!1,nextRunAt:Math.max(0,Math.trunc(Number(e?.nextRunAt)||0))}}',
+                'function Jn(e){let t=Math.min(1440,Math.max(20,Math.trunc(Number(e?.intervalMinutes??Wn.intervalMinutes)))),n=Gn((e?.serverIds||[]).join(`,`)),r=[...new Set((e?.selectedTypes||[]).filter(e=>Un.has(e)))];return{enabled:e?.enabled===!0,intervalMinutes:t,serverIds:n,selectedTypes:r.length>0?r:[...Wn.selectedTypes],returnToOriginalServer:e?.returnToOriginalServer!==!1,nextRunAt:Math.max(0,Math.trunc(Number(e?.nextRunAt)||0)),runOnceRequestedAt:Math.max(0,Math.trunc(Number(e?.runOnceRequestedAt)||0))}}')
+            s = replace_once(s,
+                'function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}',
+                'function Zn(e,t,n,r,i){return n&&!r&&!i&&(e.runOnceRequestedAt>0||e.enabled&&t>=e.nextRunAt)}function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}')
+            s = replace_once(s,
+                'for(let t of n){if(e||!Je.current.enabled||!autoOnlineRef.current)break;try{let n=await Se(t);if(e||!Je.current.enabled||!autoOnlineRef.current)break;',
+                'for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;')
+            s = replace_once(s,
+                'let r=Je.current.enabled?Xn(Je.current,Date.now()):{...Jn(Je.current),nextRunAt:0};Je.current=r',
+                'let r=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=r')
+            s = replace_once(s,
+                'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null)',
+                'let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null)')
+
             # Give Map Data per-profile preference keys without moving scheduler
             # ownership out of the top-level app.
             s = replace_once(
@@ -284,6 +312,12 @@ def build(check=False):
                 'map.speed', 'map.normalSpeed', 'map.fastSpeed',
             ):
                 s = remove_locale_template_entry(s, key)
+            locale_code = next(code for code in ('zh-CN','zh-TW','en','id','ja','ko','pt','ru','vi') if path.name.startswith(code + '-'))
+            all_servers_text = {
+                'en': 'All', 'zh-CN': '??', 'zh-TW': '??', 'ja': '???',
+                'ko': '??', 'vi': 'T?t c?', 'id': 'Semua', 'ru': '???', 'pt': 'Todos',
+            }[locale_code]
+            s = add_locale_template_entry(s, 'map.server', 'map.allServers', all_servers_text)
             data = s.encode('utf-8')
         elif path.name == 'MapDataPanel-C1HVeNHr.js':
             s = data.decode('utf-8')
@@ -425,6 +459,57 @@ def build(check=False):
             s = replace_once(s,
                 'async function Qn(){E.current+=1,Pe.current+=1,Yt(!1),q(!1),yn(``);try{let e=await ne(L);Ie.current+=1,',
                 'async function Qn(){E.current+=1,Pe.current+=1,Yt(!1),q(!1),yn(``);try{let e=await ne(L);clearAutoSearchOnce.current=!0,Ie.current+=1,')
+            # R7-147 owner Map Data workflow correction:
+            # - scan rows are session data (backend owns lifecycle)
+            # - Manual has one live server and therefore no server selector
+            # - Auto can browse All current-session scanned servers
+            # - Run Now is independent from the recurring-enable checkbox
+            # - Clear is available in both tabs and clears all scan rows
+            # - row navigation automatically travels to the row server first
+            # - moving Doom Walker/SuperRunningBoss uses march Follow, not coordinate Jump.
+            s = replace_once(s, ',at as u,bn as d,', ',at as u,ot as serverJump,bn as d,')
+            s = replace_once(s,
+                'function A(e){return Ie.has(e)}function He(e){',
+                'function A(e){return Ie.has(e)}function isDoomWalker(e,t){let n=Number(k(t,`configType`)),r=Number(k(t,`configSpecial`)??k(t,`special`));return e===`monster`&&(r===32||n===8&&r===11)}function usesFollow(e,t){return A(e)||isDoomWalker(e,t)}function He(e){')
+            s = replace_once(s, 'function _(t){if(A(e)){', 'function _(t){if(usesFollow(e,t)){')
+            s = replace_once(s,
+                'function readBrowseServer(e,t){let n=Number(localStorage.getItem(mapPrefKey(`mapBrowseServer`,e)));return Number.isInteger(n)&&n>0?n:Number(t)||0}',
+                'function readBrowseServer(e,t){let r=localStorage.getItem(mapPrefKey(`mapBrowseServer`,e));if(r!==null){let n=Number(r);if(Number.isInteger(n)&&n>=0)return n}return Number(t)||0}')
+            s = replace_once(s,
+                'L>0&&localStorage.setItem(mapPrefKey(`mapBrowseServer`,profileId),String(L))',
+                'L>=0&&localStorage.setItem(mapPrefKey(`mapBrowseServer`,profileId),String(L))')
+            s = replace_once(s,
+                '(0,b.useEffect)(()=>{if(w.isReading&&w.serverId!==L){E.current+=1,Pe.current+=1,O.current.clear(),ct(w.serverId),B(1),H([]),U(0),Yt(!0);return}!w.isReading&&L<=0&&w.serverId>0&&ct(w.serverId)},[L,w.serverId,w.isReading]),',
+                '(0,b.useEffect)(()=>{if(w.isReading&&w.serverId!==L){E.current+=1,Pe.current+=1,O.current.clear(),ct(w.serverId),B(1),H([]),U(0),Yt(!0);return}!w.isReading&&Y===`manual`&&w.serverId>0&&L!==w.serverId&&(E.current+=1,Pe.current+=1,O.current.clear(),ct(w.serverId),B(1),H([]),U(0),Yt(!0))},[L,w.serverId,w.isReading,Y]),')
+            s = replace_once(s,
+                'if(F!==`scheduledPlunder`&&!(F===`treasure`&&h&&J&&!Nn.playerUid)){if(!L){E.current+=1,B(1),H([]),U(0);return}er(z)}',
+                'if(F!==`scheduledPlunder`&&!(F===`treasure`&&h&&J&&!Nn.playerUid)){er(z)}')
+            s = replace_once(s, '(0,b.useEffect)(()=>{if(L<=0)return;let e=Ie.current+1;', '(0,b.useEffect)(()=>{if(L<0)return;let e=Ie.current+1;')
+            s = replace_once(s, 'async function stopAutoScan(){$({enabled:!1});await Zn()}', 'async function stopAutoScan(){$({enabled:!1,runOnceRequestedAt:0});await Zn()}')
+            s = replace_once(s, 'let e=await ne(L);clearAutoSearchOnce.current=!0', 'let e=await ne(0);clearAutoSearchOnce.current=!0')
+            s = replace_once(s,
+                'disabled:!h||!S.enabled||be||w.isReading,onClick:()=>$({nextRunAt:Date.now()})',
+                'disabled:!h||be||w.isReading,onClick:()=>$({runOnceRequestedAt:Date.now()})')
+            s = replace_once(s,
+                '(0,D.jsx)(`button`,{type:`button`,className:be?`danger`:`` ,disabled:!be,onClick:stopAutoScan,children:C(`common.stop`)})]}),',
+                '(0,D.jsx)(`button`,{type:`button`,className:be?`danger`:`` ,disabled:!be,onClick:stopAutoScan,children:C(`common.stop`)}),(0,D.jsx)(`button`,{type:`button`,disabled:w.isReading||be,onClick:Qn,children:C(`map.clearServer`)})]}),')
+            s = replace_once(s,
+                'Array.isArray(p?.savedServerIds)&&p.savedServerIds.length>1&&(0,D.jsx)(`select`,{"aria-label":C(`map.server`),value:L,onChange:e=>{E.current+=1,Pe.current+=1,O.current.clear(),ct(Number(e.target.value)),B(1),H([]),U(0),Yt(!0)},children:p.savedServerIds.map(e=>(0,D.jsx)(`option`,{value:e,children:`${C(`map.server`)} ${e}`},e))})',
+                'Y===`auto`&&Array.isArray(p?.savedServerIds)&&p.savedServerIds.length>1&&(0,D.jsx)(`select`,{"aria-label":C(`map.server`),value:L,onChange:e=>{E.current+=1,Pe.current+=1,O.current.clear(),ct(Number(e.target.value)),B(1),H([]),U(0),Yt(!0)},children:[(0,D.jsx)(`option`,{value:0,children:C(`map.allServers`)},`all`),...p.savedServerIds.map(e=>(0,D.jsx)(`option`,{value:e,children:`${C(`map.server`)} ${e}`},e))]})')
+            s = replace_once(s,
+                'onClick:()=>{if(L<=0){yn({code:`MAP_SAVED_CONTEXT_UNAVAILABLE`});return}z===1?er(1):B(1)}',
+                'onClick:()=>{z===1?er(1):B(1)}')
+            # R7-147: option families can legitimately be absent/empty (for example
+            # Zombie Boss names in preview or a partial options response). Render
+            # that as an empty select list instead of crashing the entire Map page.
+            s = replace_once(s, 'dt[F].map(e=>', '(dt[F]??[]).map(e=>')
+            s = replace_once(s, 'dt.resource.forEach(t=>', '(dt.resource??[]).forEach(t=>')
+            s = replace_once(s, 'dt[F].forEach(t=>', '(dt[F]??[]).forEach(t=>')
+            s = replace_once(s, 'function ot({items:e,value:t,label:n,allLabel:r,onChange:i}){let a=', 'function ot({items:e,value:t,label:n,allLabel:r,onChange:i}){e=Array.isArray(e)?e:[];let a=')
+            s = replace_once(s, 'function st({items:e,value:t,gameTexts:n,onChange:r}){let{t:i}=m(),', 'function st({items:e,value:t,gameTexts:n,onChange:r}){e=Array.isArray(e)?e:[];let{t:i}=m(),')
+            old_nav = 'let mr=(0,b.useCallback)(async e=>{if(e.serverId!==w.serverId){T.current(`map jump blocked stale server=${e.serverId} current=${w.serverId}`);return}let n=String(k(e,`marchUuid`)||``).trim();if(F!==`scheduledPlunder`&&A(F)&&n){let r=`${e.serverId}:${n}`;en(r);try{let r=await t({serverId:e.serverId,marchUuid:n});T.current(`map march follow server=${r.serverId} march=${r.marchUuid}`)}catch(e){T.current(`map march follow error `+String(e))}finally{en(``)}return}let r=Number(k(e,`x`)),i=Number(k(e,`y`));if(!Number.isInteger(r)||!Number.isInteger(i)||r<1||i<1)return;let a=`${e.serverId}:${r}:${i}`;en(a);try{let t=await u({serverId:e.serverId,x:r,y:i});T.current(`map coordinate jump server=${t.serverId} x=${t.x} y=${t.y}`)}catch(e){T.current(`map coordinate jump error `+String(e))}finally{en(``)}},[F,w.serverId]),hr='
+            new_nav = 'let mr=(0,b.useCallback)(async e=>{let rowServer=Number(e.serverId),march=String(k(e,`marchUuid`)||``).trim(),moving=F!==`scheduledPlunder`&&usesFollow(F,e),xpos=Number(k(e,`x`)),ypos=Number(k(e,`y`));if(!Number.isInteger(rowServer)||rowServer<=0||moving&&!march||!moving&&(!Number.isInteger(xpos)||!Number.isInteger(ypos)||xpos<1||ypos<1))return;let key=moving?`${rowServer}:${march}`:`${rowServer}:${xpos}:${ypos}`;en(key);try{if(rowServer!==w.serverId){let moved=await serverJump(rowServer);T.current(`map navigation switched ${moved.previousServerId} -> ${rowServer}`)}if(moving){let result=await t({serverId:rowServer,marchUuid:march});T.current(`map march follow server=${result.serverId} march=${result.marchUuid}`)}else{let result=await u({serverId:rowServer,x:xpos,y:ypos});T.current(`map coordinate jump server=${result.serverId} x=${result.x} y=${result.y}`)}}catch(error){T.current(`map navigation error `+String(error))}finally{en(``)}},[F,w.serverId]),hr='
+            s = replace_once(s, old_nav, new_nav)
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

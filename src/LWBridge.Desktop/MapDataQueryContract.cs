@@ -80,7 +80,7 @@ internal static class MapDataQueryContract
         if (!payload.TryGetProperty("query", out JsonElement query) || query.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_MAP_QUERY", "map_search query must be an object.");
 
-        int serverId = RequiredServerId(query);
+        int serverId = RequiredServerIdOrAll(query);
         int page = OptionalPositiveInt(query, "page", 1);
         int pageSize = OptionalPositiveInt(query, "pageSize", RecoveredPageSize);
         IReadOnlyList<MapDataSort> sorts = NormalizeSorts(query);
@@ -159,11 +159,19 @@ internal static class MapDataQueryContract
 
     public static int RequiredServerId(JsonElement payload)
     {
+        int serverId = RequiredServerIdOrAll(payload);
+        if (serverId == 0)
+            throw new BridgeCommandException("INVALID_SERVER_ID", "serverId must be an integer from 1 through 99999.");
+        return serverId;
+    }
+
+    public static int RequiredServerIdOrAll(JsonElement payload)
+    {
         if (!payload.TryGetProperty("serverId", out JsonElement value) ||
             value.ValueKind != JsonValueKind.Number ||
             !value.TryGetInt32(out int serverId) ||
-            serverId < 1 || serverId > 99999)
-            throw new BridgeCommandException("INVALID_SERVER_ID", "serverId must be an integer from 1 through 99999.");
+            serverId < 0 || serverId > 99999)
+            throw new BridgeCommandException("INVALID_SERVER_ID", "serverId must be 0 (all servers) or an integer from 1 through 99999.");
         return serverId;
     }
 
