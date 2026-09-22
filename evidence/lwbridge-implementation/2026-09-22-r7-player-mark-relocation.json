@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-140",
+  "date": "2026-09-22",
+  "title": "Player mark survives rescan/restart and relocates to moved coordinates",
+  "status": "PASS_CURRENT_PLUS_HISTORICAL",
+  "branch": "research/offline-controller",
+  "baseRevision": "b07d9ffa04b007445098787fe6a6553b672f186b",
+  "scope": {
+    "productionBehaviorChanged": false,
+    "acceptanceCase": "C04",
+    "claim": "C04 is closed by a current file-backed deterministic mark/rescan/restart/relocate sequence composed with the existing live map_coordinate_jump authority LWB-R7-061. This checkpoint does not claim a new live mark/rescan run."
+  },
+  "deterministicSequence": {
+    "database": "real file-backed SQLite",
+    "serverId": 2212,
+    "ownerUid": "12345678901234567890",
+    "initial": {
+      "recordKey": "city-old-position",
+      "x": 111,
+      "y": 222,
+      "markPersistedByPublicCommand": true
+    },
+    "rescan": {
+      "runId": "mark-relocate-rescan",
+      "selectedTypes": [
+        "city"
+      ],
+      "oldRecordRemoved": true,
+      "movedRecordKey": "city-new-position",
+      "movedX": 333,
+      "movedY": 444,
+      "markIdentityPreserved": true,
+      "publicationTransactional": true
+    },
+    "restart": {
+      "storeReopened": true,
+      "markedOnlyTotal": 1,
+      "ownerIdentityMatched": true,
+      "markedOverlayTrue": true,
+      "resolvedX": 333,
+      "resolvedY": 444,
+      "staleMarkedSnapshotCoordinatesUsed": false
+    },
+    "relocationRouting": {
+      "command": "map_coordinate_jump",
+      "entryBoundary": "LWBridgeBackend.InvokeAsync -> INativeAsyncCommandService",
+      "calls": 1,
+      "serverId": 2212,
+      "x": 333,
+      "y": 444,
+      "returnedSameCoordinates": true
+    },
+    "unmark": {
+      "publicCommand": "map_player_mark_set",
+      "markDeleted": true,
+      "secondRestartMarkedOnlyTotal": 0,
+      "movedCityRemainsPublished": true
+    }
+  },
+  "liveNavigationAuthority": {
+    "evidenceId": "LWB-R7-061",
+    "evidenceFile": "evidence/lwbridge-implementation/2026-09-19-r7-coordinate-jump-live.json",
+    "command": "map_coordinate_jump",
+    "entryPoint": "ManualMapScanCommandService.InvokeAsync",
+    "serverId": 2212,
+    "targetTile": {
+      "x": 346,
+      "y": 735
+    },
+    "returnToPlayerTile": {
+      "x": 309,
+      "y": 682
+    },
+    "targetResultMatched": true,
+    "returnToPlayerProven": true,
+    "proof": "owned-session correlated normal-world GotoWorldPos completion callback",
+    "safety": {
+      "cameraNavigationOnly": true,
+      "mapScanStarted": false,
+      "attackOrPlunder": false,
+      "claimOrCollect": false,
+      "messaging": false
+    }
+  },
+  "regression": {
+    "file": "tests/LWBridge.Desktop.Checks/PlayerMarkRelocationChecks.cs",
+    "worktreeSha256": "BF15247E860A0605DA39879B2213FD7788A27067F2E8494D5F44D3A7ED5AC85E",
+    "committedCheckoutSha256": "1E35DAB51FA99017530C7B29B55C15D0B9E4716AF3ED1E9444BA4C3B550BF500",
+    "hashDifferenceReason": "Git line-ending normalization only; staged checkout is the commit-candidate identity.",
+    "moduleInitializer": true
+  },
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "gameRunningAfterChecks": false,
+    "launcherRunningAfterChecks": false
+  },
+  "acceptanceEffect": {
+    "C04": {
+      "status": "pass_current_plus_historical",
+      "rationale": "Current deterministic evidence proves mark identity survives a transactional City rescan, file-backed app restart and coordinate change; marked-only query resolves the moved indexed row; public backend relocation receives the moved coordinates. LWB-R7-061 separately live-proves map_coordinate_jump on an owned current-client session."
+    }
+  },
+  "remaining": [
+    "B11 native add/update/remove/movement transition matrix remains incomplete.",
+    "C07 vanished/replaced-target failure branches remain incomplete.",
+    "Ghost/Supplies positive-population gates remain separate.",
+    "State-changing action acceptance remains authorization/implementation dependent.",
+    "Simultaneous real multi-account UI population and final human F04 walkthrough remain open."
+  ]
+}

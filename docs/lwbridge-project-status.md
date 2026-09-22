@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-140, 2026-09-22
+
+C04 is now **PASS_CURRENT_PLUS_HISTORICAL**. A real file-backed regression proves mark identity survives transactional City replacement from `(111,222)` to `(333,444)`, application-style reopen, `markedOnly` search, public backend relocation routing with the moved coordinates, durable unmark and a second reopen. `LWB-R7-061` remains the separate live authority for owned-session `map_coordinate_jump`. Release is 0 warnings/0 errors and all six deterministic groups pass. The current 47-case matrix is R7-140; remaining ordinary partials are B11, C07 and F04. See [R7-140 finding](reviews/2026-09-22-r7-140-player-mark-relocation.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-player-mark-relocation.json).
+
 ## Latest implementation checkpoint - LWB-R7-139, 2026-09-22
 
 B07 is now **LIVE-PROVEN** with a production failure-boundary repair. Deliberately stopping the exact owned game/bridge during an active Fast Monster scan originally degraded to generic incomplete-scan after ~65.9 s. `MapScanEngine` now rethrows only recovered `GAME_CONNECTION_UNAVAILABLE` as run-terminal; generic/transient capture errors keep existing retry semantics. The repaired live run ended in 18.324 s scan wall with phase `error`, exact `game connection unavailable`, durable `failed`, `failedBlocks=0`, no partial publication, prior Monster data preserved and resume unavailable. Release 0/0, six deterministic groups, exact package restoration and zero owned processes pass. Current matrix is R7-139; remaining read-only technical gaps are B11, C04 and C07. See [R7-139 finding](reviews/2026-09-22-r7-139-bridge-loss-scan-failfast.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-bridge-loss-scan-failfast.json).

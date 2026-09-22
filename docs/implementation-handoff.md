@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-140, 2026-09-22
+
+**C04 is closed as `PASS_CURRENT_PLUS_HISTORICAL`.** Current deterministic/file-backed acceptance marks by stable server/owner identity, transactionally moves the City through a rescan, reopens the database, resolves the marked row at its new indexed coordinates, routes public `map_coordinate_jump` with those coordinates, unmarks and verifies a second restart. `LWB-R7-061` supplies the already-live owned-session coordinate-jump behavior. Do not rewrite this as a new live mark/rescan proof. See `docs/reviews/2026-09-22-r7-140-player-mark-relocation.md`, `evidence/lwbridge-implementation/2026-09-22-r7-player-mark-relocation.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7140.json`.
+
+**Next technically actionable read-only gaps:** B11 native add/update/remove/movement transitions and C07 vanished/replaced-target failure branches. F04 remains the human normal-user built-executable walkthrough. Population, authorization and simultaneous multi-account gates remain separate.
+
 ## Current continuation checkpoint - LWB-R7-139, 2026-09-22
 
 **B07 bridge loss/recovery mid-scan is closed live.** Failure-first live proof stopped the exact owned game while a real Fast Monster scan was active and exposed a production issue: definitive connection loss was folded into generic per-block failure and surfaced as `direct map scan contains failed batches`. The engine now treats exact recovered `GAME_CONNECTION_UNAVAILABLE / game connection unavailable` as run-terminal, preserving ordinary block retries for all other errors. The repaired live run ended with phase `error`, durable `failed`, `failedBlocks=0`, no partial publication, prior Monster data intact, resume false and exact cleanup. See `docs/reviews/2026-09-22-r7-139-bridge-loss-scan-failfast.md`, `evidence/lwbridge-implementation/2026-09-22-r7-bridge-loss-scan-failfast.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7139.json`.
