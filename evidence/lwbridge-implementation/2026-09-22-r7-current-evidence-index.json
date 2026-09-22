@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-149-CURRENT-EVIDENCE-INDEX",
+  "indexId": "LWB-R7-150-CURRENT-EVIDENCE-INDEX",
   "generatedAt": "2026-09-23",
-  "parentRevision": "a41037df4e105db62379c5bf799ba35f3a93a197",
+  "parentRevision": "e594455ff43abe38d657f66a4eec3eb243e3585c",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-train-list-no-jump-auto.json",
+        "sha256": "379AD8644C21422A6FC00723DE3F61D8CECD621F828AB9BCCF5516AB0C818689"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-23-r7-scheduled-plunder-retirement.json",
         "sha256": "9402CD8CD60DA1C2491296A3CF0AF6403831021CA37D29205283F9D8F7FF2BB4"
@@ -161,7 +165,7 @@
     ]
   },
   "inventory": {
-    "jsonFiles": 297,
+    "jsonFiles": 298,
     "txtFiles": 13,
     "markdownIndexFiles": 1,
     "exactDuplicateGroups": 0

@@ -3,7 +3,8 @@ using System.Text.Json;
 namespace LWBridge.Desktop;
 
 internal sealed record MapScanStartOptions(
-    IReadOnlyList<string> SelectedTypes);
+    IReadOnlyList<string> SelectedTypes,
+    int? TargetServerId = null);
 
 internal sealed record MapScanStrategyPlan(
     string ScanMode,
@@ -44,12 +45,26 @@ internal static class MapScanContract
             selected = filtered;
         }
 
-        return new MapScanStartOptions(selected);
+        int? targetServerId = null;
+        if (payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty("targetServerId", out JsonElement targetValue))
+        {
+            if (!targetValue.TryGetInt32(out int parsedTarget) || parsedTarget is < 1 or > 99999)
+                throw new BridgeCommandException(
+                    "INVALID_SERVER_ID",
+                    "target server ID must be an integer from 1 to 99999");
+            targetServerId = parsedTarget;
+        }
+
+        return new MapScanStartOptions(selected, targetServerId);
     }
 }
 
 internal static class MapScanStrategyPlanner
 {
+    internal static bool IsDirectTrainListSelection(IReadOnlyList<string> selectedTypes) =>
+        selectedTypes.Count >= 1 && selectedTypes.All(type => type is "truck" or "railway");
+
     internal const string FastFullWorldStrategy = "current_fast_full_world_v2";
     internal const string FastTrainListStrategy = "current_fast_train_list_v1";
     internal const string FastZombieBossStrategy = "current_fast_zombie_boss_lod2_v1";
@@ -74,9 +89,7 @@ internal static class MapScanStrategyPlanner
             bool zombieBossOnly =
                 selectedTypes.Count == 1 &&
                 selectedTypes[0] == "zombie_boss";
-            bool trainListOnly =
-                selectedTypes.Count >= 1 &&
-                selectedTypes.All(type => type is "truck" or "railway");
+            bool trainListOnly = IsDirectTrainListSelection(selectedTypes);
             string strategy = zombieBossOnly
                 ? FastZombieBossStrategy
                 : trainListOnly

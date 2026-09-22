@@ -12,7 +12,8 @@ internal sealed record MapScanExecutionRequest(
     int? PlayerTileX = null,
     int? PlayerTileY = null,
     string ScanMode = "normal",
-    string? LaunchSessionId = null);
+    string? LaunchSessionId = null,
+    int? LiveServerId = null);
 
 internal sealed record MapScanBlockCapture(
     int ServerId,

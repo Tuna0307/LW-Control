@@ -1,6 +1,6 @@
 # Map Data — current status
 
-**Current through:** `LWB-R7-149`, 2026-09-23
+**Current through:** `LWB-R7-150`, 2026-09-23
 **Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
 This is the current entry point for Manual Scan, Auto Scan, saved data, result tabs, navigation, marks, Treasure/Supplies, and current row actions. Scheduled Plunder is retired and absent from the shipped product. `docs/lwbridge-map-scan.md` remains the cumulative recovery ledger; older delivery/checkpoint prose is historical unless linked here.
@@ -13,7 +13,7 @@ The ordinary shared scanner is complete for the standard current world geometry 
 |---|---|
 | Full-world geometry | Exact 2,500 logical blocks / 10,000 AOI cells on the standard world |
 | Default mixed/full-world strategy | `current_fast_full_world_v2`, concurrency 20 |
-| Truck/Railway-only | `current_fast_train_list_v1`; one official `GetTrainList(true)` refresh, zero AOI sweep |
+| Truck/Railway-only | `current_fast_train_list_v1`; official `GetTrainList(true)`, zero AOI sweep; R7-150 can publish covered remote-server datasets without physical travel |
 | Zombie Boss-only | `current_fast_zombie_boss_lod2_v1`, concurrency 20 |
 | Nonstandard geometry | Proven fallback only for single City/Resource via `current_lod0_block_v1`, concurrency 8; unsupported combinations fail closed |
 | Publication | Staged run + transactional selected-kind replacement; no partial successful publication |
@@ -52,7 +52,7 @@ Representative current-v20 results:
 | Original all-eight selection | - | 77.890 s | 2,500/2,500, 0 failed/unread |
 | Two-server all-eight | - | 82.677 s on 2212 / 78.200 s on 2213 | both complete, stored, reopened, returned to origin |
 
-The live R7-148 Train-list response from server 2212 also exposed game-owned `matchServers` coverage for 2182, 2193, 2197, 2198, 2204, 2207, 2208, 2209 and 2212 while returning Truck rows from only a subset. This proves the underlying list is cross-server and distinguishes covered-empty servers from servers outside the match set. Auto Scan has **not yet** been changed to skip travel based on this coverage; that remains a separate implementation step.
+R7-150 now uses that game-owned `matchServers` coverage in Auto Scan. A current-v20 live proof stayed physically on 2212 while publishing a complete Truck/Railway dataset for covered remote server 2182 in 0.809 s: 2,500/2,500, 0 failed/unread, 2 Truck rows, `serverId=2182`, `liveServerId=2212`, `serverIdSource=remote_train_list`. The preceding coverage refresh took 0.629 s. Uncovered targets and mixed selections still use the proven jump-first path.
 
 These are live observations, not fixed promises. World population, network/session admission, detail requests, and server state can change wall time.
 
@@ -66,7 +66,7 @@ City Excel export is intentionally **retired by owner** and is not unfinished wo
 
 ## Auto Scan
 
-Auto Scan uses the same proven scanner rather than a second acquisition implementation. Current evidence covers ordered targets, confirmed travel before scan start, per-target failure isolation, return to origin, Stop/disable behavior, persisted scheduling, navigation/Refresh/reconnect ownership, app-restart safe rejection/recovery, and three consecutive 2212 -> 2213 cycles with six unique complete scan legs. R7-147 additionally separates recurring enablement from one-shot **Run now**: a user may run the configured multi-server cycle while recurring Auto is unchecked, without silently enabling future schedules.
+Auto Scan uses the same proven scanner rather than a second acquisition implementation. Current evidence covers ordered targets, per-target failure isolation, return to origin, Stop/disable behavior, persisted scheduling, navigation/Refresh/reconnect ownership, app-restart safe rejection/recovery, and three consecutive 2212 -> 2213 cycles with six unique complete scan legs. R7-147 separates recurring enablement from one-shot **Run now**. R7-150 adds a guarded exception to the old travel-before-scan rule: Truck/Railway-only targets covered by the current official Train-list `matchServers` snapshot scan directly without travel; uncovered or mixed targets still require confirmed travel before scan start.
 
 ## State-changing features
 
@@ -80,14 +80,15 @@ These are deliberately separated from read-only Map Data correctness:
 
 1. Ghost positive-row proof when the event/population exists, no earlier than the owner-deferred 2026-09-24 checkpoint.
 2. Supplies positive-row proof when an authentic `WorldSuppliesPoint` exists.
-3. Explicitly authorized live Treasure/Truck/Dispatch/Alliance state-changing acceptance, with suitable expendable targets.
-4. Fresh positive current-v20 Railway dataset/Follow acceptance when a suitable Train is present on the actively validated target server. R7-148 now sees authentic Railway rows in the global official Train list on matched servers, so the old all-empty population statement is retired.
+3. Explicitly authorized live Treasure/Alliance state-changing acceptance, with suitable expendable targets. Scheduled Plunder is retired.
+4. Fresh positive current-v20 Railway row/Follow acceptance when a suitable Train is present; R7-150 coverage observed Railway population on matched server 2207, but the no-jump proof target 2182 had zero Railway rows.
 5. Simultaneous real multi-account UI population if multiple live accounts/sessions become available.
 
-The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R7-147. R7-148 additionally removes the AOI sweep from Truck/Railway-only scans. Cross-server no-jump publication and Secret Task fast lookup remain separate optimization work, not regressions in the ordinary scanner.
+The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R7-147. R7-148 removes the AOI sweep from Truck/Railway-only scans, and R7-150 removes physical travel for covered cross-server Truck/Railway Auto targets. Secret Task fast lookup remains the next separate optimization target.
 
 ## Primary source trail
 
+- `evidence/lwbridge-implementation/2026-09-23-r7-train-list-no-jump-auto.json`
 - `evidence/lwbridge-implementation/2026-09-23-r7-direct-train-list-speed.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-map-owner-workflow-corrections.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-map-correctness-multiserver-speed.json`
@@ -96,3 +97,4 @@ The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R
 - `evidence/lwbridge-implementation/2026-09-22-r7-supplies-population-recheck.json`
 - `docs/reviews/2026-09-22-r7-130-map-corrections.md` through `docs/reviews/2026-09-22-r7-147-map-owner-workflow-corrections.md`
 - `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`
+- `docs/reviews/2026-09-23-r7-150-train-list-no-jump-auto.md`

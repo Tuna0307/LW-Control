@@ -13,6 +13,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage;
     private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
     private readonly Func<int?>? getLiveServerId;
+    private readonly Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage;
     private readonly IMapScanBlockSource blockSource;
     private CancellationTokenSource? activeCancellation;
     private MapScanProcessLease? activeScanLease;
@@ -38,6 +39,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private bool coordinateJumping;
     private bool serverJumping;
     private bool treasureInspecting;
+    private bool trainCoverageReading;
+    private int liveServerId;
+    private int[] truckMatchServerIds = [];
     private string? lastError;
 
     public ManualMapScanCommandService(
@@ -53,6 +57,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         getAssetImage = currentClientSource.GetAssetImageAsync;
         inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
+        getTrainListCoverage = currentClientSource.GetTrainListCoverageAsync;
         blockSource = currentClientSource;
         ReconcileInterruptedScansAtStartup();
     }
@@ -65,7 +70,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         Func<int?>? getLiveServerId = null,
         Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null,
         Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null,
-        Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates = null)
+        Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates = null,
+        Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
@@ -75,6 +81,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.followMarch = followMarch;
         this.getAssetImage = getAssetImage;
         this.inspectTreasureStates = inspectTreasureStates;
+        this.getTrainListCoverage = getTrainListCoverage;
         currentClientSource = null!;
         ReconcileInterruptedScansAtStartup();
     }
@@ -84,7 +91,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
             "map_coordinate_jump" or "map_march_follow" or "server_jump" or
-            "game_asset_image" or
+            "game_asset_image" or "map_train_list_coverage" or
             "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
             "map_treasure_claim_status";
 
@@ -95,6 +102,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     {
         if (command == "game_asset_image")
             return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command == "map_train_list_coverage")
+            return await ReadTrainListCoverageAsync(cancellationToken).ConfigureAwait(false);
         if (command is "map_treasure_state_refresh" or
             "map_treasure_state_refresh_all" or
             "map_treasure_claim_status")
@@ -135,6 +144,52 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
+
+    private async Task<object> ReadTrainListCoverageAsync(CancellationToken cancellationToken)
+    {
+        if (getTrainListCoverage is null)
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                "Train-list coverage requires the live current-client source.");
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            if (isReading)
+                throw new BridgeCommandException("SCAN_RUNNING", "stop the map scan first");
+            if (coordinateJumping || serverJumping || treasureInspecting || trainCoverageReading)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            trainCoverageReading = true;
+        }
+
+        try
+        {
+            CurrentClientTrainListCoverageResult result =
+                await getTrainListCoverage(cancellationToken).ConfigureAwait(false);
+            int[] match = result.MatchServerIds.Distinct().OrderBy(id => id).ToArray();
+            lock (gate)
+            {
+                liveServerId = result.LiveServerId;
+                if (serverId <= 0) serverId = result.LiveServerId;
+                truckMatchServerIds = match;
+            }
+            PublishStatusChanged();
+            return new
+            {
+                liveServerId = result.LiveServerId,
+                matchServerIds = match,
+                truckServerIds = result.TruckServerIds.ToArray(),
+                railwayServerIds = result.RailwayServerIds.ToArray(),
+            };
+        }
+        finally
+        {
+            lock (gate) trainCoverageReading = false;
+        }
+    }
 
     private async Task<object> InspectTreasureStateAsync(
         string command,
@@ -544,6 +599,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             lock (gate)
             {
                 serverId = targetServerId;
+                liveServerId = targetServerId;
+                truckMatchServerIds = [];
                 lastError = null;
             }
             PublishStatusChanged();
@@ -708,6 +765,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 concurrency = 0;
                 lastError = null;
                 serverId = 0;
+                liveServerId = 0;
                 worldId = 0;
                 totalBlocks = completedBlocks = failedBlocks = inflightBlocks = 0;
                 unreadBlocks = 0;
@@ -746,10 +804,18 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SIZE_UNAVAILABLE",
                     "world map dimensions are unavailable");
 
+            if (options.TargetServerId.HasValue &&
+                !MapScanStrategyPlanner.IsDirectTrainListSelection(selectedTypes))
+            {
+                throw new BridgeCommandException(
+                    "LIVE_REMOTE_SCAN_UNSUPPORTED",
+                    "targetServerId is supported only for Truck/Railway direct-list scans");
+            }
+            int targetServerId = options.TargetServerId ?? context.ServerId;
             MapScanStrategyPlan strategy = MapScanStrategyPlanner.Plan(context, selectedTypes);
             var request = new MapScanExecutionRequest(
                 runId,
-                context.ServerId,
+                targetServerId,
                 context.WorldId,
                 context.TileWidth,
                 context.TileHeight,
@@ -759,14 +825,16 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 PlayerTileX: context.PlayerTileX,
                 PlayerTileY: context.PlayerTileY,
                 ScanMode: strategy.ScanMode,
-                LaunchSessionId: context.LaunchSessionId);
+                LaunchSessionId: context.LaunchSessionId,
+                LiveServerId: context.ServerId);
 
             lock (gate)
             {
                 if (closed || !ReferenceEquals(activeCancellation, scanCancellation) ||
                     scanCancellation.IsCancellationRequested)
                     throw new OperationCanceledException(scanCancellation.Token);
-                serverId = context.ServerId;
+                serverId = targetServerId;
+                liveServerId = context.ServerId;
                 worldId = context.WorldId;
                 scanMode = strategy.ScanMode;
                 scanStrategy = strategy.StrategyId;
@@ -959,7 +1027,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     {
         bool shouldResolveLiveServer;
         lock (gate)
-            shouldResolveLiveServer = !closed && !isReading && serverId <= 0;
+            shouldResolveLiveServer = !closed && !isReading;
         if (shouldResolveLiveServer && getLiveServerId is not null)
         {
             int? resolvedServerId = getLiveServerId();
@@ -967,8 +1035,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             {
                 lock (gate)
                 {
-                    if (!closed && !isReading && serverId <= 0)
-                        serverId = resolvedServerId.Value;
+                    if (!closed && !isReading)
+                    {
+                        liveServerId = resolvedServerId.Value;
+                        if (serverId <= 0) serverId = resolvedServerId.Value;
+                    }
                 }
             }
         }
@@ -986,7 +1057,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return new
             {
                 serverId,
-                serverIdSource = serverId > 0 ? "live" : "none",
+                liveServerId = liveServerId > 0 ? liveServerId : serverId,
+                serverIdSource = serverId <= 0 ? "none" :
+                    liveServerId > 0 && serverId != liveServerId ? "remote_train_list" : "live",
                 scanRunId,
                 isReading,
                 phase,
@@ -1009,7 +1082,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 resumeAvailable = false,
                 homeServerId = (int?)null,
                 seasonServerIds = (int[]?)null,
-                truckMatchServerIds = (int[]?)null,
+                truckMatchServerIds,
                 lastError,
                 worldId,
             };

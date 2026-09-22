@@ -993,9 +993,12 @@ internal static class ManualMapScanCommandServiceChecks
               String(freshStatus, "serverIdSource") == "live" &&
               heartbeatReads == 1,
             "fresh idle Map Scan status must initialize its unknown server from the owned live heartbeat");
-        _ = Status(freshStatusService);
-        Check(heartbeatReads == 1,
-            "known idle Map Scan status must not repeatedly overwrite server ownership from heartbeat snapshots");
+        JsonElement secondFreshStatus = Status(freshStatusService);
+        Check(heartbeatReads == 2 &&
+              Int(secondFreshStatus, "serverId") == SyntheticOriginalServerId &&
+              Int(secondFreshStatus, "liveServerId") == SyntheticOriginalServerId &&
+              String(secondFreshStatus, "serverIdSource") == "live",
+            "idle Map Scan status may refresh physical liveServerId without changing the current dataset server identity");
         freshStatusService.Close();
     }
 

@@ -1,0 +1,117 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-150",
+  "title": "Cross-server Train-list no-jump Auto scan",
+  "date": "2026-09-23",
+  "parentRevision": "e594455ff43abe38d657f66a4eec3eb243e3585c",
+  "scope": "Truck/Railway-only covered remote targets; mixed/uncovered targets retain jump-first fallback.",
+  "liveProof": {
+    "proof": "current_v20_train_list_remote_no_jump",
+    "originalLiveServerId": 2212,
+    "targetServerId": 2182,
+    "coverage": {
+      "matchServerIds": [
+        2182,
+        2193,
+        2197,
+        2198,
+        2204,
+        2207,
+        2208,
+        2209,
+        2212
+      ],
+      "truckServerIds": [
+        2182,
+        2193,
+        2197,
+        2198,
+        2204,
+        2207,
+        2208,
+        2209
+      ],
+      "railwayServerIds": [
+        2207
+      ],
+      "wallSeconds": 0.6288313
+    },
+    "scan": {
+      "wallSeconds": 0.809439,
+      "serverId": 2182,
+      "liveServerId": 2212,
+      "serverIdSource": "remote_train_list",
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "truckCount": 2,
+      "railwayCount": 0
+    },
+    "physicalServer": {
+      "beforeScan": 2212,
+      "afterScan": 2212,
+      "unchanged": true
+    },
+    "safety": {
+      "serverJumpInvoked": false,
+      "stateChangingGameplayAction": false
+    }
+  },
+  "routing": {
+    "eligibleSelection": "one or more selected types, all of them truck or railway",
+    "coveredTarget": "map_scan_start with targetServerId; no server_jump",
+    "uncoveredTarget": "existing server_jump then ordinary map_scan_start",
+    "mixedSelection": "existing jump-first path",
+    "coverageInvalidation": [
+      "real server jump",
+      "per-target Train-list error"
+    ],
+    "physicalServerField": "liveServerId",
+    "datasetServerField": "serverId"
+  },
+  "freshnessPolicy": "Coverage decision may be reused inside the Auto cycle, but each target scan refreshes the official Train list; no stale row snapshot cache was introduced.",
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministic": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "frontendGeneratorCheck": true,
+    "browserSourceParityChecks": 36,
+    "automaticScanStrategy": true,
+    "r7131MapData": true,
+    "r7150AutoNoJumpFallback": true,
+    "r7136RestartOwnership": true,
+    "normalProductionWindowSmoke": {
+      "ok": true,
+      "executableSha256WorkingTree": "212DDD57D3C1917787FA108D217C186A80ECCF434D63E9082E4B6CBD40729FEA",
+      "configSha256Unchanged": true,
+      "configBackupSha256Unchanged": true,
+      "finalProcesses": {
+        "desktop": 0,
+        "lastWar": 0,
+        "launcher": 0,
+        "helper": 0
+      },
+      "executableSha256ExportedStagedSnapshot": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
+      "hashScopeNote": "Runtime tree ed33a87716dc4a107966f503784a8e2b85bd2a32 passed exact-snapshot generator/build/deterministic/browser/normal-window validation. Working-tree and exported snapshot apphost bytes differ by build context; no universal binary hash is inferred. The final commit tree may differ only by this evidence-only audit correction.",
+      "runtimeValidationTree": "ed33a87716dc4a107966f503784a8e2b85bd2a32"
+    }
+  },
+  "installedPackage": {
+    "version": 20,
+    "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+    "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+    "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+  }
+}

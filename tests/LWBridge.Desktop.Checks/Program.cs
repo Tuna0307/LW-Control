@@ -85,6 +85,12 @@ if (args.Contains("--live-current-client-train-list-population", StringComparer.
     return 0;
 }
 
+if (args.Contains("--live-current-client-train-list-no-jump", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveTrainListNoJumpProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-dispatch-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullDispatchProof.RunAsync();
@@ -4088,6 +4094,29 @@ using JsonDocument retiredModeScan = JsonDocument.Parse(
 MapScanStartOptions retiredModeOptions = MapScanContract.NormalizeStart(retiredModeScan.RootElement);
 Check(retiredModeOptions.SelectedTypes.SequenceEqual(new[] { "truck", "city", "treasure" }),
     "retired caller scanMode is ignored while scan types still filter unknown/non-string values and deduplicate in first-seen order");
+using JsonDocument remoteTrainScan = JsonDocument.Parse(
+    "{\"selectedTypes\":[\"truck\",\"railway\"],\"targetServerId\":2182}");
+MapScanStartOptions remoteTrainOptions = MapScanContract.NormalizeStart(remoteTrainScan.RootElement);
+Check(remoteTrainOptions.TargetServerId == 2182 &&
+      remoteTrainOptions.SelectedTypes.SequenceEqual(new[] { "truck", "railway" }),
+    "Truck/Railway direct-list scan accepts an explicit covered target server ID without changing selected types");
+using JsonDocument invalidTargetServer = JsonDocument.Parse(
+    "{\"selectedTypes\":[\"truck\"],\"targetServerId\":0}");
+try
+{
+    MapScanContract.NormalizeStart(invalidTargetServer.RootElement);
+    failures.Add("remote Train-list target server validates the public server ID range");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SERVER_ID",
+        "remote Train-list target server validates the public server ID range");
+}
+Check(MapScanStrategyPlanner.IsDirectTrainListSelection(new[] { "truck" }) &&
+      MapScanStrategyPlanner.IsDirectTrainListSelection(new[] { "railway" }) &&
+      MapScanStrategyPlanner.IsDirectTrainListSelection(new[] { "truck", "railway" }) &&
+      !MapScanStrategyPlanner.IsDirectTrainListSelection(new[] { "truck", "dispatch" }),
+    "remote no-jump eligibility is restricted to Truck/Railway-only selections");
 
 using JsonDocument invalidTypes = JsonDocument.Parse("{\"selectedTypes\":[\"unknown\",5]}");
 try
@@ -5953,10 +5982,11 @@ string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
 Check(
     r7130GeneratedIndexSource.Contains("if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("trainCoverage=autoTrainListSelection(i.selectedTypes)?null:void 0", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("else{let n=await Se(t);autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null)", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("catch(n){autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null),s.push(t),F(`automatic map scan server=${t} error=`+String(n))}", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}", StringComparison.Ordinal),
-    "Auto Scan must isolate one target-server failure and continue the configured server cycle");
+    "Auto Scan must isolate one target-server failure, invalidate Train-list coverage when needed, and continue the configured server cycle");
 Check(
     r7130GeneratedMapPanelSource.Contains("function mapPrefKey(e,t)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("mapManualScanTypes", StringComparison.Ordinal) &&
@@ -6305,13 +6335,18 @@ Check(generatedIndexSource.Contains(
     "Auto Scan config sanitizer/persistence must preserve dedicated Zombie Boss selection");
 Check(generatedIndexSource.Contains("MAP_AUTO_SCAN_TIMEOUT", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan cycle started servers=", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("function autoTrainListSelection(e)", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("trainCoverage=await AutoTrainCoverage()", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "Mt(await Te({selectedTypes:i.selectedTypes,resume:!1,targetServerId:t}))",
+          StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))",
           StringComparison.Ordinal) &&
       !generatedIndexSource.Contains("scanMode:i.scanMode", StringComparison.Ordinal) &&
       !generatedIndexSource.Contains("e?.scanMode", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan returned to server", StringComparison.Ordinal),
-    "Auto Scan parent scheduler must sequence server jump -> backend-planned shared scan -> terminal wait -> optional return without persisting a speed preference");
+    "Auto Scan parent scheduler must choose authoritative Train-list no-jump or ordinary jump-first acquisition, wait terminal, and preserve optional return without persisting a speed preference");
 Check(generatedIndexSource.Contains(
           "n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)",
           StringComparison.Ordinal) &&
@@ -6334,7 +6369,7 @@ Check(generatedIndexSource.Contains(
           "for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?",
+          "else{let n=await Se(t);autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment",

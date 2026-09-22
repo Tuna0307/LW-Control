@@ -5,6 +5,12 @@ using System.Text.Json.Nodes;
 
 namespace LWBridge.Desktop;
 
+internal sealed record CurrentClientTrainListCoverageResult(
+    int LiveServerId,
+    IReadOnlyList<int> MatchServerIds,
+    IReadOnlyList<int> TruckServerIds,
+    IReadOnlyList<int> RailwayServerIds);
+
 internal sealed partial class CurrentClientMapBlockSource
 {
     private const int FastCityAoiBlockSize = 10;
@@ -160,8 +166,9 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Direct Train-list acquisition requires the exact 2,500-block full-world pending set.");
 
         progress?.Invoke(new MapScanSourceProgress(20));
-        IReadOnlyList<FastTrainPrepared> directRows = await ProbeTrainListAsync(
+        FastTrainListSnapshot directSnapshot = await ProbeTrainListAsync(
             session, request, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<FastTrainPrepared> directRows = directSnapshot.Rows;
         RequireSameSession(session);
         progress?.Invoke(new MapScanSourceProgress(90));
 
@@ -460,8 +467,8 @@ internal sealed partial class CurrentClientMapBlockSource
         // source once per completed full-world scan, then merge by exact march UUID.
         if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
         {
-            IReadOnlyList<FastTrainPrepared> refreshedRailway = await ProbeTrainListAsync(
-                session, request, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<FastTrainPrepared> refreshedRailway = (await ProbeTrainListAsync(
+                session, request, cancellationToken).ConfigureAwait(false)).Rows;
             RequireSameSession(session);
             foreach (FastTrainPrepared prepared in refreshedRailway)
             {
@@ -756,12 +763,34 @@ internal sealed partial class CurrentClientMapBlockSource
             "trainlist" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture),
             context.ServerId, context.WorldId, context.TileWidth, context.TileHeight,
             ["railway"], 20, 2, context.PlayerTileX, context.PlayerTileY);
-        IReadOnlyList<FastTrainPrepared> rows = await ProbeTrainListAsync(
+        FastTrainListSnapshot snapshot = await ProbeTrainListAsync(
             session, request, cancellationToken).ConfigureAwait(false);
-        return rows.Select(row => row.Record).ToArray();
+        return snapshot.Rows.Select(row => row.Record).ToArray();
     }
 
-    private async Task<IReadOnlyList<FastTrainPrepared>> ProbeTrainListAsync(
+    internal async Task<CurrentClientTrainListCoverageResult> GetTrainListCoverageAsync(
+        CancellationToken cancellationToken)
+    {
+        OverviewMapScanSession session = RequireReadySession();
+        if (waitForHealthySession is { } waitForHealthy)
+        {
+            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+        }
+        CurrentClientMapContext context = await GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);
+        var request = new MapScanExecutionRequest(
+            "traincoverage" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture),
+            context.ServerId, context.WorldId, context.TileWidth, context.TileHeight,
+            ["truck", "railway"], 20, 2, context.PlayerTileX, context.PlayerTileY,
+            ScanMode: "fast", LaunchSessionId: context.LaunchSessionId, LiveServerId: context.ServerId);
+        FastTrainListSnapshot snapshot = await ProbeTrainListAsync(
+            session, request, cancellationToken).ConfigureAwait(false);
+        return new CurrentClientTrainListCoverageResult(
+            snapshot.LiveServerId, snapshot.MatchServerIds,
+            snapshot.TruckServerIds, snapshot.RailwayServerIds);
+    }
+
+    private async Task<FastTrainListSnapshot> ProbeTrainListAsync(
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
         CancellationToken cancellationToken)
@@ -780,6 +809,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"challenge={session.Challenge}",
             $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
             $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"liveServerId={(request.LiveServerId ?? request.ServerId).ToString(CultureInfo.InvariantCulture)}",
             $"scanRunId={request.RunId}",
             string.Empty,
         });
@@ -810,10 +840,21 @@ internal sealed partial class CurrentClientMapBlockSource
                 if (!MatchesBool(value, "refreshObserved", true))
                     throw new InvalidDataException("Train-list refresh did not observe the official RefreshTrainListData event.");
 
+                int expectedLiveServerId = request.LiveServerId ?? request.ServerId;
+                int liveServerId = RequirePositiveInt(value, "liveServerId");
+                if (liveServerId != expectedLiveServerId)
+                    throw new InvalidDataException("Train-list result live server changed during acquisition.");
+                int[] matchServerIds = ReadTrainServerIds(value, "matchServerIds");
+                int[] truckServerIds = ReadTrainServerIds(value, "truckServerIds");
+                int[] railwayServerIds = ReadTrainServerIds(value, "railwayServerIds");
+                if (request.ServerId != liveServerId && !matchServerIds.Contains(request.ServerId))
+                    throw new InvalidDataException("Train-list target server is not covered by the refreshed matchServers snapshot.");
+
                 // A Train-list snapshot is a whole-list source, not an AOI response.
                 // Reuse exact Train normalization with every valid LOD0 AOI admitted.
                 HashSet<int> allAoi = Enumerable.Range(0, FastCityAoiBlockCount * FastCityAoiBlockCount).ToHashSet();
-                return PrepareTrainRecords(value, request, allAoi, startedAt);
+                IReadOnlyList<FastTrainPrepared> rows = PrepareTrainRecords(value, request, allAoi, startedAt);
+                return new FastTrainListSnapshot(rows, liveServerId, matchServerIds, truckServerIds, railwayServerIds);
             }
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
@@ -1979,6 +2020,22 @@ internal sealed partial class CurrentClientMapBlockSource
             long.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out parsed);
     }
 
+    private static int[] ReadTrainServerIds(JsonElement root, string name)
+    {
+        if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind != JsonValueKind.Array)
+            throw new InvalidDataException($"Train-list result is missing {name}.");
+        var result = new List<int>(value.GetArrayLength());
+        var seen = new HashSet<int>();
+        foreach (JsonElement item in value.EnumerateArray())
+        {
+            if (!item.TryGetInt32(out int serverId) || serverId is < 1 or > 99999 || !seen.Add(serverId))
+                throw new InvalidDataException($"Train-list result contains an invalid {name} entry.");
+            result.Add(serverId);
+        }
+        result.Sort();
+        return result.ToArray();
+    }
+
     private static string? OptionalStringValue(JsonElement row, string name) =>
         row.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString())
             ? value.GetString() : null;
@@ -2087,6 +2144,9 @@ internal sealed partial class CurrentClientMapBlockSource
             new(0, 0, 0, 0, new Dictionary<string, MonsterProtectionDetail>(StringComparer.Ordinal), error);
     }
     private sealed record FastTrainPrepared(int X, int Y, MapStoredRecord Record, TruckSourceMetadata? TruckMetadata = null);
+    private sealed record FastTrainListSnapshot(
+        IReadOnlyList<FastTrainPrepared> Rows, int LiveServerId,
+        int[] MatchServerIds, int[] TruckServerIds, int[] RailwayServerIds);
     private sealed record FastCityBatchObservation(
         int[] RequestedIndices,
         IReadOnlyList<FirstLivePreparedResource> Prepared,

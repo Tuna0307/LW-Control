@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-149`, 2026-09-23.
+**Current checkpoint:** `LWB-R7-150`, 2026-09-23.
 This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
 
 ## Start here
@@ -41,7 +41,7 @@ These remain cumulative evidence/recovery documents rather than current-status p
 - [`lwbridge-injection.md`](lwbridge-injection.md) — injection/bootstrap/proxy recovery history.
 - [`official-runtime-architecture.md`](official-runtime-architecture.md) — official Last War runtime architecture/evidence.
 - [`daybreak-escalations.md`](daybreak-escalations.md) — specialist/restriction register; denials must not be rerouted.
-- [`reviews/`](reviews/) — dated checkpoint findings, including R7-130 through the current R7-149 Scheduled Plunder retirement review.
+- [`reviews/`](reviews/) — dated checkpoint findings, including R7-130 through the current R7-150 Train-list no-jump review.
 
 ## Historical/superseded delivery documents
 

@@ -199,6 +199,12 @@ def build(check=False):
             s = replace_once(s, 'function Vt(e,t){return U(`map_city_export`,{query:e,...t})}', '')
             s = replace_once(s, ',Vt as T,', ',')
             s = retire_scheduled_plunder_api(s)
+            # R7-150 read-only direct Train-list coverage for Auto no-jump scans.
+            s = replace_once(
+                s,
+                'function Ft(e){return U(`map_scan_start`,e)}function It(){return U(`map_scan_stop`)}',
+                'function Ft(e){return U(`map_scan_start`,e)}function trainListCoverage(){return U(`map_train_list_coverage`)}function It(){return U(`map_scan_stop`)}')
+            s = replace_once(s, 'Rt as z,ze as zt};', 'Rt as z,ze as zt,trainListCoverage};')
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')
@@ -232,6 +238,10 @@ def build(check=False):
             s = replace_once(s, ',scanMode:`fast`', '')
             s = replace_once(s, ',scanMode:e?.scanMode===`normal`?`normal`:`fast`', '')
             s = replace_once(s, ',scanMode:i.scanMode', '')
+            s = replace_once(
+                s,
+                'qt as Te,r as Ee,',
+                'qt as Te,trainListCoverage as AutoTrainCoverage,r as Ee,')
             # LWB-R7-130: one failed target server must not abort the rest of an
             # Auto Scan cycle. Keep return-to-origin in the outer finally, but
             # isolate jump/scan/wait errors per target and continue the list.
@@ -307,6 +317,32 @@ def build(check=False):
             s = replace_once(s,
                 'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null)',
                 'let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null)')
+            # R7-150 IMPLEMENTATION POLICY: Truck/Railway-only Auto cycles may
+            # scan a target server from the current live server when the official
+            # Train-list matchServers snapshot covers that target. Preserve target
+            # order. Coverage is invalidated after any real server jump, so the
+            # next target refreshes from the new live server. Mixed scans keep the
+            # existing jump-first path unchanged.
+            s = replace_once(
+                s,
+                'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}function Qn(e)',
+                'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}function autoTrainListSelection(e){return e.length>0&&e.every(e=>e===`truck`||e===`railway`)}function Qn(e)')
+            s = replace_once(
+                s,
+                'a=(await t()).serverId,writeAutoCycleMarker(u.selectedProfileId,',
+                'let autoStartState=await t();a=autoStartState.liveServerId||autoStartState.serverId,writeAutoCycleMarker(u.selectedProfileId,')
+            s = replace_once(
+                s,
+                'let o=[],s=[];for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}));let a=await r();a?.lastError?(s.push(t),F(`automatic map scan server=${t} error=${a.lastError}`)):(o.push(t),a&&F(`automatic map scan server=${t} completed`))}catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}}',
+                'let o=[],s=[],trainCoverage=autoTrainListSelection(i.selectedTypes)?null:void 0;for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{let direct=!1;if(autoTrainListSelection(i.selectedTypes)){if(trainCoverage===null)try{trainCoverage=await AutoTrainCoverage(),F(`automatic map scan train-list coverage live=${trainCoverage.liveServerId} match=${(trainCoverage.matchServerIds||[]).join(`,`)}`)}catch(n){trainCoverage=!1,F(`automatic map scan train-list coverage error=`+String(n))}direct=!!trainCoverage&&(t===trainCoverage.liveServerId||(trainCoverage.matchServerIds||[]).includes(t))}if(direct){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(`automatic map scan direct train-list server=${t} live=${trainCoverage.liveServerId}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1,targetServerId:t}))}else{let n=await Se(t);autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))}let a=await r();a?.lastError?(autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null),s.push(t),F(`automatic map scan server=${t} error=${a.lastError}`)):(o.push(t),a&&F(`automatic map scan server=${t} completed`))}catch(n){autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null),s.push(t),F(`automatic map scan server=${t} error=`+String(n))}}')
+            s = replace_once(
+                s,
+                'if(i.returnToOriginalServer&&i.originalServerId>0&&e.serverId!==i.originalServerId)',
+                'if(i.returnToOriginalServer&&i.originalServerId>0&&(e.liveServerId||e.serverId)!==i.originalServerId)')
+            s = replace_once(
+                s,
+                'currentServerId:ze?.serverId||0,',
+                'currentServerId:ze?.liveServerId||ze?.serverId||0,')
 
             # Give Map Data per-profile preference keys without moving scheduler
             # ownership out of the top-level app.

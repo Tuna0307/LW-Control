@@ -45,6 +45,7 @@ An auditor should specifically verify:
 - generic Monster still includes ordinary Doom Walker and level-by-10 variants;
 - Truck/Railway moving identity uses exact march UUID and does not duplicate moved rows;
 - current-v20 Railway performs the official `LWTrainDataManager.TryGetTrainList(true)` refresh once per full scan rather than relying only on world marches;
+- covered Truck/Railway-only Auto targets use `matchServers` + `targetServerId` without physical travel, while mixed/uncovered targets retain jump-first behavior and `liveServerId` remains the physical-server authority;
 - Manual has no server filter while Auto/saved-data browsing has **All** + saved servers;
 - one-shot Run Now works with recurring Auto disabled and does not enable future scheduling;
 - cross-server row Jump/Follow enters the row server before navigation;
@@ -68,3 +69,4 @@ An auditor should specifically verify:
 
 Current speed proof: `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`.
 Current feature-retirement proof: `docs/reviews/2026-09-23-r7-149-scheduled-plunder-retirement.md`.
+Current no-jump speed proof: `docs/reviews/2026-09-23-r7-150-train-list-no-jump-auto.md`.

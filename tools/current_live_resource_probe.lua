@@ -5784,6 +5784,7 @@ function train_list_runtime.read(now)
         challenge = tostring(values.challenge or ""),
         gamePid = tonumber(values.gamePid),
         serverId = tonumber(values.serverId),
+        expectedLiveServerId = tonumber(values.liveServerId),
         scanRunId = tostring(values.scanRunId or ""),
     }
     if values.schema ~= "1" or values.probeVersion ~= M.VERSION or
@@ -5791,7 +5792,9 @@ function train_list_runtime.read(now)
        not valid_token(request.launchSessionId) or not valid_token(request.challenge) or
        not valid_token(request.scanRunId) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or request.serverId == nil or
-       request.serverId <= 0 or request.serverId > 99999 or request.serverId ~= math.floor(request.serverId) then
+       request.serverId <= 0 or request.serverId > 99999 or request.serverId ~= math.floor(request.serverId) or
+       request.expectedLiveServerId == nil or request.expectedLiveServerId <= 0 or
+       request.expectedLiveServerId > 99999 or request.expectedLiveServerId ~= math.floor(request.expectedLiveServerId) then
         request.error = "train_list_diagnostic_invalid"
         return request
     end
@@ -5805,8 +5808,13 @@ function train_list_runtime.read(now)
         return request
     end
     local live_server = current_server_id()
-    if live_server == nil or math.floor(live_server) ~= request.serverId then
-        request.error = "train_list_diagnostic_server_mismatch"
+    if live_server == nil or live_server <= 0 or live_server ~= math.floor(live_server) then
+        request.error = "train_list_diagnostic_live_server_unavailable"
+        return request
+    end
+    request.liveServerId = math.floor(live_server)
+    if request.liveServerId ~= request.expectedLiveServerId then
+        request.error = "train_list_diagnostic_live_server_changed"
     end
     return request
 end
@@ -5901,6 +5909,7 @@ function train_list_runtime.snapshot(request)
     if official_truck_type == nil or official_train_type == nil then return nil, "train_type_enum_unavailable" end
     local rows = {}
     local summary = {
+        liveServerId = request.liveServerId,
         truckSourceCount = #enemy_trucks,
         railwaySourceCount = #enemy_trains,
         truckServerIds = {},
@@ -5917,6 +5926,13 @@ function train_list_runtime.snapshot(request)
             end
         end
         table.sort(summary.matchServerIds)
+    end
+    if request.serverId ~= request.liveServerId then
+        local covered = false
+        for _, server_id in ipairs(summary.matchServerIds) do
+            if server_id == request.serverId then covered = true; break end
+        end
+        if not covered then return nil, "train_list_target_server_not_covered", summary end
     end
     local truck_server_set = {}
     local railway_server_set = {}
@@ -6019,6 +6035,7 @@ function train_list_runtime.write(request, state, error_text, rows, summary)
         scanRunId = request.scanRunId, state = state, error = error_text,
         refreshObserved = train_list_runtime.refreshObserved == true,
         refreshArgument = train_list_runtime.refreshArgument,
+        liveServerId = summary.liveServerId or request.liveServerId or 0,
         truckSourceCount = summary.truckSourceCount or 0,
         railwaySourceCount = summary.railwaySourceCount or 0,
         truckServerIds = summary.truckServerIds or {},

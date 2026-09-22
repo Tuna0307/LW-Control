@@ -38,18 +38,18 @@ async function serve() {
   return { server, origin: `http://127.0.0.1:${listenPort}` };
 }
 
-async function newScenario(browser, origin, { delaySecondJump = false } = {}) {
+async function newScenario(browser, origin, { delaySecondJump = false, selectedTypes = ['city'], serverIds = [2212, 2213], coverageMatchServerIds = [2212, 2213] } = {}) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(String(error.stack || error)));
 
-  await page.addInitScript(({ delaySecondJump, zeroCounts }) => {
+  await page.addInitScript(({ delaySecondJump, selectedTypes, serverIds, coverageMatchServerIds, zeroCounts }) => {
     localStorage.setItem('lwbridge.mapAutoScan.local-1', JSON.stringify({
       enabled: true,
       intervalMinutes: 20,
-      serverIds: [2212, 2213],
-      selectedTypes: ['city'],
+      serverIds,
+      selectedTypes,
       returnToOriginalServer: false,
       nextRunAt: 0
     }));
@@ -68,9 +68,10 @@ async function newScenario(browser, origin, { delaySecondJump = false } = {}) {
           calls: [],
           currentServer: 2212,
           delaySecondJump,
+          coverageMatchServerIds: [...coverageMatchServerIds],
           scanState: {
-            serverId: 2212, serverIdSource: 'live', scanRunId: '', isReading: false,
-            phase: 'idle', selectedTypes: ['city'], totalBlocks: 0, readBlocks: 0,
+            serverId: 2212, liveServerId: 2212, serverIdSource: 'live', scanRunId: '', isReading: false,
+            phase: 'idle', selectedTypes, totalBlocks: 0, readBlocks: 0,
             unreadBlocks: 0, failedBlocks: 0, inflightBlocks: 0, scanMode: 'fast',
             concurrency: 20, retryCount: 2, scanRate: 0, progressPercent: 0,
             nativeCaptureReady: true, nativePendingRecords: 0, nativeDroppedRecords: 0,
@@ -132,6 +133,7 @@ async function newScenario(browser, origin, { delaySecondJump = false } = {}) {
             }
             runtime.currentServer = target;
             runtime.scanState.serverId = target;
+            runtime.scanState.liveServerId = target;
             runtime.emit('bridge://map-scan-status', runtime.scanState);
             return {
               changed: target !== previousServerId,
@@ -140,11 +142,21 @@ async function newScenario(browser, origin, { delaySecondJump = false } = {}) {
               currentServerId: target
             };
           }
+          if (command === 'map_train_list_coverage') {
+            return {
+              liveServerId: runtime.currentServer,
+              matchServerIds: [...runtime.coverageMatchServerIds],
+              truckServerIds: [...runtime.coverageMatchServerIds],
+              railwayServerIds: [...runtime.coverageMatchServerIds]
+            };
+          }
           if (command === 'map_scan_start') {
+            const targetServerId = Number(payload.targetServerId || runtime.currentServer);
             runtime.scanState = {
               ...runtime.scanState,
-              serverId: runtime.currentServer,
-              serverIdSource: 'live',
+              serverId: targetServerId,
+              liveServerId: runtime.currentServer,
+              serverIdSource: targetServerId === runtime.currentServer ? 'live' : 'remote_train_list',
               scanRunId: `run-${runtime.calls.filter(call => call.command === 'map_scan_start').length}`,
               isReading: true,
               phase: 'scanning',
@@ -180,7 +192,7 @@ async function newScenario(browser, origin, { delaySecondJump = false } = {}) {
         });
       }
     });
-  }, { delaySecondJump, zeroCounts });
+  }, { delaySecondJump, selectedTypes, serverIds, coverageMatchServerIds, zeroCounts });
 
   await page.goto(`${origin}/index.html?view=map-data&language=en`);
   await page.locator('.panel.map-panel').waitFor();
@@ -321,6 +333,83 @@ async function disconnectDuringJumpScenario(browser, origin) {
   }
 }
 
+async function directTrainNoJumpScenario(browser, origin) {
+  const { context, page, pageErrors } = await newScenario(browser, origin, {
+    selectedTypes: ['truck', 'railway'],
+    serverIds: [2212, 2213],
+    coverageMatchServerIds: [2212, 2213]
+  });
+  try {
+    await page.waitForFunction(() =>
+      window.__r7132.calls.filter(call => call.command === 'map_scan_start').length === 1,
+    null, { timeout: 8000 });
+    let starts = await calls(page, 'map_scan_start');
+    assert.equal(Number(starts[0].payload.targetServerId), 2212,
+      'covered live-server Train-list target should use explicit targetServerId');
+    assert.equal((await calls(page, 'server_jump')).length, 0,
+      'covered Train-list target must not issue server_jump');
+    await page.evaluate(() => window.__r7132.finishScan());
+
+    await page.waitForFunction(() =>
+      window.__r7132.calls.filter(call => call.command === 'map_scan_start').length === 2,
+    null, { timeout: 5000 });
+    starts = await calls(page, 'map_scan_start');
+    assert.equal(Number(starts[1].payload.targetServerId), 2213,
+      'covered remote Train-list target should scan the requested server directly');
+    assert.equal((await calls(page, 'server_jump')).length, 0,
+      'multiple covered Train-list targets must preserve zero-travel acquisition');
+    assert.equal((await calls(page, 'map_train_list_coverage')).length, 1,
+      'one live Train-list coverage snapshot should be reused across consecutive covered targets');
+    await page.evaluate(() => window.__r7132.finishScan());
+    await page.waitForFunction(() => {
+      const auto = JSON.parse(localStorage.getItem('lwbridge.mapAutoScan.local-1'));
+      return auto.nextRunAt > Date.now();
+    }, null, { timeout: 5000 });
+    const runtime = await page.evaluate(() => ({
+      currentServer: window.__r7132.currentServer,
+      scanServerId: window.__r7132.scanState.serverId,
+      liveServerId: window.__r7132.scanState.liveServerId,
+      serverIdSource: window.__r7132.scanState.serverIdSource
+    }));
+    assert.deepEqual(runtime, {
+      currentServer: 2212,
+      scanServerId: 2213,
+      liveServerId: 2212,
+      serverIdSource: 'remote_train_list'
+    }, 'remote Train-list dataset identity must not masquerade as physical server travel');
+    assert.deepEqual(pageErrors, []);
+  } finally {
+    await context.close();
+  }
+}
+
+async function directTrainFallbackScenario(browser, origin) {
+  const { context, page, pageErrors } = await newScenario(browser, origin, {
+    selectedTypes: ['truck'],
+    serverIds: [2213],
+    coverageMatchServerIds: [2212]
+  });
+  try {
+    await page.waitForFunction(() =>
+      window.__r7132.calls.some(call => call.command === 'server_jump' && Number(call.payload.serverId) === 2213),
+    null, { timeout: 8000 });
+    await page.waitForFunction(() =>
+      window.__r7132.calls.filter(call => call.command === 'map_scan_start').length === 1,
+    null, { timeout: 5000 });
+    const starts = await calls(page, 'map_scan_start');
+    assert.equal('targetServerId' in starts[0].payload, false,
+      'uncovered Train-list target must fall back to ordinary post-travel scan start');
+    assert.deepEqual((await calls(page, 'server_jump')).map(call => Number(call.payload.serverId)), [2213],
+      'uncovered Train-list target must retain the existing server_jump fallback');
+    assert.equal((await calls(page, 'map_train_list_coverage')).length, 1,
+      'fallback decision must be based on one authoritative coverage read');
+    await page.evaluate(() => window.__r7132.finishScan());
+    assert.deepEqual(pageErrors, []);
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   const { server, origin } = await serve();
   const browser = await chromium.launch({
@@ -331,6 +420,8 @@ async function main() {
     await navigationRefreshScenario(browser, origin);
     await reconnectScenario(browser, origin);
     await disconnectDuringJumpScenario(browser, origin);
+    await directTrainNoJumpScenario(browser, origin);
+    await directTrainFallbackScenario(browser, origin);
 
     const index = fs.readFileSync(path.join(candidate, 'assets', 'index-sfL2sT3K.js'), 'utf8');
     for (const token of [
@@ -339,7 +430,10 @@ async function main() {
       'if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return',
       'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}',
       'if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break',
-      'try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?',
+      'function autoTrainListSelection(e){return e.length>0&&e.every(e=>e===`truck`||e===`railway`)}',
+      'trainCoverage=await AutoTrainCoverage()',
+      'targetServerId:t',
+      'currentServerId:ze?.liveServerId||ze?.serverId||0',
       'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment'
     ]) {
       assert.equal(index.includes(token), true,
@@ -347,7 +441,7 @@ async function main() {
     }
     assert.equal(index.includes('if(!Zn(i,Date.now(),P,qe.current,Ye.current))return'), false,
       'Auto scheduler must not key cycle admission directly to render-time P');
-    console.log('R7-132 Auto navigation/refresh/reconnect browser checks passed.');
+    console.log('R7-150 Auto navigation/refresh/reconnect + direct Train-list no-jump browser checks passed.');
   } finally {
     await browser.close();
     server.close();
