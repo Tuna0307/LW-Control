@@ -74,7 +74,10 @@
     "mapAutoR7136Restart": "PASS (exit 0)",
     "normalProductionWindowSmoke": "PASS",
     "normalUserRestartWalkthrough": "PASS after failure-first auto-launch harness repair and one external mouse-input flaky rerun",
-    "normalUserEvidence": "evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough-autolaunch.json"
+    "normalUserEvidence": "evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough-autolaunch.json",
+    "detachedWorktreeReleaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
+    "stagedSnapshotReleaseExecutableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
+    "buildArtifactHashNote": "Release executable hashes differed between the detached worktree build and exported staged snapshot build. No universal byte hash is claimed; the staged-snapshot hash is used for final checkpoint acceptance."
   },
   "runtimeAfterAudit": {
     "releaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
@@ -88,7 +91,8 @@
     "gamePackageVersion": "20",
     "LWScripts.data.sha256": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
     "LWScripts.txt.sha256": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
-    "version.txt.sha256": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+    "version.txt.sha256": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B",
+    "stagedSnapshotReleaseExecutableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489"
   },
   "remainingGates": [
     "Ghost positive-row proof owner-deferred until 2026-09-24.",

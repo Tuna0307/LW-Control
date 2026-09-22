@@ -140,11 +140,11 @@
       },
       {
         "path": "evidence/lwbridge-implementation/2026-09-22-r7-doc-evidence-self-audit.json",
-        "sha256": "67190CD4112875DF061713E6F66A81A2930924F47D4DB529CF1B6F5DE7740290"
+        "sha256": "6A0A499F55752ACADFF6BBF67FAB5F779D8EB06B24CDAC897FCD323845027E85"
       },
       {
         "path": "evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json",
-        "sha256": "DFCA91958B47FDE5CBE1DED0266E7FBD9005F687DF94D2C4091CE1E8A76F6326"
+        "sha256": "AF344CDCC750BB16C3B24AE23A87AB6F1759C6061CD3A198A36156F38E15554C"
       }
     ]
   },

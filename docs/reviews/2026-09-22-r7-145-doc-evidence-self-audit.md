@@ -74,6 +74,8 @@ Durable evidence: `evidence/lwbridge-implementation/2026-09-22-r7-normal-user-re
 - normal production Overview/Map window smoke: PASS;
 - hardened normal-user restart walkthrough: PASS.
 
+Build-artifact identity is recorded by scope rather than treated as universal: the detached-worktree Release build was `B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B`, while the exported staged-snapshot Release build was `8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489`. The source/tool checkpoint is the same; the audit does not infer a cause for the differing build bytes. Final checkpoint acceptance uses the staged-snapshot artifact hash.
+
 The acceptance matrix remains 47 cases with the exact R7-144 status counts and **0 ordinary `partial` rows**. No acceptance row was promoted by documentation cleanup.
 
 ## Remaining gates

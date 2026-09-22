@@ -19,7 +19,7 @@
   "release": {
     "relativeExecutable": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe",
     "sizeBytes": 163328,
-    "sha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
+    "sha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
     "buildWarnings": 0,
     "buildErrors": 0
   },
@@ -64,7 +64,7 @@
       "mapDataMaxHighDeltaRate": 0.032670977775958746
     },
     "releaseBuild": "PASS (0 warnings, 0 errors)",
-    "preCommitCandidateWorktreeReleaseExecutableSha256": "1D087D4D08813F5E045DE2A3CF91DCD03C2E7B7A14F92048CDB6A06B0B655CE7",
+    "preCommitCandidateWorktreeReleaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
     "stagedIndexSnapshotReleaseExecutableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
     "deterministicSixGroups": "PASS (0 failures)",
     "normalProductionWindowSmoke": "PASS",
@@ -584,14 +584,15 @@
     "tools/check_map_data_r7131.cjs.sha256": "3F58DC00C9D0B39E37F04892695C8BB7600E293DD7349BE9C589BC343008F49D",
     "tools/check_map_auto_r7132.cjs.sha256": "F1337AFC80750956B4CBDE91E9534A31FF0E789C410B60E65F7CADEBAE45264F",
     "tools/check_normal_user_restart_walkthrough.ps1.sha256": "134D5FFFA8AB2AF92998DBB7763843031307A9E1CCBC91A1818FA28542336A0B",
-    "evidence/lwbridge-implementation/2026-09-22-r7-doc-evidence-self-audit.json.sha256": "67190CD4112875DF061713E6F66A81A2930924F47D4DB529CF1B6F5DE7740290"
+    "evidence/lwbridge-implementation/2026-09-22-r7-doc-evidence-self-audit.json.sha256": "6A0A499F55752ACADFF6BBF67FAB5F779D8EB06B24CDAC897FCD323845027E85"
   },
   "verificationEnvironment": {
     "node": "v24.18.0",
     "playwright": "1.63.0",
     "microsoftEdge": "153.0.4234.32",
-    "preCommitCandidateWorktreeReleaseExecutableSha256": "1D087D4D08813F5E045DE2A3CF91DCD03C2E7B7A14F92048CDB6A06B0B655CE7",
+    "preCommitCandidateWorktreeReleaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
     "stagedIndexSnapshotReleaseExecutableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
-    "currentWorktreeReleaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B"
+    "currentWorktreeReleaseExecutableSha256": "B8150836C619E9B3A00F26A0CAD7DCA9D72463D50F01DD64A89CAD6879047D8B",
+    "buildArtifactHashScope": "Detached-worktree and exported staged-snapshot Release builds produced different executable hashes; both are recorded by scope. The staged-snapshot hash is the final acceptance artifact for this checkpoint."
   }
 }
