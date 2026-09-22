@@ -8,6 +8,12 @@ if (args.Contains("--live-auto-zombie-cycle-proof", StringComparer.OrdinalIgnore
     return 0;
 }
 
+if (args.Contains("--live-auto-three-multiserver-cycles", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAutoThreeMultiServerCyclesProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-server-jump-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveServerJumpProof.RunAsync();

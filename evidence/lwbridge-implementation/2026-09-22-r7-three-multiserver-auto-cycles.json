@@ -1,0 +1,184 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-137",
+  "date": "2026-09-22",
+  "title": "Three full live multi-server Auto Scan cycles",
+  "status": "LIVE_PROVEN_MULTI_SERVER_CYCLES_COMPOSED_SCHEDULER_ACCEPTANCE",
+  "branch": "research/offline-controller",
+  "baseRevision": "615a92c7fc4c13a3143336513020dcc1baba5b70",
+  "scope": {
+    "productionBehaviorChanged": false,
+    "liveProofHarness": "tests/LWBridge.Desktop.Checks/LiveAutoThreeMultiServerCyclesProof.cs",
+    "harnessWorktreeSha256": "64A563125781468BE33F1644EBC472A54866471DA038B50440215D2D24AD1D35",
+    "harnessCommittedCheckoutSha256": "4573FB1390D22920DFAE279E5B738E187B5BA2464782EBD0D4B514E6D7095EE1",
+    "commandLineEntryPoint": "--live-auto-three-multiserver-cycles",
+    "liveReactSchedulerDriven": false,
+    "claim": "Three real multi-server travel/scan/return cycles are LIVE-PROVEN through the production public service boundaries. Durable nextRunAt scheduling is composed from the already-live R7-039 scheduler proof; this checkpoint does not claim the React timer itself initiated all three live cycles."
+  },
+  "failureFirst": {
+    "initialHarnessFailure": "The first harness run assumed server_jump returned serverId. Production correctly returns only {previousServerId,changed}; authoritative destination is read back from CurrentClientMapContext.",
+    "productionDefectFound": false,
+    "cleanupAfterFailure": {
+      "lastWarProcesses": 0,
+      "launcherProcesses": 0,
+      "overviewHelperProcesses": 0,
+      "restoredHashes": {
+        "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+        "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+        "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+      }
+    },
+    "repair": "The harness now validates the recovered {previousServerId,changed} response and independently confirms destination from the current-client context."
+  },
+  "liveProof": {
+    "cycleCount": 3,
+    "homeServerId": 2212,
+    "targetServerId": 2213,
+    "configuredServerOrder": [
+      2212,
+      2213
+    ],
+    "totalScanLegs": 6,
+    "callerScanModeProvided": false,
+    "scanMode": "fast",
+    "scanStrategy": "current_fast_zombie_boss_lod2_v1",
+    "concurrency": 20,
+    "everyLeg": {
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0
+    },
+    "uniqueRunIdentities": true,
+    "returnToOriginalAfterEveryCycle": true,
+    "finalServerId": 2212,
+    "scans": [
+      {
+        "cycle": 1,
+        "serverId": 2212,
+        "scanRunId": "5833ca0d2eca447db3cc70e8f4098993",
+        "zombieBossCount": 0,
+        "wallSeconds": 5.5855145
+      },
+      {
+        "cycle": 1,
+        "serverId": 2213,
+        "scanRunId": "6e13479021724594acbc8083dfa98d73",
+        "zombieBossCount": 0,
+        "wallSeconds": 3.3633848
+      },
+      {
+        "cycle": 2,
+        "serverId": 2212,
+        "scanRunId": "6eb6256d2ede421cb9e399d91f4e8290",
+        "zombieBossCount": 0,
+        "wallSeconds": 0.6071676
+      },
+      {
+        "cycle": 2,
+        "serverId": 2213,
+        "scanRunId": "938fb190c54a4fe7b77ecca899783ff0",
+        "zombieBossCount": 0,
+        "wallSeconds": 0.3923223
+      },
+      {
+        "cycle": 3,
+        "serverId": 2212,
+        "scanRunId": "b65a8bd1439246a0b3285af8aee820e1",
+        "zombieBossCount": 0,
+        "wallSeconds": 2.4993524
+      },
+      {
+        "cycle": 3,
+        "serverId": 2213,
+        "scanRunId": "a6289117d07947a1b6c9c7a543f5035b",
+        "zombieBossCount": 0,
+        "wallSeconds": 0.2775415
+      }
+    ],
+    "cycleReturns": [
+      {
+        "cycle": 1,
+        "fromServerId": 2213,
+        "serverId": 2212,
+        "changed": true
+      },
+      {
+        "cycle": 2,
+        "fromServerId": 2213,
+        "serverId": 2212,
+        "changed": true
+      },
+      {
+        "cycle": 3,
+        "fromServerId": 2213,
+        "serverId": 2212,
+        "changed": true
+      }
+    ],
+    "totalScanWallSeconds": 14.3025321,
+    "processRuntimeSeconds": 55.77,
+    "note": "Zero Zombie Boss rows are accepted because D02 validates cycle ownership/travel/completion/return rather than positive population."
+  },
+  "schedulerComposition": {
+    "liveSchedulingAuthority": "LWB-R7-039",
+    "currentBrowserOwnershipAuthorities": [
+      "LWB-R7-132",
+      "LWB-R7-136"
+    ],
+    "facts": [
+      "R7-039 live-proves persisted future scheduling across desktop/game restart and automatic nextRunAt advancement.",
+      "R7-132 proves single scheduler ownership and confirmed-travel ordering across navigation/Refresh Status/reconnect.",
+      "R7-136 proves app/process restart never resumes an interrupted target list and advances the next deadline only after recovery.",
+      "R7-137 live-proves three consecutive 2212/2213 scan/return cycles through the same server_jump/map_scan_start service boundaries."
+    ]
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "finalCleanup": {
+      "lastWarProcesses": 0,
+      "launcherProcesses": 0,
+      "overviewHelperProcesses": 0,
+      "restoredHashes": {
+        "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+        "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+        "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+      }
+    }
+  },
+  "acceptanceEffect": {
+    "D02": {
+      "status": "pass_current_plus_historical",
+      "rationale": "R7-137 live-proves at least three full authorized multi-server cycles with actual server entry, six completed scan legs and return-to-origin after every cycle. R7-039 supplies the already-live durable nextRunAt scheduling/advancement portion. The React scheduler itself was not live-driven through all three R7-137 cycles."
+    }
+  },
+  "safety": {
+    "stateChangingGameplayActionPerformed": false,
+    "truckRobbery": false,
+    "dispatchPlunder": false,
+    "treasureClaim": false,
+    "allianceShare": false,
+    "liveOperations": [
+      "owned lifecycle start/stop",
+      "server navigation 2212/2213",
+      "read-only Zombie Boss full-world scans"
+    ]
+  },
+  "remaining": [
+    "Ghost positive-row proof remains owner-deferred until 2026-09-24.",
+    "Supplies positive-row proof remains population-pending.",
+    "Explicitly authorized Truck/Dispatch/Alliance/Treasure live actions remain open.",
+    "Simultaneous real multi-account UI population remains open.",
+    "Final human normal-user built-executable walkthrough remains open."
+  ]
+}
