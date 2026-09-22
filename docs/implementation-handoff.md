@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-138, 2026-09-22
+
+**B05/B06 are closed by acceptance coverage; production behavior did not need changes.** Changed-type duplicate Start now proves exact active-run ownership: a City Start attempted during an owned Resource scan receives `SCAN_RUNNING` without changing `scanRunId`, `selectedTypes`, backend mode/strategy/concurrency or context ownership. The new Stop matrix gates a five-block run at 0/2/4 completed checkpoints (early/mid/near-completion), cancels exactly one in-flight capture, returns terminal idle with exact counters, retains only completed checkpoints, schedules nothing after Stop and preserves prior published data. R7-130 remains the live public Stop authority. See `docs/reviews/2026-09-22-r7-138-scan-ownership-stop-timing.md`, `evidence/lwbridge-implementation/2026-09-22-r7-scan-ownership-stop-timing.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7138.json`.
+
+**Next technically actionable read-only gaps:** B07 bridge loss/recovery mid-scan; B11 native add/update/remove/movement transitions; C04 mark/unmark-rescan-restart-relocate; C07 vanished/replaced target failure branches. Population, authorization, simultaneous multi-account and final human-GUI gates remain separate.
+
 ## Current continuation checkpoint - LWB-R7-137, 2026-09-22
 
 **D02's at-least-three multi-server Auto-cycle acceptance is closed by composed evidence.** R7-137 live-proves three consecutive 2212/2213 cycles in one owned session with six unique Fast scan runs, exact 2,500/2,500 coverage and zero failed/unread on every leg, authoritative server confirmation, return to 2212 after every cycle and exact cleanup. R7-039 remains the live authority for durable future `nextRunAt` scheduling/advancement; R7-132/R7-136 remain the scheduler ownership and restart authorities. Do not rewrite this as “the React timer drove all three R7-137 cycles.” See `docs/reviews/2026-09-22-r7-137-three-multiserver-auto-cycles.md`, `evidence/lwbridge-implementation/2026-09-22-r7-three-multiserver-auto-cycles.json`, and the current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7137.json`.

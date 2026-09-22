@@ -1,0 +1,132 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-138",
+  "date": "2026-09-22",
+  "title": "Duplicate Start type-change ownership and Stop timing matrix",
+  "status": "OFFLINE_ACCEPTED_WITH_LIVE_STOP_COMPOSITION",
+  "branch": "research/offline-controller",
+  "baseRevision": "a12f54b0d76cdb3a807d942f3d544250a222dc37",
+  "scope": {
+    "productionBehaviorChanged": false,
+    "changedFile": "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "workingCopySha256": "FD9BB70E2E607A2B7EC6DCC5371F4F88787FBB303C1399F39520F699FD866CD9",
+    "committedCheckoutSha256": "FD9BB70E2E607A2B7EC6DCC5371F4F88787FBB303C1399F39520F699FD866CD9",
+    "claim": "B05 is closed by deterministic active-run ownership coverage. B06 is closed by the current deterministic early/mid/near-completion matrix composed with the already-live public Stop proof from LWB-R7-130."
+  },
+  "B05": {
+    "status": "pass_current_offline",
+    "activeStart": {
+      "selectedTypes": [
+        "resource"
+      ],
+      "scanMode": "normal",
+      "concurrency": 8,
+      "totalBlocks": 1,
+      "phase": "scanning"
+    },
+    "conflictingStart": {
+      "selectedTypes": [
+        "city"
+      ],
+      "requestedScanMode": "fast",
+      "expectedCode": "SCAN_RUNNING",
+      "expectedMessage": "A map scan is already in progress."
+    },
+    "assertions": [
+      "The conflicting changed-type Start is rejected before reacquiring live context.",
+      "The original scanRunId is unchanged.",
+      "The original selectedTypes remain [resource].",
+      "The original backend-selected scanMode, scanStrategy and concurrency remain unchanged.",
+      "Context acquisition count remains exactly one."
+    ]
+  },
+  "B06": {
+    "status": "pass_current_plus_historical",
+    "syntheticWorld": {
+      "tileWidth": 100,
+      "tileHeight": 20,
+      "totalBlocks": 5,
+      "selectedTypes": [
+        "city"
+      ]
+    },
+    "timings": [
+      {
+        "label": "early",
+        "completedBeforeStop": 0,
+        "captureCallsAtStop": 1,
+        "durableCheckpoints": 0,
+        "finalReadBlocks": 0,
+        "finalUnreadBlocks": 5
+      },
+      {
+        "label": "mid",
+        "completedBeforeStop": 2,
+        "captureCallsAtStop": 3,
+        "durableCheckpoints": 2,
+        "finalReadBlocks": 2,
+        "finalUnreadBlocks": 3
+      },
+      {
+        "label": "near-completion",
+        "completedBeforeStop": 4,
+        "captureCallsAtStop": 5,
+        "durableCheckpoints": 4,
+        "finalReadBlocks": 4,
+        "finalUnreadBlocks": 1
+      }
+    ],
+    "commonAssertions": [
+      "Exactly one capture is blocked in-flight at each Stop boundary.",
+      "map_scan_stop waits for terminal engine cancellation and returns phase=idle with isReading=false.",
+      "failedBlocks=0 and inflightBlocks=0 after Stop.",
+      "The canceled in-flight block never becomes a durable checkpoint.",
+      "Every retained checkpoint has the recovered status value completed.",
+      "No source call or checkpoint is added after Stop returns.",
+      "Previously published City data remains present; a stopped partial run never publishes/replaces it.",
+      "Public resumeAvailable remains false."
+    ],
+    "liveComposition": {
+      "authority": "LWB-R7-130",
+      "fact": "A real active Fast scan was stopped while still at 0/2500 and returned terminal idle through public map_scan_stop."
+    }
+  },
+  "validation": {
+    "traceCodeRemoved": true,
+    "diffCheck": true,
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministic": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "deterministicRuntimeSeconds": 40.86,
+    "finalProcessState": {
+      "gameRunning": false,
+      "launcherRunning": false
+    }
+  },
+  "acceptanceEffects": {
+    "B05": {
+      "status": "pass_current_offline",
+      "rationale": "Changed-type duplicate Start is rejected with the active ownership contract and cannot mutate run identity, types, strategy/config or reacquire context."
+    },
+    "B06": {
+      "status": "pass_current_plus_historical",
+      "rationale": "Current deterministic coverage closes early/mid/near-completion cancellation/checkpoint semantics; R7-130 supplies the already-live public Stop-to-idle behavior."
+    }
+  },
+  "remainingTechnicallyActionable": [
+    "B07 deliberate bridge loss/recovery during an active scan.",
+    "B11 native point/march add-update-remove-movement transition matrix.",
+    "C04 mark/unmark -> rescan -> restart -> relocate end-to-end.",
+    "C07 vanished/replaced target failure branches."
+  ]
+}

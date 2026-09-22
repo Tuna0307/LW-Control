@@ -15,6 +15,7 @@ internal static class ManualMapScanCommandServiceChecks
     private static async Task RunAsync()
     {
         await NormalStartOwnsOneRunAndStopCancels();
+        await StopTimingMatrixPreservesCheckpointBoundary();
         await RestartReconcilesOrphanedRunAndRejectsConcurrentOwner();
         await BackendSummaryTracksActiveManualScan();
         await FreshClearResolvesAuthoritativeLiveServer();
@@ -121,20 +122,38 @@ internal static class ManualMapScanCommandServiceChecks
         Check(Int(status, "concurrency") == 8, "normal Start must preserve recovered concurrency 8");
         Check(Int(status, "totalBlocks") == 1 && Int(status, "unreadBlocks") == 0,
             "one inflight 20x20 block should use truthful scheduler counters");
+        string activeRunId = String(status, "scanRunId");
+        string activeScanMode = String(status, "scanMode");
+        string activeStrategy = String(status, "scanStrategy");
+        string[] activeTypes = status.GetProperty("selectedTypes").EnumerateArray()
+            .Select(value => value.GetString() ?? string.Empty)
+            .ToArray();
 
         try
         {
             _ = await service.InvokeAsync(
                 "map_scan_start",
-                Payload("normal", "resource"),
+                Payload("fast", "city"),
                 CancellationToken.None);
-            throw new InvalidOperationException("expected duplicate Start rejection");
+            throw new InvalidOperationException("expected changed-type duplicate Start rejection");
         }
         catch (BridgeCommandException error) when (
             error.Code == MapScanStartOwnership.ActiveScanErrorCode &&
             error.Message == MapScanStartOwnership.ActiveScanErrorMessage)
         {
         }
+
+        JsonElement afterChangedTypeStart = Status(service);
+        string[] afterTypes = afterChangedTypeStart.GetProperty("selectedTypes").EnumerateArray()
+            .Select(value => value.GetString() ?? string.Empty)
+            .ToArray();
+        Check(String(afterChangedTypeStart, "scanRunId") == activeRunId &&
+              String(afterChangedTypeStart, "scanMode") == activeScanMode &&
+              String(afterChangedTypeStart, "scanStrategy") == activeStrategy &&
+              Int(afterChangedTypeStart, "concurrency") == 8 &&
+              afterTypes.SequenceEqual(activeTypes) &&
+              activeTypes.SequenceEqual(new[] { "resource" }),
+            "changed-type duplicate Start must leave the active run identity, selected types and backend strategy/config untouched");
 
         object? stop = await service.InvokeAsync(
             "map_scan_stop",
@@ -148,6 +167,93 @@ internal static class ManualMapScanCommandServiceChecks
             "scan status notifications should expose cancelling and terminal idle states");
         Check(contextCalls == 1, "duplicate Start must not reacquire live context");
         service.Close();
+    }
+
+    private static async Task StopTimingMatrixPreservesCheckpointBoundary()
+    {
+        foreach ((string label, int completedBeforeStop) in new[]
+                 {
+                     ("early", 0),
+                     ("mid", 2),
+                     ("near-completion", 4),
+                 })
+        {
+            using MapDataStore store = MapDataStore.CreateInMemory();
+            string baselineKey = "stop-" + label + "-published";
+            store.UpsertRecord(new MapStoredRecord(
+                "city", 2212, baselineKey, 1, "stop-" + label + "-uuid", "Published", null,
+                30, null, null, null, null, 1000,
+                "{\"serverId\":2212,\"ownerUid\":\"stop-owner\"}"));
+
+            var source = new SequencedGateSource();
+            var service = new ManualMapScanCommandService(
+                store,
+                _ => Task.FromResult(Context(100, 20)),
+                source);
+            try
+            {
+                JsonElement start = JsonSerializer.SerializeToElement(
+                    await service.InvokeAsync(
+                        "map_scan_start",
+                        Payload("normal", "city"),
+                        CancellationToken.None),
+                    JsonOptions.Default);
+                string runId = String(start, "scanRunId");
+                Check(!string.IsNullOrWhiteSpace(runId) &&
+                      Int(start, "totalBlocks") == 5 &&
+                      Bool(start, "isReading"),
+                    $"B06 {label}: Start must expose one owned five-block run");
+
+                Check(SpinWait.SpinUntil(() => source.Calls >= 1, TimeSpan.FromSeconds(2)),
+                    $"B06 {label}: first capture did not enter");
+                for (int completed = 0; completed < completedBeforeStop; completed++)
+                {
+                    int callNumber = completed + 1;
+                    source.Release(callNumber);
+                    Check(SpinWait.SpinUntil(() => source.Calls >= callNumber + 1, TimeSpan.FromSeconds(2)),
+                        $"B06 {label}: capture {callNumber + 1} did not enter after releasing {callNumber}");
+                }
+
+                Check(source.Calls == completedBeforeStop + 1,
+                    $"B06 {label}: expected exactly one blocked in-flight capture at Stop boundary");
+                Check(store.ReadScanBlockCheckpointsForTest(runId).Count == completedBeforeStop,
+                    $"B06 {label}: durable checkpoint count before Stop must match completed captures");
+
+                JsonElement stopped = JsonSerializer.SerializeToElement(
+                    await service.InvokeAsync(
+                        "map_scan_stop",
+                        Payload("normal", "city"),
+                        CancellationToken.None),
+                    JsonOptions.Default);
+
+                Check(String(stopped, "scanRunId") == runId &&
+                      !Bool(stopped, "isReading") &&
+                      String(stopped, "phase") == "idle" &&
+                      Int(stopped, "totalBlocks") == 5 &&
+                      Int(stopped, "readBlocks") == completedBeforeStop &&
+                      Int(stopped, "failedBlocks") == 0 &&
+                      Int(stopped, "inflightBlocks") == 0 &&
+                      Int(stopped, "unreadBlocks") == 5 - completedBeforeStop,
+                    $"B06 {label}: Stop must return terminal idle with the exact partial scheduler boundary");
+
+                IReadOnlyList<MapScanBlockCheckpoint> checkpoints =
+                    store.ReadScanBlockCheckpointsForTest(runId);
+                Check(checkpoints.Count == completedBeforeStop &&
+                      checkpoints.All(row => row.Status == "completed"),
+                    $"B06 {label}: canceled in-flight work must not become a checkpoint");
+                int callsAfterStop = source.Calls;
+                Thread.Sleep(50);
+                Check(source.Calls == callsAfterStop &&
+                      store.ReadScanBlockCheckpointsForTest(runId).Count == completedBeforeStop,
+                    $"B06 {label}: no new scheduling/checkpoint may occur after Stop returns");
+                Check(store.GetRecord("city", 2212, baselineKey) is not null,
+                    $"B06 {label}: stopped partial scan must not replace previously published data");
+            }
+            finally
+            {
+                service.Close();
+            }
+        }
     }
 
     private static async Task RestartReconcilesOrphanedRunAndRejectsConcurrentOwner()
@@ -1773,6 +1879,56 @@ internal static class ManualMapScanCommandServiceChecks
                     []))
                 .ToArray();
             return Task.FromResult<IReadOnlyList<MapScanBlockCapture>>(captures);
+        }
+    }
+
+    private sealed class SequencedGateSource : IMapScanBlockSource
+    {
+        private readonly object sync = new();
+        private readonly Dictionary<int, TaskCompletionSource<bool>> releases = new();
+        private int calls;
+
+        public int Calls
+        {
+            get
+            {
+                lock (sync) return calls;
+            }
+        }
+
+        public void Release(int callNumber)
+        {
+            TaskCompletionSource<bool> release;
+            lock (sync)
+            {
+                if (!releases.TryGetValue(callNumber, out release!))
+                    throw new InvalidOperationException(
+                        $"capture call {callNumber} has not entered");
+            }
+            release.TrySetResult(true);
+        }
+
+        public async Task<MapScanBlockCapture> CaptureAsync(
+            MapScanExecutionRequest request,
+            MapScanTargetBlock block,
+            CancellationToken cancellationToken)
+        {
+            var release = new TaskCompletionSource<bool>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            int callNumber;
+            lock (sync)
+            {
+                callNumber = ++calls;
+                releases.Add(callNumber, release);
+            }
+
+            await release.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            return new MapScanBlockCapture(
+                request.ServerId,
+                request.WorldId,
+                block.BlockIndex,
+                $"{{\"call\":{callNumber}}}",
+                []);
         }
     }
 
