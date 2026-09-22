@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-148-CURRENT-EVIDENCE-INDEX",
+  "indexId": "LWB-R7-149-CURRENT-EVIDENCE-INDEX",
   "generatedAt": "2026-09-23",
-  "parentRevision": "8db482b0ff456ece74c65022ee763b6b578f895c",
+  "parentRevision": "a41037df4e105db62379c5bf799ba35f3a93a197",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-scheduled-plunder-retirement.json",
+        "sha256": "CFAAB247268550EB68A8A4B1FBB5622F6483D581C4CAA3F2ABF8E326846A6BC5"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-23-r7-direct-train-list-speed.json",
         "sha256": "2E8B90A695E4A478315B07320BF858CE413368615C5AF9ED02FE7F85B8BE4CC2"
@@ -135,6 +139,10 @@
     ],
     "sharedRelease": [
       {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json",
+        "sha256": "2B1392263ADF29EE2F2CBD5038A0663D35BD4A74124A4D4C1DBE0C942EAE1532"
+      },
+      {
         "path": "evidence/lwbridge-implementation/2026-09-20-r7-release-integrity-audit.json",
         "sha256": "176CD8F294B9E5605A0E39C804798EF3FBA024BA4ABD39BFFE9F8C4EF5A35175"
       },
@@ -149,15 +157,11 @@
       {
         "path": "evidence/lwbridge-implementation/2026-09-22-r7-doc-evidence-self-audit.json",
         "sha256": "6A0A499F55752ACADFF6BBF67FAB5F779D8EB06B24CDAC897FCD323845027E85"
-      },
-      {
-        "path": "evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json",
-        "sha256": "AF344CDCC750BB16C3B24AE23A87AB6F1759C6061CD3A198A36156F38E15554C"
       }
     ]
   },
   "inventory": {
-    "jsonFiles": 295,
+    "jsonFiles": 297,
     "txtFiles": 13,
     "markdownIndexFiles": 1,
     "exactDuplicateGroups": 0

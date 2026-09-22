@@ -1,5 +1,8 @@
 # LWBridge Map Scan recovery
 
+> **R7-149 owner retirement (2026-09-23):** all Scheduled Plunder product surfaces described below are historical provenance only. The shipped rebuild no longer contains the `scheduledPlunder` tab, schedule/cancel/job-list commands, workers, action executors, game-action bridge lanes, or scheduler job/history tables. Read-only Truck/Dispatch scan/filter/status data remains current.
+
+
 > **Cumulative recovery ledger, not current project status.** For current Map Data feature/completion/performance status use [`tabs/map-data.md`](tabs/map-data.md) and the current acceptance matrix. Older “current/pending/next” statements below retain their dated evidence scope only.
 
 ## Treasure claim frontend/status contract - LWB-R7-087, 2026-09-20
@@ -188,7 +191,7 @@ The protocol sends once. Success requires the authoritative success event and pa
 
 **Historical next-worker inputs at R7-080; implemented by R7-081.** Original SQL already proved several worker transitions for the next bounded checkpoint: expiry to `DISPATCH_PLUNDER_TASK_EXPIRED`; armable selection over `scheduled/waiting_connection`; status/error update with optional attempt increment; restart recovery to `DISPATCH_PLUNDER_CLIENT_RESTARTED`; due-offline deferral to `DISPATCH_PLUNDER_GAME_DISCONNECTED`; and daily-limit terminalization to `DISPATCH_PLUNDER_DAILY_LIMIT_REACHED`. The original result mapper also exposes invalid-target, request-pending, manager-unavailable, cross-server, timeout, invalid-schedule, already-armed, send-failed and server-rejected error families. These strings are recovery inputs, not yet a current-v19 executor claim. Evidence: [R7-080](../evidence/lwbridge-implementation/2026-09-20-r7-dispatch-schedule-persistence.json).
 
-## Current Scheduled Plunder persistence acceptance ? LWB-R7-041, 2026-09-19
+## Historical Scheduled Plunder persistence acceptance ? LWB-R7-041, 2026-09-19
 
 **IMPLEMENTED/OFFLINE-TESTED persistence/read/cancel at R7-041; current read boundary re-audited by R7-079.** Original 0.3.1 SQL proves the Truck list is `truck_plunder_jobs UNION ALL truck_plunder_history`, with `scheduled`/`waiting_connection`/`running` first, then `execute_at ASC`, then `updated_at DESC`; Dispatch uses the analogous `dispatch_plunder_jobs` ordering by `plunder_at`. The recovered frontend consumes `scheduleStatus`, `attempts`, `lastError`, `scheduledAt`, `scheduleUpdatedAt`, and execute/plunder time over the original stored row JSON. Production exposes that combined `{dispatchJobs,truckJobs}` envelope and the recovered Truck cancel transition.
 

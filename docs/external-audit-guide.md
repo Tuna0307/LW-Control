@@ -10,7 +10,7 @@ Use this document when handing the repository to another AI or reviewer. It is i
 4. `docs/tabs/map-data.md` — current Map Data status and scan-performance audit.
 5. `docs/tabs/shared-release.md` — shared runtime and Release status.
 6. `docs/lwbridge-project-status.md` — current project-manager summary.
-7. `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json` — current 47-case status after this documentation/evidence self-audit.
+7. `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json` — current 47-case status after the R7-149 owner retirement of Scheduled Plunder.
 8. `evidence/lwbridge-implementation/README.md` and the current evidence index — curated evidence navigation.
 
 ## Audit method
@@ -59,7 +59,6 @@ An auditor should specifically verify:
 - Supplies positive-row population: 2026-09-22 full-world rechecks on 2212/2213 still returned zero Supplies.
 - Fresh current-v20 Railway positive row: official-list probes on 2175/2180/2185/2190/2195/2196/2204 were authoritative but empty in R7-147; do not misreport that as a source failure or as a fresh positive pass.
 - Treasure protected claim scheduler: `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary; public claim is intentionally unrouted.
-- Truck/Dispatch live plunder outcomes and Alliance live message delivery: require suitable targets and explicit authorization.
 - Simultaneous real multi-account UI population: target availability gap.
 - Final integrated release acceptance remains a separate release-level gate even though ordinary technical `partial` rows are zero.
 
@@ -68,3 +67,4 @@ An auditor should specifically verify:
 `docs/reviews/`, `docs/lwbridge-map-scan.md`, `docs/lwbridge-overview-recovery.md`, `docs/lwbridge-injection.md`, and older evidence JSON/TXT files are retained to make prior claims reproducible. They should not be deleted merely because their old status language is superseded.
 
 Current speed proof: `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`.
+Current feature-retirement proof: `docs/reviews/2026-09-23-r7-149-scheduled-plunder-retirement.md`.

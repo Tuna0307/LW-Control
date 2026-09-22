@@ -24,7 +24,7 @@ Status: deterministic multi-profile UI plus real single-session transport are pr
 
 ### 4. State-changing acceptance
 
-Treasure Claim, Truck/Dispatch plunder, and Alliance-share delivery are not read-only tests. Do not run them merely for coverage. They require suitable expendable targets and the required explicit authorization at the time of the test.
+Treasure Claim and Alliance-share delivery are not read-only tests. Scheduled Plunder was retired by owner in R7-149 and has no live-action acceptance test. Do not run them merely for coverage. They require suitable expendable targets and the required explicit authorization at the time of the test.
 
 ## What the owner may be asked to do later
 

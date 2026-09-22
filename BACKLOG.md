@@ -14,7 +14,6 @@ This file now tracks only current/actionable work. Historical completed backlog 
 ## P0 — protected/authorization-gated actions
 
 - [ ] **Treasure protected executor (E01/E02):** `map_treasure_claim` remains intentionally unrouted. Protected scope filtering/order, lucky-slot scheduling, scout-slot reservation, and exact terminal batch enumeration remain `UNKNOWN/BLOCKED` behind preserved SB-79. Do not replay/reroute SB-79 or invent semantics.
-- [ ] **Truck/Dispatch live plunder (E03/E04/E05):** scheduling/cancel/worker/restart and rejection contracts are offline-tested; real outcome/rejection targets have not been consumed. Requires suitable targets and explicit authorization.
 - [ ] **Alliance-share live delivery (E06):** payload/validation is offline-tested. Do not send a real alliance message without explicit messaging authorization.
 
 ## Completed ordinary Home / Map work

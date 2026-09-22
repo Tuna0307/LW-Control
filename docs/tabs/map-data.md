@@ -1,9 +1,9 @@
 # Map Data — current status
 
-**Current through:** `LWB-R7-148`, 2026-09-23
-**Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
+**Current through:** `LWB-R7-149`, 2026-09-23
+**Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
-This is the current entry point for Manual Scan, Auto Scan, saved data, result tabs, navigation, marks, Treasure/Supplies, and scheduled-action surfaces. `docs/lwbridge-map-scan.md` remains the cumulative recovery ledger; older delivery/checkpoint prose is historical unless linked here.
+This is the current entry point for Manual Scan, Auto Scan, saved data, result tabs, navigation, marks, Treasure/Supplies, and current row actions. Scheduled Plunder is retired and absent from the shipped product. `docs/lwbridge-map-scan.md` remains the cumulative recovery ledger; older delivery/checkpoint prose is historical unless linked here.
 
 ## Acquisition and persistence
 
@@ -32,9 +32,9 @@ The ordinary shared scanner is complete for the standard current world geometry 
 | Resource | LIVE-PROVEN acquisition/filter/sort | None known in ordinary scan/read path |
 | Monster | LIVE-PROVEN; Doom Walker included with level-by-10 range such as 160/220 | Live population varies |
 | Zombie Boss | Dedicated strategy LIVE-PROVEN | Population/timers vary |
-| Truck | LIVE-PROVEN direct-list acquisition/goods/filter/sort; moving UUID transitions current | Truck/Railway-only scans bypass AOI; live plunder remains separate |
+| Truck | LIVE-PROVEN direct-list acquisition/goods/filter/sort; moving UUID transitions current | Truck/Railway-only scans bypass AOI; Scheduled Plunder is retired |
 | Railway | Current-v20 scanner uses the official `LWTrainDataManager` Train list directly for Railway-only or Truck/Railway-only scans; historical positive acquisition/Follow remains valid provenance | Fresh population varies; the direct source itself is current-v20 recovered/live-proven |
-| Dispatch / Secret Task | LIVE-PROVEN acquisition/filter/sort | Live plunder remains separate |
+| Dispatch / Secret Task | LIVE-PROVEN acquisition/filter/sort | Scheduled Plunder is retired; read-only eligibility/status fields remain |
 | Ghost Ops | IMPLEMENTED and strict full-world zero-failure scans proven | Positive-row proof is owner-deferred until 2026-09-24 |
 | Treasure | LIVE-PROVEN ordinary rows + read-only state refresh/cache | Public consuming Claim remains blocked/unrouted |
 | Supplies | Parser/query/read-state path ready | Current 2026-09-22 scans on 2212/2213 found 0 authentic Supplies rows |
@@ -73,7 +73,7 @@ Auto Scan uses the same proven scanner rather than a second acquisition implemen
 These are deliberately separated from read-only Map Data correctness:
 
 - Treasure read/state is live-proven, but the protected `claimTreasures` scope/lucky/scout scheduler remains `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary. `map_treasure_claim` stays unrouted.
-- Truck/Dispatch schedule/cancel/worker/restart behavior is implemented/offline-tested, but no real live plunder outcome is claimed.
+- R7-149 owner-retired Scheduled Plunder end-to-end: its tab, schedule/cancel commands, workers, action executors, injected game-action lanes, durable job/history tables, API wrappers, events, controls and scheduler-only locale strings are absent. Read-only Truck/Dispatch plunderability/status fields remain supported.
 - Alliance-share payload/validation is offline-tested, but no real message has been sent without explicit messaging authorization.
 
 ## What still needs population or owner availability

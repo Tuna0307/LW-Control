@@ -171,26 +171,11 @@ internal sealed partial class MapDataStore : IDisposable
           expire_time INTEGER, updated_at INTEGER NOT NULL, state_json TEXT NOT NULL,
           PRIMARY KEY (server_id, player_uid, treasure_uuid)
         );
-        CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs (
-          server_id INTEGER NOT NULL, task_uuid TEXT NOT NULL, task_json TEXT NOT NULL,
-          completion_time INTEGER NOT NULL, plunder_at INTEGER NOT NULL, expire_at INTEGER,
-          status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
-          created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,
-          PRIMARY KEY (server_id, task_uuid)
-        );
-        CREATE TABLE IF NOT EXISTS truck_plunder_jobs (
-          server_id INTEGER NOT NULL, train_uuid TEXT NOT NULL, truck_json TEXT NOT NULL,
-          execute_at INTEGER NOT NULL, expire_at INTEGER,
-          status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
-          created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,
-          PRIMARY KEY (server_id, train_uuid)
-        );
-        CREATE TABLE IF NOT EXISTS truck_plunder_history (
-          job_id TEXT PRIMARY KEY, server_id INTEGER NOT NULL, train_uuid TEXT NOT NULL,
-          truck_json TEXT NOT NULL, execute_at INTEGER NOT NULL,
-          status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
-          created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL
-        );
+        -- OWNER RETIREMENT R7-149: Scheduled Plunder is removed. Drop legacy
+        -- local scheduler state so old jobs/history cannot reappear in the UI.
+        DROP TABLE IF EXISTS dispatch_plunder_jobs;
+        DROP TABLE IF EXISTS truck_plunder_jobs;
+        DROP TABLE IF EXISTS truck_plunder_history;
         CREATE TABLE IF NOT EXISTS dispatch_assist_jobs (
           task_uuid TEXT PRIMARY KEY, target_server INTEGER NOT NULL,
           task_json TEXT NOT NULL, assist_at INTEGER NOT NULL,
@@ -208,12 +193,6 @@ internal sealed partial class MapDataStore : IDisposable
           ON map_records(kind, server_id, point_index);
         CREATE INDEX IF NOT EXISTS idx_scan_records_run_kind
           ON scan_records(run_id, kind);
-        CREATE INDEX IF NOT EXISTS idx_dispatch_plunder_due
-          ON dispatch_plunder_jobs(status, plunder_at);
-        CREATE INDEX IF NOT EXISTS idx_truck_plunder_due
-          ON truck_plunder_jobs(status, execute_at);
-        CREATE INDEX IF NOT EXISTS idx_truck_plunder_history_updated
-          ON truck_plunder_history(updated_at);
         CREATE INDEX IF NOT EXISTS idx_dispatch_assist_due
           ON dispatch_assist_jobs(status, assist_at);
         CREATE INDEX IF NOT EXISTS idx_treasure_claim_states_expire
@@ -1441,7 +1420,7 @@ internal sealed partial class MapDataStore : IDisposable
         {
             using SqliteTransaction transaction = connection.BeginTransaction();
             // Scan blocks/records cascade from scan_runs. Player marks, app settings,
-            // and plunder job/history tables are intentionally preserved.
+            // and durable non-scan settings are intentionally preserved.
             using (SqliteCommand states = connection.CreateCommand())
             {
                 states.Transaction = transaction;

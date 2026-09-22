@@ -92,7 +92,6 @@
             }
             return {rows, total: rows.length};
         },
-        map_plunder_jobs_list: () => ({dispatchJobs: [], truckJobs: []}),
         map_treasure_claim_status: () => ({running: false, jobs: []}),
         hotkey_config_get: () => fixtureState.hotkeys,
         visual_metrics_config_get: () => fixtureState.metrics,

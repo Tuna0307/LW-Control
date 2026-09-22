@@ -11,7 +11,7 @@ Use instead:
 - `docs/lwbridge-project-status.md`
 - `docs/tabs/home.md`
 - `docs/tabs/map-data.md`
-- `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
+- `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
 At R7-145 the current matrix tracks 47 cases with **zero ordinary `partial` rows**. Remaining non-pass cases are explicitly population-, authorization-, or blocked-implementation categories, plus one owner-retired feature.
 

@@ -10,7 +10,7 @@ Use:
 - `docs/tabs/shared-release.md` — shared runtime/Release status.
 - `docs/lwbridge-feature-ledger.md` — current feature ledger.
 - `BACKLOG.md` — current remaining queue only.
-- `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json` — current acceptance baseline.
+- `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json` — current acceptance baseline.
 
 All ordinary A01-A12 Home cases are closed at their recorded evidence scopes. Simultaneous real multi-account UI population remains an availability-only integrated proof gap.
 

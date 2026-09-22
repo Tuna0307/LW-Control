@@ -43,9 +43,9 @@ Current detail: `docs/tabs/home.md`.
 | M10 | Coordinate Jump / moving Follow | PASS; live Jump/Follow authorities + explicit moving-target failure handling |
 | M11 | Auto Scan | PASS at current scheduler/travel/restart scopes |
 | M12 | Treasure read/state | LIVE-PROVEN read-only; consuming Claim remains blocked/unrouted |
-| M13 | Dispatch scheduling/plunder worker | IMPLEMENTED/OFFLINE-TESTED; live plunder outcome not run |
-| M14 | Truck scheduling/plunder worker | IMPLEMENTED/OFFLINE-TESTED; live plunder outcome not run |
-| M15 | Scheduled Plunder result/status | IMPLEMENTED/OFFLINE-TESTED |
+| M13 | Dispatch scheduling/plunder worker | RETIRED BY OWNER R7-149; not shipped |
+| M14 | Truck scheduling/plunder worker | RETIRED BY OWNER R7-149; not shipped |
+| M15 | Scheduled Plunder result/status | RETIRED BY OWNER R7-149; tab/API/storage removed |
 | M16 | Alliance share | Payload/validation OFFLINE-TESTED; live message not sent |
 
 ## Current scan categories
@@ -56,9 +56,9 @@ Current detail: `docs/tabs/home.md`.
 | Resource | LIVE-PROVEN | None known in ordinary path |
 | Monster | LIVE-PROVEN including Doom Walker | Population changes dynamically |
 | Zombie Boss | LIVE-PROVEN dedicated strategy | Population/timers change dynamically |
-| Truck | LIVE-PROVEN | Live plunder separate |
+| Truck | LIVE-PROVEN | Scheduled Plunder retired; read-only status/filter fields retained |
 | Railway | LIVE-PROVEN | Live population may be sparse |
-| Dispatch | LIVE-PROVEN | Live plunder separate |
+| Dispatch | LIVE-PROVEN | Scheduled Plunder retired; read-only status/filter fields retained |
 | Ghost | IMPLEMENTED; full scan can complete cleanly | Positive row deferred/unavailable |
 | Treasure | LIVE-PROVEN read-only | Claim executor blocked |
 | Supplies | Parser/query/read path ready | Positive live population unavailable in current recheck |
@@ -72,7 +72,7 @@ R7-130 live results show the current optimization reduced representative Truck a
 ## Current evidence entry points
 
 - `evidence/lwbridge-implementation/2026-09-22-r7-current-evidence-index.json`
-- `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
+- `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 - `docs/tabs/home.md`
 - `docs/tabs/map-data.md`
 - `docs/tabs/shared-release.md`

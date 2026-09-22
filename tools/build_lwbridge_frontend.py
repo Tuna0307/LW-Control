@@ -77,6 +77,99 @@ def apply_hash_locked_delta(text, recipe_path):
     return result
 
 
+def retire_scheduled_plunder_api(text):
+    start = text.index('function qt(){return U(`map_plunder_jobs_list`)}')
+    end = text.index('function Qt(e,t){return U(`map_player_mark_set`', start)
+    text = text[:start] + text[end:]
+    for fragment in ('Xt as Ft,', 'Jt as Pt,', 'Yt as l,', 'qt as st,', 'Zt as u,'):
+        text = replace_once(text, fragment, '')
+    return text
+
+
+def retire_scheduled_plunder_panel(text):
+    for fragment in ('Ft as n,', 'Pt as a,', 'l as f,', 'st as oe,', 'u as g,'):
+        text = replace_once(text, fragment, '')
+    start = text.index('var x=[[')
+    end = text.index('var Ce=', start)
+    text = text[:start] + text[end:]
+    start = text.index('function it({jobs:')
+    end = text.index('function ot({items:', start)
+    text = text[:start] + text[end:]
+    text = replace_once(text,
+        'e===`truck`?[{label:t(`map.selectTask`),width:`56px`,className:`map-task-select`,select:!0},o,',
+        'e===`truck`?[o,')
+    text = replace_once(text, 'selectedDispatchKeys:s,selectedTruckKeys:c,jumpingKey:l,', 'selectedDispatchKeys:s,jumpingKey:l,')
+    text = replace_once(text, 'onSort:ne,onToggleDispatch:f,onToggleTruck:re,onCoordinateJump:ie,', 'onSort:ne,onToggleDispatch:f,onCoordinateJump:ie,')
+    start = text.index('function pe(t){if(e===`truck`){')
+    mid = text.index('let n=t,r=String(n.uuid||``).trim()', start)
+    text = text[:start] + 'function pe(t){' + text[mid:]
+    for fragment in (
+        ',[an,on]=(0,b.useState)({})', ',[sn,cn]=(0,b.useState)([])',
+        ',[ln,un]=(0,b.useState)([])', ',[dn,G]=(0,b.useState)(``)',
+        ',[fn,pn]=(0,b.useState)(`0`)'):
+        text = replace_once(text, fragment, '')
+    text = replace_once(text,
+        ',Vn=(0,b.useMemo)(()=>new Set(Object.keys(an)),[an]),Hn=Number(fn),Un=Number.isSafeInteger(Hn)&&Hn>=0', '')
+    text = replace_once(text,
+        '(0,b.useEffect)(()=>{Q();let e=te(`bridge://dispatch-plunder-changed`,Q),t=te(`bridge://truck-plunder-changed`,Q);return()=>{e(),t()}},[]),', '')
+    text = replace_once(text, '&&F!==`scheduledPlunder`', '')
+    text = replace_once(text, '(0,b.useEffect)(()=>{F===`scheduledPlunder`&&Q()},[F]),', '')
+    text = replace_once(text,
+        'if(F!==`scheduledPlunder`&&!(F===`treasure`&&h&&J&&!Nn.playerUid)){er(z)}',
+        'if(!(F===`treasure`&&h&&J&&!Nn.playerUid)){er(z)}')
+    text = replace_once(text,
+        'if(F===`scheduledPlunder`){for(let t of sn)for(let n of t.rewards||[])n.nameKey&&e.add(n.nameKey);for(let t of ln)for(let n of t.plunderRewards||[])n.nameKey&&e.add(n.nameKey)}else F===`resource`?',
+        'F===`resource`?')
+    text = replace_once(text, '},[F,Se,dt,sn,V,xt,ln]);', '},[F,Se,dt,V,xt]);')
+    text = replace_once(text, 'let n=F===`scheduledPlunder`?`city`:F,', 'let n=F,')
+    text = replace_once(text, 'async function er(e=z,resolvedMonsterNameKeys){if(F===`scheduledPlunder`)return;', 'async function er(e=z,resolvedMonsterNameKeys){')
+    text = replace_once(text,
+        'let t=F===`scheduledPlunder`?null:F,n=e===`scheduledPlunder`?null:e,r=n?O.current.has(n):!0,i=ge(O.current,t,{page:z,rows:V,total:Qt},n);',
+        'let t=F,n=e,r=O.current.has(n),i=ge(O.current,t,{page:z,rows:V,total:Qt},n);')
+    text = replace_once(text, 'Yt(!!(n&&!r))', 'Yt(!r)')
+    text = replace_once(text,
+        'let nr=(0,b.useCallback)(e=>{F!==`scheduledPlunder`&&(qt(t=>({...t,[F]:_e(t[F],e)})),B(1))},[F])',
+        'let nr=(0,b.useCallback)(e=>{qt(t=>({...t,[F]:_e(t[F],e)})),B(1)},[F])')
+    start = text.index(',ir=(0,b.useCallback)')
+    end = text.index(';async function Q(){', start)
+    text = text[:start] + text[end:]
+    start = text.index('async function Q(){')
+    end = text.index('async function ar(', start)
+    text = text[:start] + text[end:]
+    start = text.index('async function sr(){')
+    end = text.index('async function ur(){', start)
+    text = text[:start] + text[end:]
+    start = text.index('async function dr(')
+    end = text.index('let mr=', start)
+    text = text[:start] + text[end:]
+    text = replace_once(text, 'moving=F!==`scheduledPlunder`&&usesFollow(F,e)', 'moving=usesFollow(F,e)')
+    text = replace_once(text, 'disabled:w.isReading||F===`scheduledPlunder`', 'disabled:w.isReading')
+    text = replace_once(text,
+        ',(0,D.jsxs)(`button`,{className:F===`scheduledPlunder`?`active`:``,onClick:()=>tr(`scheduledPlunder`),children:[(0,D.jsx)(`span`,{className:`map-tab-label`,children:C(`map.scheduledPlunder`)}),(0,D.jsx)(`span`,{className:`map-tab-count`,children:sn.length+ln.length})]})', '')
+    if text.count('F!==`scheduledPlunder`&&') != 2:
+        raise ValueError('Expected exactly two Scheduled Plunder result guards')
+    text = text.replace('F!==`scheduledPlunder`&&', '', 1)
+    text = replace_once(text,
+        'F===`dispatch`&&(0,D.jsxs)(`label`,{className:`map-random-delay-field`,children:[(0,D.jsx)(`span`,{children:C(`map.randomDelaySeconds`)}),(0,D.jsx)(`input`,{type:`number`,min:`0`,step:`1`,"aria-label":C(`map.randomDelaySeconds`),value:fn,onChange:e=>pn(e.target.value)})]}),', '')
+    text = replace_once(text,
+        'F===`dispatch`&&(0,D.jsx)(`button`,{className:`map-schedule-button`,disabled:Object.keys(W).length===0||dn===`schedule`||Dn||!Un,onClick:cr,children:C(`map.scheduleSelected`,{count:Object.keys(W).length})}),', '')
+    text = replace_once(text,
+        'disabled:!h||w.isReading||Object.keys(W).length===0||dn===`schedule`||Dn',
+        'disabled:!h||w.isReading||Object.keys(W).length===0||Dn')
+    text = replace_once(text,
+        'F===`truck`&&(0,D.jsx)(`button`,{className:`map-schedule-button`,disabled:Object.keys(an).length===0||dn===`schedule-truck`,onClick:sr,children:C(`map.scheduleSelectedTrucks`,{count:Object.keys(an).length})}),', '')
+    text = replace_once(text,
+        'F===`scheduledPlunder`&&(0,D.jsx)(`div`,{className:`map-searchbar`,children:(0,D.jsx)(`span`,{className:`map-result-count`,children:C(`common.itemCount`,{count:sn.length+ln.length})})}),', '')
+    text = text.replace('F!==`scheduledPlunder`&&', '', 1)
+    text = replace_once(text, 'selectedDispatchKeys:Bn,selectedTruckKeys:Vn,jumpingKey:$t,', 'selectedDispatchKeys:Bn,jumpingKey:$t,')
+    text = replace_once(text, 'onSort:nr,onToggleDispatch:rr,onToggleTruck:ir,onCoordinateJump:mr,', 'onSort:nr,onToggleDispatch:rr,onCoordinateJump:mr,')
+    text = replace_once(text,
+        ',F===`scheduledPlunder`&&(0,D.jsx)(it,{jobs:sn,gameTexts:Xt,currentTime:tn,online:h,busyKey:dn,onCancel:dr}),F===`scheduledPlunder`&&(0,D.jsx)(at,{jobs:ln,gameTexts:Xt,currentTime:tn,online:h,busyKey:dn,onCancel:fr,onPlunderAgain:pr})', '')
+    if 'scheduledPlunder' in text:
+        raise ValueError('Scheduled Plunder token remains in generated Map panel')
+    return text
+
+
 def build(check=False):
     def emit(path, data):
         if check:
@@ -105,6 +198,7 @@ def build(check=False):
             # recovered bundle so regeneration cannot resurrect the command.
             s = replace_once(s, 'function Vt(e,t){return U(`map_city_export`,{query:e,...t})}', '')
             s = replace_once(s, ',Vt as T,', ',')
+            s = retire_scheduled_plunder_api(s)
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')
@@ -310,6 +404,13 @@ def build(check=False):
             for key in (
                 'map.exportExcel', 'map.exportingExcel', 'map.exportExcelSuccess',
                 'map.speed', 'map.normalSpeed', 'map.fastSpeed',
+                'map.clearPlunderHistory', 'map.plunderAt', 'map.plunderCancelled',
+                'map.plunderFailed', 'map.plunderReasonUnavailable', 'map.plunderResult',
+                'map.plunderWon', 'map.plunderLost', 'map.plunderRewards',
+                'map.plunderAgain', 'map.plunderCount', 'map.plunderRunning',
+                'map.plunderSucceeded', 'map.retryPlunder', 'map.randomDelaySeconds',
+                'map.schedulePlunder', 'map.scheduleSelected', 'map.scheduledPlunder',
+                'map.scheduleSelectedTrucks',
             ):
                 s = remove_locale_template_entry(s, key)
             locale_code = next(code for code in ('zh-CN','zh-TW','en','id','ja','ko','pt','ru','vi') if path.name.startswith(code + '-'))
@@ -510,6 +611,9 @@ def build(check=False):
             old_nav = 'let mr=(0,b.useCallback)(async e=>{if(e.serverId!==w.serverId){T.current(`map jump blocked stale server=${e.serverId} current=${w.serverId}`);return}let n=String(k(e,`marchUuid`)||``).trim();if(F!==`scheduledPlunder`&&A(F)&&n){let r=`${e.serverId}:${n}`;en(r);try{let r=await t({serverId:e.serverId,marchUuid:n});T.current(`map march follow server=${r.serverId} march=${r.marchUuid}`)}catch(e){T.current(`map march follow error `+String(e))}finally{en(``)}return}let r=Number(k(e,`x`)),i=Number(k(e,`y`));if(!Number.isInteger(r)||!Number.isInteger(i)||r<1||i<1)return;let a=`${e.serverId}:${r}:${i}`;en(a);try{let t=await u({serverId:e.serverId,x:r,y:i});T.current(`map coordinate jump server=${t.serverId} x=${t.x} y=${t.y}`)}catch(e){T.current(`map coordinate jump error `+String(e))}finally{en(``)}},[F,w.serverId]),hr='
             new_nav = 'let mr=(0,b.useCallback)(async e=>{let rowServer=Number(e.serverId),march=String(k(e,`marchUuid`)||``).trim(),moving=F!==`scheduledPlunder`&&usesFollow(F,e),xpos=Number(k(e,`x`)),ypos=Number(k(e,`y`));if(!Number.isInteger(rowServer)||rowServer<=0||moving&&!march||!moving&&(!Number.isInteger(xpos)||!Number.isInteger(ypos)||xpos<1||ypos<1))return;let key=moving?`${rowServer}:${march}`:`${rowServer}:${xpos}:${ypos}`;en(key);try{if(rowServer!==w.serverId){let moved=await serverJump(rowServer);T.current(`map navigation switched ${moved.previousServerId} -> ${rowServer}`)}if(moving){let result=await t({serverId:rowServer,marchUuid:march});T.current(`map march follow server=${result.serverId} march=${result.marchUuid}`)}else{let result=await u({serverId:rowServer,x:xpos,y:ypos});T.current(`map coordinate jump server=${result.serverId} x=${result.x} y=${result.y}`)}}catch(error){T.current(`map navigation error `+String(error))}finally{en(``)}},[F,w.serverId]),hr='
             s = replace_once(s, old_nav, new_nav)
+            # R7-149 owner retirement: remove Scheduled Plunder end-to-end from
+            # the shipped Map UI. Read-only plunderability/status fields remain.
+            s = retire_scheduled_plunder_panel(s)
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

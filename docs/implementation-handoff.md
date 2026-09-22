@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-148`; parent revision `8db482b0ff456ece74c65022ee763b6b578f895c`
+**Current checkpoint:** `LWB-R7-149`; parent revision `a41037df4e105db62379c5bf799ba35f3a93a197`
 **Date:** 2026-09-22
 
 Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
@@ -21,7 +21,7 @@ Use these current summaries instead of reconstructing status from chronological 
 
 Current machine-readable acceptance source:
 
-`evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
+`evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
 ## Home / Overview
 
@@ -41,7 +41,7 @@ Do not claim that no future optimization is possible. The supported conclusion i
 
 - B03/B13/B14/C01: population-dependent Ghost/Supplies positive rows.
 - E01/E02: Treasure consuming action remains unrouted; protected scope/lucky/scout scheduler semantics are still blocked behind SB-79.
-- E03/E04/E05: Truck/Dispatch live plunder outcomes/rejections remain unconsumed/not-run.
+- E03/E04/E05: retired by owner in R7-149; Scheduled Plunder is no longer a product or live-acceptance surface.
 - E06: live Alliance-share delivery requires explicit messaging authorization.
 - Simultaneous real multi-account UI population remains unavailable.
 - Final integrated release acceptance remains separate from ordinary technical completion.
@@ -50,7 +50,7 @@ Ghost positive-row proof remains owner-deferred until 2026-09-24. Current Suppli
 
 ## What not to do
 
-Do not replay or reroute SB-79. Do not invent protected Treasure scheduler semantics. Do not perform a consuming claim/plunder/message action merely to turn an acceptance row green. Do not delete old evidence to make the repository look cleaner.
+Do not replay or reroute SB-79. Do not invent protected Treasure scheduler semantics. Do not perform a consuming claim/message action merely to turn an acceptance row green. Do not restore Scheduled Plunder unless the owner explicitly reverses the R7-149 retirement. Do not delete old evidence to make the repository look cleaner.
 
 ## Evidence navigation
 

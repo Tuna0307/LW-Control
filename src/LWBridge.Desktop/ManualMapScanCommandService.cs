@@ -14,8 +14,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
     private readonly Func<int?>? getLiveServerId;
     private readonly IMapScanBlockSource blockSource;
-    private readonly DispatchPlunderWorker? dispatchPlunderWorker;
-    private readonly TruckPlunderWorker? truckPlunderWorker;
     private CancellationTokenSource? activeCancellation;
     private MapScanProcessLease? activeScanLease;
     private Task? activeTask;
@@ -39,8 +37,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private double? acquisitionProgressPercent;
     private bool coordinateJumping;
     private bool serverJumping;
-    private bool dispatchPlundering;
-    private bool truckPlundering;
     private bool treasureInspecting;
     private string? lastError;
 
@@ -59,20 +55,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
         ReconcileInterruptedScansAtStartup();
-        dispatchPlunderWorker = new DispatchPlunderWorker(
-            store,
-            lifecycle.GetLiveServerId,
-            currentClientSource.ExecuteDispatchPlunderAsync,
-            TryEnterDispatchPlunderOperation,
-            ExitDispatchPlunderOperation);
-        dispatchPlunderWorker.Changed += OnDispatchPlunderChanged;
-        truckPlunderWorker = new TruckPlunderWorker(
-            store,
-            lifecycle.GetLiveServerId,
-            currentClientSource.ExecuteTruckQuickRobAsync,
-            TryEnterTruckPlunderOperation,
-            ExitTruckPlunderOperation);
-        truckPlunderWorker.Changed += OnTruckPlunderChanged;
     }
 
     internal ManualMapScanCommandService(
@@ -95,19 +77,14 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.inspectTreasureStates = inspectTreasureStates;
         currentClientSource = null!;
         ReconcileInterruptedScansAtStartup();
-        dispatchPlunderWorker = null;
-        truckPlunderWorker = null;
     }
 
     public event Action<object>? StatusChanged;
-    public event Action? DispatchPlunderChanged;
-    public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
             "map_coordinate_jump" or "map_march_follow" or "server_jump" or
-            "map_dispatch_plunder_schedule" or "map_dispatch_plunder_cancel" or
-            "map_truck_plunder_schedule" or "game_asset_image" or
+            "game_asset_image" or
             "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
             "map_treasure_claim_status";
 
@@ -116,18 +93,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         JsonElement payload,
         CancellationToken cancellationToken)
     {
-        if (command == "map_dispatch_plunder_schedule")
-            return ScheduleDispatchPlunder(payload);
-        if (command == "map_dispatch_plunder_cancel")
-        {
-            CancelDispatchPlunder(payload);
-            return null;
-        }
-        if (command == "map_truck_plunder_schedule")
-        {
-            ScheduleTruckPlunder(payload, cancellationToken);
-            return null;
-        }
         if (command == "game_asset_image")
             return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command is "map_treasure_state_refresh" or
@@ -203,7 +168,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException(
                     "SCAN_RUNNING",
                     "stop the map scan first");
-            if (coordinateJumping || serverJumping || dispatchPlundering || truckPlundering || treasureInspecting)
+            if (coordinateJumping || serverJumping || treasureInspecting)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -523,7 +488,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             // OWNER WORKFLOW R7-147: Clear manages locally published scan data. It
             // must not require the currently viewed data server to equal the live
             // game server after an Auto Scan has returned to its origin. serverId=0
-            // clears all scan rows from this LWBridge session; marks/jobs survive.
+            // clears all scan rows from this LWBridge session; marks/settings survive.
             if (requestedServerId == 0) store.ClearAllScanData();
             else store.ClearServer(requestedServerId);
             scanRunId = string.Empty;
@@ -546,145 +511,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return CreateStatus();
     }
 
-    private IReadOnlyList<JsonElement> ScheduleDispatchPlunder(
-        JsonElement payload)
-    {
-        IReadOnlyList<DispatchPlunderScheduleRow> rows =
-            DispatchPlunderContract.NormalizeScheduleRows(payload);
-        var scheduled = new List<JsonElement>(rows.Count);
-        foreach (DispatchPlunderScheduleRow row in rows)
-        {
-            JsonElement? persisted = store.ScheduleDispatchPlunderRow(
-                row.ServerId,
-                row.Uuid,
-                row.Json,
-                row.CompletionTime,
-                row.PlunderAt,
-                row.ExpireAt,
-                RecoveredWallClock.UnixTimeMilliseconds());
-            if (!persisted.HasValue)
-            {
-                throw new BridgeCommandException(
-                    "MAP_DATA_ERROR",
-                    "scheduled plunder job is missing");
-            }
-            scheduled.Add(persisted.Value);
-        }
-
-        OnDispatchPlunderChanged();
-        return scheduled;
-    }
-
-    private void CancelDispatchPlunder(JsonElement payload)
-    {
-        DispatchPlunderTarget target =
-            DispatchPlunderContract.NormalizeCancel(payload);
-        bool cancelled = store.CancelDispatchPlunder(
-            target.ServerId,
-            target.TaskUuid,
-            RecoveredWallClock.UnixTimeMilliseconds());
-        if (!cancelled)
-        {
-            throw new BridgeCommandException(
-                "NOT_FOUND",
-                "scheduled plunder job not found");
-        }
-
-        OnDispatchPlunderChanged();
-    }
-
-    private sealed record TruckScheduleRow(
-        int ServerId,
-        string Uuid,
-        string Json,
-        long ExecuteAt,
-        long? ExpireAt);
-
-    private void ScheduleTruckPlunder(JsonElement payload, CancellationToken cancellationToken)
-    {
-        if (!payload.TryGetProperty("rows", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
-            throw new BridgeCommandException("INVALID_REQUEST", "truck rows are required");
-
-        int count = rows.GetArrayLength();
-        if (count is < 1 or > 200)
-            throw new BridgeCommandException("INVALID_REQUEST", "select between 1 and 200 trucks");
-
-        var validated = new List<TruckScheduleRow>(count);
-        foreach (JsonElement row in rows.EnumerateArray())
-        {
-            if (row.ValueKind != JsonValueKind.Object)
-                throw InvalidTruckSchedule();
-
-            long serverLong = ReadRecoveredIntegerLike(row, "serverId");
-            string? uuid = row.TryGetProperty("uuid", out JsonElement uuidValue) &&
-                           uuidValue.ValueKind == JsonValueKind.String
-                ? uuidValue.GetString()
-                : null;
-            long executeAt = ReadRecoveredIntegerLike(row, "executeAt");
-            long robTimes = ReadRecoveredIntegerLike(row, "robTimes");
-            long maxLootCount = ReadRecoveredIntegerLike(row, "maxLootCount");
-
-            bool decimalUuid = !string.IsNullOrEmpty(uuid) && uuid.All(ch => ch is >= '0' and <= '9');
-            if (serverLong <= 0 || serverLong > 99_999 || !decimalUuid ||
-                executeAt <= 0 || maxLootCount <= 0 || robTimes >= maxLootCount)
-            {
-                throw InvalidTruckSchedule();
-            }
-
-            long expireValue = ReadRecoveredIntegerLike(row, "expireAt");
-            long? expireAt = expireValue > 0 ? expireValue : null;
-            validated.Add(new TruckScheduleRow(
-                checked((int)serverLong),
-                uuid!,
-                row.GetRawText(),
-                executeAt,
-                expireAt));
-        }
-
-        foreach (TruckScheduleRow row in validated)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            store.ScheduleTruckPlunder(
-                row.ServerId,
-                row.Uuid,
-                row.Json,
-                row.ExecuteAt,
-                row.ExpireAt,
-                RecoveredWallClock.UnixTimeMilliseconds());
-        }
-
-        OnTruckPlunderChanged();
-    }
-
-    private static BridgeCommandException InvalidTruckSchedule() =>
-        new("INVALID_REQUEST", "truck scheduling data is invalid");
-
-    private static long ReadRecoveredIntegerLike(JsonElement row, string name)
-    {
-        if (!row.TryGetProperty(name, out JsonElement value)) return 0;
-        if (value.ValueKind == JsonValueKind.Number)
-        {
-            if (value.TryGetInt64(out long integer)) return integer;
-            if (value.TryGetDouble(out double floating) && double.IsFinite(floating))
-            {
-                if (floating >= long.MaxValue) return long.MaxValue;
-                if (floating <= long.MinValue) return long.MinValue;
-                return (long)floating;
-            }
-            return 0;
-        }
-        if (value.ValueKind == JsonValueKind.String &&
-            long.TryParse(
-                value.GetString(),
-                System.Globalization.NumberStyles.AllowLeadingSign,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out long parsed))
-        {
-            return parsed;
-        }
-        return 0;
-    }
-
     private async Task<object> JumpToServerAsync(JsonElement payload, CancellationToken cancellationToken)
     {
         if (!payload.TryGetProperty("serverId", out JsonElement value) ||
@@ -700,7 +526,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed)
                 throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
-            if (isReading || coordinateJumping || serverJumping || dispatchPlundering || truckPlundering)
+            if (isReading || coordinateJumping || serverJumping)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -751,7 +577,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping || dispatchPlundering || truckPlundering)
+            if (serverJumping)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -806,7 +632,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping || dispatchPlundering || truckPlundering)
+            if (serverJumping)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -854,7 +680,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SCAN_CLOSED",
                     "The Map Data window is closing and cannot start another scan.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping || dispatchPlundering || truckPlundering)
+            if (serverJumping)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -1122,48 +948,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private bool TryEnterDispatchPlunderOperation()
-    {
-        lock (gate)
-        {
-            if (closed || isReading || coordinateJumping || serverJumping ||
-                dispatchPlundering || truckPlundering || treasureInspecting)
-            {
-                return false;
-            }
-            dispatchPlundering = true;
-            return true;
-        }
-    }
-
-    private void ExitDispatchPlunderOperation()
-    {
-        lock (gate) dispatchPlundering = false;
-    }
-
-    private bool TryEnterTruckPlunderOperation()
-    {
-        lock (gate)
-        {
-            if (closed || isReading || coordinateJumping || serverJumping ||
-                dispatchPlundering || truckPlundering)
-            {
-                return false;
-            }
-            truckPlundering = true;
-            return true;
-        }
-    }
-
-    private void ExitTruckPlunderOperation()
-    {
-        lock (gate) truckPlundering = false;
-    }
-
-    private void OnDispatchPlunderChanged() => DispatchPlunderChanged?.Invoke();
-
-    private void OnTruckPlunderChanged() => TruckPlunderChanged?.Invoke();
-
     private void PublishStatusChanged()
     {
         Action<object>? handler = StatusChanged;
@@ -1245,16 +1029,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         }
         try { cancellation?.Cancel(); }
         catch (ObjectDisposedException) { }
-        if (dispatchPlunderWorker is not null)
-        {
-            dispatchPlunderWorker.Changed -= OnDispatchPlunderChanged;
-            dispatchPlunderWorker.Dispose();
-        }
-        if (truckPlunderWorker is not null)
-        {
-            truckPlunderWorker.Changed -= OnTruckPlunderChanged;
-            truckPlunderWorker.Dispose();
-        }
         if (terminalTask is null) return;
         try { terminalTask.GetAwaiter().GetResult(); }
         catch { }

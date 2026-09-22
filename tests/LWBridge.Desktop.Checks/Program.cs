@@ -3323,10 +3323,13 @@ try
         string[] recoveredTables =
         [
             "metadata", "map_records", "scan_runs", "scan_blocks", "scan_records", "player_marks",
-            "app_settings", "treasure_claim_states", "dispatch_plunder_jobs", "truck_plunder_jobs",
-            "truck_plunder_history", "dispatch_assist_jobs",
+            "app_settings", "treasure_claim_states", "dispatch_assist_jobs",
         ];
-        Check(recoveredTables.All(schema.ContainsKey), "map store creates every recovered 0.3.1 table");
+        Check(recoveredTables.All(schema.ContainsKey) &&
+              !schema.ContainsKey("dispatch_plunder_jobs") &&
+              !schema.ContainsKey("truck_plunder_jobs") &&
+              !schema.ContainsKey("truck_plunder_history"),
+            "map store preserves ordinary recovered tables while owner-retired Scheduled Plunder tables remain absent");
         Check(schema["map_records"].Contains("PRIMARY KEY (kind, server_id, record_key)", StringComparison.Ordinal),
             "map record identity is recovered as kind/server/record_key");
         Check(schema["scan_records"].Contains("PRIMARY KEY (run_id, kind, server_id, record_key)", StringComparison.Ordinal),
@@ -3337,10 +3340,13 @@ try
         [
             "idx_map_kind_server", "idx_map_kind_server_quality_power", "idx_map_kind_server_level",
             "idx_map_kind_server_updated", "idx_map_kind_server_point", "idx_scan_records_run_kind",
-            "idx_dispatch_plunder_due", "idx_truck_plunder_due", "idx_truck_plunder_history_updated",
             "idx_dispatch_assist_due", "idx_treasure_claim_states_expire",
         ];
-        Check(recoveredIndexes.All(schema.ContainsKey), "map store creates every recovered 0.3.1 index");
+        Check(recoveredIndexes.All(schema.ContainsKey) &&
+              !schema.ContainsKey("idx_dispatch_plunder_due") &&
+              !schema.ContainsKey("idx_truck_plunder_due") &&
+              !schema.ContainsKey("idx_truck_plunder_history_updated"),
+            "map store preserves ordinary recovered indexes while owner-retired Scheduled Plunder indexes remain absent");
 
         string firstCityJson = JsonSerializer.Serialize(new
         {
@@ -6007,47 +6013,6 @@ Check(
     overviewBridgeSource.Contains("local NAVIGATION_TIMEOUT_SECONDS = 5", StringComparison.Ordinal) &&
     !overviewBridgeSource.Contains("write_march_follow_result(request, \"failed\", \"march_unavailable\")", StringComparison.Ordinal),
     "March Follow must use the current-v19 JumpToMarchByUuid server-position fallback, preserve the recovered 5-second native window, and never fail merely because the march is not already locally loaded");
-Check(
-    overviewBridgeSource.Contains("GetAllMarchesByCS", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("exact_runtime_id(safe_get(march, \"uuid\")", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("exact_runtime_id(safe_get(train, \"uuid\")", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("RailwayUtil.ClickAttackTrain+LWMyStationDataManager.TryAttackTrain", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("TrainSkirmishDataReceived", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("TrainAttackReceived", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("request.battleWon = not top_player_win", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("finish_truck_quick_rob(request, \"ambiguous\", \"server_response_timeout\"", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("request.requestSent = true", StringComparison.Ordinal),
-    "Truck quick-rob must resolve the live March/Train identities without 64-bit tonumber coercion, use the current-v19 official attack path, distinguish success-only from terminal response events, invert topPlayerWin to player battleWon, and preserve non-retryable post-send ambiguity");
-Check(
-    overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("dispatch-plunder-result.json", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("responseTimeoutMilliseconds = 30000", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("Net.Msgs.DispatchTask.DispatchStealMessage", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("class.HandleMessage = wrapper", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("return original(self, message)", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("safe_get(system, \"Int64\")", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("safe_get(int64, \"Parse\")", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("request.executeAt > server_time + 10000", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("server_time >= request.executeAt", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("GetTodayStealNum", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("GetDispatchSetting", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("\"steal_count\"", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("IsOpenCrossSteal", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("pcall(send, command, request.wireUuid, request.serverId)", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("math.max(server_time, request.executeAt)", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("dispatch_plunder_runtime.responseTimeoutMilliseconds", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("pending.responseReceived = true", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("dispatch_plunder_runtime.abandon()", StringComparison.Ordinal),
-    "Dispatch plunder bridge must hook the exact current-v19 handler, preserve Int64 identity, arm at most 10 seconds early, gate on authoritative server time/daily/cross-server state, send once, correlate the official response and restore its hook on session loss");
-Check(
-    overviewBridgeSource.Contains("normalize_truck_plunder_rewards", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("GetItemTemplate", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("GetNameByType", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("GetPicByType", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("request.plunderRewards, request.rewardNormalizationComplete", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("plunderRewards = request.plunderRewards", StringComparison.Ordinal) &&
-    overviewBridgeSource.Contains("rewardNormalizationComplete = request.rewardNormalizationComplete", StringComparison.Ordinal),
-    "Truck quick-rob must normalize authoritative reward entries through current-v19 item/reward managers and carry completeness separately from the proven battle result");
 int overviewBridgeTopLevelLocalCount = 0;
 foreach (string sourceLine in overviewBridgeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
 {
@@ -6064,98 +6029,33 @@ foreach (string sourceLine in overviewBridgeSource.Replace("\r\n", "\n", StringC
 }
 Check(overviewBridgeTopLevelLocalCount < 200,
     $"current Overview bridge uses {overviewBridgeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
-string plunderStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs"));
-int truckResultStart = plunderStoreSource.IndexOf("internal bool RecordTruckPlunderSuccess(", StringComparison.Ordinal);
-int truckResultEnd = plunderStoreSource.IndexOf("internal TruckPlunderWorkItem? ReadArmableTruckPlunder(", truckResultStart, StringComparison.Ordinal);
-string truckResultSource = truckResultStart >= 0 && truckResultEnd > truckResultStart
-    ? plunderStoreSource[truckResultStart..truckResultEnd]
-    : string.Empty;
-Check(
-    plunderStoreSource.Contains("ReadArmableDispatchPlunder", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("ExpireDispatchPlunder", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("MarkDueDispatchPlunderWaitingConnection", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("RecoverDispatchPlunderJobsOriginal", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("FailActiveDispatchPlunderAtDailyLimit", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("DISPATCH_PLUNDER_CLIENT_RESTARTED", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("DISPATCH_PLUNDER_GAME_DISCONNECTED", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("DISPATCH_PLUNDER_DAILY_LIMIT_REACHED", StringComparison.Ordinal),
-    "Dispatch plunder store must preserve recovered arm, expiry, restart, disconnected-due and daily-limit worker primitives");
-Check(
-    truckResultSource.Contains("row[\"battleWon\"] = battleWon", StringComparison.Ordinal) &&
-    truckResultSource.Contains("row[\"plunderRewards\"] = JsonNode.Parse", StringComparison.Ordinal) &&
-    truckResultSource.Contains("row[\"robTimes\"] = robTimes.Value", StringComparison.Ordinal) &&
-    truckResultSource.Contains("row[\"remainingLootCount\"] = remainingLootCount.Value", StringComparison.Ordinal) &&
-    truckResultSource.Contains("row[\"dailyRobCount\"] = dailyRobCount.Value", StringComparison.Ordinal) &&
-    truckResultSource.Contains("status='succeeded',last_error=NULL", StringComparison.Ordinal) &&
-    !truckResultSource.Contains("attempts=attempts+1", StringComparison.Ordinal),
-    "Truck result persistence must merge recovered optional result fields and mark succeeded without incrementing attempts; archiving remains a separate reschedule operation");
-string truckWorkerSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "TruckPlunderWorker.cs"));
-Check(
-    truckWorkerSource.Contains("internal const long ArmLeadMilliseconds = 10_000", StringComparison.Ordinal) &&
-    truckWorkerSource.Contains("FailStaleRunningTruckPlunderConservatively", StringComparison.Ordinal) &&
-    truckWorkerSource.Contains("TryMarkTruckPlunderRunning", StringComparison.Ordinal) &&
-    truckWorkerSource.Contains("TRUCK_PLUNDER_RESPONSE_TIMEOUT", StringComparison.Ordinal) &&
-    truckWorkerSource.Contains("TRUCK_PLUNDER_RESULT_AMBIGUOUS", StringComparison.Ordinal) &&
-    truckWorkerSource.Contains("server response timeout", StringComparison.Ordinal) &&
-    truckWorkerSource.Contains("truck plunder execution state is unknown after client restart", StringComparison.Ordinal),
-    "Truck worker must preserve recovered 10-second arm lead and conservative non-retryable restart/ambiguity handling");
-string dispatchWorkerSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderWorker.cs"));
-Check(
-    dispatchWorkerSource.Contains("internal const long ArmLeadMilliseconds = 10_000", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("FailStaleRunningDispatchPlunderConservatively", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("ReadArmableDispatchPlunder(now, ArmLeadMilliseconds)", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("MarkDueDispatchPlunderWaitingConnection(now)", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("TryMarkDispatchPlunderRunning", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("FailActiveDispatchPlunderAtDailyLimit", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("DISPATCH_PLUNDER_RESPONSE_TIMEOUT", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("item.ServerId is < 1 or > 99_999", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("int targetServerId = checked((int)item.ServerId)", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("item.TaskUuid,", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("item.PlunderAt,", StringComparison.Ordinal) &&
-    dispatchWorkerSource.Contains("not have to equal the target server", StringComparison.Ordinal) &&
-    !dispatchWorkerSource.Contains("liveServerId.Value != item.ServerId", StringComparison.Ordinal),
-    "Dispatch worker must preserve recovered 10-second arm timing, due-only offline deferral, active-only running attempts, daily-limit stop-all and non-retryable ambiguity while leaving cross-server eligibility to the current-v19 executor");
-Check(
-    plunderStoreSource.Contains("ValidateDispatchServerId(long serverId)", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("if (serverId <= 0)", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("FailStaleRunningDispatchPlunderConservatively", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("TryMarkDispatchPlunderRunning", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("status='failed'", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("last_error='DISPATCH_PLUNDER_CLIENT_RESTARTED'", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("attempts=attempts+1", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("AND status IN ('scheduled','waiting_connection')", StringComparison.Ordinal),
-    "Dispatch durable store must fail stale running work conservatively and guard the exactly-once running attempt against cancel/reschedule races");
 string manualMapServiceSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "ManualMapScanCommandService.cs"));
+string backendSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeBackend.cs"));
+string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+string mapStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.cs"));
 Check(
-    manualMapServiceSource.Contains("truckPlundering", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("dispatchPlundering", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("TryEnterTruckPlunderOperation", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("TryEnterDispatchPlunderOperation", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("currentClientSource.ExecuteTruckQuickRobAsync", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("currentClientSource.ExecuteDispatchPlunderAsync", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("dispatchPlunderWorker.Changed += OnDispatchPlunderChanged", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("dispatchPlunderWorker.Dispose()", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("TruckPlunderChanged", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("DispatchPlunderChanged", StringComparison.Ordinal),
-    "Truck and Dispatch workers must share the live current-client source and serialized game-operation gate, with owned change events and disposal");
-string dispatchPlunderContractSource = File.ReadAllText(
-    Path.Combine(
-        repoRoot,
-        "src",
-        "LWBridge.Desktop",
-        "DispatchPlunderContract.cs"));
-Check(
-    dispatchPlunderContractSource.Contains("secret task rows are required", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("select between 1 and 200 secret tasks", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("secret task scheduling data is invalid", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("plunderAt < completionTime", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("taskExpireTime > 0 && taskExpireTime <= plunderAt", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("maxStealCount > 0 && stolenCount >= maxStealCount", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("TryGetInt64(out long serverId)", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("serverId <= 0", StringComparison.Ordinal) &&
-    !dispatchPlunderContractSource.Contains("serverId > 99_999", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal),
-    "Dispatch plunder contract must preserve recovered positive-i64 server identity, batch, timing, steal-cap and cancel-target validation");
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs")) &&
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderWorker.cs")) &&
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "TruckPlunderWorker.cs")) &&
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs")) &&
+    !manualMapServiceSource.Contains("map_dispatch_plunder_schedule", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
+    !backendSource.Contains("map_plunder_jobs_list", StringComparison.Ordinal) &&
+    !backendSource.Contains("map_truck_plunder_cancel", StringComparison.Ordinal) &&
+    !windowSource.Contains("bridge://dispatch-plunder-changed", StringComparison.Ordinal) &&
+    !windowSource.Contains("bridge://truck-plunder-changed", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("truck-quick-rob.txt", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("dispatch_plunder_runtime", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("pump_truck_quick_rob", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("DROP TABLE IF EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("DROP TABLE IF EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("DROP TABLE IF EXISTS truck_plunder_history", StringComparison.Ordinal) &&
+    !mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
+    !mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
+    !mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_history", StringComparison.Ordinal),
+    "owner-retired Scheduled Plunder runtime, commands, events and durable tables must be absent while legacy tables are explicitly dropped");
 string dispatchAllianceShareContractSource = File.ReadAllText(
     Path.Combine(
         repoRoot,
@@ -6218,46 +6118,6 @@ Check(
     !manualMapServiceSource.Contains("command == \"map_treasure_claim\"", StringComparison.Ordinal) &&
     !manualMapServiceSource.Contains("TreasureClaimContract.NormalizeRequest(payload)", StringComparison.Ordinal),
     "Treasure claim must remain unavailable in production while protected claimTreasures scope/lucky/scout orchestration is unrecovered");
-Check(
-    manualMapServiceSource.Contains("command == \"map_dispatch_plunder_schedule\"", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("DispatchPlunderContract.NormalizeScheduleRows(payload)", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("ScheduleDispatchPlunderRow(", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("scheduled plunder job is missing", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("scheduled plunder job not found", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("OnDispatchPlunderChanged();", StringComparison.Ordinal),
-    "Dispatch public schedule/cancel must be enabled with recovered batch-store, MAP_DATA_ERROR/NOT_FOUND and change-event behavior");
-Check(
-    manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("truck rows are required", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("select between 1 and 200 trucks", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("truck scheduling data is invalid", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("robTimes >= maxLootCount", StringComparison.Ordinal) &&
-    manualMapServiceSource.Contains("ScheduleTruckPlunder(", StringComparison.Ordinal),
-    "Truck public schedule command must preserve recovered INVALID_REQUEST messages, 1-200 batch bound, robTimes/maxLoot predicate and durable store handoff");
-string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
-Check(
-    windowSource.Contains("\"bridge://dispatch-plunder-changed\"", StringComparison.Ordinal) &&
-    windowSource.Contains("manualMapScanService.DispatchPlunderChanged += OnDispatchPlunderChanged", StringComparison.Ordinal) &&
-    windowSource.Contains("SendEvent(session, \"bridge://dispatch-plunder-changed\"", StringComparison.Ordinal),
-    "Recovered Dispatch plunder change event must be allowlisted and forwarded after successful local schedule/cancel and durable-worker transitions");
-Check(
-    windowSource.Contains("\"bridge://truck-plunder-changed\"", StringComparison.Ordinal) &&
-    windowSource.Contains("manualMapScanService.TruckPlunderChanged += OnTruckPlunderChanged", StringComparison.Ordinal) &&
-    windowSource.Contains("SendEvent(session, \"bridge://truck-plunder-changed\"", StringComparison.Ordinal),
-    "Scheduled Plunder frontend event must be allowed and forwarded from the durable Truck worker");
-Check(
-    plunderStoreSource.Contains("CreateTruckPlunderJobId(", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("$\"truck-{unixTimeMilliseconds}-{randomValue:x}\"", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("$\"legacy-{serverId}-{trainUuid}-{createdAt}\"", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("previousStatus is \"succeeded\" or \"failed\" or \"cancelled\" or \"expired\"", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("ON CONFLICT(job_id) DO NOTHING", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("attempts=CASE WHEN truck_plunder_jobs.status IN ('scheduled','waiting_connection')", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("WHERE truck_plunder_jobs.status<>'running'", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("nextRow.Remove(\"battleWon\")", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("nextRow.Remove(\"plunderRewards\")", StringComparison.Ordinal) &&
-    plunderStoreSource.Contains("scheduled truck job is missing", StringComparison.Ordinal),
-    "Truck archive/reschedule persistence must preserve the recovered terminal archive set, history conflict behavior, fresh/legacy job identities, stale result clearing, attempt rule and running-row guard");
 int liveProbeTopLevelLocalCount = 0;
 foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
 {
@@ -6420,7 +6280,8 @@ Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`
 Check(mapDataPanelSource.Contains("manualDefaultTypes=O.filter(e=>e!==`zombie_boss`)", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("selectedTypes:scanTypeSelection(S.selectedTypes,e.key,t.target.checked)", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading||F===`scheduledPlunder`", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("scheduledPlunder", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("v(await ae({selectedTypes:e}))", StringComparison.Ordinal) &&
       !mapDataPanelSource.Contains("map-speed-toggle", StringComparison.Ordinal) &&
       !mapDataPanelSource.Contains("lwbridge.mapScanMode", StringComparison.Ordinal) &&
@@ -6428,7 +6289,7 @@ Check(mapDataPanelSource.Contains("manualDefaultTypes=O.filter(e=>e!==`zombie_bo
       !mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
     "Manual/Auto scan selectors must preserve content selection and Start blocking while removing all user-owned Normal/Fast controls and persistence");
 Check(mapDataPanelSource.Contains(
-          "F!==`truck`&&F!==`monster`&&F!==`zombie_boss`&&F!==`scheduledPlunder`",
+          "F!==`truck`&&F!==`monster`&&F!==`zombie_boss`",
           StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("window.setInterval(()=>nn(Date.now()),1e3)", StringComparison.Ordinal),
     "Zombie Boss Remaining must share the one-second live countdown clock with Monster");

@@ -11,7 +11,7 @@ At R7-145 the matrix has **zero ordinary `partial` rows**. Remaining work is pop
 Work in the existing LWBridge reconstruction and make **all functionality belonging to these two pages work against the real, currently installed Last War client**:
 
 1. **Overview / 首页**: game setup, launch, close, launch-at-startup, automatic reconnect, and their shared status controls.
-2. **Map Data**: manual scan, automatic scan, every data category, searching/filtering/sorting/pagination, map navigation, and all conditional row/bulk actions, including treasure and scheduled-plunder workflows. City Excel export is intentionally removed from the rebuilt product.
+2. **Map Data**: manual scan, automatic scan, every data category, searching/filtering/sorting/pagination, map navigation, and all current conditional row/bulk actions, including treasure workflows. City Excel export and Scheduled Plunder are intentionally removed from the rebuilt product.
 
 Keep the reproduced UI faithful to `lwbridge-0.3.1.exe`. The user already asked to remove login and to recreate functionality independently. **Do not reintroduce a login, license activation, renewal, unbind, or account-expiry gate.**
 
@@ -67,7 +67,7 @@ Remaining boundaries are explicit:
 
 - Ghost/Supplies positive population is unavailable/deferred.
 - Treasure consuming Claim remains intentionally unrouted because protected scope/lucky/scout scheduler semantics are `UNKNOWN/BLOCKED` behind SB-79.
-- Live Truck/Dispatch plunder and Alliance message delivery require suitable explicitly authorized targets/actions.
+- Alliance message delivery requires a suitable explicitly authorized target/action. Scheduled Plunder is owner-retired and must not be invoked or reintroduced without a new explicit owner decision.
 - simultaneous real multi-account UI population remains unavailable.
 - final integrated release acceptance remains separate.
 
@@ -316,7 +316,7 @@ Keep transport coverage and semantic completeness separate. A scan can visit eve
 
 ### M06. Audit every result tab and conditional control
 
-The result tabs are `city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure`, and `scheduledPlunder`. Build a checklist from the original component's actual columns, menus, buttons, enabled conditions, tooltips, dialogs, and state branches for each. Include horizontally clipped columns, not just the left side of the screenshot.
+The result tabs are `city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, and `treasure`. The original `scheduledPlunder` tab is owner-retired as of R7-149 and must not be shipped. Build a checklist from the original component's actual columns, menus, buttons, enabled conditions, tooltips, dialogs, and state branches for each. Include horizontally clipped columns, not just the left side of the screenshot.
 
 The following are **schema/behavior audit targets**, not a claim that every listed field is mandatory on every original row:
 
@@ -330,7 +330,7 @@ The following are **schema/behavior audit targets**, not a claim that every list
 | Dispatch | Task UUID, owner/alliance, level/quality/rewards, coordinates, completion/expiry/protection, plunder eligibility and schedule timing, sharing |
 | Ghost | Distinct original task/state semantics, owner/alliance, quality/rewards, progress/completion/expiry, available filtering/actions; do not alias it to dispatch without evidence |
 | Treasure | Type/config/localized name, server/coordinates, charging/claimable/depleted/expired world state, per-player state, alliance eligibility, claimed/digging counts, lucky priority, actual claim/dispatch outcomes |
-| Scheduled Plunder | Separate dispatch/truck jobs with target identity, due time, status, errors/results/rewards, cancel/retry where supported |
+| Scheduled Plunder | **RETIRED BY OWNER R7-149** ? no result tab, schedule/cancel/retry UI, job/history storage, workers, action executors, or API commands are shipped |
 
 Unknown authoritative names must stay explicitly unknown until the name/config lookup is recovered. Do not rename resource categories using guessed numeric mappings or render hardcoded placeholder entities to make tabs look populated.
 
@@ -425,32 +425,11 @@ These are part of the requested page. Do not declare Map Data complete while lea
 - Separate eligible/queued/skipped counts from confirmed claimed, scout dispatched, no-squad skipped, other-alliance skipped, and failed results. A queued action is not a received reward.
 - Prove a successful claim with server/runtime confirmation and the corresponding authoritative player/treasure/reward change. Test already claimed, vanished, expired, no squad, wrong alliance, repeated click, timeout, and disconnect without duplicate claims.
 
-### M13. Dispatch / secret-task plunder scheduling
+### M13-M15. Scheduled Plunder ? retired by owner R7-149
 
-- Implement selection, add-to-schedule, maximum random-delay input, actual job creation, execution, state updates, and cancellation.
-- Preserve the selected row's current target/server identity and verify it again before execution. Re-evaluate protection/completion/expiry/loot-limit/eligibility conditions from current authoritative state.
-- The recovered frontend constructs per-row `plunderAt`, `maxRandomDelaySeconds`, and `randomDelaySeconds`, bounding randomized execution before task expiry and numeric overflow. Trace units, floor behavior, inclusivity, and the native validation. Do not independently randomize a second time in the backend.
-- Persist jobs and execution ownership. Restart/reconnect must not execute the same accepted job twice.
-- Reflect actual pending/running/failed/expired/cancelled/completed outcomes and rejection reasons. Preserve source distinctions between request accepted, attack executed, victory/defeat, and received loot.
-- Test cancelled-before-due, due-while-disconnected, expired-before-due, target disappeared, duplicate schedule, restart around dispatch, and a recovered valid success path when authorized.
+The original 0.3.1 Dispatch/Truck scheduling, cancellation, worker, result/history, retry and Plunder Again surfaces are historical reference only. They are **not** current product requirements. The shipped rebuild must not expose `map_plunder_jobs_list`, `map_dispatch_plunder_schedule`, `map_dispatch_plunder_cancel`, `map_truck_plunder_schedule`, `map_truck_plunder_cancel`, the `scheduledPlunder` result tab, scheduler workers, scheduler durable tables, or game-action executor lanes. Existing databases drop legacy Scheduled Plunder job/history tables on open.
 
-### M14. Truck plunder and any recovered train actions
-
-- Recover the exact set of row/bulk actions applicable to trucks versus trains. Do not assume that sharing a goods/quality filter means both use the same plunder protocol.
-- Implement supported selection, scheduling, cancellation, and Plunder Again using the recovered command family.
-- The API's `map_truck_plunder_schedule` constructs `executeAt` using current time and protection time. Recover that calculation and target eligibility precisely, including quality, special/reindeer rules, max loot count, already robbed count, arrival/expiry, and cross-server limits.
-- Recheck a moving target's identity and current state immediately before action. Cached coordinates are insufficient.
-- Persist and display real results, rejection reasons, victory/defeat, and loot. “Scheduled” and “request sent” cannot become “Succeeded.”
-- Protect against repeated clicks, duplicate targets, ambiguous outcome after disconnect, already-fully-plundered targets, and stale schedules. A retry after an uncertain send needs authoritative reconciliation, not blind replay.
-
-### M15. Scheduled Plunder result tab
-
-- Implement `map_plunder_jobs_list` with the original separate `dispatchJobs` and `truckJobs` arrays and their exact row schemas.
-- Recover all columns, sort/order behavior, due-time formatting, status badges, countdowns, actions, error detail, rewards, and empty state.
-- Use stable keys that include the necessary kind/server/target/job identity. Dispatch and truck UUIDs cannot collide through an under-scoped key.
-- Cancel only the intended job via `map_dispatch_plunder_cancel({serverId, taskUuid})` or `map_truck_plunder_cancel({serverId, trainUuid})`. The wire name `trainUuid` must be preserved where used even if the UI calls it a truck.
-- Define cancellation racing with dispatch/response and make the displayed state truthful. Do not claim cancellation undid an already executed in-game action.
-- Preserve/reconcile scheduled and terminal state across restart according to recovered rules. Bound history without dropping unresolved operations.
+Read-only Truck/Dispatch data remains in scope: target identity, goods/rewards metadata, protection/arrival/completion timing, robbed/steal counts, plunderability/status filtering, normal result navigation, Truck/Railway Follow, and Dispatch Alliance Share under its separate authorization boundary. Historical recovery details for the retired feature remain in `docs/lwbridge-map-scan.md` and evidence for provenance; they do not authorize reimplementation.
 
 ### M16. Share secret tasks to alliance
 
@@ -482,12 +461,11 @@ These are original **frontend command names**, not proof of working native handl
 | Navigation | `map_coordinate_jump(payload)`; `map_march_follow(payload)`; recover precise payload keys |
 | Localization | `lastwar_localize({language, keys})`; runtime assets/images if visible cells require them |
 | Treasure | `map_treasure_state_refresh({serverId, records})`; `map_treasure_state_refresh_all({serverId})`; `map_treasure_claim({serverId, claimScope, prioritizeLuckySlots, targetUuid})`; `map_treasure_claim_status()` |
-| Scheduled jobs | `map_plunder_jobs_list()` |
-| Secret-task actions | `map_dispatch_plunder_schedule({rows})`; `map_dispatch_plunder_cancel({serverId, taskUuid})`; `map_dispatch_share_alliance({rows})` |
-| Truck actions | `map_truck_plunder_schedule({rows})`; `map_truck_plunder_cancel({serverId, trainUuid})` |
+| Secret-task actions | `map_dispatch_share_alliance({rows})` only; Scheduled Plunder schedule/cancel commands are retired |
+| Truck actions | No Scheduled Plunder action commands; read-only rows and Follow/navigation remain |
 | Supporting state | `append_log({message})`, `update_status()`, `set_window_theme({theme})`, and any actual dependencies discovered while tracing the two pages |
 
-This table is a minimum starting inventory. Scan the call graph from both components and their shared controls to find missing dependencies. For example, scheduled plunder may need squad/dispatch eligibility state, treasure views may require player/alliance identity, and shared refresh may request automation status. Implement the required seams without expanding into unrelated Automation/Squad feature work.
+This table is a minimum starting inventory. Scan the call graph from both components and their shared controls to find missing dependencies. For example, treasure views may require player/alliance identity, and shared refresh may request automation status. Scheduled Plunder is not a dependency because it is retired. Implement the required seams without expanding into unrelated Automation/Squad feature work.
 
 Original subscription names include `bridge://status`, `bridge://map-scan-status`, `bridge://game-recovery`, `bridge://automation-status`, and `bridge://resource-automation-status`. Recover additional Map Data/job/player/treasure events and exact envelopes from the original API/component subscriptions. Do not assume emitting an event of the right name with a guessed object is enough.
 
@@ -521,7 +499,7 @@ The original implementation order is complete for ordinary Home and Map Data pat
 - Milestone C shared Manual Scan engine: complete.
 - Milestone D ordinary scan contents/downstream data: complete for available populations; Ghost/Supplies positive rows remain externally gated.
 - Milestone E Auto Scan: complete at current scheduler/travel/restart scopes.
-- Milestone F conditional actions: implementation/offline coverage exists, but Treasure protected executor remains blocked and live plunder/message outcomes remain authorization/target-gated.
+- Milestone F conditional actions: Treasure protected executor remains blocked and Alliance message delivery remains authorization/target-gated. Scheduled Plunder is retired by owner.
 - Milestone G integrated acceptance: ordinary technical partials are zero; final release-level acceptance and external gates remain.
 
 Current actionable queue is maintained only in `BACKLOG.md`.
@@ -571,9 +549,9 @@ The counts below are **requested reliability acceptance targets for the new impl
 | D04 | Disable/Stop/reconnect/app restart mid-cycle | Recovered cancellation/resume policy and truthful server restoration |
 | E01 | Treasure valid/already claimed/expired/no squad/wrong alliance | Correct per-player state and authoritative reward/dispatch result; safe rejection otherwise |
 | E02 | Treasure bulk scopes and lucky/foreign visibility options | Correct eligible/queued/skipped versus confirmed result counts |
-| E03 | Dispatch/truck schedule due/cancel/retry/restart | Correct job timing and identity; no duplicate state-changing dispatch |
-| E04 | Protected/full/vanished/cross-server-ineligible plunder target | Authoritative eligibility rejection and useful error/result |
-| E05 | Uncertain plunder response / actual victory or defeat | Reconciled actual outcome and loot; no success inferred from send |
+| E03 | Scheduled Plunder schedule due/cancel/retry/restart | **RETIRED BY OWNER R7-149**; feature absent from shipped product |
+| E04 | Scheduled Plunder target rejection paths | **RETIRED BY OWNER R7-149**; no action executor remains |
+| E05 | Scheduled Plunder actual/ambiguous outcome | **RETIRED BY OWNER R7-149**; no live action acceptance required |
 | E06 | Alliance share validation/partial failure | Offline payload tests plus explicitly authorized live delivery if permitted |
 | F01 | Navigation, theme, nine languages, 900/1120/1440 px layouts | Original component fidelity maintained; no leaked listeners/timers |
 | F02 | Deterministic capture with real auto-launch configured | No live side effects; preview still isolated and explicitly selected |
