@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-141, 2026-09-22
+
+**C07 is closed as `PASS_CURRENT_PLUS_HISTORICAL`.** Current deterministic evidence covers vanished timeout, replaced identity/server, forged wrong-UUID `proven` rejection, public Follow failure-to-success ownership recovery, and the shipped Lua exact-UUID/observed-before-proven source contract. Existing live coordinate/Truck/Railway navigation evidence supplies the successful actual-focus side. Do not rewrite R7-141 as a newly induced live disappearance. See `docs/reviews/2026-09-22-r7-141-moving-target-failure.md`, `evidence/lwbridge-implementation/2026-09-22-r7-moving-target-failure.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7141.json`.
+
+**Next technically actionable read-only gap:** B11 native add/update/remove/movement transitions. F04 remains the human normal-user built-executable walkthrough. Population, authorization and simultaneous multi-account gates remain separate.
+
 ## Current continuation checkpoint - LWB-R7-140, 2026-09-22
 
 **C04 is closed as `PASS_CURRENT_PLUS_HISTORICAL`.** Current deterministic/file-backed acceptance marks by stable server/owner identity, transactionally moves the City through a rescan, reopens the database, resolves the marked row at its new indexed coordinates, routes public `map_coordinate_jump` with those coordinates, unmarks and verifies a second restart. `LWB-R7-061` supplies the already-live owned-session coordinate-jump behavior. Do not rewrite this as a new live mark/rescan proof. See `docs/reviews/2026-09-22-r7-140-player-mark-relocation.md`, `evidence/lwbridge-implementation/2026-09-22-r7-player-mark-relocation.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7140.json`.

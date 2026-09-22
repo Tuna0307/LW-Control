@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-141, 2026-09-22
+
+C07 is now **PASS_CURRENT_PLUS_HISTORICAL**. Current regressions prove vanished moving targets fail with explicit timeout, replaced identity/server fail explicitly, a forged wrong-UUID success is rejected, and public Follow releases ownership after failure. The shipped Lua is source-guarded to re-resolve the exact requested UUID before `proven`. Existing live coordinate/Truck/Railway Follow evidence supplies the successful-focus side. Release is 0 warnings/0 errors and all six deterministic groups pass. The current 47-case matrix is R7-141; only B11 and F04 remain ordinary `partial` rows. See [R7-141 finding](reviews/2026-09-22-r7-141-moving-target-failure.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-moving-target-failure.json).
+
 ## Latest implementation checkpoint - LWB-R7-140, 2026-09-22
 
 C04 is now **PASS_CURRENT_PLUS_HISTORICAL**. A real file-backed regression proves mark identity survives transactional City replacement from `(111,222)` to `(333,444)`, application-style reopen, `markedOnly` search, public backend relocation routing with the moved coordinates, durable unmark and a second reopen. `LWB-R7-061` remains the separate live authority for owned-session `map_coordinate_jump`. Release is 0 warnings/0 errors and all six deterministic groups pass. The current 47-case matrix is R7-140; remaining ordinary partials are B11, C07 and F04. See [R7-140 finding](reviews/2026-09-22-r7-140-player-mark-relocation.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-player-mark-relocation.json).

@@ -32,6 +32,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await CoordinateJumpUsesOwnedNavigation();
         await MarchFollowUsesOwnedNavigation();
         await MarchFollowMapsUnavailableServerAndRejectsForeignSession();
+        await MarchFollowRejectsVanishedReplacedAndForgedSuccess();
         await ServerJumpProvesNoOpAndChangedTransition();
         await ServerJumpMapsRecoveredTimeoutContract();
         await ServerJumpRejectsForeignSessionResult();
@@ -1374,6 +1375,66 @@ internal static class CurrentClientMapBlockSourceChecks
             throw new InvalidOperationException("foreign-session Follow result should fail closed");
         }
         catch (InvalidDataException)
+        {
+        }
+    }
+
+    private static async Task MarchFollowRejectsVanishedReplacedAndForgedSuccess()
+    {
+        const long SyntheticMarchUuid = 7654321090123;
+
+        foreach ((string errorText, string label) in new[]
+                 {
+                     ("march_follow_completion_timeout", "vanished target"),
+                     ("march_identity_mismatch", "replaced target identity"),
+                     ("march_server_mismatch", "replaced target server"),
+                 })
+        {
+            int writes = 0;
+            CurrentClientMapBlockSource failed = CreateSource(
+                (fields, _) => ProvenEmptyCityCurrentView(fields),
+                onProtocolWrite: path =>
+                {
+                    if (path.EndsWith("march-follow.txt", StringComparison.OrdinalIgnoreCase)) writes++;
+                },
+                marchFollowResult: fields => MarchFollowResult(
+                    fields,
+                    "failed",
+                    errorText,
+                    int.Parse(fields["serverId"])));
+            try
+            {
+                _ = await failed.FollowMarchAsync(2212, SyntheticMarchUuid, CancellationToken.None);
+                throw new InvalidOperationException($"{label} should fail explicitly rather than report stale-target success");
+            }
+            catch (BridgeCommandException error) when (
+                error.Code == "MARCH_FOLLOW_FAILED" && error.Message == errorText)
+            {
+            }
+            Check(writes == 1,
+                $"{label} Follow failure must belong to one correlated request without hidden retry or stale success");
+        }
+
+        CurrentClientMapBlockSource forged = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            marchFollowResult: fields =>
+            {
+                using JsonDocument document = JsonDocument.Parse(MarchFollowResult(
+                    fields,
+                    "proven",
+                    null,
+                    int.Parse(fields["serverId"])));
+                JsonObject root = JsonNode.Parse(document.RootElement.GetRawText())!.AsObject();
+                root["marchUuid"] = SyntheticMarchUuid + 1;
+                return root.ToJsonString(JsonOptions.Default);
+            });
+        try
+        {
+            _ = await forged.FollowMarchAsync(2212, SyntheticMarchUuid, CancellationToken.None);
+            throw new InvalidOperationException("foreign/replaced march identity must never be accepted as proven Follow success");
+        }
+        catch (InvalidDataException error) when (
+            error.Message == "March Follow result did not match the active owned game session or requested march.")
         {
         }
     }

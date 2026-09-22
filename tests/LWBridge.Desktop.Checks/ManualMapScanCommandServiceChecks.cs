@@ -862,6 +862,40 @@ internal static class ManualMapScanCommandServiceChecks
             json.GetProperty("marchUuid").GetString() == SyntheticMarchUuid.ToString(),
             "march Follow must preserve exact server and 64-bit march identity through the live source and result");
         liveService.Close();
+
+        int recoveryCalls = 0;
+        var recoveringService = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            followMarch: (serverId, marchUuid, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                recoveryCalls++;
+                if (recoveryCalls == 1)
+                    throw new BridgeCommandException("MARCH_FOLLOW_FAILED", "march_follow_completion_timeout");
+                return Task.FromResult(new CurrentClientMarchFollowResult(serverId, marchUuid));
+            });
+        JsonElement followPayload = JsonSerializer.SerializeToElement(
+            new { serverId = SyntheticServerId, marchUuid = SyntheticMarchUuid.ToString() },
+            JsonOptions.Default);
+        try
+        {
+            _ = await recoveringService.InvokeAsync("map_march_follow", followPayload, CancellationToken.None);
+            throw new InvalidOperationException("vanished march should fail explicitly through the public service");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "MARCH_FOLLOW_FAILED" && error.Message == "march_follow_completion_timeout")
+        {
+        }
+        JsonElement recovered = JsonSerializer.SerializeToElement(
+            await recoveringService.InvokeAsync("map_march_follow", followPayload, CancellationToken.None),
+            JsonOptions.Default);
+        Check(recoveryCalls == 2 &&
+              recovered.GetProperty("serverId").GetInt32() == SyntheticServerId &&
+              recovered.GetProperty("marchUuid").GetString() == SyntheticMarchUuid.ToString(),
+            "explicit stale-target Follow failure must release navigation ownership so a later valid target can succeed");
+        recoveringService.Close();
     }
 
     private static async Task ServerJumpPublicContractIsRecoveredAndBusyGated()
