@@ -1,57 +1,72 @@
-# LWBridge 0.3.1 recovery
+# LWBridge recovery / rebuild
 
-**Current delivery:** finish and verify the two review-17 Overview fixes, then continue directly to **Map Data / Player City**. The owner has authorized the transition; no extra PM permission is required. Complete Refresh Status and cross-server travel are pending/deferred. [Delivery sequence](docs/map-data-delivery.md) and [Web prompts](docs/team-workflow.md).
+**Current checkpoint:** `LWB-R7-145` plus the final audit-readiness front-door cleanup.
+**Branch:** `research/offline-controller`.
 
-This repository is now **LWBridge-only**. Treat the directory and remote repository name as historical naming; they do not define the product or feature authority.
+This repository is the evidence-first LWBridge rebuild for the Last War PC client. The remote/directory name `LW-Control` is historical naming; it does not define feature authority.
 
-The reference application is `lwbridge-0.3.1.exe` with SHA-256:
+The rebuild distinguishes evidence rigorously:
 
-`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
+- **RECOVERED** — established from verified original LWBridge/current-client artifacts.
+- **IMPLEMENTED/OFFLINE-TESTED** — implemented and tested without claiming a live game outcome.
+- **LIVE-PROVEN** — observed against the identified current Last War client.
+- **UNKNOWN/BLOCKED** — unresolved behavior that must not be filled in by guessing.
 
-The goal is a one-for-one recovery of LWBridge behavior where evidence permits it. Keep four evidence states distinct:
+## Current status
 
-- **RECOVERED** — statically recovered from the verified LWBridge application or embedded assets.
-- **IMPLEMENTED/OFFLINE-TESTED** — implemented in the rebuild and verified without claiming a live game result.
-- **LIVE-PROVEN** — observed against the current installed Last War client with authoritative outcome evidence.
-- **UNKNOWN/BLOCKED** — still unresolved; do not fill gaps by guessing.
+Ordinary **Home / Overview** and **Map Data** functionality is technically mature at the scopes in the current 47-case matrix. The current matrix has **0 ordinary `partial` rows**.
 
-## Current implementation
+The remaining non-pass work is deliberately separated from ordinary implementation defects:
 
-- Recovered React/Vite UI is reproduced in WebView2 with the original feature pages, themes, icons, and nine languages.
-- Login/account/license presentation has been removed from the rebuild.
-- A real JavaScript-to-C# command/event boundary exists with request/session correlation, profile scoping, origin validation, cancellation, and structured failures.
-- Selected-profile saved-resource browsing and reopen have recorded normal-window proof, distinct from live readiness.
-- A bounded resource-only acquisition route has historical real-client evidence. The latest normal-window two-read/Search/render/reopen acceptance remains open; see [current readiness and tests](docs/user-test-checklist.md).
-- Cancellation/cleanup ownership and exact result/query/render correlation repairs pass focused offline checks.
-- Overview Launch/message/Close and startup/process-exit reconnect retain owner-accepted live paths; interrupted-session repair retains recorded technical live proof. PM16-02 process-incarnation and PM16-01 selected-root corrections are now delivered/offline-tested. Original protected-bootstrap parity, S02/S03/S06, other-category acquisition, automatic/full-world scanning and complete export/action parity remain unfinished.
-- SQLite persistence, marks, scoped clear and supported search contracts have offline coverage; this is not full Map Data acceptance.
-- A repeatable read-only official-client inspector records current runtime versions, hashes, PE structure, packaged containers, hot-update state, and launcher lifecycle evidence.
+- Ghost positive-row population proof is owner-deferred until 2026-09-24.
+- Supplies positive-row population is still unavailable in the current live rechecks.
+- Treasure protected claim-scheduler semantics remain blocked behind the preserved SB-79 boundary; public claim stays unrouted.
+- Live Truck/Dispatch plunder and Alliance message delivery require suitable targets and explicit authorization.
+- Simultaneous real multi-account UI population still requires several usable live accounts/sessions.
+- Final integrated release acceptance remains a separate release-level gate.
+
+City Excel export is intentionally retired by owner and is not unfinished work.
 
 ## Start here
 
-**Current team:** Web handles implementation and automatic technical capture; the owner follows plain permitted UI steps and supplies screenshots/descriptions; PM audits. No separate Sol task. [Current prompts](docs/team-workflow.md) and [package preparation](docs/live-test-handoff.md). The recorder is implemented; review 15 requires two validation fixes before future owner use. The owner's empty-profile check is complete and needs no repeat. [Current audit](docs/lwbridge-project-status.md). Daybreak is unassigned.
+Every AI/contributor must read [`AGENTS.md`](AGENTS.md) first. It contains mandatory evidence, recovery, safety, testing, and Git-delivery rules.
 
-**Every AI/contributor must first read [AGENTS.md](AGENTS.md).** These are mandatory user rules: reverse-engineer verified LWBridge and current official Last War artifacts before inferring behavior, never invent facts or numbers, document every successful recovery immediately, and commit/push each completed task or checkpoint to GitHub with verification.
+Then use this reading order:
 
-Then read [docs/README.md](docs/README.md) for the evidence index and current reading order. Include `AGENTS.md` and `task.md` when handing work to another AI.
+1. [`docs/README.md`](docs/README.md) — canonical documentation index.
+2. [`docs/implementation-handoff.md`](docs/implementation-handoff.md) — concise current continuation state.
+3. [`docs/tabs/home.md`](docs/tabs/home.md) — current Home / Overview status.
+4. [`docs/tabs/map-data.md`](docs/tabs/map-data.md) — current Map Data status and scan-performance audit.
+5. [`docs/tabs/shared-release.md`](docs/tabs/shared-release.md) — shared runtime / Release status.
+6. [`docs/lwbridge-project-status.md`](docs/lwbridge-project-status.md) — current project-manager summary.
+7. [`docs/external-audit-guide.md`](docs/external-audit-guide.md) — instructions for an independent AI/reviewer.
+8. [`evidence/lwbridge-implementation/README.md`](evidence/lwbridge-implementation/README.md) — current evidence navigation.
+9. [`BACKLOG.md`](BACKLOG.md) — current remaining queue only.
+10. [`task.md`](task.md) — durable product requirements and 47-case acceptance contract.
 
-Project-related reverse-engineering tool discovery, installation and configuration are pre-authorized. A missing AI integration does not prevent standalone/headless tool use. Follow `AGENTS.md` for reproducible setup and accurate reporting of genuine environment restrictions.
+The current machine-readable acceptance source is:
 
-The two active planning files are:
+`evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
 
-- [task.md](task.md) — primary instructions, full Overview + Map Data requirements and acceptance tests.
-- [BACKLOG.md](BACKLOG.md) — current progress checklist and ordered remaining work; formerly `TASKS.md`.
+## Scan performance
 
-Read [the current project review](docs/lwbridge-project-status.md) for audited progress, reproduced defects and evidence limits. Keep these roles distinct; do not recreate a second similarly named task file.
+On the standard current 1000×1000 world, production automatically selects the proven Fast strategy at concurrency 20; Zombie Boss-only uses its dedicated LOD2 strategy. R7-130 live evidence measured representative Truck at ~74.7 s, Monster at ~77.8 s, and all-eight at ~77.9 s with complete 2,500/2,500 logical-block coverage and zero failed/unread in those runs.
+
+The supported conclusion is: **no additional evidence-backed safe speed optimization is currently known**. This does not claim future software can never be faster.
+
+## Historical evidence and pruning policy
+
+Dated reviews, recovery ledgers, and machine-readable evidence are retained when they contain unique provenance or are referenced by historical acceptance evidence. Superseded status wording must not be treated as current project state; current status comes from the pages listed above and the latest acceptance matrix.
+
+The repository was audited for cleanup before external review. Exact duplicate implementation-evidence files were not found. Old-looking files that remain are kept because they preserve unique recovery/test provenance, satisfy historical references, or support reproduction. Do not delete them merely to reduce file count.
 
 ## Build and verification
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check
 dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release
-dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release
-./tools/capture_lwbridge_ui.ps1
-python tools/inspect_official_runtime.py --output evidence/official-runtime/2026-09-08-official-runtime.json
+dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release
+dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build
 ```
 
-Normal development must keep preview/capture mode isolated from live game operations. A process merely existing is not proof that the LWBridge runtime is connected or ready.
+Additional browser, normal-window, restart/navigation, and live checks are recorded in the current review/evidence index. Preview/capture modes must remain isolated from live game actions, and process existence alone is not proof of bridge readiness.
