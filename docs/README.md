@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-147`, 2026-09-22.
+**Current checkpoint:** `LWB-R7-148`, 2026-09-23.
 This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
 
 ## Start here

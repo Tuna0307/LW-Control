@@ -2,14 +2,14 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-147`; parent revision `91d07d04ada09b1cfd143c6171a0d45c19760828`
+**Current checkpoint:** `LWB-R7-148`; parent revision `8db482b0ff456ece74c65022ee763b6b578f895c`
 **Date:** 2026-09-22
 
 Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
 
 ## Current product state
 
-Home / Overview remains at its accepted evidence scope. Map Data received owner-workflow corrections in R7-147; the R7-145 acceptance matrix still contains 47 cases with **zero ordinary `partial` rows**, and R7-147 does not promote any population/authorization gate.
+Home / Overview remains at its accepted evidence scope. Map Data received owner-workflow corrections in R7-147 and a direct Truck/Railway Train-list speed path in R7-148; the R7-145 acceptance matrix still contains 47 cases with **zero ordinary `partial` rows**, and R7-147 does not promote any population/authorization gate.
 
 Use these current summaries instead of reconstructing status from chronological checkpoint prose:
 

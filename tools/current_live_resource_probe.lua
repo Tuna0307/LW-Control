@@ -5888,74 +5888,130 @@ function train_list_runtime.snapshot(request)
     local data_center = rawget(_G, "DataCenter")
     local manager = data_center and safe_get(data_center, "LWTrainDataManager") or nil
     if manager == nil then return nil, "lw_train_data_manager_unavailable" end
+    local enemy_trucks = safe_get(manager, "enemyTrucks")
     local enemy_trains = safe_get(manager, "enemyTrains")
+    if type(enemy_trucks) ~= "table" then return nil, "enemy_trucks_unavailable" end
     if type(enemy_trains) ~= "table" then return nil, "enemy_trains_unavailable" end
     local world = select(1, runtime_world())
     if world == nil then return nil, "world_unavailable" end
     local world_positions = train_list_runtime.worldMarchPositions(world)
     local train_type_enum = rawget(_G, "TrainType")
+    local official_truck_type = train_type_enum and tonumber(safe_get(train_type_enum, "Truck")) or nil
     local official_train_type = train_type_enum and tonumber(safe_get(train_type_enum, "Train")) or nil
-    if official_train_type == nil then return nil, "train_type_enum_unavailable" end
+    if official_truck_type == nil or official_train_type == nil then return nil, "train_type_enum_unavailable" end
     local rows = {}
-    for _, train_data in ipairs(enemy_trains) do
-        local train_type = integer_field(train_data, { "type", "Type" })
-        local source_server = integer_field(train_data, { "serverId", "ServerId" })
-        if train_type == official_train_type and source_server == request.serverId then
-            local train_uuid_value = scalar_field(train_data, { "uuid", "Uuid" })
-            local march_uuid_value = scalar_field(train_data, { "marchUid", "MarchUid", "marchUuid", "MarchUuid" })
-            local train_uuid = train_uuid_value ~= nil and tostring(train_uuid_value) or ""
-            local march_uuid = march_uuid_value ~= nil and tostring(march_uuid_value) or ""
-            if train_uuid ~= "" and march_uuid ~= "" then
-                local position, position_error = train_list_runtime.currentTile(train_data, world, world_positions, march_uuid)
-                if position == nil then return nil, position_error end
-                local quality = integer_field(train_data, { "quality", "Quality" })
-                local cfg_id = integer_field(train_data, { "cfgId", "CfgId" })
-                local carriage_num = integer_field(train_data, { "carriageCount", "CarriageCount" })
-                if quality == nil or quality < 1 or cfg_id == nil or carriage_num == nil then
-                    return nil, "train_list_required_metadata_unavailable"
-                end
-                local march_info = safe_get(train_data, "marchInfo")
-                local train_data_json = nil
-                local ok_json, value = call(train_data, "ToJson")
-                if ok_json and value ~= nil then train_data_json = tostring(value) end
-                local current_goods, max_loot_count = normalize_train_current_goods(nil, nil, train_data_json, train_data)
-                local from_march = world_positions[march_uuid]
-                rows[#rows + 1] = {
-                    uuid = march_uuid,
-                    marchUuid = march_uuid,
-                    runtimeClass = "TrainData",
-                    serverId = request.serverId,
-                    worldId = position.worldId or 0,
-                    x = position.x, y = position.y, positionIndex = position.positionIndex,
-                    ownerUid = (from_march and from_march.ownerUid) or scalar_field(train_data, { "ownerId", "OwnerId" }),
-                    ownerName = (from_march and from_march.ownerName) or scalar_field(train_data, { "name", "Name" }),
-                    allianceUid = (from_march and from_march.allianceUid) or scalar_field(train_data, { "allianceId", "AllianceId" }),
-                    allianceName = (from_march and from_march.allianceName) or scalar_field(train_data, { "allianceName", "AllianceName" }),
-                    allianceAbbr = (from_march and from_march.allianceAbbr) or scalar_field(train_data, { "abbr", "Abbr" }),
-                    ownerServer = source_server,
-                    power = (from_march and from_march.power) or scalar_field(train_data, { "power", "Power" }),
-                    startTime = scalar_field(train_data, { "departureTs", "sendTime", "StartTime" }),
-                    endTime = scalar_field(train_data, { "arriveTs", "arriveTime", "EndTime" }),
-                    trainUuid = train_uuid,
-                    trainCfgId = cfg_id,
-                    trainType = train_type,
-                    trainQuality = quality,
-                    carriageNum = carriage_num,
-                    arriveTs = scalar_field(train_data, { "arriveTs", "arriveTime", "ArriveTs", "ArriveTime" }),
-                    robTimes = march_info and integer_field(march_info, { "robTimes", "RobTimes" }) or nil,
-                    protectTime = march_info and scalar_field(march_info, { "protectTime", "ProtectTime" }) or nil,
-                    trainDataJson = train_data_json,
-                    currentGoods = current_goods,
-                    maxLootCount = max_loot_count,
-                    source = "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(allianceTrainList)",
-                }
+    local summary = {
+        truckSourceCount = #enemy_trucks,
+        railwaySourceCount = #enemy_trains,
+        truckServerIds = {},
+        railwayServerIds = {},
+        matchServerIds = {},
+    }
+    local station_manager = data_center and safe_get(data_center, "LWMyStationDataManager") or nil
+    local match_servers = station_manager and safe_get(station_manager, "matchServers") or nil
+    if type(match_servers) == "table" then
+        for server_id, covered in pairs(match_servers) do
+            local numeric = tonumber(server_id)
+            if covered and numeric ~= nil and numeric > 0 then
+                summary.matchServerIds[#summary.matchServerIds + 1] = math.floor(numeric)
             end
         end
+        table.sort(summary.matchServerIds)
     end
-    return rows, nil
+    local truck_server_set = {}
+    local railway_server_set = {}
+
+    local function append_train_rows(source_rows, required_type, source_name, server_set)
+        for _, train_data in ipairs(source_rows) do
+            local train_type = integer_field(train_data, { "type", "Type" })
+            local source_server = integer_field(train_data, { "serverId", "ServerId" })
+            if train_type == required_type and source_server ~= nil and source_server > 0 then
+                server_set[source_server] = true
+            end
+            if train_type == required_type and source_server == request.serverId then
+                local train_uuid_value = scalar_field(train_data, { "uuid", "Uuid" })
+                local march_uuid_value = scalar_field(train_data, { "marchUid", "MarchUid", "marchUuid", "MarchUuid" })
+                local train_uuid = train_uuid_value ~= nil and tostring(train_uuid_value) or ""
+                local march_uuid = march_uuid_value ~= nil and tostring(march_uuid_value) or ""
+                if train_uuid ~= "" and march_uuid ~= "" then
+                    local position, position_error = train_list_runtime.currentTile(train_data, world, world_positions, march_uuid)
+                    if position == nil then return false, position_error end
+                    local quality = integer_field(train_data, { "quality", "Quality" })
+                    local cfg_id = integer_field(train_data, { "cfgId", "CfgId" })
+                    local carriage_num = integer_field(train_data, { "carriageCount", "CarriageCount" })
+                    if quality == nil or quality < 1 or cfg_id == nil or carriage_num == nil then
+                        return false, "train_list_required_metadata_unavailable"
+                    end
+                    local march_info = safe_get(train_data, "marchInfo")
+                    local train_data_json = nil
+                    if required_type == official_train_type then
+                        local ok_json, value = call(train_data, "ToJson")
+                        if ok_json and value ~= nil then train_data_json = tostring(value) end
+                    end
+                    local current_goods, max_loot_count = normalize_train_current_goods(nil, nil, train_data_json, train_data)
+                    local from_march = world_positions[march_uuid]
+                    local vip_value = march_info and safe_get(march_info, "vipOn") or safe_get(train_data, "vipOn")
+                    local row = {
+                        uuid = march_uuid,
+                        marchUuid = march_uuid,
+                        runtimeClass = "TrainData",
+                        serverId = request.serverId,
+                        worldId = position.worldId or 0,
+                        x = position.x, y = position.y, positionIndex = position.positionIndex,
+                        ownerUid = (from_march and from_march.ownerUid) or scalar_field(train_data, { "ownerId", "OwnerId" }),
+                        ownerName = (from_march and from_march.ownerName) or scalar_field(train_data, { "name", "Name" }),
+                        allianceUid = (from_march and from_march.allianceUid) or scalar_field(train_data, { "allianceId", "AllianceId" }),
+                        allianceName = (from_march and from_march.allianceName) or scalar_field(train_data, { "allianceName", "AllianceName" }),
+                        allianceAbbr = (from_march and from_march.allianceAbbr) or scalar_field(train_data, { "abbr", "Abbr" }),
+                        ownerServer = source_server,
+                        power = (from_march and from_march.power) or scalar_field(train_data, { "power", "Power", "ownerPower", "OwnerPower" }),
+                        startTime = scalar_field(train_data, { "departureTs", "sendTime", "StartTime" }),
+                        endTime = scalar_field(train_data, { "arriveTs", "arriveTime", "EndTime" }),
+                        trainUuid = train_uuid,
+                        trainCfgId = cfg_id,
+                        trainType = train_type,
+                        trainQuality = quality,
+                        carriageNum = carriage_num,
+                        arriveTs = scalar_field(train_data, { "arriveTs", "arriveTime", "ArriveTs", "ArriveTime" }),
+                        robTimes = march_info and integer_field(march_info, { "robTimes", "RobTimes" }) or nil,
+                        protectTime = march_info and scalar_field(march_info, { "protectTime", "ProtectTime" }) or nil,
+                        trainDataJson = train_data_json,
+                        currentGoods = current_goods,
+                        maxLootCount = max_loot_count,
+                        source = source_name,
+                    }
+                    if required_type == official_truck_type then
+                        row.truckMetadataKnown = true
+                        row.truckCurrentGoodsRaw = current_goods
+                        row.truckMaxLootCount = max_loot_count
+                        row.truckVipOn = vip_value == true or tonumber(vip_value) == 1
+                    end
+                    rows[#rows + 1] = row
+                end
+            end
+        end
+        return true, nil
+    end
+
+    local ok_trucks, truck_error = append_train_rows(
+        enemy_trucks, official_truck_type,
+        "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(ls)",
+        truck_server_set)
+    if not ok_trucks then return nil, truck_error end
+    local ok_trains, train_error = append_train_rows(
+        enemy_trains, official_train_type,
+        "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(allianceTrainList)",
+        railway_server_set)
+    if not ok_trains then return nil, train_error end
+    for server_id in pairs(truck_server_set) do summary.truckServerIds[#summary.truckServerIds + 1] = server_id end
+    for server_id in pairs(railway_server_set) do summary.railwayServerIds[#summary.railwayServerIds + 1] = server_id end
+    table.sort(summary.truckServerIds)
+    table.sort(summary.railwayServerIds)
+    return rows, nil, summary
 end
 
-function train_list_runtime.write(request, state, error_text, rows)
+function train_list_runtime.write(request, state, error_text, rows, summary)
+    summary = summary or {}
     write_json(train_list_runtime.resultPath, {
         schemaVersion = 1, probeVersion = M.VERSION, requestId = request.requestId,
         profileId = request.profileId, launchSessionId = request.launchSessionId,
@@ -5963,6 +6019,11 @@ function train_list_runtime.write(request, state, error_text, rows)
         scanRunId = request.scanRunId, state = state, error = error_text,
         refreshObserved = train_list_runtime.refreshObserved == true,
         refreshArgument = train_list_runtime.refreshArgument,
+        truckSourceCount = summary.truckSourceCount or 0,
+        railwaySourceCount = summary.railwaySourceCount or 0,
+        truckServerIds = summary.truckServerIds or {},
+        railwayServerIds = summary.railwayServerIds or {},
+        matchServerIds = summary.matchServerIds or {},
         train_march_records = rows or {},
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
@@ -6015,11 +6076,11 @@ function train_list_runtime.pump(now)
     end
     local request = train_list_runtime.request
     if train_list_runtime.refreshObserved == true then
-        local rows, snapshot_error = train_list_runtime.snapshot(request)
+        local rows, snapshot_error, summary = train_list_runtime.snapshot(request)
         if rows == nil then
-            train_list_runtime.write(request, "failed", snapshot_error, nil)
+            train_list_runtime.write(request, "failed", snapshot_error, nil, summary)
         else
-            train_list_runtime.write(request, "proven", nil, rows)
+            train_list_runtime.write(request, "proven", nil, rows, summary)
         end
         train_list_runtime.cleanup()
         return true

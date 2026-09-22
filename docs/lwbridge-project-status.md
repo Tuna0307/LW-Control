@@ -1,11 +1,11 @@
 # Current project status — Home and Map Data
 
 **Date:** 2026-09-22
-**Current checkpoint:** `LWB-R7-147`; parent revision `91d07d04ada09b1cfd143c6171a0d45c19760828`
+**Current checkpoint:** `LWB-R7-148`; parent revision `8db482b0ff456ece74c65022ee763b6b578f895c`
 
 ## Executive status
 
-The Home / Overview acceptance state is unchanged. Map Data received R7-147 owner-workflow corrections after direct testing exposed eight usability/correctness gaps. The current 47-case R7-145 acceptance matrix still has **0 ordinary `partial` rows**; R7-147 does not promote population/authorization gates.
+The Home / Overview acceptance state is unchanged. Map Data received R7-147 owner-workflow corrections after direct testing exposed eight usability/correctness gaps. R7-148 additionally replaces Truck/Railway-only AOI scanning with the official direct Train-list source (0.45-0.57 s live acquisition). The current 47-case R7-145 acceptance matrix still has **0 ordinary `partial` rows**; R7-147 does not promote population/authorization gates.
 
 That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, state-changing authorization/target availability, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance.
 

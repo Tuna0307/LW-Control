@@ -1,6 +1,6 @@
 # Map Data — current status
 
-**Current through:** `LWB-R7-147`, 2026-09-22
+**Current through:** `LWB-R7-148`, 2026-09-23
 **Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
 
 This is the current entry point for Manual Scan, Auto Scan, saved data, result tabs, navigation, marks, Treasure/Supplies, and scheduled-action surfaces. `docs/lwbridge-map-scan.md` remains the cumulative recovery ledger; older delivery/checkpoint prose is historical unless linked here.
@@ -12,7 +12,8 @@ The ordinary shared scanner is complete for the standard current world geometry 
 | Area | Current status |
 |---|---|
 | Full-world geometry | Exact 2,500 logical blocks / 10,000 AOI cells on the standard world |
-| Default strategy | `current_fast_full_world_v2`, concurrency 20 |
+| Default mixed/full-world strategy | `current_fast_full_world_v2`, concurrency 20 |
+| Truck/Railway-only | `current_fast_train_list_v1`; one official `GetTrainList(true)` refresh, zero AOI sweep |
 | Zombie Boss-only | `current_fast_zombie_boss_lod2_v1`, concurrency 20 |
 | Nonstandard geometry | Proven fallback only for single City/Resource via `current_lod0_block_v1`, concurrency 8; unsupported combinations fail closed |
 | Publication | Staged run + transactional selected-kind replacement; no partial successful publication |
@@ -31,8 +32,8 @@ The ordinary shared scanner is complete for the standard current world geometry 
 | Resource | LIVE-PROVEN acquisition/filter/sort | None known in ordinary scan/read path |
 | Monster | LIVE-PROVEN; Doom Walker included with level-by-10 range such as 160/220 | Live population varies |
 | Zombie Boss | Dedicated strategy LIVE-PROVEN | Population/timers vary |
-| Truck | LIVE-PROVEN acquisition/goods/filter/sort; moving UUID transitions current | Live plunder remains separate |
-| Railway | Current-v20 scanner now refreshes the official `LWTrainDataManager` Train list once per full scan and merges exact march UUID rows; historical positive acquisition/Follow remains valid provenance | Fresh R7-147 official-list probes on 2175/2180/2185/2190/2195/2196/2204 returned 0 rows, so no fresh positive current-v20 row is claimed |
+| Truck | LIVE-PROVEN direct-list acquisition/goods/filter/sort; moving UUID transitions current | Truck/Railway-only scans bypass AOI; live plunder remains separate |
+| Railway | Current-v20 scanner uses the official `LWTrainDataManager` Train list directly for Railway-only or Truck/Railway-only scans; historical positive acquisition/Follow remains valid provenance | Fresh population varies; the direct source itself is current-v20 recovered/live-proven |
 | Dispatch / Secret Task | LIVE-PROVEN acquisition/filter/sort | Live plunder remains separate |
 | Ghost Ops | IMPLEMENTED and strict full-world zero-failure scans proven | Positive-row proof is owner-deferred until 2026-09-24 |
 | Treasure | LIVE-PROVEN ordinary rows + read-only state refresh/cache | Public consuming Claim remains blocked/unrouted |
@@ -40,20 +41,22 @@ The ordinary shared scanner is complete for the standard current world geometry 
 
 ## Performance audit
 
-The current planner already uses the fastest strategy that has been proven safe for the standard world. The relevant optimization in `LWB-R7-130` stopped serializing unselected City/Resource data while keeping exact full-world coverage and the same publication/identity checks.
+The planner now has separate evidence-backed acquisition paths. Mixed scans still use exact AOI coverage, while Truck/Railway-only scans use the game-owned full list and do not sweep the map.
 
-Representative current-v20 results from that checkpoint:
+Representative current-v20 results:
 
-| Scan | Before | R7-130 current path | Coverage/result |
+| Scan | Older path | Current path | Coverage/result |
 |---|---:|---:|---|
-| Truck | 135.165 s | 74.721 s | 2,500/2,500, 0 failed/unread |
-| Monster | 137.036 s | 77.781 s | 2,500/2,500, 0 failed/unread |
-| Original all-eight selection | — | 77.890 s | 2,500/2,500, 0 failed/unread |
-| Two-server all-eight | — | 82.677 s on 2212 / 78.200 s on 2213 | both complete, stored, reopened, returned to origin |
+| Truck-only | 74.721 s AOI in R7-130 | **0.45-0.57 s source acquisition** in R7-148 | one official list refresh, 2,500 logical captures published, zero AOI requests |
+| Monster | 137.036 s baseline | 77.781 s | 2,500/2,500, 0 failed/unread |
+| Original all-eight selection | - | 77.890 s | 2,500/2,500, 0 failed/unread |
+| Two-server all-eight | - | 82.677 s on 2212 / 78.200 s on 2213 | both complete, stored, reopened, returned to origin |
+
+The live R7-148 Train-list response from server 2212 also exposed game-owned `matchServers` coverage for 2182, 2193, 2197, 2198, 2204, 2207, 2208, 2209 and 2212 while returning Truck rows from only a subset. This proves the underlying list is cross-server and distinguishes covered-empty servers from servers outside the match set. Auto Scan has **not yet** been changed to skip travel based on this coverage; that remains a separate implementation step.
 
 These are live observations, not fixed promises. World population, network/session admission, detail requests, and server state can change wall time.
 
-**Audit conclusion:** there is no currently identified evidence-backed speed optimization that can be enabled without either weakening coverage/accuracy or inventing unrecovered behavior. This does **not** claim that future software can never be faster; it means the current code already selects the fastest strategy that this repository has proved safe.
+**Audit conclusion:** for Truck/Railway-only scans, the direct Train-list route is now the fastest evidence-backed safe path known in this repository. Other categories remain on their current proven strategies until an equally authoritative direct query/list path is recovered and validated.
 
 ## Result/search/navigation features
 
@@ -78,16 +81,18 @@ These are deliberately separated from read-only Map Data correctness:
 1. Ghost positive-row proof when the event/population exists, no earlier than the owner-deferred 2026-09-24 checkpoint.
 2. Supplies positive-row proof when an authentic `WorldSuppliesPoint` exists.
 3. Explicitly authorized live Treasure/Truck/Dispatch/Alliance state-changing acceptance, with suitable expendable targets.
-4. Fresh positive current-v20 Railway population/Follow when an authentic Train is present. The source defect is corrected; current sampled official lists were empty.
+4. Fresh positive current-v20 Railway dataset/Follow acceptance when a suitable Train is present on the actively validated target server. R7-148 now sees authentic Railway rows in the global official Train list on matched servers, so the old all-empty population statement is retired.
 5. Simultaneous real multi-account UI population if multiple live accounts/sessions become available.
 
-The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R7-147. No additional ordinary Manual/Auto implementation defect is currently known; the fresh Railway positive row is an availability verification gap, not claimed as passed by R7-147.
+The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R7-147. R7-148 additionally removes the AOI sweep from Truck/Railway-only scans. Cross-server no-jump publication and Secret Task fast lookup remain separate optimization work, not regressions in the ordinary scanner.
 
 ## Primary source trail
 
+- `evidence/lwbridge-implementation/2026-09-23-r7-direct-train-list-speed.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-map-owner-workflow-corrections.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-map-correctness-multiserver-speed.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-three-multiserver-auto-cycles.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-supplies-population-recheck.json`
 - `docs/reviews/2026-09-22-r7-130-map-corrections.md` through `docs/reviews/2026-09-22-r7-147-map-owner-workflow-corrections.md`
+- `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`

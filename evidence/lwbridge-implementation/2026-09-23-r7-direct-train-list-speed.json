@@ -1,0 +1,88 @@
+{
+  "checkpoint": "R7-148",
+  "date": "2026-09-23",
+  "baseCommit": "8db482b0ff456ece74c65022ee763b6b578f895c",
+  "strategy": {
+    "id": "current_fast_train_list_v1",
+    "eligibleSelectedTypes": [
+      "truck",
+      "railway"
+    ],
+    "aoiRequests": 0,
+    "logicalCaptures": 2500
+  },
+  "liveMeasurements": [
+    {
+      "currentServerId": 2212,
+      "elapsedSeconds": 0.4463395,
+      "recordsForCurrentServer": 0,
+      "truckSourceCount": 15,
+      "railwaySourceCount": 1,
+      "truckServerIds": [
+        2193,
+        2197,
+        2204,
+        2207,
+        2209
+      ],
+      "railwayServerIds": [
+        2197
+      ],
+      "matchServerIds": [
+        2182,
+        2193,
+        2197,
+        2198,
+        2204,
+        2207,
+        2208,
+        2209,
+        2212
+      ]
+    },
+    {
+      "currentServerId": 2212,
+      "elapsedSeconds": 0.573658,
+      "recordsForCurrentServer": 0,
+      "note": "independent same-path measurement before matchServerIds diagnostic was added"
+    },
+    {
+      "currentServerId": 2182,
+      "positiveTruckRows": 2,
+      "truckSourceCount": 15,
+      "railwaySourceCount": 1,
+      "note": "direct-list positive rows preserved coordinates/identity/goods/maxLoot; legacy acceptance later failed only because no ordinary UR Truck was present"
+    }
+  ],
+  "currentV20RecoveredContract": {
+    "truckSource": "LWTrainDataManager.OnTrainListGet(message.ls) -> enemyTrucks",
+    "railwaySource": "LWTrainDataManager.OnTrainListGet(message.allianceTrainList) -> enemyTrains",
+    "coverage": "message.trainServers -> LWMyStationDataManager.SetMatchServer -> matchServers"
+  },
+  "validation": {
+    "luaParse": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicOk": true,
+    "deterministicFailures": []
+  },
+  "installedPackageAfterValidation": {
+    "version": 20,
+    "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+    "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+    "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+  },
+  "sourceHashes": {
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "41FE5BFE11126A438C7ED23602CD4B8F7F15009C645D0AF3D72826E0EADC90C1",
+    "src/LWBridge.Desktop/MapScanContract.cs": "576308C90B78DFD7AD52FD9FC0F74E53B14F34A9107E7C90198ACE3DEF6C6081",
+    "tools/current_live_resource_probe.lua": "91F629EBF0AE7591AE01CC7C18B0029251AA9A8AA45F882ED5CF91FD476F89C4",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "98C986599E8E5768C25CE777932D484BB63B4CA51302F6158FBA4A091183A6DA",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "57C958E7F9C8789C0B8FFF8E262DF8B532D85EC54A95ECA385852B28E06EA02D"
+  },
+  "limits": [
+    "Auto Scan still travels per target; cross-server match coverage is recovered/live-proven but no-jump Auto publication is not implemented in this checkpoint.",
+    "Secret Task direct acquisition is investigated separately.",
+    "Live population varies; current-server 2212 had zero Truck rows during the final timing proof."
+  ],
+  "sourceHashScope": "checkout-index exported staged snapshot bytes used for final build/test validation"
+}

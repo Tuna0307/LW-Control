@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-147-CURRENT-EVIDENCE-INDEX",
-  "generatedAt": "2026-09-22",
-  "parentRevision": "91d07d04ada09b1cfd143c6171a0d45c19760828",
+  "indexId": "LWB-R7-148-CURRENT-EVIDENCE-INDEX",
+  "generatedAt": "2026-09-23",
+  "parentRevision": "8db482b0ff456ece74c65022ee763b6b578f895c",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-direct-train-list-speed.json",
+        "sha256": "2E8B90A695E4A478315B07320BF858CE413368615C5AF9ED02FE7F85B8BE4CC2"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-22-r7-map-owner-workflow-corrections.json",
         "sha256": "ABCE82EEC050F02B5F6D6B2DA04FAEE606E1FA75EEC6E6E93D7E03D27AF35250"
@@ -153,7 +157,7 @@
     ]
   },
   "inventory": {
-    "jsonFiles": 294,
+    "jsonFiles": 295,
     "txtFiles": 13,
     "markdownIndexFiles": 1,
     "exactDuplicateGroups": 0

@@ -51,6 +51,7 @@ internal static class MapScanContract
 internal static class MapScanStrategyPlanner
 {
     internal const string FastFullWorldStrategy = "current_fast_full_world_v2";
+    internal const string FastTrainListStrategy = "current_fast_train_list_v1";
     internal const string FastZombieBossStrategy = "current_fast_zombie_boss_lod2_v1";
     internal const string NormalBlockStrategy = "current_lod0_block_v1";
 
@@ -73,10 +74,18 @@ internal static class MapScanStrategyPlanner
             bool zombieBossOnly =
                 selectedTypes.Count == 1 &&
                 selectedTypes[0] == "zombie_boss";
+            bool trainListOnly =
+                selectedTypes.Count >= 1 &&
+                selectedTypes.All(type => type is "truck" or "railway");
+            string strategy = zombieBossOnly
+                ? FastZombieBossStrategy
+                : trainListOnly
+                    ? FastTrainListStrategy
+                    : FastFullWorldStrategy;
             return new MapScanStrategyPlan(
                 "fast",
                 20,
-                zombieBossOnly ? FastZombieBossStrategy : FastFullWorldStrategy);
+                strategy);
         }
 
         if (selectedTypes.Count == 1 && selectedTypes[0] is "city" or "resource")

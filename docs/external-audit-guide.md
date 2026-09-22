@@ -66,3 +66,5 @@ An auditor should specifically verify:
 ## Historical material
 
 `docs/reviews/`, `docs/lwbridge-map-scan.md`, `docs/lwbridge-overview-recovery.md`, `docs/lwbridge-injection.md`, and older evidence JSON/TXT files are retained to make prior claims reproducible. They should not be deleted merely because their old status language is superseded.
+
+Current speed proof: `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`.

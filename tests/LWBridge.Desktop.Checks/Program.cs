@@ -4116,6 +4116,20 @@ Check(zombiePlan.ScanMode == "fast" &&
       zombiePlan.Concurrency == 20 &&
       zombiePlan.StrategyId == MapScanStrategyPlanner.FastZombieBossStrategy,
     "backend planner retains the proven coarse LOD2 strategy only for dedicated Zombie Boss scans");
+MapScanStrategyPlan truckPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    new[] { "truck" });
+Check(truckPlan.ScanMode == "fast" &&
+      truckPlan.Concurrency == 20 &&
+      truckPlan.StrategyId == MapScanStrategyPlanner.FastTrainListStrategy,
+    "backend planner selects the official direct Train-list strategy for Truck-only scans");
+MapScanStrategyPlan trainPairPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    new[] { "truck", "railway" });
+Check(trainPairPlan.ScanMode == "fast" &&
+      trainPairPlan.Concurrency == 20 &&
+      trainPairPlan.StrategyId == MapScanStrategyPlanner.FastTrainListStrategy,
+    "backend planner selects one official direct Train-list strategy for combined Truck/Railway scans");
 MapScanStrategyPlan fallbackCityPlan = MapScanStrategyPlanner.Plan(
     new CurrentClientMapContext(2212, 0, 40, 20),
     new[] { "city" });
@@ -6328,6 +6342,15 @@ Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringCompar
       liveCityProbeSource.Contains("if train_type == 2 and train_data ~= nil then", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("truckMetadataKnown = truck_metadata_known", StringComparison.Ordinal),
     "Train rows must parse current-v19 XLua enum strings, prefer game LWTrainDataManager objects, keep full TrainData JSON Railway-only, and expose Truck GetCurRewardData/maxLootPerTrain as lightweight metadata");
+Check(liveCityProbeSource.Contains("enemyTrucks", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("enemyTrains", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("matchServers", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckServerIds", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("railwayServerIds", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("matchServerIds", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("OnTrainListGet(ls)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("OnTrainListGet(allianceTrainList)", StringComparison.Ordinal),
+    "direct Train-list acquisition must preserve Truck/Railway source separation and game-owned cross-server match coverage");
 Check(liveCityProbeSource.Contains("ghost_aoi_records", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("GetGhostreconPointInfoByIndex", StringComparison.Ordinal) &&
       liveCityProbeSource.Contains("LwGhostreconTask", StringComparison.Ordinal) &&

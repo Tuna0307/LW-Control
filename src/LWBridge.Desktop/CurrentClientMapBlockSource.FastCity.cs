@@ -47,6 +47,14 @@ internal sealed partial class CurrentClientMapBlockSource
             await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
             RequireSameSession(session);
         }
+
+        // R7-148: current-v20 GetTrainList(true) is an authoritative server list for
+        // both Truck (message.ls) and Railway (message.allianceTrainList). A scan
+        // containing only these categories must not pay for 10,000 AOI cells.
+        if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0 && IsTrainListOnly(request))
+            return await CaptureFullTrainListMapAsync(
+                session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+
         if (!string.Equals(fastCitySettledSessionId, session.SessionId, StringComparison.Ordinal))
         {
             await DelayAsync(FastCityStartupSettleDelay, cancellationToken).ConfigureAwait(false);
@@ -135,6 +143,66 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (!captures.Any(capture => capture.BlockIndex == seedBlock.BlockIndex))
             throw new InvalidDataException("Fast City batch did not contain the requested seed block.");
+        return captures;
+    }
+
+    private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureFullTrainListMapAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        IReadOnlySet<int> pendingBlockIndices,
+        Action<MapScanSourceProgress>? progress,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
+            request.TileWidth, request.TileHeight);
+        if (logicalBlocks.Count != 2500 || pendingBlockIndices.Count != logicalBlocks.Count ||
+            logicalBlocks.Any(block => !pendingBlockIndices.Contains(block.BlockIndex)))
+            throw new InvalidDataException("Direct Train-list acquisition requires the exact 2,500-block full-world pending set.");
+
+        progress?.Invoke(new MapScanSourceProgress(20));
+        IReadOnlyList<FastTrainPrepared> directRows = await ProbeTrainListAsync(
+            session, request, cancellationToken).ConfigureAwait(false);
+        RequireSameSession(session);
+        progress?.Invoke(new MapScanSourceProgress(90));
+
+        var recordsByBlock = new Dictionary<int, List<MapStoredRecord>>();
+        foreach (FastTrainPrepared raw in directRows)
+        {
+            FastTrainPrepared prepared = raw.Record.Kind == "truck"
+                ? ApplyFinalTruckMetadataEnrichment(raw)
+                : raw;
+            int blockColumn = prepared.X / MapScanGeometry.RecoveredBlockSpan;
+            int blockRow = prepared.Y / MapScanGeometry.RecoveredBlockSpan;
+            int blocksPerAxis = checked((int)(request.TileWidth / MapScanGeometry.RecoveredBlockSpan));
+            int blockIndex = checked(blockRow * blocksPerAxis + blockColumn);
+            if (blockIndex < 0 || blockIndex >= logicalBlocks.Count)
+                throw new InvalidDataException("Direct Train-list row fell outside the logical full-world block grid.");
+            if (!recordsByBlock.TryGetValue(blockIndex, out List<MapStoredRecord>? bucket))
+                recordsByBlock[blockIndex] = bucket = [];
+            bucket.Add(prepared.Record);
+        }
+
+        string[] directKinds = request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal).ToArray();
+        var captures = new List<MapScanBlockCapture>(logicalBlocks.Count);
+        foreach (MapScanTargetBlock block in logicalBlocks)
+        {
+            IReadOnlyList<MapStoredRecord> records = recordsByBlock.TryGetValue(
+                block.BlockIndex, out List<MapStoredRecord>? bucket)
+                ? bucket
+                : Array.Empty<MapStoredRecord>();
+            string payload = JsonSerializer.Serialize(new
+            {
+                protocol = "current_fast_train_list_v1",
+                blockIndex = block.BlockIndex,
+                recordsInBlock = records.Count,
+                selectedTypes = directKinds,
+                coverage = "official_get_train_list_snapshot",
+                source = "LWTrainDataManager.TryGetTrainList(true)",
+            }, JsonOptions.Default);
+            captures.Add(new MapScanBlockCapture(
+                request.ServerId, request.WorldId, block.BlockIndex, payload, records));
+        }
+        progress?.Invoke(new MapScanSourceProgress(100));
         return captures;
     }
 
@@ -585,6 +653,10 @@ internal sealed partial class CurrentClientMapBlockSource
     private static bool IsZombieBossOnly(MapScanExecutionRequest request) =>
         request.SelectedTypes.Count == 1 &&
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
+
+    private static bool IsTrainListOnly(MapScanExecutionRequest request) =>
+        request.SelectedTypes.Count >= 1 &&
+        request.SelectedTypes.All(type => type is "truck" or "railway");
 
     private static bool IsMonsterOnly(MapScanExecutionRequest request) =>
         request.SelectedTypes.Count == 1 && IncludesMonsterSource(request);
