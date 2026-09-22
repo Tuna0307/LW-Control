@@ -60,6 +60,15 @@ internal sealed class MapScanEngine
                     {
                         throw;
                     }
+                    catch (BridgeCommandException error) when (
+                        error.Code == MapScanStartOwnership.MissingConnectionErrorCode)
+                    {
+                        // A definitive loss of the exact owned game session is run-terminal.
+                        // Retrying this as an ordinary block failure can otherwise fan out across
+                        // every remaining world block, bury the recovered connection error under
+                        // INCOMPLETE_SCAN and delay the user-visible failure substantially.
+                        throw;
+                    }
                     catch (Exception error)
                     {
                         lastError = error;

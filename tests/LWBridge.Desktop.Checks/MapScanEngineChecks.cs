@@ -13,6 +13,7 @@ internal static class MapScanEngineChecks
         await SuccessPublishesOnlyAfterCheckpoint();
         await RetryThenSuccessRecordsAttemptCount();
         await ExhaustedRetriesFailWithoutPublication();
+        await DefinitiveConnectionLossFailsRunImmediately();
         await CancellationStopsWithoutPublication();
         await ForeignCaptureFailsClosed();
         await BatchCaptureCompletesMultipleLogicalBlocks();
@@ -73,6 +74,34 @@ internal static class MapScanEngineChecks
 
         Check(sink.Events.SequenceEqual(["begin", "failure:0:2", "fail"]),
             "exhausted block retries fail the run without publication");
+    }
+
+    private static async Task DefinitiveConnectionLossFailsRunImmediately()
+    {
+        int calls = 0;
+        var sink = new RecordingSink();
+        var source = new DelegateSource((_, _, _) =>
+        {
+            calls++;
+            throw new BridgeCommandException(
+                MapScanStartOwnership.MissingConnectionErrorCode,
+                MapScanStartOwnership.MissingConnectionErrorMessage);
+        });
+
+        try
+        {
+            await new MapScanEngine(source, sink).ExecuteAsync(Request(100, 20));
+            throw new InvalidOperationException("expected definitive connection-loss failure");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == MapScanStartOwnership.MissingConnectionErrorCode &&
+            error.Message == MapScanStartOwnership.MissingConnectionErrorMessage)
+        {
+        }
+
+        Check(calls == 1 &&
+              sink.Events.SequenceEqual(["begin", "fail"]),
+            "definitive owned-session loss must fail the whole run immediately without block retry, checkpoint failure or publication");
     }
 
     private static async Task CancellationStopsWithoutPublication()

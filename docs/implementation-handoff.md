@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-139, 2026-09-22
+
+**B07 bridge loss/recovery mid-scan is closed live.** Failure-first live proof stopped the exact owned game while a real Fast Monster scan was active and exposed a production issue: definitive connection loss was folded into generic per-block failure and surfaced as `direct map scan contains failed batches`. The engine now treats exact recovered `GAME_CONNECTION_UNAVAILABLE / game connection unavailable` as run-terminal, preserving ordinary block retries for all other errors. The repaired live run ended with phase `error`, durable `failed`, `failedBlocks=0`, no partial publication, prior Monster data intact, resume false and exact cleanup. See `docs/reviews/2026-09-22-r7-139-bridge-loss-scan-failfast.md`, `evidence/lwbridge-implementation/2026-09-22-r7-bridge-loss-scan-failfast.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7139.json`.
+
+**Next technically actionable read-only gaps:** B11 native add/update/remove/movement transitions; C04 mark/unmark-rescan-restart-relocate; C07 vanished/replaced target failure branches. Population, authorization, simultaneous multi-account and final human-GUI gates remain separate.
+
 ## Current continuation checkpoint - LWB-R7-138, 2026-09-22
 
 **B05/B06 are closed by acceptance coverage; production behavior did not need changes.** Changed-type duplicate Start now proves exact active-run ownership: a City Start attempted during an owned Resource scan receives `SCAN_RUNNING` without changing `scanRunId`, `selectedTypes`, backend mode/strategy/concurrency or context ownership. The new Stop matrix gates a five-block run at 0/2/4 completed checkpoints (early/mid/near-completion), cancels exactly one in-flight capture, returns terminal idle with exact counters, retains only completed checkpoints, schedules nothing after Stop and preserves prior published data. R7-130 remains the live public Stop authority. See `docs/reviews/2026-09-22-r7-138-scan-ownership-stop-timing.md`, `evidence/lwbridge-implementation/2026-09-22-r7-scan-ownership-stop-timing.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7138.json`.

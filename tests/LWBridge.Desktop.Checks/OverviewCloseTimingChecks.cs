@@ -435,21 +435,20 @@ internal static class OverviewCloseTimingChecks
         JsonElement terminal = await WaitForScanTerminalAsync(scan);
         Check(terminal.GetProperty("phase").GetString() == "error" &&
               terminal.GetProperty("isReading").GetBoolean() == false &&
-              terminal.GetProperty("failedBlocks").GetInt32() == 1,
-            "Home Close during scan must terminate the dependent scan truthfully as incomplete/error");
-        Check(terminal.GetProperty("lastError").GetString() == "direct map scan contains failed batches",
-            "scan loss must use recovered incomplete-scan terminal error");
+              terminal.GetProperty("failedBlocks").GetInt32() == 0,
+            "Home Close during scan must terminate the dependent scan immediately as a connection error without fabricating a block failure");
+        Check(terminal.GetProperty("lastError").GetString() == MapScanStartOwnership.MissingConnectionErrorMessage,
+            "definitive scan-session loss must preserve the recovered connection-unavailable terminal error");
 
         IReadOnlyList<MapScanBlockCheckpoint> checkpoints = store.ReadScanBlockCheckpointsForTest(runId);
-        Check(checkpoints.Count == 2 && checkpoints[0].Status == "completed" &&
-              checkpoints[1].Status == "failed" && checkpoints[1].Attempts == 2,
-            "successful checkpoint must survive and the lost-session block must record bounded failure attempts");
+        Check(checkpoints.Count == 1 && checkpoints[0].Status == "completed",
+            "successful checkpoint must survive while the lost-session block fails the run before retry/checkpoint mutation");
         IReadOnlyList<MapStoredRecord> published = store.ReadRecords("city", ServerId);
         Check(published.Count == 1 && published[0].RecordKey == "baseline",
             "incomplete scan must not replace the previously published dataset with staged partial data");
         (string runStatus, string? runError) = ReadRunTerminal(dbPath, runId);
-        Check(runStatus == "failed" && runError == "direct map scan contains failed batches",
-            "durable scan run must be terminal failed, not completed/published");
+        Check(runStatus == "failed" && runError == MapScanStartOwnership.MissingConnectionErrorMessage,
+            "durable scan run must preserve the terminal connection-unavailable error and never complete/publish");
         Check(lifecycleStops == 1 && !processAlive && !config.Snapshot.GameDesiredRunning,
             "Home Close must exactly stop/restore the owned game and clear desired-running during scan loss");
         int startsAfterClose = lifecycleStarts;

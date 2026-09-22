@@ -1,0 +1,114 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-139",
+  "date": "2026-09-22",
+  "title": "Definitive bridge loss during active scan fails fast and preserves published data",
+  "status": "LIVE_PROVEN_PRODUCTION_FIX",
+  "branch": "research/offline-controller",
+  "baseRevision": "0bb8e738e99aa79c12cad3c8c907aa7aa1f9e35f",
+  "scope": {
+    "productionBehaviorChanged": true,
+    "productionEngineCommittedSha256": "256D6DCDAE171F9BFB419AFA43BF4A06CB60E96BC4B3044016D8E91DB7DD27B0",
+    "liveProofHarnessCommittedSha256": "E65E9BF967770D34BE6B30F2410AE96D24B7D9EA8F3782B338420944E14275C5",
+    "acceptanceCase": "B07",
+    "liveGameProcessStopPerformed": true,
+    "stateChangingGameplayActionPerformed": false,
+    "claim": "Definitive loss of the exact owned game session during an active read-only full-world scan is run-terminal. Ordinary per-block/transient capture errors keep existing retry behavior; GAME_CONNECTION_UNAVAILABLE now fails the scan immediately with the recovered connection error instead of degrading into generic INCOMPLETE_SCAN."
+  },
+  "failureFirst": {
+    "liveAttempt": {
+      "result": "FAIL",
+      "processRuntimeSeconds": 65.92,
+      "observedRetryLog": "FAST_FULL_WORLD_RETRY ... attempt=1/3 error=The current-client fast City batch did not return a correlated result.",
+      "terminalLastError": "direct map scan contains failed batches",
+      "issue": "The engine treated definitive connection loss like an ordinary block failure, eventually masking the recovered connection error with generic incomplete-scan semantics and delaying the terminal result."
+    },
+    "productionDefectFound": true
+  },
+  "repair": {
+    "file": "src/LWBridge.Desktop/MapScanEngine.cs",
+    "behavior": "Inside the block-capture retry loop, BridgeCommandException with code GAME_CONNECTION_UNAVAILABLE is rethrown immediately. The outer engine failure path durably fails the run with the original message. Other exceptions retain the existing bounded per-block retry/checkpoint-failure behavior.",
+    "recoveredCode": "GAME_CONNECTION_UNAVAILABLE",
+    "recoveredMessage": "game connection unavailable",
+    "noSyntheticFailedCheckpoint": true
+  },
+  "deterministic": {
+    "newEngineCheck": "DefinitiveConnectionLossFailsRunImmediately",
+    "sourceCalls": 1,
+    "sinkEvents": [
+      "begin",
+      "fail"
+    ],
+    "noBlockRetry": true,
+    "noCheckpointFailure": true,
+    "noPublication": true,
+    "existingGenericRetryChecksPreserved": true,
+    "overviewHomeCloseRegression": {
+      "completedCheckpointsBeforeLoss": 1,
+      "terminalPhase": "error",
+      "terminalFailedBlocks": 0,
+      "terminalError": "game connection unavailable",
+      "retainedCheckpointCount": 1,
+      "priorPublishedDataPreserved": true,
+      "durableRunStatus": "failed",
+      "durableRunError": "game connection unavailable"
+    }
+  },
+  "liveProof": {
+    "proof": "bridge_loss_during_active_map_scan",
+    "serverId": 2212,
+    "runId": "e451352c69074cdd9d474fe3a5616486",
+    "scanMode": "fast",
+    "scanStrategy": "current_fast_full_world_v2",
+    "totalBlocksAtLoss": 2500,
+    "readBlocksAtLoss": 0,
+    "failedBlocksAtLoss": 0,
+    "durableCheckpointCount": 0,
+    "finalPhase": "error",
+    "finalIsReading": false,
+    "finalLastError": "game connection unavailable",
+    "durableRunStatus": "failed",
+    "priorPublishedDatasetPreserved": true,
+    "resumeAvailable": false,
+    "scanWallSeconds": 18.3244281,
+    "processRuntimeSeconds": 48.7
+  },
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0,
+      "stagedIndexSnapshotExecutableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489"
+    },
+    "normalProductionWindowSmoke": true,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "finalCleanup": {
+      "lastWarProcesses": 0,
+      "launcherProcesses": 0,
+      "overviewHelperProcesses": 0,
+      "restoredHashes": {
+        "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+        "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+        "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+      }
+    }
+  },
+  "acceptanceEffect": {
+    "B07": {
+      "status": "pass_live",
+      "rationale": "A deliberate owned-game/bridge loss while a real Fast Monster scan was active produced terminal phase=error with exact recovered connection-unavailable error, durable failed run, no fabricated failed block/checkpoint, no partial publication, resume unavailable, exact owned cleanup and package restoration."
+    }
+  },
+  "remainingTechnicallyActionable": [
+    "B11 native add/update/remove/movement transition matrix.",
+    "C04 mark/unmark -> rescan -> restart -> relocate.",
+    "C07 vanished/replaced-target failure branches."
+  ]
+}

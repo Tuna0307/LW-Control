@@ -14,6 +14,12 @@ if (args.Contains("--live-auto-three-multiserver-cycles", StringComparer.Ordinal
     return 0;
 }
 
+if (args.Contains("--live-bridge-loss-during-scan", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBridgeLossDuringScanProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-server-jump-proof", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveServerJumpProof.RunAsync();
