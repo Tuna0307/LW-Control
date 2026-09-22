@@ -17,6 +17,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly DispatchPlunderWorker? dispatchPlunderWorker;
     private readonly TruckPlunderWorker? truckPlunderWorker;
     private CancellationTokenSource? activeCancellation;
+    private MapScanProcessLease? activeScanLease;
     private Task? activeTask;
     private TaskCompletionSource<object?>? activeTerminal;
     private bool closed;
@@ -57,6 +58,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
         blockSource = currentClientSource;
+        ReconcileInterruptedScansAtStartup();
         dispatchPlunderWorker = new DispatchPlunderWorker(
             store,
             lifecycle.GetLiveServerId,
@@ -92,6 +94,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.getAssetImage = getAssetImage;
         this.inspectTreasureStates = inspectTreasureStates;
         currentClientSource = null!;
+        ReconcileInterruptedScansAtStartup();
         dispatchPlunderWorker = null;
         truckPlunderWorker = null;
     }
@@ -830,6 +833,13 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         return parsed;
     }
 
+    private void ReconcileInterruptedScansAtStartup()
+    {
+        using MapScanProcessLease? lease = MapScanProcessLease.TryAcquire(store);
+        if (lease is null) return;
+        store.ReconcileInterruptedEngineScans(RecoveredWallClock.UnixTimeMilliseconds());
+    }
+
     private async Task<object> StartAsync(
         MapScanStartOptions options,
         CancellationToken cancellationToken)
@@ -849,24 +859,45 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "another game operation is already in progress");
             if (coordinateJumping)
                 throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
-            isReading = true;
-            phase = "starting";
-            scanMode = "auto";
-            scanStrategy = "pending";
-            selectedTypes = options.SelectedTypes.ToArray();
-            concurrency = 0;
-            lastError = null;
-            serverId = 0;
-            worldId = 0;
-            totalBlocks = completedBlocks = failedBlocks = inflightBlocks = 0;
-            unreadBlocks = 0;
-            scanRate = 0;
-            acquisitionProgressPercent = null;
-            runId = Guid.NewGuid().ToString("N");
-            scanRunId = runId;
-            scanCancellation = new CancellationTokenSource();
-            activeCancellation = scanCancellation;
-            activeTerminal = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            MapScanProcessLease? scanLease = MapScanProcessLease.TryAcquire(store);
+            if (scanLease is null)
+                throw new BridgeCommandException(
+                    MapScanStartOwnership.ActiveScanErrorCode,
+                    MapScanStartOwnership.ActiveScanErrorMessage);
+            try
+            {
+                // IMPLEMENTATION POLICY R7-136: public resume remains unsupported. Once
+                // this process owns the exclusive per-profile scan lease, any persisted
+                // running row is necessarily orphaned by a prior owner and is failed
+                // durably before a fresh run can start. Staging/checkpoints are retained
+                // as interruption evidence and can never publish from the failed run.
+                store.ReconcileInterruptedEngineScans(RecoveredWallClock.UnixTimeMilliseconds());
+                isReading = true;
+                phase = "starting";
+                scanMode = "auto";
+                scanStrategy = "pending";
+                selectedTypes = options.SelectedTypes.ToArray();
+                concurrency = 0;
+                lastError = null;
+                serverId = 0;
+                worldId = 0;
+                totalBlocks = completedBlocks = failedBlocks = inflightBlocks = 0;
+                unreadBlocks = 0;
+                scanRate = 0;
+                acquisitionProgressPercent = null;
+                runId = Guid.NewGuid().ToString("N");
+                scanRunId = runId;
+                scanCancellation = new CancellationTokenSource();
+                activeCancellation = scanCancellation;
+                activeScanLease = scanLease;
+                scanLease = null;
+                activeTerminal = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+            }
+            finally
+            {
+                scanLease?.Dispose();
+            }
         }
         PublishStatusChanged();
 
@@ -999,16 +1030,20 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         finally
         {
             TaskCompletionSource<object?>? terminal = null;
+            MapScanProcessLease? scanLease = null;
             lock (gate)
             {
                 if (ReferenceEquals(activeCancellation, scanCancellation))
                 {
                     activeCancellation = null;
                     activeTask = null;
+                    scanLease = activeScanLease;
+                    activeScanLease = null;
                     terminal = activeTerminal;
                     activeTerminal = null;
                 }
             }
+            scanLease?.Dispose();
             terminal?.TrySetResult(null);
             scanCancellation.Dispose();
         }
@@ -1039,6 +1074,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         Exception error)
     {
         TaskCompletionSource<object?>? terminal = null;
+        MapScanProcessLease? scanLease = null;
         bool changed = false;
         lock (gate)
         {
@@ -1049,12 +1085,15 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             inflightBlocks = 0;
             activeCancellation = null;
             activeTask = null;
+            scanLease = activeScanLease;
+            activeScanLease = null;
             terminal = activeTerminal;
             activeTerminal = null;
             lastError = cancelled ? null : error.Message;
             acquisitionProgressPercent = null;
             changed = true;
         }
+        scanLease?.Dispose();
         terminal?.TrySetResult(null);
         if (changed) PublishStatusChanged();
         scanCancellation.Dispose();

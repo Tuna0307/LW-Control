@@ -150,6 +150,26 @@ internal sealed partial class MapDataStore
     internal void FailEngineScan(MapScanExecutionRequest request, string error, long updatedAt) =>
         TransitionEngineRun(request, "failed", error, updatedAt);
 
+    internal int ReconcileInterruptedEngineScans(long updatedAt)
+    {
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            using SqliteCommand command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = """
+                UPDATE scan_runs
+                SET status='failed',error=$error,updated_at=$updated
+                WHERE status='running'
+                """;
+            command.Parameters.AddWithValue("$error", MapScanRestartPolicy.InterruptedError);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            int reconciled = command.ExecuteNonQuery();
+            transaction.Commit();
+            return reconciled;
+        }
+    }
+
     internal void StopEngineScan(MapScanExecutionRequest request, long updatedAt) =>
         TransitionEngineRun(request, "discarded", null, updatedAt);
 

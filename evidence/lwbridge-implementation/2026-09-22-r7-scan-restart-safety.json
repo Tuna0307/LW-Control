@@ -1,0 +1,148 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-136",
+  "date": "2026-09-22",
+  "title": "Manual and Auto Scan app/process restart safety",
+  "status": "IMPLEMENTED_CURRENT_OFFLINE_BROWSER_ACCEPTED",
+  "branch": "research/offline-controller",
+  "baseRevision": "d656c043a9d14d535fbcf9ec5bdc5186b6dad159",
+  "scope": {
+    "productionBehaviorChanged": true,
+    "publicResumeSupported": false,
+    "liveGameProcessKillPerformed": false,
+    "claim": "B08/D04 restart safety is closed at current offline/browser scope through explicit safe rejection and truthful Auto server restoration; no intentional live-game mid-scan process kill is claimed."
+  },
+  "manualScanRestart": {
+    "failureFirst": "A durable scan_runs row can survive abrupt app/process loss in status=running even though a new ManualMapScanCommandService starts idle and public resumeAvailable is always false.",
+    "policy": "Each profile map-data database has an exclusive scan-owner lease. Only the exclusive lease owner may reconcile persisted running rows. After prior-owner loss, running rows become failed with the explicit restart interruption reason before any fresh scan can begin.",
+    "interruptedError": "map scan interrupted by application restart",
+    "lockFileSuffix": ".scan-owner.lock",
+    "deterministicProof": {
+      "storage": "real file-backed SQLite",
+      "simulatedAbruptLoss": "Begin one scan, persist one successful block checkpoint and staged row, then dispose the database without Stop/Fail/Publish.",
+      "reopenedPreReconcileStatus": "running",
+      "reopenedPostReconcileStatus": "failed",
+      "checkpointCountPreserved": 1,
+      "previousPublishedRowPreserved": true,
+      "stagedInterruptedRowPublished": false,
+      "orphanPublishRejected": {
+        "code": "INVALID_SCAN",
+        "message": "map scan is not running"
+      },
+      "concurrentSecondService": {
+        "startupDidNotReconcileActiveOwner": true,
+        "activeRowRemainedRunning": true,
+        "startRejected": {
+          "code": "SCAN_RUNNING",
+          "message": "A map scan is already in progress."
+        }
+      },
+      "afterFirstOwnerStops": {
+        "secondOwnerMayStartFresh": true,
+        "resumeAvailable": false,
+        "previousPublishedDataStillPreserved": true,
+        "interruptedStagedDataStillHidden": true
+      }
+    }
+  },
+  "autoScanRestart": {
+    "failureFirst": "The scheduler persisted nextRunAt but no durable in-flight cycle identity. An app/process loss before the cycle finally block could leave nextRunAt still due and allow reopening to re-admit the interrupted target list.",
+    "policy": "Persist a per-profile Auto cycle marker before target travel. On a later app instance, process the marker before ordinary due-cycle admission. Never resume the interrupted target list. If return-to-origin was enabled, restore the original authoritative server first; only after successful restoration advance nextRunAt and clear the marker. Failed restoration retains the marker for retry.",
+    "markerKey": "lwbridge.mapAutoScanCycle.<profileId>",
+    "markerSchemaVersion": 1,
+    "browserProof": {
+      "fullContextRestartSimulation": true,
+      "interruptedCycle": {
+        "originalServerId": 2212,
+        "firstTargetServerId": 2213,
+        "nextRunAtBeforeInterruption": 0,
+        "mapScanStartsBeforeRestart": 1
+      },
+      "returnEnabled": {
+        "firstRestoreAttemptFails": true,
+        "markerRetainedAfterFailedRestore": true,
+        "replacementMapScanStartsAfterFailedRestore": 0,
+        "retryRestoreTargets": [
+          2212,
+          2212
+        ],
+        "finalServerId": 2212,
+        "markerClearedAfterSuccessfulRestore": true,
+        "nextRunAtAdvancedToFuture": true,
+        "replacementMapScanStartsAfterSuccessfulRestore": 0
+      },
+      "returnDisabled": {
+        "restartServerId": 2213,
+        "serverJumpCalls": 0,
+        "replacementMapScanStarts": 0,
+        "markerCleared": true,
+        "nextRunAtAdvancedToFuture": true,
+        "finalServerId": 2213
+      }
+    }
+  },
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "existingR7131BrowserCheck": true,
+    "existingR7132BrowserCheck": true,
+    "newR7136RestartBrowserCheck": true,
+    "fullBrowserChecks": 36,
+    "cityExportRemovalBrowserCheck": true,
+    "visualComparison": {
+      "pairs": 32,
+      "strictPairs": 28,
+      "intentionalMapDataPairs": 4,
+      "finalIdenticalStrictPairs": 28,
+      "finalStrictMaxMae": 0,
+      "finalStrictMaxHighDeltaRate": 0,
+      "mapDataMaxMae": 7.034757181771465,
+      "mapDataMaxHighDeltaRate": 0.032670977775958746,
+      "note": "The initial full-suite Hotkeys dark zh-CN capture had MAE 3.4106877310740937e-06 with zero high-delta pixels; isolated recapture returned exact equality, restoring 28/28 strict identity."
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0,
+      "preCommitCandidateWorktreeExecutableSha256": "1D087D4D08813F5E045DE2A3CF91DCD03C2E7B7A14F92048CDB6A06B0B655CE7",
+      "stagedIndexSnapshotExecutableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
+      "hashDifferenceReason": "The staged index-only snapshot has no .git metadata, so the .NET SDK does not embed SourceRevisionId in AssemblyInformationalVersion; application source is identical."
+    },
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "normalProductionWindowSmoke": true,
+    "finalProcesses": {
+      "desktop": 0,
+      "lastWar": 0,
+      "launcher": 0,
+      "helper": 0
+    }
+  },
+  "ci": {
+    "newRegression": "node tools/check_map_auto_r7136_restart.cjs",
+    "sourceGuardUpdated": "tools/check_scan_strategy_auto.cjs",
+    "workflowUpdated": ".github/workflows/csharp.yml"
+  },
+  "acceptanceEffects": {
+    "B08": {
+      "status": "pass_current_offline",
+      "rationale": "The acceptance requirement allows compatible resume OR explicit safe rejection. Public resume remains unsupported; R7-136 durably fails orphaned running rows, preserves partial checkpoints and last trustworthy published data, rejects stale publication, and prevents concurrent ownership."
+    },
+    "D04": {
+      "status": "pass_current_offline",
+      "rationale": "Disable/Stop/reconnect were already covered. R7-136 adds app/process restart semantics: interrupted Auto target lists are never resumed, return-to-origin is restored before future scheduling when required, failed restoration retries without scan admission, and return-disabled cycles preserve current server."
+    }
+  },
+  "currentAcceptanceMatrix": "evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7136.json",
+  "remainingStrongerEvidence": [
+    "No intentional live-game OS process kill was performed during an active scan; R7-136 is offline/file-backed/browser restart acceptance, not LIVE-PROVEN restart.",
+    "D02 still requires at least three authorized full multi-server Auto cycles as one acceptance set.",
+    "Final normal-user built-executable walkthrough remains open.",
+    "Ghost/Supplies and state-changing action gates remain separately population/authorization dependent."
+  ]
+}

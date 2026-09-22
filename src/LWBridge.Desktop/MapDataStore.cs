@@ -222,6 +222,7 @@ internal sealed partial class MapDataStore : IDisposable
 
     private readonly object gate = new();
     private readonly SqliteConnection connection;
+    internal SemaphoreSlim InMemoryScanLease { get; } = new(1, 1);
 
     public MapDataStore(string databasePath)
     {

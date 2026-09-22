@@ -161,6 +161,31 @@ def build(check=False):
                 s,
                 'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId,P]),(0,M.jsxs)(M.Fragment',
                 'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment')
+            # LWB-R7-136 IMPLEMENTATION POLICY: public map-scan resume remains
+            # unsupported, so an Auto cycle interrupted by an app/process restart
+            # must not be silently re-admitted from its still-due nextRunAt. Persist
+            # a separate in-flight marker before any target travel. On a later app
+            # instance, recover that marker before ordinary scheduler admission:
+            # never resume the target list, restore the original server when the
+            # cycle owned return-to-origin, then move the next deadline forward.
+            # Marker cleanup after a normal cycle is conditional on successful
+            # restoration so failed return remains visible/retryable.
+            s = replace_once(
+                s,
+                'function $n(e,t){localStorage.setItem(`lwbridge.mapAutoScan.${e}`,JSON.stringify(Jn(t)))}var er=',
+                'function $n(e,t){localStorage.setItem(`lwbridge.mapAutoScan.${e}`,JSON.stringify(Jn(t)))}function readAutoCycleMarker(e){try{let t=JSON.parse(localStorage.getItem(`lwbridge.mapAutoScanCycle.${e}`)||`null`);if(!t||t.schemaVersion!==1)return null;let n=Math.trunc(Number(t.startedAt)||0),r=Math.trunc(Number(t.originalServerId)||0);return n>0?{schemaVersion:1,startedAt:n,originalServerId:r>0?r:0,returnToOriginalServer:t.returnToOriginalServer!==!1}:null}catch{return null}}function writeAutoCycleMarker(e,t){let n=`lwbridge.mapAutoScanCycle.${e}`;t?localStorage.setItem(n,JSON.stringify(t)):localStorage.removeItem(n)}var er=')
+            s = replace_once(
+                s,
+                'throw Error(`MAP_AUTO_SCAN_TIMEOUT`)}async function i(){let i=Je.current;if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return;',
+                'throw Error(`MAP_AUTO_SCAN_TIMEOUT`)}async function autoRestartRecovery(){let i=readAutoCycleMarker(n);if(!i)return!1;if(!autoOnlineRef.current||qe.current||Ye.current)return!0;Ye.current=!0,Ke(!0);try{let e=await t();if(Mt(e),e.isReading)return!0;if(i.returnToOriginalServer&&i.originalServerId>0&&e.serverId!==i.originalServerId){let e=await Se(i.originalServerId);F(e.changed?`automatic map scan restart returned ${e.previousServerId} -> ${i.originalServerId}`:`automatic map scan restart already on server ${i.originalServerId}`)}let r=Je.current.enabled?Xn(Je.current,Date.now()):{...Jn(Je.current),nextRunAt:0};Je.current=r,We(r),$n(n,r),writeAutoCycleMarker(n,null),Nt(n).catch(()=>void 0)}catch(e){F(`automatic map scan restart recovery error `+String(e))}finally{Ye.current=!1,Ke(!1)}return!0}async function i(){if(await autoRestartRecovery())return;let i=Je.current;if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return;')
+            s = replace_once(
+                s,
+                'a=(await t()).serverId;let n=Yn(i.serverIds,a);',
+                'a=(await t()).serverId,writeAutoCycleMarker(u.selectedProfileId,{schemaVersion:1,startedAt:Date.now(),originalServerId:a,returnToOriginalServer:i.returnToOriginalServer});let n=Yn(i.serverIds,a);')
+            s = replace_once(
+                s,
+                'finally{if(!e&&i.returnToOriginalServer&&a>0)try{await Se(a),F(`automatic map scan returned to server ${a}`)}catch(e){F(`automatic map scan return error `+String(e))}if(Ye.current=!1,!e){let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),Ke(!1),Nt(n).catch(()=>void 0)}}}',
+                'finally{let r=!0;if(!e&&i.returnToOriginalServer&&a>0)try{await Se(a),F(`automatic map scan returned to server ${a}`)}catch(e){r=!1,F(`automatic map scan return error `+String(e))}if(Ye.current=!1,!e){let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null),Ke(!1),Nt(n).catch(()=>void 0)}}}')
             # Give Map Data per-profile preference keys without moving scheduler
             # ownership out of the top-level app.
             s = replace_once(

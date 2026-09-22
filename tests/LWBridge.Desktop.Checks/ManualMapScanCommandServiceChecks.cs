@@ -15,6 +15,7 @@ internal static class ManualMapScanCommandServiceChecks
     private static async Task RunAsync()
     {
         await NormalStartOwnsOneRunAndStopCancels();
+        await RestartReconcilesOrphanedRunAndRejectsConcurrentOwner();
         await BackendSummaryTracksActiveManualScan();
         await FreshClearResolvesAuthoritativeLiveServer();
         await ClearOwnsRecoveredGateAndResetsStatus();
@@ -147,6 +148,156 @@ internal static class ManualMapScanCommandServiceChecks
             "scan status notifications should expose cancelling and terminal idle states");
         Check(contextCalls == 1, "duplicate Start must not reacquire live context");
         service.Close();
+    }
+
+    private static async Task RestartReconcilesOrphanedRunAndRejectsConcurrentOwner()
+    {
+        string path = Path.Combine(
+            Path.GetTempPath(),
+            "lwbridge-map-restart-" + Guid.NewGuid().ToString("N") + ".db");
+        try
+        {
+            var orphanRequest = new MapScanExecutionRequest(
+                "restart-orphan", 2212, 7, 20, 20, ["city"], 8, 2,
+                PlayerTileX: 3, PlayerTileY: 4,
+                ScanMode: "normal", LaunchSessionId: "launch-before-crash");
+            MapScanTargetBlock block = MapScanTraversal.Build(20, 20)[0];
+            var oldPublished = new MapStoredRecord(
+                "city", 2212, "published-before-crash", 1, "published-uuid",
+                "Published", null, 30, null, null, null, null, 10,
+                "{\"serverId\":2212,\"ownerUid\":\"published-owner\"}");
+            var stagedOnly = new MapStoredRecord(
+                "city", 2212, "staged-before-crash", 2, "staged-uuid",
+                "Staged", null, 31, null, null, null, null, 11,
+                "{\"serverId\":2212,\"ownerUid\":\"staged-owner\"}");
+
+            using (var beforeCrash = new MapDataStore(path))
+            {
+                beforeCrash.UpsertRecord(oldPublished);
+                var sink = new MapDataStoreScanSink(beforeCrash);
+                sink.Begin(orphanRequest, 1, 100);
+                sink.CheckpointSuccess(
+                    orphanRequest,
+                    block,
+                    new MapScanBlockCapture(
+                        2212, 7, block.BlockIndex, "{}", [stagedOnly]),
+                    1,
+                    101);
+                Check(beforeCrash.ReadScanBlockCheckpointsForTest(orphanRequest.RunId).Count == 1,
+                    "interrupted scan fixture must persist its completed checkpoint before simulated process death");
+                // Deliberately dispose the database without Stop/Fail/Publish. This models
+                // an abrupt process loss after durable checkpointing.
+            }
+
+            using var reopened = new MapDataStore(path);
+            MapOptionAggregates beforeReconcile = reopened.ReadOptionAggregatesAt(
+                MapDataStore.SelectOptionSource(2212, false, 2212, null),
+                1_000_000);
+            Check(beforeReconcile.ScanProgress is { Status: "running" },
+                "abrupt process loss should leave the durable run in running state before a new owner reconciles it");
+
+            var firstSource = new BlockingSource();
+            var firstService = new ManualMapScanCommandService(
+                reopened,
+                _ => Task.FromResult(new CurrentClientMapContext(
+                    2212, 7, 20, 20, 3, 4, "launch-after-restart")),
+                firstSource,
+                getLiveServerId: () => 2212);
+
+            MapOptionAggregates afterReconcile = reopened.ReadOptionAggregatesAt(
+                MapDataStore.SelectOptionSource(2212, false, 2212, null),
+                1_000_001);
+            Check(afterReconcile.ScanProgress is { Status: "failed" } &&
+                  afterReconcile.ScanProgress.Error == MapScanRestartPolicy.InterruptedError,
+                "the next exclusive scan owner must mark an orphaned running row failed with the restart reason");
+            Check(reopened.ReadScanBlockCheckpointsForTest(orphanRequest.RunId).Count == 1,
+                "restart reconciliation must preserve durable partial checkpoints as interruption evidence");
+            Check(reopened.GetRecord("city", 2212, oldPublished.RecordKey) is not null &&
+                  reopened.GetRecord("city", 2212, stagedOnly.RecordKey) is null,
+                "restart reconciliation must preserve the previous published dataset and never expose staged rows");
+
+            try
+            {
+                new MapDataStoreScanSink(reopened).Publish(orphanRequest, 102);
+                throw new InvalidOperationException("expected reconciled orphan publication rejection");
+            }
+            catch (BridgeCommandException error) when (
+                error.Code == "INVALID_SCAN" &&
+                error.Message == "map scan is not running")
+            {
+            }
+
+            _ = await firstService.InvokeAsync(
+                "map_scan_start",
+                Payload("normal", "city"),
+                CancellationToken.None);
+            await firstSource.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+
+            using var concurrentStore = new MapDataStore(path);
+            var secondSource = new BlockingSource();
+            var secondService = new ManualMapScanCommandService(
+                concurrentStore,
+                _ => Task.FromResult(new CurrentClientMapContext(
+                    2212, 7, 20, 20, 3, 4, "launch-after-restart")),
+                secondSource,
+                getLiveServerId: () => 2212);
+
+            MapOptionAggregates whileFirstOwns = concurrentStore.ReadOptionAggregatesAt(
+                MapDataStore.SelectOptionSource(2212, false, 2212, null),
+                1_000_002);
+            Check(whileFirstOwns.ScanProgress is { Status: "running" } &&
+                  whileFirstOwns.ScanProgress.Error is null,
+                "a second app instance must not reconcile a running row while another process owns the scan lease");
+
+            try
+            {
+                _ = await secondService.InvokeAsync(
+                    "map_scan_start",
+                    Payload("normal", "city"),
+                    CancellationToken.None);
+                throw new InvalidOperationException("expected cross-process scan owner rejection");
+            }
+            catch (BridgeCommandException error) when (
+                error.Code == MapScanStartOwnership.ActiveScanErrorCode &&
+                error.Message == MapScanStartOwnership.ActiveScanErrorMessage)
+            {
+            }
+
+            _ = await firstService.InvokeAsync(
+                "map_scan_stop",
+                Payload("normal", "city"),
+                CancellationToken.None);
+            firstService.Close();
+
+            _ = await secondService.InvokeAsync(
+                "map_scan_start",
+                Payload("normal", "city"),
+                CancellationToken.None);
+            await secondSource.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            JsonElement secondStatus = Status(secondService);
+            Check(Bool(secondStatus, "isReading") &&
+                  !Bool(secondStatus, "resumeAvailable"),
+                "after the prior owner stops, a fresh scan may acquire the lease but unsupported resume must remain false");
+            _ = await secondService.InvokeAsync(
+                "map_scan_stop",
+                Payload("normal", "city"),
+                CancellationToken.None);
+            secondService.Close();
+
+            Check(reopened.GetRecord("city", 2212, oldPublished.RecordKey) is not null &&
+                  reopened.GetRecord("city", 2212, stagedOnly.RecordKey) is null,
+                "interrupted and stopped replacement scans must never overwrite the last trustworthy published data");
+        }
+        finally
+        {
+            foreach (string candidate in new[]
+            {
+                path, path + "-wal", path + "-shm", path + ".scan-owner.lock"
+            })
+            {
+                try { File.Delete(candidate); } catch { }
+            }
+        }
     }
 
     private static async Task BackendSummaryTracksActiveManualScan()

@@ -116,6 +116,12 @@ async function main() {
       'if(!e&&i.returnToOriginalServer&&a>0',
       'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)',
       'window.setInterval(()=>{i()},5e3)',
+      'lwbridge.mapAutoScanCycle.${e}',
+      'function readAutoCycleMarker(e)',
+      'async function autoRestartRecovery()',
+      'if(await autoRestartRecovery())return',
+      'writeAutoCycleMarker(u.selectedProfileId,{schemaVersion:1,startedAt:Date.now(),originalServerId:a,returnToOriginalServer:i.returnToOriginalServer})',
+      '&&writeAutoCycleMarker(n,null)',
       'h.has(`map-data`)&&(0,M.jsx)(j.Activity,{mode:p===`map-data`?`visible`:`hidden`',
     ]) {
       assert.equal(index.includes(token), true,
