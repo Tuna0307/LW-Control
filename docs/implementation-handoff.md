@@ -1,5 +1,11 @@
 # ChatGPT Web implementation task — shared Manual Scan engine
 
+## Current continuation checkpoint - LWB-R7-142, 2026-09-22
+
+**B11 is closed as `PASS_CURRENT_PLUS_LIVE`.** Current deterministic full-world Dispatch+Truck scans prove point/march stable identity plus add/update/remove/movement and exact query replacement through the production parser/index. Current live same-session Truck scans on 2212 produced 244/255 rows with 58 common exact UUIDs, all 58 moved, 197 added and 186 removed; exact 64-bit UUID text remained the indexed key. Cleanup restored package v20 hashes exactly and left no owned game/launcher process. See `docs/reviews/2026-09-22-r7-142-native-transition-matrix.md`, `evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7142.json`.
+
+**Only ordinary partial remaining:** F04 final human normal-user built-executable restart/walkthrough. Population, authorization, blocked-action and simultaneous multi-account gates remain separate categories.
+
 ## Current continuation checkpoint - LWB-R7-141, 2026-09-22
 
 **C07 is closed as `PASS_CURRENT_PLUS_HISTORICAL`.** Current deterministic evidence covers vanished timeout, replaced identity/server, forged wrong-UUID `proven` rejection, public Follow failure-to-success ownership recovery, and the shipped Lua exact-UUID/observed-before-proven source contract. Existing live coordinate/Truck/Railway navigation evidence supplies the successful actual-focus side. Do not rewrite R7-141 as a newly induced live disappearance. See `docs/reviews/2026-09-22-r7-141-moving-target-failure.md`, `evidence/lwbridge-implementation/2026-09-22-r7-moving-target-failure.json`, and current matrix `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7141.json`.

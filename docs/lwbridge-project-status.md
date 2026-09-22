@@ -1,5 +1,9 @@
 # Project-manager status — Player City owner-visible gate complete, 2026-09-13
 
+## Latest implementation checkpoint - LWB-R7-142, 2026-09-22
+
+B11 is now **PASS_CURRENT_PLUS_LIVE**. Current end-to-end Dispatch+Truck transition coverage proves stable point/march keys, point update/add/remove, cross-map march movement, march add/remove and query replacement. A fresh same-session live Truck pair on server 2212 completed 2,500/2,500 twice with zero failed/unread, publishing 244 then 255 rows; 58 exact UUIDs were common and all 58 moved, while 197 were added and 186 removed. Exact 64-bit UUID record identity was preserved. Release 0/0, all six deterministic groups, exact package restoration and zero process cleanup pass. The current 47-case matrix is R7-142; F04 is now the only ordinary `partial` row. See [R7-142 finding](reviews/2026-09-22-r7-142-native-transition-matrix.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json).
+
 ## Latest implementation checkpoint - LWB-R7-141, 2026-09-22
 
 C07 is now **PASS_CURRENT_PLUS_HISTORICAL**. Current regressions prove vanished moving targets fail with explicit timeout, replaced identity/server fail explicitly, a forged wrong-UUID success is rejected, and public Follow releases ownership after failure. The shipped Lua is source-guarded to re-resolve the exact requested UUID before `proven`. Existing live coordinate/Truck/Railway Follow evidence supplies the successful-focus side. Release is 0 warnings/0 errors and all six deterministic groups pass. The current 47-case matrix is R7-141; only B11 and F04 remain ordinary `partial` rows. See [R7-141 finding](reviews/2026-09-22-r7-141-moving-target-failure.md) and [evidence](../evidence/lwbridge-implementation/2026-09-22-r7-moving-target-failure.json).

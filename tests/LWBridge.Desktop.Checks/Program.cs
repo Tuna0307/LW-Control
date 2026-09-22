@@ -145,6 +145,12 @@ if (args.Contains("--live-current-client-full-truck-manual", StringComparer.Ordi
     return 0;
 }
 
+if (args.Contains("--live-native-transition-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveNativeTransitionProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-client-full-monster-manual", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveManualFullMonsterProof.RunAsync();

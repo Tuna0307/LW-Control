@@ -67,6 +67,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastGhostFullMapReturnsAllLogicalCaptures();
         await FastTreasureFullMapReturnsAllLogicalCaptures();
         await FastAllEightFullMapReturnsAllLogicalCaptures();
+        await NativePointAndMarchTransitionsUpdatePublishedIndex();
         await FastFullMapFillsMeasuredCoverageHole();
         await FastFullMapRetriesTransientNonRectangularFootprint();
         await FastFailedBatchReportsNativeErrorBeforeSuccessFields();
@@ -1142,6 +1143,136 @@ internal static class CurrentClientMapBlockSourceChecks
             "full-world all-eight source should cover 2,500 logical blocks once and preserve one row of every recovered kind");
         Check(records.All(record => record.ServerId == 2212),
             "full-world all-eight source must retain one server scope across every selected kind");
+    }
+
+    private static async Task NativePointAndMarchTransitionsUpdatePublishedIndex()
+    {
+        const string RunA = "native-transition-a";
+        const string RunB = "native-transition-b";
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => ProvenEmptyCityCurrentView(fields),
+            bulkResult: fields =>
+            {
+                string runId = fields["scanRunId"];
+                int targetX = int.Parse(fields["targetTileX"]);
+                int targetY = int.Parse(fields["targetTileY"]);
+                bool firstFootprint = targetX == 5 && targetY == 75;
+                bool lastFootprint = targetX == 995 && targetY == 975;
+
+                string dispatchJson;
+                string truckJson;
+                if (runId == RunA && firstFootprint)
+                {
+                    dispatchJson = ProvenFastDispatchBatch(
+                        fields,
+                        ("dispatch-stable", 90011, 9, 9, 7001, 5, 3, false, 1_789_616_000_000L, "owner-stable"),
+                        ("dispatch-remove", 90012, 12, 18, 7002, 4, 2, false, 1_789_616_100_000L, "owner-remove"));
+                    truckJson = ProvenFastTruckBatch(
+                        fields,
+                        ("truck-stable", 9, 9, 86, 3, 4, "Driver Stable", 1_000L),
+                        ("truck-remove", 12, 18, 87, 2, 3, "Driver Remove", 900L));
+                }
+                else if (runId == RunB && firstFootprint)
+                {
+                    dispatchJson = ProvenFastDispatchBatch(
+                        fields,
+                        ("dispatch-stable", 90011, 9, 9, 7001, 7, 5, true, 1_789_616_500_000L, "owner-stable"),
+                        ("dispatch-added", 90013, 12, 18, 7003, 6, 4, false, 1_789_616_600_000L, "owner-added"));
+                    truckJson = ProvenFastTruckBatch(
+                        fields,
+                        ("truck-added", 12, 18, 88, 4, 5, "Driver Added", 1_500L));
+                }
+                else if (runId == RunB && lastFootprint)
+                {
+                    dispatchJson = ProvenFastDispatchBatch(fields);
+                    truckJson = ProvenFastTruckBatch(
+                        fields,
+                        ("truck-stable", 985, 985, 86, 5, 4, "Driver Stable Updated", 2_000L));
+                }
+                else
+                {
+                    dispatchJson = ProvenFastDispatchBatch(fields);
+                    truckJson = ProvenFastTruckBatch(fields);
+                }
+
+                JsonObject root = JsonNode.Parse(dispatchJson)!.AsObject();
+                JsonObject truck = JsonNode.Parse(truckJson)!.AsObject();
+                root["train_march_records"] = truck["train_march_records"]!.DeepClone();
+                return root.ToJsonString(JsonOptions.Default);
+            });
+
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var engine = new MapScanEngine(source, new MapDataStoreScanSink(store));
+        var firstRequest = new MapScanExecutionRequest(
+            RunA, 2212, 0, 1000, 1000, ["dispatch", "truck"], 20, 2);
+        await engine.ExecuteAsync(firstRequest, CancellationToken.None);
+
+        MapSearchResult firstDispatch = store.SearchIndexed(TransitionQuery("dispatch"));
+        MapSearchResult firstTruck = store.SearchIndexed(TransitionQuery("truck"));
+        Check(firstDispatch.Total == 2 &&
+              firstDispatch.Rows.Select(row => row.GetProperty("pointId").GetInt32())
+                  .ToHashSet()
+                  .SetEquals([90011, 90012]),
+            "native point scan A must publish both stable and temporary point identities");
+        Check(firstTruck.Total == 2 &&
+              firstTruck.Rows.Select(row => row.GetProperty("uuid").GetString())
+                  .ToHashSet(StringComparer.Ordinal)
+                  .SetEquals(["truck-stable", "truck-remove"]),
+            "native march scan A must publish both stable and temporary march identities");
+        MapStoredRecord firstStableTruck = store.GetRecord("truck", 2212, "truck-stable")
+            ?? throw new InvalidOperationException("stable Truck missing after transition scan A");
+        Check(firstStableTruck.RecordKey == "truck-stable" &&
+              firstStableTruck.Uuid == "truck-stable" &&
+              firstStableTruck.PointIndex == 9010,
+            "native march identity must be keyed by exact UUID before movement");
+
+        await engine.ExecuteAsync(firstRequest with { RunId = RunB }, CancellationToken.None);
+
+        MapSearchResult secondDispatch = store.SearchIndexed(TransitionQuery("dispatch"));
+        MapSearchResult secondTruck = store.SearchIndexed(TransitionQuery("truck"));
+        Check(secondDispatch.Total == 2 &&
+              secondDispatch.Rows.Select(row => row.GetProperty("pointId").GetInt32())
+                  .ToHashSet()
+                  .SetEquals([90011, 90013]) &&
+              store.GetRecord("dispatch", 2212, "90012") is null,
+            "completed native point scan B must update stable identity, remove vanished point, add new point, and change query results");
+        MapStoredRecord stableDispatch = store.GetRecord("dispatch", 2212, "90011")
+            ?? throw new InvalidOperationException("stable Dispatch point missing after transition scan B");
+        using (JsonDocument dispatchData = JsonDocument.Parse(stableDispatch.DataJson))
+        {
+            Check(stableDispatch.PointIndex == 90011 &&
+                  dispatchData.RootElement.GetProperty("level").GetInt32() == 7 &&
+                  dispatchData.RootElement.GetProperty("quality").GetInt32() == 5 &&
+                  dispatchData.RootElement.GetProperty("isSpecial").GetBoolean(),
+                "native point update must preserve pointId record identity while replacing source-backed fields");
+        }
+
+        Check(secondTruck.Total == 2 &&
+              secondTruck.Rows.Select(row => row.GetProperty("uuid").GetString())
+                  .ToHashSet(StringComparer.Ordinal)
+                  .SetEquals(["truck-stable", "truck-added"]) &&
+              store.GetRecord("truck", 2212, "truck-remove") is null,
+            "completed native march scan B must remove vanished march, add new march, and retain moved stable march");
+        MapStoredRecord stableTruck = store.GetRecord("truck", 2212, "truck-stable")
+            ?? throw new InvalidOperationException("stable Truck missing after transition scan B");
+        using (JsonDocument truckData = JsonDocument.Parse(stableTruck.DataJson))
+        {
+            Check(stableTruck.RecordKey == "truck-stable" &&
+                  stableTruck.Uuid == "truck-stable" &&
+                  stableTruck.PointIndex == 985986 &&
+                  truckData.RootElement.GetProperty("x").GetInt32() == 985 &&
+                  truckData.RootElement.GetProperty("y").GetInt32() == 985 &&
+                  truckData.RootElement.GetProperty("quality").GetInt32() == 5 &&
+                  truckData.RootElement.GetProperty("power").GetInt64() == 2_000L,
+                "native march movement must preserve UUID record identity while replacing position/indexed fields across map blocks");
+        }
+
+        static MapDataQueryOptions TransitionQuery(string kind) =>
+            new(
+                kind, 2212, 1, 50,
+                [new MapDataSort("updatedAt", "desc")],
+                false, null, null, false, null, null, null, null, null, null, null,
+                false, false, false, null, null, []);
     }
 
     private static async Task FastFullMapFillsMeasuredCoverageHole()
