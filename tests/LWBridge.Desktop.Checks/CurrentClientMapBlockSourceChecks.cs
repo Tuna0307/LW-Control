@@ -282,15 +282,15 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75) return ProvenFastCityBatch(fields, (200, 9, 9));
-                if (x == 995 && y == 975) return ProvenFastCityBatch(fields, (300, 985, 985));
+                if (x == 30 && y == 160) return ProvenFastCityBatch(fields, (200, 9, 9));
+                if (x == 990 && y == 910) return ProvenFastCityBatch(fields, (300, 985, 985));
                 return ProvenFastCityBatch(fields);
             });
         MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 270 && captures.Count == 2500,
+        Check(bulkCalls == 68 && captures.Count == 2500,
             "fast full-City source should adapt to measured four-column interior footprints without weakening exact coverage");
         Check(captures.Single(capture => capture.BlockIndex == 0).Records.Single().RecordKey == "200" &&
               captures.Single(capture => capture.BlockIndex == 2499).Records.Single().RecordKey == "300",
@@ -309,8 +309,8 @@ internal static class CurrentClientMapBlockSourceChecks
             {
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75) return ProvenFastResourceBatch(fields, (400, 9, 9, 3, 2, true, false));
-                if (x == 995 && y == 975) return ProvenFastResourceBatch(fields, (500, 985, 985, 10, 4, true, true));
+                if (x == 30 && y == 160) return ProvenFastResourceBatch(fields, (400, 9, 9, 3, 2, true, false));
+                if (x == 990 && y == 910) return ProvenFastResourceBatch(fields, (500, 985, 985, 10, 4, true, true));
                 return ProvenFastResourceBatch(fields);
             },
             resourceDetailResult: fields => JsonSerializer.Serialize(new
@@ -336,7 +336,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 270 && captures.Count == 2500, "fast full-Resource source should adapt to measured four-column interior footprints");
+        Check(bulkCalls == 68 && captures.Count == 2500, "fast full-Resource source should adapt to measured four-column interior footprints");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
         Check(first.Kind == "resource" && first.RecordKey == "400" && first.Level == 3 &&
@@ -365,7 +365,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                if (x == 35 && y == 75 && failedTargetAttempts++ < 3)
+                if (x == 90 && y == 160 && failedTargetAttempts++ < 3)
                 {
                     JsonObject failed = JsonNode.Parse(ProvenFastCityBatch(fields))!.AsObject();
                     failed["state"] = "failed";
@@ -387,8 +387,8 @@ internal static class CurrentClientMapBlockSourceChecks
         }
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], pending, CancellationToken.None);
-        Check(captures.Count == 2500 && bulkCalls == 273,
-            "outer retry should resume the adaptive full-world acquisition instead of repeating successful footprints instead of restarting successful footprints");
+        Check(captures.Count == 2500 && bulkCalls == 71,
+            "outer retry should resume the adaptive full-world acquisition instead of restarting successful footprints");
     }
 
     private static async Task FastMonsterResumesAfterEarlyReadyLoss()
@@ -429,7 +429,7 @@ internal static class CurrentClientMapBlockSourceChecks
 
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], pending, CancellationToken.None);
-        Check(captures.Count == 2500 && bulkCalls == 271 && healthWaits >= 2,
+        Check(captures.Count == 2500 && bulkCalls == 69 && healthWaits >= 2,
             "generic Monster LOD0 coverage must recover a transient readiness loss without changing the owned session");
     }
 
@@ -466,7 +466,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
 
-        Check(captures.Count == 2500 && bulkCalls == 271 && healthWaits == 1,
+        Check(captures.Count == 2500 && bulkCalls == 69 && healthWaits == 1,
             "one correlated overview_session_unavailable result must retry the same owned session without entering the 180-second Home health window");
     }
 
@@ -482,11 +482,11 @@ internal static class CurrentClientMapBlockSourceChecks
                 Check(fields["homeTileX"] == "230" && fields["homeTileY"] == "257",
                     "fast full-Monster source must pass the authoritative player home/base tile into every live distance capture");
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75)
+                if (x == 30 && y == 160)
                 {
                     return ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1002009, 9, "2000005", false));
                 }
-                if (x == 995 && y == 975) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", false));
+                if (x == 990 && y == 910) return ProvenFastMonsterBatch(fields, ("m-last", 985, 985, 1004029, 29, "2000005", false));
                 return ProvenFastMonsterBatch(fields);
             },
             monsterProtectionResult: fields =>
@@ -498,7 +498,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(bulkCalls == 270 && protectionCalls == 0 && captures.Count == 2500,
+        Check(bulkCalls == 68 && protectionCalls == 0 && captures.Count == 2500,
             "generic Monster source should use exact AOI coverage without any Zombie Boss protection network phase");
         Check(source.LastMonsterProtectionDetailMetrics is { BossCount: 0, TargetCount: 0, RequestCount: 0, ReadyCount: 0 },
             "generic Monster source must not retain Zombie Boss protection work after the category split");
@@ -531,7 +531,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 coverageCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                return x == 5 && y == 75
+                return x == 30 && y == 160
                     ? ProvenFastDoomWalkerBatch(fields)
                     : ProvenFastMonsterBatch(fields);
             },
@@ -540,7 +540,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(zoomCalls == 0 && coverageCalls == 270 && captures.Count == 2500,
+        Check(zoomCalls == 0 && coverageCalls == 68 && captures.Count == 2500,
             "generic Monster must use the exact LOD0 AOI union even when the old coarse test hook is enabled");
         MapStoredRecord[] doomRows = captures.SelectMany(capture => capture.Records)
             .OrderBy(row => row.Level)
@@ -568,7 +568,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 genericCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                return x == 5 && y == 75
+                return x == 30 && y == 160
                     ? ProvenFastDoomsdayMonsterBatch(fields)
                     : ProvenFastMonsterBatch(fields);
             },
@@ -579,7 +579,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanBlockCapture> genericCaptures = await generic.CaptureBatchAsync(
             genericRequest, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
         MapStoredRecord superBoss = genericCaptures.SelectMany(capture => capture.Records).Single();
-        Check(genericCalls == 270 && genericCaptures.Count == 2500 &&
+        Check(genericCalls == 68 && genericCaptures.Count == 2500 &&
               superBoss.Kind == "monster" && superBoss.RecordKey == "doom-manager-1" && superBoss.Level == 60 &&
               superBoss.DataJson.Contains("\"monsterSpecialType\":32", StringComparison.Ordinal) &&
               superBoss.DataJson.Contains("\"configSpecial\":32", StringComparison.Ordinal) &&
@@ -663,7 +663,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(zoomCalls == 0 && coverageCalls == 270 && captures.Count == 2500,
+        Check(zoomCalls == 0 && coverageCalls == 68 && captures.Count == 2500,
             "generic Monster must bypass the lossy coarse route and complete the conservative LOD0 coverage scanner");
     }
 
@@ -710,7 +710,7 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x != 5 || y != 75) return ProvenFastMonsterBatch(fields);
+                if (x != 30 || y != 160) return ProvenFastMonsterBatch(fields);
                 return ProvenFastMonsterBatch(fields, ("m-final", 9, 9, 1031015, 60, "2901012", true));
             },
             monsterProtectionResult: fields => ProvenMonsterProtectionResult(fields,
@@ -734,7 +734,7 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x != 5 || y != 75) return ProvenFastMonsterBatch(fields);
+                if (x != 30 || y != 160) return ProvenFastMonsterBatch(fields);
                 JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(fields, ("m-inactive", 9, 9, 1002009, 9, "2901012", true)))!.AsObject();
                 JsonObject row = root["monster_march_records"]!.AsArray()[0]!.AsObject();
                 row["monsterProtectionKnown"] = true; row["monsterProtectionActive"] = false;
@@ -761,10 +761,10 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                JsonObject root = JsonNode.Parse(x == 5 && y == 75
+                JsonObject root = JsonNode.Parse(x == 30 && y == 160
                     ? ProvenFastMonsterBatch(fields, ("m-timeout", 9, 9, 1031015, 20, "2901012", true))
                     : ProvenFastMonsterBatch(fields))!.AsObject();
-                if (x == 5 && y == 75)
+                if (x == 30 && y == 160)
                 {
                     root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
                     root["monsterProtectionDetailRequestCount"] = 1; root["monsterProtectionDetailReadyCount"] = 0;
@@ -795,10 +795,10 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                JsonObject root = JsonNode.Parse(x == 5 && y == 75
+                JsonObject root = JsonNode.Parse(x == 30 && y == 160
                     ? ProvenFastMonsterBatch(fields, ("m-first", 9, 9, 1031015, 55, "2901012", true))
                     : ProvenFastMonsterBatch(fields))!.AsObject();
-                if (x == 5 && y == 75)
+                if (x == 30 && y == 160)
                 {
                     root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
                     root["monsterProtectionDetailRequestCount"] = 1; root["monsterProtectionDetailReadyCount"] = 0;
@@ -826,7 +826,7 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 int x = int.Parse(fields["targetTileX"]); int y = int.Parse(fields["targetTileY"]);
-                if (x != 5 || y != 75) return ProvenFastMonsterBatch(fields);
+                if (x != 30 || y != 160) return ProvenFastMonsterBatch(fields);
                 JsonObject root = JsonNode.Parse(ProvenFastMonsterBatch(fields, ("m-carry", 9, 9, 1031015, 20, "2901012", true)))!.AsObject();
                 root["monsterInvasionBossCount"] = 1; root["monsterProtectionDetailTargetCount"] = 1;
                 root["monsterProtectionDetailRequestCount"] = 0; root["monsterProtectionDetailReadyCount"] = 1;
@@ -954,10 +954,10 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75)
+                if (x == 30 && y == 160)
                     return ProvenFastDispatchBatch(fields,
                         ("90010", 90010, 9, 9, 3101, 5, 4, true, 1_789_616_000_000L, "dispatch-owner-a"));
-                if (x == 995 && y == 975)
+                if (x == 990 && y == 910)
                     return ProvenFastDispatchBatch(fields,
                         ("985986", 985986, 985, 985, 3102, 7, 5, false, 1_789_617_000_000L, "dispatch-owner-b"));
                 return ProvenFastDispatchBatch(fields);
@@ -968,7 +968,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
 
-        Check(bulkCalls == 270 && captures.Count == 2500,
+        Check(bulkCalls == 68 && captures.Count == 2500,
             "fast full-Dispatch source should adapt to measured four-column interior footprints");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
@@ -1001,10 +1001,10 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75)
+                if (x == 30 && y == 160)
                     return ProvenFastGhostBatch(fields,
                         ("ghost-90010", 90010, 9, 9, 4101, 6, 5, true, 1_789_616_000_000L, "ghost-owner-a"));
-                if (x == 995 && y == 975)
+                if (x == 990 && y == 910)
                     return ProvenFastGhostBatch(fields,
                         ("ghost-985986", 985986, 985, 985, 4102, 8, 4, false, 1_789_617_000_000L, "ghost-owner-b"));
                 return ProvenFastGhostBatch(fields);
@@ -1015,7 +1015,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
 
-        Check(bulkCalls == 270 && captures.Count == 2500,
+        Check(bulkCalls == 68 && captures.Count == 2500,
             "fast full-Ghost source should adapt to measured four-column interior footprints");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
@@ -1045,10 +1045,10 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                if (x == 5 && y == 75)
+                if (x == 30 && y == 160)
                     return ProvenFastTreasureBatch(fields,
                         (false, "treasure-u1", 90010, 9, 9, 5));
-                if (x == 995 && y == 975)
+                if (x == 990 && y == 910)
                     return ProvenFastTreasureBatch(fields,
                         (true, "supplies-u2", 985986, 985, 985, 3));
                 return ProvenFastTreasureBatch(fields);
@@ -1059,7 +1059,7 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
 
-        Check(bulkCalls == 270 && captures.Count == 2500,
+        Check(bulkCalls == 68 && captures.Count == 2500,
             "fast full-Treasure source should adapt to measured four-column interior footprints");
         MapStoredRecord first = captures.Single(c => c.BlockIndex == 0).Records.Single();
         MapStoredRecord last = captures.Single(c => c.BlockIndex == 2499).Records.Single();
@@ -1097,7 +1097,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 bulkCalls++;
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
-                return ProvenFastAllEightBatch(fields, x == 5 && y == 75);
+                return ProvenFastAllEightBatch(fields, x == 30 && y == 160);
             },
             trainListResult: fields => ProvenTrainListResult(fields));
 
@@ -1111,7 +1111,7 @@ internal static class CurrentClientMapBlockSourceChecks
         MapStoredRecord[] records = captures.SelectMany(capture => capture.Records).ToArray();
         string[] kinds = records.Select(record => record.Kind).OrderBy(kind => kind, StringComparer.Ordinal).ToArray();
         string[] expectedKinds = MapScanContract.RecoveredDefaultTypes.OrderBy(kind => kind, StringComparer.Ordinal).ToArray();
-        Check(bulkCalls == 270 && captures.Count == 2500 && kinds.SequenceEqual(expectedKinds),
+        Check(bulkCalls == 68 && captures.Count == 2500 && kinds.SequenceEqual(expectedKinds),
             "full-world all-eight source should cover 2,500 logical blocks once and preserve one row of every recovered kind");
         Check(records.All(record => record.ServerId == 2212),
             "full-world all-eight source must retain one server scope across every selected kind");
@@ -1128,8 +1128,8 @@ internal static class CurrentClientMapBlockSourceChecks
                 string runId = fields["scanRunId"];
                 int targetX = int.Parse(fields["targetTileX"]);
                 int targetY = int.Parse(fields["targetTileY"]);
-                bool firstFootprint = targetX == 5 && targetY == 75;
-                bool lastFootprint = targetX == 995 && targetY == 975;
+                bool firstFootprint = targetX == 30 && targetY == 160;
+                bool lastFootprint = targetX == 990 && targetY == 910;
 
                 string dispatchJson;
                 string truckJson;
@@ -1259,7 +1259,7 @@ internal static class CurrentClientMapBlockSourceChecks
                 int x = int.Parse(fields["targetTileX"]);
                 int y = int.Parse(fields["targetTileY"]);
                 string result = ProvenFastCityBatch(fields);
-                if (narrowedOnce || x != 35 || y != 75) return result;
+                if (narrowedOnce || x != 30 || y != 160) return result;
                 narrowedOnce = true;
                 JsonObject root = JsonNode.Parse(result)!.AsObject();
                 JsonArray indices = root["requestedIndices"]!.AsArray();
@@ -1277,8 +1277,8 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(captures.Count == 2500 && narrowedOnce && bulkCalls >= 270 && bulkCalls < 340,
-            "adaptive full-world acquisition should fill a measured narrow-footprint hole instead of publishing incomplete coverage");
+        Check(captures.Count == 2500 && narrowedOnce && bulkCalls == 69,
+            "wide full-world acquisition should fill a measured missing-AOI hole before publishing complete coverage");
     }
 
     private static async Task FastFullMapRetriesTransientNonRectangularFootprint()
@@ -1294,17 +1294,15 @@ internal static class CurrentClientMapBlockSourceChecks
                 if (malformedOnce) return result;
                 malformedOnce = true;
                 JsonObject root = JsonNode.Parse(result)!.AsObject();
-                JsonArray indices = root["requestedIndices"]!.AsArray();
-                indices.RemoveAt(indices.Count - 1);
-                root["nativeCurrentSetCount"] = indices.Count;
+                root["postInvokeSplitPending"] = true;
                 return root.ToJsonString(JsonOptions.Default);
             });
         MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(captures.Count == 2500 && malformedOnce && bulkCalls >= 271 && bulkCalls < 341,
-            "transient non-rectangular fast AOI footprint should retry inside the bounded probe loop instead of failing the full scan");
+        Check(captures.Count == 2500 && malformedOnce && bulkCalls == 69,
+            "transient native split state should retry inside the bounded wide-probe loop instead of failing the full scan");
     }
 
     private static async Task FastFailedBatchReportsNativeErrorBeforeSuccessFields()
@@ -1347,14 +1345,14 @@ internal static class CurrentClientMapBlockSourceChecks
             bulkResult: fields =>
             {
                 bulkCalls++;
-                return ProvenWideFastCityBatch(fields);
+                return ProvenFastCityBatch(fields);
             });
         MapScanExecutionRequest request = Request("city", 1000, 1000, worldId: 0);
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(captures.Count == 2500 && bulkCalls > 270 && bulkCalls < 340,
-            "adaptive full-world acquisition should use measured mixed three/four-column footprints to reduce request count without weakening exact coverage");
+        Check(captures.Count == 2500 && bulkCalls == 68,
+            "v21 bounded-wide full-world acquisition should complete the exact AOI union from the 68 aligned primary windows");
     }
 
     private static async Task FastFullMapAcceptsFiveColumnFootprint()
@@ -1369,15 +1367,14 @@ internal static class CurrentClientMapBlockSourceChecks
                 JsonObject root = JsonNode.Parse(ProvenFastDispatchBatch(fields))!.AsObject();
                 int targetX = int.Parse(fields["targetTileX"]);
                 int targetY = int.Parse(fields["targetTileY"]);
-                if (!fiveColumnObserved && targetX == 35 && targetY == 75)
+                if (!fiveColumnObserved && targetX == 30 && targetY == 160)
                 {
                     fiveColumnObserved = true;
-                    int targetCellX = targetX / 10;
-                    int startCellX = targetCellX - 2;
-                    int startCellY = Math.Clamp((targetY / 10) - 7, 0, 90);
-                    int[] requested = Enumerable.Range(startCellY, 10)
-                        .SelectMany(row => Enumerable.Range(startCellX, 5)
-                            .Select(column => row * 100 + column))
+                    JsonArray indices = root["requestedIndices"]!.AsArray();
+                    int maxColumn = indices.Select(node => node!.GetValue<int>() % 100).Max();
+                    int[] requested = indices
+                        .Select(node => node!.GetValue<int>())
+                        .Where(index => index % 100 != maxColumn)
                         .ToArray();
                     root["requestedIndices"] = JsonSerializer.SerializeToNode(requested, JsonOptions.Default);
                     root["nativeCurrentSetCount"] = requested.Length;
@@ -1388,8 +1385,8 @@ internal static class CurrentClientMapBlockSourceChecks
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(1000, 1000);
         IReadOnlyList<MapScanBlockCapture> captures = await source.CaptureBatchAsync(
             request, blocks[0], blocks.Select(block => block.BlockIndex).ToHashSet(), CancellationToken.None);
-        Check(captures.Count == 2500 && fiveColumnObserved && bulkCalls < 340,
-            "current-v19 five-column native AOI footprints must remain rectangular, accepted, and complete the full-world Dispatch sweep");
+        Check(captures.Count == 2500 && fiveColumnObserved && bulkCalls == 69,
+            "a narrower native AOI footprint must be accepted as measured evidence and completed by exact missing-AOI cleanup");
     }
 
     private static async Task CoordinateJumpUsesOwnedNavigation()
@@ -1997,6 +1994,11 @@ internal static class CurrentClientMapBlockSourceChecks
             targetWorldX = 219.0,
             targetWorldY = 0.0,
             targetWorldZ = 219.0,
+            preCurTargetX = 274.0,
+            preCurTargetY = 0.0,
+            preCurTargetZ = 1348.0,
+            preTargetTileX = 137,
+            preTargetTileY = 674,
             // Live block-0 evidence showed normal Unity float drift at the callback.
             // The requested tile is still exact after SceneUtils.WorldToTile.
             postCurTargetX = 219.0,
@@ -2192,27 +2194,42 @@ internal static class CurrentClientMapBlockSourceChecks
         int targetX = int.Parse(fields["targetTileX"]);
         int targetY = int.Parse(fields["targetTileY"]);
         int targetCellX = targetX / 10;
-        int startCellX;
-        int columnCount;
-        if (targetX <= 5)
+        int targetCellY = targetY / 10;
+        bool wideCoverage200 = fields.TryGetValue("testCameraY", out string? cameraY) && cameraY == "200";
+        bool wideCoverage220 = cameraY == "220";
+        int[] requested;
+        if (wideCoverage220)
         {
-            startCellX = 0;
-            columnCount = 2;
+            int minX = Math.Max(0, targetCellX - 3);
+            int maxX = Math.Min(99, targetCellX + 2);
+            int minY = Math.Max(0, targetCellY - 16);
+            int maxY = Math.Min(99, targetCellY + 8);
+            requested = Enumerable.Range(minY, maxY - minY + 1)
+                .SelectMany(row => Enumerable.Range(minX, maxX - minX + 1).Select(column => row * 100 + column))
+                .ToArray();
         }
-        else if (targetX >= 995)
+        else if (wideCoverage200)
         {
-            startCellX = 98;
-            columnCount = 2;
+            int minX = Math.Max(0, targetCellX - 3);
+            int maxX = Math.Min(99, targetCellX + 2);
+            int minY = Math.Max(0, targetCellY - 15);
+            int maxY = Math.Min(99, targetCellY + 7);
+            requested = Enumerable.Range(minY, maxY - minY + 1)
+                .SelectMany(row => Enumerable.Range(minX, maxX - minX + 1).Select(column => row * 100 + column))
+                .ToArray();
         }
         else
         {
-            startCellX = Math.Clamp(targetCellX - 2, 0, 96);
-            columnCount = 4;
+            int startCellX;
+            int columnCount;
+            if (targetX <= 5) { startCellX = 0; columnCount = 2; }
+            else if (targetX >= 995) { startCellX = 98; columnCount = 2; }
+            else { startCellX = Math.Clamp(targetCellX - 2, 0, 96); columnCount = 4; }
+            int startCellY = Math.Clamp(targetCellY - 7, 0, 90);
+            requested = Enumerable.Range(startCellY, 10)
+                .SelectMany(row => Enumerable.Range(startCellX, columnCount).Select(column => row * 100 + column))
+                .ToArray();
         }
-        int startCellY = Math.Clamp((targetY / 10) - 7, 0, 90);
-        int[] requested = Enumerable.Range(startCellY, 10)
-            .SelectMany(row => Enumerable.Range(startCellX, columnCount).Select(column => row * 100 + column))
-            .ToArray();
         bool includeCity = fields.TryGetValue("includeCity", out string? includeCityText) && includeCityText == "true";
         bool includeResource = fields.TryGetValue("includeResource", out string? includeResourceText) && includeResourceText == "true";
         bool includeMonster = fields.TryGetValue("includeMonster", out string? includeMonsterText) && includeMonsterText == "true";
@@ -2229,8 +2246,12 @@ internal static class CurrentClientMapBlockSourceChecks
             requestId = fields["requestId"], launchSessionId = fields["launchSessionId"],
             profileId = fields["profileId"], challenge = fields["challenge"],
             gamePid = int.Parse(fields["gamePid"]), requestedCount = 8, requestMode = "coverage",
+            testFov = int.Parse(fields.GetValueOrDefault("testFov", "120")),
+            testAspect = int.Parse(fields.GetValueOrDefault("testAspect", "4")),
+            testCameraY = int.Parse(fields.GetValueOrDefault("testCameraY", "-1")),
             includeCity, includeResource, includeMonster, includeMonsterProtection, includeTrain, includeDispatch, includeGhost, includeTreasure, includeResourceDetails,
             state = "proven", error = (string?)null, requestedIndices = requested,
+            postInvokeSplitPending = false, coverageSplitPending = false,
             matchedCityCount = includeCity ? points.Length : 0, matchedResourceCount = 0, matchedDispatchCount = 0, matchedGhostCount = 0, matchedTreasureCount = 0,
             monsterInvasionBossCount = 0, monsterProtectionDetailTargetCount = 0,
             monsterProtectionDetailRequestCount = 0, monsterProtectionDetailReadyCount = 0,

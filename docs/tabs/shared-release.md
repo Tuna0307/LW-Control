@@ -1,14 +1,14 @@
 # Shared runtime / Release — current status
 
-**Current through:** `LWB-R7-147`, 2026-09-22
+**Current through:** `LWB-R7-151`, 2026-09-24
 
 This page covers behavior shared by Home and Map Data: the native host, generated frontend, persistent configuration, authenticated game bridge, window responsiveness, restart behavior, and release acceptance.
 
 ## Current release baseline
 
 - Branch: `research/offline-controller`.
-- Current checkpoint: `LWB-R7-147`; parent revision `91d07d04ada09b1cfd143c6171a0d45c19760828`.
-- Installed game-side package at the last live audit: version 20.
+- Current checkpoint: `LWB-R7-151`; parent revision `24ab001b9a444f15697c30e149f039a919cda5be`.
+- Installed game-side package at the current live audit: content version 21. R7-151 validates the final updated client only after the official launcher/update completes.
 - Canonical current matrix: `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`.
 - 47 acceptance cases are tracked; ordinary status `partial` count is zero.
 - Remaining non-pass categories are population-, authorization-, or explicitly blocked-implementation cases, plus the owner-retired Excel-export case.
@@ -25,7 +25,7 @@ This page covers behavior shared by Home and Map Data: the native host, generate
 | Authenticated bridge route | Live-proven read-only `getStatus` path |
 | Request/session ownership | Stale/duplicate/foreign identity rejection covered |
 | Startup/close rollback | Deterministic matrix + live close-during-start proof |
-| Installed package restoration | Repeated live checkpoints verify exact hashes after owned sessions |
+| Installed package restoration / official update | R7-151 restore-first -> untouched official launcher/update -> strict final v21 validation -> injection order; owned sessions still restore exact package state |
 
 ## Evidence labels
 

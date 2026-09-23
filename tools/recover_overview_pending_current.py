@@ -31,12 +31,23 @@ def run(game_root: str | Path | None) -> dict[str, object]:
     with lr.OperationLease(p["runtime"], owner):
         lr.require_no_selected_game_process(p)
         recovered = lr.recover_pending(p)
-        verified = lr.verify_current(p)
+        report = current.compat.inspect_current(lr, p)
+        observed = report.get("observed")
+        if not isinstance(observed, dict):
+            problems = "; ".join(str(value) for value in report.get("problems", []))
+            raise RuntimeError(
+                "current-client inspection did not produce usable evidence" +
+                (f": {problems}" if problems else "")
+            )
+        inspected = dict(observed)
+        inspected["compatibilityPolicy"] = report.get("compatibilityPolicy")
         return {
             "ok": True,
             "mode": "overview_preflight_recover",
             "recovered": recovered,
-            "currentClient": verified,
+            "currentClient": inspected,
+            "compatibilityOk": report.get("ok") is True,
+            "compatibilityProblems": report.get("problems", []),
             "installedFilesChanged": False,
         }
 

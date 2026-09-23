@@ -250,6 +250,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
             throw new InvalidDataException("Map navigation failed: " + error);
         }
         int liveWorldId = RequireNonNegativeInt(root, "liveWorldId");
+        int? preTargetTileX = null;
+        int? preTargetTileY = null;
         string expectedMethod;
         if (liveWorldId > 0)
         {
@@ -272,6 +274,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
             _ = RequireFiniteDouble(root, "postCurTargetX");
             _ = RequireFiniteDouble(root, "postCurTargetY");
             _ = RequireFiniteDouble(root, "postCurTargetZ");
+            preTargetTileX = RequireNonNegativeInt(root, "preTargetTileX");
+            preTargetTileY = RequireNonNegativeInt(root, "preTargetTileY");
             int callbackTileX = RequireNonNegativeInt(root, "postTargetTileX");
             int callbackTileY = RequireNonNegativeInt(root, "postTargetTileY");
             if (callbackTileX != targetX || callbackTileY != targetY)
@@ -283,7 +287,7 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
         int currentLod = RequireNonNegativeInt(root, "currentLod");
         int serverLod = RequireNonNegativeInt(root, "serverLod");
         int[] aoiBlockSizes = RequirePositiveIntArray(root, "lwAoiBlockSizeArray");
-        return new NavigationObservation(currentLod, serverLod, aoiBlockSizes);
+        return new NavigationObservation(currentLod, serverLod, aoiBlockSizes, preTargetTileX, preTargetTileY);
     }
 
     private async Task<ProbeObservation> ProbeOnceAsync(

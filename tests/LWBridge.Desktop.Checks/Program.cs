@@ -175,6 +175,12 @@ if (args.Contains("--live-current-client-full-zombie-boss-manual", StringCompare
     return 0;
 }
 
+if (args.Contains("--live-current-dispatch-nearest", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveDispatchNearestProof.RunAsync();
+    return 0;
+}
+
 if (args.Contains("--live-current-bulk-aoi-diagnostic", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunAsync();
@@ -184,6 +190,30 @@ if (args.Contains("--live-current-bulk-aoi-diagnostic", StringComparer.OrdinalIg
 if (args.Contains("--live-current-full-map-coverage", StringComparer.OrdinalIgnoreCase))
 {
     await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunFullCoverageAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-messagebulk-sweep", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunMessageBulkSweepAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-messagebulk-benchmark", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunMessageBulkBatchBenchmarkAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-coverage-geometry-sweep", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunCoverageGeometrySweepAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-coverage-cadence-benchmark", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunCoverageCadenceBenchmarkAsync();
     return 0;
 }
 
@@ -403,6 +433,7 @@ if (args.Contains("--overview-status-transport-check", StringComparer.OrdinalIgn
 var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
+LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunMessageBulkSweepPlanningChecks();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();
@@ -5980,6 +6011,16 @@ string r7130GeneratedIndexSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "index-sfL2sT3K.js"));
 string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
+string generatedApiSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
+Check(
+    liveCityProbeSource.Contains("DispatchFindNearestPoint", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("dispatch-nearest-diagnostic-result.json", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("identitySource = \"DispatchFindNearestPoint response pointId/serverId\"", StringComparison.Ordinal) &&
+    generatedApiSource.Contains("map_dispatch_find_nearest", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("async function quickFindSecretTask()", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("map.quickFindSecretTaskFound", StringComparison.Ordinal),
+    "Secret Task Quick Find must retain the official read-only DispatchFindNearestPoint path and a distinct one-target UI surface");
 Check(
     r7130GeneratedIndexSource.Contains("if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{", StringComparison.Ordinal) &&
     r7130GeneratedIndexSource.Contains("trainCoverage=autoTrainListSelection(i.selectedTypes)?null:void 0", StringComparison.Ordinal) &&

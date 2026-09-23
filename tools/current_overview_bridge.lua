@@ -1270,6 +1270,8 @@ local function write_navigation_result(request, state, error_text, current_x, cu
         preCurTargetX = request.preCurTargetX,
         preCurTargetY = request.preCurTargetY,
         preCurTargetZ = request.preCurTargetZ,
+        preTargetTileX = request.preTargetTileX,
+        preTargetTileY = request.preTargetTileY,
         postCanMoving = request.postCanMoving,
         postEnabled = request.postEnabled,
         postCurTargetX = request.postCurTargetX,
@@ -1436,6 +1438,13 @@ local function begin_navigation(request)
     request.preCurTargetX = tonumber(pre_target and safe_get(pre_target, "x"))
     request.preCurTargetY = tonumber(pre_target and safe_get(pre_target, "y"))
     request.preCurTargetZ = tonumber(pre_target and safe_get(pre_target, "z"))
+    if pre_target ~= nil then
+        local ok_pre_tile, pre_tile = pcall(world_to_tile, pre_target)
+        if ok_pre_tile and pre_tile ~= nil then
+            request.preTargetTileX = tonumber(safe_get(pre_tile, "x"))
+            request.preTargetTileY = tonumber(safe_get(pre_tile, "y"))
+        end
+    end
     if request.convertedTileX ~= request.targetX or request.convertedTileY ~= request.targetY then
         write_navigation_result(request, "failed", "scene_utils_tile_roundtrip_mismatch", nil, nil)
         return

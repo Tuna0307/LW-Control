@@ -1,6 +1,6 @@
 # Map Data — current status
 
-**Current through:** `LWB-R7-150`, 2026-09-23
+**Current through:** `LWB-R7-151`, 2026-09-24
 **Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
 This is the current entry point for Manual Scan, Auto Scan, saved data, result tabs, navigation, marks, Treasure/Supplies, and current row actions. Scheduled Plunder is retired and absent from the shipped product. `docs/lwbridge-map-scan.md` remains the cumulative recovery ledger; older delivery/checkpoint prose is historical unless linked here.
@@ -34,7 +34,7 @@ The ordinary shared scanner is complete for the standard current world geometry 
 | Zombie Boss | Dedicated strategy LIVE-PROVEN | Population/timers vary |
 | Truck | LIVE-PROVEN direct-list acquisition/goods/filter/sort; moving UUID transitions current | Truck/Railway-only scans bypass AOI; Scheduled Plunder is retired |
 | Railway | Current-v20 scanner uses the official `LWTrainDataManager` Train list directly for Railway-only or Truck/Railway-only scans; historical positive acquisition/Follow remains valid provenance | Fresh population varies; the direct source itself is current-v20 recovered/live-proven |
-| Dispatch / Secret Task | LIVE-PROVEN acquisition/filter/sort | Scheduled Plunder is retired; read-only eligibility/status fields remain |
+| Dispatch / Secret Task | LIVE-PROVEN acquisition/filter/sort; R7-151 full scan uses the v21 68-request aligned wide path and exposes native Quick Find | Quick Find returns one task only; the complete scan remains authoritative |
 | Ghost Ops | IMPLEMENTED and strict full-world zero-failure scans proven | Positive-row proof is owner-deferred until 2026-09-24 |
 | Treasure | LIVE-PROVEN ordinary rows + read-only state refresh/cache | Public consuming Claim remains blocked/unrouted |
 | Supplies | Parser/query/read-state path ready | Current 2026-09-22 scans on 2212/2213 found 0 authentic Supplies rows |
@@ -56,7 +56,9 @@ R7-150 now uses that game-owned `matchServers` coverage in Auto Scan. A current-
 
 These are live observations, not fixed promises. World population, network/session admission, detail requests, and server state can change wall time.
 
-**Audit conclusion:** for Truck/Railway-only scans, the direct Train-list route is now the fastest evidence-backed safe path known in this repository. Other categories remain on their current proven strategies until an equally authoritative direct query/list path is recovered and validated.
+R7-151 adds the current-v21 Dispatch result: the safe aligned wide footprint is 6x25 = 150 AOIs at cameraY 220, requiring 68 primary requests for the exact 10,000-AOI union. A zero-extra-startup-settle full Dispatch scan on server 2175 completed in **7.028 s** with 2 rows persisted/reopened; same-session warm scans were about **6.28-6.31 s**. City also passed the same acquisition change at 10.393 s with 94 rows. CameraY 240+ enters the unsupported split path, so 68 is the best safe camera geometry currently proven.
+
+**Audit conclusion:** Truck/Railway-only still uses the direct Train-list route. Dispatch/Secret Task now has the fastest evidence-backed complete AOI route known here plus a separate ~0.5 s one-target native Quick Find. Quick Find does not replace completeness.
 
 ## Result/search/navigation features
 
@@ -66,7 +68,7 @@ City Excel export is intentionally **retired by owner** and is not unfinished wo
 
 ## Auto Scan
 
-Auto Scan uses the same proven scanner rather than a second acquisition implementation. Current evidence covers ordered targets, per-target failure isolation, return to origin, Stop/disable behavior, persisted scheduling, navigation/Refresh/reconnect ownership, app-restart safe rejection/recovery, and three consecutive 2212 -> 2213 cycles with six unique complete scan legs. R7-147 separates recurring enablement from one-shot **Run now**. R7-150 adds a guarded exception to the old travel-before-scan rule: Truck/Railway-only targets covered by the current official Train-list `matchServers` snapshot scan directly without travel; uncovered or mixed targets still require confirmed travel before scan start.
+Auto Scan uses the same proven scanner rather than a second acquisition implementation. Current evidence covers ordered targets, per-target failure isolation, return to origin, Stop/disable behavior, persisted scheduling, navigation/Refresh/reconnect ownership, app-restart safe rejection/recovery, and three consecutive 2212 -> 2213 cycles with six unique complete scan legs. R7-147 separates recurring enablement from one-shot **Run now**. R7-150 adds a guarded exception to the old travel-before-scan rule: Truck/Railway-only targets covered by the current official Train-list `matchServers` snapshot scan directly without travel; uncovered or mixed targets still require confirmed travel before scan start. R7-151 adds a read-only Dispatch Quick Find immediately after confirmed travel and before the full scan; its coordinate is shown in the Auto card but is not written into complete-scan storage.
 
 ## State-changing features
 
@@ -84,10 +86,12 @@ These are deliberately separated from read-only Map Data correctness:
 4. Fresh positive current-v20 Railway row/Follow acceptance when a suitable Train is present; R7-150 coverage observed Railway population on matched server 2207, but the no-jump proof target 2182 had zero Railway rows.
 5. Simultaneous real multi-account UI population if multiple live accounts/sessions become available.
 
-The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R7-147. R7-148 removes the AOI sweep from Truck/Railway-only scans, and R7-150 removes physical travel for covered cross-server Truck/Railway Auto targets. Secret Task fast lookup remains the next separate optimization target.
+The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R7-147. R7-148 removes the AOI sweep from Truck/Railway-only scans, R7-150 removes physical travel for covered cross-server Truck/Railway Auto targets, and R7-151 completes the current Secret Task optimization: exact 68-request full scans plus immediate read-only native Quick Find before Dispatch Auto scans.
 
 ## Primary source trail
 
+- `evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json`
+- `docs/reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md`
 - `evidence/lwbridge-implementation/2026-09-23-r7-train-list-no-jump-auto.json`
 - `evidence/lwbridge-implementation/2026-09-23-r7-direct-train-list-speed.json`
 - `evidence/lwbridge-implementation/2026-09-22-r7-map-owner-workflow-corrections.json`

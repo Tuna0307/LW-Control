@@ -30,9 +30,15 @@ _spec.loader.exec_module(lr)
 BRIDGE_VERSION = "lwbridge-overview-bridge-1"
 LUA_ENTRY = lr.LUA_ENTRY
 ORIGINAL_LUA_ENTRY = lr.ORIGINAL_LUA_ENTRY
+RESOURCE_PROBE_ENTRY = "DataCenter/Global/LWBridgeLiveResourceProbe.luac"
+RESOURCE_PROBE_MODULE = "DataCenter.Global.LWBridgeLiveResourceProbe"
 MESSAGE = "LWbridge is running"
 
 class OverviewBridgeError(RuntimeError):
+    pass
+
+
+class ServerMaintenanceError(OverviewBridgeError):
     pass
 
 
@@ -56,11 +62,24 @@ def resource_probe_source() -> bytes:
     return (HERE / "current_live_resource_probe.lua").read_bytes()
 
 
+def packaged_resource_probe_source() -> bytes:
+    # v21 xLua rejects functions created by runtime load()/loadstring() with
+    # E8472 provenance enforcement. Package the probe as a normal LENC module
+    # instead. Removing only blank/full-line comment lines keeps executable Lua
+    # unchanged while bringing the encoded entry below the 64 KiB require limit.
+    lines = resource_probe_source().decode("utf-8").splitlines()
+    packaged = [
+        line.rstrip()
+        for line in lines
+        if line.strip() and not line.lstrip().startswith("--")
+    ]
+    return ("\n".join(packaged) + "\n").encode("utf-8")
+
+
 def wrapper_source() -> bytes:
     prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
-    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal probe = (function()\n'''
-    suffix = b'''\nend)()\nif type(probe) ~= "table" then error("embedded live-resource probe did not return a table") end\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then pcall(probe.Pump) end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
-    return prefix + bridge_source() + between + resource_probe_source() + suffix
+    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LOCALAPPDATA") or nil\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\LWBridgeRebuild\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
+    return prefix + bridge_source() + between
 
 
 def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
@@ -71,13 +90,23 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package is missing the official LuaEntry")
     if ORIGINAL_LUA_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the preserved LuaEntry marker")
+    if RESOURCE_PROBE_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the live-resource probe module")
     wrapper_plain = wrapper_source()
     wrapper = lr.encode_lenc(wrapper_plain)
     if lr.decode_lenc(wrapper) != wrapper_plain:
         raise OverviewBridgeError("Overview LuaEntry LENC round-trip failed")
+    probe_plain = packaged_resource_probe_source()
+    probe_entry = lr.encode_lenc(probe_plain)
+    if lr.decode_lenc(probe_entry) != probe_plain:
+        raise OverviewBridgeError("live-resource probe LENC round-trip failed")
+    if len(probe_entry) > 0xFFFF:
+        raise OverviewBridgeError(
+            f"live-resource probe exceeds the require-able 64KiB entry limit: {len(probe_entry)}")
     mapped[LUA_ENTRY] = wrapper
     output = [(name, mapped[name]) for name, _ in entries]
     output.append((ORIGINAL_LUA_ENTRY, official))
+    output.append((RESOURCE_PROBE_ENTRY, probe_entry))
     data = directory / "LWScripts.data"
     metadata = directory / "LWScripts.txt"
     version = directory / "version.txt"
@@ -88,6 +117,8 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate LWLF header failed round-trip")
     if verify_map.get(ORIGINAL_LUA_ENTRY) != official or lr.decode_lenc(verify_map[LUA_ENTRY]) != wrapper_plain:
         raise OverviewBridgeError("Overview candidate LuaEntry preservation/serialization verification failed")
+    if lr.decode_lenc(verify_map[RESOURCE_PROBE_ENTRY]) != probe_plain:
+        raise OverviewBridgeError("Overview candidate probe serialization verification failed")
     package_crc = lr.crc32_file(data)
     metadata.write_text(f"{data.stat().st_size}|{package_crc}", encoding="utf-8")
     version.write_text(str(content_version), encoding="utf-8")
@@ -96,7 +127,12 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         "packageSize": data.stat().st_size,
         "packageCrc32": package_crc,
         "bridgeSourceSha256": hashlib.sha256(bridge_source()).hexdigest(),
+        "resourceProbeSourceSha256": hashlib.sha256(resource_probe_source()).hexdigest(),
+        "resourceProbePackagedSha256": hashlib.sha256(probe_plain).hexdigest(),
+        "resourceProbeLencSize": len(probe_entry),
+        "resourceProbePlainSize": len(probe_plain),
         "wrapperPlaintextSha256": hashlib.sha256(wrapper_plain).hexdigest(),
+        "wrapperLencSize": len(wrapper),
         "entryCount": len(verify_entries),
     }
 
@@ -543,11 +579,63 @@ def read_json(path: Path) -> dict[str, object] | None:
         return None
 
 
+def player_log_path() -> Path:
+    appdata = Path(os.environ.get("APPDATA", "")).resolve()
+    return appdata.parent / "LocalLow" / "FunFly" / "Last War-Survival Game" / "Player.log"
+
+
+def file_cursor(path: Path) -> tuple[int, int, bytes]:
+    try:
+        size = path.stat().st_size
+        marker_start = max(0, size - 256)
+        with path.open("rb") as stream:
+            stream.seek(marker_start)
+            marker = stream.read(size - marker_start)
+        return size, marker_start, marker
+    except OSError:
+        return 0, 0, b""
+
+
+def read_since_cursor(
+    path: Path, cursor: tuple[int, int, bytes],
+) -> tuple[tuple[int, int, bytes], str]:
+    baseline_size, marker_start, marker = cursor
+    try:
+        size = path.stat().st_size
+        rewritten = size < baseline_size
+        if not rewritten and marker:
+            with path.open("rb") as stream:
+                stream.seek(marker_start)
+                current_marker = stream.read(len(marker))
+            rewritten = current_marker != marker
+        start = 0 if rewritten else baseline_size
+        if size <= start:
+            return file_cursor(path), ""
+        with path.open("rb") as stream:
+            stream.seek(start)
+            data = stream.read(size - start)
+        return file_cursor(path), data.decode("utf-8", errors="replace")
+    except OSError:
+        return cursor, ""
+
+
+def is_server_maintenance_log(text: str) -> bool:
+    lines = {line.strip() for line in text.splitlines()}
+    return (
+        "E005" in lines and
+        "Loading error : E109" in text and
+        "OnLoginError" in text
+    )
+
+
 def await_ready(
     p: dict[str, Path], profile_id: str, session_id: str, challenge: str,
-    game_pid: int, deadline: float,
+    game_pid: int, deadline: float, player_log_cursor: tuple[int, int, bytes],
 ) -> dict[str, object]:
     ready_path = p["runtime"] / "ready.json"
+    game_log = player_log_path()
+    log_cursor = player_log_cursor
+    maintenance_tail = ""
     started_epoch = int(time.time()) - 2
     while time.monotonic() < deadline:
         throw_if_start_cancelled(p, session_id, challenge)
@@ -567,6 +655,13 @@ def await_ready(
                 int(value["readyAt"]) >= started_epoch
             ):
                 return value
+        log_cursor, appended = read_since_cursor(game_log, log_cursor)
+        if appended:
+            maintenance_tail = (maintenance_tail + appended)[-131072:]
+            if is_server_maintenance_log(maintenance_tail):
+                raise ServerMaintenanceError(
+                    "Last War server maintenance detected (login E005 / loading E109)"
+                )
         write_lease(p, session_id, challenge)
         time.sleep(0.25)
     heartbeat = read_json(p["runtime"] / "heartbeat.json")
@@ -618,6 +713,7 @@ def run_start(
             clear_stale_runtime(p, preserve_start_cancel=(session_id, challenge))
             throw_if_start_cancelled(p, session_id, challenge)
             launch_log_offset = launcher_log_offset(p)
+            player_log_start_cursor = file_cursor(player_log_path())
             launch_started = time.monotonic()
             launch_env = os.environ.copy()
             validated_control_pipe_path = require_control_pipe_path(control_pipe_path)
@@ -648,7 +744,10 @@ def run_start(
                 int(owned_game["pid"]),
                 control_pipe_path,
             )
-            ready = await_ready(p, profile_id, session_id, challenge, int(owned_game["pid"]), deadline)
+            ready = await_ready(
+                p, profile_id, session_id, challenge, int(owned_game["pid"]),
+                deadline, player_log_start_cursor,
+            )
             throw_if_start_cancelled(p, session_id, challenge)
 
             # IMPLEMENTATION POLICY: Windows keeps the active script package locked while

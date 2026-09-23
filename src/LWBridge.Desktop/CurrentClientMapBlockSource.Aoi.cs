@@ -161,7 +161,9 @@ internal sealed partial class CurrentClientMapBlockSource
 internal sealed record NavigationObservation(
     int CurrentLod,
     int ServerLod,
-    int[] AoiBlockSizes);
+    int[] AoiBlockSizes,
+    int? PreTargetTileX = null,
+    int? PreTargetTileY = null);
 
 internal sealed record AoiCellCaptureSummary(
     CurrentClientAoiCell Cell,

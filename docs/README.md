@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-150`, 2026-09-23.
+**Current checkpoint:** `LWB-R7-151`, 2026-09-24.
 This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
 
 ## Start here
@@ -14,7 +14,7 @@ This index is the canonical navigation page. Historical research/checkpoint file
 7. [`lwbridge-project-status.md`](lwbridge-project-status.md) — current project-manager audit summary.
 8. [`external-audit-guide.md`](external-audit-guide.md) — handoff guide for another AI/reviewer.
 9. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — current evidence navigation.
-10. [`reviews/2026-09-22-r7-145-doc-evidence-self-audit.md`](reviews/2026-09-22-r7-145-doc-evidence-self-audit.md) — current cleanup/self-audit checkpoint and verifier finding.
+10. [`reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md`](reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md) — current v21 lifecycle and Secret Task acceleration checkpoint.
 
 ## Current acceptance source
 
@@ -22,7 +22,7 @@ The current 47-case baseline is:
 
 `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
-R7-149 keeps the ordinary `partial` count at **0** and owner-retires E03/E04/E05 in addition to the already-retired City Excel export. The remaining non-pass cases are explicitly population-, authorization-, or blocked-implementation categories.
+R7-151 leaves the R7-149 acceptance statuses unchanged: ordinary `partial` count remains **0**. This checkpoint adds v21 update-safe lifecycle handling and Dispatch/Secret Task performance/Quick Find evidence without changing population-, authorization-, or blocked-implementation cases.
 
 ## Current unresolved gates
 

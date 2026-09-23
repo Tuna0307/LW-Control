@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from contextlib import nullcontext
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ TOOLS = Path(__file__).resolve().parent
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 import run_overview_bridge as ov
+import recover_overview_pending_current as preflight
 
 PROFILE = "overview_test_profile"
 SESSION = "session_123"
@@ -135,6 +137,91 @@ def reject_foreign_session() -> None:
             assert restore.call_count == 0
 
 
+def run_maintenance_log_case() -> None:
+    signature = (
+        "prefix\r\n"
+        "E005\r\n"
+        "LoginMessage:CSHandleResponse(ISFSObject)\r\n"
+        "Loading error : E109\r\n"
+        "NetworkManager:OnLoginError(BaseEvent)\r\n"
+    )
+    assert ov.is_server_maintenance_log(signature)
+    assert not ov.is_server_maintenance_log(
+        "E005\r\nLoading error : E109\r\n"
+    )
+    with tempfile.TemporaryDirectory(prefix="lwbridge-ovl-maintenance-") as td:
+        log = Path(td) / "Player.log"
+        stale = signature.encode("utf-8")
+        log.write_bytes(stale)
+        cursor = ov.file_cursor(log)
+        cursor2, appended = ov.read_since_cursor(log, cursor)
+        assert cursor2[0] == cursor[0] and appended == ""
+        with log.open("ab") as stream:
+            stream.write(b"normal next-launch text\r\n")
+        cursor3, appended = ov.read_since_cursor(log, cursor)
+        assert cursor3[0] > cursor[0]
+        assert not ov.is_server_maintenance_log(appended)
+
+        rewritten = (
+            "new launch header\r\n" + signature +
+            ("padding\r\n" * 80)
+        ).encode("utf-8")
+        assert len(rewritten) > cursor3[0]
+        log.write_bytes(rewritten)
+        cursor4, current_launch = ov.read_since_cursor(log, cursor3)
+        assert cursor4[0] == len(rewritten)
+        assert current_launch.startswith("new launch header")
+        assert ov.is_server_maintenance_log(current_launch)
+
+
+def run_restore_only_preflight_case() -> None:
+    with tempfile.TemporaryDirectory(prefix="lwbridge-ovl-preflight-") as td:
+        root = Path(td)
+        runtime = root / "runtime"
+        paths = {"runtime": runtime}
+        observed = {
+            "packageSha256": "new-package",
+            "packageSize": 123,
+            "packageCrc32": 456,
+            "fileVersion": 3,
+            "contentVersion": 21,
+            "gameSha256": "changed-game",
+            "xluaSha256": "changed-xlua",
+            "assemblyCSharpSha256": "changed-rdl",
+            "luaEntrySha256": "same-anchor",
+            "criticalEntries": {},
+            "metadata": "123|456",
+            "version": "21",
+            "versionMarker": 21,
+            "versionMarkerMatchesContentVersion": True,
+        }
+        report = {
+            "ok": False,
+            "compatibilityPolicy": "policy-test",
+            "observed": observed,
+            "problems": ["LastWar.exe changed from the recovered supported build"],
+        }
+        with patch.object(preflight.base, "overview_paths", return_value=paths), \
+             patch.object(
+                 preflight.lr, "OperationLease",
+                 side_effect=lambda *args, **kwargs: nullcontext()), \
+             patch.object(preflight.lr, "require_no_selected_game_process"), \
+             patch.object(
+                 preflight.lr, "recover_pending",
+                 return_value={"recovered": True}), \
+             patch.object(
+                 preflight.current.compat, "inspect_current",
+                 return_value=report):
+            result = preflight.run(None)
+
+        assert result["ok"] is True
+        assert result["installedFilesChanged"] is False
+        assert result["compatibilityOk"] is False
+        assert result["compatibilityProblems"] == report["problems"]
+        assert result["currentClient"]["packageSha256"] == "new-package"
+        assert result["currentClient"]["compatibilityPolicy"] == "policy-test"
+
+
 def main() -> int:
     source = ov.bridge_source()
     assert not source.startswith(b"\xef\xbb\xbf")
@@ -148,6 +235,8 @@ def main() -> int:
     expect_rejected([OLD_STARTED, NEW_STARTED],
                     expected_text="creation identity changed before normal close")
     reject_foreign_session()
+    run_maintenance_log_case()
+    run_restore_only_preflight_case()
     print(json.dumps({
         "ok": True,
         "scope": "isolated Overview stop/deferred restoration; no app/game/process operation",
@@ -158,6 +247,9 @@ def main() -> int:
         "alreadyExitedRestoresWithoutProcessTouch": exited["alreadyExited"],
         "retryStageAccepted": retry["alreadyExited"],
         "foreignSessionRejected": True,
+        "maintenanceSignatureDetected": True,
+        "staleMaintenanceIgnoredByLaunchOffset": True,
+        "unsupportedIntermediateClientAllowedForRestoreOnlyPreflight": True,
         "bridgeSourceBomFree": True,
     }, separators=(",", ":")))
     return 0

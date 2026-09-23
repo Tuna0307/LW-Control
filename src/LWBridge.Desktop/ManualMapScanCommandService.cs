@@ -14,6 +14,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
     private readonly Func<int?>? getLiveServerId;
     private readonly Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage;
+    private readonly Func<CancellationToken, Task<CurrentClientDispatchNearestResult>>? findNearestDispatch;
     private readonly IMapScanBlockSource blockSource;
     private CancellationTokenSource? activeCancellation;
     private MapScanProcessLease? activeScanLease;
@@ -40,6 +41,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private bool serverJumping;
     private bool treasureInspecting;
     private bool trainCoverageReading;
+    private bool dispatchQuickFinding;
     private int liveServerId;
     private int[] truckMatchServerIds = [];
     private string? lastError;
@@ -58,6 +60,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
         getTrainListCoverage = currentClientSource.GetTrainListCoverageAsync;
+        findNearestDispatch = currentClientSource.FindNearestDispatchAsync;
         blockSource = currentClientSource;
         ReconcileInterruptedScansAtStartup();
     }
@@ -71,7 +74,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null,
         Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null,
         Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates = null,
-        Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage = null)
+        Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage = null,
+        Func<CancellationToken, Task<CurrentClientDispatchNearestResult>>? findNearestDispatch = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
@@ -82,6 +86,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         this.getAssetImage = getAssetImage;
         this.inspectTreasureStates = inspectTreasureStates;
         this.getTrainListCoverage = getTrainListCoverage;
+        this.findNearestDispatch = findNearestDispatch;
         currentClientSource = null!;
         ReconcileInterruptedScansAtStartup();
     }
@@ -91,7 +96,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
             "map_coordinate_jump" or "map_march_follow" or "server_jump" or
-            "game_asset_image" or "map_train_list_coverage" or
+            "game_asset_image" or "map_train_list_coverage" or "map_dispatch_find_nearest" or
             "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
             "map_treasure_claim_status";
 
@@ -104,6 +109,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_train_list_coverage")
             return await ReadTrainListCoverageAsync(cancellationToken).ConfigureAwait(false);
+        if (command == "map_dispatch_find_nearest")
+            return await FindNearestDispatchAsync(cancellationToken).ConfigureAwait(false);
         if (command is "map_treasure_state_refresh" or
             "map_treasure_state_refresh_all" or
             "map_treasure_claim_status")
@@ -158,7 +165,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             if (isReading)
                 throw new BridgeCommandException("SCAN_RUNNING", "stop the map scan first");
-            if (coordinateJumping || serverJumping || treasureInspecting || trainCoverageReading)
+            if (coordinateJumping || serverJumping || treasureInspecting || trainCoverageReading || dispatchQuickFinding)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -188,6 +195,64 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         finally
         {
             lock (gate) trainCoverageReading = false;
+        }
+    }
+
+    private async Task<object> FindNearestDispatchAsync(CancellationToken cancellationToken)
+    {
+        if (findNearestDispatch is null)
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                "Dispatch Quick Find requires the live current-client source.");
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException(
+                    "MAP_SCAN_CLOSED",
+                    "The Map Data window is closing.");
+            if (isReading)
+                throw new BridgeCommandException(
+                    "SCAN_RUNNING",
+                    "stop the map scan first");
+            if (coordinateJumping || serverJumping || treasureInspecting ||
+                trainCoverageReading || dispatchQuickFinding)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            dispatchQuickFinding = true;
+        }
+
+        try
+        {
+            CurrentClientDispatchNearestResult result =
+                await findNearestDispatch(cancellationToken).ConfigureAwait(false);
+            lock (gate)
+            {
+                liveServerId = result.LiveServerId;
+                if (serverId <= 0) serverId = result.LiveServerId;
+                lastError = null;
+            }
+            PublishStatusChanged();
+            return new
+            {
+                serverId = result.ServerId,
+                pointId = result.PointId.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture),
+                x = result.X,
+                y = result.Y,
+                liveServerId = result.LiveServerId,
+                pointDataResolved = result.PointDataResolved,
+                runtimeClass = result.RuntimeClass,
+                pointType = result.PointType,
+                cfgId = result.CfgId,
+                elapsedSeconds = result.ElapsedSeconds,
+                identitySource = result.IdentitySource,
+            };
+        }
+        finally
+        {
+            lock (gate) dispatchQuickFinding = false;
         }
     }
 
@@ -223,7 +288,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException(
                     "SCAN_RUNNING",
                     "stop the map scan first");
-            if (coordinateJumping || serverJumping || treasureInspecting)
+            if (coordinateJumping || serverJumping || treasureInspecting || dispatchQuickFinding)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -581,7 +646,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed)
                 throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
-            if (isReading || coordinateJumping || serverJumping)
+            if (isReading || coordinateJumping || serverJumping || dispatchQuickFinding)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -634,7 +699,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping)
+            if (serverJumping || dispatchQuickFinding)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -689,7 +754,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         {
             if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping)
+            if (serverJumping || dispatchQuickFinding)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -737,7 +802,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SCAN_CLOSED",
                     "The Map Data window is closing and cannot start another scan.");
             MapScanStartOwnership.RejectAlreadyRunning(isReading);
-            if (serverJumping)
+            if (serverJumping || dispatchQuickFinding)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
                     "another game operation is already in progress");
@@ -1027,7 +1092,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     {
         bool shouldResolveLiveServer;
         lock (gate)
-            shouldResolveLiveServer = !closed && !isReading;
+            shouldResolveLiveServer = !closed && !isReading && !dispatchQuickFinding;
         if (shouldResolveLiveServer && getLiveServerId is not null)
         {
             int? resolvedServerId = getLiveServerId();
@@ -1062,6 +1127,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     liveServerId > 0 && serverId != liveServerId ? "remote_train_list" : "live",
                 scanRunId,
                 isReading,
+                dispatchQuickFinding,
                 phase,
                 selectedTypes,
                 totalBlocks,

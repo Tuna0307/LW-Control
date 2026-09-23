@@ -1,6 +1,6 @@
 # LWBridge current backlog
 
-**Current through:** `LWB-R7-145`, 2026-09-22.
+**Current through:** `LWB-R7-151`, 2026-09-24.
 
 This file now tracks only current/actionable work. Historical completed backlog detail is preserved in `docs/reviews/`, subject ledgers, evidence files, and Git history; it is intentionally not repeated here.
 
@@ -26,4 +26,6 @@ This file now tracks only current/actionable work. Historical completed backlog 
 - [x] Search/filter/sort/paging, result persistence, Clear race, mark/unmark/relocation, Jump/Follow and moving-target failures.
 - [x] Auto Scan ordered targets, failure isolation, return origin, scheduler persistence, reconnect/navigation ownership, restart handling, three consecutive multi-server cycles.
 - [x] Normal Release responsiveness and zero-argument normal-user Overview/Map restart navigation.
+- [x] R7-151 Last War v21 update-safe restore -> official update -> strict final validation -> injection order.
+- [x] R7-151 Dispatch/Secret Task v21 acceleration: exact 68-request full scan plus read-only native Quick Find before Auto full scan.
 - [x] City Excel export retired by owner and removed from product scope.

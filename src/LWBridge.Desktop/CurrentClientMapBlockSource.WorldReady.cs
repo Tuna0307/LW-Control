@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 
@@ -269,6 +270,7 @@ internal sealed partial class CurrentClientMapBlockSource
         while (Now() < deadline)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfServerMaintenance(session);
             JsonElement? root = TryReadJson(resultPath);
             if (root is not null && MatchesString(root.Value, "requestId", requestId))
             {
@@ -328,6 +330,96 @@ internal sealed partial class CurrentClientMapBlockSource
                 MapScanStartOwnership.WorldMapFailureMessage);
         throw new InvalidDataException(
             "World-readiness result did not contain a supported terminal state.");
+    }
+
+    private static void ThrowIfServerMaintenance(OverviewMapScanSession session)
+    {
+        try
+        {
+            using Process process = Process.GetProcessById(session.GamePid);
+            if (process.HasExited) return;
+            string? actualPath = process.MainModule?.FileName;
+            if (actualPath is null ||
+                !string.Equals(
+                    Path.GetFullPath(actualPath),
+                    Path.GetFullPath(session.GamePath),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+            if (!DateTimeOffset.TryParse(
+                    session.GameStartedAtUtc,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                    out DateTimeOffset expectedStartedAt))
+            {
+                return;
+            }
+            DateTimeOffset actualStartedAt = process.StartTime.ToUniversalTime();
+            if (Math.Abs((actualStartedAt - expectedStartedAt).TotalSeconds) > 1)
+                return;
+        }
+        catch
+        {
+            return;
+        }
+
+        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string? appDataRoot = Directory.GetParent(localAppData)?.FullName;
+        if (string.IsNullOrWhiteSpace(appDataRoot)) return;
+        string playerLog = Path.Combine(
+            appDataRoot,
+            "LocalLow",
+            "FunFly",
+            "Last War-Survival Game",
+            "Player.log");
+
+        try
+        {
+            var info = new FileInfo(playerLog);
+            if (!info.Exists) return;
+            if (!DateTimeOffset.TryParse(
+                    session.GameStartedAtUtc,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                    out DateTimeOffset startedAt))
+            {
+                return;
+            }
+            if (info.LastWriteTimeUtc < startedAt.UtcDateTime.AddSeconds(-5))
+                return;
+
+            string text;
+            using (var stream = new FileStream(
+                       playerLog,
+                       FileMode.Open,
+                       FileAccess.Read,
+                       FileShare.ReadWrite | FileShare.Delete))
+            using (var reader = new StreamReader(stream))
+                text = reader.ReadToEnd();
+            bool hasLoginCode = text
+                .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+                .Any(line => string.Equals(line.Trim(), "E005", StringComparison.Ordinal));
+            if (!hasLoginCode ||
+                !text.Contains("Loading error : E109", StringComparison.Ordinal) ||
+                !text.Contains("OnLoginError", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            throw new BridgeCommandException(
+                "SERVER_MAINTENANCE",
+                "Last War servers are currently under maintenance. Scanning is temporarily unavailable.",
+                new { loginCode = "E005", loadingCode = "E109" });
+        }
+        catch (BridgeCommandException)
+        {
+            throw;
+        }
+        catch
+        {
+            // Log inspection is advisory; ordinary world-ready timeout remains the fallback.
+        }
     }
 
     private async Task<NavigationObservation> NavigateAsync(

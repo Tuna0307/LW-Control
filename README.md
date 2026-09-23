@@ -1,6 +1,6 @@
 # LWBridge recovery / rebuild
 
-**Current checkpoint:** `LWB-R7-145` plus the final audit-readiness front-door cleanup.
+**Current checkpoint:** `LWB-R7-151` (2026-09-24).
 **Branch:** `research/offline-controller`.
 
 This repository is the evidence-first LWBridge rebuild for the Last War PC client. The remote/directory name `LW-Control` is historical naming; it does not define feature authority.
@@ -46,13 +46,11 @@ Then use this reading order:
 
 The current machine-readable acceptance source is:
 
-`evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`
+`evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
 ## Scan performance
 
-On the standard current 1000×1000 world, production automatically selects the proven Fast strategy at concurrency 20; Zombie Boss-only uses its dedicated LOD2 strategy. R7-130 live evidence measured representative Truck at ~74.7 s, Monster at ~77.8 s, and all-eight at ~77.9 s with complete 2,500/2,500 logical-block coverage and zero failed/unread in those runs.
-
-The supported conclusion is: **no additional evidence-backed safe speed optimization is currently known**. This does not claim future software can never be faster.
+On the standard current 1000×1000 world, production automatically selects the proven backend strategy. Truck/Railway-only uses the direct Train-list path. R7-151 current-v21 Dispatch/Secret Task uses an exact 68-request aligned wide AOI plan; a live server-2175 proof completed 2,500/2,500 blocks in 7.028 s with persisted/reopened rows. A separate official read-only Quick Find returns one Secret Task location in about 0.5 s and is used for immediate Auto Scan feedback without replacing the complete scan.
 
 ## Historical evidence and pruning policy
 

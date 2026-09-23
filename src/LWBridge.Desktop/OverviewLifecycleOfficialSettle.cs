@@ -6,13 +6,14 @@ namespace LWBridge.Desktop;
 
 internal sealed partial class OverviewLifecycleService
 {
-    private static readonly TimeSpan OfficialClientSettleTimeout = TimeSpan.FromSeconds(120);
+    private static readonly TimeSpan OfficialClientSettleTimeout = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan OfficialNormalCloseTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan OfficialProcessPoll = TimeSpan.FromMilliseconds(250);
 
-    // IMPLEMENTATION POLICY LWB-OVR-016: perform the destructive launcher warm-up only
-    // once per validated current-client package/root. Repeated launches first run the
-    // read-only recovery/compatibility preflight and reuse the persisted settled marker.
+    // IMPLEMENTATION POLICY LWB-OVR-016: production starts force one untouched
+    // official-launcher preflight before candidate installation so newly available
+    // server-side game/Lua updates cannot patch an injected package. The persisted
+    // settled marker remains available for bounded non-forced/internal call paths.
     private async Task EnsureOfficialClientSettledAsync(
         string selectedRoot,
         CancellationToken cancellationToken,
@@ -33,12 +34,20 @@ internal sealed partial class OverviewLifecycleService
             throw new InvalidOperationException("Production official settlement requires one overall start deadline.");
         long deadline = overallDeadline.Value;
 
-        string packageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
-            selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
-        if (!forceOfficialSettle && OfficialSettleMarkerMatches(selectedRoot, packageSha256))
-            return;
+        string? packageSha256 = null;
         if (forceOfficialSettle)
+        {
+            await RecoverPendingOnlyBeforeOfficialSettleAsync(
+                selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
             InvalidateOfficialSettleMarker();
+        }
+        else
+        {
+            packageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
+                selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
+            if (OfficialSettleMarkerMatches(selectedRoot, packageSha256))
+                return;
+        }
         if (RecoveryClockMilliseconds() >= deadline)
             throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT",
                 "Pending recovery consumed the bounded Overview start window.");
@@ -91,6 +100,53 @@ internal sealed partial class OverviewLifecycleService
         string settledPackageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
             selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
         WriteOfficialSettleMarker(selectedRoot, settledPackageSha256);
+    }
+
+    private async Task RecoverPendingOnlyBeforeOfficialSettleAsync(
+        string selectedRoot,
+        long deadline,
+        CancellationToken cancellationToken)
+    {
+        if (FindSelectedGameProcess(selectedRoot) is not null)
+            throw new BridgeCommandException(
+                "UNMANAGED_GAME_RUNNING",
+                "Close the game started outside this application first.");
+
+        long remainingMilliseconds = deadline - RecoveryClockMilliseconds();
+        if (remainingMilliseconds <= 0)
+            throw new BridgeCommandException(
+                "OFFICIAL_SETTLE_TIMEOUT",
+                "No bounded start window remained for pending recovery.");
+
+        JsonElement result = await RunHelperAsync(
+            new OverviewHelperInvocation(
+                "preflight-recover", profileId, null, null, null, null, null,
+                SupervisionMilliseconds:
+                    (int)Math.Min(int.MaxValue, remainingMilliseconds)),
+            cancellationToken).ConfigureAwait(false);
+
+        RequireString(result, "mode", "overview_preflight_recover");
+        if (!result.TryGetProperty(
+                "installedFilesChanged", out JsonElement changed) ||
+            changed.ValueKind != JsonValueKind.False)
+        {
+            throw new InvalidDataException(
+                "Overview restore-only preflight reported changed installed files.");
+        }
+
+        if (!result.TryGetProperty(
+                "currentClient", out JsonElement current) ||
+            current.ValueKind != JsonValueKind.Object)
+        {
+            throw new InvalidDataException(
+                "Overview restore-only preflight did not return current-client inspection evidence.");
+        }
+
+        // Deliberately do not call CurrentClientCompatibility.ValidateCurrentClient
+        // here. This pass runs before the untouched official launcher is allowed
+        // to finish a pending game update. The final settled client is validated
+        // by RecoverPendingBeforeOfficialSettleAsync after the launcher/game
+        // preflight completes and before any LWBridge candidate is installed.
     }
 
     private async Task<string> RecoverPendingBeforeOfficialSettleAsync(

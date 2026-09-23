@@ -29,13 +29,13 @@ PROBE_VERSION = "lwbridge-live-resource-probe-2"
 LUA_ENTRY = "DataCenter/Global/LuaEntry.luac"
 ORIGINAL_LUA_ENTRY = "DataCenter/Global/LuaEntry_original.luac"
 EXPECTED_FILE_VERSION = 3
-EXPECTED_CONTENT_VERSION = 16
-EXPECTED_PACKAGE_SHA256 = "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4"
-EXPECTED_PACKAGE_SIZE = 41278785
-EXPECTED_PACKAGE_CRC32 = 3454076078
+EXPECTED_CONTENT_VERSION = 21
+EXPECTED_PACKAGE_SHA256 = "e888a4ae3faae6df501493e18653fbb92c2406487467ba34312b7c5a22e2caa5"
+EXPECTED_PACKAGE_SIZE = 41304673
+EXPECTED_PACKAGE_CRC32 = 2326543205
 EXPECTED_LUA_ENTRY_SHA256 = "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
-EXPECTED_XLUA_SHA256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
-EXPECTED_ASSEMBLY_CSHARP_SHA256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+EXPECTED_XLUA_SHA256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
+EXPECTED_ASSEMBLY_CSHARP_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
 
 # RECOVERED current xLua LENC v3 contract, gated by EXPECTED_XLUA_SHA256.
 LENC_KEY = bytes.fromhex("e916bd5e0105ffd6514ca6d01177e39d26eaca762d9cbb899b6a1cdfa4f43255")
@@ -575,10 +575,15 @@ def restore_backup(p: dict[str, Path], backup: Path, on_stage=None) -> dict[str,
             raise LiveResourceError(f"restored bytes do not match the original {key} SHA-256")
         if on_stage is not None:
             on_stage(index, key)
-    current = verify_current(p)
+    # Restoration and current-client compatibility are separate contracts.
+    # Each restored script file was already verified byte-for-byte against the
+    # exact backup above. A legitimate game update may change LastWar.exe/xlua/
+    # Assembly-CSharp while this recovery is pending; that must not prevent the
+    # already-proven script restoration from being finalized. Compatibility is
+    # checked independently before any subsequent candidate install/launch.
     return {
         "restored": True,
-        "packageSha256": current["packageSha256"],
+        "packageSha256": originals["data"]["sha256"],
         "originalFiles": originals,
         "restoredFiles": snapshot_triplet(p),
     }

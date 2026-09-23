@@ -2,14 +2,14 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-150`; parent revision `e594455ff43abe38d657f66a4eec3eb243e3585c`
-**Date:** 2026-09-23
+**Current checkpoint:** `LWB-R7-151`; parent revision `24ab001b9a444f15697c30e149f039a919cda5be`
+**Date:** 2026-09-24
 
 Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
 
 ## Current product state
 
-Home / Overview remains at its accepted evidence scope. Map Data received owner-workflow corrections in R7-147, direct Truck/Railway Train-list acquisition in R7-148, Scheduled Plunder retirement in R7-149, and covered cross-server no-jump Auto routing in R7-150; the R7-145 acceptance matrix still contains 47 cases with **zero ordinary `partial` rows**, and R7-147 does not promote any population/authorization gate.
+Home / Overview remains at its accepted evidence scope. R7-151 adds the Last War v21 update-safe lifecycle and the current Secret Task acceleration: exact 68-request wide full scans plus a separate native one-target Quick Find used for immediate Auto Scan feedback. The 47-case acceptance matrix remains unchanged with **zero ordinary `partial` rows**; R7-151 improves lifecycle/performance without promoting any population/authorization gate.
 
 Use these current summaries instead of reconstructing status from chronological checkpoint prose:
 
@@ -33,9 +33,9 @@ No ordinary Home defect is currently open. Simultaneous real multi-account UI po
 
 The shared Manual Scan engine, Auto Scan scheduler, transactional SQLite publication, filtering/sorting/paging, marks, navigation, restart safety, and native point/march transitions remain accepted at their current evidence scopes. R7-147 corrected eight owner-observed workflow defects: session-scoped scan data, Auto **All**, one-shot Run Now while recurring Auto is off, cross-server row navigation, stopped/session-wide Clear, Doom Walker Follow, current-v20 official Train-list acquisition, and removal of the misleading Manual server filter.
 
-On the standard 1000x1000 world, `MapScanStrategyPlanner` automatically selects the current proven strategy. Mixed scans use the exact Fast AOI path; Zombie Boss-only uses the dedicated LOD2 path; Truck/Railway-only uses the official Train list. R7-150 live-proved a covered remote Truck/Railway target in 0.809 s without server travel while keeping dataset `serverId` separate from physical `liveServerId`. Uncovered/mixed targets still use the existing jump-first path.
+On the standard 1000x1000 world, `MapScanStrategyPlanner` automatically selects the current proven strategy. Truck/Railway-only still uses the official Train list. R7-151 current-v21 Dispatch uses the aligned 6x25 AOI footprint at cameraY 220, requiring 68 primary requests for the exact 10,000-AOI union; a live server-2175 full scan completed in 7.028 s with rows persisted/reopened. The native `DispatchFindNearestPoint` call returns one task in about 0.5 s; Auto Scan shows that result after confirmed travel and before starting the complete scan, but never treats it as complete coverage.
 
-Further optimization is possible only if it preserves fresh authoritative identity/coverage. R7-150 deliberately refreshes the official Train list for each target instead of introducing an invented stale-snapshot cache lifetime.
+The failed message-bulk browser and in-game coverage-chain experiments were removed. CameraY 240+ enters the v21 split path, so further complete-scan speed gains require a different authoritative server query/list rather than weaker coverage.
 
 ## Remaining gates
 
@@ -54,4 +54,4 @@ Do not replay or reroute SB-79. Do not invent protected Treasure scheduler seman
 
 ## Evidence navigation
 
-Start with `evidence/lwbridge-implementation/README.md` and `evidence/lwbridge-implementation/2026-09-22-r7-current-evidence-index.json`. Historical evidence remains valid at its original source/build/scope and is retained for auditability.
+Start with `evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json`, `docs/reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md`, then `evidence/lwbridge-implementation/README.md`. Historical evidence remains valid at its original source/build/scope and is retained for auditability.

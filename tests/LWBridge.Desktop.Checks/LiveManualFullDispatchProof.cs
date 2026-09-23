@@ -28,6 +28,8 @@ internal static class LiveManualFullDispatchProof
         int sortComparedRowCount = 0;
         int specialSortValueCount = 0;
         int completionSortValueCount = 0;
+        int sampleX = -1;
+        int sampleY = -1;
         long filterSampledAt = 0;
         DispatchGhostFilterProofHelper.Metrics? filterMetrics = null;
         double scanWallSeconds = 0;
@@ -129,7 +131,18 @@ internal static class LiveManualFullDispatchProof
                             $"secondAttempts={secondAttempts}, failedDetails=[{failedDetails}], lastError={statusError}.");
                     }
 
-                    publishedDispatchCount = store.SearchIndexed(DispatchQuery(serverId)).Total;
+                    MapSearchResult published = store.SearchIndexed(DispatchQuery(serverId));
+                    publishedDispatchCount = published.Total;
+                    foreach (JsonElement row in published.Rows)
+                    {
+                        if (row.TryGetProperty("x", out JsonElement xValue) && xValue.TryGetInt32(out int x) &&
+                            row.TryGetProperty("y", out JsonElement yValue) && yValue.TryGetInt32(out int y))
+                        {
+                            sampleX = x;
+                            sampleY = y;
+                            break;
+                        }
+                    }
                     if (publishedDispatchCount <= 0)
                         throw new InvalidDataException(
                             "Ordinary Manual Dispatch scan published no Secret Task records.");
@@ -202,6 +215,8 @@ internal static class LiveManualFullDispatchProof
                 scanMode,
                 concurrency = expectedConcurrency,
                 scanWallSeconds,
+                sampleX,
+                sampleY,
                 metrics.PointTypeCount,
                 metrics.RuntimeClassCount,
                 metrics.ConfigCount,

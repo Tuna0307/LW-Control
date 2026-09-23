@@ -9,11 +9,11 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-POLICY = "lwbridge-current-client-critical-anchors-2"
+POLICY = "lwbridge-current-client-critical-anchors-3"
 EXPECTED_FILE_VERSION = 3
-EXPECTED_GAME_SHA256 = "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5"
-EXPECTED_XLUA_SHA256 = "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
-EXPECTED_ASSEMBLY_SHA256 = "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+EXPECTED_GAME_SHA256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d"
+EXPECTED_XLUA_SHA256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
+EXPECTED_ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
 CRITICAL_ENTRIES = {
     "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
     "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",

@@ -132,7 +132,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             lock (stateGate)
             {
                 if (phase == "running" && instanceId is not null)
+                {
+                    if (string.Equals(connectionState, "maintenance", StringComparison.Ordinal))
+                        return "maintenance";
                     return IsReady ? "connected" : "error";
+                }
                 return connectionState;
             }
         }
@@ -333,6 +337,18 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             };
         }
 
+        if (snapshot.Phase == "running" &&
+            string.Equals(snapshot.ConnectionState, "maintenance", StringComparison.Ordinal))
+        {
+            return new
+            {
+                phase = "running",
+                pid = (int?)snapshot.GamePid,
+                instanceId = snapshot.InstanceId,
+                connectionState = "maintenance",
+                error = "SERVER_MAINTENANCE",
+            };
+        }
         if (snapshot.Phase == "running" && !IsSnapshotReady(snapshot))
         {
             return new
@@ -579,9 +595,20 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             long? startDeadline = null;
             if (testHooks is null)
             {
+                // Official updating and LWBridge candidate startup use separate
+                // bounded budgets. A legitimate game/Lua update must not consume
+                // most of the bridge-readiness window before the candidate even
+                // starts.
+                long officialSettleDeadline = checked(
+                    RecoveryClockMilliseconds() +
+                    (long)OfficialClientSettleTimeout.TotalMilliseconds);
+                await EnsureOfficialClientSettledAsync(
+                    selectedRoot, cancellationToken, officialSettleDeadline,
+                    forceOfficialSettle: true).ConfigureAwait(false);
+
                 startDeadline = checked(
-                    RecoveryClockMilliseconds() + (long)helperSupervisionTimeout.TotalMilliseconds);
-                await EnsureOfficialClientSettledAsync(selectedRoot, cancellationToken, startDeadline.Value).ConfigureAwait(false);
+                    RecoveryClockMilliseconds() +
+                    (long)helperSupervisionTimeout.TotalMilliseconds);
                 controlPipeLaunchBinding = PrepareControlPipeLaunchBinding(
                     newSession);
                 startInvocation = CreateBoundedStartInvocation(
@@ -609,8 +636,16 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             {
                 if (testHooks is null)
                 {
+                    long officialSettleDeadline = checked(
+                        RecoveryClockMilliseconds() +
+                        (long)OfficialClientSettleTimeout.TotalMilliseconds);
                     await EnsureOfficialClientSettledAsync(
-                        selectedRoot, cancellationToken, startDeadline!.Value, forceOfficialSettle: true).ConfigureAwait(false);
+                        selectedRoot, cancellationToken, officialSettleDeadline,
+                        forceOfficialSettle: true).ConfigureAwait(false);
+
+                    startDeadline = checked(
+                        RecoveryClockMilliseconds() +
+                        (long)helperSupervisionTimeout.TotalMilliseconds);
                     RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
                     startInvocation = CreateBoundedStartInvocation(
                         newSession,
@@ -722,6 +757,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     {
                         phase = "error";
                         connectionState = "error";
+                        lastError = ex.Code;
                     }
                 }
             }
@@ -1117,6 +1153,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                             "GAME_UPDATE_UNSUPPORTED",
                             "Last War updated, but LWBridge could not verify this game version as automatically compatible.",
                             new { error });
+                    if (string.Equals(errorType, "ServerMaintenanceError", StringComparison.Ordinal))
+                        throw new BridgeCommandException(
+                            "SERVER_MAINTENANCE",
+                            "Last War servers are currently under maintenance. Scanning is temporarily unavailable.",
+                            new { error, loginCode = "E005", loadingCode = "E109" });
                     throw new InvalidOperationException(error);
                 }
                 return root.Clone();
