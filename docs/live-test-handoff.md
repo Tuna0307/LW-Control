@@ -1,6 +1,6 @@
 # Current live-test handoff
 
-**Current through:** `LWB-R7-145`, 2026-09-22.
+**Current through:** `LWB-R7-152`, 2026-09-24.
 
 The old Resource/Player City owner-test packet has been retired. Ordinary Home/Map acceptance no longer needs the owner to repeat those historical checks unless a future code/client change causes a regression.
 
@@ -8,9 +8,9 @@ The old Resource/Player City owner-test packet has been retired. Ordinary Home/M
 
 ### 1. Ghost positive-row proof
 
-Status: implementation ready; positive population unavailable/deferred.
+Status: implementation ready; positive population currently unavailable.
 
-Earliest owner-deferred checkpoint: **2026-09-24**. When authentic Ghost rows exist, ChatGPT can rerun the existing read-only strict harness. The owner should not need to run terminal commands.
+R7-152 reran the strict current-v21 proof on 2212, 2175, 2180, 2185, and 2207. Every server completed 2,500/2,500 cleanly and returned zero authentic Ghost rows. Rerun only when population appears; ChatGPT can target a server with the proof harness and the owner should not need to run terminal commands.
 
 ### 2. Supplies positive-row proof
 
@@ -44,4 +44,4 @@ Repeat those only after a relevant code change, official-client compatibility ch
 
 ## Current evidence
 
-See `docs/tabs/home.md`, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and `evidence/lwbridge-implementation/2026-09-22-r7-current-evidence-index.json`.
+See `evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json`, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and the curated current evidence index.

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R7-152",
+  "date": "2026-09-24",
+  "title": "Ghost Ops positive-population recheck on current Last War v21",
+  "parentRevision": "b7daab82880b26148aea5771e3b756fa451a43b9",
+  "client": {"contentVersion":21,"gameSha256":"905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d","luaPackageSha256":"e888a4ae3faae6df501493e18653fbb92c2406487467ba34312b7c5a22e2caa5"},
+  "finding": {"id":"R7152-GHOST-01","status":"LIVE-PROVEN_NEGATIVE_POPULATION","result":"Every sampled server completed the strict 2500/2500 Ghost-only full-world scan with zero scan failure/unread blocks, but no authentic Ghost Ops rows were published. Positive-row acceptance therefore remains population-gated rather than failed implementation."},
+  "servers": [
+    {"serverId":2212,"scanComplete":true,"ghostRows":0,"processRuntimeSeconds":40.75},
+    {"serverId":2175,"scanComplete":true,"ghostRows":0,"processRuntimeSeconds":39.09},
+    {"serverId":2180,"scanComplete":true,"ghostRows":0,"processRuntimeSeconds":39.76},
+    {"serverId":2185,"scanComplete":true,"ghostRows":0,"processRuntimeSeconds":40.01},
+    {"serverId":2207,"scanComplete":true,"ghostRows":0,"processRuntimeSeconds":38.70}
+  ],
+  "proofBehavior": "LiveManualFullGhostProof remains strict: zero rows throw 'Ordinary Manual Ghost scan published no Ghost Ops records.' Target-server support now accepts LWBRIDGE_MANUAL_SCAN_SERVER and uses the public server_jump command inside the owned lifecycle.",
+  "cleanup": {"lastTarget":2207,"homeServerId":2212,"lastWarProcessesAfter":0,"launcherProcessesAfter":0,"desktopProcessesAfter":0,"helperProcessesAfter":0},
+  "reproduction": "set LWBRIDGE_MANUAL_SCAN_MODE=fast && set LWBRIDGE_MANUAL_SCAN_SERVER=<server> && dotnet tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll --live-current-client-full-ghost-manual",
+  "limits": ["This evidence proves clean complete scans and absent sampled population, not that Ghost Ops can never exist on these servers at another time.","No positive Ghost row was available, so B03/B13/B14/C01 positive-row field/filter/sort acceptance is not promoted.","Process runtime includes owned lifecycle startup/cleanup and is not a scan SLA."]
+}

@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-151`, 2026-09-24.
+**Current checkpoint:** `LWB-R7-152`, 2026-09-24.
 This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
 
 ## Start here
@@ -14,7 +14,7 @@ This index is the canonical navigation page. Historical research/checkpoint file
 7. [`lwbridge-project-status.md`](lwbridge-project-status.md) — current project-manager audit summary.
 8. [`external-audit-guide.md`](external-audit-guide.md) — handoff guide for another AI/reviewer.
 9. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — current evidence navigation.
-10. [`reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md`](reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md) — current v21 lifecycle and Secret Task acceleration checkpoint.
+10. [`reviews/2026-09-24-r7-152-ghost-population-recheck.md`](reviews/2026-09-24-r7-152-ghost-population-recheck.md) — current Ghost population recheck; R7-151 remains the v21 lifecycle/Secret Task acceleration checkpoint.
 
 ## Current acceptance source
 
@@ -22,11 +22,11 @@ The current 47-case baseline is:
 
 `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
-R7-151 leaves the R7-149 acceptance statuses unchanged: ordinary `partial` count remains **0**. This checkpoint adds v21 update-safe lifecycle handling and Dispatch/Secret Task performance/Quick Find evidence without changing population-, authorization-, or blocked-implementation cases.
+R7-152 leaves the acceptance statuses unchanged: ordinary `partial` count remains **0**. R7-151 added v21 lifecycle/Dispatch acceleration; R7-152 refreshes the Ghost population evidence without promoting its positive-row acceptance.
 
 ## Current unresolved gates
 
-- Ghost positive-row proof: owner-deferred until 2026-09-24.
+- Ghost positive-row proof: R7-152 sampled 2212/2175/2180/2185/2207 on current v21; all full scans completed cleanly with zero authentic Ghost rows, so the gate remains population-only.
 - Supplies positive-row proof: current 2026-09-22 full-world rechecks on 2212 and 2213 found zero Supplies.
 - Treasure protected claim scheduler: `UNKNOWN/BLOCKED` under the preserved SB-79 boundary.
 - Simultaneous real multi-account UI population: target/account availability gap.

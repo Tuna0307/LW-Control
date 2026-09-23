@@ -1,11 +1,11 @@
 # Current project status — Home and Map Data
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R7-151`; parent revision `24ab001b9a444f15697c30e149f039a919cda5be`
+**Current checkpoint:** `LWB-R7-152`; parent revision `b7daab82880b26148aea5771e3b756fa451a43b9`
 
 ## Executive status
 
-The Home / Overview acceptance state is unchanged. R7-151 adds a v21 update-safe lifecycle (restore first, untouched official update, strict final validation, then injection) and accelerates Dispatch/Secret Task full scans to the proven 68-request wide path. A current-v21 server-2175 Dispatch proof completed in 7.028 s with persisted/reopened rows, and Auto Scan now surfaces one native read-only Quick Find result before the complete scan. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
+The Home / Overview acceptance state is unchanged. R7-151 adds the v21 update-safe lifecycle and accelerated Dispatch/Secret Task path. R7-152 then reruns the strict Ghost population proof on five current-v21 servers: every 2,500/2,500 scan completed cleanly, but all five returned zero authentic Ghost rows. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
 
 That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, the Alliance-share authorization boundary, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance. Scheduled Plunder is no longer a remaining gate.
 
@@ -43,7 +43,7 @@ R7-149 current acceptance status counts:
 
 ## Remaining externally gated work
 
-1. Ghost positive-row proof, owner-deferred until 2026-09-24.
+1. Ghost positive-row proof remains population-gated after R7-152 current-v21 clean zero-row scans on 2212, 2175, 2180, 2185, and 2207.
 2. Supplies positive-row proof when an authentic live population exists.
 3. Treasure protected claim scheduler recovery remains blocked under SB-79; do not reroute the denied operation or invent the contract.
 4. Simultaneous real multi-account UI population when multiple active accounts are available.

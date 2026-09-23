@@ -1,6 +1,6 @@
 # LWBridge current feature ledger
 
-**Current through:** `LWB-R7-151`, 2026-09-24
+**Current through:** `LWB-R7-152`, 2026-09-24
 This file is now a current feature ledger, not a chronological checkpoint log. Historical finding detail remains in `docs/reviews/`, subject ledgers, Git history, and machine-readable evidence.
 
 ## Home / Overview
@@ -59,7 +59,7 @@ Current detail: `docs/tabs/home.md`.
 | Truck | LIVE-PROVEN | Scheduled Plunder retired; read-only status/filter fields retained |
 | Railway | LIVE-PROVEN | Live population may be sparse |
 | Dispatch | LIVE-PROVEN; R7-151 68-request v21 full scan + native one-target Quick Find | Quick Find is not a completeness substitute; Scheduled Plunder remains retired |
-| Ghost | IMPLEMENTED; full scan can complete cleanly | Positive row deferred/unavailable |
+| Ghost | IMPLEMENTED; R7-152 current-v21 2,500/2,500 scans clean on five sampled servers | Positive population unavailable on 2212/2175/2180/2185/2207 at recheck time |
 | Treasure | LIVE-PROVEN read-only | Claim executor blocked |
 | Supplies | Parser/query/read path ready | Positive live population unavailable in current recheck |
 
@@ -71,6 +71,8 @@ R7-151 current-v21 evidence adds a 68-request aligned Dispatch/Secret Task full-
 
 ## Current evidence entry points
 
+- `evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json`
+- `docs/reviews/2026-09-24-r7-152-ghost-population-recheck.md`
 - `evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json`
 - `docs/reviews/2026-09-24-r7-151-v21-dispatch-fast-scan.md`
 - `evidence/lwbridge-implementation/2026-09-22-r7-current-evidence-index.json`
