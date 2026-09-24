@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-005`, 2026-09-24.
+**Current through:** `LWB-R8-006`, 2026-09-24.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 

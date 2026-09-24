@@ -1,6 +1,6 @@
 # Shared runtime / Release — strict parity status
 
-**Current through:** `LWB-R8-005`, 2026-09-24.
+**Current through:** `LWB-R8-006`, 2026-09-24.
 
 The previous Release page asked whether the reconstructed Home/Map build was stable. The current question is stricter: does the entire rebuilt program reproduce LWBridge 0.3.1 one-for-one and still work against the current Last War client?
 

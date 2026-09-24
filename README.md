@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 strict parity recovery
 
-**Current checkpoint:** `LWB-R8-005` (2026-09-24)
+**Current checkpoint:** `LWB-R8-006` (2026-09-24)
 **Branch:** `research/offline-controller`
 
 This repository is now a strict one-to-one recovery of the verified LWBridge 0.3.1 reference:
@@ -45,7 +45,7 @@ Historical labels such as RECOVERED, LIVE-PROVEN and IMPLEMENTED/OFFLINE-TESTED 
 
 ## P0
 
-The highest-priority recovery target is the original protected `bridge-scripts.dat` package and its complete plaintext implementation. R8-003 recovered the exact LWBP2 nonce/ciphertext/tag/AAD/AES ownership. R8-004 recovered the host-side `LWKE1` envelope framing and auth transport. R8-005 now closes the exact client ECDH login material: `devicePublicKey` is the persisted P-256 public point encoded as 87-char URL-safe Base64 without padding, and `launchNonce` is a 43-char URL-safe encoding of a 32-byte authorization challenge. The remaining critical seam is the decoded server `LWKE1` agreement/encrypted-key material that produces the 32-byte package key.
+The highest-priority recovery target is the original protected `bridge-scripts.dat` package and its complete plaintext implementation. R8-003 recovered the exact LWBP2 package/AES contract; R8-004 recovered the outer `LWKE1` transport; R8-005 recovered exact client ECDH login material; R8-006 now proves that the opaque envelope consumer's fourth output argument is the exact vector later consumed as the required 32-byte package AES key. The remaining critical seam is the decoded server `LWKE1` agreement/encrypted-key field semantics needed to reproduce that output.
 
 Map Data is no longer allowed to consume weeks of custom redesign while original implementation evidence remains recoverable. The original script/host behavior must be recovered first, then mapped to the current client.
 

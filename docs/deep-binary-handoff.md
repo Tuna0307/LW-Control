@@ -1,6 +1,6 @@
 # Deep binary / protected package handoff — strict parity priority
 
-**Current through:** `LWB-R8-005`, 2026-09-24.
+**Current through:** `LWB-R8-006`, 2026-09-24.
 
 Protected original implementation recovery is now P0 because the project goal is exact LWBridge 0.3.1 parity.
 
@@ -34,10 +34,11 @@ Existing R6-039 through R6-046 evidence establishes substantial surrounding arch
 - **R8-003:** exact AAD `LWBP2|<buildId>`, package SHA-256/build-ID validation, and package AES call ownership: original third argument is the 32-byte key; parsed nonce/ciphertext/tag are supplied directly; decrypted bytes return through the original fourth argument.
 - **R8-004:** host-side key-envelope transport: response fields `packageKeyEnvelope`/`packageKeyEnvelopeExpiresAt`, runtime `package-key.envelope`, exact-two-segment token framing, canonical URL-safe Base64 first segment decoding to `LWKE1|<field1>|<expirySeconds>|...`, plus login `devicePublicKey`/`launchNonce` and auth header/endpoints.
 - **R8-005:** exact client login material: persisted CNG `ECDH_P256` key `{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}`, 65-byte uncompressed public point encoded to 87 URL-safe/no-padding characters for `devicePublicKey`, and a reusable/generated 32-byte challenge encoded to 43 URL-safe/no-padding characters for `launchNonce`.
+- **R8-006:** caller-side ownership around the still-opaque envelope consumer: its fourth output argument (`rsp+0x48`) is passed unchanged as package arg3, which R8-003 proves is forwarded as the 32-byte AES key for `bridge-scripts.dat`. The restricted consumer body remains uninspected.
 
 ## Missing chain
 
-R8-003 closes the package-layout/AAD/AES-ownership side. R8-004 proves the exact outer `LWKE1` token framing. R8-005 closes the client ECDH/login side, including the exact public-point and challenge encodings. The remaining critical chain is now narrower:
+R8-003 closes package layout/AES ownership. R8-004 proves exact outer `LWKE1` framing. R8-005 closes the client ECDH/login side. R8-006 proves which opaque-consumer output becomes the exact 32-byte package key. The remaining critical chain is now narrower:
 
 `decoded LWKE1 agreement field(s) -> peer public key / encrypted key material -> already-recovered ECDH/TRUNCATE helper -> 32-byte package key -> decrypt known LWBP2 ciphertext -> post-decrypt container/entries/scripts`
 

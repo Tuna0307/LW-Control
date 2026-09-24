@@ -1,12 +1,12 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-005`, 2026-09-24.
+**Current through:** `LWB-R8-006`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
 
 ## P0 — recover the original implementation
 
-- [ ] **Recover `bridge-scripts.dat` plaintext and container contents.** R8-003 closes the encrypted LWBP2 package/AES side; R8-004 closes `LWKE1` envelope framing/auth transport; R8-005 closes exact client ECDH public-key and launch-nonce encoding. Recover the decoded server envelope agreement/encrypted-key fields, derive the 32-byte package key through the already-proven ECDH/TRUNCATE path, then decrypt and hash-preserve the original scripts.
+- [ ] **Recover `bridge-scripts.dat` plaintext and container contents.** R8-003 closes the encrypted LWBP2/AES side; R8-004 closes outer `LWKE1` framing; R8-005 closes client ECDH/login material; R8-006 proves the opaque envelope consumer output vector that becomes the exact 32-byte package AES key. Recover the decoded server envelope agreement/encrypted-key fields through permitted evidence, reproduce that output, then decrypt and hash-preserve the original scripts.
 - [ ] **Recover the exact host<->proxy command protocol.** Close `hello.ack`, readiness/heartbeat, request/result grammar, correlation, timeout/disconnect/write failure behavior, and script-dispatch ownership.
 - [ ] **Build a complete original command/service inventory.** Enumerate every UI API call, Rust/Tauri command, service, script handler, launcher/proxy path, default, error code and persistent key in LWBridge 0.3.1.
 - [ ] **Map each original command to the current Last War client.** Compatibility work may adapt internals but must preserve the recovered original observable contract.

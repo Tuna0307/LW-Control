@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R8-005`
+**Current checkpoint:** `LWB-R8-006`
 
 ## Executive status
 
@@ -45,7 +45,7 @@ Therefore no R7 performance optimization is accepted as original parity unless t
 
 ## Protected package status
 
-The package is not considered unrecoverable. R8-003 closes the encrypted LWBP2/AES side; R8-004 closes the outer `LWKE1` token/auth transport; R8-005 closes exact client P-256 public-key and launchNonce encoding. P0 is concentrated on the returned envelope's decoded peer/agreement and encrypted-key fields and their mapping into the already-recovered ECDH/TRUNCATE helper that yields the 32-byte package key, then decrypting and preserving the original script bytes.
+The package is not considered unrecoverable. R8-003 closes the encrypted LWBP2/AES side; R8-004 closes outer `LWKE1` transport; R8-005 closes exact client P-256 login material; R8-006 proves the precise opaque-consumer output vector that becomes the 32-byte package key. P0 is concentrated on recovering the returned envelope's decoded peer/agreement and encrypted-key fields through permitted evidence, reproducing that output, then decrypting and preserving the original script bytes.
 
 A historical environment denial is not a claim that the underlying research question is solved or impossible. Exact denied operations must not be rerouted, but permitted alternative analysis remains active work.
 

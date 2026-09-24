@@ -1,0 +1,77 @@
+{
+  "findingId": "LWB-R8-006",
+  "date": "2026-09-24",
+  "scope": "opaque package-key.envelope consumer output ownership into package AES key",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "secureProxyHostRva": "0x987F74",
+    "secureProxyHostRawOffset": "0x987374"
+  },
+  "callerDataflow": {
+    "loaderRange": {
+      "beginRva": "0x1C0A0",
+      "endRva": "0x1D46F"
+    },
+    "opaqueConsumer": {
+      "beginRva": "0x3F8E0",
+      "endRva": "0x40A6D",
+      "bodyInspected": false,
+      "callRva": "0x1C8E2",
+      "successTestRva": "0x1C8E7",
+      "argumentOwnershipFromCaller": {
+        "arg1_rcx": "package-key.envelope path",
+        "arg2_rdx": "caller context at rbp-0x78; semantics not claimed",
+        "arg3_r8": "context object at rbp+0x80; later reused as package arg2",
+        "arg4_r9": "zero-initialized vector at rsp+0x48; later reused as package arg3/AES key",
+        "arg5_stack": "error/output string at rbp+0x40; later reused as package arg5",
+        "arg8_stack": 1
+      }
+    },
+    "packageCall": {
+      "callRva": "0x1CC3A",
+      "functionRva": "0x3D260",
+      "sameContextPointer": "rbp+0x80: opaque arg3 -> package arg2",
+      "sameKeyVectorPointer": "rsp+0x48: opaque arg4 -> package arg3",
+      "sameErrorPointer": "rbp+0x40: opaque arg5 -> package arg5"
+    }
+  },
+  "packageKey": {
+    "producerBoundary": "successful opaque package-key.envelope consumer call at RVA 0x1C8E2",
+    "consumerBoundary": "package function third argument at RVA 0x1CC3A",
+    "aesKeyForwarding": "package arg3 is saved from R8 and forwarded as AES helper RCX at RVA 0x3DA4A",
+    "requiredBytes": 32
+  },
+  "result": [
+    "The package-key.envelope consumer receives rsp+0x48 as its fourth argument after that vector is explicitly zero-initialized.",
+    "After the consumer reports success, the enclosing loader passes the exact same rsp+0x48 address as the third argument to package function RVA 0x3D260.",
+    "The package function forwards its original third argument to AES-GCM helper RVA 0x3CB60 as the key vector, and that helper requires a 32-byte key.",
+    "Therefore the opaque package-key.envelope consumer is the producer boundary for the exact 32-byte package key used to decrypt bridge-scripts.dat.",
+    "The same caller also carries rbp+0x80 from opaque arg3 directly into package arg2, preserving a shared context object across envelope and package validation; its internal field semantics are not inferred here."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_envelope_key_flow.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_proxy_envelope_key_flow.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-24-r8-006-envelope-key-output-flow.json",
+    "python -m py_compile tools\\inspect_lwbridge_proxy_envelope_key_flow.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "restrictedConsumerBodyInspected": false,
+    "notProven": [
+      "decoded LWKE1 field semantics",
+      "peer public-key field ownership",
+      "envelope nonce/tag/ciphertext layout",
+      "internal ECDH/decrypt ordering inside the opaque consumer",
+      "actual 32-byte package-key value",
+      "bridge-scripts.dat plaintext"
+    ],
+    "restrictionPreserved": "The verifier never disassembles or reads instructions from secure-proxy RVA 0x3F8E0-0x40A6D; only the permitted enclosing caller and already recovered package/AES helpers are decoded."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "closedGap": "exact opaque-consumer output pointer that becomes the 32-byte package AES key",
+    "next": "obtain/recover the original LWKE1 envelope fields through independent evidence, then reproduce the already bounded key derivation without inspecting SB-79"
+  }
+}
