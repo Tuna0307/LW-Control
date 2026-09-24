@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-24",
+  "lane": "independent LWKE1/package-key recovery",
+  "sourceReport": {
+    "repoCopy": "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
+    "externalOriginal": "C:\\Users\\chimw\\OneDrive\\Desktop\\LW Helper Finding\\2026-09-24_LWBridge-0.3.1_LWKE1-package-key-contract.md",
+    "externalOriginalSha256": "7B899D7F325DA141B13E872C39E8112FA0F6EB472214C5A870DA222953EBAE91"
+  },
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "restriction": "secure-proxy RVA 0x3F8E0-0x40A6D remained uninspected/uninvoked/unrerouted",
+  "exactFindings": {
+    "ecdh": "NCryptSecretAgreement with local persisted ECDH_P256 key and 65-byte SEC1 uncompressed peer point",
+    "kdf": "NCryptDeriveKey(secret, L\"TRUNCATE\", NULL, ..., 32, ..., 0); no salt/info/parameter list",
+    "genericAesGcm": "32-byte key, 12-byte nonce, variable ciphertext, 16-byte tag, explicit separate AAD string",
+    "lwat2Fields": [
+      "LWAT2",
+      "issuedAt Unix seconds",
+      "expiry Unix seconds",
+      "nonzero numeric claim 3",
+      "nonzero numeric claim 4",
+      "64-char lowercase-hex device binding",
+      "43-char Base64URL launch nonce"
+    ],
+    "consumerAuthorizationContext": [
+      "LWAT2 numeric claim 3",
+      "LWAT2 numeric claim 4",
+      "LWAT2 expiry seconds"
+    ],
+    "rawEnvelopeGuard": "consumer output-context string must byte-equal the raw package-key.envelope token",
+    "manifestSeparation": "expected build ID and package SHA-256 are filled after the restricted consumer by permitted build.manifest validation"
+  },
+  "protectedUnknown": [
+    "exact LWKE1 field count/order beyond known outer fields",
+    "field/index/encoding of 65-byte peer P-256 point",
+    "field/index/encoding of 12-byte envelope nonce",
+    "field/index/encoding of envelope ciphertext",
+    "field/index/encoding of 16-byte envelope tag",
+    "actual LWKE1 AES-GCM AAD string",
+    "LWKE1 second-segment meaning"
+  ],
+  "negativeEvidence": {
+    "authenticEnvelopeFound": false,
+    "searchesIncluded": [
+      "live game runtime",
+      "legacy LWBridge roots",
+      "WebView cache",
+      "backups",
+      "Temp",
+      "Codex cache",
+      "OneDrive",
+      "Downloads",
+      "Documents",
+      "Recycle Bin",
+      "WER/crash residue",
+      "accessible shadow-copy enumeration",
+      "NTFS journal query"
+    ],
+    "encodedPrefixSearched": "TFdLRTF8"
+  },
+  "impact": "Narrows package-key recovery to evidence-limited LWKE1 field mapping/AAD; eliminates KDF parameter uncertainty and corrects build-manifest ownership.",
+  "implementationStatus": "No production code changed by the helper; findings preserved for future package-key implementation/reproduction work."
+}

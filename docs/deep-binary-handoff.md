@@ -35,6 +35,7 @@ Existing R6-039 through R6-046 evidence establishes substantial surrounding arch
 - **R8-004:** host-side key-envelope transport: response fields `packageKeyEnvelope`/`packageKeyEnvelopeExpiresAt`, runtime `package-key.envelope`, exact-two-segment token framing, canonical URL-safe Base64 first segment decoding to `LWKE1|<field1>|<expirySeconds>|...`, plus login `devicePublicKey`/`launchNonce` and auth header/endpoints.
 - **R8-005:** exact client login material: persisted CNG `ECDH_P256` key `{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}`, 65-byte uncompressed public point encoded to 87 URL-safe/no-padding characters for `devicePublicKey`, and a reusable/generated 32-byte challenge encoded to 43 URL-safe/no-padding characters for `launchNonce`.
 - **R8-006:** caller-side ownership around the still-opaque envelope consumer: its fourth output argument (`rsp+0x48`) is passed unchanged as package arg3, which R8-003 proves is forwarded as the 32-byte AES key for `bridge-scripts.dat`. The restricted consumer body remains uninspected.
+- **Independent LWKE1 recovery:** exact permitted ECDH/KDF is now `NCryptSecretAgreement` followed by `NCryptDeriveKey(..., L"TRUNCATE", NULL, ..., 32, ..., 0)` with no salt/info/parameter list; generic envelope AES-GCM is exactly 32-byte key / 12-byte nonce / variable ciphertext / 16-byte tag / explicit AAD string. `LWAT2` is independently recovered as seven fields and supplies consumer context `{numericClaim3,numericClaim4,expiry}`. Build ID/package SHA are filled later by the separate permitted manifest validator, not by the envelope consumer. Full report: `docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md`.
 
 ## Missing chain
 
@@ -42,7 +43,7 @@ R8-003 closes package layout/AES ownership. R8-004 proves exact outer `LWKE1` fr
 
 `decoded LWKE1 agreement field(s) -> peer public key / encrypted key material -> already-recovered ECDH/TRUNCATE helper -> 32-byte package key -> decrypt known LWBP2 ciphertext -> post-decrypt container/entries/scripts`
 
-The exact original script handlers are then to be indexed and mapped back to UI/host services. Machine evidence: `evidence/lwbridge-implementation/2026-09-24-r8-003-lwbp2-package-layout.json`; verifier: `tools/inspect_lwbridge_proxy_package_layout.py`.
+The remaining package-key blocker is now evidence-limited rather than broad: exact `LWKE1` indexes/encodings for the 65-byte peer P-256 point, 12-byte nonce, ciphertext, 16-byte tag, the actual AES-GCM AAD, and the opaque second-segment meaning remain `PROTECTED_UNKNOWN`. No authentic historical envelope survived the helper's local artifact search. The exact original script handlers can only be indexed after that field mapping yields the real 32-byte key. Machine evidence: `evidence/lwbridge-implementation/2026-09-24-r8-lwke1-independent-recovery.json`, `evidence/lwbridge-implementation/2026-09-24-r8-003-lwbp2-package-layout.json`; verifier: `tools/inspect_lwbridge_proxy_package_layout.py`.
 
 ## Historical SB-79
 

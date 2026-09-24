@@ -19,9 +19,11 @@
     "docs/tabs/map-data.md",
     "docs/tabs/shared-release.md",
     "docs/external-audit-guide.md",
-    "docs/deep-binary-handoff.md"
+    "docs/deep-binary-handoff.md",
+    "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-lwke1-independent-recovery.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-010-map-summary-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-009-server-jump-result-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-008-map-scan-clear-strict-parity.json",
@@ -37,9 +39,9 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "recover decoded LWKE1 server agreement/encrypted-key field semantics through independent permitted evidence",
-    "identify which returned field carries the peer P-256 public point and any encrypted-key nonce/tag/ciphertext values",
-    "reproduce the proven opaque-consumer 32-byte package-key output without inspecting SB-79",
+    "recover exact LWKE1 indexes/encodings for the peer P-256 point, nonce, ciphertext and tag through new independent permitted evidence",
+    "recover the actual LWKE1 AES-GCM AAD string and second-segment meaning without inspecting the protected consumer body",
+    "reproduce the proven opaque-consumer 32-byte package-key output using the now-exact ECDH/TRUNCATE and AES-GCM primitives",
     "decrypt and hash-preserve original bridge-scripts.dat plaintext/container",
     "restore exact Scheduled Plunder control plane from the recovered Map contract report",
     "restore exact original Auto Scan and scan public-contract semantics"
