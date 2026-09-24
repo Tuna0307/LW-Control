@@ -1,13 +1,13 @@
 # LWBridge current backlog
 
-**Current through:** `LWB-R7-152`, 2026-09-24.
+**Current through:** `LWB-R7-153`, 2026-09-24.
 
 This file now tracks only current/actionable work. Historical completed backlog detail is preserved in `docs/reviews/`, subject ledgers, evidence files, and Git history; it is intentionally not repeated here.
 
 ## P0 — current external/live gates
 
 - [ ] **Ghost positive-row acceptance (B03/B13/B14/C01):** R7-152 current-v21 recheck completed 2,500/2,500 clean Ghost-only scans on 2212, 2175, 2180, 2185, and 2207; all five had zero authentic Ghost rows. Keep population-gated and rerun the unchanged strict proof only when authentic Ghost rows exist.
-- [ ] **Supplies positive-row acceptance (B13/B14/C01):** implementation/read-only harness is ready. R7-144 current full-world rechecks on 2212 and 2213 again produced zero Supplies. Rerun when an authentic `WorldSuppliesPoint` population exists.
+- [ ] **Supplies positive-row acceptance (B13/B14/C01):** R7-153 current-v21 strict recheck completed clean 2,500/2,500 Treasure-family scans on 2212, 2175, 2180, 2185, 2207, and 2213; all six had zero authentic `WorldSuppliesPoint` rows. Keep population-gated and rerun the unchanged strict proof only when authentic Supplies population exists.
 - [ ] **Simultaneous real multi-account UI population:** deterministic multi-profile UI and real single-session transport are proven separately; integrated several-active-account population remains unavailable.
 - [ ] **Final integrated release acceptance:** perform when the external population/action/account gates are ready or explicitly waived/retired by the owner.
 

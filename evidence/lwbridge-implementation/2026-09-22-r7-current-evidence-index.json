@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-152-CURRENT-EVIDENCE-INDEX",
+  "indexId": "LWB-R7-153-CURRENT-EVIDENCE-INDEX",
   "generatedAt": "2026-09-24",
-  "parentRevision": "b7daab82880b26148aea5771e3b756fa451a43b9",
+  "parentRevision": "ee42daccb0c25eab7e02d5ecc7f12a553dc5b80a",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json",
+        "sha256": "650385C65E6EEB6C6267B48A7B52451C35AEA8B9F0E4BBC8345796FE8BF8A411"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json",
         "sha256": "44E844BBAEA8D87023CD78DDE52CDE122CDEDD1806E067D909EE2FE9CB6FBC03"

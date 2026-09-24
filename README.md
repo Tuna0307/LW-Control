@@ -1,6 +1,6 @@
 # LWBridge recovery / rebuild
 
-**Current checkpoint:** `LWB-R7-152` (2026-09-24).
+**Current checkpoint:** `LWB-R7-153` (2026-09-24).
 **Branch:** `research/offline-controller`.
 
 This repository is the evidence-first LWBridge rebuild for the Last War PC client. The remote/directory name `LW-Control` is historical naming; it does not define feature authority.
@@ -19,7 +19,7 @@ Ordinary **Home / Overview** and **Map Data** functionality is technically matur
 The remaining non-pass work is deliberately separated from ordinary implementation defects:
 
 - Ghost positive-row population remains unavailable: R7-152 current-v21 full scans on 2212/2175/2180/2185/2207 all completed cleanly with zero authentic Ghost rows.
-- Supplies positive-row population is still unavailable in the current live rechecks.
+- Supplies positive-row population remains unavailable: R7-153 current-v21 full scans on 2212/2175/2180/2185/2207/2213 all completed cleanly with zero authentic `WorldSuppliesPoint` rows.
 - Treasure protected claim-scheduler semantics remain blocked behind the preserved SB-79 boundary; public claim stays unrouted.
 - Live Truck/Dispatch plunder and Alliance message delivery require suitable targets and explicit authorization.
 - Simultaneous real multi-account UI population still requires several usable live accounts/sessions.

@@ -1,6 +1,6 @@
 # Current live-test handoff
 
-**Current through:** `LWB-R7-152`, 2026-09-24.
+**Current through:** `LWB-R7-153`, 2026-09-24.
 
 The old Resource/Player City owner-test packet has been retired. Ordinary Home/Map acceptance no longer needs the owner to repeat those historical checks unless a future code/client change causes a regression.
 
@@ -16,7 +16,7 @@ R7-152 reran the strict current-v21 proof on 2212, 2175, 2180, 2185, and 2207. E
 
 Status: implementation/read-only harness ready; positive population unavailable.
 
-On 2026-09-22, full-world strict scans on servers 2212 and 2213 both completed 2,500/2,500 with zero failed/unread and returned zero Supplies. Rerun only when an authentic `WorldSuppliesPoint` appears.
+R7-153 current-v21 strict scans on 2212, 2175, 2180, 2185, 2207, and 2213 all completed 2,500/2,500 cleanly and returned zero authentic `WorldSuppliesPoint` rows. Rerun only when Supplies population appears; the existing harness already handles safe target-server jump/return.
 
 ### 3. Simultaneous real multi-account UI population
 
@@ -44,4 +44,4 @@ Repeat those only after a relevant code change, official-client compatibility ch
 
 ## Current evidence
 
-See `evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json`, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and the curated current evidence index.
+See `evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json`, the R7-152 Ghost evidence, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and the curated current evidence index.

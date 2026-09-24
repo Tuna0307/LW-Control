@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-152`; parent revision `b7daab82880b26148aea5771e3b756fa451a43b9`
+**Current checkpoint:** `LWB-R7-153`; parent revision `ee42daccb0c25eab7e02d5ecc7f12a553dc5b80a`
 **Date:** 2026-09-24
 
 Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
@@ -46,7 +46,7 @@ The failed message-bulk browser and in-game coverage-chain experiments were remo
 - Simultaneous real multi-account UI population remains unavailable.
 - Final integrated release acceptance remains separate from ordinary technical completion.
 
-R7-152 performed the first eligible current-v21 Ghost positive-population recheck: strict 2,500/2,500 scans completed on 2212, 2175, 2180, 2185, and 2207, but all five produced zero authentic Ghost rows. Ghost remains population-gated. Current Supplies rechecks on 2212 and 2213 likewise produced zero authentic Supplies rows. A fresh Railway row/Follow acceptance remains population-dependent on the chosen proof target.
+R7-152 performed the first eligible current-v21 Ghost positive-population recheck: strict 2,500/2,500 scans completed on 2212, 2175, 2180, 2185, and 2207, but all five produced zero authentic Ghost rows. R7-153 then refreshed Supplies on current v21 across 2212, 2175, 2180, 2185, 2207, and 2213; all six clean complete scans produced zero authentic `WorldSuppliesPoint` rows. Both remain population-gated. A fresh Railway row/Follow acceptance remains population-dependent on the chosen proof target.
 
 ## What not to do
 
@@ -54,4 +54,4 @@ Do not replay or reroute SB-79. Do not invent protected Treasure scheduler seman
 
 ## Evidence navigation
 
-Start with `evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json`, `docs/reviews/2026-09-24-r7-152-ghost-population-recheck.md`, then the R7-151 v21 lifecycle/Dispatch evidence and `evidence/lwbridge-implementation/README.md`. Historical evidence remains valid at its original source/build/scope and is retained for auditability.
+Start with `evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json`, `docs/reviews/2026-09-24-r7-153-supplies-population-recheck.md`, then the R7-152 Ghost and R7-151 v21 lifecycle/Dispatch evidence. Historical evidence remains valid at its original source/build/scope and is retained for auditability.

@@ -57,7 +57,7 @@ An auditor should specifically verify:
 ## Known remaining gaps — do not report these as newly discovered defects
 
 - Ghost positive-row population: R7-152 current-v21 five-server recheck completed clean scans but found zero authentic rows; keep this as a population gate, not a scanner defect.
-- Supplies positive-row population: 2026-09-22 full-world rechecks on 2212/2213 still returned zero Supplies.
+- Supplies positive-row population: R7-153 current-v21 six-server recheck completed clean scans but found zero authentic `WorldSuppliesPoint` rows; keep this as a population gate, not a scanner/parser defect.
 - Fresh current-v20 Railway positive row: official-list probes on 2175/2180/2185/2190/2195/2196/2204 were authoritative but empty in R7-147; do not misreport that as a source failure or as a fresh positive pass.
 - Treasure protected claim scheduler: `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary; public claim is intentionally unrouted.
 - Simultaneous real multi-account UI population: target availability gap.
@@ -71,3 +71,4 @@ Current speed proof: `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`
 Current feature-retirement proof: `docs/reviews/2026-09-23-r7-149-scheduled-plunder-retirement.md`.
 Current no-jump speed proof: `docs/reviews/2026-09-23-r7-150-train-list-no-jump-auto.md`.
 Current Ghost population proof: `docs/reviews/2026-09-24-r7-152-ghost-population-recheck.md`.
+Current Supplies population proof: `docs/reviews/2026-09-24-r7-153-supplies-population-recheck.md`.

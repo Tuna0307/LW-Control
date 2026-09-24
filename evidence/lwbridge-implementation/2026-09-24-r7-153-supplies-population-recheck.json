@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R7-153",
+  "date": "2026-09-24",
+  "title": "Supplies positive-population recheck on current Last War v21",
+  "parentRevision": "ee42daccb0c25eab7e02d5ecc7f12a553dc5b80a",
+  "client": {"contentVersion":21,"gameSha256":"905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d","luaPackageSha256":"e888a4ae3faae6df501493e18653fbb92c2406487467ba34312b7c5a22e2caa5"},
+  "finding": {"id":"R7153-SUPPLIES-01","status":"LIVE-PROVEN_NEGATIVE_POPULATION","result":"Every sampled server completed the strict Treasure-family 2500/2500 full-world scan with zero scan failure/unread condition, but no authentic WorldSuppliesPoint row was published. Supplies positive-row acceptance therefore remains population-gated rather than failed implementation."},
+  "servers": [
+    {"serverId":2212,"scanComplete":true,"ordinaryTreasureRows":1,"suppliesRows":0,"processRuntimeSeconds":38.22},
+    {"serverId":2175,"scanComplete":true,"ordinaryTreasureRows":0,"suppliesRows":0,"processRuntimeSeconds":37.84},
+    {"serverId":2180,"scanComplete":true,"ordinaryTreasureRows":0,"suppliesRows":0,"processRuntimeSeconds":37.99},
+    {"serverId":2185,"scanComplete":true,"ordinaryTreasureRows":0,"suppliesRows":0,"processRuntimeSeconds":37.87},
+    {"serverId":2207,"scanComplete":true,"ordinaryTreasureRows":0,"suppliesRows":0,"processRuntimeSeconds":38.69},
+    {"serverId":2213,"scanComplete":true,"ordinaryTreasureRows":0,"suppliesRows":0,"processRuntimeSeconds":38.92}
+  ],
+  "proofBehavior": "LiveTreasureStateRefreshProof was reused unchanged with LWBRIDGE_REQUIRE_SUPPLIES=1 and LWBRIDGE_SUPPLIES_TARGET_SERVER. It verifies the automatic fast full-world strategy, target-server context, positive WorldSuppliesPoint population, state refresh coverage, and explicit return to the original server.",
+  "cleanup": {"lastTarget":2213,"homeServerId":2212,"returnState":"proven","lastWarProcessesAfter":0,"launcherProcessesAfter":0,"desktopProcessesAfter":0,"helperProcessesAfter":0},
+  "reproduction": "set LWBRIDGE_REQUIRE_SUPPLIES=1 && set LWBRIDGE_SUPPLIES_TARGET_SERVER=<server> && dotnet tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll --live-current-treasure-state-refresh",
+  "limits": ["This evidence proves clean complete scans and absent sampled population, not that Supplies can never exist on these servers at another time.","No positive Supplies row was available, so B13/B14/C01 positive-row field/filter/state acceptance is not promoted.","Process runtime includes owned lifecycle startup/cleanup and cross-server travel when applicable; it is not a scan SLA."]
+}

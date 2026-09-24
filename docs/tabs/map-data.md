@@ -1,6 +1,6 @@
 # Map Data — current status
 
-**Current through:** `LWB-R7-152`, 2026-09-24
+**Current through:** `LWB-R7-153`, 2026-09-24
 **Canonical acceptance source:** `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
 This is the current entry point for Manual Scan, Auto Scan, saved data, result tabs, navigation, marks, Treasure/Supplies, and current row actions. Scheduled Plunder is retired and absent from the shipped product. `docs/lwbridge-map-scan.md` remains the cumulative recovery ledger; older delivery/checkpoint prose is historical unless linked here.
@@ -37,7 +37,7 @@ The ordinary shared scanner is complete for the standard current world geometry 
 | Dispatch / Secret Task | LIVE-PROVEN acquisition/filter/sort; R7-151 full scan uses the v21 68-request aligned wide path and exposes native Quick Find | Quick Find returns one task only; the complete scan remains authoritative |
 | Ghost Ops | IMPLEMENTED; R7-152 strict current-v21 full-world scans completed cleanly on five sampled servers | 2212/2175/2180/2185/2207 all had zero authentic Ghost rows; positive-row proof remains population-gated |
 | Treasure | LIVE-PROVEN ordinary rows + read-only state refresh/cache | Public consuming Claim remains blocked/unrouted |
-| Supplies | Parser/query/read-state path ready | Current 2026-09-22 scans on 2212/2213 found 0 authentic Supplies rows |
+| Supplies | Parser/query/read-state path ready; R7-153 strict current-v21 scans completed cleanly on six sampled servers | 2212/2175/2180/2185/2207/2213 all had zero authentic `WorldSuppliesPoint` rows; positive-row proof remains population-gated |
 
 ## Performance audit
 
@@ -81,7 +81,7 @@ These are deliberately separated from read-only Map Data correctness:
 ## What still needs population or owner availability
 
 1. Ghost positive-row proof when authentic population appears; R7-152 sampled 2212/2175/2180/2185/2207 and found zero rows after clean complete scans.
-2. Supplies positive-row proof when an authentic `WorldSuppliesPoint` exists.
+2. Supplies positive-row proof when authentic population appears; R7-153 sampled 2212/2175/2180/2185/2207/2213 and found zero rows after clean complete scans.
 3. Explicitly authorized live Treasure/Alliance state-changing acceptance, with suitable expendable targets. Scheduled Plunder is retired.
 4. Fresh positive current-v20 Railway row/Follow acceptance when a suitable Train is present; R7-150 coverage observed Railway population on matched server 2207, but the no-jump proof target 2182 had zero Railway rows.
 5. Simultaneous real multi-account UI population if multiple live accounts/sessions become available.
@@ -90,6 +90,8 @@ The eight owner-reported Map workflow defects from 2026-09-22 are corrected in R
 
 ## Primary source trail
 
+- `evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json`
+- `docs/reviews/2026-09-24-r7-153-supplies-population-recheck.md`
 - `evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json`
 - `docs/reviews/2026-09-24-r7-152-ghost-population-recheck.md`
 - `evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json`

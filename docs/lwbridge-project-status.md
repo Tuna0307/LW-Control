@@ -1,11 +1,11 @@
 # Current project status — Home and Map Data
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R7-152`; parent revision `b7daab82880b26148aea5771e3b756fa451a43b9`
+**Current checkpoint:** `LWB-R7-153`; parent revision `ee42daccb0c25eab7e02d5ecc7f12a553dc5b80a`
 
 ## Executive status
 
-The Home / Overview acceptance state is unchanged. R7-151 adds the v21 update-safe lifecycle and accelerated Dispatch/Secret Task path. R7-152 then reruns the strict Ghost population proof on five current-v21 servers: every 2,500/2,500 scan completed cleanly, but all five returned zero authentic Ghost rows. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
+The Home / Overview acceptance state is unchanged. R7-151 adds the v21 update-safe lifecycle and accelerated Dispatch/Secret Task path. R7-152 refreshed Ghost population evidence across five current-v21 servers; R7-153 refreshed Supplies across six. Every strict 2,500/2,500 scan completed cleanly, but no authentic Ghost or Supplies positive row was available. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
 
 That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, the Alliance-share authorization boundary, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance. Scheduled Plunder is no longer a remaining gate.
 
@@ -44,7 +44,7 @@ R7-149 current acceptance status counts:
 ## Remaining externally gated work
 
 1. Ghost positive-row proof remains population-gated after R7-152 current-v21 clean zero-row scans on 2212, 2175, 2180, 2185, and 2207.
-2. Supplies positive-row proof when an authentic live population exists.
+2. Supplies positive-row proof remains population-gated after R7-153 current-v21 clean zero-row scans on 2212, 2175, 2180, 2185, 2207, and 2213.
 3. Treasure protected claim scheduler recovery remains blocked under SB-79; do not reroute the denied operation or invent the contract.
 4. Simultaneous real multi-account UI population when multiple active accounts are available.
 5. Fresh positive current-v20 Railway row/Follow when Train population is present.
