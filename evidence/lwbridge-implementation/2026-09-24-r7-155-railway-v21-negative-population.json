@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R7-155",
+  "date": "2026-09-24",
+  "title": "Current-v21 Railway source proof and negative population sweep",
+  "parentRevision": "f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb",
+  "client": {"contentVersion":21,"gameSha256":"905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d","luaPackageSha256":"e888a4ae3faae6df501493e18653fbb92c2406487467ba34312b7c5a22e2caa5"},
+  "findings": [
+    {"id":"R7155-RAIL-01","status":"LIVE-PROVEN_NEGATIVE_POPULATION","result":"The strict Railway-only full-world proof on server 2207 completed 2500/2500 logical blocks with no scan failure/unread condition, then failed only at the intentional positive-population guard because zero Railway/Train rows were published."},
+    {"id":"R7155-RAIL-02","status":"LIVE-PROVEN_SOURCE","result":"The official current-client Train-list population harness queried 11 servers through the game-owned Railway source. Every server query completed in proven state; all returned zero Railway rows. This fresh v21 evidence proves the direct source path itself is functioning while positive Railway population/Follow remains unavailable."},
+    {"id":"R7155-RAIL-03","status":"TEST_HARNESS_CORRECTED","result":"The live proof output label was renamed from current_v20_official_train_list_population to current_client_official_train_list_population so future evidence does not mislabel newer clients."}
+  ],
+  "strictFullScan": {"serverId":2207,"scanComplete":true,"readBlocks":2500,"railwayRows":0,"processRuntimeSeconds":34.17,"result":"Ordinary Manual Railway scan published no Railway/Train records."},
+  "directTrainListSweep": {"proof":"current_client_official_train_list_population","originalServerId":2212,"runtimeSeconds":40.31,"servers":[2175,2180,2182,2185,2190,2195,2196,2204,2207,2212,2213],"allQueriesProven":true,"rowCounts":{"2175":0,"2180":0,"2182":0,"2185":0,"2190":0,"2195":0,"2196":0,"2204":0,"2207":0,"2212":0,"2213":0},"followProvenCount":0},
+  "cleanup": {"lastWarProcessesAfter":0,"launcherProcessesAfter":0,"desktopProcessesAfter":0,"helperProcessesAfter":0},
+  "acceptanceImpact":"none; fresh v21 Railway source acquisition is live-proven, but positive-row/Follow acceptance remains population-gated",
+  "limits":["No positive Railway row was available, so real v21 Follow and positive-row sort/reopen acceptance are not promoted.","The 11-server sweep is a sampled population observation, not a claim that Railway can never appear there.","Process runtimes include lifecycle startup/cleanup and cross-server travel and are not scan SLAs."]
+}
