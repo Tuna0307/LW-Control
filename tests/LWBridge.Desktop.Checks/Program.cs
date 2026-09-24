@@ -404,6 +404,7 @@ var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
+LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();
 await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.MapSummaryParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
@@ -4009,12 +4010,10 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
             },
         },
     }));
-    object? monsterSortResult = await mapBackend.InvokeAsync(
-        "map_search", monsterSortSearch.RootElement.Clone(), CancellationToken.None);
-    using (JsonDocument sortJson = JsonDocument.Parse(JsonSerializer.Serialize(monsterSortResult, JsonOptions.Default)))
-        Check(sortJson.RootElement.GetProperty("rows")[0].GetProperty("uuid").GetString() == "monster-b" &&
-              sortJson.RootElement.GetProperty("rows")[1].GetProperty("uuid").GetString() == "monster-a",
-            "Monster visible sort arrows execute normalized level/distance ordering without clearing rows");
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED",
+        "Monster distance stays fail-closed because its exact native expression/direction remains partial", async () =>
+        await mapBackend.InvokeAsync(
+            "map_search", monsterSortSearch.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -5378,7 +5377,7 @@ using (var truckSortStore = MapDataStore.CreateInMemory())
         pageSize: 2);
 }
 
-// LWB-R7-050: hash-locked native Railway sort expressions and shared order assembly.
+// R8-017: retain only evidenced Railway power/itemCount/protectTime/updatedAt sorts; quality remains partial.
 using (var railwaySortStore = MapDataStore.CreateInMemory())
 {
     const int railwaySortServer = 92;
@@ -5450,16 +5449,20 @@ using (var railwaySortStore = MapDataStore.CreateInMemory())
             $"{label} preserves recovered Railway order/null/tie semantics");
     }
 
-    MapDataQueryOptions allRailwaySorts = RailwaySortQuery(
+    MapDataQueryOptions recoveredRailwaySorts = RailwaySortQuery(
     [
-        new MapDataSort("quality", "desc"),
         new MapDataSort("power", "asc"),
         new MapDataSort("itemCount", "desc"),
         new MapDataSort("protectTime", "asc"),
         new MapDataSort("updatedAt", "asc"),
     ], "item:x");
-    Check(allRailwaySorts.UnsupportedFeatures.Count == 0,
-        "all five public Railway sort keys are recovered when itemCount has the frontend-required itemKey");
+    Check(recoveredRailwaySorts.UnsupportedFeatures.Count == 0,
+        "evidenced Railway sort keys remain recovered when itemCount has the frontend-required itemKey");
+
+    MapDataQueryOptions unresolvedRailwayQuality =
+        RailwaySortQuery([new MapDataSort("quality", "desc")]);
+    Check(unresolvedRailwayQuality.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "Railway quality remains fail-closed because its exact native branch is partial");
 
     MapDataQueryOptions railwayItemSortWithoutKey = RailwaySortQuery([new MapDataSort("itemCount", "desc")]);
     Check(railwayItemSortWithoutKey.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
@@ -5477,14 +5480,6 @@ using (var railwaySortStore = MapDataStore.CreateInMemory())
     Check(unknownRailwaySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
         "non-public Railway sort keys remain fail-closed");
 
-    ExpectRailwaySort(
-        "Railway quality desc",
-        [new MapDataSort("quality", "desc")],
-        ["rail-sort-c", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-b", "rail-sort-e"]);
-    ExpectRailwaySort(
-        "Railway quality asc",
-        [new MapDataSort("quality", "asc")],
-        ["rail-sort-b", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-c", "rail-sort-e"]);
     ExpectRailwaySort(
         "Railway power asc",
         [new MapDataSort("power", "asc")],
@@ -5516,17 +5511,16 @@ using (var railwaySortStore = MapDataStore.CreateInMemory())
         ["rail-sort-b", "rail-sort-e", "rail-sort-a", "rail-sort-d", "rail-sort-f"],
         itemKey: "item:x");
     ExpectRailwaySort(
-        "Railway ordered multi-sort",
+        "Railway evidenced ordered multi-sort",
         [
-            new MapDataSort("quality", "asc"),
             new MapDataSort("power", "desc"),
             new MapDataSort("protectTime", "asc"),
             new MapDataSort("updatedAt", "desc"),
         ],
-        ["rail-sort-b", "rail-sort-d", "rail-sort-f", "rail-sort-a", "rail-sort-c", "rail-sort-e"]);
+        ["rail-sort-e", "rail-sort-d", "rail-sort-f", "rail-sort-a", "rail-sort-b", "rail-sort-c"]);
     ExpectRailwaySort(
-        "Railway sorted pagination page 2",
-        [new MapDataSort("quality", "desc")],
+        "Railway evidenced sorted pagination page 2",
+        [new MapDataSort("power", "desc")],
         ["rail-sort-d", "rail-sort-f"],
         page: 2,
         pageSize: 2);
@@ -5640,7 +5634,7 @@ using (var resourceSortStore = MapDataStore.CreateInMemory())
         pageSize: 2);
 }
 
-// LWB-R7-052: hash-locked City level/health/shield/updatedAt sort assembly.
+// R8-017: retain only evidenced City level/health/updatedAt sorts; shield remains partial.
 using (var citySortStore = MapDataStore.CreateInMemory())
 {
     const int citySortServer = 94;
@@ -5707,20 +5701,24 @@ using (var citySortStore = MapDataStore.CreateInMemory())
             $"{label} preserves recovered City clock/null/order/tie semantics");
     }
 
-    MapDataQueryOptions allCitySorts = CitySortQuery(
+    MapDataQueryOptions recoveredCitySorts = CitySortQuery(
     [
         new MapDataSort("level", "asc"),
         new MapDataSort("health", "desc"),
-        new MapDataSort("shield", "asc"),
         new MapDataSort("updatedAt", "desc"),
     ]);
-    Check(allCitySorts.UnsupportedFeatures.Count == 0,
-        "all four public City sort keys are accepted in frontend order");
+    Check(recoveredCitySorts.UnsupportedFeatures.Count == 0,
+        "evidenced City sort keys remain recovered in frontend order");
+
+    MapDataQueryOptions unresolvedCityShield =
+        CitySortQuery([new MapDataSort("shield", "asc")]);
+    Check(unresolvedCityShield.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "City shield remains fail-closed because its exact native expression/data flow is partial");
 
     MapDataQueryOptions duplicateCitySort = CitySortQuery(
     [
-        new MapDataSort("shield", "desc"),
-        new MapDataSort("shield", "asc"),
+        new MapDataSort("level", "desc"),
+        new MapDataSort("level", "asc"),
     ]);
     Check(duplicateCitySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
         "duplicate City sort keys stay outside the recovered ordered frontend contract");
@@ -5746,14 +5744,6 @@ using (var citySortStore = MapDataStore.CreateInMemory())
         [new MapDataSort("health", "asc")],
         ["key-d", "key-a", "key-f", "key-c", "key-b", "key-e"]);
     ExpectCitySort(
-        "City shield desc",
-        [new MapDataSort("shield", "desc")],
-        ["key-a", "key-f", "key-b", "key-d", "key-c", "key-e"]);
-    ExpectCitySort(
-        "City shield asc",
-        [new MapDataSort("shield", "asc")],
-        ["key-d", "key-b", "key-a", "key-f", "key-c", "key-e"]);
-    ExpectCitySort(
         "City updatedAt desc",
         [new MapDataSort("updatedAt", "desc")],
         ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
@@ -5762,17 +5752,16 @@ using (var citySortStore = MapDataStore.CreateInMemory())
         [new MapDataSort("updatedAt", "asc")],
         ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
     ExpectCitySort(
-        "City ordered multi-sort",
+        "City evidenced ordered multi-sort",
         [
-            new MapDataSort("shield", "asc"),
             new MapDataSort("health", "desc"),
             new MapDataSort("updatedAt", "desc"),
         ],
-        ["key-d", "key-b", "key-f", "key-a", "key-c", "key-e"]);
+        ["key-c", "key-f", "key-a", "key-d", "key-b", "key-e"]);
     ExpectCitySort(
-        "City sorted pagination page 2",
-        [new MapDataSort("shield", "desc")],
-        ["key-b", "key-d"],
+        "City evidenced sorted pagination page 2",
+        [new MapDataSort("health", "desc")],
+        ["key-f", "key-d"],
         page: 2,
         pageSize: 2);
 }

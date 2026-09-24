@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-016`, 2026-09-25
+**Current through:** `LWB-R8-017`, 2026-09-25
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -25,7 +25,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | `map_data_options` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-011 restores exact recovered top-level order, eight count kinds, Resource/Monster name families, server-scoped published fallback and matching active-run staging; removes public `zombie_boss`, `monsterLevels` and all-server fallback | Complete nested `scanProgress` serializer only when stronger evidence exists; preserve current strict-parity regression |
 | Manual `map_scan_start` public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores exactly eight selectable kinds, Manual Normal/Fast UI/persistence, Normal=8/Fast=20, original null/non-string default-to-Normal behavior and exact invalid-string error; current-client strategy choice no longer rewrites public mode | Preserve; R8-013 separately corrects status-field membership and Stop lifecycle |
 | `map_scan_status` / `map_scan_stop` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-013 restores shared mutable status, read-only world refresh, lifecycle-dependent native fields, publishing→idle completion, idempotent Stop, exact five-field Stop cleanup and distinct Clear reset | Preserve; generic protected Stop error-envelope precedence and narrow publishing races remain partial |
-| `map_search` public kind/filter contract | PARTIAL EXACT_CONTRACT | R8-014 restores exactly eight public kinds, original kind-owned query fields and generic keyword predicate; removes Zombie Boss, localized `monsterNameKeys`, Monster/Resource level semantics and Resource truth filters | Preserve this boundary; finish only the still-unresolved alternate-sort internals before claiming full query parity |
+| `map_search` public kind/filter/sort boundary | PARTIAL EXACT_CONTRACT | R8-014 restores exactly eight public kinds, original kind-owned query fields and generic keyword predicate. R8-017 removes speculative Monster-distance, City-shield and Railway-quality SQL and fails closed on those authentic but unrecovered sort branches | Preserve the original frontend vocabulary; recover those expressions and complete native multi-sort assembly only from stronger evidence |
 | Scheduled Plunder control plane/UI | EXACT_BYTES-derived frontend + EXACT_CONTRACT/EQUIVALENT persistence | R8-016 restores original result tab, wrappers/locales, five list/schedule/cancel commands, durable jobs/history and two change events; protected robbery workers remain absent | Preserve recovered control plane; recover actual action execution only from permitted reference evidence |
 | Secret Task Quick Find product feature | DEVIATION REMOVED | Added by R7-151 from a current-game native finder; R8-002 removes the product surface because it is not established as LWBridge 0.3.1 behavior | Restore only if reference evidence proves it exists |
 | Map scan request envelope | EXACT_CONTRACT | `startMapScan` fields, accepted gate, selected types, normal/fast concurrency recovered | Preserve; recover remaining handler internals |
@@ -58,7 +58,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 ## Immediate retained-scope sequence
 
 1. Preserve and fingerprint the reference and every recovered embedded asset.
-2. Finish only the evidence-backed remaining `map_search` alternate-sort internals; do not reintroduce removed R7 filter/kind extensions.
+2. Keep the R8-017 fail-closed boundary for Monster distance, City shield and Railway quality until stronger reference evidence recovers their native expressions and remaining multi-sort assembly.
 3. Continue protected Map acquisition/travel recovery only when reference evidence supports the exact behavior.
 4. Continue retained whole-program parity across Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
 5. Keep the evidence-limited package-key lane parked until genuinely new permitted evidence exists, and do not expand it into Account/Login/Authentication recovery.

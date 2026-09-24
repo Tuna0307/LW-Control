@@ -225,13 +225,18 @@ internal static class MapDataQueryContract
         }
 
         if (markedOnly && kind != "city") unsupported.Add("markedOnly");
+        // R8-017: keep original frontend sort vocabulary separate from backend
+        // execution authority. Distance (Monster), shield (City), and quality
+        // (Railway) remain public reference keys but their native expressions are
+        // still partial, so any query containing them must fail closed here.
+        // This does not promote the complete native multi-sort assembly to exact.
         bool recoveredSort;
         if (kind == "monster")
         {
             recoveredSort =
-                sorts.Count is >= 1 and <= 3 &&
+                sorts.Count is >= 1 and <= 2 &&
                 sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
-                sorts.All(sort => sort.SortBy is "level" or "distance" or "updatedAt");
+                sorts.All(sort => sort.SortBy is "level" or "updatedAt");
         }
         else if (kind == "truck")
         {
@@ -254,10 +259,10 @@ internal static class MapDataQueryContract
                 itemKeyValue.ValueKind == JsonValueKind.String &&
                 !string.IsNullOrEmpty(itemKeyValue.GetString());
             recoveredSort =
-                sorts.Count is >= 1 and <= 5 &&
+                sorts.Count is >= 1 and <= 4 &&
                 sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
                 sorts.All(sort => sort.SortBy is
-                    "quality" or "power" or "itemCount" or "protectTime" or "updatedAt") &&
+                    "power" or "itemCount" or "protectTime" or "updatedAt") &&
                 (hasItemKey || sorts.All(sort => sort.SortBy != "itemCount"));
         }
         else if (kind == "resource")
@@ -270,9 +275,9 @@ internal static class MapDataQueryContract
         else if (kind == "city")
         {
             recoveredSort =
-                sorts.Count is >= 1 and <= 4 &&
+                sorts.Count is >= 1 and <= 3 &&
                 sorts.Select(sort => sort.SortBy).Distinct(StringComparer.Ordinal).Count() == sorts.Count &&
-                sorts.All(sort => sort.SortBy is "level" or "health" or "shield" or "updatedAt");
+                sorts.All(sort => sort.SortBy is "level" or "health" or "updatedAt");
         }
         else if (kind is "dispatch" or "ghost")
         {

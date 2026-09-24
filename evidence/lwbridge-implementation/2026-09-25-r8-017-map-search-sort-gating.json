@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-017",
+  "date": "2026-09-25",
+  "scope": "Fail closed on three original map_search sort keys whose native backend expressions remain partial, without changing the original frontend vocabulary.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md",
+    "docs/reviews/2026-09-24-r8-014-map-search-filter-parity.md",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js"
+  ],
+  "gatedSorts": [
+    {
+      "kind": "monster",
+      "sortBy": "distance",
+      "reason": "exact native expression/source and observed descending-direction inversion remain partial"
+    },
+    {
+      "kind": "city",
+      "sortBy": "shield",
+      "reason": "exact native shield expression/data flow remains partial"
+    },
+    {
+      "kind": "railway",
+      "sortBy": "quality",
+      "reason": "exact native Railway quality branch remains partial"
+    }
+  ],
+  "behavior": {
+    "normalization": "original sort key remains parseable",
+    "unsupportedFeature": "sorts",
+    "executionError": "MAP_QUERY_UNRECOVERED",
+    "failurePoint": "before SQL order assembly"
+  },
+  "admittedExpressionSets": {
+    "monster": ["level", "updatedAt"],
+    "city": ["level", "health", "updatedAt"],
+    "railway": ["power", "itemCount with itemKey", "protectTime", "updatedAt"],
+    "unchanged": ["truck", "resource", "dispatch", "ghost", "treasure"]
+  },
+  "removedSpeculativeSql": [
+    "Monster page.distance ordering",
+    "City reconstructed shield CASE expression",
+    "Railway page.quality ordering"
+  ],
+  "frontend": {
+    "changed": false,
+    "note": "Original 0.3.1 controls remain; this checkpoint changes backend execution authority only."
+  },
+  "multiSort": {
+    "classification": "PARTIAL",
+    "note": "R8-017 does not promote the complete native ordered multi-sort/null assembly to exact parity."
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/MapDataQueryContract.cs",
+    "src/LWBridge.Desktop/MapDataStore.cs",
+    "tests/LWBridge.Desktop.Checks/MapSearchSortParityChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "three partial public sort keys classify unsupported and fail closed",
+    "neighboring admitted Monster, City and Railway expressions continue to execute",
+    "historical R7 proof blocks no longer claim the partial branches as recovered"
+  ],
+  "validation": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-017 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "publicSortVocabulary": "EXACT_BYTES-derived",
+    "gatingDecision": "STRICT EVIDENCE BOUNDARY",
+    "neighboringSqlExpressions": "EXACT_CONTRACT / existing equivalent reimplementation",
+    "completeMultiSortAssembly": "PARTIAL",
+    "monsterDistance": "PARTIAL",
+    "cityShield": "PARTIAL",
+    "railwayQuality": "PARTIAL"
+  },
+  "notClaimed": [
+    "exact Monster distance expression/source",
+    "reason for native distance desc-to-ASC inversion",
+    "exact City shield expression/data flow",
+    "exact Railway quality branch",
+    "complete native ordered multi-sort/null assembly"
+  ],
+  "nextCheckpoint": "Move to another implementation-ready retained subsystem or resume these sort branches only when stronger permitted reference evidence exists."
+}

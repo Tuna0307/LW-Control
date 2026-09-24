@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-016`
+**Current checkpoint:** `LWB-R8-017`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -97,7 +97,11 @@ The final generated Auto config/sanitizer helpers, scheduler-owned state, schedu
 
 Scheduled Plunder is restored as the original ninth result tab, not a scan kind. The rebuild now exposes all five recovered list/schedule/cancel commands, the two profile-scoped change events, and the three durable job/history tables with recovered ordering, validation, upsert/cancel and archive behavior. The Scheduled Plunder API wrapper block, tab/status block and table/component block are byte-identical to immutable 0.3.1, and all nine locale bundles retain the original labels. `DispatchPlunderWorker.cs`, `TruckPlunderWorker.cs`, the old worker-heavy `MapDataStore.Plunder.cs`, and protected action runtimes remain absent. See `docs/reviews/2026-09-25-r8-016-scheduled-plunder-control-plane-parity.md`.
 
-The next Map work is the still-partial evidence-backed `map_search` alternate-sort/query behavior and protected acquisition/travel lanes only where new reference evidence exists.
+## R8-017 map_search sort-gating checkpoint
+
+R8-017 removes three R7-era backend sort guesses that the newer R8 binary review still classifies as partial: Monster `distance`, City `shield`, and Railway `quality`. Their original 0.3.1 frontend controls remain untouched, but any query containing one now normalizes as original vocabulary and then fails closed with `MAP_QUERY_UNRECOVERED` before SQL assembly. Neighboring evidenced expressions remain admitted. This checkpoint does not promote the complete native multi-sort/null assembly to exact parity. See `docs/reviews/2026-09-25-r8-017-map-search-sort-gating.md`.
+
+Further work on those branches requires stronger permitted reference evidence; otherwise move to another implementation-ready retained subsystem or protected Map lane with exact evidence.
 
 ## Parked protected package-key lane
 

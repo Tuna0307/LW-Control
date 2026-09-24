@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-017`, 2026-09-25.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 
@@ -37,6 +37,7 @@ Recover the original LWBridge Map implementation first. Current-game APIs are al
 - Direct Train-list/no-jump routing is a current-game optimization until reference evidence proves original equivalence.
 - City Excel export was previously removed despite being part of the original product; R8-007 restores its recovered original API/UI, dialog, pagination, workbook and result contract.
 - Scheduled Plunder was removed in R7 despite being part of the original product. R8-016 restores its recoverable control plane and original result-tab UI; the protected runtime remains a separate evidence-bound lane.
+- R8-017 removes R7 guesses for Monster distance, City shield and Railway quality sorting; the original UI controls remain, but those branches now fail closed until exact native expressions are recovered.
 - Manual/Auto UX and other owner workflow changes made during R7 must be audited against the reference rather than retained automatically.
 
 ## Completeness regression lesson

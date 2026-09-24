@@ -674,14 +674,13 @@ internal sealed partial class MapDataStore : IDisposable
         bool monsterLike = options.Kind is "monster" or "zombie_boss";
         bool localizedMonsterKeywordCompatibility = monsterLike && monsterNameKeys is not null;
         string orderBy = city
-            ? BuildCityOrderBy(options.Sorts, nowUnixMilliseconds)
+            ? BuildCityOrderBy(options.Sorts)
             : treasure
                 ? BuildTreasureOrderBy(options)
             : monsterLike
                 ? string.Join(", ", options.Sorts.Select(sort => (sort.SortBy switch
                 {
                     "level" => "page.level",
-                    "distance" => "page.distance",
                     "updatedAt" => "page.updated_at",
                     _ => throw new BridgeCommandException("MAP_QUERY_UNRECOVERED", "Unsupported Monster sort column."),
                 }) + (sort.SortOrder == "asc" ? " ASC" : " DESC"))) + ", page.record_key ASC"
@@ -906,21 +905,11 @@ internal sealed partial class MapDataStore : IDisposable
         return $"{priority} ASC, {ordinary}";
     }
 
-    private static string BuildCityOrderBy(
-        IReadOnlyList<MapDataSort> sorts,
-        long nowUnixMilliseconds)
+    private static string BuildCityOrderBy(IReadOnlyList<MapDataSort> sorts)
     {
-        // RECOVERED LWB-R7-052: City shield sorting samples one Unix-millisecond
-        // wall clock, uses the raw sample for millisecond expiries and integer
-        // now/1000 for seconds-valued expiries, then feeds the shared native
-        // null-last / requested-direction / record-key tie assembly.
-        long nowUnixSeconds = nowUnixMilliseconds / 1000;
-        string shieldExpiry =
-            "COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0)";
-        string shieldExpression =
-            $"CASE WHEN {shieldExpiry} >= 1000000000000 AND {shieldExpiry} > {nowUnixMilliseconds} THEN {shieldExpiry} " +
-            $"WHEN {shieldExpiry} < 1000000000000 AND {shieldExpiry} > {nowUnixSeconds} THEN {shieldExpiry} ELSE NULL END";
-
+        // R8-017: shield remains public original UI vocabulary, but the exact
+        // native shield expression/data flow is still partial. The query contract
+        // gates that key before SQL assembly instead of retaining the R7 guess.
         var clauses = new List<string>(sorts.Count * 2 + 1);
         foreach (MapDataSort sort in sorts)
         {
@@ -929,7 +918,6 @@ internal sealed partial class MapDataStore : IDisposable
                 "level" => "page.level",
                 "health" =>
                     "NULLIF(CAST(json_extract(page.data_json,'$.health') AS REAL),0)",
-                "shield" => shieldExpression,
                 "updatedAt" => "page.updated_at",
                 _ => throw new BridgeCommandException(
                     "MAP_QUERY_UNRECOVERED",
@@ -978,14 +966,14 @@ internal sealed partial class MapDataStore : IDisposable
 
     private static string BuildRailwayOrderBy(IReadOnlyList<MapDataSort> sorts)
     {
-        // RECOVERED LWB-R7-050: Railway uses the shared native sort assembly with
-        // plain quality, power, itemCount(itemKey), protectTime and updatedAt.
+        // R8-017: Railway quality remains original public UI vocabulary but its
+        // exact native branch is still partial. The query contract gates it; only
+        // the evidenced power/itemCount/protectTime/updatedAt expressions remain.
         var clauses = new List<string>(sorts.Count * 2 + 1);
         foreach (MapDataSort sort in sorts)
         {
             string expression = sort.SortBy switch
             {
-                "quality" => "page.quality",
                 "power" => "page.power",
                 "itemCount" =>
                     "COALESCE((SELECT SUM(CAST(json_extract(good.value,'$.count') AS REAL)) FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT) = $itemKey),0)",
