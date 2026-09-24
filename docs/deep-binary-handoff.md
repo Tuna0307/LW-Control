@@ -1,27 +1,62 @@
-# Daybreak / specialist handoff — current
+# Deep binary / protected package handoff — strict parity priority
 
-**Current through:** `LWB-R7-145`, 2026-09-22.
+**Current through:** `LWB-R8-001`, 2026-09-24.
 
-No specialist is currently assigned. Ordinary Home/Map implementation is not waiting on Daybreak.
+Protected original implementation recovery is now P0 because the project goal is exact LWBridge 0.3.1 parity.
 
-## Only current protected-contract blocker
+## Primary target
 
-Acceptance E02 remains `blocked_implementation`: original Treasure `claimTreasures` protected scope filtering/order, lucky-slot scheduling, scout-slot selection/reservation, and exact terminal batch-state enumeration remain unrecovered.
+Recover the complete original `bridge-scripts.dat` plaintext/package contents and the exact host/proxy dispatch contracts required to understand and reproduce them.
 
-The historical SB-79 operation targeting the protected loader/consumer was rejected by the environment and **must not be replayed, rerouted, repackaged, delegated, or inferred around**.
+Reference EXE:
 
-`docs/daybreak-escalations.md` retains a proposed metadata-only Rust/serde reconstruction method. It is recorded as **retained, not approved** and is not an active assignment.
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-## If specialist work is considered later
+SHA-256:
 
-Follow `AGENTS.md` section 6. A specialist request must identify one exact missing contract, source/build/hash, permitted methods already tried, evidence paths, limits, and return criteria. A DB label or historical difficulty is not authorization.
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-## Current sources
+## Already recovered
 
-- `docs/daybreak-escalations.md` — restriction/escalation register.
-- `docs/lwbridge-map-scan.md` — cumulative Treasure/Map recovery ledger.
-- `evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-offline-contract.json`
-- `evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-frontend-status.json`
-- `docs/external-audit-guide.md`
+Existing R6-039 through R6-046 evidence establishes substantial surrounding architecture:
 
-Historical specialist catalogs remain under `docs/reviews/` and Git history.
+- LWBP package version 2.
+- runtime `package-key.envelope` path.
+- bounded envelope reader and trailing CR/LF behavior.
+- Microsoft Software Key Storage Provider.
+- persisted key identity `{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}`.
+- ECCPUBLICBLOB/ECK1 public-key structure.
+- 65-byte uncompressed public form `04 || X || Y`.
+- CNG agreement/KDF path producing 32 bytes.
+- AES-GCM boundary with 32-byte key, 12-byte nonce and 16-byte tag.
+- package-side AES consumer and `LWBP2|` / integrity / build validation markers.
+
+## Missing chain
+
+The project still needs exact evidence for enough of the following to recover the scripts:
+
+`package-key.envelope -> parse -> agreement/KDF inputs -> package key -> nonce/tag/AAD/ciphertext layout -> LWBP2 container -> entries/scripts`
+
+The exact original script handlers are then to be indexed and mapped back to UI/host services.
+
+## Historical SB-79
+
+SB-79 records one exact-target operation rejected by a previous environment. Preserve that record. Do not replay or reroute a prohibited operation merely by changing tools.
+
+The underlying recovery goal remains active. Use genuinely distinct permitted methods: non-executable metadata, other static artifacts, exported symbols/strings, current runtime-owned files, lawful debugger/trace capabilities when available, loader behavior observable without crossing a restriction, package-format reconstruction, or other evidence-backed approaches.
+
+Do not call the package “unrecoverable” until the permitted method space is actually exhausted and documented.
+
+## Return criteria
+
+A successful protected-package checkpoint must provide durable evidence for:
+
+- decrypted package bytes or a reproducible extractor;
+- package/container structure;
+- per-entry names/types/compression/encryption if present;
+- hashes of extracted original scripts;
+- exact script handlers/commands and their contracts;
+- unresolved edges clearly separated from recovered facts;
+- implementation impact on the parity matrix.
+
+Do not immediately rewrite production behavior from guesses. First preserve and document the original bytes/contracts.

@@ -1,5 +1,8 @@
 # Daybreak escalation register
 
+> **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
+
+
 > **Current status, 2026-09-22:** no specialist is assigned. Ordinary Home/Map work is not specialist-blocked. The only current protected-contract implementation blocker is Treasure E02; SB-79 remains preserved and must not be rerouted. The metadata-only proposal recorded below remains retained/not approved. All older “current priority” sections are historical escalation states at their dates.
 
 ## Current priority reset — 2026-09-11

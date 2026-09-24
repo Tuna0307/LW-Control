@@ -1,34 +1,45 @@
 # LWBridge implementation evidence index
 
-This directory intentionally retains chronological machine-readable evidence. Do **not** infer current project status from an arbitrary older file.
+This directory intentionally retains chronological machine-readable evidence. Do **not** infer current product direction from an arbitrary older checkpoint.
 
-## Current entry points
+## Current authority — R8 strict parity
 
-- `2026-09-24-r7-155-railway-v21-negative-population.json` — R7-155 current-v21 Railway direct-source proof across 11 sampled zero-row servers plus strict 2207 negative-population scan.
-- `2026-09-24-r7-154-railway-v21-status-hygiene.json` — R7-154 fresh-v21 Railway proof status, preserved external-game ownership boundary, and retired-Plunder guidance correction.
-- `2026-09-24-r7-153-supplies-population-recheck.json` — R7-153 current-v21 six-server Supplies negative-population recheck with verified jump/return cleanup.
-- `2026-09-24-r7-152-ghost-population-recheck.json` — R7-152 current-v21 five-server Ghost negative-population recheck and reusable target-server proof support.
-- `2026-09-24-r7-151-v21-dispatch-fast-scan.json` — R7-151 v21 update-safe lifecycle, 68-request Dispatch scan, native Quick Find, validation limits.
-- `2026-09-22-r7-current-evidence-index.json` — curated current evidence grouped by Home, Map Data, and Shared/Release, with SHA-256 identities.
-- `2026-09-23-r7-direct-train-list-speed.json` ? R7-148 direct Truck/Railway Train-list speed proof and live cross-server match coverage.
-- `2026-09-23-r7-train-list-no-jump-auto.json` ? R7-150 live covered cross-server Truck/Railway no-jump Auto proof and routing validation.
-- `2026-09-22-r7-map-owner-workflow-corrections.json` ? R7-147 eight-issue Map correction ledger plus current-v20 official Train-list/population evidence.
-- `2026-09-23-r7-acceptance-matrix-r7149.json` — current 47-case acceptance matrix; R7-155 does not change its case statuses.
-- `2026-09-22-r7-doc-evidence-self-audit.json` — R7-145 structural, performance, feature, and validation audit.
-- `2026-09-22-r7-supplies-population-recheck.json` — historical two-server Supplies population recheck superseded for current status by R7-153.
-- `2026-09-22-r7-normal-user-restart-walkthrough-autolaunch.json` — current built-Release zero-argument navigation/restart proof with owner auto-launch safely suppressed/restored by the external verifier.
-- `2026-09-22-r7-native-transition-matrix.json` — current point/march transition evidence.
-- `2026-09-22-r7-map-correctness-multiserver-speed.json` — current Map correctness/performance evidence.
+- `2026-09-24-r8-001-strict-parity-direction-reset.json` — owner direction reset to whole-program one-to-one LWBridge 0.3.1 parity.
+- `../../docs/strict-parity-recovery.md` — current product directive.
+- `../../docs/lwbridge-parity-matrix.md` — current completion matrix.
+- `../../docs/implementation-handoff.md` — current continuation state.
+- `../../BACKLOG.md` — current work queue.
 
-For human-readable grouping, start with:
+The former 47-case Home/Map matrix remains historical evidence for the reconstructed behavior it tested. It is not R8 whole-program completion authority.
 
-- `../../docs/tabs/home.md`
-- `../../docs/tabs/map-data.md`
-- `../../docs/tabs/shared-release.md`
-- `../../docs/external-audit-guide.md`
+## Important historical evidence retained
+
+- `2026-09-24-r7-155-railway-v21-negative-population.json`
+- `2026-09-24-r7-154-railway-v21-status-hygiene.json`
+- `2026-09-24-r7-153-supplies-population-recheck.json`
+- `2026-09-24-r7-152-ghost-population-recheck.json`
+- `2026-09-24-r7-151-v21-dispatch-fast-scan.json`
+- `2026-09-23-r7-acceptance-matrix-r7149.json`
+- `2026-09-23-r7-direct-train-list-speed.json`
+- `2026-09-23-r7-train-list-no-jump-auto.json`
+- `2026-09-22-r7-map-owner-workflow-corrections.json`
+- `2026-09-22-r7-map-correctness-multiserver-speed.json`
+- R6-039 through R6-046 protected package/crypto recovery evidence
+
+These files remain valid for their recorded observations, source identities and experiments. They do not automatically establish that the tested implementation matches the original LWBridge algorithm.
+
+## Reference authority
+
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
+
+SHA-256:
+
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
+
+Reverified on 2026-09-24 before R8-001.
 
 ## Retention policy
 
-Historical evidence is not deleted just because a later checkpoint supersedes its status statement. Older files remain useful for source identity, reproduction, regression history, and proof composition.
+Historical evidence is not deleted or rewritten merely because product direction changed. Preserve old performance experiments, regressions, owner customizations and feature retirements as provenance.
 
-When an older file says a feature is pending but the current matrix says it passed, treat the older statement as historical context and follow the later evidence referenced by the matrix.
+When an old evidence file describes a feature as intentionally removed or a custom strategy as production behavior, treat that as a fact about that checkpoint only. Current product authority comes from the R8 strict parity documents.

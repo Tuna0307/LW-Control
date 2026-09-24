@@ -1,16 +1,21 @@
-# Map Data delivery — superseded historical filename
+# Historical Map Data delivery — superseded by R8 parity
 
-This filename is retained because older documents link to it. The old “shared scan engine first / next category” delivery sequence is complete and must not be used as current work instructions.
+This filename is retained because older documents link to it.
 
-## Current Map Data status
+The former “shared scan engine first / next category” sequence and later R7 performance/acceptance plans are historical reconstruction work. They are not current product instructions.
+
+## Current authority
 
 Use:
 
-- `docs/tabs/map-data.md` — current feature/category/performance status.
-- `docs/lwbridge-feature-ledger.md` — current feature ledger.
-- `BACKLOG.md` — current remaining queue only.
-- `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json` — current 47-case baseline.
+- `docs/strict-parity-recovery.md`
+- `docs/lwbridge-parity-matrix.md`
+- `docs/tabs/map-data.md`
+- `BACKLOG.md`
+- `docs/implementation-handoff.md`
 
-The ordinary shared Manual/Auto scan implementation is complete at the current evidence scopes. Remaining Map-related gates are Ghost/Supplies positive population, protected/authorized state-changing actions, simultaneous real multi-account availability, and final integrated release acceptance.
+The R7 47-case acceptance matrix remains historical evidence for the reconstructed Map behavior it tested. It is not R8 one-to-one completion authority.
 
-Historical delivery details remain recoverable from Git history and the dated files under `docs/reviews/` and `evidence/lwbridge-implementation/`.
+Map work now begins from the original LWBridge 0.3.1 implementation: recover the original bridge scripts/host scan behavior and reproduce it exactly before designing or optimizing alternatives.
+
+Historical delivery details remain available in Git history, `docs/reviews/`, and `evidence/lwbridge-implementation/`.

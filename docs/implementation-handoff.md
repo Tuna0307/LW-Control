@@ -1,57 +1,80 @@
-# Current implementation handoff
+# Current implementation handoff — strict parity phase
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-155`; parent revision `f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb`
+**Current checkpoint:** `LWB-R8-001`
 **Date:** 2026-09-24
 
-Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
+## Current directive
 
-## Current product state
+Stop designing our own LWBridge.
 
-Home / Overview remains at its accepted evidence scope. R7-151 adds the Last War v21 update-safe lifecycle and Secret Task acceleration. R7-152/R7-153 refresh Ghost/Supplies population evidence. R7-155 now freshly live-proves the official Railway Train-list source on v21 across 11 sampled servers, all currently empty; the strict 2207 full scan also completed 2,500/2,500 with zero Railway rows. Positive v21 Railway row/Follow acceptance remains population-gated. The 47-case acceptance matrix remains unchanged with **zero ordinary `partial` rows**.
+The verified `lwbridge-0.3.1.exe` is the product specification. Recover the original implementation and reproduce it one-for-one. Internal compatibility code may differ only when required for the current Last War client and only if the user-visible/output contract remains the same.
 
-Use these current summaries instead of reconstructing status from chronological checkpoint prose:
+Read `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` before touching production code.
 
-- `docs/tabs/home.md`
-- `docs/tabs/map-data.md`
-- `docs/tabs/shared-release.md`
-- `docs/lwbridge-project-status.md`
-- `docs/external-audit-guide.md`
+## Reference
 
-Current machine-readable acceptance source:
+Path:
 
-`evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-## Home / Overview
+SHA-256:
 
-All A01-A12 ordinary acceptance cases are closed at their documented scopes. Current evidence covers lifecycle, process ownership, reconnect, fault handling, startup rollback, authenticated Refresh Status, cross-server navigation, normal Release responsiveness, and zero-argument normal-user Overview/Map navigation across restart.
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-No ordinary Home defect is currently open. Simultaneous real multi-account UI population remains an availability-only integrated test gap.
+Reverified on 2026-09-24.
 
-## Map Data
+## What the previous phase accomplished
 
-The shared Manual Scan engine, Auto Scan scheduler, transactional SQLite publication, filtering/sorting/paging, marks, navigation, restart safety, and native point/march transitions remain accepted at their current evidence scopes. R7-147 corrected eight owner-observed workflow defects: session-scoped scan data, Auto **All**, one-shot Run Now while recurring Auto is off, cross-server row navigation, stopped/session-wide Clear, Doom Walker Follow, current-v20 official Train-list acquisition, and removal of the misleading Manual server filter.
+R1-R7 recovered the original frontend, substantial Rust/Tauri/launcher/proxy architecture, many Map contracts, SQL/query semantics, lifecycle behaviors, current-client Last War call surfaces, and a working Home/Map reconstruction.
 
-On the standard 1000x1000 world, `MapScanStrategyPlanner` automatically selects the current proven strategy. Truck/Railway-only still uses the official Train list. R7-151 current-v21 Dispatch uses the aligned 6x25 AOI footprint at cameraY 220, requiring 68 primary requests for the exact 10,000-AOI union; a live server-2175 full scan completed in 7.028 s with rows persisted/reopened. The native `DispatchFindNearestPoint` call returns one task in about 0.5 s; Auto Scan shows that result after confirmed travel and before starting the complete scan, but never treats it as complete coverage.
+That evidence is valuable.
 
-The failed message-bulk browser and in-game coverage-chain experiments were removed. CameraY 240+ enters the v21 split path, so further complete-scan speed gains require a different authoritative server query/list rather than weaker coverage.
+However, the reconstruction also accumulated non-reference decisions: removed original features, added convenience behavior, current-game-specific scan strategies, and performance optimizations that were not first proven to be what LWBridge 0.3.1 did.
 
-## Remaining gates
+The old “0 ordinary partial rows” acceptance statement is therefore not one-to-one completion.
 
-- B03/B13/B14/C01: population-dependent Ghost/Supplies positive rows.
-- E01/E02: Treasure consuming action remains unrouted; protected scope/lucky/scout scheduler semantics are still blocked behind SB-79.
-- E03/E04/E05: retired by owner in R7-149; Scheduled Plunder is no longer a product or live-acceptance surface.
-- E06: live Alliance-share delivery requires explicit messaging authorization.
-- Simultaneous real multi-account UI population remains unavailable.
-- Final integrated release acceptance remains separate from ordinary technical completion.
+## P0
 
-R7-152 performed the first eligible current-v21 Ghost positive-population recheck: strict 2,500/2,500 scans completed on 2212, 2175, 2180, 2185, and 2207, but all five produced zero authentic Ghost rows. R7-153 then refreshed Supplies on current v21 across 2212, 2175, 2180, 2185, 2207, and 2213; all six clean complete scans produced zero authentic `WorldSuppliesPoint` rows. Both remain population-gated. A fresh Railway row/Follow acceptance remains population-dependent on the chosen proof target.
+Recover the original protected `bridge-scripts.dat` implementation.
 
-## What not to do
+Already known:
 
-Do not replay or reroute SB-79. Do not invent protected Treasure scheduler semantics. Do not perform a consuming claim/message action merely to turn an acceptance row green. Do not restore Scheduled Plunder unless the owner explicitly reverses the R7-149 retirement. Do not delete old evidence to make the repository look cleaner.
+- LWBP package version 2.
+- `package-key.envelope` runtime path and bounded reader.
+- Microsoft Software Key Storage Provider.
+- persistent key `{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}`.
+- ECK1/ECCPUBLICBLOB public-key format.
+- 32-byte derived material.
+- AES-GCM with 32-byte key, 12-byte nonce and 16-byte tag.
+- an identified package decrypt/validation consumer.
+- `LWBP2|`, package-integrity and package-build validation strings.
 
-## Evidence navigation
+Still missing is enough exact linkage/layout to derive/read the package key, decrypt the container, and extract the original scripts.
 
-Start with `evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json`, `docs/reviews/2026-09-24-r7-155-railway-v21-negative-population.md`, then R7-153 Supplies, R7-152 Ghost, and R7-151 v21 lifecycle/Dispatch evidence. Historical evidence remains valid at its original source/build/scope and is retained for auditability.
+Historical SB-79 records one exact operation rejected by a previous environment. Do not reroute that forbidden operation. Continue the underlying recovery through genuinely permitted methods.
+
+## Map Data correction
+
+Do not continue the LW Atlas-inspired redesign.
+
+Do not further optimize the wide-FOV scanner.
+
+Do not treat the current Train list, Dispatch finder or any other Last War-native source as the intended product design unless the original LWBridge evidence proves that mapping.
+
+The old complete traversal may remain as a temporary safety/reference oracle, but production parity must ultimately follow the recovered original LWBridge behavior.
+
+## Whole-program scope
+
+The project is no longer limited to Home and Map Data. Automation, Squads/AFK, City Layout, Hotkeys, Mini-games, Settings, auth/account flows and every conditional/nested feature in the reference are part of the parity target.
+
+Previously retired original features are parity gaps, not retired scope.
+
+## Worktree warning
+
+There is pre-existing uncommitted R7 Map work in the repository, including a staged rollback of R7-151 scan/Quick-Find behavior and additional unstaged diagnostics. Preserve it until it is deliberately reconciled under the R8 parity policy. Do not discard unrelated work just to create a clean checkpoint.
+
+## Delivery
+
+Every coherent checkpoint must update the parity matrix, recovery finding, backlog and handoff; run applicable checks; commit only its own files; push to `origin/research/offline-controller`; and verify the remote revision.

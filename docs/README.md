@@ -1,61 +1,49 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-155`, 2026-09-24.
-This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
+**Current checkpoint:** `LWB-R8-001`, 2026-09-24.
 
-## Start here
+The project direction changed on 2026-09-24 from “working reconstruction with selected owner customizations” to **strict one-to-one recovery of LWBridge 0.3.1**.
 
-1. [`AGENTS.md`](../AGENTS.md) — mandatory evidence, safety, testing, and delivery rules.
-2. [`task.md`](../task.md) — durable product requirements and 47-case acceptance contract.
-3. [`implementation-handoff.md`](implementation-handoff.md) — concise current continuation state.
-4. [`tabs/home.md`](tabs/home.md) — Home / Overview status by feature.
-5. [`tabs/map-data.md`](tabs/map-data.md) — Map Data status, scan categories, performance, remaining live gates.
-6. [`tabs/shared-release.md`](tabs/shared-release.md) — shared runtime and Release status.
-7. [`lwbridge-project-status.md`](lwbridge-project-status.md) — current project-manager audit summary.
-8. [`external-audit-guide.md`](external-audit-guide.md) — handoff guide for another AI/reviewer.
-9. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — current evidence navigation.
-10. [`reviews/2026-09-24-r7-155-railway-v21-negative-population.md`](reviews/2026-09-24-r7-155-railway-v21-negative-population.md) — current Railway v21 source/negative-population checkpoint; R7-153 covers Supplies, R7-152 Ghost, and R7-151 v21 lifecycle/Secret Task acceleration.
+## Read in this order
 
-## Current acceptance source
+1. [`../AGENTS.md`](../AGENTS.md) — mandatory repository rules.
+2. [`strict-parity-recovery.md`](strict-parity-recovery.md) — current product directive.
+3. [`lwbridge-parity-matrix.md`](lwbridge-parity-matrix.md) — current whole-program completion matrix.
+4. [`implementation-handoff.md`](implementation-handoff.md) — current continuation state.
+5. [`../BACKLOG.md`](../BACKLOG.md) — current parity work queue.
+6. [`lwbridge-project-status.md`](lwbridge-project-status.md) — project-manager status.
+7. [`deep-binary-handoff.md`](deep-binary-handoff.md) — protected package / binary recovery priority.
+8. [`lwbridge-architecture.md`](lwbridge-architecture.md) — recovered original architecture.
+9. [`lwbridge-ui.md`](lwbridge-ui.md) — recovered frontend provenance.
+10. [`lwbridge-map-scan.md`](lwbridge-map-scan.md) — cumulative Map recovery evidence.
+11. [`tabs/home.md`](tabs/home.md), [`tabs/map-data.md`](tabs/map-data.md), [`tabs/shared-release.md`](tabs/shared-release.md) — current parity interpretation of previously reconstructed surfaces.
+12. [`external-audit-guide.md`](external-audit-guide.md) — reviewer guidance.
+13. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — chronological evidence navigation.
 
-The current 47-case baseline is:
+## Reference authority
 
-`evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-R7-155 leaves the acceptance statuses unchanged: ordinary `partial` count remains **0**. R7-151 added v21 lifecycle/Dispatch acceleration; R7-152/R7-153 refreshed Ghost/Supplies population evidence; R7-155 freshly proves the v21 Railway source while positive row/Follow remains population-gated.
+SHA-256:
 
-## Current unresolved gates
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-- Ghost positive-row proof: R7-152 sampled 2212/2175/2180/2185/2207 on current v21; all full scans completed cleanly with zero authentic Ghost rows, so the gate remains population-only.
-- Supplies positive-row proof: R7-153 current-v21 full scans on 2212/2175/2180/2185/2207/2213 all completed cleanly with zero authentic Supplies rows; the gate remains population-only.
-- Fresh Railway v21 positive row/Follow: R7-155 live-proves the official v21 Train-list source across 11 sampled servers, all zero-row; historical v20 positive Follow remains provenance, while a fresh positive v21 Follow pass is still population-gated.
-- Treasure protected claim scheduler: `UNKNOWN/BLOCKED` under the preserved SB-79 boundary.
-- Simultaneous real multi-account UI population: target/account availability gap.
-- Final integrated release acceptance: separate release-level gate.
+The reference was re-hashed on 2026-09-24 before the R8 direction reset.
 
-## Detailed technical ledgers
+## Completion authority
 
-These remain cumulative evidence/recovery documents rather than current-status pages:
+The old 47-case Home/Map acceptance matrix remains valid evidence for the behaviors it tested. It no longer means the project is close to one-to-one completion.
 
-- [`lwbridge-map-scan.md`](lwbridge-map-scan.md) — Map contracts, source recovery, implementation-policy notes, historical scan findings.
-- [`lwbridge-overview-recovery.md`](lwbridge-overview-recovery.md) — Home lifecycle/bridge recovery ledger.
-- [`lwbridge-injection.md`](lwbridge-injection.md) — injection/bootstrap/proxy recovery history.
-- [`official-runtime-architecture.md`](official-runtime-architecture.md) — official Last War runtime architecture/evidence.
-- [`daybreak-escalations.md`](daybreak-escalations.md) — specialist/restriction register; denials must not be rerouted.
-- [`reviews/`](reviews/) — dated checkpoint findings, including R7-130 through the current R7-155 Railway v21 source/population review.
+Current completion authority is [`lwbridge-parity-matrix.md`](lwbridge-parity-matrix.md). The matrix distinguishes exact recovered bytes/contracts, equivalent reimplementations, deviations and unknown original behavior.
 
-## Historical/superseded delivery documents
+## Historical documents
 
-Some filenames are retained because other evidence links to them. They are no longer current planning authority:
+`docs/reviews/`, R1-R7 evidence, the old acceptance matrix, and cumulative recovery ledgers are intentionally retained. Do not rewrite them to make the project appear more consistent. They explain how the reconstruction evolved and where drift entered.
 
-- `map-data-delivery.md`
-- `overview-live-delivery.md`
-- `first-live-result.md`
-- `lwbridge-completion-estimate.md`
-- older sections of `live-test-handoff.md` replaced by the current owner-test list; Scheduled Plunder sections are historical only
+A historical file may say a feature was intentionally removed or optimized. Those statements remain true of that checkpoint, but the R8 strict parity directive supersedes them as current product policy.
 
-Use the tab pages and current matrix for present status.
+## P0 evidence focus
 
-## Evidence labels
+The protected `bridge-scripts.dat` package is now a first-class recovery target. Existing R6-039 through R6-046 findings already establish major loader/crypto boundaries. The next work is to recover the missing envelope/package linkage and original script contents through permitted analysis methods.
 
-`RECOVERED` = original/static source. `IMPLEMENTED/OFFLINE-TESTED` = rebuild/test evidence. `LIVE-PROVEN` = current-client observation. `UNKNOWN/BLOCKED` = unresolved and intentionally not invented. `IMPLEMENTATION POLICY` = explicit rebuild design choice, not claimed original parity.
+Historical SB-79 records an operation rejected by a previous environment. Preserve that record and do not reroute a prohibited operation. Do not mistake the historical denial for evidence that the underlying package is impossible to recover.

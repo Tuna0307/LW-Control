@@ -1,20 +1,22 @@
-# Historical completion estimate — superseded
+# Completion estimate — reset for strict parity
 
-This file is retained only because older reviews link to it.
+**Current through:** `LWB-R8-001`, 2026-09-24.
 
-The original 2026-09-10 Review 9 estimate of roughly 25–30% complete and 0/47 acceptance was a planning snapshot of revision `b83987b`. It is **not current project status** and must not be quoted as current by an auditor or receiving AI.
+The previous percentage estimates and the R7 “0 ordinary partial rows” statement measured a narrower reconstructed Home/Map product. They are not meaningful measures of one-to-one LWBridge 0.3.1 completion.
 
-## Current status source
+No new percentage is published yet.
 
-Use instead:
+## Current completion source
 
+Use:
+
+- `docs/lwbridge-parity-matrix.md`
+- `docs/strict-parity-recovery.md`
+- `BACKLOG.md`
 - `docs/lwbridge-project-status.md`
-- `docs/tabs/home.md`
-- `docs/tabs/map-data.md`
-- `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
-At R7-145 the current matrix tracks 47 cases with **zero ordinary `partial` rows**. Remaining non-pass cases are explicitly population-, authorization-, or blocked-implementation categories, plus one owner-retired feature.
+The parity matrix currently contains substantial `UNKNOWN` and `DEVIATION` areas, especially the protected bridge scripts, original Map acquisition internals, restored original product surfaces, and backend parity outside Home/Map.
 
-The old percentage model is not being recalculated because a single percentage would hide the important distinction between technically complete ordinary features and externally gated live/action cases.
+A percentage will only be useful after the original whole-program feature/function inventory is complete enough to provide a stable denominator.
 
-For the original Review 9 calculation and wording, use Git history for this file or the corresponding dated review evidence.
+Historical Review 9/R7 estimates remain available in Git history and dated review evidence.

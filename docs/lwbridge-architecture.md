@@ -1,5 +1,8 @@
 # LWBridge 0.3.1 architecture recovery
 
+> **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
+
+
 ## Artifact authority
 
 `lwbridge-0.3.1.exe` is a Windows x64 Rust/Tauri application. Verified SHA-256:

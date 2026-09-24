@@ -1,19 +1,28 @@
-# Implementation handoff: make Overview and Map Data fully functional
+# Historical implementation handoff + R8 strict parity directive
 
-**Current through:** `LWB-R7-145`, 2026-09-22.
+**Historical Home/Map baseline through:** `LWB-R7-145`, 2026-09-22.
+**Current project direction:** `LWB-R8-001`, 2026-09-24.
 
-This file preserves the durable product requirements and 47-case acceptance contract. Current implementation status is intentionally kept out of the historical checkpoint stream; use `docs/README.md`, `docs/tabs/home.md`, `docs/tabs/map-data.md`, `docs/lwbridge-project-status.md`, and the current acceptance matrix for present status.
+## R8 superseding directive
 
-At R7-145 the matrix has **zero ordinary `partial` rows**. Remaining work is population-, authorization-, protected-contract-, multi-account-availability-, or final-release-gated. Historical requirements below remain binding unless explicitly retired (for example City Excel export).
+The owner has reset the project goal to a strict one-to-one copy of the verified `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe` (`SHA-256 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`). The whole program is in scope, not only Overview and Map Data.
 
-## 1. The user's requested outcome
+Where this historical handoff conflicts with `docs/strict-parity-recovery.md` or `docs/lwbridge-parity-matrix.md`, the R8 documents win. Previous owner-specific removals such as auth/account presentation, City Excel export and Scheduled Plunder are no longer current product decisions; they are parity gaps to re-audit and restore if present in the reference. Rebuild-only additions are deviations unless the reference proves them.
 
-Work in the existing LWBridge reconstruction and make **all functionality belonging to these two pages work against the real, currently installed Last War client**:
+The previous 47-case matrix remains evidence that selected reconstructed Home/Map behaviors worked. It is not whole-program or one-to-one completion authority.
+
+This file preserves the earlier durable product requirements and acceptance history. Current direction/status is intentionally kept in `docs/strict-parity-recovery.md`, `docs/lwbridge-parity-matrix.md`, `docs/README.md`, `docs/implementation-handoff.md`, and `BACKLOG.md`.
+
+Historical R7 fact: at R7-145 the reconstruction matrix had **zero ordinary `partial` rows**. That statement no longer defines current completion. Requirements below are retained as historical scope/evidence; when they conflict with the R8 one-to-one directive, recover and follow the original LWBridge 0.3.1 behavior instead.
+
+## 1. Historical R7 requested outcome — superseded by R8 whole-program parity
+
+The earlier assignment narrowed implementation work to these two pages against the real Last War client:
 
 1. **Overview / 首页**: game setup, launch, close, launch-at-startup, automatic reconnect, and their shared status controls.
-2. **Map Data**: manual scan, automatic scan, every data category, searching/filtering/sorting/pagination, map navigation, and all current conditional row/bulk actions, including treasure workflows. City Excel export and Scheduled Plunder are intentionally removed from the rebuilt product.
+2. **Map Data**: manual scan, automatic scan, every data category, searching/filtering/sorting/pagination, map navigation, and conditional row/bulk actions.
 
-Keep the reproduced UI faithful to `lwbridge-0.3.1.exe`. The user already asked to remove login and to recreate functionality independently. **Do not reintroduce a login, license activation, renewal, unbind, or account-expiry gate.**
+During R7, owner-specific changes removed City Excel export, Scheduled Plunder and login/account surfaces. Those removals are historical decisions only. The 2026-09-24 R8 directive supersedes them: the whole reference program is now in scope and original features must be restored/reproduced when the reference contains them.
 
 This is an implementation and reverse-engineering assignment, not another UI mockup assignment. Deliver working code, a runnable build, meaningful tests, and evidence of actual outcomes. A button click, resolved JavaScript promise, process launch, command send, empty result, or successful screenshot is insufficient evidence that the corresponding feature works.
 

@@ -1,65 +1,61 @@
-# LWBridge recovery / rebuild
+# LWBridge 0.3.1 strict parity recovery
 
-**Current checkpoint:** `LWB-R7-155` (2026-09-24).
-**Branch:** `research/offline-controller`.
+**Current checkpoint:** `LWB-R8-001` (2026-09-24)
+**Branch:** `research/offline-controller`
 
-This repository is the evidence-first LWBridge rebuild for the Last War PC client. The remote/directory name `LW-Control` is historical naming; it does not define feature authority.
+This repository is now a strict one-to-one recovery of the verified LWBridge 0.3.1 reference:
 
-The rebuild distinguishes evidence rigorously:
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-- **RECOVERED** — established from verified original LWBridge/current-client artifacts.
-- **IMPLEMENTED/OFFLINE-TESTED** — implemented and tested without claiming a live game outcome.
-- **LIVE-PROVEN** — observed against the identified current Last War client.
-- **UNKNOWN/BLOCKED** — unresolved behavior that must not be filled in by guessing.
+Verified SHA-256:
 
-## Current status
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-Ordinary **Home / Overview** and **Map Data** functionality is technically mature at the scopes in the current 47-case matrix. The current matrix has **0 ordinary `partial` rows**.
+## Direction reset
 
-The remaining non-pass work is deliberately separated from ordinary implementation defects:
+The earlier R1-R7 work produced substantial reverse-engineering evidence and a functioning reconstruction, but parts of the project drifted into redesign, optimization, owner-specific feature retirement, and current-game-specific substitutions that were not first established as original LWBridge behavior.
 
-- Ghost positive-row population remains unavailable: R7-152 current-v21 full scans on 2212/2175/2180/2185/2207 all completed cleanly with zero authentic Ghost rows.
-- Supplies positive-row population remains unavailable: R7-153 current-v21 full scans on 2212/2175/2180/2185/2207/2213 all completed cleanly with zero authentic `WorldSuppliesPoint` rows.
-- Railway direct Train-list acquisition is freshly live-proven on v21 by R7-155 across 11 sampled servers, all currently empty. Fresh v21 positive-row/Follow acceptance remains population-gated; historical v20 positive Follow remains provenance.
-- Treasure protected claim-scheduler semantics remain blocked behind the preserved SB-79 boundary; public claim stays unrouted.
-- Live Alliance message delivery requires a suitable target and explicit authorization. Scheduled Truck/Dispatch Plunder was retired by owner in R7-149.
-- Simultaneous real multi-account UI population still requires several usable live accounts/sessions.
-- Final integrated release acceptance remains a separate release-level gate.
+That direction is superseded.
 
-City Excel export is intentionally retired by owner and is not unfinished work.
+From R8 onward, the product authority is the original LWBridge 0.3.1 executable. We recover what the reference actually does and reproduce it one-for-one. No new product feature, removed reference feature, changed workflow, changed default, changed label, changed scan strategy, changed timing, or convenience behavior is accepted without reference evidence.
+
+The end product must work against the current Last War client. Internal compatibility code may differ where necessary, but it must preserve the recovered original product behavior.
 
 ## Start here
 
-Every AI/contributor must read [`AGENTS.md`](AGENTS.md) first. It contains mandatory evidence, recovery, safety, testing, and Git-delivery rules.
+1. [`AGENTS.md`](AGENTS.md) — mandatory project rules.
+2. [`docs/strict-parity-recovery.md`](docs/strict-parity-recovery.md) — current one-to-one directive.
+3. [`docs/lwbridge-parity-matrix.md`](docs/lwbridge-parity-matrix.md) — current completion authority.
+4. [`docs/implementation-handoff.md`](docs/implementation-handoff.md) — current continuation state.
+5. [`docs/README.md`](docs/README.md) — documentation index.
+6. [`BACKLOG.md`](BACKLOG.md) — current parity queue.
+7. [`task.md`](task.md) — durable historical requirements plus the R8 superseding directive.
 
-Then use this reading order:
+The older 47-case Home/Map acceptance matrix is retained as evidence of the reconstructed implementation. It is no longer whole-product or one-to-one completion authority.
 
-1. [`docs/README.md`](docs/README.md) — canonical documentation index.
-2. [`docs/implementation-handoff.md`](docs/implementation-handoff.md) — concise current continuation state.
-3. [`docs/tabs/home.md`](docs/tabs/home.md) — current Home / Overview status.
-4. [`docs/tabs/map-data.md`](docs/tabs/map-data.md) — current Map Data status and scan-performance audit.
-5. [`docs/tabs/shared-release.md`](docs/tabs/shared-release.md) — shared runtime / Release status.
-6. [`docs/lwbridge-project-status.md`](docs/lwbridge-project-status.md) — current project-manager summary.
-7. [`docs/external-audit-guide.md`](docs/external-audit-guide.md) — instructions for an independent AI/reviewer.
-8. [`evidence/lwbridge-implementation/README.md`](evidence/lwbridge-implementation/README.md) — current evidence navigation.
-9. [`BACKLOG.md`](BACKLOG.md) — current remaining queue only.
-10. [`task.md`](task.md) — durable product requirements and 47-case acceptance contract.
+## Evidence labels
 
-The current machine-readable acceptance source is:
+- **EXACT_BYTES** — original bytes recovered from the verified reference and preserved unchanged.
+- **EXACT_CONTRACT** — original behavior recovered with source identity and durable locators.
+- **EQUIVALENT_REIMPLEMENTATION** — different internals proven to reproduce an exact recovered contract.
+- **DEVIATION** — rebuild behavior not supported by the reference or an original feature intentionally removed/changed.
+- **UNKNOWN** — original behavior still needs recovery.
 
-`evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
+Historical labels such as RECOVERED, LIVE-PROVEN and IMPLEMENTED/OFFLINE-TESTED remain valid for the evidence they describe, but they do not by themselves establish one-to-one parity.
 
-## Scan performance
+## P0
 
-On the standard current 1000×1000 world, production automatically selects the proven backend strategy. Truck/Railway-only uses the direct Train-list path. R7-151 current-v21 Dispatch/Secret Task uses an exact 68-request aligned wide AOI plan; a live server-2175 proof completed 2,500/2,500 blocks in 7.028 s with persisted/reopened rows. A separate official read-only Quick Find returns one Secret Task location in about 0.5 s and is used for immediate Auto Scan feedback without replacing the complete scan.
+The highest-priority recovery target is the original protected `bridge-scripts.dat` package and its complete plaintext implementation. The project already recovered major pieces of the loader, key material, device-key, CNG derivation and AES-GCM boundary, but not the whole package contents.
 
-## Historical evidence and pruning policy
+Map Data is no longer allowed to consume weeks of custom redesign while original implementation evidence remains recoverable. The original script/host behavior must be recovered first, then mapped to the current client.
 
-Dated reviews, recovery ledgers, and machine-readable evidence are retained when they contain unique provenance or are referenced by historical acceptance evidence. Superseded status wording must not be treated as current project state; current status comes from the pages listed above and the latest acceptance matrix.
+## Historical evidence
 
-The repository was audited for cleanup before external review. Exact duplicate implementation-evidence files were not found. Old-looking files that remain are kept because they preserve unique recovery/test provenance, satisfy historical references, or support reproduction. Do not delete them merely to reduce file count.
+Do not delete or rewrite chronological evidence to fit the new direction. R1-R7 documents remain useful provenance. When old documents describe a custom rebuild decision as current product behavior, the R8 parity directive supersedes that decision without erasing the historical record.
 
-## Build and verification
+## Build
+
+The current source is still buildable with the existing toolchain, but a successful build is not parity proof:
 
 ```powershell
 python tools/build_lwbridge_frontend.py --check
@@ -68,4 +64,4 @@ dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Rel
 dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build
 ```
 
-Additional browser, normal-window, restart/navigation, and live checks are recorded in the current review/evidence index. Preview/capture modes must remain isolated from live game actions, and process existence alone is not proof of bridge readiness.
+Reference-vs-rebuild comparison and source-attributed recovery are now mandatory parts of completion.

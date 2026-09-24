@@ -2,6 +2,20 @@
 
 These are explicit user requirements for this entire repository, regardless of AI vendor, model, editor, session or task. Read this file before research, implementation, review or cleanup. Carry these rules into every delegated task and handoff. Do not weaken or silently waive them to make progress appear complete. Later explicit user instructions and the operating environment's higher-priority rules still apply; report an actual conflict instead of concealing it.
 
+## 0. Strict one-to-one parity is the product goal — owner reset 2026-09-24
+
+The verified `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe` is the product specification. Its SHA-256 is `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`.
+
+From `LWB-R8-001` onward, do not redesign LWBridge, add convenience features, retire reference features, change workflows/defaults/timing/labels, or substitute a faster current-game mechanism merely because it works. Recover the original behavior first and reproduce it one-for-one. The end product must work against the current Last War client; invisible compatibility shims may differ internally, but observable behavior must remain the recovered original contract.
+
+Exact recovered bytes are immutable and should be reused byte-for-byte whenever possible. A different rebuilt executable hash is acceptable because the implementation/toolchain may differ; intentional product behavior differences are not.
+
+Previous owner-specific removals/customizations are historical evidence, not current product authority. Original auth/account flows, City Excel export, Scheduled Plunder and any other reference feature previously removed are parity gaps to re-audit/restore. Rebuild-only additions such as the R7-151 Secret Task Quick Find are deviations unless reference evidence proves they exist.
+
+`docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` are now mandatory reading and completion authority. The former 47-case Home/Map matrix remains historical implementation evidence only.
+
+The protected `bridge-scripts.dat` package and exact host/proxy/script contracts are P0. Historical environment denials remain restriction records; do not reroute a prohibited operation, but continue the underlying recovery question through genuinely permitted methods.
+
 ## 1. Reverse-engineer first; do not invent behavior or values
 
 **MUST prioritize evidence from the verified LWBridge reference and official Last War artifacts over guesses, recollection, generic game assumptions or plausible-looking implementations.**
@@ -92,19 +106,22 @@ If checks, permissions, authentication, remote divergence or connectivity preven
 
 ## 5. Required reading and handoff structure
 
-- `AGENTS.md` — mandatory project rules; applies to all work and future sessions.
-- `task.md` — primary AI handoff, full Overview + Map Data requirements and acceptance contract.
-- `BACKLOG.md` — current priorities and progress checkboxes. Do not recreate the former `TASKS.md`.
-- `docs/lwbridge-project-status.md` — dated project-manager audit, reproduced defects and remaining work.
-- `docs/README.md` and `docs/lwbridge-feature-ledger.md` — evidence index and per-feature proof.
+- `AGENTS.md` ? mandatory project rules; applies to all work and future sessions.
+- `docs/strict-parity-recovery.md` ? current one-to-one product directive.
+- `docs/lwbridge-parity-matrix.md` ? current whole-program completion authority.
+- `docs/implementation-handoff.md` ? current continuation state.
+- `BACKLOG.md` ? current parity priorities and progress checkboxes. Do not recreate the former `TASKS.md`.
+- `docs/lwbridge-project-status.md` ? dated project-manager parity audit.
+- `docs/README.md` and `docs/lwbridge-feature-ledger.md` ? documentation index and feature-level parity summary.
+- `task.md` ? historical Overview/Map requirements plus the R8 superseding directive.
 
-Always start from the saved checkpoint, inspect the current code/evidence and continue the unresolved work. Preserve the login-free recovered UI and completed legacy cleanup. These rules require evidence-led progress, not another cosmetic implementation or a guessed approximation.
+Always start from the saved checkpoint, inspect the current code/evidence and continue unresolved parity work. Do not preserve an R7 customization merely because it already works. Preserve historical evidence, recover the original reference behavior, and make the current-client implementation match it.
 
 ## 6. Regular AI first; evidence-backed Daybreak escalation only
 
 **Explicit user requirement, updated 2026-09-11:** ChatGPT Web is the single primary implementation/research/verification worker. The owner supplies guided manual observations and screenshots when native control is unavailable. There is no separate Sol assignment. Follow section 8 for ownership and automated evidence collection. Daybreak is a specialist escalation destination, not the automatic owner of all binary analysis or difficult tasks. The DB-01–06 labels describe subjects; they do not assign a model.
 
-- Follow `docs/implementation-handoff.md` for the regular task and `docs/deep-binary-handoff.md` for the specialist task. Both inherit `task.md`; do not duplicate or reduce its 47 acceptance cases.
+- Follow `docs/implementation-handoff.md` for the regular task and `docs/deep-binary-handoff.md` for protected-package/deep-binary work. Both inherit the R8 strict-parity directive. The historical 47 Home/Map cases remain evidence, but they are not the whole-program completion boundary.
 - Before requesting Daybreak, exhaust the relevant permitted methods you can reasonably identify. Review existing findings, readable assets/current-client code, scripts and available local tools; diagnose setup failures and correct invalid searches. Install a needed tool under section 3 when it materially helps. Document why any relevant alternative cannot answer the question. There is no arbitrary attempt count and no requirement to install unrelated tools or repeat failed commands indefinitely.
 - **MUST create a durable request in `docs/daybreak-escalations.md` before handing off.** Use a stable ESC ID and record the exact question, affected feature, source/build/hash, already-known facts, each attempted method/tool/version/locator and result, evidence paths, exact error or restriction, alternatives considered, remaining uncertainty, why specialist analysis could help, bounded permitted scope and acceptance/return criteria. A bare "blocked", "too hard", "no Ghidra integration" or "needs deeper binary analysis" is insufficient.
 - Separate capability/research exhaustion from tool setup, missing live targets, external service dependencies and environment restrictions. A safety denial alone is not evidence that Daybreak can or may do the denied action. Never use a different model, tool, task or CI job to reroute a prohibited operation. Record restrictions and continue independent permitted work.
@@ -119,27 +136,25 @@ For each unresolved contract associated with a denied operation, report whether 
 
 Keep unresolved production-blocking questions in the escalation register as NEEDS_INFORMATION when a request is not yet complete; this is a tracking record, not an automatic assignment or a claim of exhaustion. Include method/alternative/result evidence before requesting PM approval. Do not indefinitely replace investigation of the same missing public contract with unrelated test-only checkpoints without explaining their integration value. Research/test-only progress must be labelled separately from an enabled UI command and from live acceptance.
 
-## 7. Current delivery status ? updated 2026-09-22
+## 7. Current delivery status ? reset 2026-09-24
 
-The former 2026-09-13 ?shared Manual Scan engine first? implementation priority is complete. Do not restart that historical sequence merely because older recovery documents describe City/Resource/Monster/etc. as future work.
+The previous ?ordinary Home / Map work is complete? status is superseded as a product-completion claim. It remains historical evidence that selected reconstructed behaviors worked.
 
-Current ordinary Home / Overview and Map Data functionality is tracked by the 47-case acceptance matrix at `evidence/lwbridge-implementation/2026-09-22-r7-acceptance-matrix-r7145.json`. At R7-145 there are **zero ordinary `partial` rows**. The current queue is maintained only in `BACKLOG.md`.
+Current authority is:
 
-Canonical current navigation:
-
-- `docs/README.md`
+- `docs/strict-parity-recovery.md`
+- `docs/lwbridge-parity-matrix.md`
 - `docs/implementation-handoff.md`
-- `docs/tabs/home.md`
-- `docs/tabs/map-data.md`
-- `docs/tabs/shared-release.md`
+- `BACKLOG.md`
 - `docs/lwbridge-project-status.md`
-- `evidence/lwbridge-implementation/README.md`
 
-Remaining work is explicitly external/protected: Ghost/Supplies positive population, the preserved SB-79 Treasure executor blocker, suitable explicitly authorized state-changing plunder/message actions, simultaneous real multi-account availability, and final integrated release acceptance. Do not convert these into ordinary implementation defects or fabricate completion.
+The whole LWBridge 0.3.1 program is now in scope. Automation, Map Data, Squads/AFK, City Layout, Hotkeys, Mini-games, Settings, auth/account flows, launcher/profile/proxy behavior and conditional/nested controls must all be recovered and reproduced.
 
-The production scanner now automatically chooses the fastest strategy that has been proven safe for the current world geometry. Do not reintroduce the retired user Normal/Fast selector or weaken coverage to improve benchmark numbers. Any future optimization must preserve exact coverage, identity, publication, failure and restoration contracts and must be supported by new evidence.
+Do not treat the old 47-case Home/Map matrix, a working current-client implementation, or a performance benchmark as parity completion. Every feature must be tied to original reference evidence.
 
-Historical delivery instructions remain provenance only. When they conflict with the current matrix/current tab pages, preserve the historical observation but follow the later current status.
+Map Data specifically must stop accumulating custom scanner design. R7 performance experiments remain evidence only. The original `bridge-scripts.dat`, host scan state machine and per-kind acquisition behavior are P0 recovery targets.
+
+Historical feature retirements and owner customizations are no longer current product direction. Restore the original reference behavior unless later explicit owner instruction again changes the parity goal.
 
 ## 8. Mandatory delivery hierarchy and owner-assisted testing — updated 2026-09-11
 

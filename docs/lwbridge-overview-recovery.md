@@ -1,5 +1,8 @@
 # Overview startup and automatic-reconnection recovery
 
+> **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
+
+
 > **Cumulative recovery ledger, not current project status.** Home A01-A12 are now closed at their documented evidence scopes. Use [`tabs/home.md`](tabs/home.md) for current status; older pending/deferred statements below are historical at their checkpoint dates.
 
 **Owner update, 2026-09-19:** `LWB-R7-062` fixes an owner-observed transient Home launch failure on current v19. Durable helper evidence showed the official launcher completed pack verification but never emitted its `Starting game` handoff before the bounded timeout; two immediate controlled launches then connected successfully. Production now retries exactly once only for that exact launcher-spawn timeout, using the same session/challenge and remaining start budget after the helper has transactionally closed its owned launcher and restored the original Lua package. Deterministic retry coverage, patched manual+auto live Overview proof and the full six-group suite pass; game/launcher end closed. Evidence: `evidence/lwbridge-implementation/2026-09-19-r7-overview-launcher-handoff-retry.json`.

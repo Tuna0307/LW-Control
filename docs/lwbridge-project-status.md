@@ -1,51 +1,56 @@
-# Current project status — Home and Map Data
+# Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R7-155`; parent revision `f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb`
+**Current checkpoint:** `LWB-R8-001`
 
 ## Executive status
 
-The Home / Overview acceptance state is unchanged. R7-151 adds the v21 update-safe lifecycle and accelerated Dispatch/Secret Task path. R7-152/R7-153 refresh Ghost/Supplies population evidence. R7-155 freshly live-proves current-v21 Railway direct Train-list acquisition across 11 sampled servers, all with authoritative zero-row results; a strict 2207 full scan also completed cleanly with zero Railway rows. Positive v21 Railway row/Follow remains population-gated. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
+The project is not complete.
 
-That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, the Alliance-share authorization boundary, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance. Scheduled Plunder is no longer a remaining gate.
+Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the whole program.
 
-## Home / Overview
+The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
 
-A01-A12 are closed at their recorded evidence levels. Production lifecycle, owned process handling, startup rollback, reconnect, status/bridge behavior, cross-server navigation, Release responsiveness, and normal user Home/Map navigation across restart all have current or composed evidence.
+## Reference authority
 
-Current detail: `docs/tabs/home.md`.
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-## Map Data
+Verified SHA-256:
 
-Manual/Auto acquisition, Stop, restart safety, search/filter/sort/paging, marks, moving navigation, and native transition behavior remain accepted at their current evidence scopes. R7-151 keeps the R7-150 direct Train-list behavior and adds the current-v21 Dispatch fast path: 68 aligned wide AOI requests with exact 10,000-cell coverage. The live server-2175 proof completed in 7.028 s; Auto Dispatch additionally emits one native Quick Find coordinate before the complete scan without storing that one-target result as authoritative map data.
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-Player City, Resource, Monster/Doom Walker, Zombie Boss, Truck, Dispatch, and ordinary Treasure retain positive live evidence. Railway retains historical positive live evidence, but the fresh R7-147 current-v20 official-list probes were empty on all sampled servers; a fresh positive Railway row is therefore population-dependent. Ghost and Supplies remain population-gated.
+## Strongest parity already achieved
 
-Current detail and performance audit: `docs/tabs/map-data.md`.
+The recovered frontend is the closest portion to true one-to-one recovery. Original React/Vite chunks, stylesheet, icons and nine locale bundles were extracted, and prior visual comparison showed 31/32 tested feature-region pairs pixel-identical with the remaining pair negligible.
 
-## Current acceptance counts
+That proof is limited because the rebuild intentionally transformed the main/API boundary and removed/changed some product surfaces.
 
-R7-149 current acceptance status counts:
+## Largest parity gaps
 
-| Status | Count |
-|---|---:|
-| `pass_current_offline` | 18 |
-| `pass_current_plus_historical` | 10 |
-| `pass_historical_live` | 5 |
-| `pass_current_plus_live` | 1 |
-| `pass_live` | 1 |
-| `pass_current_normal_user` | 1 |
-| `partial_population` | 4 |
-| `partial_offline_authorization` | 1 |
-| `blocked_implementation_authorization` | 1 |
-| `blocked_implementation` | 1 |
-| `retired_by_owner` | 4 |
+1. Full plaintext/original handler recovery from `bridge-scripts.dat`.
+2. Exact host/proxy request-result protocol and readiness semantics.
+3. Original Map Scan internals and per-kind acquisition strategy.
+4. Removal of rebuild-only additions such as Secret Task Quick Find.
+5. Restoration of original product features previously retired/customized, including auth/account presentation, City export and Scheduled Plunder.
+6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
+7. Exact reference-vs-rebuild behavior validation across connected/live states.
 
-## Remaining externally gated work
+## Map status under the new goal
 
-1. Ghost positive-row proof remains population-gated after R7-152 current-v21 clean zero-row scans on 2212, 2175, 2180, 2185, and 2207.
-2. Supplies positive-row proof remains population-gated after R7-153 current-v21 clean zero-row scans on 2212, 2175, 2180, 2185, 2207, and 2213.
-3. Treasure protected claim scheduler recovery remains blocked under SB-79; do not reroute the denied operation or invent the contract.
-4. Simultaneous real multi-account UI population when multiple active accounts are available.
-5. Fresh positive current-v21 Railway row/Follow when Train population is present; R7-155 proves the v21 direct source path across 11 sampled zero-row servers, while historical v20 positive Follow remains provenance.
-6. Final integrated release acceptance.
+The current Map implementation is a reconstruction, not a recovered copy of the original algorithm.
+
+The R7-151 wide-FOV work demonstrated why coverage metrics are insufficient: a scan could report full logical coverage while returning only a fraction of Player Cities. The old traversal still found roughly the expected full population.
+
+Therefore no R7 performance optimization is accepted as original parity unless tied to reference evidence.
+
+## Protected package status
+
+The package is not “impossible to reverse.” Prior work recovered much of the surrounding cryptographic architecture. The remaining package/envelope ownership and layout questions are now P0.
+
+A historical environment denial is not a claim that the underlying research question is solved or impossible. Exact denied operations must not be rerouted, but permitted alternative analysis remains active work.
+
+## Completion rule
+
+The current whole-program parity matrix is `docs/lwbridge-parity-matrix.md`.
+
+A final release requires every required original feature to be classified as exact or proven equivalent, no unexplained rebuild-only deviations, and a working current-client product.

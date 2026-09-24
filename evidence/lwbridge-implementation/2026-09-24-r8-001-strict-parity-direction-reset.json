@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-001",
+  "date": "2026-09-24",
+  "scope": "strict one-to-one parity direction reset",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sizeBytes": 15515648,
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "currentAuthority": [
+    "AGENTS.md",
+    "docs/strict-parity-recovery.md",
+    "docs/lwbridge-parity-matrix.md",
+    "docs/implementation-handoff.md",
+    "BACKLOG.md",
+    "docs/lwbridge-project-status.md"
+  ],
+  "supersededAsCompletionAuthority": [
+    "evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json",
+    "R7 owner-specific feature retirements/customizations",
+    "R7 performance-first Map scan strategy decisions"
+  ],
+  "policy": {
+    "productAuthority": "verified LWBridge 0.3.1 reference",
+    "wholeProgramInScope": true,
+    "allowRebuildOnlyProductFeatures": false,
+    "allowReferenceFeatureRetirement": false,
+    "allowInvisibleCurrentClientCompatibilityShims": true,
+    "exactRecoveredBytesImmutable": true,
+    "bridgeScriptsPlaintextRecoveryPriority": "P0"
+  },
+  "knownDeviationsReclassified": [
+    "removed auth/account flows",
+    "removed City Excel export",
+    "removed Scheduled Plunder",
+    "R7-151 Secret Task Quick Find",
+    "R7-151 wide-FOV/68-request Map optimization",
+    "other current-game-specific substitutions not yet tied to original LWBridge evidence"
+  ],
+  "validation": {
+    "referenceHashReverified": true,
+    "codeChangesIncluded": false,
+    "preExistingUncommittedCodeWorkPreserved": true
+  }
+}

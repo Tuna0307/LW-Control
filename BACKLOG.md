@@ -1,32 +1,49 @@
-# LWBridge current backlog
+# LWBridge strict parity backlog
 
-**Current through:** `LWB-R7-155`, 2026-09-24.
+**Current through:** `LWB-R8-001`, 2026-09-24.
 
-This file now tracks only current/actionable work. Historical completed backlog detail is preserved in `docs/reviews/`, subject ledgers, evidence files, and Git history; it is intentionally not repeated here.
+This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
 
-## P0 — current external/live gates
+## P0 — recover the original implementation
 
-- [ ] **Ghost positive-row acceptance (B03/B13/B14/C01):** R7-152 current-v21 recheck completed 2,500/2,500 clean Ghost-only scans on 2212, 2175, 2180, 2185, and 2207; all five had zero authentic Ghost rows. Keep population-gated and rerun the unchanged strict proof only when authentic Ghost rows exist.
-- [ ] **Supplies positive-row acceptance (B13/B14/C01):** R7-153 current-v21 strict recheck completed clean 2,500/2,500 Treasure-family scans on 2212, 2175, 2180, 2185, 2207, and 2213; all six had zero authentic `WorldSuppliesPoint` rows. Keep population-gated and rerun the unchanged strict proof only when authentic Supplies population exists.
-- [ ] **Fresh Railway v21 positive row/Follow:** R7-155 live-proves the current-v21 official Train-list source across 11 sampled servers, all with authoritative zero-row results; a strict 2207 full scan also completed 2,500/2,500 with zero Railway rows. Historical v20 positive Follow remains provenance, but a fresh v21 positive row + Follow is still population-gated.
-- [ ] **Simultaneous real multi-account UI population:** deterministic multi-profile UI and real single-session transport are proven separately; integrated several-active-account population remains unavailable.
-- [ ] **Final integrated release acceptance:** perform when the external population/action/account gates are ready or explicitly waived/retired by the owner.
+- [ ] **Recover `bridge-scripts.dat` plaintext and container contents.** Continue the package-key/envelope/device-key/KDF/AES-GCM/LWBP2 recovery through permitted methods until the original script handlers are extracted and hash-preserved.
+- [ ] **Recover the exact host<->proxy command protocol.** Close `hello.ack`, readiness/heartbeat, request/result grammar, correlation, timeout/disconnect/write failure behavior, and script-dispatch ownership.
+- [ ] **Build a complete original command/service inventory.** Enumerate every UI API call, Rust/Tauri command, service, script handler, launcher/proxy path, default, error code and persistent key in LWBridge 0.3.1.
+- [ ] **Map each original command to the current Last War client.** Compatibility work may adapt internals but must preserve the recovered original observable contract.
 
-## P0 — protected/authorization-gated actions
+## P0 — remove reconstruction drift
 
-- [ ] **Treasure protected executor (E01/E02):** `map_treasure_claim` remains intentionally unrouted. Protected scope filtering/order, lucky-slot scheduling, scout-slot reservation, and exact terminal batch enumeration remain `UNKNOWN/BLOCKED` behind preserved SB-79. Do not replay/reroute SB-79 or invent semantics.
-- [ ] **Alliance-share live delivery (E06):** payload/validation is offline-tested. Do not send a real alliance message without explicit messaging authorization.
+- [ ] **Remove/quarantine every rebuild-only product feature.** R7-151 Secret Task Quick Find is the known example; do not retain any addition not demonstrated in the reference.
+- [ ] **Restore every original feature previously retired or customized.** This includes original auth/account presentation, City Excel export, Scheduled Plunder surfaces, and any other reference behavior removed by earlier owner-specific rebuild decisions.
+- [ ] **Eliminate performance-first Map substitutions that lack reference authority.** The wide-FOV/68-request work and similar current-game optimizations are research evidence only until proven equivalent to original LWBridge behavior.
+- [ ] **Re-audit all frontend transforms.** Keep original chunks/assets byte-identical and reduce the generator/API boundary to only invisible compatibility plumbing.
 
-## Completed ordinary Home / Map work
+## P0 — exact Map Data recovery
 
-- [x] Home A01-A12 ordinary acceptance is closed at documented current/historical scopes.
-- [x] Shared Manual Scan engine and backend strategy selection.
-- [x] Player City completeness/effective HP, Resource, Monster/Doom Walker, Zombie Boss, Truck, Railway, Dispatch, ordinary Treasure.
-- [x] Exact full-world coverage, transactional publication, saved-server/multi-server persistence.
-- [x] Manual Stop, bridge-loss fail-fast, app-restart safe rejection/reconciliation.
-- [x] Search/filter/sort/paging, result persistence, Clear race, mark/unmark/relocation, Jump/Follow and moving-target failures.
-- [x] Auto Scan ordered targets, failure isolation, return origin, scheduler persistence, reconnect/navigation ownership, restart handling, three consecutive multi-server cycles.
-- [x] Normal Release responsiveness and zero-argument normal-user Overview/Map restart navigation.
-- [x] R7-151 Last War v21 update-safe restore -> official update -> strict final validation -> injection order.
-- [x] R7-151 Dispatch/Secret Task v21 acceleration: exact 68-request full scan plus read-only native Quick Find before Auto full scan.
-- [x] City Excel export retired by owner and removed from product scope.
+- [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
+- [ ] Recover original Normal/Fast mode behavior, retries, pacing, concurrency, block/AOI semantics, completeness rules and failure/resume logic.
+- [ ] Recover original multi-server behavior instead of designing from LW Atlas or our own assumptions.
+- [ ] Reconcile original acquisition with current-client Last War APIs/managers without changing product semantics.
+- [ ] Re-run identity-level comparisons, not only counts, for every map category.
+
+## P1 — whole-program parity
+
+- [ ] Automation — recover every category, handler, schedule, state transition and error path.
+- [ ] Squads / AFK — recover every task/equipment/preset/runtime action.
+- [ ] City Layout — recover connected editor/data behavior.
+- [ ] Hotkeys — recover every command, default and persistence rule.
+- [ ] Mini-games — recover every visible and conditional function.
+- [ ] Settings — recover every setting, update, feedback, account and persistence behavior.
+- [ ] Home / Overview — re-audit working reconstructed lifecycle against the original host/launcher/proxy contract instead of treating current functionality as final.
+
+## P1 — parity validation
+
+- [ ] Expand `docs/lwbridge-parity-matrix.md` until every reference feature/function has a row.
+- [ ] Compare reference and rebuild UI states, labels, controls, errors, defaults and state transitions.
+- [ ] Compare original and rebuild request/result payloads where observable.
+- [ ] Preserve exact recovered asset hashes.
+- [ ] Live-prove the final parity implementation against the current Last War client.
+
+## Release exit rule
+
+A feature is not complete merely because the rebuild works. Final release requires no required reference feature classified as `DEVIATION` or `UNKNOWN`, and the resulting program must function end-to-end.

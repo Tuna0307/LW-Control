@@ -1,5 +1,8 @@
 # LWBridge Map Scan recovery
 
+> **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
+
+
 > **R7-149 owner retirement (2026-09-23):** all Scheduled Plunder product surfaces described below are historical provenance only. The shipped rebuild no longer contains the `scheduledPlunder` tab, schedule/cancel/job-list commands, workers, action executors, game-action bridge lanes, or scheduler job/history tables. Read-only Truck/Dispatch scan/filter/status data remains current.
 
 

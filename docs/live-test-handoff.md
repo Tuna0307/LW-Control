@@ -1,53 +1,41 @@
-# Current live-test handoff
+# Current live-test handoff — strict parity phase
 
-**Current through:** `LWB-R7-155`, 2026-09-24.
+**Current through:** `LWB-R8-001`, 2026-09-24.
 
-The old Resource/Player City owner-test packet has been retired. Ordinary Home/Map acceptance no longer needs the owner to repeat those historical checks unless a future code/client change causes a regression.
+Live testing is no longer driven by the old “close remaining Home/Map acceptance rows” matrix. The primary task is now original-reference recovery and parity implementation.
 
-## Tests still waiting on external conditions
+## Current testing rule
 
-### 1. Ghost positive-row proof
+Do not ask the owner to repeatedly test reconstructed behavior that has not first been tied back to LWBridge 0.3.1.
 
-Status: implementation ready; positive population currently unavailable.
+For each parity feature:
 
-R7-152 reran the strict current-v21 proof on 2212, 2175, 2180, 2185, and 2207. Every server completed 2,500/2,500 cleanly and returned zero authentic Ghost rows. Rerun only when population appears; ChatGPT can target a server with the proof harness and the owner should not need to run terminal commands.
+1. recover the original reference contract/bytes;
+2. implement or map it to the current Last War client;
+3. run automated reference-vs-rebuild checks where possible;
+4. run automated current-client technical checks;
+5. ask the owner only for the minimal visible interaction that cannot be captured automatically.
 
-### 2. Supplies positive-row proof
+## Owner interaction
 
-Status: implementation/read-only harness ready; positive population unavailable.
+The owner is not expected to run commands, inspect JSON, calculate hashes, locate databases, or diagnose technical state.
 
-R7-153 current-v21 strict scans on 2212, 2175, 2180, 2185, 2207, and 2213 all completed 2,500/2,500 cleanly and returned zero authentic `WorldSuppliesPoint` rows. Rerun only when Supplies population appears; the existing harness already handles safe target-server jump/return.
+ChatGPT should operate the technical collection path directly whenever permitted and request only simple UI observations/screenshots when necessary.
 
-### 3. Fresh Railway v21 positive row / Follow
+## Historical R7 live evidence
 
-Status: current-v21 Railway direct Train-list source is live-proven; fresh positive row/Follow remains population-gated.
+Ghost/Supplies population checks, Railway population checks, multi-account availability, lifecycle stress, Map scan proofs and other R7 results remain useful current-client evidence. They are not current parity gates by themselves.
 
-R7-155 queried 11 current-v21 servers through the official Train-list source and every query was proven with zero Railway rows. A strict server-2207 full scan also completed 2,500/2,500 with zero rows. Retry the unchanged positive-row/Follow harness only when Train population appears.
+Previously retired state-changing features such as Scheduled Plunder are no longer considered out of product scope merely because R7 removed them. Before live testing them, first recover the original 0.3.1 behavior and restore the exact intended implementation.
 
-### 4. Simultaneous real multi-account UI population
+## Safety / action boundary
 
-Status: deterministic multi-profile UI plus real single-session transport are proven separately. Integrated proof needs several simultaneously active usable accounts/sessions.
+Do not perform irreversible or state-changing actions merely to make a matrix row green. Follow current tool/environment rules and preserve explicit authorization requirements for messaging/spending/consuming actions.
 
-### 5. State-changing acceptance
+## Current technical sources
 
-Treasure Claim and Alliance-share delivery are not read-only tests. Scheduled Plunder was retired by owner in R7-149 and has no live-action acceptance test. Do not run them merely for coverage. They require suitable expendable targets and the required explicit authorization at the time of the test.
-
-## What the owner may be asked to do later
-
-If a test genuinely requires owner observation, instructions must be simple UI steps plus screenshots/descriptions. The owner is not expected to run commands, inspect JSON, calculate hashes, locate databases, or diagnose recovery state.
-
-ChatGPT should automate technical evidence collection first and ask the owner only for the minimum visible interaction that cannot be collected directly.
-
-## Tests that do not need repeating now
-
-- Player City saved-row visibility / Search correlation.
-- ordinary Home Launch/Close/reconnect/status behavior.
-- normal Release Overview <-> Map Data navigation across restart.
-- ordinary full-world City/Resource/Monster/Truck/Railway/Dispatch/Treasure scanning.
-- Auto Scan ordered multi-server cycles/return/restart ownership.
-
-Repeat those only after a relevant code change, official-client compatibility change, or reproduced regression.
-
-## Current evidence
-
-See `evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json`, R7-153 Supplies, R7-152 Ghost, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and the curated current evidence index.
+- `docs/strict-parity-recovery.md`
+- `docs/lwbridge-parity-matrix.md`
+- `docs/implementation-handoff.md`
+- `BACKLOG.md`
+- `evidence/lwbridge-implementation/2026-09-24-r8-current-evidence-index.json`

@@ -1,5 +1,8 @@
 # LWBridge injection/bootstrap recovery
 
+> **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
+
+
 > **Cumulative bootstrap/proxy recovery history.** The old Overview delivery sequence below is superseded by current Home acceptance. Use [`tabs/home.md`](tabs/home.md) and [`implementation-handoff.md`](implementation-handoff.md) for current status. Protected-original unknowns remain evidence limits, not proof that the independent current lifecycle is unfinished.
 
 > Current delivery, 2026-09-11: use these findings as a source index for [Overview launch, verified injected bridge, in-game message and close](overview-live-delivery.md). The exact new owner text is **LWbridge is running**, top-centre inside the real game and conditional on current bridge readiness. This requirement is not a newly recovered original string. Old resource-first or next-feature directions below are historical; all source/build limits and operation restrictions remain.

@@ -1,58 +1,45 @@
-# Shared runtime / Release — current status
+# Shared runtime / Release — strict parity status
 
-**Current through:** `LWB-R7-155`, 2026-09-24
+**Current through:** `LWB-R8-001`, 2026-09-24.
 
-This page covers behavior shared by Home and Map Data: the native host, generated frontend, persistent configuration, authenticated game bridge, window responsiveness, restart behavior, and release acceptance.
+The previous Release page asked whether the reconstructed Home/Map build was stable. The current question is stricter: does the entire rebuilt program reproduce LWBridge 0.3.1 one-for-one and still work against the current Last War client?
 
-## Current release baseline
+## Reference
 
-- Branch: `research/offline-controller`.
-- Current checkpoint: `LWB-R7-155`; parent revision `f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb`. R7-152/R7-153 are population-evidence checkpoints; R7-154/R7-155 refine Railway v21 evidence/test identity. Shared Release behavior remains the R7-151 implementation.
-- Installed game-side package at the current live audit: content version 21. R7-151 validates the final updated client only after the official launcher/update completes.
-- Canonical current matrix: `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`.
-- 47 acceptance cases are tracked; ordinary status `partial` count is zero.
-- Remaining non-pass categories are population-, authorization-, or explicitly blocked-implementation cases, plus the owner-retired Excel-export case.
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-## Shared correctness
+SHA-256:
 
-| Area | Current result |
-|---|---|
-| Generated recovered frontend | Maintained generator + browser checks |
-| Theme/language/layout | Current isolated browser/capture acceptance |
-| Normal Release window | Responsive production-composition smoke |
-| Normal user navigation/restart | R7-143 accepted path + R7-145 auto-launch-safe verifier rerun |
-| Config/profile persistence | Current deterministic + browser coverage |
-| Authenticated bridge route | Live-proven read-only `getStatus` path |
-| Request/session ownership | Stale/duplicate/foreign identity rejection covered |
-| Startup/close rollback | Deterministic matrix + live close-during-start proof |
-| Installed package restoration / official update | R7-151 restore-first -> untouched official launcher/update -> strict final v21 validation -> injection order; owned sessions still restore exact package state |
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-## Evidence labels
+## Shared parity requirements
 
-- `RECOVERED`: established from identified original/static artifacts.
-- `IMPLEMENTED/OFFLINE-TESTED`: rebuild code plus stated offline tests.
-- `LIVE-PROVEN`: observed against the identified current client.
-- `PASS_CURRENT_PLUS_HISTORICAL`: current deterministic proof composed with earlier live authority.
-- `PASS_CURRENT_NORMAL_USER`: real built Release path without application test mode.
-- `UNKNOWN/BLOCKED`: missing contract is intentionally not invented.
+- Preserve exact recovered frontend/runtime assets byte-for-byte.
+- Recover original host/proxy request, readiness and failure semantics.
+- Recover original launcher/profile/multi-hook behavior.
+- Keep current-client compatibility changes below the observable parity boundary.
+- Restore original product surfaces previously removed.
+- Remove rebuild-only product behavior.
+- Validate reference-vs-rebuild states, not only our own regression suite.
+- Keep the reference artifact immutable and hash-check it before major recovery work.
 
-## Current remaining release gates
+## Old acceptance matrix
 
-The matrix still records four `partial_population` cases, state-changing action/authorization cases E01-E06, and one owner-retired case. Those are not ordinary Home/Map coding defects.
+The R7 47-case matrix remains historical proof that selected reconstructed behaviors worked.
 
-The repository must not silently promote any of them until the required live population, target, authorization, or recovered protected contract exists.
+It is not the R8 release gate.
 
-## Validation expectations
+The R8 release gate is `docs/lwbridge-parity-matrix.md`: every required reference feature must be exact or proven equivalent, with no unexplained deviation/unknown, followed by integrated live acceptance.
 
-For a documentation-only checkpoint, at minimum verify Markdown/JSON link integrity, current matrix invariants, `git diff --check`, and exact staging. For any code change, also run the maintained frontend generator check, Release build, deterministic desktop checks, relevant browser checks, and live proof when the changed behavior requires it.
+## Compatibility
 
-Current normal validation entry points include:
+The owner explicitly prioritizes the end product working. Internal adapters may compensate for newer Last War builds, changed Lua/managed layouts, update sequencing, or process/runtime differences, but those adapters must not intentionally alter the original LWBridge UI or behavior.
 
-- `python tools/build_lwbridge_frontend.py --check`
-- `dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release`
-- `dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build`
-- maintained browser/check scripts referenced by the current review evidence.
+## Validation expectation
 
-## Audit rule
+Every future release candidate needs two classes of proof:
 
-Historical files are evidence, not current instructions. When an older document says a feature is pending but the current matrix says it is passed, the matrix plus later linked evidence supersede the old status statement while preserving the old observation as provenance.
+1. **Reference parity** — bytes, UI, contracts, errors, defaults, state transitions and command payloads match recovered original behavior.
+2. **Current-client operation** — the parity implementation actually works against the installed Last War version.
+
+A build passing only one class is not a finished release.

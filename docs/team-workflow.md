@@ -1,26 +1,36 @@
-# Team workflow — current
+# Team workflow — strict parity phase
 
-**Current through:** `LWB-R7-145`, 2026-09-22.
+**Current through:** `LWB-R8-001`, 2026-09-24.
 
 ## Roles
 
-- **Owner:** sets priorities and supplies minimal UI observations/screenshots when genuinely needed.
-- **ChatGPT Web:** primary research, implementation, testing, evidence capture, documentation, cleanup, commit/push worker.
-- **Project-manager/auditor role:** reviews evidence/status and keeps the repository coherent; it must not promote unproven live outcomes.
-- **Daybreak:** bounded specialist escalation only after the requirements in `AGENTS.md` and `docs/daybreak-escalations.md` are met.
+- **Owner:** sets priority and judges the final working product.
+- **ChatGPT Web:** primary reverse-engineering, implementation, validation, documentation and Git-delivery worker.
+- **Project-manager/auditor role:** maintains parity classification and prevents unsupported “done” claims.
+- **Daybreak/specialist:** bounded escalation only when the repository's escalation rules are satisfied.
 
-## Current workflow
+## Mandatory workflow
 
-1. Read `AGENTS.md` and current canonical docs before work.
-2. Inspect HEAD/worktree and preserve unrelated changes.
-3. Work only on a current `BACKLOG.md` item or a newly reproduced regression.
-4. Recover/verify behavior before changing production semantics.
-5. Run the checks appropriate to the changed behavior.
-6. Update current docs plus durable evidence without rewriting historical provenance.
-7. Stage only the coherent checkpoint, `git diff --check`, commit, push, and verify remote SHA.
+1. Read `AGENTS.md`, `docs/strict-parity-recovery.md`, `docs/lwbridge-parity-matrix.md` and `BACKLOG.md`.
+2. Verify the reference EXE identity before new original-artifact recovery.
+3. Inspect HEAD/worktree and preserve unrelated changes.
+4. Choose an original LWBridge feature/function, not a new design problem.
+5. Recover the original bytes/contract with durable source locators.
+6. Update the parity matrix before or with implementation.
+7. Map the recovered behavior to the current Last War client without altering product semantics.
+8. Compare against reference behavior/assets and run live proof when required.
+9. Document the finding, tests, limits and remaining gaps.
+10. Stage only the coherent checkpoint, run `git diff --check`, commit, push and verify the remote SHA.
 
-## Current owner interaction
+## What not to do
 
-No routine Home/Map retest is required now. Owner-dependent work is limited to the external conditions listed in `docs/live-test-handoff.md`: Ghost/Supplies population, simultaneous multi-account availability, and explicitly authorized state-changing actions.
+- Do not optimize first and reverse-engineer later.
+- Do not use LW Atlas or other tools as product specification.
+- Do not retire difficult original features.
+- Do not add useful-looking features absent from the reference.
+- Do not treat a working current-client workaround as parity without original evidence.
+- Do not reroute a prohibited operation through a different executor.
 
-Do not revive old “next category” or Resource/Player City owner-test instructions from historical files.
+## Owner interaction
+
+Automate technical collection first. Ask the owner only for minimal visible checks that genuinely require human observation.

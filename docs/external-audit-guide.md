@@ -1,75 +1,66 @@
-# External AI audit guide
+# External AI audit guide — strict parity phase
 
-Use this document when handing the repository to another AI or reviewer. It is intentionally short and points to the current sources of truth instead of asking the auditor to reconstruct status from hundreds of chronological files.
+Use this document when reviewing the repository after the 2026-09-24 direction reset.
 
 ## Read in this order
 
-1. `AGENTS.md` — mandatory evidence/recovery/safety/delivery rules.
-2. `docs/README.md` — canonical documentation map.
-3. `docs/tabs/home.md` — current Home / Overview status.
-4. `docs/tabs/map-data.md` — current Map Data status and scan-performance audit.
-5. `docs/tabs/shared-release.md` — shared runtime and Release status.
-6. `docs/lwbridge-project-status.md` — current project-manager summary.
-7. `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json` — current 47-case status after the R7-149 owner retirement of Scheduled Plunder.
-8. `evidence/lwbridge-implementation/README.md` and the current evidence index — curated evidence navigation.
+1. `AGENTS.md`
+2. `docs/strict-parity-recovery.md`
+3. `docs/lwbridge-parity-matrix.md`
+4. `docs/implementation-handoff.md`
+5. `BACKLOG.md`
+6. `docs/lwbridge-project-status.md`
+7. `docs/deep-binary-handoff.md`
+8. cumulative technical ledgers/evidence as needed
 
-## Audit method
+## Audit question
 
-Do not treat the newest-looking sentence in an old checkpoint as current status. This repository preserves superseded findings on purpose. Resolve conflicts by date/checkpoint and by the current acceptance matrix.
+Do not ask only “does the rebuild work?”
 
-Check claims at their stated evidence scope:
+Ask:
 
-- `RECOVERED` is static/original-artifact evidence, not live proof.
-- `IMPLEMENTED/OFFLINE-TESTED` proves the rebuild/tests, not a live outcome.
-- `LIVE-PROVEN` requires current-client runtime evidence.
-- composed statuses explicitly combine current deterministic evidence with historical live authority.
-- `UNKNOWN/BLOCKED` must remain blocked rather than being filled with plausible behavior.
+**“Is this behavior demonstrated in the verified LWBridge 0.3.1 reference, and does the rebuild reproduce it without intentional deviation?”**
 
-## High-value code paths to inspect
+## Reference authority
 
-- `src/LWBridge.Desktop/OverviewLifecycleService.cs`
-- `src/LWBridge.Desktop/ManualMapScanCommandService.cs`
-- `src/LWBridge.Desktop/MapScanContract.cs`
-- `src/LWBridge.Desktop/CurrentClientMapBlockSource*.cs`
-- `src/LWBridge.Desktop/MapScanEngine.cs`
-- `src/LWBridge.Desktop/MapDataStore*.cs`
-- `src/LWBridge.Desktop/LWBridgeBackend.cs`
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 
-## Claims worth challenging
+SHA-256:
 
-An auditor should specifically verify:
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
-- the standard-world planner really selects Fast/concurrency 20 and does not expose a slower user mode;
-- exact full-world coverage is preserved by the R7-130 optimization;
-- Player City effective HP does not regress to stale raw current HP;
-- generic Monster still includes ordinary Doom Walker and level-by-10 variants;
-- Truck/Railway moving identity uses exact march UUID and does not duplicate moved rows;
-- Railway-only acquisition uses the official `LWTrainDataManager.TryGetTrainList(true)` refresh once per full scan rather than relying only on world marches; R7-155 freshly live-proves this source on v21 across 11 sampled servers, all currently zero-row;
-- covered Truck/Railway-only Auto targets use `matchServers` + `targetServerId` without physical travel, while mixed/uncovered targets retain jump-first behavior and `liveServerId` remains the physical-server authority;
-- Manual has no server filter while Auto/saved-data browsing has **All** + saved servers;
-- one-shot Run Now works with recurring Auto disabled and does not enable future scheduling;
-- cross-server row Jump/Follow enters the row server before navigation;
-- Auto Scan cannot duplicate a due cycle across navigation/Refresh/reconnect/restart;
-- interrupted scans cannot publish partial staging over trusted data;
-- Clear cannot resurrect stale search results;
-- normal Release Home/Map navigation is not fixture-only.
+## Classification
 
-## Known remaining gaps — do not report these as newly discovered defects
+Challenge every feature into one of:
 
-- Ghost positive-row population: R7-152 current-v21 five-server recheck completed clean scans but found zero authentic rows; keep this as a population gate, not a scanner defect.
-- Supplies positive-row population: R7-153 current-v21 six-server recheck completed clean scans but found zero authentic `WorldSuppliesPoint` rows; keep this as a population gate, not a scanner/parser defect.
-- Fresh current-v21 Railway positive row/Follow: R7-155 proves the v21 direct source path but all 11 sampled servers were zero-row. Historical v20 positive Follow remains provenance; do not misreport the current zero population as a source failure.
-- Treasure protected claim scheduler: `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary; public claim is intentionally unrouted.
-- Simultaneous real multi-account UI population: target availability gap.
-- Final integrated release acceptance remains a separate release-level gate even though ordinary technical `partial` rows are zero.
+- EXACT_BYTES
+- EXACT_CONTRACT
+- EQUIVALENT_REIMPLEMENTATION
+- DEVIATION
+- UNKNOWN
 
-## Historical material
+“LIVE-PROVEN” is useful operational evidence but does not prove original parity by itself.
 
-`docs/reviews/`, `docs/lwbridge-map-scan.md`, `docs/lwbridge-overview-recovery.md`, `docs/lwbridge-injection.md`, and older evidence JSON/TXT files are retained to make prior claims reproducible. They should not be deleted merely because their old status language is superseded.
+## High-value challenge areas
 
-Current speed proof: `docs/reviews/2026-09-23-r7-148-direct-train-list-speed.md`.
-Current feature-retirement proof: `docs/reviews/2026-09-23-r7-149-scheduled-plunder-retirement.md`.
-Current no-jump speed proof: `docs/reviews/2026-09-23-r7-150-train-list-no-jump-auto.md`.
-Current Ghost population proof: `docs/reviews/2026-09-24-r7-152-ghost-population-recheck.md`.
-Current Supplies population proof: `docs/reviews/2026-09-24-r7-153-supplies-population-recheck.md`.
-Current Railway v21 source/population proof: `docs/reviews/2026-09-24-r7-155-railway-v21-negative-population.md`.
+- Are recovered frontend chunks still byte-identical, or did the generator mutate product logic?
+- Are original auth/account flows missing?
+- Is City Excel export still missing?
+- Are original Scheduled Plunder surfaces still missing?
+- Does any rebuild-only Quick Find or other convenience feature remain?
+- Are Map acquisition strategies supported by original LWBridge evidence or only current-game experimentation?
+- Is the full `bridge-scripts.dat` package recovered?
+- Is the exact host/proxy request-result protocol recovered?
+- Are Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings backends actually audited, or only their UI assets?
+- Do current-client compatibility shims preserve original visible behavior?
+- Are historical “PASS” claims being mistaken for one-to-one completion?
+
+## Historical restrictions
+
+Preserve old restriction records exactly. A denied historical operation is not evidence that its underlying question is impossible. Review whether the project has a genuinely distinct permitted method; do not reroute a prohibited operation through another executor.
+
+## Historical evidence
+
+R1-R7 reviews and evidence are intentionally retained. They should be used as provenance and current-client capability evidence, not as automatic authority for R8 product design.
+
+The old 47-case matrix is therefore a historical reconstruction matrix, not the current whole-program release matrix.
