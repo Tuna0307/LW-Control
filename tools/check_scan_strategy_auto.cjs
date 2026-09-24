@@ -1,4 +1,4 @@
-/* R7-067 browser regression: Map Data exposes no Normal/Fast user control. */
+/* R8-012 browser regression: restore original Manual Normal/Fast control; Auto rollback remains separate. */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -39,10 +39,16 @@ async function main() {
     await page.waitForTimeout(300);
     assert.deepEqual(errors, [], 'Map Data must load without JavaScript errors');
 
-    assert.equal(await page.locator('.map-speed-toggle').count(), 0,
-      'Manual Scan must not expose the retired speed toggle');
-    assert.equal(await page.locator('input[name="map-scan-speed"]').count(), 0,
-      'Manual Scan must not expose Normal/Fast radio inputs');
+    assert.equal(await page.locator('.map-speed-toggle').count(), 1,
+      'Manual Scan must expose the original speed toggle');
+    assert.equal(await page.locator('input[name="map-scan-speed"]').count(), 2,
+      'Manual Scan must expose original Normal/Fast radio inputs');
+    const fastRadio = page.locator('input[name="map-scan-speed"]').nth(1);
+    await page.locator('.map-speed-toggle label').nth(1).click();
+    assert.equal(await fastRadio.isChecked(), true,
+      'Manual Fast radio must become selected through the visible control');
+    assert.equal(await page.evaluate(() => localStorage.getItem('lwbridge.mapScanMode')), 'fast',
+      'Manual Fast preference must persist under the original storage key');
     assert.equal(await page.getByRole('button', {name:'Start Scan'}).count() > 0, true,
       'Manual Scan must retain Start Scan');
 
@@ -98,16 +104,18 @@ async function main() {
 
     const panel = fs.readFileSync(path.join(assets,'MapDataPanel-C1HVeNHr.js'),'utf8');
     const index = fs.readFileSync(path.join(assets,'index-sfL2sT3K.js'),'utf8');
-    for (const token of ['lwbridge.mapScanMode','map-speed-toggle','map-scan-speed','scanMode:P','value:S.scanMode']) {
-      assert.equal(panel.includes(token), false, `Map Data bundle must not contain retired token ${token}`);
+    for (const token of ['lwbridge.mapScanMode','map-speed-toggle','map-scan-speed','scanMode:P']) {
+      assert.equal(panel.includes(token), true, `Manual Map Scan must restore original token ${token}`);
     }
+    assert.equal(panel.includes('value:S.scanMode'), false,
+      'Auto configuration speed selector remains pending its own rollback checkpoint');
     for (const token of ['scanMode:i.scanMode','e?.scanMode','scanMode:\`fast\`']) {
-      assert.equal(index.includes(token), false, `Auto Scan bundle must not persist/emit retired token ${token}`);
+      assert.equal(index.includes(token), false, `Auto Scan mode ownership remains pending: ${token}`);
     }
-    assert.equal(panel.includes('v(await ae({selectedTypes:e}))'), true,
-      'Manual Start must send selectedTypes without scanMode');
+    assert.equal(panel.includes('v(await ae({selectedTypes:e,scanMode:P}))'), true,
+      'Manual Start must send the original selectedTypes + scanMode payload');
     assert.equal(index.includes('Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))'), true,
-      'Auto scheduler must start scans without scanMode');
+      'Auto scheduler remains on the pre-rollback payload until its own checkpoint');
     for (const token of [
       'n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)',
       'function Zn(e,t,n,r,i){return n&&!r&&!i&&(e.runOnceRequestedAt>0||e.enabled&&t>=e.nextRunAt)}',
@@ -141,7 +149,7 @@ async function main() {
     for (const name of localeNames) {
       const locale = fs.readFileSync(path.join(assets,name),'utf8');
       for (const key of ['"map.speed":','"map.normalSpeed":','"map.fastSpeed":'])
-        assert.equal(locale.includes(key), false, `${name} must not ship retired speed string ${key}`);
+        assert.equal(locale.includes(key), true, `${name} must ship the original Manual scan speed string ${key}`);
     }
 
     console.log('Automatic scan strategy UI browser check passed.');

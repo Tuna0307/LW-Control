@@ -23,12 +23,12 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private bool isReading;
     private string phase = "idle";
     private string scanRunId = string.Empty;
-    private string scanMode = "auto";
+    private string scanMode = "normal";
     private string scanStrategy = "none";
-    private IReadOnlyList<string> selectedTypes = ["city"];
+    private IReadOnlyList<string> selectedTypes = MapScanContract.RecoveredDefaultTypes.ToArray();
     private int serverId;
     private long worldId;
-    private int concurrency;
+    private int concurrency = 8;
     private int totalBlocks;
     private int completedBlocks;
     private int failedBlocks;
@@ -130,17 +130,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 $"Manual Map Scan cannot handle '{command}'.");
 
         MapScanStartOptions options = MapScanContract.NormalizeStart(payload);
-        bool dedicatedZombieBossOnly = options.SelectedTypes.Count == 1 &&
-            options.SelectedTypes[0] == "zombie_boss";
-        bool recoveredMixedSelection = options.SelectedTypes.Count is >= 1 and <= 8 &&
-            options.SelectedTypes.All(type => MapScanContract.RecoveredDefaultTypes.Contains(type, StringComparer.Ordinal));
-        if (!dedicatedZombieBossOnly && !recoveredMixedSelection)
-        {
-            throw new BridgeCommandException(
-                "LIVE_BLOCK_TYPES_UNSUPPORTED",
-                "The shared current-client scanner supports any mixture of the original eight Map Data kinds; dedicated Zombie Boss must be scanned by itself.");
-        }
-
         return await StartAsync(options, cancellationToken).ConfigureAwait(false);
     }
 
@@ -570,10 +559,10 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             store.ClearServer(requestedServerId);
             scanRunId = string.Empty;
             phase = "idle";
-            scanMode = "auto";
+            scanMode = "normal";
             scanStrategy = "none";
             worldId = 0;
-            concurrency = 0;
+            concurrency = 8;
             totalBlocks = 0;
             completedBlocks = 0;
             failedBlocks = 0;
@@ -782,10 +771,10 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 store.ReconcileInterruptedEngineScans(RecoveredWallClock.UnixTimeMilliseconds());
                 isReading = true;
                 phase = "starting";
-                scanMode = "auto";
+                scanMode = options.ScanMode is "normal" or "fast" ? options.ScanMode : "normal";
                 scanStrategy = "pending";
                 selectedTypes = options.SelectedTypes.ToArray();
-                concurrency = 0;
+                concurrency = options.ScanMode == "fast" ? 20 : 8;
                 lastError = null;
                 serverId = 0;
                 liveServerId = 0;
@@ -827,15 +816,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     "MAP_SIZE_UNAVAILABLE",
                     "world map dimensions are unavailable");
 
-            if (options.TargetServerId.HasValue &&
-                !MapScanStrategyPlanner.IsDirectTrainListSelection(selectedTypes))
-            {
-                throw new BridgeCommandException(
-                    "LIVE_REMOTE_SCAN_UNSUPPORTED",
-                    "targetServerId is supported only for Truck/Railway direct-list scans");
-            }
-            int targetServerId = options.TargetServerId ?? context.ServerId;
-            MapScanStrategyPlan strategy = MapScanStrategyPlanner.Plan(context, selectedTypes);
+            int targetServerId = context.ServerId;
+            MapScanStrategyPlan strategy = MapScanStrategyPlanner.Plan(
+                context,
+                selectedTypes,
+                options.ScanMode);
             var request = new MapScanExecutionRequest(
                 runId,
                 targetServerId,
@@ -1095,7 +1080,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 scanMode,
                 scanStrategy,
                 concurrency,
-                retryCount = (int?)null,
+                retryCount = 2,
                 scanRate,
                 progressPercent = visibleProgress,
                 acquisitionProgressPercent,

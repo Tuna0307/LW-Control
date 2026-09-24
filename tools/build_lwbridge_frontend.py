@@ -234,14 +234,8 @@ def build(check=False):
                             '[p,m]=(0,j.useState)(window.LWBridgePreview.view)')
             s = replace_once(s, 'new Set([`overview`])',
                             'new Set([window.LWBridgePreview.view])')
-            # LWB-R7-038: Zombie Boss is a dedicated ninth Map Data kind. The
-            # Map Data Auto Scan controls already make it mutually exclusive,
-            # so the parent scheduler sanitizer must preserve it too. Keep the
-            # recovered Auto Scan default list unchanged.
-            s = replace_once(
-                s,
-                'var Un=new Set([`city`,`resource`,`monster`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=',
-                'var Un=new Set([`city`,`resource`,`monster`,`zombie_boss`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=')
+            # R8 strict parity keeps the original eight-kind Auto sanitizer.
+            # Zombie Boss is not an original LWBridge 0.3.1 Map scan kind.
             # LWB-R7-067 owner override: Auto Scan no longer owns/persists a
             # Normal/Fast choice. The backend planner selects the effective strategy.
             s = replace_once(s, ',scanMode:`fast`', '')
@@ -426,10 +420,9 @@ def build(check=False):
             data = s.encode('utf-8')
         elif re.match(r'^(en|id|ja|ko|pt|ru|vi|zh-CN|zh-TW)-.*\.js$', path.name):
             s = data.decode('utf-8')
-            # R8 strict parity restores the original City Excel labels. Scan-speed
-            # and Scheduled Plunder labels remain tracked by their own parity work.
+            # R8 strict parity restores the original City Excel and Manual
+            # Normal/Fast labels. Scheduled Plunder labels remain tracked separately.
             for key in (
-                'map.speed', 'map.normalSpeed', 'map.fastSpeed',
                 'map.clearPlunderHistory', 'map.plunderAt', 'map.plunderCancelled',
                 'map.plunderFailed', 'map.plunderReasonUnavailable', 'map.plunderResult',
                 'map.plunderWon', 'map.plunderLost', 'map.plunderRewards',
@@ -454,8 +447,9 @@ def build(check=False):
             s = replace_once(s, ',[Tn,En]=(0,b.useState)(!1)', '')
             s = replace_between(s, 'async function lr(){', 'async function ur(){', '')
             s = replace_once(s, 'F===`city`&&(0,D.jsx)(`button`,{disabled:Tn||L<=0||w.isReading,onClick:lr,children:C(Tn?`map.exportingExcel`:`map.exportExcel`)}),', '')
-            # LWB-R7-067 owner override: Manual/Auto Scan expose no Normal/Fast
-            # user setting; map_scan_start omits scanMode and backend planning owns it.
+            # Preserve the historical pre-delta base so the maintained Map Data
+            # override recipe remains SHA-256/offset locked. R8-012 restores only
+            # the Manual mode bytes after that delta is applied below.
             s = replace_once(s, 'ke=`lwbridge.mapScanMode`,', '')
             s = replace_once(s, ',[P,Xe]=(0,b.useState)(()=>{let e=localStorage.getItem(ke);return e===`normal`||e===`fast`?e:w.scanMode||`normal`})', '')
             s = replace_once(s, '(0,b.useEffect)(()=>{localStorage.setItem(ke,P)},[P]),', '')
@@ -642,6 +636,20 @@ def build(check=False):
             # original 0.3.1 feature and is restored after maintained deltas.
             s = retire_scheduled_plunder_panel(s)
             s = restore_city_export_panel(s, data.decode('utf-8'))
+            # R8-012: restore the exact original Manual Normal/Fast public UI
+            # only after all historical offset-locked rebuild deltas have applied.
+            s = replace_once(s, 'Oe=50,Ae=', 'Oe=50,ke=`lwbridge.mapScanMode`,Ae=')
+            s = replace_once(s,
+                '[We,Ge]=(0,b.useState)(()=>readManualTypes(profileId,w.selectedTypes)),[Ze,Qe]=',
+                '[We,Ge]=(0,b.useState)(()=>readManualTypes(profileId,w.selectedTypes)),[P,Xe]=(0,b.useState)(()=>{let e=localStorage.getItem(ke);return e===`normal`||e===`fast`?e:w.scanMode||`normal`}),[Ze,Qe]=')
+            s = replace_once(s,
+                'X=(0,b.useRef)(null);(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapManualScanTypes`,profileId),JSON.stringify(We))}',
+                'X=(0,b.useRef)(null);(0,b.useEffect)(()=>{localStorage.setItem(ke,P)},[P]),(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapManualScanTypes`,profileId),JSON.stringify(We))}')
+            s = replace_once(s, 'ae({selectedTypes:e})', 'ae({selectedTypes:e,scanMode:P})')
+            manual_speed_control = '(0,D.jsxs)(`fieldset`,{className:`map-speed-toggle${P===`fast`?` fast`:``}`,"aria-label":C(`map.speed`),disabled:w.isReading,children:[(0,D.jsx)(`span`,{className:`map-speed-slider`,"aria-hidden":`true`}),(0,D.jsxs)(`label`,{children:[(0,D.jsx)(`input`,{type:`radio`,name:`map-scan-speed`,checked:P===`normal`,onChange:()=>Xe(`normal`)}),(0,D.jsx)(`span`,{children:C(`map.normalSpeed`)})]}),(0,D.jsxs)(`label`,{children:[(0,D.jsx)(`input`,{type:`radio`,name:`map-scan-speed`,checked:P===`fast`,onChange:()=>Xe(`fast`)}),(0,D.jsx)(`span`,{children:C(`map.fastSpeed`)})]})]}),'
+            s = replace_once(s,
+                'Y===`manual`&&(0,D.jsxs)(D.Fragment,{children:[(0,D.jsx)(`button`,{className:w.isReading?``:`primary`',
+                'Y===`manual`&&(0,D.jsxs)(D.Fragment,{children:[' + manual_speed_control + '(0,D.jsx)(`button`,{className:w.isReading?``:`primary`')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

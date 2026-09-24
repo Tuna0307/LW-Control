@@ -116,7 +116,10 @@ internal sealed partial class MapDataStore : IDisposable
 {
     internal const int MaxCityExportRows = 200_000;
 
-    private static readonly HashSet<string> AllowedKinds = new(MapScanContract.AllTypes, StringComparer.Ordinal);
+    // R8-012 narrows Manual Scan to the original eight kinds. Keep the rebuild-only
+    // Zombie Boss storage compatibility internal until the separate map_search checkpoint.
+    private static readonly HashSet<string> AllowedKinds =
+        new(MapScanContract.RecoveredDefaultTypes.Append("zombie_boss"), StringComparer.Ordinal);
 
     private const string SchemaSql = """
         CREATE TABLE IF NOT EXISTS metadata (

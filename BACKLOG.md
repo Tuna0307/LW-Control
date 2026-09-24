@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-011`, 2026-09-24.
+**Current through:** `LWB-R8-012`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -25,13 +25,13 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 - [x] **Restore original `server_jump` public success envelope.** R8-009 restores destination `serverId` alongside `previousServerId` and `changed`, while retaining the recovered validation/error contract.
 - [x] **Restore original `map_summary` contract.** R8-010 restores the exact `{serverId, counts, scanState}` envelope, eight original count keys and shared-state active/published source selection; saved-server fallbacks are removed from this command.
 - [x] **Restore original `map_data_options` contract.** R8-011 restores recovered top-level order, exactly eight count kinds, Resource/Monster name families, matching active-run staging and server-scoped published fallback; removes public `zombie_boss`, `monsterLevels` and the all-server fallback.
-- [ ] Restore original Manual Scan public contract: exactly eight kinds and Normal/Fast `scanMode`.
+- [x] **Restore original Manual Scan public contract.** R8-012 restores exactly eight public kinds, Manual Normal/Fast UI/persistence, Normal=8/Fast=20, recovered Normal/8/retry2 defaults, null/non-string default-to-Normal behavior and exact invalid-string mode error/precedence.
 - [ ] Restore original `map_scan_status` / `map_scan_stop` public fields, transitions and error behavior.
 - [ ] Restore original `map_search` eight-kind filter ownership; remove rebuild-added Monster/Resource level-filter semantics.
 - [ ] Roll Auto Scan back to the exact original frontend scheduler/state machine.
 - [ ] Restore original Scheduled Plunder control plane and UI without inventing protected robbery execution internals.
 - [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
-- [ ] Recover original Normal/Fast mode behavior, retries, pacing, concurrency, block/AOI semantics, completeness rules and failure/resume logic.
+- [ ] Recover remaining protected Normal/Fast internals: mode-specific retries/pacing beyond the proven default retryCount=2 and concurrency 8/20, block/AOI semantics, completeness rules and failure/resume logic.
 - [ ] Recover original multi-server behavior instead of designing from LW Atlas or our own assumptions.
 - [ ] Reconcile original acquisition with current-client Last War APIs/managers without changing product semantics.
 - [ ] Re-run identity-level comparisons, not only counts, for every map category.

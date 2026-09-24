@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-011`, 2026-09-24
+**Current through:** `LWB-R8-012`, 2026-09-24
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -23,6 +23,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | `server_jump` public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-009 restores `{changed, previousServerId, serverId}` and retains recovered validation/error behavior | Recover only the still-protected travel internals and exact numeric timeout before claiming full implementation parity |
 | `map_summary` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-010 restores exact `{serverId, counts, scanState}`, exactly eight original count keys, shared-state server ownership and active-run vs published count selection | Audit the shared `map_scan_status` serializer separately; do not reintroduce saved-server fallback or `savedServerIds` into this command |
 | `map_data_options` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-011 restores exact recovered top-level order, eight count kinds, Resource/Monster name families, server-scoped published fallback and matching active-run staging; removes public `zombie_boss`, `monsterLevels` and all-server fallback | Complete nested `scanProgress` serializer only when stronger evidence exists; preserve current strict-parity regression |
+| Manual `map_scan_start` public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores exactly eight selectable kinds, Manual Normal/Fast UI/persistence, Normal=8/Fast=20, original null/non-string default-to-Normal behavior and exact invalid-string error; current-client strategy choice no longer rewrites public mode | Preserve; recover status/stop and protected pacing/traversal separately |
 | Scheduled Plunder surfaces | DEVIATION | Previously owner-retired and removed | Re-audit reference and restore every retained original surface/worker/action that belongs to 0.3.1 |
 | Secret Task Quick Find product feature | DEVIATION REMOVED | Added by R7-151 from a current-game native finder; R8-002 removes the product surface because it is not established as LWBridge 0.3.1 behavior | Restore only if reference evidence proves it exists |
 | Map scan request envelope | EXACT_CONTRACT | `startMapScan` fields, accepted gate, selected types, normal/fast concurrency recovered | Preserve; recover remaining handler internals |
@@ -55,12 +56,11 @@ This is now the product-completion matrix for the retained product scope. The ol
 ## Immediate retained-scope sequence
 
 1. Preserve and fingerprint the reference and every recovered embedded asset.
-2. Restore the original Manual Scan public contract: exactly eight kinds plus Normal/Fast `scanMode`.
-3. Restore `map_scan_status` and `map_scan_stop` public/state parity.
-4. Restore `map_search` filter ownership and remove rebuild-added Monster/Resource level semantics.
-5. Roll Auto Scan back to the original scheduler/state machine, then restore Scheduled Plunder.
-6. Continue retained whole-program parity across Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
-7. Keep the evidence-limited package-key lane parked until genuinely new permitted evidence exists, and do not expand it into Account/Login/Authentication recovery.
-8. Perform reference-vs-rebuild UI/behavior comparisons and current-client live validation.
+2. Restore `map_scan_status` and `map_scan_stop` public/state parity.
+3. Restore `map_search` filter ownership and remove rebuild-added Monster/Resource level semantics.
+4. Roll Auto Scan back to the original scheduler/state machine, then restore Scheduled Plunder.
+5. Continue retained whole-program parity across Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
+6. Keep the evidence-limited package-key lane parked until genuinely new permitted evidence exists, and do not expand it into Account/Login/Authentication recovery.
+7. Perform reference-vs-rebuild UI/behavior comparisons and current-client live validation.
 
 No feature is considered complete merely because our current implementation works.

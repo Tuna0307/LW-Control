@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-011`
+**Current checkpoint:** `LWB-R8-012`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -69,7 +69,15 @@ Persisted multi-server browsing and its frontend transforms remain separate Auto
 
 `map_data_options` now follows the recovered original source and envelope contract: exact top-level order `serverId, counts, alliances, names, dispatchLevels, noAllianceCount, rewardItems, treasureTypes, scanProgress`; exactly eight original count kinds; only Resource/Monster name families; active `scan_records` only for the matching reading server with raw nonempty `scanRunId`; otherwise server-scoped published `map_records`. Rebuild-only `zombie_boss` option/count families, public `monsterLevels`, and the R7 `serverId=0` all-published-server aggregate are removed. See `docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md`.
 
-The next main Map work is the original Manual Scan public contract, then `map_scan_status`/`map_scan_stop`, `map_search`, original Auto Scan behavior, and Scheduled Plunder restoration.
+## R8-012 Manual Scan public-contract checkpoint
+
+Manual `map_scan_start` is restored to the recovered 0.3.1 public boundary: exactly eight selectable kinds (`city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure`), original Manual Normal/Fast controls and `lwbridge.mapScanMode` persistence, `{selectedTypes,scanMode}` Start payload, Normal=8/Fast=20, and default state Normal/8/retry2. Rebuild-only public `zombie_boss` and feature-owned `targetServerId` are not part of the Manual request.
+
+The original executable also closes invalid-mode behavior exactly: missing/null/non-string `scanMode` defaults to Normal; only string values are validated; empty/unknown strings use `INVALID_SCAN_MODE / map scan mode must be normal or fast`. That string validation happens after earlier game/active-scan/world admission and before protected `startMapScan`, so an earlier admission error can win. See `docs/reviews/2026-09-24-r8-012-manual-scan-strict-parity.md`.
+
+Current-client strategy IDs/acquisition remain compatibility internals and may not rewrite observable Manual mode/concurrency. Existing Zombie Boss storage/query compatibility is retained internally only because `map_search` is a separate future parity checkpoint; it is not a public Manual scan kind.
+
+The next main Map work is `map_scan_status`/`map_scan_stop`, then `map_search`, original Auto Scan behavior, and Scheduled Plunder restoration.
 
 ## Parked protected package-key lane
 

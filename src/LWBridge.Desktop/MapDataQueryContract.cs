@@ -65,8 +65,10 @@ internal static class MapDataQueryContract
         "maxLevel",
     ];
 
+    // R8-012 changes the Manual Scan public allowlist only. map_search parity is a
+    // later checkpoint, so preserve its existing Zombie Boss compatibility until then.
     private static readonly HashSet<string> AllowedKinds =
-        new(MapScanContract.AllTypes, StringComparer.Ordinal);
+        new(MapScanContract.RecoveredDefaultTypes.Append("zombie_boss"), StringComparer.Ordinal);
 
     public static MapDataQueryOptions NormalizeSearch(JsonElement payload)
     {

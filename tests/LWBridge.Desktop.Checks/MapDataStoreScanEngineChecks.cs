@@ -12,7 +12,6 @@ internal static class MapDataStoreScanEngineChecks
         SuccessfulScanReplacesPublishedRows();
         AllEightSelectionPublishesEveryKind();
         UnresolvedMonsterProtectionCarriesForwardKnownDeadline();
-        UnresolvedZombieBossProtectionCarriesForwardKnownDeadline();
         KnownInactiveMonsterProtectionClearsPriorDeadline();
         FullRunIdentityRejectsStaleMutations();
         LegacyScanRunSchemaMigratesAndPersistsIdentity();

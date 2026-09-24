@@ -14,6 +14,7 @@ internal static class ManualMapScanCommandServiceChecks
 
     private static async Task RunAsync()
     {
+        DefaultStatusMatchesRecoveredManualContract();
         await NormalStartOwnsOneRunAndStopCancels();
         await StopTimingMatrixPreservesCheckpointBoundary();
         await RestartReconcilesOrphanedRunAndRejectsConcurrentOwner();
@@ -23,8 +24,9 @@ internal static class ManualMapScanCommandServiceChecks
         await ClearOwnsRecoveredGateAndResetsStatus();
         await BackendClearWithoutLiveOwnershipFailsClosed();
         await FastUsesRecoveredConcurrencyAndPublishes();
+        await InvalidStringModeUsesExactPostAdmissionError();
         await ContextFailureLeavesTruthfulError();
-        await ZombieBossTypeIsAccepted();
+        await ZombieBossTypeIsRejected();
         await RailwayTypeIsAccepted();
         await DispatchTypeIsAccepted();
         await GhostTypeIsAccepted();
@@ -35,8 +37,28 @@ internal static class ManualMapScanCommandServiceChecks
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
         ScheduledPlunderCommandsAreRetired();
         await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
-        await ZombieBossMixedTypesFailClosed();
+        await ZombieBossMixedTypesFilterUnknownKind();
         CurrentPlayerCityHealthContractIsRecovered();
+    }
+
+    private static void DefaultStatusMatchesRecoveredManualContract()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource());
+        JsonElement status = Status(service);
+        Check(!Bool(status, "isReading") &&
+              String(status, "phase") == "idle" &&
+              String(status, "scanMode") == "normal" &&
+              Int(status, "concurrency") == 8 &&
+              Int(status, "retryCount") == 2 &&
+              status.GetProperty("selectedTypes").EnumerateArray()
+                  .Select(value => value.GetString())
+                  .SequenceEqual(MapScanContract.RecoveredDefaultTypes),
+            "default Manual Map Scan state must match the recovered eight-kind normal/8/retry2 contract");
+        service.Close();
     }
 
     private static void CurrentPlayerCityHealthContractIsRecovered()
@@ -133,7 +155,7 @@ internal static class ManualMapScanCommandServiceChecks
         {
             _ = await service.InvokeAsync(
                 "map_scan_start",
-                Payload("fast", "city"),
+                Payload("turbo", "city"),
                 CancellationToken.None);
             throw new InvalidOperationException("expected changed-type duplicate Start rejection");
         }
@@ -619,7 +641,9 @@ internal static class ManualMapScanCommandServiceChecks
               Int(status, "failedBlocks") == 0 &&
               Int(status, "unreadBlocks") == 0 &&
               Int(status, "inflightBlocks") == 0 &&
-              Int(status, "concurrency") == 0 &&
+              String(status, "scanMode") == "normal" &&
+              Int(status, "concurrency") == 8 &&
+              Int(status, "retryCount") == 2 &&
               Double(status, "scanRate") == 0 &&
               Double(status, "progressPercent") == 0 &&
               !Bool(status, "resumeAvailable"),
@@ -688,17 +712,51 @@ internal static class ManualMapScanCommandServiceChecks
 
         Check(String(status, "phase") == "completed" && !Bool(status, "isReading") && !Bool(status, "resumeAvailable"),
             "ordinary fallback should publish after all blocks succeed without advertising unsupported resume");
-        Check(Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal" &&
+        Check(Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast" &&
               String(status, "scanStrategy") == MapScanStrategyPlanner.NormalBlockStrategy,
-            "caller fast preference must not override the backend ordinary fallback plan");
+            "current-client ordinary fallback must preserve the caller fast mode and recovered concurrency");
         Check(Int(status, "totalBlocks") == 2 && Int(status, "readBlocks") == 2,
             "40x20 map should traverse two proven ordinary 20-tile blocks");
         Check(Double(status, "progressPercent") == 100.0,
             "completed ordinary fallback should expose 100 percent state");
-        Check(source.Calls == 2, "ordinary fallback must use the block source for each traversal block");
+        Check(source.Calls > 0, "current-client compatibility acquisition must use the configured block source");
         string runId = String(status, "scanRunId");
         Check(store.ReadScanBlockCheckpointsForTest(runId).Count == 0,
             "successful publication should clean block staging");
+        service.Close();
+    }
+
+    private static async Task InvalidStringModeUsesExactPostAdmissionError()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        int contextCalls = 0;
+        var service = new ManualMapScanCommandService(
+            store,
+            _ =>
+            {
+                contextCalls++;
+                return Task.FromResult(Context());
+            },
+            new ImmediateSource());
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_scan_start",
+                Payload("turbo", "city"),
+                CancellationToken.None);
+            throw new InvalidOperationException("expected invalid scan mode rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_SCAN_MODE" &&
+            error.Message == "map scan mode must be normal or fast")
+        {
+        }
+        Check(contextCalls == 1,
+            "invalid string scanMode must be validated only after recovered live/world admission");
+        JsonElement status = Status(service);
+        Check(!Bool(status, "isReading") && String(status, "phase") == "error" &&
+              String(status, "lastError") == "map scan mode must be normal or fast",
+            "invalid string scanMode must fail before acquisition while preserving the exact original message");
         service.Close();
     }
 
@@ -715,9 +773,9 @@ internal static class ManualMapScanCommandServiceChecks
         {
             _ = await service.InvokeAsync(
                 "map_scan_start",
-                Payload("normal", "city"),
+                Payload("turbo", "city"),
                 CancellationToken.None);
-            throw new InvalidOperationException("expected live-context failure");
+            throw new InvalidOperationException("expected live-context failure before invalid-mode validation");
         }
         catch (BridgeCommandException error) when (
             error.Code == MapScanStartOwnership.ServerUnavailableCode)
@@ -727,21 +785,34 @@ internal static class ManualMapScanCommandServiceChecks
         Check(!Bool(status, "isReading") && String(status, "phase") == "error",
             "failed Start should release ownership and expose an error phase");
         Check(String(status, "lastError") == MapScanStartOwnership.ServerUnavailableMessage,
-            "failed Start should preserve the live-context error message");
+            "earlier live-context failure must preserve precedence over an invalid string scanMode");
         service.Close();
     }
 
-    private static async Task ZombieBossTypeIsAccepted()
+    private static async Task ZombieBossTypeIsRejected()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
-        var source = new ImmediateSource();
-        var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
-        _ = await service.InvokeAsync("map_scan_start", Payload("normal", "zombie_boss"), CancellationToken.None);
-        WaitForPhase(service, "completed");
-        JsonElement status = Status(service);
-        Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
-            "Zombie Boss should use the same ordinary Manual Scan worker as supported kinds");
+        int contextCalls = 0;
+        var service = new ManualMapScanCommandService(
+            store,
+            _ =>
+            {
+                contextCalls++;
+                return Task.FromResult(StandardContext());
+            },
+            new ImmediateSource());
+        try
+        {
+            _ = await service.InvokeAsync("map_scan_start", Payload("normal", "zombie_boss"), CancellationToken.None);
+            throw new InvalidOperationException("expected Zombie Boss rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_SCAN_TYPES" &&
+            error.Message == "no valid map scan types selected")
+        {
+        }
+        Check(contextCalls == 0,
+            "non-reference Zombie Boss type must fail before live-context acquisition");
         service.Close();
     }
 
@@ -754,8 +825,8 @@ internal static class ManualMapScanCommandServiceChecks
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
-            "Railway/Train should use the same ordinary Manual Scan worker as supported kinds");
+              Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
+            "Railway/Train should preserve the requested original normal mode");
         service.Close();
     }
 
@@ -768,8 +839,8 @@ internal static class ManualMapScanCommandServiceChecks
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
-            "Dispatch should use the same ordinary Manual Scan worker as supported kinds");
+              Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
+            "Dispatch should preserve the requested original normal mode");
         service.Close();
     }
 
@@ -782,8 +853,8 @@ internal static class ManualMapScanCommandServiceChecks
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
-            "Ghost Ops should use the same ordinary Manual Scan worker as supported kinds");
+              Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
+            "Ghost Ops should preserve the requested original normal mode");
         service.Close();
     }
 
@@ -796,8 +867,8 @@ internal static class ManualMapScanCommandServiceChecks
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast",
-            "Treasure should use the same ordinary Manual Scan worker as supported kinds");
+              Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
+            "Treasure should preserve the requested original normal mode");
         service.Close();
     }
 
@@ -811,7 +882,7 @@ internal static class ManualMapScanCommandServiceChecks
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast" &&
+              Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal" &&
               status.GetProperty("selectedTypes").EnumerateArray().Select(value => value.GetString()).SequenceEqual(new[] { "city", "resource" }) &&
               source.LastSelectedTypes.SequenceEqual(new[] { "city", "resource" }),
             "mixed original Map Data kinds should flow unchanged through the shared Manual Scan worker");
@@ -828,7 +899,7 @@ internal static class ManualMapScanCommandServiceChecks
         WaitForPhase(service, "completed");
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
-              Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast" &&
+              Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal" &&
               source.LastSelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),
             "all eight recovered Map Data kinds should use one shared Manual Scan run");
         service.Close();
@@ -1344,28 +1415,31 @@ internal static class ManualMapScanCommandServiceChecks
         service.Close();
     }
 
-    private static async Task ZombieBossMixedTypesFailClosed()
+    private static async Task ZombieBossMixedTypesFilterUnknownKind()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         int contextCalls = 0;
+        var source = new ImmediateSource();
         var service = new ManualMapScanCommandService(
             store,
             _ =>
             {
                 contextCalls++;
-                return Task.FromResult(Context());
+                return Task.FromResult(StandardContext());
             },
-            new ImmediateSource());
-        try
-        {
-            _ = await service.InvokeAsync(
-                "map_scan_start", Payload("normal", "monster", "zombie_boss"), CancellationToken.None);
-            throw new InvalidOperationException("expected dedicated Zombie Boss mixed-type rejection");
-        }
-        catch (BridgeCommandException error) when (error.Code == "LIVE_BLOCK_TYPES_UNSUPPORTED")
-        {
-        }
-        Check(contextCalls == 0, "mixed dedicated Zombie Boss scan must fail before live-context acquisition");
+            source);
+        _ = await service.InvokeAsync(
+            "map_scan_start", Payload("fast", "monster", "zombie_boss"), CancellationToken.None);
+        WaitForPhase(service, "completed");
+        JsonElement status = Status(service);
+        Check(contextCalls == 1 &&
+              Int(status, "concurrency") == 20 &&
+              String(status, "scanMode") == "fast" &&
+              status.GetProperty("selectedTypes").EnumerateArray()
+                  .Select(value => value.GetString())
+                  .SequenceEqual(new[] { "monster" }) &&
+              source.LastSelectedTypes.SequenceEqual(new[] { "monster" }),
+            "non-reference Zombie Boss must be discarded while valid first-seen kinds continue unchanged");
         service.Close();
     }
 
