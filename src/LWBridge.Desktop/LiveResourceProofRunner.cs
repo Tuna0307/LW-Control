@@ -30,7 +30,11 @@ internal static class LiveResourceProofRunner
                 mapData,
                 gameRoot: liveGameRoot.Valid ? liveGameRoot.Path : null,
                 profileId: config.Snapshot.ProfileId);
-            var backend = new LWBridgeBackend(config, asyncCommands: service, mapData: mapData);
+            var backend = new LWBridgeBackend(
+                config,
+                asyncCommands: service,
+                mapData: mapData,
+                mapScanStatusProvider: service.CreateStatus);
 
             using JsonDocument startPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
             {
@@ -120,17 +124,14 @@ internal static class LiveResourceProofRunner
             "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "map-data.db");
         using var mapData = new MapDataStore(mapPath);
         var backend = new LWBridgeBackend(config, mapData: mapData);
-        object? summary = await SummaryAsync(backend);
-        using JsonDocument summaryDocument = JsonDocument.Parse(JsonSerializer.Serialize(summary, JsonOptions.Default));
-        JsonElement summaryRoot = summaryDocument.RootElement;
-        if (!summaryRoot.TryGetProperty("serverId", out JsonElement serverValue) ||
-            !serverValue.TryGetInt32(out int serverId) || serverId <= 0 ||
-            !summaryRoot.TryGetProperty("counts", out JsonElement counts) ||
-            !counts.TryGetProperty("city", out JsonElement cityCount) ||
-            !cityCount.TryGetInt32(out int parsedCityCount) || parsedCityCount <= 0)
-        {
-            throw new InvalidDataException("Fresh-process reopen did not find persisted Player City context in the active profile.");
-        }
+        IReadOnlyList<int> savedServerIds = mapData.ReadPublishedServerIds();
+        if (savedServerIds.Count != 1)
+            throw new InvalidDataException(
+                "Fresh-process reopen expected exactly one persisted Player City server.");
+        int serverId = savedServerIds[0];
+        if (mapData.CountRecords("city", serverId) <= 0)
+            throw new InvalidDataException(
+                "Fresh-process reopen did not find persisted Player City data in the active profile.");
         object? search = await SearchAsync(backend, serverId, "city");
         using JsonDocument searchDocument = JsonDocument.Parse(JsonSerializer.Serialize(search, JsonOptions.Default));
         JsonElement searchRoot = searchDocument.RootElement;
@@ -149,7 +150,7 @@ internal static class LiveResourceProofRunner
             profileId = backend.ProfileId,
             serverId,
             mapDatabase = mapPath,
-            summary,
+            savedServerIds,
             search,
         }, redactCityIdentity: true);
     }

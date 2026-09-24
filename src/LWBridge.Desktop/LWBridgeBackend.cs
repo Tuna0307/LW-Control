@@ -259,138 +259,51 @@ internal sealed class LWBridgeBackend
             case "map_player_mark_set":
                 return SetPlayerMark(payload);
             case "map_summary":
-                RequireOptionalProfile(payload);
-                if (mapScanStatusProvider is not null)
                 {
+                    RequireOptionalProfile(payload);
+                    if (mapScanStatusProvider is null)
+                        throw new InvalidOperationException(
+                            "Map summary requires the shared map scan state provider.");
+
                     object scanState = mapScanStatusProvider();
-                    JsonElement scanJson = JsonSerializer.SerializeToElement(scanState, JsonOptions.Default);
-                    if (scanJson.TryGetProperty("serverId", out JsonElement serverElement) &&
-                        serverElement.TryGetInt32(out int activeServerId) && activeServerId > 0)
+                    JsonElement scanJson =
+                        JsonSerializer.SerializeToElement(scanState, JsonOptions.Default);
+                    if (!scanJson.TryGetProperty("serverId", out JsonElement serverElement) ||
+                        !serverElement.TryGetInt32(out int serverId))
                     {
-                        bool isReading = scanJson.TryGetProperty("isReading", out JsonElement readingElement) &&
-                            readingElement.ValueKind == JsonValueKind.True;
-                        string? scanRunId = scanJson.TryGetProperty("scanRunId", out JsonElement runElement) &&
-                            runElement.ValueKind == JsonValueKind.String ? runElement.GetString() : null;
-                        MapDataStore store = RequireMapDataStore();
-                        MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
-                            activeServerId, isReading, activeServerId, scanRunId);
-                        MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
-                            source, RecoveredWallClock.UnixTimeMilliseconds());
-                        return new
-                        {
-                            serverId = activeServerId,
-                            savedServerIds = store.ReadPublishedServerIds(),
-                            counts = aggregates.Counts,
-                            scanState,
-                        };
+                        throw new InvalidDataException(
+                            "Map scan state did not contain an integer serverId.");
                     }
-                }
-                if (asyncCommands is LiveResourceProbeCommandService liveResource &&
-                    liveResource.CurrentServerId is int liveServerId)
-                {
-                    // IMPLEMENTATION POLICY: the bounded first-live adapter uses
-                    // the recovered summary envelope over the same persisted
-                    // MapDataStore that received the correlated current-game row.
+
+                    bool isReading =
+                        scanJson.TryGetProperty("isReading", out JsonElement readingElement) &&
+                        readingElement.ValueKind == JsonValueKind.True;
+                    string? scanRunId =
+                        scanJson.TryGetProperty("scanRunId", out JsonElement runElement) &&
+                        runElement.ValueKind == JsonValueKind.String
+                            ? runElement.GetString()
+                            : null;
+
                     MapDataStore store = RequireMapDataStore();
                     MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
-                        liveServerId,
-                        isReading: false,
-                        scanStateServerId: liveServerId,
-                        scanRunId: null);
+                        serverId,
+                        isReading,
+                        serverId,
+                        scanRunId);
                     MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
                         source,
                         RecoveredWallClock.UnixTimeMilliseconds());
+                    var counts = MapScanContract.RecoveredDefaultTypes.ToDictionary(
+                        kind => kind,
+                        kind => aggregates.Counts.TryGetValue(kind, out int count) ? count : 0,
+                        StringComparer.Ordinal);
                     return new
                     {
-                        serverId = liveServerId,
-                        savedServerIds = store.ReadPublishedServerIds(),
-                        counts = aggregates.Counts,
-                        scanState = liveResource.CreateStatus(),
+                        serverId,
+                        counts,
+                        scanState,
                     };
                 }
-                if (firstLiveResultServerId is int firstLiveServerId)
-                {
-                    // IMPLEMENTATION POLICY: the bounded first-live mode exposes the
-                    // recovered R6-025 {serverId,counts,scanState} envelope only for
-                    // the source-backed imported server. Counts come from the same
-                    // persisted/public map_records scope as map_search. Normal public
-                    // summary remains fail-closed below.
-                    MapDataStore store = RequireMapDataStore();
-                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
-                        firstLiveServerId,
-                        isReading: false,
-                        scanStateServerId: firstLiveServerId,
-                        scanRunId: null);
-                    MapOptionAggregates aggregates = store.ReadOptionAggregatesAt(
-                        source,
-                        RecoveredWallClock.UnixTimeMilliseconds());
-                    return new
-                    {
-                        serverId = firstLiveServerId,
-                        savedServerIds = store.ReadPublishedServerIds(),
-                        counts = aggregates.Counts,
-                        scanState = CreateCurrentMapScanStatus(),
-                    };
-                }
-                MapDataStore savedStore = RequireMapDataStore();
-                IReadOnlyList<int> savedServerIds = savedStore.ReadPublishedServerIds();
-                if (savedServerIds.Count == 1)
-                {
-                    int savedServerId = savedServerIds[0];
-                    // IMPLEMENTATION POLICY PM13-01: after process restart the bounded
-                    // live adapter has no current-server observation. A profile-local
-                    // index containing exactly one server is safe to expose as saved
-                    // browsing context only. It is never promoted to live readiness.
-                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
-                        savedServerId,
-                        isReading: false,
-                        scanStateServerId: savedServerId,
-                        scanRunId: null);
-                    MapOptionAggregates aggregates = savedStore.ReadOptionAggregatesAt(
-                        source,
-                        RecoveredWallClock.UnixTimeMilliseconds());
-                    return new
-                    {
-                        serverId = savedServerId,
-                        savedServerIds,
-                        counts = aggregates.Counts,
-                        scanState = CreateMapScanStatus(
-                            savedServerId,
-                            phase: "unavailable",
-                            lastError: null,
-                            serverIdSource: "saved_profile_index"),
-                    };
-                }
-                if (savedServerIds.Count > 1)
-                {
-                    // IMPLEMENTATION POLICY R7-130: multi-server Auto Scan is a first-class
-                    // saved-data state. Select one deterministic initial browse server while
-                    // exposing the complete savedServerIds list to the frontend; this is saved
-                    // browsing context only and never claims the selected server is live.
-                    int savedServerId = savedServerIds[0];
-                    MapOptionSourceSelection source = MapDataStore.SelectOptionSource(
-                        savedServerId,
-                        isReading: false,
-                        scanStateServerId: savedServerId,
-                        scanRunId: null);
-                    MapOptionAggregates aggregates = savedStore.ReadOptionAggregatesAt(
-                        source,
-                        RecoveredWallClock.UnixTimeMilliseconds());
-                    return new
-                    {
-                        serverId = savedServerId,
-                        savedServerIds,
-                        counts = aggregates.Counts,
-                        scanState = CreateMapScanStatus(
-                            savedServerId,
-                            phase: "unavailable",
-                            lastError: null,
-                            serverIdSource: "saved_profile_index"),
-                    };
-                }
-                throw new BridgeCommandException(
-                    "MAP_SAVED_CONTEXT_UNAVAILABLE",
-                    "Map summary is unavailable because this profile has no saved map server and no current live server context.");
             case "append_log":
             case "set_window_theme":
                 return null;

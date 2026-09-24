@@ -405,6 +405,7 @@ failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
 await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
+await LWBridge.Desktop.Checks.MapSummaryParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();
@@ -1994,8 +1995,9 @@ finally
     catch { }
 }
 
-await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "map summary remains fail-closed until native summary state is recovered", async () =>
-    await backend.InvokeAsync("map_summary", profilePayload.RootElement.Clone(), CancellationToken.None));
+// R8-010 strict parity: map_summary is driven by the shared map-scan state producer.
+// This baseline backend fixture intentionally has no such producer, so it is not a
+// valid map_summary execution context and no saved/index fallback is asserted here.
 
 // PM10-03: saved-capture replay is a bounded importer with its own in-memory
 // store. Invalid or out-of-slice resource identities fail closed instead of
@@ -2047,7 +2049,15 @@ try
         var replayBackend = new LWBridgeBackend(
             new LocalConfigStore(persistent: false),
             mapData: replay.Store,
-            firstLiveResultServerId: replay.Import.ServerId);
+            firstLiveResultServerId: replay.Import.ServerId,
+            mapScanStatusProvider: () => new
+            {
+                serverId = replay.Import.ServerId,
+                isReading = false,
+                scanRunId = string.Empty,
+                phase = "unavailable",
+                serverIdSource = "saved_capture_replay",
+            });
         using JsonDocument replayProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = replayBackend.ProfileId }));
         object? replaySummary = await replayBackend.InvokeAsync("map_summary", replayProfile.RootElement.Clone(), CancellationToken.None);
         using (JsonDocument replaySummaryJson = JsonDocument.Parse(JsonSerializer.Serialize(replaySummary, JsonOptions.Default)))
@@ -2139,20 +2149,8 @@ try
         Check(productionMapStore.CountRecords("resource", 2212) == 1,
             "synthetic stale production row exists before disconnected freshness-gate checks");
         using JsonDocument productionProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = productionMapBackend.ProfileId }));
-        object? savedSummary = await productionMapBackend.InvokeAsync(
-            "map_summary", productionProfile.RootElement.Clone(), CancellationToken.None);
-        using (JsonDocument savedSummaryJson = JsonDocument.Parse(JsonSerializer.Serialize(savedSummary, JsonOptions.Default)))
-        {
-            JsonElement root = savedSummaryJson.RootElement;
-            JsonElement scanState = root.GetProperty("scanState");
-            Check(root.GetProperty("serverId").GetInt32() == 2212 &&
-                  root.GetProperty("counts").GetProperty("resource").GetInt32() == 1 &&
-                  scanState.GetProperty("serverId").GetInt32() == 2212 &&
-                  scanState.GetProperty("serverIdSource").GetString() == "saved_profile_index" &&
-                  scanState.GetProperty("phase").GetString() == "unavailable" &&
-                  scanState.GetProperty("lastError").ValueKind == JsonValueKind.Null,
-                "single-server saved profile index restores browse context without claiming live readiness");
-        }
+        Check(productionMapStore.ReadPublishedServerIds().SequenceEqual(new[] { 2212 }),
+            "disconnected persisted rows remain discoverable only as saved data, not as map_summary live state");
         await ExpectBridgeError("BRIDGE_NOT_READY", "disconnected production scan never presents a stale indexed row as fresh", async () =>
             await productionMapBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
             {
@@ -2437,10 +2435,8 @@ try
 
     using (var emptySavedStore = MapDataStore.CreateInMemory())
     {
-        var emptySavedBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: emptySavedStore);
-        using JsonDocument profile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = emptySavedBackend.ProfileId }));
-        await ExpectBridgeError("MAP_SAVED_CONTEXT_UNAVAILABLE", "empty saved profile has no fabricated browse server", async () =>
-            await emptySavedBackend.InvokeAsync("map_summary", profile.RootElement.Clone(), CancellationToken.None));
+        Check(emptySavedStore.ReadPublishedServerIds().Count == 0,
+            "empty profile map index exposes no fabricated saved server context");
     }
 
     using (var ambiguousSavedStore = MapDataStore.CreateInMemory())
@@ -2453,19 +2449,9 @@ try
             "{\"serverId\":2213,\"pointIndex\":2,\"x\":2,\"y\":2,\"updatedAt\":20}"));
         Check(ambiguousSavedStore.ReadPublishedServerIds().SequenceEqual(new[] { 2212, 2213 }),
             "saved browse server discovery is distinct, ordered and profile-store scoped");
-        var ambiguousSavedBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: ambiguousSavedStore);
-        using JsonDocument profile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = ambiguousSavedBackend.ProfileId }));
-        object? summary = await ambiguousSavedBackend.InvokeAsync(
-            "map_summary", profile.RootElement.Clone(), CancellationToken.None);
-        using JsonDocument summaryJson = JsonDocument.Parse(JsonSerializer.Serialize(summary, JsonOptions.Default));
-        JsonElement summaryRoot = summaryJson.RootElement;
-        int[] savedIds = summaryRoot.GetProperty("savedServerIds").EnumerateArray()
-            .Select(value => value.GetInt32()).ToArray();
-        Check(summaryRoot.GetProperty("serverId").GetInt32() == 2212 &&
-              savedIds.SequenceEqual(new[] { 2212, 2213 }) &&
-              summaryRoot.GetProperty("scanState").GetProperty("phase").GetString() == "unavailable" &&
-              summaryRoot.GetProperty("scanState").GetProperty("serverIdSource").GetString() == "saved_profile_index",
-            "multiple saved servers reopen with deterministic saved browsing context and expose the complete server list");
+        Check(ambiguousSavedStore.CountRecords("resource", 2212) == 1 &&
+              ambiguousSavedStore.CountRecords("resource", 2213) == 1,
+            "multiple saved server datasets remain persisted without being promoted into map_summary state");
     }
 
     using (var profileAStore = MapDataStore.CreateInMemory())
@@ -2477,17 +2463,9 @@ try
         profileBStore.UpsertRecord(new MapStoredRecord(
             "resource", 3301, "profile-b", 2, null, null, null, 2, null, null, null, null, 20,
             "{\"serverId\":3301,\"pointIndex\":2,\"x\":2,\"y\":2,\"updatedAt\":20}"));
-        var profileABackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: profileAStore);
-        var profileBBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: profileBStore);
-        using JsonDocument profileA = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = profileABackend.ProfileId }));
-        using JsonDocument profileB = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = profileBBackend.ProfileId }));
-        object? summaryA = await profileABackend.InvokeAsync("map_summary", profileA.RootElement.Clone(), CancellationToken.None);
-        object? summaryB = await profileBBackend.InvokeAsync("map_summary", profileB.RootElement.Clone(), CancellationToken.None);
-        using JsonDocument jsonA = JsonDocument.Parse(JsonSerializer.Serialize(summaryA, JsonOptions.Default));
-        using JsonDocument jsonB = JsonDocument.Parse(JsonSerializer.Serialize(summaryB, JsonOptions.Default));
-        Check(jsonA.RootElement.GetProperty("serverId").GetInt32() == 2212 &&
-              jsonB.RootElement.GetProperty("serverId").GetInt32() == 3301,
-            "saved browse context remains isolated to each selected profile store");
+        Check(profileAStore.ReadPublishedServerIds().SequenceEqual(new[] { 2212 }) &&
+              profileBStore.ReadPublishedServerIds().SequenceEqual(new[] { 3301 }),
+            "saved map data remains isolated to each profile store without map_summary selecting it as current state");
     }
 
     var proofExpected = new NormalUiResourceProofExpected(

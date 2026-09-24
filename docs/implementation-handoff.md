@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-009`
+**Current checkpoint:** `LWB-R8-010`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -56,6 +56,12 @@ The frontend is also corrected back to the immutable 0.3.1 behavior: one Manual-
 ## R8-009 server_jump result parity checkpoint
 
 The recovered public `server_jump` success envelope is now complete: `{changed, previousServerId, serverId}`. The current-client source already proved the destination server internally; R8-009 carries that validated destination through the service response instead of dropping it. Existing invalid-ID, busy-operation and timeout behavior remains unchanged. See `docs/reviews/2026-09-24-r8-009-server-jump-result-parity.md`.
+
+## R8-010 map_summary parity checkpoint
+
+`map_summary` now follows the recovered original boundary: shared scan state first, exactly eight original count kinds, run-scoped `scan_records` only while the matching scan is active, otherwise published `map_records`, and exactly `{serverId, counts, scanState}` on success. Rebuild-only `savedServerIds`, `saved_profile_index`, saved-server selection, first-live/live-probe fallback and `zombie_boss` counts are removed from this command. See `docs/reviews/2026-09-24-r8-010-map-summary-strict-parity.md`.
+
+Persisted multi-server browsing and its frontend transforms remain separate Auto/result-browsing parity work; R8-010 does not delete that saved data.
 
 ## P0
 

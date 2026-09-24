@@ -229,7 +229,15 @@ internal static class LiveMapSummaryProof
             {
                 var reopenedBackend = new LWBridgeBackend(
                     new LocalConfigStore(persistent: false),
-                    mapData: reopened);
+                    mapData: reopened,
+                    mapScanStatusProvider: () => new
+                    {
+                        serverId,
+                        isReading = false,
+                        scanRunId = string.Empty,
+                        phase = "completed",
+                        serverIdSource = "reopen_proof_state",
+                    });
                 JsonElement reopenedSummary =
                     await ReadSummaryAsync(
                         reopenedBackend,
@@ -249,16 +257,16 @@ internal static class LiveMapSummaryProof
                     !string.Equals(
                         reopenedState.GetProperty(
                             "phase").GetString(),
-                        "unavailable",
+                        "completed",
                         StringComparison.Ordinal) ||
                     !string.Equals(
                         reopenedState.GetProperty(
                             "serverIdSource").GetString(),
-                        "saved_profile_index",
+                        "reopen_proof_state",
                         StringComparison.Ordinal))
                 {
                     throw new InvalidDataException(
-                        "Reopened map_summary did not expose the unique saved-profile server context.");
+                        "Reopened map_summary did not preserve the supplied shared scan state.");
                 }
             }
 
@@ -286,9 +294,9 @@ internal static class LiveMapSummaryProof
                 completedPositiveKindCount =
                     completedCounts.Count(
                         item => item.Value > 0),
-                reopenedPhase = "unavailable",
+                reopenedPhase = "completed",
                 reopenedServerIdSource =
-                    "saved_profile_index",
+                    "reopen_proof_state",
                 reopenedCountsExact = true,
                 envelopeFields =
                     new[] { "serverId", "counts", "scanState" },
@@ -366,7 +374,7 @@ internal static class LiveMapSummaryProof
     private static IReadOnlyDictionary<string, int> CountKinds(
         MapDataStore store,
         int serverId) =>
-        MapScanContract.AllTypes.ToDictionary(
+        MapScanContract.RecoveredDefaultTypes.ToDictionary(
             kind => kind,
             kind => store.CountRecords(kind, serverId),
             StringComparer.Ordinal);
@@ -376,7 +384,7 @@ internal static class LiveMapSummaryProof
         IReadOnlyDictionary<string, int> expected,
         string label)
     {
-        foreach (string kind in MapScanContract.AllTypes)
+        foreach (string kind in MapScanContract.RecoveredDefaultTypes)
         {
             int actual =
                 counts.GetProperty(kind).GetInt32();

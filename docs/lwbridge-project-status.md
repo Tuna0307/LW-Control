@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R8-009`
+**Current checkpoint:** `LWB-R8-010`
 
 ## Executive status
 
@@ -31,7 +31,7 @@ That proof is limited because the rebuild intentionally transformed the main/API
 2. Exact host/proxy request-result protocol and readiness semantics.
 3. Original Map Scan internals and per-kind acquisition strategy.
 4. Removal of rebuild-only additions such as Secret Task Quick Find.
-5. Restoration of remaining original product features previously retired/customized. City Excel is restored in R8-007, the original current-live-server Map Clear boundary in R8-008, and the complete public `server_jump` success envelope in R8-009; auth/account presentation and Scheduled Plunder remain.
+5. Restoration of remaining original product features previously retired/customized. City Excel is restored in R8-007, the original current-live-server Map Clear boundary in R8-008, the complete public `server_jump` success envelope in R8-009, and strict `map_summary` result/source parity in R8-010; auth/account presentation and Scheduled Plunder remain.
 6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
 7. Exact reference-vs-rebuild behavior validation across connected/live states.
 

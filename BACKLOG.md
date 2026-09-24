@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-009`, 2026-09-24.
+**Current through:** `LWB-R8-010`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
 
@@ -23,6 +23,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 - [x] **Restore original `map_scan_clear` boundary.** R8-008 removes rebuild-only `serverId=0`/saved-server Clear, restores the exact current-live-server gate, server-scoped deletion and Manual-only Clear control.
 - [x] **Restore original `server_jump` public success envelope.** R8-009 restores destination `serverId` alongside `previousServerId` and `changed`, while retaining the recovered validation/error contract.
+- [x] **Restore original `map_summary` contract.** R8-010 restores the exact `{serverId, counts, scanState}` envelope, eight original count keys and shared-state active/published source selection; saved-server fallbacks are removed from this command.
 - [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
 - [ ] Recover original Normal/Fast mode behavior, retries, pacing, concurrency, block/AOI semantics, completeness rules and failure/resume logic.
 - [ ] Recover original multi-server behavior instead of designing from LW Atlas or our own assumptions.
