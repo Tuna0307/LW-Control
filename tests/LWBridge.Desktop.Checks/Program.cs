@@ -404,6 +404,7 @@ var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
+await LWBridge.Desktop.Checks.CityLayoutDraftChecks.RunAsync();
 LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();
 await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.MapSummaryParityChecks.RunAsync();

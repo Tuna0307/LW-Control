@@ -49,6 +49,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly OverviewLifecycleService? overviewLifecycleService;
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly ManualMapScanCommandService? manualMapScanService;
+    private readonly CityLayoutDraftCommandService? cityLayoutDraftService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -125,6 +126,13 @@ internal sealed class LWBridgeWindow : Form
             mapData.ClearAllScanData();
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
+        cityLayoutDraftService = isolated
+            ? null
+            : new CityLayoutDraftCommandService(
+                config.Snapshot.ProfileId,
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "profile.db"));
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -166,12 +174,20 @@ internal sealed class LWBridgeWindow : Form
             manualMapScanService = null;
         }
         INativeAsyncCommandService? productionCommands = hostProbeService;
-        if (productionCommands is null && overviewLifecycleService is not null && manualMapScanService is not null)
-            productionCommands = new CompositeAsyncCommandService(overviewLifecycleService, manualMapScanService);
-        else if (productionCommands is null && overviewLifecycleService is not null && liveResourceService is not null)
-            productionCommands = new CompositeAsyncCommandService(overviewLifecycleService, liveResourceService);
-        else if (productionCommands is null)
-            productionCommands = (INativeAsyncCommandService?)overviewLifecycleService ?? (INativeAsyncCommandService?)manualMapScanService ?? liveResourceService;
+        if (productionCommands is null)
+        {
+            var services = new List<INativeAsyncCommandService>();
+            if (overviewLifecycleService is not null) services.Add(overviewLifecycleService);
+            if (manualMapScanService is not null) services.Add(manualMapScanService);
+            if (liveResourceService is not null) services.Add(liveResourceService);
+            if (cityLayoutDraftService is not null) services.Add(cityLayoutDraftService);
+            productionCommands = services.Count switch
+            {
+                0 => null,
+                1 => services[0],
+                _ => new CompositeAsyncCommandService([.. services]),
+            };
+        }
         backend = new LWBridgeBackend(
             config,
             asyncCommands: productionCommands,
@@ -1972,6 +1988,7 @@ internal sealed class LWBridgeWindow : Form
         // IMPLEMENTATION POLICY: drain the dependent scan worker before closing its owned game lifecycle.
         manualMapScanService?.Close();
         liveResourceService?.Close();
+        cityLayoutDraftService?.Dispose();
         overviewLifecycleService?.Close();
         // LWB-R7-110: the shared bridge host is application-owned, so it is
         // closed after profile/scan lifecycles rather than by any one profile.

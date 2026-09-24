@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-017`
+**Current checkpoint:** `LWB-R8-018`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -103,6 +103,12 @@ R8-017 removes three R7-era backend sort guesses that the newer R8 binary review
 
 Further work on those branches requires stronger permitted reference evidence; otherwise move to another implementation-ready retained subsystem or protected Map lane with exact evidence.
 
+## R8-018 City Layout draft-persistence checkpoint
+
+R8-018 implements the first evidence-backed City Layout backend phase: a per-profile `profile_state` SQLite store plus production `city_layout_draft_get`, `city_layout_draft_save`, and `city_layout_draft_clear`. The exact key is `city_layout_draft_v1`; first save creates revision 1, guarded updates increment exactly once, stale save/clear returns `PROFILE_REVISION_CONFLICT`, and malformed stored JSON returns `PROFILE_DATA_INVALID`. The rebuild maps the recovered per-profile profile-database concept to `%LOCALAPPDATA%\LWBridgeRebuild\profiles\<profileId>\profile.db`. The exact native no-row envelope remains partial; the rebuild returns the minimal frontend-compatible `{profileId,key,revision:0,value:null}`. See `docs/reviews/2026-09-25-r8-018-city-layout-draft-persistence.md`.
+
+The remaining five commands (`snapshot_get`, `validate`, `apply_start`, `apply_status`, `apply_cancel`) are still missing because their game-side providers/planner/executor are protected. They are not stubbed or faked.
+
 ## Parked protected package-key lane
 
 The protected package/key lane is evidence-limited and must remain separate from current Map implementation. Do not blindly repeat artifact searches or cross the protected boundary; resume it only if genuinely new permitted evidence appears.
@@ -145,7 +151,7 @@ Other previously retired original features remain parity gaps unless separately 
 
 ## Completed helper City Layout lane
 
-The helper's exact original City Layout recovery is complete and preserved byte-for-byte at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`. The current `CityLayoutPanel-B4B03XEi.js` is byte-identical to original 0.3.1 (`97dc2c5e0bf4fc5e3b3a058e704c02e21385b9c9511aeb9b3297ec3272c78022`), all eight original API wrappers remain, and all eight production C# `city_layout_*` handlers are missing. The report recovers exact revisioned `city_layout_draft_v1` persistence, 500 ms autosave/status polling, bridge method names/timeouts, request/result boundaries, local issue codes and UI behavior. Protected placement planning/execution remains `PROTECTED_UNKNOWN` and must not be guessed.
+The helper's exact original City Layout recovery is complete and preserved byte-for-byte at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`. The current `CityLayoutPanel-B4B03XEi.js` is byte-identical to original 0.3.1 (`97dc2c5e0bf4fc5e3b3a058e704c02e21385b9c9511aeb9b3297ec3272c78022`) and all eight original API wrappers remain. R8-018 now implements the three draft persistence handlers; five gameplay-facing handlers remain missing/protected. The report recovers exact revisioned `city_layout_draft_v1` persistence, 500 ms autosave/status polling, bridge method names/timeouts, request/result boundaries, local issue codes and UI behavior. Protected placement planning/execution remains `PROTECTED_UNKNOWN` and must not be guessed.
 
 ## Worktree state
 

@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-017`, 2026-09-25
+**Current through:** `LWB-R8-018`, 2026-09-25
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -49,7 +49,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Profile launcher / multi-hook | PARTIAL EXACT_CONTRACT + reimplementation | Architecture recovered, rebuild uses its own lifecycle code | Audit one-for-one behavior |
 | Automation page functions | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Build feature-by-feature parity inventory and recover handlers |
 | Squads / AFK | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Recover all connected functions |
-| City Layout | UI EXACT_BYTES / backend MISSING | `CityLayoutPanel-B4B03XEi.js` hash matches original; eight wrappers present; helper recovered draft persistence, polling, host bridge boundaries and UI contract | Implement eight backend commands from `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`; do not invent protected planner/executor |
+| City Layout | UI EXACT_BYTES / PARTIAL backend | R8-018 restores exact draft table/key/revision semantics and production draft get/save/clear. Snapshot/validate/apply-start/status/cancel remain missing because their game-side providers are protected | Preserve draft contract; implement only the remaining host boundaries that can be wired to evidence-backed providers, without inventing planner/executor behavior |
 | Hotkeys | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Recover all connected functions and persistence semantics |
 | Mini-games | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Recover all connected functions |
 | Settings | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Recover all settings/defaults/update/feedback behavior |

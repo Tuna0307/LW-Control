@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-017`, 2026-09-25.
+**Current through:** `LWB-R8-018`, 2026-09-25.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -15,7 +15,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Automation | UNKNOWN backend parity | Original UI assets exist; whole feature contract not yet closed |
 | Map Data | MIXED / not parity-complete | Large amount recovered, but acquisition internals and product customizations diverged |
 | Squads / AFK | UNKNOWN backend parity | Original UI exists |
-| City Layout | UI EXACT_BYTES / backend MISSING | Helper recovery preserved at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`: UI chunk byte-identical; eight original wrappers present; all eight production handlers missing; draft/control-plane contracts recovered; protected planner/executor fenced |
+| City Layout | UI EXACT_BYTES / PARTIAL backend | R8-018 restores per-profile `profile_state` draft persistence and `city_layout_draft_get/save/clear`; five gameplay-facing commands remain missing/protected. Original UI chunk and all eight wrappers remain preserved; planner/executor stays fenced |
 | Hotkeys | PARTIAL | UI/preferences exercised; complete original handler/default audit still required |
 | Mini-games | UNKNOWN backend parity | Original UI exists |
 | Settings | UNKNOWN backend parity | Original UI exists |
