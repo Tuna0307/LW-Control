@@ -65,9 +65,14 @@
         map_summary: () => ({serverId: fixtureServerId, counts: fixtureCounts, scanState: fixtureScanState}),
         map_data_options: () => ({
             serverId: fixtureServerId,
+            counts: fixtureCounts,
             alliances: [],
             names: {resource: [], monster: monsterLocaleFixture ? fixtureMonsterRows.map(row => ({key: row.monsterNameKey, count: 1})) : []},
-            dispatchLevels: [], monsterLevels: monsterLocaleFixture ? [7, 9] : [], counts: fixtureCounts, rewardItems: {}, treasureTypes: [], noAllianceCount: 0, scanProgress: null
+            dispatchLevels: [],
+            noAllianceCount: 0,
+            rewardItems: {truck: [], railway: []},
+            treasureTypes: [],
+            scanProgress: null
         }),
         map_search: payload => {
             if (!monsterLocaleFixture || payload?.kind !== 'monster') return {rows: [], total: 0};

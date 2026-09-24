@@ -597,30 +597,28 @@ internal sealed class LWBridgeBackend
         return new
         {
             serverId,
+            counts = aggregates.Counts,
             alliances = aggregates.Alliances.Select(item => new { name = item.Name ?? string.Empty, count = item.Count }).ToArray(),
             names = new
             {
                 resource = aggregates.Names.Where(item => item.Kind == "resource").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
                 monster = aggregates.Names.Where(item => item.Kind == "monster").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
-                zombie_boss = aggregates.Names.Where(item => item.Kind == "zombie_boss").Select(item => new { key = item.Key, count = item.Count }).ToArray(),
             },
             dispatchLevels = aggregates.DispatchLevels,
-            monsterLevels = aggregates.MonsterLevels,
-            treasureTypes = aggregates.TreasureTypes.Select(item => new
-            {
-                key = item.Key,
-                suppliesType = item.SuppliesType,
-                treasureType = item.TreasureType,
-                treasureNameKey = item.TreasureNameKey,
-                count = item.Count,
-            }).ToArray(),
+            noAllianceCount = aggregates.NoAllianceCount,
             rewardItems = new
             {
                 truck = aggregates.RewardItems.Where(item => item.Kind == "truck").Select(item => new { key = item.Key, name = item.Name, iconPath = item.IconPath }).ToArray(),
                 railway = aggregates.RewardItems.Where(item => item.Kind == "railway").Select(item => new { key = item.Key, name = item.Name, iconPath = item.IconPath }).ToArray(),
             },
-            counts = aggregates.Counts,
-            noAllianceCount = aggregates.NoAllianceCount,
+            treasureTypes = aggregates.TreasureTypes.Select(item => new
+            {
+                key = item.Key,
+                count = item.Count,
+                treasureType = item.TreasureType,
+                suppliesType = item.SuppliesType,
+                treasureNameKey = item.TreasureNameKey,
+            }).ToArray(),
             scanProgress,
         };
     }

@@ -99,7 +99,6 @@ internal sealed record MapOptionAggregates(
     IReadOnlyList<MapAllianceOptionAggregate> Alliances,
     IReadOnlyList<MapNameOptionAggregate> Names,
     IReadOnlyList<int> DispatchLevels,
-    IReadOnlyList<int> MonsterLevels,
     IReadOnlyList<MapTreasureTypeOptionAggregate> TreasureTypes,
     IReadOnlyList<MapRewardItemOptionAggregate> RewardItems,
     IReadOnlyDictionary<string, int> Counts,
@@ -373,27 +372,26 @@ internal sealed partial class MapDataStore : IDisposable
         long nowUnixMilliseconds,
         Action? afterFirstAggregateRead)
     {
-        bool allPublishedServers = source.ServerId == 0 && !source.UsesStagingRecords;
-        if (!allPublishedServers) ValidateServerId(source.ServerId);
+        if (source.ServerId != 0) ValidateServerId(source.ServerId);
+        if (source.UsesStagingRecords && source.ServerId <= 0)
+            throw new BridgeCommandException("INVALID_SERVER_ID", "serverId must be an integer from 1 through 99999.");
 
-        // RECOVERED LWB-R6-024/R6-030 retain their exact single-server shapes.
-        // OWNER WORKFLOW R7-147 adds a published-only aggregate scope across all
-        // current-session servers; active staging remains single-server only.
+        // EXACT_CONTRACT LWB-R6-024/R6-030 / R8-011: the original options path
+        // is always server-scoped. A matching active scan selects scan_records
+        // by server/run; every fallback selects map_records by the requested
+        // server. serverId=0 therefore remains a server-0 scope, never an
+        // all-published-servers rebuild shortcut.
         string sourceTable = source.UsesStagingRecords ? "scan_records" : "map_records";
-        string sourceScope = allPublishedServers
-            ? "1=1"
-            : source.UsesStagingRecords
-                ? "server_id=$server AND run_id=$run"
-                : "server_id=$server";
-        string qualifiedSourceScope = allPublishedServers
-            ? "1=1"
-            : source.UsesStagingRecords
-                ? "source.server_id=$server AND source.run_id=$run"
-                : "source.server_id=$server";
+        string sourceScope = source.UsesStagingRecords
+            ? "server_id=$server AND run_id=$run"
+            : "server_id=$server";
+        string qualifiedSourceScope = source.UsesStagingRecords
+            ? "source.server_id=$server AND source.run_id=$run"
+            : "source.server_id=$server";
 
         void BindSource(SqliteCommand command)
         {
-            if (!allPublishedServers) command.Parameters.AddWithValue("$server", source.ServerId);
+            command.Parameters.AddWithValue("$server", source.ServerId);
             if (source.UsesStagingRecords)
                 command.Parameters.AddWithValue("$run", source.ScanRunId!);
         }
@@ -450,7 +448,7 @@ internal sealed partial class MapDataStore : IDisposable
                       END AS name_key,
                       COUNT(*)
                     FROM {sourceTable}
-                    WHERE {sourceScope} AND kind IN ('resource','monster','zombie_boss')
+                    WHERE {sourceScope} AND kind IN ('resource','monster')
                     GROUP BY kind,name_key
                     HAVING name_key IS NOT NULL AND name_key<>''
                     ORDER BY kind,name_key COLLATE NOCASE
@@ -473,23 +471,6 @@ internal sealed partial class MapDataStore : IDisposable
                 BindSource(command);
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read()) dispatchLevels.Add(reader.GetInt32(0));
-            }
-
-            // IMPLEMENTATION POLICY R7: the rebuilt Monster page adds an exact-level
-            // selector requested by the owner. The original 0.3.1 frontend only used
-            // dispatchLevels, so MonsterLevels is a rebuild-only aggregate over the same
-            // snapshot/source scope and never invents levels outside persisted rows.
-            var monsterLevels = new List<int>();
-            using (SqliteCommand command = connection.CreateCommand())
-            {
-                command.Transaction = snapshot;
-                command.CommandText = $"""
-                    SELECT DISTINCT CAST(level AS INTEGER) FROM {sourceTable}
-                    WHERE {sourceScope} AND kind IN ('monster','zombie_boss') AND level>=1 ORDER BY 1
-                    """;
-                BindSource(command);
-                using SqliteDataReader reader = command.ExecuteReader();
-                while (reader.Read()) monsterLevels.Add(reader.GetInt32(0));
             }
 
             var treasureTypes = new List<MapTreasureTypeOptionAggregate>();
@@ -560,7 +541,7 @@ internal sealed partial class MapDataStore : IDisposable
 
             // RECOVERED LWB-R6-024/R6-030: count aggregation uses the same source and
             // optional exact run scope as the option families.
-            var counts = MapScanContract.AllTypes.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
+            var counts = MapScanContract.RecoveredDefaultTypes.ToDictionary(kind => kind, _ => 0, StringComparer.Ordinal);
             using (SqliteCommand command = connection.CreateCommand())
             {
                 command.Transaction = snapshot;
@@ -578,9 +559,8 @@ internal sealed partial class MapDataStore : IDisposable
             }
 
             MapScanProgressAggregateRow? scanProgress = null;
-            if (!allPublishedServers)
+            using (SqliteCommand command = connection.CreateCommand())
             {
-                using SqliteCommand command = connection.CreateCommand();
                 command.Transaction = snapshot;
                 command.CommandText = source.UsesStagingRecords
                     ? """
@@ -612,7 +592,7 @@ internal sealed partial class MapDataStore : IDisposable
 
             snapshot.Commit();
             return new MapOptionAggregates(
-                alliances, names, dispatchLevels, monsterLevels, treasureTypes, rewardItems,
+                alliances, names, dispatchLevels, treasureTypes, rewardItems,
                 counts, noAllianceCount, scanProgress);
         }
     }

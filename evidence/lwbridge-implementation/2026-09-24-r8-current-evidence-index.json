@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-010",
+  "checkpoint": "LWB-R8-011",
   "date": "2026-09-24",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -20,9 +20,12 @@
     "docs/tabs/shared-release.md",
     "docs/external-audit-guide.md",
     "docs/deep-binary-handoff.md",
-    "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md"
+    "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
+    "docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md",
+    "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-011-map-data-options-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-lwke1-independent-recovery.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-010-map-summary-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-009-server-jump-result-parity.json",
@@ -39,11 +42,11 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "recover exact LWKE1 indexes/encodings for the peer P-256 point, nonce, ciphertext and tag through new independent permitted evidence",
-    "recover the actual LWKE1 AES-GCM AAD string and second-segment meaning without inspecting the protected consumer body",
-    "reproduce the proven opaque-consumer 32-byte package-key output using the now-exact ECDH/TRUNCATE and AES-GCM primitives",
-    "decrypt and hash-preserve original bridge-scripts.dat plaintext/container",
-    "restore exact Scheduled Plunder control plane from the recovered Map contract report",
-    "restore exact original Auto Scan and scan public-contract semantics"
+    "restore the original Manual Scan public contract: exactly eight Map kinds plus Normal/Fast scanMode semantics",
+    "restore map_scan_status and map_scan_stop original public fields and state transitions without leaking rebuild-only state",
+    "restore map_search original eight-kind filter ownership and remove rebuild-added Monster/Resource level-filter semantics",
+    "roll Auto Scan back to the exact original frontend scheduler/state machine",
+    "restore Scheduled Plunder control plane and original UI from the recovered Map contract report",
+    "leave the evidence-limited LWKE1 field-map/AAD blocker parked until a genuinely new permitted artifact or source appears"
   ]
 }

@@ -2,14 +2,16 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-010`
+**Current checkpoint:** `LWB-R8-011`
 **Date:** 2026-09-24
 
 ## Current directive
 
 Stop designing our own LWBridge.
 
-The verified `lwbridge-0.3.1.exe` is the product specification. Recover the original implementation and reproduce it one-for-one. Internal compatibility code may differ only when required for the current Last War client and only if the user-visible/output contract remains the same.
+The verified `lwbridge-0.3.1.exe` is the product specification for every retained feature. Recover the retained original implementation and reproduce it one-for-one. Internal compatibility code may differ only when required for the current Last War client and only if the user-visible/output contract remains the same.
+
+**Explicit owner exception:** do not research, restore, or implement Login, Register/account creation, authentication, account management, license activation/renewal, unbind, logout, auth-state/account UI, multi-license entitlement activation, credential persistence, or any other feature whose purpose is user login/account authentication. Those surfaces are intentionally out of scope even when present in 0.3.1.
 
 Read `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` before touching production code.
 
@@ -63,9 +65,17 @@ The recovered public `server_jump` success envelope is now complete: `{changed, 
 
 Persisted multi-server browsing and its frontend transforms remain separate Auto/result-browsing parity work; R8-010 does not delete that saved data.
 
-## P0
+## R8-011 map_data_options parity checkpoint
 
-Recover the original protected `bridge-scripts.dat` implementation.
+`map_data_options` now follows the recovered original source and envelope contract: exact top-level order `serverId, counts, alliances, names, dispatchLevels, noAllianceCount, rewardItems, treasureTypes, scanProgress`; exactly eight original count kinds; only Resource/Monster name families; active `scan_records` only for the matching reading server with raw nonempty `scanRunId`; otherwise server-scoped published `map_records`. Rebuild-only `zombie_boss` option/count families, public `monsterLevels`, and the R7 `serverId=0` all-published-server aggregate are removed. See `docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md`.
+
+The next main Map work is the original Manual Scan public contract, then `map_scan_status`/`map_scan_stop`, `map_search`, original Auto Scan behavior, and Scheduled Plunder restoration.
+
+## Parked protected package-key lane
+
+The protected package/key lane is evidence-limited and must remain separate from current Map implementation. Do not blindly repeat artifact searches or cross the protected boundary; resume it only if genuinely new permitted evidence appears.
+
+The long-term retained-runtime goal remains recovery of the non-account portions of the original protected `bridge-scripts.dat` implementation where required for product compatibility.
 
 Already known:
 
@@ -95,9 +105,15 @@ The old complete traversal may remain as a temporary safety/reference oracle, bu
 
 ## Whole-program scope
 
-The project is no longer limited to Home and Map Data. Automation, Squads/AFK, City Layout, Hotkeys, Mini-games, Settings, auth/account flows and every conditional/nested feature in the reference are part of the parity target.
+The project is no longer limited to Home and Map Data. Automation, Squads/AFK, City Layout, Hotkeys, Mini-games, Settings, and retained conditional/nested features in the reference are part of the parity target.
 
-Previously retired original features are parity gaps, not retired scope.
+Account/Login/Authentication and all related activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction and must not be reintroduced as parity backlog.
+
+Other previously retired original features remain parity gaps unless separately excluded by a current explicit owner directive.
+
+## Completed helper City Layout lane
+
+The helper's exact original City Layout recovery is complete and preserved byte-for-byte at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`. The current `CityLayoutPanel-B4B03XEi.js` is byte-identical to original 0.3.1 (`97dc2c5e0bf4fc5e3b3a058e704c02e21385b9c9511aeb9b3297ec3272c78022`), all eight original API wrappers remain, and all eight production C# `city_layout_*` handlers are missing. The report recovers exact revisioned `city_layout_draft_v1` persistence, 500 ms autosave/status polling, bridge method names/timeouts, request/result boundaries, local issue codes and UI behavior. Protected placement planning/execution remains `PROTECTED_UNKNOWN` and must not be guessed.
 
 ## Worktree state
 

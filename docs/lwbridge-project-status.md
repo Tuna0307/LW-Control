@@ -1,13 +1,13 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R8-010`
+**Current checkpoint:** `LWB-R8-011`
 
 ## Executive status
 
 The project is not complete.
 
-Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the whole program.
+Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. Account/Login/Authentication and all account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are explicitly excluded from retained scope.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
 
@@ -31,8 +31,8 @@ That proof is limited because the rebuild intentionally transformed the main/API
 2. Exact host/proxy request-result protocol and readiness semantics.
 3. Original Map Scan internals and per-kind acquisition strategy.
 4. Removal of rebuild-only additions such as Secret Task Quick Find.
-5. Restoration of remaining original product features previously retired/customized. City Excel is restored in R8-007, the original current-live-server Map Clear boundary in R8-008, the complete public `server_jump` success envelope in R8-009, and strict `map_summary` result/source parity in R8-010; auth/account presentation and Scheduled Plunder remain.
-6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
+5. Restoration of remaining retained product features previously retired/customized. City Excel is restored in R8-007, the original current-live-server Map Clear boundary in R8-008, the complete public `server_jump` success envelope in R8-009, strict `map_summary` result/source parity in R8-010, and strict `map_data_options` result/source parity in R8-011; Scheduled Plunder remains. Account/Login/Authentication is intentionally excluded.
+6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings. City Layout research is now implementation-ready at the host/persistence boundary: its original UI is byte-identical, but all eight production backend handlers are missing; see `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`.
 7. Exact reference-vs-rebuild behavior validation across connected/live states.
 
 ## Map status under the new goal
@@ -45,12 +45,12 @@ Therefore no R7 performance optimization is accepted as original parity unless t
 
 ## Protected package status
 
-The package is not considered unrecoverable. R8-003 closes the encrypted LWBP2/AES side; R8-004 closes outer `LWKE1` transport; R8-005 closes exact client P-256 login material; R8-006 proves the precise opaque-consumer output vector that becomes the 32-byte package key. P0 is concentrated on recovering the returned envelope's decoded peer/agreement and encrypted-key fields through permitted evidence, reproducing that output, then decrypting and preserving the original script bytes.
+Earlier R8 work recovered substantial package/crypto structure, but the remaining LWKE1 field map/AAD is evidence-limited and requires a genuinely new permitted artifact/source. Do not keep repeating the same searches, cross the protected boundary, or expand this lane into Account/Login/Authentication recovery.
 
-A historical environment denial is not a claim that the underlying research question is solved or impossible. Exact denied operations must not be rerouted, but permitted alternative analysis remains active work.
+The package lane is parked while the main researcher restores Map and other retained product surfaces. It may resume for retained non-account runtime compatibility only when new permitted evidence exists.
 
 ## Completion rule
 
 The current whole-program parity matrix is `docs/lwbridge-parity-matrix.md`.
 
-A final release requires every required original feature to be classified as exact or proven equivalent, no unexplained rebuild-only deviations, and a working current-client product.
+A final release requires every required retained original feature to be classified as exact or proven equivalent, no unexplained rebuild-only deviations in retained scope, and a working current-client product.

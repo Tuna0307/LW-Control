@@ -13,9 +13,7 @@ internal static class MapDataOptionsLiveVerifier
         int NoAllianceCount,
         int ResourceNameOptionCount,
         int MonsterNameOptionCount,
-        int ZombieBossNameOptionCount,
         int DispatchLevelCount,
-        int MonsterLevelCount,
         int TreasureTypeOptionCount,
         int TruckRewardItemCount,
         int RailwayRewardItemCount);
@@ -48,15 +46,19 @@ internal static class MapDataOptionsLiveVerifier
                 "Persisted map_data_options changed server identity.");
 
         Dictionary<string, MapStoredRecord[]> byKind =
-            MapScanContract.AllTypes.ToDictionary(
+            MapScanContract.RecoveredDefaultTypes.ToDictionary(
                 kind => kind,
                 kind => store.ReadRecords(kind, serverId).ToArray(),
                 StringComparer.Ordinal);
         int totalRows = byKind.Values.Sum(rows => rows.Length);
 
         JsonElement countsJson = options.GetProperty("counts");
+        string[] countKeys = countsJson.EnumerateObject().Select(property => property.Name).ToArray();
+        if (!countKeys.SequenceEqual(MapScanContract.RecoveredDefaultTypes))
+            throw new InvalidDataException(
+                "map_data_options counts must contain exactly the original eight keys in recovered order.");
         int positiveKindCount = 0;
-        foreach (string kind in MapScanContract.AllTypes)
+        foreach (string kind in MapScanContract.RecoveredDefaultTypes)
         {
             int expected = byKind[kind].Length;
             int actual = countsJson.GetProperty(kind).GetInt32();
@@ -107,10 +109,9 @@ internal static class MapDataOptionsLiveVerifier
             names.GetProperty("monster"),
             byKind["monster"],
             "monsterNameKey");
-        int zombieBossNameCount = ValidateNameOptions(
-            names.GetProperty("zombie_boss"),
-            byKind["zombie_boss"],
-            "monsterNameKey");
+        if (names.TryGetProperty("zombie_boss", out _))
+            throw new InvalidDataException(
+                "map_data_options must not expose rebuild-only names.zombie_boss.");
 
         int[] expectedDispatchLevels = byKind["dispatch"]
             .Select(row => row.Level ?? 0)
@@ -123,17 +124,9 @@ internal static class MapDataOptionsLiveVerifier
             expectedDispatchLevels,
             "dispatchLevels");
 
-        int[] expectedMonsterLevels = byKind["monster"]
-            .Concat(byKind["zombie_boss"])
-            .Select(row => row.Level ?? 0)
-            .Where(level => level >= 1)
-            .Distinct()
-            .OrderBy(level => level)
-            .ToArray();
-        ValidateIntArray(
-            options.GetProperty("monsterLevels"),
-            expectedMonsterLevels,
-            "monsterLevels");
+        if (options.TryGetProperty("monsterLevels", out _))
+            throw new InvalidDataException(
+                "map_data_options must not expose rebuild-only monsterLevels.");
 
         TreasureOption[] expectedTreasure =
             BuildTreasureOptions(byKind["treasure"]);
@@ -213,9 +206,7 @@ internal static class MapDataOptionsLiveVerifier
             noAllianceCount,
             resourceNameCount,
             monsterNameCount,
-            zombieBossNameCount,
             expectedDispatchLevels.Length,
-            expectedMonsterLevels.Length,
             expectedTreasure.Length,
             truckRewardCount,
             railwayRewardCount);

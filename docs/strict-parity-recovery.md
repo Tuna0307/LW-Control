@@ -9,21 +9,29 @@ This document supersedes every earlier project direction that allowed redesign, 
 
 ## End goal
 
-The end product must reproduce LWBridge 0.3.1 one-for-one as a working program. The reference executable decides what features exist, what they are called, how they look, how they behave, what defaults they use, what errors they show, what requests they send, and what results they expose.
+The end product must reproduce LWBridge 0.3.1 one-for-one as a working program for every retained product feature, subject only to the explicit owner exception below. The reference executable decides what retained features are called, how they look, how they behave, what defaults they use, what errors they show, what requests they send, and what results they expose.
 
 The implementation language, compatibility shims, internal process structure, or current-client adaptation may differ only when necessary to make the recovered original behavior work. Those internal differences must not intentionally change observable product behavior.
+
+## Explicit owner exception — Account / Login / Authentication
+
+The owner has explicitly excluded the entire account/login/authentication feature family from the parity target, even when those surfaces exist in LWBridge 0.3.1.
+
+Do **not** research, restore, implement, or spend parity time on Login, Register/account creation, authentication, account management, license activation or renewal, unbind, logout, auth-state/account UI, multi-license entitlement activation, credential persistence, or any other feature whose purpose is user login/account authentication.
+
+This is a deliberate retained-product scope exception and supersedes earlier R8 language that required those account/authentication surfaces to be restored. Historical evidence about them may remain in the repository as historical evidence, but it is not current implementation backlog or product authority.
 
 ## Non-negotiable parity rules
 
 1. Do not add a feature because it seems useful.
-2. Do not remove a reference feature because it is inconvenient, slow, obsolete, gated, or difficult.
+2. Do not remove a retained reference feature because it is inconvenient, slow, obsolete, gated, or difficult. The explicit Account/Login/Authentication exception above is intentionally not retained.
 3. Do not redesign workflows, labels, tabs, defaults, timing, search semantics, scan semantics, navigation, storage behavior, or error handling without recovered reference evidence.
 4. Do not optimize an original behavior by substituting a different algorithm unless the substitution is proven observationally equivalent to the reference and does not change any exposed contract.
 5. Do not treat current Last War APIs, LW Atlas, community tools, or our previous implementation as product authority. They are research aids only.
 6. When exact original bytes are recovered, preserve them byte-for-byte. Do not hand-edit extracted frontend chunks, icons, locale bundles, embedded assets, or other recovered payloads.
 7. When original bytes are not yet recovered, recover the contract before implementing it. Unsupported behavior is a parity gap, not an invitation to invent.
 8. A previous rebuild feature that is not demonstrated in LWBridge 0.3.1 is a deviation and must be removed or quarantined.
-9. A previous owner-requested retirement or customization is historical only unless the same behavior exists in the reference.
+9. A previous owner-requested retirement or customization is historical only unless the same behavior exists in the reference, except for the explicit current Account/Login/Authentication exclusion recorded above.
 10. Passing our own tests is not parity proof. The reference behavior remains the acceptance authority.
 
 ## What "not even a single byte" means here
@@ -40,7 +48,7 @@ The rebuilt executable itself is not required to have the same PE hash as the Ru
 - **DEVIATION** — rebuild behavior added, removed, altered, optimized, or customized without reference authority.
 - **UNKNOWN** — original behavior is not yet recovered enough to reproduce safely.
 
-A release is not one-to-one while any required reference feature remains `DEVIATION` or `UNKNOWN`.
+A release is not one-to-one for the retained product scope while any required retained reference feature remains `DEVIATION` or `UNKNOWN`.
 
 ## Current correction of direction
 

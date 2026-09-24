@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-011`, 2026-09-24.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -9,13 +9,13 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Surface | Current parity state | Notes |
 |---|---|---|
 | Reference artifact | EXACT_BYTES authority | Hash reverified 2026-09-24 |
-| Post-login frontend assets | EXACT_BYTES-derived | Original chunks/styles/icons/locales recovered; transformed boundary and prior product deviations still require cleanup |
-| Auth/account flows | DEVIATION | Intentionally removed in the rebuild; must be restored for one-to-one parity |
+| Retained frontend assets | EXACT_BYTES-derived | Original chunks/styles/icons/locales recovered; transformed boundary and prior retained-scope product deviations still require cleanup |
+| Auth/account flows | EXCLUDED — explicit owner directive | Login/Register/authentication/account management/activation/renewal/unbind/logout/entitlement/account-purpose UI/backend are intentionally outside retained scope |
 | Overview | EQUIVALENT_REIMPLEMENTATION | Works, but original backend semantics still need exact audit |
 | Automation | UNKNOWN backend parity | Original UI assets exist; whole feature contract not yet closed |
 | Map Data | MIXED / not parity-complete | Large amount recovered, but acquisition internals and product customizations diverged |
 | Squads / AFK | UNKNOWN backend parity | Original UI exists |
-| City Layout | UNKNOWN backend parity | Original UI exists |
+| City Layout | UI EXACT_BYTES / backend MISSING | Helper recovery preserved at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`: UI chunk byte-identical; eight original wrappers present; all eight production handlers missing; draft/control-plane contracts recovered; protected planner/executor fenced |
 | Hotkeys | PARTIAL | UI/preferences exercised; complete original handler/default audit still required |
 | Mini-games | UNKNOWN backend parity | Original UI exists |
 | Settings | UNKNOWN backend parity | Original UI exists |
@@ -40,7 +40,8 @@ This ledger now tracks parity with the original program, not whether our reconst
 | `map_scan_clear` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-008 restored positive current-live-server admission, server-scoped deletion, player-mark preservation and Manual-only Clear |
 | `server_jump` public result | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-009 restored destination `serverId` alongside `previousServerId` and `changed`; protected travel internals remain separate |
 | `map_summary` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-010 restored exact three-field envelope, eight original kinds and shared-state active/published count source selection |
-| Scheduled Plunder | DEVIATION | Restore original feature set |
+| `map_data_options` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-011 restored recovered top-level order, eight original count kinds, Resource/Monster name families and exact active-run vs server-scoped published selection; rebuild-only `zombie_boss`/`monsterLevels` removed |
+| Scheduled Plunder | DEVIATION | Restore original retained feature set |
 | Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | Finish exact branch/default/error audit |
 | Mark/Jump/Follow | PARTIAL | Tie every behavior to reference |
 | Auto Scan | PARTIAL / possible deviation | Recover exact original routing/timing/failure semantics |
@@ -54,8 +55,8 @@ This ledger now tracks parity with the original program, not whether our reconst
 | multi-hook | PARTIAL EXACT_CONTRACT |
 | secure/plain xLua proxies | PARTIAL EXACT_CONTRACT |
 | bridge pipe framing | PARTIAL EXACT_CONTRACT |
-| `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / P0 ? R8-003 recovers encrypted LWBP2/AES ownership; R8-004 recovers `LWKE1` envelope framing/auth binding; R8-005 recovers exact client login material; R8-006 proves the exact opaque-consumer output pointer used as the 32-byte package key; decoded server agreement material and plaintext still pending |
-| protected script handlers | UNKNOWN / P0 |
+| `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / evidence-limited | Substantial package/crypto structure is historically recovered; remaining LWKE1 field-map/AAD work is parked until genuinely new permitted evidence and must not expand into Account/Login/Authentication research |
+| protected script handlers | UNKNOWN / retained non-account scope only |
 
 ## Completion interpretation
 

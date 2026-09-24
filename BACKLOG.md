@@ -1,12 +1,12 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-011`, 2026-09-24.
 
-This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
+This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
 ## P0 — recover the original implementation
 
-- [ ] **Recover `bridge-scripts.dat` plaintext and container contents.** R8-003 closes the encrypted LWBP2/AES side; R8-004 closes outer `LWKE1` framing; R8-005 closes client ECDH/login material; R8-006 proves the opaque envelope consumer output vector that becomes the exact 32-byte package AES key. Recover the decoded server envelope agreement/encrypted-key fields through permitted evidence, reproduce that output, then decrypt and hash-preserve the original scripts.
+- [ ] **Park the evidence-limited `bridge-scripts.dat`/LWKE1 lane until genuinely new permitted evidence appears.** Earlier R8 work recovered substantial package/crypto structure, but the remaining field-map/AAD blocker must not be guessed, blindly re-searched, or expanded into Account/Login/Authentication recovery. Resume only for retained non-account runtime needs when new evidence exists.
 - [ ] **Recover the exact host<->proxy command protocol.** Close `hello.ack`, readiness/heartbeat, request/result grammar, correlation, timeout/disconnect/write failure behavior, and script-dispatch ownership.
 - [ ] **Build a complete original command/service inventory.** Enumerate every UI API call, Rust/Tauri command, service, script handler, launcher/proxy path, default, error code and persistent key in LWBridge 0.3.1.
 - [ ] **Map each original command to the current Last War client.** Compatibility work may adapt internals but must preserve the recovered original observable contract.
@@ -15,7 +15,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 - [ ] **Remove/quarantine every rebuild-only product feature.** R7-151 Secret Task Quick Find is the known example; do not retain any addition not demonstrated in the reference.
 - [x] **Restore original City Excel export.** R8-007 restores the reference API/UI, native save dialog, 200-row pagination, exact workbook/result contract and nine locale labels.
-- [ ] **Restore every other original feature previously retired or customized.** This includes original auth/account presentation, Scheduled Plunder surfaces, and any other reference behavior removed by earlier owner-specific rebuild decisions.
+- [ ] **Restore every other retained original feature previously retired or customized.** This includes Scheduled Plunder surfaces and other retained reference behavior removed by earlier owner-specific rebuild decisions. Account/Login/Authentication is the explicit exception and must remain out of scope.
 - [ ] **Eliminate performance-first Map substitutions that lack reference authority.** The wide-FOV/68-request work and similar current-game optimizations are research evidence only until proven equivalent to original LWBridge behavior.
 - [ ] **Re-audit all frontend transforms.** Keep original chunks/assets byte-identical and reduce the generator/API boundary to only invisible compatibility plumbing.
 
@@ -24,6 +24,12 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 - [x] **Restore original `map_scan_clear` boundary.** R8-008 removes rebuild-only `serverId=0`/saved-server Clear, restores the exact current-live-server gate, server-scoped deletion and Manual-only Clear control.
 - [x] **Restore original `server_jump` public success envelope.** R8-009 restores destination `serverId` alongside `previousServerId` and `changed`, while retaining the recovered validation/error contract.
 - [x] **Restore original `map_summary` contract.** R8-010 restores the exact `{serverId, counts, scanState}` envelope, eight original count keys and shared-state active/published source selection; saved-server fallbacks are removed from this command.
+- [x] **Restore original `map_data_options` contract.** R8-011 restores recovered top-level order, exactly eight count kinds, Resource/Monster name families, matching active-run staging and server-scoped published fallback; removes public `zombie_boss`, `monsterLevels` and the all-server fallback.
+- [ ] Restore original Manual Scan public contract: exactly eight kinds and Normal/Fast `scanMode`.
+- [ ] Restore original `map_scan_status` / `map_scan_stop` public fields, transitions and error behavior.
+- [ ] Restore original `map_search` eight-kind filter ownership; remove rebuild-added Monster/Resource level-filter semantics.
+- [ ] Roll Auto Scan back to the exact original frontend scheduler/state machine.
+- [ ] Restore original Scheduled Plunder control plane and UI without inventing protected robbery execution internals.
 - [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
 - [ ] Recover original Normal/Fast mode behavior, retries, pacing, concurrency, block/AOI semantics, completeness rules and failure/resume logic.
 - [ ] Recover original multi-server behavior instead of designing from LW Atlas or our own assumptions.
@@ -34,10 +40,10 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 - [ ] Automation — recover every category, handler, schedule, state transition and error path.
 - [ ] Squads / AFK — recover every task/equipment/preset/runtime action.
-- [ ] City Layout — recover connected editor/data behavior.
+- [ ] City Layout — helper recovery is complete and preserved at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`: the original UI chunk is byte-identical, all eight frontend wrappers remain, and all eight production backend handlers are missing. Implement the recovered draft persistence and host control plane later; keep the protected planner/executor fenced.
 - [ ] Hotkeys — recover every command, default and persistence rule.
 - [ ] Mini-games — recover every visible and conditional function.
-- [ ] Settings — recover every setting, update, feedback, account and persistence behavior.
+- [ ] Settings — recover every retained setting, update, feedback and persistence behavior; do not restore account/authentication-purpose settings or UI.
 - [ ] Home / Overview — re-audit working reconstructed lifecycle against the original host/launcher/proxy contract instead of treating current functionality as final.
 
 ## P1 — parity validation
@@ -50,4 +56,4 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 ## Release exit rule
 
-A feature is not complete merely because the rebuild works. Final release requires no required reference feature classified as `DEVIATION` or `UNKNOWN`, and the resulting program must function end-to-end.
+A feature is not complete merely because the rebuild works. Final release requires no required retained reference feature classified as `DEVIATION` or `UNKNOWN`, and the retained product must function end-to-end.

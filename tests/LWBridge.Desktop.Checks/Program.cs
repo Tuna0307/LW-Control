@@ -3707,14 +3707,11 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.Alliances.Single(item => item.Name == "Alpha").Count == 2 &&
           persistedOptions.Alliances.All(item => item.Name != "Other"),
         "persisted option alliance aggregation emits only nonempty alliance names while keeping recovered ordering and server scope");
-    Check(persistedOptions.Names.Count == 3 &&
+    Check(persistedOptions.Names.Count == 2 &&
           persistedOptions.Names.Any(item => item.Kind == "resource" && item.Key == "wood" && item.Count == 2) &&
           persistedOptions.Names.Any(item => item.Kind == "monster" && item.Key == "zombie" && item.Count == 1) &&
-          persistedOptions.Names.Any(item => item.Kind == "zombie_boss" && item.Key == "2901012" && item.Count == 1) &&
-          persistedOptions.Names.All(item => item.Key.Length > 0),
-        "persisted resource/Monster/Zombie Boss option aggregation excludes empty keys and preserves counts");
-    Check(persistedOptions.MonsterLevels.SequenceEqual(new[] { 8 }),
-        "persisted Monster level options include dedicated Zombie Boss levels from the same published snapshot");
+          persistedOptions.Names.All(item => item.Kind is "resource" or "monster" && item.Key.Length > 0),
+        "strict-parity option aggregation exposes only original Resource/Monster name families and excludes Zombie Boss");
     Check(persistedOptions.DispatchLevels.SequenceEqual(new[] { 1, 3 }),
         "persisted dispatch option levels are distinct positive integers ordered ascending");
     Check(persistedOptions.TreasureTypes.Count == 2 &&
@@ -3733,17 +3730,18 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
           persistedOptions.RewardItems[1].Kind == "truck" && persistedOptions.RewardItems[1].Key == "iron" &&
           persistedOptions.RewardItems.All(item => item.Key != "past" && item.Key != "other"),
         "persisted reward options deduplicate current goods, apply recovered Unix-ms arrival cutoff and isolate server scope");
-    Check(persistedOptions.Counts.Count == 9 &&
+    Check(persistedOptions.Counts.Count == 8 &&
+          persistedOptions.Counts.Keys.SequenceEqual(MapScanContract.RecoveredDefaultTypes) &&
           persistedOptions.Counts["city"] == 4 &&
           persistedOptions.Counts["resource"] == 3 &&
           persistedOptions.Counts["monster"] == 1 &&
-          persistedOptions.Counts["zombie_boss"] == 1 &&
+          !persistedOptions.Counts.ContainsKey("zombie_boss") &&
           persistedOptions.Counts["truck"] == 2 &&
           persistedOptions.Counts["railway"] == 1 &&
           persistedOptions.Counts["dispatch"] == 4 &&
           persistedOptions.Counts["ghost"] == 0 &&
           persistedOptions.Counts["treasure"] == 4,
-        "persisted option test kernel returns the exact nine frontend count keys with zero for absent kinds");
+        "persisted option test kernel returns exactly the eight original count keys and excludes Zombie Boss");
     Check(persistedOptions.NoAllianceCount == 2,
         "persisted option test kernel accumulates null and empty alliance groups into native noAllianceCount instead of alliances[]");
     Check(persistedOptions.ScanProgress?.Id == "options-run-new" &&
@@ -3800,6 +3798,8 @@ using (var persistedOptionsStore = MapDataStore.CreateInMemory())
 
 using (var backendMapStore = MapDataStore.CreateInMemory())
 {
+    bool backendMapReading = false;
+    string backendMapRunId = "";
     var mapBackend = new LWBridgeBackend(
         new LocalConfigStore(persistent: false),
         mapData: backendMapStore,
@@ -3807,8 +3807,8 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         {
             serverId = 91,
             serverIdSource = MapScanClearOwnership.LiveServerSource,
-            scanRunId = "",
-            isReading = false,
+            scanRunId = backendMapRunId,
+            isReading = backendMapReading,
         });
     backendMapStore.UpsertRecord(new MapStoredRecord(
         "city", 91, "backend-city-key", 7, "backend-city-uuid", "Backend City", "XYZ",
@@ -3827,7 +3827,15 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         8, null, null, 56, 2_000_000_000_000L, 1250,
         "{\"serverId\":91,\"uuid\":\"boss-a\",\"monsterNameKey\":\"monster.boss\",\"level\":8,\"monsterProtectionKnown\":true,\"monsterProtectionActive\":true,\"shieldEndTime\":2000000000000}"));
     backendMapStore.InsertScanRun(new MapScanRunSeed(
-        "backend-run", 91, "[\"city\",\"monster\"]", "running", 100, 0, 0, 1000, 1000, null));
+        "backend-run", 91, "[\"city\",\"resource\"]", "running", 100, 0, 0, 1000, 1000, null));
+    backendMapStore.StageRecordForPublishTest("backend-run", new MapStoredRecord(
+        "city", 91, "backend-staged-city", 70, "backend-staged-city-uuid", "Staged City", "STAGE",
+        30, null, null, null, null, 1400,
+        "{\"serverId\":91,\"ownerUid\":\"staged-owner\",\"ownerName\":\"Staged City\"}"));
+    backendMapStore.StageRecordForPublishTest("backend-run", new MapStoredRecord(
+        "resource", 91, "backend-staged-resource", 71, "backend-staged-resource-uuid", "resource.stone", null,
+        6, null, null, null, null, 1450,
+        "{\"serverId\":91,\"resourceNameKey\":\"resource.stone\"}"));
     backendMapStore.UpsertRecord(new MapStoredRecord(
         "city", 92, "backend-other-city", 8, "backend-other-uuid", "Other Server City", null,
         20, null, null, null, null, 1300,
@@ -3845,15 +3853,60 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
     using (JsonDocument optionsJson = JsonDocument.Parse(JsonSerializer.Serialize(optionsResult, JsonOptions.Default)))
     {
         JsonElement root = optionsJson.RootElement;
-        Check(root.GetProperty("serverId").GetInt32() == 91 &&
+        string[] topLevelKeys = root.EnumerateObject().Select(property => property.Name).ToArray();
+        string[] countKeys = root.GetProperty("counts").EnumerateObject().Select(property => property.Name).ToArray();
+        string[] nameKeys = root.GetProperty("names").EnumerateObject().Select(property => property.Name).ToArray();
+        Check(topLevelKeys.SequenceEqual(new[]
+              {
+                  "serverId", "counts", "alliances", "names", "dispatchLevels",
+                  "noAllianceCount", "rewardItems", "treasureTypes", "scanProgress",
+              }) &&
+              countKeys.SequenceEqual(MapScanContract.RecoveredDefaultTypes) &&
+              nameKeys.SequenceEqual(new[] { "resource", "monster" }) &&
+              root.GetProperty("serverId").GetInt32() == 91 &&
               root.GetProperty("names").GetProperty("monster").GetArrayLength() == 2 &&
-              root.GetProperty("names").GetProperty("zombie_boss").GetArrayLength() == 1 &&
-              root.GetProperty("names").GetProperty("zombie_boss")[0].GetProperty("key").GetString() == "monster.boss" &&
-              root.GetProperty("monsterLevels").EnumerateArray().Select(item => item.GetInt32()).SequenceEqual(new[] { 7, 8, 9 }) &&
-              root.GetProperty("counts").GetProperty("monster").GetInt32() == 2 &&
-              root.GetProperty("counts").GetProperty("zombie_boss").GetInt32() == 1,
-            "public map_data_options exposes persisted Monster/Zombie Boss names, exact available levels and counts");
+              !root.TryGetProperty("monsterLevels", out _) &&
+              !root.GetProperty("counts").TryGetProperty("zombie_boss", out _) &&
+              root.GetProperty("counts").GetProperty("monster").GetInt32() == 2,
+            "public map_data_options matches the recovered original top-level order and excludes rebuild-only Zombie Boss/monsterLevels fields");
     }
+
+    using JsonDocument zeroServerOptionsPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 0,
+    }));
+    object? zeroServerOptionsResult = await mapBackend.InvokeAsync(
+        "map_data_options", zeroServerOptionsPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument zeroServerOptionsJson = JsonDocument.Parse(
+               JsonSerializer.Serialize(zeroServerOptionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = zeroServerOptionsJson.RootElement;
+        Check(root.GetProperty("serverId").GetInt32() == 0 &&
+              root.GetProperty("counts").EnumerateObject().All(property => property.Value.GetInt32() == 0) &&
+              root.GetProperty("alliances").GetArrayLength() == 0 &&
+              root.GetProperty("scanProgress").ValueKind == JsonValueKind.Null,
+            "map_data_options serverId=0 remains server-scoped and never aggregates saved rows from unrelated servers");
+    }
+
+    backendMapReading = true;
+    backendMapRunId = "backend-run";
+    object? activeOptionsResult = await mapBackend.InvokeAsync(
+        "map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument activeOptionsJson = JsonDocument.Parse(
+               JsonSerializer.Serialize(activeOptionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = activeOptionsJson.RootElement;
+        Check(root.GetProperty("counts").GetProperty("city").GetInt32() == 1 &&
+              root.GetProperty("counts").GetProperty("resource").GetInt32() == 1 &&
+              root.GetProperty("counts").GetProperty("monster").GetInt32() == 0 &&
+              root.GetProperty("alliances")[0].GetProperty("name").GetString() == "STAGE" &&
+              root.GetProperty("names").GetProperty("resource")[0].GetProperty("key").GetString() == "resource.stone" &&
+              root.GetProperty("scanProgress").GetProperty("id").GetString() == "backend-run",
+            "public map_data_options uses the exact active scan_records run scope instead of published map_records");
+    }
+    backendMapReading = false;
+    backendMapRunId = "";
 
     using JsonDocument localizedMonsterSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -4625,9 +4678,10 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
     {
         JsonElement root = optionsJson.RootElement;
         Check(root.GetProperty("serverId").GetInt32() == 0 &&
-              root.GetProperty("counts").GetProperty("city").GetInt32() == 5 &&
+              root.GetProperty("counts").EnumerateObject().All(property => property.Value.GetInt32() == 0) &&
+              root.GetProperty("alliances").GetArrayLength() == 0 &&
               root.GetProperty("scanProgress").ValueKind == JsonValueKind.Null,
-            "serverId=0 map_data_options must aggregate published rows across current-session servers without inventing one-server scan progress");
+            "serverId=0 map_data_options must remain server-scoped and must not aggregate published rows from unrelated servers");
     }
 
     using JsonDocument firstPageSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
