@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-154-CURRENT-EVIDENCE-INDEX",
+  "indexId": "LWB-R7-155-CURRENT-EVIDENCE-INDEX",
   "generatedAt": "2026-09-24",
-  "parentRevision": "e88a7f160a7a2ff856a30ddead8e04766e4e773e",
+  "parentRevision": "f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json",
+        "sha256": "0F0193B40E4AC098F49435BDC8E5E55EC5E29A67485D8AE19F1992131598F228"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json",
         "sha256": "7145460A4689F8A00AE48AC68B9E3B1F95D40AFF2413FD1CBC18522219AFEABE"
