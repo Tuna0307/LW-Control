@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R8-001`
+**Current checkpoint:** `LWB-R8-002`
 
 ## Executive status
 

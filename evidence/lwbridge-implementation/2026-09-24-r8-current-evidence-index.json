@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-001",
+  "checkpoint": "LWB-R8-002",
   "date": "2026-09-24",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,8 @@
     "docs/deep-binary-handoff.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-002-clean-working-tree.json",
+    "evidence/lwbridge-implementation/2026-09-24-r7-156-map-scan-completeness-regression.json",
     "evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json",
     "evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json",
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"

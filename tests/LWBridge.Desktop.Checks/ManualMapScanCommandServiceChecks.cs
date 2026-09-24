@@ -19,6 +19,7 @@ internal static class ManualMapScanCommandServiceChecks
         await RestartReconcilesOrphanedRunAndRejectsConcurrentOwner();
         await BackendSummaryTracksActiveManualScan();
         await FreshClearResolvesAuthoritativeLiveServer();
+        await ClearSurvivesTransientLiveServerResolverFailure();
         await ClearOwnsRecoveredGateAndResetsStatus();
         await BackendClearWithoutLiveOwnershipSucceedsLocally();
         await FastUsesRecoveredConcurrencyAndPublishes();
@@ -32,7 +33,6 @@ internal static class ManualMapScanCommandServiceChecks
         await AllEightTypesAreAccepted();
         await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
-        await DispatchQuickFindPublicContractIsReadOnlyAndBusyGated();
         ScheduledPlunderCommandsAreRetired();
         await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
         await ZombieBossMixedTypesFailClosed();
@@ -476,6 +476,44 @@ internal static class ManualMapScanCommandServiceChecks
             "Clear before any scan should resolve and retain the authoritative live server identity");
         Check(source.Calls == 0,
             "Clear should not start or probe a map scan merely to resolve the current live server");
+        service.Close();
+    }
+
+    private static async Task ClearSurvivesTransientLiveServerResolverFailure()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        bool resolverFails = false;
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            getLiveServerId: () => resolverFails
+                ? throw new InvalidOperationException("synthetic transient live-server gap")
+                : 2212);
+
+        JsonElement initial = JsonSerializer.SerializeToElement(service.CreateStatus(), JsonOptions.Default);
+        Check(Int(initial, "serverId") == 2212,
+            "Clear resolver-gap regression should begin with a known live server");
+        store.UpsertRecord(new MapStoredRecord(
+            "city", 2212, "resolver-gap-city", 1, "resolver-gap-uuid", "Resolver Gap", null,
+            30, null, null, null, null, 1000,
+            "{\"serverId\":2212,\"ownerUid\":\"resolver-gap-owner\"}"));
+
+        resolverFails = true;
+        JsonElement clearAll = JsonSerializer.SerializeToElement(
+            new { profileId = "default", serverId = 0 },
+            JsonOptions.Default);
+        JsonElement cleared = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_scan_clear", clearAll, CancellationToken.None),
+            JsonOptions.Default);
+
+        Check(store.CountRecords("city", 2212) == 0 &&
+              Int(cleared, "serverId") == 2212 &&
+              String(cleared, "phase") == "idle",
+            "Clear must succeed locally even when live-server status resolution drops after deletion");
+        JsonElement status = JsonSerializer.SerializeToElement(service.CreateStatus(), JsonOptions.Default);
+        Check(Int(status, "serverId") == 2212 && String(status, "phase") == "idle",
+            "post-Clear status must retain the last known server instead of surfacing a transient resolver error");
         service.Close();
     }
 
@@ -1001,81 +1039,6 @@ internal static class ManualMapScanCommandServiceChecks
               String(secondFreshStatus, "serverIdSource") == "live",
             "idle Map Scan status may refresh physical liveServerId without changing the current dataset server identity");
         freshStatusService.Close();
-    }
-
-    private static async Task DispatchQuickFindPublicContractIsReadOnlyAndBusyGated()
-    {
-        using MapDataStore store = MapDataStore.CreateInMemory();
-        var release = new TaskCompletionSource<CurrentClientDispatchNearestResult>();
-        int calls = 0;
-        var service = new ManualMapScanCommandService(
-            store,
-            _ => Task.FromResult(StandardContext()),
-            new ImmediateSource(),
-            findNearestDispatch: cancellationToken =>
-            {
-                calls++;
-                return release.Task;
-            });
-
-        Check(service.CanHandle("map_dispatch_find_nearest"),
-            "Manual Map Scan service should expose the read-only Dispatch Quick Find command");
-        using JsonDocument empty = JsonDocument.Parse("{}");
-        Task<object?> pending = service.InvokeAsync(
-            "map_dispatch_find_nearest", empty.RootElement.Clone(), CancellationToken.None);
-        Check(SpinWait.SpinUntil(
-                () => Bool(Status(service), "dispatchQuickFinding"),
-                TimeSpan.FromSeconds(2)),
-            "Dispatch Quick Find should own an explicit busy state while the live request is pending");
-
-        try
-        {
-            _ = await service.InvokeAsync(
-                "map_scan_start", Payload("fast", "dispatch"), CancellationToken.None);
-            throw new InvalidOperationException(
-                "map scan Start should not overlap an active Dispatch Quick Find");
-        }
-        catch (BridgeCommandException error) when (
-            error.Code == "GAME_OPERATION_IN_PROGRESS" &&
-            error.Message == "another game operation is already in progress")
-        {
-        }
-
-        const long LargePointId = 9_007_199_254_740_993L;
-        release.TrySetResult(new CurrentClientDispatchNearestResult(
-            2212, LargePointId, 115, 75, 2212, false, null, null, null,
-            0.64, "DispatchFindNearestPoint response pointId/serverId"));
-        JsonElement result = JsonSerializer.SerializeToElement(
-            await pending, JsonOptions.Default);
-        Check(result.GetProperty("pointId").GetString() ==
-                  LargePointId.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
-              Int(result, "serverId") == 2212 &&
-              Int(result, "liveServerId") == 2212 &&
-              Int(result, "x") == 115 &&
-              Int(result, "y") == 75 &&
-              !Bool(Status(service), "dispatchQuickFinding") &&
-              calls == 1,
-            "Dispatch Quick Find must preserve 64-bit point identity as text, coordinates and busy cleanup without publishing scan rows");
-        Check(store.CountRecords("dispatch", 2212) == 0,
-            "Dispatch Quick Find must not contaminate complete Dispatch scan storage");
-        service.Close();
-
-        var unsupported = new ManualMapScanCommandService(
-            store,
-            _ => Task.FromResult(StandardContext()),
-            new ImmediateSource());
-        try
-        {
-            _ = await unsupported.InvokeAsync(
-                "map_dispatch_find_nearest", empty.RootElement.Clone(), CancellationToken.None);
-            throw new InvalidOperationException(
-                "synthetic service should not fabricate Dispatch Quick Find");
-        }
-        catch (BridgeCommandException error) when (
-            error.Code == "COMMAND_NOT_IMPLEMENTED")
-        {
-        }
-        unsupported.Close();
     }
 
     private static async Task TreasureStateRefreshPublicContractIsReadOnlyAndCached()

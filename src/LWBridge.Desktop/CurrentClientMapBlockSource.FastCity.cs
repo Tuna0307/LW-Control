@@ -11,19 +11,6 @@ internal sealed record CurrentClientTrainListCoverageResult(
     IReadOnlyList<int> TruckServerIds,
     IReadOnlyList<int> RailwayServerIds);
 
-internal sealed record CurrentClientDispatchNearestResult(
-    int ServerId,
-    long PointId,
-    int X,
-    int Y,
-    int LiveServerId,
-    bool PointDataResolved,
-    string? RuntimeClass,
-    int? PointType,
-    int? CfgId,
-    double? ElapsedSeconds,
-    string IdentitySource);
-
 internal sealed partial class CurrentClientMapBlockSource
 {
     private const int FastCityAoiBlockSize = 10;
@@ -35,15 +22,14 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastCityGroupColumns = 1;
     private const int FastCityGroupRows = 5;
     private const int FastCityExpectedAoiCount = 20;
-    private const int FastWideCoverageFov = 175;
-    private const int FastWideCoverageAspect = 12;
-    private const int FastWideCoverageCameraY = 220;
-    private const int FastWideCoverageMaxAoiCount = 160;
-    private const int FastFullWorldMaxCleanupRequests = 500;
+    private const int FastFullWorldAoiRows = 10;
+    private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
+    private const int FastFullWorldMaxRequestsPerRow = 50;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
-    private static readonly TimeSpan FastCityResultPollDelay = TimeSpan.FromMilliseconds(10);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
     private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(12);
+    private static readonly TimeSpan FastCityStartupSettleDelay = TimeSpan.FromSeconds(3);
+    private string? fastCitySettledSessionId;
     private FastFullWorldResumeState? fastFullWorldResumeState;
     internal MonsterProtectionDetailMetrics? LastMonsterProtectionDetailMetrics { get; private set; }
 
@@ -68,12 +54,12 @@ internal sealed partial class CurrentClientMapBlockSource
             RequireSameSession(session);
         }
 
-        // R7-148: current-v20 GetTrainList(true) is an authoritative server list for
-        // both Truck (message.ls) and Railway (message.allianceTrainList). A scan
-        // containing only these categories must not pay for 10,000 AOI cells.
-        if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0 && IsTrainListOnly(request))
-            return await CaptureFullTrainListMapAsync(
-                session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+        if (!string.Equals(fastCitySettledSessionId, session.SessionId, StringComparison.Ordinal))
+        {
+            await DelayAsync(FastCityStartupSettleDelay, cancellationToken).ConfigureAwait(false);
+            RequireSameSession(session);
+            fastCitySettledSessionId = session.SessionId;
+        }
 
         if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0)
         {
@@ -328,64 +314,32 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
-        if (!state.WideCoveragePrimed)
+        for (int row = 0; row < FastFullWorldRowRequests; row++)
         {
-            NavigationObservation parking = await NavigateAsync(
-                session, request.ServerId, request.WorldId, 150, 150, cancellationToken).ConfigureAwait(false);
-            if (parking.PreTargetTileX is not int preTileX || parking.PreTargetTileY is not int preTileY)
-                throw new InvalidDataException("Wide full-world acquisition could not capture the pre-scan camera tile.");
-            state.PreScanCameraTileX = preTileX;
-            state.PreScanCameraTileY = preTileY;
-            await DelayAsync(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
-            RequireSameSession(session);
-            state.WideCoveragePrimed = true;
-        }
-        // v21 live proof: cameraY=220 is a bounded 6x25 AOI footprint when the
-        // target is aligned to a 10-tile AOI boundary. Half-cell targets can widen
-        // to 7x25 and trigger the client's split path, so keep every planned target aligned.
-        int[] primaryTargetCellXs = Enumerable.Range(0, 17)
-            .Select(index => Math.Min(FastCityAoiBlockCount - 1, 3 + (index * 6)))
-            .Distinct().ToArray();
-        int[] primaryTargetCellYs = Enumerable.Range(0, 4)
-            .Select(index => Math.Min(FastCityAoiBlockCount - 1, 16 + (index * 25)))
-            .Distinct().ToArray();
-        (int X, int Y)[] primaryTargets =
-            [.. primaryTargetCellYs.SelectMany(y => primaryTargetCellXs.Select(x =>
-                (X: checked(x * FastCityAoiBlockSize),
-                 Y: checked(y * FastCityAoiBlockSize))))];
-        int primaryOrdinal = 0;
-        int cleanupRequests = 0;
-        while (covered.Count < FastCityAoiBlockCount * FastCityAoiBlockCount)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            while (primaryOrdinal < primaryTargets.Length &&
-                   state.CompletedRequestOrdinals.Contains(primaryOrdinal))
-                primaryOrdinal++;
+            int groupStartRow = row * FastCityGroupRows;
+            int aoiRowStart = row * FastFullWorldAoiRows;
+            int targetY = 75 + (row * 100);
+            bool preferWideStep = false;
+            int? previousGap = null;
+            int requestsThisRow = 0;
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                int gapColumn = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                if (gapColumn < 0) break;
+                if (++requestsThisRow > FastFullWorldMaxRequestsPerRow)
+                    throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
 
-            bool cleanup = primaryOrdinal >= primaryTargets.Length;
-            int currentPrimaryOrdinal = -1;
-            int requiredGap = -1;
-            int targetX;
-            int targetY;
-            if (!cleanup)
-            {
-                currentPrimaryOrdinal = primaryOrdinal++;
-                (targetX, targetY) = primaryTargets[currentPrimaryOrdinal];
-            }
-            else
-            {
-                requiredGap = FirstUncoveredAoiIndex(covered);
-                if (requiredGap < 0) break;
-                if (++cleanupRequests > FastFullWorldMaxCleanupRequests)
-                    throw new InvalidDataException(
-                        $"Fast full-world cleanup stalled at {covered.Count}/10000 AOIs.");
-                int targetCellX = requiredGap % FastCityAoiBlockCount;
-                int targetCellY = requiredGap / FastCityAoiBlockCount;
-                int alignedTargetCellX = Math.Clamp(targetCellX + 3, 3, FastCityAoiBlockCount - 1);
-                int alignedTargetCellY = Math.Clamp(targetCellY + 16, 16, 91);
-                targetX = checked(alignedTargetCellX * FastCityAoiBlockSize);
-                targetY = checked(alignedTargetCellY * FastCityAoiBlockSize);
-            }
+                // Wide footprints are centered around the target: width 4 has two columns
+                // left / one right, while the observed width 5 has two left / two right.
+                // Optimistically step two columns only after we have measured width >= 4 in this band.
+                // If the footprint contracts, the unchanged first gap forces the next request back
+                // to the conservative +1 target; exact coverage, not the prediction, remains truth.
+                int targetOffset = preferWideStep ? 2 : 1;
+                if (gapColumn == 0) targetOffset = 0;
+                if (previousGap == gapColumn) targetOffset = gapColumn == 0 ? 0 : 1;
+                int targetCellX = Math.Min(FastCityAoiBlockCount - 1, gapColumn + targetOffset);
+                int targetX = checked((targetCellX * FastCityAoiBlockSize) + 5);
 
                 FastCityBatchObservation? observation = null;
                 Exception? lastError = null;
@@ -394,11 +348,16 @@ internal sealed partial class CurrentClientMapBlockSource
                     try
                     {
                         observation = await ProbeFastCityBatchAsync(
-                            session, request, -1, -1, targetX, targetY, cancellationToken,
-                            wideCoverage: true).ConfigureAwait(false);
-                        if (requiredGap >= 0 && !observation.RequestedIndices.Contains(requiredGap))
-                            throw new InvalidDataException(
-                                $"Fast full-world cleanup target AOI {requiredGap} was not included in the returned native footprint.");
+                            session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
+                            .ConfigureAwait(false);
+                        ValidateAdaptiveRowFootprint(
+                            observation.RequestedIndices,
+                            aoiRowStart,
+                            request,
+                            session,
+                            targetX,
+                            targetY,
+                            attempt);
                         lastError = null;
                         break;
                     }
@@ -409,8 +368,7 @@ internal sealed partial class CurrentClientMapBlockSource
                         if (hooks is null)
                             Console.Error.WriteLine(
                                 $"FAST_FULL_WORLD_RETRY server={request.ServerId} world={request.WorldId} " +
-                                $"target=({targetX},{targetY}) cleanup={cleanup} requiredGap={requiredGap} " +
-                                $"attempt={attempt}/3 error={error.Message}");
+                                $"target=({targetX},{targetY}) rowStart={aoiRowStart} attempt={attempt}/3 error={error.Message}");
                         if (attempt < 3)
                         {
                             if (IsOverviewSessionAdmissionGap(error))
@@ -483,12 +441,14 @@ internal sealed partial class CurrentClientMapBlockSource
                         trainRecords[prepared.Record.RecordKey] = prepared;
                 }
 
-                if (cleanup && covered.Count == before)
-                    throw new InvalidDataException(
-                        $"Fast full-world cleanup target AOI {requiredGap} added no new coverage.");
-                if (currentPrimaryOrdinal >= 0)
-                    state.CompletedRequestOrdinals.Add(currentPrimaryOrdinal);
+                int afterGap = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                if (covered.Count == before)
+                    throw new InvalidDataException("Fast full-world adaptive acquisition returned no new AOI coverage.");
+                int measuredWidth = observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
+                preferWideStep = measuredWidth >= 4 && afterGap != gapColumn;
+                previousGap = afterGap == gapColumn ? gapColumn : null;
                 progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
+            }
         }
 
         if (covered.Count != 10000)
@@ -624,13 +584,6 @@ internal sealed partial class CurrentClientMapBlockSource
             }, JsonOptions.Default);
             captures.Add(new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex, payload, records));
         }
-        if (state.PreScanCameraTileX is int restoreTileX && state.PreScanCameraTileY is int restoreTileY)
-        {
-            await NavigateAsync(
-                session, request.ServerId, request.WorldId, restoreTileX, restoreTileY, CancellationToken.None)
-                .ConfigureAwait(false);
-            RequireSameSession(session);
-        }
         fastFullWorldResumeState = null;
         return captures;
     }
@@ -649,12 +602,48 @@ internal sealed partial class CurrentClientMapBlockSource
         return resume.Session;
     }
 
-    private static int FirstUncoveredAoiIndex(IReadOnlySet<int> covered)
+    private static int FirstUncoveredAoiColumn(IReadOnlySet<int> covered, int rowStart)
     {
-        int total = FastCityAoiBlockCount * FastCityAoiBlockCount;
-        for (int index = 0; index < total; index++)
-            if (!covered.Contains(index)) return index;
+        for (int column = 0; column < FastCityAoiBlockCount; column++)
+        {
+            bool complete = true;
+            for (int row = rowStart; row < rowStart + FastFullWorldAoiRows; row++)
+            {
+                if (covered.Contains(checked(row * FastCityAoiBlockCount + column))) continue;
+                complete = false;
+                break;
+            }
+            if (!complete) return column;
+        }
         return -1;
+    }
+
+    private static void ValidateAdaptiveRowFootprint(
+        int[] indices,
+        int rowStart,
+        MapScanExecutionRequest request,
+        OverviewMapScanSession session,
+        int targetX,
+        int targetY,
+        int attempt)
+    {
+        int[] rows = indices.Select(index => index / FastCityAoiBlockCount).Distinct().Order().ToArray();
+        int[] columns = indices.Select(index => index % FastCityAoiBlockCount).Distinct().Order().ToArray();
+        string detail =
+            $"server={request.ServerId},world={request.WorldId},session={session.SessionId},attempt={attempt}," +
+            $"target=({targetX},{targetY}),requestedCount=8,nativeCurrentSetCount={indices.Length}," +
+            $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
+            $"indices=[{string.Join(',', indices.Order())}]";
+        if (rows.Length != FastFullWorldAoiRows || rows.Length == 0 ||
+            rows[0] != rowStart || rows[^1] != rowStart + FastFullWorldAoiRows - 1 ||
+            columns.Length is < 2 or > 5 || columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
+            indices.Length != rows.Length * columns.Length)
+            throw new InvalidDataException(
+                "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint: " + detail + ".");
+        var expected = rows.SelectMany(row => columns.Select(column => checked(row * FastCityAoiBlockCount + column))).ToHashSet();
+        if (expected.Count != indices.Length || indices.Any(index => !expected.Contains(index)))
+            throw new InvalidDataException(
+                "Fast full-world adaptive acquisition returned an inconsistent AOI footprint: " + detail + ".");
     }
 
     private static bool IncludesMonsterSource(MapScanExecutionRequest request) =>
@@ -690,8 +679,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int groupStartRow,
         int targetX,
         int targetY,
-        CancellationToken cancellationToken,
-        bool wideCoverage = false)
+        CancellationToken cancellationToken)
     {
         string requestId = "fastcity" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         string commandPath = Path.Combine(probeRuntimeRoot, "bulk-aoi-diagnostic.txt");
@@ -714,9 +702,6 @@ internal sealed partial class CurrentClientMapBlockSource
             $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
             "requestedCount=8",
             "holdMilliseconds=0",
-            $"testFov={(wideCoverage ? FastWideCoverageFov : 120).ToString(CultureInfo.InvariantCulture)}",
-            $"testAspect={(wideCoverage ? FastWideCoverageAspect : 4).ToString(CultureInfo.InvariantCulture)}",
-            $"testCameraY={(wideCoverage ? FastWideCoverageCameraY : -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileX={(request.PlayerTileX ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"homeTileY={(request.PlayerTileY ?? -1).ToString(CultureInfo.InvariantCulture)}",
             $"includeCity={request.SelectedTypes.Contains("city", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
@@ -750,10 +735,9 @@ internal sealed partial class CurrentClientMapBlockSource
                     groupStartColumn,
                     groupStartRow,
                     targetX,
-                    targetY,
-                    wideCoverage);
+                    targetY);
             }
-            await DelayAsync(FastCityResultPollDelay, cancellationToken).ConfigureAwait(false);
+            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client fast City batch did not return a correlated result.");
     }
@@ -797,133 +781,6 @@ internal sealed partial class CurrentClientMapBlockSource
         return new CurrentClientTrainListCoverageResult(
             snapshot.LiveServerId, snapshot.MatchServerIds,
             snapshot.TruckServerIds, snapshot.RailwayServerIds);
-    }
-
-    internal async Task<CurrentClientDispatchNearestResult> FindNearestDispatchAsync(
-        CancellationToken cancellationToken)
-    {
-        OverviewMapScanSession session = RequireReadySession();
-        if (waitForHealthySession is { } waitForHealthy)
-        {
-            await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
-            RequireSameSession(session);
-        }
-        CurrentClientMapContext context =
-            await GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);
-        return await ProbeNearestDispatchAsync(session, context, cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    private async Task<CurrentClientDispatchNearestResult> ProbeNearestDispatchAsync(
-        OverviewMapScanSession session,
-        CurrentClientMapContext context,
-        CancellationToken cancellationToken)
-    {
-        string requestId = "dispatchnearest" +
-            Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-        string commandPath = Path.Combine(
-            probeRuntimeRoot, "dispatch-nearest-diagnostic.txt");
-        string resultPath = Path.Combine(
-            probeRuntimeRoot, "dispatch-nearest-diagnostic-result.json");
-        DateTimeOffset startedAt = Now();
-        string command = string.Join('\n', new[]
-        {
-            "schema=1",
-            $"probeVersion={ProbeVersion}",
-            $"requestId={requestId}",
-            $"profileId={session.ProfileId}",
-            $"launchSessionId={session.SessionId}",
-            $"challenge={session.Challenge}",
-            $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
-            $"serverId={context.ServerId.ToString(CultureInfo.InvariantCulture)}",
-            string.Empty,
-        });
-        await WriteCommandAsync(commandPath, command, cancellationToken)
-            .ConfigureAwait(false);
-
-        DateTimeOffset deadline = startedAt + ProbeTimeout;
-        while (Now() < deadline)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            JsonElement? root = TryReadJson(resultPath);
-            if (root is not null && MatchesString(root.Value, "requestId", requestId))
-            {
-                JsonElement value = root.Value;
-                if (!MatchesInt(value, "schemaVersion", 1) ||
-                    !MatchesString(value, "probeVersion", ProbeVersion) ||
-                    !MatchesString(value, "profileId", session.ProfileId) ||
-                    !MatchesString(value, "launchSessionId", session.SessionId) ||
-                    !MatchesString(value, "challenge", session.Challenge) ||
-                    !MatchesInt(value, "gamePid", session.GamePid) ||
-                    !MatchesInt(value, "originalServerId", context.ServerId))
-                    throw new InvalidDataException(
-                        "Dispatch Quick Find result did not match the active owned game session.");
-
-                RequireFreshCaptureTime(value, startedAt);
-                string? state = ReadOptionalString(value, "state");
-                if (!string.Equals(state, "proven", StringComparison.Ordinal))
-                {
-                    string error = ReadOptionalString(value, "error") ??
-                        ReadOptionalString(value, "responseErrorCode") ??
-                        "unknown Dispatch Quick Find failure";
-                    throw new BridgeCommandException(
-                        "DISPATCH_QUICK_FIND_FAILED",
-                        "Dispatch Quick Find failed: " + error);
-                }
-                if (!MatchesBool(value, "responseReceived", true) ||
-                    !MatchesBool(value, "locationResolved", true))
-                    throw new InvalidDataException(
-                        "Dispatch Quick Find completed without a resolved server target.");
-
-                int responseServerId = RequirePositiveInt(value, "serverId");
-                int liveServerId = RequirePositiveInt(value, "liveServerId");
-                if (!value.TryGetProperty("pointId", out JsonElement pointValue) ||
-                    !TryReadInt64(pointValue, out long pointId) ||
-                    pointId <= 0)
-                    throw new InvalidDataException(
-                        "Dispatch Quick Find result has no positive point ID.");
-                if (!value.TryGetProperty("x", out JsonElement xValue) ||
-                    !xValue.TryGetInt32(out int x) || x is < 0 or >= 1000 ||
-                    !value.TryGetProperty("y", out JsonElement yValue) ||
-                    !yValue.TryGetInt32(out int y) || y is < 0 or >= 1000)
-                    throw new InvalidDataException(
-                        "Dispatch Quick Find result has invalid world coordinates.");
-
-                bool pointDataResolved =
-                    value.TryGetProperty("pointDataResolved", out JsonElement resolvedValue) &&
-                    resolvedValue.ValueKind is JsonValueKind.True;
-                string? runtimeClass = ReadOptionalString(value, "runtimeClass");
-                int? pointType = value.TryGetProperty("pointType", out JsonElement typeValue) &&
-                    typeValue.TryGetInt32(out int parsedType) ? parsedType : null;
-                int? cfgId = value.TryGetProperty("cfgId", out JsonElement cfgValue) &&
-                    cfgValue.TryGetInt32(out int parsedCfg) && parsedCfg > 0
-                    ? parsedCfg : null;
-                if (pointDataResolved &&
-                    (pointType != 17 ||
-                     runtimeClass?.Contains(
-                         "HeroDispatchMissionPointInfo",
-                         StringComparison.Ordinal) != true))
-                    throw new InvalidDataException(
-                        "Dispatch Quick Find loaded point metadata is not a Secret Task.");
-
-                double? elapsedSeconds =
-                    value.TryGetProperty("elapsedSeconds", out JsonElement elapsedValue) &&
-                    elapsedValue.TryGetDouble(out double parsedElapsed) &&
-                    parsedElapsed >= 0
-                    ? parsedElapsed : null;
-                string identitySource =
-                    ReadOptionalString(value, "identitySource") ??
-                    "DispatchFindNearestPoint response pointId/serverId";
-                return new CurrentClientDispatchNearestResult(
-                    responseServerId, pointId, x, y, liveServerId,
-                    pointDataResolved, runtimeClass, pointType, cfgId,
-                    elapsedSeconds, identitySource);
-            }
-            await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
-        }
-
-        throw new TimeoutException(
-            "Dispatch Quick Find did not return a correlated result.");
     }
 
     private async Task<FastTrainListSnapshot> ProbeTrainListAsync(
@@ -1415,8 +1272,7 @@ internal sealed partial class CurrentClientMapBlockSource
         int groupStartColumn,
         int groupStartRow,
         int targetX,
-        int targetY,
-        bool wideCoverage)
+        int targetY)
     {
         if (!MatchesInt(root, "schemaVersion", 1) ||
             !MatchesString(root, "probeVersion", ProbeVersion) ||
@@ -1460,13 +1316,6 @@ internal sealed partial class CurrentClientMapBlockSource
                 $"holdMilliseconds={Actual("holdMilliseconds")},homeTile=({Actual("homeTileX")},{Actual("homeTileY")})," +
                 $"viewLevel={Actual("viewLevel")},target=({Actual("targetTileX")},{Actual("targetTileY")}).");
         }
-        if (wideCoverage &&
-            (!MatchesInt(root, "testFov", FastWideCoverageFov) ||
-             !MatchesInt(root, "testAspect", FastWideCoverageAspect) ||
-             !MatchesInt(root, "testCameraY", FastWideCoverageCameraY) ||
-             !MatchesBool(root, "postInvokeSplitPending", false) ||
-             !MatchesBool(root, "coverageSplitPending", false)))
-            throw new InvalidDataException("Fast wide world batch did not preserve its bounded non-splitting request contract.");
         RequireFreshCaptureTime(root, startedAt);
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
@@ -1482,9 +1331,7 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Fast world batch AOI geometry changed during acquisition.");
         int[] requestedIndices = RequireNonNegativeIntArray(root, "requestedIndices");
         if (requestedIndices.Length < FastCityExpectedAoiCount ||
-            requestedIndices.Length > FastWideCoverageMaxAoiCount ||
-            requestedIndices.Any(index => index >= FastCityAoiBlockCount * FastCityAoiBlockCount) ||
-            requestedIndices.Distinct().Count() != requestedIndices.Length)
+            requestedIndices.Any(index => index >= FastCityAoiBlockCount * FastCityAoiBlockCount))
             throw new InvalidDataException("Fast world batch returned an invalid native AOI footprint.");
         if (!MatchesInt(root, "nativeCurrentSetCount", requestedIndices.Length))
             throw new InvalidDataException("Fast world batch native AOI count did not match its copied footprint.");
@@ -2231,9 +2078,6 @@ internal sealed partial class CurrentClientMapBlockSource
         internal string SelectedTypesKey { get; }
         internal HashSet<int> CompletedRequestOrdinals { get; } = new();
         internal HashSet<int> Covered { get; } = new();
-        internal bool WideCoveragePrimed { get; set; }
-        internal int? PreScanCameraTileX { get; set; }
-        internal int? PreScanCameraTileY { get; set; }
         internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FirstLivePreparedResource> ResourceRecords { get; } = new(StringComparer.Ordinal);
         internal Dictionary<string, FastDispatchPrepared> DispatchRecords { get; } = new(StringComparer.Ordinal);

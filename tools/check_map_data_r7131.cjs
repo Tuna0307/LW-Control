@@ -39,10 +39,6 @@ async function main() {
   page.on('pageerror', error => pageErrors.push(String(error.stack || error)));
   await page.addInitScript(() => {
     const profile = 'local-1';
-    window.__autoQuickEvents = [];
-    window.addEventListener('lwbridge-map-auto-dispatch-quick-find', event => {
-      window.__autoQuickEvents.push(structuredClone(event.detail));
-    });
     const seed = (key, value) => {
       if (localStorage.getItem(key) === null) localStorage.setItem(key, value);
     };
@@ -66,7 +62,7 @@ async function main() {
           delaySearchFailure: false,
           scanState: {
             serverId: 2212, serverIdSource: 'live', scanRunId: '', isReading: false,
-            phase: 'idle', selectedTypes: ['city'], dispatchQuickFinding: false, totalBlocks: 2500, readBlocks: 0,
+            phase: 'idle', selectedTypes: ['city'], totalBlocks: 2500, readBlocks: 0,
             unreadBlocks: 2500, failedBlocks: 0, inflightBlocks: 0,
             scanMode: 'fast', concurrency: 20, retryCount: 2, scanRate: 0,
             progressPercent: 0, nativeCaptureReady: true, nativePendingRecords: 0,
@@ -84,11 +80,6 @@ async function main() {
             return { gameRunning: true, repairRequired: false };
           if (command === 'map_scan_status')
             return clone(runtime.scanState);
-          if (command === 'map_dispatch_find_nearest')
-            return { serverId: runtime.currentServer, pointId: '9007199254740993', x: 115, y: 75,
-              liveServerId: runtime.currentServer, pointDataResolved: false, runtimeClass: null, pointType: null,
-              cfgId: null, elapsedSeconds: 0.64,
-              identitySource: 'DispatchFindNearestPoint response pointId/serverId' };
           if (command === 'map_summary')
             return { serverId: runtime.scanState.isReading ? runtime.currentServer : 2212,
               savedServerIds: [2212, 2213], counts: clone(counts), scanState: clone(runtime.scanState) };
@@ -182,33 +173,6 @@ async function main() {
     const selectedLabels = manualTypes.filter(item => item.checked).map(item => item.text);
     assert.deepEqual(selectedLabels, ['Player City', 'Monster'], 'Manual selected types must restore per profile');
 
-    // R7-151 urgent Secret Task lookup is a one-target read-only command, not a scan.
-    const beforeQuickFind = await page.evaluate(() => ({
-      quick: window.__r7131.calls.filter(call => call.command === 'map_dispatch_find_nearest').length,
-      scans: window.__r7131.calls.filter(call => call.command === 'map_scan_start').length,
-      jumps: window.__r7131.calls.filter(call => call.command === 'server_jump').length,
-      shares: window.__r7131.calls.filter(call => call.command === 'map_dispatch_share_alliance').length
-    }));
-    const quickFind = page.getByRole('button', { name: 'Quick Find Secret Task' });
-    await quickFind.waitFor();
-    assert.equal(await quickFind.isEnabled(), true, 'Quick Find must be available while Manual Scan is idle and online');
-    await quickFind.click();
-    await page.getByText('Found: Server 2212 · 115,75 (0.6s)', { exact: true }).waitFor();
-    const afterQuickFind = await page.evaluate(() => ({
-      quick: window.__r7131.calls.filter(call => call.command === 'map_dispatch_find_nearest').length,
-      scans: window.__r7131.calls.filter(call => call.command === 'map_scan_start').length,
-      jumps: window.__r7131.calls.filter(call => call.command === 'server_jump').length,
-      shares: window.__r7131.calls.filter(call => call.command === 'map_dispatch_share_alliance').length
-    }));
-    assert.equal(afterQuickFind.quick, beforeQuickFind.quick + 1,
-      'Quick Find button must emit exactly one map_dispatch_find_nearest command');
-    assert.equal(afterQuickFind.scans, beforeQuickFind.scans,
-      'Quick Find must not start a full map scan');
-    assert.equal(afterQuickFind.jumps, beforeQuickFind.jumps,
-      'Quick Find must not issue a separate server_jump command');
-    assert.equal(afterQuickFind.shares, beforeQuickFind.shares,
-      'Quick Find must not share or mutate a Secret Task');
-
     const resultTabs = page.locator('.map-tabs button');
     const activeResultText = await resultTabs.filter({ has: page.locator('.map-tab-label') })
       .evaluateAll(buttons => buttons.find(button => button.classList.contains('active'))?.textContent || '');
@@ -265,35 +229,10 @@ async function main() {
     }
     const returnToggle = card.locator('.map-auto-scan-options input[type="checkbox"]');
     if (await returnToggle.isChecked()) await returnToggle.uncheck();
-    const dispatchAutoLabel = card.locator('label').filter({ hasText: 'Secret Task' }).first();
-    await dispatchAutoLabel.waitFor();
-    const dispatchAutoType = dispatchAutoLabel.locator('input[type="checkbox"]');
-    if (!(await dispatchAutoType.isChecked())) await dispatchAutoType.check();
     await master.check();
 
     await page.waitForFunction(() =>
       window.__r7131.calls.some(call => call.command === 'map_scan_start'), null, { timeout: 8000 });
-    await page.getByText('Found: Server 2212 · 115,75 (0.6s)', { exact: true }).waitFor();
-    const autoQuickEvidence = await page.evaluate(() => {
-      const calls = window.__r7131.calls;
-      return {
-        quickIndex: calls.findIndex(call => call.command === 'map_dispatch_find_nearest'),
-        startIndex: calls.findIndex(call => call.command === 'map_scan_start'),
-        quickCount: calls.filter(call => call.command === 'map_dispatch_find_nearest').length,
-        events: structuredClone(window.__autoQuickEvents)
-      };
-    });
-    assert.equal(autoQuickEvidence.quickCount, 1,
-      'Auto Secret Task scan must issue exactly one Quick Find before the first full scan');
-    assert.equal(autoQuickEvidence.quickIndex >= 0 && autoQuickEvidence.quickIndex < autoQuickEvidence.startIndex, true,
-      'Auto Secret Task Quick Find must complete before map_scan_start');
-    assert.equal(autoQuickEvidence.events.length, 1,
-      'Auto Secret Task Quick Find must emit one visible-result event');
-    assert.deepEqual([
-      Number(autoQuickEvidence.events[0].serverId),
-      Number(autoQuickEvidence.events[0].x),
-      Number(autoQuickEvidence.events[0].y)
-    ], [2212, 115, 75], 'Auto Quick Find event must carry the native server and coordinates');
     const stop = card.getByRole('button', { name: 'Stop' });
     await stop.waitFor();
     await page.waitForFunction(() => {

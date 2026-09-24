@@ -61,13 +61,6 @@ local train_list_runtime = {
     request = nil, startedAt = nil, manager = nil, eventManager = nil, eventId = nil,
     listener = nil, refreshObserved = false, refreshArgument = nil,
 }
-local dispatch_nearest_runtime = {
-    path = root .. [[\dispatch-nearest-diagnostic.txt]],
-    resultPath = root .. [[\dispatch-nearest-diagnostic-result.json]],
-    request = nil, startedAt = nil, hookedClass = nil,
-    hookWrapper = nil, originalHandleMessage = nil,
-    timeoutSeconds = 8,
-}
 local asset_image_runtime = {
     path = root .. [[\asset-image.txt]],
     resultPath = root .. [[\asset-image-result.json]],
@@ -84,10 +77,9 @@ M._treasureStateRuntime = {
     detailWaitSeconds = 2,
 }
 local bulk_aoi_original_start_view_request = nil
-M._bulkAoiOriginalBlockCount = nil
-M._bulkAoiBlockCountTouched = false
+local bulk_aoi_original_block_count = nil
+local bulk_aoi_block_count_touched = false
 local bulk_aoi_added_indices = {}
-M._bulkAoiDroppedPrimeIndices = {}
 local bulk_aoi_native_camera = nil
 local bulk_aoi_native_touch_camera = nil
 local bulk_aoi_native_original_pos = nil
@@ -102,6 +94,8 @@ local bulk_aoi_original_manager_response_flag = nil
 local bulk_aoi_original_world_response_flag = nil
 local bulk_aoi_response_flags_reset = false
 local bulk_aoi_skip_restore_update = false
+local bulk_aoi_original_manager_lod = nil
+local bulk_aoi_original_camera_lod = nil
 
 -- IMPLEMENTATION POLICY: this guards a bounded current-view response wait.  It
 -- is not an original LWBridge timeout.
@@ -2076,45 +2070,6 @@ local function read_bulk_aoi_diagnostic(now)
     request.targetTileX = tonumber(values.targetTileX)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
-    request.targetTotalViewCount = tonumber(values.targetTotalViewCount or "0")
-    local prime_near_camera_raw = tostring(values.primeNearCamera or "false")
-    request.primeNearCamera = prime_near_camera_raw == "true"
-    local prime_current_tile_raw = tostring(values.primeCurrentTile or "false")
-    request.primeCurrentTile = prime_current_tile_raw == "true"
-    local drop_prime_view_raw = tostring(values.dropPrimeView or "false")
-    request.dropPrimeView = drop_prime_view_raw == "true"
-    local reuse_prime_context_raw = tostring(values.reusePrimeContext or "false")
-    request.reusePrimeContext = reuse_prime_context_raw == "true"
-    local relocate_prime_view_raw = tostring(values.relocatePrimeView or "false")
-    request.relocatePrimeView = relocate_prime_view_raw == "true"
-    local allow_cached_explicit_raw = tostring(values.allowCachedExplicitIndices or "false")
-    request.allowCachedExplicitIndices = allow_cached_explicit_raw == "true"
-    request.testFov = tonumber(values.testFov or "") or 120.0
-    request.testAspect = tonumber(values.testAspect or "") or 4.0
-    request.testCameraY = tonumber(values.testCameraY or "") or -1.0
-    local explicit_indices_raw = tostring(values.explicitIndices or "")
-    if explicit_indices_raw ~= "" then
-        local parsed, seen = {}, {}
-        for token in string.gmatch(explicit_indices_raw, "[^,]+") do
-            local value = tonumber(token)
-            if value == nil or value ~= math.floor(value) or value < 0 or value >= 10000 or seen[value] == true then
-                request.error = "bulk_aoi_explicit_indices_invalid"
-                return request
-            end
-            value = math.floor(value)
-            seen[value] = true
-            parsed[#parsed + 1] = value
-            if #parsed > 160 then
-                request.error = "bulk_aoi_explicit_indices_invalid"
-                return request
-            end
-        end
-        if #parsed == 0 then
-            request.error = "bulk_aoi_explicit_indices_invalid"
-            return request
-        end
-        request.explicitIndices = parsed
-    end
     request.holdMilliseconds = tonumber(values.holdMilliseconds or "1000")
     request.homeTileX = tonumber(values.homeTileX or "-1")
     request.homeTileY = tonumber(values.homeTileY or "-1")
@@ -2142,41 +2097,13 @@ local function read_bulk_aoi_diagnostic(now)
        request.serverId == nil or request.serverId <= 0 or request.serverId ~= math.floor(request.serverId) or
        not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
-       (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "message" and request.requestMode ~= "messagebulk" and request.requestMode ~= "browser" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
+       (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
        request.targetTileX == nil or request.targetTileY == nil or
        request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
        request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
        request.requestedCount == nil or
        request.requestedCount < 1 or request.requestedCount > 160 or
        request.requestedCount ~= math.floor(request.requestedCount) or
-       request.targetTotalViewCount == nil or request.targetTotalViewCount < 0 or
-       request.targetTotalViewCount > 160 or
-       request.targetTotalViewCount ~= math.floor(request.targetTotalViewCount) or
-       (request.targetTotalViewCount > 0 and request.requestMode ~= "messagebulk") or
-       (request.targetTotalViewCount > 0 and request.explicitIndices ~= nil) or
-       (request.targetTotalViewCount > 0 and request.dropPrimeView == true) or
-       request.testFov < 30 or request.testFov > 175 or
-       request.testAspect < 0.5 or request.testAspect > 12 or
-       (request.testCameraY ~= -1 and (request.testCameraY < 50 or request.testCameraY > 1000)) or
-       (prime_near_camera_raw ~= "true" and prime_near_camera_raw ~= "false") or
-       (prime_current_tile_raw ~= "true" and prime_current_tile_raw ~= "false") or
-       (drop_prime_view_raw ~= "true" and drop_prime_view_raw ~= "false") or
-       (reuse_prime_context_raw ~= "true" and reuse_prime_context_raw ~= "false") or
-       (relocate_prime_view_raw ~= "true" and relocate_prime_view_raw ~= "false") or
-       (allow_cached_explicit_raw ~= "true" and allow_cached_explicit_raw ~= "false") or
-       (request.allowCachedExplicitIndices == true and
-        (request.requestMode ~= "messagebulk" or request.explicitIndices == nil)) or
-       (request.primeNearCamera == true and request.requestMode ~= "messagebulk") or
-       (request.primeCurrentTile == true and request.requestMode ~= "messagebulk") or
-       (request.dropPrimeView == true and request.requestMode ~= "messagebulk") or
-       (request.reusePrimeContext == true and request.requestMode ~= "messagebulk") or
-       (request.relocatePrimeView == true and request.requestMode ~= "messagebulk") or
-       (request.reusePrimeContext == true and request.dropPrimeView == true) or
-       (request.relocatePrimeView == true and request.dropPrimeView == true) or
-       (request.reusePrimeContext == true and request.relocatePrimeView == true) or
-       (request.primeNearCamera == true and request.primeCurrentTile == true) or
-       (request.explicitIndices ~= nil and request.requestMode ~= "direct" and request.requestMode ~= "messagebulk") or
-       (request.explicitIndices ~= nil and #request.explicitIndices ~= request.requestedCount) or
        request.holdMilliseconds == nil or request.holdMilliseconds < 0 or
        request.holdMilliseconds > 2000 or request.holdMilliseconds ~= math.floor(request.holdMilliseconds) or
        request.homeTileX == nil or request.homeTileY == nil or
@@ -4450,9 +4377,6 @@ local function choose_bulk_aoi_indices(world, point_manager, block_size, block_c
     if loaded[target_index] == true then return nil, "target_aoi_already_loaded" end
     local selected = { target_index }
     local selected_lookup = { [target_index] = true }
-    if requested_count <= 1 then
-        return selected, nil, tile_x, tile_y, target_index
-    end
     for radius = 1, block_count do
         local min_x = math.max(0, target_x - radius)
         local max_x = math.min(block_count - 1, target_x + radius)
@@ -4520,160 +4444,19 @@ local function bulk_manager_flags(point_manager)
     }
 end
 
-function M._reflectionMemberNames(value, limit)
-    local result = { fields = {}, properties = {}, methods = {} }
-    if value == nil then return result end
-    local ok_type, reflected_type = pcall(function() return value:GetType() end)
-    if not ok_type or reflected_type == nil then return result end
-    local flags = reflection_flags()
-    local ok_fields, fields = pcall(function() return reflected_type:GetFields(flags) end)
-    if ok_fields and fields ~= nil then
-        local count = tonumber(safe_get(fields, "Length") or safe_get(fields, "Count")) or 0
-        for index = 0, math.min(count - 1, (limit or 80) - 1) do
-            local item = safe_get(fields, index)
-            if item ~= nil then result.fields[#result.fields + 1] = tostring(safe_get(item, "Name") or "") end
-        end
-    end
-    local ok_props, props = pcall(function() return reflected_type:GetProperties(flags) end)
-    if ok_props and props ~= nil then
-        local count = tonumber(safe_get(props, "Length") or safe_get(props, "Count")) or 0
-        for index = 0, math.min(count - 1, (limit or 80) - 1) do
-            local item = safe_get(props, index)
-            if item ~= nil then result.properties[#result.properties + 1] = tostring(safe_get(item, "Name") or "") end
-        end
-    end
-    local ok_methods, methods = pcall(function() return reflected_type:GetMethods(flags) end)
-    if ok_methods and methods ~= nil then
-        local count = tonumber(safe_get(methods, "Length") or safe_get(methods, "Count")) or 0
-        for index = 0, math.min(count - 1, (limit or 80) - 1) do
-            local item = safe_get(methods, index)
-            if item ~= nil then result.methods[#result.methods + 1] = tostring(safe_get(item, "Name") or "") end
-        end
-    end
-    table.sort(result.fields); table.sort(result.properties); table.sort(result.methods)
-    return result
-end
-
-function M._profilerPacketSamples(dictionary, limit)
-    local samples = {}
-    if dictionary == nil then return samples end
-    local ok_enum, enumerator = call(dictionary, "GetEnumerator")
-    if not ok_enum or enumerator == nil then
-        samples[#samples + 1] = {
-            samplerDiagnostic = "enumerator_unavailable",
-            dictionaryType = reflected_type_name(dictionary),
-            dictionaryMembers = M._reflectionMemberNames(dictionary, 40),
-            getEnumeratorSucceeded = ok_enum == true,
-            enumeratorType = reflected_type_name(enumerator),
-        }
-        return samples
-    end
-    local seen = 0
-    while seen < 4096 and #samples < (limit or 24) do
-        local ok_move, moved = reflected_call(enumerator, "MoveNext")
-        if not ok_move or moved ~= true then
-            if seen == 0 then
-                samples[#samples + 1] = {
-                    samplerDiagnostic = "first_move_unavailable",
-                    dictionaryType = reflected_type_name(dictionary),
-                    dictionaryMembers = M._reflectionMemberNames(dictionary, 40),
-                    enumeratorType = reflected_type_name(enumerator),
-                    enumeratorMembers = M._reflectionMemberNames(enumerator, 40),
-                    moveNextSucceeded = ok_move == true,
-                    firstMoved = moved == true,
-                }
-            end
-            break
-        end
-        seen = seen + 1
-        local pair = safe_get(enumerator, "Current") or reflected_value(enumerator, "<>2__current")
-        local pair_key = pair and (safe_get(pair, "Key") or reflected_value(pair, "Key")) or nil
-        local pair_value = pair and (safe_get(pair, "Value") or reflected_value(pair, "Value")) or nil
-        local packet = pair_key
-        local info = packet and (safe_get(packet, "info") or reflected_value(packet, "<info>k__BackingField")) or nil
-        if info == nil and pair_value ~= nil then
-            info = safe_get(pair_value, "info") or reflected_value(pair_value, "<info>k__BackingField")
-        end
-        local ok_json, json = info and call(info, "ToJson") or false, nil
-        if info ~= nil then ok_json, json = call(info, "ToJson") end
-        local ok_keys, keys = info and call(info, "GetKeys") or false, nil
-        if info ~= nil then ok_keys, keys = call(info, "GetKeys") end
-        local key_values = {}
-        if ok_keys and keys ~= nil then
-            local key_count = tonumber(safe_get(keys, "Length") or safe_get(keys, "Count")) or 0
-            for index = 0, math.min(key_count - 1, 63) do
-                local key = safe_get(keys, index)
-                if key == nil then
-                    local ok_key, observed_key = call(keys, "GetValue", index)
-                    key = ok_key and observed_key or nil
-                end
-                if key ~= nil then key_values[#key_values + 1] = tostring(key) end
-            end
-            table.sort(key_values)
-        end
-        local json_text = ok_json and json ~= nil and tostring(json) or nil
-        local include = false
-        if json_text ~= nil then
-            local lower = string.lower(json_text)
-            include = string.find(lower, "block", 1, true) ~= nil or
-                string.find(lower, "index", 1, true) ~= nil or
-                string.find(lower, "world", 1, true) ~= nil or
-                string.find(lower, "dispatch", 1, true) ~= nil or
-                string.find(lower, "point", 1, true) ~= nil or
-                string.find(lower, "view", 1, true) ~= nil
-        end
-        if not include then
-            for _, key in ipairs(key_values) do
-                local lower = string.lower(key)
-                if lower == "c" or string.find(lower, "block", 1, true) or
-                   string.find(lower, "index", 1, true) or string.find(lower, "world", 1, true) or
-                   string.find(lower, "point", 1, true) or string.find(lower, "server", 1, true) then
-                    include = true; break
-                end
-            end
-        end
-        local ok_command, command = info and call(info, "GetUtfString", "c") or false, nil
-        if info ~= nil then ok_command, command = call(info, "GetUtfString", "c") end
-        samples[#samples + 1] = {
-            pairType = reflected_type_name(pair),
-            pairMembers = M._reflectionMemberNames(pair, 24),
-            keyType = reflected_type_name(pair_key),
-            keyMembers = M._reflectionMemberNames(pair_key, 24),
-            valueType = reflected_type_name(pair_value),
-            valueMembers = M._reflectionMemberNames(pair_value, 24),
-            packetType = reflected_type_name(packet),
-            infoType = reflected_type_name(info),
-            packetMembers = M._reflectionMemberNames(packet, 24),
-            infoMembers = M._reflectionMemberNames(info, 24),
-            command = ok_command and command ~= nil and tostring(command) or nil,
-            keys = key_values,
-            json = json_text,
-            matchedHeuristic = include,
-        }
-    end
-    return samples
-end
-
 local function profiler_packet_state(dictionary)
     if dictionary == nil then return { available = false } end
     local total = collection_count(dictionary) or 0
     local commands, counts = {}, {}
-    local dictionary_members = M._reflectionMemberNames(dictionary, 48)
     local ok_enum, enumerator = call(dictionary, "GetEnumerator")
-    local first_move_ok = nil
-    local first_moved = nil
     if ok_enum and enumerator ~= nil then
         local seen = 0
         while seen < 4096 do
-            local ok_move, moved = reflected_call(enumerator, "MoveNext")
-            if seen == 0 then
-                first_move_ok = ok_move == true
-                first_moved = moved == true
-            end
+            local ok_move, moved = call(enumerator, "MoveNext")
             if not ok_move or moved ~= true then break end
             seen = seen + 1
-            local pair = safe_get(enumerator, "Current") or reflected_value(enumerator, "<>2__current")
-            local packet = pair and (safe_get(pair, "Key") or reflected_value(pair, "Key")) or nil
+            local pair = safe_get(enumerator, "Current")
+            local packet = pair and safe_get(pair, "Key") or nil
             local info = packet and (safe_get(packet, "info") or reflected_value(packet, "<info>k__BackingField")) or nil
             local ok_cmd, cmd = info and call(info, "GetUtfString", "c") or false, nil
             if info ~= nil then ok_cmd, cmd = call(info, "GetUtfString", "c") end
@@ -4686,19 +4469,7 @@ local function profiler_packet_state(dictionary)
     table.sort(commands)
     local rendered = {}
     for _, cmd in ipairs(commands) do rendered[#rendered + 1] = cmd .. ":" .. tostring(counts[cmd] or 0) end
-    return {
-        available = true,
-        total = total,
-        commands = table.concat(rendered, ";"),
-        samples = M._profilerPacketSamples(dictionary, 32),
-        dictionaryType = reflected_type_name(dictionary),
-        dictionaryMethods = table.concat(dictionary_members.methods or {}, ","),
-        dictionaryProperties = table.concat(dictionary_members.properties or {}, ","),
-        enumeratorSucceeded = ok_enum == true,
-        enumeratorType = reflected_type_name(enumerator),
-        firstMoveSucceeded = first_move_ok,
-        firstMoved = first_moved,
-    }
+    return { available = true, total = total, commands = table.concat(rendered, ";") }
 end
 
 local function bulk_network_receive_state()
@@ -4714,8 +4485,6 @@ local function bulk_network_receive_state()
     receive.sendAvailable = send.available
     receive.sendTotal = send.total
     receive.sendCommands = send.commands
-    receive.sendSamples = send.samples
-    receive.receiveSamples = receive.samples
     return receive
 end
 
@@ -4725,43 +4494,6 @@ local function bulk_selected_lookup(indices)
     return lookup
 end
 
-local function bulk_vector_snapshot(value)
-    if value == nil then return nil end
-    return {
-        x = tonumber(safe_get(value, "x") or safe_get(value, "X")),
-        y = tonumber(safe_get(value, "y") or safe_get(value, "Y")),
-        z = tonumber(safe_get(value, "z") or safe_get(value, "Z")),
-    }
-end
-
-local function bulk_native_aoi_state(world, point_manager)
-    local current_tile = world and safe_get(world, "CurTilePosClamped") or nil
-    local function values(name)
-        local collection = reflected_value(point_manager, name)
-        return collection and select(1, collection_int_values(collection, 512)) or nil
-    end
-    return {
-        currentTile = bulk_vector_snapshot(current_tile),
-        reqPos = bulk_vector_snapshot(reflected_value(point_manager, "reqPos")),
-        lod = integer_field(point_manager, { "LOD" }),
-        serverLod = integer_field(point_manager, { "svLod" }),
-        blockSize = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" }),
-        blockCount = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" }),
-        leftBottomWorldPos = bulk_vector_snapshot(reflected_value(point_manager, "_leftBottomWorldPos")),
-        rightTopWorldPos = bulk_vector_snapshot(reflected_value(point_manager, "_rightTopWorldPos")),
-        lastViewLBBlock = bulk_vector_snapshot(reflected_value(point_manager, "_lastViewLBBlock")),
-        lastViewLTBlock = bulk_vector_snapshot(reflected_value(point_manager, "_lastViewLTBlock")),
-        lastViewRBBlock = bulk_vector_snapshot(reflected_value(point_manager, "_lastViewRBBlock")),
-        lastViewRTBlock = bulk_vector_snapshot(reflected_value(point_manager, "_lastViewRTBlock")),
-        msgViewIndex = values("_msgViewIndex"),
-        addViewIndex = values("_addViewIndex"),
-        curViewIndex = values("_curViewIndex"),
-        firstTimeReqAoi = reflected_value(point_manager, "firstTimeReqAoi"),
-        startViewRequest = reflected_value(point_manager, "startViewRequest"),
-        splitLastAoiRequest = reflected_value(point_manager, "_splitLastAOIRequest"),
-    }
-end
-
 local function restore_bulk_aoi_state(point_manager)
     local ok = true
     local current_set = point_manager and reflected_value(point_manager, "_curViewIndex") or nil
@@ -4769,18 +4501,14 @@ local function restore_bulk_aoi_state(point_manager)
         for _, index in ipairs(bulk_aoi_added_indices or {}) do
             if not collection_remove_int(current_set, index) then ok = false end
         end
-        for _, index in ipairs(M._bulkAoiDroppedPrimeIndices or {}) do
-            if not collection_contains_int(current_set, index) and
-               not collection_add_int(current_set, index) then ok = false end
-        end
-    elseif #(bulk_aoi_added_indices or {}) > 0 or #(M._bulkAoiDroppedPrimeIndices or {}) > 0 then
+    elseif #(bulk_aoi_added_indices or {}) > 0 then
         ok = false
     end
     if point_manager ~= nil and bulk_aoi_original_start_view_request ~= nil then
         if not reflected_set_value(point_manager, "startViewRequest", bulk_aoi_original_start_view_request == true) then ok = false end
     end
-    if point_manager ~= nil and M._bulkAoiBlockCountTouched then
-        if not reflected_set_int_field(point_manager, "_lwAoiBlockCount", M._bulkAoiOriginalBlockCount or 0) then ok = false end
+    if point_manager ~= nil and bulk_aoi_block_count_touched then
+        if not reflected_set_int_field(point_manager, "_lwAoiBlockCount", bulk_aoi_original_block_count or 0) then ok = false end
     end
     if bulk_aoi_restore_current_view and point_manager ~= nil then
         call(point_manager, "StartViewRequest")
@@ -4813,16 +4541,6 @@ local function restore_bulk_aoi_state(point_manager)
         if not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then ok = false end
         if point_manager ~= nil and not bulk_aoi_skip_restore_update then call(point_manager, "UpdateViewRequest", true) end
     end
-    if M._bulkAoiNativeRenderTransform ~= nil and M._bulkAoiNativeOriginalRenderPos ~= nil then
-        if not pcall(function()
-            M._bulkAoiNativeRenderTransform.position = M._bulkAoiNativeOriginalRenderPos
-        end) then ok = false end
-    end
-    if M._bulkAoiNativeRenderTransform ~= nil and M._bulkAoiNativeOriginalRenderRot ~= nil then
-        if not pcall(function()
-            M._bulkAoiNativeRenderTransform.rotation = M._bulkAoiNativeOriginalRenderRot
-        end) then ok = false end
-    end
     bulk_aoi_skip_restore_update = false
     bulk_aoi_native_camera = nil
     bulk_aoi_native_touch_camera = nil
@@ -4831,29 +4549,17 @@ local function restore_bulk_aoi_state(point_manager)
     bulk_aoi_native_unity_camera = nil
     bulk_aoi_native_original_aspect = nil
     bulk_aoi_native_original_zoom = nil
-    M._bulkAoiNativeRenderTransform = nil
-    M._bulkAoiNativeOriginalRenderPos = nil
-    M._bulkAoiNativeOriginalRenderRot = nil
     bulk_aoi_native_hold_seconds = nil
     bulk_aoi_native_position_restored = false
     bulk_aoi_added_indices = {}
-    M._bulkAoiDroppedPrimeIndices = {}
     bulk_aoi_original_start_view_request = nil
-    M._bulkAoiOriginalBlockCount = nil
-    M._bulkAoiBlockCountTouched = false
+    bulk_aoi_original_block_count = nil
+    bulk_aoi_block_count_touched = false
     return ok
 end
 
 local function write_bulk_aoi_result(request, state, error_text, details)
     details = details or {}
-    local cs = rawget(_G, "CS")
-    local managed_world_get_block = cs and safe_get(cs, "WorldGetBlockMessage") or nil
-    local managed_world_get_block_request =
-        managed_world_get_block and safe_get(managed_world_get_block, "Request") or nil
-    local managed_world_get_block_request_flat =
-        cs and safe_get(cs, "WorldGetBlockMessage_Request") or nil
-    local msg_defines = rawget(_G, "MsgDefines")
-    local sfs_network = rawget(_G, "SFSNetwork")
     write_json(bulk_aoi_diagnostic_result_path, {
         schemaVersion = 1,
         probeVersion = M.VERSION,
@@ -4863,23 +4569,12 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         challenge = request.challenge,
         gamePid = request.gamePid,
         requestedCount = request.requestedCount,
-        targetTotalViewCount = request.targetTotalViewCount,
-        effectiveRequestedCount = details.effectiveRequestedCount,
-        retainedContextViewCount = details.retainedContextViewCount,
         homeTileX = request.homeTileX,
         homeTileY = request.homeTileY,
         requestMode = request.requestMode,
-        dropPrimeView = request.dropPrimeView,
-        reusePrimeContext = request.reusePrimeContext,
-        relocatePrimeView = request.relocatePrimeView,
-        allowCachedExplicitIndices = request.allowCachedExplicitIndices,
-        testFov = request.testFov,
-        testAspect = request.testAspect,
-        testCameraY = request.testCameraY,
         state = state,
         error = error_text,
         requestedIndices = details.requestedIndices,
-        coverageIndices = details.coverageIndices or details.requestedIndices,
         bigMap = details.bigMap,
         serverLod = details.serverLod,
         blockSize = details.blockSize,
@@ -4919,21 +4614,6 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         preTileY = details.preTileY,
         postTileX = details.postTileX,
         postTileY = details.postTileY,
-        preCameraPositionX = details.preCameraPositionX,
-        preCameraPositionY = details.preCameraPositionY,
-        preCameraPositionZ = details.preCameraPositionZ,
-        preCameraRotationX = details.preCameraRotationX,
-        preCameraRotationY = details.preCameraRotationY,
-        preCameraRotationZ = details.preCameraRotationZ,
-        preCameraRotationW = details.preCameraRotationW,
-        postCameraPositionX = details.postCameraPositionX,
-        postCameraPositionY = details.postCameraPositionY,
-        postCameraPositionZ = details.postCameraPositionZ,
-        postCameraRotationX = details.postCameraRotationX,
-        postCameraRotationY = details.postCameraRotationY,
-        postCameraRotationZ = details.postCameraRotationZ,
-        postCameraRotationW = details.postCameraRotationW,
-        visualCameraPositionStable = details.visualCameraPositionStable,
         elapsedSeconds = details.elapsedSeconds,
         cameraTileStable = details.cameraTileStable,
         addListExists = details.addListExists,
@@ -4948,40 +4628,31 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         isRecvViewPoints = details.isRecvViewPoints,
         hasReceiveViewPointsReply = details.hasReceiveViewPointsReply,
         responseFlagsTransitioned = details.responseFlagsTransitioned,
-        messageBulkPhase = details.messageBulkPhase,
-        messageBulkLogicalTileX = details.messageBulkLogicalTileX,
-        messageBulkLogicalTileY = details.messageBulkLogicalTileY,
-        primeResponseFlagsTransitioned = details.primeResponseFlagsTransitioned,
-        primeLoadedPointCount = details.primeLoadedPointCount,
-        primeMatchedCount = details.primeMatchedCount,
-        primeCurrentSetCount = details.primeCurrentSetCount,
-        primeContextReused = details.primeContextReused,
-        reusePrimeContextViewCount = details.reusePrimeContextViewCount,
-        primeSettlePreMsgViewCount = details.primeSettlePreMsgViewCount,
-        primeSettlePostMsgViewCount = details.primeSettlePostMsgViewCount,
-        primeContextRelocated = details.primeContextRelocated,
-        relocatedPrimeTileX = details.relocatedPrimeTileX,
-        relocatedPrimeTileY = details.relocatedPrimeTileY,
-        relocatedPrimeViewCount = details.relocatedPrimeViewCount,
-        relocatedPrimeViewIndices = details.relocatedPrimeViewIndices,
-        batchPrimeViewCount = details.batchPrimeViewCount,
-        batchPrimeViewIndices = details.batchPrimeViewIndices,
-        batchPostPrimeDropCurrentViewCount = details.batchPostPrimeDropCurrentViewCount,
-        batchPreMsgViewCount = details.batchPreMsgViewCount,
-        batchPreAddViewCount = details.batchPreAddViewCount,
-        batchPreCurrentViewCount = details.batchPreCurrentViewCount,
-        batchPreSplitPending = details.batchPreSplitPending,
-        batchPreparedMsgViewCount = details.batchPreparedMsgViewCount,
-        liveMsgViewCount = details.liveMsgViewCount,
-        liveAddViewCount = details.liveAddViewCount,
-        liveCurrentViewCount = details.liveCurrentViewCount,
-        liveSplitPending = details.liveSplitPending,
-
-
+        baselineIsPointUpdate = details.baselineIsPointUpdate,
+        isPointUpdate = details.isPointUpdate,
+        baselineIsCityPointUpdate = details.baselineIsCityPointUpdate,
+        isCityPointUpdate = details.isCityPointUpdate,
+        baselineMyPointDirty = details.baselineMyPointDirty,
+        myPointDirty = details.myPointDirty,
+        baselineLittleSmartDirty = details.baselineLittleSmartDirty,
+        littleSmartDirty = details.littleSmartDirty,
+        baselineFirstTimeReqAoi = details.baselineFirstTimeReqAoi,
+        firstTimeReqAoi = details.firstTimeReqAoi,
+        baselineNetReceiveAvailable = details.baselineNetReceiveAvailable,
+        netReceiveAvailable = details.netReceiveAvailable,
+        baselineNetReceiveCount = details.baselineNetReceiveCount,
+        netReceiveCount = details.netReceiveCount,
+        baselineNetReceiveCommands = details.baselineNetReceiveCommands,
+        netReceiveCommands = details.netReceiveCommands,
+        baselineNetSendAvailable = details.baselineNetSendAvailable,
+        netSendAvailable = details.netSendAvailable,
+        baselineNetSendCount = details.baselineNetSendCount,
+        netSendCount = details.netSendCount,
+        baselineNetSendCommands = details.baselineNetSendCommands,
+        netSendCommands = details.netSendCommands,
         nativeRemoteTileX = details.nativeRemoteTileX,
         nativeRemoteTileY = details.nativeRemoteTileY,
         nativeCurrentSetCount = details.nativeCurrentSetCount,
-
         holdMilliseconds = details.holdMilliseconds,
         viewLevel = details.viewLevel,
         postServerLod = details.postServerLod,
@@ -4989,8 +4660,6 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         postBlockCount = details.postBlockCount,
         positionRestoredBeforeResponse = details.positionRestoredBeforeResponse,
         positionRestoreElapsedSeconds = details.positionRestoreElapsedSeconds,
-        coverageSplitPending = details.coverageSplitPending,
-        coverageSplitAddCount = details.coverageSplitAddCount,
         point_records = details.pointRecords,
         monster_march_records = details.monsterMarchRecords,
         train_march_records = details.trainMarchRecords,
@@ -5028,8 +4697,6 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         postInvokeAddListCount = details.postInvokeAddListCount,
         postInvokeSplitPending = details.postInvokeSplitPending,
         postInvokeMsgViewCount = details.postInvokeMsgViewCount,
-        worldGetBlockCsType = type(managed_world_get_block),
-        sfsNetworkSendMessageType = type(sfs_network and safe_get(sfs_network, "SendMessage") or nil),
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
     })
 end
@@ -5105,6 +4772,28 @@ local function pump_bulk_aoi_diagnostic(now)
             block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
             server_lod = integer_field(point_manager, { "svLod" })
         end
+        if false and request.viewLevel >= 0 then
+            local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+            local original_manager_lod = integer_field(point_manager, { "LOD" })
+            local original_camera_lod = camera_manager and tonumber(safe_get(camera_manager, "CurrentLodLevel")) or nil
+            local desired_camera_lod = request.viewLevel == 0 and 1 or (request.viewLevel == 1 and 5 or 6)
+            if camera_manager == nil or original_manager_lod == nil or original_camera_lod == nil then
+                write_bulk_aoi_result(request, "failed", "native_lod_state_unavailable", nil)
+                return true
+            end
+            bulk_aoi_original_manager_lod = original_manager_lod
+            bulk_aoi_original_camera_lod = math.floor(original_camera_lod)
+            local camera_lod_ok = select(1, reflected_call(camera_manager, "set_CurrentLodLevel", desired_camera_lod))
+            local manager_lod_ok = select(1, reflected_call(point_manager, "OnUpdateLod", desired_camera_lod))
+            local update_ok = select(1, call(point_manager, "UpdateViewRequest", true))
+            if not camera_lod_ok or not manager_lod_ok or not update_ok then
+                write_bulk_aoi_result(request, "failed", "native_lod_transition_failed", nil)
+                return true
+            end
+            block_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
+            block_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
+            server_lod = integer_field(point_manager, { "svLod" })
+        end
         local add_list = reflected_value(point_manager, "_addViewIndex")
         local current_set = reflected_value(point_manager, "_curViewIndex")
         local split_pending = reflected_value(point_manager, "_splitLastAOIRequest")
@@ -5127,7 +4816,7 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         local indices, choose_error, pre_tile_x, pre_tile_y, target_aoi_index
-        if request.requestMode == "browser" then
+        if request.requestMode == "coverage" then
             local current_tile = safe_get(world, "CurTilePosClamped")
             pre_tile_x = tonumber(current_tile and (safe_get(current_tile, "x") or safe_get(current_tile, "X")))
             pre_tile_y = tonumber(current_tile and (safe_get(current_tile, "y") or safe_get(current_tile, "Y")))
@@ -5139,53 +4828,8 @@ local function pump_bulk_aoi_diagnostic(now)
             local target_cell_x = math.max(0, math.min(block_count - 1, math.floor(request.targetTileX / block_size)))
             local target_cell_y = math.max(0, math.min(block_count - 1, math.floor(request.targetTileY / block_size)))
             target_aoi_index = target_cell_y * block_count + target_cell_x
-            local width_cells, height_cells = 14, 8
-            local start_cell_x = math.max(0, math.min(block_count - width_cells, target_cell_x - math.floor(width_cells / 2)))
-            local start_cell_y = math.max(0, math.min(block_count - height_cells, target_cell_y - math.floor(height_cells / 2)))
-            indices = {}
-            for cell_y = start_cell_y, start_cell_y + height_cells - 1 do
-                for cell_x = start_cell_x, start_cell_x + width_cells - 1 do
-                    indices[#indices + 1] = cell_y * block_count + cell_x
-                end
-            end
-        elseif request.requestMode == "coverage" or request.requestMode == "message" or request.requestMode == "messagebulk" or
-           (request.requestMode == "direct" and request.explicitIndices ~= nil) then
-            local current_tile = safe_get(world, "CurTilePosClamped")
-            pre_tile_x = tonumber(current_tile and (safe_get(current_tile, "x") or safe_get(current_tile, "X")))
-            pre_tile_y = tonumber(current_tile and (safe_get(current_tile, "y") or safe_get(current_tile, "Y")))
-            if pre_tile_x == nil or pre_tile_y == nil then
-                write_bulk_aoi_result(request, "failed", "current_tile_unavailable", nil)
-                return true
-            end
-            pre_tile_x = math.floor(pre_tile_x); pre_tile_y = math.floor(pre_tile_y)
-            if request.requestMode == "messagebulk" and request.primeNearCamera == true then
-                local offset_x = pre_tile_x <= 949 and 50 or -50
-                local offset_y = pre_tile_y <= 949 and 50 or -50
-                request.targetTileX = math.max(0, math.min(999, pre_tile_x + offset_x))
-                request.targetTileY = math.max(0, math.min(999, pre_tile_y + offset_y))
-            end
-            local target_cell_x = math.max(0, math.min(block_count - 1, math.floor(request.targetTileX / block_size)))
-            local target_cell_y = math.max(0, math.min(block_count - 1, math.floor(request.targetTileY / block_size)))
-            target_aoi_index = target_cell_y * block_count + target_cell_x
-            if request.requestMode == "direct" and request.explicitIndices ~= nil then
-                indices = request.explicitIndices
-                local includes_target = false
-                for _, index in ipairs(indices) do
-                    if index == target_aoi_index then includes_target = true; break end
-                end
-                if not includes_target then
-                    write_bulk_aoi_result(request, "failed", "direct_explicit_indices_missing_target", nil)
-                    return true
-                end
-            else
-                indices = { target_aoi_index }
-            end
+            indices = { target_aoi_index }
         else
-            -- R7-151 server-data-browser experiment: direct mode now consumes
-            -- the same bounded unloaded-AOI selector as the diagnostic bulk
-            -- modes.  SendAoiRequest accepts the collection directly, so this
-            -- path can test up to once_max_request_count (160) AOIs without
-            -- changing the visible camera.
             indices, choose_error, pre_tile_x, pre_tile_y, target_aoi_index = choose_bulk_aoi_indices(
                 world, point_manager, block_size, block_count, request.requestedCount,
                 request.targetTileX, request.targetTileY)
@@ -5207,10 +4851,7 @@ local function pump_bulk_aoi_diagnostic(now)
             write_bulk_aoi_result(request, "failed", target_error, nil)
             return true
         end
-        if baseline_target ~= 0 and request.requestMode ~= "direct" and
-           not (request.requestMode == "messagebulk" and
-                (request.primeNearCamera == true or request.primeCurrentTile == true or
-                 request.reusePrimeContext == true)) then
+        if baseline_target ~= 0 then
             write_bulk_aoi_result(request, "failed", "target_point_already_loaded", {
                 blockSize = block_size, blockCount = block_count, targetAoiIndex = target_aoi_index,
                 targetTileX = request.targetTileX, targetTileY = request.targetTileY,
@@ -5227,294 +4868,28 @@ local function pump_bulk_aoi_diagnostic(now)
         end
         bulk_aoi_original_start_view_request = start_view_before_init
         bulk_aoi_added_indices = {}
-        M._bulkAoiDroppedPrimeIndices = {}
-        if request.requestMode == "message" or request.requestMode == "messagebulk" then
-            if request.viewLevel < 0 then
-                fail_bulk_aoi(request, "message_view_level_required", nil, point_manager)
-                return true
-            end
+        if request.viewLevel >= 90 then
             local cs = rawget(_G, "CS")
             local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
             if vector2_type == nil then
-                fail_bulk_aoi(request, "message_vector2int_unavailable", nil, point_manager)
+                fail_bulk_aoi(request, "direct_view_vector2int_unavailable", nil, point_manager)
                 return true
             end
+            local tile_pos = vector2_type(request.targetTileX, request.targetTileY)
             local baseline_flags = bulk_manager_flags(point_manager)
             local baseline_net = bulk_network_receive_state()
-            if request.requestMode == "messagebulk" then
-                local manager_reply_before = manager_response_flag(point_manager)
-                local world_reply_before = world_response_flag(world)
-                if manager_reply_before == nil or world_reply_before == nil then
-                    fail_bulk_aoi(request, "messagebulk_response_flags_unavailable", nil, point_manager)
-                    return true
-                end
-                bulk_aoi_original_manager_response_flag = manager_reply_before
-                bulk_aoi_original_world_response_flag = world_reply_before
-                if request.reusePrimeContext == true then
-                    if not reflected_set_value(point_manager, "isRecvViewPoints", true) or
-                       not reflected_set_value(world, "hasReceiveViewPointsReply", true) then
-                        fail_bulk_aoi(request, "messagebulk_reuse_context_phase_arm_failed", nil, point_manager)
-                        return true
-                    end
-                elseif not reflected_set_value(point_manager, "isRecvViewPoints", false) or
-                       not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
-                    fail_bulk_aoi(request, "messagebulk_response_flag_reset_failed", nil, point_manager)
-                    return true
-                end
-                bulk_aoi_response_flags_reset = true
-                request.messageBulkPhase = "prime"
-            end
-            local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
-            local touch_camera = camera_manager and
-                (safe_get(camera_manager, "touchCamera") or reflected_value(camera_manager, "touchCamera")) or nil
-            local ok_camera_pos, camera_pos = touch_camera and call(touch_camera, "GetCameraPos") or false, nil
-            if touch_camera ~= nil then ok_camera_pos, camera_pos = call(touch_camera, "GetCameraPos") end
-            local unity_camera = camera_manager and
-                (safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")) or nil
-            local render_transform = unity_camera and safe_get(unity_camera, "transform") or nil
-            local render_pos = render_transform and safe_get(render_transform, "position") or nil
-            local render_rot = render_transform and safe_get(render_transform, "rotation") or nil
-            local camera_x = tonumber(render_pos and safe_get(render_pos, "x"))
-            local camera_y = tonumber(render_pos and safe_get(render_pos, "y"))
-            local camera_z = tonumber(render_pos and safe_get(render_pos, "z"))
-            local camera_rx = tonumber(render_rot and safe_get(render_rot, "x"))
-            local camera_ry = tonumber(render_rot and safe_get(render_rot, "y"))
-            local camera_rz = tonumber(render_rot and safe_get(render_rot, "z"))
-            local camera_rw = tonumber(render_rot and safe_get(render_rot, "w"))
-            if not ok_camera_pos or camera_pos == nil or render_transform == nil or
-               render_pos == nil or render_rot == nil or
-               camera_x == nil or camera_y == nil or camera_z == nil or
-               camera_rx == nil or camera_ry == nil or camera_rz == nil or camera_rw == nil then
-                fail_bulk_aoi(request, "message_visible_camera_state_unavailable", nil, point_manager)
-                return true
-            end
-            local prime_x = request.targetTileX
-            local prime_y = request.targetTileY
-            if request.requestMode == "messagebulk" then
-                request.messageBulkFinalTargetX = request.targetTileX
-                request.messageBulkFinalTargetY = request.targetTileY
-                if request.reusePrimeContext == true then
-                    prime_x = pre_tile_x
-                    prime_y = pre_tile_y
-                elseif request.primeCurrentTile == true then
-                    prime_x = pre_tile_x
-                    prime_y = pre_tile_y
-                else
-                    local dx = request.targetTileX - pre_tile_x
-                    local dy = request.targetTileY - pre_tile_y
-                    local span = math.max(math.abs(dx), math.abs(dy))
-                    local max_step = 50
-                    if span > max_step then
-                        prime_x = math.floor(pre_tile_x + (dx * max_step / span) + 0.5)
-                        prime_y = math.floor(pre_tile_y + (dy * max_step / span) + 0.5)
-                    end
-                end
-                request.messageBulkPrimeTileX = prime_x
-                request.messageBulkPrimeTileY = prime_y
-                request.messageBulkPrimeStepCount = 1
-            end
-            if request.requestMode == "messagebulk" and request.reusePrimeContext ~= true then
-                local vector3_type = cs and cs.UnityEngine and cs.UnityEngine.Vector3 or nil
-                local logical_x = tonumber(safe_get(camera_pos, "x") or safe_get(camera_pos, "X"))
-                local logical_y = tonumber(safe_get(camera_pos, "y") or safe_get(camera_pos, "Y"))
-                local logical_z = tonumber(safe_get(camera_pos, "z") or safe_get(camera_pos, "Z"))
-                if vector3_type == nil or logical_x == nil or logical_y == nil or logical_z == nil then
-                    fail_bulk_aoi(request, "messagebulk_logical_camera_state_unavailable", nil, point_manager)
-                    return true
-                end
-                local prime_pos = vector3_type(
-                    logical_x + ((prime_x - pre_tile_x) * 2), logical_y,
-                    logical_z + ((prime_y - pre_tile_y) * 2))
-                if not select(1, call(touch_camera, "SetCameraPos", prime_pos)) or
-                   not select(1, call(camera_manager, "RefreshCameraAnchor")) then
-                    fail_bulk_aoi(request, "messagebulk_logical_camera_shift_failed", nil, point_manager)
-                    return true
-                end
-                local shifted_tile = safe_get(world, "CurTilePosClamped")
-                local shifted_x = tonumber(shifted_tile and (safe_get(shifted_tile, "x") or safe_get(shifted_tile, "X")))
-                local shifted_y = tonumber(shifted_tile and (safe_get(shifted_tile, "y") or safe_get(shifted_tile, "Y")))
-                request.messageBulkLogicalPrimeTileX = shifted_x and math.floor(shifted_x) or nil
-                request.messageBulkLogicalPrimeTileY = shifted_y and math.floor(shifted_y) or nil
-                if request.messageBulkLogicalPrimeTileX ~= prime_x or request.messageBulkLogicalPrimeTileY ~= prime_y then
-                    fail_bulk_aoi(request, "messagebulk_logical_camera_shift_mismatch", nil, point_manager)
-                    return true
-                end
-            end
-            if request.requestMode == "messagebulk" and request.reusePrimeContext == true then
-                local retained_context_count = collection_count(current_set) or 0
-                if retained_context_count < 1 or retained_context_count > 64 then
-                    fail_bulk_aoi(request, "messagebulk_reuse_context_invalid_view_count", {
-                        reusePrimeContextViewCount = retained_context_count,
-                    }, point_manager)
-                    return true
-                end
-                request.reusePrimeContextViewCount = retained_context_count
-            else
-                local tile_pos = vector2_type(prime_x, prime_y)
-                local invoked = select(1, reflected_call(
-                    point_manager, "SendViewRequest", tile_pos, request.viewLevel, request.serverId))
-                if not invoked then
-                    fail_bulk_aoi(request, "message_send_view_request_failed", nil, point_manager)
-                    return true
-                end
-            end
-            -- SendViewRequest normally targets the server-side tile directly, but the stock
-            -- client also steers its rendered camera toward that tile.  Keep the
-            -- logical request state intact and restore only the Unity render transform.
-            bulk_aoi_native_camera = camera_manager
-            bulk_aoi_native_touch_camera = touch_camera
-            bulk_aoi_native_original_pos = camera_pos
-            M._bulkAoiNativeRenderTransform = render_transform
-            M._bulkAoiNativeOriginalRenderPos = render_pos
-            M._bulkAoiNativeOriginalRenderRot = render_rot
-            local render_restored = pcall(function()
-                render_transform.position = render_pos
-                render_transform.rotation = render_rot
-            end)
-            if not render_restored then
-                fail_bulk_aoi(request, "message_immediate_render_camera_restore_failed", nil, point_manager)
-                return true
-            end
-            bulk_aoi_restore_current_view = true
-            -- Do not run the generic SetCameraPos timed restore before the response;
-            -- that changes logical AOI state and cancels this targeted fetch.
-            bulk_aoi_native_position_restored = true
-            request.details = {
-                requestedIndices = indices,
-                bigMap = 0, serverLod = server_lod,
-                blockSize = block_size, blockCount = block_count,
-                anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
-                baselineMatchedCount = baseline.total,
-                beforeLoadedPointCount = baseline.loadedPointCount,
-                targetTileX = request.targetTileX, targetTileY = request.targetTileY,
-                targetAoiIndex = target_aoi_index,
-                baselineTargetPointCount = baseline_target,
-                targetPointIndex = baseline_stores.targetPointIndex,
-                baselineAllViewPointsCount = baseline_stores.allViewPointsCount,
-                baselineAllViewPointsHasTarget = baseline_stores.allViewPointsHasTarget,
-                baselineOutOfViewPointsCount = baseline_stores.outOfViewPointsCount,
-                baselineOutOfViewPointsHasTarget = baseline_stores.outOfViewPointsHasTarget,
-                baselineOutOfViewPointsObjCount = baseline_stores.outOfViewPointsObjCount,
-                baselineOutOfViewPointsObjHasTarget = baseline_stores.outOfViewPointsObjHasTarget,
-                baselineIsRecvViewPoints = baseline_flags.isRecvViewPoints,
-                baselineIsPointUpdate = baseline_flags.isPointUpdate,
-                baselineIsCityPointUpdate = baseline_flags.isCityPointUpdate,
-                baselineMyPointDirty = baseline_flags.myPointDirty,
-                baselineLittleSmartDirty = baseline_flags.littleSmartDirty,
-                baselineFirstTimeReqAoi = baseline_flags.firstTimeReqAoi,
-                baselineNetReceiveAvailable = baseline_net.available,
-                baselineNetReceiveCount = baseline_net.total,
-                baselineNetReceiveCommands = baseline_net.commands,
-                baselineNetReceiveSamples = baseline_net.receiveSamples,
-                baselineNetSendAvailable = baseline_net.sendAvailable,
-                baselineNetSendCount = baseline_net.sendTotal,
-                baselineNetSendCommands = baseline_net.sendCommands,
-                baselineNetSendSamples = baseline_net.sendSamples,
-                preTileX = pre_tile_x, preTileY = pre_tile_y,
-                preCameraPositionX = camera_x,
-                preCameraPositionY = camera_y,
-                preCameraPositionZ = camera_z,
-                preCameraRotationX = camera_rx,
-                preCameraRotationY = camera_ry,
-                preCameraRotationZ = camera_rz,
-                preCameraRotationW = camera_rw,
-                nativeRemoteTileX = prime_x,
-                nativeRemoteTileY = prime_y,
-                messageBulkPrimeTileX = request.messageBulkPrimeTileX,
-                messageBulkPrimeTileY = request.messageBulkPrimeTileY,
-                messageBulkPrimeStepCount = request.messageBulkPrimeStepCount,
-                primeContextReused = request.reusePrimeContext == true,
-                reusePrimeContextViewCount = request.reusePrimeContextViewCount,
-                nativeCurrentSetCount = collection_count(current_set) or 0,
-                holdMilliseconds = request.holdMilliseconds,
-                viewLevel = request.viewLevel,
-                initializedViaNormalUpdate = initialized_via_normal_update,
-                initializedViaStartViewRequest = initialized_via_start_view,
-                requestMethod = request.requestMode == "messagebulk" and
-                    "WorldPointManager.SendViewRequest(messagebulk-prime,no-camera-shift)" or
-                    "WorldPointManager.SendViewRequest(target-tile,no-camera-shift)",
-            }
-            bulk_aoi_request = request
-            bulk_aoi_started_at = runtime_clock()
-            return true
-        end
-        if request.requestMode == "direct" then
-            local baseline_flags = bulk_manager_flags(point_manager)
-            local baseline_net = bulk_network_receive_state()
-            local manager_reply_before = manager_response_flag(point_manager)
-            local world_reply_before = world_response_flag(world)
-            if manager_reply_before == nil or world_reply_before == nil then
-                fail_bulk_aoi(request, "direct_response_flags_unavailable", nil, point_manager)
-                return true
-            end
-            if not collection_clear(add_list) then
-                fail_bulk_aoi(request, "direct_aoi_list_clear_failed", nil, point_manager)
-                return true
-            end
-            local min_x, min_y = block_count, block_count
-            local max_x, max_y = -1, -1
-            for _, index in ipairs(indices) do
-                if not collection_add_int(add_list, index) then
-                    fail_bulk_aoi(request, "direct_aoi_list_population_failed", nil, point_manager)
-                    return true
-                end
-                -- Native UpdateLWAoi bookkeeping moves requested AOIs into the
-                -- current-view set before WorldGetBlock replies are parsed.
-                -- Reproduce that precondition for the camera-free direct path.
-                if not collection_contains_int(current_set, index) then
-                    if not collection_add_int(current_set, index) then
-                        fail_bulk_aoi(request, "direct_current_set_population_failed", nil, point_manager)
-                        return true
-                    end
-                    bulk_aoi_added_indices[#bulk_aoi_added_indices + 1] = index
-                end
-                local cell_x = index % block_count
-                local cell_y = math.floor(index / block_count)
-                min_x = math.min(min_x, cell_x); min_y = math.min(min_y, cell_y)
-                max_x = math.max(max_x, cell_x); max_y = math.max(max_y, cell_y)
-            end
-            if max_x < min_x or max_y < min_y or #indices < 1 then
-                fail_bulk_aoi(request, "direct_aoi_bounds_invalid", nil, point_manager)
-                return true
-            end
-            local cs = rawget(_G, "CS")
-            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
-            if vector2_type == nil then
-                fail_bulk_aoi(request, "direct_vector2int_unavailable", nil, point_manager)
-                return true
-            end
-            local lb = vector2_type(min_x * block_size, min_y * block_size)
-            local rt = vector2_type((max_x + 1) * block_size, (max_y + 1) * block_size)
-            local ok_lb, lb_index = call(world, "TilePosToIndex", lb)
-            local ok_rt, rt_index = call(world, "TilePosToIndex", rt)
-            if not ok_lb or not ok_rt or tonumber(lb_index) == nil or tonumber(rt_index) == nil then
-                fail_bulk_aoi(request, "direct_tile_bounds_unavailable", nil, point_manager)
-                return true
-            end
-            bulk_aoi_original_manager_response_flag = manager_reply_before
-            bulk_aoi_original_world_response_flag = world_reply_before
-            if not reflected_set_value(point_manager, "isRecvViewPoints", false) or
-               not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
-                fail_bulk_aoi(request, "direct_response_flag_reset_failed", nil, point_manager)
-                return true
-            end
-            bulk_aoi_response_flags_reset = true
-            local request_lod = request.viewLevel >= 0 and request.viewLevel or server_lod
-            local invoked = select(1, reflected_call(point_manager, "SendAoiRequest",
-                0, request_lod, request.targetTileX, request.targetTileY, add_list, block_size,
-                math.floor(tonumber(lb_index)), math.floor(tonumber(rt_index))))
+            local invoked = select(1, reflected_call(point_manager, "SendViewRequest",
+                tile_pos, request.viewLevel, request.serverId))
             if not invoked then
-                fail_bulk_aoi(request, "direct_send_aoi_request_reflection_failed", nil, point_manager)
+                fail_bulk_aoi(request, "direct_send_view_request_reflection_failed", nil, point_manager)
                 return true
             end
             bulk_aoi_restore_current_view = true
             request.details = {
-                requestedIndices = indices,
-                bigMap = 0, serverLod = request_lod,
+                requestedIndices = { target_aoi_index },
+                bigMap = 0, serverLod = request.viewLevel,
                 blockSize = block_size, blockCount = block_count,
                 anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
-                lbTileIndex = math.floor(tonumber(lb_index)),
-                rtTileIndex = math.floor(tonumber(rt_index)),
                 baselineMatchedCount = baseline.total,
                 beforeLoadedPointCount = baseline.loadedPointCount,
                 targetTileX = request.targetTileX, targetTileY = request.targetTileY,
@@ -5536,11 +4911,9 @@ local function pump_bulk_aoi_diagnostic(now)
                 baselineNetReceiveAvailable = baseline_net.available,
                 baselineNetReceiveCount = baseline_net.total,
                 baselineNetReceiveCommands = baseline_net.commands,
-                baselineNetReceiveSamples = baseline_net.receiveSamples,
                 baselineNetSendAvailable = baseline_net.sendAvailable,
                 baselineNetSendCount = baseline_net.sendTotal,
                 baselineNetSendCommands = baseline_net.sendCommands,
-                baselineNetSendSamples = baseline_net.sendSamples,
                 preTileX = pre_tile_x, preTileY = pre_tile_y,
                 nativeRemoteTileX = request.targetTileX,
                 nativeRemoteTileY = request.targetTileY,
@@ -5549,153 +4922,7 @@ local function pump_bulk_aoi_diagnostic(now)
                 viewLevel = request.viewLevel,
                 initializedViaNormalUpdate = initialized_via_normal_update,
                 initializedViaStartViewRequest = initialized_via_start_view,
-                requestMethod = "WorldPointManager.SendAoiRequest(private-reflection)-multi-index",
-            }
-            bulk_aoi_request = request
-            bulk_aoi_started_at = runtime_clock()
-            return true
-        end
-        if request.requestMode == "browser" then
-            local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
-            local anchors = camera_manager and (safe_get(camera_manager, "cameraAnchor") or reflected_value(camera_manager, "cameraAnchor")) or nil
-            local cs = rawget(_G, "CS")
-            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
-            local scene_utils = rawget(_G, "SceneUtils")
-            local tile_to_world = scene_utils and safe_get(scene_utils, "TileToWorld") or nil
-            local force_change_scene = rawget(_G, "ForceChangeScene")
-            local force_world = force_change_scene and safe_get(force_change_scene, "World") or nil
-            if camera_manager == nil or anchors == nil or vector2_type == nil or
-               type(tile_to_world) ~= "function" or force_world == nil then
-                fail_bulk_aoi(request, "browser_anchor_dependencies_unavailable", nil, point_manager)
-                return true
-            end
-            local width_cells, height_cells = 14, 8
-            local target_cell_x = math.floor(request.targetTileX / block_size)
-            local target_cell_y = math.floor(request.targetTileY / block_size)
-            local start_cell_x = math.max(0, math.min(block_count - width_cells, target_cell_x - math.floor(width_cells / 2)))
-            local start_cell_y = math.max(0, math.min(block_count - height_cells, target_cell_y - math.floor(height_cells / 2)))
-            local min_tile_x = start_cell_x * block_size
-            local min_tile_y = start_cell_y * block_size
-            local max_tile_x = math.min(999, ((start_cell_x + width_cells) * block_size) - 1)
-            local max_tile_y = math.min(999, ((start_cell_y + height_cells) * block_size) - 1)
-            local function anchor_world(tx, ty)
-                local ok, value = pcall(tile_to_world, vector2_type(tx, ty), force_world, request.serverId)
-                if not ok then return nil end
-                return value
-            end
-            local original_anchors = {}
-            for index = 0, 3 do original_anchors[index + 1] = safe_get(anchors, index) end
-            local synthetic_anchors = {
-                anchor_world(min_tile_x, min_tile_y),
-                anchor_world(min_tile_x, max_tile_y),
-                anchor_world(max_tile_x, max_tile_y),
-                anchor_world(max_tile_x, min_tile_y),
-            }
-            if synthetic_anchors[1] == nil or synthetic_anchors[2] == nil or
-               synthetic_anchors[3] == nil or synthetic_anchors[4] == nil then
-                fail_bulk_aoi(request, "browser_anchor_world_conversion_failed", nil, point_manager)
-                return true
-            end
-            local baseline_flags = bulk_manager_flags(point_manager)
-            local baseline_net = bulk_network_receive_state()
-            local manager_reply_before = manager_response_flag(point_manager)
-            local world_reply_before = world_response_flag(world)
-            if manager_reply_before == nil or world_reply_before == nil then
-                fail_bulk_aoi(request, "browser_response_flags_unavailable", nil, point_manager)
-                return true
-            end
-            bulk_aoi_original_manager_response_flag = manager_reply_before
-            bulk_aoi_original_world_response_flag = world_reply_before
-            if not reflected_set_value(point_manager, "isRecvViewPoints", false) or
-               not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
-                fail_bulk_aoi(request, "browser_response_flag_reset_failed", nil, point_manager)
-                return true
-            end
-            bulk_aoi_response_flags_reset = true
-            local native_state_before = bulk_native_aoi_state(world, point_manager)
-            local assigned = true
-            for index = 0, 3 do
-                if not pcall(function() anchors[index] = synthetic_anchors[index + 1] end) then
-                    assigned = false
-                    break
-                end
-            end
-            if not assigned then
-                call(camera_manager, "RefreshCameraAnchor")
-                fail_bulk_aoi(request, "browser_anchor_assignment_failed", nil, point_manager)
-                return true
-            end
-            local invoked = select(1, reflected_call(point_manager, "UpdateLWAoi_Normal", true))
-            local native_state_after = bulk_native_aoi_state(world, point_manager)
-            local native_current = reflected_value(point_manager, "_curViewIndex")
-            local native_indices = native_current and select(1, collection_int_values(native_current, 512)) or nil
-            local anchors_restored = true
-            for index = 0, 3 do
-                if not pcall(function() anchors[index] = original_anchors[index + 1] end) then
-                    anchors_restored = false
-                end
-            end
-            if not anchors_restored then call(camera_manager, "RefreshCameraAnchor") end
-            if not invoked or not anchors_restored then
-                fail_bulk_aoi(
-                    request,
-                    not invoked and "browser_native_update_failed" or "browser_anchor_restore_failed",
-                    nil,
-                    point_manager)
-                return true
-            end
-            if native_indices == nil or #native_indices == 0 then
-                fail_bulk_aoi(request, "browser_native_indices_unavailable", nil, point_manager)
-                return true
-            end
-            bulk_aoi_restore_current_view = true
-            bulk_aoi_native_position_restored = true
-            request.details = {
-                requestedIndices = native_indices,
-                bigMap = 0, serverLod = server_lod,
-                blockSize = block_size, blockCount = block_count,
-                anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
-                baselineMatchedCount = baseline.total,
-                beforeLoadedPointCount = baseline.loadedPointCount,
-                targetTileX = request.targetTileX, targetTileY = request.targetTileY,
-                targetAoiIndex = target_aoi_index,
-                baselineTargetPointCount = baseline_target,
-                targetPointIndex = baseline_stores.targetPointIndex,
-                baselineAllViewPointsCount = baseline_stores.allViewPointsCount,
-                baselineAllViewPointsHasTarget = baseline_stores.allViewPointsHasTarget,
-                baselineOutOfViewPointsCount = baseline_stores.outOfViewPointsCount,
-                baselineOutOfViewPointsHasTarget = baseline_stores.outOfViewPointsHasTarget,
-                baselineOutOfViewPointsObjCount = baseline_stores.outOfViewPointsObjCount,
-                baselineOutOfViewPointsObjHasTarget = baseline_stores.outOfViewPointsObjHasTarget,
-                baselineIsRecvViewPoints = baseline_flags.isRecvViewPoints,
-                baselineIsPointUpdate = baseline_flags.isPointUpdate,
-                baselineIsCityPointUpdate = baseline_flags.isCityPointUpdate,
-                baselineMyPointDirty = baseline_flags.myPointDirty,
-                baselineLittleSmartDirty = baseline_flags.littleSmartDirty,
-                baselineFirstTimeReqAoi = baseline_flags.firstTimeReqAoi,
-                baselineNetReceiveAvailable = baseline_net.available,
-                baselineNetReceiveCount = baseline_net.total,
-                baselineNetReceiveCommands = baseline_net.commands,
-                baselineNetReceiveSamples = baseline_net.receiveSamples,
-                baselineNetSendAvailable = baseline_net.sendAvailable,
-                baselineNetSendCount = baseline_net.sendTotal,
-                baselineNetSendCommands = baseline_net.sendCommands,
-                baselineNetSendSamples = baseline_net.sendSamples,
-                preTileX = pre_tile_x, preTileY = pre_tile_y,
-                nativeRemoteTileX = request.targetTileX,
-                nativeRemoteTileY = request.targetTileY,
-                nativeCurrentSetCount = #native_indices,
-                holdMilliseconds = request.holdMilliseconds,
-                viewLevel = request.viewLevel,
-                initializedViaNormalUpdate = initialized_via_normal_update,
-                initializedViaStartViewRequest = initialized_via_start_view,
-                requestMethod = "WorldPointManager.UpdateLWAoi_Normal(true)+synthetic-anchor-no-camera-shift",
-                nativeStateBefore = native_state_before,
-                nativeStateAfter = native_state_after,
-                expandedAnchorCells = { start_cell_x, start_cell_y, width_cells, height_cells },
-                postInvokeAddListCount = collection_count(add_list),
-                postInvokeSplitPending = reflected_value(point_manager, "_splitLastAOIRequest"),
-                postInvokeMsgViewCount = collection_count(reflected_value(point_manager, "_msgViewIndex")),
+                requestMethod = "WorldPointManager.SendViewRequest",
             }
             bulk_aoi_request = request
             bulk_aoi_started_at = runtime_clock()
@@ -5715,8 +4942,7 @@ local function pump_bulk_aoi_diagnostic(now)
         end
         local shift_x = (request.targetTileX - pre_tile_x) * 2
         local shift_z = (request.targetTileY - pre_tile_y) * 2
-        local remote_y = (request.requestMode == "coverage" and request.testCameraY > 0) and request.testCameraY or oy
-        local remote_pos = vector3_type(ox + shift_x, remote_y, oz + shift_z)
+        local remote_pos = vector3_type(ox + shift_x, oy, oz + shift_z)
         local baseline_flags = bulk_manager_flags(point_manager)
         local baseline_net = bulk_network_receive_state()
         if not select(1, call(touch_camera, "SetCameraPos", remote_pos)) or
@@ -5731,13 +4957,9 @@ local function pump_bulk_aoi_diagnostic(now)
         bulk_aoi_native_camera = camera_manager
         bulk_aoi_native_touch_camera = touch_camera
         bulk_aoi_native_original_pos = original_pos
-        if request.requestMode == "zoom" or request.requestMode == "coverage" then
-            bulk_aoi_native_hold_seconds = nil
-        else
-            bulk_aoi_native_hold_seconds = request.holdMilliseconds / 1000.0
-        end
+        bulk_aoi_native_hold_seconds = request.requestMode == "zoom" and nil or (request.holdMilliseconds / 1000.0)
         bulk_aoi_native_position_restored = false
-        bulk_aoi_skip_restore_update = request.requestMode == "anchor" or request.requestMode == "edge"
+        bulk_aoi_skip_restore_update = request.requestMode == "coverage" or request.requestMode == "anchor" or request.requestMode == "edge"
         local expanded_anchor_cells = nil
         local anchor_debug = nil
         local zoom_debug = nil
@@ -5840,16 +5062,12 @@ local function pump_bulk_aoi_diagnostic(now)
             bulk_aoi_native_original_fov = original_fov
             bulk_aoi_native_unity_camera = unity_camera
             bulk_aoi_native_original_aspect = original_aspect
-            if not select(1, call(camera_manager, "SetFOV", request.testFov)) then
+            if not select(1, call(camera_manager, "SetFOV", 120.0)) then
                 fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
                 return true
             end
-            if not reflected_set_value(unity_camera, "aspect", request.testAspect) then
+            if not reflected_set_value(unity_camera, "aspect", 4.0) then
                 fail_bulk_aoi(request, "expanded_camera_aspect_set_failed", nil, point_manager)
-                return true
-            end
-            if not select(1, call(camera_manager, "RefreshCameraAnchor")) then
-                fail_bulk_aoi(request, "expanded_camera_anchor_refresh_failed", nil, point_manager)
                 return true
             end
         end
@@ -5867,7 +5085,6 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         bulk_aoi_response_flags_reset = true
-        local native_state_before_invoke = bulk_native_aoi_state(world, point_manager)
         local request_method = "WorldPointManager.UpdateViewRequest(true)+held-internal-camera-shift"
         local invoked = false
         local requested_indices = indices
@@ -5939,16 +5156,15 @@ local function pump_bulk_aoi_diagnostic(now)
                 invoked = select(1, call(point_manager, "UpdateViewRequest", true))
             end
         end
-        local native_state_after_invoke = bulk_native_aoi_state(world, point_manager)
         if not invoked then
             call(camera_manager, "RefreshCameraAnchor")
             fail_bulk_aoi(request, "native_remote_request_failed", nil, point_manager)
             return true
         end
-        local coverage_split_pending = request.requestMode == "coverage" and
-            reflected_value(point_manager, "_splitLastAOIRequest") == true
-        if request.requestMode ~= "zoom" and not coverage_split_pending and
-           request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
+        -- LWB-R7-014 IMPLEMENTATION POLICY: production coverage uses a zero hold.
+        -- Restore the visible camera transform in the same Lua callback that queues the
+        -- remote request, instead of waiting for the next 250 ms pump/frame.
+        if request.requestMode ~= "zoom" and request.holdMilliseconds == 0 and bulk_aoi_native_touch_camera ~= nil and
            bulk_aoi_native_original_pos ~= nil then
             if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
                 fail_bulk_aoi(request, "native_camera_same_tick_restore_failed", nil, point_manager)
@@ -5970,11 +5186,6 @@ local function pump_bulk_aoi_diagnostic(now)
                     fail_bulk_aoi(request, "native_camera_zoom_same_tick_restore_failed", nil, point_manager)
                     return true
                 end
-            end
-            if request.requestMode == "coverage" and bulk_aoi_native_camera ~= nil and
-               not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then
-                fail_bulk_aoi(request, "coverage_camera_anchor_same_tick_restore_failed", nil, point_manager)
-                return true
             end
             bulk_aoi_native_position_restored = true
             bulk_aoi_native_hold_seconds = nil
@@ -6029,8 +5240,6 @@ local function pump_bulk_aoi_diagnostic(now)
             initializedViaNormalUpdate = initialized_via_normal_update,
             initializedViaStartViewRequest = initialized_via_start_view,
             requestMethod = request_method,
-            nativeStateBeforeInvoke = native_state_before_invoke,
-            nativeStateAfterInvoke = native_state_after_invoke,
             anchorDebug = anchor_debug,
             zoomDebug = zoom_debug,
             expandedAnchorCells = expanded_anchor_cells,
@@ -6101,18 +5310,6 @@ local function pump_bulk_aoi_diagnostic(now)
         details.positionRestoreElapsedSeconds = elapsed_now
     end
     details.positionRestoredBeforeResponse = bulk_aoi_native_position_restored == true
-    if bulk_aoi_request.requestMode == "coverage" then
-        local split_pending_now = reflected_value(point_manager, "_splitLastAOIRequest") == true
-        local split_add_count = collection_count(reflected_value(point_manager, "_addViewIndex")) or 0
-        details.coverageSplitPending = split_pending_now
-        details.coverageSplitAddCount = split_add_count
-        details.coverageSplitCurrentCount = collection_count(reflected_value(point_manager, "_curViewIndex"))
-        details.coverageSplitMsgCount = collection_count(reflected_value(point_manager, "_msgViewIndex"))
-        if details.postInvokeSplitPending == true then
-            fail_bulk_aoi(bulk_aoi_request, "coverage_split_unsupported_v21", details, point_manager)
-            return true
-        end
-    end
     if bulk_aoi_request.requestMode == "zoom" then
         local split_pending_now = reflected_value(point_manager, "_splitLastAOIRequest") == true
         details.splitPending = split_pending_now
@@ -6153,32 +5350,7 @@ local function pump_bulk_aoi_diagnostic(now)
             details.nativeCurrentSetCount = #final_indices
         end
     end
-    -- The first message-bulk request has two fresh response surfaces:
-    -- the local SendViewRequest prime and the explicit/multi-index SendAoiRequest.
-    -- Snapshot both so the retained prime cells are real covered data, not a
-    -- planner-only assumption. Reused-prime batches expose only their requested
-    -- cells so the prime context is not double-counted on every batch.
-    if bulk_aoi_request.requestMode == "messagebulk" and
-       bulk_aoi_request.reusePrimeContext ~= true and
-       details.batchPrimeViewIndices ~= nil then
-        local combined, seen = {}, {}
-        for _, index in ipairs(details.batchPrimeViewIndices) do
-            if seen[index] ~= true then
-                seen[index] = true
-                combined[#combined + 1] = index
-            end
-        end
-        for _, index in ipairs(details.requestedIndices or {}) do
-            if seen[index] ~= true then
-                seen[index] = true
-                combined[#combined + 1] = index
-            end
-        end
-        details.coverageIndices = combined
-    else
-        details.coverageIndices = details.requestedIndices
-    end
-    local lookup = bulk_selected_lookup(details.coverageIndices)
+    local lookup = bulk_selected_lookup(details.requestedIndices)
     local observed, observe_error = point_aoi_counts(
         world, point_manager, details.blockSize, details.blockCount, lookup)
     if observed == nil then
@@ -6271,8 +5443,7 @@ local function pump_bulk_aoi_diagnostic(now)
            runtime_clock() - (bulk_aoi_request.doomsdayRequestSentAt or runtime_clock()) < 0.75 then
             return true
         end
-        if bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" or
-           bulk_aoi_request.requestMode == "browser" then
+        if bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" then
             local response_flags = bulk_manager_flags(point_manager)
             if response_flags.isRecvViewPoints ~= true or world_response_flag(world) ~= true then return true end
         end
@@ -6359,439 +5530,14 @@ local function pump_bulk_aoi_diagnostic(now)
     details.netReceiveAvailable = post_net.available
     details.netReceiveCount = post_net.total
     details.netReceiveCommands = post_net.commands
-    details.netReceiveSamples = post_net.receiveSamples
-    details.netReceiveDictionaryType = post_net.dictionaryType
-    details.netReceiveDictionaryMethods = post_net.dictionaryMethods
-    details.netReceiveDictionaryProperties = post_net.dictionaryProperties
-    details.netReceiveEnumeratorSucceeded = post_net.enumeratorSucceeded
-    details.netReceiveEnumeratorType = post_net.enumeratorType
-    details.netReceiveFirstMoveSucceeded = post_net.firstMoveSucceeded
-    details.netReceiveFirstMoved = post_net.firstMoved
     details.netSendAvailable = post_net.sendAvailable
     details.netSendCount = post_net.sendTotal
     details.netSendCommands = post_net.sendCommands
-    details.netSendSamples = post_net.sendSamples
-    details.liveMsgViewCount = collection_count(reflected_value(point_manager, "_msgViewIndex"))
-    details.liveAddViewCount = collection_count(reflected_value(point_manager, "_addViewIndex"))
-    details.liveCurrentViewCount = collection_count(reflected_value(point_manager, "_curViewIndex"))
-    details.liveSplitPending = reflected_value(point_manager, "_splitLastAOIRequest") == true
     details.elapsedSeconds = bulk_aoi_started_at and (runtime_clock() - bulk_aoi_started_at) or nil
     details.cameraTileStable = details.postTileX == details.preTileX and details.postTileY == details.preTileY
-    if bulk_aoi_request.requestMode == "message" or bulk_aoi_request.requestMode == "messagebulk" then
-        if M._bulkAoiNativeRenderTransform ~= nil and
-           M._bulkAoiNativeOriginalRenderPos ~= nil and
-           M._bulkAoiNativeOriginalRenderRot ~= nil then
-            pcall(function()
-                M._bulkAoiNativeRenderTransform.position = M._bulkAoiNativeOriginalRenderPos
-                M._bulkAoiNativeRenderTransform.rotation = M._bulkAoiNativeOriginalRenderRot
-            end)
-        end
-        local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
-        local unity_camera = camera_manager and
-            (safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")) or nil
-        local render_transform = unity_camera and safe_get(unity_camera, "transform") or nil
-        local render_pos = render_transform and safe_get(render_transform, "position") or nil
-        local render_rot = render_transform and safe_get(render_transform, "rotation") or nil
-        details.postCameraPositionX = tonumber(render_pos and safe_get(render_pos, "x"))
-        details.postCameraPositionY = tonumber(render_pos and safe_get(render_pos, "y"))
-        details.postCameraPositionZ = tonumber(render_pos and safe_get(render_pos, "z"))
-        details.postCameraRotationX = tonumber(render_rot and safe_get(render_rot, "x"))
-        details.postCameraRotationY = tonumber(render_rot and safe_get(render_rot, "y"))
-        details.postCameraRotationZ = tonumber(render_rot and safe_get(render_rot, "z"))
-        details.postCameraRotationW = tonumber(render_rot and safe_get(render_rot, "w"))
-        details.visualCameraPositionStable =
-            details.preCameraPositionX ~= nil and details.preCameraPositionY ~= nil and
-            details.preCameraPositionZ ~= nil and details.postCameraPositionX ~= nil and
-            details.postCameraPositionY ~= nil and details.postCameraPositionZ ~= nil and
-            details.preCameraRotationX ~= nil and details.preCameraRotationY ~= nil and
-            details.preCameraRotationZ ~= nil and details.preCameraRotationW ~= nil and
-            details.postCameraRotationX ~= nil and details.postCameraRotationY ~= nil and
-            details.postCameraRotationZ ~= nil and details.postCameraRotationW ~= nil and
-            math.abs(details.postCameraPositionX - details.preCameraPositionX) < 0.001 and
-            math.abs(details.postCameraPositionY - details.preCameraPositionY) < 0.001 and
-            math.abs(details.postCameraPositionZ - details.preCameraPositionZ) < 0.001 and
-            math.abs(details.postCameraRotationX - details.preCameraRotationX) < 0.0001 and
-            math.abs(details.postCameraRotationY - details.preCameraRotationY) < 0.0001 and
-            math.abs(details.postCameraRotationZ - details.preCameraRotationZ) < 0.0001 and
-            math.abs(details.postCameraRotationW - details.preCameraRotationW) < 0.0001
-    end
-    if bulk_aoi_request.requestMode == "messagebulk" and
-       ((bulk_aoi_request.messageBulkPhase == "prime" and details.responseFlagsTransitioned == true) or
-        bulk_aoi_request.messageBulkPhase == "prime-settle") then
-        if bulk_aoi_request.messageBulkPhase == "prime" then
-            -- Let WorldPointManager finish one normal update after the
-            -- SendViewRequest response before mutating _add/_cur/_msg for the
-            -- second-stage SendAoiRequest. Proven builds naturally reached
-            -- stage two with the 16-entry native message context populated;
-            -- acting in the same callback tick can race that bookkeeping.
-            details.primeSettlePreMsgViewCount =
-                collection_count(reflected_value(point_manager, "_msgViewIndex"))
-            bulk_aoi_request.messageBulkPhase = "prime-settle"
-            details.messageBulkPhase = "prime-settle"
-            bulk_aoi_request.details = details
-            return true
-        end
-        details.primeSettlePostMsgViewCount =
-            collection_count(reflected_value(point_manager, "_msgViewIndex"))
-        local final_x = bulk_aoi_request.messageBulkFinalTargetX or details.targetTileX
-        local final_y = bulk_aoi_request.messageBulkFinalTargetY or details.targetTileY
-        local prime_x = bulk_aoi_request.messageBulkPrimeTileX or final_x
-        local prime_y = bulk_aoi_request.messageBulkPrimeTileY or final_y
-        -- A successful SendViewRequest is only an admission/context prime.
-        -- The second-stage explicit/multi-index AOI request is independent of
-        -- the prime coordinate, so do not walk the logical camera toward the
-        -- final browse center after the prime response.
-        if bulk_aoi_request.messageBulkEnablePrimeWalk == true and
-           bulk_aoi_request.primeCurrentTile ~= true and
-           (prime_x ~= final_x or prime_y ~= final_y) then
-            local step_count = tonumber(bulk_aoi_request.messageBulkPrimeStepCount or 1) or 1
-            if step_count >= 32 then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_step_limit", details, point_manager)
-                return true
-            end
-            local dx = final_x - prime_x
-            local dy = final_y - prime_y
-            local span = math.max(math.abs(dx), math.abs(dy))
-            local max_step = 50
-            local next_x = final_x
-            local next_y = final_y
-            if span > max_step then
-                next_x = math.floor(prime_x + (dx * max_step / span) + 0.5)
-                next_y = math.floor(prime_y + (dy * max_step / span) + 0.5)
-            end
-            local cs = rawget(_G, "CS")
-            local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
-            local vector3_type = cs and cs.UnityEngine and cs.UnityEngine.Vector3 or nil
-            if vector2_type == nil or vector3_type == nil then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_vector_unavailable", details, point_manager)
-                return true
-            end
-            local logical_tile = safe_get(world, "CurTilePosClamped")
-            local logical_tile_x = tonumber(logical_tile and (safe_get(logical_tile, "x") or safe_get(logical_tile, "X")))
-            local logical_tile_y = tonumber(logical_tile and (safe_get(logical_tile, "y") or safe_get(logical_tile, "Y")))
-            local ok_pos, logical_pos = bulk_aoi_native_touch_camera and call(bulk_aoi_native_touch_camera, "GetCameraPos") or false, nil
-            if logical_tile_x == nil or logical_tile_y == nil or not ok_pos or logical_pos == nil then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_logical_state_unavailable", details, point_manager)
-                return true
-            end
-            local px = tonumber(safe_get(logical_pos, "x") or safe_get(logical_pos, "X"))
-            local py = tonumber(safe_get(logical_pos, "y") or safe_get(logical_pos, "Y"))
-            local pz = tonumber(safe_get(logical_pos, "z") or safe_get(logical_pos, "Z"))
-            if px == nil or py == nil or pz == nil then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_logical_position_invalid", details, point_manager)
-                return true
-            end
-            local next_pos = vector3_type(
-                px + ((next_x - math.floor(logical_tile_x)) * 2), py,
-                pz + ((next_y - math.floor(logical_tile_y)) * 2))
-            if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", next_pos)) or
-               not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_logical_shift_failed", details, point_manager)
-                return true
-            end
-            if not reflected_set_value(point_manager, "isRecvViewPoints", false) or
-               not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_flag_reset_failed", details, point_manager)
-                return true
-            end
-            local next_tile = vector2_type(next_x, next_y)
-            local invoked = select(1, reflected_call(
-                point_manager, "SendViewRequest", next_tile, bulk_aoi_request.viewLevel, bulk_aoi_request.serverId))
-            if not invoked then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_walk_send_failed", details, point_manager)
-                return true
-            end
-            if M._bulkAoiNativeRenderTransform ~= nil and
-               M._bulkAoiNativeOriginalRenderPos ~= nil and
-               M._bulkAoiNativeOriginalRenderRot ~= nil then
-                pcall(function()
-                    M._bulkAoiNativeRenderTransform.position = M._bulkAoiNativeOriginalRenderPos
-                    M._bulkAoiNativeRenderTransform.rotation = M._bulkAoiNativeOriginalRenderRot
-                end)
-            end
-            bulk_aoi_request.messageBulkPrimeTileX = next_x
-            bulk_aoi_request.messageBulkPrimeTileY = next_y
-            bulk_aoi_request.messageBulkPrimeStepCount = step_count + 1
-            details.messageBulkPrimeTileX = next_x
-            details.messageBulkPrimeTileY = next_y
-            details.messageBulkPrimeStepCount = step_count + 1
-            details.messageBulkWalkIntermediateResponses =
-                (tonumber(details.messageBulkWalkIntermediateResponses or 0) or 0) + 1
-            details.nativeRemoteTileX = next_x
-            details.nativeRemoteTileY = next_y
-            details.responseFlagsTransitioned = false
-            bulk_aoi_request.details = details
-            bulk_aoi_started_at = runtime_clock()
-            return true
-        end
-        local batch_size = integer_field(point_manager, { "_lwAoiBlockSize", "lwAoiBlockSize" })
-        local batch_count = integer_field(point_manager, { "_lwAoiBlockCount", "lwAoiBlockCount" })
-        local batch_lod = integer_field(point_manager, { "svLod" })
-        local batch_current = reflected_value(point_manager, "_curViewIndex")
-        local batch_add = reflected_value(point_manager, "_addViewIndex")
-        if batch_size == nil or batch_size <= 0 or batch_count == nil or batch_count <= 0 or
-           batch_lod == nil or batch_lod < 0 or batch_current == nil or batch_add == nil then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_batch_geometry_unavailable", details, point_manager)
-            return true
-        end
-        details.batchPrimeViewIndices = select(1, collection_int_values(batch_current, 512))
-        if details.batchPrimeViewIndices ~= nil then
-            details.batchPrimeViewCount = #details.batchPrimeViewIndices
-        end
-        if bulk_aoi_request.relocatePrimeView == true then
-            if details.batchPrimeViewIndices == nil or #details.batchPrimeViewIndices ~= 16 then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_relocate_requires_16_prime_indices", details, point_manager)
-                return true
-            end
-            M._bulkAoiDroppedPrimeIndices = {}
-            for _, index in ipairs(details.batchPrimeViewIndices) do
-                if not collection_remove_int(batch_current, index) then
-                    fail_bulk_aoi(bulk_aoi_request, "messagebulk_relocate_prime_remove_failed", details, point_manager)
-                    return true
-                end
-                M._bulkAoiDroppedPrimeIndices[#M._bulkAoiDroppedPrimeIndices + 1] = index
-            end
-            local relocate_tile_x = bulk_aoi_request.messageBulkPrimeTileX or details.targetTileX
-            local relocate_tile_y = bulk_aoi_request.messageBulkPrimeTileY or details.targetTileY
-            local relocate_cell_x = math.max(0, math.min(batch_count - 1, math.floor(relocate_tile_x / batch_size)))
-            local relocate_cell_y = math.max(0, math.min(batch_count - 1, math.floor(relocate_tile_y / batch_size)))
-            local relocate_start_x = math.max(0, math.min(batch_count - 4, relocate_cell_x - 2))
-            local relocate_start_y = math.max(0, math.min(batch_count - 4, relocate_cell_y - 2))
-            local relocated_indices = {}
-            for y = relocate_start_y, relocate_start_y + 3 do
-                for x = relocate_start_x, relocate_start_x + 3 do
-                    local index = y * batch_count + x
-                    if not collection_add_int(batch_current, index) then
-                        fail_bulk_aoi(bulk_aoi_request, "messagebulk_relocate_prime_add_failed", details, point_manager)
-                        return true
-                    end
-                    bulk_aoi_added_indices[#bulk_aoi_added_indices + 1] = index
-                    relocated_indices[#relocated_indices + 1] = index
-                end
-            end
-            details.primeContextRelocated = true
-            details.relocatedPrimeTileX = relocate_tile_x
-            details.relocatedPrimeTileY = relocate_tile_y
-            details.relocatedPrimeViewIndices = relocated_indices
-            details.relocatedPrimeViewCount = collection_count(batch_current) or -1
-            if details.relocatedPrimeViewCount ~= 16 then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_relocated_prime_view_count_invalid", details, point_manager)
-                return true
-            end
-        elseif bulk_aoi_request.dropPrimeView == true then
-            local prime_values = details.batchPrimeViewIndices
-            if prime_values == nil then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_view_snapshot_failed", details, point_manager)
-                return true
-            end
-            M._bulkAoiDroppedPrimeIndices = {}
-            for _, index in ipairs(prime_values) do
-                if not collection_remove_int(batch_current, index) then
-                    fail_bulk_aoi(bulk_aoi_request, "messagebulk_prime_view_drop_failed", details, point_manager)
-                    return true
-                end
-                M._bulkAoiDroppedPrimeIndices[#M._bulkAoiDroppedPrimeIndices + 1] = index
-            end
-            details.batchPostPrimeDropCurrentViewCount = collection_count(batch_current) or -1
-        end
-        local retained_context_count = collection_count(batch_current) or 0
-        local selected_target_count = bulk_aoi_request.requestedCount
-        if bulk_aoi_request.targetTotalViewCount > 0 then
-            selected_target_count = bulk_aoi_request.targetTotalViewCount - retained_context_count
-            if selected_target_count < 1 or selected_target_count > bulk_aoi_request.requestedCount then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_target_total_unreachable", {
-                    retainedContextViewCount = retained_context_count,
-                    targetTotalViewCount = bulk_aoi_request.targetTotalViewCount,
-                    effectiveRequestedCount = selected_target_count,
-                }, point_manager)
-                return true
-            end
-        end
-        details.retainedContextViewCount = retained_context_count
-        details.targetTotalViewCount = bulk_aoi_request.targetTotalViewCount
-        details.effectiveRequestedCount = selected_target_count
-        local loaded = loaded_aoi_lookup(world, point_manager, batch_size, batch_count) or {}
-        local selection_x = details.targetTileX
-        local selection_y = details.targetTileY
-        if bulk_aoi_request.primeCurrentTile == true and bulk_aoi_request.explicitIndices == nil then
-            selection_x = bulk_aoi_request.messageBulkPrimeTileX or details.preTileX
-            selection_y = bulk_aoi_request.messageBulkPrimeTileY or details.preTileY
-        end
-        local tx = math.max(0, math.min(batch_count - 1, math.floor(selection_x / batch_size)))
-        local ty = math.max(0, math.min(batch_count - 1, math.floor(selection_y / batch_size)))
-        details.messageBulkSelectionTileX = selection_x
-        details.messageBulkSelectionTileY = selection_y
-        local selected = {}
-        local selected_lookup = {}
-        if bulk_aoi_request.explicitIndices ~= nil then
-            -- R7-151 server-data-browser proof: prime the official view path once,
-            -- then let the caller choose an exact remote AOI batch. This separates
-            -- the request's admission/scene context from the blocks being fetched.
-            for _, index in ipairs(bulk_aoi_request.explicitIndices) do
-                if collection_contains_int(batch_current, index) then
-                    fail_bulk_aoi(bulk_aoi_request, "messagebulk_explicit_index_in_current_view", details, point_manager)
-                    return true
-                end
-                if loaded[index] == true and bulk_aoi_request.allowCachedExplicitIndices ~= true then
-                    fail_bulk_aoi(bulk_aoi_request, "messagebulk_explicit_index_already_loaded", details, point_manager)
-                    return true
-                end
-                selected[#selected + 1] = index
-                selected_lookup[index] = true
-            end
-        else
-            for radius = 0, batch_count do
-                local min_x = math.max(0, tx - radius)
-                local max_x = math.min(batch_count - 1, tx + radius)
-                local min_y = math.max(0, ty - radius)
-                local max_y = math.min(batch_count - 1, ty + radius)
-                for y = min_y, max_y do
-                    for x = min_x, max_x do
-                        if math.max(math.abs(x - tx), math.abs(y - ty)) == radius then
-                            local index = y * batch_count + x
-                            if selected_lookup[index] ~= true and
-                               not collection_contains_int(batch_current, index) and loaded[index] ~= true then
-                                selected[#selected + 1] = index
-                                selected_lookup[index] = true
-                                if #selected >= selected_target_count then break end
-                            end
-                        end
-                    end
-                    if #selected >= selected_target_count then break end
-                end
-                if #selected >= selected_target_count then break end
-            end
-        end
-        if #selected ~= selected_target_count then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_insufficient_unloaded_indices", details, point_manager)
-            return true
-        end
-        local baseline_batch, baseline_batch_error = point_aoi_counts(
-            world, point_manager, batch_size, batch_count, selected_lookup)
-        if baseline_batch == nil then
-            fail_bulk_aoi(bulk_aoi_request, baseline_batch_error, details, point_manager)
-            return true
-        end
-        if not collection_clear(batch_add) then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_add_list_clear_failed", details, point_manager)
-            return true
-        end
-        local min_x, min_y, max_x, max_y = batch_count, batch_count, -1, -1
-        for _, index in ipairs(selected) do
-            if not collection_add_int(batch_add, index) then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_add_list_population_failed", details, point_manager)
-                return true
-            end
-            if not collection_contains_int(batch_current, index) then
-                if not collection_add_int(batch_current, index) then
-                    fail_bulk_aoi(bulk_aoi_request, "messagebulk_current_set_population_failed", details, point_manager)
-                    return true
-                end
-                bulk_aoi_added_indices[#bulk_aoi_added_indices + 1] = index
-            end
-            local x = index % batch_count
-            local y = math.floor(index / batch_count)
-            min_x = math.min(min_x, x); min_y = math.min(min_y, y)
-            max_x = math.max(max_x, x); max_y = math.max(max_y, y)
-        end
-        local logical_tile = safe_get(world, "CurTilePosClamped")
-        local logical_x = tonumber(logical_tile and (safe_get(logical_tile, "x") or safe_get(logical_tile, "X")))
-        local logical_y = tonumber(logical_tile and (safe_get(logical_tile, "y") or safe_get(logical_tile, "Y")))
-        if logical_x == nil or logical_y == nil then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_logical_tile_unavailable", details, point_manager)
-            return true
-        end
-        logical_x = math.floor(logical_x); logical_y = math.floor(logical_y)
-        local logical_cell_x = math.max(0, math.min(batch_count - 1, math.floor(logical_x / batch_size)))
-        local logical_cell_y = math.max(0, math.min(batch_count - 1, math.floor(logical_y / batch_size)))
-        min_x = math.min(min_x, logical_cell_x); min_y = math.min(min_y, logical_cell_y)
-        max_x = math.max(max_x, logical_cell_x); max_y = math.max(max_y, logical_cell_y)
-        local cs = rawget(_G, "CS")
-        local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
-        if vector2_type == nil then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_vector2int_unavailable", details, point_manager)
-            return true
-        end
-        local lb = vector2_type(min_x * batch_size, min_y * batch_size)
-        local rt = vector2_type((max_x + 1) * batch_size, (max_y + 1) * batch_size)
-        local ok_lb, lb_index = call(world, "TilePosToIndex", lb)
-        local ok_rt, rt_index = call(world, "TilePosToIndex", rt)
-        if not ok_lb or not ok_rt or tonumber(lb_index) == nil or tonumber(rt_index) == nil then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_tile_bounds_unavailable", details, point_manager)
-            return true
-        end
-        details.primeResponseFlagsTransitioned = true
-        details.primeLoadedPointCount = details.afterLoadedPointCount
-        details.primeMatchedCount = details.matchedCount
-        details.primeCurrentSetCount = collection_count(batch_current) or 0
-        details.requestedIndices = selected
-        details.baselineMatchedCount = baseline_batch.total
-        details.beforeLoadedPointCount = baseline_batch.loadedPointCount
-        details.lbTileIndex = math.floor(tonumber(lb_index))
-        details.rtTileIndex = math.floor(tonumber(rt_index))
-        details.requestMethod = bulk_aoi_request.reusePrimeContext == true and
-            "WorldPointManager.SendAoiRequest(reused-prime-context,multi-index)" or
-            "WorldPointManager.SendViewRequest+SendAoiRequest(message-primed,multi-index)"
-        local batch_msg_view = reflected_value(point_manager, "_msgViewIndex")
-        details.batchPreMsgViewCount = collection_count(batch_msg_view)
-        details.batchPreAddViewCount = collection_count(batch_add)
-        details.batchPreCurrentViewCount = collection_count(batch_current)
-        details.batchPreSplitPending = reflected_value(point_manager, "_splitLastAOIRequest") == true
-        if batch_msg_view == nil or not collection_clear(batch_msg_view) then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_msg_view_reset_failed", details, point_manager)
-            return true
-        end
-        local current_values = select(1, collection_int_values(batch_current, 512))
-        if current_values == nil or #current_values == 0 then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_current_view_snapshot_failed", details, point_manager)
-            return true
-        end
-        for _, index in ipairs(current_values) do
-            if not collection_add_int(batch_msg_view, index) then
-                fail_bulk_aoi(bulk_aoi_request, "messagebulk_msg_view_population_failed", details, point_manager)
-                return true
-            end
-        end
-        details.batchPreparedMsgViewCount = collection_count(batch_msg_view)
-        details.messageBulkLogicalTileX = logical_x
-        details.messageBulkLogicalTileY = logical_y
-        -- Native UpdateLWAoi sends the manager's logical current-view tile as
-        -- request x/y. The explicit index list + lb/rt bounds identify which
-        -- AOI blocks are being fetched. Keep those concerns separate.
-        local batch_request_x = math.floor(logical_x)
-        local batch_request_y = math.floor(logical_y)
-        if bulk_aoi_request.explicitIndices ~= nil then
-            batch_request_x = math.min(999, math.floor(((min_x + max_x + 1) * batch_size) / 2))
-            batch_request_y = math.min(999, math.floor(((min_y + max_y + 1) * batch_size) / 2))
-        end
-        details.messageBulkRequestTileX = batch_request_x
-        details.messageBulkRequestTileY = batch_request_y
-        if not reflected_set_value(point_manager, "isRecvViewPoints", false) or
-           not reflected_set_value(world, "hasReceiveViewPointsReply", false) then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_batch_flag_reset_failed", details, point_manager)
-            return true
-        end
-        local invoked = select(1, reflected_call(point_manager, "SendAoiRequest",
-            0, batch_lod, batch_request_x, batch_request_y, batch_add, batch_size,
-            details.lbTileIndex, details.rtTileIndex))
-        if not invoked then
-            fail_bulk_aoi(bulk_aoi_request, "messagebulk_send_aoi_request_failed", details, point_manager)
-            return true
-        end
-        bulk_aoi_request.messageBulkPhase = "batch"
-        details.messageBulkPhase = "batch"
-        bulk_aoi_request.details = details
-        bulk_aoi_started_at = runtime_clock()
-        return true
-    end
     local request_completed = details.targetPointCount > (details.baselineTargetPointCount or 0)
-    if bulk_aoi_request.requestMode == "messagebulk" then
-        request_completed = bulk_aoi_request.messageBulkPhase == "batch" and
-            details.responseFlagsTransitioned == true and
-            reflected_value(point_manager, "_splitLastAOIRequest") ~= true
-    elseif bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" or
-       bulk_aoi_request.requestMode == "browser" or bulk_aoi_request.requestMode == "zoom" or
-       bulk_aoi_request.requestMode == "direct" then
+    if bulk_aoi_request.requestMode == "coverage" or bulk_aoi_request.requestMode == "anchor" or
+       bulk_aoi_request.requestMode == "zoom" then
         request_completed = details.responseFlagsTransitioned == true and
             reflected_value(point_manager, "_splitLastAOIRequest") ~= true
     end
@@ -6811,10 +5557,7 @@ local function pump_bulk_aoi_diagnostic(now)
         end
         if not restored then
             write_bulk_aoi_result(request, "failed", "bulk_aoi_state_restore_failed", details)
-        elseif (request.requestMode == "message" or request.requestMode == "messagebulk") and details.visualCameraPositionStable ~= true then
-            write_bulk_aoi_result(request, "failed", "visible_camera_changed_during_targeted_message", details)
-        elseif request.requestMode ~= "message" and request.requestMode ~= "messagebulk" and details.cameraTileStable ~= true and
-               details.requestMethod ~= "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore" then
+        elseif details.cameraTileStable ~= true and details.requestMethod ~= "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore" then
             write_bulk_aoi_result(request, "failed", "camera_tile_changed_during_bulk_aoi_request", details)
         else
             write_bulk_aoi_result(request, "proven", nil, details)
@@ -7014,324 +5757,6 @@ local function begin_targeted_city_refresh(world, point_manager)
     response_started_at = runtime_clock()
     phase = "waiting_city_target_response"
     return true, nil
-end
-
-function dispatch_nearest_runtime.restore_hook()
-    local class = dispatch_nearest_runtime.hookedClass
-    local wrapper = dispatch_nearest_runtime.hookWrapper
-    local original = dispatch_nearest_runtime.originalHandleMessage
-    if class ~= nil and wrapper ~= nil and original ~= nil and safe_get(class, "HandleMessage") == wrapper then
-        pcall(function() class.HandleMessage = original end)
-    end
-    dispatch_nearest_runtime.hookedClass = nil
-    dispatch_nearest_runtime.hookWrapper = nil
-    dispatch_nearest_runtime.originalHandleMessage = nil
-end
-
-function dispatch_nearest_runtime.cleanup()
-    dispatch_nearest_runtime.restore_hook()
-    dispatch_nearest_runtime.request = nil
-    dispatch_nearest_runtime.startedAt = nil
-end
-
-function dispatch_nearest_runtime.surface_sorted_keys(value, limit)
-    if type(value) ~= "table" then return {} end
-    local keys = {}
-    for key in pairs(value) do
-        if type(key) == "string" then keys[#keys + 1] = key end
-    end
-    table.sort(keys)
-    local result = {}
-    for index = 1, math.min(#keys, limit or 160) do result[#result + 1] = keys[index] end
-    return result
-end
-
-function dispatch_nearest_runtime.surface_describe(value)
-    local result = { luaType = type(value), keys = {} }
-    if value == nil then result.exists = false; return result end
-    result.exists = true
-    result.reflectedType = reflected_type_name(value)
-    if type(value) ~= "table" then return result end
-    result.keys = dispatch_nearest_runtime.surface_sorted_keys(value, 160)
-    local ok_mt, mt = pcall(getmetatable, value)
-    if ok_mt and type(mt) == "table" then
-        result.metatableKeys = dispatch_nearest_runtime.surface_sorted_keys(mt, 120)
-        local index_table = rawget(mt, "__index")
-        if type(index_table) == "table" then
-            result.indexKeys = dispatch_nearest_runtime.surface_sorted_keys(index_table, 160)
-        end
-    end
-    return result
-end
-
-function dispatch_nearest_runtime.surface_resolve(module_name)
-    local loaded = package and package.loaded and package.loaded[module_name] or nil
-    local was_loaded = loaded ~= nil
-    local value = loaded
-    local require_ok = was_loaded
-    if value == nil then
-        local ok, observed = pcall(require, module_name)
-        require_ok = ok
-        if ok then value = observed end
-    end
-    local result = dispatch_nearest_runtime.surface_describe(value)
-    result.moduleName = module_name
-    result.wasLoaded = was_loaded
-    result.requireOk = require_ok
-    return result
-end
-
-function dispatch_nearest_runtime.surface_snapshot()
-    local data_center = rawget(_G, "DataCenter")
-    return {
-        actDispatchManager = dispatch_nearest_runtime.surface_describe(
-            data_center and safe_get(data_center, "ActDispatchTaskDataManager") or nil),
-        dispatchRequestManager = dispatch_nearest_runtime.surface_describe(
-            data_center and safe_get(data_center, "DispatchRequestManager") or nil),
-        actDispatchModule = dispatch_nearest_runtime.surface_resolve(
-            "DataCenter.ActivityListData.ActDispatchTaskDataManager"),
-        dispatchRequestModule = dispatch_nearest_runtime.surface_resolve(
-            "DataCenter.DispatchRequestManager.DispatchRequestManager"),
-        fullTaskPushModule = dispatch_nearest_runtime.surface_resolve(
-            "Net.Msgs.DispatchTask.PushDispatchFullTaskMessage"),
-        taskRefreshModule = dispatch_nearest_runtime.surface_resolve(
-            "Net.Msgs.DispatchTask.DispatchTaskRefreshMessage"),
-    }
-end
-
-function dispatch_nearest_runtime.write(request, state, error_text, row)
-    local surface = nil
-    if state == "proven" then
-        local ok_surface, observed_surface = pcall(dispatch_nearest_runtime.surface_snapshot)
-        if ok_surface then surface = observed_surface end
-    end
-    write_json(dispatch_nearest_runtime.resultPath, {
-        schemaVersion = 1,
-        probeVersion = M.VERSION,
-        requestId = request.requestId,
-        profileId = request.profileId,
-        launchSessionId = request.launchSessionId,
-        challenge = request.challenge,
-        gamePid = request.gamePid,
-        state = state,
-        error = error_text,
-        responseReceived = request.responseReceived == true,
-        responseErrorCode = request.responseErrorCode,
-        pointId = request.pointId,
-        serverId = request.responseServerId,
-        originalServerId = request.serverId,
-        liveServerId = current_server_id(),
-        locationResolved = row ~= nil,
-        pointDataResolved = row and row.pointDataResolved == true or false,
-        runtimeClass = row and row.runtimeClass or nil,
-        pointType = row and row.pointType or nil,
-        x = row and row.x or nil,
-        y = row and row.y or nil,
-        cfgId = row and row.cfgId or nil,
-        identitySource = row and row.identitySource or nil,
-        elapsedSeconds = runtime_clock() - (request.startedAt or runtime_clock()),
-        method = "SFSNetwork.SendMessage(MsgDefines.DispatchFindNearestPoint)+DispatchFindNearestPointMessage.HandleMessage",
-        dispatchSurface = surface,
-        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(os.time()) or 0),
-    })
-end
-
-function dispatch_nearest_runtime.finish(request, state, error_text, row)
-    dispatch_nearest_runtime.restore_hook()
-    dispatch_nearest_runtime.write(request, state, error_text, row)
-    dispatch_nearest_runtime.request = nil
-    dispatch_nearest_runtime.startedAt = nil
-end
-
-function dispatch_nearest_runtime.read(now)
-    local values = read_kv_file(dispatch_nearest_runtime.path, 4096)
-    if values == nil then return nil end
-    pcall(os.remove, dispatch_nearest_runtime.path)
-    local request = {
-        requestId = tostring(values.requestId or ""),
-        profileId = tostring(values.profileId or ""),
-        launchSessionId = tostring(values.launchSessionId or ""),
-        challenge = tostring(values.challenge or ""),
-        gamePid = tonumber(values.gamePid),
-        serverId = tonumber(values.serverId),
-    }
-    if values.schema ~= "1" or values.probeVersion ~= M.VERSION or
-       not valid_token(request.requestId) or not valid_token(request.profileId) or
-       not valid_token(request.launchSessionId) or not valid_token(request.challenge) or
-       request.gamePid == nil or request.gamePid <= 0 or request.gamePid ~= math.floor(request.gamePid) or
-       request.serverId == nil or request.serverId <= 0 or request.serverId > 99999 or
-       request.serverId ~= math.floor(request.serverId) then
-        request.error = "dispatch_nearest_diagnostic_invalid"
-        return request
-    end
-    request.gamePid = math.floor(request.gamePid)
-    request.serverId = math.floor(request.serverId)
-    local identity, identity_error = active_overview_identity(now)
-    if identity == nil then request.error = identity_error; return request end
-    if request.profileId ~= identity.profileId or request.launchSessionId ~= identity.sessionId or
-       request.challenge ~= identity.challenge or request.gamePid ~= identity.gamePid then
-        request.error = "dispatch_nearest_diagnostic_identity_mismatch"
-        return request
-    end
-    local live_server = current_server_id()
-    if live_server ~= request.serverId then
-        request.error = "dispatch_nearest_diagnostic_server_changed"
-    end
-    return request
-end
-
-function dispatch_nearest_runtime.resolve_message_class()
-    local module_name = "Net.Msgs.DispatchTask.DispatchFindNearestPointMessage"
-    local loaded = package and package.loaded and package.loaded[module_name] or nil
-    if loaded ~= nil then return loaded end
-    local ok_require, value = pcall(require, module_name)
-    return ok_require and value or nil
-end
-
-function dispatch_nearest_runtime.install_hook(request)
-    dispatch_nearest_runtime.restore_hook()
-    local class = dispatch_nearest_runtime.resolve_message_class()
-    local original = class and safe_get(class, "HandleMessage") or nil
-    if type(original) ~= "function" then return false end
-    local wrapper = function(self, message)
-        local pending = dispatch_nearest_runtime.request
-        if pending ~= nil and pending.requestId == request.requestId then
-            local error_code = message and safe_get(message, "errorCode") or nil
-            local point_id = message and tonumber(safe_get(message, "pointId")) or nil
-            local server_id = message and tonumber(safe_get(message, "serverId")) or nil
-            pending.responseReceived = true
-            pending.responseErrorCode = error_code ~= nil and tostring(error_code) or nil
-            pending.pointId = point_id ~= nil and math.floor(point_id) or nil
-            pending.responseServerId = server_id ~= nil and math.floor(server_id) or nil
-            pending.responseClock = runtime_clock()
-        end
-        return original(self, message)
-    end
-    local ok_set = pcall(function() class.HandleMessage = wrapper end)
-    if not ok_set or safe_get(class, "HandleMessage") ~= wrapper then return false end
-    dispatch_nearest_runtime.hookedClass = class
-    dispatch_nearest_runtime.hookWrapper = wrapper
-    dispatch_nearest_runtime.originalHandleMessage = original
-    return true
-end
-
-function dispatch_nearest_runtime.resolve_row(request)
-    if request.pointId == nil or request.pointId <= 0 or
-       request.responseServerId == nil or request.responseServerId <= 0 then return nil end
-    local world, point_manager = runtime_world()
-    if world == nil or point_manager == nil then return nil end
-    local tile = index_to_tile(world, request.pointId)
-    if tile == nil then return nil end
-
-    local info = nil
-    if current_server_id() == request.responseServerId then
-        local ok_info, direct = call(point_manager, "GetHeroDispatchTaskPointInfoByIndex", request.pointId)
-        if ok_info and direct ~= nil then info = direct end
-        if info == nil then
-            local collection = reflected_value(point_manager, "_pointInfos")
-            if collection ~= nil then
-                each(collection, MAX_POINTS + 1, function(raw)
-                    local candidate = safe_get(raw, "Value") or raw
-                    if integer_field(candidate, { "pointType", "PointType" }) == 17 and
-                       integer_field(candidate, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" }) == request.pointId then
-                        info = candidate
-                        return false
-                    end
-                    return true
-                end)
-            end
-        end
-    end
-
-    if info == nil then
-        return {
-            pointDataResolved = false,
-            x = tile.x,
-            y = tile.y,
-            identitySource = "DispatchFindNearestPoint response pointId/serverId",
-        }
-    end
-
-    local runtime_class = reflected_type_name(info)
-    local point_type = integer_field(info, { "pointType", "PointType" })
-    if point_type ~= 17 or runtime_class == nil or
-       not string.find(runtime_class, "HeroDispatchMissionPointInfo", 1, true) then return nil end
-    return {
-        pointDataResolved = true,
-        runtimeClass = runtime_class,
-        pointType = point_type,
-        x = tile.x,
-        y = tile.y,
-        cfgId = integer_field(info, { "cfgId", "CfgId" }),
-        identitySource = "DispatchFindNearestPoint response plus loaded HeroDispatchMissionPointInfo",
-    }
-end
-
-function dispatch_nearest_runtime.begin(request)
-    if request.error ~= nil then
-        dispatch_nearest_runtime.write(request, "failed", request.error, nil)
-        return
-    end
-    if dispatch_nearest_runtime.request ~= nil then
-        dispatch_nearest_runtime.write(request, "failed", "dispatch_nearest_diagnostic_pending", nil)
-        return
-    end
-    if not dispatch_nearest_runtime.install_hook(request) then
-        dispatch_nearest_runtime.write(request, "failed", "dispatch_nearest_handler_unavailable", nil)
-        return
-    end
-    dispatch_nearest_runtime.request = request
-    dispatch_nearest_runtime.startedAt = runtime_clock()
-    request.startedAt = dispatch_nearest_runtime.startedAt
-    local network = rawget(_G, "SFSNetwork")
-    local msg_defines = rawget(_G, "MsgDefines")
-    if msg_defines == nil then
-        local ok_defs, value = pcall(require, "Net.Config.MsgDefines")
-        if ok_defs then msg_defines = value end
-    end
-    local send = network and safe_get(network, "SendMessage") or nil
-    local command = msg_defines and safe_get(msg_defines, "DispatchFindNearestPoint") or nil
-    if type(send) ~= "function" or command == nil then
-        dispatch_nearest_runtime.finish(request, "failed", "dispatch_nearest_transport_unavailable", nil)
-        return
-    end
-    request.sentClock = runtime_clock()
-    local ok_send = pcall(send, command)
-    if not ok_send then
-        dispatch_nearest_runtime.finish(request, "failed", "dispatch_nearest_send_failed", nil)
-    end
-end
-
-function dispatch_nearest_runtime.pump(now)
-    if dispatch_nearest_runtime.request == nil then
-        local incoming = dispatch_nearest_runtime.read(now)
-        if incoming ~= nil then dispatch_nearest_runtime.begin(incoming) end
-    end
-    local request = dispatch_nearest_runtime.request
-    if request == nil then return false end
-    if request.responseReceived == true then
-        if request.responseErrorCode ~= nil then
-            dispatch_nearest_runtime.finish(request, "rejected", request.responseErrorCode, nil)
-            return true
-        end
-        if request.pointId == nil or request.pointId <= 0 or
-           request.responseServerId == nil or request.responseServerId <= 0 then
-            dispatch_nearest_runtime.finish(request, "failed", "dispatch_nearest_response_invalid", nil)
-            return true
-        end
-        local row = dispatch_nearest_runtime.resolve_row(request)
-        if row ~= nil then
-            dispatch_nearest_runtime.finish(request, "proven", nil, row)
-            return true
-        end
-    end
-    if runtime_clock() - (request.startedAt or runtime_clock()) >= dispatch_nearest_runtime.timeoutSeconds then
-        local error_text = request.responseReceived == true and
-            "dispatch_nearest_point_not_resolved" or "dispatch_nearest_response_timeout"
-        dispatch_nearest_runtime.finish(request, "failed", error_text, nil)
-        return true
-    end
-    return true
 end
 
 function train_list_runtime.cleanup()
@@ -7706,10 +6131,6 @@ function M.Pump()
             return true
         end
         if resource_scan_detail_runtime.pump(now) then
-            write_heartbeat(now)
-            return true
-        end
-        if dispatch_nearest_runtime.pump(now) then
             write_heartbeat(now)
             return true
         end

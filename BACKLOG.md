@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-001`, 2026-09-24.
+**Current through:** `LWB-R8-002`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
 

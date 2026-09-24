@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-002",
+  "date": "2026-09-24",
+  "scope": "Reconcile pending R7-156 Map correctness changes and discard abandoned finder redesign probes.",
+  "kept": [
+    "movement/AOI correctness rollback",
+    "Secret Task Quick Find removal",
+    "direct Truck/Railway no-jump Auto shortcut removal",
+    "Clear Map Data transient live-server resolver hardening",
+    "matching generated frontend/test changes",
+    "R7-156 completeness regression evidence"
+  ],
+  "discarded": [
+    "exploratory Dispatch native finder probe",
+    "exploratory Ghost Ops native task-list probe",
+    "temporary command-line probe entry points",
+    "temporary live-probe additions for the abandoned redesign"
+  ],
+  "parity": {
+    "quickFindDeviationRemoved": true,
+    "wideFovProductionDeviationRolledBack": true,
+    "temporaryMovementAoiFallbackIsOriginalParity": false,
+    "originalMapAlgorithmStillUnknown": true
+  },
+  "validation": {
+    "frontendGeneratorCheck": "PASS",
+    "releaseTestBuild": "PASS: 0 warnings, 0 errors",
+    "deterministicSuite": "PASS: ok=true, failures=[]",
+    "quickFindSurfaceAbsent": true,
+    "exploratoryFinderProbeReferencesAbsent": true,
+    "browserChecks": "NOT RUN: local Node environment missing playwright module"
+  }
+}

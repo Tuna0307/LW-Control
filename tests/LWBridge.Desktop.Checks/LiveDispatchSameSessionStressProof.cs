@@ -21,15 +21,6 @@ internal static class LiveDispatchSameSessionStressProof
             ? Math.Clamp(parsed, 2, 10) : 3;
         int targetServerId = int.TryParse(Environment.GetEnvironmentVariable("LWBRIDGE_MANUAL_SCAN_SERVER"), out int server)
             ? server : 2207;
-        int[] serverSequence = (Environment.GetEnvironmentVariable("LWBRIDGE_DISPATCH_STRESS_SERVERS") ?? string.Empty)
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(value => int.TryParse(value, out int id) && id is >= 1 and <= 99999 ? id : -1)
-            .Where(id => id > 0)
-            .ToArray();
-        if (serverSequence.Length == 0)
-            serverSequence = Enumerable.Repeat(targetServerId, repeatCount).ToArray();
-        else
-            repeatCount = serverSequence.Length;
         using var lifecycle = new OverviewLifecycleService("dispatch-stress-proof", gameRoot);
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(15));
         string? instanceId = null;
@@ -44,24 +35,15 @@ internal static class LiveDispatchSameSessionStressProof
 
             using var store = new MapDataStore(databasePath);
             var service = new ManualMapScanCommandService(lifecycle, store);
-            var source = new CurrentClientMapBlockSource(lifecycle);
             try
             {
+                JsonElement jumpPayload = JsonSerializer.SerializeToElement(
+                    new { serverId = targetServerId }, JsonOptions.Default);
+                await service.InvokeAsync("server_jump", jumpPayload, operationCts.Token).ConfigureAwait(false);
+
                 var observations = new List<object>();
                 for (int iteration = 1; iteration <= repeatCount; iteration++)
                 {
-                    int requestedServerId = serverSequence[iteration - 1];
-                    Stopwatch jumpWatch = Stopwatch.StartNew();
-                    JsonElement jumpPayload = JsonSerializer.SerializeToElement(
-                        new { serverId = requestedServerId }, JsonOptions.Default);
-                    await service.InvokeAsync("server_jump", jumpPayload, operationCts.Token).ConfigureAwait(false);
-                    CurrentClientMapContext context =
-                        await source.GetCurrentContextAsync(operationCts.Token).ConfigureAwait(false);
-                    jumpWatch.Stop();
-                    if (context.ServerId != requestedServerId)
-                        throw new InvalidDataException(
-                            $"dispatch stress jump expected server {requestedServerId}, found {context.ServerId}.");
-
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     JsonElement payload = JsonSerializer.SerializeToElement(new
                     {
@@ -99,25 +81,15 @@ internal static class LiveDispatchSameSessionStressProof
                             $"same-session dispatch iteration {iteration} incomplete: phase={finalPhase}, read={read}, failed={failed}");
                     int serverId = status.GetProperty("serverId").GetInt32();
                     int rows = store.CountRecords("dispatch", serverId);
-                    observations.Add(new
-                    {
-                        iteration,
-                        runId,
-                        serverId,
-                        rows,
-                        jumpSeconds = jumpWatch.Elapsed.TotalSeconds,
-                        scanSeconds = stopwatch.Elapsed.TotalSeconds,
-                    });
+                    observations.Add(new { iteration, runId, serverId, rows, seconds = stopwatch.Elapsed.TotalSeconds });
                     Console.Error.WriteLine(
-                        $"DISPATCH_STRESS iteration={iteration}/{repeatCount} server={serverId} rows={rows} " +
-                        $"jump={jumpWatch.Elapsed.TotalSeconds:F3}s scan={stopwatch.Elapsed.TotalSeconds:F3}s");
+                        $"DISPATCH_STRESS iteration={iteration}/{repeatCount} server={serverId} rows={rows} seconds={stopwatch.Elapsed.TotalSeconds:F3}");
                 }
                 Console.WriteLine(JsonSerializer.Serialize(new
                 {
                     ok = true,
                     proof = "same_owned_session_repeated_fast_dispatch",
                     targetServerId,
-                    serverSequence,
                     repeatCount,
                     observations,
                 }, JsonOptions.Default));

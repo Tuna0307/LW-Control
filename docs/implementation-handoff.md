@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-001`
+**Current checkpoint:** `LWB-R8-002`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -34,6 +34,12 @@ That evidence is valuable.
 However, the reconstruction also accumulated non-reference decisions: removed original features, added convenience behavior, current-game-specific scan strategies, and performance optimizations that were not first proven to be what LWBridge 0.3.1 did.
 
 The old “0 ordinary partial rows” acceptance statement is therefore not one-to-one completion.
+
+## R8-002 cleanup checkpoint
+
+The pending R7-156 Map work was reconciled instead of left as 30+ GitHub Desktop changes. The known incomplete wide-FOV/68-request production shortcut and the rebuild-only Secret Task Quick Find surface are removed, the complete movement/AOI baseline is restored as a temporary correctness fallback, and the Clear resolver-gap fix is retained. The exploratory Dispatch/Ghost finder probes created during the abandoned redesign discussion were discarded.
+
+This cleanup is not parity proof. The temporary scanner remains a reconstruction until the original LWBridge 0.3.1 Map implementation is recovered.
 
 ## P0
 

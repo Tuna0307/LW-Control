@@ -114,10 +114,8 @@ async function main() {
       'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}',
       'runOnceRequestedAt:Math.max(0,Math.trunc(Number(e?.runOnceRequestedAt)||0))',
       'for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break',
-      'function autoTrainListSelection(e){return e.length>0&&e.every(e=>e===`truck`||e===`railway`)}',
-      'trainCoverage=await AutoTrainCoverage()',
-      'Mt(await Te({selectedTypes:i.selectedTypes,resume:!1,targetServerId:t}))',
-      'else{let n=await Se(t);autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?',
+      'try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?',
+      'Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))',
       'if(!e&&i.returnToOriginalServer&&a>0',
       'let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e)',
       'window.setInterval(()=>{i()},5e3)',
@@ -131,6 +129,10 @@ async function main() {
     ]) {
       assert.equal(index.includes(token), true,
         `current top-level Auto scheduler must retain ${token}`);
+    }
+    for (const retired of ['autoTrainListSelection', 'AutoTrainCoverage', 'targetServerId:t', 'automatic map scan direct train-list']) {
+      assert.equal(index.includes(retired), false,
+        `R7-156 correctness rollback must not retain direct Train-list Auto shortcut: ${retired}`);
     }
 
     const localeNames = fs.readdirSync(assets).filter(name =>

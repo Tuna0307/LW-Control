@@ -4,6 +4,7 @@ This directory intentionally retains chronological machine-readable evidence. Do
 
 ## Current authority — R8 strict parity
 
+- `2026-09-24-r8-002-clean-working-tree.json` — reconciles the pending R7-156 correctness rollback, removes known rebuild-only Map deviations, and discards abandoned finder probes without claiming original parity.
 - `2026-09-24-r8-001-strict-parity-direction-reset.json` — owner direction reset to whole-program one-to-one LWBridge 0.3.1 parity.
 - `../../docs/strict-parity-recovery.md` — current product directive.
 - `../../docs/lwbridge-parity-matrix.md` — current completion matrix.

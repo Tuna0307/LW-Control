@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-001`, 2026-09-24
+**Current through:** `LWB-R8-002`, 2026-09-24
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -20,7 +20,7 @@ This is now the product-completion matrix. The older 47-case Home/Map acceptance
 | Map Data frontend | EXACT_BYTES-derived with deviations | Original component family is used, but prior rebuild removed/added product behavior | Restore reference controls and remove non-reference additions |
 | City Excel export | DEVIATION | Previously owner-retired and removed despite existing reference UI/host contract evidence | Restore exact original export behavior |
 | Scheduled Plunder surfaces | DEVIATION | Previously owner-retired and removed | Re-audit reference and restore every original surface/worker/action that belongs to 0.3.1 |
-| Secret Task Quick Find product feature | DEVIATION | Added by R7-151 from a current-game native finder; not established as LWBridge 0.3.1 product behavior | Keep removed/quarantined unless reference evidence proves it exists |
+| Secret Task Quick Find product feature | DEVIATION REMOVED | Added by R7-151 from a current-game native finder; R8-002 removes the product surface because it is not established as LWBridge 0.3.1 behavior | Restore only if reference evidence proves it exists |
 | Map scan request envelope | EXACT_CONTRACT | `startMapScan` fields, accepted gate, selected types, normal/fast concurrency recovered | Preserve; recover remaining handler internals |
 | Original Map scan algorithm | UNKNOWN | Current scanner is our reconstruction and includes R7-specific strategies | Recover original bridge script/host scan implementation before further redesign |
 | Player City acquisition | EQUIVALENT_REIMPLEMENTATION only | Current/old traversal can find full population, but algorithm is ours | Recover original acquisition path and compare identities/results |
@@ -29,7 +29,7 @@ This is now the product-completion matrix. The older 47-case Home/Map acceptance
 | Zombie Boss acquisition | EQUIVALENT_REIMPLEMENTATION only | Dedicated current-client source is ours | Recover original path |
 | Truck acquisition | EQUIVALENT_REIMPLEMENTATION / possible deviation | Direct `LWTrainDataManager` route is a current-game optimization | Prove whether original LWBridge used the same source/semantics |
 | Railway acquisition | EQUIVALENT_REIMPLEMENTATION / possible deviation | Direct Train-list route is ours | Recover original source/flow |
-| Dispatch / Secret Task acquisition | DEVIATION + UNKNOWN | Wide-FOV 68-request optimization is ours and caused semantic-completeness regressions outside the narrow proof | Revert to known-complete behavior while recovering original implementation |
+| Dispatch / Secret Task acquisition | UNKNOWN; known deviation rolled back | R8-002 removes the wide-FOV 68-request production shortcut after same-client completeness failures; temporary movement/AOI behavior is still our reconstruction | Recover the original LWBridge implementation before claiming parity |
 | Ghost Ops acquisition | EQUIVALENT_REIMPLEMENTATION only | Current full-world path is ours | Recover original implementation |
 | Treasure/Supplies read paths | PARTIAL EXACT_CONTRACT + reimplementation | Many original fields/query/state contracts recovered; protected orchestration incomplete | Recover original protected handlers/scripts |
 | Treasure claim orchestration | UNKNOWN | Exact original protected implementation not recovered | Recover from original package/host/proxy evidence before enabling |

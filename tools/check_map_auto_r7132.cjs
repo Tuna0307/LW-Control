@@ -420,8 +420,6 @@ async function main() {
     await navigationRefreshScenario(browser, origin);
     await reconnectScenario(browser, origin);
     await disconnectDuringJumpScenario(browser, origin);
-    await directTrainNoJumpScenario(browser, origin);
-    await directTrainFallbackScenario(browser, origin);
 
     const index = fs.readFileSync(path.join(candidate, 'assets', 'index-sfL2sT3K.js'), 'utf8');
     for (const token of [
@@ -430,9 +428,8 @@ async function main() {
       'if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return',
       'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}',
       'if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break',
-      'function autoTrainListSelection(e){return e.length>0&&e.every(e=>e===`truck`||e===`railway`)}',
-      'trainCoverage=await AutoTrainCoverage()',
-      'targetServerId:t',
+      'try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?',
+      'Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))',
       'currentServerId:ze?.liveServerId||ze?.serverId||0',
       'return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment'
     ]) {
@@ -441,7 +438,11 @@ async function main() {
     }
     assert.equal(index.includes('if(!Zn(i,Date.now(),P,qe.current,Ye.current))return'), false,
       'Auto scheduler must not key cycle admission directly to render-time P');
-    console.log('R7-150 Auto navigation/refresh/reconnect + direct Train-list no-jump browser checks passed.');
+    for (const retired of ['autoTrainListSelection', 'AutoTrainCoverage', 'targetServerId:t', 'automatic map scan direct train-list']) {
+      assert.equal(index.includes(retired), false,
+        `R7-156 correctness rollback must not retain direct Train-list Auto shortcut: ${retired}`);
+    }
+    console.log('R7-156 Auto navigation/refresh/reconnect + jump-first correctness browser checks passed.');
   } finally {
     await browser.close();
     server.close();

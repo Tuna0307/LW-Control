@@ -199,15 +199,6 @@ def build(check=False):
             s = replace_once(s, 'function Vt(e,t){return U(`map_city_export`,{query:e,...t})}', '')
             s = replace_once(s, ',Vt as T,', ',')
             s = retire_scheduled_plunder_api(s)
-            # R7-150 read-only direct Train-list coverage for Auto no-jump scans.
-            s = replace_once(
-                s,
-                'function Ft(e){return U(`map_scan_start`,e)}function It(){return U(`map_scan_stop`)}',
-                'function Ft(e){return U(`map_scan_start`,e)}function trainListCoverage(){return U(`map_train_list_coverage`)}function dispatchQuickFind(){return U(`map_dispatch_find_nearest`)}function It(){return U(`map_scan_stop`)}')
-            s = replace_once(
-                s,
-                'Rt as z,ze as zt};',
-                'Rt as z,ze as zt,trainListCoverage,dispatchQuickFind};')
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')
@@ -241,10 +232,6 @@ def build(check=False):
             s = replace_once(s, ',scanMode:`fast`', '')
             s = replace_once(s, ',scanMode:e?.scanMode===`normal`?`normal`:`fast`', '')
             s = replace_once(s, ',scanMode:i.scanMode', '')
-            s = replace_once(
-                s,
-                'qt as Te,r as Ee,',
-                'qt as Te,trainListCoverage as AutoTrainCoverage,dispatchQuickFind as AutoDispatchQuickFind,r as Ee,')
             # LWB-R7-130: one failed target server must not abort the rest of an
             # Auto Scan cycle. Keep return-to-origin in the outer finally, but
             # isolate jump/scan/wait errors per target and continue the list.
@@ -320,24 +307,10 @@ def build(check=False):
             s = replace_once(s,
                 'let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null)',
                 'let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e),(!i.returnToOriginalServer||a<=0||r)&&writeAutoCycleMarker(n,null)')
-            # R7-150 IMPLEMENTATION POLICY: Truck/Railway-only Auto cycles may
-            # scan a target server from the current live server when the official
-            # Train-list matchServers snapshot covers that target. Preserve target
-            # order. Coverage is invalidated after any real server jump, so the
-            # next target refreshes from the new live server. Mixed scans keep the
-            # existing jump-first path unchanged.
-            s = replace_once(
-                s,
-                'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}function Qn(e)',
-                'function autoCycleRequested(e,t){return e.runOnceRequestedAt>0?t.runOnceRequestedAt===e.runOnceRequestedAt:t.enabled}function autoTrainListSelection(e){return e.length>0&&e.every(e=>e===`truck`||e===`railway`)}function Qn(e)')
             s = replace_once(
                 s,
                 'a=(await t()).serverId,writeAutoCycleMarker(u.selectedProfileId,',
                 'let autoStartState=await t();a=autoStartState.liveServerId||autoStartState.serverId,writeAutoCycleMarker(u.selectedProfileId,')
-            s = replace_once(
-                s,
-                'let o=[],s=[];for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}));let a=await r();a?.lastError?(s.push(t),F(`automatic map scan server=${t} error=${a.lastError}`)):(o.push(t),a&&F(`automatic map scan server=${t} completed`))}catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}}',
-                'let o=[],s=[],trainCoverage=autoTrainListSelection(i.selectedTypes)?null:void 0;for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{let direct=!1;if(autoTrainListSelection(i.selectedTypes)){if(trainCoverage===null)try{trainCoverage=await AutoTrainCoverage(),F(`automatic map scan train-list coverage live=${trainCoverage.liveServerId} match=${(trainCoverage.matchServerIds||[]).join(`,`)}`)}catch(n){trainCoverage=!1,F(`automatic map scan train-list coverage error=`+String(n))}direct=!!trainCoverage&&(t===trainCoverage.liveServerId||(trainCoverage.matchServerIds||[]).includes(t))}if(direct){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(`automatic map scan direct train-list server=${t} live=${trainCoverage.liveServerId}`),Mt(await Te({selectedTypes:i.selectedTypes,resume:!1,targetServerId:t}))}else{let n=await Se(t);autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?`automatic map scan switched ${n.previousServerId} -> ${t}`:`automatic map scan already on server ${t}`);if(i.selectedTypes.includes(`dispatch`))try{let quick=await AutoDispatchQuickFind();if(Number(quick?.serverId)!==t)throw Error(`MAP_AUTO_QUICK_FIND_SERVER_MISMATCH expected=${t} actual=${quick?.serverId}`);window.dispatchEvent(new CustomEvent(`lwbridge-map-auto-dispatch-quick-find`,{detail:quick})),F(`automatic map scan quick secret task server=${quick.serverId} point=${quick.pointId} x=${quick.x} y=${quick.y}`)}catch(quickError){F(`automatic map scan quick secret task error server=${t} `+String(quickError))}Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))}let a=await r();a?.lastError?(autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null),s.push(t),F(`automatic map scan server=${t} error=${a.lastError}`)):(o.push(t),a&&F(`automatic map scan server=${t} completed`))}catch(n){autoTrainListSelection(i.selectedTypes)&&(trainCoverage=null),s.push(t),F(`automatic map scan server=${t} error=`+String(n))}}')
             s = replace_once(
                 s,
                 'if(i.returnToOriginalServer&&i.originalServerId>0&&e.serverId!==i.originalServerId)',
@@ -377,17 +350,6 @@ def build(check=False):
             # rebuild-only bounded resource/search errors. These strings are
             # IMPLEMENTATION POLICY, not recovered original LWBridge wording.
             feedback_errors = {
-                'SERVER_MAINTENANCE': [
-                    'Last War servers are under maintenance. Scanning will be available again after maintenance ends.',
-                    'Last War 服务器正在维护。维护结束后即可恢复扫描。',
-                    'Last War 伺服器正在維護。維護結束後即可恢復掃描。',
-                    'Last War サーバーはメンテナンス中です。メンテナンス終了後にスキャンを再開できます。',
-                    'Last War 서버가 점검 중입니다. 점검이 끝나면 다시 스캔할 수 있습니다.',
-                    'Máy chủ Last War đang bảo trì. Bạn có thể quét lại sau khi bảo trì kết thúc.',
-                    'Server Last War sedang dalam pemeliharaan. Pemindaian dapat digunakan lagi setelah pemeliharaan selesai.',
-                    'Серверы Last War находятся на техобслуживании. Сканирование снова будет доступно после его завершения.',
-                    'Os servidores de Last War estão em manutenção. A varredura ficará disponível novamente após o término.',
-                ],
                 'GAME_UPDATE_UNSUPPORTED': [
                     'Last War updated, but this version changed a bridge-critical component. LWBridge stopped safely instead of using an unverified game build.',
                     'Last War 已更新，但此版本修改了桥接关键组件。LWBridge 已安全停止，不会使用未经验证的游戏版本。',
@@ -469,42 +431,6 @@ def build(check=False):
                 'ko': '??', 'vi': 'T?t c?', 'id': 'Semua', 'ru': '???', 'pt': 'Todos',
             }[locale_code]
             s = add_locale_template_entry(s, 'map.server', 'map.allServers', all_servers_text)
-            quick_find_text = {
-                'en': 'Quick Find Secret Task',
-                'zh-CN': '快速寻找秘密任务',
-                'zh-TW': '快速尋找秘密任務',
-                'ja': '秘密任務をすぐに探す',
-                'ko': '비밀 임무 빠른 찾기',
-                'vi': 'Tìm nhanh Nhiệm vụ bí mật',
-                'id': 'Cari Cepat Tugas Rahasia',
-                'ru': 'Быстрый поиск секретного задания',
-                'pt': 'Busca rápida de tarefa secreta',
-            }[locale_code]
-            quick_finding_text = {
-                'en': 'Finding Secret Task...',
-                'zh-CN': '正在寻找秘密任务...',
-                'zh-TW': '正在尋找秘密任務...',
-                'ja': '秘密任務を検索中...',
-                'ko': '비밀 임무 찾는 중...',
-                'vi': 'Đang tìm Nhiệm vụ bí mật...',
-                'id': 'Mencari Tugas Rahasia...',
-                'ru': 'Поиск секретного задания...',
-                'pt': 'Buscando tarefa secreta...',
-            }[locale_code]
-            quick_found_text = {
-                'en': 'Found: Server {server} · {x},{y} ({seconds}s)',
-                'zh-CN': '已找到：服务器 {server} · {x},{y}（{seconds}秒）',
-                'zh-TW': '已找到：伺服器 {server} · {x},{y}（{seconds}秒）',
-                'ja': '発見：サーバー {server} · {x},{y}（{seconds}秒）',
-                'ko': '찾음: 서버 {server} · {x},{y} ({seconds}초)',
-                'vi': 'Đã tìm thấy: Máy chủ {server} · {x},{y} ({seconds}s)',
-                'id': 'Ditemukan: Server {server} · {x},{y} ({seconds}d)',
-                'ru': 'Найдено: сервер {server} · {x},{y} ({seconds}с)',
-                'pt': 'Encontrada: Servidor {server} · {x},{y} ({seconds}s)',
-            }[locale_code]
-            s = add_locale_template_entry(s, 'map.secretTask', 'map.quickFindSecretTask', quick_find_text)
-            s = add_locale_template_entry(s, 'map.quickFindSecretTask', 'map.quickFindingSecretTask', quick_finding_text)
-            s = add_locale_template_entry(s, 'map.quickFindingSecretTask', 'map.quickFindSecretTaskFound', quick_found_text)
             data = s.encode('utf-8')
         elif path.name == 'MapDataPanel-C1HVeNHr.js':
             s = data.decode('utf-8')
@@ -700,33 +626,6 @@ def build(check=False):
             # R7-149 owner retirement: remove Scheduled Plunder end-to-end from
             # the shipped Map UI. Read-only plunderability/status fields remain.
             s = retire_scheduled_plunder_panel(s)
-            # R7-151: the current client exposes the official read-only
-            # DispatchFindNearestPoint request. Present it as an explicit one-target
-            # Quick Find action; never merge the response into complete scan storage.
-            s = replace_once(
-                s,
-                ',at as u,ot as serverJump,bn as d,',
-                ',at as u,ot as serverJump,dispatchQuickFind as quickFindDispatch,bn as d,')
-            s = replace_once(
-                s,
-                '[Dn,On]=(0,b.useState)(!1),[kn,q]=(0,b.useState)(!1),',
-                '[Dn,On]=(0,b.useState)(!1),[kn,q]=(0,b.useState)(!1),[quickFindBusy,setQuickFindBusy]=(0,b.useState)(!1),[quickFindResult,setQuickFindResult]=(0,b.useState)(null),')
-            s = replace_once(
-                s,
-                'Rn=(0,b.useRef)(w.isReading),X=(0,b.useRef)(null);(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapManualScanTypes`,profileId),JSON.stringify(We))}',
-                'Rn=(0,b.useRef)(w.isReading),X=(0,b.useRef)(null);(0,b.useEffect)(()=>{let e=e=>{let t=e?.detail;t&&typeof t==`object`&&Number(t.serverId)>0&&setQuickFindResult(t)};return window.addEventListener(`lwbridge-map-auto-dispatch-quick-find`,e),()=>window.removeEventListener(`lwbridge-map-auto-dispatch-quick-find`,e)},[]),(0,b.useEffect)(()=>{localStorage.setItem(mapPrefKey(`mapManualScanTypes`,profileId),JSON.stringify(We))}')
-            s = replace_once(
-                s,
-                'async function Zn(){try{v(await l()),x(`full map scan stopped`)}catch(e){x(`map scan stop error `+String(e))}}async function stopAutoScan()',
-                'async function Zn(){try{v(await l()),x(`full map scan stopped`)}catch(e){x(`map scan stop error `+String(e))}}async function quickFindSecretTask(){setQuickFindBusy(!0),setQuickFindResult(null),yn(``);try{let e=await quickFindDispatch();setQuickFindResult(e),x(`secret task quick find server=${e.serverId} point=${e.pointId} x=${e.x} y=${e.y} seconds=${e.elapsedSeconds??`-`}`)}catch(e){yn(e),x(`secret task quick find error `+String(e))}finally{setQuickFindBusy(!1)}}async function stopAutoScan()')
-            s = replace_once(
-                s,
-                '(0,D.jsx)(`button`,{className:w.isReading?``:`primary`,onClick:Xn,disabled:w.isReading,children:C(`map.startReading`)}),(0,D.jsx)(`button`,{className:w.isReading?`danger`:``,onClick:Zn,disabled:!w.isReading,children:C(`common.stop`)}),(0,D.jsx)(`button`,{onClick:Qn,disabled:!L||w.isReading,children:C(`map.clearServer`)})',
-                '(0,D.jsx)(`button`,{className:w.isReading?``:`primary`,onClick:Xn,disabled:w.isReading,children:C(`map.startReading`)}),(0,D.jsx)(`button`,{type:`button`,className:`map-schedule-button`,onClick:quickFindSecretTask,disabled:!h||w.isReading||be||quickFindBusy||w.dispatchQuickFinding===!0,children:C(quickFindBusy||w.dispatchQuickFinding===!0?`map.quickFindingSecretTask`:`map.quickFindSecretTask`)}),(0,D.jsx)(`button`,{className:w.isReading?`danger`:``,onClick:Zn,disabled:!w.isReading,children:C(`common.stop`)}),(0,D.jsx)(`button`,{onClick:Qn,disabled:!L||w.isReading,children:C(`map.clearServer`)}),quickFindResult&&(0,D.jsx)(`span`,{className:`map-claim-result`,role:`status`,children:C(`map.quickFindSecretTaskFound`,{server:quickFindResult.serverId,x:quickFindResult.x,y:quickFindResult.y,seconds:Number.isFinite(Number(quickFindResult.elapsedSeconds))?Number(quickFindResult.elapsedSeconds).toFixed(1):`-`})})')
-            s = replace_once(
-                s,
-                '(0,D.jsx)(`small`,{children:C(`map.autoScanNavigationNotice`)}),(0,D.jsxs)(`small`,{children:[C(`map.nextAutoScan`)',
-                '(0,D.jsx)(`small`,{children:C(`map.autoScanNavigationNotice`)}),quickFindResult&&(0,D.jsx)(`span`,{className:`map-claim-result`,role:`status`,children:C(`map.quickFindSecretTaskFound`,{server:quickFindResult.serverId,x:quickFindResult.x,y:quickFindResult.y,seconds:Number.isFinite(Number(quickFindResult.elapsedSeconds))?Number(quickFindResult.elapsedSeconds).toFixed(1):`-`})}),(0,D.jsxs)(`small`,{children:[C(`map.nextAutoScan`)')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')
