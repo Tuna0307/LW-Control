@@ -1,6 +1,6 @@
 # Current live-test handoff
 
-**Current through:** `LWB-R7-154`, 2026-09-24.
+**Current through:** `LWB-R7-155`, 2026-09-24.
 
 The old Resource/Player City owner-test packet has been retired. Ordinary Home/Map acceptance no longer needs the owner to repeat those historical checks unless a future code/client change causes a regression.
 
@@ -20,9 +20,9 @@ R7-153 current-v21 strict scans on 2212, 2175, 2180, 2185, 2207, and 2213 all co
 
 ### 3. Fresh Railway v21 positive row / Follow
 
-Status: historical v20 Railway positive acquisition/Follow is valid provenance; fresh v21 positive acceptance is pending.
+Status: current-v21 Railway direct Train-list source is live-proven; fresh positive row/Follow remains population-gated.
 
-R7-154 attempted the strict server-2207 proof, but the lifecycle correctly refused because Last War was already running outside LWBridge ownership. Retry the unchanged harness only when LWBridge can legitimately own the game session and a Train row is available.
+R7-155 queried 11 current-v21 servers through the official Train-list source and every query was proven with zero Railway rows. A strict server-2207 full scan also completed 2,500/2,500 with zero rows. Retry the unchanged positive-row/Follow harness only when Train population appears.
 
 ### 4. Simultaneous real multi-account UI population
 
@@ -50,4 +50,4 @@ Repeat those only after a relevant code change, official-client compatibility ch
 
 ## Current evidence
 
-See `evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json`, R7-153 Supplies, R7-152 Ghost, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and the curated current evidence index.
+See `evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json`, R7-153 Supplies, R7-152 Ghost, `docs/tabs/map-data.md`, `docs/external-audit-guide.md`, and the curated current evidence index.
