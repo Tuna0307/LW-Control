@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-003`, 2026-09-24.
+**Current through:** `LWB-R8-004`, 2026-09-24.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -51,7 +51,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | multi-hook | PARTIAL EXACT_CONTRACT |
 | secure/plain xLua proxies | PARTIAL EXACT_CONTRACT |
 | bridge pipe framing | PARTIAL EXACT_CONTRACT |
-| `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / P0 — R8-003 recovers encrypted LWBP2 layout/AAD/AES ownership; plaintext still pending |
+| `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / P0 ? R8-003 recovers encrypted LWBP2/AES ownership; R8-004 recovers `LWKE1` envelope framing/auth binding; decoded agreement material and plaintext still pending |
 | protected script handlers | UNKNOWN / P0 |
 
 ## Completion interpretation

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-003",
+  "checkpoint": "LWB-R8-004",
   "date": "2026-09-24",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-004-auth-key-envelope-transport.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-003-lwbp2-package-layout.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-002-clean-working-tree.json",
     "evidence/lwbridge-implementation/2026-09-24-r7-156-map-scan-completeness-regression.json",
@@ -30,10 +31,11 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "package-key.envelope grammar and agreement/KDF path to the 32-byte package key",
+    "recover decoded LWKE1 key-agreement field semantics / peer public key through permitted evidence",
+    "feed recovered peer agreement material into the already-proven ECDH/TRUNCATE path to obtain the 32-byte package key",
     "decrypt and hash-preserve original bridge-scripts.dat plaintext/container",
     "exact host-proxy request/result/readiness grammar",
     "original Map Scan per-kind implementation",
-    "whole-program feature inventory and parity classification"
+    "whole-program backend parity crosswalk from the 104 original frontend commands"
   ]
 }

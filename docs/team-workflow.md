@@ -1,6 +1,6 @@
 # Team workflow — strict parity phase
 
-**Current through:** `LWB-R8-003`, 2026-09-24.
+**Current through:** `LWB-R8-004`, 2026-09-24.
 
 ## Roles
 

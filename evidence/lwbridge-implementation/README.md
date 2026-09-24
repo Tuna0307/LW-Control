@@ -4,6 +4,7 @@ This directory intentionally retains chronological machine-readable evidence. Do
 
 ## Current authority — R8 strict parity
 
+- `2026-09-24-r8-004-auth-key-envelope-transport.json` ? recovers host-side `LWKE1` key-envelope/auth-ticket framing, canonical payload encoding, expiry/magic fields and login device-public-key binding; agreement payload semantics/key still pending.
 - `2026-09-24-r8-003-lwbp2-package-layout.json` — recovers the exact encrypted LWBP2 package field layout, AAD, package SHA/build checks and AES-GCM argument ownership without touching SB-79.
 - `2026-09-24-r8-002-clean-working-tree.json` — reconciles the pending R7-156 correctness rollback, removes known rebuild-only Map deviations, and discards abandoned finder probes without claiming original parity.
 - `2026-09-24-r8-001-strict-parity-direction-reset.json` — owner direction reset to whole-program one-to-one LWBridge 0.3.1 parity.

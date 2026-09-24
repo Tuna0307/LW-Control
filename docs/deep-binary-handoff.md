@@ -1,6 +1,6 @@
 # Deep binary / protected package handoff — strict parity priority
 
-**Current through:** `LWB-R8-003`, 2026-09-24.
+**Current through:** `LWB-R8-004`, 2026-09-24.
 
 Protected original implementation recovery is now P0 because the project goal is exact LWBridge 0.3.1 parity.
 
@@ -32,12 +32,13 @@ Existing R6-039 through R6-046 evidence establishes substantial surrounding arch
 - package-side AES consumer and `LWBP2|` / integrity / build validation markers.
 - **R8-003:** exact LWBP2 binary layout: `LWBP`, version, build-ID length/build ID, 12-byte nonce, u32 ciphertext length, ciphertext and final 16-byte GCM tag.
 - **R8-003:** exact AAD `LWBP2|<buildId>`, package SHA-256/build-ID validation, and package AES call ownership: original third argument is the 32-byte key; parsed nonce/ciphertext/tag are supplied directly; decrypted bytes return through the original fourth argument.
+- **R8-004:** host-side key-envelope transport: response fields `packageKeyEnvelope`/`packageKeyEnvelopeExpiresAt`, runtime `package-key.envelope`, exact-two-segment token framing, canonical URL-safe Base64 first segment decoding to `LWKE1|<field1>|<expirySeconds>|...`, plus login `devicePublicKey`/`launchNonce` and auth header/endpoints.
 
 ## Missing chain
 
-R8-003 closes the package-layout/AAD/AES-ownership side. The remaining critical chain is now narrower:
+R8-003 closes the package-layout/AAD/AES-ownership side. R8-004 additionally proves that `package-key.envelope` is an exact two-segment token whose first segment is canonical URL-safe Base64 decoding to `LWKE1|<field1>|<expirySeconds>|...`, with field 2 parsed as expiry seconds; the login request explicitly carries `devicePublicKey` and `launchNonce`. The remaining critical chain is now narrower:
 
-`package-key.envelope -> parse -> agreement/KDF inputs -> 32-byte package key -> decrypt known LWBP2 ciphertext -> post-decrypt container/entries/scripts`
+`decoded LWKE1 agreement field(s) -> peer public key / encrypted key material -> already-recovered ECDH/TRUNCATE helper -> 32-byte package key -> decrypt known LWBP2 ciphertext -> post-decrypt container/entries/scripts`
 
 The exact original script handlers are then to be indexed and mapped back to UI/host services. Machine evidence: `evidence/lwbridge-implementation/2026-09-24-r8-003-lwbp2-package-layout.json`; verifier: `tools/inspect_lwbridge_proxy_package_layout.py`.
 

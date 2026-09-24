@@ -1,0 +1,119 @@
+{
+  "findingId": "LWB-R8-004",
+  "date": "2026-09-24",
+  "scope": "original auth response/key-envelope transport grammar and device-key login binding",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.7"
+  },
+  "keyEnvelopeTransport": {
+    "responseFields": [
+      "packageKeyEnvelope",
+      "packageKeyEnvelopeExpiresAt"
+    ],
+    "runtimeArtifact": "package-key.envelope",
+    "acceptedPayloadMagic": [
+      "LWKE1"
+    ],
+    "tokenShape": "<canonical-url-safe-base64-first-segment>.<opaque-second-segment>",
+    "segmentCount": 2,
+    "firstSegmentDecodedShape": "LWKE1|<field1>|<expirySeconds>|...",
+    "minimumDecodedFieldCount": 3,
+    "magicFieldIndex": 0,
+    "expirySecondsFieldIndex": 2,
+    "expiryReturnUnit": "milliseconds",
+    "secondSegmentHostValidation": "presence/exact-two-segment framing only in generic host expiry validator; cryptographic meaning is not established here",
+    "base64": {
+      "engineRva": "0x836BF0",
+      "configBytesHex": "000002",
+      "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",
+      "canonicalRoundTripRequired": true,
+      "linkedCrate": "base64 0.22.1",
+      "linkedSource": "C:\\Users\\Administrator\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\base64-0.22.1\\src\\engine\\general_purpose\\decode.rs"
+    }
+  },
+  "authorizationTicketTransport": {
+    "responseFields": [
+      "authorizationTicket",
+      "authorizationTicketExpiresAt"
+    ],
+    "runtimeArtifact": "authorization.ticket",
+    "acceptedPayloadMagics": [
+      "LWAT1",
+      "LWAT2"
+    ],
+    "sameTwoSegmentPayloadGrammar": true
+  },
+  "authApi": {
+    "defaultBaseUrl": "https://auth.songunity.com",
+    "override": "LWBRIDGE_AUTH_URL",
+    "endpoints": [
+      "/api/password-challenge",
+      "/api/login",
+      "/api/register",
+      "/api/renew",
+      "/api/heartbeat",
+      "/api/unbind/check",
+      "/api/device-unbind/preview",
+      "/api/device-unbind/confirm",
+      "/api/watermark/lookup"
+    ],
+    "headers": {
+      "Accept": "application/json",
+      "X-Device-Fingerprint": "runtime device fingerprint",
+      "X-Client-Build-Id": "current build ID",
+      "X-Client-Auth-Policy": "2"
+    },
+    "loginBodyFields": [
+      "username",
+      "passwordVerifier",
+      "devicePublicKey",
+      "launchNonce"
+    ],
+    "passwordChallenge": {
+      "passwordVersion": 1,
+      "passwordIterations": 600000,
+      "passwordSaltDecodedBytes": 16
+    }
+  },
+  "result": [
+    "The host receives packageKeyEnvelope/packageKeyEnvelopeExpiresAt and persists the envelope as package-key.envelope after validation.",
+    "The key envelope is a signed/opaque two-segment token: exactly one dot, with a canonical URL-safe Base64 first segment and one opaque second segment.",
+    "The decoded first segment is UTF-8 and pipe-delimited, contains at least three fields, requires field 0 = LWKE1, and parses field 2 as signed decimal expiry seconds multiplied by 1000.",
+    "Authorization tickets use the same framing, with allowed first-field magics LWAT1 or LWAT2.",
+    "The login body explicitly includes devicePublicKey and launchNonce, tying the auth exchange to device-key material before packageKeyEnvelope is returned.",
+    "The exact envelope field1/remaining payload fields, second-segment signature/MAC algorithm, and the secure-proxy derivation of the 32-byte package key remain unrecovered."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_auth_key_envelope_contract.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_auth_key_envelope_contract.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-24-r8-004-auth-key-envelope-transport.json",
+    "python -m py_compile tools\\inspect_lwbridge_auth_key_envelope_contract.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "networkRequestsMade": false,
+    "credentialsRead": false,
+    "privateKeyRead": false,
+    "notProven": [
+      "exact semantic meaning/encoding of the login devicePublicKey value",
+      "key-envelope decoded field1 or fields after expiry",
+      "second token segment signature/MAC algorithm",
+      "server ephemeral public-key location in the envelope",
+      "exact envelope-to-agreement helper mapping inside the secure proxy",
+      "32-byte package key or bridge-scripts.dat plaintext"
+    ],
+    "restrictionPreserved": "No secure-proxy instruction in historical SB-79 RVA 0x3F8E0-0x40A6D is inspected, decoded or rerouted."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "closedGap": "host-side key-envelope token framing, canonical payload encoding, expiry/magic fields, API response/storage path and login device-key binding",
+    "next": "recover the envelope's decoded key-agreement fields through independent permitted evidence or an existing original envelope artifact, then feed the recovered peer key into the already-proven agreement/KDF contract"
+  }
+}
