@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R8-002`
+**Current checkpoint:** `LWB-R8-003`
 
 ## Executive status
 
@@ -45,7 +45,7 @@ Therefore no R7 performance optimization is accepted as original parity unless t
 
 ## Protected package status
 
-The package is not “impossible to reverse.” Prior work recovered much of the surrounding cryptographic architecture. The remaining package/envelope ownership and layout questions are now P0.
+The package is not “impossible to reverse.” Prior work recovered much of the surrounding cryptographic architecture, and R8-003 closes the exact encrypted LWBP2 nonce/ciphertext/tag layout, AAD, integrity/build checks and package AES argument ownership. P0 is now concentrated on the independent `package-key.envelope` grammar/agreement path that yields the 32-byte package key, then decrypting and preserving the original script bytes.
 
 A historical environment denial is not a claim that the underlying research question is solved or impossible. Exact denied operations must not be rerouted, but permitted alternative analysis remains active work.
 

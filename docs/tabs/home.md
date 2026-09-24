@@ -1,6 +1,6 @@
 # Home / Overview — strict parity status
 
-**Current through:** `LWB-R8-001`, 2026-09-24.
+**Current through:** `LWB-R8-003`, 2026-09-24.
 
 The current Home reconstruction works at many previously tested lifecycle/status scopes, but that is no longer enough to call the tab complete. The acceptance target is exact LWBridge 0.3.1 behavior.
 

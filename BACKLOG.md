@@ -1,12 +1,12 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-002`, 2026-09-24.
+**Current through:** `LWB-R8-003`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
 
 ## P0 — recover the original implementation
 
-- [ ] **Recover `bridge-scripts.dat` plaintext and container contents.** Continue the package-key/envelope/device-key/KDF/AES-GCM/LWBP2 recovery through permitted methods until the original script handlers are extracted and hash-preserved.
+- [ ] **Recover `bridge-scripts.dat` plaintext and container contents.** R8-003 closes the encrypted LWBP2 header/nonce/ciphertext/tag layout, exact AAD, package SHA/build checks and AES-GCM call ownership. Continue the independent package-key/envelope/device-key/KDF recovery until the 32-byte package key, decrypted bytes and original script handlers are extracted and hash-preserved.
 - [ ] **Recover the exact host<->proxy command protocol.** Close `hello.ack`, readiness/heartbeat, request/result grammar, correlation, timeout/disconnect/write failure behavior, and script-dispatch ownership.
 - [ ] **Build a complete original command/service inventory.** Enumerate every UI API call, Rust/Tauri command, service, script handler, launcher/proxy path, default, error code and persistent key in LWBridge 0.3.1.
 - [ ] **Map each original command to the current Last War client.** Compatibility work may adapt internals but must preserve the recovered original observable contract.

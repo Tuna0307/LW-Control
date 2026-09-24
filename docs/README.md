@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R8-002`, 2026-09-24.
+**Current checkpoint:** `LWB-R8-003`, 2026-09-24.
 
 The project direction changed on 2026-09-24 from “working reconstruction with selected owner customizations” to **strict one-to-one recovery of LWBridge 0.3.1**.
 
@@ -44,6 +44,6 @@ A historical file may say a feature was intentionally removed or optimized. Thos
 
 ## P0 evidence focus
 
-The protected `bridge-scripts.dat` package is now a first-class recovery target. Existing R6-039 through R6-046 findings already establish major loader/crypto boundaries. The next work is to recover the missing envelope/package linkage and original script contents through permitted analysis methods.
+The protected `bridge-scripts.dat` package is now a first-class recovery target. R6-039 through R6-046 established the loader/crypto boundary; R8-003 additionally recovers the exact LWBP2 field layout, AAD and package AES-GCM argument ownership. The next work is the independent `package-key.envelope` grammar/agreement path and then preservation of the decrypted original script contents.
 
 Historical SB-79 records an operation rejected by a previous environment. Preserve that record and do not reroute a prohibited operation. Do not mistake the historical denial for evidence that the underlying package is impossible to recover.

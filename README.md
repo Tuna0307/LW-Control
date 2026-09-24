@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 strict parity recovery
 
-**Current checkpoint:** `LWB-R8-002` (2026-09-24)
+**Current checkpoint:** `LWB-R8-003` (2026-09-24)
 **Branch:** `research/offline-controller`
 
 This repository is now a strict one-to-one recovery of the verified LWBridge 0.3.1 reference:
@@ -45,7 +45,7 @@ Historical labels such as RECOVERED, LIVE-PROVEN and IMPLEMENTED/OFFLINE-TESTED 
 
 ## P0
 
-The highest-priority recovery target is the original protected `bridge-scripts.dat` package and its complete plaintext implementation. The project already recovered major pieces of the loader, key material, device-key, CNG derivation and AES-GCM boundary, but not the whole package contents.
+The highest-priority recovery target is the original protected `bridge-scripts.dat` package and its complete plaintext implementation. R8-003 now recovers the exact LWBP2 nonce/ciphertext/tag layout, AAD and package AES-GCM argument ownership. The remaining critical seam is the independent `package-key.envelope` grammar/agreement path that produces the 32-byte package key.
 
 Map Data is no longer allowed to consume weeks of custom redesign while original implementation evidence remains recoverable. The original script/host behavior must be recovered first, then mapped to the current client.
 

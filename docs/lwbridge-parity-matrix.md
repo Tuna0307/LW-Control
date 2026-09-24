@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-002`, 2026-09-24
+**Current through:** `LWB-R8-003`, 2026-09-24
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -37,7 +37,7 @@ This is now the product-completion matrix. The older 47-case Home/Map acceptance
 | Marks / Jump / Follow | PARTIAL EXACT_CONTRACT + reimplementation | Rebuild behavior tested | Tie every branch/default/error to reference |
 | Auto Scan | PARTIAL EXACT_CONTRACT + reimplementation | Current scheduler includes owner workflow changes and later routing optimizations | Recover exact original scheduler, travel, timing and failure behavior |
 | Original bridge pipe framing | PARTIAL EXACT_CONTRACT | Frame length and hello fields recovered | Recover exact hello.ack, readiness, request/result grammar and failure mapping |
-| `bridge-scripts.dat` plaintext | UNKNOWN / P0 | Package is encrypted LWBP v2; full plaintext not recovered | Complete package-key/envelope/decrypt/container recovery through permitted methods |
+| `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / P0 | R8-003 recovers exact encrypted LWBP2 layout, AAD, SHA/build validation and AES key/nonce/tag/ciphertext ownership; plaintext is still not recovered | Recover `package-key.envelope` grammar/agreement path, derive the 32-byte key, decrypt and hash-preserve original scripts |
 | Secure/plain xLua proxy behavior | PARTIAL EXACT_CONTRACT | Many hashes, ABI, crypto and loader facts recovered | Recover remaining package/handler/control semantics |
 | Profile launcher / multi-hook | PARTIAL EXACT_CONTRACT + reimplementation | Architecture recovered, rebuild uses its own lifecycle code | Audit one-for-one behavior |
 | Automation page functions | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Build feature-by-feature parity inventory and recover handlers |

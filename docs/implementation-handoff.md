@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-002`
+**Current checkpoint:** `LWB-R8-003`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -57,7 +57,7 @@ Already known:
 - an identified package decrypt/validation consumer.
 - `LWBP2|`, package-integrity and package-build validation strings.
 
-Still missing is enough exact linkage/layout to derive/read the package key, decrypt the container, and extract the original scripts.
+R8-003 now closes the package binary layout and package AES argument ownership: the original package is `LWBP/version/buildId/12-byte nonce/u32 ciphertext length/ciphertext/16-byte tag`, AAD is exactly `LWBP2|<buildId>`, and the package function receives the 32-byte key as its original third argument. Still missing is the independent `package-key.envelope` grammar/agreement linkage that produces that key, followed by post-decrypt container/script extraction.
 
 Historical SB-79 records one exact operation rejected by a previous environment. Do not reroute that forbidden operation. Continue the underlying recovery through genuinely permitted methods.
 
@@ -77,9 +77,9 @@ The project is no longer limited to Home and Map Data. Automation, Squads/AFK, C
 
 Previously retired original features are parity gaps, not retired scope.
 
-## Worktree warning
+## Worktree state
 
-There is pre-existing uncommitted R7 Map work in the repository, including a staged rollback of R7-151 scan/Quick-Find behavior and additional unstaged diagnostics. Preserve it until it is deliberately reconciled under the R8 parity policy. Do not discard unrelated work just to create a clean checkpoint.
+R8-002 reconciled the old pending R7 Map work and removed the abandoned finder probes. Begin each new checkpoint by confirming `git status`; do not accumulate unrelated experiments in the production worktree.
 
 ## Delivery
 

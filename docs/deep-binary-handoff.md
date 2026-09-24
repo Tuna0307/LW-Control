@@ -1,6 +1,6 @@
 # Deep binary / protected package handoff — strict parity priority
 
-**Current through:** `LWB-R8-001`, 2026-09-24.
+**Current through:** `LWB-R8-003`, 2026-09-24.
 
 Protected original implementation recovery is now P0 because the project goal is exact LWBridge 0.3.1 parity.
 
@@ -30,14 +30,16 @@ Existing R6-039 through R6-046 evidence establishes substantial surrounding arch
 - CNG agreement/KDF path producing 32 bytes.
 - AES-GCM boundary with 32-byte key, 12-byte nonce and 16-byte tag.
 - package-side AES consumer and `LWBP2|` / integrity / build validation markers.
+- **R8-003:** exact LWBP2 binary layout: `LWBP`, version, build-ID length/build ID, 12-byte nonce, u32 ciphertext length, ciphertext and final 16-byte GCM tag.
+- **R8-003:** exact AAD `LWBP2|<buildId>`, package SHA-256/build-ID validation, and package AES call ownership: original third argument is the 32-byte key; parsed nonce/ciphertext/tag are supplied directly; decrypted bytes return through the original fourth argument.
 
 ## Missing chain
 
-The project still needs exact evidence for enough of the following to recover the scripts:
+R8-003 closes the package-layout/AAD/AES-ownership side. The remaining critical chain is now narrower:
 
-`package-key.envelope -> parse -> agreement/KDF inputs -> package key -> nonce/tag/AAD/ciphertext layout -> LWBP2 container -> entries/scripts`
+`package-key.envelope -> parse -> agreement/KDF inputs -> 32-byte package key -> decrypt known LWBP2 ciphertext -> post-decrypt container/entries/scripts`
 
-The exact original script handlers are then to be indexed and mapped back to UI/host services.
+The exact original script handlers are then to be indexed and mapped back to UI/host services. Machine evidence: `evidence/lwbridge-implementation/2026-09-24-r8-003-lwbp2-package-layout.json`; verifier: `tools/inspect_lwbridge_proxy_package_layout.py`.
 
 ## Historical SB-79
 
