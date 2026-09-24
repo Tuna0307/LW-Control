@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R8-013`
+**Current checkpoint:** `LWB-R8-014`
 
 ## Executive status
 
@@ -31,13 +31,13 @@ That proof is limited because the rebuild intentionally transformed the main/API
 2. Exact host/proxy request-result protocol and readiness semantics.
 3. Original Map Scan internals and per-kind acquisition strategy.
 4. Removal of rebuild-only additions such as Secret Task Quick Find.
-5. Restoration of remaining retained product features previously retired/customized. City Excel is restored in R8-007, the original current-live-server Map Clear boundary in R8-008, the complete public `server_jump` success envelope in R8-009, strict `map_summary` result/source parity in R8-010, strict `map_data_options` result/source parity in R8-011, the original Manual Scan eight-kind/Normal-Fast public contract in R8-012, and shared `map_scan_status`/`map_scan_stop` lifecycle/reset parity in R8-013; `map_search`, Auto Scan and Scheduled Plunder remain. Account/Login/Authentication is intentionally excluded.
+5. Restoration of remaining retained product features previously retired/customized. City Excel is restored in R8-007, Map Clear in R8-008, `server_jump` in R8-009, `map_summary` in R8-010, `map_data_options` in R8-011, Manual Scan public contract in R8-012, status/Stop lifecycle in R8-013, and `map_search` public kind/filter ownership in R8-014. Alternate-sort internals remain partial; Auto Scan and Scheduled Plunder remain. Account/Login/Authentication is intentionally excluded.
 6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings. City Layout research is now implementation-ready at the host/persistence boundary: its original UI is byte-identical, but all eight production backend handlers are missing; see `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`.
 7. Exact reference-vs-rebuild behavior validation across connected/live states.
 
 ## Map status under the new goal
 
-The current Map implementation is a reconstruction, not a recovered copy of the original algorithm. R8-012 closes the Manual `map_scan_start` kind/mode/error/UI boundary; R8-013 closes the shared status/Stop public-state lifecycle, including read-only live refresh, publishing→idle completion and distinct Stop/Clear resets. Neither checkpoint claims the protected acquisition/traversal implementation.
+The current Map implementation is a reconstruction, not a recovered copy of the original algorithm. R8-012 closes the Manual `map_scan_start` kind/mode/error/UI boundary; R8-013 closes the shared status/Stop public-state lifecycle; R8-014 closes public `map_search` eight-kind/filter/query-builder ownership and restores the generic keyword predicate. Remaining alternate-sort details and protected acquisition/traversal are still partial/unknown.
 
 The R7-151 wide-FOV work demonstrated why coverage metrics are insufficient: a scan could report full logical coverage while returning only a fraction of Player Cities. The old traversal still found roughly the expected full population.
 

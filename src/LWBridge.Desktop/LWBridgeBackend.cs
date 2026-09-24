@@ -240,16 +240,7 @@ internal sealed class LWBridgeBackend
             case "map_search":
                 {
                     MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(payload);
-                    IReadOnlyList<string> resolvedMonsterNameKeys = ReadResolvedMonsterNameKeys(payload, query.Kind);
-                    MapDataStore store = RequireMapDataStore();
-                    // IMPLEMENTATION POLICY LWB-R7-013: any Monster keyword search uses
-                    // the Monster-specific predicate even when localization resolves zero
-                    // names, so raw JSON property names (for example zombieRushId) can
-                    // never turn an unrelated keyword into an all-row match.
-                    bool monsterLike = query.Kind is "monster" or "zombie_boss";
-                    MapSearchResult result = monsterLike && query.Keyword is not null
-                        ? store.SearchIndexedWithMonsterNameKeys(query, resolvedMonsterNameKeys)
-                        : store.SearchIndexed(query);
+                    MapSearchResult result = RequireMapDataStore().SearchIndexed(query);
                     return new { rows = result.Rows, total = result.Total };
                 }
             case "map_city_export":
@@ -621,32 +612,6 @@ internal sealed class LWBridgeBackend
             }).ToArray(),
             scanProgress,
         };
-    }
-
-    private static IReadOnlyList<string> ReadResolvedMonsterNameKeys(JsonElement payload, string kind)
-    {
-        if (kind is not ("monster" or "zombie_boss") ||
-            !payload.TryGetProperty("query", out JsonElement query) || query.ValueKind != JsonValueKind.Object ||
-            !query.TryGetProperty("monsterNameKeys", out JsonElement values) ||
-            values.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
-            return Array.Empty<string>();
-        if (values.ValueKind != JsonValueKind.Array)
-            throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys must be an array.");
-
-        var result = new List<string>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        foreach (JsonElement value in values.EnumerateArray())
-        {
-            if (value.ValueKind != JsonValueKind.String)
-                throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys entries must be strings.");
-            string key = value.GetString() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(key) || key.Length > 256)
-                throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys entries must be nonempty strings of at most 256 characters.");
-            if (seen.Add(key)) result.Add(key);
-            if (result.Count > 200)
-                throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys accepts at most 200 distinct entries.");
-        }
-        return result;
     }
 
     internal CityExportRequest PrepareCityExport(

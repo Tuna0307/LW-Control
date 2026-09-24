@@ -43,9 +43,6 @@ internal static class MapDataQueryContract
     [
         "keyword",
         "resourceNameKey",
-        "resourceIdleOnly",
-        "resourceFullOnly",
-        "excludeBlackTile",
         "monsterNameKey",
         "treasureType",
         "suppliesType",
@@ -65,10 +62,8 @@ internal static class MapDataQueryContract
         "maxLevel",
     ];
 
-    // R8-012 changes the Manual Scan public allowlist only. map_search parity is a
-    // later checkpoint, so preserve its existing Zombie Boss compatibility until then.
     private static readonly HashSet<string> AllowedKinds =
-        new(MapScanContract.RecoveredDefaultTypes.Append("zombie_boss"), StringComparer.Ordinal);
+        new(MapScanContract.RecoveredDefaultTypes, StringComparer.Ordinal);
 
     public static MapDataQueryOptions NormalizeSearch(JsonElement payload)
     {
@@ -91,9 +86,6 @@ internal static class MapDataQueryContract
         string? alliance = OptionalString(query, "alliance");
         bool withoutAlliance = OptionalTrue(query, "withoutAlliance");
         string? resourceNameKey = OptionalString(query, "resourceNameKey");
-        bool resourceIdleOnly = OptionalTrue(query, "resourceIdleOnly");
-        bool resourceFullOnly = OptionalTrue(query, "resourceFullOnly");
-        bool excludeBlackTile = OptionalTrue(query, "excludeBlackTile");
         string? monsterNameKey = OptionalString(query, "monsterNameKey");
         int? treasureType = OptionalNonNegativeInt(query, "treasureType");
         int? suppliesType = OptionalNonNegativeInt(query, "suppliesType");
@@ -141,9 +133,9 @@ internal static class MapDataQueryContract
             minLevel,
             maxLevel,
             unsupported,
-            resourceIdleOnly,
-            resourceFullOnly,
-            excludeBlackTile,
+            ResourceIdleOnly: false,
+            ResourceFullOnly: false,
+            ExcludeBlackTile: false,
             includeForeignRadarTreasures,
             luckyFirst,
             viewerUid,
@@ -233,22 +225,8 @@ internal static class MapDataQueryContract
         }
 
         if (markedOnly && kind != "city") unsupported.Add("markedOnly");
-        // IMPLEMENTATION POLICY LWB-R7-014: the owner-defined Monster level selector
-        // is an inclusive maximum (selecting 60 means level <= 60). The recovered generic
-        // maxLevel predicate is reused; Monster min/range forms remain fail-closed.
-        if (kind is "monster" or "zombie_boss")
-        {
-            bool hasMinLevel = query.TryGetProperty("minLevel", out JsonElement minLevelValue) && !IsNeutral(minLevelValue);
-            bool hasMaxLevel = query.TryGetProperty("maxLevel", out JsonElement maxLevelValue) && !IsNeutral(maxLevelValue);
-            bool validMonsterMaximum = !hasMinLevel && hasMaxLevel && maxLevel is > 0;
-            if ((hasMinLevel || hasMaxLevel) && !validMonsterMaximum)
-            {
-                if (hasMinLevel) unsupported.Add("minLevel");
-                if (hasMaxLevel && maxLevel is not > 0) unsupported.Add("maxLevel");
-            }
-        }
         bool recoveredSort;
-        if (kind is "monster" or "zombie_boss")
+        if (kind == "monster")
         {
             recoveredSort =
                 sorts.Count is >= 1 and <= 3 &&
@@ -320,10 +298,7 @@ internal static class MapDataQueryContract
         "alliance" => kind == "city" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "withoutAlliance" => kind == "city" && value.ValueKind == JsonValueKind.True,
         "resourceNameKey" => kind == "resource" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
-        "resourceIdleOnly" => kind == "resource" && value.ValueKind == JsonValueKind.True,
-        "resourceFullOnly" => kind == "resource" && value.ValueKind == JsonValueKind.True,
-        "excludeBlackTile" => kind == "resource" && value.ValueKind == JsonValueKind.True,
-        "monsterNameKey" => kind is "monster" or "zombie_boss" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
+        "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "treasureType" => kind == "treasure" && IsNonNegativeInteger(value),
         "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
         // LWB-R6-013: recovered frontend emits only these five string forms.
@@ -349,8 +324,8 @@ internal static class MapDataQueryContract
                        !string.IsNullOrEmpty(value.GetString()),
         "viewerAllianceId" => kind == "treasure" && value.ValueKind == JsonValueKind.String &&
                               !string.IsNullOrEmpty(value.GetString()),
-        "minLevel" => kind is "resource" or "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
-        "maxLevel" => kind is "resource" or "dispatch" or "monster" or "zombie_boss" && IsPositiveInteger(value),
+        "minLevel" => kind == "dispatch" && IsPositiveInteger(value),
+        "maxLevel" => kind == "dispatch" && IsPositiveInteger(value),
         _ => false,
     };
 

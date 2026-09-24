@@ -3925,53 +3925,17 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
     object? localizedMonsterResult = await mapBackend.InvokeAsync(
         "map_search", localizedMonsterSearch.RootElement.Clone(), CancellationToken.None);
     using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(localizedMonsterResult, JsonOptions.Default)))
-    {
-        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 1 &&
-              searchJson.RootElement.GetProperty("rows")[0].GetProperty("monsterNameKey").GetString() == "monster.alpha",
-            "Monster keyword search can resolve a localized display name without matching every row's zombieRushId schema key");
-    }
+        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 0,
+            "rebuild-only monsterNameKeys must not extend the original generic keyword predicate");
 
-    using JsonDocument localizedZombieBossSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    using JsonDocument zombieBossSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = mapBackend.ProfileId,
         kind = "zombie_boss",
-        query = new
-        {
-            serverId = 91,
-            keyword = "Zombie Boss Localized",
-            monsterNameKeys = new[] { "monster.boss" },
-            page = 1,
-            pageSize = 50,
-            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
-        },
+        query = new { serverId = 91 },
     }));
-    object? localizedZombieBossResult = await mapBackend.InvokeAsync(
-        "map_search", localizedZombieBossSearch.RootElement.Clone(), CancellationToken.None);
-    using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(localizedZombieBossResult, JsonOptions.Default)))
-    {
-        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 1 &&
-              searchJson.RootElement.GetProperty("rows")[0].GetProperty("monsterNameKey").GetString() == "monster.boss",
-            "Zombie Boss keyword search resolves the localized display name through its authoritative monsterNameKey");
-    }
-
-    using JsonDocument zombieBossNameKeySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
-    {
-        profileId = mapBackend.ProfileId,
-        kind = "zombie_boss",
-        query = new
-        {
-            serverId = 91,
-            monsterNameKey = "monster.boss",
-            page = 1,
-            pageSize = 50,
-            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
-        },
-    }));
-    object? zombieBossNameKeyResult = await mapBackend.InvokeAsync(
-        "map_search", zombieBossNameKeySearch.RootElement.Clone(), CancellationToken.None);
-    using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(zombieBossNameKeyResult, JsonOptions.Default)))
-        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 1,
-            "Zombie Boss name selector may filter by the same authoritative monsterNameKey as generic Monster");
+    await ExpectBridgeError("INVALID_MAP_KIND", "public Zombie Boss search is outside the original eight-kind contract", async () =>
+        await mapBackend.InvokeAsync("map_search", zombieBossSearch.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument unrelatedMonsterKeyword = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -3981,7 +3945,6 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         {
             serverId = 91,
             keyword = "Zombie",
-            monsterNameKeys = Array.Empty<string>(),
             page = 1,
             pageSize = 50,
             sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
@@ -3990,8 +3953,8 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
     object? unrelatedMonsterKeywordResult = await mapBackend.InvokeAsync(
         "map_search", unrelatedMonsterKeyword.RootElement.Clone(), CancellationToken.None);
     using (JsonDocument zombieJson = JsonDocument.Parse(JsonSerializer.Serialize(unrelatedMonsterKeywordResult, JsonOptions.Default)))
-        Check(zombieJson.RootElement.GetProperty("total").GetInt32() == 0,
-            "Monster keyword search does not match every row merely because zombieRushId is a JSON schema property");
+        Check(zombieJson.RootElement.GetProperty("total").GetInt32() == 2,
+            "original generic keyword predicate includes data_json, including matching raw schema text such as zombieRushId");
 
     using JsonDocument maximumMonsterLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -4006,20 +3969,16 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
             sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
         },
     }));
-    object? maximumMonsterLevelResult = await mapBackend.InvokeAsync(
-        "map_search", maximumMonsterLevelSearch.RootElement.Clone(), CancellationToken.None);
-    using (JsonDocument levelJson = JsonDocument.Parse(JsonSerializer.Serialize(maximumMonsterLevelResult, JsonOptions.Default)))
-        Check(levelJson.RootElement.GetProperty("total").GetInt32() == 1 &&
-              levelJson.RootElement.GetProperty("rows")[0].GetProperty("level").GetInt32() == 7,
-            "Monster level selector uses inclusive maximum semantics");
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Monster maxLevel is not owned by original map_search", async () =>
+        await mapBackend.InvokeAsync("map_search", maximumMonsterLevelSearch.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument doomWalkerMaximum = JsonDocument.Parse(
         "{\"kind\":\"monster\",\"query\":{\"serverId\":2212,\"maxLevel\":220}}");
     MapDataQueryOptions doomWalkerMaximumOptions =
         MapDataQueryContract.NormalizeSearch(doomWalkerMaximum.RootElement);
     Check(doomWalkerMaximumOptions.MaxLevel == 220 &&
-          doomWalkerMaximumOptions.UnsupportedFeatures.Count == 0,
-        "Monster maximum-level filter accepts live-proven Doom Walker levels through 220 without a legacy ceiling");
+          doomWalkerMaximumOptions.UnsupportedFeatures.SequenceEqual(new[] { "maxLevel" }),
+        "Monster level bounds remain parseable but fail closed because original map_search owns them only for Dispatch");
 
     using JsonDocument monsterLevelRange = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -4835,20 +4794,28 @@ using (var indexedSearchStore = MapDataStore.CreateInMemory())
         query = new
         {
             serverId = 7, resourceIdleOnly = true, resourceFullOnly = true, excludeBlackTile = true,
-            minLevel = 10, maxLevel = 10,
         },
     }));
     MapDataQueryOptions resourceTruthOptions = MapDataQueryContract.NormalizeSearch(resourceTruthSearch.RootElement);
-    Check(resourceTruthOptions.UnsupportedFeatures.Count == 0 && resourceTruthOptions.ResourceIdleOnly &&
-          resourceTruthOptions.ResourceFullOnly && resourceTruthOptions.ExcludeBlackTile &&
-          resourceTruthOptions.MinLevel == 10 && resourceTruthOptions.MaxLevel == 10,
-        "resource truth filters normalize as recovered production predicates");
+    Check(resourceTruthOptions.UnsupportedFeatures.Count == 0 &&
+          !resourceTruthOptions.ResourceIdleOnly && !resourceTruthOptions.ResourceFullOnly &&
+          !resourceTruthOptions.ExcludeBlackTile,
+        "rebuild-only Resource truth keys are inert extras at the original public map_search boundary");
     MapSearchResult resourceTruthResult = indexedSearchStore.SearchIndexed(resourceTruthOptions);
-    Check(resourceTruthResult.Total == 1 &&
-          resourceTruthResult.Rows[0].GetProperty("resourceNameKey").GetString() == "iron" &&
-          resourceTruthResult.Rows[0].GetProperty("resourceRemainingAmount").GetInt64() == 216000 &&
-          resourceTruthResult.Rows[0].GetProperty("resourceFullAmount").GetInt64() == 216000,
-        "resource full/idle/non-black/level predicates exclude partial or black resources without treating idle as full");
+    Check(resourceTruthResult.Total == 2,
+        "rebuild-only Resource truth keys must not filter original public results");
+
+    using JsonDocument resourceLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "resource",
+        query = new { serverId = 7, minLevel = 10, maxLevel = 10 },
+    }));
+    MapDataQueryOptions resourceLevelOptions = MapDataQueryContract.NormalizeSearch(resourceLevelSearch.RootElement);
+    Check(resourceLevelOptions.UnsupportedFeatures.SequenceEqual(new[] { "minLevel", "maxLevel" }),
+        "Resource level bounds are outside the original kind-owned filter contract");
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Resource level filtering stays fail-closed", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", resourceLevelSearch.RootElement.Clone(), CancellationToken.None));
 
     using JsonDocument itemSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -6123,10 +6090,10 @@ Check(
     "Map Data owner workflow must preserve strict current-server Clear while supporting Auto All, one-shot multi-server Run Now, cross-server row navigation and Doom Walker Follow");
 Check(
     r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).map", StringComparison.Ordinal) &&
-    r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).forEach", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("(dt.resource??[]).forEach", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("(dt.monster??[]).forEach", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("e=Array.isArray(e)?e:[];let a=", StringComparison.Ordinal),
-    "Map Data must render/localize missing option-name/reward families as empty arrays instead of crashing a result tab");
+    "Map Data must render/localize missing original option-name/reward families as empty arrays instead of crashing a result tab");
 Check(
     r7130GeneratedMapPanelSource.Contains("savedServerIds.length>1", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("p.savedServerIds.map", StringComparison.Ordinal),
@@ -6399,26 +6366,23 @@ Check(fastCitySource.Contains("Generic Monster intentionally does not use this s
 string mapDataPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
 Check(mapDataPanelSource.Contains(
-          "function Ue(e){return e===`resource`||e===`monster`||e===`zombie_boss`}",
+          "function Ue(e){return e===`resource`||e===`monster`}",
           StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("function monsterLevelSteps(e)", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("Math.max(...t)", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("Math.ceil(n/5)", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("function monsterKeywordKeyList(", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains(
-          "monsterNameKey:(n===`monster`||n===`zombie_boss`)?Ot[n]:void 0",
-          StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains(
-          "monsterNameKeys:(n===`monster`||n===`zombie_boss`)&&I.trim()?(resolvedMonsterNameKeys??monsterKeywordKeyList(n,I,dt,Xt)):void 0",
-          StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("localeKeywordRefreshRef", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("localeKeywordRefreshRef.current=n,er(1,t)", StringComparison.Ordinal),
-    "Zombie Boss result filters must reuse localized Monster name keys and rerun one saved keyword query after locale text arrives");
+      mapDataPanelSource.Contains("monsterNameKey:n===`monster`?Ot.monster:void 0", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("minLevel:n===`dispatch`&&Wt?Number(Wt):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):void 0", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("zombie_boss", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("monsterLevelSteps", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("monsterNameKeys", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("resourceIdleOnly", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("resourceFullOnly", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("excludeBlackTile", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("resourceLevel", StringComparison.Ordinal),
+    "R8-014 generated Map Data panel must expose only the original eight-kind search/filter contract");
 Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("localStorage.setItem(filterStoreKey", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("savedResultFilters=readResultFilters()", StringComparison.Ordinal),
     "Map Data result filters must persist across rescans and app restarts");
-Check(mapDataPanelSource.Contains("manualDefaultTypes=O.filter(e=>e!==`zombie_boss`)", StringComparison.Ordinal) &&
+Check(!mapDataPanelSource.Contains("manualDefaultTypes", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("selectedTypes:scanTypeSelection(S.selectedTypes,e.key,t.target.checked)", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading", StringComparison.Ordinal) &&
@@ -6431,10 +6395,10 @@ Check(mapDataPanelSource.Contains("manualDefaultTypes=O.filter(e=>e!==`zombie_bo
       !mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
     "Manual Map Scan must restore the original Normal/Fast control, persistence and scanMode payload while Auto speed remains pending its own rollback");
 Check(mapDataPanelSource.Contains(
-          "F!==`truck`&&F!==`monster`&&F!==`zombie_boss`",
+          "if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`)return",
           StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("window.setInterval(()=>nn(Date.now()),1e3)", StringComparison.Ordinal),
-    "Zombie Boss Remaining must share the one-second live countdown clock with Monster");
+    "result countdown clock must remain limited to the original time-sensitive tabs");
 
 string generatedIndexSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "index-sfL2sT3K.js"));

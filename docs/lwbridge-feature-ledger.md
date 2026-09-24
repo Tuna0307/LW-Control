@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-013`, 2026-09-24.
+**Current through:** `LWB-R8-014`, 2026-09-24.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -45,7 +45,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Manual Scan public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores exactly eight kinds and the recovered Normal/Fast request/default/error/UI contract; Auto Scan and protected acquisition remain separate |
 | `map_scan_status` / `map_scan_stop` shared state | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-013 restores direct shared-state status, lifecycle-dependent native fields, read-only world refresh, publishing→idle completion, idempotent Stop and exact Stop/Clear reset separation; uncommon protected Stop error envelopes remain partial |
 | Scheduled Plunder | DEVIATION | Restore original retained feature set |
-| Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | Finish exact branch/default/error audit |
+| Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | R8-014 restores exact eight-kind admission, original filter ownership/query builder and generic keyword predicate; alternate-sort internals remain partial |
 | Mark/Jump/Follow | PARTIAL | Tie every behavior to reference |
 | Auto Scan | PARTIAL / possible deviation | Recover exact original routing/timing/failure semantics |
 

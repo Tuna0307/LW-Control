@@ -651,6 +651,7 @@ internal sealed partial class MapDataStore : IDisposable
         bool city = string.Equals(options.Kind, "city", StringComparison.Ordinal);
         bool treasure = string.Equals(options.Kind, "treasure", StringComparison.Ordinal);
         bool monsterLike = options.Kind is "monster" or "zombie_boss";
+        bool localizedMonsterKeywordCompatibility = monsterLike && monsterNameKeys is not null;
         string orderBy = city
             ? BuildCityOrderBy(options.Sorts, nowUnixMilliseconds)
             : treasure
@@ -706,12 +707,11 @@ internal sealed partial class MapDataStore : IDisposable
                 predicates.Add("(json_extract(page.data_json,'$.arriveTs') IS NULL OR CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER) > $nowUnixMs)");
             if (city && options.MarkedOnly)
                 predicates.Add("mark.owner_uid IS NOT NULL");
-            if (options.Keyword is not null && monsterLike)
+            if (options.Keyword is not null && localizedMonsterKeywordCompatibility)
             {
-                // IMPLEMENTATION POLICY R7: the raw JSON blob contains schema keys such
-                // as zombieRushId, so blob LIKE makes a search for "Zombie" match every
-                // Monster. Search visible/identity values only, plus localized name keys
-                // resolved by the frontend, never JSON property names.
+                // Historical internal proof compatibility only. Public map_search uses
+                // the recovered generic keyword predicate below and never supplies this
+                // localized-name side channel.
                 string resolvedNamePredicate = resolvedMonsterNameKeys.Length == 0
                     ? string.Empty
                     : " OR CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) IN (" +
@@ -720,7 +720,7 @@ internal sealed partial class MapDataStore : IDisposable
             }
             else if (options.Keyword is not null)
                 predicates.Add("(page.name LIKE $keywordName ESCAPE '\\' COLLATE NOCASE OR page.alliance_name LIKE $keywordAlliance ESCAPE '\\' COLLATE NOCASE OR page.uuid LIKE $keywordUuid ESCAPE '\\' COLLATE NOCASE OR page.data_json LIKE $keywordJson ESCAPE '\\' COLLATE NOCASE)");
-            else if (resolvedMonsterNameKeys.Length > 0)
+            else if (localizedMonsterKeywordCompatibility && resolvedMonsterNameKeys.Length > 0)
                 predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) IN (" +
                     string.Join(",", Enumerable.Range(0, resolvedMonsterNameKeys.Length).Select(i => "$resolvedMonsterName" + i)) + ")");
             if (options.Alliance is not null)

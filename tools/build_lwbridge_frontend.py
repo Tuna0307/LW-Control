@@ -650,6 +650,67 @@ def build(check=False):
             s = replace_once(s,
                 'Y===`manual`&&(0,D.jsxs)(D.Fragment,{children:[(0,D.jsx)(`button`,{className:w.isReading?``:`primary`',
                 'Y===`manual`&&(0,D.jsxs)(D.Fragment,{children:[' + manual_speed_control + '(0,D.jsx)(`button`,{className:w.isReading?``:`primary`')
+            # R8-014 strict map_search parity. Historical hash-locked R7 deltas
+            # remain preserved above as evidence; remove only their non-reference
+            # public search/result additions from the final generated panel.
+            s = replace_once(s, 've={city:0,resource:0,monster:0,zombie_boss:0,truck:0',
+                've={city:0,resource:0,monster:0,truck:0')
+            s = replace_once(s, ',{key:`zombie_boss`,label:`Zombie Boss`,enabled:!0}', '')
+            s = replace_once(s, ',manualDefaultTypes=O.filter(e=>e!==`zombie_boss`)', '')
+            s = replace_once(s, 'monster:`map.monster`,zombie_boss:`Zombie Boss`,truck:',
+                'monster:`map.monster`,truck:')
+            s = replace_once(s,
+                'monster:[{sortBy:`updatedAt`,sortOrder:`desc`}],zombie_boss:[{sortBy:`updatedAt`,sortOrder:`desc`}],truck:',
+                'monster:[{sortBy:`updatedAt`,sortOrder:`desc`}],truck:')
+            s = replace_once(s, 'function Ue(e){return e===`resource`||e===`monster`||e===`zombie_boss`}',
+                'function Ue(e){return e===`resource`||e===`monster`}')
+            s = replace_once(s,
+                'function tt(e){let t=[...new Set(e.filter(e=>Pe.has(e)))];return t.includes(`zombie_boss`)?t.length===1?t:t.filter(e=>e!==`zombie_boss`):t.length>0?t:[...manualDefaultTypes]}function scanTypeSelection(e,t,n){let r=tt(e);if(n)return t===`zombie_boss`?[t]:r.includes(`zombie_boss`)?[t]:tt([...r,t]);let i=r.filter(e=>e!==t);return i.length>0?i:r}',
+                'function tt(e){let t=[...new Set(e.filter(e=>Pe.has(e)))];return t.length>0?t:[...O]}function scanTypeSelection(e,t,n){let r=tt(e);if(n)return tt([...r,t]);let i=r.filter(e=>e!==t);return i.length>0?i:r}')
+            s = replace_once(s,
+                '}function monsterLevelSteps(e){let t=(Array.isArray(e)?e:[]).map(Number).filter(Number.isFinite),n=t.length?Math.max(...t):0;return n>0?Array.from({length:Math.ceil(n/5)},(e,t)=>(t+1)*5):[]}function monsterKeywordKeyList(e,t,n,r){if((e!==`monster`&&e!==`zombie_boss`)||!t.trim())return[];let i=t.trim().toLocaleLowerCase();return(n[e]||[]).filter(e=>String(j(r,e.key,e.key)).toLocaleLowerCase().includes(i)).map(e=>e.key)}function N(',
+                '}function N(')
+            s = replace_once(s, 'function L(e,t,n,r,i,a,c){', 'function L(e,t,n,r,i,a){')
+            s = replace_once(s,
+                '(e===`monster`||e===`zombie_boss`)?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`automation.remaining`),width:`110px`,value:e=>{let t=P(k(e,`shieldEndTime`)??k(e,`zMBossShieldEndTime`));return t&&t>c?Ke(t-c):`-`}},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]',
+                'e===`monster`?[o,{label:t(`common.name`),width:`minmax(150px, 1fr)`,value:e=>j(r,k(e,`monsterNameKey`),t(`map.unknownMonster`))},{label:t(`map.level`),width:`70px`,sortBy:`level`,value:e=>F(k(e,`level`),n)},{label:t(`map.distance`),width:`90px`,sortBy:`distance`,value:e=>F(k(e,`distanceFromHome`),n)},s]')
+            s = replace_once(s, '()=>L(e,g,h,r,i,d,a),[r,i,e,h,g,d,a]',
+                '()=>L(e,g,h,r,i,d),[r,i,e,h,g,d]')
+            s = replace_once(s, ',localeKeywordRefreshRef=(0,b.useRef)(``)', '')
+            if s.count('{resource:[],monster:[],zombie_boss:[]}') != 2:
+                raise ValueError('Expected exactly two Zombie Boss name-family anchors')
+            s = s.replace('{resource:[],monster:[],zombie_boss:[]}', '{resource:[],monster:[]}')
+            s = replace_once(s,
+                '[Wt,Gt]=(0,b.useState)(()=>typeof savedResultFilters.dispatchLevel===`string`?savedResultFilters.dispatchLevel:``),[monsterLevels,setMonsterLevels]=(0,b.useState)([]),[monsterLevel,setMonsterLevel]=(0,b.useState)(()=>typeof savedResultFilters.monsterLevel===`string`?savedResultFilters.monsterLevel:``),[resourceLevel,setResourceLevel]=(0,b.useState)(()=>typeof savedResultFilters.resourceLevel===`string`?savedResultFilters.resourceLevel:``),[resourceIdleOnly,setResourceIdleOnly]=(0,b.useState)(()=>savedResultFilters.resourceIdleOnly!==!1),[resourceFullOnly,setResourceFullOnly]=(0,b.useState)(()=>savedResultFilters.resourceFullOnly!==!1),[excludeBlackTile,setExcludeBlackTile]=(0,b.useState)(()=>savedResultFilters.excludeBlackTile!==!1),[Kt,qt]',
+                '[Wt,Gt]=(0,b.useState)(()=>typeof savedResultFilters.dispatchLevel===`string`?savedResultFilters.dispatchLevel:``),[Kt,qt]')
+            s = replace_once(s,
+                'JSON.stringify({keyword:I,cityAlliance:Et,nameKeys:Ot,markedOnly:At,qualities:Pt,itemKeys:It,treasureType:Rt,statuses:Bt,plunderable:Ht,dispatchLevel:Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile}))},[I,Et,Ot,At,Pt,It,Rt,Bt,Ht,Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile]',
+                'JSON.stringify({keyword:I,cityAlliance:Et,nameKeys:Ot,markedOnly:At,qualities:Pt,itemKeys:It,treasureType:Rt,statuses:Bt,plunderable:Ht,dispatchLevel:Wt}))},[I,Et,Ot,At,Pt,It,Rt,Bt,Ht,Wt]')
+            s = replace_once(s,
+                'F!==`truck`&&F!==`monster`&&F!==`zombie_boss`',
+                'F!==`truck`')
+            s = replace_once(s,
+                '[F,Et,L,z,Pt,It,Rt,Bt,Ht,Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile,Ot,Kt,At,Mt,mn,An,h,J,Nn]',
+                '[F,Et,L,z,Pt,It,Rt,Bt,Ht,Wt,Ot,Kt,At,Mt,mn,An,h,J,Nn]')
+            s = replace_once(s,
+                'ut(t.alliances),ft(t.names),mt(t.dispatchLevels),setMonsterLevels(Array.isArray(t.monsterLevels)?t.monsterLevels:[]),gt(t.counts)',
+                'ut(t.alliances),ft(t.names),mt(t.dispatchLevels),gt(t.counts)')
+            s = replace_once(s, ',setMonsterLevel(e=>e)', '')
+            s = replace_once(s, '(F===`monster`||F===`zombie_boss`)?((dt[F]??[]).forEach',
+                'F===`monster`?((dt.monster??[]).forEach')
+            s = replace_once(s, ',setMonsterLevels([]),setMonsterLevel(``)', '')
+            s = replace_once(s,
+                ".then(e=>{if(t!==M.current)return;Zt(e);if((F===`monster`||F===`zombie_boss`)&&I.trim()){let t=monsterKeywordKeyList(F,I,dt,e),n=`${F}|${I.trim().toLocaleLowerCase()}|${t.join(`,`)}`;n!==localeKeywordRefreshRef.current&&(localeKeywordRefreshRef.current=n,er(1,t))}})",
+                '.then(e=>{t===M.current&&Zt(e)})')
+            strict_query_builder = "function $n(e=z,t=Oe){let n=F,r=et(Et),i=Ve(n)?n:null,a=A(n)?n:null,o=i?Pt[i]:void 0,s=n===`treasure`?xt.find(e=>e.key===Rt):void 0;return{serverId:L,keyword:I,resourceNameKey:n===`resource`?Ot.resource:void 0,monsterNameKey:n===`monster`?Ot.monster:void 0,treasureType:s?.treasureType,suppliesType:s?.suppliesType,alliance:n===`city`&&r?r:void 0,withoutAlliance:n===`city`&&Et===`none`?!0:void 0,markedOnly:n===`city`&&At?!0:void 0,page:e,pageSize:t,sorts:Kt[n],quality:o===`special`||o===`reindeer`?void 0:o,specialOnly:o===`special`?!0:void 0,reindeerOnly:o===`reindeer`?!0:void 0,itemKey:a?It[a]:void 0,completionStatus:n===`dispatch`||n===`ghost`?Bt[n]:void 0,plunderableOnly:he(n,He(n)&&Ht[n]===!0),includeForeignRadarTreasures:n===`treasure`?An:void 0,luckyFirst:n===`treasure`?J:void 0,viewerUid:n===`treasure`?Nn.playerUid:void 0,viewerAllianceId:n===`treasure`?Nn.allianceId:void 0,minLevel:n===`dispatch`&&Wt?Number(Wt):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):void 0}}"
+            s = replace_between(s, 'function $n(', 'async function er', strict_query_builder)
+            s = replace_once(s, 'async function er(e=z,resolvedMonsterNameKeys){', 'async function er(e=z){')
+            s = replace_once(s, 'let n=$n(e,Oe,resolvedMonsterNameKeys),r=await i(F,n);',
+                'let n=$n(e),r=await i(F,n);')
+            s = replace_between(s,
+                'F===`resource`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.level`)',
+                'F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)',
+                '')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

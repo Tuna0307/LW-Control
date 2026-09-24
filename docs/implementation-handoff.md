@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-013`
+**Current checkpoint:** `LWB-R8-014`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -75,7 +75,7 @@ Manual `map_scan_start` is restored to the recovered 0.3.1 public boundary: exac
 
 The original executable also closes invalid-mode behavior exactly: missing/null/non-string `scanMode` defaults to Normal; only string values are validated; empty/unknown strings use `INVALID_SCAN_MODE / map scan mode must be normal or fast`. That string validation happens after earlier game/active-scan/world admission and before protected `startMapScan`, so an earlier admission error can win. See `docs/reviews/2026-09-24-r8-012-manual-scan-strict-parity.md`.
 
-Current-client strategy IDs/acquisition remain compatibility internals and may not rewrite observable Manual mode/concurrency. Existing Zombie Boss storage/query compatibility is retained internally only because `map_search` is a separate future parity checkpoint; it is not a public Manual scan kind.
+Current-client strategy IDs/acquisition remain compatibility internals and may not rewrite observable Manual mode/concurrency. Existing Zombie Boss acquisition/storage compatibility remains internal only; R8-014 removes Zombie Boss from the public `map_search` result-kind contract as well.
 
 ## R8-013 Map Scan Status / Stop shared-state checkpoint
 
@@ -83,7 +83,13 @@ Current-client strategy IDs/acquisition remain compatibility internals and may n
 
 Public Stop is idempotent when already idle and always publishes the recovered five-field cleanup (`isReading=false`, `phase=idle`, `inflightBlocks=0`, `lastError=null`, `resumeAvailable=false`) while preserving run/config/counter/native/start/world fields. The compatibility engine has no original protected scan session, so active Stop uses the evidenced predicate-false branch rather than inventing a game-side `stopMapScan` primitive. Clear remains a distinct broader reset and preserves mode/concurrency/native-ready.
 
-The next main Map work is `map_search`, then original Auto Scan behavior and Scheduled Plunder restoration.
+## R8-014 `map_search` kind/filter checkpoint
+
+Public `map_search` now accepts exactly the original eight kinds and the generated Map Data panel again emits the original kind-owned filters. Rebuild-only public Zombie Boss, `monsterNameKeys`, Monster/Resource level selectors and Resource idle/full/black-tile filters are removed. Monster keyword search again uses the recovered generic name/alliance/UUID/`data_json` predicate. Resource truth extras are inert rather than assigned invented semantics; Resource/Monster level bounds fail closed because the recovered named level fields belong to Dispatch.
+
+This checkpoint does **not** promote all alternate-sort internals to exact parity; those remain explicitly partial in the parity matrix. See `docs/reviews/2026-09-24-r8-014-map-search-filter-parity.md`.
+
+The next main Map work is the original Auto Scan frontend scheduler/state machine, then Scheduled Plunder restoration.
 
 ## Parked protected package-key lane
 
