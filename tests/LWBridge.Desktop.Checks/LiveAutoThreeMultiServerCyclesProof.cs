@@ -257,9 +257,11 @@ internal static class LiveAutoThreeMultiServerCyclesProof
             "server_jump", payload, cancellationToken).ConfigureAwait(false);
         JsonElement json = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
         if (!json.TryGetProperty("previousServerId", out _) ||
+            !json.TryGetProperty("serverId", out JsonElement resultServerId) ||
+            resultServerId.GetInt32() != serverId ||
             !json.TryGetProperty("changed", out _))
             throw new InvalidDataException(
-                "server_jump did not return the recovered {previousServerId,changed} contract.");
+                "server_jump did not return the recovered {changed,previousServerId,serverId} contract.");
 
         CurrentClientMapContext context =
             await source.GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);

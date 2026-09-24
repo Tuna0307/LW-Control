@@ -629,6 +629,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return new
             {
                 previousServerId = result.PreviousServerId,
+                serverId = result.ServerId,
                 changed = result.Changed,
             };
         }

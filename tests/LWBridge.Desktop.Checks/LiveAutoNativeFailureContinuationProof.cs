@@ -87,6 +87,7 @@ internal static class LiveAutoNativeFailureContinuationProof
                     "server_jump", homePayload, operationCts.Token).ConfigureAwait(false);
                 JsonElement same = JsonSerializer.SerializeToElement(sameResult, JsonOptions.Default);
                 if (same.GetProperty("previousServerId").GetInt32() != homeServerId ||
+                    same.GetProperty("serverId").GetInt32() != homeServerId ||
                     same.GetProperty("changed").GetBoolean())
                     throw new InvalidDataException(
                         "Post-failure same-server server_jump was not proven as a no-op.");

@@ -45,6 +45,7 @@ internal static class LiveAutoZombieCycleProof
                     "server_jump", jumpPayload, operationCts.Token).ConfigureAwait(false);
                 JsonElement jump = JsonSerializer.SerializeToElement(jumpResult, JsonOptions.Default);
                 if (jump.GetProperty("previousServerId").GetInt32() != serverId ||
+                    jump.GetProperty("serverId").GetInt32() != serverId ||
                     jump.GetProperty("changed").GetBoolean())
                     throw new InvalidDataException(
                         "Auto-cycle same-server server_jump was not proven as a no-op.");

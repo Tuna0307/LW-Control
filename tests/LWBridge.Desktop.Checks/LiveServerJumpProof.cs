@@ -39,6 +39,7 @@ internal static class LiveServerJumpProof
                     "server_jump", samePayload, operationCts.Token).ConfigureAwait(false);
                 JsonElement same = JsonSerializer.SerializeToElement(sameResult, JsonOptions.Default);
                 if (same.GetProperty("previousServerId").GetInt32() != homeServerId ||
+                    same.GetProperty("serverId").GetInt32() != homeServerId ||
                     same.GetProperty("changed").GetBoolean())
                     throw new InvalidDataException("Same-server server_jump was not proven as a no-op.");
 
@@ -55,6 +56,7 @@ internal static class LiveServerJumpProof
                         "server_jump", targetPayload, jumpCts.Token).ConfigureAwait(false);
                     JsonElement jumped = JsonSerializer.SerializeToElement(jumpResult, JsonOptions.Default);
                     if (jumped.GetProperty("previousServerId").GetInt32() != homeServerId ||
+                        jumped.GetProperty("serverId").GetInt32() != targetServerId ||
                         !jumped.GetProperty("changed").GetBoolean())
                         throw new InvalidDataException("Cross-server server_jump did not report the expected transition.");
 
@@ -68,7 +70,8 @@ internal static class LiveServerJumpProof
                     object? returnResult = await service.InvokeAsync(
                         "server_jump", returnPayload, jumpCts.Token).ConfigureAwait(false);
                     JsonElement returned = JsonSerializer.SerializeToElement(returnResult, JsonOptions.Default);
-                    if (!returned.GetProperty("changed").GetBoolean())
+                    if (returned.GetProperty("serverId").GetInt32() != homeServerId ||
+                        !returned.GetProperty("changed").GetBoolean())
                         throw new InvalidDataException("Return server_jump did not report a changed transition.");
 
                     CurrentClientMapContext home =

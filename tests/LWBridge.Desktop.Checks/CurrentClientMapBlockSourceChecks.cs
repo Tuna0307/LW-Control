@@ -1575,9 +1575,9 @@ internal static class CurrentClientMapBlockSourceChecks
             await source.JumpToServerAsync(2213, CancellationToken.None);
 
         Check(jumpWrites == 2 &&
-              same.PreviousServerId == 2212 && !same.Changed &&
-              changed.PreviousServerId == 2212 && changed.Changed,
-            "server Jump must accept a proven same-server no-op and a proven changed transition");
+              same.PreviousServerId == 2212 && same.ServerId == 2212 && !same.Changed &&
+              changed.PreviousServerId == 2212 && changed.ServerId == 2213 && changed.Changed,
+            "server Jump must preserve previous/destination server identity for same-server no-op and changed transitions");
     }
 
     private static async Task ServerJumpMapsRecoveredTimeoutContract()

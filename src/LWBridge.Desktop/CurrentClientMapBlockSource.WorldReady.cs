@@ -18,7 +18,7 @@ internal sealed record CurrentClientCoordinateJumpResult(int ServerId, int X, in
 
 internal sealed record CurrentClientMarchFollowResult(int ServerId, long MarchUuid);
 
-internal sealed record CurrentClientServerJumpResult(int PreviousServerId, bool Changed);
+internal sealed record CurrentClientServerJumpResult(int PreviousServerId, int ServerId, bool Changed);
 
 internal sealed partial class CurrentClientMapBlockSource
 {
@@ -228,7 +228,7 @@ internal sealed partial class CurrentClientMapBlockSource
             bool expectedChanged = previousServerId != targetServerId;
             if (!MatchesBool(root, "changed", expectedChanged))
                 throw new InvalidDataException("Server-jump result changed flag did not match the proven server transition.");
-            return new CurrentClientServerJumpResult(previousServerId, expectedChanged);
+            return new CurrentClientServerJumpResult(previousServerId, targetServerId, expectedChanged);
         }
 
         if (state == "failed")

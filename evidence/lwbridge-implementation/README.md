@@ -4,6 +4,7 @@ This directory intentionally retains chronological machine-readable evidence. Do
 
 ## Current authority — R8 strict parity
 
+- `2026-09-24-r8-009-server-jump-result-parity.json` — restores the complete original public `server_jump` success envelope `{changed, previousServerId, serverId}` while preserving the recovered error contract.
 - `2026-09-24-r8-008-map-scan-clear-strict-parity.json` — restores the original current-live-server Clear gate, server-scoped deletion, Manual-only frontend control and fail-closed behavior.
 - `2026-09-24-r8-007-city-excel-export-restored.json` — restores and validates original City Excel export API/UI, native dialog, paging, workbook and result contract.
 - `2026-09-24-r8-006-envelope-key-output-flow.json` ? proves caller-side output ownership from the opaque envelope consumer into the exact 32-byte package AES key, without inspecting the restricted consumer body.

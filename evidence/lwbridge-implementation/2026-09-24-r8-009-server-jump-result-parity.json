@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-009",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 server_jump public success result envelope.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md"
+  ],
+  "exactContract": {
+    "request": "{serverId}",
+    "successFields": ["changed", "previousServerId", "serverId"],
+    "invalidServer": "INVALID_SERVER_ID / server ID must be an integer from 1 to 99999",
+    "busy": "GAME_OPERATION_IN_PROGRESS / another game operation is already in progress",
+    "timeout": "SERVER_JUMP_TIMEOUT / the game did not switch to the target server",
+    "numericTimeout": "UNKNOWN"
+  },
+  "deviationCorrected": "Current service omitted destination serverId from otherwise validated successful server_jump results.",
+  "implementation": [
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.WorldReady.cs",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/LiveServerJumpProof.cs",
+    "tests/LWBridge.Desktop.Checks/LiveAutoZombieCycleProof.cs",
+    "tests/LWBridge.Desktop.Checks/LiveAutoNativeFailureContinuationProof.cs",
+    "tests/LWBridge.Desktop.Checks/LiveAutoThreeMultiServerCyclesProof.cs"
+  ],
+  "validation": {
+    "gitDiffCheck": "PASS",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "frontendGeneratorCheck": "PASS",
+    "ownerWorkflowBrowser": "PASS",
+    "autoNavigationBrowser": "PASS",
+    "autoRestartBrowser": "PASS"
+  },
+  "nonClaims": [
+    "current Last War server travel internals are original LWBridge 0.3.1 internals",
+    "current numeric server-jump timeout equals the original timeout"
+  ],
+  "remainingMapParity": [
+    "map_summary exact success envelope",
+    "map_data_options exact selector/result behavior",
+    "original Auto Scan state machine",
+    "Scheduled Plunder restoration",
+    "Normal/Fast remaining semantics",
+    "original protected acquisition internals"
+  ]
+}

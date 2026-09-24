@@ -1023,6 +1023,7 @@ internal static class ManualMapScanCommandServiceChecks
                 requestedTarget = targetServerId;
                 return Task.FromResult(new CurrentClientServerJumpResult(
                     SyntheticOriginalServerId,
+                    targetServerId,
                     targetServerId != SyntheticOriginalServerId));
             });
         liveService.StatusChanged += _ => statusEvents++;
@@ -1034,6 +1035,7 @@ internal static class ManualMapScanCommandServiceChecks
         JsonElement liveStatus = Status(liveService);
         Check(requestedTarget == SyntheticTargetServerId &&
               jumpJson.GetProperty("previousServerId").GetInt32() == SyntheticOriginalServerId &&
+              jumpJson.GetProperty("serverId").GetInt32() == SyntheticTargetServerId &&
               jumpJson.GetProperty("changed").GetBoolean() &&
               Int(liveStatus, "serverId") == SyntheticTargetServerId &&
               String(liveStatus, "serverIdSource") == "live" &&
