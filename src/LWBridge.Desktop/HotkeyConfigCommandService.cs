@@ -120,6 +120,82 @@ internal sealed class ProfileRuntimeConfigStore
         }
     }
 
+    internal JsonObject ReadEquipmentConfig()
+    {
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject? root = ReadRoot(allowMissing: true);
+                return ProjectEquipmentConfig(root);
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    internal JsonObject SaveEquipmentConfig(JsonObject config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject root = ReadRoot(allowMissing: true) ?? new JsonObject();
+
+                root["equipmentPresets"] =
+                    config["equipmentPresets"]?.DeepClone();
+
+                if (config.TryGetPropertyValue(
+                    "initialEquipmentConfig",
+                    out JsonNode? initialEquipmentConfig))
+                {
+                    root["initialEquipmentConfig"] =
+                        initialEquipmentConfig?.DeepClone();
+                }
+                else
+                {
+                    root.Remove("initialEquipmentConfig");
+                }
+
+                root.Remove("equipmentSchemes");
+                root.Remove("squadEquipmentBindings");
+
+                WriteRoot(root);
+                return ProjectEquipmentConfig(root);
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    private static JsonObject ProjectEquipmentConfig(JsonObject? root)
+    {
+        var result = new JsonObject();
+
+        if (root is not null &&
+            root.TryGetPropertyValue("equipmentPresets", out JsonNode? presets))
+        {
+            result["equipmentPresets"] = presets?.DeepClone();
+        }
+        else
+        {
+            result["equipmentPresets"] = new JsonArray();
+        }
+
+        if (root is not null &&
+            root.TryGetPropertyValue(
+                "initialEquipmentConfig",
+                out JsonNode? initialEquipmentConfig))
+        {
+            result["initialEquipmentConfig"] =
+                initialEquipmentConfig?.DeepClone();
+        }
+
+        return result;
+    }
+
     private void WriteRoot(JsonObject root)
     {
         string? directory = Path.GetDirectoryName(path);

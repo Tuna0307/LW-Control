@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-022`
+**Current checkpoint:** `LWB-R8-023`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -124,6 +124,10 @@ R8-021 corrects the production `update_status` response to the native nine-field
 ## R8-022 feedback-export contract/fence checkpoint
 
 R8-022 recovers the exact native five-field feedback result `{canceled,path,fileCount,sourceBytes,archiveBytes}`, the five-field `bridge://feedback-export-progress` payload `{exportId,state,processedBytes,totalBytes,percent}`, and the immutable UI states `preparing/exporting/finalizing/completed`. It restores exact missing/wrong-type/blank/Unicode-whitespace `exportId` failure as `FEEDBACK_EXPORT_FAILED / export ID is required`. A valid export ID remains `COMMAND_NOT_IMPLEMENTED` because the original service includes redaction keys, cached/rotated/segmented logs, config summaries, diagnostics, limits, pending/incomplete-export recovery, archive verification and save/open lifecycle; a generic ZIP would be a false and privacy-weaker reconstruction. See `docs/reviews/2026-09-25-r8-022-feedback-export-contract-fence.md`.
+
+## R8-023 Equipment configuration checkpoint
+
+R8-023 restores profile-scoped `equipment_config_get/save` on the shared runtime config. Native get projection defaults missing `equipmentPresets` to `[]` and omits missing `initialEquipmentConfig`; save requires an array, validates each preset as an object with nonblank Unicode-trimmed string `id`/`name` and unique trimmed IDs, replaces presets, stores/removes optional initial config, removes legacy `equipmentSchemes`/`squadEquipmentBindings`, preserves unrelated sibling JSON, and returns the projected equipment config. The recovered Squad panel remains byte-identical to 0.3.1. `equipment_preset_apply` and native `equipment_initial_apply` remain deliberately fenced as game-action behavior. See `docs/reviews/2026-09-25-r8-023-equipment-config-persistence.md`.
 
 ## Parked protected package-key lane
 

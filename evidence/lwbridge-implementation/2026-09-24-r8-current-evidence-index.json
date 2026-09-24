@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-022",
+  "checkpoint": "LWB-R8-023",
   "date": "2026-09-25",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md",
     "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
     "docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md",
+    "docs/reviews/2026-09-25-r8-023-equipment-config-persistence.md",
     "docs/reviews/2026-09-25-r8-022-feedback-export-contract-fence.md",
     "docs/reviews/2026-09-25-r8-021-update-status-idle-contract.md",
     "docs/reviews/2026-09-25-r8-020-visual-metrics-config-persistence.md",
@@ -37,6 +38,7 @@
     "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-25-r8-023-equipment-config-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-022-feedback-export-contract-fence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-021-update-status-idle-contract.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-020-visual-metrics-config-persistence.json",
@@ -65,7 +67,7 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "recover another retained non-account surface; implement feedback export only when the native redaction/cache/archive/save lifecycle is complete enough to avoid a privacy-weaker fake archive, and keep updater network/download/open guesses fenced",
+    "recover another retained Squads/AFK offline/config surface; keep equipment apply execution fenced until live squad/hero/equipment provider and progress/error protocol evidence is complete",
     "implement the City Layout snapshot host boundary only when an evidence-backed getCityLayoutSnapshot provider is available; keep validate/apply planner-executor protected",
     "keep Monster distance, City shield and Railway quality fail-closed until stronger reference evidence recovers their exact native sort branches and remaining multi-sort assembly",
     "continue protected Map acquisition/travel/action recovery only when new permitted reference evidence supports exact behavior",

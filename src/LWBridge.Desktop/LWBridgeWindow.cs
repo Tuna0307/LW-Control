@@ -52,6 +52,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly CityLayoutDraftCommandService? cityLayoutDraftService;
     private readonly HotkeyConfigCommandService? hotkeyConfigService;
     private readonly VisualMetricsConfigCommandService? visualMetricsConfigService;
+    private readonly EquipmentConfigCommandService? equipmentConfigService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -147,6 +148,9 @@ internal sealed class LWBridgeWindow : Form
         visualMetricsConfigService = profileRuntimeConfigPath is null
             ? null
             : new VisualMetricsConfigCommandService(profileRuntimeConfigPath);
+        equipmentConfigService = profileRuntimeConfigPath is null
+            ? null
+            : new EquipmentConfigCommandService(profileRuntimeConfigPath);
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -197,6 +201,7 @@ internal sealed class LWBridgeWindow : Form
             if (cityLayoutDraftService is not null) services.Add(cityLayoutDraftService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
+            if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             productionCommands = services.Count switch
             {
                 0 => null,

@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-023",
+  "date": "2026-09-25",
+  "scope": "Restore profile-scoped equipment_config_get/save persistence and native validation/merge semantics without implementing equipment apply game actions.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/SquadPanel-ClRUC9pv.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "native equipment_config_get path near VA 0x1401875ae",
+    "native equipment_config_save path near VA 0x140129d16",
+    "native equipment projection helper near VA 0x1403b683e",
+    "native preset validation/merge helper near VA 0x1403b85a5",
+    "native runtime-config merge helper near VA 0x1403cbcd3",
+    "observed original profile runtime config under %APPDATA%/lwbridge/profiles/<profile>/runtime/config.json"
+  ],
+  "frontend": {
+    "changed": false,
+    "squadPanelSha256": "3211da6582edb72e99db942c1b5ad4a0d7b3ed831df7548e020e0eab666c03af",
+    "status": "EXACT_BYTES against immutable original"
+  },
+  "originalRuntimeConfig": {
+    "sha256": "4f7981d85da6703174eb8daeea1c4658aac262c920f0f4cbdddbfce75c01fa55",
+    "equipmentPresets": [],
+    "initialEquipmentConfigPresent": false
+  },
+  "commands": {
+    "implemented": [
+      "equipment_config_get",
+      "equipment_config_save"
+    ],
+    "fenced": [
+      "equipment_preset_apply",
+      "equipment_initial_apply"
+    ]
+  },
+  "getProjection": {
+    "equipmentPresets": "always present; missing member defaults to []",
+    "initialEquipmentConfig": "copied only when present; absent member remains omitted",
+    "nestedJson": "preserved without narrowing at this boundary"
+  },
+  "saveValidation": {
+    "equipmentPresetsMissingOrWrongType": {
+      "code": "INVALID_REQUEST",
+      "message": "invalid equipment presets"
+    },
+    "presetInvalid": {
+      "code": "INVALID_REQUEST",
+      "message": "invalid equipment preset"
+    },
+    "presetRules": [
+      "item must be an object",
+      "id must be a string",
+      "name must be a string",
+      "Unicode-trimmed id must be non-empty",
+      "Unicode-trimmed name must be non-empty",
+      "Unicode-trimmed id must be unique within the array"
+    ]
+  },
+  "saveMerge": {
+    "replace": [
+      "equipmentPresets"
+    ],
+    "optional": {
+      "initialEquipmentConfigPresent": "store as supplied",
+      "initialEquipmentConfigOmitted": "remove stored member"
+    },
+    "removeLegacy": [
+      "equipmentSchemes",
+      "squadEquipmentBindings"
+    ],
+    "preserve": "unrelated and unknown sibling runtime-config JSON"
+  },
+  "stateError": {
+    "code": "STATE_UNAVAILABLE",
+    "message": "config state is unavailable"
+  },
+  "productionRouting": {
+    "service": "EquipmentConfigCommandService",
+    "runtimeStore": "shared per-profile ProfileRuntimeConfigStore",
+    "applyCommands": "remain COMMAND_NOT_IMPLEMENTED in rebuild"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/EquipmentConfigCommandService.cs",
+    "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/EquipmentConfigChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "missing config defaults to equipmentPresets [] only",
+    "presets and initial config persist",
+    "nested arbitrary preset JSON preserved",
+    "unknown sibling JSON preserved",
+    "Hotkey and visual-metrics sibling JSON preserved",
+    "legacy equipmentSchemes removed on save",
+    "legacy squadEquipmentBindings removed on save",
+    "reopen/get persistence",
+    "omitted initialEquipmentConfig removes stored member",
+    "exact invalid equipment presets error",
+    "exact invalid equipment preset error",
+    "Unicode whitespace validation",
+    "duplicate trimmed preset ID validation",
+    "corrupt config STATE_UNAVAILABLE",
+    "production backend routes equipment_config_get",
+    "equipment_preset_apply remains COMMAND_NOT_IMPLEMENTED",
+    "equipment_initial_apply remains COMMAND_NOT_IMPLEMENTED"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "squadPanelHash": "PASS exact immutable 0.3.1",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-023 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "frontend": "EXACT_BYTES",
+    "getProjection": "EXACT_NATIVE",
+    "saveValidation": "EXACT_NATIVE",
+    "saveMerge": "EXACT_NATIVE",
+    "runtimeStorageFamily": "EXACT_NATIVE source; rebuild path is rebuild-owned profile root",
+    "nestedEquipmentSchema": "PRESERVED_OPAQUE_JSON",
+    "applyActions": "PROTECTED_UNKNOWN / intentionally absent"
+  },
+  "notClaimed": [
+    "equipment catalog acquisition",
+    "live squad/hero/equipment discovery",
+    "equipment_preset_apply execution",
+    "equipment_initial_apply execution",
+    "operation/progress event semantics",
+    "partial apply behavior",
+    "duplicate equipment UUID runtime behavior",
+    "no-binding behavior",
+    "per-hero equipment requests",
+    "game-side rollback/recovery"
+  ],
+  "nextCheckpoint": "Recover another retained Squads/AFK offline/config surface, while keeping equipment apply execution fenced until its live provider/protocol contract is evidence-backed."
+}
