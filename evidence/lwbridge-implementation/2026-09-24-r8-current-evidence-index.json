@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-019",
+  "checkpoint": "LWB-R8-020",
   "date": "2026-09-25",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md",
     "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
     "docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md",
+    "docs/reviews/2026-09-25-r8-020-visual-metrics-config-persistence.md",
     "docs/reviews/2026-09-25-r8-019-hotkey-config-persistence.md",
     "docs/reviews/2026-09-25-r8-018-city-layout-draft-persistence.md",
     "docs/reviews/2026-09-25-r8-017-map-search-sort-gating.md",
@@ -34,6 +35,7 @@
     "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-25-r8-020-visual-metrics-config-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-019-hotkey-config-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-018-city-layout-draft-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-017-map-search-sort-gating.json",
@@ -59,7 +61,7 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "recover another retained offline settings/config surface while Hotkey keyboard/game-action execution remains fenced",
+    "recover the next retained non-account Settings/profile-config surface while Hotkey actions and visual rendering internals remain fenced",
     "implement the City Layout snapshot host boundary only when an evidence-backed getCityLayoutSnapshot provider is available; keep validate/apply planner-executor protected",
     "keep Monster distance, City shield and Railway quality fail-closed until stronger reference evidence recovers their exact native sort branches and remaining multi-sort assembly",
     "continue protected Map acquisition/travel/action recovery only when new permitted reference evidence supports exact behavior",

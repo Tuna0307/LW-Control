@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-019`, 2026-09-25.
+**Current through:** `LWB-R8-020`, 2026-09-25.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -18,7 +18,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | City Layout | UI EXACT_BYTES / PARTIAL backend | R8-018 restores per-profile `profile_state` draft persistence and `city_layout_draft_get/save/clear`; five gameplay-facing commands remain missing/protected. Original UI chunk and all eight wrappers remain preserved; planner/executor stays fenced |
 | Hotkeys | UI EXACT_BYTES / PARTIAL backend | R8-019 restores exact ten-field config/defaults, `hotkey_config_get/save`, native `INVALID_REQUEST` / `STATE_UNAVAILABLE` vocabulary and per-profile runtime config persistence; keyboard/game-action execution remains protected/unimplemented |
 | Mini-games | UNKNOWN backend parity | Original UI exists |
-| Settings | UNKNOWN backend parity | Original UI exists |
+| Settings | UI EXACT_BYTES / PARTIAL backend | R8-020 restores `visual_metrics_config_get/save`, native false/false defaults, exact config errors and shared per-profile runtime persistence; feedback/update and other retained non-account settings remain incomplete |
 | Advanced | EXACT_CONTRACT visibility | Original normal build hard-hides the page |
 
 ## Map Data parity

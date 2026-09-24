@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-019`
+**Current checkpoint:** `LWB-R8-020`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -112,6 +112,10 @@ The remaining five commands (`snapshot_get`, `validate`, `apply_start`, `apply_s
 ## R8-019 Hotkey configuration checkpoint
 
 R8-019 restores the original ten-field Hotkey configuration object, native defaults, `hotkey_config_get/save`, and the exact `INVALID_REQUEST / invalid hotkey config` plus `STATE_UNAVAILABLE / config state is unavailable` error vocabulary. The Hotkey panel remains byte-identical to original 0.3.1. Persistence uses the rebuild-owned per-profile runtime config path while preserving unknown sibling JSON. This checkpoint does **not** implement keyboard hooks or any attack/recall/shield/equipment/relocation/reinforcement game action. See `docs/reviews/2026-09-25-r8-019-hotkey-config-persistence.md`.
+
+## R8-020 Settings visual-metrics checkpoint
+
+R8-020 restores `visual_metrics_config_get/save`, the exact two-field `{showFps,showPing}` object, native `false/false` defaults, `INVALID_REQUEST / invalid visual metrics config`, and shared `STATE_UNAVAILABLE / config state is unavailable` failure behavior. Visual metrics and Hotkeys share the rebuild-owned per-profile runtime config while preserving one another and unknown sibling JSON. The Settings panel remains byte-identical to original 0.3.1. Feedback export, update behavior, account interaction, and rendering internals remain separate. See `docs/reviews/2026-09-25-r8-020-visual-metrics-config-persistence.md`.
 
 ## Parked protected package-key lane
 

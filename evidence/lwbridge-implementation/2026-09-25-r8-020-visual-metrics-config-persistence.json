@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-020",
+  "date": "2026-09-25",
+  "scope": "Restore Settings visual_metrics_config_get/save shape, defaults, native validation/error vocabulary and per-profile runtime persistence.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/SettingsPanel-CjjIQp-r.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "native 0.3.1 visual-metrics serializer/default-construction and validation code",
+    "original installed per-profile runtime/config.json visualMetrics subsection"
+  ],
+  "frontend": {
+    "changed": false,
+    "settingsPanelSha256": "669c614914cd7b5a00c5d71d1cd9996cdb300b6a2609768fb931f554929bd69e",
+    "status": "byte-identical to immutable 0.3.1"
+  },
+  "commands": [
+    "visual_metrics_config_get",
+    "visual_metrics_config_save"
+  ],
+  "defaults": {
+    "showFps": false,
+    "showPing": false
+  },
+  "validation": {
+    "invalidConfigCode": "INVALID_REQUEST",
+    "invalidConfigMessage": "invalid visual metrics config",
+    "stateUnavailableCode": "STATE_UNAVAILABLE",
+    "stateUnavailableMessage": "config state is unavailable",
+    "saveShape": "whole two-boolean object"
+  },
+  "storage": {
+    "originalConcept": "%APPDATA%\\lwbridge\\profiles\\<profileId>\\runtime\\config.json",
+    "rebuildPath": "%LOCALAPPDATA%\\LWBridgeRebuild\\profiles\\<profileId>\\runtime\\config.json",
+    "pathClassification": "EQUIVALENT_REIMPLEMENTATION",
+    "writeOwnership": "replace top-level visualMetrics member while preserving hotkeys and unknown sibling JSON",
+    "missingFile": "return recovered native false/false defaults",
+    "malformedOrUnreadable": "STATE_UNAVAILABLE / config state is unavailable"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+    "src/LWBridge.Desktop/VisualMetricsConfigCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/VisualMetricsConfigChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "native defaults false/false",
+    "whole-object save",
+    "persistence after reopen",
+    "visual save preserves Hotkey sibling",
+    "Hotkey save preserves visualMetrics sibling",
+    "incomplete/wrong-type save rejected with INVALID_REQUEST",
+    "malformed runtime config rejected with STATE_UNAVAILABLE"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "settingsPanelHash": "PASS exact immutable 0.3.1",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-020 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "fieldSet": "EXACT_BYTES/native serializer-derived",
+    "defaults": "EXACT_NATIVE + corroborated original runtime profile",
+    "errorVocabulary": "EXACT_NATIVE",
+    "frontend": "EXACT_BYTES",
+    "persistencePath": "EQUIVALENT_REIMPLEMENTATION",
+    "overlayRenderingInternals": "NOT CLAIMED"
+  },
+  "notClaimed": [
+    "Feedback export internals",
+    "update-check/download internals",
+    "account-interaction settings",
+    "account/login/authentication settings",
+    "native visual metrics rendering internals"
+  ],
+  "nextCheckpoint": "Recover another retained non-account Settings/profile-config surface from native evidence without broadening into protected action behavior."
+}

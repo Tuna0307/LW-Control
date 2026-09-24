@@ -19,6 +19,13 @@ internal sealed record HotkeyConfig(
     internal static HotkeyConfig Default { get; } = new();
 }
 
+internal sealed record VisualMetricsConfig(
+    bool ShowFps = false,
+    bool ShowPing = false)
+{
+    internal static VisualMetricsConfig Default { get; } = new();
+}
+
 internal sealed class ProfileRuntimeConfigStore
 {
     private static readonly ConcurrentDictionary<string, object> StorageGates =
@@ -64,33 +71,78 @@ internal sealed class ProfileRuntimeConfigStore
                 JsonObject root = ReadRoot(allowMissing: true) ?? new JsonObject();
                 root["hotkeys"] = JsonSerializer.SerializeToNode(config, JsonOptions.Default);
 
-                string? directory = Path.GetDirectoryName(path);
-                if (string.IsNullOrWhiteSpace(directory))
-                    throw StateUnavailable();
-                Directory.CreateDirectory(directory);
-
-                string temporary = path + ".tmp-" + Guid.NewGuid().ToString("N");
-                try
-                {
-                    File.WriteAllText(
-                        temporary,
-                        root.ToJsonString(JsonOptions.Indented));
-                    File.Move(temporary, path, overwrite: true);
-                }
-                finally
-                {
-                    try
-                    {
-                        if (File.Exists(temporary))
-                            File.Delete(temporary);
-                    }
-                    catch { }
-                }
-
+                WriteRoot(root);
                 return config;
             }
             catch (BridgeCommandException) { throw; }
             catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    internal VisualMetricsConfig ReadVisualMetrics()
+    {
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject? root = ReadRoot(allowMissing: true);
+                if (root is null ||
+                    !root.TryGetPropertyValue("visualMetrics", out JsonNode? node) ||
+                    node is null)
+                {
+                    return VisualMetricsConfig.Default;
+                }
+
+                return DecodeVisualMetrics(node);
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    internal VisualMetricsConfig SaveVisualMetrics(VisualMetricsConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject root = ReadRoot(allowMissing: true) ?? new JsonObject();
+                root["visualMetrics"] =
+                    JsonSerializer.SerializeToNode(config, JsonOptions.Default);
+
+                WriteRoot(root);
+                return config;
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    private void WriteRoot(JsonObject root)
+    {
+        string? directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrWhiteSpace(directory))
+            throw StateUnavailable();
+        Directory.CreateDirectory(directory);
+
+        string temporary = path + ".tmp-" + Guid.NewGuid().ToString("N");
+        try
+        {
+            File.WriteAllText(
+                temporary,
+                root.ToJsonString(JsonOptions.Indented));
+            File.Move(temporary, path, overwrite: true);
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(temporary))
+                    File.Delete(temporary);
+            }
+            catch { }
         }
     }
 
@@ -111,6 +163,20 @@ internal sealed class ProfileRuntimeConfigStore
         try
         {
             HotkeyConfig? config = node.Deserialize<HotkeyConfig>(JsonOptions.Default);
+            return config ?? throw StateUnavailable();
+        }
+        catch (JsonException)
+        {
+            throw StateUnavailable();
+        }
+    }
+
+    private static VisualMetricsConfig DecodeVisualMetrics(JsonNode node)
+    {
+        try
+        {
+            VisualMetricsConfig? config =
+                node.Deserialize<VisualMetricsConfig>(JsonOptions.Default);
             return config ?? throw StateUnavailable();
         }
         catch (JsonException)
