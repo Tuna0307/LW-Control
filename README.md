@@ -1,6 +1,6 @@
 # LWBridge recovery / rebuild
 
-**Current checkpoint:** `LWB-R7-154` (2026-09-24).
+**Current checkpoint:** `LWB-R7-155` (2026-09-24).
 **Branch:** `research/offline-controller`.
 
 This repository is the evidence-first LWBridge rebuild for the Last War PC client. The remote/directory name `LW-Control` is historical naming; it does not define feature authority.
@@ -20,7 +20,7 @@ The remaining non-pass work is deliberately separated from ordinary implementati
 
 - Ghost positive-row population remains unavailable: R7-152 current-v21 full scans on 2212/2175/2180/2185/2207 all completed cleanly with zero authentic Ghost rows.
 - Supplies positive-row population remains unavailable: R7-153 current-v21 full scans on 2212/2175/2180/2185/2207/2213 all completed cleanly with zero authentic `WorldSuppliesPoint` rows.
-- Fresh Railway v21 positive-row/Follow acceptance is still pending; historical v20 proof remains provenance. R7-154 preserved the external-game ownership boundary rather than taking over a manually launched session.
+- Railway direct Train-list acquisition is freshly live-proven on v21 by R7-155 across 11 sampled servers, all currently empty. Fresh v21 positive-row/Follow acceptance remains population-gated; historical v20 positive Follow remains provenance.
 - Treasure protected claim-scheduler semantics remain blocked behind the preserved SB-79 boundary; public claim stays unrouted.
 - Live Alliance message delivery requires a suitable target and explicit authorization. Scheduled Truck/Dispatch Plunder was retired by owner in R7-149.
 - Simultaneous real multi-account UI population still requires several usable live accounts/sessions.
