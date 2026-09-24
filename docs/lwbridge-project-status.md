@@ -1,11 +1,11 @@
 # Current project status — Home and Map Data
 
 **Date:** 2026-09-24
-**Current checkpoint:** `LWB-R7-154`; parent revision `e88a7f160a7a2ff856a30ddead8e04766e4e773e`
+**Current checkpoint:** `LWB-R7-155`; parent revision `f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb`
 
 ## Executive status
 
-The Home / Overview acceptance state is unchanged. R7-151 adds the v21 update-safe lifecycle and accelerated Dispatch/Secret Task path. R7-152/R7-153 refresh Ghost/Supplies population evidence. R7-154 corrects current Railway wording: historical v20 positive acquisition/Follow remains provenance, but a fresh v21 positive row/Follow proof is still pending; the strict 2207 attempt preserved the external-game ownership boundary. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
+The Home / Overview acceptance state is unchanged. R7-151 adds the v21 update-safe lifecycle and accelerated Dispatch/Secret Task path. R7-152/R7-153 refresh Ghost/Supplies population evidence. R7-155 freshly live-proves current-v21 Railway direct Train-list acquisition across 11 sampled servers, all with authoritative zero-row results; a strict 2207 full scan also completed cleanly with zero Railway rows. Positive v21 Railway row/Follow remains population-gated. The acceptance-case statuses remain unchanged with **0 ordinary `partial` rows**.
 
 That does not mean every possible live action has been exercised. Remaining gaps are explicitly separated into population availability, the Alliance-share authorization boundary, one preserved protected-contract blocker, simultaneous multi-account availability, and final integrated release acceptance. Scheduled Plunder is no longer a remaining gate.
 
@@ -47,5 +47,5 @@ R7-149 current acceptance status counts:
 2. Supplies positive-row proof remains population-gated after R7-153 current-v21 clean zero-row scans on 2212, 2175, 2180, 2185, 2207, and 2213.
 3. Treasure protected claim scheduler recovery remains blocked under SB-79; do not reroute the denied operation or invent the contract.
 4. Simultaneous real multi-account UI population when multiple active accounts are available.
-5. Fresh positive current-v21 Railway row/Follow when Train population is present; historical v20 positive evidence remains provenance but is not a fresh v21 pass.
+5. Fresh positive current-v21 Railway row/Follow when Train population is present; R7-155 proves the v21 direct source path across 11 sampled zero-row servers, while historical v20 positive Follow remains provenance.
 6. Final integrated release acceptance.
