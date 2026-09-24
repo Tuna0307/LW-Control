@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-006",
+  "checkpoint": "LWB-R8-007",
   "date": "2026-09-24",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-007-city-excel-export-restored.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-006-envelope-key-output-flow.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-005-device-login-material.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-004-auth-key-envelope-transport.json",
@@ -37,6 +38,7 @@
     "identify which returned field carries the peer P-256 public point and any encrypted-key nonce/tag/ciphertext values",
     "reproduce the proven opaque-consumer 32-byte package-key output without inspecting SB-79",
     "decrypt and hash-preserve original bridge-scripts.dat plaintext/container",
-    "integrate the completed exact Map control-plane contract report into the parity implementation queue"
+    "restore exact Scheduled Plunder control plane from the recovered Map contract report",
+    "restore exact original Auto Scan and scan public-contract semantics"
   ]
 }

@@ -1,6 +1,6 @@
 # Completion estimate — reset for strict parity
 
-**Current through:** `LWB-R8-006`, 2026-09-24.
+**Current through:** `LWB-R8-007`, 2026-09-24.
 
 The previous percentage estimates and the R7 “0 ordinary partial rows” statement measured a narrower reconstructed Home/Map product. They are not meaningful measures of one-to-one LWBridge 0.3.1 completion.
 

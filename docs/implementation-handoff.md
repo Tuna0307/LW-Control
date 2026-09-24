@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-006`
+**Current checkpoint:** `LWB-R8-007`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -40,6 +40,12 @@ The old “0 ordinary partial rows” acceptance statement is therefore not one-
 The pending R7-156 Map work was reconciled instead of left as 30+ GitHub Desktop changes. The known incomplete wide-FOV/68-request production shortcut and the rebuild-only Secret Task Quick Find surface are removed, the complete movement/AOI baseline is restored as a temporary correctness fallback, and the Clear resolver-gap fix is retained. The exploratory Dispatch/Ghost finder probes created during the abandoned redesign discussion were discarded.
 
 This cleanup is not parity proof. The temporary scanner remains a reconstruction until the original LWBridge 0.3.1 Map implementation is recovered.
+
+## R8-007 City Excel parity checkpoint
+
+The original `map_city_export` surface has been restored end-to-end. The generator again preserves the original API wrapper, City-only UI/button/state and all nine locale labels; the desktop host owns the save dialog; backend export uses the recovered 200-row / 1000-page / 200,000-row contract; and the exact six-part XLSX writer/result envelope is regression-tested. See `docs/reviews/2026-09-24-r8-007-restore-city-excel-export.md`.
+
+The secondary Map control-plane research is preserved at `docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md` and should be the starting authority for Scheduled Plunder, Auto Scan and the remaining Map control-plane corrections.
 
 ## P0
 

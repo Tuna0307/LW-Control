@@ -1,4 +1,4 @@
-/* Owner override regression: City Excel export must not be reachable in shipped Map Data. */
+/* Strict-parity regression: original City Excel export must be reachable in shipped Map Data. */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -31,19 +31,21 @@ async function main() {
     await page.locator('.panel.map-panel').waitFor();
     await page.waitForTimeout(300);
     assert.deepEqual(errors,[],'generated Map Data must load without JavaScript errors');
-    assert.equal(await page.getByRole('button',{name:'Export Excel'}).count(),0,'City Export Excel button must be absent');
-    assert.equal(await page.getByText(/Exporting\.|Exported .* cities to/).count(),0,'City export status UI must be absent');
-    const commands=await page.evaluate(()=>window.LWBridgePreview.calls);
-    assert.equal(commands.includes('map_city_export'),false,'Map Data must never invoke retired map_city_export');
+    assert.equal(await page.getByRole('button',{name:'Export Excel'}).count(),1,'original City Export Excel button must be present');
+
     const api=fs.readFileSync(path.join(candidate,'assets','api-ClPPi2JT.js'),'utf8');
     const panel=fs.readFileSync(path.join(candidate,'assets','MapDataPanel-C1HVeNHr.js'),'utf8');
-    assert.equal(api.includes('map_city_export'),false,'shipped API bundle must not contain map_city_export');
-    assert.equal(panel.includes('map.exportExcel'),false,'shipped Map Data bundle must not contain export UI translation keys');
+    assert.equal(api.includes('map_city_export'),true,'shipped API bundle must contain original map_city_export wrapper');
+    assert.equal(panel.includes('map.exportExcel'),true,'shipped Map Data bundle must contain original export UI');
+    assert.equal(panel.includes('map.exportingExcel'),true,'shipped Map Data bundle must contain original export busy state');
+    assert.equal(panel.includes('map.exportExcelSuccess'),true,'shipped Map Data bundle must contain original export success state');
     for(const name of fs.readdirSync(path.join(candidate,'assets')).filter(name=>/^(en|id|ja|ko|pt|ru|vi|zh-CN|zh-TW)-.*\.js$/.test(name))) {
       const locale=fs.readFileSync(path.join(candidate,'assets',name),'utf8');
-      assert.equal(locale.includes('"map.exportExcel":'),false,`${name} must not ship City export translations`);
+      assert.equal(locale.includes('\"map.exportExcel\":'),true,`${name} must ship original City export translations`);
+      assert.equal(locale.includes('\"map.exportingExcel\":'),true,`${name} must ship original City export busy translation`);
+      assert.equal(locale.includes('\"map.exportExcelSuccess\":'),true,`${name} must ship original City export success translation`);
     }
-    console.log('City Excel export removal browser check passed.');
+    console.log('City Excel export strict-parity browser check passed.');
   } finally {
     await page.close();
     await browser.close();

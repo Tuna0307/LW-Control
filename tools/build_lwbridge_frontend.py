@@ -77,6 +77,24 @@ def apply_hash_locked_delta(text, recipe_path):
     return result
 
 
+def restore_city_export_panel(text, original_text):
+    """Restore the exact recovered City Excel UI after maintained rebuild deltas."""
+    text = replace_once(text, 'It as i,Tn as s,', 'It as i,T as o,Tn as s,')
+    text = replace_once(text,
+        ',[Dn,On]=(0,b.useState)(!1)',
+        ',[Tn,En]=(0,b.useState)(!1),[Dn,On]=(0,b.useState)(!1)')
+
+    handler_start = original_text.index('async function lr(){')
+    handler_end = original_text.index('async function ur(){', handler_start)
+    handler = original_text[handler_start:handler_end]
+    text = replace_once(text, 'async function ur(){', handler + 'async function ur(){')
+
+    button = 'F===`city`&&(0,D.jsx)(`button`,{disabled:Tn||L<=0||w.isReading,onClick:lr,children:C(Tn?`map.exportingExcel`:`map.exportExcel`)}),'
+    search_button = '(0,D.jsx)(`button`,{onClick:()=>{z===1?er(1):B(1)},children:C(`common.search`)})'
+    text = replace_once(text, search_button, search_button + ',' + button[:-1])
+    return text
+
+
 def retire_scheduled_plunder_api(text):
     start = text.index('function qt(){return U(`map_plunder_jobs_list`)}')
     end = text.index('function Qt(e,t){return U(`map_player_mark_set`', start)
@@ -193,11 +211,8 @@ def build(check=False):
                 'function U(e,t){let n=T(),r=t&&typeof t==`object`&&!Array.isArray(t)?{...t}:t==null?{}:{value:t};return n&&!(`profileId`in r)&&(r.profileId=n),window.LWBridgePreview.invoke(e,r)}')
             s = replace_between(s, 'function W(e,t){', 'function G(e){',
                 'function W(e,t){return window.LWBridgePreview.listen(e,e=>{let n=e;if(n&&typeof n==`object`&&`profileId`in n&&`payload`in n){if(n.profileId!==T())return;t(n.payload);return}t(n)})}')
-            # LWB-R7-066 owner override: City Excel export is retired from the
-            # shipped API surface. Keep this transform anchored to the immutable
-            # recovered bundle so regeneration cannot resurrect the command.
-            s = replace_once(s, 'function Vt(e,t){return U(`map_city_export`,{query:e,...t})}', '')
-            s = replace_once(s, ',Vt as T,', ',')
+            # R8 strict parity: preserve the original map_city_export wrapper.
+            # Scheduled Plunder is restored in a separate parity checkpoint.
             s = retire_scheduled_plunder_api(s)
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
@@ -411,10 +426,9 @@ def build(check=False):
             data = s.encode('utf-8')
         elif re.match(r'^(en|id|ja|ko|pt|ru|vi|zh-CN|zh-TW)-.*\.js$', path.name):
             s = data.decode('utf-8')
-            # LWB-R7-066 / R7-067 owner overrides: retired export and scan-speed
-            # labels must not reappear in any shipped locale bundle.
+            # R8 strict parity restores the original City Excel labels. Scan-speed
+            # and Scheduled Plunder labels remain tracked by their own parity work.
             for key in (
-                'map.exportExcel', 'map.exportingExcel', 'map.exportExcelSuccess',
                 'map.speed', 'map.normalSpeed', 'map.fastSpeed',
                 'map.clearPlunderHistory', 'map.plunderAt', 'map.plunderCancelled',
                 'map.plunderFailed', 'map.plunderReasonUnavailable', 'map.plunderResult',
@@ -623,9 +637,11 @@ def build(check=False):
             old_nav = 'let mr=(0,b.useCallback)(async e=>{if(e.serverId!==w.serverId){T.current(`map jump blocked stale server=${e.serverId} current=${w.serverId}`);return}let n=String(k(e,`marchUuid`)||``).trim();if(F!==`scheduledPlunder`&&A(F)&&n){let r=`${e.serverId}:${n}`;en(r);try{let r=await t({serverId:e.serverId,marchUuid:n});T.current(`map march follow server=${r.serverId} march=${r.marchUuid}`)}catch(e){T.current(`map march follow error `+String(e))}finally{en(``)}return}let r=Number(k(e,`x`)),i=Number(k(e,`y`));if(!Number.isInteger(r)||!Number.isInteger(i)||r<1||i<1)return;let a=`${e.serverId}:${r}:${i}`;en(a);try{let t=await u({serverId:e.serverId,x:r,y:i});T.current(`map coordinate jump server=${t.serverId} x=${t.x} y=${t.y}`)}catch(e){T.current(`map coordinate jump error `+String(e))}finally{en(``)}},[F,w.serverId]),hr='
             new_nav = 'let mr=(0,b.useCallback)(async e=>{let rowServer=Number(e.serverId),march=String(k(e,`marchUuid`)||``).trim(),moving=F!==`scheduledPlunder`&&usesFollow(F,e),xpos=Number(k(e,`x`)),ypos=Number(k(e,`y`));if(!Number.isInteger(rowServer)||rowServer<=0||moving&&!march||!moving&&(!Number.isInteger(xpos)||!Number.isInteger(ypos)||xpos<1||ypos<1))return;let key=moving?`${rowServer}:${march}`:`${rowServer}:${xpos}:${ypos}`;en(key);try{if(rowServer!==w.serverId){let moved=await serverJump(rowServer);T.current(`map navigation switched ${moved.previousServerId} -> ${rowServer}`)}if(moving){let result=await t({serverId:rowServer,marchUuid:march});T.current(`map march follow server=${result.serverId} march=${result.marchUuid}`)}else{let result=await u({serverId:rowServer,x:xpos,y:ypos});T.current(`map coordinate jump server=${result.serverId} x=${result.x} y=${result.y}`)}}catch(error){T.current(`map navigation error `+String(error))}finally{en(``)}},[F,w.serverId]),hr='
             s = replace_once(s, old_nav, new_nav)
-            # R7-149 owner retirement: remove Scheduled Plunder end-to-end from
-            # the shipped Map UI. Read-only plunderability/status fields remain.
+            # R7-149 Scheduled Plunder retirement remains until its exact R8
+            # control-plane restoration checkpoint. City Excel, however, is an
+            # original 0.3.1 feature and is restored after maintained deltas.
             s = retire_scheduled_plunder_panel(s)
+            s = restore_city_export_panel(s, data.decode('utf-8'))
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
     html = (SOURCE / 'index.html').read_text(encoding='utf-8')

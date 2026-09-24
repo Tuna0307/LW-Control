@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-006`, 2026-09-24.
+**Current through:** `LWB-R8-007`, 2026-09-24.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -36,7 +36,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Dispatch | DEVIATION/UNKNOWN | Remove wide-FOV/Quick-Find assumptions; recover original |
 | Ghost | EQUIVALENT_REIMPLEMENTATION | Recover original |
 | Treasure | PARTIAL EXACT_CONTRACT | Protected orchestration still unknown |
-| City Excel export | DEVIATION | Restore original feature |
+| City Excel export | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-007 restored API/UI/dialog/paging/workbook/result contract |
 | Scheduled Plunder | DEVIATION | Restore original feature set |
 | Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | Finish exact branch/default/error audit |
 | Mark/Jump/Follow | PARTIAL | Tie every behavior to reference |

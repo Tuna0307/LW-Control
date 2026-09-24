@@ -1,6 +1,12 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace LWBridge.Desktop;
+
+internal sealed record CityExportRequest(
+    MapDataQueryOptions Query,
+    CityExportWorkbookOptions WorkbookOptions,
+    string DefaultFileName);
 
 internal sealed class LWBridgeBackend
 {
@@ -246,6 +252,10 @@ internal sealed class LWBridgeBackend
                         : store.SearchIndexed(query);
                     return new { rows = result.Rows, total = result.Total };
                 }
+            case "map_city_export":
+                throw new BridgeCommandException(
+                    "NATIVE_DIALOG_REQUIRED",
+                    "City export requires the desktop save dialog host.");
             case "map_player_mark_set":
                 return SetPlayerMark(payload);
             case "map_summary":
@@ -726,6 +736,169 @@ internal sealed class LWBridgeBackend
                 throw new BridgeCommandException("INVALID_MAP_QUERY", "monsterNameKeys accepts at most 200 distinct entries.");
         }
         return result;
+    }
+
+    internal CityExportRequest PrepareCityExport(
+        JsonElement payload,
+        DateTimeOffset? utcNow = null)
+    {
+        ValidateCommandScope("map_city_export", payload);
+        if (!payload.TryGetProperty("query", out JsonElement exportQuery) ||
+            exportQuery.ValueKind != JsonValueKind.Object)
+        {
+            throw new BridgeCommandException(
+                "INVALID_MAP_QUERY",
+                "map_city_export query must be an object.");
+        }
+
+        if (!exportQuery.TryGetProperty("serverId", out JsonElement serverElement) ||
+            !serverElement.TryGetInt32(out int serverId) ||
+            serverId <= 0)
+        {
+            throw new BridgeCommandException(
+                "MAP_EXPORT_FAILED",
+                "city export server is unavailable");
+        }
+
+        using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = ProfileId,
+            kind = "city",
+            query = JsonSerializer.Deserialize<object>(exportQuery.GetRawText(), JsonOptions.Default),
+        }, JsonOptions.Default));
+        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(envelope.RootElement);
+
+        string[] headers = ReadCityExportHeaders(payload);
+        string sheetName = ReadOptionalExportString(payload, "sheetName", "Cities");
+        string yesLabel = ReadOptionalExportString(payload, "yesLabel", "Yes");
+        string noLabel = ReadOptionalExportString(payload, "noLabel", "No");
+        var workbookOptions = new CityExportWorkbookOptions(
+            headers,
+            sheetName,
+            yesLabel,
+            noLabel);
+
+        string fileName = BuildCityExportDefaultFileName(
+            serverId,
+            utcNow ?? DateTimeOffset.UtcNow);
+        return new CityExportRequest(query, workbookOptions, fileName);
+    }
+
+    internal object WriteCityExport(CityExportRequest request, string path)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        if (string.IsNullOrWhiteSpace(path))
+            throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export path is invalid");
+
+        MapDataStore store = RequireMapDataStore();
+        var rows = new List<JsonElement>();
+        int total = 0;
+        for (int page = 1; page <= 1000; page++)
+        {
+            MapSearchResult result = store.SearchCityPageForExport(
+                request.Query with { Page = page, PageSize = 200 });
+            total = result.Total;
+            if (result.Rows.Count == 0)
+                break;
+            rows.AddRange(result.Rows);
+            if (rows.Count >= total)
+                break;
+        }
+        if (rows.Count < total)
+            MapDataStore.RequireCityExportRowLimit(total);
+
+        CityExportWorkbookWriteResult writeResult;
+        try
+        {
+            using var stream = new FileStream(
+                path,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None);
+            writeResult = CityExportWorkbookWriter.Write(
+                stream,
+                rows,
+                request.WorkbookOptions);
+            stream.Flush(flushToDisk: true);
+        }
+        catch (BridgeCommandException)
+        {
+            throw;
+        }
+        catch (ArgumentException ex)
+        {
+            throw new BridgeCommandException(
+                "MAP_EXPORT_FAILED",
+                "city export headers are invalid",
+                ex.Message);
+        }
+        catch (Exception ex)
+        {
+            throw new BridgeCommandException(
+                "MAP_EXPORT_FAILED",
+                ex.Message);
+        }
+
+        return new
+        {
+            canceled = false,
+            path,
+            rowCount = writeResult.RowCount,
+        };
+    }
+
+    internal static object CreateCityExportCanceledResult() => new
+    {
+        canceled = true,
+        path = string.Empty,
+        rowCount = 0,
+    };
+
+    internal static string BuildCityExportDefaultFileName(
+        int serverId,
+        DateTimeOffset utcNow)
+    {
+        DateTimeOffset utc = utcNow.ToUniversalTime();
+        return "map-cities-" + serverId.ToString(CultureInfo.InvariantCulture) + "-" +
+            utc.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + ".xlsx";
+    }
+
+    private static string[] ReadCityExportHeaders(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("headers", out JsonElement headersElement) ||
+            headersElement.ValueKind != JsonValueKind.Array ||
+            headersElement.GetArrayLength() != 12)
+        {
+            throw new BridgeCommandException(
+                "MAP_EXPORT_FAILED",
+                "city export headers are invalid");
+        }
+
+        string[] headers = new string[12];
+        int index = 0;
+        foreach (JsonElement header in headersElement.EnumerateArray())
+        {
+            if (header.ValueKind != JsonValueKind.String ||
+                string.IsNullOrWhiteSpace(header.GetString()))
+            {
+                throw new BridgeCommandException(
+                    "MAP_EXPORT_FAILED",
+                    "city export headers are invalid");
+            }
+            headers[index++] = header.GetString()!;
+        }
+        return headers;
+    }
+
+    private static string ReadOptionalExportString(
+        JsonElement payload,
+        string property,
+        string fallback)
+    {
+        if (!payload.TryGetProperty(property, out JsonElement element) ||
+            element.ValueKind != JsonValueKind.String)
+            return fallback;
+        return element.GetString() ?? fallback;
     }
 
     private object SetPlayerMark(JsonElement payload)

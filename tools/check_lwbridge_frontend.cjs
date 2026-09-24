@@ -83,19 +83,18 @@ async function main() {
    const rebuiltText=await rebuilt.locator('.main-view').innerText();
    const referenceText=await reference.locator('.main-view').innerText();
    if(view==='map-data') {
-    // Maintained owner-approved differences from immutable 0.3.1: City Excel,
-    // user-owned Normal/Fast controls, and Scheduled Plunder are retired, while
-    // Zombie Boss is a dedicated rebuild-only Map Data kind. Assert those
-    // differences first, then remove only those nodes from these disposable
+    // Maintained differences from immutable 0.3.1: user-owned Normal/Fast
+    // controls and Scheduled Plunder remain retired for separate parity work,
+    // while Zombie Boss is a dedicated rebuild-only Map Data kind. City Excel
+    // is original behavior and must remain visible alongside Search.
+    // Remove only the still-documented differences from these disposable
     // comparison pages and compare every remaining visible line strictly.
     assert.equal(await rebuilt.locator('.map-speed-toggle').count(),0,`${id}: retired Manual speed control`);
-    assert.equal(await rebuilt.locator('.map-searchbar button').count(),1,`${id}: retired City export leaves only Search on the default City tab`);
+    assert.equal(await rebuilt.locator('.map-searchbar button').count(),2,`${id}: restored City export remains beside Search on the default City tab`);
     assert.equal((rebuiltText.match(/Zombie Boss/g)||[]).length,2,`${id}: dedicated Zombie Boss scan/result labels`);
     assert.equal(await rebuilt.locator('.map-scheduled-group').count(),0,`${id}: retired Scheduled Plunder result groups`);
     const normalizedReference=await reference.locator('.main-view').evaluate(root=>{
      root.querySelector('.map-speed-toggle')?.remove();
-     const buttons=root.querySelectorAll('.map-searchbar button');
-     if(buttons.length>1)buttons[1].remove();
      const resultTabs=root.querySelectorAll('.map-tabs button');
      if(resultTabs.length)resultTabs[resultTabs.length-1].remove();
      return root.innerText;

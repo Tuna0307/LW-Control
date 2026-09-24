@@ -1,6 +1,6 @@
 # Deep binary / protected package handoff — strict parity priority
 
-**Current through:** `LWB-R8-006`, 2026-09-24.
+**Current through:** `LWB-R8-007`, 2026-09-24.
 
 Protected original implementation recovery is now P0 because the project goal is exact LWBridge 0.3.1 parity.
 

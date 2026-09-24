@@ -50,7 +50,7 @@ jobs:
           $env:NODE_PATH = "$env:RUNNER_TEMP/lwbridge-ui-check/node_modules"
           node tools/check_lwbridge_frontend.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node tools/check_city_export_removed.cjs
+          node tools/check_city_export_restored.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node tools/check_scan_strategy_auto.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

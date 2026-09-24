@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-006`, 2026-09-24.
+**Current through:** `LWB-R8-007`, 2026-09-24.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 
@@ -32,7 +32,7 @@ Recover the original LWBridge Map implementation first. Current-game APIs are al
 - R7-151 Secret Task Quick Find was a rebuild-only product feature.
 - R7-151 wide-FOV/68-request scan strategy was our optimization, not a recovered original algorithm.
 - Direct Train-list/no-jump routing is a current-game optimization until reference evidence proves original equivalence.
-- City Excel export was removed despite being part of the original product.
+- City Excel export was previously removed despite being part of the original product; R8-007 restores its recovered original API/UI, dialog, pagination, workbook and result contract.
 - Scheduled Plunder surfaces/workers were removed despite being part of the original product.
 - Manual/Auto UX and other owner workflow changes made during R7 must be audited against the reference rather than retained automatically.
 

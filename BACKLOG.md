@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-006`, 2026-09-24.
+**Current through:** `LWB-R8-007`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is now the whole LWBridge 0.3.1 program, one-for-one.
 
@@ -14,7 +14,8 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 ## P0 — remove reconstruction drift
 
 - [ ] **Remove/quarantine every rebuild-only product feature.** R7-151 Secret Task Quick Find is the known example; do not retain any addition not demonstrated in the reference.
-- [ ] **Restore every original feature previously retired or customized.** This includes original auth/account presentation, City Excel export, Scheduled Plunder surfaces, and any other reference behavior removed by earlier owner-specific rebuild decisions.
+- [x] **Restore original City Excel export.** R8-007 restores the reference API/UI, native save dialog, 200-row pagination, exact workbook/result contract and nine locale labels.
+- [ ] **Restore every other original feature previously retired or customized.** This includes original auth/account presentation, Scheduled Plunder surfaces, and any other reference behavior removed by earlier owner-specific rebuild decisions.
 - [ ] **Eliminate performance-first Map substitutions that lack reference authority.** The wide-FOV/68-request work and similar current-game optimizations are research evidence only until proven equivalent to original LWBridge behavior.
 - [ ] **Re-audit all frontend transforms.** Keep original chunks/assets byte-identical and reduce the generator/API boundary to only invisible compatibility plumbing.
 

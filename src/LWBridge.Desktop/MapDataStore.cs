@@ -115,6 +115,8 @@ internal sealed record MapOptionSourceSelection(
 
 internal sealed partial class MapDataStore : IDisposable
 {
+    internal const int MaxCityExportRows = 200_000;
+
     private static readonly HashSet<string> AllowedKinds = new(MapScanContract.AllTypes, StringComparer.Ordinal);
 
     private const string SchemaSql = """
@@ -636,11 +638,26 @@ internal sealed partial class MapDataStore : IDisposable
     internal MapSearchResult SearchIndexedAtForTest(MapDataQueryOptions options, long nowUnixMilliseconds) =>
         SearchIndexedCore(options, nowUnixMilliseconds, afterCountObserved: null);
 
+    internal MapSearchResult SearchCityPageForExport(MapDataQueryOptions options)
+    {
+        if (!string.Equals(options.Kind, "city", StringComparison.Ordinal))
+            throw new BridgeCommandException(
+                "INVALID_MAP_KIND",
+                "city export requires a City query.");
+        return SearchIndexedCore(
+            options,
+            RecoveredWallClock.UnixTimeMilliseconds(),
+            afterCountObserved: null,
+            monsterNameKeys: null,
+            cityExportRows: true);
+    }
+
     private MapSearchResult SearchIndexedCore(
         MapDataQueryOptions options,
         long nowUnixMilliseconds,
         Action? afterCountObserved,
-        IReadOnlyList<string>? monsterNameKeys = null)
+        IReadOnlyList<string>? monsterNameKeys = null,
+        bool cityExportRows = false)
     {
         ValidateKind(options.Kind);
         if (options.ServerId > 0) ValidateServerId(options.ServerId);
@@ -825,7 +842,9 @@ internal sealed partial class MapDataStore : IDisposable
             using SqliteCommand page = connection.CreateCommand();
             page.Transaction = snapshot;
             string select = city
-                ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{pageJoin} WHERE {where} ORDER BY {orderBy}"
+                ? cityExportRows
+                    ? $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END, page.shield_end_time, page.updated_at FROM map_records page{pageJoin} WHERE {where} ORDER BY {orderBy}"
+                    : $"SELECT page.data_json, page.server_id, CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM map_records page{pageJoin} WHERE {where} ORDER BY {orderBy}"
                 : treasure
                     ? $"SELECT page.data_json, page.server_id, state.state_json FROM map_records page{pageJoin} WHERE {where} ORDER BY {orderBy}"
                     : $"SELECT page.data_json, page.server_id FROM map_records page WHERE {where} ORDER BY {orderBy}";
@@ -837,14 +856,29 @@ internal sealed partial class MapDataStore : IDisposable
             var rows = new List<JsonElement>();
             using SqliteDataReader reader = page.ExecuteReader();
             while (reader.Read())
-                rows.Add(ReadSearchRow(
-                    reader.GetString(0),
-                    reader.GetInt32(1),
-                    city ? reader.GetInt32(2) != 0 : null,
-                    treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null));
+                rows.Add(city && cityExportRows
+                    ? ReadCityExportSearchRow(
+                        reader.GetString(0),
+                        reader.GetInt32(1),
+                        reader.GetInt32(2) != 0,
+                        reader.IsDBNull(3) ? null : reader.GetInt64(3),
+                        reader.GetInt64(4))
+                    : ReadSearchRow(
+                        reader.GetString(0),
+                        reader.GetInt32(1),
+                        city ? reader.GetInt32(2) != 0 : null,
+                        treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null));
             snapshot.Commit();
             return new MapSearchResult(rows, total);
         }
+    }
+
+    internal static void RequireCityExportRowLimit(int total)
+    {
+        if (total > MaxCityExportRows)
+            throw new BridgeCommandException(
+                "MAP_EXPORT_FAILED",
+                "city export exceeded the row limit");
     }
 
     private static string BuildTreasureOrderBy(MapDataQueryOptions options)
@@ -1601,6 +1635,22 @@ internal sealed partial class MapDataStore : IDisposable
         reader.IsDBNull(11) ? null : reader.GetInt64(11),
         reader.GetInt64(12),
         reader.GetString(13));
+
+    private static JsonElement ReadCityExportSearchRow(
+        string dataJson,
+        int serverId,
+        bool marked,
+        long? shieldEndTime,
+        long updatedAt)
+    {
+        JsonElement row = ReadSearchRow(dataJson, serverId, marked);
+        JsonObject exportRow = JsonNode.Parse(row.GetRawText())!.AsObject();
+        exportRow["updatedAt"] = updatedAt;
+        if (shieldEndTime.HasValue)
+            exportRow["shieldEndTime"] = shieldEndTime.Value;
+        using JsonDocument document = JsonDocument.Parse(exportRow.ToJsonString());
+        return document.RootElement.Clone();
+    }
 
     private static JsonElement ReadSearchRow(
         string dataJson,
