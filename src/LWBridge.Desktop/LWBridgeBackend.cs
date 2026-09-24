@@ -296,6 +296,11 @@ internal sealed class LWBridgeBackend
                         scanState,
                     };
                 }
+            case "feedback_export":
+                ValidateFeedbackExportPayload(payload);
+                throw new BridgeCommandException(
+                    "COMMAND_NOT_IMPLEMENTED",
+                    "Feedback archive export remains fenced until the recovered redaction/cache/archive/save pipeline is implemented.");
             case "append_log":
             case "set_window_theme":
                 return null;
@@ -823,6 +828,18 @@ internal sealed class LWBridgeBackend
             throw new BridgeCommandException("INVALID_PAYLOAD", "Command payload must be a JSON object.");
         if (!GlobalCommands.Contains(command))
             RequireProfile(payload);
+    }
+
+    private static void ValidateFeedbackExportPayload(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("exportId", out JsonElement exportId) ||
+            exportId.ValueKind != JsonValueKind.String ||
+            string.IsNullOrWhiteSpace(exportId.GetString()))
+        {
+            throw new BridgeCommandException(
+                "FEEDBACK_EXPORT_FAILED",
+                "export ID is required");
+        }
     }
 
     private LWBridgeLocalConfig UpdateConfig(Func<LWBridgeLocalConfig, LWBridgeLocalConfig> update)

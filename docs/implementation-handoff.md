@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-021`
+**Current checkpoint:** `LWB-R8-022`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -120,6 +120,10 @@ R8-020 restores `visual_metrics_config_get/save`, the exact two-field `{showFps,
 ## R8-021 updater idle-status checkpoint
 
 R8-021 corrects the production `update_status` response to the native nine-field idle envelope for the verified 0.3.1 reference, including `publishedAt:null` and `currentVersion:"0.3.1"` instead of the rebuild-only `0.3.1-rebuild`. Native constructor/serializer evidence also inventories update phases, cooldown, update-directory/file naming, host, event and error strings. `update_check` and `update_download_and_open` remain deliberately fenced as `COMMAND_NOT_IMPLEMENTED`; network, signature verification, download, replacement, executable handoff and event-transition semantics are not guessed. See `docs/reviews/2026-09-25-r8-021-update-status-idle-contract.md`.
+
+## R8-022 feedback-export contract/fence checkpoint
+
+R8-022 recovers the exact native five-field feedback result `{canceled,path,fileCount,sourceBytes,archiveBytes}`, the five-field `bridge://feedback-export-progress` payload `{exportId,state,processedBytes,totalBytes,percent}`, and the immutable UI states `preparing/exporting/finalizing/completed`. It restores exact missing/wrong-type/blank/Unicode-whitespace `exportId` failure as `FEEDBACK_EXPORT_FAILED / export ID is required`. A valid export ID remains `COMMAND_NOT_IMPLEMENTED` because the original service includes redaction keys, cached/rotated/segmented logs, config summaries, diagnostics, limits, pending/incomplete-export recovery, archive verification and save/open lifecycle; a generic ZIP would be a false and privacy-weaker reconstruction. See `docs/reviews/2026-09-25-r8-022-feedback-export-contract-fence.md`.
 
 ## Parked protected package-key lane
 

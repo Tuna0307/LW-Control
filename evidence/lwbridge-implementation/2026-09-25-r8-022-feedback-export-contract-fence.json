@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-022",
+  "date": "2026-09-25",
+  "scope": "Recover the feedback_export public result/progress contract and exact exportId validation while keeping archive creation fail-closed until native redaction/cache/archive/verification semantics are complete.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/SettingsPanel-CjjIQp-r.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "native feedback result serializer near VA 0x14024b1ac",
+    "native feedback progress serializer near VA 0x14024b2f6",
+    "native feedback_export registration/validation path near VA 0x1401a174e",
+    "native src/services/feedback.rs string/path inventory"
+  ],
+  "frontend": {
+    "changed": false,
+    "settingsPanelSha256": "669c614914cd7b5a00c5d71d1cd9996cdb300b6a2609768fb931f554929bd69e",
+    "status": "byte-identical to immutable 0.3.1"
+  },
+  "command": {
+    "name": "feedback_export",
+    "inputField": "exportId",
+    "scope": "profile-scoped"
+  },
+  "resultSerializer": {
+    "fieldCount": 5,
+    "fields": [
+      "canceled",
+      "path",
+      "fileCount",
+      "sourceBytes",
+      "archiveBytes"
+    ]
+  },
+  "progressEvent": {
+    "event": "bridge://feedback-export-progress",
+    "fieldCount": 5,
+    "fields": [
+      "exportId",
+      "state",
+      "processedBytes",
+      "totalBytes",
+      "percent"
+    ],
+    "uiStates": [
+      "preparing",
+      "exporting",
+      "finalizing",
+      "completed"
+    ]
+  },
+  "validation": {
+    "nativeCode": "FEEDBACK_EXPORT_FAILED",
+    "nativeMessage": "export ID is required",
+    "rejectedInputs": [
+      "missing exportId",
+      "non-string exportId",
+      "empty exportId",
+      "Unicode-whitespace-only exportId"
+    ],
+    "normalization": "native UTF-8 Unicode whitespace trim before zero-length test"
+  },
+  "nativeConcurrencyEvidence": {
+    "code": "FEEDBACK_EXPORT_IN_PROGRESS",
+    "message": "a feedback archive is already being exported",
+    "implementedInRebuild": false,
+    "reason": "no real feedback archive executor exists yet, so an in-progress runtime state would be fabricated"
+  },
+  "archivePipelineEvidence": {
+    "classification": "PARTIAL_NATIVE / not implementation-ready",
+    "categories": [
+      "redaction key and redaction processing",
+      "cached feedback logs and metadata",
+      "per-profile runtime/config summaries",
+      "diagnostics.json",
+      "external game/launcher/updater/xLua logs",
+      "rotated and segmented logs",
+      "size/tail/retention limits",
+      "source/cache hashes and archive metadata",
+      "pending-export recovery",
+      "incomplete-archive recovery",
+      "partial/segment files",
+      "save-location validation",
+      "archive-entry validation",
+      "required diagnostics.json verification",
+      "final archive verification/opening"
+    ],
+    "recoveredPathVocabulary": [
+      "feedback-redaction.key",
+      "feedback-export.pending.json",
+      "log-cache/v1",
+      "logs/segments",
+      ".part",
+      ".zipseg",
+      ".zip"
+    ]
+  },
+  "productionBehavior": {
+    "invalidExportId": "FEEDBACK_EXPORT_FAILED / export ID is required",
+    "validExportId": "COMMAND_NOT_IMPLEMENTED fail-closed fence",
+    "validFenceClassification": "rebuild-only safety/parity fence; not claimed as native error parity"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/FeedbackExportContractChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "missing exportId exact native failure",
+    "wrong-type exportId exact native failure",
+    "empty exportId exact native failure",
+    "ASCII/Unicode whitespace-only exportId exact native failure",
+    "valid exportId remains COMMAND_NOT_IMPLEMENTED",
+    "profile mismatch rejected before feedback execution"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "settingsPanelHash": "PASS exact immutable 0.3.1",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-022 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "resultFieldSet": "EXACT_NATIVE serializer-derived",
+    "progressFieldSet": "EXACT_NATIVE serializer-derived",
+    "exportIdValidation": "EXACT_NATIVE",
+    "settingsFrontend": "EXACT_BYTES",
+    "archivePipeline": "PARTIAL_NATIVE / PROTECTED_UNKNOWN",
+    "validExportExecution": "intentionally absent"
+  },
+  "notClaimed": [
+    "archive source enumeration",
+    "redaction-key lifecycle or redaction algorithm",
+    "cache creation/retention",
+    "diagnostics generation",
+    "file truncation/tail limits",
+    "rotated/segmented log semantics",
+    "pending/incomplete archive recovery",
+    "native save-dialog defaults/filter/path rules",
+    "archive metadata/signature/hash semantics",
+    "archive verification",
+    "exact canceled-result values",
+    "progress-event timing/byte accounting",
+    "FEEDBACK_EXPORT_IN_PROGRESS runtime reproduction",
+    "completed-archive opening behavior"
+  ],
+  "nextCheckpoint": "Recover another retained non-account surface; implement feedback export only after the native privacy/redaction/archive lifecycle is sufficiently complete to avoid a fake or privacy-weaker archive."
+}
