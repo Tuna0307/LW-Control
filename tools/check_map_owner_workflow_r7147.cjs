@@ -167,9 +167,11 @@ async function main() {
             return clone(runtime.scanState);
           }
           if (command === 'map_scan_clear') {
-            runtime.savedServerIds = [];
+            const clearedServerId = Number(payload.serverId);
+            runtime.savedServerIds = runtime.savedServerIds.filter(id => id !== clearedServerId);
             runtime.scanState = {
-              ...runtime.scanState, isReading: false, phase: 'idle',
+              ...runtime.scanState, serverId: clearedServerId,
+              isReading: false, phase: 'idle',
               scanRunId: '', totalBlocks: 0, readBlocks: 0, unreadBlocks: 0,
               failedBlocks: 0, inflightBlocks: 0, progressPercent: 0
             };
@@ -243,17 +245,23 @@ async function main() {
     assert.equal(Number(oneShot.config.runOnceRequestedAt || 0), 0,
       'one-shot request marker must clear after terminal cycle');
 
-    // Auto has its own Clear and it clears the whole session scan dataset.
-    const clearAuto = autoCard.getByRole('button', { name: /Clear Map Data/i });
-    await clearAuto.click();
+    // R8-008 strict parity: Auto has no Clear. Original Clear is Manual-only
+    // and sends the positive current live server ID, never serverId=0.
+    assert.equal(await autoCard.getByRole('button', { name: /Clear Map Data/i }).count(), 0,
+      'Auto Scan must not expose the rebuild-only clear-all control');
+    await scanTabs.nth(0).click();
+    await page.waitForTimeout(300);
+    const clearManual = panel.getByRole('button', { name: /Clear Map Data/i });
+    assert.equal(await clearManual.count(), 1, 'Manual Scan exposes exactly one original Clear control');
+    await clearManual.click();
     await page.waitForFunction(() =>
       window.__r7147.calls.some(call =>
-        call.command === 'map_scan_clear' && Number(call.payload.serverId) === 0));
+        call.command === 'map_scan_clear' && Number(call.payload.serverId) === 2212));
     const clearCalls = await page.evaluate(() =>
       window.__r7147.calls.filter(call => call.command === 'map_scan_clear')
         .map(call => call.payload));
     assert.equal(clearCalls.length, 1);
-    assert.equal(Number(clearCalls[0].serverId), 0);
+    assert.equal(Number(clearCalls[0].serverId), 2212);
 
     // Re-seed session datasets for navigation/browser checks.
     await page.evaluate(() => {

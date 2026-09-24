@@ -591,7 +591,7 @@ def build(check=False):
             # - Manual has one live server and therefore no server selector
             # - Auto can browse All current-session scanned servers
             # - Run Now is independent from the recurring-enable checkbox
-            # - Clear is available in both tabs and clears all scan rows
+            # - Clear follows the original Manual-only current-live-server contract
             # - row navigation automatically travels to the row server first
             # - moving Doom Walker/SuperRunningBoss uses march Follow, not coordinate Jump.
             s = replace_once(s, ',at as u,bn as d,', ',at as u,ot as serverJump,bn as d,')
@@ -613,13 +613,13 @@ def build(check=False):
                 'if(F!==`scheduledPlunder`&&!(F===`treasure`&&h&&J&&!Nn.playerUid)){er(z)}')
             s = replace_once(s, '(0,b.useEffect)(()=>{if(L<=0)return;let e=Ie.current+1;', '(0,b.useEffect)(()=>{if(L<0)return;let e=Ie.current+1;')
             s = replace_once(s, 'async function stopAutoScan(){$({enabled:!1});await Zn()}', 'async function stopAutoScan(){$({enabled:!1,runOnceRequestedAt:0});await Zn()}')
-            s = replace_once(s, 'let e=await ne(L);clearAutoSearchOnce.current=!0', 'let e=await ne(0);clearAutoSearchOnce.current=!0')
+            # R8-008 strict parity: preserve the original Clear boundary.
+            # Qn() continues to call map_scan_clear with the current live server L,
+            # and Clear remains a Manual-only control. The R7-147 serverId=0
+            # clear-all/Auto Clear override was not present in LWBridge 0.3.1.
             s = replace_once(s,
                 'disabled:!h||!S.enabled||be||w.isReading,onClick:()=>$({nextRunAt:Date.now()})',
                 'disabled:!h||be||w.isReading,onClick:()=>$({runOnceRequestedAt:Date.now()})')
-            s = replace_once(s,
-                '(0,D.jsx)(`button`,{type:`button`,className:be?`danger`:`` ,disabled:!be,onClick:stopAutoScan,children:C(`common.stop`)})]}),',
-                '(0,D.jsx)(`button`,{type:`button`,className:be?`danger`:`` ,disabled:!be,onClick:stopAutoScan,children:C(`common.stop`)}),(0,D.jsx)(`button`,{type:`button`,disabled:w.isReading||be,onClick:Qn,children:C(`map.clearServer`)})]}),')
             s = replace_once(s,
                 'Array.isArray(p?.savedServerIds)&&p.savedServerIds.length>1&&(0,D.jsx)(`select`,{"aria-label":C(`map.server`),value:L,onChange:e=>{E.current+=1,Pe.current+=1,O.current.clear(),ct(Number(e.target.value)),B(1),H([]),U(0),Yt(!0)},children:p.savedServerIds.map(e=>(0,D.jsx)(`option`,{value:e,children:`${C(`map.server`)} ${e}`},e))})',
                 'Y===`auto`&&Array.isArray(p?.savedServerIds)&&p.savedServerIds.length>1&&(0,D.jsx)(`select`,{"aria-label":C(`map.server`),value:L,onChange:e=>{E.current+=1,Pe.current+=1,O.current.clear(),ct(Number(e.target.value)),B(1),H([]),U(0),Yt(!0)},children:[(0,D.jsx)(`option`,{value:0,children:C(`map.allServers`)},`all`),...p.savedServerIds.map(e=>(0,D.jsx)(`option`,{value:e,children:`${C(`map.server`)} ${e}`},e))]})')

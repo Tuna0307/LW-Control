@@ -404,6 +404,7 @@ var failures = new List<string>();
 failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
 LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
 LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
+await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
 await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();
@@ -3849,6 +3850,12 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
         "{\"serverId\":91,\"uuid\":\"boss-a\",\"monsterNameKey\":\"monster.boss\",\"level\":8,\"monsterProtectionKnown\":true,\"monsterProtectionActive\":true,\"shieldEndTime\":2000000000000}"));
     backendMapStore.InsertScanRun(new MapScanRunSeed(
         "backend-run", 91, "[\"city\",\"monster\"]", "running", 100, 0, 0, 1000, 1000, null));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "city", 92, "backend-other-city", 8, "backend-other-uuid", "Other Server City", null,
+        20, null, null, null, null, 1300,
+        "{\"serverId\":92,\"ownerUid\":\"other-owner\",\"ownerName\":\"Other Server City\"}"));
+    backendMapStore.InsertScanRun(new MapScanRunSeed(
+        "backend-other-run", 92, "[\"city\"]", "completed", 10, 10, 0, 1000, 1300, null));
 
     using JsonDocument optionsPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -4083,6 +4090,26 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
           JsonSerializer.Serialize(markResult, JsonOptions.Default).Contains("\"marked\":true", StringComparison.Ordinal),
         "backend map_player_mark_set persists recovered server/owner identity and returns marked state");
 
+    using JsonDocument clearAllPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 0,
+    }));
+    await ExpectBridgeError("SERVER_UNAVAILABLE", "backend map_scan_clear rejects rebuild-only clear-all serverId=0", async () =>
+        await mapBackend.InvokeAsync("map_scan_clear", clearAllPayload.RootElement.Clone(), CancellationToken.None));
+    using JsonDocument clearOtherPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 92,
+    }));
+    await ExpectBridgeError("SERVER_UNAVAILABLE", "backend map_scan_clear rejects a non-current server", async () =>
+        await mapBackend.InvokeAsync("map_scan_clear", clearOtherPayload.RootElement.Clone(), CancellationToken.None));
+    Check(backendMapStore.CountRecords("city", 91) == 1 &&
+          backendMapStore.CountRecords("city", 92) == 1 &&
+          backendMapStore.CountScanRuns(91) == 1 &&
+          backendMapStore.CountScanRuns(92) == 1,
+        "rejected map_scan_clear requests do not mutate current or saved-server scan data");
+
     using JsonDocument clearPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
         profileId = mapBackend.ProfileId,
@@ -4098,8 +4125,9 @@ using (var backendMapStore = MapDataStore.CreateInMemory())
             "backend map_scan_clear returns the selected server in an idle non-resumable post-clear scan status");
     }
     Check(backendMapStore.CountRecords("city", 91) == 0 && backendMapStore.CountScanRuns(91) == 0 &&
+          backendMapStore.CountRecords("city", 92) == 1 && backendMapStore.CountScanRuns(92) == 1 &&
           backendMapStore.GetPlayerMark(91, "12345678901234567890") is not null,
-        "backend map_scan_clear removes recovered map/scan scope while preserving player marks");
+        "backend map_scan_clear removes only the current live server map/scan scope while preserving other servers and player marks");
 
     using JsonDocument unmarkPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
     {
@@ -6041,14 +6069,15 @@ Check(
     r7130GeneratedMapPanelSource.Contains("async function Qn(){E.current+=1,Pe.current+=1", StringComparison.Ordinal),
     "Map Clear must invalidate in-flight saved search and treasure refresh generations before mutating SQLite");
 Check(
-    r7130GeneratedMapPanelSource.Contains("let e=await ne(0);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("let e=await ne(L);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
+    !r7130GeneratedMapPanelSource.Contains("let e=await ne(0);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("Y===`auto`&&Array.isArray(p?.savedServerIds)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("value:0,children:C(`map.allServers`)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("runOnceRequestedAt:Date.now()", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("await serverJump(rowServer)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("n===8&&r===11", StringComparison.Ordinal) &&
     !r7130GeneratedMapPanelSource.Contains("map jump blocked stale server=", StringComparison.Ordinal),
-    "Map Data owner workflow must support session-wide Clear, Auto All, one-shot multi-server Run Now, cross-server row navigation and Doom Walker Follow");
+    "Map Data owner workflow must preserve strict current-server Clear while supporting Auto All, one-shot multi-server Run Now, cross-server row navigation and Doom Walker Follow");
 Check(
     r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).map", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).forEach", StringComparison.Ordinal) &&

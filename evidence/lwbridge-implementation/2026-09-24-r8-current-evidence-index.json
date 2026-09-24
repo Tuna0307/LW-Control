@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-007",
+  "checkpoint": "LWB-R8-008",
   "date": "2026-09-24",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-008-map-scan-clear-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-007-city-excel-export-restored.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-006-envelope-key-output-flow.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-005-device-login-material.json",

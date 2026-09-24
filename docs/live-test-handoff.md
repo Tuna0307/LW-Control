@@ -1,6 +1,6 @@
 # Current live-test handoff — strict parity phase
 
-**Current through:** `LWB-R8-007`, 2026-09-24.
+**Current through:** `LWB-R8-008`, 2026-09-24.
 
 Live testing is no longer driven by the old “close remaining Home/Map acceptance rows” matrix. The primary task is now original-reference recovery and parity implementation.
 

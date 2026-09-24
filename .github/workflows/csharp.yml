@@ -52,6 +52,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node tools/check_city_export_restored.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tools/check_map_clear_r8008.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node tools/check_scan_strategy_auto.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node tools/check_map_data_r7131.cjs

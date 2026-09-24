@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-007`
+**Current checkpoint:** `LWB-R8-008`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -46,6 +46,12 @@ This cleanup is not parity proof. The temporary scanner remains a reconstruction
 The original `map_city_export` surface has been restored end-to-end. The generator again preserves the original API wrapper, City-only UI/button/state and all nine locale labels; the desktop host owns the save dialog; backend export uses the recovered 200-row / 1000-page / 200,000-row contract; and the exact six-part XLSX writer/result envelope is regression-tested. See `docs/reviews/2026-09-24-r8-007-restore-city-excel-export.md`.
 
 The secondary Map control-plane research is preserved at `docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md` and should be the starting authority for Scheduled Plunder, Auto Scan and the remaining Map control-plane corrections.
+
+## R8-008 Map Clear parity checkpoint
+
+The original `map_scan_clear` boundary is restored. Clear now requires a positive requested server equal to the current scan-state server with exact `serverIdSource=live`; active scans preserve the recovered `SCAN_RUNNING` precedence and all other server-gate failures return `SERVER_UNAVAILABLE`. Only that admitted server's `scan_runs` and `map_records` are deleted; player marks and other server datasets survive.
+
+The frontend is also corrected back to the immutable 0.3.1 behavior: one Manual-only Clear control calling the current server ID. The R7-147 Auto Clear / `serverId=0` clear-all override is removed. See `docs/reviews/2026-09-24-r8-008-map-scan-clear-strict-parity.md`.
 
 ## P0
 

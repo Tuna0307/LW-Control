@@ -213,13 +213,13 @@ internal sealed class LWBridgeBackend
                 {
                     int serverId = MapDataQueryContract.RequiredServerIdOrAll(payload);
                     (bool isReading, int currentServerId, string? serverIdSource) = ReadMapScanOwnership();
-                    if (isReading)
-                        throw new BridgeCommandException(
-                            MapScanClearOwnership.ActiveScanErrorCode,
-                            MapScanClearOwnership.ActiveScanErrorMessage);
+                    MapScanClearOwnership.Validate(
+                        serverId,
+                        isReading,
+                        currentServerId,
+                        serverIdSource);
                     MapDataStore store = RequireMapDataStore();
-                    if (serverId == 0) store.ClearAllScanData();
-                    else store.ClearServer(serverId);
+                    store.ClearServer(serverId);
                     return CreateMapScanStatus(
                         currentServerId,
                         "idle",

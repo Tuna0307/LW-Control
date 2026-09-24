@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-007`, 2026-09-24.
+**Current through:** `LWB-R8-008`, 2026-09-24.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 
@@ -23,6 +23,7 @@ Recover the original LWBridge Map implementation first. Current-game APIs are al
 | Accepted gate / 5 s bridge-call behavior | EXACT_CONTRACT | Recovered from original host |
 | Selected type allowlist | EXACT_CONTRACT | city/resource/monster/truck/railway/dispatch/ghost/treasure |
 | Normal/Fast concurrency | EXACT_CONTRACT | normal=8, fast=20 |
+| `map_scan_clear` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-008 restores active-scan precedence, positive current-live-server gate, server-scoped deletion, player-mark preservation and Manual-only frontend Clear |
 | Native capture vocabulary/hooks | PARTIAL EXACT_CONTRACT | Recovered from original proxy |
 | Query/storage/filter contracts | PARTIAL EXACT_CONTRACT | Significant original SQL/normalization recovered |
 | Original acquisition algorithms | UNKNOWN | Current production scanner is our reconstruction |

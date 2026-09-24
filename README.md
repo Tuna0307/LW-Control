@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 strict parity recovery
 
-**Current checkpoint:** `LWB-R8-007` (2026-09-24)
+**Current checkpoint:** `LWB-R8-008` (2026-09-24)
 **Branch:** `research/offline-controller`
 
 This repository is now a strict one-to-one recovery of the verified LWBridge 0.3.1 reference:

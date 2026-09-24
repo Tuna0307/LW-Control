@@ -4,7 +4,8 @@ This directory intentionally retains chronological machine-readable evidence. Do
 
 ## Current authority — R8 strict parity
 
-- `2026-09-24-r8-007-city-excel-export-restored.json` ? restores and validates original City Excel export API/UI, native dialog, paging, workbook and result contract.
+- `2026-09-24-r8-008-map-scan-clear-strict-parity.json` — restores the original current-live-server Clear gate, server-scoped deletion, Manual-only frontend control and fail-closed behavior.
+- `2026-09-24-r8-007-city-excel-export-restored.json` — restores and validates original City Excel export API/UI, native dialog, paging, workbook and result contract.
 - `2026-09-24-r8-006-envelope-key-output-flow.json` ? proves caller-side output ownership from the opaque envelope consumer into the exact 32-byte package AES key, without inspecting the restricted consumer body.
 - `2026-09-24-r8-005-device-login-material.json` ? exact original P-256 device public-point encoding and 32-byte authorization.challenge/launchNonce contract; returned server envelope fields still pending.
 - `2026-09-24-r8-004-auth-key-envelope-transport.json` ? recovers host-side `LWKE1` key-envelope/auth-ticket framing, canonical payload encoding, expiry/magic fields and login device-public-key binding; agreement payload semantics/key still pending.

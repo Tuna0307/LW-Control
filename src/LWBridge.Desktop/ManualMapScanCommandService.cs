@@ -531,8 +531,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         }
         catch (Exception)
         {
-            // Live-server resolution is advisory for status and local-data Clear.
-            // A transient bridge gap must not turn a completed local operation into an error.
+            // Live-server resolution is advisory. Strict Clear admission still
+            // validates the current scan-state identity/source and fails closed when
+            // no authoritative live server can be established.
             return null;
         }
     }
@@ -542,25 +543,31 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         int requestedServerId = MapDataQueryContract.RequiredServerIdOrAll(payload);
         bool shouldResolveLiveServer;
         lock (gate)
-            shouldResolveLiveServer = !closed && !isReading && serverId <= 0;
+            shouldResolveLiveServer = !closed && !isReading;
 
         int? resolvedServerId = shouldResolveLiveServer ? TryResolveLiveServerId() : null;
         lock (gate)
         {
             if (closed)
                 throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
-            if (isReading)
-                throw new BridgeCommandException(
-                    MapScanClearOwnership.ActiveScanErrorCode,
-                    MapScanClearOwnership.ActiveScanErrorMessage);
-            if (serverId <= 0 && resolvedServerId is > 0) serverId = resolvedServerId.Value;
+            if (resolvedServerId is > 0)
+            {
+                liveServerId = resolvedServerId.Value;
+                if (serverId <= 0) serverId = resolvedServerId.Value;
+            }
 
-            // OWNER WORKFLOW R7-147: Clear manages locally published scan data. It
-            // must not require the currently viewed data server to equal the live
-            // game server after an Auto Scan has returned to its origin. serverId=0
-            // clears all scan rows from this LWBridge session; marks/settings survive.
-            if (requestedServerId == 0) store.ClearAllScanData();
-            else store.ClearServer(requestedServerId);
+            string serverIdSource = serverId <= 0
+                ? "none"
+                : liveServerId > 0 && serverId != liveServerId
+                    ? "remote_train_list"
+                    : MapScanClearOwnership.LiveServerSource;
+            MapScanClearOwnership.Validate(
+                requestedServerId,
+                isReading,
+                serverId,
+                serverIdSource);
+
+            store.ClearServer(requestedServerId);
             scanRunId = string.Empty;
             phase = "idle";
             scanMode = "auto";

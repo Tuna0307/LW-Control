@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-007`, 2026-09-24
+**Current through:** `LWB-R8-008`, 2026-09-24
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -19,6 +19,7 @@ This is now the product-completion matrix. The older 47-case Home/Map acceptance
 | Home lifecycle backend | EQUIVALENT_REIMPLEMENTATION, parity not closed | Current C# lifecycle works and has live evidence | Recover original Rust/launcher/proxy behavior far enough to prove one-to-one semantics |
 | Map Data frontend | EXACT_BYTES-derived with deviations | Original component family is used, but prior rebuild removed/added product behavior | Restore reference controls and remove non-reference additions |
 | City Excel export | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-007 restores original API/UI/locales, native save dialog, 200-row paging/200k limit, exact 12-column six-part XLSX writer, filename and result envelope | Preserve with strict-parity regression checks |
+| `map_scan_clear` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-008 restores the positive current-live-server gate, exact errors, server-scoped deletion, player-mark preservation and Manual-only frontend control | Preserve; do not reintroduce `serverId=0`/saved-server Clear |
 | Scheduled Plunder surfaces | DEVIATION | Previously owner-retired and removed | Re-audit reference and restore every original surface/worker/action that belongs to 0.3.1 |
 | Secret Task Quick Find product feature | DEVIATION REMOVED | Added by R7-151 from a current-game native finder; R8-002 removes the product surface because it is not established as LWBridge 0.3.1 behavior | Restore only if reference evidence proves it exists |
 | Map scan request envelope | EXACT_CONTRACT | `startMapScan` fields, accepted gate, selected types, normal/fast concurrency recovered | Preserve; recover remaining handler internals |

@@ -19,9 +19,9 @@ internal static class ManualMapScanCommandServiceChecks
         await RestartReconcilesOrphanedRunAndRejectsConcurrentOwner();
         await BackendSummaryTracksActiveManualScan();
         await FreshClearResolvesAuthoritativeLiveServer();
-        await ClearSurvivesTransientLiveServerResolverFailure();
+        await ClearFailsClosedWithoutAuthoritativeLiveState();
         await ClearOwnsRecoveredGateAndResetsStatus();
-        await BackendClearWithoutLiveOwnershipSucceedsLocally();
+        await BackendClearWithoutLiveOwnershipFailsClosed();
         await FastUsesRecoveredConcurrencyAndPublishes();
         await ContextFailureLeavesTruthfulError();
         await ZombieBossTypeIsAccepted();
@@ -479,41 +479,39 @@ internal static class ManualMapScanCommandServiceChecks
         service.Close();
     }
 
-    private static async Task ClearSurvivesTransientLiveServerResolverFailure()
+    private static async Task ClearFailsClosedWithoutAuthoritativeLiveState()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
-        bool resolverFails = false;
         var service = new ManualMapScanCommandService(
             store,
             _ => Task.FromResult(Context()),
             new ImmediateSource(),
-            getLiveServerId: () => resolverFails
-                ? throw new InvalidOperationException("synthetic transient live-server gap")
-                : 2212);
-
-        JsonElement initial = JsonSerializer.SerializeToElement(service.CreateStatus(), JsonOptions.Default);
-        Check(Int(initial, "serverId") == 2212,
-            "Clear resolver-gap regression should begin with a known live server");
+            getLiveServerId: () =>
+                throw new InvalidOperationException("synthetic unavailable live-server state"));
         store.UpsertRecord(new MapStoredRecord(
             "city", 2212, "resolver-gap-city", 1, "resolver-gap-uuid", "Resolver Gap", null,
             30, null, null, null, null, 1000,
             "{\"serverId\":2212,\"ownerUid\":\"resolver-gap-owner\"}"));
 
-        resolverFails = true;
-        JsonElement clearAll = JsonSerializer.SerializeToElement(
-            new { profileId = "default", serverId = 0 },
+        JsonElement payload = JsonSerializer.SerializeToElement(
+            new { profileId = "default", serverId = 2212 },
             JsonOptions.Default);
-        JsonElement cleared = JsonSerializer.SerializeToElement(
-            await service.InvokeAsync("map_scan_clear", clearAll, CancellationToken.None),
-            JsonOptions.Default);
+        try
+        {
+            _ = await service.InvokeAsync("map_scan_clear", payload, CancellationToken.None);
+            throw new InvalidOperationException("expected unavailable-live-state Clear rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == MapScanClearOwnership.ServerUnavailableErrorCode &&
+            error.Message == MapScanClearOwnership.ServerUnavailableErrorMessage)
+        {
+        }
 
-        Check(store.CountRecords("city", 2212) == 0 &&
-              Int(cleared, "serverId") == 2212 &&
-              String(cleared, "phase") == "idle",
-            "Clear must succeed locally even when live-server status resolution drops after deletion");
+        Check(store.CountRecords("city", 2212) == 1,
+            "Clear without authoritative live state must fail closed without deleting saved data");
         JsonElement status = JsonSerializer.SerializeToElement(service.CreateStatus(), JsonOptions.Default);
-        Check(Int(status, "serverId") == 2212 && String(status, "phase") == "idle",
-            "post-Clear status must retain the last known server instead of surfacing a transient resolver error");
+        Check(Int(status, "serverId") == 0 && String(status, "serverIdSource") == "none",
+            "unavailable live state must not be promoted into a saved/current server identity");
         service.Close();
     }
 
@@ -573,25 +571,42 @@ internal static class ManualMapScanCommandServiceChecks
             Payload("normal", "city"),
             CancellationToken.None);
 
-        // After Auto Scan returns to 2212, clearing a browsed 2213 dataset is a
-        // local data operation and must not require live-server equality.
         JsonElement otherServer = JsonSerializer.SerializeToElement(
             new { profileId = "default", serverId = 2213 },
             JsonOptions.Default);
-        _ = await service.InvokeAsync("map_scan_clear", otherServer, CancellationToken.None);
-        Check(store.CountRecords("city", 2212) == 1 && store.CountRecords("city", 2213) == 0,
-            "stopped Clear should permit deleting a browsed non-live server dataset");
+        try
+        {
+            _ = await service.InvokeAsync("map_scan_clear", otherServer, CancellationToken.None);
+            throw new InvalidOperationException("expected non-live-server Clear rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == MapScanClearOwnership.ServerUnavailableErrorCode &&
+            error.Message == MapScanClearOwnership.ServerUnavailableErrorMessage)
+        {
+        }
+        Check(store.CountRecords("city", 2212) == 1 && store.CountRecords("city", 2213) == 1,
+            "non-live-server Clear rejection must preserve every published server");
 
-        // Re-add the second server and prove the UI's serverId=0 Clear removes all
-        // scan datasets while preserving durable player marks.
-        store.UpsertRecord(new MapStoredRecord(
-            "city", 2213, "other-city", 2, "other-city-uuid", "Other City", null,
-            29, null, null, null, null, 1001,
-            "{\"serverId\":2213,\"ownerUid\":\"other-owner\"}"));
+        try
+        {
+            _ = await service.InvokeAsync("map_scan_clear", clearAll, CancellationToken.None);
+            throw new InvalidOperationException("expected serverId=0 Clear rejection");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == MapScanClearOwnership.ServerUnavailableErrorCode &&
+            error.Message == MapScanClearOwnership.ServerUnavailableErrorMessage)
+        {
+        }
+        Check(store.CountRecords("city", 2212) == 1 && store.CountRecords("city", 2213) == 1,
+            "serverId=0 Clear rejection must preserve every published server");
+
+        JsonElement liveServer = JsonSerializer.SerializeToElement(
+            new { profileId = "default", serverId = 2212 },
+            JsonOptions.Default);
         int eventsBeforeClear = statusEvents;
         object? cleared = await service.InvokeAsync(
             "map_scan_clear",
-            clearAll,
+            liveServer,
             CancellationToken.None);
         JsonElement status = JsonSerializer.SerializeToElement(cleared, JsonOptions.Default);
         Check(Int(status, "serverId") == 2212 &&
@@ -612,19 +627,19 @@ internal static class ManualMapScanCommandServiceChecks
         Check(statusEvents > eventsBeforeClear,
             "successful Clear should publish the reset scan status");
         Check(store.CountRecords("city", 2212) == 0 &&
-              store.CountRecords("city", 2213) == 0 &&
+              store.CountRecords("city", 2213) == 1 &&
               store.CountScanRuns(2212) == 0,
-            "serverId=0 Clear should remove all current-session scan/index scopes");
+            "successful Clear must delete only the current live server scan/index scope");
         Check(store.GetPlayerMark(2212, "clear-owner") is not null,
-            "session scan Clear should preserve player marks");
+            "server-scoped Clear should preserve player marks");
 
-        _ = await service.InvokeAsync("map_scan_clear", clearAll, CancellationToken.None);
-        Check(store.CountRecords("city", 2212) == 0 && store.CountRecords("city", 2213) == 0,
-            "empty repeated all-server Clear should remain idempotent");
+        _ = await service.InvokeAsync("map_scan_clear", liveServer, CancellationToken.None);
+        Check(store.CountRecords("city", 2212) == 0 && store.CountRecords("city", 2213) == 1,
+            "empty repeated current-live-server Clear should remain idempotent");
         service.Close();
     }
 
-    private static async Task BackendClearWithoutLiveOwnershipSucceedsLocally()
+    private static async Task BackendClearWithoutLiveOwnershipFailsClosed()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var backend = new LWBridgeBackend(
@@ -636,11 +651,21 @@ internal static class ManualMapScanCommandServiceChecks
             "{\"serverId\":2212,\"ownerUid\":\"saved-only-owner\"}"));
 
         JsonElement payload = JsonSerializer.SerializeToElement(
-            new { profileId = backend.ProfileId, serverId = 0 },
+            new { profileId = backend.ProfileId, serverId = 2212 },
             JsonOptions.Default);
-        _ = await backend.InvokeAsync("map_scan_clear", payload, CancellationToken.None);
-        Check(store.CountRecords("city", 2212) == 0,
-            "backend scan-data Clear must remain available without a live server because it is a local data operation");
+        try
+        {
+            _ = await backend.InvokeAsync("map_scan_clear", payload, CancellationToken.None);
+            throw new InvalidOperationException("expected backend Clear without live ownership to fail closed");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == MapScanClearOwnership.ServerUnavailableErrorCode &&
+            error.Message == MapScanClearOwnership.ServerUnavailableErrorMessage)
+        {
+        }
+
+        Check(store.CountRecords("city", 2212) == 1,
+            "backend Clear without current live ownership must preserve saved scan data");
     }
 
     private static async Task FastUsesRecoveredConcurrencyAndPublishes()
