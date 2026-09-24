@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "indexId": "LWB-R7-153-CURRENT-EVIDENCE-INDEX",
+  "indexId": "LWB-R7-154-CURRENT-EVIDENCE-INDEX",
   "generatedAt": "2026-09-24",
-  "parentRevision": "ee42daccb0c25eab7e02d5ecc7f12a553dc5b80a",
+  "parentRevision": "e88a7f160a7a2ff856a30ddead8e04766e4e773e",
   "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
   "groups": {
     "home": [
@@ -48,6 +48,10 @@
       }
     ],
     "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json",
+        "sha256": "7145460A4689F8A00AE48AC68B9E3B1F95D40AFF2413FD1CBC18522219AFEABE"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json",
         "sha256": "650385C65E6EEB6C6267B48A7B52451C35AEA8B9F0E4BBC8345796FE8BF8A411"
@@ -154,6 +158,10 @@
       }
     ],
     "sharedRelease": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json",
+        "sha256": "7145460A4689F8A00AE48AC68B9E3B1F95D40AFF2413FD1CBC18522219AFEABE"
+      },
       {
         "path": "evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json",
         "sha256": "9CDD78F8A897D8ABCF98EC33CB01ED0CABAE428DAF371AE0CFBC93D27D5F0433"

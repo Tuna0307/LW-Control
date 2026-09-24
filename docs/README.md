@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R7-153`, 2026-09-24.
+**Current checkpoint:** `LWB-R7-154`, 2026-09-24.
 This index is the canonical navigation page. Historical research/checkpoint files remain in place, but their old “current/open/pending” wording is not current status.
 
 ## Start here
@@ -14,7 +14,7 @@ This index is the canonical navigation page. Historical research/checkpoint file
 7. [`lwbridge-project-status.md`](lwbridge-project-status.md) — current project-manager audit summary.
 8. [`external-audit-guide.md`](external-audit-guide.md) — handoff guide for another AI/reviewer.
 9. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — current evidence navigation.
-10. [`reviews/2026-09-24-r7-153-supplies-population-recheck.md`](reviews/2026-09-24-r7-153-supplies-population-recheck.md) — current Supplies population recheck; R7-152 covers Ghost and R7-151 covers v21 lifecycle/Secret Task acceleration.
+10. [`reviews/2026-09-24-r7-154-railway-v21-status-hygiene.md`](reviews/2026-09-24-r7-154-railway-v21-status-hygiene.md) — current Railway v21 status/ownership-boundary checkpoint; R7-153 covers Supplies, R7-152 Ghost, and R7-151 v21 lifecycle/Secret Task acceleration.
 
 ## Current acceptance source
 
@@ -22,12 +22,13 @@ The current 47-case baseline is:
 
 `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`
 
-R7-153 leaves the acceptance statuses unchanged: ordinary `partial` count remains **0**. R7-151 added v21 lifecycle/Dispatch acceleration; R7-152 refreshed Ghost population evidence and R7-153 refreshes Supplies without promoting either positive-row acceptance.
+R7-154 leaves the acceptance statuses unchanged: ordinary `partial` count remains **0**. R7-151 added v21 lifecycle/Dispatch acceleration; R7-152/R7-153 refreshed Ghost/Supplies population evidence; R7-154 clarifies the still-pending fresh Railway v21 proof and retired Plunder scope.
 
 ## Current unresolved gates
 
 - Ghost positive-row proof: R7-152 sampled 2212/2175/2180/2185/2207 on current v21; all full scans completed cleanly with zero authentic Ghost rows, so the gate remains population-only.
 - Supplies positive-row proof: R7-153 current-v21 full scans on 2212/2175/2180/2185/2207/2213 all completed cleanly with zero authentic Supplies rows; the gate remains population-only.
+- Fresh Railway v21 positive row/Follow: historical v20 proof remains provenance; R7-154 strict 2207 retry was blocked before ownership by an externally launched game session, so a fresh v21 positive pass is still required.
 - Treasure protected claim scheduler: `UNKNOWN/BLOCKED` under the preserved SB-79 boundary.
 - Simultaneous real multi-account UI population: target/account availability gap.
 - Final integrated release acceptance: separate release-level gate.

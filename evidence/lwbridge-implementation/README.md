@@ -4,6 +4,7 @@ This directory intentionally retains chronological machine-readable evidence. Do
 
 ## Current entry points
 
+- `2026-09-24-r7-154-railway-v21-status-hygiene.json` — R7-154 fresh-v21 Railway proof status, preserved external-game ownership boundary, and retired-Plunder guidance correction.
 - `2026-09-24-r7-153-supplies-population-recheck.json` — R7-153 current-v21 six-server Supplies negative-population recheck with verified jump/return cleanup.
 - `2026-09-24-r7-152-ghost-population-recheck.json` — R7-152 current-v21 five-server Ghost negative-population recheck and reusable target-server proof support.
 - `2026-09-24-r7-151-v21-dispatch-fast-scan.json` — R7-151 v21 update-safe lifecycle, 68-request Dispatch scan, native Quick Find, validation limits.
@@ -11,7 +12,7 @@ This directory intentionally retains chronological machine-readable evidence. Do
 - `2026-09-23-r7-direct-train-list-speed.json` ? R7-148 direct Truck/Railway Train-list speed proof and live cross-server match coverage.
 - `2026-09-23-r7-train-list-no-jump-auto.json` ? R7-150 live covered cross-server Truck/Railway no-jump Auto proof and routing validation.
 - `2026-09-22-r7-map-owner-workflow-corrections.json` ? R7-147 eight-issue Map correction ledger plus current-v20 official Train-list/population evidence.
-- `2026-09-23-r7-acceptance-matrix-r7149.json` — current 47-case acceptance matrix; R7-153 does not change its case statuses.
+- `2026-09-23-r7-acceptance-matrix-r7149.json` — current 47-case acceptance matrix; R7-154 does not change its case statuses.
 - `2026-09-22-r7-doc-evidence-self-audit.json` — R7-145 structural, performance, feature, and validation audit.
 - `2026-09-22-r7-supplies-population-recheck.json` — historical two-server Supplies population recheck superseded for current status by R7-153.
 - `2026-09-22-r7-normal-user-restart-walkthrough-autolaunch.json` — current built-Release zero-argument navigation/restart proof with owner auto-launch safely suppressed/restored by the external verifier.

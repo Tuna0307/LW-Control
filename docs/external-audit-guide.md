@@ -44,7 +44,7 @@ An auditor should specifically verify:
 - Player City effective HP does not regress to stale raw current HP;
 - generic Monster still includes ordinary Doom Walker and level-by-10 variants;
 - Truck/Railway moving identity uses exact march UUID and does not duplicate moved rows;
-- current-v20 Railway performs the official `LWTrainDataManager.TryGetTrainList(true)` refresh once per full scan rather than relying only on world marches;
+- Railway-only acquisition uses the official `LWTrainDataManager.TryGetTrainList(true)` refresh once per full scan rather than relying only on world marches; this path is historically live-proven on v20, while a fresh positive Railway row/Follow proof on v21 remains pending;
 - covered Truck/Railway-only Auto targets use `matchServers` + `targetServerId` without physical travel, while mixed/uncovered targets retain jump-first behavior and `liveServerId` remains the physical-server authority;
 - Manual has no server filter while Auto/saved-data browsing has **All** + saved servers;
 - one-shot Run Now works with recurring Auto disabled and does not enable future scheduling;
@@ -58,7 +58,7 @@ An auditor should specifically verify:
 
 - Ghost positive-row population: R7-152 current-v21 five-server recheck completed clean scans but found zero authentic rows; keep this as a population gate, not a scanner defect.
 - Supplies positive-row population: R7-153 current-v21 six-server recheck completed clean scans but found zero authentic `WorldSuppliesPoint` rows; keep this as a population gate, not a scanner/parser defect.
-- Fresh current-v20 Railway positive row: official-list probes on 2175/2180/2185/2190/2195/2196/2204 were authoritative but empty in R7-147; do not misreport that as a source failure or as a fresh positive pass.
+- Fresh current-v21 Railway positive row/Follow: historical v20 official-list probes remain valid provenance, but a new positive v21 row has not yet been accepted. Do not misreport historical empty probes as a source failure or as a fresh v21 positive pass.
 - Treasure protected claim scheduler: `UNKNOWN/BLOCKED` behind the preserved SB-79 boundary; public claim is intentionally unrouted.
 - Simultaneous real multi-account UI population: target availability gap.
 - Final integrated release acceptance remains a separate release-level gate even though ordinary technical `partial` rows are zero.
@@ -72,3 +72,4 @@ Current feature-retirement proof: `docs/reviews/2026-09-23-r7-149-scheduled-plun
 Current no-jump speed proof: `docs/reviews/2026-09-23-r7-150-train-list-no-jump-auto.md`.
 Current Ghost population proof: `docs/reviews/2026-09-24-r7-152-ghost-population-recheck.md`.
 Current Supplies population proof: `docs/reviews/2026-09-24-r7-153-supplies-population-recheck.md`.
+Current Railway v21 status/ownership proof: `docs/reviews/2026-09-24-r7-154-railway-v21-status-hygiene.md`.

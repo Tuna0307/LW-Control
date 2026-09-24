@@ -2,14 +2,14 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R7-153`; parent revision `ee42daccb0c25eab7e02d5ecc7f12a553dc5b80a`
+**Current checkpoint:** `LWB-R7-154`; parent revision `e88a7f160a7a2ff856a30ddead8e04766e4e773e`
 **Date:** 2026-09-24
 
 Read `AGENTS.md` first. Preserve evidence-first recovery rules, the SB-79 restriction, unrelated diagnostic WIP, and commit/push verification requirements.
 
 ## Current product state
 
-Home / Overview remains at its accepted evidence scope. R7-151 adds the Last War v21 update-safe lifecycle and the current Secret Task acceleration. R7-152 refreshes the Ghost population gate: strict current-v21 scans on 2212/2175/2180/2185/2207 all completed cleanly but found zero authentic Ghost rows. The 47-case acceptance matrix remains unchanged with **zero ordinary `partial` rows**; no population/authorization gate is promoted.
+Home / Overview remains at its accepted evidence scope. R7-151 adds the Last War v21 update-safe lifecycle and Secret Task acceleration. R7-152/R7-153 refresh Ghost/Supplies population evidence without promoting either gate. R7-154 clarifies that Railway positive acquisition/Follow is historically live-proven on v20 but still needs a fresh v21 positive row; the strict 2207 attempt correctly refused to take ownership while Last War was externally launched. The 47-case acceptance matrix remains unchanged with **zero ordinary `partial` rows**.
 
 Use these current summaries instead of reconstructing status from chronological checkpoint prose:
 
@@ -54,4 +54,4 @@ Do not replay or reroute SB-79. Do not invent protected Treasure scheduler seman
 
 ## Evidence navigation
 
-Start with `evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json`, `docs/reviews/2026-09-24-r7-153-supplies-population-recheck.md`, then the R7-152 Ghost and R7-151 v21 lifecycle/Dispatch evidence. Historical evidence remains valid at its original source/build/scope and is retained for auditability.
+Start with `evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json`, `docs/reviews/2026-09-24-r7-154-railway-v21-status-hygiene.md`, then R7-153 Supplies, R7-152 Ghost, and R7-151 v21 lifecycle/Dispatch evidence. Historical evidence remains valid at its original source/build/scope and is retained for auditability.
