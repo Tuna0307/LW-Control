@@ -50,6 +50,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly ManualMapScanCommandService? manualMapScanService;
     private readonly CityLayoutDraftCommandService? cityLayoutDraftService;
+    private readonly HotkeyConfigCommandService? hotkeyConfigService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -133,6 +134,13 @@ internal sealed class LWBridgeWindow : Form
                 Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "profile.db"));
+        hotkeyConfigService = isolated
+            ? null
+            : new HotkeyConfigCommandService(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId,
+                    "runtime", "config.json"));
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -181,6 +189,7 @@ internal sealed class LWBridgeWindow : Form
             if (manualMapScanService is not null) services.Add(manualMapScanService);
             if (liveResourceService is not null) services.Add(liveResourceService);
             if (cityLayoutDraftService is not null) services.Add(cityLayoutDraftService);
+            if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
             productionCommands = services.Count switch
             {
                 0 => null,

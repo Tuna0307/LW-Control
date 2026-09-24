@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-018`
+**Current checkpoint:** `LWB-R8-019`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -108,6 +108,10 @@ Further work on those branches requires stronger permitted reference evidence; o
 R8-018 implements the first evidence-backed City Layout backend phase: a per-profile `profile_state` SQLite store plus production `city_layout_draft_get`, `city_layout_draft_save`, and `city_layout_draft_clear`. The exact key is `city_layout_draft_v1`; first save creates revision 1, guarded updates increment exactly once, stale save/clear returns `PROFILE_REVISION_CONFLICT`, and malformed stored JSON returns `PROFILE_DATA_INVALID`. The rebuild maps the recovered per-profile profile-database concept to `%LOCALAPPDATA%\LWBridgeRebuild\profiles\<profileId>\profile.db`. The exact native no-row envelope remains partial; the rebuild returns the minimal frontend-compatible `{profileId,key,revision:0,value:null}`. See `docs/reviews/2026-09-25-r8-018-city-layout-draft-persistence.md`.
 
 The remaining five commands (`snapshot_get`, `validate`, `apply_start`, `apply_status`, `apply_cancel`) are still missing because their game-side providers/planner/executor are protected. They are not stubbed or faked.
+
+## R8-019 Hotkey configuration checkpoint
+
+R8-019 restores the original ten-field Hotkey configuration object, native defaults, `hotkey_config_get/save`, and the exact `INVALID_REQUEST / invalid hotkey config` plus `STATE_UNAVAILABLE / config state is unavailable` error vocabulary. The Hotkey panel remains byte-identical to original 0.3.1. Persistence uses the rebuild-owned per-profile runtime config path while preserving unknown sibling JSON. This checkpoint does **not** implement keyboard hooks or any attack/recall/shield/equipment/relocation/reinforcement game action. See `docs/reviews/2026-09-25-r8-019-hotkey-config-persistence.md`.
 
 ## Parked protected package-key lane
 
