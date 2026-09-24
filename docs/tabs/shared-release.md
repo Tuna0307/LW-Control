@@ -1,13 +1,13 @@
 # Shared runtime / Release — current status
 
-**Current through:** `LWB-R7-154`, 2026-09-24
+**Current through:** `LWB-R7-155`, 2026-09-24
 
 This page covers behavior shared by Home and Map Data: the native host, generated frontend, persistent configuration, authenticated game bridge, window responsiveness, restart behavior, and release acceptance.
 
 ## Current release baseline
 
 - Branch: `research/offline-controller`.
-- Current checkpoint: `LWB-R7-154`; parent revision `e88a7f160a7a2ff856a30ddead8e04766e4e773e`. R7-152/R7-153 are read-only population-evidence checkpoints and R7-154 is status/ownership-boundary hygiene; shared Release behavior remains the R7-151 implementation.
+- Current checkpoint: `LWB-R7-155`; parent revision `f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb`. R7-152/R7-153 are population-evidence checkpoints; R7-154/R7-155 refine Railway v21 evidence/test identity. Shared Release behavior remains the R7-151 implementation.
 - Installed game-side package at the current live audit: content version 21. R7-151 validates the final updated client only after the official launcher/update completes.
 - Canonical current matrix: `evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json`.
 - 47 acceptance cases are tracked; ordinary status `partial` count is zero.
