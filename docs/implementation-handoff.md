@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-004`
+**Current checkpoint:** `LWB-R8-005`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -57,7 +57,7 @@ Already known:
 - an identified package decrypt/validation consumer.
 - `LWBP2|`, package-integrity and package-build validation strings.
 
-R8-003 closes the package binary layout and package AES argument ownership: the package receives the 32-byte key as its original third argument. R8-004 now closes the host-side envelope transport grammar: `packageKeyEnvelope` is stored as `package-key.envelope`; accepted decoded magic is `LWKE1`; the token has exactly two dot-separated segments; its first segment is canonical URL-safe Base64 of a pipe-delimited UTF-8 payload with field 0 = magic and field 2 = expiry seconds; and login explicitly sends `devicePublicKey` plus `launchNonce`. Still missing are the decoded envelope agreement field semantics/peer public key and their exact mapping into the already-recovered ECDH/TRUNCATE path, followed by decryption and script extraction.
+R8-003 closes the package binary layout/AES ownership. R8-004 closes the host-side `LWKE1` token framing and auth persistence. R8-005 closes the client login material: the persisted P-256 key is exported as `0x04||X||Y` and encoded as 87 URL-safe/no-padding characters for `devicePublicKey`; `launchNonce` is the reusable/generated 32-byte `authorization.challenge` encoded as 43 URL-safe/no-padding characters. Still missing are the decoded server envelope agreement/encrypted-key fields and their exact mapping into the already-recovered ECDH/TRUNCATE path, followed by decryption and script extraction.
 
 Historical SB-79 records one exact operation rejected by a previous environment. Do not reroute that forbidden operation. Continue the underlying recovery through genuinely permitted methods.
 

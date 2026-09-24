@@ -1,0 +1,84 @@
+{
+  "findingId": "LWB-R8-005",
+  "date": "2026-09-24",
+  "scope": "original devicePublicKey and launchNonce/auth-challenge encoding contract",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "deviceKey": {
+    "provider": "Microsoft Software Key Storage Provider",
+    "algorithm": "ECDH_P256",
+    "persistedKeyName": "{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}",
+    "exportBlobType": "ECCPUBLICBLOB",
+    "exportBlob": {
+      "requiredBytes": 72,
+      "magic": "ECK1",
+      "cbKey": 32
+    },
+    "loginPublicPoint": {
+      "binaryShape": "0x04 || X[32] || Y[32]",
+      "binaryBytes": 65,
+      "encoding": "URL-safe Base64 without padding",
+      "encodedChars": 87,
+      "base64Engine": {
+        "rva": "0xCA294E",
+        "configBytesHex": "000002",
+        "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",
+        "padding": false
+      },
+      "loginField": "devicePublicKey"
+    }
+  },
+  "launchNonce": {
+    "runtimeArtifact": "authorization.challenge",
+    "reuseContract": {
+      "acceptedEncodedChars": 43,
+      "allowedCharacters": "0-9 A-Z a-z _ -"
+    },
+    "generation": {
+      "randomBytes": 32,
+      "encoding": "URL-safe Base64 without padding",
+      "encodedChars": 43,
+      "base64Engine": {
+        "rva": "0x836BF0",
+        "configBytesHex": "000002",
+        "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",
+        "padding": false
+      }
+    },
+    "loginField": "launchNonce"
+  },
+  "result": [
+    "The original host persists an ECDH_P256 key named {2D337A4D-7E6C-49EF-9486-54F0A00D8A41} in Microsoft Software Key Storage Provider.",
+    "devicePublicKey is the ECDH public point exported as a 72-byte ECCPUBLICBLOB (ECK1, cbKey=32), converted to 65-byte SEC1 uncompressed form 0x04||X||Y, then URL-safe Base64 encoded without padding, yielding 87 characters.",
+    "launchNonce is the authorization.challenge value. A valid existing value is reused only when it is exactly 43 URL-safe characters; otherwise a fresh 32-byte challenge is generated and URL-safe Base64 encoded without padding to 43 characters.",
+    "The login JSON uses those values under the exact devicePublicKey and launchNonce field names.",
+    "This closes the R8-004 uncertainty around the devicePublicKey encoding but does not identify the decoded LWKE1 peer-key/encrypted-key fields returned by the server."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_device_login_material.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_device_login_material.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-24-r8-005-device-login-material.json",
+    "python -m py_compile tools\\inspect_lwbridge_device_login_material.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "networkRequestsMade": false,
+    "livePrivateKeyReadOrExported": false,
+    "notProven": [
+      "decoded LWKE1 field1/remaining field semantics",
+      "server peer public-key field location",
+      "envelope nonce/tag/ciphertext field ownership",
+      "32-byte package key",
+      "bridge-scripts.dat plaintext"
+    ],
+    "restrictionPreserved": "No secure-proxy SB-79 RVA 0x3F8E0-0x40A6D instruction is inspected or rerouted."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "closedGap": "exact client ECDH public-key/login encoding and launchNonce challenge contract",
+    "next": "recover the returned LWKE1 peer/agreement material from an independent original artifact or non-restricted contract, then derive the package key through the already-proven ECDH/TRUNCATE helper"
+  }
+}

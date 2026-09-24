@@ -1,6 +1,6 @@
 # Owner test checklist — strict parity phase
 
-**Current through:** `LWB-R8-004`, 2026-09-24.
+**Current through:** `LWB-R8-005`, 2026-09-24.
 
 There is no broad owner retest requested right now.
 
