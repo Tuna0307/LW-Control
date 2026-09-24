@@ -36,7 +36,7 @@ Recover the original LWBridge Map implementation first. Current-game APIs are al
 - R7-151 wide-FOV/68-request scan strategy was our optimization, not a recovered original algorithm.
 - Direct Train-list/no-jump routing is a current-game optimization until reference evidence proves original equivalence.
 - City Excel export was previously removed despite being part of the original product; R8-007 restores its recovered original API/UI, dialog, pagination, workbook and result contract.
-- Scheduled Plunder surfaces/workers were removed despite being part of the original product.
+- Scheduled Plunder was removed in R7 despite being part of the original product. R8-016 restores its recoverable control plane and original result-tab UI; the protected runtime remains a separate evidence-bound lane.
 - Manual/Auto UX and other owner workflow changes made during R7 must be audited against the reference rather than retained automatically.
 
 ## Completeness regression lesson

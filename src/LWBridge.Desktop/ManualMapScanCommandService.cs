@@ -114,10 +114,15 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     }
 
     public event Action<object>? StatusChanged;
+    public event Action? DispatchPlunderChanged;
+    public event Action? TruckPlunderChanged;
 
     public bool CanHandle(string command) =>
         command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
             "map_coordinate_jump" or "map_march_follow" or "server_jump" or
+            "map_plunder_jobs_list" or "map_dispatch_plunder_schedule" or
+            "map_dispatch_plunder_cancel" or "map_truck_plunder_schedule" or
+            "map_truck_plunder_cancel" or
             "game_asset_image" or "map_train_list_coverage" or
             "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
             "map_treasure_claim_status";
@@ -127,6 +132,28 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        if (command == "map_plunder_jobs_list")
+        {
+            MapPlunderJobsSnapshot jobs = store.ReadPlunderJobs();
+            return new { dispatchJobs = jobs.DispatchJobs, truckJobs = jobs.TruckJobs };
+        }
+        if (command == "map_dispatch_plunder_schedule")
+            return ScheduleDispatchPlunder(payload);
+        if (command == "map_dispatch_plunder_cancel")
+        {
+            CancelDispatchPlunder(payload);
+            return null;
+        }
+        if (command == "map_truck_plunder_schedule")
+        {
+            ScheduleTruckPlunder(payload, cancellationToken);
+            return null;
+        }
+        if (command == "map_truck_plunder_cancel")
+        {
+            CancelTruckPlunder(payload);
+            return null;
+        }
         if (command == "game_asset_image")
             return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
         if (command == "map_train_list_coverage")
@@ -613,6 +640,166 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
         PublishStatusChanged();
         return CreateStatus();
+    }
+
+    private IReadOnlyList<JsonElement> ScheduleDispatchPlunder(JsonElement payload)
+    {
+        IReadOnlyList<DispatchPlunderScheduleRow> rows =
+            DispatchPlunderContract.NormalizeScheduleRows(payload);
+        var scheduled = new List<JsonElement>(rows.Count);
+        foreach (DispatchPlunderScheduleRow row in rows)
+        {
+            JsonElement? persisted = store.ScheduleDispatchPlunderRow(
+                row.ServerId,
+                row.Uuid,
+                row.Json,
+                row.CompletionTime,
+                row.PlunderAt,
+                row.ExpireAt,
+                RecoveredWallClock.UnixTimeMilliseconds());
+            if (!persisted.HasValue)
+                throw new BridgeCommandException("MAP_DATA_ERROR", "scheduled plunder job is missing");
+            scheduled.Add(persisted.Value);
+        }
+
+        DispatchPlunderChanged?.Invoke();
+        return scheduled;
+    }
+
+    private void CancelDispatchPlunder(JsonElement payload)
+    {
+        DispatchPlunderTarget target = DispatchPlunderContract.NormalizeCancel(payload);
+        bool cancelled = store.CancelDispatchPlunder(
+            target.ServerId,
+            target.TaskUuid,
+            RecoveredWallClock.UnixTimeMilliseconds());
+        if (!cancelled)
+            throw new BridgeCommandException("NOT_FOUND", "scheduled plunder job not found");
+
+        DispatchPlunderChanged?.Invoke();
+    }
+
+    private sealed record TruckScheduleRow(
+        long ServerId,
+        string Uuid,
+        string Json,
+        long ExecuteAt,
+        long? ExpireAt);
+
+    private void ScheduleTruckPlunder(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("rows", out JsonElement rows) ||
+            rows.ValueKind != JsonValueKind.Array)
+        {
+            throw new BridgeCommandException("INVALID_REQUEST", "truck rows are required");
+        }
+
+        int count = rows.GetArrayLength();
+        if (count is < 1 or > 200)
+            throw new BridgeCommandException("INVALID_REQUEST", "select between 1 and 200 trucks");
+
+        var validated = new List<TruckScheduleRow>(count);
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object)
+                throw InvalidTruckSchedule();
+
+            long serverId = ReadRecoveredIntegerLike(row, "serverId");
+            string? uuid = row.TryGetProperty("uuid", out JsonElement uuidValue) &&
+                           uuidValue.ValueKind == JsonValueKind.String
+                ? uuidValue.GetString()
+                : null;
+            long executeAt = ReadRecoveredIntegerLike(row, "executeAt");
+            if (executeAt <= 0)
+                executeAt = ReadRecoveredIntegerLike(row, "protectTime");
+            long robTimes = ReadRecoveredIntegerLike(row, "robTimes");
+            long maxLootCount = ReadRecoveredIntegerLike(row, "maxLootCount");
+
+            bool decimalUuid = !string.IsNullOrEmpty(uuid) &&
+                               uuid.All(ch => ch is >= '0' and <= '9');
+            if (serverId <= 0 ||
+                !decimalUuid ||
+                executeAt <= 0 ||
+                maxLootCount <= 0 ||
+                robTimes >= maxLootCount)
+            {
+                throw InvalidTruckSchedule();
+            }
+
+            long expireValue = ReadRecoveredIntegerLike(row, "expireAt");
+            validated.Add(new TruckScheduleRow(
+                serverId,
+                uuid!,
+                row.GetRawText(),
+                executeAt,
+                expireValue > 0 ? expireValue : null));
+        }
+
+        foreach (TruckScheduleRow row in validated)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            store.ScheduleTruckPlunder(
+                row.ServerId,
+                row.Uuid,
+                row.Json,
+                row.ExecuteAt,
+                row.ExpireAt,
+                RecoveredWallClock.UnixTimeMilliseconds());
+        }
+
+        TruckPlunderChanged?.Invoke();
+    }
+
+    private void CancelTruckPlunder(JsonElement payload)
+    {
+        long serverId = ReadRecoveredIntegerLike(payload, "serverId");
+        string? trainUuid =
+            payload.TryGetProperty("trainUuid", out JsonElement uuidValue) &&
+            uuidValue.ValueKind == JsonValueKind.String
+                ? uuidValue.GetString()
+                : null;
+        if (serverId <= 0 || string.IsNullOrWhiteSpace(trainUuid))
+            throw new BridgeCommandException("INVALID_TARGET", "truck target is required");
+
+        bool cancelled = store.CancelTruckPlunder(
+            serverId,
+            trainUuid!,
+            RecoveredWallClock.UnixTimeMilliseconds());
+        if (!cancelled)
+            throw new BridgeCommandException("NOT_FOUND", "scheduled truck job not found");
+
+        TruckPlunderChanged?.Invoke();
+    }
+
+    private static BridgeCommandException InvalidTruckSchedule() =>
+        new("INVALID_REQUEST", "truck scheduling data is invalid");
+
+    private static long ReadRecoveredIntegerLike(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value)) return 0;
+        if (value.ValueKind == JsonValueKind.Number)
+        {
+            if (value.TryGetInt64(out long integer)) return integer;
+            if (value.TryGetDouble(out double floating) && double.IsFinite(floating))
+            {
+                if (floating >= long.MaxValue) return long.MaxValue;
+                if (floating <= long.MinValue) return long.MinValue;
+                return (long)floating;
+            }
+            return 0;
+        }
+
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.AllowLeadingSign,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out long parsed))
+        {
+            return parsed;
+        }
+
+        return 0;
     }
 
     private async Task<object> JumpToServerAsync(JsonElement payload, CancellationToken cancellationToken)

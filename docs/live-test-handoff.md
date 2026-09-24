@@ -26,7 +26,7 @@ ChatGPT should operate the technical collection path directly whenever permitted
 
 Ghost/Supplies population checks, Railway population checks, multi-account availability, lifecycle stress, Map scan proofs and other R7 results remain useful current-client evidence. They are not current parity gates by themselves.
 
-Previously retired state-changing features such as Scheduled Plunder are no longer considered out of product scope merely because R7 removed them. Before live testing them, first recover the original 0.3.1 behavior and restore the exact intended implementation.
+Previously retired product features such as Scheduled Plunder are no longer out of scope merely because R7 removed them. R8-016 restores the offline control plane and original UI, while the protected runtime remains intentionally absent; do not treat control-plane parity as evidence that the protected action path is ready for live testing.
 
 ## Safety / action boundary
 

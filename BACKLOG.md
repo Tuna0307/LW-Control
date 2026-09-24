@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-015`, 2026-09-24.
+**Current through:** `LWB-R8-016`, 2026-09-25.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -15,7 +15,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 - [ ] **Remove/quarantine every rebuild-only product feature.** R7-151 Secret Task Quick Find is the known example; do not retain any addition not demonstrated in the reference.
 - [x] **Restore original City Excel export.** R8-007 restores the reference API/UI, native save dialog, 200-row pagination, exact workbook/result contract and nine locale labels.
-- [ ] **Restore every other retained original feature previously retired or customized.** This includes Scheduled Plunder surfaces and other retained reference behavior removed by earlier owner-specific rebuild decisions. Account/Login/Authentication is the explicit exception and must remain out of scope.
+- [ ] **Restore every other retained original feature previously retired or customized.** Scheduled Plunder control-plane/UI is restored in R8-016; continue with other retained reference behavior removed by earlier owner-specific rebuild decisions. Account/Login/Authentication is the explicit exception and must remain out of scope.
 - [ ] **Eliminate performance-first Map substitutions that lack reference authority.** The wide-FOV/68-request work and similar current-game optimizations are research evidence only until proven equivalent to original LWBridge behavior.
 - [ ] **Re-audit all frontend transforms.** Keep original chunks/assets byte-identical and reduce the generator/API boundary to only invisible compatibility plumbing.
 
@@ -29,7 +29,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 - [x] **Restore original `map_scan_status` / `map_scan_stop` shared-state contract.** R8-013 restores direct shared-state status, read-only world refresh, native/start lifecycle fields, publishing→idle completion, idempotent Stop and exact Stop/Clear reset separation without rebuild-only status fields.
 - [x] **Restore original `map_search` eight-kind filter ownership.** R8-014 restores exactly eight public search kinds, the original frontend query builder and generic keyword predicate; removes public Zombie Boss, localized `monsterNameKeys`, Monster/Resource level selectors and Resource truth-filter semantics. Alternate-sort internals remain explicitly partial.
 - [x] **Restore original Auto Scan frontend scheduler/state machine.** R8-015 restores the immutable 0.3.1 Auto config/sanitizer, scheduler-owned state/effect and Auto card byte-for-byte: persisted Normal/Fast mode, enabled-only Run Now via `nextRunAt`, connected-state effect ownership, original sequential target/error/return/deadline behavior; R7 one-shot/restart/Stop policies are removed.
-- [ ] Restore original Scheduled Plunder control plane and UI without inventing protected robbery execution internals.
+- [x] **Restore original Scheduled Plunder control plane and UI without inventing protected robbery execution internals.** R8-016 restores all five list/schedule/cancel commands, three durable tables/indexes, two change events, and the original API/tab/table/locale frontend surface; protected robbery workers/execution remain absent and unclaimed.
 - [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
 - [ ] Recover remaining protected Normal/Fast internals: mode-specific retries/pacing beyond proven public concurrency 8/20, block/AOI semantics, completeness rules and failure/resume logic. (`retryCount:2` is frontend fallback only, not recovered native status.)
 - [ ] Recover original multi-server behavior instead of designing from LW Atlas or our own assumptions.

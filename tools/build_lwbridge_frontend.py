@@ -79,7 +79,10 @@ def apply_hash_locked_delta(text, recipe_path):
 
 def restore_city_export_panel(text, original_text):
     """Restore the exact recovered City Excel UI after maintained rebuild deltas."""
-    text = replace_once(text, 'It as i,Tn as s,', 'It as i,T as o,Tn as s,')
+    if 'It as i,Pt as a,Tn as s,' in text:
+        text = replace_once(text, 'It as i,Pt as a,Tn as s,', 'It as i,Pt as a,T as o,Tn as s,')
+    else:
+        text = replace_once(text, 'It as i,Tn as s,', 'It as i,T as o,Tn as s,')
     text = replace_once(text,
         ',[Dn,On]=(0,b.useState)(!1)',
         ',[Tn,En]=(0,b.useState)(!1),[Dn,On]=(0,b.useState)(!1)')
@@ -211,9 +214,9 @@ def build(check=False):
                 'function U(e,t){let n=T(),r=t&&typeof t==`object`&&!Array.isArray(t)?{...t}:t==null?{}:{value:t};return n&&!(`profileId`in r)&&(r.profileId=n),window.LWBridgePreview.invoke(e,r)}')
             s = replace_between(s, 'function W(e,t){', 'function G(e){',
                 'function W(e,t){return window.LWBridgePreview.listen(e,e=>{let n=e;if(n&&typeof n==`object`&&`profileId`in n&&`payload`in n){if(n.profileId!==T())return;t(n.payload);return}t(n)})}')
-            # R8 strict parity: preserve the original map_city_export wrapper.
-            # Scheduled Plunder is restored in a separate parity checkpoint.
-            s = retire_scheduled_plunder_api(s)
+            # R8 strict parity: preserve the original Map API wrappers. R8-016
+            # restores Scheduled Plunder list/schedule/cancel wrappers as part of
+            # the retained control plane; protected robbery execution stays absent.
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')
@@ -446,18 +449,8 @@ def build(check=False):
             data = s.encode('utf-8')
         elif re.match(r'^(en|id|ja|ko|pt|ru|vi|zh-CN|zh-TW)-.*\.js$', path.name):
             s = data.decode('utf-8')
-            # R8 strict parity restores the original City Excel and Manual
-            # Normal/Fast labels. Scheduled Plunder labels remain tracked separately.
-            for key in (
-                'map.clearPlunderHistory', 'map.plunderAt', 'map.plunderCancelled',
-                'map.plunderFailed', 'map.plunderReasonUnavailable', 'map.plunderResult',
-                'map.plunderWon', 'map.plunderLost', 'map.plunderRewards',
-                'map.plunderAgain', 'map.plunderCount', 'map.plunderRunning',
-                'map.plunderSucceeded', 'map.retryPlunder', 'map.randomDelaySeconds',
-                'map.schedulePlunder', 'map.scheduleSelected', 'map.scheduledPlunder',
-                'map.scheduleSelectedTrucks',
-            ):
-                s = remove_locale_template_entry(s, key)
+            # R8 strict parity preserves the original City Excel, Manual speed,
+            # and Scheduled Plunder locale entries from the immutable bundles.
             locale_code = next(code for code in ('zh-CN','zh-TW','en','id','ja','ko','pt','ru','vi') if path.name.startswith(code + '-'))
             all_servers_text = {
                 'en': 'All', 'zh-CN': '??', 'zh-TW': '??', 'ja': '???',
@@ -658,10 +651,9 @@ def build(check=False):
             old_nav = 'let mr=(0,b.useCallback)(async e=>{if(e.serverId!==w.serverId){T.current(`map jump blocked stale server=${e.serverId} current=${w.serverId}`);return}let n=String(k(e,`marchUuid`)||``).trim();if(F!==`scheduledPlunder`&&A(F)&&n){let r=`${e.serverId}:${n}`;en(r);try{let r=await t({serverId:e.serverId,marchUuid:n});T.current(`map march follow server=${r.serverId} march=${r.marchUuid}`)}catch(e){T.current(`map march follow error `+String(e))}finally{en(``)}return}let r=Number(k(e,`x`)),i=Number(k(e,`y`));if(!Number.isInteger(r)||!Number.isInteger(i)||r<1||i<1)return;let a=`${e.serverId}:${r}:${i}`;en(a);try{let t=await u({serverId:e.serverId,x:r,y:i});T.current(`map coordinate jump server=${t.serverId} x=${t.x} y=${t.y}`)}catch(e){T.current(`map coordinate jump error `+String(e))}finally{en(``)}},[F,w.serverId]),hr='
             new_nav = 'let mr=(0,b.useCallback)(async e=>{let rowServer=Number(e.serverId),march=String(k(e,`marchUuid`)||``).trim(),moving=F!==`scheduledPlunder`&&usesFollow(F,e),xpos=Number(k(e,`x`)),ypos=Number(k(e,`y`));if(!Number.isInteger(rowServer)||rowServer<=0||moving&&!march||!moving&&(!Number.isInteger(xpos)||!Number.isInteger(ypos)||xpos<1||ypos<1))return;let key=moving?`${rowServer}:${march}`:`${rowServer}:${xpos}:${ypos}`;en(key);try{if(rowServer!==w.serverId){let moved=await serverJump(rowServer);T.current(`map navigation switched ${moved.previousServerId} -> ${rowServer}`)}if(moving){let result=await t({serverId:rowServer,marchUuid:march});T.current(`map march follow server=${result.serverId} march=${result.marchUuid}`)}else{let result=await u({serverId:rowServer,x:xpos,y:ypos});T.current(`map coordinate jump server=${result.serverId} x=${result.x} y=${result.y}`)}}catch(error){T.current(`map navigation error `+String(error))}finally{en(``)}},[F,w.serverId]),hr='
             s = replace_once(s, old_nav, new_nav)
-            # R7-149 Scheduled Plunder retirement remains until its exact R8
-            # control-plane restoration checkpoint. City Excel, however, is an
-            # original 0.3.1 feature and is restored after maintained deltas.
-            s = retire_scheduled_plunder_panel(s)
+            # R8-016 restores the original Scheduled Plunder result-tab/control
+            # surface. Keep the historical retirement helper above as evidence,
+            # but do not apply it to the final generated panel.
             s = restore_city_export_panel(s, data.decode('utf-8'))
             # R8-012: restore the exact original Manual Normal/Fast public UI
             # only after all historical offset-locked rebuild deltas have applied.

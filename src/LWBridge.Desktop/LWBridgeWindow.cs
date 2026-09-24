@@ -17,6 +17,8 @@ internal sealed class LWBridgeWindow : Form
         "bridge://update-status",
         "bridge://feedback-export-progress",
         "bridge://player-mark-changed",
+        "bridge://dispatch-plunder-changed",
+        "bridge://truck-plunder-changed",
     ];
     private static readonly HashSet<string> ProfileScopedEvents = new(StringComparer.Ordinal)
     {
@@ -26,6 +28,8 @@ internal sealed class LWBridgeWindow : Form
         "bridge://resource-automation-status",
         "bridge://game-recovery",
         "bridge://player-mark-changed",
+        "bridge://dispatch-plunder-changed",
+        "bridge://truck-plunder-changed",
     };
 
     private readonly string? capturePath;
@@ -181,6 +185,8 @@ internal sealed class LWBridgeWindow : Form
         if (manualMapScanService is not null)
         {
             manualMapScanService.StatusChanged += OnManualMapScanStatusChanged;
+            manualMapScanService.DispatchPlunderChanged += OnDispatchPlunderChanged;
+            manualMapScanService.TruckPlunderChanged += OnTruckPlunderChanged;
         }
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
@@ -1851,6 +1857,46 @@ internal sealed class LWBridgeWindow : Form
         catch (InvalidOperationException) { }
     }
 
+    private void OnDispatchPlunderChanged()
+    {
+        if (sessionClosed || IsDisposed) return;
+        void Publish()
+        {
+            DocumentSession session = documentSession;
+            if (IsCurrentDocument(session) &&
+                session.Subscriptions.Contains("bridge://dispatch-plunder-changed"))
+            {
+                SendEvent(session, "bridge://dispatch-plunder-changed", new { });
+            }
+        }
+        try
+        {
+            if (InvokeRequired) BeginInvoke(Publish);
+            else Publish();
+        }
+        catch (InvalidOperationException) { }
+    }
+
+    private void OnTruckPlunderChanged()
+    {
+        if (sessionClosed || IsDisposed) return;
+        void Publish()
+        {
+            DocumentSession session = documentSession;
+            if (IsCurrentDocument(session) &&
+                session.Subscriptions.Contains("bridge://truck-plunder-changed"))
+            {
+                SendEvent(session, "bridge://truck-plunder-changed", new { });
+            }
+        }
+        try
+        {
+            if (InvokeRequired) BeginInvoke(Publish);
+            else Publish();
+        }
+        catch (InvalidOperationException) { }
+    }
+
     private void OnOverviewRecoveryStatusChanged(OverviewRecoveryStatus status)
     {
         if (sessionClosed || IsDisposed) return;
@@ -1920,6 +1966,8 @@ internal sealed class LWBridgeWindow : Form
         if (manualMapScanService is not null)
         {
             manualMapScanService.StatusChanged -= OnManualMapScanStatusChanged;
+            manualMapScanService.DispatchPlunderChanged -= OnDispatchPlunderChanged;
+            manualMapScanService.TruckPlunderChanged -= OnTruckPlunderChanged;
         }
         // IMPLEMENTATION POLICY: drain the dependent scan worker before closing its owned game lifecycle.
         manualMapScanService?.Close();

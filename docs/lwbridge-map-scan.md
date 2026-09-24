@@ -4,6 +4,8 @@
 
 
 > **R7-149 owner retirement (2026-09-23):** all Scheduled Plunder product surfaces described below are historical provenance only. The shipped rebuild no longer contains the `scheduledPlunder` tab, schedule/cancel/job-list commands, workers, action executors, game-action bridge lanes, or scheduler job/history tables. Read-only Truck/Dispatch scan/filter/status data remains current.
+>
+> **R8-016 supersession (2026-09-25):** the recoverable Scheduled Plunder control plane and original result-tab frontend are restored: list/schedule/cancel commands, durable job/history tables, change events, API wrappers and locale/UI surface. The protected runtime remains intentionally separate and is not restored by this checkpoint.
 
 
 > **Cumulative recovery ledger, not current project status.** For current Map Data feature/completion/performance status use [`tabs/map-data.md`](tabs/map-data.md) and the current acceptance matrix. Older “current/pending/next” statements below retain their dated evidence scope only.

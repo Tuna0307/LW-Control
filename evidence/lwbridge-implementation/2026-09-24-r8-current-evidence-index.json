@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-015",
-  "date": "2026-09-24",
+  "checkpoint": "LWB-R8-016",
+  "date": "2026-09-25",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
     "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md",
     "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
     "docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md",
+    "docs/reviews/2026-09-25-r8-016-scheduled-plunder-control-plane-parity.md",
     "docs/reviews/2026-09-24-r8-015-auto-scan-scheduler-parity.md",
     "docs/reviews/2026-09-24-r8-014-map-search-filter-parity.md",
     "docs/reviews/2026-09-24-r8-013-map-scan-status-stop-strict-parity.md",
@@ -30,6 +31,7 @@
     "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-25-r8-016-scheduled-plunder-control-plane-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-015-auto-scan-scheduler-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-014-map-search-filter-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-013-map-scan-status-stop-strict-parity.json",
@@ -51,7 +53,8 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "restore Scheduled Plunder control plane and original UI from the recovered Map contract report",
+    "finish only evidence-backed remaining map_search alternate-sort internals and preserve the restored eight-kind/filter boundary",
+    "continue protected Map acquisition/travel/action recovery only when new permitted reference evidence supports exact behavior",
     "leave the evidence-limited LWKE1 field-map/AAD blocker parked until a genuinely new permitted artifact or source appears"
   ]
 }

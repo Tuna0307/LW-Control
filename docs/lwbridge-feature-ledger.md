@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-015`, 2026-09-24.
+**Current through:** `LWB-R8-016`, 2026-09-25.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -44,7 +44,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | `map_data_options` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-011 restored recovered top-level order, eight original count kinds, Resource/Monster name families and exact active-run vs server-scoped published selection; rebuild-only `zombie_boss`/`monsterLevels` removed |
 | Manual Scan public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores exactly eight kinds and the recovered Normal/Fast request/default/error/UI contract; Auto Scan and protected acquisition remain separate |
 | `map_scan_status` / `map_scan_stop` shared state | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-013 restores direct shared-state status, lifecycle-dependent native fields, read-only world refresh, publishing→idle completion, idempotent Stop and exact Stop/Clear reset separation; uncommon protected Stop error envelopes remain partial |
-| Scheduled Plunder | DEVIATION | Restore original retained feature set |
+| Scheduled Plunder control plane/UI | EXACT_BYTES-derived frontend + EXACT_CONTRACT/EQUIVALENT persistence | R8-016 restores five list/schedule/cancel commands, three tables/indexes, two events and original tab/API/locales; protected robbery execution and exact Truck job-ID entropy remain unclaimed |
 | Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | R8-014 restores exact eight-kind admission, original filter ownership/query builder and generic keyword predicate; alternate-sort internals remain partial |
 | Mark/Jump/Follow | PARTIAL | Tie every behavior to reference |
 | Auto Scan frontend scheduler/control plane | EXACT_BYTES-derived + EQUIVALENT public-command wiring | R8-015 restores immutable 0.3.1 config/sanitizer, scheduler state/effect and Auto card byte-for-byte; protected acquisition/travel internals remain separate |

@@ -37,7 +37,7 @@ internal static class ManualMapScanCommandServiceChecks
         await AllEightTypesAreAccepted();
         await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
-        ScheduledPlunderCommandsAreRetired();
+        await ScheduledPlunderControlPlaneIsRecovered();
         await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
         await ZombieBossMixedTypesFilterUnknownKind();
         CurrentPlayerCityHealthContractIsRecovered();
@@ -1618,22 +1618,232 @@ internal static class ManualMapScanCommandServiceChecks
         service.Close();
     }
 
-    private static void ScheduledPlunderCommandsAreRetired()
+    private static async Task ScheduledPlunderControlPlaneIsRecovered()
     {
         using MapDataStore store = MapDataStore.CreateInMemory();
         var service = new ManualMapScanCommandService(
             store,
             _ => Task.FromResult(Context()),
             new ImmediateSource());
-        Check(!service.CanHandle("map_dispatch_plunder_schedule") &&
-              !service.CanHandle("map_dispatch_plunder_cancel") &&
-              !service.CanHandle("map_truck_plunder_schedule"),
-            "owner-retired Scheduled Plunder commands must not be handled by the production Map service");
+
+        string[] commands =
+        [
+            "map_plunder_jobs_list",
+            "map_dispatch_plunder_schedule",
+            "map_dispatch_plunder_cancel",
+            "map_truck_plunder_schedule",
+            "map_truck_plunder_cancel",
+        ];
+        Check(commands.All(service.CanHandle),
+            "R8-016 must restore all five recovered Scheduled Plunder public commands");
+
         IReadOnlyDictionary<string, string> schema = store.ReadSchemaDefinitions();
-        Check(!schema.ContainsKey("dispatch_plunder_jobs") &&
-              !schema.ContainsKey("truck_plunder_jobs") &&
-              !schema.ContainsKey("truck_plunder_history"),
-            "owner-retired Scheduled Plunder tables must not exist in a newly initialized Map store");
+        Check(schema.ContainsKey("dispatch_plunder_jobs") &&
+              schema.ContainsKey("truck_plunder_jobs") &&
+              schema.ContainsKey("truck_plunder_history") &&
+              schema.ContainsKey("idx_dispatch_plunder_due") &&
+              schema.ContainsKey("idx_truck_plunder_due") &&
+              schema.ContainsKey("idx_truck_plunder_history_updated"),
+            "R8-016 must restore recovered Scheduled Plunder tables and due/history indexes");
+
+        int dispatchEvents = 0;
+        int truckEvents = 0;
+        service.DispatchPlunderChanged += () => dispatchEvents++;
+        service.TruckPlunderChanged += () => truckEvents++;
+
+        JsonElement dispatchSchedule = JsonSerializer.SerializeToElement(new
+        {
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = 123456L,
+                    uuid = "7001",
+                    ownerName = "Dispatch Owner",
+                    completionTime = 1_000L,
+                    plunderAt = 1_200L,
+                    taskExpireTime = 5_000L,
+                    stolenCount = 0,
+                    maxStealCount = 1,
+                    rewards = Array.Empty<object>(),
+                },
+            },
+        }, JsonOptions.Default);
+        object? dispatchResult = await service.InvokeAsync(
+            "map_dispatch_plunder_schedule",
+            dispatchSchedule,
+            CancellationToken.None);
+        JsonElement scheduledDispatch = JsonSerializer.SerializeToElement(dispatchResult, JsonOptions.Default);
+        Check(scheduledDispatch.ValueKind == JsonValueKind.Array &&
+              scheduledDispatch.GetArrayLength() == 1 &&
+              scheduledDispatch[0].GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              scheduledDispatch[0].GetProperty("plunderAt").GetInt64() == 1_200L &&
+              dispatchEvents == 1,
+            "Dispatch schedule must persist sequentially, return the scheduled row and emit one change event");
+
+        JsonElement invalidDispatchBatch = JsonSerializer.SerializeToElement(new
+        {
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = 123456L,
+                    uuid = "7002",
+                    completionTime = 1_000L,
+                    plunderAt = 1_100L,
+                    taskExpireTime = 5_000L,
+                    stolenCount = 0,
+                    maxStealCount = 1,
+                },
+                new
+                {
+                    serverId = 123456L,
+                    uuid = "bad",
+                    completionTime = 1_000L,
+                    plunderAt = 1_100L,
+                    taskExpireTime = 5_000L,
+                    stolenCount = 0,
+                    maxStealCount = 1,
+                },
+            },
+        }, JsonOptions.Default);
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_dispatch_plunder_schedule",
+                invalidDispatchBatch,
+                CancellationToken.None);
+            throw new InvalidOperationException("invalid Dispatch batch unexpectedly succeeded");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_REQUEST" &&
+            error.Message == "secret task scheduling data is invalid")
+        {
+        }
+
+        JsonElement list = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_plunder_jobs_list", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        JsonElement dispatchJobs = list.GetProperty("dispatchJobs");
+        Check(dispatchJobs.GetArrayLength() == 1 &&
+              dispatchJobs[0].GetProperty("uuid").GetString() == "7001" &&
+              dispatchJobs[0].GetProperty("scheduledAt").GetInt64() > 0 &&
+              dispatchJobs[0].GetProperty("scheduleUpdatedAt").GetInt64() > 0,
+            "Dispatch batch validation must finish before persistence and list must overlay scheduler metadata");
+
+        _ = await service.InvokeAsync(
+            "map_dispatch_plunder_cancel",
+            JsonSerializer.SerializeToElement(new { serverId = 123456L, taskUuid = "7001" }, JsonOptions.Default),
+            CancellationToken.None);
+        list = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_plunder_jobs_list", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        Check(list.GetProperty("dispatchJobs")[0].GetProperty("scheduleStatus").GetString() == "cancelled" &&
+              dispatchEvents == 2,
+            "Dispatch cancel must transition only the active row and emit the recovered change event");
+
+        long protectTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 60_000L;
+        JsonElement truckSchedule = JsonSerializer.SerializeToElement(new
+        {
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = 123456L,
+                    uuid = "8001",
+                    ownerName = "Truck Owner",
+                    protectTime,
+                    maxLootCount = 2,
+                    robTimes = 0,
+                    expireAt = protectTime + 600_000L,
+                    battleWon = true,
+                    plunderRewards = new[] { new { nameKey = "stale", count = 1 } },
+                },
+            },
+        }, JsonOptions.Default);
+        _ = await service.InvokeAsync(
+            "map_truck_plunder_schedule",
+            truckSchedule,
+            CancellationToken.None);
+        list = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_plunder_jobs_list", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        JsonElement firstTruck = list.GetProperty("truckJobs")[0];
+        string firstJobId = firstTruck.GetProperty("jobId").GetString() ?? string.Empty;
+        Check(firstTruck.GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              firstTruck.GetProperty("executeAt").GetInt64() == protectTime &&
+              firstJobId.StartsWith("truck-", StringComparison.Ordinal) &&
+              !firstTruck.TryGetProperty("battleWon", out _) &&
+              !firstTruck.TryGetProperty("plunderRewards", out _) &&
+              truckEvents == 1,
+            "Truck schedule must use executeAt/protectTime, strip stale result fields and emit one change event");
+
+        _ = await service.InvokeAsync(
+            "map_truck_plunder_cancel",
+            JsonSerializer.SerializeToElement(new { serverId = 123456L, trainUuid = "8001" }, JsonOptions.Default),
+            CancellationToken.None);
+        Check(truckEvents == 2,
+            "Truck cancel must emit the recovered change event");
+
+        _ = await service.InvokeAsync(
+            "map_truck_plunder_schedule",
+            truckSchedule,
+            CancellationToken.None);
+        list = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_plunder_jobs_list", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        JsonElement truckJobs = list.GetProperty("truckJobs");
+        string secondJobId = truckJobs[0].GetProperty("jobId").GetString() ?? string.Empty;
+        Check(truckJobs.GetArrayLength() == 2 &&
+              truckJobs[0].GetProperty("scheduleStatus").GetString() == "scheduled" &&
+              truckJobs[1].GetProperty("scheduleStatus").GetString() == "cancelled" &&
+              !string.Equals(firstJobId, secondJobId, StringComparison.Ordinal) &&
+              truckEvents == 3,
+            "Truck reschedule after a terminal attempt must archive history and sort the new active job first");
+
+        JsonElement invalidTruckBatch = JsonSerializer.SerializeToElement(new
+        {
+            rows = new object[]
+            {
+                new
+                {
+                    serverId = 123456L,
+                    uuid = "8002",
+                    executeAt = protectTime,
+                    maxLootCount = 2,
+                    robTimes = 0,
+                },
+                new
+                {
+                    serverId = 123456L,
+                    uuid = "bad",
+                    executeAt = protectTime,
+                    maxLootCount = 2,
+                    robTimes = 0,
+                },
+            },
+        }, JsonOptions.Default);
+        try
+        {
+            _ = await service.InvokeAsync(
+                "map_truck_plunder_schedule",
+                invalidTruckBatch,
+                CancellationToken.None);
+            throw new InvalidOperationException("invalid Truck batch unexpectedly succeeded");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_REQUEST" &&
+            error.Message == "truck scheduling data is invalid")
+        {
+        }
+
+        list = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync("map_plunder_jobs_list", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        Check(!list.GetProperty("truckJobs").EnumerateArray()
+                  .Any(row => row.TryGetProperty("uuid", out JsonElement uuid) && uuid.GetString() == "8002"),
+            "Truck batch validation must complete before any row persistence");
+
         service.Close();
     }
 

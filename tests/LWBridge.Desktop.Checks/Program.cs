@@ -3304,13 +3304,11 @@ try
         string[] recoveredTables =
         [
             "metadata", "map_records", "scan_runs", "scan_blocks", "scan_records", "player_marks",
-            "app_settings", "treasure_claim_states", "dispatch_assist_jobs",
+            "app_settings", "treasure_claim_states", "dispatch_plunder_jobs", "truck_plunder_jobs",
+            "truck_plunder_history", "dispatch_assist_jobs",
         ];
-        Check(recoveredTables.All(schema.ContainsKey) &&
-              !schema.ContainsKey("dispatch_plunder_jobs") &&
-              !schema.ContainsKey("truck_plunder_jobs") &&
-              !schema.ContainsKey("truck_plunder_history"),
-            "map store preserves ordinary recovered tables while owner-retired Scheduled Plunder tables remain absent");
+        Check(recoveredTables.All(schema.ContainsKey),
+            "map store must include ordinary recovered tables plus R8-016 Scheduled Plunder jobs/history");
         Check(schema["map_records"].Contains("PRIMARY KEY (kind, server_id, record_key)", StringComparison.Ordinal),
             "map record identity is recovered as kind/server/record_key");
         Check(schema["scan_records"].Contains("PRIMARY KEY (run_id, kind, server_id, record_key)", StringComparison.Ordinal),
@@ -3321,13 +3319,11 @@ try
         [
             "idx_map_kind_server", "idx_map_kind_server_quality_power", "idx_map_kind_server_level",
             "idx_map_kind_server_updated", "idx_map_kind_server_point", "idx_scan_records_run_kind",
+            "idx_dispatch_plunder_due", "idx_truck_plunder_due", "idx_truck_plunder_history_updated",
             "idx_dispatch_assist_due", "idx_treasure_claim_states_expire",
         ];
-        Check(recoveredIndexes.All(schema.ContainsKey) &&
-              !schema.ContainsKey("idx_dispatch_plunder_due") &&
-              !schema.ContainsKey("idx_truck_plunder_due") &&
-              !schema.ContainsKey("idx_truck_plunder_history_updated"),
-            "map store preserves ordinary recovered indexes while owner-retired Scheduled Plunder indexes remain absent");
+        Check(recoveredIndexes.All(schema.ContainsKey),
+            "map store must include recovered Scheduled Plunder due/history indexes");
 
         string firstCityJson = JsonSerializer.Serialize(new
         {
@@ -6139,32 +6135,40 @@ foreach (string sourceLine in overviewBridgeSource.Replace("\r\n", "\n", StringC
 Check(overviewBridgeTopLevelLocalCount < 200,
     $"current Overview bridge uses {overviewBridgeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
 string manualMapServiceSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "ManualMapScanCommandService.cs"));
-string backendSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeBackend.cs"));
 string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
 string mapStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.cs"));
+string plunderStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.PlunderControlPlane.cs"));
+string dispatchPlunderContractSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs"));
 Check(
-    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs")) &&
+    File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs")) &&
     !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderWorker.cs")) &&
     !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "TruckPlunderWorker.cs")) &&
+    File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.PlunderControlPlane.cs")) &&
     !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs")) &&
-    !manualMapServiceSource.Contains("map_dispatch_plunder_schedule", StringComparison.Ordinal) &&
-    !manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
-    !manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
-    !backendSource.Contains("map_plunder_jobs_list", StringComparison.Ordinal) &&
-    !backendSource.Contains("map_truck_plunder_cancel", StringComparison.Ordinal) &&
-    !windowSource.Contains("bridge://dispatch-plunder-changed", StringComparison.Ordinal) &&
-    !windowSource.Contains("bridge://truck-plunder-changed", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_plunder_jobs_list", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_dispatch_plunder_schedule", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_truck_plunder_cancel", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("select between 1 and 200 secret tasks", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("secret task scheduling data is invalid", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal) &&
+    windowSource.Contains("bridge://dispatch-plunder-changed", StringComparison.Ordinal) &&
+    windowSource.Contains("bridge://truck-plunder-changed", StringComparison.Ordinal) &&
     !overviewBridgeSource.Contains("truck-quick-rob.txt", StringComparison.Ordinal) &&
     !overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
     !overviewBridgeSource.Contains("dispatch_plunder_runtime", StringComparison.Ordinal) &&
     !overviewBridgeSource.Contains("pump_truck_quick_rob", StringComparison.Ordinal) &&
-    mapStoreSource.Contains("DROP TABLE IF EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
-    mapStoreSource.Contains("DROP TABLE IF EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
-    mapStoreSource.Contains("DROP TABLE IF EXISTS truck_plunder_history", StringComparison.Ordinal) &&
-    !mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
-    !mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
-    !mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_history", StringComparison.Ordinal),
-    "owner-retired Scheduled Plunder runtime, commands, events and durable tables must be absent while legacy tables are explicitly dropped");
+    mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_history", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("WHERE dispatch_plunder_jobs.status IN ('scheduled','waiting_connection')", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("WHERE truck_plunder_jobs.status<>'running'", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("UNION ALL", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("ReadArmable", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("TryMark", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("RecordTruckPlunderSuccess", StringComparison.Ordinal),
+    "R8-016 must restore Scheduled Plunder control-plane persistence/events while protected robbery workers and execution helpers remain absent");
 string dispatchAllianceShareContractSource = File.ReadAllText(
     Path.Combine(
         repoRoot,
@@ -6387,16 +6391,16 @@ Check(!mapDataPanelSource.Contains("manualDefaultTypes", StringComparison.Ordina
       mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("selectedTypes:t.target.checked?[...S.selectedTypes,e.key]:S.selectedTypes.filter(t=>t!==e.key)", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading", StringComparison.Ordinal) &&
-      !mapDataPanelSource.Contains("scheduledPlunder", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("scheduledPlunder", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("v(await ae({selectedTypes:e,scanMode:P}))", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("map-speed-toggle", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("name:`map-scan-speed`", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("lwbridge.mapScanMode", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("scanMode:P", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
-    "R8-015 Map Data must preserve original Normal/Fast controls for both Manual and Auto Scan, with each emitting its recovered scanMode");
+    "R8-016 Map Data must preserve original Manual/Auto speed controls while the Scheduled Plunder result tab is restored");
 Check(mapDataPanelSource.Contains(
-          "if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`)return",
+          "if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`&&F!==`scheduledPlunder`)return",
           StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("window.setInterval(()=>nn(Date.now()),1e3)", StringComparison.Ordinal),
     "result countdown clock must remain limited to the original time-sensitive tabs");

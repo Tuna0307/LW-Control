@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-016",
+  "date": "2026-09-25",
+  "scope": "Restore Scheduled Plunder list/schedule/cancel persistence, events, original result-tab/API/locale frontend surface, while leaving protected robbery execution absent.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/<nine locale bundles>",
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md"
+  ],
+  "publicCommands": [
+    "map_plunder_jobs_list",
+    "map_dispatch_plunder_schedule",
+    "map_dispatch_plunder_cancel",
+    "map_truck_plunder_schedule",
+    "map_truck_plunder_cancel"
+  ],
+  "events": [
+    "bridge://dispatch-plunder-changed",
+    "bridge://truck-plunder-changed"
+  ],
+  "schema": {
+    "tables": [
+      "dispatch_plunder_jobs",
+      "truck_plunder_jobs",
+      "truck_plunder_history"
+    ],
+    "indexes": [
+      "idx_dispatch_plunder_due",
+      "idx_truck_plunder_due",
+      "idx_truck_plunder_history_updated"
+    ]
+  },
+  "listContract": {
+    "result": "{dispatchJobs,truckJobs}",
+    "dispatchSource": "dispatch_plunder_jobs",
+    "truckSource": "truck_plunder_jobs UNION ALL truck_plunder_history",
+    "activeStatesFirst": ["scheduled", "waiting_connection", "running"],
+    "dispatchOrder": ["plunder_at ASC", "updated_at DESC"],
+    "truckOrder": ["execute_at ASC", "updated_at DESC"],
+    "overlayFields": [
+      "scheduleStatus",
+      "attempts",
+      "lastError",
+      "scheduledAt",
+      "scheduleUpdatedAt",
+      "plunderAt/executeAt"
+    ]
+  },
+  "dispatchSchedule": {
+    "batchRange": "1..200",
+    "fullBatchValidationBeforeWrites": true,
+    "frontendOwnsRandomDelay": true,
+    "serverId": "positive integer-like signed-64-bit",
+    "uuid": "nonempty decimal JSON string",
+    "guardedUpdateStates": ["scheduled", "waiting_connection"],
+    "guardFailure": "MAP_DATA_ERROR / scheduled plunder job is missing",
+    "successEventAfterFullLoop": "bridge://dispatch-plunder-changed"
+  },
+  "truckSchedule": {
+    "batchRange": "1..200",
+    "fullBatchValidationBeforeWrites": true,
+    "effectiveExecuteAt": "executeAt when positive, otherwise protectTime",
+    "serverId": "positive integer-like signed-64-bit",
+    "uuid": "nonempty decimal JSON string",
+    "terminalArchiveStates": ["succeeded", "failed", "cancelled", "expired"],
+    "activeRescheduleNoArchiveStates": ["scheduled", "waiting_connection"],
+    "runningReplacementAllowed": false,
+    "staleResultFieldsRemoved": ["battleWon", "plunderRewards", "plunderRewardsComplete"],
+    "jobIdShape": "truck-{unixTimeMilliseconds}-{u64LowerHex}",
+    "jobIdEntropy": "local cryptographic random u64; original entropy generator not recovered",
+    "guardFailure": "MAP_DATA_ERROR / scheduled truck job is missing",
+    "successEvent": "bridge://truck-plunder-changed"
+  },
+  "frontendExactBlocks": [
+    {
+      "name": "Scheduled Plunder API wrappers",
+      "bytes": 681,
+      "status": "byte-identical to immutable 0.3.1"
+    },
+    {
+      "name": "Scheduled Plunder tab/status definitions",
+      "bytes": 2467,
+      "status": "byte-identical to immutable 0.3.1"
+    },
+    {
+      "name": "Scheduled Plunder tables/components",
+      "bytes": 7039,
+      "status": "byte-identical to immutable 0.3.1"
+    }
+  ],
+  "protectedBoundary": {
+    "workerFilesAbsent": [
+      "src/LWBridge.Desktop/DispatchPlunderWorker.cs",
+      "src/LWBridge.Desktop/TruckPlunderWorker.cs",
+      "src/LWBridge.Desktop/MapDataStore.Plunder.cs"
+    ],
+    "executionHelpersAbsent": [
+      "ReadArmable*",
+      "TryMark*",
+      "RecordTruckPlunderSuccess",
+      "RecoverTruckPlunder*",
+      "RecoverDispatchPlunder*"
+    ],
+    "runtimeTokensAbsent": [
+      "truck-quick-rob.txt",
+      "dispatch-plunder.txt",
+      "dispatch_plunder_runtime",
+      "pump_truck_quick_rob"
+    ]
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/DispatchPlunderContract.cs",
+    "src/LWBridge.Desktop/MapDataStore.PlunderControlPlane.cs",
+    "src/LWBridge.Desktop/MapDataStore.cs",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tools/build_lwbridge_frontend.py",
+    "src/LWBridge.Desktop/WebUi/assets/api-ClPPi2JT.js",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+    "src/LWBridge.Desktop/WebUi/assets/<nine locale bundles>"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs",
+    "tools/check_scheduled_plunder_r8016.cjs"
+  ],
+  "validation": {
+    "focusedFrontendControlPlaneCheck": "PASS",
+    "frontendGeneratorCheck": "PASS",
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-016 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "apiWrappers": "EXACT_BYTES-derived",
+    "tabAndTableUI": "EXACT_BYTES-derived",
+    "localeSurface": "EXACT_BYTES-derived",
+    "listScheduleCancelContract": "EXACT_CONTRACT",
+    "hostPersistence": "EQUIVALENT_REIMPLEMENTATION constrained by recovered SQL/validation",
+    "truckJobIdEntropy": "PARTIAL / implementation-specific",
+    "robberyExecution": "UNKNOWN / intentionally absent"
+  },
+  "notClaimed": [
+    "protected Dispatch robbery execution",
+    "protected Truck robbery execution",
+    "exact Truck job-ID entropy source",
+    "protected Map acquisition/traversal/extraction internals",
+    "remaining map_search alternate-sort internals",
+    "complete server_jump protected travel internals",
+    "Login / Account / Authentication behavior"
+  ],
+  "nextCheckpoint": "Finish evidence-backed remaining map_search alternate-sort internals or move to another implementation-ready retained subsystem without inventing protected behavior."
+}

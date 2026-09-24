@@ -2,8 +2,8 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-015`
-**Date:** 2026-09-24
+**Current checkpoint:** `LWB-R8-016`
+**Date:** 2026-09-25
 
 ## Current directive
 
@@ -93,7 +93,11 @@ This checkpoint does **not** promote all alternate-sort internals to exact parit
 
 The final generated Auto config/sanitizer helpers, scheduler-owned state, scheduler effect, and Auto card are restored directly from immutable 0.3.1 bytes. Auto again persists its own Normal/Fast mode (default Fast), Run Now requires Auto enabled and sets `nextRunAt=Date.now()`, the scheduler effect is keyed by profile plus connected state, targets run sequentially, thrown target failures abort the remaining cycle through the original outer catch, and finalization preserves the original return-to-server/deadline behavior. R7 `runOnceRequestedAt`, reconnect-stable ownership, restart markers/recovery, per-target exception isolation, synthetic cycle summary, and dedicated Auto Stop are removed. See `docs/reviews/2026-09-24-r8-015-auto-scan-scheduler-parity.md`.
 
-The next main Map work is Scheduled Plunder control-plane/UI restoration, while protected Map acquisition internals remain a separate evidence-bound lane.
+## R8-016 Scheduled Plunder control-plane checkpoint
+
+Scheduled Plunder is restored as the original ninth result tab, not a scan kind. The rebuild now exposes all five recovered list/schedule/cancel commands, the two profile-scoped change events, and the three durable job/history tables with recovered ordering, validation, upsert/cancel and archive behavior. The Scheduled Plunder API wrapper block, tab/status block and table/component block are byte-identical to immutable 0.3.1, and all nine locale bundles retain the original labels. `DispatchPlunderWorker.cs`, `TruckPlunderWorker.cs`, the old worker-heavy `MapDataStore.Plunder.cs`, and protected action runtimes remain absent. See `docs/reviews/2026-09-25-r8-016-scheduled-plunder-control-plane-parity.md`.
+
+The next Map work is the still-partial evidence-backed `map_search` alternate-sort/query behavior and protected acquisition/travel lanes only where new reference evidence exists.
 
 ## Parked protected package-key lane
 
