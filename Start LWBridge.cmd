@@ -13,14 +13,8 @@ start "" "%APP%"
 exit /b 0
 
 :ensure_current
-set "HEAD="
-for /f "usebackq delims=" %%H in (`git -C "%ROOT%" rev-parse HEAD 2^>nul`) do set "HEAD=%%H"
 if not exist "%APP%" goto rebuild
-if not defined HEAD exit /b 0
-
-set "APPVER="
-for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "(Get-Item -LiteralPath '%APP%').VersionInfo.ProductVersion"`) do set "APPVER=%%V"
-echo %APPVER% | findstr /I /C:"%HEAD%" >nul
+powershell -NoProfile -Command "$head=(& git -C '%ROOT%' rev-parse HEAD 2>$null); if($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($head)){exit 0}; $head=$head.Trim(); $ver=(Get-Item -LiteralPath '%APP%').VersionInfo.ProductVersion; if($ver -like ('*'+$head+'*')){exit 0}; exit 1"
 if not errorlevel 1 exit /b 0
 
 :rebuild
@@ -35,13 +29,7 @@ exit /b 0
 
 :selftest
 if not exist "%APP%" exit /b 10
-set "HEAD="
-for /f "usebackq delims=" %%H in (`git -C "%ROOT%" rev-parse HEAD 2^>nul`) do set "HEAD=%%H"
-if defined HEAD (
-  set "APPVER="
-  for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "(Get-Item -LiteralPath '%APP%').VersionInfo.ProductVersion"`) do set "APPVER=%%V"
-  echo %APPVER% | findstr /I /C:"%HEAD%" >nul
-  if errorlevel 1 exit /b 11
-)
+powershell -NoProfile -Command "$head=(& git -C '%ROOT%' rev-parse HEAD 2>$null); if($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($head)){exit 0}; $head=$head.Trim(); $ver=(Get-Item -LiteralPath '%APP%').VersionInfo.ProductVersion; if($ver -like ('*'+$head+'*')){exit 0}; exit 1"
+if errorlevel 1 exit /b 11
 echo LWBridge launcher is ready.
 exit /b 0
