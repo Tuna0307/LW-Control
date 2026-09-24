@@ -68,6 +68,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await FastFullMapAdaptsToMeasuredWideFootprints();
         await FastFullMapAcceptsFiveColumnFootprint();
         await HealthyGateRunsBeforeWorldReadyProtocol();
+        await ReadOnlyWorldStateProtocolReturnsObservedContext();
         await TransientReadyLossKeepsOwnedSessionIdentity();
         await MissingOwnedSessionFailsClosed();
     }
@@ -1717,6 +1718,52 @@ internal static class CurrentClientMapBlockSourceChecks
             "current-client block source must gate world entry on healthy game readiness");
     }
 
+    private static async Task ReadOnlyWorldStateProtocolReturnsObservedContext()
+    {
+        bool worldStateObserved = false;
+        bool worldReadyObserved = false;
+        CurrentClientMapBlockSource source = CreateSource(
+            (fields, _) => FailedEmptyResource(fields),
+            onProtocolWrite: path =>
+            {
+                worldStateObserved |= path.EndsWith("world-state.txt", StringComparison.OrdinalIgnoreCase);
+                worldReadyObserved |= path.EndsWith("world-ready.txt", StringComparison.OrdinalIgnoreCase);
+            },
+            worldStateResult: fields => JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                bridgeVersion = "lwbridge-overview-bridge-1",
+                profileId = fields["profileId"],
+                sessionId = fields["sessionId"],
+                challenge = fields["challenge"],
+                gamePid = int.Parse(fields["gamePid"]),
+                requestId = fields["requestId"],
+                state = "proven",
+                error = (string?)null,
+                isInWorld = true,
+                serverId = 2301,
+                homeServerId = 2212,
+                seasonServerIds = new[] { 4, 3, 4, 100000 },
+                truckMatchServerIds = new[] { 12, 11, 12, 0 },
+                worldId = 7,
+                tileWidth = 1000,
+                tileHeight = 900,
+                tileX = 495,
+                tileY = 40,
+            }, JsonOptions.Default));
+
+        CurrentClientMapStatusContext context =
+            await source.GetMapStatusContextAsync(CancellationToken.None);
+        Check(worldStateObserved && !worldReadyObserved,
+            "status observation must use the read-only world-state protocol without entering WorldScene");
+        Check(context.IsInWorld && context.ServerId == 2301 && context.HomeServerId == 2212 &&
+              context.WorldId == 7 && context.TileWidth == 1000 && context.TileHeight == 900 &&
+              context.TileX == 495 && context.TileY == 40 &&
+              context.SeasonServerIds.SequenceEqual(new[] { 3, 4 }) &&
+              context.TruckMatchServerIds.SequenceEqual(new[] { 11, 12 }),
+            "world-state protocol must preserve observed context and normalize original server arrays");
+    }
+
     private static async Task TransientReadyLossKeepsOwnedSessionIdentity()
     {
         int readyReads = 0;
@@ -1769,7 +1816,8 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<IReadOnlyDictionary<string, string>, string>? serverJumpResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? assetImageResult = null,
-        Func<IReadOnlyDictionary<string, string>, string>? trainListResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? trainListResult = null,
+        Func<IReadOnlyDictionary<string, string>, string>? worldStateResult = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -1790,6 +1838,13 @@ internal static class CurrentClientMapBlockSourceChecks
             {
                 onProtocolWrite?.Invoke(path);
                 IReadOnlyDictionary<string, string> fields = ParseKv(text);
+                if (string.Equals(path, Path.Combine(overviewRoot, "world-state.txt"), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (worldStateResult is null) throw new InvalidOperationException("unexpected world-state request");
+                    string result = worldStateResult(fields);
+                    files[Path.Combine(overviewRoot, "world-state-result.json")] = Encoding.UTF8.GetBytes(result);
+                    return;
+                }
                 if (string.Equals(path, Path.Combine(overviewRoot, "world-ready.txt"), StringComparison.OrdinalIgnoreCase))
                 {
                     string result = WorldReadyResult(fields);

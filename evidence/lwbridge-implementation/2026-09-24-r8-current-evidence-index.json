@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-012",
+  "checkpoint": "LWB-R8-013",
   "date": "2026-09-24",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,11 +22,13 @@
     "docs/deep-binary-handoff.md",
     "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
     "docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md",
+    "docs/reviews/2026-09-24-r8-013-map-scan-status-stop-strict-parity.md",
     "docs/reviews/2026-09-24-r8-012-manual-scan-strict-parity.md",
     "docs/reviews/2026-09-24-r8-012-invalid-scanmode-helper-evidence.md",
     "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-24-r8-013-map-scan-status-stop-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-012-manual-scan-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-011-map-data-options-strict-parity.json",
     "evidence/lwbridge-implementation/2026-09-24-r8-lwke1-independent-recovery.json",
@@ -45,7 +47,6 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "restore map_scan_status and map_scan_stop original public fields and state transitions without leaking rebuild-only state",
     "restore map_search original eight-kind filter ownership and remove rebuild-added Monster/Resource level-filter semantics",
     "roll Auto Scan back to the exact original frontend scheduler/state machine",
     "restore Scheduled Plunder control plane and original UI from the recovered Map contract report",

@@ -15,6 +15,8 @@ internal static class ManualMapScanCommandServiceChecks
     private static async Task RunAsync()
     {
         DefaultStatusMatchesRecoveredManualContract();
+        await StatusRefreshProjectsRecoveredWorldState();
+        await StatusRefreshStopsChangedActiveServer();
         await NormalStartOwnsOneRunAndStopCancels();
         await StopTimingMatrixPreservesCheckpointBoundary();
         await RestartReconcilesOrphanedRunAndRejectsConcurrentOwner();
@@ -52,12 +54,114 @@ internal static class ManualMapScanCommandServiceChecks
         Check(!Bool(status, "isReading") &&
               String(status, "phase") == "idle" &&
               String(status, "scanMode") == "normal" &&
+              String(status, "serverIdSource") == "none" &&
+              Int(status, "serverId") == 0 &&
               Int(status, "concurrency") == 8 &&
-              Int(status, "retryCount") == 2 &&
+              Double(status, "progressPercent") == 0d &&
               status.GetProperty("selectedTypes").EnumerateArray()
                   .Select(value => value.GetString())
                   .SequenceEqual(MapScanContract.RecoveredDefaultTypes),
-            "default Manual Map Scan state must match the recovered eight-kind normal/8/retry2 contract");
+            "default compatibility state must retain recovered core Manual values");
+        Check(!status.TryGetProperty("retryCount", out _) &&
+              !status.TryGetProperty("liveServerId", out _) &&
+              !status.TryGetProperty("scanStrategy", out _) &&
+              !status.TryGetProperty("acquisitionProgressPercent", out _) &&
+              !status.TryGetProperty("nativeCaptureReady", out _) &&
+              !status.TryGetProperty("nativePendingRecords", out _) &&
+              !status.TryGetProperty("nativeDroppedRecords", out _) &&
+              !status.TryGetProperty("resumeAvailable", out _) &&
+              !status.TryGetProperty("startedAt", out _) &&
+              !status.TryGetProperty("updatedAt", out _) &&
+              !status.TryGetProperty("lastError", out _) &&
+              !status.TryGetProperty("isInWorld", out _) &&
+              !status.TryGetProperty("homeServerId", out _) &&
+              !status.TryGetProperty("seasonServerIds", out _) &&
+              !status.TryGetProperty("truckMatchServerIds", out _) &&
+              !status.TryGetProperty("worldId", out _) &&
+              !status.TryGetProperty("tileWidth", out _) &&
+              !status.TryGetProperty("tileHeight", out _),
+            "fresh status must not promote frontend fallback or unrecovered lifecycle fields into native state");
+        service.Close();
+    }
+
+    private static async Task StatusRefreshProjectsRecoveredWorldState()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        int statusReads = 0;
+        CurrentClientMapStatusContext nextStatus = new(
+            true, 2301, 2212, [4, 3, 4], [12, 11, 12],
+            7, 1000, 900, 495, 40);
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            getStatusContext: _ =>
+            {
+                statusReads++;
+                return Task.FromResult(nextStatus);
+            });
+
+        JsonElement status = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        Check(statusReads == 1 && Int(status, "serverId") == 2301 &&
+              String(status, "serverIdSource") == "live" && Int(status, "homeServerId") == 2212 &&
+              status.GetProperty("seasonServerIds").EnumerateArray().Select(value => value.GetInt32())
+                  .SequenceEqual(new[] { 3, 4 }) &&
+              status.GetProperty("truckMatchServerIds").EnumerateArray().Select(value => value.GetInt32())
+                  .SequenceEqual(new[] { 11, 12 }) &&
+              status.GetProperty("worldId").GetInt64() == 7 &&
+              Int(status, "tileWidth") == 1000 && Int(status, "tileHeight") == 900 &&
+              Int(status, "tileX") == 495 && Int(status, "tileY") == 40,
+            "map_scan_status must project the recovered current/home/server/world refresh into public state");
+        Check(!status.TryGetProperty("liveServerId", out _) &&
+              !status.TryGetProperty("scanStrategy", out _) &&
+              !status.TryGetProperty("acquisitionProgressPercent", out _),
+            "status refresh must not reintroduce rebuild-only public fields");
+
+        nextStatus = new CurrentClientMapStatusContext(
+            false, 0, 2212, [], [], 0, 0, 0, null, null);
+        JsonElement unavailable = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        Check(statusReads == 2 && Int(unavailable, "serverId") == 0 &&
+              String(unavailable, "serverIdSource") == "none" &&
+              Int(unavailable, "homeServerId") == 2212 &&
+              !Bool(unavailable, "isInWorld") &&
+              Int(unavailable, "tileWidth") == 0 && Int(unavailable, "tileHeight") == 0,
+            "idle unavailable-current-server refresh must not substitute the positive home server as current");
+        service.Close();
+    }
+
+    private static async Task StatusRefreshStopsChangedActiveServer()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        var source = new BlockingSource();
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            source,
+            getStatusContext: _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, 2301, 2212, [], [], 7, 20, 20, null, null)));
+
+        _ = await service.InvokeAsync(
+            "map_scan_start", Payload("normal", "resource"), CancellationToken.None);
+        await source.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        string runId = String(Status(service), "scanRunId");
+
+        JsonElement stopped = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
+        Check(String(stopped, "scanRunId") == runId &&
+              Int(stopped, "serverId") == 2212 &&
+              String(stopped, "serverIdSource") == "live" &&
+              !Bool(stopped, "isReading") && String(stopped, "phase") == "idle" &&
+              Int(stopped, "inflightBlocks") == 0 && !Bool(stopped, "resumeAvailable") &&
+              String(stopped, "lastError") == "current server changed during map scan",
+            "status refresh server mismatch must run original cleanup without silently switching active scan identity");
         service.Close();
     }
 
@@ -146,7 +250,18 @@ internal static class ManualMapScanCommandServiceChecks
             "one inflight 20x20 block should use truthful scheduler counters");
         string activeRunId = String(status, "scanRunId");
         string activeScanMode = String(status, "scanMode");
-        string activeStrategy = String(status, "scanStrategy");
+        long activeStartedAt = status.GetProperty("startedAt").GetInt64();
+        Check(Bool(status, "nativeCaptureReady") &&
+              Int(status, "nativePendingRecords") == 0 &&
+              Int(status, "nativeDroppedRecords") == 0 &&
+              activeStartedAt > 0 &&
+              status.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              !Bool(status, "resumeAvailable"),
+            "accepted Start must expose the recovered mutable native/start/error/resume fields");
+        Check(!status.TryGetProperty("retryCount", out _) &&
+              !status.TryGetProperty("updatedAt", out _) &&
+              !status.TryGetProperty("scanStrategy", out _),
+            "public status must not expose the rebuild-only scanStrategy diagnostic");
         string[] activeTypes = status.GetProperty("selectedTypes").EnumerateArray()
             .Select(value => value.GetString() ?? string.Empty)
             .ToArray();
@@ -171,7 +286,7 @@ internal static class ManualMapScanCommandServiceChecks
             .ToArray();
         Check(String(afterChangedTypeStart, "scanRunId") == activeRunId &&
               String(afterChangedTypeStart, "scanMode") == activeScanMode &&
-              String(afterChangedTypeStart, "scanStrategy") == activeStrategy &&
+              !afterChangedTypeStart.TryGetProperty("scanStrategy", out _) &&
               Int(afterChangedTypeStart, "concurrency") == 8 &&
               afterTypes.SequenceEqual(activeTypes) &&
               activeTypes.SequenceEqual(new[] { "resource" }),
@@ -183,10 +298,24 @@ internal static class ManualMapScanCommandServiceChecks
             CancellationToken.None);
         status = JsonSerializer.SerializeToElement(stop, JsonOptions.Default);
         Check(!Bool(status, "isReading") && String(status, "phase") == "idle" && Int(status, "inflightBlocks") == 0 &&
-              !Bool(status, "resumeAvailable"),
-            "one Stop response should be terminal, release scan ownership and explicitly keep unsupported resume unavailable");
-        Check(observedPhases.Contains("cancelling") && observedPhases.Contains("idle"),
-            "scan status notifications should expose cancelling and terminal idle states");
+              status.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              !Bool(status, "resumeAvailable") &&
+              Bool(status, "nativeCaptureReady") &&
+              status.GetProperty("startedAt").GetInt64() == activeStartedAt,
+            "active Stop must apply only the recovered cleanup fields and preserve native-ready/start metadata");
+        Check(!observedPhases.Contains("cancelling") && observedPhases.Contains("idle"),
+            "original Stop must publish terminal idle without the rebuild-only cancelling phase");
+
+        int eventsBeforeIdleStop = observedPhases.Count;
+        JsonElement idleStop = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_stop", Payload("normal", "resource"), CancellationToken.None),
+            JsonOptions.Default);
+        Check(observedPhases.Count == eventsBeforeIdleStop + 1 &&
+              String(idleStop, "phase") == "idle" && !Bool(idleStop, "isReading") &&
+              Bool(idleStop, "nativeCaptureReady") &&
+              idleStop.GetProperty("startedAt").GetInt64() == activeStartedAt,
+            "already-idle Stop must remain idempotent, publish once, and preserve non-cleanup fields");
         Check(contextCalls == 1, "duplicate Start must not reacquire live context");
         service.Close();
     }
@@ -240,6 +369,10 @@ internal static class ManualMapScanCommandServiceChecks
                     $"B06 {label}: expected exactly one blocked in-flight capture at Stop boundary");
                 Check(store.ReadScanBlockCheckpointsForTest(runId).Count == completedBeforeStop,
                     $"B06 {label}: durable checkpoint count before Stop must match completed captures");
+                JsonElement beforeStop = Status(service);
+                int unreadBeforeStop = Int(beforeStop, "unreadBlocks");
+                double progressBeforeStop = Double(beforeStop, "progressPercent");
+                long startedBeforeStop = beforeStop.GetProperty("startedAt").GetInt64();
 
                 JsonElement stopped = JsonSerializer.SerializeToElement(
                     await service.InvokeAsync(
@@ -255,8 +388,13 @@ internal static class ManualMapScanCommandServiceChecks
                       Int(stopped, "readBlocks") == completedBeforeStop &&
                       Int(stopped, "failedBlocks") == 0 &&
                       Int(stopped, "inflightBlocks") == 0 &&
-                      Int(stopped, "unreadBlocks") == 5 - completedBeforeStop,
-                    $"B06 {label}: Stop must return terminal idle with the exact partial scheduler boundary");
+                      Int(stopped, "unreadBlocks") == unreadBeforeStop &&
+                      Double(stopped, "progressPercent") == progressBeforeStop &&
+                      Bool(stopped, "nativeCaptureReady") &&
+                      stopped.GetProperty("startedAt").GetInt64() == startedBeforeStop &&
+                      stopped.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+                      !Bool(stopped, "resumeAvailable"),
+                    $"B06 {label}: Stop must preserve partial counters/progress/native/start state and clear only recovered stop fields");
 
                 IReadOnlyList<MapScanBlockCheckpoint> checkpoints =
                     store.ReadScanBlockCheckpointsForTest(runId);
@@ -568,7 +706,7 @@ internal static class ManualMapScanCommandServiceChecks
 
         _ = await service.InvokeAsync(
             "map_scan_start",
-            Payload("normal", "city"),
+            Payload("fast", "city"),
             CancellationToken.None);
         await source.Entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
 
@@ -641,13 +779,23 @@ internal static class ManualMapScanCommandServiceChecks
               Int(status, "failedBlocks") == 0 &&
               Int(status, "unreadBlocks") == 0 &&
               Int(status, "inflightBlocks") == 0 &&
-              String(status, "scanMode") == "normal" &&
-              Int(status, "concurrency") == 8 &&
-              Int(status, "retryCount") == 2 &&
+              String(status, "scanMode") == "fast" &&
+              Int(status, "concurrency") == 20 &&
+              !status.TryGetProperty("retryCount", out _) &&
               Double(status, "scanRate") == 0 &&
               Double(status, "progressPercent") == 0 &&
-              !Bool(status, "resumeAvailable"),
-            "successful Clear should reset progress while retaining the authoritative live server");
+              Bool(status, "nativeCaptureReady") &&
+              Int(status, "nativePendingRecords") == 0 &&
+              Int(status, "nativeDroppedRecords") == 0 &&
+              status.GetProperty("startedAt").ValueKind == JsonValueKind.Null &&
+              status.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              !Bool(status, "resumeAvailable") &&
+              Bool(status, "isInWorld") &&
+              Int(status, "tileWidth") == 20 && Int(status, "tileHeight") == 20 &&
+              status.GetProperty("selectedTypes").EnumerateArray()
+                  .Select(value => value.GetString())
+                  .SequenceEqual(MapScanContract.RecoveredDefaultTypes),
+            "successful Clear must apply the recovered broad reset while preserving mode/concurrency/native-ready/world state");
         Check(statusEvents > eventsBeforeClear,
             "successful Clear should publish the reset scan status");
         Check(store.CountRecords("city", 2212) == 0 &&
@@ -707,14 +855,14 @@ internal static class ManualMapScanCommandServiceChecks
             CancellationToken.None);
         JsonElement status = JsonSerializer.SerializeToElement(start, JsonOptions.Default);
         if (Bool(status, "isReading"))
-            WaitForPhase(service, "completed");
+            WaitForTerminalIdle(service);
         status = Status(service);
 
-        Check(String(status, "phase") == "completed" && !Bool(status, "isReading") && !Bool(status, "resumeAvailable"),
-            "ordinary fallback should publish after all blocks succeed without advertising unsupported resume");
+        Check(String(status, "phase") == "idle" && !Bool(status, "isReading") && !Bool(status, "resumeAvailable"),
+            "ordinary fallback should finish in recovered idle state without advertising unsupported resume");
         Check(Int(status, "concurrency") == 20 && String(status, "scanMode") == "fast" &&
-              String(status, "scanStrategy") == MapScanStrategyPlanner.NormalBlockStrategy,
-            "current-client ordinary fallback must preserve the caller fast mode and recovered concurrency");
+              !status.TryGetProperty("scanStrategy", out _),
+            "current-client ordinary fallback must preserve public fast mode/concurrency without leaking backend strategy");
         Check(Int(status, "totalBlocks") == 2 && Int(status, "readBlocks") == 2,
             "40x20 map should traverse two proven ordinary 20-tile blocks");
         Check(Double(status, "progressPercent") == 100.0,
@@ -723,6 +871,15 @@ internal static class ManualMapScanCommandServiceChecks
         string runId = String(status, "scanRunId");
         Check(store.ReadScanBlockCheckpointsForTest(runId).Count == 0,
             "successful publication should clean block staging");
+
+        JsonElement stopped = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_stop",
+                Payload("fast", "resource"),
+                CancellationToken.None),
+            JsonOptions.Default);
+        Check(String(stopped, "phase") == "idle" && !Bool(stopped, "isReading"),
+            "Stop after completed state must normalize the returned state to original idle cleanup");
         service.Close();
     }
 
@@ -754,9 +911,10 @@ internal static class ManualMapScanCommandServiceChecks
         Check(contextCalls == 1,
             "invalid string scanMode must be validated only after recovered live/world admission");
         JsonElement status = Status(service);
-        Check(!Bool(status, "isReading") && String(status, "phase") == "error" &&
-              String(status, "lastError") == "map scan mode must be normal or fast",
-            "invalid string scanMode must fail before acquisition while preserving the exact original message");
+        Check(!Bool(status, "isReading") && String(status, "phase") == "idle" &&
+              String(status, "scanRunId") == string.Empty &&
+              !status.TryGetProperty("lastError", out _),
+            "invalid string scanMode must fail before original active-state construction");
         service.Close();
     }
 
@@ -782,10 +940,21 @@ internal static class ManualMapScanCommandServiceChecks
         {
         }
         JsonElement status = Status(service);
-        Check(!Bool(status, "isReading") && String(status, "phase") == "error",
-            "failed Start should release ownership and expose an error phase");
-        Check(String(status, "lastError") == MapScanStartOwnership.ServerUnavailableMessage,
-            "earlier live-context failure must preserve precedence over an invalid string scanMode");
+        Check(!Bool(status, "isReading") && String(status, "phase") == "idle" &&
+              String(status, "scanRunId") == string.Empty &&
+              !status.TryGetProperty("lastError", out _),
+            "live-context failure before active-state construction must leave the prior shared status untouched");
+
+        JsonElement stopped = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_stop",
+                Payload("normal", "city"),
+                CancellationToken.None),
+            JsonOptions.Default);
+        Check(String(stopped, "phase") == "idle" &&
+              !Bool(stopped, "isReading") &&
+              stopped.GetProperty("lastError").ValueKind == JsonValueKind.Null,
+            "Stop after an error state must run original idle cleanup and clear the terminal error");
         service.Close();
     }
 
@@ -822,7 +991,7 @@ internal static class ManualMapScanCommandServiceChecks
         var source = new ImmediateSource();
         var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "railway"), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
               Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
@@ -836,7 +1005,7 @@ internal static class ManualMapScanCommandServiceChecks
         var source = new ImmediateSource();
         var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "dispatch"), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
               Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
@@ -850,7 +1019,7 @@ internal static class ManualMapScanCommandServiceChecks
         var source = new ImmediateSource();
         var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "ghost"), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
               Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
@@ -864,7 +1033,7 @@ internal static class ManualMapScanCommandServiceChecks
         var source = new ImmediateSource();
         var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync("map_scan_start", Payload("normal", "treasure"), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
               Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal",
@@ -879,7 +1048,7 @@ internal static class ManualMapScanCommandServiceChecks
         var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync(
             "map_scan_start", Payload("normal", "city", "resource"), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
               Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal" &&
@@ -896,7 +1065,7 @@ internal static class ManualMapScanCommandServiceChecks
         var service = new ManualMapScanCommandService(store, _ => Task.FromResult(StandardContext()), source);
         _ = await service.InvokeAsync(
             "map_scan_start", Payload("normal", MapScanContract.RecoveredDefaultTypes), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(Int(status, "readBlocks") == 2500 && Int(status, "failedBlocks") == 0 &&
               Int(status, "concurrency") == 8 && String(status, "scanMode") == "normal" &&
@@ -1125,17 +1294,23 @@ internal static class ManualMapScanCommandServiceChecks
                 heartbeatReads++;
                 return SyntheticOriginalServerId;
             });
-        JsonElement freshStatus = Status(freshStatusService);
+        JsonElement freshStatus = JsonSerializer.SerializeToElement(
+            await freshStatusService.InvokeAsync(
+                "map_scan_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
         Check(Int(freshStatus, "serverId") == SyntheticOriginalServerId &&
               String(freshStatus, "serverIdSource") == "live" &&
               heartbeatReads == 1,
-            "fresh idle Map Scan status must initialize its unknown server from the owned live heartbeat");
-        JsonElement secondFreshStatus = Status(freshStatusService);
+            "fresh idle Map Scan status must initialize its unknown server from the live refresh source");
+        JsonElement secondFreshStatus = JsonSerializer.SerializeToElement(
+            await freshStatusService.InvokeAsync(
+                "map_scan_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None),
+            JsonOptions.Default);
         Check(heartbeatReads == 2 &&
               Int(secondFreshStatus, "serverId") == SyntheticOriginalServerId &&
-              Int(secondFreshStatus, "liveServerId") == SyntheticOriginalServerId &&
+              !secondFreshStatus.TryGetProperty("liveServerId", out _) &&
               String(secondFreshStatus, "serverIdSource") == "live",
-            "idle Map Scan status may refresh physical liveServerId without changing the current dataset server identity");
+            "idle Map Scan status refresh must expose original serverId/source without rebuild-only liveServerId");
         freshStatusService.Close();
     }
 
@@ -1430,7 +1605,7 @@ internal static class ManualMapScanCommandServiceChecks
             source);
         _ = await service.InvokeAsync(
             "map_scan_start", Payload("fast", "monster", "zombie_boss"), CancellationToken.None);
-        WaitForPhase(service, "completed");
+        WaitForTerminalIdle(service);
         JsonElement status = Status(service);
         Check(contextCalls == 1 &&
               Int(status, "concurrency") == 20 &&
@@ -1476,17 +1651,21 @@ internal static class ManualMapScanCommandServiceChecks
             "Could not locate repository root for Manual Map Scan deterministic checks.");
     }
 
-    private static void WaitForPhase(
-        ManualMapScanCommandService service,
-        string expected)
+    private static void WaitForTerminalIdle(ManualMapScanCommandService service)
     {
         DateTime deadline = DateTime.UtcNow.AddSeconds(2);
         while (DateTime.UtcNow < deadline)
         {
-            if (String(Status(service), "phase") == expected) return;
+            JsonElement status = Status(service);
+            int total = Int(status, "totalBlocks");
+            int accounted = Int(status, "readBlocks") + Int(status, "failedBlocks");
+            if (!Bool(status, "isReading") &&
+                String(status, "phase") == "idle" &&
+                total > 0 && accounted >= total)
+                return;
             Thread.Sleep(10);
         }
-        throw new TimeoutException($"manual scan status did not reach '{expected}'");
+        throw new TimeoutException("manual scan status did not reach terminal idle");
     }
 
     private static JsonElement Status(ManualMapScanCommandService service) =>

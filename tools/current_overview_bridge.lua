@@ -21,6 +21,8 @@ local aoi_diagnostic_path = root .. [[\aoi-diagnostic.txt]]
 local aoi_diagnostic_result_path = root .. [[\aoi-diagnostic-result.json]]
 local world_ready_path = root .. [[\world-ready.txt]]
 local world_ready_result_path = root .. [[\world-ready-result.json]]
+local world_state_path = root .. [[\world-state.txt]]
+local world_state_result_path = root .. [[\world-state-result.json]]
 local pipe_transport_result_path = root .. [[\pipe-transport.json]]
 local pipe_adapter_state_path = root .. [[\pipe-adapter-state.txt]]
 local MESSAGE = "LWbridge is running"
@@ -560,6 +562,20 @@ local function read_world_ready(control)
     return request
 end
 
+local function read_world_state(control)
+    local values = read_kv(world_state_path)
+    if values == nil then return nil end
+    pcall(os.remove, world_state_path)
+    if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then return nil end
+    local game_pid = tonumber(values.gamePid)
+    local request = { requestId = values.requestId }
+    if values.profileId ~= control.profileId or values.sessionId ~= control.sessionId or
+       values.challenge ~= control.challenge or game_pid ~= control.gamePid then
+        request.error = "world_state_identity_mismatch"
+    end
+    return request
+end
+
 local function read_aoi_diagnostic(control)
     local values = read_kv(aoi_diagnostic_path)
     if values == nil then return nil end
@@ -815,6 +831,69 @@ local function current_map_context()
         serverId = server_id, worldId = world_id, tileWidth = tile_width, tileHeight = tile_height,
         playerTileX = player_tile_x, playerTileY = player_tile_y,
     }
+end
+
+local function current_match_server_ids()
+    local result = {}
+    local data_center = rawget(_G, "DataCenter")
+    local station_manager = data_center and safe_get(data_center, "LWMyStationDataManager") or nil
+    local match_servers = station_manager and safe_get(station_manager, "matchServers") or nil
+    if type(match_servers) ~= "table" then return result end
+    for server_id, covered in pairs(match_servers) do
+        local numeric = tonumber(server_id)
+        if covered and numeric ~= nil and numeric > 0 and numeric <= 99999 and numeric == math.floor(numeric) then
+            result[#result + 1] = math.floor(numeric)
+        end
+    end
+    table.sort(result)
+    return result
+end
+
+local function write_world_state_result(request, state, error_text)
+    local cs = rawget(_G, "CS")
+    local scene_manager = cs and safe_get(cs, "SceneManager") or nil
+    local ok_in_world, in_world_value = call(scene_manager, "IsInWorld")
+    local is_in_world = ok_in_world and in_world_value == true or false
+    local lua_entry = rawget(_G, "LuaEntry")
+    local player = lua_entry and safe_get(lua_entry, "Player") or nil
+    local ok_server, server_value = call(player, "GetCurServerId")
+    local ok_home, home_value = call(player, "GetSelfServerId")
+    local server_id = ok_server and tonumber(server_value) or nil
+    local home_server_id = ok_home and tonumber(home_value) or nil
+    if server_id == nil or server_id <= 0 or server_id ~= math.floor(server_id) then server_id = 0 end
+    if home_server_id == nil or home_server_id <= 0 or home_server_id ~= math.floor(home_server_id) then home_server_id = 0 end
+    local context = is_in_world and current_map_context() or nil
+    write_json(world_state_result_path, {
+        schemaVersion = 1,
+        bridgeVersion = M.VERSION,
+        profileId = active and active.profileId or nil,
+        sessionId = active and active.sessionId or nil,
+        challenge = active and active.challenge or nil,
+        gamePid = active and active.gamePid or nil,
+        requestId = request.requestId,
+        state = state,
+        error = error_text,
+        isInWorld = is_in_world,
+        serverId = server_id,
+        homeServerId = home_server_id,
+        seasonServerIds = {},
+        truckMatchServerIds = current_match_server_ids(),
+        worldId = context and context.worldId or 0,
+        tileWidth = context and context.tileWidth or 0,
+        tileHeight = context and context.tileHeight or 0,
+        tileX = context and context.playerTileX or nil,
+        tileY = context and context.playerTileY or nil,
+    })
+end
+
+local function pump_world_state(control)
+    local request = read_world_state(control)
+    if request == nil then return end
+    if request.error ~= nil then
+        write_world_state_result(request, "failed", request.error)
+        return
+    end
+    write_world_state_result(request, "proven", nil)
 end
 
 local function write_world_ready_result(request, state, error_text, method)
@@ -2169,6 +2248,7 @@ function M.Pump()
     end
 
     install_recovery_action_hooks()
+    pump_world_state(control)
     pump_world_ready(control)
     pump_server_jump(control)
     pump_march_follow(control)

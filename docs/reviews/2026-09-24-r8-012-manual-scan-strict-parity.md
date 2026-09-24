@@ -80,11 +80,12 @@ R8-012 restores these Manual controls and locale strings through `tools/build_lw
 Generated bundles remain generator-owned; they are not maintained by independent hand edits.
 ## Recovered observable defaults
 
-A fresh/default Manual scan state now preserves the recovered original values:
+A fresh/default Manual compatibility state preserves the recovered core values:
 - all eight selected kinds;
 - `scanMode = normal`;
-- `concurrency = 8`;
-- `retryCount = 2`.
+- `concurrency = 8`.
+
+**R8-013 correction:** the stronger status/Stop pass proved `retryCount:2` only in the immutable frontend fallback object; no original native/public status-field literal was recovered. R8-013 therefore removes native host emission of `retryCount` while retaining the frontend fallback unchanged.
 
 The Manual service no longer publishes the rebuild-only `auto` mode or zero concurrency as its reset/default vocabulary.
 
@@ -103,8 +104,9 @@ R8-012 removes these Manual-surface rebuild deviations:
 - rebuild-only feature-owned `targetServerId` input semantics;
 - default/reset `scanMode=auto`;
 - default/reset concurrency 0;
-- null `retryCount` in the Manual service status;
 - rejection of `null`/non-string `scanMode` values that original 0.3.1 defaults to Normal.
+
+The earlier R8-012 native-`retryCount` interpretation is superseded by R8-013; `retryCount:2` remains frontend fallback only.
 
 The exact invalid-string pair is now evidence-backed rather than assumed.
 
@@ -118,7 +120,7 @@ Deterministic checks cover:
 - Normal preserved at concurrency 8;
 - Fast preserved at concurrency 20;
 - current-client strategy selection cannot rewrite public mode;
-- fresh/default status uses all eight + Normal/8/retry2;
+- fresh/default compatibility state uses all eight + Normal/8, while R8-013 separately owns native status-field membership;
 - invalid string mode reaches exact `INVALID_SCAN_MODE` only after live/context admission;
 - earlier active-scan and context failures retain precedence over invalid mode;
 - null/non-string mode inputs default to Normal.
@@ -148,7 +150,7 @@ Passed on 2026-09-24:
 R8-012 does **not** claim recovery of:
 - protected game-side traversal/acquisition order;
 - exact mode-specific pacing beyond recovered concurrency;
-- exact mode-specific retry differences beyond the recovered default `retryCount=2`;
+- exact protected mode-specific retry/pacing internals beyond the recovered public mode/concurrency contract;
 - protected acknowledgement/drain/extraction internals;
 - the complete `map_scan_status` serializer or all state transitions;
 - complete `map_scan_stop` uncommon error behavior;

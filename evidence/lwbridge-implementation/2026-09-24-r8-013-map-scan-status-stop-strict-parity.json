@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-013",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 map_scan_status shared-state semantics, successful completion, public Stop behavior, and Stop/Clear reset separation.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/index-sfL2sT3K.js",
+    "original executable status/start/completion/stop/cleanup paths"
+  ],
+  "secondaryReportSha256": "189EE292924E1702A760789E1EA4CB54FC2BF6690B689541ADD64568BE2B778C",
+  "statusContract": {
+    "serializer": "shared mutable scan-state object returned directly; no second status-specific serializer",
+    "frontendFallbackMerged": false,
+    "unsupportedNativePublicFields": ["retryCount", "scanStrategy", "createdAt", "updatedAt"],
+    "worldRefreshOrder": ["getWorldMapState", "getCurrentServerId"],
+    "worldRefreshTimeoutMsEach": 5000,
+    "serverChangedError": "current server changed during map scan"
+  },
+  "activeStartState": {
+    "phase": "scanning",
+    "nativeCaptureReadyBeforeAcceptance": false,
+    "nativeCaptureReadyAfterAcceptance": true,
+    "nativePendingRecords": 0,
+    "nativeDroppedRecords": 0,
+    "lastError": null,
+    "resumeAvailable": false,
+    "startedAt": "current start timestamp",
+    "failedAdmission": "does not construct a new active shared-state object"
+  },
+  "completionContract": {
+    "observableTransition": ["publishing", "idle"],
+    "publicCompletedPhase": false,
+    "finalWrites": {
+      "isReading": false,
+      "phase": "idle",
+      "inflightBlocks": 0,
+      "unreadBlocks": 0,
+      "resumeAvailable": false,
+      "progressPercentWhenTotalPositive": 100
+    }
+  },
+  "stopContract": {
+    "admissionField": "isReading",
+    "idleIsIdempotent": true,
+    "idleSendsProtectedStop": false,
+    "idlePublishesStatus": true,
+    "notRunningError": null,
+    "protectedMethod": "stopMapScan",
+    "protectedTimeoutMs": 5000,
+    "exactCleanupWrites": {
+      "isReading": false,
+      "phase": "idle",
+      "inflightBlocks": 0,
+      "lastError": null,
+      "resumeAvailable": false
+    },
+    "preservedByCleanup": [
+      "scanRunId", "selectedTypes", "totalBlocks", "readBlocks", "unreadBlocks",
+      "failedBlocks", "scanMode", "concurrency", "scanRate", "progressPercent",
+      "nativePendingRecords", "nativeDroppedRecords", "nativeCaptureReady",
+      "startedAt", "server/world metadata"
+    ],
+    "cancellingPhaseRecovered": false
+  },
+  "clearResetContract": {
+    "scanRunId": "",
+    "selectedTypes": ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
+    "zeroFields": [
+      "totalBlocks", "readBlocks", "unreadBlocks", "failedBlocks", "inflightBlocks",
+      "nativePendingRecords", "nativeDroppedRecords", "scanRate", "progressPercent"
+    ],
+    "startedAt": null,
+    "lastError": null,
+    "resumeAvailable": false,
+    "preserves": ["scanMode", "concurrency", "nativeCaptureReady", "refreshed server/world metadata"]
+  },
+  "nativeLocators": {
+    "statusHandler": "0x10A936-0x10B28C",
+    "statusProducerCall": "0x10ADF4 -> 0x0F7F47",
+    "statusProducer": "0x0F7F47-0x0F9333",
+    "startWorker": "0x0F9333-0x0FB8D8",
+    "firstStartPublish": "0x0FA958 -> 0x341913",
+    "nativeCaptureReadyTrue": "0x0FB102-0x0FB121",
+    "secondStartPublish": "0x0FB12F -> 0x341913",
+    "completionWindow": "0x341260+",
+    "publishingWrite": "0x341303",
+    "completionFinalWrites": "0x341394 / 0x3413FA / 0x34149D / 0x3414CF / 0x3414F9 / 0x341520",
+    "stopHandler": "0x154421-0x154EF0",
+    "stopTimeout": "0x1548D8 = 0x1388 = 5000 ms",
+    "stopCleanup": "0x343D99-0x344420",
+    "publisher": "0x341913-0x341C11"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "src/LWBridge.Desktop/MapScanEngine.cs",
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.StatusState.cs",
+    "tools/current_overview_bridge.lua"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs"
+  ],
+  "compatibilityBoundary": {
+    "protectedNativeScanSession": "not present in current host-driven acquisition; active compatibility Stop uses the evidenced predicate-false public branch",
+    "seasonServerIds": "normalization is recovered, but no enumerable current-client source is proven; compatibility probe currently returns []",
+    "protectedAcquisitionTraversal": "UNKNOWN"
+  },
+  "validation": {
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-013 evidence, corrected R8-012 evidence, and current evidence index",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "frontendGeneratorCheck": "PASS",
+    "mapClearFrontendCheck": "PASS",
+    "pythonOverviewHelperCompile": "PASS",
+    "fullPlaywrightFrontendSuite": "UNAVAILABLE: local Node environment has no playwright module",
+    "luaStandaloneParser": "UNAVAILABLE on validation machine"
+  },
+  "evidenceClassification": {
+    "sharedStatusObject": "EXACT_CONTRACT",
+    "retryCountNativeAbsence": "EXACT negative evidence + frontend fallback bytes",
+    "activeStateFields": "EXACT_CONTRACT",
+    "nativeCaptureReadyTransition": "EXACT_CONTRACT",
+    "completionPublishingThenIdle": "EXACT_CONTRACT",
+    "idleStopIdempotence": "EXACT_CONTRACT",
+    "activeStopPredicateAndTimeout": "EXACT_CONTRACT",
+    "stopCleanupAndPreservation": "EXACT_CONTRACT",
+    "clearResetVsPreservation": "EXACT_CONTRACT",
+    "genericActiveStopErrorEnvelope": "PARTIAL",
+    "tileXYAllBranchPresence": "PARTIAL"
+  },
+  "notClaimed": [
+    "complete fixed process-start native field set/key order",
+    "all tileX/tileY omission branches",
+    "complete homeServerId stale-removal semantics",
+    "generic protected Stop error-envelope precedence",
+    "publishing/Stop race winner",
+    "game-side protected scan acquisition/traversal/extraction",
+    "original Auto Scan scheduler/state machine",
+    "map_search strict parity",
+    "Scheduled Plunder",
+    "Login / Account / Authentication behavior"
+  ]
+}

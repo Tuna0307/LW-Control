@@ -157,9 +157,11 @@ The internal `startMapScan` request timeout is 5,000 ms. The host requires respo
 
 ### Request/result
 
-**EXACT_BYTES.** No feature payload. The result is the current shared Map Scan state.
+**EXACT_BYTES / EXACT_CONTRACT.** No feature payload. Public `map_scan_status` calls the shared state producer directly and returns that same mutable shared Map Scan object; there is no second status-specific serializer.
 
-The immutable frontend requires the core fields listed in the default object above. Native live-state metadata additionally proves fields including `createdAt`, `startedAt`, `resumeAvailable`, `nativePendingRecords`, `nativeDroppedRecords`, `nativeCaptureReady`, plus world/server context. The complete serialized field order/set beyond the frontend-consumed core is **PARTIAL** and should not be expanded from rebuild-only fields.
+Field presence is therefore lifecycle-dependent. Active Start directly proves public writes for `serverId`, `worldId`, `serverIdSource`, `scanRunId`, `isReading`, `phase`, `selectedTypes`, `totalBlocks`, `readBlocks`, `unreadBlocks`, `failedBlocks`, `inflightBlocks`, `scanMode`, `concurrency`, `scanRate`, `progressPercent`, `nativePendingRecords`, `nativeDroppedRecords`, `nativeCaptureReady`, `startedAt`, `lastError`, and `resumeAvailable`. Shared world refresh additionally proves `isInWorld`, positive `homeServerId`, normalized `seasonServerIds` / `truckMatchServerIds`, dimensions, and world/tile handling.
+
+The immutable frontend fallback object is **not merged** over native/event state. In particular, `retryCount:2` is frontend fallback only and has no recovered native field literal. `scanStrategy` is rebuild-only. `createdAt` and `updatedAt` occur in run/database metadata but no direct public shared-state writer was recovered; do not expose them as original status fields from that metadata alone.
 
 ### Shared server/world refresh
 
@@ -198,24 +200,28 @@ The frontend receives status updates through `bridge://map-scan-status`; the gam
 - positive `failedBlocks` contributes terminal failure;
 - any present nonempty `lastError` contributes terminal failure (whitespace is not trimmed);
 - a nonempty failure list routes through failure/Stop cleanup;
-- only an empty failure list enters `phase='publishing'` and invokes direct completion;
+- only an empty failure list enters observable `phase='publishing'` and invokes direct completion;
 - direct completion requires `completedBlocks + failedBlocks == totalBlocks`;
 - nonzero failed blocks => `INCOMPLETE_SCAN / direct map scan contains failed batches`;
 - completion transition SQL is `UPDATE scan_runs SET status='completed',error=NULL,updated_at=?1 WHERE id=?2 AND status='running'`;
 - zero affected transition rows => `INVALID_SCAN / map scan is not running`;
 - post-commit missing run => `INVALID_SCAN / map scan disappeared`.
 
+After successful direct completion the shared public state writes `isReading=false`, `phase='idle'`, `inflightBlocks=0`, `unreadBlocks=0`, and `resumeAvailable=false`; when `totalBlocks>0`, `progressPercent` becomes 100. There is no recovered public `completed` phase between `publishing` and final `idle`.
+
 Native pending count is exactly `pendingPoints + pendingMarches + pendingPointRemovals + pendingMarchRemovals + pendingAcks`. Dropped records are tracked separately and positive dropped values enter failure handling before publication.
 
 ## 1.5 `map_scan_stop`
 
-**EXACT_BYTES consumer + EXACT_CONTRACT cleanup.** No feature payload. The original frontend awaits the returned state and installs it as current state.
+**EXACT_BYTES consumer + EXACT_CONTRACT.** No feature payload. The original frontend awaits the returned shared state and installs it as current state.
 
-Both recovered cleanup paths conditionally send protected `stopMapScan` before state publication. Stopped-state writes are:
+Stop admission is exact `isReading`, not `phase`. If `isReading=false`, Stop is idempotent: it does not require the protected bridge/session predicate, does not send `stopMapScan`, still runs cleanup, publishes `bridge://map-scan-status`, and returns the cleaned state. There is no recovered `SCAN_NOT_RUNNING` error.
 
-`isReading=false`, `phase='idle'`, `inflightBlocks=0`, `resumeAvailable=false`.
+If `isReading=true`, the handler evaluates the recovered bridge/session predicate. Predicate false skips the protected call and still cleans up. Predicate true sends exact method `stopMapScan` with a 5,000 ms timeout and awaits the result before cleanup.
 
-Stop-specific uncommon error branches outside the active bridge/session predicate remain **PARTIAL**. Do not substitute current rebuild cancellation vocabulary as original without evidence.
+Public Stop cleanup writes exactly `isReading=false`, `phase='idle'`, `inflightBlocks=0`, `lastError=null`, and `resumeAvailable=false`. It does not reconstruct a fresh scan object and does not reset `scanRunId`, selected types, total/read/unread/failed counters, mode, concurrency, rate/progress, native queue metrics, `nativeCaptureReady`, `startedAt`, or server/world metadata. In particular, Stop does not define `nativeCaptureReady=false`.
+
+No original Map Scan `cancelling` phase was recovered. Generic protected-call error-envelope precedence remains **PARTIAL**; do not invent Stop-specific error vocabulary.
 
 ## 1.6 `map_scan_clear`
 
@@ -228,7 +234,9 @@ Admission:
 - otherwise requested `serverId` must be positive, must equal current scan-state `serverId`, and current `serverIdSource` must equal exact `live`;
 - any failure of that server gate => `SERVER_UNAVAILABLE / current server id unavailable`.
 
-Only after those gates does the original perform server-scoped clear. Original storage clear deletes `scan_runs` and `map_records` for that server; it does **not** delete `player_marks`. After clear, state is refreshed, `phase='idle'`, and updated state is returned/published.
+Only after those gates does the original perform server-scoped clear. Original storage clear deletes `scan_runs` and `map_records` for that server; it does **not** delete `player_marks`.
+
+The shared Clear reset is materially broader than Stop: it writes `scanRunId=''`, all eight default selected types, zero total/read/unread/failed/inflight counters, `nativePendingRecords=0`, `nativeDroppedRecords=0`, `scanRate=0`, `progressPercent=0`, `startedAt=null`, `lastError=null`, `resumeAvailable=false`, then `phase='idle'` and publishes. The recovered reset helper does **not** reset `scanMode`, `concurrency`, or `nativeCaptureReady`; do not collapse Clear and Stop into one reset policy. Refreshed server/world state is likewise not part of that counter/run reset list.
 
 ### Required parity correction
 

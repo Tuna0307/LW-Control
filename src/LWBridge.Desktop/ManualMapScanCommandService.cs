@@ -13,6 +13,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private readonly Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage;
     private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
     private readonly Func<int?>? getLiveServerId;
+    private readonly Func<CancellationToken, Task<CurrentClientMapStatusContext>>? getStatusContext;
     private readonly Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage;
     private readonly IMapScanBlockSource blockSource;
     private CancellationTokenSource? activeCancellation;
@@ -20,6 +21,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private Task? activeTask;
     private TaskCompletionSource<object?>? activeTerminal;
     private bool closed;
+    private bool startPending;
     private bool isReading;
     private string phase = "idle";
     private string scanRunId = string.Empty;
@@ -27,7 +29,17 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private string scanStrategy = "none";
     private IReadOnlyList<string> selectedTypes = MapScanContract.RecoveredDefaultTypes.ToArray();
     private int serverId;
+    private string serverIdSource = "none";
+    private bool isInWorld;
+    private bool worldStatePresent;
+    private int homeServerId = 0;
+    private int[] seasonServerIds = [];
     private long worldId;
+    private int tileWidth;
+    private int tileHeight;
+    private int? tileX;
+    private int? tileY;
+    private bool hasWorldDimensions;
     private int concurrency = 8;
     private int totalBlocks;
     private int completedBlocks;
@@ -35,7 +47,18 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private int inflightBlocks;
     private int unreadBlocks;
     private double scanRate;
+    private double progressPercent;
     private double? acquisitionProgressPercent;
+    private bool nativeCaptureReady;
+    private int nativePendingRecords;
+    private int nativeDroppedRecords;
+    private bool resumeAvailable;
+    private long? startedAt;
+    private bool startedAtPresent;
+    private bool lastErrorPresent;
+    private bool nativeCaptureReadyPresent;
+    private bool nativeCountersPresent;
+    private bool resumeAvailablePresent;
     private bool coordinateJumping;
     private bool serverJumping;
     private bool treasureInspecting;
@@ -43,6 +66,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private int liveServerId;
     private int[] truckMatchServerIds = [];
     private string? lastError;
+    private string? cancellationCleanupError;
 
     public ManualMapScanCommandService(
         OverviewLifecycleService lifecycle,
@@ -57,6 +81,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         getAssetImage = currentClientSource.GetAssetImageAsync;
         inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
         getLiveServerId = lifecycle.GetLiveServerId;
+        getStatusContext = currentClientSource.GetMapStatusContextAsync;
         getTrainListCoverage = currentClientSource.GetTrainListCoverageAsync;
         blockSource = currentClientSource;
         ReconcileInterruptedScansAtStartup();
@@ -71,13 +96,15 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null,
         Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null,
         Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates = null,
-        Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage = null)
+        Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage = null,
+        Func<CancellationToken, Task<CurrentClientMapStatusContext>>? getStatusContext = null)
     {
         this.store = store ?? throw new ArgumentNullException(nameof(store));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
         this.blockSource = blockSource ?? throw new ArgumentNullException(nameof(blockSource));
         this.jumpToServer = jumpToServer;
         this.getLiveServerId = getLiveServerId;
+        this.getStatusContext = getStatusContext;
         this.followMarch = followMarch;
         this.getAssetImage = getAssetImage;
         this.inspectTreasureStates = inspectTreasureStates;
@@ -111,7 +138,11 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             return await InspectTreasureStateAsync(command, payload, cancellationToken)
                 .ConfigureAwait(false);
         }
-        if (command == "map_scan_status") return CreateStatus();
+        if (command == "map_scan_status")
+        {
+            await RefreshStatusAsync(cancellationToken).ConfigureAwait(false);
+            return CreateStatus();
+        }
         if (command == "map_scan_clear") return ClearMapScan(payload);
         if (command == "server_jump")
             return await JumpToServerAsync(payload, cancellationToken).ConfigureAwait(false);
@@ -542,14 +573,14 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             if (resolvedServerId is > 0)
             {
                 liveServerId = resolvedServerId.Value;
-                if (serverId <= 0) serverId = resolvedServerId.Value;
+                serverId = resolvedServerId.Value;
+                serverIdSource = MapScanClearOwnership.LiveServerSource;
+            }
+            else if (serverId <= 0)
+            {
+                serverIdSource = "none";
             }
 
-            string serverIdSource = serverId <= 0
-                ? "none"
-                : liveServerId > 0 && serverId != liveServerId
-                    ? "remote_train_list"
-                    : MapScanClearOwnership.LiveServerSource;
             MapScanClearOwnership.Validate(
                 requestedServerId,
                 isReading,
@@ -559,18 +590,25 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             store.ClearServer(requestedServerId);
             scanRunId = string.Empty;
             phase = "idle";
-            scanMode = "normal";
             scanStrategy = "none";
-            worldId = 0;
-            concurrency = 8;
+            selectedTypes = MapScanContract.RecoveredDefaultTypes.ToArray();
             totalBlocks = 0;
             completedBlocks = 0;
             failedBlocks = 0;
             inflightBlocks = 0;
             unreadBlocks = 0;
             scanRate = 0;
-            acquisitionProgressPercent = null;
+            progressPercent = 0;
+            nativePendingRecords = 0;
+            nativeDroppedRecords = 0;
+            nativeCountersPresent = true;
+            startedAt = null;
+            startedAtPresent = true;
             lastError = null;
+            lastErrorPresent = true;
+            resumeAvailable = false;
+            resumeAvailablePresent = true;
+            acquisitionProgressPercent = null;
         }
 
         PublishStatusChanged();
@@ -610,6 +648,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             lock (gate)
             {
                 serverId = targetServerId;
+                serverIdSource = "live";
                 liveServerId = targetServerId;
                 truckMatchServerIds = [];
                 lastError = null;
@@ -748,7 +787,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException(
                     "MAP_SCAN_CLOSED",
                     "The Map Data window is closing and cannot start another scan.");
-            MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            MapScanStartOwnership.RejectAlreadyRunning(isReading || startPending);
             if (serverJumping)
                 throw new BridgeCommandException(
                     "GAME_OPERATION_IN_PROGRESS",
@@ -769,22 +808,9 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 // durably before a fresh run can start. Staging/checkpoints are retained
                 // as interruption evidence and can never publish from the failed run.
                 store.ReconcileInterruptedEngineScans(RecoveredWallClock.UnixTimeMilliseconds());
-                isReading = true;
-                phase = "starting";
-                scanMode = options.ScanMode is "normal" or "fast" ? options.ScanMode : "normal";
-                scanStrategy = "pending";
-                selectedTypes = options.SelectedTypes.ToArray();
-                concurrency = options.ScanMode == "fast" ? 20 : 8;
-                lastError = null;
-                serverId = 0;
-                liveServerId = 0;
-                worldId = 0;
-                totalBlocks = completedBlocks = failedBlocks = inflightBlocks = 0;
-                unreadBlocks = 0;
-                scanRate = 0;
-                acquisitionProgressPercent = null;
-                runId = Guid.NewGuid().ToString("N");
-                scanRunId = runId;
+                startPending = true;
+                cancellationCleanupError = null;
+                runId = string.Empty;
                 scanCancellation = new CancellationTokenSource();
                 activeCancellation = scanCancellation;
                 activeScanLease = scanLease;
@@ -796,7 +822,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 scanLease?.Dispose();
             }
         }
-        PublishStatusChanged();
 
         try
         {
@@ -819,15 +844,16 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             int targetServerId = context.ServerId;
             MapScanStrategyPlan strategy = MapScanStrategyPlanner.Plan(
                 context,
-                selectedTypes,
+                options.SelectedTypes,
                 options.ScanMode);
+            runId = Guid.NewGuid().ToString("N");
             var request = new MapScanExecutionRequest(
                 runId,
                 targetServerId,
                 context.WorldId,
                 context.TileWidth,
                 context.TileHeight,
-                selectedTypes,
+                options.SelectedTypes,
                 strategy.Concurrency,
                 MaxAttemptsPerBlock: 2,
                 PlayerTileX: context.PlayerTileX,
@@ -841,15 +867,53 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 if (closed || !ReferenceEquals(activeCancellation, scanCancellation) ||
                     scanCancellation.IsCancellationRequested)
                     throw new OperationCanceledException(scanCancellation.Token);
+                startPending = false;
+                isReading = true;
                 serverId = targetServerId;
+                serverIdSource = "live";
                 liveServerId = context.ServerId;
+                isInWorld = true;
+                worldStatePresent = true;
                 worldId = context.WorldId;
+                tileWidth = context.TileWidth;
+                tileHeight = context.TileHeight;
+                tileX = context.PlayerTileX;
+                tileY = context.PlayerTileY;
+                hasWorldDimensions = true;
+                scanRunId = runId;
+                selectedTypes = options.SelectedTypes.ToArray();
                 scanMode = strategy.ScanMode;
                 scanStrategy = strategy.StrategyId;
                 concurrency = strategy.Concurrency;
                 totalBlocks = checked((int)grid.TotalBlocks);
+                completedBlocks = 0;
+                failedBlocks = 0;
+                inflightBlocks = 0;
                 unreadBlocks = totalBlocks;
+                scanRate = 0;
+                progressPercent = 0;
+                acquisitionProgressPercent = null;
                 phase = "scanning";
+                nativePendingRecords = 0;
+                nativeDroppedRecords = 0;
+                nativeCountersPresent = true;
+                nativeCaptureReady = false;
+                nativeCaptureReadyPresent = true;
+                startedAt = RecoveredWallClock.UnixTimeMilliseconds();
+                startedAtPresent = true;
+                lastError = null;
+                lastErrorPresent = true;
+                resumeAvailable = false;
+                resumeAvailablePresent = true;
+            }
+            PublishStatusChanged();
+
+            // Compatibility acquisition is host-driven; treat successful host setup as
+            // the accepted boundary for the original mutable nativeCaptureReady field.
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation) && isReading)
+                    nativeCaptureReady = true;
             }
             PublishStatusChanged();
 
@@ -886,10 +950,12 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                 if (ReferenceEquals(activeCancellation, scanCancellation))
                 {
                     isReading = false;
-                    phase = "completed";
+                    phase = "idle";
                     inflightBlocks = 0;
                     unreadBlocks = 0;
-                    lastError = null;
+                    progressPercent = totalBlocks > 0 ? 100d : 0d;
+                    resumeAvailable = false;
+                    resumeAvailablePresent = true;
                     acquisitionProgressPercent = null;
                     changed = true;
                 }
@@ -898,7 +964,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         }
         catch (OperationCanceledException) when (scanCancellation.IsCancellationRequested)
         {
-            bool changed = false;
             lock (gate)
             {
                 if (ReferenceEquals(activeCancellation, scanCancellation))
@@ -906,12 +971,14 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     isReading = false;
                     phase = "idle";
                     inflightBlocks = 0;
-                    lastError = null;
+                    lastError = cancellationCleanupError;
+                    lastErrorPresent = true;
+                    resumeAvailable = false;
+                    resumeAvailablePresent = true;
+                    cancellationCleanupError = null;
                     acquisitionProgressPercent = null;
-                    changed = true;
                 }
             }
-            if (changed) PublishStatusChanged();
         }
         catch (Exception error)
         {
@@ -924,6 +991,7 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
                     phase = "error";
                     inflightBlocks = 0;
                     lastError = error.Message;
+                    lastErrorPresent = true;
                     acquisitionProgressPercent = null;
                     changed = true;
                 }
@@ -964,6 +1032,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             inflightBlocks = progress.InflightBlocks;
             unreadBlocks = progress.UnreadBlocks;
             scanRate = progress.ScanRate;
+            progressPercent = MapScanProgress.Derive(
+                totalBlocks, completedBlocks, failedBlocks, progress.Phase).ProgressPercent;
             if (progress.AcquisitionProgressPercent.HasValue)
                 acquisitionProgressPercent = Math.Clamp(progress.AcquisitionProgressPercent.Value, 0d, 100d);
             else if (!string.Equals(progress.Phase, "scanning", StringComparison.Ordinal))
@@ -982,19 +1052,29 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         lock (gate)
         {
             if (!ReferenceEquals(activeCancellation, scanCancellation)) return;
-            isReading = false;
-            bool cancelled = scanCancellation.IsCancellationRequested || error is OperationCanceledException;
-            phase = cancelled ? "idle" : "error";
-            inflightBlocks = 0;
+            bool activeStateWasConstructed = !startPending && isReading;
+            startPending = false;
             activeCancellation = null;
             activeTask = null;
             scanLease = activeScanLease;
             activeScanLease = null;
             terminal = activeTerminal;
             activeTerminal = null;
-            lastError = cancelled ? null : error.Message;
-            acquisitionProgressPercent = null;
-            changed = true;
+            cancellationCleanupError = null;
+
+            if (activeStateWasConstructed)
+            {
+                isReading = false;
+                bool cancelled = scanCancellation.IsCancellationRequested || error is OperationCanceledException;
+                phase = cancelled ? "idle" : "error";
+                inflightBlocks = 0;
+                lastError = cancelled ? null : error.Message;
+                lastErrorPresent = true;
+                resumeAvailable = false;
+                resumeAvailablePresent = true;
+                acquisitionProgressPercent = null;
+                changed = true;
+            }
         }
         scanLease?.Dispose();
         terminal?.TrySetResult(null);
@@ -1002,26 +1082,113 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         scanCancellation.Dispose();
     }
 
+    private async Task RefreshStatusAsync(CancellationToken cancellationToken)
+    {
+        CurrentClientMapStatusContext? context = null;
+        if (getStatusContext is not null)
+        {
+            context = await getStatusContext(cancellationToken).ConfigureAwait(false);
+        }
+        else if (TryResolveLiveServerId() is int fallbackServerId && fallbackServerId > 0)
+        {
+            context = new CurrentClientMapStatusContext(
+                false, fallbackServerId, 0, [], [], 0, 0, 0, null, null);
+        }
+        if (context is null) return;
+
+        CancellationTokenSource? scanCancellation = null;
+        Task terminalTask = Task.CompletedTask;
+        lock (gate)
+        {
+            worldStatePresent = true;
+            isInWorld = context.IsInWorld;
+            if (context.HomeServerId > 0)
+                homeServerId = context.HomeServerId;
+            seasonServerIds = NormalizeServerIds(context.SeasonServerIds);
+            truckMatchServerIds = NormalizeServerIds(context.TruckMatchServerIds);
+
+            if (context.IsInWorld && context.TileWidth > 0 && context.TileHeight > 0)
+            {
+                worldId = Math.Max(context.WorldId, 0);
+                tileWidth = context.TileWidth;
+                tileHeight = context.TileHeight;
+                tileX = context.TileX;
+                tileY = context.TileY;
+                hasWorldDimensions = true;
+            }
+
+            if (context.ServerId > 0)
+            {
+                if (isReading && serverId > 0 && serverId != context.ServerId)
+                {
+                    cancellationCleanupError = "current server changed during map scan";
+                    scanCancellation = activeCancellation;
+                    terminalTask = activeTerminal?.Task ?? activeTask ?? Task.CompletedTask;
+                }
+                else
+                {
+                    serverId = context.ServerId;
+                    liveServerId = context.ServerId;
+                    serverIdSource = "live";
+                }
+            }
+            else if (!isReading)
+            {
+                serverId = 0;
+                serverIdSource = "none";
+                tileWidth = 0;
+                tileHeight = 0;
+                tileX = null;
+                tileY = null;
+                hasWorldDimensions = true;
+            }
+        }
+
+        if (scanCancellation is null) return;
+        try { scanCancellation.Cancel(); }
+        catch (ObjectDisposedException) { }
+        if (!terminalTask.IsCompleted)
+            await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+        PublishStatusChanged();
+    }
+
+    private static int[] NormalizeServerIds(IEnumerable<int> serverIds) =>
+        serverIds.Where(serverId => serverId is >= 1 and <= 99999)
+            .Distinct()
+            .OrderBy(serverId => serverId)
+            .ToArray();
+
     private async Task StopAsync(CancellationToken cancellationToken)
     {
         CancellationTokenSource? cancellation;
         Task terminalTask;
-        bool changed = false;
         lock (gate)
         {
-            cancellation = activeCancellation;
-            terminalTask = activeTerminal?.Task ?? Task.CompletedTask;
-            if (isReading && phase is not "completed" and not "cancelling")
-            {
-                phase = "cancelling";
-                changed = true;
-            }
+            bool wasReading = isReading;
+            cancellation = wasReading ? activeCancellation : null;
+            terminalTask = wasReading ? activeTerminal?.Task ?? activeTask ?? Task.CompletedTask : Task.CompletedTask;
+            if (wasReading)
+                cancellationCleanupError = null;
         }
-        if (changed) PublishStatusChanged();
+
         try { cancellation?.Cancel(); }
         catch (ObjectDisposedException) { }
         if (!terminalTask.IsCompleted)
             await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        lock (gate)
+        {
+            isReading = false;
+            phase = "idle";
+            inflightBlocks = 0;
+            lastError = null;
+            lastErrorPresent = true;
+            resumeAvailable = false;
+            resumeAvailablePresent = true;
+            cancellationCleanupError = null;
+            acquisitionProgressPercent = null;
+        }
+        PublishStatusChanged();
     }
 
     private void PublishStatusChanged()
@@ -1033,67 +1200,63 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
 
     public object CreateStatus()
     {
-        bool shouldResolveLiveServer;
         lock (gate)
-            shouldResolveLiveServer = !closed && !isReading;
-        if (shouldResolveLiveServer && getLiveServerId is not null)
         {
-            int? resolvedServerId = TryResolveLiveServerId();
-            if (resolvedServerId is > 0)
+            if (serverId <= 0)
+                serverIdSource = "none";
+
+            var state = new Dictionary<string, object?>(StringComparer.Ordinal)
             {
-                lock (gate)
+                ["serverId"] = serverId,
+                ["serverIdSource"] = serverIdSource,
+                ["scanRunId"] = scanRunId,
+                ["isReading"] = isReading,
+                ["phase"] = phase,
+                ["selectedTypes"] = selectedTypes.ToArray(),
+                ["totalBlocks"] = totalBlocks,
+                ["readBlocks"] = completedBlocks,
+                ["unreadBlocks"] = unreadBlocks,
+                ["failedBlocks"] = failedBlocks,
+                ["inflightBlocks"] = inflightBlocks,
+                ["scanMode"] = scanMode,
+                ["concurrency"] = concurrency,
+                ["scanRate"] = scanRate,
+                ["progressPercent"] = progressPercent,
+            };
+
+            if (worldStatePresent)
+            {
+                state["isInWorld"] = isInWorld;
+                if (homeServerId > 0)
+                    state["homeServerId"] = homeServerId;
+                state["seasonServerIds"] = seasonServerIds.ToArray();
+                state["truckMatchServerIds"] = truckMatchServerIds.ToArray();
+                state["worldId"] = worldId;
+            }
+            if (hasWorldDimensions)
+            {
+                state["tileWidth"] = tileWidth;
+                state["tileHeight"] = tileHeight;
+                if (tileX.HasValue && tileY.HasValue)
                 {
-                    if (!closed && !isReading)
-                    {
-                        liveServerId = resolvedServerId.Value;
-                        if (serverId <= 0) serverId = resolvedServerId.Value;
-                    }
+                    state["tileX"] = tileX.Value;
+                    state["tileY"] = tileY.Value;
                 }
             }
-        }
-
-        lock (gate)
-        {
-            MapScanDerivedProgress derived = MapScanProgress.Derive(
-                totalBlocks,
-                completedBlocks,
-                failedBlocks,
-                phase);
-            double visibleProgress = derived.ProgressPercent;
-            if (isReading && string.Equals(phase, "scanning", StringComparison.Ordinal) && acquisitionProgressPercent.HasValue)
-                visibleProgress = Math.Max(visibleProgress, Math.Min(98d, acquisitionProgressPercent.Value));
-            return new
+            if (nativeCountersPresent)
             {
-                serverId,
-                liveServerId = liveServerId > 0 ? liveServerId : serverId,
-                serverIdSource = serverId <= 0 ? "none" :
-                    liveServerId > 0 && serverId != liveServerId ? "remote_train_list" : "live",
-                scanRunId,
-                isReading,
-                phase,
-                selectedTypes,
-                totalBlocks,
-                readBlocks = completedBlocks,
-                unreadBlocks,
-                failedBlocks,
-                inflightBlocks,
-                scanMode,
-                scanStrategy,
-                concurrency,
-                retryCount = 2,
-                scanRate,
-                progressPercent = visibleProgress,
-                acquisitionProgressPercent,
-                nativeCaptureReady = (bool?)null,
-                nativePendingRecords = (int?)null,
-                nativeDroppedRecords = (int?)null,
-                resumeAvailable = false,
-                homeServerId = (int?)null,
-                seasonServerIds = (int[]?)null,
-                truckMatchServerIds,
-                lastError,
-                worldId,
-            };
+                state["nativePendingRecords"] = nativePendingRecords;
+                state["nativeDroppedRecords"] = nativeDroppedRecords;
+            }
+            if (nativeCaptureReadyPresent)
+                state["nativeCaptureReady"] = nativeCaptureReady;
+            if (startedAtPresent)
+                state["startedAt"] = startedAt;
+            if (lastErrorPresent)
+                state["lastError"] = lastError;
+            if (resumeAvailablePresent)
+                state["resumeAvailable"] = resumeAvailable;
+            return state;
         }
     }
 
@@ -1106,7 +1269,6 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             closed = true;
             cancellation = activeCancellation;
             terminalTask = activeTerminal?.Task ?? activeTask;
-            if (isReading && phase is not "completed") phase = "cancelling";
         }
         try { cancellation?.Cancel(); }
         catch (ObjectDisposedException) { }

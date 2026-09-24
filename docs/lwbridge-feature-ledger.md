@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-012`, 2026-09-24.
+**Current through:** `LWB-R8-013`, 2026-09-24.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -27,7 +27,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 |---|---|---|
 | Original scan command envelope | EXACT_CONTRACT | Preserve |
 | Original selected-type allowlist | EXACT_CONTRACT | R8-012 restores exactly eight public Manual kinds; preserve |
-| Manual `map_scan_start` mode/default/error contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores Manual UI/persistence, Normal=8/Fast=20, default Normal/8/retry2, null/non-string default-to-Normal and exact invalid-string error/precedence |
+| Manual `map_scan_start` mode/default/error contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores Manual UI/persistence, Normal=8/Fast=20, null/non-string default-to-Normal and exact invalid-string error/precedence; R8-013 corrects `retryCount:2` to frontend fallback only |
 | Normal/Fast concurrency 8/20 | EXACT_CONTRACT | Preserve; protected pacing/retry differences remain separate |
 | City | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Resource | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
@@ -43,6 +43,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | `map_summary` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-010 restored exact three-field envelope, eight original kinds and shared-state active/published count source selection |
 | `map_data_options` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-011 restored recovered top-level order, eight original count kinds, Resource/Monster name families and exact active-run vs server-scoped published selection; rebuild-only `zombie_boss`/`monsterLevels` removed |
 | Manual Scan public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores exactly eight kinds and the recovered Normal/Fast request/default/error/UI contract; Auto Scan and protected acquisition remain separate |
+| `map_scan_status` / `map_scan_stop` shared state | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-013 restores direct shared-state status, lifecycle-dependent native fields, read-only world refresh, publishing→idle completion, idempotent Stop and exact Stop/Clear reset separation; uncommon protected Stop error envelopes remain partial |
 | Scheduled Plunder | DEVIATION | Restore original retained feature set |
 | Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | Finish exact branch/default/error audit |
 | Mark/Jump/Follow | PARTIAL | Tie every behavior to reference |

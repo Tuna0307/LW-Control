@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-012`
+**Current checkpoint:** `LWB-R8-013`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -71,13 +71,19 @@ Persisted multi-server browsing and its frontend transforms remain separate Auto
 
 ## R8-012 Manual Scan public-contract checkpoint
 
-Manual `map_scan_start` is restored to the recovered 0.3.1 public boundary: exactly eight selectable kinds (`city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure`), original Manual Normal/Fast controls and `lwbridge.mapScanMode` persistence, `{selectedTypes,scanMode}` Start payload, Normal=8/Fast=20, and default state Normal/8/retry2. Rebuild-only public `zombie_boss` and feature-owned `targetServerId` are not part of the Manual request.
+Manual `map_scan_start` is restored to the recovered 0.3.1 public boundary: exactly eight selectable kinds (`city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure`), original Manual Normal/Fast controls and `lwbridge.mapScanMode` persistence, `{selectedTypes,scanMode}` Start payload, and Normal=8/Fast=20. Rebuild-only public `zombie_boss` and feature-owned `targetServerId` are not part of the Manual request. R8-013 supersedes the earlier native-`retryCount` interpretation: `retryCount:2` is frontend fallback only.
 
 The original executable also closes invalid-mode behavior exactly: missing/null/non-string `scanMode` defaults to Normal; only string values are validated; empty/unknown strings use `INVALID_SCAN_MODE / map scan mode must be normal or fast`. That string validation happens after earlier game/active-scan/world admission and before protected `startMapScan`, so an earlier admission error can win. See `docs/reviews/2026-09-24-r8-012-manual-scan-strict-parity.md`.
 
 Current-client strategy IDs/acquisition remain compatibility internals and may not rewrite observable Manual mode/concurrency. Existing Zombie Boss storage/query compatibility is retained internally only because `map_search` is a separate future parity checkpoint; it is not a public Manual scan kind.
 
-The next main Map work is `map_scan_status`/`map_scan_stop`, then `map_search`, original Auto Scan behavior, and Scheduled Plunder restoration.
+## R8-013 Map Scan Status / Stop shared-state checkpoint
+
+`map_scan_status` now refreshes and returns the shared mutable scan-state object rather than a rebuild DTO. R8-013 removes native/public `retryCount`, `scanStrategy`, database-derived `createdAt`/`updatedAt`, restores the explicit `nativeCaptureReady` transition, and models successful completion as observable `publishing` followed by final `idle` with 100% progress.
+
+Public Stop is idempotent when already idle and always publishes the recovered five-field cleanup (`isReading=false`, `phase=idle`, `inflightBlocks=0`, `lastError=null`, `resumeAvailable=false`) while preserving run/config/counter/native/start/world fields. The compatibility engine has no original protected scan session, so active Stop uses the evidenced predicate-false branch rather than inventing a game-side `stopMapScan` primitive. Clear remains a distinct broader reset and preserves mode/concurrency/native-ready.
+
+The next main Map work is `map_search`, then original Auto Scan behavior and Scheduled Plunder restoration.
 
 ## Parked protected package-key lane
 

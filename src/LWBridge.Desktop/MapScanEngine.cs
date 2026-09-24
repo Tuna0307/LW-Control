@@ -116,12 +116,10 @@ internal sealed class MapScanEngine
             MapScanCompletionSafety.ValidateDirectCompletion(blocks.Count, completed, failed);
             Report(request.RequestedConcurrency, "publishing", blocks.Count, completed, failed, 0, startedAt);
             sink.Publish(request, UtcNowMilliseconds());
-            Report(request.RequestedConcurrency, "completed", blocks.Count, completed, failed, 0, startedAt);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             sink.Stop(request, UtcNowMilliseconds());
-            Report(request.RequestedConcurrency, "idle", blocks.Count, completed, failed, 0, startedAt);
             throw;
         }
         catch (Exception error)

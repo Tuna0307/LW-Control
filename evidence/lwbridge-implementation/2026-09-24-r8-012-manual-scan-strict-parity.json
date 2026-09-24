@@ -19,7 +19,7 @@
     "preferenceKey": "lwbridge.mapScanMode",
     "validStringModes": ["normal", "fast"],
     "concurrency": {"normal": 8, "fast": 20},
-    "defaultRetryCount": 2,
+    "frontendFallbackRetryCount": 2,
     "invalidTypesCode": "INVALID_SCAN_TYPES",
     "invalidTypesMessage": "no valid map scan types selected",
     "invalidStringModeCode": "INVALID_SCAN_MODE",
@@ -72,7 +72,6 @@
     "feature-owned targetServerId Manual input behavior",
     "default/reset scanMode=auto",
     "default/reset concurrency=0",
-    "Manual service retryCount=null",
     "rejecting null/non-string scanMode instead of defaulting to normal"
   ],
   "compatibilityBoundary": {
@@ -116,13 +115,13 @@
     "nullNonStringModeDefault": "EXACT_CONTRACT",
     "invalidModeRelativeAdmissionOrdering": "EXACT_CONTRACT",
     "manualFrontendModeControlPersistence": "EXACT_BYTES-derived",
-    "defaultRetryCount": "EXACT_CONTRACT",
+    "frontendFallbackRetryCount": "EXACT_BYTES; R8-013 proves it is not a native/public status field",
     "protectedAcquisitionTraversal": "UNKNOWN"
   },
   "notClaimed": [
     "protected game-side traversal/acquisition order",
     "mode-specific pacing beyond recovered concurrency",
-    "mode-specific retry differences beyond recovered default retryCount=2",
+    "protected mode-specific retry/pacing internals beyond recovered public mode/concurrency",
     "protected acknowledgement/drain/extraction internals",
     "complete map_scan_status serializer/state parity",
     "complete map_scan_stop uncommon error behavior",
