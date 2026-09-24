@@ -53,6 +53,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly HotkeyConfigCommandService? hotkeyConfigService;
     private readonly VisualMetricsConfigCommandService? visualMetricsConfigService;
     private readonly EquipmentConfigCommandService? equipmentConfigService;
+    private readonly MonsterAfkConfigCommandService? monsterAfkConfigService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -142,15 +143,22 @@ internal sealed class LWBridgeWindow : Form
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId,
                 "runtime", "config.json");
-        hotkeyConfigService = profileRuntimeConfigPath is null
+        ProfileRuntimeConfigStore? profileRuntimeConfigStore =
+            profileRuntimeConfigPath is null
+                ? null
+                : new ProfileRuntimeConfigStore(profileRuntimeConfigPath);
+        hotkeyConfigService = profileRuntimeConfigStore is null
             ? null
-            : new HotkeyConfigCommandService(profileRuntimeConfigPath);
-        visualMetricsConfigService = profileRuntimeConfigPath is null
+            : new HotkeyConfigCommandService(profileRuntimeConfigStore);
+        visualMetricsConfigService = profileRuntimeConfigStore is null
             ? null
-            : new VisualMetricsConfigCommandService(profileRuntimeConfigPath);
-        equipmentConfigService = profileRuntimeConfigPath is null
+            : new VisualMetricsConfigCommandService(profileRuntimeConfigStore);
+        equipmentConfigService = profileRuntimeConfigStore is null
             ? null
-            : new EquipmentConfigCommandService(profileRuntimeConfigPath);
+            : new EquipmentConfigCommandService(profileRuntimeConfigStore);
+        monsterAfkConfigService = profileRuntimeConfigStore is null
+            ? null
+            : new MonsterAfkConfigCommandService(profileRuntimeConfigStore);
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -202,6 +210,7 @@ internal sealed class LWBridgeWindow : Form
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
+            if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
             productionCommands = services.Count switch
             {
                 0 => null,
@@ -216,7 +225,10 @@ internal sealed class LWBridgeWindow : Form
             firstLiveResultServerId: firstLiveResult?.ServerId,
             overviewLifecycle: overviewLifecycleService,
             mapScanStatusProvider: manualMapScanService is null ? null : manualMapScanService.CreateStatus,
-            bridgeHostState: bridgeHostState);
+            bridgeHostState: bridgeHostState,
+            runtimeTasksProvider: profileRuntimeConfigStore is null
+                ? null
+                : profileRuntimeConfigStore.ReadTasksSnapshot);
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
         if (manualMapScanService is not null)

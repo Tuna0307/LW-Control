@@ -408,6 +408,7 @@ await LWBridge.Desktop.Checks.CityLayoutDraftChecks.RunAsync();
 await LWBridge.Desktop.Checks.HotkeyConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.VisualMetricsConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.UpdateStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.FeedbackExportContractChecks.RunAsync();
 LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();

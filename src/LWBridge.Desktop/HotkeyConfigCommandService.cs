@@ -170,6 +170,64 @@ internal sealed class ProfileRuntimeConfigStore
         }
     }
 
+    internal JsonObject ReadTasksSnapshot()
+    {
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject? root = ReadRoot(allowMissing: true);
+                if (root is null ||
+                    !root.TryGetPropertyValue("tasks", out JsonNode? tasksNode) ||
+                    tasksNode is null)
+                {
+                    return new JsonObject();
+                }
+
+                if (tasksNode is not JsonObject tasks)
+                    throw StateUnavailable();
+
+                return (JsonObject)tasks.DeepClone();
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    internal JsonObject SaveMonsterSweepConfig(JsonObject config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject root = ReadRoot(allowMissing: true) ?? new JsonObject();
+                JsonObject tasks;
+                if (!root.TryGetPropertyValue("tasks", out JsonNode? tasksNode) ||
+                    tasksNode is null)
+                {
+                    tasks = new JsonObject();
+                    root["tasks"] = tasks;
+                }
+                else if (tasksNode is JsonObject existingTasks)
+                {
+                    tasks = existingTasks;
+                }
+                else
+                {
+                    throw StateUnavailable();
+                }
+
+                tasks["monsterSweep"] = config.DeepClone();
+                WriteRoot(root);
+                return (JsonObject)config.DeepClone();
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
     private static JsonObject ProjectEquipmentConfig(JsonObject? root)
     {
         var result = new JsonObject();

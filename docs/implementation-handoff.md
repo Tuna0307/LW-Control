@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-023`
+**Current checkpoint:** `LWB-R8-024`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -128,6 +128,10 @@ R8-022 recovers the exact native five-field feedback result `{canceled,path,file
 ## R8-023 Equipment configuration checkpoint
 
 R8-023 restores profile-scoped `equipment_config_get/save` on the shared runtime config. Native get projection defaults missing `equipmentPresets` to `[]` and omits missing `initialEquipmentConfig`; save requires an array, validates each preset as an object with nonblank Unicode-trimmed string `id`/`name` and unique trimmed IDs, replaces presets, stores/removes optional initial config, removes legacy `equipmentSchemes`/`squadEquipmentBindings`, preserves unrelated sibling JSON, and returns the projected equipment config. The recovered Squad panel remains byte-identical to 0.3.1. `equipment_preset_apply` and native `equipment_initial_apply` remain deliberately fenced as game-action behavior. See `docs/reviews/2026-09-25-r8-023-equipment-config-persistence.md`.
+
+## R8-024 Monster AFK configuration checkpoint
+
+R8-024 restores profile-scoped `monster_afk_config_save` on the same runtime config. The native validator requires top-level `enabled/strategies/allianceDrill`, exact `farm`/`join` kind/action coupling, nonnegative execution limits, conditional level-range rules, unique squad indexes 1..4, and the recovered Monster-AFK/alliance-drill error vocabulary. Save patches only `/tasks/monsterSweep`, strips routing-only `profileId`, preserves sibling tasks/root JSON and opaque strategy fields, returns the saved config shape, and `get_status.config.tasks` now reads from the same runtime store so the original Squad panel reloads persisted Monster AFK state. `monster_afk_start` and `monster_afk_stop` remain deliberately fenced because live attack/rally execution is still provider/protocol-dependent. See `docs/reviews/2026-09-25-r8-024-monster-afk-config-persistence.md`.
 
 ## Parked protected package-key lane
 

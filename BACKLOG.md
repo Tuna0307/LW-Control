@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-023`, 2026-09-25.
+**Current through:** `LWB-R8-024`, 2026-09-25.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -39,7 +39,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 ## P1 — whole-program parity
 
 - [ ] Automation — recover every category, handler, schedule, state transition and error path.
-- [ ] Squads / AFK — R8-023 restores `equipment_config_get/save`, native empty-presets default, validation, shared runtime-config merge and legacy-key cleanup. Recover squad/AFK runtime behavior plus equipment preset/initial apply actions from live provider/protocol evidence.
+- [ ] Squads / AFK — R8-023 restores equipment config persistence; R8-024 restores `monster_afk_config_save`, native validation/error branches, `/tasks/monsterSweep` persistence and `get_status.config.tasks` read-back. Recover alliance-garrison/other offline config surfaces, then live AFK/equipment actions only from provider/protocol evidence.
 - [ ] City Layout — R8-018 restores exact `profile_state` draft persistence and production `city_layout_draft_get/save/clear`; five gameplay-facing commands remain missing/protected. Preserve the byte-identical UI and recovered contract at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`; do not invent planner/executor behavior.
 - [ ] Hotkeys — R8-019 restores `hotkey_config_get/save`, exact ten-field defaults, native validation/error vocabulary and per-profile runtime-config persistence. Native keyboard hooks and game-action execution remain unrecovered/protected.
 - [ ] Mini-games — recover every visible and conditional function.

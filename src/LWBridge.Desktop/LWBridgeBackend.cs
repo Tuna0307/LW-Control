@@ -38,6 +38,7 @@ internal sealed class LWBridgeBackend
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
+    private readonly Func<object?>? runtimeTasksProvider;
 
     public LWBridgeBackend(
         LocalConfigStore? config = null,
@@ -47,7 +48,8 @@ internal sealed class LWBridgeBackend
         OverviewLifecycleService? overviewLifecycle = null,
         LastWarLocaleService? lastWarLocales = null,
         Func<object>? mapScanStatusProvider = null,
-        LWBridgeControlPipeHostState? bridgeHostState = null)
+        LWBridgeControlPipeHostState? bridgeHostState = null,
+        Func<object?>? runtimeTasksProvider = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
@@ -57,6 +59,7 @@ internal sealed class LWBridgeBackend
         this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
         this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
+        this.runtimeTasksProvider = runtimeTasksProvider;
         installation = new(this.config);
     }
 
@@ -447,7 +450,7 @@ internal sealed class LWBridgeBackend
                 auto_attack_shield = false,
                 auto_force_update_reload = config.Snapshot.AutoReconnect,
                 auto_close_popup = false,
-                tasks = new Dictionary<string, object>(),
+                tasks = runtimeTasksProvider?.Invoke() ?? new Dictionary<string, object>(),
             },
         };
     }
