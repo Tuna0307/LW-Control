@@ -144,7 +144,7 @@ internal static class LiveTrainListPopulationProof
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 ok = true,
-                proof = "current_v20_official_train_list_population",
+                proof = "current_client_official_train_list_population",
                 originalServerId,
                 servers,
                 observations,
