@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-014`
+**Current checkpoint:** `LWB-R8-015`
 **Date:** 2026-09-24
 
 ## Current directive
@@ -89,7 +89,11 @@ Public `map_search` now accepts exactly the original eight kinds and the generat
 
 This checkpoint does **not** promote all alternate-sort internals to exact parity; those remain explicitly partial in the parity matrix. See `docs/reviews/2026-09-24-r8-014-map-search-filter-parity.md`.
 
-The next main Map work is the original Auto Scan frontend scheduler/state machine, then Scheduled Plunder restoration.
+## R8-015 Auto Scan scheduler checkpoint
+
+The final generated Auto config/sanitizer helpers, scheduler-owned state, scheduler effect, and Auto card are restored directly from immutable 0.3.1 bytes. Auto again persists its own Normal/Fast mode (default Fast), Run Now requires Auto enabled and sets `nextRunAt=Date.now()`, the scheduler effect is keyed by profile plus connected state, targets run sequentially, thrown target failures abort the remaining cycle through the original outer catch, and finalization preserves the original return-to-server/deadline behavior. R7 `runOnceRequestedAt`, reconnect-stable ownership, restart markers/recovery, per-target exception isolation, synthetic cycle summary, and dedicated Auto Stop are removed. See `docs/reviews/2026-09-24-r8-015-auto-scan-scheduler-parity.md`.
+
+The next main Map work is Scheduled Plunder control-plane/UI restoration, while protected Map acquisition internals remain a separate evidence-bound lane.
 
 ## Parked protected package-key lane
 

@@ -6057,13 +6057,13 @@ string r7130GeneratedIndexSource = File.ReadAllText(Path.Combine(
 string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
     repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
 Check(
-    r7130GeneratedIndexSource.Contains("if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;try{let n=await Se(t);", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("catch(n){s.push(t),F(`automatic map scan server=${t} error=`+String(n))}", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=${o.join(`,`)} failed=${s.join(`,`)}", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("for(let t of n){if(e||!Je.current.enabled)break;let n=await Se(t);", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("Mt(await Te({selectedTypes:i.selectedTypes,scanMode:i.scanMode,resume:!1}))", StringComparison.Ordinal) &&
+    !r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=", StringComparison.Ordinal) &&
+    !r7130GeneratedIndexSource.Contains("autoCycleRequested", StringComparison.Ordinal) &&
     !r7130GeneratedIndexSource.Contains("autoTrainListSelection", StringComparison.Ordinal) &&
     !r7130GeneratedIndexSource.Contains("targetServerId:t", StringComparison.Ordinal),
-    "Auto Scan must jump to each target before scanning, isolate one target-server failure, and continue the configured server cycle");
+    "R8-015 Auto Scan must use the original sequential target loop, persisted scanMode and outer-cycle failure path");
 Check(
     r7130GeneratedMapPanelSource.Contains("function mapPrefKey(e,t)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("mapManualScanTypes", StringComparison.Ordinal) &&
@@ -6072,9 +6072,10 @@ Check(
     r7130GeneratedMapPanelSource.Contains("mapBrowseServer", StringComparison.Ordinal),
     "Map Data user choices must persist per profile across app reopen");
 Check(
-    r7130GeneratedMapPanelSource.Contains("async function stopAutoScan(){$({enabled:!1,runOnceRequestedAt:0});await Zn()}", StringComparison.Ordinal) &&
-    r7130GeneratedIndexSource.Contains("Je.current=n,We(n),$n(u.selectedProfileId,n)", StringComparison.Ordinal),
-    "Auto Scan Stop must synchronously disable scheduler state before stopping the active backend scan");
+    !r7130GeneratedMapPanelSource.Contains("stopAutoScan", StringComparison.Ordinal) &&
+    !r7130GeneratedMapPanelSource.Contains("runOnceRequestedAt", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("disabled:!h||!S.enabled||be||w.isReading,onClick:()=>$({nextRunAt:Date.now()})", StringComparison.Ordinal),
+    "R8-015 Auto Scan must restore original Run Now semantics and remove rebuild-only Auto Stop/one-shot state");
 Check(
     r7130GeneratedMapPanelSource.Contains("async function Qn(){E.current+=1,Pe.current+=1", StringComparison.Ordinal),
     "Map Clear must invalidate in-flight saved search and treasure refresh generations before mutating SQLite");
@@ -6083,11 +6084,11 @@ Check(
     !r7130GeneratedMapPanelSource.Contains("let e=await ne(0);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("Y===`auto`&&Array.isArray(p?.savedServerIds)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("value:0,children:C(`map.allServers`)", StringComparison.Ordinal) &&
-    r7130GeneratedMapPanelSource.Contains("runOnceRequestedAt:Date.now()", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("nextRunAt:Date.now()", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("await serverJump(rowServer)", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("n===8&&r===11", StringComparison.Ordinal) &&
     !r7130GeneratedMapPanelSource.Contains("map jump blocked stale server=", StringComparison.Ordinal),
-    "Map Data owner workflow must preserve strict current-server Clear while supporting Auto All, one-shot multi-server Run Now, cross-server row navigation and Doom Walker Follow");
+    "Map Data owner workflow must preserve strict current-server Clear and browsing/navigation compatibility while R8-015 restores original enabled-only Auto Run Now semantics");
 Check(
     r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).map", StringComparison.Ordinal) &&
     r7130GeneratedMapPanelSource.Contains("(dt.resource??[]).forEach", StringComparison.Ordinal) &&
@@ -6384,7 +6385,7 @@ Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`
     "Map Data result filters must persist across rescans and app restarts");
 Check(!mapDataPanelSource.Contains("manualDefaultTypes", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
-      mapDataPanelSource.Contains("selectedTypes:scanTypeSelection(S.selectedTypes,e.key,t.target.checked)", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("selectedTypes:t.target.checked?[...S.selectedTypes,e.key]:S.selectedTypes.filter(t=>t!==e.key)", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading", StringComparison.Ordinal) &&
       !mapDataPanelSource.Contains("scheduledPlunder", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("v(await ae({selectedTypes:e,scanMode:P}))", StringComparison.Ordinal) &&
@@ -6392,8 +6393,8 @@ Check(!mapDataPanelSource.Contains("manualDefaultTypes", StringComparison.Ordina
       mapDataPanelSource.Contains("name:`map-scan-speed`", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("lwbridge.mapScanMode", StringComparison.Ordinal) &&
       mapDataPanelSource.Contains("scanMode:P", StringComparison.Ordinal) &&
-      !mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
-    "Manual Map Scan must restore the original Normal/Fast control, persistence and scanMode payload while Auto speed remains pending its own rollback");
+      mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
+    "R8-015 Map Data must preserve original Normal/Fast controls for both Manual and Auto Scan, with each emitting its recovered scanMode");
 Check(mapDataPanelSource.Contains(
           "if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`)return",
           StringComparison.Ordinal) &&
@@ -6415,55 +6416,47 @@ Check(generatedIndexSource.Contains(
 Check(generatedIndexSource.Contains("MAP_AUTO_SCAN_TIMEOUT", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan cycle started servers=", StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?",
+          "for(let t of n){if(e||!Je.current.enabled)break;let n=await Se(t);F(n.changed?",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "Mt(await Te({selectedTypes:i.selectedTypes,resume:!1}))",
+          "Mt(await Te({selectedTypes:i.selectedTypes,scanMode:i.scanMode,resume:!1}))",
           StringComparison.Ordinal) &&
       !generatedIndexSource.Contains("autoTrainListSelection", StringComparison.Ordinal) &&
       !generatedIndexSource.Contains("AutoTrainCoverage", StringComparison.Ordinal) &&
       !generatedIndexSource.Contains("targetServerId:t", StringComparison.Ordinal) &&
-      !generatedIndexSource.Contains("scanMode:i.scanMode", StringComparison.Ordinal) &&
-      !generatedIndexSource.Contains("e?.scanMode", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("scanMode:i.scanMode", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("scanMode:e?.scanMode===`normal`?`normal`:`fast`", StringComparison.Ordinal) &&
       generatedIndexSource.Contains("automatic map scan returned to server", StringComparison.Ordinal),
-    "Auto Scan parent scheduler must jump to every target before the complete scan, wait terminal, and preserve optional return without persisting a speed preference");
+    "R8-015 Auto Scan parent scheduler must restore original per-target travel/wait flow and persisted Normal/Fast preference");
 Check(generatedIndexSource.Contains(
           "n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "function Zn(e,t,n,r,i){return n&&!r&&!i&&(e.runOnceRequestedAt>0||e.enabled&&t>=e.nextRunAt)}",
+          "function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}",
           StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("autoOnlineRef", StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "autoOnlineRef=(0,j.useRef)(P)",
+          "if(!Zn(i,Date.now(),P,qe.current,Ye.current))return",
           StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("function autoCycleRequested(e,t)", StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("runOnceRequestedAt", StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "if(!Zn(i,Date.now(),autoOnlineRef.current,qe.current,Ye.current))return",
+          "for(let t of n){if(e||!Je.current.enabled)break",
           StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("automatic map scan cycle finished completed=", StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "function autoCycleRequested(e,t)",
-          StringComparison.Ordinal) &&
-      generatedIndexSource.Contains(
-          "runOnceRequestedAt:Math.max(0,Math.trunc(Number(e?.runOnceRequestedAt)||0))",
-          StringComparison.Ordinal) &&
-      generatedIndexSource.Contains(
-          "for(let t of n){if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break",
-          StringComparison.Ordinal) &&
-      generatedIndexSource.Contains(
-          "try{let n=await Se(t);if(e||!autoCycleRequested(i,Je.current)||!autoOnlineRef.current)break;F(n.changed?",
-          StringComparison.Ordinal) &&
-      generatedIndexSource.Contains(
-          "return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId]),(0,M.jsxs)(M.Fragment",
+          "return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId,P]),(0,M.jsxs)(M.Fragment",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "if(!e&&i.returnToOriginalServer&&a>0",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
-          "let e=Je.current.enabled?Xn({...Je.current,runOnceRequestedAt:0},Date.now()):{...Jn(Je.current),nextRunAt:0,runOnceRequestedAt:0};Je.current=e,We(e),$n(n,e)",
+          "let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)",
           StringComparison.Ordinal) &&
       generatedIndexSource.Contains(
           "window.setInterval(()=>{i()},5e3)",
           StringComparison.Ordinal),
-    "Auto Scan scheduler must retain durable enable/disable deadlines, mid-cycle disable stop, return-finally and persisted next schedule");
+    "R8-015 Auto Scan scheduler must match original enable/deadline admission, connected-state lifecycle, return-finally and persisted next schedule");
 Check(generatedIndexSource.Contains(
           "h.has(`map-data`)&&(0,M.jsx)(j.Activity,{mode:p===`map-data`?`visible`:`hidden`",
           StringComparison.Ordinal) &&

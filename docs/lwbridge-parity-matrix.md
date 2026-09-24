@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-014`, 2026-09-24
+**Current through:** `LWB-R8-015`, 2026-09-24
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -42,7 +42,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Treasure claim orchestration | UNKNOWN | Exact original protected implementation not recovered | Recover from original package/host/proxy evidence before enabling |
 | Map SQLite/index/query semantics | PARTIAL EXACT_CONTRACT + reimplementation | Large portions of SQL/query/normalization recovered | Finish unresolved branches and compare exact outputs/errors |
 | Marks / Jump / Follow | PARTIAL EXACT_CONTRACT + reimplementation | Rebuild behavior tested | Tie every branch/default/error to reference |
-| Auto Scan | PARTIAL EXACT_CONTRACT + reimplementation | Current scheduler includes owner workflow changes and later routing optimizations | Recover exact original scheduler, travel, timing and failure behavior |
+| Auto Scan frontend scheduler/control plane | EXACT_BYTES-derived + EQUIVALENT public-command wiring | R8-015 restores original persisted Fast/Normal config, due predicate, connected-state effect, sequential target flow, Run Now/return/deadline semantics and Auto card; removes R7 restart/one-shot/Stop policies | Preserve; protected `server_jump` and map acquisition internals remain separate |
 | Original bridge pipe framing | PARTIAL EXACT_CONTRACT | Frame length and hello fields recovered | Recover exact hello.ack, readiness, request/result grammar and failure mapping |
 | `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / evidence-limited | Earlier R8 work recovered substantial package/crypto structure, but the remaining LWKE1 field map/AAD is blocked on genuinely new permitted evidence | Keep this lane parked while evidence-limited; resume only for retained non-account runtime needs when new permitted evidence appears |
 | Secure/plain xLua proxy behavior | PARTIAL EXACT_CONTRACT | Many hashes, ABI, crypto and loader facts recovered | Recover remaining package/handler/control semantics |
@@ -58,7 +58,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 ## Immediate retained-scope sequence
 
 1. Preserve and fingerprint the reference and every recovered embedded asset.
-2. Roll Auto Scan back to the original scheduler/state machine, then restore Scheduled Plunder.
+2. Restore Scheduled Plunder control plane and original UI without inventing protected robbery execution internals.
 3. Finish only the evidence-backed remaining `map_search` alternate-sort internals; do not reintroduce removed R7 filter/kind extensions.
 4. Continue retained whole-program parity across Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings.
 5. Keep the evidence-limited package-key lane parked until genuinely new permitted evidence exists, and do not expand it into Account/Login/Authentication recovery.

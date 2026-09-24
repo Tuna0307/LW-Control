@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-014`, 2026-09-24.
+**Current through:** `LWB-R8-015`, 2026-09-24.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -28,7 +28,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 - [x] **Restore original Manual Scan public contract.** R8-012 restores exactly eight public kinds, Manual Normal/Fast UI/persistence, Normal=8/Fast=20, null/non-string default-to-Normal behavior and exact invalid-string mode error/precedence. R8-013 corrects `retryCount:2` to frontend-fallback-only status.
 - [x] **Restore original `map_scan_status` / `map_scan_stop` shared-state contract.** R8-013 restores direct shared-state status, read-only world refresh, native/start lifecycle fields, publishing→idle completion, idempotent Stop and exact Stop/Clear reset separation without rebuild-only status fields.
 - [x] **Restore original `map_search` eight-kind filter ownership.** R8-014 restores exactly eight public search kinds, the original frontend query builder and generic keyword predicate; removes public Zombie Boss, localized `monsterNameKeys`, Monster/Resource level selectors and Resource truth-filter semantics. Alternate-sort internals remain explicitly partial.
-- [ ] Roll Auto Scan back to the exact original frontend scheduler/state machine.
+- [x] **Restore original Auto Scan frontend scheduler/state machine.** R8-015 restores the immutable 0.3.1 Auto config/sanitizer, scheduler-owned state/effect and Auto card byte-for-byte: persisted Normal/Fast mode, enabled-only Run Now via `nextRunAt`, connected-state effect ownership, original sequential target/error/return/deadline behavior; R7 one-shot/restart/Stop policies are removed.
 - [ ] Restore original Scheduled Plunder control plane and UI without inventing protected robbery execution internals.
 - [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
 - [ ] Recover remaining protected Normal/Fast internals: mode-specific retries/pacing beyond proven public concurrency 8/20, block/AOI semantics, completeness rules and failure/resume logic. (`retryCount:2` is frontend fallback only, not recovered native status.)

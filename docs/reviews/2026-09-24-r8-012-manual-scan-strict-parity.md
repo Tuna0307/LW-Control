@@ -130,7 +130,7 @@ Browser/frontend regression covers:
 - `lwbridge.mapScanMode` persistence;
 - Manual Start retaining `selectedTypes + scanMode`;
 - original speed locale strings;
-- Auto Scan mode rollback remaining explicitly pending.
+- Auto Scan mode rollback was pending at R8-012; R8-015 later restores the original Auto Normal/Fast configuration and scheduler/card bytes.
 
 ## Validation
 

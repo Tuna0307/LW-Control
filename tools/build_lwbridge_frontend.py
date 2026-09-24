@@ -217,6 +217,7 @@ def build(check=False):
             data = s.encode('utf-8')
         elif path.name == 'index-sfL2sT3K.js':
             s = data.decode('utf-8')
+            original_index = s
             # Remove login/register/unbind UI and its provider, not just CSS-hide it.
             s = replace_between(s, 'function pt({auth:e}){', 'function mt(e,t)', '')
             provider = (OUTPUT / 'local-providers.js').read_text(encoding='utf-8')
@@ -328,6 +329,31 @@ def build(check=False):
                 s,
                 'currentServerId:ze?.serverId||0,',
                 'currentServerId:ze?.liveServerId||ze?.serverId||0,')
+
+            # R8-015 strict Auto Scan parity. Keep the historical R7 scheduler
+            # transforms above as evidence, but source the final helper/state/effect
+            # blocks directly from the immutable 0.3.1 index bundle.
+            auto_helpers_start = 'var Un=new Set('
+            auto_helpers_end = 'var er='
+            a = original_index.index(auto_helpers_start)
+            b = original_index.index(auto_helpers_end, a)
+            s = replace_between(s, auto_helpers_start, auto_helpers_end,
+                                original_index[a:b])
+            auto_state_start = 'P=Dt===`connected`,'
+            auto_state_end = 'At.current='
+            a = original_index.index(auto_state_start)
+            b = original_index.index(auto_state_end, a)
+            s = replace_between(s, auto_state_start, auto_state_end,
+                                original_index[a:b])
+            auto_effect_start = '(0,j.useEffect)(()=>{let e=!1,n=u.selectedProfileId;async function r(){'
+            auto_effect_end = ',(0,M.jsxs)(M.Fragment,{children:['
+            a = original_index.index(auto_effect_start)
+            b = original_index.index(auto_effect_end, a)
+            s = replace_between(s, auto_effect_start, auto_effect_end,
+                                original_index[a:b])
+            s = replace_once(s,
+                'currentServerId:ze?.liveServerId||ze?.serverId||0,',
+                'currentServerId:ze?.serverId||0,')
 
             # Give Map Data per-profile preference keys without moving scheduler
             # ownership out of the top-level app.
@@ -441,6 +467,7 @@ def build(check=False):
             data = s.encode('utf-8')
         elif path.name == 'MapDataPanel-C1HVeNHr.js':
             s = data.decode('utf-8')
+            original_map_panel = s
             # LWB-R7-066 owner override: remove City Excel export from the
             # generated Map Data panel, including import/state/handler/button.
             s = replace_once(s, ',T as o,', ',')
@@ -710,6 +737,19 @@ def build(check=False):
             s = replace_between(s,
                 'F===`resource`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.level`)',
                 'F===`city`&&(0,D.jsxs)(`select`,{"aria-label":C(`map.allianceFilter`)',
+                '')
+            # R8-015 strict Auto Scan UI parity. Restore the complete original Auto
+            # card after historical Map panel deltas so speed, Run Now, and scan-type
+            # ownership match the immutable 0.3.1 bytes without undoing unrelated
+            # browsing/navigation compatibility work elsewhere in the panel.
+            auto_card_start = 'Y===`auto`&&(0,D.jsxs)(`div`,{className:`map-auto-scan-card`'
+            auto_card_end = ',(0,D.jsxs)(`div`,{className:`map-scan-summary`'
+            a = original_map_panel.index(auto_card_start)
+            b = original_map_panel.index(auto_card_end, a)
+            s = replace_between(s, auto_card_start, auto_card_end,
+                                original_map_panel[a:b])
+            s = replace_once(s,
+                'async function stopAutoScan(){$({enabled:!1,runOnceRequestedAt:0});await Zn()}',
                 '')
             data = s.encode('utf-8')
         emit(OUTPUT / 'assets' / path.name, data)
