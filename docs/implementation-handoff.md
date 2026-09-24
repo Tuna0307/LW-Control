@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-020`
+**Current checkpoint:** `LWB-R8-021`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -116,6 +116,10 @@ R8-019 restores the original ten-field Hotkey configuration object, native defau
 ## R8-020 Settings visual-metrics checkpoint
 
 R8-020 restores `visual_metrics_config_get/save`, the exact two-field `{showFps,showPing}` object, native `false/false` defaults, `INVALID_REQUEST / invalid visual metrics config`, and shared `STATE_UNAVAILABLE / config state is unavailable` failure behavior. Visual metrics and Hotkeys share the rebuild-owned per-profile runtime config while preserving one another and unknown sibling JSON. The Settings panel remains byte-identical to original 0.3.1. Feedback export, update behavior, account interaction, and rendering internals remain separate. See `docs/reviews/2026-09-25-r8-020-visual-metrics-config-persistence.md`.
+
+## R8-021 updater idle-status checkpoint
+
+R8-021 corrects the production `update_status` response to the native nine-field idle envelope for the verified 0.3.1 reference, including `publishedAt:null` and `currentVersion:"0.3.1"` instead of the rebuild-only `0.3.1-rebuild`. Native constructor/serializer evidence also inventories update phases, cooldown, update-directory/file naming, host, event and error strings. `update_check` and `update_download_and_open` remain deliberately fenced as `COMMAND_NOT_IMPLEMENTED`; network, signature verification, download, replacement, executable handoff and event-transition semantics are not guessed. See `docs/reviews/2026-09-25-r8-021-update-status-idle-contract.md`.
 
 ## Parked protected package-key lane
 

@@ -407,6 +407,7 @@ LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
 await LWBridge.Desktop.Checks.CityLayoutDraftChecks.RunAsync();
 await LWBridge.Desktop.Checks.HotkeyConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.VisualMetricsConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.UpdateStatusChecks.RunAsync();
 LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();
 await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.MapSummaryParityChecks.RunAsync();
