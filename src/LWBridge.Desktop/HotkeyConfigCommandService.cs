@@ -205,6 +205,70 @@ internal sealed class ProfileRuntimeConfigStore
         JsonObject config) =>
         SaveTaskConfig(taskName, config);
 
+    internal JsonArray SaveClaimDelayRange(
+        string chatKind,
+        string schedulerKey,
+        double minSeconds,
+        double maxSeconds)
+    {
+        if (string.IsNullOrWhiteSpace(chatKind))
+            throw new ArgumentException(
+                "Chat automation kind is required.",
+                nameof(chatKind));
+        if (string.IsNullOrWhiteSpace(schedulerKey))
+            throw new ArgumentException(
+                "Scheduler key is required.",
+                nameof(schedulerKey));
+
+        lock (storageGate)
+        {
+            try
+            {
+                JsonObject root =
+                    ReadRoot(allowMissing: true) ?? new JsonObject();
+
+                JsonObject scheduler =
+                    GetOrCreateObject(root, "scheduler");
+                scheduler[schedulerKey] =
+                    CreateRange(minSeconds, maxSeconds);
+
+                JsonObject chatAutomation =
+                    GetOrCreateObject(root, "chat_automation");
+                JsonObject chatConfig =
+                    GetOrCreateObject(chatAutomation, chatKind);
+                chatConfig["claimDelaySeconds"] =
+                    CreateRange(minSeconds, maxSeconds);
+
+                WriteRoot(root);
+                return CreateRange(minSeconds, maxSeconds);
+            }
+            catch (BridgeCommandException) { throw; }
+            catch (Exception) { throw StateUnavailable(); }
+        }
+    }
+
+    private static JsonObject GetOrCreateObject(
+        JsonObject parent,
+        string name)
+    {
+        if (!parent.TryGetPropertyValue(name, out JsonNode? node) ||
+            node is null)
+        {
+            var created = new JsonObject();
+            parent[name] = created;
+            return created;
+        }
+
+        return node as JsonObject ?? throw StateUnavailable();
+    }
+
+    private static JsonArray CreateRange(
+        double minSeconds,
+        double maxSeconds) =>
+        new(
+            JsonValue.Create(minSeconds),
+            JsonValue.Create(maxSeconds));
+
     private JsonObject SaveTaskConfig(string taskName, JsonObject config)
     {
         if (string.IsNullOrWhiteSpace(taskName))

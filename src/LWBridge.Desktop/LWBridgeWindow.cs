@@ -59,6 +59,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly AllianceGarrisonConfigCommandService? allianceGarrisonConfigService;
     private readonly ResourceAutomationConfigCommandService? resourceAutomationConfigService;
     private readonly AutomationStatusCommandService? automationStatusService;
+    private readonly ClaimDelayConfigCommandService? claimDelayConfigService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -200,6 +201,10 @@ internal sealed class LWBridgeWindow : Form
                 Path.Combine(
                     Path.GetDirectoryName(profileRuntimeConfigPath)!,
                     "automation-status.json"));
+        claimDelayConfigService = profileRuntimeConfigStore is null
+            ? null
+            : new ClaimDelayConfigCommandService(
+                profileRuntimeConfigStore);
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -257,6 +262,7 @@ internal sealed class LWBridgeWindow : Form
             if (allianceGarrisonConfigService is not null) services.Add(allianceGarrisonConfigService);
             if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
             if (automationStatusService is not null) services.Add(automationStatusService);
+            if (claimDelayConfigService is not null) services.Add(claimDelayConfigService);
             productionCommands = services.Count switch
             {
                 0 => null,

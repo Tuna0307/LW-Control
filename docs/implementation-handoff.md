@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-032`
+**Current checkpoint:** `LWB-R8-033`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -164,6 +164,10 @@ R8-031 restores `profile_reorder`. Native 0.3.1 requires a `profileIds` array, v
 ## R8-032 Fixed primary-profile guard checkpoint
 
 R8-032 restores `profile_primary_set` as the native immutable-primary assertion path rather than inventing a primary mutation. Native 0.3.1 first validates `profileId`, reads `SELECT id FROM profiles WHERE is_primary = 1`, and succeeds as a no-op only when the requested profile is already primary. Another existing profile returns `PROFILE_PRIMARY_FIXED`; a missing profile returns `PROFILE_NOT_FOUND`. The rebuild also restores the native partial unique index `idx_profiles_primary ON profiles(is_primary) WHERE is_primary = 1`. Success returns the refreshed profile-list state and does not change `updated_at`, selection, or primary ownership. See `docs/reviews/2026-09-25-r8-032-profile-primary-guard.md`.
+
+## R8-033 Claim-delay configuration checkpoint
+
+R8-033 restores the host-local `red_packet_delay_configure` and `treasure_delay_configure` commands. Native 0.3.1 accepts only numeric `minSeconds`/`maxSeconds`, requires finite ordered ranges within 0..60 seconds for red packets and 0..600 seconds for treasure, and uses `INVALID_REQUEST` with the recovered native detail when invalid. Success returns `{ok:true,range:[min,max]}`. The original writer mirrors each range into both `scheduler.<Kind>ClaimDelaySeconds` and `chat_automation.<kind>.claimDelaySeconds` before saving the current profile's `runtime/config.json`; the rebuild now does the same through the existing `ProfileRuntimeConfigStore` while preserving sibling/unknown fields. `profile_enable_set` remains fenced because it depends on excluded `license_capacity` behavior; destructive `profile_delete` remains fenced until runtime/profile-data cleanup semantics are completely closed; Trade Station remains provider-backed. See `docs/reviews/2026-09-25-r8-033-claim-delay-config.md`.
 
 ## Parked protected package-key lane
 

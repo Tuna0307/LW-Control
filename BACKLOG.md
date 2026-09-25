@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-032`, 2026-09-25.
+**Current through:** `LWB-R8-033`, 2026-09-25.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -38,7 +38,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 ## P1 — whole-program parity
 
-- [ ] Automation — R8-026 restores Resource Automation configure/persistence/status/event. R8-027 restores generic `automation_status` for the exact 18 native tasks when `automation-status.json` is absent and passes through a valid persisted status. Recover generic configure/inspect/start/stop and live Run Now/provider behavior only from complete evidence.
+- [ ] Automation — R8-026 restores Resource Automation configure/persistence/status/event. R8-027 restores generic `automation_status` for the exact 18 native tasks when `automation-status.json` is absent and passes through a valid persisted status. R8-033 restores exact host-local red-packet/treasure claim-delay validation and mirrored scheduler/chat runtime-config persistence. Recover generic configure/inspect/start/stop and live Run Now/provider behavior only from complete evidence; keep Trade Station provider execution fenced.
 - [ ] Squads / AFK — R8-023 restores equipment config persistence; R8-024 restores Monster AFK config validation/persistence/status reload; R8-025 restores `alliance_garrison_config_save`, native validation and `/tasks/allianceGarrison` status persistence. Recover remaining offline squad config surfaces; keep live AFK/equipment/garrison actions provider/protocol-gated.
 - [ ] City Layout — R8-018 restores exact `profile_state` draft persistence and production `city_layout_draft_get/save/clear`; five gameplay-facing commands remain missing/protected. Preserve the byte-identical UI and recovered contract at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`; do not invent planner/executor behavior.
 - [ ] Hotkeys — R8-019 restores `hotkey_config_get/save`, exact ten-field defaults, native validation/error vocabulary and per-profile runtime-config persistence. Native keyboard hooks and game-action execution remain unrecovered/protected.

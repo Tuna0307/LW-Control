@@ -20,6 +20,8 @@ internal sealed class LWBridgeBackend
         "profile_instances_reconcile",
         "profile_instances_update_and_restart",
         "profile_settings_save",
+        "red_packet_delay_configure",
+        "treasure_delay_configure",
         "game_root_status",
         "game_root_select",
         "update_status",
