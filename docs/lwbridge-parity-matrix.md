@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-038`, 2026-09-25
+**Current through:** `LWB-R8-039`, 2026-09-25
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -16,7 +16,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Header geometry / non-account controls | PARTIAL / requires retained-scope audit | Earlier rebuild changed header geometry while removing account controls | Restore only retained non-account header behavior; do not reintroduce account/auth controls |
 | Advanced page visibility | EXACT_CONTRACT | Reference hard-hides Advanced in normal navigation | Preserve exact behavior |
 | Home/Overview frontend | EXACT_BYTES-derived | Original component is used | Audit transformed API boundary and all connected states |
-| Home lifecycle backend | EQUIVALENT_REIMPLEMENTATION, parity not closed | Current C# lifecycle works and has live evidence; R8-038 restores the exact `game_root_status` public `{root,source,valid,candidates}` projection, `{path,source}` candidate schema, native lightweight validity predicate, source ordering and `STATE_UNAVAILABLE` while preserving stricter rebuild launch admission internally | Recover exact `game_root_select` and original Rust/launcher/proxy behavior far enough to prove one-to-one semantics |
+| Home lifecycle backend | EQUIVALENT_REIMPLEMENTATION, parity not closed | Current C# lifecycle works and has live evidence; R8-038 restores the exact `game_root_status` public `{root,source,valid,candidates}` projection, `{path,source}` candidate schema, native lightweight validity predicate, source ordering and `STATE_UNAVAILABLE`; R8-039 restores exact `game_root_select` `{canceled,path,valid}` cancel/invalid/valid results, normalization, valid-only persistence and native error vocabulary while preserving stricter rebuild launch admission internally | Recover original Rust/launcher/proxy behavior and remaining picker/storage implementation details far enough to prove one-to-one semantics |
 | Map Data frontend | EXACT_BYTES-derived with deviations | Original component family is used, but prior rebuild removed/added product behavior | Restore reference controls and remove non-reference additions |
 | City Excel export | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-007 restores original API/UI/locales, native save dialog, 200-row paging/200k limit, exact 12-column six-part XLSX writer, filename and result envelope | Preserve with strict-parity regression checks |
 | `map_scan_clear` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-008 restores the positive current-live-server gate, exact errors, server-scoped deletion, player-mark preservation and Manual-only frontend control | Preserve; do not reintroduce `serverId=0`/saved-server Clear |

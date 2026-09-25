@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-038`
+**Current checkpoint:** `LWB-R8-039`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -202,6 +202,14 @@ R8-038 replaces the rebuild-specific public installation-status object with the 
 The native public validity predicate is deliberately lightweight: `Game/LastWar.exe` must exist and `Game/LastWar_Data/Plugins/x86_64` must be a directory. It does not perform the rebuild's launcher/xLua/PE/fingerprint admission checks. R8-038 therefore keeps the existing stricter `GameRootStatus` path for launch/repair internals and routes only the public command through `NativeGameRootStatus`.
 
 Recovered source order is `saved`, `environment`, `nearby`, `bridge-root-file`, `default`, then discovered `process` and `registry` candidates. The original persists through `game-root.txt` and performs PowerShell/CIM plus registry discovery; the rebuild uses its existing LocalConfig persistence and equivalent C# process/registry discovery, so those storage/discovery mechanisms are classified as equivalent rather than byte-identical. Exact `game_root_select` remains separate. See `docs/reviews/2026-09-25-r8-038-game-root-status.md`.
+
+## R8-039 game_root_select checkpoint
+
+R8-039 restores the recovered public `game_root_select` result and save boundary. The command now returns exactly `{canceled, path, valid}`. Cancel is `{canceled:true,path:null,valid:false}`; an ordinary invalid selection is `{canceled:false,path:<normalized>,valid:false}` and is not persisted; a valid selection is `{canceled:false,path:<normalized>,valid:true}` and is persisted.
+
+Normalization and validity reuse the native root logic recovered in R8-038. Only valid selections enter shared path-state persistence. Missing path state is `STATE_UNAVAILABLE` / `path state is unavailable`; a path that cannot be normalized/revalidated at the persistence boundary uses `INVALID_GAME_ROOT` / `select the folder containing Game\\LastWar.exe`.
+
+The public picker no longer routes through the rebuild's stricter `SaveGameRoot` lifecycle/rebind path. That stricter path remains internal launch/repair safety. The original dialog/storage plumbing is not claimed byte-identical: native uses its own dialog stack and `game-root.txt`; the rebuild keeps `FolderBrowserDialog` plus LocalConfig as equivalent plumbing. See `docs/reviews/2026-09-25-r8-039-game-root-select.md`.
 
 ## Parked protected package-key lane
 

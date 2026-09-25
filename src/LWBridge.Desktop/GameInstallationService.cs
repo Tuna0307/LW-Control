@@ -34,6 +34,11 @@ internal sealed record NativeGameRootStatus(
     bool Valid,
     IReadOnlyList<GameRootCandidate> Candidates);
 
+internal sealed record NativeGameRootSelectionResult(
+    bool Canceled,
+    string? Path,
+    bool Valid);
+
 internal sealed class GameInstallationTestHooks
 {
     public string? DefaultRoot { get; init; }
@@ -139,6 +144,34 @@ internal sealed class GameInstallationService
         {
             return new(false, root, source, "GAME_ROOT_PE_INVALID", launcher, game, xlua, null);
         }
+    }
+
+    public NativeGameRootSelectionResult CreateNativeCanceledSelection() =>
+        new(true, null, false);
+
+    public NativeGameRootSelectionResult SaveNativeSelection(string path)
+    {
+        string? normalized = NormalizeNativeCandidate(path);
+        if (normalized is null)
+        {
+            throw new BridgeCommandException(
+                "INVALID_GAME_ROOT",
+                "select the folder containing Game\\LastWar.exe");
+        }
+
+        bool valid = IsNativeRootValid(normalized);
+        if (!valid)
+            return new NativeGameRootSelectionResult(false, normalized, false);
+
+        if (testHooks?.StateAvailable == false)
+        {
+            throw new BridgeCommandException(
+                "STATE_UNAVAILABLE",
+                "path state is unavailable");
+        }
+
+        config.Update(c => c with { GameRoot = normalized });
+        return new NativeGameRootSelectionResult(false, normalized, true);
     }
 
     public NativeGameRootStatus GetNativeStatus()

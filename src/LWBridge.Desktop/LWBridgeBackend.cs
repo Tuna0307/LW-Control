@@ -101,6 +101,21 @@ internal sealed class LWBridgeBackend
 
     public GameRootStatus GetGameRootStatus() => installation.GetStatus();
 
+    public NativeGameRootSelectionResult CreateGameRootSelectionCanceled() =>
+        installation.CreateNativeCanceledSelection();
+
+    public NativeGameRootSelectionResult SaveNativeGameRootSelection(string path)
+    {
+        try
+        {
+            return installation.SaveNativeSelection(path);
+        }
+        catch (LocalConfigStoreException ex)
+        {
+            throw new BridgeCommandException(ex.Code, ex.Message);
+        }
+    }
+
     public GameRootStatus SaveGameRoot(string path)
     {
         try

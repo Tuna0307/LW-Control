@@ -1882,14 +1882,16 @@ internal sealed class LWBridgeWindow : Form
             if (probeOutcome == HostProbePickerOutcome.Cancel)
             {
                 hostProbeService.RecordPickerCancelled();
-                return new { canceled = true };
+                return backend.CreateGameRootSelectionCanceled();
             }
 
             if (isolatedConfigRoot is null)
                 throw new InvalidOperationException("Host probe picker requires isolated storage.");
             string invalidRoot = Path.Combine(isolatedConfigRoot, "invalid-game-root");
             Directory.CreateDirectory(invalidRoot);
-            GameRootStatus invalid = await Task.Run(() => backend.SaveGameRoot(invalidRoot), cancellationToken);
+            NativeGameRootSelectionResult invalid = await Task.Run(
+                () => backend.SaveNativeGameRootSelection(invalidRoot),
+                cancellationToken);
             hostProbeService.RecordPickerInvalid();
             return invalid;
         }
@@ -1902,9 +1904,13 @@ internal sealed class LWBridgeWindow : Form
         };
         if (!string.IsNullOrWhiteSpace(current.Path) && Directory.Exists(current.Path))
             dialog.InitialDirectory = current.Path;
-        if (dialog.ShowDialog(this) != DialogResult.OK) return new { canceled = true };
+        if (dialog.ShowDialog(this) != DialogResult.OK)
+            return backend.CreateGameRootSelectionCanceled();
+
         string selectedPath = dialog.SelectedPath;
-        GameRootStatus selected = await Task.Run(() => backend.SaveGameRoot(selectedPath), cancellationToken);
+        NativeGameRootSelectionResult selected = await Task.Run(
+            () => backend.SaveNativeGameRootSelection(selectedPath),
+            cancellationToken);
         return selected;
     }
 
