@@ -410,6 +410,7 @@ await LWBridge.Desktop.Checks.VisualMetricsConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.WindowThemeChecks.RunAsync();
 await LWBridge.Desktop.Checks.ServerJumpHistoryChecks.RunAsync();
 await LWBridge.Desktop.Checks.AppendLogChecks.RunAsync();
+await LWBridge.Desktop.Checks.GameRootNativeStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();

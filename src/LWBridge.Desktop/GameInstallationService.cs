@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection.PortableExecutable;
+using Microsoft.Win32;
 
 namespace LWBridge.Desktop;
 
@@ -23,10 +24,26 @@ internal sealed record GameProcessStatus(
     string? GamePath,
     string? LauncherPath);
 
+internal sealed record GameRootCandidate(
+    string Path,
+    string Source);
+
+internal sealed record NativeGameRootStatus(
+    string Root,
+    string Source,
+    bool Valid,
+    IReadOnlyList<GameRootCandidate> Candidates);
+
 internal sealed class GameInstallationTestHooks
 {
     public string? DefaultRoot { get; init; }
     public Func<string, Stream>? OpenRead { get; init; }
+    public Func<string, string?>? GetEnvironmentVariable { get; init; }
+    public string? NearbyRoot { get; init; }
+    public string? LocalAppData { get; init; }
+    public string? BridgeRootFileValue { get; init; }
+    public IReadOnlyList<GameRootCandidate>? DiscoveredCandidates { get; init; }
+    public bool StateAvailable { get; init; } = true;
 }
 
 internal sealed class GameInstallationService
@@ -122,6 +139,336 @@ internal sealed class GameInstallationService
         {
             return new(false, root, source, "GAME_ROOT_PE_INVALID", launcher, game, xlua, null);
         }
+    }
+
+    public NativeGameRootStatus GetNativeStatus()
+    {
+        if (testHooks?.StateAvailable == false)
+        {
+            throw new BridgeCommandException(
+                "STATE_UNAVAILABLE",
+                "path state is unavailable");
+        }
+
+        var candidates = new List<GameRootCandidate>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        AddNativeCandidate(
+            candidates,
+            seen,
+            config.Snapshot.GameRoot,
+            "saved");
+
+        string? environmentRoot =
+            testHooks?.GetEnvironmentVariable is { } getEnvironmentVariable
+                ? getEnvironmentVariable("LASTWAR_BRIDGE_ROOT")
+                : Environment.GetEnvironmentVariable("LASTWAR_BRIDGE_ROOT");
+        AddNativeCandidate(
+            candidates,
+            seen,
+            environmentRoot,
+            "environment");
+
+        string nearbyRoot =
+            testHooks?.NearbyRoot ??
+            AppContext.BaseDirectory;
+        AddNativeCandidate(
+            candidates,
+            seen,
+            nearbyRoot,
+            "nearby");
+
+        string? bridgeRootFileValue = testHooks?.BridgeRootFileValue;
+        if (bridgeRootFileValue is null)
+        {
+            bridgeRootFileValue = ReadRootFile(
+                Path.Combine(nearbyRoot, "bridge-root.txt"));
+        }
+        AddNativeCandidate(
+            candidates,
+            seen,
+            bridgeRootFileValue,
+            "bridge-root-file");
+
+        string localAppData =
+            testHooks?.LocalAppData ??
+            Environment.GetFolderPath(
+                Environment.SpecialFolder.LocalApplicationData);
+        if (!string.IsNullOrWhiteSpace(localAppData))
+        {
+            AddNativeCandidate(
+                candidates,
+                seen,
+                Path.Combine(
+                    localAppData,
+                    "FunFly",
+                    "Last War-Survival Game"),
+                "default");
+        }
+
+        IEnumerable<GameRootCandidate> discovered =
+            testHooks?.DiscoveredCandidates ??
+            DiscoverNativeCandidates();
+        foreach (GameRootCandidate candidate in discovered)
+        {
+            AddNativeCandidate(
+                candidates,
+                seen,
+                candidate.Path,
+                candidate.Source);
+        }
+
+        GameRootCandidate? selected =
+            candidates.Count == 0 ? null : candidates[0];
+        return new NativeGameRootStatus(
+            selected?.Path ?? string.Empty,
+            selected?.Source ?? string.Empty,
+            selected is not null,
+            candidates);
+    }
+
+    private static void AddNativeCandidate(
+        List<GameRootCandidate> candidates,
+        HashSet<string> seen,
+        string? rawPath,
+        string source)
+    {
+        string? current = NormalizeNativeCandidate(rawPath);
+        while (current is not null)
+        {
+            if (IsNativeRootValid(current))
+            {
+                if (seen.Add(current))
+                    candidates.Add(new GameRootCandidate(current, source));
+                return;
+            }
+
+            string? parent;
+            try
+            {
+                parent = Directory.GetParent(current)?.FullName;
+            }
+            catch
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(parent) ||
+                string.Equals(
+                    parent,
+                    current,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            current = Path.TrimEndingDirectorySeparator(parent);
+        }
+    }
+
+    private static bool IsNativeRootValid(string root)
+    {
+        try
+        {
+            return File.Exists(
+                       Path.Combine(root, "Game", "LastWar.exe")) &&
+                   Directory.Exists(
+                       Path.Combine(
+                           root,
+                           "Game",
+                           "LastWar_Data",
+                           "Plugins",
+                           "x86_64"));
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string? NormalizeNativeCandidate(string? rawPath)
+    {
+        if (string.IsNullOrWhiteSpace(rawPath))
+            return null;
+
+        string value = rawPath.Trim().Trim('"');
+
+        int comma = value.LastIndexOf(',');
+        if (comma > 0 &&
+            int.TryParse(
+                value[(comma + 1)..].Trim(),
+                out _))
+        {
+            value = value[..comma].Trim().Trim('"');
+        }
+
+        try
+        {
+            string full =
+                Path.TrimEndingDirectorySeparator(
+                    Path.GetFullPath(value));
+            string leaf = Path.GetFileName(full);
+
+            if (string.Equals(
+                    leaf,
+                    "LastWar.exe",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                DirectoryInfo? gameDirectory =
+                    Directory.GetParent(full);
+                DirectoryInfo? rootDirectory =
+                    gameDirectory?.Parent;
+                if (rootDirectory is not null)
+                    full = rootDirectory.FullName;
+            }
+            else if (string.Equals(
+                         leaf,
+                         "Game",
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                DirectoryInfo? rootDirectory =
+                    Directory.GetParent(full);
+                if (rootDirectory is not null)
+                    full = rootDirectory.FullName;
+            }
+
+            return Path.TrimEndingDirectorySeparator(full);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? ReadRootFile(string path)
+    {
+        try
+        {
+            if (!File.Exists(path))
+                return null;
+            string value = File.ReadAllText(path).Trim();
+            return value.Length == 0 ? null : value;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static IReadOnlyList<GameRootCandidate>
+        DiscoverNativeCandidates()
+    {
+        var result = new List<GameRootCandidate>();
+
+        foreach (Process process in Process.GetProcessesByName("LastWar"))
+        {
+            try
+            {
+                string? path = SafeProcessPath(process);
+                if (!string.IsNullOrWhiteSpace(path))
+                    result.Add(new GameRootCandidate(path, "process"));
+            }
+            finally
+            {
+                process.Dispose();
+            }
+        }
+
+        if (!OperatingSystem.IsWindows())
+            return result;
+
+        foreach (RegistryHive hive in new[]
+                 {
+                     RegistryHive.CurrentUser,
+                     RegistryHive.LocalMachine,
+                 })
+        {
+            foreach (RegistryView view in new[]
+                     {
+                         RegistryView.Registry64,
+                         RegistryView.Registry32,
+                     })
+            {
+                try
+                {
+                    using RegistryKey baseKey =
+                        RegistryKey.OpenBaseKey(hive, view);
+                    using RegistryKey? uninstall =
+                        baseKey.OpenSubKey(
+                            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
+                    if (uninstall is null)
+                        continue;
+
+                    foreach (string name in uninstall.GetSubKeyNames())
+                    {
+                        try
+                        {
+                            using RegistryKey? app =
+                                uninstall.OpenSubKey(name);
+                            if (app is null)
+                                continue;
+
+                            string displayName =
+                                app.GetValue("DisplayName") as string ??
+                                string.Empty;
+                            string installLocation =
+                                app.GetValue("InstallLocation") as string ??
+                                string.Empty;
+                            string displayIcon =
+                                app.GetValue("DisplayIcon") as string ??
+                                string.Empty;
+
+                            bool relevant =
+                                displayName.Contains(
+                                    "Last War",
+                                    StringComparison.OrdinalIgnoreCase) ||
+                                displayName.Contains(
+                                    "LastWar",
+                                    StringComparison.OrdinalIgnoreCase) ||
+                                displayName.Contains(
+                                    "FunFly",
+                                    StringComparison.OrdinalIgnoreCase) ||
+                                installLocation.Contains(
+                                    "Last War",
+                                    StringComparison.OrdinalIgnoreCase) ||
+                                installLocation.Contains(
+                                    "LastWar",
+                                    StringComparison.OrdinalIgnoreCase) ||
+                                installLocation.Contains(
+                                    "FunFly",
+                                    StringComparison.OrdinalIgnoreCase);
+
+                            if (!relevant)
+                                continue;
+
+                            if (!string.IsNullOrWhiteSpace(installLocation))
+                            {
+                                result.Add(
+                                    new GameRootCandidate(
+                                        installLocation,
+                                        "registry"));
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(displayIcon))
+                            {
+                                result.Add(
+                                    new GameRootCandidate(
+                                        displayIcon,
+                                        "registry"));
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        return result;
     }
 
     public GameProcessStatus GetProcessStatus()

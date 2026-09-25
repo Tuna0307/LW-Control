@@ -180,7 +180,7 @@ internal sealed class LWBridgeBackend
                 RequireOptionalProfile(payload);
                 return CreateProxyStatus();
             case "game_root_status":
-                return installation.GetStatus();
+                return installation.GetNativeStatus();
             case "game_recovery_status":
                 RequireOptionalProfile(payload);
                 return overviewLifecycle?.CurrentRecoveryStatus ?? new OverviewRecoveryStatus(

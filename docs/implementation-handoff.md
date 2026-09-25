@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-037`
+**Current checkpoint:** `LWB-R8-038`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -194,6 +194,14 @@ R8-037 replaces the rebuild's `append_log` no-op with the recovered profile-runt
 The exact normal-path line is `[<unix-ms>] [bridge-app] <sanitized-message>\n`. Empty strings are valid. Stable profile failures are `PROFILE_ID_REQUIRED` and `PROFILE_RUNTIME_UNAVAILABLE`. Native log I/O is best effort, so file/open/write failures do not turn a valid append request into a command failure. The rebuild now routes this to its existing retained profile runtime directory rather than a global LocalConfig log.
 
 The wider native log manager exposes segment/rotation machinery, but R8-037 does not invent its unclosed retention policy. Malformed `message` is rejected before native writer execution by Tauri argument deserialization; the rebuild rejects it at its transformed boundary without claiming the framework-generated text/code is byte-identical. See `docs/reviews/2026-09-25-r8-037-append-log.md`.
+
+## R8-038 game_root_status checkpoint
+
+R8-038 replaces the rebuild-specific public installation-status object with the recovered native `game_root_status` projection. The public command now returns exactly `{root, source, valid, candidates}`, and each candidate is exactly `{path, source}`. With no valid candidate, native returns empty strings for `root` and `source`, `valid=false`, and an empty candidate list. Shared path-state absence remains `STATE_UNAVAILABLE` / `path state is unavailable`.
+
+The native public validity predicate is deliberately lightweight: `Game/LastWar.exe` must exist and `Game/LastWar_Data/Plugins/x86_64` must be a directory. It does not perform the rebuild's launcher/xLua/PE/fingerprint admission checks. R8-038 therefore keeps the existing stricter `GameRootStatus` path for launch/repair internals and routes only the public command through `NativeGameRootStatus`.
+
+Recovered source order is `saved`, `environment`, `nearby`, `bridge-root-file`, `default`, then discovered `process` and `registry` candidates. The original persists through `game-root.txt` and performs PowerShell/CIM plus registry discovery; the rebuild uses its existing LocalConfig persistence and equivalent C# process/registry discovery, so those storage/discovery mechanisms are classified as equivalent rather than byte-identical. Exact `game_root_select` remains separate. See `docs/reviews/2026-09-25-r8-038-game-root-status.md`.
 
 ## Parked protected package-key lane
 
