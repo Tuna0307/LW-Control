@@ -23,6 +23,7 @@ internal sealed partial class OverviewLifecycleService
     private long? updateActivitySinceMilliseconds;
     private PendingRecoveryRequest? pendingRecoveryRequest;
     private long? pendingRecoveryVerifySinceMilliseconds;
+    private ulong recoveryNoticeId;
     private OverviewRecoveryStatus recoveryStatus = IdleRecoveryStatus();
 
     internal event Action<OverviewRecoveryStatus>? RecoveryStatusChanged;
@@ -38,11 +39,26 @@ internal sealed partial class OverviewLifecycleService
         string? reason = null,
         bool updateDetected = false,
         bool restarted = false,
-        long? startedAt = null,
+        long startedAt = 0,
         long? completedAt = null,
-        int attempts = 0) => new(
+        int attempts = 0,
+        ulong noticeId = 0) => new(
             "idle", reason, updateDetected, restarted, startedAt, completedAt,
-            attempts, null, null, null, false);
+            attempts, null, null, noticeId, false);
+
+    private ulong NextRecoveryNoticeId()
+    {
+        lock (stateGate)
+        {
+            recoveryNoticeId = unchecked(recoveryNoticeId + 1);
+            return recoveryNoticeId;
+        }
+    }
+
+    private ulong CurrentRecoveryNoticeId()
+    {
+        lock (stateGate) return recoveryNoticeId;
+    }
 
     private DateTimeOffset RecoveryNow() => testHooks?.UtcNow?.Invoke() ?? DateTimeOffset.UtcNow;
 
@@ -78,7 +94,7 @@ internal sealed partial class OverviewLifecycleService
         try { active?.Cancel(); } catch { }
         ResetPendingRecoveryRequest();
         ResetRunningFailureObservations();
-        SetRecoveryStatus(IdleRecoveryStatus());
+        SetRecoveryStatus(IdleRecoveryStatus(noticeId: CurrentRecoveryNoticeId()));
     }
 
     private void SetDesiredRunning(bool desired)
@@ -131,7 +147,9 @@ internal sealed partial class OverviewLifecycleService
                     PendingRecoveryRequest? pending = pendingRecoveryRequest;
                     ResetPendingRecoveryRequest();
                     await RecoverOwnedSessionAsync(snapshot, pending?.Reason ?? "processExit", terminateFirst: false,
-                        initialUpdateDetected: pending?.UpdateDetected ?? false).ConfigureAwait(false);
+                        initialUpdateDetected: pending?.UpdateDetected ?? false,
+                        startedAtUnixMilliseconds: pending?.StartedAtUnixMilliseconds,
+                        noticeId: pending?.NoticeId).ConfigureAwait(false);
                 }
                 return;
             }
@@ -206,30 +224,38 @@ internal sealed partial class OverviewLifecycleService
         if (heartbeat.RecoveryReason is null) return;
         PendingRecoveryRequest? current = pendingRecoveryRequest;
         if (current is not null) return;
+        ulong noticeId = NextRecoveryNoticeId();
         pendingRecoveryRequest = new PendingRecoveryRequest(
             heartbeat.RecoveryReason,
             heartbeat.RecoveryUpdateDetected,
             now,
-            RecoveryNow().ToUnixTimeMilliseconds());
+            RecoveryNow().ToUnixTimeMilliseconds(),
+            noticeId);
         pendingRecoveryVerifySinceMilliseconds = null;
         SetRecoveryStatus(new("waiting", heartbeat.RecoveryReason, heartbeat.RecoveryUpdateDetected, false,
-            pendingRecoveryRequest.StartedAtUnixMilliseconds, null, 0, null, null, null, false));
+            pendingRecoveryRequest.StartedAtUnixMilliseconds, null, 0, null, null, noticeId, true));
     }
 
     private async Task ObservePendingRecoveryRequestAsync(
         OwnedSnapshot snapshot, RecoveryHeartbeatObservation heartbeat, long now)
     {
         PendingRecoveryRequest pending = pendingRecoveryRequest!;
-        if (!RecoveryEnabledAndDesired()) { ResetPendingRecoveryRequest(); SetRecoveryStatus(IdleRecoveryStatus()); return; }
+        if (!RecoveryEnabledAndDesired())
+        {
+            ResetPendingRecoveryRequest();
+            SetRecoveryStatus(IdleRecoveryStatus(noticeId: pending.NoticeId));
+            return;
+        }
         if (heartbeat.GameStateObserved && heartbeat.GameHealthy)
         {
             pendingRecoveryVerifySinceMilliseconds ??= now;
             SetRecoveryStatus(new("verifying", pending.Reason, pending.UpdateDetected, false,
-                pending.StartedAtUnixMilliseconds, null, 0, null, null, null, false));
+                pending.StartedAtUnixMilliseconds, null, 0, null, null, pending.NoticeId, true));
             if (now - pendingRecoveryVerifySinceMilliseconds.Value >= OverviewRecoveryPolicy.StableVerification.TotalMilliseconds)
             {
-                SetRecoveryStatus(IdleRecoveryStatus(pending.Reason, pending.UpdateDetected, false,
-                    pending.StartedAtUnixMilliseconds, RecoveryNow().ToUnixTimeMilliseconds(), 0));
+                SetRecoveryStatus(new("succeeded", pending.Reason, pending.UpdateDetected, false,
+                    pending.StartedAtUnixMilliseconds, RecoveryNow().ToUnixTimeMilliseconds(), 0,
+                    null, null, pending.NoticeId, true));
                 ResetPendingRecoveryRequest();
             }
             return;
@@ -244,24 +270,28 @@ internal sealed partial class OverviewLifecycleService
                 SetRecoveryStatus(new("waiting", pending.Reason, true, false,
                     pending.StartedAtUnixMilliseconds, null, 1,
                     RecoveryNow().Add(delay).ToUnixTimeMilliseconds(),
-                    "game update had no activity for 15 minutes", null, false));
+                    "game update had no activity for 15 minutes", pending.NoticeId, true));
                 await RecoveryDelayAsync(delay, recoveryLifetime.Token).ConfigureAwait(false);
                 ResetPendingRecoveryRequest();
                 await RecoverOwnedSessionAsync(snapshot, pending.Reason, terminateFirst: true,
-                    initialUpdateDetected: true).ConfigureAwait(false);
+                    initialUpdateDetected: true,
+                    startedAtUnixMilliseconds: pending.StartedAtUnixMilliseconds,
+                    noticeId: pending.NoticeId).ConfigureAwait(false);
                 return;
             }
             SetRecoveryStatus(new("updating", pending.Reason, true, false,
-                pending.StartedAtUnixMilliseconds, null, 0, null, null, null, false));
+                pending.StartedAtUnixMilliseconds, null, 0, null, null, pending.NoticeId, true));
             return;
         }
         ResetUpdateActivity();
         SetRecoveryStatus(new("waiting", pending.Reason, pending.UpdateDetected, false,
-            pending.StartedAtUnixMilliseconds, null, 0, null, null, null, false));
+            pending.StartedAtUnixMilliseconds, null, 0, null, null, pending.NoticeId, true));
         if (now - pending.StartClockMilliseconds < OverviewRecoveryPolicy.DisconnectWaitBeforeTerminate.TotalMilliseconds) return;
         ResetPendingRecoveryRequest();
         await RecoverOwnedSessionAsync(snapshot, pending.Reason, terminateFirst: true,
-            initialUpdateDetected: pending.UpdateDetected).ConfigureAwait(false);
+            initialUpdateDetected: pending.UpdateDetected,
+            startedAtUnixMilliseconds: pending.StartedAtUnixMilliseconds,
+            noticeId: pending.NoticeId).ConfigureAwait(false);
     }
 
     private void ResetPendingRecoveryRequest()
@@ -295,20 +325,32 @@ internal sealed partial class OverviewLifecycleService
         }
     }
 
-    private async Task RecoverOwnedSessionAsync(OwnedSnapshot snapshot, string reason, bool terminateFirst, bool initialUpdateDetected = false)
+    private async Task RecoverOwnedSessionAsync(
+        OwnedSnapshot snapshot,
+        string reason,
+        bool terminateFirst,
+        bool initialUpdateDetected = false,
+        long? startedAtUnixMilliseconds = null,
+        ulong? noticeId = null)
     {
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(recoveryLifetime.Token);
         CancellationTokenSource? previous = Interlocked.Exchange(ref activeRecoveryCancellation, linked);
         previous?.Dispose();
         CancellationToken token = linked.Token;
-        long startedAt = RecoveryNow().ToUnixTimeMilliseconds();
+        long startedAt = startedAtUnixMilliseconds ?? RecoveryNow().ToUnixTimeMilliseconds();
+        ulong activeNoticeId = noticeId ?? NextRecoveryNoticeId();
         bool updateDetected = initialUpdateDetected;
         int attempts = 0;
 
         try
         {
-            SetRecoveryStatus(new("repairing", reason, false, false,
-                startedAt, null, attempts, null, null, null, false));
+            if (noticeId is null)
+            {
+                SetRecoveryStatus(new("waiting", reason, updateDetected, false,
+                    startedAt, null, 0, null, null, activeNoticeId, true));
+            }
+            SetRecoveryStatus(new("repairing", reason, updateDetected, false,
+                startedAt, null, attempts, null, null, activeNoticeId, true));
             token.ThrowIfCancellationRequested();
             // Once an eligible recovery has terminated/lost the owned process, exact
             // journal restoration is cleanup, not a retry, and must finish even if
@@ -332,7 +374,7 @@ internal sealed partial class OverviewLifecycleService
                         SetRecoveryStatus(new("waiting", reason, true, false,
                             startedAt, null, attempts,
                             RecoveryNow().Add(stalledDelay).ToUnixTimeMilliseconds(),
-                            "game update had no activity for 15 minutes", null, false));
+                            "game update had no activity for 15 minutes", activeNoticeId, true));
                         await RecoveryDelayAsync(stalledDelay, token).ConfigureAwait(false);
                         continue;
                     }
@@ -340,7 +382,7 @@ internal sealed partial class OverviewLifecycleService
                     TimeSpan delay = OverviewRecoveryPolicy.RetryDelay(maintenance: true, attempts);
                     SetRecoveryStatus(new("updating", reason, true, false,
                         startedAt, null, attempts,
-                        RecoveryNow().Add(delay).ToUnixTimeMilliseconds(), null, null, false));
+                        RecoveryNow().Add(delay).ToUnixTimeMilliseconds(), null, activeNoticeId, true));
                     await RecoveryDelayAsync(delay, token).ConfigureAwait(false);
                     continue;
                 }
@@ -348,18 +390,19 @@ internal sealed partial class OverviewLifecycleService
 
                 attempts++;
                 SetRecoveryStatus(new("launching", reason, updateDetected, false,
-                    startedAt, null, attempts, null, null, null, false));
+                    startedAt, null, attempts, null, null, activeNoticeId, true));
                 try
                 {
                     await StartAsync(token).ConfigureAwait(false);
                     SetRecoveryStatus(new("verifying", reason, updateDetected, true,
-                        startedAt, null, attempts, null, null, null, false));
+                        startedAt, null, attempts, null, null, activeNoticeId, true));
                     await RecoveryDelayAsync(OverviewRecoveryPolicy.StableVerification, token).ConfigureAwait(false);
                     OwnedSnapshot? current = GetOwnedSnapshot();
                     if (current is not null && ProcessMatches(current.GamePid, current.GamePath, current.GameStartedAtUtc) && IsReady)
                     {
-                        SetRecoveryStatus(IdleRecoveryStatus(reason, updateDetected, true,
-                            startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts));
+                        SetRecoveryStatus(new("succeeded", reason, updateDetected, true,
+                            startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts,
+                            null, null, activeNoticeId, true));
                         ResetFailureObservations();
                         return;
                     }
@@ -381,24 +424,22 @@ internal sealed partial class OverviewLifecycleService
                     SetRecoveryStatus(new(state, reason, updateDetected, false,
                         startedAt, null, attempts,
                         RecoveryNow().Add(delay).ToUnixTimeMilliseconds(),
-                        RecoveryErrorCode(ex), null, false));
+                        RecoveryErrorCode(ex), activeNoticeId, true));
                     await RecoveryDelayAsync(delay, token).ConfigureAwait(false);
                 }
             }
 
-            SetRecoveryStatus(IdleRecoveryStatus(reason, updateDetected, false,
-                startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts));
+            SetRecoveryStatus(IdleRecoveryStatus(noticeId: activeNoticeId));
         }
         catch (OperationCanceledException)
         {
-            SetRecoveryStatus(IdleRecoveryStatus(reason, updateDetected, false,
-                startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts));
+            SetRecoveryStatus(IdleRecoveryStatus(noticeId: activeNoticeId));
         }
         catch (Exception ex)
         {
             SetRecoveryStatus(new("failed", reason, updateDetected, false,
                 startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts,
-                null, RecoveryErrorCode(ex), null, false));
+                null, RecoveryErrorCode(ex), activeNoticeId, true));
         }
         finally
         {
@@ -736,5 +777,6 @@ internal sealed partial class OverviewLifecycleService
         string Reason,
         bool UpdateDetected,
         long StartClockMilliseconds,
-        long StartedAtUnixMilliseconds);
+        long StartedAtUnixMilliseconds,
+        ulong NoticeId);
 }

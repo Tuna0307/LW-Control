@@ -40,10 +40,10 @@ internal sealed record OverviewRecoveryStatus(
     string? Reason,
     bool UpdateDetected,
     bool Restarted,
-    long? StartedAt,
+    long StartedAt,
     long? CompletedAt,
     int Attempts,
     long? NextRetryAt,
     string? Error,
-    string? NoticeId,
+    ulong NoticeId,
     bool NoticeVisible);

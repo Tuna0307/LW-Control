@@ -1962,7 +1962,7 @@ internal sealed class LWBridgeWindow : Form
         }
         if (session.Subscriptions.Contains("bridge://game-recovery"))
             SendEvent(session, "bridge://game-recovery", overviewLifecycleService?.CurrentRecoveryStatus ??
-                new OverviewRecoveryStatus("idle", null, false, false, null, null, 0, null, null, null, false));
+                new OverviewRecoveryStatus("idle", null, false, false, 0, null, 0, null, null, 0, false));
     }
 
     private void OnResourceAutomationStatusChanged(object status)

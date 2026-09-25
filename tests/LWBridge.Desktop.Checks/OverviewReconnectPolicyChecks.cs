@@ -64,11 +64,17 @@ internal static class OverviewReconnectPolicyChecks
                 "enabled: recovery must restore/close the old owned session exactly once");
             Check(h.StartCalls == startCountBeforeDisconnect + 1,
                 "enabled: recovery must relaunch once through the normal lifecycle");
-            Check(h.RecoveryEvents.Any(x => x.State == "repairing" && x.Reason == "disconnect") &&
+            OverviewRecoveryStatus terminal = h.Lifecycle.CurrentRecoveryStatus;
+            Check(h.RecoveryEvents.Any(x => x.State == "waiting" && x.Reason == "disconnect") &&
+                  h.RecoveryEvents.Any(x => x.State == "repairing" && x.Reason == "disconnect") &&
                   h.RecoveryEvents.Any(x => x.State == "launching" && x.Reason == "disconnect") &&
                   h.RecoveryEvents.Any(x => x.State == "verifying" && x.Reason == "disconnect") &&
-                  h.Lifecycle.CurrentRecoveryStatus.State == "idle" && h.Lifecycle.CurrentRecoveryStatus.Restarted,
-                "enabled: recovery must publish repairing/launching/verifying then idle restarted");
+                  terminal.State == "succeeded" && terminal.Restarted,
+                "enabled: recovery must publish waiting/repairing/launching/verifying then succeeded restarted");
+            Check(terminal.StartedAt > 0 && terminal.CompletedAt is > 0 &&
+                  terminal.NoticeId == 1 && terminal.NoticeVisible &&
+                  h.RecoveryEvents.Where(x => x.State != "idle").All(x => x.NoticeId == 1 && x.NoticeVisible),
+                "enabled: native recovery notice id remains stable and visible through terminal success");
             Check(h.Delays.Contains(OverviewRecoveryPolicy.StableVerification),
                 "enabled: recovered session must pass the 15-second stable verification gate");
             Check(h.Config.Snapshot.AutoReconnect && h.Config.Snapshot.GameDesiredRunning,
@@ -120,8 +126,11 @@ internal static class OverviewReconnectPolicyChecks
             await h.Lifecycle.RunRecoveryObservationForTestAsync();
             Check(h.Terminations.Count == 0 && h.StartCalls == startsBefore && h.StopCalls == stopsBefore,
                 "disabled: observed disconnect must not terminate, restore or relaunch the owned process");
-            Check(h.Lifecycle.CurrentRecoveryStatus.State == "idle",
-                "disabled: recovery status must remain idle");
+            Check(h.Lifecycle.CurrentRecoveryStatus.State == "idle" &&
+                  h.Lifecycle.CurrentRecoveryStatus.StartedAt == 0 &&
+                  h.Lifecycle.CurrentRecoveryStatus.NoticeId == 0 &&
+                  !h.Lifecycle.CurrentRecoveryStatus.NoticeVisible,
+                "disabled: recovery status must remain the native idle baseline");
 
             h.HeartbeatAvailable = true;
             await h.StopAsync(h.Session!);
@@ -164,8 +173,11 @@ internal static class OverviewReconnectPolicyChecks
                 "disable-during-retry: exactly one failed recovery launch is attempted before cancellation");
             Check(h.Delays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]),
                 "disable-during-retry: failed recovery must enter recovered 15-second retry delay");
-            Check(h.Lifecycle.CurrentRecoveryStatus.State == "idle",
-                "disable-during-retry: cancellation must return recovery status to idle");
+            Check(h.Lifecycle.CurrentRecoveryStatus.State == "idle" &&
+                  h.Lifecycle.CurrentRecoveryStatus.StartedAt == 0 &&
+                  h.Lifecycle.CurrentRecoveryStatus.NoticeId == 1 &&
+                  !h.Lifecycle.CurrentRecoveryStatus.NoticeVisible,
+                "disable-during-retry: cancellation must restore native idle defaults while preserving noticeId");
 
             int startsAfterDisable = h.StartCalls;
             for (int i = 0; i < 4; i++)

@@ -45,6 +45,7 @@ internal sealed class LWBridgeBackend
     private readonly ServerJumpHistoryCommandService serverJumpHistory;
     private readonly AppendLogCommandService appendLog;
     private readonly ProxyStatusCommandService proxyStatus;
+    private readonly GameRecoveryStatusCommandService gameRecoveryStatus;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
@@ -86,6 +87,10 @@ internal sealed class LWBridgeBackend
             installation,
             runtimeManagedProvider: () => overviewLifecycle?.RuntimeManaged ?? false,
             testHooks: proxyStatusTestHooks);
+        gameRecoveryStatus = new GameRecoveryStatusCommandService(
+            this.config.Snapshot.ProfileId,
+            profileRuntimeDirectory,
+            () => overviewLifecycle?.CurrentRecoveryStatus);
     }
 
     public string ProfileId => config.Snapshot.ProfileId;
@@ -205,9 +210,7 @@ internal sealed class LWBridgeBackend
             case "game_root_status":
                 return installation.GetNativeStatus();
             case "game_recovery_status":
-                RequireOptionalProfile(payload);
-                return overviewLifecycle?.CurrentRecoveryStatus ?? new OverviewRecoveryStatus(
-                    "idle", null, false, false, null, null, 0, null, null, null, false);
+                return gameRecoveryStatus.Invoke(payload);
             case "server_jump_history_get":
             case "server_jump_history_import":
             case "server_jump_history_set":
@@ -833,7 +836,8 @@ internal sealed class LWBridgeBackend
 
     private void ValidateCommandScope(string command, JsonElement payload)
     {
-        if (string.Equals(command, "proxy_status", StringComparison.Ordinal))
+        if (string.Equals(command, "proxy_status", StringComparison.Ordinal) ||
+            string.Equals(command, "game_recovery_status", StringComparison.Ordinal))
             return;
         if (payload.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_PAYLOAD", "Command payload must be a JSON object.");

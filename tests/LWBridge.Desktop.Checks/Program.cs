@@ -413,6 +413,7 @@ await LWBridge.Desktop.Checks.AppendLogChecks.RunAsync();
 await LWBridge.Desktop.Checks.GameRootNativeStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.GameRootSelectChecks.RunAsync();
 await LWBridge.Desktop.Checks.ProxyStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.GameRecoveryStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();
@@ -1632,7 +1633,11 @@ try
     using (recoveryLifecycle)
     {
         recoveryLifecycle.RecoveryStatusChanged += recoveryEvents.Add;
-        recoveryBackend = new LWBridgeBackend(recoveryConfig, asyncCommands: recoveryLifecycle, overviewLifecycle: recoveryLifecycle);
+        recoveryBackend = new LWBridgeBackend(
+            recoveryConfig,
+            asyncCommands: recoveryLifecycle,
+            overviewLifecycle: recoveryLifecycle,
+            profileRuntimeDirectory: recoveryRoot);
         using JsonDocument recoveryProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
         await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
         Check(recoveryConfig.Snapshot.GameDesiredRunning,
@@ -1648,12 +1653,15 @@ try
         Check(recoveryInvocations.Count(i => i.Operation == "stop") == 1 &&
               recoveryInvocations.Count(i => i.Operation == "start") == startsBeforeRecovery + 1,
             "second missing-process observation restores the exited session and relaunches through the proven lifecycle");
-        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
               recoveryLifecycle.CurrentRecoveryStatus.Restarted &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeId > 0 &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeVisible &&
+              recoveryEvents.Any(e => e.State == "waiting") &&
               recoveryEvents.Any(e => e.State == "repairing") &&
               recoveryEvents.Any(e => e.State == "launching") &&
               recoveryEvents.Any(e => e.State == "verifying"),
-            "successful recovery publishes repairing-launching-verifying states then returns idle");
+            "successful recovery publishes native waiting/repairing/launching/verifying states then succeeded");
         Check(recoveryDelays.Contains(OverviewRecoveryPolicy.StableVerification),
             "successful recovery requires the recovered 15-second stable verification window");
 
@@ -1668,22 +1676,22 @@ try
         recoveryRequestReason = "disconnect";
         recoveryGameHealthy = true;
         await recoveryLifecycle.RunRecoveryObservationForTestAsync();
-        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
               recoveryTerminations.Count == eventTermsBefore,
-            "unconfirmed recovery-window observation cannot arm event recovery");
+            "unconfirmed recovery-window observation cannot replace the terminal recovery status");
 
         recoveryRequestConfirmed = true;
         recoveryRequestAmbiguous = true;
         await recoveryLifecycle.RunRecoveryObservationForTestAsync();
-        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
               recoveryTerminations.Count == eventTermsBefore,
-            "ambiguous confirmed recovery observation fails closed");
+            "ambiguous confirmed recovery observation fails closed without replacing terminal status");
 
         recoveryRequestAmbiguous = false;
         recoveryRequestReason = "unsupported";
         await recoveryLifecycle.RunRecoveryObservationForTestAsync();
-        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle",
-            "unknown confirmed recovery reason is rejected");
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded",
+            "unknown confirmed recovery reason is rejected without replacing terminal status");
 
         recoveryRequestReason = "crossDisconnect";
         recoveryEvents.Clear();
@@ -1698,11 +1706,12 @@ try
             "in-place recovery is not accepted before the recovered 15-second stable window");
         recoveryClockMilliseconds += 1;
         await recoveryLifecycle.RunRecoveryObservationForTestAsync();
-        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
               !recoveryLifecycle.CurrentRecoveryStatus.Restarted &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeVisible &&
               recoveryTerminations.Count == eventTermsBefore &&
               recoveryInvocations.Count(i => i.Operation == "start") == eventStartsBefore,
-            "stable confirmed event can recover in place without restarting the game");
+            "stable confirmed event ends in native succeeded without restarting the game");
 
         // A confirmed action may quit/reload before the next one-second host tick.
         // The fresh exact-session heartbeat must preserve its event reason across
@@ -1765,9 +1774,10 @@ try
         updateProcessRunning = false;
         await recoveryLifecycle.RunRecoveryObservationForTestAsync();
         Check(recoveryTerminations.Count == eventTermsBefore + 1 &&
-              recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
-              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
-            "forceUpdate recovery retains update-detected provenance through relaunch verification");
+              recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeVisible,
+            "forceUpdate recovery retains update-detected provenance in native succeeded status");
 
         recoveryClockMilliseconds = 9_000_000;
         recoveryRequestObserved = true;
@@ -1798,9 +1808,9 @@ try
         await recoveryLifecycle.RunRecoveryObservationForTestAsync();
         Check(updateTerminationCalls == updaterStopsBeforeStall + 1 &&
               recoveryTerminations.Count == eventTermsBefore + 1 &&
-              recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
               recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
-            "15 minutes without original updater activity stops the scoped updater family and recovers the game");
+            "15 minutes without original updater activity stops the scoped updater family and ends succeeded");
         Check(recoveryEvents.Any(e => e.State == "waiting" &&
                     e.Error == "game update had no activity for 15 minutes") &&
               recoveryDelays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]),
@@ -1979,9 +1989,11 @@ try
         object? recoveryStatusResult = await recoveryBackend.InvokeAsync(
             "game_recovery_status", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
         using (JsonDocument recoveryStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(recoveryStatusResult, JsonOptions.Default)))
-            Check(recoveryStatusJson.RootElement.GetProperty("state").GetString() == "idle" &&
-                  recoveryStatusJson.RootElement.GetProperty("restarted").ValueKind == JsonValueKind.True,
-                "game_recovery_status exposes the live recovery lifecycle instead of the old idle placeholder");
+            Check(recoveryStatusJson.RootElement.GetProperty("state").GetString() == "succeeded" &&
+                  recoveryStatusJson.RootElement.GetProperty("restarted").ValueKind == JsonValueKind.True &&
+                  recoveryStatusJson.RootElement.GetProperty("noticeId").ValueKind == JsonValueKind.Number &&
+                  recoveryStatusJson.RootElement.GetProperty("noticeVisible").ValueKind == JsonValueKind.True,
+                "game_recovery_status exposes native terminal succeeded and numeric notice state");
 
         using JsonDocument finalRecoveryStop = JsonDocument.Parse(JsonSerializer.Serialize(new
         {

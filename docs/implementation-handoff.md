@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-040`
+**Current checkpoint:** `LWB-R8-041`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -218,6 +218,16 @@ R8-040 restores the native public `proxy_status` projection. The full launch-com
 Recovered state vocabulary and precedence are `resourceMissing`, `targetMissing`, `needsRepair`, and `installed`. The target is `Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll`, the preserved original is `xlua_.dll`, and `installedMode` is `secure`, `plain`, or null according to target-vs-resource hashes. `repairRequired` is exactly `!runtimeManaged && gameRunning && state == needsRepair`; it is not the rebuild Overview recovery-journal flag.
 
 The command now exposes native profile/runtime validation codes `PROFILE_ID_REQUIRED`, `PROFILE_RUNTIME_UNAVAILABLE`, and `STATE_UNAVAILABLE`. Exact prose for the first two remains `UNKNOWN`. Resource discovery is read-only equivalent plumbing over a complete recovered proxy resource set; proxy install/overwrite/backup/restore, original launcher ownership, and close/exit restoration remain incomplete. See `docs/reviews/2026-09-26-r8-040-proxy-status.md`.
+
+## R8-041 game_recovery_status checkpoint
+
+R8-041 restores the native public `game_recovery_status` / `bridge://game-recovery` projection. The exact field order is `state`, `reason`, `updateDetected`, `restarted`, `startedAt`, `completedAt`, `attempts`, `nextRetryAt`, `error`, `noticeId`, `noticeVisible`. Static serializer recovery proves `startedAt` is a scalar integer and `noticeId` is a scalar numeric identifier; the older rebuild nullable-start/string-notice model was non-native.
+
+The exact default object is `state="idle"`, `reason=null`, both booleans false, `startedAt=0`, nullable completion/retry/error fields null, `attempts=0`, `noticeId=0`, and `noticeVisible=false`. Recovery start increments the notice identifier, stamps `startedAt`, publishes `waiting`, and keeps the notice visible. The same notice identity is preserved across that recovery attempt; native terminal publication is `succeeded` or `failed`, not the rebuild's former return-to-idle simplification. Disabling recovery automation resets to the native idle defaults while preserving the current notice identifier.
+
+The command now follows the native selected-profile runtime path and exposes `PROFILE_ID_REQUIRED`, `PROFILE_RUNTIME_UNAVAILABLE`, and exact `STATE_UNAVAILABLE` / `game recovery state is unavailable` rather than fabricating idle state when no recovery state exists. Exact prose for the first two runtime-resolution errors remains `UNKNOWN`.
+
+This checkpoint changes recovery status/publication semantics only. Existing recovered disconnect/hang/update thresholds, retry tables, termination gates, updater suppression and process-control actions remain unchanged; original proxy install/backup/restore and launcher lifecycle remain incomplete. See `docs/reviews/2026-09-26-r8-041-game-recovery-status.md`.
 
 ## Parked protected package-key lane
 
