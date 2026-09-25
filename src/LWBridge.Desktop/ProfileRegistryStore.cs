@@ -144,6 +144,32 @@ internal sealed class ProfileRegistryStore : IDisposable
                 profiles);
         }
     }
+
+    internal void UpdateNote(
+        string profileId,
+        string note,
+        long nowUnixMilliseconds)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE profiles
+                SET note = $note, updated_at = $now
+                WHERE id = $id
+                """;
+            command.Parameters.AddWithValue("$note", note);
+            command.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+            command.Parameters.AddWithValue("$id", profileId);
+            if (command.ExecuteNonQuery() != 1)
+            {
+                throw new BridgeCommandException(
+                    "PROFILE_NOT_FOUND",
+                    "PROFILE_NOT_FOUND");
+            }
+        }
+    }
     private List<ProfileRegistryEntry> ReadProfiles()
     {
         using SqliteCommand command = connection.CreateCommand();

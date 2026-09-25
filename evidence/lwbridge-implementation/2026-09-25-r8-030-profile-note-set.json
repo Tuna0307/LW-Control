@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-030",
+  "date": "2026-09-25",
+  "scope": "Restore profile_note_set host-local validation, controller-registry persistence, errors, and refreshed profile-list result.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "request": {
+    "requiredStringFields": [
+      "profileId",
+      "note"
+    ],
+    "invalidPublicPayloadCode": "INVALID_REQUEST"
+  },
+  "noteValidation": {
+    "lengthUnit": "Unicode scalar value",
+    "minimum": 0,
+    "maximum": 80,
+    "invalidCode": "INVALID_PROFILE_NOTE",
+    "rejectedRanges": [
+      "U+0000..U+001F",
+      "U+007F..U+009F"
+    ]
+  },
+  "persistence": {
+    "table": "profiles",
+    "nativeSql": "UPDATE profiles SET note = ?, updated_at = ? WHERE id = ?",
+    "missingRowCode": "PROFILE_NOT_FOUND",
+    "noteNormalization": "none added",
+    "successResult": "refreshed selectedProfileId/maxProfiles/profiles state"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ProfileRegistryStore.cs",
+    "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/ProfileRegistryChecks.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "payloadKeys": "EXACT_NATIVE",
+    "noteLengthAndControlValidation": "EXACT_NATIVE",
+    "updateSql": "EXACT_NATIVE",
+    "missingProfileError": "EXACT_NATIVE",
+    "successRefreshBehavior": "EXACT_CONTRACT",
+    "filesystemRoot": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "notClaimed": [
+    "profile_reorder",
+    "profile_select focusGame behavior",
+    "profile_primary_set fixed-primary invariants",
+    "profile_enable_set entitlement/capacity behavior",
+    "profile create/delete behavior",
+    "launcher/game instance ownership"
+  ],
+  "nextCheckpoint": "Recover profile_reorder exact requested-ID validation and transaction semantics."
+}
