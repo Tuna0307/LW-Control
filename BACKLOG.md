@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-027`, 2026-09-25.
+**Current through:** `LWB-R8-028`, 2026-09-25.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -43,7 +43,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 - [ ] City Layout — R8-018 restores exact `profile_state` draft persistence and production `city_layout_draft_get/save/clear`; five gameplay-facing commands remain missing/protected. Preserve the byte-identical UI and recovered contract at `docs/reviews/2026-09-24-r8-city-layout-exact-contract.md`; do not invent planner/executor behavior.
 - [ ] Hotkeys — R8-019 restores `hotkey_config_get/save`, exact ten-field defaults, native validation/error vocabulary and per-profile runtime-config persistence. Native keyboard hooks and game-action execution remain unrecovered/protected.
 - [ ] Mini-games — recover every visible and conditional function.
-- [ ] Settings — R8-020 restores visual-metrics config persistence; R8-021 restores native updater idle status; R8-022 restores feedback-export public schemas plus exact `exportId` validation while keeping archive execution fenced. Recover the native feedback privacy/archive lifecycle and full updater check/download/open behavior; keep account/authentication-purpose surfaces excluded.
+- [ ] Settings — R8-020 restores visual-metrics config persistence; R8-021 restores updater idle status; R8-022 restores feedback-export public schemas plus `exportId` validation; R8-028 restores native `profile_settings_save` optimistic-revision persistence for the current local profile. Recover the full profile registry/settings family, native feedback privacy/archive lifecycle and full updater check/download/open behavior; keep account/authentication-purpose surfaces excluded.
 - [ ] Home / Overview — re-audit working reconstructed lifecycle against the original host/launcher/proxy contract instead of treating current functionality as final.
 
 ## P1 — parity validation

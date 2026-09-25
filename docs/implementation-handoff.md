@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-027`
+**Current checkpoint:** `LWB-R8-028`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -144,6 +144,10 @@ R8-026 restores the exact two native Resource Automation tasks (`buildingResourc
 ## R8-027 Generic Automation status checkpoint
 
 R8-027 restores production `automation_status` for the original normal missing-`runtime/automation-status.json` condition. The native fallback enumerates exactly 18 tasks in recovered order and emits `{name,state:'idle',step:'not_loaded',running:false,enabled}` per task, with top-level `{updatedAt:null,lock:null,tasks}`. `enabled` is true only for an actual persisted JSON boolean true. A valid persisted scheduler document passes through; malformed JSON uses recovered code `INVALID_AUTOMATION_STATUS`, while exact Rust parser wording remains partial. Generic `automation_configure` is deliberately still fenced because the original validates locally and then calls `configureAutomationTask` with a 5,000 ms provider timeout; inspect/start/stop remain provider/result dependent. See `docs/reviews/2026-09-25-r8-027-automation-idle-status.md`.
+
+## R8-028 Profile settings save checkpoint
+
+R8-028 restores `profile_settings_save` for the current local rebuild profile. Native 0.3.1 requires `profileId`, non-negative integer `revision`, and `value`; malformed public input returns `INVALID_REQUEST`, an unknown profile returns `PROFILE_NOT_FOUND`, a non-object settings value returns `INVALID_PROFILE_SETTINGS`, and stale optimistic revision returns `PROFILE_REVISION_CONFLICT`. The original per-profile `profile.db` owns singleton table `settings(id=1, revision, value_json)` and updates it with `UPDATE settings SET value_json = ?, revision = revision + 1 WHERE id = 1 AND revision = ?`, then reads back `{revision,value}`. The rebuild preserves that schema/revision contract in its existing per-profile rebuild storage namespace and preserves sibling `profile_state` rows. Full original controller profile registry/select/enable/primary behavior and the original application-data root path are not claimed yet. See `docs/reviews/2026-09-25-r8-028-profile-settings-save.md`.
 
 ## Parked protected package-key lane
 

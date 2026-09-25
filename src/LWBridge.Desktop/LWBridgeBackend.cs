@@ -16,6 +16,7 @@ internal sealed class LWBridgeBackend
         "profile_list",
         "profile_instances_reconcile",
         "profile_instances_update_and_restart",
+        "profile_settings_save",
         "game_root_status",
         "game_root_select",
         "update_status",

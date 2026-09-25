@@ -50,6 +50,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly ManualMapScanCommandService? manualMapScanService;
     private readonly CityLayoutDraftCommandService? cityLayoutDraftService;
+    private readonly ProfileSettingsCommandService? profileSettingsService;
     private readonly HotkeyConfigCommandService? hotkeyConfigService;
     private readonly VisualMetricsConfigCommandService? visualMetricsConfigService;
     private readonly EquipmentConfigCommandService? equipmentConfigService;
@@ -133,13 +134,21 @@ internal sealed class LWBridgeWindow : Form
             mapData.ClearAllScanData();
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
-        cityLayoutDraftService = isolated
+        string? profileDatabasePath = isolated
+            ? null
+            : Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "profile.db");
+        cityLayoutDraftService = profileDatabasePath is null
             ? null
             : new CityLayoutDraftCommandService(
                 config.Snapshot.ProfileId,
-                Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "LWBridgeRebuild", "profiles", config.Snapshot.ProfileId, "profile.db"));
+                profileDatabasePath);
+        profileSettingsService = profileDatabasePath is null
+            ? null
+            : new ProfileSettingsCommandService(
+                config.Snapshot.ProfileId,
+                profileDatabasePath);
         string? profileRuntimeConfigPath = isolated
             ? null
             : Path.Combine(
@@ -227,6 +236,7 @@ internal sealed class LWBridgeWindow : Form
             if (manualMapScanService is not null) services.Add(manualMapScanService);
             if (liveResourceService is not null) services.Add(liveResourceService);
             if (cityLayoutDraftService is not null) services.Add(cityLayoutDraftService);
+            if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
@@ -2073,6 +2083,7 @@ internal sealed class LWBridgeWindow : Form
         manualMapScanService?.Close();
         liveResourceService?.Close();
         cityLayoutDraftService?.Dispose();
+        profileSettingsService?.Dispose();
         overviewLifecycleService?.Close();
         // LWB-R7-110: the shared bridge host is application-owned, so it is
         // closed after profile/scan lifecycles rather than by any one profile.

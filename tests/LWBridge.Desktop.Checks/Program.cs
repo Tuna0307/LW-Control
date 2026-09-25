@@ -412,6 +412,7 @@ await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.ResourceAutomationConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AutomationStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.ProfileSettingsChecks.RunAsync();
 await LWBridge.Desktop.Checks.UpdateStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.FeedbackExportContractChecks.RunAsync();
 LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();
