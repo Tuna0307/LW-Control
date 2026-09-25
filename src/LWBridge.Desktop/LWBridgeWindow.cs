@@ -290,7 +290,10 @@ internal sealed class LWBridgeWindow : Form
             bridgeHostState: bridgeHostState,
             runtimeTasksProvider: profileRuntimeConfigStore is null
                 ? null
-                : profileRuntimeConfigStore.ReadTasksSnapshot);
+                : profileRuntimeConfigStore.ReadTasksSnapshot,
+            profileRuntimeDirectory: profileRuntimeConfigPath is null
+                ? null
+                : Path.GetDirectoryName(profileRuntimeConfigPath));
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
         if (resourceAutomationConfigService is not null)

@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-036`
+**Current checkpoint:** `LWB-R8-037`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -186,6 +186,14 @@ R8-036 resolves the storage-owner caveat recorded during R8-035. Native `server_
 The recovered normalizer accepts integer server IDs 1..99999, removes duplicates in first-seen order, ignores invalid elements and caps output at five. Missing/non-array `history` becomes `[]`. Get returns `[]` for a missing setting without creating it. Set normalizes, upserts and returns. Import is migration-only: an existing setting wins unchanged; only a missing setting imports the supplied legacy history. This matches the retained frontend's `lastwar.serverJumpHistory` localStorage migration, which removes the browser key only after import succeeds.
 
 Stable native profile/runtime codes are also restored for this family: `PROFILE_ID_REQUIRED` and `PROFILE_RUNTIME_UNAVAILABLE`. Malformed stored JSON uses `INVALID_SETTING`. The legacy rebuild LocalConfig history field remains readable for backward compatibility but is no longer a public-command owner. See `docs/reviews/2026-09-25-r8-036-server-jump-history.md`.
+
+## R8-037 append_log checkpoint
+
+R8-037 replaces the rebuild's `append_log` no-op with the recovered profile-runtime logging side effect. The shared frontend invoke wrapper injects the selected `profileId`; native resolves that profile runtime, requires a string `message`, takes at most 2,000 Unicode scalar values, replaces each CR and LF with one space, and appends UTF-8 to `logs/xlua-bridge.log`.
+
+The exact normal-path line is `[<unix-ms>] [bridge-app] <sanitized-message>\n`. Empty strings are valid. Stable profile failures are `PROFILE_ID_REQUIRED` and `PROFILE_RUNTIME_UNAVAILABLE`. Native log I/O is best effort, so file/open/write failures do not turn a valid append request into a command failure. The rebuild now routes this to its existing retained profile runtime directory rather than a global LocalConfig log.
+
+The wider native log manager exposes segment/rotation machinery, but R8-037 does not invent its unclosed retention policy. Malformed `message` is rejected before native writer execution by Tauri argument deserialization; the rebuild rejects it at its transformed boundary without claiming the framework-generated text/code is byte-identical. See `docs/reviews/2026-09-25-r8-037-append-log.md`.
 
 ## Parked protected package-key lane
 

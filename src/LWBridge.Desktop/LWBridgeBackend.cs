@@ -43,6 +43,7 @@ internal sealed class LWBridgeBackend
     private readonly LWBridgeControlPipeHostState? bridgeHostState;
     private readonly MapDataStore? mapData;
     private readonly ServerJumpHistoryCommandService serverJumpHistory;
+    private readonly AppendLogCommandService appendLog;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
@@ -57,7 +58,8 @@ internal sealed class LWBridgeBackend
         LastWarLocaleService? lastWarLocales = null,
         Func<object>? mapScanStatusProvider = null,
         LWBridgeControlPipeHostState? bridgeHostState = null,
-        Func<object?>? runtimeTasksProvider = null)
+        Func<object?>? runtimeTasksProvider = null,
+        string? profileRuntimeDirectory = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
@@ -67,6 +69,9 @@ internal sealed class LWBridgeBackend
         serverJumpHistory = new ServerJumpHistoryCommandService(
             this.config.Snapshot.ProfileId,
             mapData);
+        appendLog = new AppendLogCommandService(
+            this.config.Snapshot.ProfileId,
+            profileRuntimeDirectory);
         this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
         this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
@@ -317,6 +322,7 @@ internal sealed class LWBridgeBackend
                     "COMMAND_NOT_IMPLEMENTED",
                     "Feedback archive export remains fenced until the recovered redaction/cache/archive/save pipeline is implemented.");
             case "append_log":
+                return appendLog.Invoke(payload);
             case "set_window_theme":
                 return null;
             case "lastwar_localize":
