@@ -1,0 +1,88 @@
+{
+    "schemaVersion":  1,
+    "checkpoint":  "LWB-R8-035",
+    "date":  "2026-09-25",
+    "scope":  "Restore native set_window_theme DWM side effects for the retained frontend path.",
+    "referenceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendChanged":  false,
+    "authority":  [
+                      "set_window_theme wrapper VA 0x140416BCB",
+                      "WindowThemePayload parser VA 0x14038E1B7",
+                      "window-theme helper VA 0x14033512D",
+                      "signed decimal formatter VA 0x140039740",
+                      "dwmapi!DwmSetWindowAttribute import",
+                      "retained frontend set_window_theme wrapper"
+                  ],
+    "semanticContract":  {
+                             "accepted":  [
+                                              "light",
+                                              "dark"
+                                          ],
+                             "invalidCode":  "INVALID_THEME",
+                             "invalidMessage":  "theme must be light or dark",
+                             "successResult":  null,
+                             "malformedSerdePayloadText":  "not claimed by this checkpoint"
+                         },
+    "dwmSequence":  [
+                        {
+                            "attribute":  20,
+                            "light":  0,
+                            "dark":  1,
+                            "size":  4
+                        },
+                        {
+                            "attribute":  35,
+                            "light":  16777215,
+                            "dark":  2631720,
+                            "size":  4
+                        },
+                        {
+                            "attribute":  36,
+                            "light":  2039069,
+                            "dark":  16250357,
+                            "size":  4
+                        },
+                        {
+                            "attribute":  34,
+                            "light":  15394277,
+                            "dark":  3947066,
+                            "size":  4
+                        }
+                    ],
+    "failure":  {
+                    "code":  "WINDOW_THEME_FAILED",
+                    "prefix":  "DwmSetWindowAttribute failed: ",
+                    "format":  "signed base-10 i32 HRESULT",
+                    "stopAtFirstNegativeHRESULT":  true
+                },
+    "implementation":  [
+                           "src/LWBridge.Desktop/WindowThemeService.cs",
+                           "src/LWBridge.Desktop/LWBridgeWindow.cs",
+                           "tests/LWBridge.Desktop.Checks/WindowThemeChecks.cs",
+                           "tests/LWBridge.Desktop.Checks/Program.cs"
+                       ],
+    "validationStatus":  {
+                             "desktopReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "checksReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "deterministicSuite":  "PASS ok=true failures=[] exitCode=0",
+                             "frontendChanged":  "NO",
+                             "frontendGeneratorCheck":  "PASS",
+                             "gitDiffCheck":  "PASS",
+                             "jsonSyntax":  "PASS",
+                             "stagedDiffCheck":  "PASS"
+                         },
+    "researchFences":  {
+                           "profile_create":  "native profile creation is gated by shared account/profile capacity and PROFILE_LIMIT_REACHED; license_capacity is in the same state subsystem",
+                           "server_jump_history_get":  "runtime-bound through bridge-pipe profile runtime lookup; no synthetic local get added",
+                           "server_jump_history_set_import":  "native commands are runtime-bound; existing rebuild local-config owner is not yet proven equivalent and requires runtime-owner recovery"
+                       },
+    "evidenceClassification":  {
+                                   "acceptedThemeValues":  "EXACT_NATIVE",
+                                   "semanticError":  "EXACT_NATIVE",
+                                   "dwmAttributeOrder":  "EXACT_NATIVE",
+                                   "dwmValues":  "EXACT_NATIVE",
+                                   "failureCodePrefixAndDecimalFormat":  "EXACT_NATIVE",
+                                   "desktopHostApplication":  "EQUIVALENT_REIMPLEMENTATION"
+                               },
+    "nextCheckpoint":  "Recover runtime-owned server jump history semantics or another complete host-local gap without inventing provider/account behavior."
+}

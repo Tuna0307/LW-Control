@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-034`
+**Current checkpoint:** `LWB-R8-035`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -172,6 +172,12 @@ R8-033 restores the host-local `red_packet_delay_configure` and `treasure_delay_
 ## R8-034 Profile selection/focus checkpoint
 
 R8-034 restores `profile_select` for the retained controller registry. Native 0.3.1 validates `profileId`, requires the row to be enabled with `locked_reason IS NULL`, returns `PROFILE_NOT_FOUND` or `PROFILE_LOCKED` as appropriate, and updates only `controller_state.selected_profile_id`. `focusGame` defaults true when missing or non-boolean. When requested, focus is best effort: native verifies the running PID belongs to the configured `Game\\LastWar.exe`, enumerates visible top-level windows for that PID, calls `ShowWindow(hwnd, 9)`, then `SetForegroundWindow`; failure to find/focus a window does not fail selection. The rebuild reuses existing `GameInstallationService` process/path evidence and does not create a parallel launcher registry. See `docs/reviews/2026-09-25-r8-034-profile-select-focus.md`.
+
+## R8-035 Window-theme checkpoint
+
+R8-035 replaces the rebuild's `set_window_theme` no-op with the recovered native window effect. Parsed semantic values are exactly `light` and `dark`; any other parsed string returns `INVALID_THEME` / `theme must be light or dark`. Native applies `DwmSetWindowAttribute` attributes 20, 35, 36 and 34 in that order, with exact recovered light/dark values for immersive mode, caption, text and border colors. Negative HRESULTs stop the sequence and return `WINDOW_THEME_FAILED` with `DwmSetWindowAttribute failed: <signed decimal HRESULT>`. Success is null/unit. The desktop host applies this to its real top-level window handle; deterministic tests inject the DWM writer and do not change the user's desktop. See `docs/reviews/2026-09-25-r8-035-window-theme.md`.
+
+Target-selection research also proved two important fences. Native `profile_create` is capacity-gated through shared account/profile state (`PROFILE_LIMIT_REACHED`, same subsystem as `license_capacity`), so the rebuild's fixed single-profile quota must not be substituted. Native `server_jump_history_get`, `server_jump_history_set`, and `server_jump_history_import` all resolve a profile runtime through the bridge-pipe runtime map; the current rebuild local-config history owner is not yet proven equivalent and must be revisited with runtime-owner recovery rather than extended with a synthetic get path.
 
 ## Parked protected package-key lane
 

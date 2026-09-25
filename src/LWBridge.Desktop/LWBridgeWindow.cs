@@ -60,6 +60,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly ResourceAutomationConfigCommandService? resourceAutomationConfigService;
     private readonly AutomationStatusCommandService? automationStatusService;
     private readonly ClaimDelayConfigCommandService? claimDelayConfigService;
+    private readonly WindowThemeService windowThemeService = new();
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -1807,6 +1808,9 @@ internal sealed class LWBridgeWindow : Form
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>
                     command == "game_root_select"
                         ? SelectGameRootAsync(cancellationToken)
+                        : command == "set_window_theme"
+                            ? Task.FromResult(
+                                windowThemeService.Apply(Handle, payload))
                         : command == "map_city_export"
                             ? ExportCityAsync(payload, cancellationToken)
                         : command == "game_root_status" && hostProbeService?.ForceMissingGameRoot == true

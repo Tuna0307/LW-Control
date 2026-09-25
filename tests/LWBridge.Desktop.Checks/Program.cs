@@ -407,6 +407,7 @@ LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
 await LWBridge.Desktop.Checks.CityLayoutDraftChecks.RunAsync();
 await LWBridge.Desktop.Checks.HotkeyConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.VisualMetricsConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.WindowThemeChecks.RunAsync();
 await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();
