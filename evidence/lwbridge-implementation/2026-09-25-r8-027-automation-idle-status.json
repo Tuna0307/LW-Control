@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-027",
+  "date": "2026-09-25",
+  "scope": "Restore generic automation_status normal missing-runtime-status projection and valid persisted-status passthrough while keeping generic live/configure commands fenced.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/AutomationPanel-D06CxhPI.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "public automation_status handler VA 0x14016b69a",
+    "native automation-status loader/reconstructor VA 0x1403b6b63",
+    "public automation_configure handler VA 0x140110c7d",
+    "native task-config validator VA 0x1403b9bce",
+    "original installed profile runtime/config.json",
+    "original installed profile with no runtime/automation-status.json"
+  ],
+  "frontendChanged": false,
+  "nativeStatusTasks": [
+    "construction",
+    "allianceTrainRide",
+    "officialPosition",
+    "stamina",
+    "staminaPotion",
+    "treatment",
+    "allianceDonate",
+    "allianceHelp",
+    "allianceGift",
+    "strongholdResource",
+    "allianceCenterResource",
+    "allianceGather",
+    "allianceGarrison",
+    "railway",
+    "dispatch",
+    "dispatchAssist",
+    "ghostRecon",
+    "monsterSweep"
+  ],
+  "missingRuntimeStatus": {
+    "nativeFile": "runtime/automation-status.json",
+    "normalReferenceCondition": true,
+    "topLevelFieldOrder": [
+      "updatedAt",
+      "lock",
+      "tasks"
+    ],
+    "updatedAt": null,
+    "lock": null,
+    "taskFieldOrder": [
+      "name",
+      "state",
+      "step",
+      "running",
+      "enabled"
+    ],
+    "taskProjection": {
+      "name": "<taskName>",
+      "state": "idle",
+      "step": "not_loaded",
+      "running": false,
+      "enabled": "true only when tasks.<task>.enabled is JSON boolean true; otherwise false"
+    }
+  },
+  "persistedRuntimeStatus": {
+    "validDocument": "returned as parsed status rather than replaced by fallback",
+    "malformedCode": "INVALID_AUTOMATION_STATUS",
+    "malformedHumanMessage": "Native parser-detail wording is not claimed byte-for-byte",
+    "nonFileIoErrors": "PARTIAL"
+  },
+  "configureBoundary": {
+    "command": "automation_configure",
+    "nativeMethod": "configureAutomationTask",
+    "nativeTimeoutMs": 5000,
+    "implementationStatus": "fenced / COMMAND_NOT_IMPLEMENTED",
+    "reason": "local validation is recoverable but the public command continues into a provider operation whose complete result contract is not yet restored",
+    "recoveredValidatorExamples": {
+      "construction.maxBuilders": "integer 1..20",
+      "treatment.amountPerArmy": "integer 1..1000000",
+      "commonIntervalMinutes": "integer 1..1440"
+    }
+  },
+  "fencedCommands": [
+    "automation_configure",
+    "automation_inspect",
+    "automation_start",
+    "automation_stop"
+  ],
+  "implementation": [
+    "src/LWBridge.Desktop/AutomationStatusCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/AutomationStatusChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "exact native 18-task order",
+    "exact missing-status top-level field order",
+    "updatedAt null",
+    "lock null",
+    "exact idle task field order",
+    "state idle",
+    "step not_loaded",
+    "running false",
+    "config-derived boolean enabled",
+    "wrong-type or missing enabled normalizes false",
+    "valid persisted status passthrough including unknown fields",
+    "malformed persisted JSON returns INVALID_AUTOMATION_STATUS code",
+    "production backend routes automation_status",
+    "automation_configure remains COMMAND_NOT_IMPLEMENTED"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "statusTaskSet": "EXACT_NATIVE",
+    "missingRuntimeStatusFallback": "EXACT_NATIVE + original installed profile",
+    "validPersistedStatusPassthrough": "EXACT_CONTRACT",
+    "malformedStatusCode": "EXACT_NATIVE",
+    "malformedStatusMessage": "PARTIAL/EQUIVALENT",
+    "genericConfigureValidationResearch": "EXACT_NATIVE research only",
+    "genericConfigureAction": "not implemented in this checkpoint"
+  },
+  "notClaimed": [
+    "generic configure provider/result parity",
+    "automation_inspect",
+    "automation_start",
+    "automation_stop",
+    "task action execution",
+    "runtime scheduler writer and lock transitions",
+    "exact malformed JSON parser wording",
+    "non-file I/O error mapping"
+  ],
+  "nextCheckpoint": "Recover another retained offline or control surface with a complete observable contract."
+}

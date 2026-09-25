@@ -56,6 +56,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly MonsterAfkConfigCommandService? monsterAfkConfigService;
     private readonly AllianceGarrisonConfigCommandService? allianceGarrisonConfigService;
     private readonly ResourceAutomationConfigCommandService? resourceAutomationConfigService;
+    private readonly AutomationStatusCommandService? automationStatusService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -171,6 +172,13 @@ internal sealed class LWBridgeWindow : Form
                 Path.Combine(
                     Path.GetDirectoryName(profileRuntimeConfigPath)!,
                     "automation-status.json"));
+        automationStatusService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
+            ? null
+            : new AutomationStatusCommandService(
+                profileRuntimeConfigStore,
+                Path.Combine(
+                    Path.GetDirectoryName(profileRuntimeConfigPath)!,
+                    "automation-status.json"));
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -225,6 +233,7 @@ internal sealed class LWBridgeWindow : Form
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
             if (allianceGarrisonConfigService is not null) services.Add(allianceGarrisonConfigService);
             if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
+            if (automationStatusService is not null) services.Add(automationStatusService);
             productionCommands = services.Count switch
             {
                 0 => null,

@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-026`, 2026-09-25.
+**Current through:** `LWB-R8-027`, 2026-09-25.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -12,7 +12,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Retained frontend assets | EXACT_BYTES-derived | Original chunks/styles/icons/locales recovered; transformed boundary and prior retained-scope product deviations still require cleanup |
 | Auth/account flows | EXCLUDED — explicit owner directive | Login/Register/authentication/account management/activation/renewal/unbind/logout/entitlement/account-purpose UI/backend are intentionally outside retained scope |
 | Overview | EQUIVALENT_REIMPLEMENTATION | Works, but original backend semantics still need exact audit |
-| Automation | UI EXACT_BYTES / PARTIAL backend | R8-026 restores the two native Resource Automation tasks, exact configure validation/persistence, normal missing-runtime-status projection, status command and profile-scoped status event. Resource Run Now and all other Automation categories remain incomplete/protected |
+| Automation | UI EXACT_BYTES / PARTIAL backend | R8-026 restores Resource Automation config/status/event. R8-027 restores generic `automation_status` for the exact native 18-task idle projection plus valid persisted-status passthrough. Generic configure/inspect/start/stop and Resource Run Now remain incomplete/provider-gated |
 | Map Data | MIXED / not parity-complete | Large amount recovered, but acquisition internals and product customizations diverged |
 | Squads / AFK | UI EXACT_BYTES / PARTIAL backend | R8-023 restores equipment config persistence; R8-024 restores Monster AFK config validation/persistence/status reload; R8-025 restores Alliance Garrison config validation, `tasks.allianceGarrison` persistence and status reload. Live AFK/garrison execution and equipment apply remain incomplete/protected |
 | City Layout | UI EXACT_BYTES / PARTIAL backend | R8-018 restores per-profile `profile_state` draft persistence and `city_layout_draft_get/save/clear`; five gameplay-facing commands remain missing/protected. Original UI chunk and all eight wrappers remain preserved; planner/executor stays fenced |

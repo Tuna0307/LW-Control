@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-026`
+**Current checkpoint:** `LWB-R8-027`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -140,6 +140,10 @@ R8-025 restores profile-scoped `alliance_garrison_config_save` and `/tasks/allia
 ## R8-026 Resource Automation configuration/status checkpoint
 
 R8-026 restores the exact two native Resource Automation tasks (`buildingResources`, `armedTruckReward`), `resource_automation_configure`, exact unknown-task and interval validation, canonical `{enabled,intervalMinutes}` persistence in the shared runtime config, the normal native no-`automation-status.json` idle projection, `resource_automation_status`, and `bridge://resource-automation-status` emission after configure. Missing/wrong-type `enabled` follows native behavior and becomes false. The original installed profile confirms the 60-minute disabled defaults and the normal absence of `automation-status.json`. Existing runtime-status parsing remains conservative/partial; `resource_automation_run` and the two native live actions remain provider/protocol-gated and unimplemented. See `docs/reviews/2026-09-25-r8-026-resource-automation-config-status.md`.
+
+## R8-027 Generic Automation status checkpoint
+
+R8-027 restores production `automation_status` for the original normal missing-`runtime/automation-status.json` condition. The native fallback enumerates exactly 18 tasks in recovered order and emits `{name,state:'idle',step:'not_loaded',running:false,enabled}` per task, with top-level `{updatedAt:null,lock:null,tasks}`. `enabled` is true only for an actual persisted JSON boolean true. A valid persisted scheduler document passes through; malformed JSON uses recovered code `INVALID_AUTOMATION_STATUS`, while exact Rust parser wording remains partial. Generic `automation_configure` is deliberately still fenced because the original validates locally and then calls `configureAutomationTask` with a 5,000 ms provider timeout; inspect/start/stop remain provider/result dependent. See `docs/reviews/2026-09-25-r8-027-automation-idle-status.md`.
 
 ## Parked protected package-key lane
 
