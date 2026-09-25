@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-025",
+  "date": "2026-09-25",
+  "scope": "Restore alliance_garrison_config_save native validation plus tasks.allianceGarrison persistence/status reload while leaving live garrison execution fenced.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/SquadPanel-ClRUC9pv.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "native /tasks/allianceGarrison validator around VA 0x1403ba7e2",
+    "original installed per-profile runtime/config.json tasks.allianceGarrison"
+  ],
+  "frontend": {
+    "changed": false,
+    "squadPanelSha256": "3211da6582edb72e99db942c1b5ad4a0d7b3ed831df7548e020e0eab666c03af",
+    "status": "byte-identical to immutable 0.3.1"
+  },
+  "command": "alliance_garrison_config_save",
+  "runtimeConfigPath": "tasks.allianceGarrison",
+  "originalDefault": {
+    "enabled": false,
+    "recallOnDisable": true,
+    "squadPriority": [],
+    "targets": []
+  },
+  "persistence": {
+    "routingFieldRemoved": "profileId",
+    "replaceScope": "tasks.allianceGarrison only",
+    "preserveSiblingTasks": true,
+    "preserveRootSiblings": true,
+    "preserveOpaqueTaskFields": true,
+    "preserveOpaqueTargetFields": true,
+    "statusReadback": "get_status.config.tasks.allianceGarrison"
+  },
+  "validation": {
+    "errorCode": "INVALID_REQUEST",
+    "enabled": "optional boolean",
+    "recallOnDisable": "optional boolean",
+    "squadPriority": "required array of unique integer indexes 1..4",
+    "targets": "required array",
+    "enabledGuard": "enabled=true requires at least one target and at least one squad",
+    "messages": [
+      "alliance garrison enabled must be boolean",
+      "alliance garrison recall on disable must be boolean",
+      "alliance garrison squad priority must be an array",
+      "alliance garrison squad priority must contain integers",
+      "invalid squad index",
+      "alliance garrison squad priority contains duplicates",
+      "alliance garrison targets must be an array",
+      "alliance garrison target must be an object",
+      "invalid alliance garrison target kind",
+      "alliance garrison building id must be positive",
+      "alliance garrison ally uid is required",
+      "alliance garrison city snapshot is invalid",
+      "alliance garrison target name is too long",
+      "alliance garrison targets contain duplicates",
+      "alliance garrison requires at least one target and squad"
+    ]
+  },
+  "targets": {
+    "allianceBuilding": {
+      "required": {
+        "kind": "allianceBuilding",
+        "buildId": "positive integer"
+      },
+      "identity": "building:<buildId>"
+    },
+    "allyCity": {
+      "required": {
+        "kind": "allyCity",
+        "uid": "Unicode-trimmed nonblank string"
+      },
+      "identity": "ally:<trimmed uid>",
+      "optionalSnapshot": {
+        "nameSnapshot": "string; native length cap 100",
+        "uuidSnapshot": "if nonblank, ASCII decimal digits only",
+        "serverIdSnapshot": "positive integer when uuidSnapshot is nonblank",
+        "pointIdSnapshot": "positive integer when uuidSnapshot is nonblank",
+        "uuidUpdatedAt": "preserved opaque snapshot metadata"
+      }
+    }
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/AllianceGarrisonConfigCommandService.cs",
+    "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/AllianceGarrisonConfigChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "valid save and result",
+    "profileId stripped",
+    "opaque task/target fields preserved",
+    "runtime root and sibling tasks preserved",
+    "disabled empty config accepted",
+    "optional booleans may be omitted",
+    "boolean/array/integer/index/duplicate validation branches",
+    "allianceBuilding target",
+    "allyCity target",
+    "blank ally uid rejection",
+    "nonblank city snapshot validation",
+    "blank uuid snapshot does not activate server/point validation",
+    "target-name length guard",
+    "duplicate building and trimmed ally identities",
+    "enabled nonempty target/squad guard",
+    "production command routing",
+    "get_status persisted task reload",
+    "malformed runtime config STATE_UNAVAILABLE"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "squadPanelHash": "PASS exact immutable 0.3.1",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-025 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "frontend": "EXACT_BYTES",
+    "defaultObject": "EXACT original frontend + installed runtime profile",
+    "configPath": "EXACT_NATIVE",
+    "validator": "EXACT_NATIVE branch/message-derived",
+    "persistence": "EQUIVALENT_REIMPLEMENTATION of shared per-profile runtime config",
+    "liveExecution": "PROTECTED_UNKNOWN / intentionally absent"
+  },
+  "notClaimed": [
+    "live automation_start allianceGarrison execution",
+    "live automation_stop allianceGarrison recall behavior",
+    "alliance building or ally discovery providers",
+    "garrison march/assignment/recall ownership logic",
+    "runtime polling/task-state semantics",
+    "game-bridge methods used by garrison execution"
+  ],
+  "nextCheckpoint": "Recover another retained Squads/AFK offline/config surface; keep live AFK/equipment/garrison actions fenced until their providers and protocol contracts are evidence-backed."
+}

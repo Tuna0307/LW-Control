@@ -194,8 +194,16 @@ internal sealed class ProfileRuntimeConfigStore
         }
     }
 
-    internal JsonObject SaveMonsterSweepConfig(JsonObject config)
+    internal JsonObject SaveMonsterSweepConfig(JsonObject config) =>
+        SaveTaskConfig("monsterSweep", config);
+
+    internal JsonObject SaveAllianceGarrisonConfig(JsonObject config) =>
+        SaveTaskConfig("allianceGarrison", config);
+
+    private JsonObject SaveTaskConfig(string taskName, JsonObject config)
     {
+        if (string.IsNullOrWhiteSpace(taskName))
+            throw new ArgumentException("Task name is required.", nameof(taskName));
         ArgumentNullException.ThrowIfNull(config);
 
         lock (storageGate)
@@ -219,7 +227,7 @@ internal sealed class ProfileRuntimeConfigStore
                     throw StateUnavailable();
                 }
 
-                tasks["monsterSweep"] = config.DeepClone();
+                tasks[taskName] = config.DeepClone();
                 WriteRoot(root);
                 return (JsonObject)config.DeepClone();
             }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "LWB-R8-024",
+  "checkpoint": "LWB-R8-025",
   "date": "2026-09-25",
   "reference": {
     "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
@@ -22,6 +22,7 @@
     "docs/deep-binary-handoff.md",
     "docs/reviews/2026-09-24-r8-lwke1-package-key-independent-recovery.md",
     "docs/reviews/2026-09-24-r8-011-map-data-options-strict-parity.md",
+    "docs/reviews/2026-09-25-r8-025-alliance-garrison-config-persistence.md",
     "docs/reviews/2026-09-25-r8-024-monster-afk-config-persistence.md",
     "docs/reviews/2026-09-25-r8-023-equipment-config-persistence.md",
     "docs/reviews/2026-09-25-r8-022-feedback-export-contract-fence.md",
@@ -39,6 +40,7 @@
     "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md"
   ],
   "primaryHistoricalEvidence": [
+    "evidence/lwbridge-implementation/2026-09-25-r8-025-alliance-garrison-config-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-024-monster-afk-config-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-023-equipment-config-persistence.json",
     "evidence/lwbridge-implementation/2026-09-25-r8-022-feedback-export-contract-fence.json",
@@ -69,7 +71,7 @@
     "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json"
   ],
   "priorityResearch": [
-    "recover another retained Squads/AFK offline/config surface, prioritizing alliance_garrison_config_save; keep Monster AFK start/stop and equipment apply execution fenced until live provider/protocol evidence is complete",
+    "recover another retained Squads/AFK offline/config surface; keep Monster AFK, Alliance Garrison and equipment live actions fenced until provider/protocol evidence is complete",
     "implement the City Layout snapshot host boundary only when an evidence-backed getCityLayoutSnapshot provider is available; keep validate/apply planner-executor protected",
     "keep Monster distance, City shield and Railway quality fail-closed until stronger reference evidence recovers their exact native sort branches and remaining multi-sort assembly",
     "continue protected Map acquisition/travel/action recovery only when new permitted reference evidence supports exact behavior",

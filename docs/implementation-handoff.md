@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-024`
+**Current checkpoint:** `LWB-R8-025`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -132,6 +132,10 @@ R8-023 restores profile-scoped `equipment_config_get/save` on the shared runtime
 ## R8-024 Monster AFK configuration checkpoint
 
 R8-024 restores profile-scoped `monster_afk_config_save` on the same runtime config. The native validator requires top-level `enabled/strategies/allianceDrill`, exact `farm`/`join` kind/action coupling, nonnegative execution limits, conditional level-range rules, unique squad indexes 1..4, and the recovered Monster-AFK/alliance-drill error vocabulary. Save patches only `/tasks/monsterSweep`, strips routing-only `profileId`, preserves sibling tasks/root JSON and opaque strategy fields, returns the saved config shape, and `get_status.config.tasks` now reads from the same runtime store so the original Squad panel reloads persisted Monster AFK state. `monster_afk_start` and `monster_afk_stop` remain deliberately fenced because live attack/rally execution is still provider/protocol-dependent. See `docs/reviews/2026-09-25-r8-024-monster-afk-config-persistence.md`.
+
+## R8-025 Alliance Garrison configuration checkpoint
+
+R8-025 restores profile-scoped `alliance_garrison_config_save` and `/tasks/allianceGarrison` persistence/status reload. The immutable Squad panel and an original runtime profile agree on the native default `{enabled:false,recallOnDisable:true,squadPriority:[],targets:[]}`. The native validator accepts optional `enabled`/`recallOnDisable`, requires unique integer squad indexes 1..4, validates `allianceBuilding` and `allyCity` targets, applies strict nonblank city-snapshot validation, rejects duplicate normalized identities and overlong target names, and requires at least one target plus squad only when enabled. Save patches only `tasks.allianceGarrison`, strips routing-only `profileId`, preserves sibling/root/opaque JSON, and returns the saved task. Live automation start/stop/garrison/recall execution remains provider/protocol dependent and is not implemented here. See `docs/reviews/2026-09-25-r8-025-alliance-garrison-config-persistence.md`.
 
 ## Parked protected package-key lane
 

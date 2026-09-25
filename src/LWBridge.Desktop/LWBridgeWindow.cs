@@ -54,6 +54,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly VisualMetricsConfigCommandService? visualMetricsConfigService;
     private readonly EquipmentConfigCommandService? equipmentConfigService;
     private readonly MonsterAfkConfigCommandService? monsterAfkConfigService;
+    private readonly AllianceGarrisonConfigCommandService? allianceGarrisonConfigService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -159,6 +160,9 @@ internal sealed class LWBridgeWindow : Form
         monsterAfkConfigService = profileRuntimeConfigStore is null
             ? null
             : new MonsterAfkConfigCommandService(profileRuntimeConfigStore);
+        allianceGarrisonConfigService = profileRuntimeConfigStore is null
+            ? null
+            : new AllianceGarrisonConfigCommandService(profileRuntimeConfigStore);
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -211,6 +215,7 @@ internal sealed class LWBridgeWindow : Form
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
+            if (allianceGarrisonConfigService is not null) services.Add(allianceGarrisonConfigService);
             productionCommands = services.Count switch
             {
                 0 => null,
