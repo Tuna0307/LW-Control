@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-035`, 2026-09-25
+**Current through:** `LWB-R8-036`, 2026-09-25
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -41,7 +41,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Treasure/Supplies read paths | PARTIAL EXACT_CONTRACT + reimplementation | Many original fields/query/state contracts recovered; protected orchestration incomplete | Recover original protected handlers/scripts |
 | Treasure claim orchestration | UNKNOWN | Exact original protected implementation not recovered | Recover from original package/host/proxy evidence before enabling |
 | Map SQLite/index/query semantics | PARTIAL EXACT_CONTRACT + reimplementation | Large portions of SQL/query/normalization recovered | Finish unresolved branches and compare exact outputs/errors |
-| Marks / Jump / Follow | PARTIAL EXACT_CONTRACT + reimplementation | Rebuild behavior tested | Tie every branch/default/error to reference |
+| Marks / Jump / Follow | PARTIAL EXACT_CONTRACT + reimplementation | R8-009 restores the public `server_jump` success envelope; R8-036 restores `server_jump_history_get/set/import`, exact ID normalization, import-if-missing migration and `map-data.db/app_settings` persistence for the retained profile | Continue tying remaining mark/jump/follow branches and connected-state errors to reference |
 | Auto Scan frontend scheduler/control plane | EXACT_BYTES-derived + EQUIVALENT public-command wiring | R8-015 restores original persisted Fast/Normal config, due predicate, connected-state effect, sequential target flow, Run Now/return/deadline semantics and Auto card; removes R7 restart/one-shot/Stop policies | Preserve; protected `server_jump` and map acquisition internals remain separate |
 | Original bridge pipe framing | PARTIAL EXACT_CONTRACT | Frame length and hello fields recovered | Recover exact hello.ack, readiness, request/result grammar and failure mapping |
 | `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / evidence-limited | Earlier R8 work recovered substantial package/crypto structure, but the remaining LWKE1 field map/AAD is blocked on genuinely new permitted evidence | Keep this lane parked while evidence-limited; resume only for retained non-account runtime needs when new permitted evidence appears |

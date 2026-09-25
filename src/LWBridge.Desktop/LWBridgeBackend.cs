@@ -42,6 +42,7 @@ internal sealed class LWBridgeBackend
     private readonly OverviewLifecycleService? overviewLifecycle;
     private readonly LWBridgeControlPipeHostState? bridgeHostState;
     private readonly MapDataStore? mapData;
+    private readonly ServerJumpHistoryCommandService serverJumpHistory;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
@@ -63,6 +64,9 @@ internal sealed class LWBridgeBackend
         this.overviewLifecycle = overviewLifecycle;
         this.bridgeHostState = bridgeHostState;
         this.mapData = mapData;
+        serverJumpHistory = new ServerJumpHistoryCommandService(
+            this.config.Snapshot.ProfileId,
+            mapData);
         this.lastWarLocales = lastWarLocales ?? new LastWarLocaleService();
         this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
@@ -176,9 +180,10 @@ internal sealed class LWBridgeBackend
                 RequireOptionalProfile(payload);
                 return overviewLifecycle?.CurrentRecoveryStatus ?? new OverviewRecoveryStatus(
                     "idle", null, false, false, null, null, 0, null, null, null, false);
+            case "server_jump_history_get":
             case "server_jump_history_import":
             case "server_jump_history_set":
-                return SaveServerJumpHistory(payload);
+                return serverJumpHistory.Invoke(command, payload);
             case "update_status":
                 return new
                 {
@@ -420,27 +425,6 @@ internal sealed class LWBridgeBackend
             ? current with { AutoLaunchGame = autoLaunchGame.Value }
             : current);
         return new { autoLaunchGame = next.AutoLaunchGame, autoReconnect = next.AutoReconnect };
-    }
-
-    private IReadOnlyList<int> SaveServerJumpHistory(JsonElement payload)
-    {
-        if (!payload.TryGetProperty("history", out JsonElement history) || history.ValueKind != JsonValueKind.Array)
-            throw new BridgeCommandException("INVALID_PAYLOAD", "history must be an array of server IDs.");
-
-        var seen = new HashSet<int>();
-        var normalized = new List<int>(5);
-        foreach (JsonElement item in history.EnumerateArray())
-        {
-            if (item.ValueKind != JsonValueKind.Number || !item.TryGetInt32(out int serverId))
-                continue;
-            if (serverId < 1 || serverId > 99999 || !seen.Add(serverId))
-                continue;
-            normalized.Add(serverId);
-            if (normalized.Count == 5) break;
-        }
-
-        LWBridgeLocalConfig saved = UpdateConfig(c => c with { ServerJumpHistory = normalized });
-        return saved.ServerJumpHistory;
     }
 
     private object CreateStatus()
@@ -836,6 +820,8 @@ internal sealed class LWBridgeBackend
     {
         if (payload.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_PAYLOAD", "Command payload must be a JSON object.");
+        if (ServerJumpHistoryCommandService.IsCommand(command))
+            return;
         if (!GlobalCommands.Contains(command))
             RequireProfile(payload);
     }

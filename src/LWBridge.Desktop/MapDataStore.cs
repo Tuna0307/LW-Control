@@ -259,6 +259,44 @@ internal sealed partial class MapDataStore : IDisposable
 
     public static MapDataStore CreateInMemory() => new(new SqliteConnection("Data Source=:memory:"));
 
+    internal string? ReadAppSettingJson(string key)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText =
+                "SELECT value_json FROM app_settings WHERE key=$key";
+            command.Parameters.AddWithValue("$key", key);
+            object? value = command.ExecuteScalar();
+            return value is null or DBNull ? null : Convert.ToString(value, CultureInfo.InvariantCulture);
+        }
+    }
+
+    internal void UpsertAppSettingJson(
+        string key,
+        string valueJson,
+        long updatedAt)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        ArgumentNullException.ThrowIfNull(valueJson);
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO app_settings(key,value_json,updated_at)
+                VALUES ($key,$value,$updated)
+                ON CONFLICT(key) DO UPDATE SET
+                  value_json=excluded.value_json,
+                  updated_at=excluded.updated_at
+                """;
+            command.Parameters.AddWithValue("$key", key);
+            command.Parameters.AddWithValue("$value", valueJson);
+            command.Parameters.AddWithValue("$updated", updatedAt);
+            command.ExecuteNonQuery();
+        }
+    }
+
     public void UpsertRecord(MapStoredRecord record)
     {
         ValidateRecord(record);

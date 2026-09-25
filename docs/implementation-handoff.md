@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-035`
+**Current checkpoint:** `LWB-R8-036`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -178,6 +178,14 @@ R8-034 restores `profile_select` for the retained controller registry. Native 0.
 R8-035 replaces the rebuild's `set_window_theme` no-op with the recovered native window effect. Parsed semantic values are exactly `light` and `dark`; any other parsed string returns `INVALID_THEME` / `theme must be light or dark`. Native applies `DwmSetWindowAttribute` attributes 20, 35, 36 and 34 in that order, with exact recovered light/dark values for immersive mode, caption, text and border colors. Negative HRESULTs stop the sequence and return `WINDOW_THEME_FAILED` with `DwmSetWindowAttribute failed: <signed decimal HRESULT>`. Success is null/unit. The desktop host applies this to its real top-level window handle; deterministic tests inject the DWM writer and do not change the user's desktop. See `docs/reviews/2026-09-25-r8-035-window-theme.md`.
 
 Target-selection research also proved two important fences. Native `profile_create` is capacity-gated through shared account/profile state (`PROFILE_LIMIT_REACHED`, same subsystem as `license_capacity`), so the rebuild's fixed single-profile quota must not be substituted. Native `server_jump_history_get`, `server_jump_history_set`, and `server_jump_history_import` all resolve a profile runtime through the bridge-pipe runtime map; the current rebuild local-config history owner is not yet proven equivalent and must be revisited with runtime-owner recovery rather than extended with a synthetic get path.
+
+## R8-036 Server-jump history checkpoint
+
+R8-036 resolves the storage-owner caveat recorded during R8-035. Native `server_jump_history_get/set/import` resolve the requested profile runtime and use that runtime's per-profile `map-data.db`; the value is `app_settings['serverJumpHistory']`. The rebuild already owns the recovered per-profile Map Data schema, so public history commands now use its `app_settings` table instead of `LocalConfigStore.ServerJumpHistory`.
+
+The recovered normalizer accepts integer server IDs 1..99999, removes duplicates in first-seen order, ignores invalid elements and caps output at five. Missing/non-array `history` becomes `[]`. Get returns `[]` for a missing setting without creating it. Set normalizes, upserts and returns. Import is migration-only: an existing setting wins unchanged; only a missing setting imports the supplied legacy history. This matches the retained frontend's `lastwar.serverJumpHistory` localStorage migration, which removes the browser key only after import succeeds.
+
+Stable native profile/runtime codes are also restored for this family: `PROFILE_ID_REQUIRED` and `PROFILE_RUNTIME_UNAVAILABLE`. Malformed stored JSON uses `INVALID_SETTING`. The legacy rebuild LocalConfig history field remains readable for backward compatibility but is no longer a public-command owner. See `docs/reviews/2026-09-25-r8-036-server-jump-history.md`.
 
 ## Parked protected package-key lane
 

@@ -408,6 +408,7 @@ await LWBridge.Desktop.Checks.CityLayoutDraftChecks.RunAsync();
 await LWBridge.Desktop.Checks.HotkeyConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.VisualMetricsConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.WindowThemeChecks.RunAsync();
+await LWBridge.Desktop.Checks.ServerJumpHistoryChecks.RunAsync();
 await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();
@@ -742,10 +743,12 @@ try
     Check(File.ReadAllBytes(configPath).SequenceEqual(committedBeforeAbandonedTemp),
         "abandoned replacement temp leaves committed config bytes unchanged");
 
+    // Legacy rebuild config can still contain this obsolete field, but R8-036
+    // moves the public server-jump-history commands to map-data.db/app_settings.
     store.Update(c => c with { ServerJumpHistory = new[] { 9, 9, 0, 100000, 8, 7, 6, 5, 4 } });
     var historyReloaded = new LocalConfigStore(configRoot);
     Check(historyReloaded.Snapshot.ServerJumpHistory.SequenceEqual(new[] { 9, 8, 7, 6, 5 }),
-        "server-jump history persists normalized unique IDs with recovered five-item limit");
+        "legacy config history remains readable during storage-owner migration");
 
     // A valid backup must recover identity without silently inventing a new profile.
     File.WriteAllText(configPath, "{ definitely not valid json");
@@ -780,14 +783,6 @@ try
         await ownerBBackend.InvokeAsync("set_automation", reconnectPayload.RootElement.Clone(), CancellationToken.None);
     }
     ownerBStore.Update(c => c with { GameRoot = @"C:\LastWar\RecoveredRoot" });
-    using (JsonDocument ownerBHistoryPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
-    {
-        profileId = ownerBBackend.ProfileId,
-        history = new[] { 501, 502, 503 },
-    })))
-    {
-        await ownerBBackend.InvokeAsync("server_jump_history_set", ownerBHistoryPayload.RootElement.Clone(), CancellationToken.None);
-    }
 
     using (JsonDocument partialSave = JsonDocument.Parse("{\"autoLaunchGame\":false}"))
     {
@@ -797,9 +792,8 @@ try
     LWBridgeLocalConfig persisted = new LocalConfigStore(backendPartialRoot).Snapshot;
     Check(persisted.ProfileId == originalProfileId && !persisted.AutoLaunchGame && persisted.AutoReconnect,
         "backend partial config save preserves profile identity and another owner's reconnect update");
-    Check(persisted.GameRoot == @"C:\LastWar\RecoveredRoot" &&
-          persisted.ServerJumpHistory.SequenceEqual(new[] { 501, 502, 503 }),
-        "backend partial config save preserves another owner's root and server history updates");
+    Check(persisted.GameRoot == @"C:\LastWar\RecoveredRoot",
+        "backend partial config save preserves another owner's root update");
 }
 finally
 {
@@ -3121,23 +3115,6 @@ finally
 using JsonDocument scalarPayload = JsonDocument.Parse("\"bad\"");
 await ExpectBridgeError("INVALID_PAYLOAD", "native boundary rejects non-object payloads", async () =>
     await backend.InvokeAsync("profile_list", scalarPayload.RootElement.Clone(), CancellationToken.None));
-
-using JsonDocument historyPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
-{
-    profileId = backend.ProfileId,
-    history = new object[] { 101, 101, 0, 100000, "bad", 202, 303, 404, 505, 606 },
-}));
-object? normalizedHistory = await backend.InvokeAsync("server_jump_history_set", historyPayload.RootElement.Clone(), CancellationToken.None);
-Check(JsonSerializer.Serialize(normalizedHistory, JsonOptions.Default) == "[101,202,303,404,505]",
-    "server-jump history validates, deduplicates and caps persisted IDs");
-
-using JsonDocument invalidHistoryPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
-{
-    profileId = backend.ProfileId,
-    history = "not-an-array",
-}));
-await ExpectBridgeError("INVALID_PAYLOAD", "server-jump history rejects non-array input", async () =>
-    await backend.InvokeAsync("server_jump_history_set", invalidHistoryPayload.RootElement.Clone(), CancellationToken.None));
 
 // Native request lifetime: duplicate IDs, explicit cancellation and teardown are deterministic.
 using (var requests = new NativeRequestRegistry())
