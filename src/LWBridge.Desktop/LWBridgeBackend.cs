@@ -44,6 +44,7 @@ internal sealed class LWBridgeBackend
     private readonly MapDataStore? mapData;
     private readonly ServerJumpHistoryCommandService serverJumpHistory;
     private readonly AppendLogCommandService appendLog;
+    private readonly ProxyStatusCommandService proxyStatus;
     private readonly LastWarLocaleService lastWarLocales;
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
@@ -59,7 +60,9 @@ internal sealed class LWBridgeBackend
         Func<object>? mapScanStatusProvider = null,
         LWBridgeControlPipeHostState? bridgeHostState = null,
         Func<object?>? runtimeTasksProvider = null,
-        string? profileRuntimeDirectory = null)
+        string? profileRuntimeDirectory = null,
+        GameInstallationTestHooks? installationTestHooks = null,
+        ProxyStatusTestHooks? proxyStatusTestHooks = null)
     {
         this.config = config ?? new LocalConfigStore();
         this.asyncCommands = asyncCommands;
@@ -76,7 +79,13 @@ internal sealed class LWBridgeBackend
         this.firstLiveResultServerId = firstLiveResultServerId;
         this.mapScanStatusProvider = mapScanStatusProvider;
         this.runtimeTasksProvider = runtimeTasksProvider;
-        installation = new(this.config);
+        installation = new(this.config, installationTestHooks);
+        proxyStatus = new ProxyStatusCommandService(
+            this.config.Snapshot.ProfileId,
+            profileRuntimeDirectory,
+            installation,
+            runtimeManagedProvider: () => overviewLifecycle?.RuntimeManaged ?? false,
+            testHooks: proxyStatusTestHooks);
     }
 
     public string ProfileId => config.Snapshot.ProfileId;
@@ -192,8 +201,7 @@ internal sealed class LWBridgeBackend
                 RequireOptionalProfile(payload);
                 return CreateStatus();
             case "proxy_status":
-                RequireOptionalProfile(payload);
-                return CreateProxyStatus();
+                return proxyStatus.Invoke(payload);
             case "game_root_status":
                 return installation.GetNativeStatus();
             case "game_recovery_status":
@@ -464,20 +472,6 @@ internal sealed class LWBridgeBackend
                 auto_close_popup = false,
                 tasks = runtimeTasksProvider?.Invoke() ?? new Dictionary<string, object>(),
             },
-        };
-    }
-
-    private object CreateProxyStatus()
-    {
-        GameProcessStatus process = installation.GetProcessStatus();
-        return new
-        {
-            gameRunning = process.GameRunning,
-            launcherRunning = process.LauncherRunning,
-            repairRequired = overviewLifecycle?.RepairRequired ?? false,
-            bridgeOnline = overviewLifecycle?.IsReady ?? false,
-            gamePid = process.GamePid,
-            launcherPid = process.LauncherPid,
         };
     }
 
@@ -839,6 +833,8 @@ internal sealed class LWBridgeBackend
 
     private void ValidateCommandScope(string command, JsonElement payload)
     {
+        if (string.Equals(command, "proxy_status", StringComparison.Ordinal))
+            return;
         if (payload.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_PAYLOAD", "Command payload must be a JSON object.");
         if (ServerJumpHistoryCommandService.IsCommand(command))

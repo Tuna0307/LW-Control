@@ -144,6 +144,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public bool RepairRequired => TryGetRepairSnapshot(out _);
 
+    public bool RuntimeManaged
+    {
+        get
+        {
+            RefreshExitedOwnership();
+            return GetOwnedSnapshot() is not null;
+        }
+    }
+
     // PM16-01 IMPLEMENTATION POLICY: a validated installation may replace the bound
     // lifecycle root only while no owned launch/close/recovery work is active and no
     // same-profile recovery journal remains. Re-selecting the same root

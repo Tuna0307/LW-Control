@@ -412,6 +412,7 @@ await LWBridge.Desktop.Checks.ServerJumpHistoryChecks.RunAsync();
 await LWBridge.Desktop.Checks.AppendLogChecks.RunAsync();
 await LWBridge.Desktop.Checks.GameRootNativeStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.GameRootSelectChecks.RunAsync();
+await LWBridge.Desktop.Checks.ProxyStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
 await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();
@@ -1341,7 +1342,8 @@ try
     var repairBackend = new LWBridgeBackend(
         repairConfig,
         repairLifecycle,
-        overviewLifecycle: repairLifecycle);
+        overviewLifecycle: repairLifecycle,
+        profileRuntimeDirectory: repairRoot);
     using JsonDocument repairEmptyPayload = JsonDocument.Parse("{}");
 
     repairJournalProfile = "foreign-profile";
@@ -1389,8 +1391,8 @@ try
     object? repairProxyStatus = await repairBackend.InvokeAsync(
         "proxy_status", repairProfilePayload.RootElement.Clone(), CancellationToken.None);
     using (JsonDocument proxy = JsonDocument.Parse(JsonSerializer.Serialize(repairProxyStatus, JsonOptions.Default)))
-        Check(proxy.RootElement.GetProperty("repairRequired").ValueKind == JsonValueKind.True,
-            "proxy_status exposes correlated Overview repairRequired state");
+        Check(proxy.RootElement.GetProperty("repairRequired").ValueKind == JsonValueKind.False,
+            "proxy_status no longer projects the rebuild-only Overview recovery flag");
 
     repairStopFails = true;
     object? failedRepair = await repairBackend.InvokeAsync(

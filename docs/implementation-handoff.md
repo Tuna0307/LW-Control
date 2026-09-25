@@ -2,8 +2,8 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-039`
-**Date:** 2026-09-25
+**Current checkpoint:** `LWB-R8-040`
+**Date:** 2026-09-26
 
 ## Current directive
 
@@ -210,6 +210,14 @@ R8-039 restores the recovered public `game_root_select` result and save boundary
 Normalization and validity reuse the native root logic recovered in R8-038. Only valid selections enter shared path-state persistence. Missing path state is `STATE_UNAVAILABLE` / `path state is unavailable`; a path that cannot be normalized/revalidated at the persistence boundary uses `INVALID_GAME_ROOT` / `select the folder containing Game\\LastWar.exe`.
 
 The public picker no longer routes through the rebuild's stricter `SaveGameRoot` lifecycle/rebind path. That stricter path remains internal launch/repair safety. The original dialog/storage plumbing is not claimed byte-identical: native uses its own dialog stack and `game-root.txt`; the rebuild keeps `FolderBrowserDialog` plus LocalConfig as equivalent plumbing. See `docs/reviews/2026-09-25-r8-039-game-root-select.md`.
+
+## R8-040 proxy_status checkpoint
+
+R8-040 restores the native public `proxy_status` projection. The full launch-component branch returns exactly `state`, `installed`, `resourceAvailable`, `targetExists`, `originalExists`, `installedMode`, `gameRunning`, `targetPath`, `runtimeManaged`, `repairRequired`; the reduced no-launch-component branch omits `installedMode` and returns the remaining nine fields. The old rebuild-only `launcherRunning`, `bridgeOnline`, `gamePid`, and `launcherPid` fields are removed from this command.
+
+Recovered state vocabulary and precedence are `resourceMissing`, `targetMissing`, `needsRepair`, and `installed`. The target is `Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll`, the preserved original is `xlua_.dll`, and `installedMode` is `secure`, `plain`, or null according to target-vs-resource hashes. `repairRequired` is exactly `!runtimeManaged && gameRunning && state == needsRepair`; it is not the rebuild Overview recovery-journal flag.
+
+The command now exposes native profile/runtime validation codes `PROFILE_ID_REQUIRED`, `PROFILE_RUNTIME_UNAVAILABLE`, and `STATE_UNAVAILABLE`. Exact prose for the first two remains `UNKNOWN`. Resource discovery is read-only equivalent plumbing over a complete recovered proxy resource set; proxy install/overwrite/backup/restore, original launcher ownership, and close/exit restoration remain incomplete. See `docs/reviews/2026-09-26-r8-040-proxy-status.md`.
 
 ## Parked protected package-key lane
 
