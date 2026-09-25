@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-031`, 2026-09-25.
+**Current through:** `LWB-R8-032`, 2026-09-25.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -11,7 +11,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Reference artifact | EXACT_BYTES authority | Hash reverified 2026-09-24 |
 | Retained frontend assets | EXACT_BYTES-derived | Original chunks/styles/icons/locales recovered; transformed boundary and prior retained-scope product deviations still require cleanup |
 | Auth/account flows | EXCLUDED — explicit owner directive | Login/Register/authentication/account management/activation/renewal/unbind/logout/entitlement/account-purpose UI/backend are intentionally outside retained scope |
-| Overview | EQUIVALENT_REIMPLEMENTATION / PARTIAL profile registry | R8-029 replaces the synthetic `profile_list` object with an evidence-backed controller registry for the normal retained single-profile path; R8-030 restores exact `profile_note_set`; R8-031 restores `profile_reorder` ID/permutation validation and transactional order persistence. Profile select/enable/primary/create/delete and exact launcher lifecycle still need recovery |
+| Overview | EQUIVALENT_REIMPLEMENTATION / PARTIAL profile registry | R8-029 replaces the synthetic `profile_list` object with an evidence-backed controller registry for the normal retained single-profile path; R8-030 restores exact `profile_note_set`; R8-031 restores `profile_reorder`; R8-032 restores the fixed `profile_primary_set` guard and primary uniqueness index. Profile select/enable/create/delete and exact launcher lifecycle still need recovery |
 | Automation | UI EXACT_BYTES / PARTIAL backend | R8-026 restores Resource Automation config/status/event. R8-027 restores generic `automation_status` for the exact native 18-task idle projection plus valid persisted-status passthrough. Generic configure/inspect/start/stop and Resource Run Now remain incomplete/provider-gated |
 | Map Data | MIXED / not parity-complete | Large amount recovered, but acquisition internals and product customizations diverged |
 | Squads / AFK | UI EXACT_BYTES / PARTIAL backend | R8-023 restores equipment config persistence; R8-024 restores Monster AFK config validation/persistence/status reload; R8-025 restores Alliance Garrison config validation, `tasks.allianceGarrison` persistence and status reload. Live AFK/garrison execution and equipment apply remain incomplete/protected |

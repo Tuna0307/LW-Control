@@ -366,6 +366,61 @@ internal static class ProfileRegistryChecks
                 backendReorder.GetProperty("profiles")[2]
                     .GetProperty("id").GetString() == profileId,
                 "backend routes profile_reorder");
+
+            Require(
+                HasPrimaryUniqueIndex(databasePath),
+                "controller schema has native primary uniqueness index");
+            long primaryUpdatedAt =
+                ReadUpdatedAt(databasePath, profileId);
+            JsonElement primaryResult = await InvokePrimary(
+                service,
+                profileId);
+            Require(
+                primaryResult.GetProperty("selectedProfileId").GetString() ==
+                    profileId,
+                "primary assertion preserves selected profile");
+            Require(
+                store.Read().Profiles.Single(
+                    profile => profile.Id == profileId).IsPrimary,
+                "current primary remains primary");
+            Require(
+                ReadUpdatedAt(databasePath, profileId) == primaryUpdatedAt,
+                "primary assertion is a no-op mutation");
+
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_primary_set",
+                new { profileId = "alpha" },
+                "PROFILE_PRIMARY_FIXED");
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_primary_set",
+                new { profileId = "missing-profile" },
+                "PROFILE_NOT_FOUND");
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_primary_set",
+                new { profileId = "bad id" },
+                "INVALID_PROFILE_ID");
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_primary_set",
+                new { },
+                "INVALID_REQUEST");
+
+            JsonElement backendPrimary =
+                JsonSerializer.SerializeToElement(
+                    await backend.InvokeAsync(
+                        "profile_primary_set",
+                        JsonSerializer.SerializeToElement(
+                            new { profileId },
+                            JsonOptions.Default),
+                        CancellationToken.None),
+                    JsonOptions.Default);
+            Require(
+                backendPrimary.GetProperty("selectedProfileId")
+                    .GetString() == profileId,
+                "backend routes profile_primary_set");
         }
         finally
         {
@@ -409,6 +464,21 @@ internal static class ProfileRegistryChecks
             "profile_note_set",
             payload,
             expectedCode);
+
+    private static async Task<JsonElement> InvokePrimary(
+        ProfileRegistryCommandService service,
+        string profileId)
+    {
+        object? result = await service.InvokeAsync(
+            "profile_primary_set",
+            JsonSerializer.SerializeToElement(
+                new { profileId },
+                JsonOptions.Default),
+            CancellationToken.None);
+        return JsonSerializer.SerializeToElement(
+            result,
+            JsonOptions.Default);
+    }
 
     private static async Task<JsonElement> InvokeReorder(
         ProfileRegistryCommandService service,
@@ -501,6 +571,22 @@ internal static class ProfileRegistryChecks
         while (reader.Read())
             values.Add(reader.GetInt64(0));
         return values.ToArray();
+    }
+
+    private static bool HasPrimaryUniqueIndex(string databasePath)
+    {
+        using var connection =
+            new SqliteConnection($"Data Source={databasePath}");
+        connection.Open();
+        using SqliteCommand command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT COUNT(*)
+            FROM sqlite_master
+            WHERE type = 'index'
+              AND name = 'idx_profiles_primary'
+              AND sql LIKE '%is_primary = 1%'
+            """;
+        return Convert.ToInt64(command.ExecuteScalar()) == 1;
     }
 
     private static long ReadUpdatedAt(

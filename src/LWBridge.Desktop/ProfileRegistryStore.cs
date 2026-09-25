@@ -65,6 +65,8 @@ internal sealed class ProfileRegistryStore : IDisposable
                     updated_at INTEGER NOT NULL,
                     last_launched_at INTEGER
                 );
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_profiles_primary
+                ON profiles(is_primary) WHERE is_primary = 1;
                 """;
             command.ExecuteNonQuery();
         }
@@ -214,6 +216,41 @@ internal sealed class ProfileRegistryStore : IDisposable
 
     private static BridgeCommandException InvalidProfileOrder() =>
         new("INVALID_PROFILE_ORDER", "INVALID_PROFILE_ORDER");
+
+    internal void AssertPrimary(string profileId)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            using SqliteCommand primary = connection.CreateCommand();
+            primary.CommandText =
+                "SELECT id FROM profiles WHERE is_primary = 1";
+            string? primaryId = primary.ExecuteScalar() as string;
+            if (string.Equals(
+                primaryId,
+                profileId,
+                StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            using SqliteCommand exists = connection.CreateCommand();
+            exists.CommandText =
+                "SELECT 1 FROM profiles WHERE id = $id";
+            exists.Parameters.AddWithValue("$id", profileId);
+            if (exists.ExecuteScalar() is null)
+            {
+                throw new BridgeCommandException(
+                    "PROFILE_NOT_FOUND",
+                    "PROFILE_NOT_FOUND");
+            }
+
+            throw new BridgeCommandException(
+                "PROFILE_PRIMARY_FIXED",
+                "PROFILE_PRIMARY_FIXED");
+        }
+    }
+
     private List<ProfileRegistryEntry> ReadProfiles()
     {
         using SqliteCommand command = connection.CreateCommand();

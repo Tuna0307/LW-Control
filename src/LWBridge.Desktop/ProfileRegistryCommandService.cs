@@ -35,7 +35,10 @@ internal sealed class ProfileRegistryCommandService :
     }
 
     public bool CanHandle(string command) =>
-        command is "profile_list" or "profile_note_set" or "profile_reorder";
+        command is "profile_list" or
+            "profile_note_set" or
+            "profile_reorder" or
+            "profile_primary_set";
 
     public Task<object?> InvokeAsync(
         string command,
@@ -67,6 +70,12 @@ internal sealed class ProfileRegistryCommandService :
             store.Reorder(
                 profileIds,
                 DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        else if (command == "profile_primary_set")
+        {
+            string profileId = RequiredString(payload, "profileId");
+            ValidateProfileId(profileId);
+            store.AssertPrimary(profileId);
         }
 
         object result = store.Read(maxProfiles);
