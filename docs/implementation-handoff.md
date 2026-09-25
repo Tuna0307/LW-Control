@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-030`
+**Current checkpoint:** `LWB-R8-031`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -156,6 +156,10 @@ R8-029 replaces the rebuild's synthetic one-profile `profile_list` object with a
 ## R8-030 Profile note checkpoint
 
 R8-030 restores `profile_note_set` on the controller registry. Native 0.3.1 requires string `profileId` and `note`; malformed public payloads return `INVALID_REQUEST`. The note validator counts Unicode scalar values (Rust `char` semantics), allows 0..80 scalars, and rejects U+0000..U+001F plus U+007F..U+009F with `INVALID_PROFILE_NOTE`. The exact persistence SQL is `UPDATE profiles SET note = ?, updated_at = ? WHERE id = ?`; an absent row returns `PROFILE_NOT_FOUND`. Success refreshes and returns the full `{selectedProfileId,maxProfiles,profiles}` state, matching the original frontend. See `docs/reviews/2026-09-25-r8-030-profile-note-set.md`.
+
+## R8-031 Profile reorder checkpoint
+
+R8-031 restores `profile_reorder`. Native 0.3.1 requires a `profileIds` array, validates every ID as 1..64 UTF-8 bytes containing only ASCII letters/digits/underscore/hyphen (`INVALID_PROFILE_ID` otherwise), and requires the submitted IDs to be an exact permutation of the current registry (`INVALID_PROFILE_ORDER` for duplicate, omission, extra or count mismatch). The native core then starts one transaction, captures one timestamp, and executes `UPDATE profiles SET display_order = ?, updated_at = ? WHERE id = ?` in submitted order using zero-based indexes before commit. Success refreshes the full profile-list state without changing selection. Missing/non-array `profileIds` is exact `INVALID_REQUEST`; exact generic Rust/Tauri wording for a non-string array element remains unclaimed. See `docs/reviews/2026-09-25-r8-031-profile-reorder.md`.
 
 ## Parked protected package-key lane
 

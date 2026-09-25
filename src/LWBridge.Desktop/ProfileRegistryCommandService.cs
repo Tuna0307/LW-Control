@@ -35,7 +35,7 @@ internal sealed class ProfileRegistryCommandService :
     }
 
     public bool CanHandle(string command) =>
-        command is "profile_list" or "profile_note_set";
+        command is "profile_list" or "profile_note_set" or "profile_reorder";
 
     public Task<object?> InvokeAsync(
         string command,
@@ -58,6 +58,16 @@ internal sealed class ProfileRegistryCommandService :
                 note,
                 DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
+        else if (command == "profile_reorder")
+        {
+            IReadOnlyList<string> profileIds =
+                RequiredProfileIds(payload);
+            foreach (string profileId in profileIds)
+                ValidateProfileId(profileId);
+            store.Reorder(
+                profileIds,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
 
         object result = store.Read(maxProfiles);
         return Task.FromResult<object?>(result);
@@ -77,6 +87,50 @@ internal sealed class ProfileRegistryCommandService :
         }
 
         return value.GetString() ?? string.Empty;
+    }
+
+    private static IReadOnlyList<string> RequiredProfileIds(
+        JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty(
+                "profileIds",
+                out JsonElement value) ||
+            value.ValueKind != JsonValueKind.Array)
+        {
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "INVALID_REQUEST");
+        }
+
+        var profileIds = new List<string>();
+        foreach (JsonElement item in value.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String)
+            {
+                throw new BridgeCommandException(
+                    "INVALID_REQUEST",
+                    "INVALID_REQUEST");
+            }
+            profileIds.Add(item.GetString() ?? string.Empty);
+        }
+        return profileIds;
+    }
+
+    private static void ValidateProfileId(string profileId)
+    {
+        int byteCount = Encoding.UTF8.GetByteCount(profileId);
+        if (byteCount is < 1 or > 64 ||
+            profileId.Any(ch =>
+                !((ch >= '0' && ch <= '9') ||
+                  (ch >= 'A' && ch <= 'Z') ||
+                  (ch >= 'a' && ch <= 'z') ||
+                  ch is '_' or '-')))
+        {
+            throw new BridgeCommandException(
+                "INVALID_PROFILE_ID",
+                "INVALID_PROFILE_ID");
+        }
     }
 
     private static void ValidateNote(string note)

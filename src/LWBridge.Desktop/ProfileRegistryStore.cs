@@ -170,6 +170,50 @@ internal sealed class ProfileRegistryStore : IDisposable
             }
         }
     }
+
+    internal void Reorder(
+        IReadOnlyList<string> profileIds,
+        long nowUnixMilliseconds)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            List<ProfileRegistryEntry> current = ReadProfiles();
+            if (profileIds.Count != current.Count ||
+                profileIds.Distinct(StringComparer.Ordinal).Count() !=
+                    profileIds.Count)
+            {
+                throw InvalidProfileOrder();
+            }
+
+            var requested = profileIds.ToHashSet(StringComparer.Ordinal);
+            if (current.Any(profile => !requested.Contains(profile.Id)))
+                throw InvalidProfileOrder();
+
+            using SqliteTransaction transaction =
+                connection.BeginTransaction();
+            for (int index = 0; index < profileIds.Count; index++)
+            {
+                using SqliteCommand update = connection.CreateCommand();
+                update.Transaction = transaction;
+                update.CommandText = """
+                    UPDATE profiles
+                    SET display_order = $displayOrder,
+                        updated_at = $now
+                    WHERE id = $id
+                    """;
+                update.Parameters.AddWithValue("$displayOrder", index);
+                update.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+                update.Parameters.AddWithValue("$id", profileIds[index]);
+                update.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+        }
+    }
+
+    private static BridgeCommandException InvalidProfileOrder() =>
+        new("INVALID_PROFILE_ORDER", "INVALID_PROFILE_ORDER");
     private List<ProfileRegistryEntry> ReadProfiles()
     {
         using SqliteCommand command = connection.CreateCommand();
