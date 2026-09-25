@@ -76,8 +76,18 @@ internal static class ProfileRegistryChecks
                 preserved.RoleName == "Commander",
                 "registry seeding preserves existing profile metadata");
 
+            var focusRequests = new List<string>();
+            bool throwFocus = false;
             using var service =
-                new ProfileRegistryCommandService(store);
+                new ProfileRegistryCommandService(
+                    store,
+                    focusProfile: id =>
+                    {
+                        if (throwFocus)
+                            throw new InvalidOperationException(
+                                "synthetic focus failure");
+                        focusRequests.Add(id);
+                    });
             object? serviceResult = await service.InvokeAsync(
                 "profile_list",
                 JsonSerializer.SerializeToElement(
@@ -267,6 +277,160 @@ internal static class ProfileRegistryChecks
                 "Beta",
                 2,
                 1_700_000_000_200);
+
+            long alphaUpdatedAt =
+                ReadUpdatedAt(databasePath, "alpha");
+
+            focusRequests.Clear();
+            JsonElement selectWithoutFocus = await InvokeSelect(
+                service,
+                new
+                {
+                    profileId = "alpha",
+                    focusGame = false,
+                });
+            Require(
+                selectWithoutFocus.GetProperty("selectedProfileId")
+                    .GetString() == "alpha",
+                "profile_select persists selected profile");
+            Require(
+                focusRequests.Count == 0,
+                "focusGame=false suppresses focus callback");
+            Require(
+                ReadUpdatedAt(databasePath, "alpha") == alphaUpdatedAt,
+                "profile_select does not mutate profile updated_at");
+
+            focusRequests.Clear();
+            JsonElement selectDefaultFocus = await InvokeSelect(
+                service,
+                new { profileId });
+            Require(
+                selectDefaultFocus.GetProperty("selectedProfileId")
+                    .GetString() == profileId,
+                "profile_select defaults selection normally");
+            Require(
+                focusRequests.SequenceEqual([profileId]),
+                "missing focusGame defaults true");
+
+            focusRequests.Clear();
+            JsonElement selectWrongTypeFocus = await InvokeSelect(
+                service,
+                new
+                {
+                    profileId = "alpha",
+                    focusGame = "not-a-bool",
+                });
+            Require(
+                selectWrongTypeFocus.GetProperty("selectedProfileId")
+                    .GetString() == "alpha",
+                "wrong-type focusGame still selects profile");
+            Require(
+                focusRequests.SequenceEqual(["alpha"]),
+                "wrong-type focusGame defaults true");
+
+            focusRequests.Clear();
+            JsonElement selectExplicitFocus = await InvokeSelect(
+                service,
+                new
+                {
+                    profileId,
+                    focusGame = true,
+                });
+            Require(
+                selectExplicitFocus.GetProperty("selectedProfileId")
+                    .GetString() == profileId &&
+                focusRequests.SequenceEqual([profileId]),
+                "focusGame=true invokes best-effort focus");
+
+            throwFocus = true;
+            JsonElement focusFailureStillSucceeds = await InvokeSelect(
+                service,
+                new
+                {
+                    profileId = "alpha",
+                    focusGame = true,
+                });
+            throwFocus = false;
+            Require(
+                focusFailureStillSucceeds.GetProperty("selectedProfileId")
+                    .GetString() == "alpha",
+                "focus failure does not fail profile selection");
+
+            SetProfileAvailability(
+                databasePath,
+                "alpha",
+                enabled: false,
+                lockedReason: null);
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_select",
+                new
+                {
+                    profileId = "alpha",
+                    focusGame = false,
+                },
+                "PROFILE_LOCKED");
+            SetProfileAvailability(
+                databasePath,
+                "alpha",
+                enabled: true,
+                lockedReason: "locked");
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_select",
+                new
+                {
+                    profileId = "alpha",
+                    focusGame = false,
+                },
+                "PROFILE_LOCKED");
+            SetProfileAvailability(
+                databasePath,
+                "alpha",
+                enabled: true,
+                lockedReason: null);
+
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_select",
+                new
+                {
+                    profileId = "missing-profile",
+                    focusGame = false,
+                },
+                "PROFILE_NOT_FOUND");
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_select",
+                new
+                {
+                    profileId = "bad id",
+                    focusGame = false,
+                },
+                "INVALID_PROFILE_ID");
+            await ExpectCommandPayloadCode(
+                service,
+                "profile_select",
+                new { focusGame = false },
+                "INVALID_REQUEST");
+
+            JsonElement backendSelect =
+                JsonSerializer.SerializeToElement(
+                    await backend.InvokeAsync(
+                        "profile_select",
+                        JsonSerializer.SerializeToElement(
+                            new
+                            {
+                                profileId,
+                                focusGame = false,
+                            },
+                            JsonOptions.Default),
+                        CancellationToken.None),
+                    JsonOptions.Default);
+            Require(
+                backendSelect.GetProperty("selectedProfileId")
+                    .GetString() == profileId,
+                "backend routes profile_select");
 
             JsonElement reorderResult = await InvokeReorder(
                 service,
@@ -465,6 +629,21 @@ internal static class ProfileRegistryChecks
             payload,
             expectedCode);
 
+    private static async Task<JsonElement> InvokeSelect(
+        ProfileRegistryCommandService service,
+        object payload)
+    {
+        object? result = await service.InvokeAsync(
+            "profile_select",
+            JsonSerializer.SerializeToElement(
+                payload,
+                JsonOptions.Default),
+            CancellationToken.None);
+        return JsonSerializer.SerializeToElement(
+            result,
+            JsonOptions.Default);
+    }
+
     private static async Task<JsonElement> InvokePrimary(
         ProfileRegistryCommandService service,
         string profileId)
@@ -528,6 +707,34 @@ internal static class ProfileRegistryChecks
                 error.Code == expectedCode,
                 $"expected {expectedCode}, got {error.Code}");
         }
+    }
+
+    private static void SetProfileAvailability(
+        string databasePath,
+        string id,
+        bool enabled,
+        string? lockedReason)
+    {
+        using var connection =
+            new SqliteConnection($"Data Source={databasePath}");
+        connection.Open();
+        using SqliteCommand command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE profiles
+            SET enabled = $enabled,
+                locked_reason = $lockedReason
+            WHERE id = $id
+            """;
+        command.Parameters.AddWithValue(
+            "$enabled",
+            enabled ? 1 : 0);
+        command.Parameters.AddWithValue(
+            "$lockedReason",
+            (object?)lockedReason ?? DBNull.Value);
+        command.Parameters.AddWithValue("$id", id);
+        Require(
+            command.ExecuteNonQuery() == 1,
+            "profile availability fixture updated");
     }
 
     private static void InsertProfile(

@@ -141,12 +141,21 @@ internal sealed class LWBridgeWindow : Form
             : Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "LWBridgeRebuild", "controller.db");
+        ProfileWindowFocusService? profileWindowFocus =
+            controllerDatabasePath is null
+                ? null
+                : new ProfileWindowFocusService(
+                    config.Snapshot.ProfileId,
+                    new GameInstallationService(config));
         profileRegistryService = controllerDatabasePath is null
             ? null
             : new ProfileRegistryCommandService(
                 config.Snapshot.ProfileId,
                 controllerDatabasePath,
-                "Local Game");
+                "Local Game",
+                focusProfile: profileWindowFocus is null
+                    ? null
+                    : profileWindowFocus.TryFocus);
         string? profileDatabasePath = isolated
             ? null
             : Path.Combine(

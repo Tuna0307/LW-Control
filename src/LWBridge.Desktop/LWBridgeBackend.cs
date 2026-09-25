@@ -14,6 +14,7 @@ internal sealed class LWBridgeBackend
     private static readonly HashSet<string> GlobalCommands = new(StringComparer.Ordinal)
     {
         "profile_list",
+        "profile_select",
         "profile_note_set",
         "profile_reorder",
         "profile_primary_set",

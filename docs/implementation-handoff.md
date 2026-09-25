@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-033`
+**Current checkpoint:** `LWB-R8-034`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -168,6 +168,10 @@ R8-032 restores `profile_primary_set` as the native immutable-primary assertion 
 ## R8-033 Claim-delay configuration checkpoint
 
 R8-033 restores the host-local `red_packet_delay_configure` and `treasure_delay_configure` commands. Native 0.3.1 accepts only numeric `minSeconds`/`maxSeconds`, requires finite ordered ranges within 0..60 seconds for red packets and 0..600 seconds for treasure, and uses `INVALID_REQUEST` with the recovered native detail when invalid. Success returns `{ok:true,range:[min,max]}`. The original writer mirrors each range into both `scheduler.<Kind>ClaimDelaySeconds` and `chat_automation.<kind>.claimDelaySeconds` before saving the current profile's `runtime/config.json`; the rebuild now does the same through the existing `ProfileRuntimeConfigStore` while preserving sibling/unknown fields. `profile_enable_set` remains fenced because it depends on excluded `license_capacity` behavior; destructive `profile_delete` remains fenced until runtime/profile-data cleanup semantics are completely closed; Trade Station remains provider-backed. See `docs/reviews/2026-09-25-r8-033-claim-delay-config.md`.
+
+## R8-034 Profile selection/focus checkpoint
+
+R8-034 restores `profile_select` for the retained controller registry. Native 0.3.1 validates `profileId`, requires the row to be enabled with `locked_reason IS NULL`, returns `PROFILE_NOT_FOUND` or `PROFILE_LOCKED` as appropriate, and updates only `controller_state.selected_profile_id`. `focusGame` defaults true when missing or non-boolean. When requested, focus is best effort: native verifies the running PID belongs to the configured `Game\\LastWar.exe`, enumerates visible top-level windows for that PID, calls `ShowWindow(hwnd, 9)`, then `SetForegroundWindow`; failure to find/focus a window does not fail selection. The rebuild reuses existing `GameInstallationService` process/path evidence and does not create a parallel launcher registry. See `docs/reviews/2026-09-25-r8-034-profile-select-focus.md`.
 
 ## Parked protected package-key lane
 

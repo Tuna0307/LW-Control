@@ -147,6 +147,45 @@ internal sealed class ProfileRegistryStore : IDisposable
         }
     }
 
+    internal void SelectProfile(string profileId)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+
+            using SqliteCommand check = connection.CreateCommand();
+            check.CommandText = """
+                SELECT enabled = 1 AND locked_reason IS NULL
+                FROM profiles
+                WHERE id = $id
+                """;
+            check.Parameters.AddWithValue("$id", profileId);
+            object? selectable = check.ExecuteScalar();
+            if (selectable is null)
+            {
+                throw new BridgeCommandException(
+                    "PROFILE_NOT_FOUND",
+                    "PROFILE_NOT_FOUND");
+            }
+
+            if (Convert.ToInt64(selectable) == 0)
+            {
+                throw new BridgeCommandException(
+                    "PROFILE_LOCKED",
+                    "PROFILE_LOCKED");
+            }
+
+            using SqliteCommand update = connection.CreateCommand();
+            update.CommandText = """
+                UPDATE controller_state
+                SET value = $profileId
+                WHERE key = 'selected_profile_id'
+                """;
+            update.Parameters.AddWithValue("$profileId", profileId);
+            update.ExecuteNonQuery();
+        }
+    }
+
     internal void UpdateNote(
         string profileId,
         string note,

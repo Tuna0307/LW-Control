@@ -9,15 +9,18 @@ internal sealed class ProfileRegistryCommandService :
 {
     private readonly ProfileRegistryStore store;
     private readonly int maxProfiles;
+    private readonly Action<string>? focusProfile;
 
     internal ProfileRegistryCommandService(
         string currentProfileId,
         string databasePath,
         string displayName,
-        int maxProfiles = 1)
+        int maxProfiles = 1,
+        Action<string>? focusProfile = null)
     {
         store = new ProfileRegistryStore(databasePath);
         this.maxProfiles = maxProfiles;
+        this.focusProfile = focusProfile;
         store.EnsureLocalProfile(
             currentProfileId,
             displayName,
@@ -25,17 +28,20 @@ internal sealed class ProfileRegistryCommandService :
     }
     internal ProfileRegistryCommandService(
         ProfileRegistryStore store,
-        int maxProfiles = 1)
+        int maxProfiles = 1,
+        Action<string>? focusProfile = null)
     {
         this.store = store ??
             throw new ArgumentNullException(nameof(store));
         if (maxProfiles < 1)
             throw new ArgumentOutOfRangeException(nameof(maxProfiles));
         this.maxProfiles = maxProfiles;
+        this.focusProfile = focusProfile;
     }
 
     public bool CanHandle(string command) =>
         command is "profile_list" or
+            "profile_select" or
             "profile_note_set" or
             "profile_reorder" or
             "profile_primary_set";
@@ -51,7 +57,19 @@ internal sealed class ProfileRegistryCommandService :
                 "COMMAND_NOT_IMPLEMENTED",
                 "Profile registry command is not implemented.");
 
-        if (command == "profile_note_set")
+        if (command == "profile_select")
+        {
+            string profileId = RequiredString(payload, "profileId");
+            ValidateProfileId(profileId);
+            store.SelectProfile(profileId);
+
+            if (ReadFocusGame(payload))
+            {
+                try { focusProfile?.Invoke(profileId); }
+                catch { }
+            }
+        }
+        else if (command == "profile_note_set")
         {
             string profileId = RequiredString(payload, "profileId");
             string note = RequiredString(payload, "note");
@@ -96,6 +114,21 @@ internal sealed class ProfileRegistryCommandService :
         }
 
         return value.GetString() ?? string.Empty;
+    }
+
+    private static bool ReadFocusGame(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty(
+                "focusGame",
+                out JsonElement value) ||
+            value.ValueKind is not (
+                JsonValueKind.True or JsonValueKind.False))
+        {
+            return true;
+        }
+
+        return value.GetBoolean();
     }
 
     private static IReadOnlyList<string> RequiredProfileIds(
