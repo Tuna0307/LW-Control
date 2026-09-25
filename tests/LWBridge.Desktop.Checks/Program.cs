@@ -953,8 +953,11 @@ Check(profileList is not null, "global profile_list works without active profile
 await ExpectBridgeError("PROFILE_REQUIRED", "profile-scoped command rejects missing profile", async () =>
     await backend.InvokeAsync("get_status", emptyPayload.RootElement.Clone(), CancellationToken.None));
 
+await ExpectBridgeError("PROFILE_ID_REQUIRED", "native instance status requires profileId", async () =>
+    await backend.InvokeAsync("profile_instance_status", emptyPayload.RootElement.Clone(), CancellationToken.None));
+
 using JsonDocument foreignProfile = JsonDocument.Parse("{\"profileId\":\"foreign-profile\"}");
-await ExpectBridgeError("PROFILE_SCOPE_MISMATCH", "foreign profile is rejected", async () =>
+await ExpectBridgeError("PROFILE_RUNTIME_UNAVAILABLE", "unknown instance-status runtime is rejected", async () =>
     await backend.InvokeAsync("profile_instance_status", foreignProfile.RootElement.Clone(), CancellationToken.None));
 
 using JsonDocument profilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = backend.ProfileId }));

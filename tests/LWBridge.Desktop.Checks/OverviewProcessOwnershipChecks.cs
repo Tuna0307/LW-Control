@@ -85,9 +85,8 @@ internal static class OverviewProcessOwnershipChecks
 
             JsonElement stoppedWithForeign = StatusElement(
                 await managedLifecycle.InvokeAsync("profile_instance_status", empty, CancellationToken.None));
-            Check(stoppedWithForeign.GetProperty("phase").GetString() == "stopped" &&
-                  stoppedWithForeign.GetProperty("pid").ValueKind == JsonValueKind.Null,
-                "foreign LastWar process must not be classified as selected-root unmanaged ownership");
+            Check(stoppedWithForeign.ValueKind == JsonValueKind.Null,
+                "native profile_instance_status must return null when no managed/recoverable instance exists");
             Check(IsAlive(foreignProcess), "foreign process must remain alive after selected-root status discovery");
 
             JsonElement started = StatusElement(
@@ -146,12 +145,8 @@ internal static class OverviewProcessOwnershipChecks
 
             JsonElement unmanagedStatus = StatusElement(
                 await unmanagedLifecycle.InvokeAsync("profile_instance_status", empty, CancellationToken.None));
-            Check(unmanagedStatus.GetProperty("phase").GetString() == "error" &&
-                  unmanagedStatus.GetProperty("pid").GetInt32() == unmanagedPid &&
-                  unmanagedStatus.GetProperty("instanceId").ValueKind == JsonValueKind.Null &&
-                  unmanagedStatus.GetProperty("connectionState").GetString() == "error" &&
-                  unmanagedStatus.GetProperty("error").GetString() == "UNMANAGED_GAME_RUNNING",
-                "selected-root unmanaged process must be reported with concrete conflict status and exact PID");
+            Check(unmanagedStatus.ValueKind == JsonValueKind.Null,
+                "native profile_instance_status must not fabricate an instance record for an unmanaged process");
 
             string unmanagedStartCode = await CaptureStartErrorAsync(unmanagedLifecycle, empty);
             Check(unmanagedStartCode == "UNMANAGED_GAME_RUNNING",
@@ -182,7 +177,7 @@ internal static class OverviewProcessOwnershipChecks
                 unmanaged = new
                 {
                     selectedPid = unmanagedPid,
-                    statusError = unmanagedStatus.GetProperty("error").GetString(),
+                    statusWasNull = unmanagedStatus.ValueKind == JsonValueKind.Null,
                     startError = unmanagedStartCode,
                     selectedProcessPreserved = IsAlive(unmanagedSelectedProcess),
                     unrelatedProcessPreserved = IsAlive(foreignProcess),

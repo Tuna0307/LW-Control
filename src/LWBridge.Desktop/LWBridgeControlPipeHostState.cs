@@ -48,6 +48,10 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
 
     public int ConnectedRouteCount => registry.ConnectedCount;
 
+    internal bool IsRouteConnected(string instanceId) =>
+        !string.IsNullOrWhiteSpace(instanceId) &&
+        registry.Resolve(instanceId) is not null;
+
     internal int ServerInstanceCount
     {
         get { lock (gate) return acceptLoop?.ServerInstancesCreated ?? 0; }

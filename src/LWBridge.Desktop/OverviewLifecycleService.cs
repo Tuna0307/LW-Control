@@ -69,6 +69,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private string phase = "stopped";
     private string connectionState = "offline";
     private string? instanceId;
+    private long? instanceStartedAtUnixMilliseconds;
     private string? challenge;
     private int? gamePid;
     private int? launcherPid;
@@ -212,6 +213,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private void ClearAbandonedLaunchIdentityLocked()
     {
         instanceId = null;
+        instanceStartedAtUnixMilliseconds = null;
         challenge = null;
         launcherPid = null;
         gamePath = null;
@@ -305,7 +307,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         "profile_instance_start" => StartAsync(cancellationToken),
         "profile_instance_stop" => StopAsync(payload, cancellationToken),
-        "profile_instance_status" => Task.FromResult<object?>(CreateInstanceStatus()),
+        "profile_instance_status" => Task.FromResult(CreateProfileInstanceStatus()),
         "profile_instances_reconcile" => ReconcileStartupAsync(payload, cancellationToken),
         "profile_instances_update_and_restart" => UpdateAndRestartAsync(cancellationToken),
         _ => throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", $"Overview lifecycle cannot handle '{command}'."),
@@ -466,6 +468,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 phase = "stopped";
                 connectionState = "offline";
                 instanceId = null;
+                instanceStartedAtUnixMilliseconds = null;
                 challenge = null;
                 gamePid = null;
                 launcherPid = null;
@@ -590,6 +593,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             phase = "starting";
             connectionState = "starting";
             instanceId = newSession;
+            instanceStartedAtUnixMilliseconds = RecoveryNow().ToUnixTimeMilliseconds();
             challenge = newChallenge;
             lastError = null;
             readyAtUnix = null;
@@ -857,6 +861,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             phase = "stopped";
             connectionState = "offline";
             instanceId = null;
+            instanceStartedAtUnixMilliseconds = null;
             challenge = null;
             gamePid = null;
             launcherPid = null;
@@ -997,6 +1002,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 phase = "stopped";
                 connectionState = "offline";
                 instanceId = null;
+                instanceStartedAtUnixMilliseconds = null;
                 challenge = null;
                 gamePid = null;
                 launcherPid = null;

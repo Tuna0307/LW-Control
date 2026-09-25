@@ -25,6 +25,8 @@ internal static class OverviewLaunchSpamChecks
         bool processAlive = false;
         string? session = null;
         string? challenge = null;
+        var registry = new LWBridgeControlPipeRegistry();
+        using var bridgeHost = new LWBridgeControlPipeHostState(registry: registry);
 
         var hooks = new OverviewLifecycleTestHooks
         {
@@ -37,8 +39,19 @@ internal static class OverviewLaunchSpamChecks
                     Interlocked.Increment(ref helperStartCalls);
                     session = invocation.SessionId;
                     challenge = invocation.Challenge;
+                    LWBridgeControlPipeLaunchBinding binding =
+                        invocation.ControlPipeLaunchBinding ??
+                        throw new InvalidDataException("launch binding was not supplied");
                     helperEntered.TrySetResult(invocation);
                     JsonElement result = await helperRelease.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    Check(registry.TryAdmit(
+                            binding.ProfileId,
+                            binding.InstanceId,
+                            binding.PipeToken,
+                            DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                            new object(),
+                            out _),
+                        "fixture route must admit the exact launch binding");
                     processAlive = true;
                     return result;
                 }
@@ -60,7 +73,9 @@ internal static class OverviewLaunchSpamChecks
             helperPath: Path.Combine(root, "fake-helper.py"),
             requireCurrentClientEvidence: false,
             testHooks: hooks,
-            startRecoveryMonitor: false);
+            startRecoveryMonitor: false,
+            bridgeHostState: bridgeHost,
+            enableBridgeControlPipeLaunchBinding: true);
         JsonElement empty = JsonSerializer.SerializeToElement(new { });
 
         Task<object?> primaryStart = lifecycle.InvokeAsync("profile_instance_start", empty, CancellationToken.None);
@@ -70,7 +85,17 @@ internal static class OverviewLaunchSpamChecks
 
         JsonElement initialStarting = StatusElement(
             await lifecycle.InvokeAsync("profile_instance_status", empty, CancellationToken.None));
+        RequireNativeStatusKeys(initialStarting);
         RequireStartingStatus(initialStarting, primarySession, "initial status while helper is blocked");
+        Check(initialStarting.GetProperty("profileId").GetString() == "profile-a04-launch-spam" &&
+              initialStarting.GetProperty("startedAt").GetInt64() > 0 &&
+              initialStarting.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              !initialStarting.GetProperty("identityConfirmed").GetBoolean() &&
+              !initialStarting.GetProperty("leaseRequired").GetBoolean() &&
+              !initialStarting.GetProperty("bridgeConnected").GetBoolean() &&
+              initialStarting.GetProperty("lastHeartbeatAt").ValueKind == JsonValueKind.Null &&
+              !initialStarting.GetProperty("leaseActive").GetBoolean(),
+            "starting native status must expose exact base/supplement defaults");
 
         var stopwatch = Stopwatch.StartNew();
         Task<string>[] launchSpam = Enumerable.Range(0, spamCount)
@@ -109,10 +134,17 @@ internal static class OverviewLaunchSpamChecks
 
         JsonElement postStartRefresh = StatusElement(
             await lifecycle.InvokeAsync("profile_instance_status", empty, CancellationToken.None));
+        RequireNativeStatusKeys(postStartRefresh);
         Check(postStartRefresh.GetProperty("phase").GetString() == "running" &&
               postStartRefresh.GetProperty("instanceId").GetString() == primarySession &&
-              postStartRefresh.GetProperty("pid").GetInt32() == gamePid,
-            "post-start refresh must report the original successful session, not a spam request");
+              postStartRefresh.GetProperty("pid").GetInt32() == gamePid &&
+              postStartRefresh.GetProperty("identityConfirmed").GetBoolean() &&
+              !postStartRefresh.GetProperty("leaseRequired").GetBoolean() &&
+              postStartRefresh.GetProperty("bridgeConnected").GetBoolean() &&
+              postStartRefresh.GetProperty("lastHeartbeatAt").GetInt64() > 0 &&
+              !postStartRefresh.GetProperty("leaseActive").GetBoolean() &&
+              postStartRefresh.GetProperty("connectionState").GetString() == "connected",
+            "post-start native status must preserve the exact 12-field record and connected-route classifier");
 
         JsonElement stopPayload = JsonSerializer.SerializeToElement(new { instanceId = primarySession });
         JsonElement stopped = StatusElement(
@@ -162,6 +194,28 @@ internal static class OverviewLaunchSpamChecks
         object? status = await lifecycle.InvokeAsync("profile_instance_status", payload, CancellationToken.None)
             .ConfigureAwait(false);
         return StatusElement(status);
+    }
+
+    private static void RequireNativeStatusKeys(JsonElement status)
+    {
+        string[] expected =
+        {
+            "profileId",
+            "instanceId",
+            "phase",
+            "pid",
+            "startedAt",
+            "lastError",
+            "identityConfirmed",
+            "leaseRequired",
+            "connectionState",
+            "bridgeConnected",
+            "lastHeartbeatAt",
+            "leaseActive",
+        };
+        string[] actual = status.EnumerateObject().Select(property => property.Name).ToArray();
+        Check(actual.SequenceEqual(expected),
+            "profile_instance_status must expose the exact native 12-key order");
     }
 
     private static JsonElement StatusElement(object? value) =>

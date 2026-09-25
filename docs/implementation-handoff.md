@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-041`
+**Current checkpoint:** `LWB-R8-042`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -228,6 +228,14 @@ The exact default object is `state="idle"`, `reason=null`, both booleans false, 
 The command now follows the native selected-profile runtime path and exposes `PROFILE_ID_REQUIRED`, `PROFILE_RUNTIME_UNAVAILABLE`, and exact `STATE_UNAVAILABLE` / `game recovery state is unavailable` rather than fabricating idle state when no recovery state exists. Exact prose for the first two runtime-resolution errors remains `UNKNOWN`.
 
 This checkpoint changes recovery status/publication semantics only. Existing recovered disconnect/hang/update thresholds, retry tables, termination gates, updater suppression and process-control actions remain unchanged; original proxy install/backup/restore and launcher lifecycle remain incomplete. See `docs/reviews/2026-09-26-r8-041-game-recovery-status.md`.
+
+## R8-042 profile_instance_status checkpoint
+
+R8-042 restores the native public `profile_instance_status` result. No active/recoverable native instance serializes as JSON `null`; an active record serializes exactly `profileId`, `instanceId`, `phase`, `pid`, `startedAt`, `lastError`, `identityConfirmed`, `leaseRequired`, `connectionState`, `bridgeConnected`, `lastHeartbeatAt`, `leaseActive` in that order. The rebuild-only stopped/offline and unmanaged-process status objects are no longer exposed by this command.
+
+Native `startedAt` and `lastHeartbeatAt` are Unix-millisecond integers. Recovered phases are `starting`, `awaitingIdentity`, `running`, `recovering`, and `error`; there is no native stopped/stopping instance-record phase. In retained single-profile mode, the ordinary classifier is connected only when the exact instance has a bridge route, a heartbeat fresher than 15,001 ms, and confirmed identity; otherwise it is reconnecting. `starting`, `recovering`, `awaitingIdentity`, and `lastError` map to the recovered special connection states first.
+
+The command now uses native `PROFILE_ID_REQUIRED` and `PROFILE_RUNTIME_UNAVAILABLE` boundary codes. Native multi-entitlement lease state remains outside retained scope and is not fabricated; the retained single-profile projection keeps `leaseRequired=false` and `leaseActive=false`. Internal rebuild lifecycle diagnostics and start/stop/reconcile process-control behavior remain unchanged. See `docs/reviews/2026-09-26-r8-042-profile-instance-status.md`.
 
 ## Parked protected package-key lane
 

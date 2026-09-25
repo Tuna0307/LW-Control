@@ -189,7 +189,7 @@ internal sealed class LWBridgeBackend
                 }
             case "profile_instance_status":
                 RequireProfile(payload);
-                return CreateInstanceStatus();
+                return overviewLifecycle?.CreateProfileInstanceStatus();
             case "profile_instance_start":
                 RequireProfile(payload);
                 throw new BridgeCommandException(
@@ -836,6 +836,11 @@ internal sealed class LWBridgeBackend
 
     private void ValidateCommandScope(string command, JsonElement payload)
     {
+        if (string.Equals(command, "profile_instance_status", StringComparison.Ordinal))
+        {
+            ValidateProfileInstanceStatusScope(payload);
+            return;
+        }
         if (string.Equals(command, "proxy_status", StringComparison.Ordinal) ||
             string.Equals(command, "game_recovery_status", StringComparison.Ordinal))
             return;
@@ -845,6 +850,26 @@ internal sealed class LWBridgeBackend
             return;
         if (!GlobalCommands.Contains(command))
             RequireProfile(payload);
+    }
+
+    private void ValidateProfileInstanceStatusScope(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("profileId", out JsonElement property) ||
+            property.ValueKind != JsonValueKind.String ||
+            string.IsNullOrWhiteSpace(property.GetString()))
+        {
+            throw new BridgeCommandException(
+                "PROFILE_ID_REQUIRED",
+                "PROFILE_ID_REQUIRED");
+        }
+
+        if (!string.Equals(property.GetString(), ProfileId, StringComparison.Ordinal))
+        {
+            throw new BridgeCommandException(
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "PROFILE_RUNTIME_UNAVAILABLE");
+        }
     }
 
     private static void ValidateFeedbackExportPayload(JsonElement payload)

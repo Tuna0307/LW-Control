@@ -463,6 +463,7 @@ internal sealed partial class OverviewLifecycleService
             phase = "stopped";
             connectionState = "offline";
             instanceId = null;
+            instanceStartedAtUnixMilliseconds = null;
             challenge = null;
             gamePid = null;
             launcherPid = null;
