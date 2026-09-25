@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-028`, 2026-09-25
+**Current through:** `LWB-R8-029`, 2026-09-25
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -46,7 +46,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Original bridge pipe framing | PARTIAL EXACT_CONTRACT | Frame length and hello fields recovered | Recover exact hello.ack, readiness, request/result grammar and failure mapping |
 | `bridge-scripts.dat` plaintext | PARTIAL EXACT_CONTRACT / evidence-limited | Earlier R8 work recovered substantial package/crypto structure, but the remaining LWKE1 field map/AAD is blocked on genuinely new permitted evidence | Keep this lane parked while evidence-limited; resume only for retained non-account runtime needs when new permitted evidence appears |
 | Secure/plain xLua proxy behavior | PARTIAL EXACT_CONTRACT | Many hashes, ABI, crypto and loader facts recovered | Recover remaining package/handler/control semantics |
-| Profile launcher / multi-hook | PARTIAL EXACT_CONTRACT + reimplementation | Architecture recovered, rebuild uses its own lifecycle code | Audit one-for-one behavior |
+| Profile launcher / multi-hook | PARTIAL EXACT_CONTRACT + reimplementation | R8-029 restores the normal single-profile `profile_list` controller-registry query/public field shape and stable selected-profile state. Launch lifecycle and remaining registry mutations are still partial | Recover `profile_select`, enable/primary/create/delete/note/reorder and audit launcher ownership one-for-one |
 | Automation page functions | UI EXACT_BYTES / PARTIAL backend | R8-026 restores the two Resource Automation tasks/config/status/event. R8-027 restores generic `automation_status` normal missing-`automation-status.json` projection for the exact 18 native task sequence and valid persisted-status passthrough | Recover generic configure/inspect/start/stop only with complete provider/result evidence; keep Resource Run Now and other live actions fenced |
 | Squads / AFK | UI EXACT_BYTES / PARTIAL backend | R8-023 restores equipment config get/save; R8-024 restores Monster AFK save validation/persistence/status reload; R8-025 restores Alliance Garrison save validation, `/tasks/allianceGarrison` persistence, sibling preservation and status reload | Recover remaining offline squad config surfaces; keep live AFK/garrison/equipment actions fenced until evidence-backed providers/protocols exist |
 | City Layout | UI EXACT_BYTES / PARTIAL backend | R8-018 restores exact draft table/key/revision semantics and production draft get/save/clear. Snapshot/validate/apply-start/status/cancel remain missing because their game-side providers are protected | Preserve draft contract; implement only the remaining host boundaries that can be wired to evidence-backed providers, without inventing planner/executor behavior |

@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-028`
+**Current checkpoint:** `LWB-R8-029`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -148,6 +148,10 @@ R8-027 restores production `automation_status` for the original normal missing-`
 ## R8-028 Profile settings save checkpoint
 
 R8-028 restores `profile_settings_save` for the current local rebuild profile. Native 0.3.1 requires `profileId`, non-negative integer `revision`, and `value`; malformed public input returns `INVALID_REQUEST`, an unknown profile returns `PROFILE_NOT_FOUND`, a non-object settings value returns `INVALID_PROFILE_SETTINGS`, and stale optimistic revision returns `PROFILE_REVISION_CONFLICT`. The original per-profile `profile.db` owns singleton table `settings(id=1, revision, value_json)` and updates it with `UPDATE settings SET value_json = ?, revision = revision + 1 WHERE id = 1 AND revision = ?`, then reads back `{revision,value}`. The rebuild preserves that schema/revision contract in its existing per-profile rebuild storage namespace and preserves sibling `profile_state` rows. Full original controller profile registry/select/enable/primary behavior and the original application-data root path are not claimed yet. See `docs/reviews/2026-09-25-r8-028-profile-settings-save.md`.
+
+## R8-029 Profile list registry checkpoint
+
+R8-029 replaces the rebuild's synthetic one-profile `profile_list` object with a local controller registry for the normal retained single-profile path. Native 0.3.1 reads `profiles` with `ORDER BY display_order, created_at, id`; the public profile exposes `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, and `lastLaunchedAt`, while database-only `created_at`/`updated_at` are not public. The list state exposes `selectedProfileId`, `maxProfiles`, and `profiles`. The rebuild seeds its existing stable local profile and `selected_profile_id` idempotently in `%LOCALAPPDATA%\LWBridgeRebuild\controller.db`, preserves later metadata, removes the old rebuild-only `connectionState` field from `profile_list`, and fixes `maxProfiles=1` because account/entitlement behavior is excluded. Selection repair/fallback and profile select/enable/primary/create/delete/note/reorder remain separate work. See `docs/reviews/2026-09-25-r8-029-profile-list-registry.md`.
 
 ## Parked protected package-key lane
 

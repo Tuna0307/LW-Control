@@ -50,6 +50,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly LiveResourceProbeCommandService? liveResourceService;
     private readonly ManualMapScanCommandService? manualMapScanService;
     private readonly CityLayoutDraftCommandService? cityLayoutDraftService;
+    private readonly ProfileRegistryCommandService? profileRegistryService;
     private readonly ProfileSettingsCommandService? profileSettingsService;
     private readonly HotkeyConfigCommandService? hotkeyConfigService;
     private readonly VisualMetricsConfigCommandService? visualMetricsConfigService;
@@ -134,6 +135,17 @@ internal sealed class LWBridgeWindow : Form
             mapData.ClearAllScanData();
         }
         hostProbeService = hostProbePath is null ? null : new HostProbeCommandService();
+        string? controllerDatabasePath = isolated
+            ? null
+            : Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "LWBridgeRebuild", "controller.db");
+        profileRegistryService = controllerDatabasePath is null
+            ? null
+            : new ProfileRegistryCommandService(
+                config.Snapshot.ProfileId,
+                controllerDatabasePath,
+                "Local Game");
         string? profileDatabasePath = isolated
             ? null
             : Path.Combine(
@@ -236,6 +248,7 @@ internal sealed class LWBridgeWindow : Form
             if (manualMapScanService is not null) services.Add(manualMapScanService);
             if (liveResourceService is not null) services.Add(liveResourceService);
             if (cityLayoutDraftService is not null) services.Add(cityLayoutDraftService);
+            if (profileRegistryService is not null) services.Add(profileRegistryService);
             if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
@@ -2083,6 +2096,7 @@ internal sealed class LWBridgeWindow : Form
         manualMapScanService?.Close();
         liveResourceService?.Close();
         cityLayoutDraftService?.Dispose();
+        profileRegistryService?.Dispose();
         profileSettingsService?.Dispose();
         overviewLifecycleService?.Close();
         // LWB-R7-110: the shared bridge host is application-owned, so it is

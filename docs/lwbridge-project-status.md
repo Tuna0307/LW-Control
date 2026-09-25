@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-25
-**Current checkpoint:** `LWB-R8-028`
+**Current checkpoint:** `LWB-R8-029`
 
 ## Executive status
 
@@ -32,7 +32,7 @@ That proof is limited because the rebuild intentionally transformed the main/API
 3. Original Map Scan internals and per-kind acquisition strategy.
 4. Removal of rebuild-only additions such as Secret Task Quick Find.
 5. Restoration of remaining retained product features previously retired/customized. City Excel is restored in R8-007, Map Clear in R8-008, `server_jump` in R8-009, `map_summary` in R8-010, `map_data_options` in R8-011, Manual Scan public contract in R8-012, status/Stop lifecycle in R8-013, `map_search` public kind/filter ownership in R8-014, the original Auto Scan frontend scheduler/control plane in R8-015, and Scheduled Plunder list/schedule/cancel persistence/events/original UI in R8-016. R8-017 removes speculative Monster-distance, City-shield and Railway-quality sort implementations and gates those branches pending stronger evidence. Complete native multi-sort assembly and protected Plunder execution remain partial/unknown. Account/Login/Authentication is intentionally excluded.
-6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings. R8-018 restores City Layout drafts; R8-019 Hotkeys; R8-020 visual metrics; R8-021 updater idle status; R8-022 feedback-export contract/fence; R8-023 equipment config; R8-024 Monster AFK config; R8-025 Alliance Garrison config; R8-026 Resource Automation configure/persistence plus exact normal idle status/event behavior; R8-027 generic `automation_status` exact normal missing-file idle projection for all 18 native tasks and valid persisted-status passthrough; R8-028 `profile_settings_save` revisioned per-profile settings persistence for the current local profile. City Layout gameplay providers, Hotkey actions, live Squads/AFK/Resource actions, generic Automation configure/start/stop/inspect, full multi-profile registry/settings behavior, full feedback/updater behavior, and Mini-game handlers remain incomplete.
+6. Whole-program backend parity for Automation, Squads/AFK, City Layout, Hotkeys, Mini-games and Settings. R8-018 restores City Layout drafts; R8-019 Hotkeys; R8-020 visual metrics; R8-021 updater idle status; R8-022 feedback-export contract/fence; R8-023 equipment config; R8-024 Monster AFK config; R8-025 Alliance Garrison config; R8-026 Resource Automation configure/persistence plus exact normal idle status/event behavior; R8-027 generic `automation_status` exact normal missing-file idle projection for all 18 native tasks and valid persisted-status passthrough; R8-028 `profile_settings_save` revisioned per-profile settings persistence for the current local profile; R8-029 normal retained single-profile `profile_list` controller-registry persistence/public field shape. City Layout gameplay providers, Hotkey actions, live Squads/AFK/Resource actions, generic Automation configure/start/stop/inspect, remaining profile registry mutations and launcher lifecycle, full feedback/updater behavior, and Mini-game handlers remain incomplete.
 7. Exact reference-vs-rebuild behavior validation across connected/live states.
 
 ## Map status under the new goal
