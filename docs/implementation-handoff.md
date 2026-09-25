@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-042`
+**Current checkpoint:** `LWB-R8-043`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -236,6 +236,14 @@ R8-042 restores the native public `profile_instance_status` result. No active/re
 Native `startedAt` and `lastHeartbeatAt` are Unix-millisecond integers. Recovered phases are `starting`, `awaitingIdentity`, `running`, `recovering`, and `error`; there is no native stopped/stopping instance-record phase. In retained single-profile mode, the ordinary classifier is connected only when the exact instance has a bridge route, a heartbeat fresher than 15,001 ms, and confirmed identity; otherwise it is reconnecting. `starting`, `recovering`, `awaitingIdentity`, and `lastError` map to the recovered special connection states first.
 
 The command now uses native `PROFILE_ID_REQUIRED` and `PROFILE_RUNTIME_UNAVAILABLE` boundary codes. Native multi-entitlement lease state remains outside retained scope and is not fabricated; the retained single-profile projection keeps `leaseRequired=false` and `leaseActive=false`. Internal rebuild lifecycle diagnostics and start/stop/reconcile process-control behavior remain unchanged. See `docs/reviews/2026-09-26-r8-042-profile-instance-status.md`.
+
+## R8-043 get_status contract fence
+
+R8-043 closes the native top-level `get_status` / `bridge://status` projection. The exact field order is `ok`, `backend`, `runtimeRoot`, `pending`, `xluaOnline`, `lastXluaActivity`, `config`. Successful native status writes `ok=true`; `backend` is `offline` or `named-pipe` from exact route presence and `xluaOnline` mirrors that route decision; `pending` is a scalar bridge-state counter; `lastXluaActivity` is Unix milliseconds and uses the maximum of stored bridge activity and selected-route activity. Missing bridge state is exact `STATE_UNAVAILABLE` / `bridge state is unavailable`.
+
+Native `config` is not a small fixed DTO. It loads `<runtimeRoot>\\config.json`, requires an object-shaped configuration, then migrates/normalizes a broad retained configuration tree through `0x1403AD60C-0x1403B4FCA` before publishing the resulting generic JSON value. The missing-file seed `{enable_eval:false, auto_shield:true, auto_red_packet_treasure:true}` is recovered, but the complete migration/default/preservation table is not yet closed.
+
+Because that config value is directly consumed by multiple retained frontend panels, R8-043 does not replace the rebuild's current status object with another partial projection. The current rebuild `get_status` remains explicitly classified `DEVIATION` until the native config normalizer is recovered one-for-one. See `docs/reviews/2026-09-26-r8-043-get-status-contract-fence.md`.
 
 ## Parked protected package-key lane
 
