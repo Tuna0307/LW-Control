@@ -55,6 +55,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly EquipmentConfigCommandService? equipmentConfigService;
     private readonly MonsterAfkConfigCommandService? monsterAfkConfigService;
     private readonly AllianceGarrisonConfigCommandService? allianceGarrisonConfigService;
+    private readonly ResourceAutomationConfigCommandService? resourceAutomationConfigService;
     private readonly string? isolatedConfigRoot;
     private readonly bool sessionScopedMapData;
     private long documentGeneration = 1;
@@ -163,6 +164,13 @@ internal sealed class LWBridgeWindow : Form
         allianceGarrisonConfigService = profileRuntimeConfigStore is null
             ? null
             : new AllianceGarrisonConfigCommandService(profileRuntimeConfigStore);
+        resourceAutomationConfigService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
+            ? null
+            : new ResourceAutomationConfigCommandService(
+                profileRuntimeConfigStore,
+                Path.Combine(
+                    Path.GetDirectoryName(profileRuntimeConfigPath)!,
+                    "automation-status.json"));
         if (!isolated)
         {
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetStatus();
@@ -216,6 +224,7 @@ internal sealed class LWBridgeWindow : Form
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
             if (allianceGarrisonConfigService is not null) services.Add(allianceGarrisonConfigService);
+            if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
             productionCommands = services.Count switch
             {
                 0 => null,
@@ -236,6 +245,8 @@ internal sealed class LWBridgeWindow : Form
                 : profileRuntimeConfigStore.ReadTasksSnapshot);
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged += OnOverviewRecoveryStatusChanged;
+        if (resourceAutomationConfigService is not null)
+            resourceAutomationConfigService.StatusChanged += OnResourceAutomationStatusChanged;
         if (manualMapScanService is not null)
         {
             manualMapScanService.StatusChanged += OnManualMapScanStatusChanged;
@@ -1894,6 +1905,30 @@ internal sealed class LWBridgeWindow : Form
                 new OverviewRecoveryStatus("idle", null, false, false, null, null, 0, null, null, null, false));
     }
 
+    private void OnResourceAutomationStatusChanged(object status)
+    {
+        if (sessionClosed || IsDisposed) return;
+        void Publish()
+        {
+            DocumentSession session = documentSession;
+            if (IsCurrentDocument(session) &&
+                session.Subscriptions.Contains("bridge://resource-automation-status"))
+            {
+                SendEvent(
+                    session,
+                    "bridge://resource-automation-status",
+                    status);
+            }
+        }
+
+        try
+        {
+            if (InvokeRequired) BeginInvoke(Publish);
+            else Publish();
+        }
+        catch (InvalidOperationException) { }
+    }
+
     private void OnManualMapScanStatusChanged(object status)
     {
         if (sessionClosed || IsDisposed) return;
@@ -2017,6 +2052,8 @@ internal sealed class LWBridgeWindow : Form
         documentSession.Close();
         if (overviewLifecycleService is not null)
             overviewLifecycleService.RecoveryStatusChanged -= OnOverviewRecoveryStatusChanged;
+        if (resourceAutomationConfigService is not null)
+            resourceAutomationConfigService.StatusChanged -= OnResourceAutomationStatusChanged;
         if (manualMapScanService is not null)
         {
             manualMapScanService.StatusChanged -= OnManualMapScanStatusChanged;

@@ -200,6 +200,11 @@ internal sealed class ProfileRuntimeConfigStore
     internal JsonObject SaveAllianceGarrisonConfig(JsonObject config) =>
         SaveTaskConfig("allianceGarrison", config);
 
+    internal JsonObject SaveResourceAutomationConfig(
+        string taskName,
+        JsonObject config) =>
+        SaveTaskConfig(taskName, config);
+
     private JsonObject SaveTaskConfig(string taskName, JsonObject config)
     {
         if (string.IsNullOrWhiteSpace(taskName))

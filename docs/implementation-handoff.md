@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-025`
+**Current checkpoint:** `LWB-R8-026`
 **Date:** 2026-09-25
 
 ## Current directive
@@ -136,6 +136,10 @@ R8-024 restores profile-scoped `monster_afk_config_save` on the same runtime con
 ## R8-025 Alliance Garrison configuration checkpoint
 
 R8-025 restores profile-scoped `alliance_garrison_config_save` and `/tasks/allianceGarrison` persistence/status reload. The immutable Squad panel and an original runtime profile agree on the native default `{enabled:false,recallOnDisable:true,squadPriority:[],targets:[]}`. The native validator accepts optional `enabled`/`recallOnDisable`, requires unique integer squad indexes 1..4, validates `allianceBuilding` and `allyCity` targets, applies strict nonblank city-snapshot validation, rejects duplicate normalized identities and overlong target names, and requires at least one target plus squad only when enabled. Save patches only `tasks.allianceGarrison`, strips routing-only `profileId`, preserves sibling/root/opaque JSON, and returns the saved task. Live automation start/stop/garrison/recall execution remains provider/protocol dependent and is not implemented here. See `docs/reviews/2026-09-25-r8-025-alliance-garrison-config-persistence.md`.
+
+## R8-026 Resource Automation configuration/status checkpoint
+
+R8-026 restores the exact two native Resource Automation tasks (`buildingResources`, `armedTruckReward`), `resource_automation_configure`, exact unknown-task and interval validation, canonical `{enabled,intervalMinutes}` persistence in the shared runtime config, the normal native no-`automation-status.json` idle projection, `resource_automation_status`, and `bridge://resource-automation-status` emission after configure. Missing/wrong-type `enabled` follows native behavior and becomes false. The original installed profile confirms the 60-minute disabled defaults and the normal absence of `automation-status.json`. Existing runtime-status parsing remains conservative/partial; `resource_automation_run` and the two native live actions remain provider/protocol-gated and unimplemented. See `docs/reviews/2026-09-25-r8-026-resource-automation-config-status.md`.
 
 ## Parked protected package-key lane
 
