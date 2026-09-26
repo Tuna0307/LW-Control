@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-084`
+**Current checkpoint:** `LWB-R8-085`
 
 ## Executive status
 
@@ -26,6 +26,14 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-085 native-capture memory budget
+
+R8-085 proves both verified proxies share one 32 MiB pending-record byte budget across full point and march captures. The point formula is fixed `0x3A0` plus capacity+1 for each present optional string; the march formula is fixed `0x1B0` plus capacity+1 for each present optional string.
+
+The admission rule only charges positive replacement growth. Equal/smaller same-identity replacements remain admissible at a full budget; growth beyond remaining bytes enters native dropped handling. Point and march drains subtract their exact footprints from the same counter, and run-ID change resets queues, dropped count and byte accounting.
+
+This closes memory-pressure admission separately from R8-084's 65,536-record ceiling. See `docs/reviews/2026-09-27-r8-085-native-capture-memory-budget.md`.
 
 ## R8-084 native-capture hook routing and queue identity
 

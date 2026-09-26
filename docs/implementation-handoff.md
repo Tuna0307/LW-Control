@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-084`
+**Current checkpoint:** `LWB-R8-085`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,14 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-085 native-capture memory budget
+
+R8-085 closes native point/march pending-record memory accounting in both verified proxies. One shared byte counter is capped at exactly 32 MiB (`0x2000000`). Point footprint is fixed `0x3A0` plus allocated capacity+1 for each of its 12 present optional strings; march footprint is fixed `0x1B0` plus allocated capacity+1 for each of its five present optional strings.
+
+Replacement admission is growth-only: equal/smaller replacements remain allowed even when the budget is full; a growing replacement is rejected only when its positive footprint delta exceeds remaining budget. Rejection uses the same native dropped path as the count ceiling. Both point and march drains subtract their exact footprints from the same byte counter, and run-ID change clears all queues plus dropped/byte counters.
+
+The 0x18-byte queue-node linkage overhead is outside this accounting formula. This is independent of R8-084's 65,536 aggregate pending-record ceiling. See `docs/reviews/2026-09-27-r8-085-native-capture-memory-budget.md`.
 
 ## R8-084 native-capture hook routing and queue identity
 

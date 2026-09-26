@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-084`, 2026-09-27.
+**Current through:** `LWB-R8-085`, 2026-09-27.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -35,6 +35,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Native-capture service / flush gates | EXACT_CONTRACT | R8-082 proves a 16 ms `GetTickCount64` service gate; run-ID change resets the active emission clock and sets a one-shot wake flag; nonempty `scanRunId` uses a 250 ms forced-emission clock, empty `scanRunId` uses 1000 ms, and the selected clock is updated only after a real envelope is assembled |
 | Native-capture point/march serializers | EXACT_CONTRACT | R8-083 recovers fixed `0x3A0` point / `0x1B0` march native records, exact 57-field point order, exact 25-field march order, six-field nullable `train`, scalar/null/quoted-ID/float/bool representation, and always-present nullable escaped-string fields |
 | Native-capture hook routing / queue identity | EXACT_CONTRACT | R8-084 recovers ten exact point/march hooks, post-original full-record producer routing, pre/post-original removal ordering, `pointIds` SFS parsing, canonical point admission/upsert by normalized mainIndex, march upsert by captured UUID, exact game-facing field/getter resolver names, and the shared 65,536 pending-record ceiling/drop path |
+| Native-capture point/march memory budget | EXACT_CONTRACT | R8-085 recovers one shared 32 MiB full-record byte budget; point footprint is 0x3A0 plus capacity+1 for 12 present optional strings, march is 0x1B0 plus capacity+1 for five; only positive replacement growth consumes remaining budget, drains release exact footprints, run change resets accounting, and overflow feeds native dropped handling |
 | City | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Resource | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Monster | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |

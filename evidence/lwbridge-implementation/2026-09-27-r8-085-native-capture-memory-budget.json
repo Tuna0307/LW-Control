@@ -1,0 +1,268 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-085",
+  "limits": [
+    "does not inspect or cross protected native region 0x3F8E0-0x40A6D",
+    "does not recover XluaBridgeMapScanTick traversal, coordinate order, request pacing, or retry/backoff",
+    "budget accounting covers full point/march pending records; removal queues use fixed scalar identities and are not charged by this byte counter",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "budgetBytes": 33554432,
+      "budgetCounterRva": "0x90FB8",
+      "containerNodeOverheadBytes": 24,
+      "droppedCounterRva": "0x90FB0",
+      "marchFootprint": {
+        "fixedBytes": 432,
+        "optionalStrings": [
+          {
+            "capacityOffset": "0xC0",
+            "key": "ownerUid",
+            "presenceOffset": "0xC8",
+            "slotOffset": "0xA8"
+          },
+          {
+            "capacityOffset": "0xE8",
+            "key": "ownerName",
+            "presenceOffset": "0xF0",
+            "slotOffset": "0xD0"
+          },
+          {
+            "capacityOffset": "0x110",
+            "key": "allianceUid",
+            "presenceOffset": "0x118",
+            "slotOffset": "0xF8"
+          },
+          {
+            "capacityOffset": "0x138",
+            "key": "allianceName",
+            "presenceOffset": "0x140",
+            "slotOffset": "0x120"
+          },
+          {
+            "capacityOffset": "0x160",
+            "key": "allianceAbbr",
+            "presenceOffset": "0x168",
+            "slotOffset": "0x148"
+          }
+        ]
+      },
+      "pointFootprint": {
+        "fixedBytes": 928,
+        "optionalStrings": [
+          {
+            "capacityOffset": "0x1D8",
+            "key": "ownerUid",
+            "presenceOffset": "0x1E0",
+            "slotOffset": "0x1C0"
+          },
+          {
+            "capacityOffset": "0x200",
+            "key": "allianceId",
+            "presenceOffset": "0x208",
+            "slotOffset": "0x1E8"
+          },
+          {
+            "capacityOffset": "0x228",
+            "key": "playerName",
+            "presenceOffset": "0x230",
+            "slotOffset": "0x210"
+          },
+          {
+            "capacityOffset": "0x250",
+            "key": "alAbbr",
+            "presenceOffset": "0x258",
+            "slotOffset": "0x238"
+          },
+          {
+            "capacityOffset": "0x278",
+            "key": "name",
+            "presenceOffset": "0x280",
+            "slotOffset": "0x260"
+          },
+          {
+            "capacityOffset": "0x2A0",
+            "key": "gatherUid",
+            "presenceOffset": "0x2A8",
+            "slotOffset": "0x288"
+          },
+          {
+            "capacityOffset": "0x2C8",
+            "key": "gatherAllianceId",
+            "presenceOffset": "0x2D0",
+            "slotOffset": "0x2B0"
+          },
+          {
+            "capacityOffset": "0x2F0",
+            "key": "runtimeClass",
+            "presenceOffset": "0x2F8",
+            "slotOffset": "0x2D8"
+          },
+          {
+            "capacityOffset": "0x318",
+            "key": "eventId",
+            "presenceOffset": "0x320",
+            "slotOffset": "0x300"
+          },
+          {
+            "capacityOffset": "0x340",
+            "key": "allianceAbbr",
+            "presenceOffset": "0x348",
+            "slotOffset": "0x328"
+          },
+          {
+            "capacityOffset": "0x368",
+            "key": "ownerName",
+            "presenceOffset": "0x370",
+            "slotOffset": "0x350"
+          },
+          {
+            "capacityOffset": "0x390",
+            "key": "killerId",
+            "presenceOffset": "0x398",
+            "slotOffset": "0x378"
+          }
+        ]
+      },
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    {
+      "budgetBytes": 33554432,
+      "budgetCounterRva": "0x91FB8",
+      "containerNodeOverheadBytes": 24,
+      "droppedCounterRva": "0x91FB0",
+      "marchFootprint": {
+        "fixedBytes": 432,
+        "optionalStrings": [
+          {
+            "capacityOffset": "0xC0",
+            "key": "ownerUid",
+            "presenceOffset": "0xC8",
+            "slotOffset": "0xA8"
+          },
+          {
+            "capacityOffset": "0xE8",
+            "key": "ownerName",
+            "presenceOffset": "0xF0",
+            "slotOffset": "0xD0"
+          },
+          {
+            "capacityOffset": "0x110",
+            "key": "allianceUid",
+            "presenceOffset": "0x118",
+            "slotOffset": "0xF8"
+          },
+          {
+            "capacityOffset": "0x138",
+            "key": "allianceName",
+            "presenceOffset": "0x140",
+            "slotOffset": "0x120"
+          },
+          {
+            "capacityOffset": "0x160",
+            "key": "allianceAbbr",
+            "presenceOffset": "0x168",
+            "slotOffset": "0x148"
+          }
+        ]
+      },
+      "pointFootprint": {
+        "fixedBytes": 928,
+        "optionalStrings": [
+          {
+            "capacityOffset": "0x1D8",
+            "key": "ownerUid",
+            "presenceOffset": "0x1E0",
+            "slotOffset": "0x1C0"
+          },
+          {
+            "capacityOffset": "0x200",
+            "key": "allianceId",
+            "presenceOffset": "0x208",
+            "slotOffset": "0x1E8"
+          },
+          {
+            "capacityOffset": "0x228",
+            "key": "playerName",
+            "presenceOffset": "0x230",
+            "slotOffset": "0x210"
+          },
+          {
+            "capacityOffset": "0x250",
+            "key": "alAbbr",
+            "presenceOffset": "0x258",
+            "slotOffset": "0x238"
+          },
+          {
+            "capacityOffset": "0x278",
+            "key": "name",
+            "presenceOffset": "0x280",
+            "slotOffset": "0x260"
+          },
+          {
+            "capacityOffset": "0x2A0",
+            "key": "gatherUid",
+            "presenceOffset": "0x2A8",
+            "slotOffset": "0x288"
+          },
+          {
+            "capacityOffset": "0x2C8",
+            "key": "gatherAllianceId",
+            "presenceOffset": "0x2D0",
+            "slotOffset": "0x2B0"
+          },
+          {
+            "capacityOffset": "0x2F0",
+            "key": "runtimeClass",
+            "presenceOffset": "0x2F8",
+            "slotOffset": "0x2D8"
+          },
+          {
+            "capacityOffset": "0x318",
+            "key": "eventId",
+            "presenceOffset": "0x320",
+            "slotOffset": "0x300"
+          },
+          {
+            "capacityOffset": "0x340",
+            "key": "allianceAbbr",
+            "presenceOffset": "0x348",
+            "slotOffset": "0x328"
+          },
+          {
+            "capacityOffset": "0x368",
+            "key": "ownerName",
+            "presenceOffset": "0x370",
+            "slotOffset": "0x350"
+          },
+          {
+            "capacityOffset": "0x390",
+            "key": "killerId",
+            "presenceOffset": "0x398",
+            "slotOffset": "0x378"
+          }
+        ]
+      },
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+    }
+  ],
+  "recoveredResult": {
+    "budgetBytes": 33554432,
+    "budgetMiB": 32,
+    "growthOnlyAdmission": true,
+    "marchFormula": "0x1B0 + sum(capacity+1 for each present optional string)",
+    "nodeOverheadExcluded": true,
+    "overflowEffect": "native dropped counter increments through 0x3A210",
+    "pointFormula": "0x3A0 + sum(capacity+1 for each present optional string)",
+    "reset": "run-ID change clears queues, dropped counter, and byte counter",
+    "scope": "one shared point/march pending-record memory counter"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}
