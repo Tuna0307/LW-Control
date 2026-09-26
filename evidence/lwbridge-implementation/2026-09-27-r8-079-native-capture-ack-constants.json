@@ -1,0 +1,74 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-079",
+  "limits": [
+    "does not recover XluaBridgeMapScanTick scheduling or block traversal order",
+    "does not recover retry/backoff policy",
+    "does not prove no acknowledgement concept exists elsewhere in protected script logic",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "literalRvas": {
+        "acks": "0x738C0",
+        "dropped": "0x73828",
+        "pendingAcks": "0x73838",
+        "pendingMarchRemovals": "0x73850",
+        "pendingMarches": "0x73890",
+        "pendingPointRemovals": "0x73870",
+        "pendingPoints": "0x738A8"
+      },
+      "proxy": "secure",
+      "serializerRva": "0x38AB0-0x39F15",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "xrefRvas": {
+        "acks": "0x399D3",
+        "dropped": "0x39A69",
+        "pendingAcks": "0x39A5A",
+        "pendingMarchRemovals": "0x39A3F",
+        "pendingMarches": "0x39A0B",
+        "pendingPointRemovals": "0x39A25",
+        "pendingPoints": "0x399F1"
+      }
+    },
+    {
+      "literalRvas": {
+        "acks": "0x738C0",
+        "dropped": "0x73828",
+        "pendingAcks": "0x73838",
+        "pendingMarchRemovals": "0x73850",
+        "pendingMarches": "0x73890",
+        "pendingPointRemovals": "0x73870",
+        "pendingPoints": "0x738A8"
+      },
+      "proxy": "plain",
+      "serializerRva": "0x38AB0-0x39F15",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "xrefRvas": {
+        "acks": "0x399D3",
+        "dropped": "0x39A69",
+        "pendingAcks": "0x39A5A",
+        "pendingMarchRemovals": "0x39A3F",
+        "pendingMarches": "0x39A0B",
+        "pendingPointRemovals": "0x39A25",
+        "pendingPoints": "0x399F1"
+      }
+    }
+  ],
+  "recoveredResult": {
+    "acks": "native capture serializer emits []",
+    "dynamicPendingCounts": [
+      "pendingPoints",
+      "pendingMarches",
+      "pendingPointRemovals",
+      "pendingMarchRemovals"
+    ],
+    "ownershipConclusion": "the verified 0.3.1 native-capture envelope does not carry a dynamic ACK queue; ACK item consumption/drain must not be invented from host pendingAcks handling",
+    "pendingAcks": "native capture serializer emits 0"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

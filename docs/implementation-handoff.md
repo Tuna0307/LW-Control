@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-078`
+**Current checkpoint:** `LWB-R8-079`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-079 native-capture ACK constants
+
+R8-079 closes the native-capture ACK-field ambiguity without changing production scanning. In both hash-verified embedded secure/plain proxies, native-capture serializer `RVA 0x38AB0-0x39F15` emits `"acks":[]` as a literal empty array and `"pendingAcks":0` as a literal zero.
+
+The same serializer writes `pendingPoints`, `pendingMarches`, `pendingPointRemovals`, and `pendingMarchRemovals` dynamically. There is no ACK-item loop between `marchRemovals` and `ready`, and no numeric write between the pending-ACK literal and the following `dropped` field.
+
+Combined with R8-077, this means the rebuild must not invent native-capture ACK items, ACK queue depth, or ACK-driven block completion from these fields. It does not prove that no acknowledgement concept exists elsewhere in the protected script/`XluaBridgeMapScanTick` layer, and tick pacing/traversal/retries remain open.
+
+See `docs/reviews/2026-09-27-r8-079-native-capture-ack-constants.md` and `evidence/lwbridge-implementation/2026-09-27-r8-079-native-capture-ack-constants.json`.
 
 ## R8-078 Map diagnostic/error and failed-run persistence
 

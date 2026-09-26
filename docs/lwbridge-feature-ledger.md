@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-078`, 2026-09-27.
+**Current through:** `LWB-R8-079`, 2026-09-27.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -29,6 +29,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Original selected-type allowlist | EXACT_CONTRACT | R8-012 restores exactly eight public Manual kinds; preserve |
 | Manual `map_scan_start` mode/default/error contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores Manual UI/persistence, Normal=8/Fast=20, null/non-string default-to-Normal and exact invalid-string error/precedence; R8-013 corrects `retryCount:2` to frontend fallback only |
 | Normal/Fast concurrency 8/20 | EXACT_CONTRACT | Preserve; protected pacing/retry differences remain separate |
+| Native-capture ACK fields | EXACT_CONTRACT | R8-079 proves both verified proxy serializers emit literal `acks=[]` and `pendingAcks=0`; the four point/march/removal pending counts remain dynamic. Do not synthesize an ACK queue from these fields; any separate script/tick acknowledgement mechanism remains unproven |
 | City | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Resource | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Monster | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
@@ -43,7 +44,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | `map_summary` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-010 restored exact three-field envelope, eight original kinds and shared-state active/published count source selection |
 | `map_data_options` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-011 restored recovered top-level order, eight original count kinds, Resource/Monster name families and exact active-run vs server-scoped published selection; rebuild-only `zombie_boss`/`monsterLevels` removed |
 | Manual Scan public contract | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-012 restores exactly eight kinds and the recovered Normal/Fast request/default/error/UI contract; Auto Scan and protected acquisition remain separate |
-| Current-client Manual Normal/Fast execution | LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION | R8-065 fresh real-game proof completed both modes in one owned current-v21 session at 2500/2500 with 0 failed and 0 unread; Fast counts survived database reopen. R8-066 further proves the actual production desktop/WebView Resource path at Fast 2500/2500, 0 failed, 0 unread, with 515 Search rows and a correlated rendered row. Original acquisition remains unrecovered |
+| Current-client Manual Normal/Fast execution | LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION | R8-065 fresh real-game proof completed both modes in one owned current-v21 session at 2500/2500 with 0 failed and 0 unread; Fast counts survived database reopen. R8-066 further proves the actual production desktop/WebView Resource path at Fast 2500/2500, 0 failed, 0 unread, with 515 Search rows and a correlated rendered row. Original acquisition remains partial: host ingestion/failure and native-capture ACK fields are recovered, but traversal/tick/queue timing remains unrecovered |
 | `map_scan_status` / `map_scan_stop` shared state | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-013 restores direct shared-state status, lifecycle-dependent native fields, read-only world refresh, publishing→idle completion, idempotent Stop and exact Stop/Clear reset separation; uncommon protected Stop error envelopes remain partial |
 | Scheduled Plunder control plane/UI | EXACT_BYTES-derived frontend + EXACT_CONTRACT/EQUIVALENT persistence | R8-016 restores five list/schedule/cancel commands, three tables/indexes, two events and original tab/API/locales; protected robbery execution and exact Truck job-ID entropy remain unclaimed |
 | Search/filter/sort/paging | PARTIAL EXACT_CONTRACT | R8-014 restores exact eight-kind admission, original filter ownership/query builder and generic keyword predicate. R8-017 gates unrecovered Monster distance, City shield and Railway quality instead of executing R7 guesses; complete native multi-sort assembly remains partial |
