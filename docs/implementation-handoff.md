@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-077`
+**Current checkpoint:** `LWB-R8-078`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,18 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-078 Map diagnostic/error and failed-run persistence
+
+R8-078 closes another host-side Map failure boundary without changing production scanning. `map.scan.diagnostic` is a logging side channel: the host formats the event payload with exact prefix `map scan diagnostic `, forwards it to the bridge logging helper, and exits without changing scan counters/lifecycle/publication state in that bounded branch.
+
+For `map.scan.error`, failure-message precedence is exact: event `error` string, then current scan-state `lastError` string, then literal `map scan failed`. This path calls shared cleanup with native Stop enabled and preservation disabled. The ordinary failure transaction changes a still-running run to `failed`, records the error, deletes that run's `scan_records`, and does not publish staged rows.
+
+A terminal failure discovered after `map.scan.complete` uses the opposite cleanup flags: it does not redundantly send `stopMapScan`, and it selects the recovered `preserve failed map scan` transaction. That transaction marks the run failed, copies the run's staged `scan_records` into published `map_records`, then clears staging and commits.
+
+This proves producer error and post-complete host admission failure are intentionally different persistence states. It still does not recover producer-side block traversal, tick pacing, acknowledgement consumption/drain, or retry scheduling.
+
+See `docs/reviews/2026-09-27-r8-078-map-scan-error-failure.md` and `evidence/lwbridge-implementation/2026-09-27-r8-078-map-scan-error-failure.json`.
 
 ## R8-077 Map acknowledgement host boundary
 

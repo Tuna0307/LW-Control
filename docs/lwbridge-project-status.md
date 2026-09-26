@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-077`
+**Current checkpoint:** `LWB-R8-078`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-078 Map diagnostic/error and failed-run persistence
+
+R8-078 recovers the host failure split after Map producer events. `map.scan.diagnostic` is only formatted/logged and does not drive scan-state transitions in its bounded branch.
+
+`map.scan.error` chooses its message from event `error`, then scan-state `lastError`, then `map scan failed`. It uses ordinary fail-map-scan persistence: conditional running→failed transition, staging deletion, shared visible-state cleanup, and conditional `stopMapScan`; staged rows are not published.
+
+A failure found after `map.scan.complete` uses the preserve-failed transaction instead: mark the run failed, copy `scan_records` into published `map_records`, clear staging, and do not redundantly request native Stop. This proves the original intentionally preserves completed acquisition data even when host terminal admission later rejects the run.
+
+Producer-side traversal, tick pacing, acknowledgement consumption/drain and retries remain unrecovered. See `docs/reviews/2026-09-27-r8-078-map-scan-error-failure.md`.
 
 ## R8-077 Map acknowledgement host boundary
 
