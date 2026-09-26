@@ -59,11 +59,19 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
         string instanceId,
         string functionName,
         JsonElement args,
-        long createdAt)
+        long createdAt,
+        TimeSpan? resultTimeout = null,
+        string? timeoutMessage = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
         ArgumentException.ThrowIfNullOrWhiteSpace(functionName);
+
+        TimeSpan timeoutDuration = resultTimeout ?? CallTimeout;
+        if (timeoutDuration <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(resultTimeout));
+        string timeoutErrorMessage = timeoutMessage ??
+            "Lua call result was not received before the recovered timeout.";
 
         PendingEntry entry;
         lock (gate)
@@ -92,7 +100,9 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
                 args.Clone(),
                 createdAt,
                 completion,
-                timeout);
+                timeout,
+                timeoutDuration,
+                timeoutErrorMessage);
             pending.Add(id, entry);
         }
 
@@ -211,7 +221,7 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
     {
         try
         {
-            await Task.Delay(CallTimeout, entry.Timeout.Token)
+            await Task.Delay(entry.TimeoutDuration, entry.Timeout.Token)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -235,7 +245,7 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
         entry.Completion.TrySetException(
             new BridgeCommandException(
                 "LUA_CALL_TIMEOUT",
-                "Lua call result was not received before the recovered timeout."));
+                entry.TimeoutMessage));
         entry.Timeout.Dispose();
     }
 
@@ -249,7 +259,9 @@ internal sealed class LWBridgeControlPipeCallRegistry : IDisposable
         JsonElement Args,
         long CreatedAt,
         TaskCompletionSource<JsonElement?> Completion,
-        CancellationTokenSource Timeout);
+        CancellationTokenSource Timeout,
+        TimeSpan TimeoutDuration,
+        string TimeoutMessage);
 }
 
 internal sealed record LWBridgePendingCall(

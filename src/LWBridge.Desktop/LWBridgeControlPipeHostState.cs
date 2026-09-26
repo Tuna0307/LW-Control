@@ -198,7 +198,9 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         JsonElement args,
         long timestamp,
         long createdAt,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        TimeSpan? resultTimeout = null,
+        string? timeoutMessage = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(route);
         ArgumentException.ThrowIfNullOrWhiteSpace(functionName);
@@ -231,7 +233,9 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                 functionName,
                 args,
                 timestamp,
-                createdAt).WaitAsync(cancellationToken)
+                createdAt,
+                resultTimeout,
+                timeoutMessage).WaitAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 

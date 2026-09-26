@@ -11,6 +11,7 @@ internal sealed record CityExportRequest(
 internal sealed class LWBridgeBackend
 {
     private static readonly string[] MapKinds = MapScanContract.AllTypes;
+    private static readonly TimeSpan SquadListTimeout = TimeSpan.FromSeconds(5);
     private static readonly HashSet<string> GlobalCommands = new(StringComparer.Ordinal)
     {
         "profile_list",
@@ -161,6 +162,11 @@ internal sealed class LWBridgeBackend
         {
             ValidateCommandScope(command, payload);
             return await CallLuaAsync(payload, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        if (string.Equals(command, "squad_list", StringComparison.Ordinal))
+        {
+            return await SquadListAsync(payload, cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -365,6 +371,58 @@ internal sealed class LWBridgeBackend
                 throw new BridgeCommandException(
                     "COMMAND_NOT_IMPLEMENTED",
                     $"Command '{command}' is not implemented by the production backend yet.");
+        }
+    }
+
+    private async Task<object?> SquadListAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        RequireNativeProfileRuntime(payload);
+
+        if (bridgeHostState is null ||
+            !bridgeHostState.IsRpcTransportStarted ||
+            !bridgeHostState.IsRouteConnected(
+                LWBridgeControlPipeRegistry.DefaultRoute))
+        {
+            throw new BridgeCommandException(
+                "GAME_DISCONNECTED",
+                "game disconnected");
+        }
+
+        JsonElement args = JsonSerializer.SerializeToElement(
+            new { },
+            JsonOptions.Default);
+        long now = RecoveredWallClock.UnixTimeMilliseconds();
+        try
+        {
+            JsonElement? result = await bridgeHostState.CallLuaAsync(
+                    LWBridgeControlPipeRegistry.DefaultRoute,
+                    "getSquads",
+                    args,
+                    timestamp: now,
+                    createdAt: now,
+                    cancellationToken: cancellationToken,
+                    resultTimeout: SquadListTimeout,
+                    timeoutMessage:
+                        "lua call result unknown after timeout: getSquads")
+                .ConfigureAwait(false);
+            return result is JsonElement value ? value : null;
+        }
+        catch (InvalidOperationException error) when (
+            error.Message.Contains(
+                "bridge route",
+                StringComparison.OrdinalIgnoreCase) ||
+            error.Message.Contains(
+                "RPC session is not running",
+                StringComparison.OrdinalIgnoreCase) ||
+            error.Message.Contains(
+                "RPC transport is not started",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new BridgeCommandException(
+                "GAME_DISCONNECTED",
+                "game disconnected");
         }
     }
 
@@ -893,6 +951,36 @@ internal sealed class LWBridgeBackend
         catch (LocalConfigStoreException ex)
         {
             throw new BridgeCommandException(ex.Code, ex.Message);
+        }
+    }
+
+    private void RequireNativeProfileRuntime(JsonElement payload)
+    {
+        string profileId = string.Empty;
+        if (payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(
+                "profileId",
+                out JsonElement property) &&
+            property.ValueKind == JsonValueKind.String)
+        {
+            profileId = property.GetString()?.Trim() ?? string.Empty;
+        }
+
+        if (profileId.Length == 0)
+        {
+            throw new BridgeCommandException(
+                "PROFILE_ID_REQUIRED",
+                "PROFILE_ID_REQUIRED");
+        }
+
+        if (!string.Equals(
+                profileId,
+                ProfileId,
+                StringComparison.Ordinal))
+        {
+            throw new BridgeCommandException(
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "PROFILE_RUNTIME_UNAVAILABLE");
         }
     }
 

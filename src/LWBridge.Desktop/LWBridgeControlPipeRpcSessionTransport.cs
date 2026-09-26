@@ -84,7 +84,9 @@ internal sealed class LWBridgeControlPipeRpcSessionTransport : IAsyncDisposable
         string functionName,
         JsonElement args,
         long timestamp,
-        long createdAt)
+        long createdAt,
+        TimeSpan? resultTimeout = null,
+        string? timeoutMessage = null)
     {
         Task? running;
         lock (lifecycleGate)
@@ -105,7 +107,9 @@ internal sealed class LWBridgeControlPipeRpcSessionTransport : IAsyncDisposable
             connection.InstanceId,
             functionName,
             args,
-            createdAt);
+            createdAt,
+            resultTimeout,
+            timeoutMessage);
 
         byte[] payload = LWBridgeControlPipeProtocol.EncodeCallCommand(
             connection.ProfileId,

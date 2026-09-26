@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-045`
+**Current checkpoint:** `LWB-R8-046`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -260,6 +260,14 @@ R8-045 closes the native read-only `dispatch_assist_state` top-level contract wi
 If the live dispatch-assist state is unavailable, native returns exact `STATE_UNAVAILABLE` / `dispatch assist state unavailable`. The persisted job reader selects `task_json,assist_at,status,attempts,last_error,created_at,updated_at` and orders active `scheduled`/`waiting_connection`/`running` jobs before other statuses, then `assist_at ASC, updated_at DESC`.
 
 The rebuild already has the matching SQLite table/index but no production live dispatch-assist provider or exact task/job-row projector. R8-045 therefore makes no runtime-code change: a synthetic idle state or DB-only success object would be non-native behavior. See `docs/reviews/2026-09-26-r8-045-dispatch-assist-state-fence.md`.
+
+## R8-046 squad_list checkpoint
+
+R8-046 restores native `squad_list` as a private retained game call rather than widening public `call_lua`. Missing/null/non-string/blank `profileId` returns exact `PROFILE_ID_REQUIRED` / `PROFILE_ID_REQUIRED`; an unknown runtime returns exact `PROFILE_RUNTIME_UNAVAILABLE` / `PROFILE_RUNTIME_UNAVAILABLE`; and no selected game route returns exact `GAME_DISCONNECTED` / `game disconnected`.
+
+Native issues exactly one `getSquads` call with empty `{}` args and a 5,000 ms result deadline. Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getSquads`. The handler does not build a host squad DTO; it returns the correlated game JSON through the generic result converter, so the rebuild forwards the result unchanged. Separate native processing confirms the game payload uses `squads`, `index`, `positions`, `heroes`, `squadIndex`, `uuid`, `name`, `position`, and `equips`, but R8-046 does not impose those as a host rewrite schema.
+
+The authenticated .NET bridge transport remains `EQUIVALENT_REIMPLEMENTATION`. R8-046 adds a command-specific result deadline/message to that transport while leaving the existing default timer and public `call_lua(getStatus,{})` boundary unchanged. See `docs/reviews/2026-09-26-r8-046-squad-list.md`.
 
 ## Parked protected package-key lane
 

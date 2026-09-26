@@ -175,6 +175,102 @@ internal static class OverviewStatusTransportChecks
             after.GetProperty("pending").GetInt32() == 0,
             "get_status.pending returns to zero after correlation");
 
+        Task<object?> squadTask = backend.InvokeAsync(
+            "squad_list",
+            profilePayload,
+            CancellationToken.None);
+        byte[] squadCommandPayload = await ReadFrameAsync(clientStream);
+        using (JsonDocument squadCommandDoc =
+               JsonDocument.Parse(squadCommandPayload))
+        {
+            JsonElement squadCommand = squadCommandDoc.RootElement;
+            Check(
+                squadCommand.GetProperty("type").GetString() ==
+                    LWBridgeControlPipeProtocol.CommandType &&
+                squadCommand.GetProperty("payload")
+                    .GetProperty("id").GetString() == "cmd_2" &&
+                squadCommand.GetProperty("payload")
+                    .GetProperty("fn").GetString() == "getSquads" &&
+                squadCommand.GetProperty("payload")
+                    .GetProperty("args").GetRawText() == "{}",
+                "squad_list emits exact getSquads empty-args call");
+        }
+
+        await WriteFrameAsync(
+            clientStream,
+            CreateEnvelope(
+                LWBridgeControlPipeProtocol.ResultType,
+                backend.ProfileId,
+                Instance,
+                "outer-squad-not-required",
+                Now + 2,
+                new
+                {
+                    id = "cmd_2",
+                    ok = true,
+                    result = new
+                    {
+                        squads = new[]
+                        {
+                            new
+                            {
+                                index = 2,
+                                positions = new[] { 1, 2 },
+                                heroes = new[]
+                                {
+                                    new
+                                    {
+                                        uuid = "hero-1",
+                                        name = "Alpha",
+                                    },
+                                },
+                            },
+                        },
+                        opaque = "preserved",
+                    },
+                }));
+        JsonElement squadResult = JsonSerializer.SerializeToElement(
+            await squadTask.WaitAsync(TimeSpan.FromSeconds(2)),
+            JsonOptions.Default);
+        Check(
+            squadResult.GetProperty("squads")[0]
+                .GetProperty("index").GetInt32() == 2 &&
+            squadResult.GetProperty("squads")[0]
+                .GetProperty("heroes")[0]
+                .GetProperty("uuid").GetString() == "hero-1" &&
+            squadResult.GetProperty("opaque").GetString() == "preserved",
+            "squad_list forwards the correlated getSquads JSON result unchanged");
+
+        Task<object?> squadTimeoutTask = backend.InvokeAsync(
+            "squad_list",
+            profilePayload,
+            CancellationToken.None);
+        byte[] squadTimeoutPayload = await ReadFrameAsync(clientStream);
+        using (JsonDocument squadTimeoutDoc =
+               JsonDocument.Parse(squadTimeoutPayload))
+        {
+            Check(
+                squadTimeoutDoc.RootElement.GetProperty("payload")
+                    .GetProperty("id").GetString() == "cmd_3" &&
+                squadTimeoutDoc.RootElement.GetProperty("payload")
+                    .GetProperty("fn").GetString() == "getSquads",
+                "second squad_list call remains independently correlated");
+        }
+
+        var squadTimeoutWatch = System.Diagnostics.Stopwatch.StartNew();
+        BridgeCommandException squadTimeout = await ExpectBridgeErrorAsync(
+            "LUA_CALL_TIMEOUT",
+            "squad_list native deadline",
+            async () => await squadTimeoutTask.WaitAsync(
+                TimeSpan.FromSeconds(7)));
+        squadTimeoutWatch.Stop();
+        Check(
+            squadTimeout.Message ==
+                "lua call result unknown after timeout: getSquads" &&
+            squadTimeoutWatch.Elapsed >= TimeSpan.FromSeconds(4.5) &&
+            squadTimeoutWatch.Elapsed < TimeSpan.FromSeconds(6.5),
+            "squad_list uses the native 5000 ms result deadline and message");
+
         await ExpectBridgeErrorAsync(
             "COMMAND_NOT_IMPLEMENTED",
             "other Lua function blocked",
@@ -219,6 +315,54 @@ internal static class OverviewStatusTransportChecks
                     }),
                 CancellationToken.None));
 
+        foreach (JsonElement missingProfile in new[]
+                 {
+                     JsonSerializer.SerializeToElement(new { }),
+                     JsonSerializer.SerializeToElement(
+                         new { profileId = 123 }),
+                     JsonSerializer.SerializeToElement(
+                         new { profileId = "   " }),
+                 })
+        {
+            BridgeCommandException required =
+                await ExpectBridgeErrorAsync(
+                    "PROFILE_ID_REQUIRED",
+                    "squad_list missing profile",
+                    () => noHostBackend.InvokeAsync(
+                        "squad_list",
+                        missingProfile,
+                        CancellationToken.None));
+            Check(
+                required.Message == "PROFILE_ID_REQUIRED",
+                "squad_list missing profile uses native message");
+        }
+
+        BridgeCommandException unknownProfile =
+            await ExpectBridgeErrorAsync(
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "squad_list unknown profile",
+                () => noHostBackend.InvokeAsync(
+                    "squad_list",
+                    JsonSerializer.SerializeToElement(
+                        new { profileId = "other-profile" }),
+                    CancellationToken.None));
+        Check(
+            unknownProfile.Message == "PROFILE_RUNTIME_UNAVAILABLE",
+            "squad_list unknown runtime uses native message");
+
+        BridgeCommandException disconnected =
+            await ExpectBridgeErrorAsync(
+                "GAME_DISCONNECTED",
+                "squad_list disconnected",
+                () => noHostBackend.InvokeAsync(
+                    "squad_list",
+                    JsonSerializer.SerializeToElement(
+                        new { profileId = noHostBackend.ProfileId }),
+                    CancellationToken.None));
+        Check(
+            disconnected.Message == "game disconnected",
+            "squad_list disconnected uses native message");
+
         await host.StopRpcTransportAsync();
         await listener.WaitAsync(TimeSpan.FromSeconds(2));
         Check(
@@ -240,11 +384,26 @@ internal static class OverviewStatusTransportChecks
                 otherFunctionBlocked = true,
                 nonEmptyArgsBlocked = true,
                 noTransportError = "LUA_CALL_FAILED",
+                squadList = new
+                {
+                    commandId = "cmd_2",
+                    functionName = "getSquads",
+                    args = "{}",
+                    rawResultPassThrough = true,
+                    timeoutCommandId = "cmd_3",
+                    timeoutMilliseconds = 5000,
+                    timeoutCode = "LUA_CALL_TIMEOUT",
+                    timeoutMessage =
+                        "lua call result unknown after timeout: getSquads",
+                    nativeProfileErrors = true,
+                    disconnectedError = "GAME_DISCONNECTED",
+                },
             },
             boundary = new
             {
                 genericCallLuaEnabled = false,
                 onlyGetStatusEmptyArgsEnabled = true,
+                squadListUsesPrivateRecoveredGameCall = true,
             },
         }, JsonOptions.Default);
     }
@@ -357,7 +516,7 @@ internal static class OverviewStatusTransportChecks
         }
     }
 
-    private static async Task ExpectBridgeErrorAsync(
+    private static async Task<BridgeCommandException> ExpectBridgeErrorAsync(
         string expectedCode,
         string name,
         Func<Task<object?>> action)
@@ -373,6 +532,7 @@ internal static class OverviewStatusTransportChecks
             Check(
                 error.Code == expectedCode,
                 $"{name} expected {expectedCode}, got {error.Code}");
+            return error;
         }
     }
 
