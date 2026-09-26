@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-083`
+**Current checkpoint:** `LWB-R8-084`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-084 native-capture hook routing and queue identity
+
+R8-084 closes the safe-region world-capture hook architecture in both verified proxies. Ten exact hooks are installed across WorldPointManager, WorldTileInfo, WorldMarchDataManager and WorldTroopManager. Point Add and march Add/Update/AddOrUpdate/UpdateTroop call the original first, then feed shared full-record producers `0x34CC0` and `0x34090`. Direct point removals are post-original; ParseWorldPointRemove/FoldUp extract `pointIds` before the original handler and feed the same positive-ID removal helper.
+
+Point capture now has exact canonical identity admission: positive `pointIndex`, non-positive `mainIndex` fallback to `pointIndex`, and full-record admission only when pointIndex equals normalized mainIndex. Pending points upsert by normalized mainIndex. Pending marches require a positive first captured qword and upsert by that identity; R8-083 proves the first march field is `uuid`, so the queue key is captured UUID.
+
+All producer paths enforce the shared 65,536 aggregate pending-record ceiling. Existing identities can be replaced at the ceiling; genuinely new entries enter dropped helper `0x3A210`. The installer also resolves exact point/march field offsets plus resource, treasure, config, march-position/HP/type and SFS-array getter methods.
+
+This narrows the remaining Map core to protected `XluaBridgeMapScanTick` traversal/order/coordinates, per-tick request pacing, retry/backoff, any separate protected acknowledgement semantics, and still-unmapped per-field population transformations. See `docs/reviews/2026-09-27-r8-084-native-capture-hooks.md`.
 
 ## R8-083 native-capture point/march serializers
 

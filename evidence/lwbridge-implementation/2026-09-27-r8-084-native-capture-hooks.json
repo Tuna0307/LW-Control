@@ -1,0 +1,311 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-084",
+  "limits": [
+    "does not inspect or cross protected native region 0x3F8E0-0x40A6D",
+    "does not recover XluaBridgeMapScanTick block traversal, coordinate order, request pacing, or retry/backoff",
+    "resolved method/field names establish producer inputs; they do not by themselves prove every later host-normalized field meaning",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "hooks": [
+        {
+          "detourRva": "0x37510",
+          "name": "WorldPointManager.AddPointInfo",
+          "trampolineSlotRva": "0x911F0"
+        },
+        {
+          "detourRva": "0x37750",
+          "name": "WorldPointManager.RemovePointInfo",
+          "trampolineSlotRva": "0x911F8"
+        },
+        {
+          "detourRva": "0x37770",
+          "name": "WorldTileInfo.RemovePointInfo",
+          "trampolineSlotRva": "0x91200"
+        },
+        {
+          "detourRva": "0x37570",
+          "name": "WorldPointManager.ParseWorldPointRemove",
+          "trampolineSlotRva": "0x91208"
+        },
+        {
+          "detourRva": "0x37530",
+          "name": "WorldPointManager.ParseWorldPointFoldUp",
+          "trampolineSlotRva": "0x91210"
+        },
+        {
+          "detourRva": "0x374D0",
+          "name": "WorldMarchDataManager.AddMarch",
+          "trampolineSlotRva": "0x91218"
+        },
+        {
+          "detourRva": "0x377B0",
+          "name": "WorldMarchDataManager.UpdateMarch",
+          "trampolineSlotRva": "0x91220"
+        },
+        {
+          "detourRva": "0x374F0",
+          "name": "WorldMarchDataManager.AddOrUpdateMarch",
+          "trampolineSlotRva": "0x91228"
+        },
+        {
+          "detourRva": "0x375B0",
+          "name": "WorldMarchDataManager.TryRemoveMarch",
+          "trampolineSlotRva": "0x91230"
+        },
+        {
+          "detourRva": "0x377D0",
+          "name": "WorldTroopManager.UpdateTroop",
+          "trampolineSlotRva": "0x91238"
+        }
+      ],
+      "producerRvas": {
+        "march": "0x34090-0x34CBD",
+        "point": "0x34CC0-0x3619D"
+      },
+      "proxy": "secure",
+      "queueSemantics": {
+        "marchIdentity": "captured uuid",
+        "newEntryAtCeiling": "dropped path 0x3A210",
+        "pointIdentity": "normalized mainIndex",
+        "replacementAtCeiling": true,
+        "sharedRecordCeiling": 65536
+      },
+      "removalRvas": {
+        "parsePointIds": "0x361A0-0x36260",
+        "pointRemoval": "0x39F20-0x3A079"
+      },
+      "resolvedFields": [
+        {
+          "field": "PointInfo.pointIndex",
+          "resolvedOffsetSlotRva": "0x90FC0"
+        },
+        {
+          "field": "PointInfo.mainIndex",
+          "resolvedOffsetSlotRva": "0x90FC8"
+        },
+        {
+          "field": "PointInfo.pointType",
+          "resolvedOffsetSlotRva": "0x90FD0"
+        },
+        {
+          "field": "WorldMarch._uuid",
+          "resolvedOffsetSlotRva": "0x90FD8"
+        },
+        {
+          "field": "WorldMarch.pointIndex",
+          "resolvedOffsetSlotRva": "0x90FE0"
+        }
+      ],
+      "resolvedGetters": [
+        {
+          "callableSlotRva": "0x91240",
+          "method": "GetResType"
+        },
+        {
+          "callableSlotRva": "0x91248",
+          "method": "GetResLevel"
+        },
+        {
+          "callableSlotRva": "0x91250",
+          "method": "GetWorldTreasureType"
+        },
+        {
+          "callableSlotRva": "0x91258",
+          "method": "get_configId"
+        },
+        {
+          "callableSlotRva": "0x91260",
+          "method": "GetMarchCurPosIndex"
+        },
+        {
+          "callableSlotRva": "0x91268",
+          "method": "GetMaxHP"
+        },
+        {
+          "callableSlotRva": "0x91270",
+          "method": "IsMonsterOrOrdinaryBoss"
+        },
+        {
+          "callableSlotRva": "0x91278",
+          "method": "IsOrdinaryBoss"
+        },
+        {
+          "callableSlotRva": "0x91280",
+          "method": "IsNormalType"
+        },
+        {
+          "callableSlotRva": "0x91288",
+          "method": "GetSFSArray"
+        },
+        {
+          "callableSlotRva": "0x91290",
+          "method": "get_Count"
+        },
+        {
+          "callableSlotRva": "0x91298",
+          "method": "GetInt"
+        }
+      ],
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    {
+      "hooks": [
+        {
+          "detourRva": "0x37510",
+          "name": "WorldPointManager.AddPointInfo",
+          "trampolineSlotRva": "0x921F0"
+        },
+        {
+          "detourRva": "0x37750",
+          "name": "WorldPointManager.RemovePointInfo",
+          "trampolineSlotRva": "0x921F8"
+        },
+        {
+          "detourRva": "0x37770",
+          "name": "WorldTileInfo.RemovePointInfo",
+          "trampolineSlotRva": "0x92200"
+        },
+        {
+          "detourRva": "0x37570",
+          "name": "WorldPointManager.ParseWorldPointRemove",
+          "trampolineSlotRva": "0x92208"
+        },
+        {
+          "detourRva": "0x37530",
+          "name": "WorldPointManager.ParseWorldPointFoldUp",
+          "trampolineSlotRva": "0x92210"
+        },
+        {
+          "detourRva": "0x374D0",
+          "name": "WorldMarchDataManager.AddMarch",
+          "trampolineSlotRva": "0x92218"
+        },
+        {
+          "detourRva": "0x377B0",
+          "name": "WorldMarchDataManager.UpdateMarch",
+          "trampolineSlotRva": "0x92220"
+        },
+        {
+          "detourRva": "0x374F0",
+          "name": "WorldMarchDataManager.AddOrUpdateMarch",
+          "trampolineSlotRva": "0x92228"
+        },
+        {
+          "detourRva": "0x375B0",
+          "name": "WorldMarchDataManager.TryRemoveMarch",
+          "trampolineSlotRva": "0x92230"
+        },
+        {
+          "detourRva": "0x377D0",
+          "name": "WorldTroopManager.UpdateTroop",
+          "trampolineSlotRva": "0x92238"
+        }
+      ],
+      "producerRvas": {
+        "march": "0x34090-0x34CBD",
+        "point": "0x34CC0-0x3619D"
+      },
+      "proxy": "plain",
+      "queueSemantics": {
+        "marchIdentity": "captured uuid",
+        "newEntryAtCeiling": "dropped path 0x3A210",
+        "pointIdentity": "normalized mainIndex",
+        "replacementAtCeiling": true,
+        "sharedRecordCeiling": 65536
+      },
+      "removalRvas": {
+        "parsePointIds": "0x361A0-0x36260",
+        "pointRemoval": "0x39F20-0x3A079"
+      },
+      "resolvedFields": [
+        {
+          "field": "PointInfo.pointIndex",
+          "resolvedOffsetSlotRva": "0x91FC0"
+        },
+        {
+          "field": "PointInfo.mainIndex",
+          "resolvedOffsetSlotRva": "0x91FC8"
+        },
+        {
+          "field": "PointInfo.pointType",
+          "resolvedOffsetSlotRva": "0x91FD0"
+        },
+        {
+          "field": "WorldMarch._uuid",
+          "resolvedOffsetSlotRva": "0x91FD8"
+        },
+        {
+          "field": "WorldMarch.pointIndex",
+          "resolvedOffsetSlotRva": "0x91FE0"
+        }
+      ],
+      "resolvedGetters": [
+        {
+          "callableSlotRva": "0x92240",
+          "method": "GetResType"
+        },
+        {
+          "callableSlotRva": "0x92248",
+          "method": "GetResLevel"
+        },
+        {
+          "callableSlotRva": "0x92250",
+          "method": "GetWorldTreasureType"
+        },
+        {
+          "callableSlotRva": "0x92258",
+          "method": "get_configId"
+        },
+        {
+          "callableSlotRva": "0x92260",
+          "method": "GetMarchCurPosIndex"
+        },
+        {
+          "callableSlotRva": "0x92268",
+          "method": "GetMaxHP"
+        },
+        {
+          "callableSlotRva": "0x92270",
+          "method": "IsMonsterOrOrdinaryBoss"
+        },
+        {
+          "callableSlotRva": "0x92278",
+          "method": "IsOrdinaryBoss"
+        },
+        {
+          "callableSlotRva": "0x92280",
+          "method": "IsNormalType"
+        },
+        {
+          "callableSlotRva": "0x92288",
+          "method": "GetSFSArray"
+        },
+        {
+          "callableSlotRva": "0x92290",
+          "method": "get_Count"
+        },
+        {
+          "callableSlotRva": "0x92298",
+          "method": "GetInt"
+        }
+      ],
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+    }
+  ],
+  "recoveredResult": {
+    "hookCount": 10,
+    "marchProducer": "0x34090",
+    "parsePointRemovalHelper": "0x361A0",
+    "parseRemovalKey": "pointIds",
+    "pointProducer": "0x34CC0",
+    "pointRemovalHelper": "0x39F20"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}
