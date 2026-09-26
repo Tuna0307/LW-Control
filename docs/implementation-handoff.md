@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-057`
+**Current checkpoint:** `LWB-R8-058`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -338,6 +338,14 @@ R8-057 extends R8-021 from exact idle output to the full observable read-only up
 Transition code closes seven phases: `idle`, `checking`, `upToDate`, `available`, `downloading`, `opening`, and `error`. Manual check entry clears progress/message, sets `nextManualCheckAt` to sampled time + 60,000 ms, and emits `bridge://update-status`; an attempt within that cooldown returns the current snapshot without starting a new check. Successful manifest processing chooses `upToDate` when no update is needed or `available` when one is, filling `latestVersion`, `releaseNotes`, and `publishedAt` while clearing progress/message.
 
 Download status is also exact at the host boundary: `downloading` starts at progress 0, progress updates republish, `downloadDirectory` updates republish, and verified download transitions to `opening` with progress 100 before the executable-open helper. Error transitions publish `phase="error"` with either fixed `UPDATE_NOT_AVAILABLE` or a native/service supplied detail. The current rebuild remains exact only at the R8-021 idle state; it has no real updater state owner, so R8-057 makes no runtime change and keeps `update_check` / `update_download_and_open` fenced. See `docs/reviews/2026-09-26-r8-057-update-status-state-machine-audit.md`.
+
+## R8-058 app_exit_confirm lifecycle fence
+
+R8-058 closes the retained main-window close/confirm boundary without inventing the missing host mutation lifecycle. Native main-window close emits exact event `app://close-requested` with numeric `{instanceCount}` instead of immediately taking the ordinary close path. The frontend then invokes global/no-payload `app_exit_confirm`.
+
+Confirmed exit is a managed shutdown sequence, not a simple window close. Native iterates managed runtimes, dispatches exact `bridge_exit`, performs game/instance shutdown, exposes exact `GAME_CLOSE_TIMEOUT` / `The game did not close in time.`, and invokes an original-proxy restoration helper whose native strings include `originalExists` and `app exit restored original proxy`. Failures are wrapped under exact code `APP_EXIT_FAILED`; the universal fixed message/detail mapping remains unclosed. Successful completion serializes JSON `null`.
+
+The rebuild still owns only R8-040 read-only proxy discovery and does not implement the original install/backup/restore mutation primitive. R8-058 therefore adds no `app_exit_confirm` runtime handler: a direct `Close()` implementation would skip `bridge_exit`, managed-game cleanup and original-proxy restoration, making shutdown observably non-native. See `docs/reviews/2026-09-26-r8-058-app-exit-confirm-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
