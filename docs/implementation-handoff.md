@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-052`
+**Current checkpoint:** `LWB-R8-053`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -302,6 +302,12 @@ A generic raw pass-through is not exact. Native explicitly special-cases task `a
 R8-052 closes the observable read-only `city_layout_apply_status` boundary. The frontend supplies no payload. Native first awaits the shared authorization-state future; unavailable state is exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. After that succeeds, native resolves the selected runtime, requires a connected game route (`GAME_DISCONNECTED` / `game disconnected`), and calls `getCityLayoutApplyStatus` with a 5,000 ms deadline. Timeout follows the shared exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getCityLayoutApplyStatus` path, and successful provider JSON goes through the generic converter without a host DTO rewrite.
 
 No runtime implementation is added: bypassing native authorization admission or fabricating an idle status from local draft state would be observable non-native behavior, and the live apply provider/status schema remains unrecovered. See `docs/reviews/2026-09-26-r8-052-city-layout-apply-status-fence.md`.
+
+## R8-053 profile_settings_get fence
+
+R8-053 closes the read-only `profile_settings_get` persistence/public contract. Native requires JSON-string `profileId`; missing/wrong-type input uses exact `INVALID_REQUEST`. After native authorization-state admission, the command reads the same per-profile singleton settings row recovered in R8-028 (`SELECT revision, value_json FROM settings WHERE id = 1`) and serializes exactly `{profileId, revision, value}`. Malformed stored data can surface native `PROFILE_DATA_INVALID`.
+
+The rebuild already has an equivalent local settings read from R8-028, but native first awaits shared authorization state and returns exact `STATE_UNAVAILABLE` / `authorization state is unavailable` when that state is unavailable. Because authorization/account-state recovery is owner-excluded, R8-053 does not wire a getter that silently bypasses this admission rule. See `docs/reviews/2026-09-26-r8-053-profile-settings-get-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 

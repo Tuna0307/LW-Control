@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-053",
+  "date": "2026-09-26",
+  "scope": "Fence profile_settings_get at owner-excluded authorization-state admission while closing its exact settings read and public projection.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "profile_settings_get handler 0x140136EC4-0x14013779B",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "required string helper 0x1403AC6C7",
+    "profile settings read helper 0x1403DBC87-0x1403DC188",
+    "settings serializer 0x1403DC575-0x1403DC661",
+    "handler result projector 0x1403EB4EF-0x1403EB5DB",
+    "R8-028 profile settings persistence evidence"
+  ],
+  "publicContract": {
+    "requiredPayload": {"profileId":"string"},
+    "invalidPayloadCode": "INVALID_REQUEST",
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "readSql": "SELECT revision, value_json FROM settings WHERE id = 1",
+    "storedDataInvalidCode": "PROFILE_DATA_INVALID",
+    "successKeysInOrder": ["profileId","revision","value"]
+  },
+  "evidenceClassification": {
+    "profileIdAdmission": "EXACT_NATIVE",
+    "settingsRead": "EXACT_NATIVE",
+    "publicProjection": "EXACT_NATIVE",
+    "storedDataInvalidVocabulary": "EXACT_NATIVE",
+    "authorizationUnavailableError": "EXACT_NATIVE",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS",
+    "checksReleaseBuild": "PASS",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission implementation",
+    "public getter remains intentionally unwired despite available local settings store"
+  ],
+  "nextCheckpoint": "Continue retained non-auth recovery; do not bypass authorization-state admission to expose profile_settings_get."
+}
