@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-066`
+**Current checkpoint:** `LWB-R8-067`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-067 command inventory checkpoint
+
+R8-067 closes the exact recovered frontend command/event inventory and turns the production routing gap into a counted queue. The authoritative reference API asset contains 104 unique command literals; 10 are explicitly excluded Account/Login/Authentication or account-purpose activation/entitlement commands, leaving 94 retained frontend commands. Across the current production backend, host-special branches and composed command services, 61 of those 94 have a specific route and 33 do not.
+
+The 33 unrouted retained commands split into 15 whose native boundary has already been materially recovered and deliberately fenced, and 18 genuinely unclosed routing gaps. The 18 are now the concrete retained command queue rather than an unspecified whole-program backend gap.
+
+The frontend inventory is not the complete native inventory. Existing exact native checkpoints prove at least eight original handlers have no matching literal anywhere in the recovered frontend assets, so the backlog's complete command/service inventory remains open. Raw executable string splitting was tested and rejected as authority because packed/adjacent strings merge command names with neighboring text.
+
+See `docs/reviews/2026-09-26-r8-067-reference-command-inventory.md` and `evidence/lwbridge-implementation/2026-09-26-r8-067-reference-command-inventory.json`.
 
 ## Reference authority
 

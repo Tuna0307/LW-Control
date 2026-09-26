@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-065`
+**Current checkpoint:** `LWB-R8-067`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,18 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-067 exact frontend command inventory checkpoint
+
+R8-067 establishes the first counted whole-product command inventory from exact reference bytes. The authority is `evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js` at SHA-256 `062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47`; the transformed production copy hashes differently and is not used as specification authority.
+
+The exact reference API contains 104 unique literal commands passed through the shared invoke wrapper. Ten are explicitly excluded account/authentication or account-purpose activation/entitlement commands, leaving 94 retained frontend commands. Across `LWBridgeBackend`, the three WebView host-special paths, and the production-composed async command services, 61 retained commands have a specific route and 33 do not. A route is only a routing fact; it does not imply exact parity.
+
+The 33 unrouted commands split into 15 already contract-audited/fenced commands and 18 genuinely unclosed retained routing gaps: `automation_configure`, `automation_start`, `automation_stop`, `chat_automation_configure`, `chat_automation_run_pending`, `city_layout_apply_cancel`, `city_layout_apply_start`, `city_layout_validate`, `dispatch_assist_cancel`, `dispatch_assist_retry`, `dispatch_assist_schedule`, `equipment_preset_apply`, `map_dispatch_share_alliance`, `map_treasure_claim`, `resource_automation_run`, `trade_station_configure`, `vip18_base_apply`, and `vip18_base_restore`.
+
+Across all recovered reference frontend JavaScript there are 15 product event literals. The frontend inventory is still not the complete native command universe: exact native recovery already proves at least eight handlers with no matching frontend literal (`equipment_initial_apply`, `profile_enable_set`, `profile_primary_set`, `profile_settings_get`, `profile_settings_save`, `red_packet_delay_configure`, `server_jump_history_get`, `treasure_delay_configure`). Do not mark the complete native inventory backlog done until handler/callsite/service/script/launcher/proxy ownership is enumerated.
+
+See `docs/reviews/2026-09-26-r8-067-reference-command-inventory.md` and `evidence/lwbridge-implementation/2026-09-26-r8-067-reference-command-inventory.json`.
 
 ## R8-066 production Map UI checkpoint
 

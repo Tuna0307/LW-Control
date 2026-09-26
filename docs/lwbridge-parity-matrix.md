@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-064`, 2026-09-26
+**Current through:** `LWB-R8-067`, 2026-09-26
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -10,6 +10,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 |---|---|---|---|
 | Reference EXE identity | EXACT_BYTES authority | Hash reverified 2026-09-24 | Keep immutable |
 | Extracted React/Vite feature chunks | EXACT_BYTES source, modified presentation boundary | Original chunks/styles/icons/locales were recovered; generator/API boundary and some product changes alter the shipped rebuild | Remove non-reference transformations except compatibility plumbing that is observationally invisible |
+| Reference frontend command/event inventory | EXACT_BYTES-derived inventory / routing audit | R8-067 extracts 104 exact API command literals and 15 `app://`/`bridge://` event literals from the recovered reference frontend. Ten account/activation commands are explicitly excluded, leaving 94 retained frontend commands; 61 have a specific production route, 33 do not. Of those 33, 15 already have audited native boundaries and are deliberately fenced, leaving 18 concrete unrouted retained gaps. At least eight recovered native handlers have no matching frontend literal, so this is not the complete native inventory | Continue native handler/callsite/service inventory; close the 18 unrouted retained frontend gaps without confusing routing presence with parity completion |
 | Original stylesheet/icons/9 locale bundles | EXACT_BYTES | Recovered byte-for-byte | Preserve hashes |
 | Normal eight post-login navigation entries | EXACT_CONTRACT / near-exact presentation | Overview, Automation, Map Data, Squads/AFK, City Layout, Hotkeys, Mini-games, Settings recovered | Re-audit every nested state/action against reference |
 | Original auth/login/account flows | EXCLUDED — explicit owner directive | Login, registration, authentication, account management, activation/renewal, unbind, logout, entitlement and account-purpose UI/backend are intentionally outside retained scope | Do not research or restore; keep historical evidence only |
