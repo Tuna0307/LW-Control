@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-082`, 2026-09-27.
+**Current through:** `LWB-R8-083`, 2026-09-27.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -33,6 +33,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Outer `XluaBridgeMapScanTick` cadence | EXACT_CONTRACT | R8-080 proves both proxies use `GetTickCount64` and an unsigned 50 ms minimum elapsed-time gate, storing `now` before the named tick call. This is pump cadence only, not per-block/request pacing; internal tick work remains unrecovered |
 | Native-capture queue batching | EXACT_CONTRACT | R8-081 recovers a single 1024-item budget shared in order across points, marches, point removals, and march removals; each drained entry is removed and decrements its pending count; point removals are numeric and march removals are strings |
 | Native-capture service / flush gates | EXACT_CONTRACT | R8-082 proves a 16 ms `GetTickCount64` service gate; run-ID change resets the active emission clock and sets a one-shot wake flag; nonempty `scanRunId` uses a 250 ms forced-emission clock, empty `scanRunId` uses 1000 ms, and the selected clock is updated only after a real envelope is assembled |
+| Native-capture point/march serializers | EXACT_CONTRACT | R8-083 recovers fixed `0x3A0` point / `0x1B0` march native records, exact 57-field point order, exact 25-field march order, six-field nullable `train`, scalar/null/quoted-ID/float/bool representation, and always-present nullable escaped-string fields |
 | City | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Resource | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Monster | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |

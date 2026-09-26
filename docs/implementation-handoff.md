@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-082`
+**Current checkpoint:** `LWB-R8-083`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-083 native-capture point/march serializers
+
+R8-083 closes the original native-capture item JSON representation in both verified proxies. Points are fixed `0x3A0`-byte native records serialized by `RVA 0x30F70-0x31FD3` into exactly 57 ordered fields. Marches are fixed `0x1B0`-byte records serialized by `RVA 0x30820-0x30F65` into exactly 25 ordered fields. A present march `train` uses `RVA 0x31FE0-0x321FB` and exactly six fields.
+
+The recovered schema distinguishes always-represented values from nullable 32-bit integers, nullable 64-bit integer JSON numbers, quoted 64-bit IDs, nullable booleans, nullable float32 values, escaped strings, and the nullable train object. Shared optional-string helper `0x387C0-0x388C7` proves those string fields are always emitted: present values are escaped/quoted, absent values are literal `null`.
+
+This closes the capture item schema/order itself, not producer population semantics. Remaining Map core is still `XluaBridgeMapScanTick` block traversal/order/coordinates, per-tick work/request generation, retry/backoff, any separate script-level acknowledgement semantics, and hook-side field-population rules.
+
+See `docs/reviews/2026-09-27-r8-083-native-capture-item-serializers.md` and `evidence/lwbridge-implementation/2026-09-27-r8-083-native-capture-item-serializers.json`.
 
 ## R8-082 native-capture service / flush gates
 

@@ -1,0 +1,1578 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-083",
+  "limits": [
+    "does not recover MapScanTick block traversal or coordinate order",
+    "does not recover producer retry/backoff rules",
+    "does not establish how often the serializer is called by the outer application beyond separately recovered pump behavior",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "marchFields": [
+        {
+          "key": "uuid",
+          "keyRva": "0x30843",
+          "kind": "quoted-i64",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x0"
+        },
+        {
+          "key": "marchType",
+          "keyRva": "0x30894",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xC",
+          "valueOffset": "0x8"
+        },
+        {
+          "key": "pointIndex",
+          "keyRva": "0x308E5",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x14",
+          "valueOffset": "0x10"
+        },
+        {
+          "key": "ownerServer",
+          "keyRva": "0x30936",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x1C",
+          "valueOffset": "0x18"
+        },
+        {
+          "key": "ownerCurServerId",
+          "keyRva": "0x30987",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x24",
+          "valueOffset": "0x20"
+        },
+        {
+          "key": "worldId",
+          "keyRva": "0x309D8",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x2C",
+          "valueOffset": "0x28"
+        },
+        {
+          "key": "status",
+          "keyRva": "0x30A29",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x34",
+          "valueOffset": "0x30"
+        },
+        {
+          "key": "maxHp",
+          "keyRva": "0x30A7A",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x3C",
+          "valueOffset": "0x38"
+        },
+        {
+          "key": "monsterId",
+          "keyRva": "0x30ACB",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x44",
+          "valueOffset": "0x40"
+        },
+        {
+          "key": "monsterType",
+          "keyRva": "0x30B1C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x4C",
+          "valueOffset": "0x48"
+        },
+        {
+          "key": "monsterSpecialType",
+          "keyRva": "0x30B6D",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x54",
+          "valueOffset": "0x50"
+        },
+        {
+          "key": "monsterRallyNum",
+          "keyRva": "0x30BBE",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x5C",
+          "valueOffset": "0x58"
+        },
+        {
+          "key": "power",
+          "keyRva": "0x30C0F",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x68",
+          "valueOffset": "0x60"
+        },
+        {
+          "key": "startTime",
+          "keyRva": "0x30C61",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x78",
+          "valueOffset": "0x70"
+        },
+        {
+          "key": "endTime",
+          "keyRva": "0x30CB3",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x88",
+          "valueOffset": "0x80"
+        },
+        {
+          "key": "curHp",
+          "keyRva": "0x30D0B",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x98",
+          "valueOffset": "0x90"
+        },
+        {
+          "key": "isMonster",
+          "keyRva": "0x30D63",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0xA1",
+          "valueOffset": "0xA0"
+        },
+        {
+          "key": "requiresRally",
+          "keyRva": "0x30DCB",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0xA3",
+          "valueOffset": "0xA2"
+        },
+        {
+          "key": "normalType",
+          "keyRva": "0x30E2A",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0xA5",
+          "valueOffset": "0xA4"
+        },
+        {
+          "key": "ownerUid",
+          "keyRva": "0x30E7C",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0xA8"
+        },
+        {
+          "key": "ownerName",
+          "keyRva": "0x30E97",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0xD0"
+        },
+        {
+          "key": "allianceUid",
+          "keyRva": "0x30EB2",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0xF8"
+        },
+        {
+          "key": "allianceName",
+          "keyRva": "0x30ECD",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x120"
+        },
+        {
+          "key": "allianceAbbr",
+          "keyRva": "0x30EE8",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x148"
+        },
+        {
+          "key": "train",
+          "keyRva": "0x30F12",
+          "kind": "object:train",
+          "nullable": true,
+          "presenceOffset": "0x1A8",
+          "valueOffset": "0x170"
+        }
+      ],
+      "pointFields": [
+        {
+          "key": "pointIndex",
+          "keyRva": "0x30F93",
+          "kind": "i32",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x0"
+        },
+        {
+          "key": "mainIndex",
+          "keyRva": "0x30FCF",
+          "kind": "i32",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x4"
+        },
+        {
+          "key": "isMainPoint",
+          "keyRva": "0x3100C",
+          "kind": "bool",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0xC"
+        },
+        {
+          "key": "pointType",
+          "keyRva": "0x3105F",
+          "kind": "i32",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x8"
+        },
+        {
+          "key": "serverId",
+          "keyRva": "0x3109C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x14",
+          "valueOffset": "0x10"
+        },
+        {
+          "key": "srcServerId",
+          "keyRva": "0x310ED",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x1C",
+          "valueOffset": "0x18"
+        },
+        {
+          "key": "worldId",
+          "keyRva": "0x3113E",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x24",
+          "valueOffset": "0x20"
+        },
+        {
+          "key": "uuid",
+          "keyRva": "0x31194",
+          "kind": "quoted-i64",
+          "nullable": true,
+          "presenceOffset": "0xE0",
+          "valueOffset": "0xD8"
+        },
+        {
+          "key": "ownerUid",
+          "keyRva": "0x311F8",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x1C0"
+        },
+        {
+          "key": "allianceId",
+          "keyRva": "0x31213",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x1E8"
+        },
+        {
+          "key": "playerName",
+          "keyRva": "0x3122E",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x210"
+        },
+        {
+          "key": "alAbbr",
+          "keyRva": "0x31249",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x238"
+        },
+        {
+          "key": "name",
+          "keyRva": "0x31264",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x260"
+        },
+        {
+          "key": "power",
+          "keyRva": "0x3128E",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0xD0",
+          "valueOffset": "0xC8"
+        },
+        {
+          "key": "id",
+          "keyRva": "0x312E6",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x4C",
+          "valueOffset": "0x48"
+        },
+        {
+          "key": "itemId",
+          "keyRva": "0x31337",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x54",
+          "valueOffset": "0x50"
+        },
+        {
+          "key": "cfgId",
+          "keyRva": "0x31388",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x44",
+          "valueOffset": "0x40"
+        },
+        {
+          "key": "level",
+          "keyRva": "0x313D9",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x5C",
+          "valueOffset": "0x58"
+        },
+        {
+          "key": "quality",
+          "keyRva": "0x3142A",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x64",
+          "valueOffset": "0x60"
+        },
+        {
+          "key": "isSpecial",
+          "keyRva": "0x3147B",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0x1B9",
+          "valueOffset": "0x1B8"
+        },
+        {
+          "key": "resType",
+          "keyRva": "0x314D5",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x6C",
+          "valueOffset": "0x68"
+        },
+        {
+          "key": "resLevel",
+          "keyRva": "0x31526",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x74",
+          "valueOffset": "0x70"
+        },
+        {
+          "key": "state",
+          "keyRva": "0x31577",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x2C",
+          "valueOffset": "0x28"
+        },
+        {
+          "key": "curHp",
+          "keyRva": "0x315C8",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x34",
+          "valueOffset": "0x30"
+        },
+        {
+          "key": "curMaxHp",
+          "keyRva": "0x31619",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x3C",
+          "valueOffset": "0x38"
+        },
+        {
+          "key": "shieldEndTime",
+          "keyRva": "0x3166A",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x100",
+          "valueOffset": "0xF8"
+        },
+        {
+          "key": "protectEndTime",
+          "keyRva": "0x316C2",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0xF0",
+          "valueOffset": "0xE8"
+        },
+        {
+          "key": "completionTime",
+          "keyRva": "0x3171A",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x110",
+          "valueOffset": "0x108"
+        },
+        {
+          "key": "expiredTime",
+          "keyRva": "0x31772",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x120",
+          "valueOffset": "0x118"
+        },
+        {
+          "key": "taskExpireTime",
+          "keyRva": "0x317CA",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x130",
+          "valueOffset": "0x128"
+        },
+        {
+          "key": "actEndTime",
+          "keyRva": "0x31822",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x140",
+          "valueOffset": "0x138"
+        },
+        {
+          "key": "gatherMarchUuid",
+          "keyRva": "0x3187F",
+          "kind": "quoted-i64",
+          "nullable": true,
+          "presenceOffset": "0x150",
+          "valueOffset": "0x148"
+        },
+        {
+          "key": "gatherUid",
+          "keyRva": "0x318E3",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x288"
+        },
+        {
+          "key": "gatherAllianceId",
+          "keyRva": "0x318FE",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x2B0"
+        },
+        {
+          "key": "stolenCount",
+          "keyRva": "0x31928",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x7C",
+          "valueOffset": "0x78"
+        },
+        {
+          "key": "heroCount",
+          "keyRva": "0x31979",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x84",
+          "valueOffset": "0x80"
+        },
+        {
+          "key": "rewarded",
+          "keyRva": "0x319D0",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x8C",
+          "valueOffset": "0x88"
+        },
+        {
+          "key": "memberCount",
+          "keyRva": "0x31A27",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x94",
+          "valueOffset": "0x90"
+        },
+        {
+          "key": "ownerServer",
+          "keyRva": "0x31A7E",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x9C",
+          "valueOffset": "0x98"
+        },
+        {
+          "key": "treasureType",
+          "keyRva": "0x31AD5",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xA4",
+          "valueOffset": "0xA0"
+        },
+        {
+          "key": "rewardedCount",
+          "keyRva": "0x31B2C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xAC",
+          "valueOffset": "0xA8"
+        },
+        {
+          "key": "diggingCount",
+          "keyRva": "0x31B83",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xB4",
+          "valueOffset": "0xB0"
+        },
+        {
+          "key": "fromPoint",
+          "keyRva": "0x31BDA",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xBC",
+          "valueOffset": "0xB8"
+        },
+        {
+          "key": "multiple",
+          "keyRva": "0x31C31",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xC4",
+          "valueOffset": "0xC0"
+        },
+        {
+          "key": "lastHpTime",
+          "keyRva": "0x31C88",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x160",
+          "valueOffset": "0x158"
+        },
+        {
+          "key": "unavailableTime",
+          "keyRva": "0x31CE0",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x170",
+          "valueOffset": "0x168"
+        },
+        {
+          "key": "startTime",
+          "keyRva": "0x31D38",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x180",
+          "valueOffset": "0x178"
+        },
+        {
+          "key": "expireTime",
+          "keyRva": "0x31D90",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x190",
+          "valueOffset": "0x188"
+        },
+        {
+          "key": "createTime",
+          "keyRva": "0x31DE8",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x1A0",
+          "valueOffset": "0x198"
+        },
+        {
+          "key": "recoverSpeed",
+          "keyRva": "0x31E40",
+          "kind": "f32",
+          "nullable": true,
+          "presenceOffset": "0x1AC",
+          "valueOffset": "0x1A8"
+        },
+        {
+          "key": "fireSpeed",
+          "keyRva": "0x31E99",
+          "kind": "f32",
+          "nullable": true,
+          "presenceOffset": "0x1B4",
+          "valueOffset": "0x1B0"
+        },
+        {
+          "key": "complete",
+          "keyRva": "0x31EF7",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0x1BB",
+          "valueOffset": "0x1BA"
+        },
+        {
+          "key": "runtimeClass",
+          "keyRva": "0x31F49",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x2D8"
+        },
+        {
+          "key": "eventId",
+          "keyRva": "0x31F64",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x300"
+        },
+        {
+          "key": "allianceAbbr",
+          "keyRva": "0x31F7F",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x328"
+        },
+        {
+          "key": "ownerName",
+          "keyRva": "0x31F9A",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x350"
+        },
+        {
+          "key": "killerId",
+          "keyRva": "0x31FB5",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x378"
+        }
+      ],
+      "proxy": "secure",
+      "serializerRvas": {
+        "march": "0x30820-0x30F65",
+        "point": "0x30F70-0x31FD3",
+        "train": "0x31FE0-0x321FB"
+      },
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "structureSizes": {
+        "march": 432,
+        "point": 928,
+        "train": 56
+      },
+      "trainFields": [
+        {
+          "key": "uuid",
+          "keyRva": "0x32004",
+          "kind": "quoted-i64",
+          "nullable": true,
+          "presenceOffset": "0x8",
+          "valueOffset": "0x0"
+        },
+        {
+          "key": "cfgId",
+          "keyRva": "0x32069",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x14",
+          "valueOffset": "0x10"
+        },
+        {
+          "key": "type",
+          "keyRva": "0x320BA",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x1C",
+          "valueOffset": "0x18"
+        },
+        {
+          "key": "configId",
+          "keyRva": "0x3210B",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x24",
+          "valueOffset": "0x20"
+        },
+        {
+          "key": "quality",
+          "keyRva": "0x3215C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x2C",
+          "valueOffset": "0x28"
+        },
+        {
+          "key": "carriageNum",
+          "keyRva": "0x321AD",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x34",
+          "valueOffset": "0x30"
+        }
+      ]
+    },
+    {
+      "marchFields": [
+        {
+          "key": "uuid",
+          "keyRva": "0x30843",
+          "kind": "quoted-i64",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x0"
+        },
+        {
+          "key": "marchType",
+          "keyRva": "0x30894",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xC",
+          "valueOffset": "0x8"
+        },
+        {
+          "key": "pointIndex",
+          "keyRva": "0x308E5",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x14",
+          "valueOffset": "0x10"
+        },
+        {
+          "key": "ownerServer",
+          "keyRva": "0x30936",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x1C",
+          "valueOffset": "0x18"
+        },
+        {
+          "key": "ownerCurServerId",
+          "keyRva": "0x30987",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x24",
+          "valueOffset": "0x20"
+        },
+        {
+          "key": "worldId",
+          "keyRva": "0x309D8",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x2C",
+          "valueOffset": "0x28"
+        },
+        {
+          "key": "status",
+          "keyRva": "0x30A29",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x34",
+          "valueOffset": "0x30"
+        },
+        {
+          "key": "maxHp",
+          "keyRva": "0x30A7A",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x3C",
+          "valueOffset": "0x38"
+        },
+        {
+          "key": "monsterId",
+          "keyRva": "0x30ACB",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x44",
+          "valueOffset": "0x40"
+        },
+        {
+          "key": "monsterType",
+          "keyRva": "0x30B1C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x4C",
+          "valueOffset": "0x48"
+        },
+        {
+          "key": "monsterSpecialType",
+          "keyRva": "0x30B6D",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x54",
+          "valueOffset": "0x50"
+        },
+        {
+          "key": "monsterRallyNum",
+          "keyRva": "0x30BBE",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x5C",
+          "valueOffset": "0x58"
+        },
+        {
+          "key": "power",
+          "keyRva": "0x30C0F",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x68",
+          "valueOffset": "0x60"
+        },
+        {
+          "key": "startTime",
+          "keyRva": "0x30C61",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x78",
+          "valueOffset": "0x70"
+        },
+        {
+          "key": "endTime",
+          "keyRva": "0x30CB3",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x88",
+          "valueOffset": "0x80"
+        },
+        {
+          "key": "curHp",
+          "keyRva": "0x30D0B",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x98",
+          "valueOffset": "0x90"
+        },
+        {
+          "key": "isMonster",
+          "keyRva": "0x30D63",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0xA1",
+          "valueOffset": "0xA0"
+        },
+        {
+          "key": "requiresRally",
+          "keyRva": "0x30DCB",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0xA3",
+          "valueOffset": "0xA2"
+        },
+        {
+          "key": "normalType",
+          "keyRva": "0x30E2A",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0xA5",
+          "valueOffset": "0xA4"
+        },
+        {
+          "key": "ownerUid",
+          "keyRva": "0x30E7C",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0xA8"
+        },
+        {
+          "key": "ownerName",
+          "keyRva": "0x30E97",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0xD0"
+        },
+        {
+          "key": "allianceUid",
+          "keyRva": "0x30EB2",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0xF8"
+        },
+        {
+          "key": "allianceName",
+          "keyRva": "0x30ECD",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x120"
+        },
+        {
+          "key": "allianceAbbr",
+          "keyRva": "0x30EE8",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x148"
+        },
+        {
+          "key": "train",
+          "keyRva": "0x30F12",
+          "kind": "object:train",
+          "nullable": true,
+          "presenceOffset": "0x1A8",
+          "valueOffset": "0x170"
+        }
+      ],
+      "pointFields": [
+        {
+          "key": "pointIndex",
+          "keyRva": "0x30F93",
+          "kind": "i32",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x0"
+        },
+        {
+          "key": "mainIndex",
+          "keyRva": "0x30FCF",
+          "kind": "i32",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x4"
+        },
+        {
+          "key": "isMainPoint",
+          "keyRva": "0x3100C",
+          "kind": "bool",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0xC"
+        },
+        {
+          "key": "pointType",
+          "keyRva": "0x3105F",
+          "kind": "i32",
+          "nullable": false,
+          "presenceOffset": null,
+          "valueOffset": "0x8"
+        },
+        {
+          "key": "serverId",
+          "keyRva": "0x3109C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x14",
+          "valueOffset": "0x10"
+        },
+        {
+          "key": "srcServerId",
+          "keyRva": "0x310ED",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x1C",
+          "valueOffset": "0x18"
+        },
+        {
+          "key": "worldId",
+          "keyRva": "0x3113E",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x24",
+          "valueOffset": "0x20"
+        },
+        {
+          "key": "uuid",
+          "keyRva": "0x31194",
+          "kind": "quoted-i64",
+          "nullable": true,
+          "presenceOffset": "0xE0",
+          "valueOffset": "0xD8"
+        },
+        {
+          "key": "ownerUid",
+          "keyRva": "0x311F8",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x1C0"
+        },
+        {
+          "key": "allianceId",
+          "keyRva": "0x31213",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x1E8"
+        },
+        {
+          "key": "playerName",
+          "keyRva": "0x3122E",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x210"
+        },
+        {
+          "key": "alAbbr",
+          "keyRva": "0x31249",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x238"
+        },
+        {
+          "key": "name",
+          "keyRva": "0x31264",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x260"
+        },
+        {
+          "key": "power",
+          "keyRva": "0x3128E",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0xD0",
+          "valueOffset": "0xC8"
+        },
+        {
+          "key": "id",
+          "keyRva": "0x312E6",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x4C",
+          "valueOffset": "0x48"
+        },
+        {
+          "key": "itemId",
+          "keyRva": "0x31337",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x54",
+          "valueOffset": "0x50"
+        },
+        {
+          "key": "cfgId",
+          "keyRva": "0x31388",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x44",
+          "valueOffset": "0x40"
+        },
+        {
+          "key": "level",
+          "keyRva": "0x313D9",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x5C",
+          "valueOffset": "0x58"
+        },
+        {
+          "key": "quality",
+          "keyRva": "0x3142A",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x64",
+          "valueOffset": "0x60"
+        },
+        {
+          "key": "isSpecial",
+          "keyRva": "0x3147B",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0x1B9",
+          "valueOffset": "0x1B8"
+        },
+        {
+          "key": "resType",
+          "keyRva": "0x314D5",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x6C",
+          "valueOffset": "0x68"
+        },
+        {
+          "key": "resLevel",
+          "keyRva": "0x31526",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x74",
+          "valueOffset": "0x70"
+        },
+        {
+          "key": "state",
+          "keyRva": "0x31577",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x2C",
+          "valueOffset": "0x28"
+        },
+        {
+          "key": "curHp",
+          "keyRva": "0x315C8",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x34",
+          "valueOffset": "0x30"
+        },
+        {
+          "key": "curMaxHp",
+          "keyRva": "0x31619",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x3C",
+          "valueOffset": "0x38"
+        },
+        {
+          "key": "shieldEndTime",
+          "keyRva": "0x3166A",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x100",
+          "valueOffset": "0xF8"
+        },
+        {
+          "key": "protectEndTime",
+          "keyRva": "0x316C2",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0xF0",
+          "valueOffset": "0xE8"
+        },
+        {
+          "key": "completionTime",
+          "keyRva": "0x3171A",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x110",
+          "valueOffset": "0x108"
+        },
+        {
+          "key": "expiredTime",
+          "keyRva": "0x31772",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x120",
+          "valueOffset": "0x118"
+        },
+        {
+          "key": "taskExpireTime",
+          "keyRva": "0x317CA",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x130",
+          "valueOffset": "0x128"
+        },
+        {
+          "key": "actEndTime",
+          "keyRva": "0x31822",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x140",
+          "valueOffset": "0x138"
+        },
+        {
+          "key": "gatherMarchUuid",
+          "keyRva": "0x3187F",
+          "kind": "quoted-i64",
+          "nullable": true,
+          "presenceOffset": "0x150",
+          "valueOffset": "0x148"
+        },
+        {
+          "key": "gatherUid",
+          "keyRva": "0x318E3",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x288"
+        },
+        {
+          "key": "gatherAllianceId",
+          "keyRva": "0x318FE",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x2B0"
+        },
+        {
+          "key": "stolenCount",
+          "keyRva": "0x31928",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x7C",
+          "valueOffset": "0x78"
+        },
+        {
+          "key": "heroCount",
+          "keyRva": "0x31979",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x84",
+          "valueOffset": "0x80"
+        },
+        {
+          "key": "rewarded",
+          "keyRva": "0x319D0",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x8C",
+          "valueOffset": "0x88"
+        },
+        {
+          "key": "memberCount",
+          "keyRva": "0x31A27",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x94",
+          "valueOffset": "0x90"
+        },
+        {
+          "key": "ownerServer",
+          "keyRva": "0x31A7E",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x9C",
+          "valueOffset": "0x98"
+        },
+        {
+          "key": "treasureType",
+          "keyRva": "0x31AD5",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xA4",
+          "valueOffset": "0xA0"
+        },
+        {
+          "key": "rewardedCount",
+          "keyRva": "0x31B2C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xAC",
+          "valueOffset": "0xA8"
+        },
+        {
+          "key": "diggingCount",
+          "keyRva": "0x31B83",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xB4",
+          "valueOffset": "0xB0"
+        },
+        {
+          "key": "fromPoint",
+          "keyRva": "0x31BDA",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xBC",
+          "valueOffset": "0xB8"
+        },
+        {
+          "key": "multiple",
+          "keyRva": "0x31C31",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0xC4",
+          "valueOffset": "0xC0"
+        },
+        {
+          "key": "lastHpTime",
+          "keyRva": "0x31C88",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x160",
+          "valueOffset": "0x158"
+        },
+        {
+          "key": "unavailableTime",
+          "keyRva": "0x31CE0",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x170",
+          "valueOffset": "0x168"
+        },
+        {
+          "key": "startTime",
+          "keyRva": "0x31D38",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x180",
+          "valueOffset": "0x178"
+        },
+        {
+          "key": "expireTime",
+          "keyRva": "0x31D90",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x190",
+          "valueOffset": "0x188"
+        },
+        {
+          "key": "createTime",
+          "keyRva": "0x31DE8",
+          "kind": "i64",
+          "nullable": true,
+          "presenceOffset": "0x1A0",
+          "valueOffset": "0x198"
+        },
+        {
+          "key": "recoverSpeed",
+          "keyRva": "0x31E40",
+          "kind": "f32",
+          "nullable": true,
+          "presenceOffset": "0x1AC",
+          "valueOffset": "0x1A8"
+        },
+        {
+          "key": "fireSpeed",
+          "keyRva": "0x31E99",
+          "kind": "f32",
+          "nullable": true,
+          "presenceOffset": "0x1B4",
+          "valueOffset": "0x1B0"
+        },
+        {
+          "key": "complete",
+          "keyRva": "0x31EF7",
+          "kind": "bool",
+          "nullable": true,
+          "presenceOffset": "0x1BB",
+          "valueOffset": "0x1BA"
+        },
+        {
+          "key": "runtimeClass",
+          "keyRva": "0x31F49",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x2D8"
+        },
+        {
+          "key": "eventId",
+          "keyRva": "0x31F64",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x300"
+        },
+        {
+          "key": "allianceAbbr",
+          "keyRva": "0x31F7F",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x328"
+        },
+        {
+          "key": "ownerName",
+          "keyRva": "0x31F9A",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x350"
+        },
+        {
+          "key": "killerId",
+          "keyRva": "0x31FB5",
+          "kind": "string",
+          "nullable": true,
+          "presenceOffset": null,
+          "valueOffset": "0x378"
+        }
+      ],
+      "proxy": "plain",
+      "serializerRvas": {
+        "march": "0x30820-0x30F65",
+        "point": "0x30F70-0x31FD3",
+        "train": "0x31FE0-0x321FB"
+      },
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "structureSizes": {
+        "march": 432,
+        "point": 928,
+        "train": 56
+      },
+      "trainFields": [
+        {
+          "key": "uuid",
+          "keyRva": "0x32004",
+          "kind": "quoted-i64",
+          "nullable": true,
+          "presenceOffset": "0x8",
+          "valueOffset": "0x0"
+        },
+        {
+          "key": "cfgId",
+          "keyRva": "0x32069",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x14",
+          "valueOffset": "0x10"
+        },
+        {
+          "key": "type",
+          "keyRva": "0x320BA",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x1C",
+          "valueOffset": "0x18"
+        },
+        {
+          "key": "configId",
+          "keyRva": "0x3210B",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x24",
+          "valueOffset": "0x20"
+        },
+        {
+          "key": "quality",
+          "keyRva": "0x3215C",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x2C",
+          "valueOffset": "0x28"
+        },
+        {
+          "key": "carriageNum",
+          "keyRva": "0x321AD",
+          "kind": "i32",
+          "nullable": true,
+          "presenceOffset": "0x34",
+          "valueOffset": "0x30"
+        }
+      ]
+    }
+  ],
+  "recoveredResult": {
+    "marchElementBytes": 432,
+    "marchFieldCount": 25,
+    "marchFieldOrder": [
+      "uuid",
+      "marchType",
+      "pointIndex",
+      "ownerServer",
+      "ownerCurServerId",
+      "worldId",
+      "status",
+      "maxHp",
+      "monsterId",
+      "monsterType",
+      "monsterSpecialType",
+      "monsterRallyNum",
+      "power",
+      "startTime",
+      "endTime",
+      "curHp",
+      "isMonster",
+      "requiresRally",
+      "normalType",
+      "ownerUid",
+      "ownerName",
+      "allianceUid",
+      "allianceName",
+      "allianceAbbr",
+      "train"
+    ],
+    "marchSerializerRva": "0x30820-0x30F65",
+    "nullableStringSemantics": "string fields routed through the shared helper are always emitted; present values are JSON-escaped and quoted, absent values are literal null",
+    "pointElementBytes": 928,
+    "pointFieldCount": 57,
+    "pointFieldOrder": [
+      "pointIndex",
+      "mainIndex",
+      "isMainPoint",
+      "pointType",
+      "serverId",
+      "srcServerId",
+      "worldId",
+      "uuid",
+      "ownerUid",
+      "allianceId",
+      "playerName",
+      "alAbbr",
+      "name",
+      "power",
+      "id",
+      "itemId",
+      "cfgId",
+      "level",
+      "quality",
+      "isSpecial",
+      "resType",
+      "resLevel",
+      "state",
+      "curHp",
+      "curMaxHp",
+      "shieldEndTime",
+      "protectEndTime",
+      "completionTime",
+      "expiredTime",
+      "taskExpireTime",
+      "actEndTime",
+      "gatherMarchUuid",
+      "gatherUid",
+      "gatherAllianceId",
+      "stolenCount",
+      "heroCount",
+      "rewarded",
+      "memberCount",
+      "ownerServer",
+      "treasureType",
+      "rewardedCount",
+      "diggingCount",
+      "fromPoint",
+      "multiple",
+      "lastHpTime",
+      "unavailableTime",
+      "startTime",
+      "expireTime",
+      "createTime",
+      "recoverSpeed",
+      "fireSpeed",
+      "complete",
+      "runtimeClass",
+      "eventId",
+      "allianceAbbr",
+      "ownerName",
+      "killerId"
+    ],
+    "pointSerializerRva": "0x30F70-0x31FD3",
+    "primitiveWriters": {
+      "f32": "0x300E0",
+      "i32": "0x2FEB0",
+      "i64": "0x30320",
+      "optionalString": "0x387C0",
+      "train": "0x31FE0"
+    },
+    "representation": "per-field kind/nullability/native value and presence offsets are derived from each verified proxy under proxies[].pointFields/marchFields/trainFields",
+    "trainFieldCount": 6,
+    "trainFieldOrder": [
+      "uuid",
+      "cfgId",
+      "type",
+      "configId",
+      "quality",
+      "carriageNum"
+    ],
+    "trainSerializerRva": "0x31FE0-0x321FB"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}
