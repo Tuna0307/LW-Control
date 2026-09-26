@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-058`
+**Current checkpoint:** `LWB-R8-059`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -346,6 +346,14 @@ R8-058 closes the retained main-window close/confirm boundary without inventing 
 Confirmed exit is a managed shutdown sequence, not a simple window close. Native iterates managed runtimes, dispatches exact `bridge_exit`, performs game/instance shutdown, exposes exact `GAME_CLOSE_TIMEOUT` / `The game did not close in time.`, and invokes an original-proxy restoration helper whose native strings include `originalExists` and `app exit restored original proxy`. Failures are wrapped under exact code `APP_EXIT_FAILED`; the universal fixed message/detail mapping remains unclosed. Successful completion serializes JSON `null`.
 
 The rebuild still owns only R8-040 read-only proxy discovery and does not implement the original install/backup/restore mutation primitive. R8-058 therefore adds no `app_exit_confirm` runtime handler: a direct `Close()` implementation would skip `bridge_exit`, managed-game cleanup and original-proxy restoration, making shutdown observably non-native. See `docs/reviews/2026-09-26-r8-058-app-exit-confirm-fence.md`.
+
+## R8-059 monopoly_cell_open fence
+
+R8-059 closes the first retained Mini-game live-action boundary. The per-command wrapper supplies no Monopoly-specific arguments, while shared API wrapper `U()` injects the currently selected `profileId`. Native then awaits authorization state before profile/runtime resolution, so exact `STATE_UNAVAILABLE` / `authorization state is unavailable` has precedence over profile/runtime and route errors.
+
+After admission, native requires the selected runtime (`PROFILE_ID_REQUIRED` / `PROFILE_RUNTIME_UNAVAILABLE`), then connected game transport (`GAME_DISCONNECTED` / `game disconnected`). It issues exactly one `openMonopolyCell` call with `{}` args and a 5,000 ms deadline; timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: openMonopolyCell`, provider failures use the shared `LUA_CALL_FAILED` path, and success forwards the correlated provider JSON unchanged through the generic converter.
+
+No runtime action is added because original LWBridge requires owner-excluded authorization-state admission before enabling this live action. A direct provider call would weaken observable admission semantics. See `docs/reviews/2026-09-26-r8-059-monopoly-cell-open-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
