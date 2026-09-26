@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-061`
+**Current checkpoint:** `LWB-R8-062`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -167,7 +167,7 @@ R8-032 restores `profile_primary_set` as the native immutable-primary assertion 
 
 ## R8-033 Claim-delay configuration checkpoint
 
-R8-033 restores the host-local `red_packet_delay_configure` and `treasure_delay_configure` commands. Native 0.3.1 accepts only numeric `minSeconds`/`maxSeconds`, requires finite ordered ranges within 0..60 seconds for red packets and 0..600 seconds for treasure, and uses `INVALID_REQUEST` with the recovered native detail when invalid. Success returns `{ok:true,range:[min,max]}`. The original writer mirrors each range into both `scheduler.<Kind>ClaimDelaySeconds` and `chat_automation.<kind>.claimDelaySeconds` before saving the current profile's `runtime/config.json`; the rebuild now does the same through the existing `ProfileRuntimeConfigStore` while preserving sibling/unknown fields. `profile_enable_set` remains fenced because it depends on excluded `license_capacity` behavior; destructive `profile_delete` remains fenced until runtime/profile-data cleanup semantics are completely closed; Trade Station remains provider-backed. See `docs/reviews/2026-09-25-r8-033-claim-delay-config.md`.
+R8-033 restores the host-local `red_packet_delay_configure` and `treasure_delay_configure` commands. Native 0.3.1 accepts only numeric `minSeconds`/`maxSeconds`, requires finite ordered ranges within 0..60 seconds for red packets and 0..600 seconds for treasure, and uses `INVALID_REQUEST` with the recovered native detail when invalid. Success returns `{ok:true,range:[min,max]}`. The original writer mirrors each range into both `scheduler.<Kind>ClaimDelaySeconds` and `chat_automation.<kind>.claimDelaySeconds` before saving the current profile's `runtime/config.json`; the rebuild now does the same through the existing `ProfileRuntimeConfigStore` while preserving sibling/unknown fields. `profile_enable_set` remains fenced because it depends on excluded `license_capacity` behavior; R8-062 supersedes the earlier broad `profile_delete` note by closing its destructive runtime/registry/profile-data semantics and showing the public command disables the generic bound-profile guard, while keeping execution fenced on owner-excluded authorization-state admission; Trade Station remains provider-backed. See `docs/reviews/2026-09-25-r8-033-claim-delay-config.md`.
 
 ## R8-034 Profile selection/focus checkpoint
 
@@ -372,6 +372,16 @@ The dedicated save helper owns retained fields `selectedSkinId`, `autoApplyOnSta
 Persistence belongs to the shared config-state owner under top-level `vip18_profiles` in `config.json`. If that state is unavailable, exact failure is `STATE_UNAVAILABLE` / `config state is unavailable`. On success, native returns the same normalized three-field VIP18 config projection as config-get rather than a generic acknowledgment. Because authorization admission is owner-excluded and the shared config migration/default/merge layer remains incomplete under R8-043/R8-049, R8-061 adds no production save implementation. See `docs/reviews/2026-09-26-r8-061-vip18-base-config-save-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
+
+## R8-062 profile_delete fence
+
+R8-062 closes the destructive native `profile_delete` path without exposing it in the rebuild. Native awaits shared authorization state before parsing `profileId`; unavailable state is exact `STATE_UNAVAILABLE` / `authorization state is unavailable`, and missing/wrong-type `profileId` then uses exact `INVALID_REQUEST`.
+
+Deletion rejects a running profile with `PROFILE_RUNNING`, a missing row with `PROFILE_NOT_FOUND`, and the primary profile with `PROFILE_PRIMARY_REQUIRED`. The native target query is `SELECT is_primary, game_uid IS NULL FROM profiles WHERE id = ?`. The generic target helper contains an optional `PROFILE_ALREADY_BOUND` guard, but public `profile_delete` passes that guard flag as false; the command therefore does not reject a bound non-primary profile solely because `game_uid` is present. This corrects the older broad R8-033 research note.
+
+Native deletes the controller row transactionally, repairs `selected_profile_id` to the surviving primary profile when the deleted profile was selected, commits, then removes the profile-data directory. Profile-data cleanup failure is `IO_ERROR` with `delete profile data` context and can therefore occur after the registry change already committed. Native then reconciles runtime state and returns the same refreshed `{selectedProfileId,maxProfiles,profiles}` projection as `profile_list`.
+
+No production delete is added because the owner-excluded authorization-state admission has precedence over every destructive side effect. See `docs/reviews/2026-09-26-r8-062-profile-delete-fence.md`.
 
 ## Parked protected package-key lane
 

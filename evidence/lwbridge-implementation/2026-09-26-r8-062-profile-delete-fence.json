@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-062",
+  "date": "2026-09-26",
+  "scope": "Fence profile_delete at owner-excluded authorization-state admission while closing exact destructive registry, selection, cleanup, runtime-reconcile and refreshed-list behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "profile_delete handler 0x14013F2BD-0x14013FCFB",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "required profileId helper 0x1403AC6C7-0x1403AC731",
+    "runtime/delete service 0x14041C51E-0x14041C7AE",
+    "controller delete transaction 0x1403DA488-0x1403DA8A1",
+    "delete-target/selection helper 0x1403DCC3D-0x1403DD3B0",
+    "post-delete runtime reconciliation 0x1404199BB-0x140419AFC",
+    "profile-list projector 0x14041C193-0x14041C341",
+    "profile-list JSON serializer 0x14042E54C-0x14042E668",
+    "R8-029 profile-list registry evidence"
+  ],
+  "publicContract": {
+    "authorizationUnavailable": {"code":"STATE_UNAVAILABLE","message":"authorization state is unavailable"},
+    "invalidProfileIdCode": "INVALID_REQUEST",
+    "runningCode": "PROFILE_RUNNING",
+    "notFoundCode": "PROFILE_NOT_FOUND",
+    "primaryDeleteCode": "PROFILE_PRIMARY_REQUIRED",
+    "boundProfileGuardEnabled": false,
+    "filesystemFailureCode": "IO_ERROR",
+    "filesystemFailureContext": "delete profile data",
+    "successFields": ["selectedProfileId","maxProfiles","profiles"]
+  },
+  "deleteTransaction": {
+    "targetReadSql": "SELECT is_primary, game_uid IS NULL FROM profiles WHERE id = ?",
+    "deleteSql": "DELETE FROM profiles WHERE id = ?",
+    "selectedReadSql": "SELECT value FROM controller_state WHERE key = 'selected_profile_id'",
+    "selectedRepair": "deleted selected profile is restored to surviving primary profile",
+    "controllerCommitBeforeFilesystemCleanup": true
+  },
+  "correction": {
+    "supersedes": "R8-033 broad note that public profile_delete enforces bound-profile rejection",
+    "nativeHelperHasOptionalBoundGuard": true,
+    "publicCommandPassesEnforceUnbound": false
+  },
+  "postDelete": {
+    "runtimeReconciliation": true,
+    "runtimeReconciliationCanReturnStateUnavailable": true,
+    "successUsesProfileListProjection": true
+  },
+  "evidenceClassification": {
+    "authorizationAdmission": "EXACT_NATIVE",
+    "profileIdAdmission": "EXACT_NATIVE",
+    "runtimeRunningGuard": "EXACT_NATIVE",
+    "targetGuards": "EXACT_NATIVE",
+    "boundGuardDisabledForPublicCommand": "EXACT_NATIVE",
+    "controllerMutationAndSelectionRepair": "EXACT_NATIVE",
+    "filesystemCleanupOrdering": "EXACT_NATIVE",
+    "successProfileListProjection": "EXACT_NATIVE",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission implementation",
+    "native entitlement/quota ownership behind refreshed maxProfiles",
+    "destructive command must remain fenced until admission can be represented without auth/account reconstruction"
+  ],
+  "nextCheckpoint": "Continue retained non-auth profile/host recovery; do not expose profile_delete by bypassing native authorization-state admission."
+}
