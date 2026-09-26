@@ -271,6 +271,101 @@ internal static class OverviewStatusTransportChecks
             squadTimeoutWatch.Elapsed < TimeSpan.FromSeconds(6.5),
             "squad_list uses the native 5000 ms result deadline and message");
 
+        Task<object?> catalogTask = backend.InvokeAsync(
+            "monster_catalog_options",
+            profilePayload,
+            CancellationToken.None);
+        byte[] catalogCommandPayload = await ReadFrameAsync(clientStream);
+        using (JsonDocument catalogCommandDoc =
+               JsonDocument.Parse(catalogCommandPayload))
+        {
+            JsonElement catalogCommand = catalogCommandDoc.RootElement;
+            Check(
+                catalogCommand.GetProperty("payload")
+                    .GetProperty("id").GetString() == "cmd_4" &&
+                catalogCommand.GetProperty("payload")
+                    .GetProperty("fn").GetString() ==
+                    "getMonsterCatalogOptions" &&
+                catalogCommand.GetProperty("payload")
+                    .GetProperty("args").GetRawText() == "{}",
+                "monster_catalog_options emits exact game call");
+        }
+
+        await WriteFrameAsync(
+            clientStream,
+            CreateEnvelope(
+                LWBridgeControlPipeProtocol.ResultType,
+                backend.ProfileId,
+                Instance,
+                "outer-catalog-not-required",
+                Now + 3,
+                new
+                {
+                    id = "cmd_4",
+                    ok = true,
+                    result = new
+                    {
+                        options = new[]
+                        {
+                            new
+                            {
+                                key = "monster-1",
+                                group = "world",
+                                monsterNameKey = "monster.name.1",
+                                monsterType = 8,
+                                searchable = true,
+                                minLevel = 1,
+                                maxLevel = 50,
+                            },
+                        },
+                        opaqueCatalog = "preserved",
+                    },
+                }));
+        JsonElement catalogResult = JsonSerializer.SerializeToElement(
+            await catalogTask.WaitAsync(TimeSpan.FromSeconds(2)),
+            JsonOptions.Default);
+        Check(
+            catalogResult.GetProperty("options")[0]
+                .GetProperty("key").GetString() == "monster-1" &&
+            catalogResult.GetProperty("options")[0]
+                .GetProperty("monsterType").GetInt32() == 8 &&
+            catalogResult.GetProperty("opaqueCatalog").GetString() ==
+                "preserved",
+            "monster_catalog_options forwards game JSON unchanged");
+
+        Task<object?> catalogTimeoutTask = backend.InvokeAsync(
+            "monster_catalog_options",
+            profilePayload,
+            CancellationToken.None);
+        byte[] catalogTimeoutPayload = await ReadFrameAsync(clientStream);
+        using (JsonDocument catalogTimeoutDoc =
+               JsonDocument.Parse(catalogTimeoutPayload))
+        {
+            Check(
+                catalogTimeoutDoc.RootElement.GetProperty("payload")
+                    .GetProperty("id").GetString() == "cmd_5" &&
+                catalogTimeoutDoc.RootElement.GetProperty("payload")
+                    .GetProperty("fn").GetString() ==
+                    "getMonsterCatalogOptions",
+                "second monster catalog request remains independently correlated");
+        }
+
+        var catalogTimeoutWatch =
+            System.Diagnostics.Stopwatch.StartNew();
+        BridgeCommandException catalogTimeout =
+            await ExpectBridgeErrorAsync(
+                "LUA_CALL_TIMEOUT",
+                "monster_catalog_options native deadline",
+                async () => await catalogTimeoutTask.WaitAsync(
+                    TimeSpan.FromSeconds(7)));
+        catalogTimeoutWatch.Stop();
+        Check(
+            catalogTimeout.Message ==
+                "lua call result unknown after timeout: getMonsterCatalogOptions" &&
+            catalogTimeoutWatch.Elapsed >= TimeSpan.FromSeconds(4.5) &&
+            catalogTimeoutWatch.Elapsed < TimeSpan.FromSeconds(6.5),
+            "monster_catalog_options uses native 5000 ms deadline and message");
+
         await ExpectBridgeErrorAsync(
             "COMMAND_NOT_IMPLEMENTED",
             "other Lua function blocked",
@@ -363,6 +458,19 @@ internal static class OverviewStatusTransportChecks
             disconnected.Message == "game disconnected",
             "squad_list disconnected uses native message");
 
+        BridgeCommandException catalogDisconnected =
+            await ExpectBridgeErrorAsync(
+                "GAME_DISCONNECTED",
+                "monster_catalog_options disconnected",
+                () => noHostBackend.InvokeAsync(
+                    "monster_catalog_options",
+                    JsonSerializer.SerializeToElement(
+                        new { profileId = noHostBackend.ProfileId }),
+                    CancellationToken.None));
+        Check(
+            catalogDisconnected.Message == "game disconnected",
+            "monster_catalog_options disconnected uses native message");
+
         await host.StopRpcTransportAsync();
         await listener.WaitAsync(TimeSpan.FromSeconds(2));
         Check(
@@ -398,12 +506,26 @@ internal static class OverviewStatusTransportChecks
                     nativeProfileErrors = true,
                     disconnectedError = "GAME_DISCONNECTED",
                 },
+                monsterCatalogOptions = new
+                {
+                    commandId = "cmd_4",
+                    functionName = "getMonsterCatalogOptions",
+                    args = "{}",
+                    rawResultPassThrough = true,
+                    timeoutCommandId = "cmd_5",
+                    timeoutMilliseconds = 5000,
+                    timeoutCode = "LUA_CALL_TIMEOUT",
+                    timeoutMessage =
+                        "lua call result unknown after timeout: getMonsterCatalogOptions",
+                    disconnectedError = "GAME_DISCONNECTED",
+                },
             },
             boundary = new
             {
                 genericCallLuaEnabled = false,
                 onlyGetStatusEmptyArgsEnabled = true,
                 squadListUsesPrivateRecoveredGameCall = true,
+                monsterCatalogUsesPrivateRecoveredGameCall = true,
             },
         }, JsonOptions.Default);
     }

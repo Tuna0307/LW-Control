@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-046`
+**Current checkpoint:** `LWB-R8-047`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -268,6 +268,12 @@ R8-046 restores native `squad_list` as a private retained game call rather than 
 Native issues exactly one `getSquads` call with empty `{}` args and a 5,000 ms result deadline. Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getSquads`. The handler does not build a host squad DTO; it returns the correlated game JSON through the generic result converter, so the rebuild forwards the result unchanged. Separate native processing confirms the game payload uses `squads`, `index`, `positions`, `heroes`, `squadIndex`, `uuid`, `name`, `position`, and `equips`, but R8-046 does not impose those as a host rewrite schema.
 
 The authenticated .NET bridge transport remains `EQUIVALENT_REIMPLEMENTATION`. R8-046 adds a command-specific result deadline/message to that transport while leaving the existing default timer and public `call_lua(getStatus,{})` boundary unchanged. See `docs/reviews/2026-09-26-r8-046-squad-list.md`.
+
+## R8-047 monster_catalog_options checkpoint
+
+R8-047 restores the native read-only `monster_catalog_options` command over the same private retained game-call path. It uses the same exact profile/runtime admission as `squad_list`, returns exact `GAME_DISCONNECTED` / `game disconnected` without a route, then issues one `getMonsterCatalogOptions` call with `{}` and a 5,000 ms result deadline. Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getMonsterCatalogOptions`.
+
+Native returns the correlated game JSON through the generic converter rather than rebuilding option rows. The frontend consumes `result.options` and fields including `key`, `group`, `monsterNameKey`, `monsterType`, level bounds and searchability, but the host preserves the provider JSON unchanged. The authenticated .NET transport remains equivalent plumbing and public `call_lua` is not widened. See `docs/reviews/2026-09-26-r8-047-monster-catalog-options.md`.
 
 ## Parked protected package-key lane
 
