@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-056`
+**Current checkpoint:** `LWB-R8-057`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -330,6 +330,14 @@ R8-056 closes the retained `watermark_lookup` input/service/result boundary with
 Before the service call, native awaits shared authorization state (`STATE_UNAVAILABLE` / `authorization state is unavailable`) and checks authorization `accessRole`; a missing required role returns `ROLE_REQUIRED`. The exact role policy and authorization transport state are owner-excluded and intentionally unimplemented.
 
 The handler sends JSON to exact path `/api/watermark/lookup` through the shared HTTP service helper. That helper exposes native error vocabulary including `REQUEST_TIMEOUT`, `NETWORK_ERROR`, `SERVICE_UNAVAILABLE`, `SESSION_INVALID`, and service `/error/code`/`/error/detail`. On success, the service JSON is returned through the generic converter; the host does not construct a fixed watermark DTO. R8-056 therefore makes no runtime change. See `docs/reviews/2026-09-26-r8-056-watermark-lookup-fence.md`.
+
+## R8-057 update_status state-machine audit
+
+R8-057 extends R8-021 from exact idle output to the full observable read-only updater status machine. Native `update_status` only snapshots the updater service and serializes the same nine fields in exact order: `phase`, `currentVersion`, `latestVersion`, `releaseNotes`, `publishedAt`, `progress`, `message`, `nextManualCheckAt`, `downloadDirectory`.
+
+Transition code closes seven phases: `idle`, `checking`, `upToDate`, `available`, `downloading`, `opening`, and `error`. Manual check entry clears progress/message, sets `nextManualCheckAt` to sampled time + 60,000 ms, and emits `bridge://update-status`; an attempt within that cooldown returns the current snapshot without starting a new check. Successful manifest processing chooses `upToDate` when no update is needed or `available` when one is, filling `latestVersion`, `releaseNotes`, and `publishedAt` while clearing progress/message.
+
+Download status is also exact at the host boundary: `downloading` starts at progress 0, progress updates republish, `downloadDirectory` updates republish, and verified download transitions to `opening` with progress 100 before the executable-open helper. Error transitions publish `phase="error"` with either fixed `UPDATE_NOT_AVAILABLE` or a native/service supplied detail. The current rebuild remains exact only at the R8-021 idle state; it has no real updater state owner, so R8-057 makes no runtime change and keeps `update_check` / `update_download_and_open` fenced. See `docs/reviews/2026-09-26-r8-057-update-status-state-machine-audit.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
