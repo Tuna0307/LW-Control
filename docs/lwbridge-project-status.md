@@ -1,13 +1,13 @@
 # Current project status — strict one-to-one recovery
 
-**Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-076`
+**Date:** 2026-09-27
+**Current checkpoint:** `LWB-R8-077`
 
 ## Executive status
 
 The project is not complete.
 
-Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. Account/Login/Authentication and all account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are explicitly excluded from retained scope.
+Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-077 Map acknowledgement host boundary
+
+R8-077 narrows the remaining acknowledgement/drain problem without changing production code. In the original `map.scan.complete` host path, `pendingPoints`, `pendingMarches`, `pendingPointRemovals`, `pendingMarchRemovals` and `pendingAcks` are count fields that are summed into the reported `nativePendingRecords` metric.
+
+The aggregate is serialized into scan state and then its working registers are overwritten before the terminal failure/publication branch. The recovered host decision path does not parse `acks[]` items and does not use `nativePendingRecords > 0` as a terminal admission predicate. Positive `dropped` remains a separate explicit failure/cleanup input.
+
+Therefore acknowledgement item schema, acknowledgement consumption and any acknowledgement-to-block completion/retry linkage are owned below the recovered host event layer, before or while protected game-side code emits `map.scan.progress` / `map.scan.complete`. The next original-Map target is now the producer-side tick/drain boundary, not host publication logic.
+
+See `docs/reviews/2026-09-27-r8-077-map-ack-host-boundary.md` and `evidence/lwbridge-implementation/2026-09-27-r8-077-map-ack-host-boundary.json`.
 
 ## R8-076 original Map acquisition ingestion
 

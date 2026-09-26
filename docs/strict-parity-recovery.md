@@ -13,25 +13,25 @@ The end product must reproduce LWBridge 0.3.1 one-for-one as a working program f
 
 The implementation language, compatibility shims, internal process structure, or current-client adaptation may differ only when necessary to make the recovered original behavior work. Those internal differences must not intentionally change observable product behavior.
 
-## Explicit owner exception — Account / Login / Authentication
+## Owner direction — authentication dependencies may be recovered
 
-The owner has explicitly excluded the entire account/login/authentication feature family from the parity target, even when those surfaces exist in LWBridge 0.3.1.
+The owner originally excluded the account/login/authentication feature family. On 2026-09-26 the owner explicitly superseded that restriction: authentication, authorization, entitlement, account/session and related state **may be researched, restored or implemented when doing so helps recover or make retained LWBridge functions work correctly against the live game**.
 
-Do **not** research, restore, implement, or spend parity time on Login, Register/account creation, authentication, account management, license activation or renewal, unbind, logout, auth-state/account UI, multi-license entitlement activation, credential persistence, or any other feature whose purpose is user login/account authentication.
+The priority remains retained product behavior, especially Home and Map. Do not invent credentials, hard-code roles/capacity, or substitute synthetic premium/admin state merely to make a button appear functional. Recover the original derivation and admission behavior first.
 
-This is a deliberate retained-product scope exception and supersedes earlier R8 language that required those account/authentication surfaces to be restored. Historical evidence about them may remain in the repository as historical evidence, but it is not current implementation backlog or product authority.
+Standalone account-product work such as redesigning Login/Register/account management remains non-priority unless it is required by a retained feature or by the original state pipeline being reproduced. Historical reviews that called authorization owner-excluded remain valid descriptions of the scope at the time; new checkpoints may supersede those fences with stronger recovered evidence.
 
 ## Non-negotiable parity rules
 
 1. Do not add a feature because it seems useful.
-2. Do not remove a retained reference feature because it is inconvenient, slow, obsolete, gated, or difficult. The explicit Account/Login/Authentication exception above is intentionally not retained.
+2. Do not remove a retained reference feature because it is inconvenient, slow, obsolete, gated, or difficult. Authentication/authorization/entitlement dependencies may be recovered when retained behavior requires them; standalone account-product work remains non-priority unless that retained-state pipeline requires it.
 3. Do not redesign workflows, labels, tabs, defaults, timing, search semantics, scan semantics, navigation, storage behavior, or error handling without recovered reference evidence.
 4. Do not optimize an original behavior by substituting a different algorithm unless the substitution is proven observationally equivalent to the reference and does not change any exposed contract.
 5. Do not treat current Last War APIs, LW Atlas, community tools, or our previous implementation as product authority. They are research aids only.
 6. When exact original bytes are recovered, preserve them byte-for-byte. Do not hand-edit extracted frontend chunks, icons, locale bundles, embedded assets, or other recovered payloads.
 7. When original bytes are not yet recovered, recover the contract before implementing it. Unsupported behavior is a parity gap, not an invitation to invent.
 8. A previous rebuild feature that is not demonstrated in LWBridge 0.3.1 is a deviation and must be removed or quarantined.
-9. A previous owner-requested retirement or customization is historical only unless the same behavior exists in the reference, except for the explicit current Account/Login/Authentication exclusion recorded above.
+9. A previous owner-requested retirement or customization is historical only unless the same behavior exists in the reference. The 2026-09-26 auth direction supersedes the earlier blanket exclusion only for dependency recovery required by retained behavior.
 10. Passing our own tests is not parity proof. The reference behavior remains the acceptance authority.
 
 ## What "not even a single byte" means here

@@ -2,8 +2,8 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-076`
-**Date:** 2026-09-26
+**Current checkpoint:** `LWB-R8-077`
+**Date:** 2026-09-27
 
 ## Current directive
 
@@ -11,7 +11,7 @@ Stop designing our own LWBridge.
 
 The verified `lwbridge-0.3.1.exe` is the product specification for every retained feature. Recover the retained original implementation and reproduce it one-for-one. Internal compatibility code may differ only when required for the current Last War client and only if the user-visible/output contract remains the same.
 
-**Explicit owner exception:** do not research, restore, or implement Login, Register/account creation, authentication, account management, license activation/renewal, unbind, logout, auth-state/account UI, multi-license entitlement activation, credential persistence, or any other feature whose purpose is user login/account authentication. Those surfaces are intentionally out of scope even when present in 0.3.1.
+**Updated owner direction (2026-09-26):** authentication/authorization/entitlement/account-session internals may now be researched, restored and implemented when they are needed to reproduce retained features or make them work live. Do not hard-code roles, capacity, credentials or synthetic premium/admin state. Login/Register/account-management UI remains non-priority unless the original retained-state pipeline requires it. Historical R8 fences that cite the former owner exclusion should be revisited, not silently treated as permanently blocked.
 
 Read `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` before touching production code.
 
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-077 Map acknowledgement host boundary
+
+R8-077 closes an important ownership ambiguity without changing the production scanner. In the original `map.scan.complete` host path, `pendingPoints`, `pendingMarches`, `pendingPointRemovals`, `pendingMarchRemovals` and `pendingAcks` are read only as counts and summed into `nativePendingRecords`.
+
+The host serializes that aggregate into scan state at `0x140340AA6-0x140340ACF`, then overwrites the working aggregate registers at `0x140340AD3-0x140340ADB` before terminal admission. No later `nativePendingRecords` lookup occurs in the recovered complete-event decision window. Positive `dropped` remains a separate explicit failure/cleanup input.
+
+Therefore the original host does not translate `acks[]` items into block completion or retry state. Exact acknowledgement item schema, acknowledgement consumption, queue-drain scheduling and any ack-to-block linkage are owned below the recovered host event layer, before/while protected game-side code emits `map.scan.progress` / `map.scan.complete`. This narrows the next target to the protected proxy/scheduler boundary rather than host publication logic.
+
+See `docs/reviews/2026-09-27-r8-077-map-ack-host-boundary.md` and `evidence/lwbridge-implementation/2026-09-27-r8-077-map-ack-host-boundary.json`.
 
 ## R8-076 original Map acquisition ingestion
 
