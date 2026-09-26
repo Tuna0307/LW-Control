@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-068`
+**Current checkpoint:** `LWB-R8-069`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-069 Chat Automation fence
+
+R8-069 closes `chat_automation_configure` and `chat_automation_run_pending`. Native handlers are `0x14012CAFF-0x14012E897` and `0x1401285CB-0x140129437`; retained kinds are `redPacket`, `fireworks`, and `treasure`. Configure performs host-side config normalization/validation; Run Pending sends only `kind`. Provider methods are `configureChatAutomation` and `runChatAutomationPending`, each with a 5,000 ms deadline, no retry loop, and generic JSON result conversion.
+
+Both commands still require the shared authorization-state future before selected-runtime/game-route admission. Unlike R8-068 generic Automation, no `premium/admin` request fields are observed; the blocker is the mandatory authorization-state admission itself. Skipping that state changes public error precedence, while recreating it crosses the explicit owner exclusion. No runtime route is added.
+
+These two commands move from genuinely unclosed to audited/fenced. The 33 unrouted retained frontend commands now split into 20 audited/fenced and 13 genuinely unclosed.
+
+See `docs/reviews/2026-09-26-r8-069-chat-automation-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-069-chat-automation-fence.json`.
 
 ## R8-068 generic Automation live-command fence
 

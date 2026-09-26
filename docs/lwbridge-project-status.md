@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-068`
+**Current checkpoint:** `LWB-R8-069`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-069 Chat Automation fence
+
+R8-069 closes the retained native/public boundaries of `chat_automation_configure` and `chat_automation_run_pending`. Retained kinds, host-side Configure validation, provider methods, exact 5-second deadlines and generic result conversion are recovered. Both handlers still require the shared authorization-state future before selected-runtime/game-route admission.
+
+No `premium/admin` provider fields are observed here; the fence is the authorization-state admission itself. Skipping it changes native error precedence and recreating it crosses the explicit owner exclusion. No runtime route is added.
+
+The 33 unrouted retained frontend commands now split into 20 audited/fenced and 13 genuinely unclosed.
+
+See `docs/reviews/2026-09-26-r8-069-chat-automation-fence.md`.
 
 ## R8-068 generic Automation live-command fence
 
