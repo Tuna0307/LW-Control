@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-086`
+**Current checkpoint:** `LWB-R8-087`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,14 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-087 native-capture march/train population
+
+R8-087 closes the safe march producer's raw-field map in both verified proxies. A 23-field IL2CPP offset bundle supplies `_uuid`, `type`, `targetPos`, `startPos`, `homePos`, owner/alliance identity strings, power/times/world/status/HP, monster fields and `train`. Direct fields now map exactly into the R8-083 march record, while the five owner/alliance strings pass through the shared IL2CPP-string converter.
+
+The exact `pointIndex` precedence is positive `GetMarchCurPosIndex`, then positive `targetPos`, then positive `startPos`, then nullable `homePos`. `isMonster` uses `IsMonsterOrOrdinaryBoss > 0`; if that getter is unavailable, a present positive `monsterId` is the fallback.
+
+The nested train path is also closed: outer `uuid/cfgId/type/config`, with `config.id/quality/carriageNum` mapping to `train.configId/quality/carriageNum`. Train lives at march offset `0x170` with outer presence at `0x1A8`. Point raw-field population remains separate. See `docs/reviews/2026-09-27-r8-087-native-capture-march-population.md`.
 
 ## R8-086 native-capture getter population routes
 

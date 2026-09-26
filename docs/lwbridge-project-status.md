@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-086`
+**Current checkpoint:** `LWB-R8-087`
 
 ## Executive status
 
@@ -26,6 +26,14 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-087 native-capture march/train population
+
+R8-087 closes the safe march-side raw population model in both verified proxies. The producer resolves a fixed 23-field IL2CPP bundle, maps its raw scalar/string fields into the R8-083 march schema, and uses a source-backed `pointIndex` precedence of positive `GetMarchCurPosIndex`, positive `targetPos`, positive `startPos`, then nullable `homePos`.
+
+It also closes the `isMonster` fallback (`IsMonsterOrOrdinaryBoss > 0`, otherwise present `monsterId > 0`) and the nested train composition from outer `uuid/cfgId/type/config` plus `config.id/quality/carriageNum` into the exact six-field train object at march offset `0x170` with presence at `0x1A8`.
+
+The larger point producer and protected MapScanTick internals remain open. See `docs/reviews/2026-09-27-r8-087-native-capture-march-population.md`.
 
 ## R8-086 native-capture getter population routes
 

@@ -1,0 +1,630 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-087",
+  "limits": [
+    "covers safe-region march/train population only; point raw-field population remains separate",
+    "does not inspect or cross protected native region 0x3F8E0-0x40A6D",
+    "does not recover XluaBridgeMapScanTick traversal/order/coordinates, request pacing, or retry/backoff",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "isMonsterRule": "IsMonsterOrOrdinaryBoss result > 0; if getter unavailable, present monsterId > 0",
+      "marchBundleFields": [
+        "_uuid",
+        "type",
+        "targetPos",
+        "startPos",
+        "homePos",
+        "ownerUid",
+        "ownerName",
+        "ownerServer",
+        "ownerCurServerId",
+        "allianceUid",
+        "allianceName",
+        "allianceAbbr",
+        "power",
+        "startTime",
+        "endTime",
+        "worldId",
+        "status",
+        "_curHp",
+        "monsterId",
+        "monsterType",
+        "monsterSpecialType",
+        "monsterRallyNum",
+        "train"
+      ],
+      "pointIndexRule": {
+        "fallbacks": [
+          "positive targetPos",
+          "positive startPos",
+          "nullable homePos"
+        ],
+        "preferred": "positive GetMarchCurPosIndex"
+      },
+      "proxy": "secure",
+      "rawRoutes": [
+        {
+          "field": "uuid",
+          "source": "_uuid",
+          "transform": "positive qword required for record admission",
+          "valueOffset": "0x0"
+        },
+        {
+          "field": "marchType",
+          "presenceOffset": "0xC",
+          "source": "type",
+          "valueOffset": "0x8"
+        },
+        {
+          "field": "ownerServer",
+          "presenceOffset": "0x1C",
+          "source": "ownerServer",
+          "valueOffset": "0x18"
+        },
+        {
+          "field": "ownerCurServerId",
+          "presenceOffset": "0x24",
+          "source": "ownerCurServerId",
+          "valueOffset": "0x20"
+        },
+        {
+          "field": "worldId",
+          "presenceOffset": "0x2C",
+          "source": "worldId",
+          "valueOffset": "0x28"
+        },
+        {
+          "field": "status",
+          "presenceOffset": "0x34",
+          "source": "status",
+          "valueOffset": "0x30"
+        },
+        {
+          "field": "monsterId",
+          "presenceOffset": "0x44",
+          "source": "monsterId",
+          "valueOffset": "0x40"
+        },
+        {
+          "field": "monsterType",
+          "presenceOffset": "0x4C",
+          "source": "monsterType",
+          "valueOffset": "0x48"
+        },
+        {
+          "field": "monsterSpecialType",
+          "presenceOffset": "0x54",
+          "source": "monsterSpecialType",
+          "valueOffset": "0x50"
+        },
+        {
+          "field": "monsterRallyNum",
+          "presenceOffset": "0x5C",
+          "source": "monsterRallyNum",
+          "valueOffset": "0x58"
+        },
+        {
+          "field": "power",
+          "presenceOffset": "0x68",
+          "source": "power",
+          "valueOffset": "0x60"
+        },
+        {
+          "field": "startTime",
+          "presenceOffset": "0x78",
+          "source": "startTime",
+          "valueOffset": "0x70"
+        },
+        {
+          "field": "endTime",
+          "presenceOffset": "0x88",
+          "source": "endTime",
+          "valueOffset": "0x80"
+        },
+        {
+          "field": "curHp",
+          "presenceOffset": "0x98",
+          "source": "_curHp",
+          "valueOffset": "0x90"
+        },
+        {
+          "field": "ownerUid",
+          "source": "ownerUid",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0xA8"
+        },
+        {
+          "field": "ownerName",
+          "source": "ownerName",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0xD0"
+        },
+        {
+          "field": "allianceUid",
+          "source": "allianceUid",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0xF8"
+        },
+        {
+          "field": "allianceName",
+          "source": "allianceName",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0x120"
+        },
+        {
+          "field": "allianceAbbr",
+          "source": "allianceAbbr",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0x148"
+        }
+      ],
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "trainBundleFields": [
+        "uuid",
+        "cfgId",
+        "type",
+        "config"
+      ],
+      "trainConfigFields": [
+        "id",
+        "quality",
+        "carriageNum"
+      ],
+      "trainPresenceOffset": "0x1A8",
+      "trainRecordOffset": "0x170",
+      "trainRoutes": [
+        {
+          "field": "train.uuid",
+          "presenceOffset": "0x170+0x8",
+          "source": "uuid",
+          "valueOffset": "0x170+0x0"
+        },
+        {
+          "field": "train.cfgId",
+          "presenceOffset": "0x170+0x14",
+          "source": "cfgId",
+          "valueOffset": "0x170+0x10"
+        },
+        {
+          "field": "train.type",
+          "presenceOffset": "0x170+0x1C",
+          "source": "type",
+          "valueOffset": "0x170+0x18"
+        },
+        {
+          "field": "train.configId",
+          "presenceOffset": "0x170+0x24",
+          "source": "config.id",
+          "valueOffset": "0x170+0x20"
+        },
+        {
+          "field": "train.quality",
+          "presenceOffset": "0x170+0x2C",
+          "source": "config.quality",
+          "valueOffset": "0x170+0x28"
+        },
+        {
+          "field": "train.carriageNum",
+          "presenceOffset": "0x170+0x34",
+          "source": "config.carriageNum",
+          "valueOffset": "0x170+0x30"
+        }
+      ]
+    },
+    {
+      "isMonsterRule": "IsMonsterOrOrdinaryBoss result > 0; if getter unavailable, present monsterId > 0",
+      "marchBundleFields": [
+        "_uuid",
+        "type",
+        "targetPos",
+        "startPos",
+        "homePos",
+        "ownerUid",
+        "ownerName",
+        "ownerServer",
+        "ownerCurServerId",
+        "allianceUid",
+        "allianceName",
+        "allianceAbbr",
+        "power",
+        "startTime",
+        "endTime",
+        "worldId",
+        "status",
+        "_curHp",
+        "monsterId",
+        "monsterType",
+        "monsterSpecialType",
+        "monsterRallyNum",
+        "train"
+      ],
+      "pointIndexRule": {
+        "fallbacks": [
+          "positive targetPos",
+          "positive startPos",
+          "nullable homePos"
+        ],
+        "preferred": "positive GetMarchCurPosIndex"
+      },
+      "proxy": "plain",
+      "rawRoutes": [
+        {
+          "field": "uuid",
+          "source": "_uuid",
+          "transform": "positive qword required for record admission",
+          "valueOffset": "0x0"
+        },
+        {
+          "field": "marchType",
+          "presenceOffset": "0xC",
+          "source": "type",
+          "valueOffset": "0x8"
+        },
+        {
+          "field": "ownerServer",
+          "presenceOffset": "0x1C",
+          "source": "ownerServer",
+          "valueOffset": "0x18"
+        },
+        {
+          "field": "ownerCurServerId",
+          "presenceOffset": "0x24",
+          "source": "ownerCurServerId",
+          "valueOffset": "0x20"
+        },
+        {
+          "field": "worldId",
+          "presenceOffset": "0x2C",
+          "source": "worldId",
+          "valueOffset": "0x28"
+        },
+        {
+          "field": "status",
+          "presenceOffset": "0x34",
+          "source": "status",
+          "valueOffset": "0x30"
+        },
+        {
+          "field": "monsterId",
+          "presenceOffset": "0x44",
+          "source": "monsterId",
+          "valueOffset": "0x40"
+        },
+        {
+          "field": "monsterType",
+          "presenceOffset": "0x4C",
+          "source": "monsterType",
+          "valueOffset": "0x48"
+        },
+        {
+          "field": "monsterSpecialType",
+          "presenceOffset": "0x54",
+          "source": "monsterSpecialType",
+          "valueOffset": "0x50"
+        },
+        {
+          "field": "monsterRallyNum",
+          "presenceOffset": "0x5C",
+          "source": "monsterRallyNum",
+          "valueOffset": "0x58"
+        },
+        {
+          "field": "power",
+          "presenceOffset": "0x68",
+          "source": "power",
+          "valueOffset": "0x60"
+        },
+        {
+          "field": "startTime",
+          "presenceOffset": "0x78",
+          "source": "startTime",
+          "valueOffset": "0x70"
+        },
+        {
+          "field": "endTime",
+          "presenceOffset": "0x88",
+          "source": "endTime",
+          "valueOffset": "0x80"
+        },
+        {
+          "field": "curHp",
+          "presenceOffset": "0x98",
+          "source": "_curHp",
+          "valueOffset": "0x90"
+        },
+        {
+          "field": "ownerUid",
+          "source": "ownerUid",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0xA8"
+        },
+        {
+          "field": "ownerName",
+          "source": "ownerName",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0xD0"
+        },
+        {
+          "field": "allianceUid",
+          "source": "allianceUid",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0xF8"
+        },
+        {
+          "field": "allianceName",
+          "source": "allianceName",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0x120"
+        },
+        {
+          "field": "allianceAbbr",
+          "source": "allianceAbbr",
+          "transform": "IL2CPP string conversion",
+          "valueOffset": "0x148"
+        }
+      ],
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "trainBundleFields": [
+        "uuid",
+        "cfgId",
+        "type",
+        "config"
+      ],
+      "trainConfigFields": [
+        "id",
+        "quality",
+        "carriageNum"
+      ],
+      "trainPresenceOffset": "0x1A8",
+      "trainRecordOffset": "0x170",
+      "trainRoutes": [
+        {
+          "field": "train.uuid",
+          "presenceOffset": "0x170+0x8",
+          "source": "uuid",
+          "valueOffset": "0x170+0x0"
+        },
+        {
+          "field": "train.cfgId",
+          "presenceOffset": "0x170+0x14",
+          "source": "cfgId",
+          "valueOffset": "0x170+0x10"
+        },
+        {
+          "field": "train.type",
+          "presenceOffset": "0x170+0x1C",
+          "source": "type",
+          "valueOffset": "0x170+0x18"
+        },
+        {
+          "field": "train.configId",
+          "presenceOffset": "0x170+0x24",
+          "source": "config.id",
+          "valueOffset": "0x170+0x20"
+        },
+        {
+          "field": "train.quality",
+          "presenceOffset": "0x170+0x2C",
+          "source": "config.quality",
+          "valueOffset": "0x170+0x28"
+        },
+        {
+          "field": "train.carriageNum",
+          "presenceOffset": "0x170+0x34",
+          "source": "config.carriageNum",
+          "valueOffset": "0x170+0x30"
+        }
+      ]
+    }
+  ],
+  "recoveredResult": {
+    "isMonsterRule": "IsMonsterOrOrdinaryBoss result > 0; if getter unavailable, present monsterId > 0",
+    "marchBundleFields": [
+      "_uuid",
+      "type",
+      "targetPos",
+      "startPos",
+      "homePos",
+      "ownerUid",
+      "ownerName",
+      "ownerServer",
+      "ownerCurServerId",
+      "allianceUid",
+      "allianceName",
+      "allianceAbbr",
+      "power",
+      "startTime",
+      "endTime",
+      "worldId",
+      "status",
+      "_curHp",
+      "monsterId",
+      "monsterType",
+      "monsterSpecialType",
+      "monsterRallyNum",
+      "train"
+    ],
+    "pointIndexRule": {
+      "fallbacks": [
+        "positive targetPos",
+        "positive startPos",
+        "nullable homePos"
+      ],
+      "preferred": "positive GetMarchCurPosIndex"
+    },
+    "rawRoutes": [
+      {
+        "field": "uuid",
+        "source": "_uuid",
+        "transform": "positive qword required for record admission",
+        "valueOffset": "0x0"
+      },
+      {
+        "field": "marchType",
+        "presenceOffset": "0xC",
+        "source": "type",
+        "valueOffset": "0x8"
+      },
+      {
+        "field": "ownerServer",
+        "presenceOffset": "0x1C",
+        "source": "ownerServer",
+        "valueOffset": "0x18"
+      },
+      {
+        "field": "ownerCurServerId",
+        "presenceOffset": "0x24",
+        "source": "ownerCurServerId",
+        "valueOffset": "0x20"
+      },
+      {
+        "field": "worldId",
+        "presenceOffset": "0x2C",
+        "source": "worldId",
+        "valueOffset": "0x28"
+      },
+      {
+        "field": "status",
+        "presenceOffset": "0x34",
+        "source": "status",
+        "valueOffset": "0x30"
+      },
+      {
+        "field": "monsterId",
+        "presenceOffset": "0x44",
+        "source": "monsterId",
+        "valueOffset": "0x40"
+      },
+      {
+        "field": "monsterType",
+        "presenceOffset": "0x4C",
+        "source": "monsterType",
+        "valueOffset": "0x48"
+      },
+      {
+        "field": "monsterSpecialType",
+        "presenceOffset": "0x54",
+        "source": "monsterSpecialType",
+        "valueOffset": "0x50"
+      },
+      {
+        "field": "monsterRallyNum",
+        "presenceOffset": "0x5C",
+        "source": "monsterRallyNum",
+        "valueOffset": "0x58"
+      },
+      {
+        "field": "power",
+        "presenceOffset": "0x68",
+        "source": "power",
+        "valueOffset": "0x60"
+      },
+      {
+        "field": "startTime",
+        "presenceOffset": "0x78",
+        "source": "startTime",
+        "valueOffset": "0x70"
+      },
+      {
+        "field": "endTime",
+        "presenceOffset": "0x88",
+        "source": "endTime",
+        "valueOffset": "0x80"
+      },
+      {
+        "field": "curHp",
+        "presenceOffset": "0x98",
+        "source": "_curHp",
+        "valueOffset": "0x90"
+      },
+      {
+        "field": "ownerUid",
+        "source": "ownerUid",
+        "transform": "IL2CPP string conversion",
+        "valueOffset": "0xA8"
+      },
+      {
+        "field": "ownerName",
+        "source": "ownerName",
+        "transform": "IL2CPP string conversion",
+        "valueOffset": "0xD0"
+      },
+      {
+        "field": "allianceUid",
+        "source": "allianceUid",
+        "transform": "IL2CPP string conversion",
+        "valueOffset": "0xF8"
+      },
+      {
+        "field": "allianceName",
+        "source": "allianceName",
+        "transform": "IL2CPP string conversion",
+        "valueOffset": "0x120"
+      },
+      {
+        "field": "allianceAbbr",
+        "source": "allianceAbbr",
+        "transform": "IL2CPP string conversion",
+        "valueOffset": "0x148"
+      }
+    ],
+    "trainBundleFields": [
+      "uuid",
+      "cfgId",
+      "type",
+      "config"
+    ],
+    "trainConfigFields": [
+      "id",
+      "quality",
+      "carriageNum"
+    ],
+    "trainPresenceOffset": "0x1A8",
+    "trainRecordOffset": "0x170",
+    "trainRoutes": [
+      {
+        "field": "train.uuid",
+        "presenceOffset": "0x170+0x8",
+        "source": "uuid",
+        "valueOffset": "0x170+0x0"
+      },
+      {
+        "field": "train.cfgId",
+        "presenceOffset": "0x170+0x14",
+        "source": "cfgId",
+        "valueOffset": "0x170+0x10"
+      },
+      {
+        "field": "train.type",
+        "presenceOffset": "0x170+0x1C",
+        "source": "type",
+        "valueOffset": "0x170+0x18"
+      },
+      {
+        "field": "train.configId",
+        "presenceOffset": "0x170+0x24",
+        "source": "config.id",
+        "valueOffset": "0x170+0x20"
+      },
+      {
+        "field": "train.quality",
+        "presenceOffset": "0x170+0x2C",
+        "source": "config.quality",
+        "valueOffset": "0x170+0x28"
+      },
+      {
+        "field": "train.carriageNum",
+        "presenceOffset": "0x170+0x34",
+        "source": "config.carriageNum",
+        "valueOffset": "0x170+0x30"
+      }
+    ]
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}
