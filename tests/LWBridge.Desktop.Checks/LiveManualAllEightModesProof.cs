@@ -172,7 +172,7 @@ internal static class LiveManualAllEightModesProof
                 Console.Error.WriteLine(
                     $"MANUAL_{label.ToUpperInvariant().Replace('-', '_')}_PROGRESS blocks={readBlocks}/2500 phase={phase}");
             }
-            if (phase == "completed") break;
+            if (phase == "idle" && readBlocks == 2500) break;
             if (phase == "error")
                 throw new InvalidDataException($"{label} scan failed: " +
                     (status.TryGetProperty("lastError", out JsonElement last) ? last.GetString() : "unknown"));
@@ -183,7 +183,7 @@ internal static class LiveManualAllEightModesProof
         int read = status.GetProperty("readBlocks").GetInt32();
         int failed = status.GetProperty("failedBlocks").GetInt32();
         int unread = status.GetProperty("unreadBlocks").GetInt32();
-        if (status.GetProperty("phase").GetString() != "completed" ||
+        if (status.GetProperty("phase").GetString() != "idle" ||
             status.GetProperty("isReading").GetBoolean() || read != 2500 || failed != 0 || unread != 0)
         {
             IReadOnlyList<MapScanBlockCheckpoint> partial = store.ReadScanBlockCheckpointsForTest(runId);

@@ -318,7 +318,7 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             int groupStartRow = row * FastCityGroupRows;
             int aoiRowStart = row * FastFullWorldAoiRows;
-            int targetY = 75 + (row * 100);
+            int baseTargetY = 75 + (row * 100);
             bool preferWideStep = false;
             int? previousGap = null;
             int requestsThisRow = 0;
@@ -327,6 +327,16 @@ internal sealed partial class CurrentClientMapBlockSource
                 cancellationToken.ThrowIfCancellationRequested();
                 int gapColumn = FirstUncoveredAoiColumn(covered, aoiRowStart);
                 if (gapColumn < 0) break;
+                // Current-v21 live proof can contract the conservative request to 9 rows.
+                // If that leaves only the band's bottom AOI missing, nudge one AOI row down and
+                // union the second bounded footprint; exact 10,000-cell coverage remains authoritative.
+                int[] missingRows = Enumerable.Range(aoiRowStart, FastFullWorldAoiRows)
+                    .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
+                    .ToArray();
+                int targetY = missingRows.Length == 1 &&
+                              missingRows[0] == aoiRowStart + FastFullWorldAoiRows - 1
+                    ? baseTargetY + FastCityAoiBlockSize
+                    : baseTargetY;
                 if (++requestsThisRow > FastFullWorldMaxRequestsPerRow)
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
 
@@ -634,9 +644,14 @@ internal sealed partial class CurrentClientMapBlockSource
             $"target=({targetX},{targetY}),requestedCount=8,nativeCurrentSetCount={indices.Length}," +
             $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
             $"indices=[{string.Join(',', indices.Order())}]";
-        if (rows.Length != FastFullWorldAoiRows || rows.Length == 0 ||
-            rows[0] != rowStart || rows[^1] != rowStart + FastFullWorldAoiRows - 1 ||
-            columns.Length is < 2 or > 5 || columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
+        if (rows.Length is < FastFullWorldAoiRows - 1 or > FastFullWorldAoiRows ||
+            rows.Length == 0 ||
+            rows[0] < rowStart || rows[0] > rowStart + 1 ||
+            rows[^1] < rowStart + FastFullWorldAoiRows - 2 ||
+            rows[^1] > rowStart + FastFullWorldAoiRows ||
+            rows.Zip(rows.Skip(1), (top, bottom) => bottom - top).Any(delta => delta != 1) ||
+            columns.Length is < 2 or > 5 ||
+            columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
             indices.Length != rows.Length * columns.Length)
             throw new InvalidDataException(
                 "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint: " + detail + ".");

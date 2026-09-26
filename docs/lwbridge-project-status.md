@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-064`
+**Current checkpoint:** `LWB-R8-065`
 
 ## Executive status
 
@@ -10,6 +10,14 @@ The project is not complete.
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. Account/Login/Authentication and all account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are explicitly excluded from retained scope.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-065 fresh current-client acceptance
+
+The owner now requires a stricter operational baseline: a feature is not called working merely because its contract is recovered, its UI exists, or offline checks pass. It must be freshly verified against the real installed game.
+
+R8-065 re-established that baseline on current-v21. Home manual launch/connect/close and startup auto-launch/connect/close both reached `connectionState="connected"` in the dedicated live lifecycle proof. Map initially failed live on a current-v21 3×9 AOI contraction; after a bounded conservative compatibility fix, same-session all-eight Normal and Fast scans both completed 2500/2500 with 0 failed and 0 unread, and published Fast counts survived database reopen. The wide-FOV shortcut remains removed.
+
+This proves the retained Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION** today. It does not prove original Map acquisition parity or whole-program completion. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md`.
 
 ## Reference authority
 

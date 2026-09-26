@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-017`, 2026-09-25.
+**Current through:** `LWB-R8-065`, 2026-09-26.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 
@@ -13,6 +13,8 @@ Do not use LW Atlas as product authority.
 Do not promote a Last War-native API, manager, finder, wide-FOV trick, no-jump route, or other optimization merely because it is faster.
 
 Recover the original LWBridge Map implementation first. Current-game APIs are allowed only as compatibility mechanisms for reproducing that recovered behavior.
+
+As of R8-065, the retained Manual Map scan is freshly **LIVE-WORKING** against the installed current-v21 game in both Normal and Fast modes. This does not upgrade the current acquisition algorithm to original parity; it remains an equivalent current-client reconstruction until the original LWBridge implementation is recovered.
 
 ## What is actually exact today
 
@@ -28,7 +30,21 @@ Recover the original LWBridge Map implementation first. Current-game APIs are al
 | `map_summary` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-010 restores exact `{serverId, counts, scanState}`, eight original count kinds, shared-state ownership and run-scoped staging vs published counts; scanState serialization remains separate |
 | Native capture vocabulary/hooks | PARTIAL EXACT_CONTRACT | Recovered from original proxy |
 | Query/storage/filter contracts | PARTIAL EXACT_CONTRACT | Significant original SQL/normalization recovered |
+| Current-client Manual Normal/Fast operation | LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION | R8-065 completed same-session Normal and Fast all-eight scans at 2500/2500, 0 failed, 0 unread, with persisted results surviving database reopen |
 | Original acquisition algorithms | UNKNOWN | Current production scanner is our reconstruction |
+
+## R8-065 current-v21 live compatibility proof
+
+The fresh live gate first failed on server 2212 because current-v21 returned a contiguous 3×9 AOI footprint where the conservative scanner still required exactly ten rows. R8-065 adds a bounded compatibility rule: accept only contiguous rectangular 9- or 10-row footprints, preserve the existing 2-5-column bound, and when only the band's bottom AOI remains missing, issue one 10-tile vertical cleanup request and union the result. Exact 10,000-AOI coverage remains mandatory. The removed R7-151 wide-FOV shortcut was not restored.
+
+Final same-session live proof:
+
+- Normal: 2500/2500 read, 0 failed, 0 unread.
+- Fast: 2500/2500 read, 0 failed, 0 unread.
+- Fast published counts matched after database close/reopen.
+- Proof exited with code 0.
+
+See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
 
 ## Known deviations
 

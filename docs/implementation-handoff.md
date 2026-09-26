@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-064`
+**Current checkpoint:** `LWB-R8-065`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,18 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-065 fresh live Home/Map checkpoint
+
+The owner requires fresh real-game proof before anything is called working. R8-065 therefore ran the current Release build against the installed current-v21 Last War client rather than relying on historical R7 evidence.
+
+Home passed `--live-overview-home-proof`: manual launch reached `connected`, closed cleanly, then startup auto-launch reached `connected` and closed cleanly. Map initially failed `--live-current-client-all-eight-modes` because server 2212 returned a contiguous 3×9 AOI footprint at `(665,875)` while the conservative scanner still required exactly ten rows. A targeted one-AOI-row downward probe proved the missing bottom row can be covered by the overlapping current-v21 footprint.
+
+Production keeps the conservative complete-coverage scanner. The fix accepts only contiguous rectangular 9- or 10-row footprints within the existing 2-5-column bound; when only the band's final row is missing it nudges the target down 10 tiles and unions that bounded footprint. Exact 10,000-AOI coverage is still mandatory. The removed R7-151 wide-FOV shortcut was not restored. The live proof harness was also corrected to the R8-013 native lifecycle (`publishing` → `idle`) instead of a stale `completed` terminal phase.
+
+Final live proof exited 0: Normal and Fast both read 2500/2500 with 0 failed and 0 unread in the same owned game session, and Fast counts were unchanged after SQLite reopen. Offline regression remained green (`ok=true`, `failures=[]`, zero build warnings/errors, frontend check passed, `git diff --check` passed).
+
+Classification remains deliberately split: Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; the original Map acquisition algorithm is still `UNKNOWN`; whole-program one-to-one parity is still not complete. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
 
 ## Parked protected package-key lane
 

@@ -50,6 +50,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 
 ## P1 — parity validation
 
+- [x] **Re-establish a fresh current-client Home/Map operational baseline.** R8-065 live-proves retained Home manual/startup launch-connect-close and same-session Manual Map Normal/Fast all-eight scanning against current-v21. Map initially exposed a real 3×9 AOI regression; the conservative scanner now handles the bounded 9-row contraction without restoring the abandoned wide-FOV shortcut. This is live-working evidence, not original-acquisition parity.
 - [ ] Expand `docs/lwbridge-parity-matrix.md` until every reference feature/function has a row.
 - [ ] Compare reference and rebuild UI states, labels, controls, errors, defaults and state transitions.
 - [ ] Compare original and rebuild request/result payloads where observable.
