@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-054`, 2026-09-26
+**Current through:** `LWB-R8-055`, 2026-09-26
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -39,7 +39,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Railway acquisition | EQUIVALENT_REIMPLEMENTATION / possible deviation | Direct Train-list route is ours | Recover original source/flow |
 | Dispatch / Secret Task acquisition | UNKNOWN; known deviation rolled back | R8-002 removes the wide-FOV 68-request production shortcut after same-client completeness failures; temporary movement/AOI behavior is still our reconstruction | Recover the original LWBridge implementation before claiming parity |
 | Ghost Ops acquisition | EQUIVALENT_REIMPLEMENTATION only | Current full-world path is ours | Recover original implementation |
-| Treasure/Supplies read paths | PARTIAL EXACT_CONTRACT + reimplementation | Many original fields/query/state contracts recovered; protected orchestration incomplete | Recover original protected handlers/scripts |
+| Treasure/Supplies read paths | PARTIAL EXACT_CONTRACT + current status DEVIATION | R8-055 closes native `map_treasure_claim_status`: authorization admission, one `getTreasureClaimStatus` call at 5 seconds, transactional `treasure_claim_states` refresh, then original provider JSON return. Current rebuild has extra host guards, an 8-second inspection path, fixed DTO, and incomplete provider-field/cache-maintenance parity | Preserve recovered cache/store evidence; add a dedicated native-style status route only when the authorization admission can be represented without reconstruction; claim execution remains separate |
 | Treasure claim orchestration | UNKNOWN | Exact original protected implementation not recovered | Recover from original package/host/proxy evidence before enabling |
 | Map SQLite/index/query semantics | PARTIAL EXACT_CONTRACT + reimplementation | Large portions of SQL/query/normalization recovered | Finish unresolved branches and compare exact outputs/errors |
 | Last War locale lookup | PARTIAL EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-054 confirms native max 200, `TOO_MANY_LOCALE_KEYS`, requested-locale→English→key fallback and locale-loader error vocabulary. Current verified local cache is equivalent plumbing; public command still bypasses owner-excluded native authorization-state admission and uses stricter `INVALID_PAYLOAD` branches than native outer defaults | Preserve normal lookup/cache; do not label exact until auth admission and full parser semantics are resolved |

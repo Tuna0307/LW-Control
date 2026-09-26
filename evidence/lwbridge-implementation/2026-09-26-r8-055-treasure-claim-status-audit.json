@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-055",
+  "date": "2026-09-26",
+  "scope": "Strict audit of map_treasure_claim_status without enabling protected Treasure claim execution.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "map_treasure_claim_status handler 0x14015590D-0x14015636E",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "status/cache projector 0x1402317B6-0x14023195E",
+    "treasure state cache updater 0x14026B285-0x14026BE40",
+    "generic JSON converter 0x1402BB816",
+    "retained frontend Treasure status/polling flow"
+  ],
+  "nativeContract": {
+    "featurePayload": "none",
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "providerMethod": "getTreasureClaimStatus",
+    "providerTimeoutMilliseconds": 5000,
+    "nativeRetryCount": 0,
+    "timeout": {
+      "code": "LUA_CALL_TIMEOUT",
+      "message": "lua call result unknown after timeout: getTreasureClaimStatus"
+    },
+    "cacheInputKeysObserved": ["playerUid","states","serverId","ownerUid","uuid","expireTime","claimStateUpdatedAt"],
+    "publicSuccess": "original provider JSON returned unchanged after successful cache update",
+    "frontendKnownFields": ["playerUid","allianceId","states","batch (optional)"]
+  },
+  "cacheSideEffect": {
+    "transactional": true,
+    "deleteExpiredPositiveRowsAtOrBeforeClock": true,
+    "upsertTable": "treasure_claim_states",
+    "serializationFailureCode": "MAP_DATA_INVALID",
+    "serializationFailurePrefix": "serialize treasure claim state: "
+  },
+  "rebuildComparison": {
+    "currentResultType": "CurrentClientTreasureInspectionResult(PlayerUid, AllianceId, States)",
+    "currentProbeTimeoutMilliseconds": 8000,
+    "reconstructsFixedDto": true,
+    "preservesProviderBatchOrUnknownExtras": false,
+    "rebuildOnlyPreProviderGuards": ["MAP_SCAN_CLOSED","SCAN_RUNNING","GAME_OPERATION_IN_PROGRESS","SERVER_MISMATCH"],
+    "cacheSchemaAndUpsertModel": "EQUIVALENT_REIMPLEMENTATION / strongly evidence-backed",
+    "overall": "DEVIATION"
+  },
+  "evidenceClassification": {
+    "providerBoundary": "EXACT_NATIVE",
+    "cacheUpdate": "EXACT_NATIVE",
+    "publicRawProviderReturn": "EXACT_NATIVE",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "protectedClaimExecution": "PROTECTED_UNKNOWN",
+    "runtimeStatusImplementation": "EQUIVALENT_REIMPLEMENTATION_DEVIATION"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission",
+    "dedicated provider result transport retaining raw status JSON",
+    "remove rebuild-only status guards only when dedicated native-style route exists",
+    "protected map_treasure_claim execution remains absent"
+  ],
+  "nextCheckpoint": "Continue retained read/status recovery; do not enable protected Treasure claim execution."
+}

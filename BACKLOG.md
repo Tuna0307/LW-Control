@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-054`, 2026-09-26.
+**Current through:** `LWB-R8-055`, 2026-09-26.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Account/Login/Authentication and all related account-purpose activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction.
 
@@ -32,7 +32,7 @@ This backlog supersedes the former “finish the reconstructed Home/Map implemen
 - [x] **Restore original Scheduled Plunder control plane and UI without inventing protected robbery execution internals.** R8-016 restores all five list/schedule/cancel commands, three durable tables/indexes, two change events, and the original API/tab/table/locale frontend surface; protected robbery workers/execution remain absent and unclaimed.
 - [x] **Restore original `game_asset_image` public boundary and persistent PNG-cache behavior.** R8-044 restores native optional-string/trim/XOR admission, exact `INVALID_REQUEST` / `GAME_DISCONNECTED` / `INVALID_ASSET` errors, one 15-second `getAssetImage` call, exact `{dataUrl}` PNG result, profile-runtime `asset-cache`, 60-second maintenance and 256 MiB cleanup boundary. The exact native SHA-256 cache-key preimage remains unknown; retained filename and file-I/O details are explicitly equivalent plumbing.
 - [ ] **Close strict parity for `lastwar_localize`.** R8-054 revalidates the existing requested-locale→English→key fallback, exact 200-key cap and locale-cache error vocabulary, but reclassifies the current command as partial/equivalent because native first requires owner-excluded authorization state and its outer payload/language/keys-container parsing is more permissive than the rebuild's `INVALID_PAYLOAD` branches. Preserve the working verified cache; do not call it exact until those remaining boundaries are resolved.
-- [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure.
+- [ ] Recover original Map Scan script/host algorithm for City, Resource, Monster, Truck, Railway, Dispatch, Ghost and Treasure. R8-055 strictly audits `map_treasure_claim_status`: native awaits owner-excluded authorization state, calls `getTreasureClaimStatus` once with a 5-second deadline, transactionally refreshes `treasure_claim_states`, then returns the original provider JSON unchanged. The current rebuild remains a documented deviation (extra scan/operation/server guards, 8-second current-client probe, fixed `{playerUid,allianceId,states}` DTO, incomplete raw-field preservation/cache-maintenance timing). Protected `map_treasure_claim` execution remains absent.
 - [ ] Recover remaining protected Normal/Fast internals: mode-specific retries/pacing beyond proven public concurrency 8/20, block/AOI semantics, completeness rules and failure/resume logic. (`retryCount:2` is frontend fallback only, not recovered native status.)
 - [ ] Recover original multi-server behavior instead of designing from LW Atlas or our own assumptions.
 - [ ] Reconcile original acquisition with current-client Last War APIs/managers without changing product semantics.

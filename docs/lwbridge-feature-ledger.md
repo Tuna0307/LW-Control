@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-054`, 2026-09-26.
+**Current through:** `LWB-R8-055`, 2026-09-26.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -36,7 +36,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Railway | POSSIBLE DEVIATION | Prove direct Train-list mapping against original |
 | Dispatch | DEVIATION/UNKNOWN | Remove wide-FOV/Quick-Find assumptions; recover original |
 | Ghost | EQUIVALENT_REIMPLEMENTATION | Recover original |
-| Treasure | PARTIAL EXACT_CONTRACT | Protected orchestration still unknown |
+| Treasure | PARTIAL EXACT_CONTRACT + DEVIATION status route | R8-055 closes native `map_treasure_claim_status` authorization/provider/5-second/cache-update/raw-provider-return behavior and audits the current rebuild as non-exact: extra scan/operation/server guards, 8-second probe, fixed DTO/raw-field loss and differing cache-maintenance ownership. Protected claim orchestration remains unknown/absent |
 | City Excel export | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-007 restored API/UI/dialog/paging/workbook/result contract |
 | `map_scan_clear` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-008 restored positive current-live-server admission, server-scoped deletion, player-mark preservation and Manual-only Clear |
 | `server_jump` public result | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-009 restored destination `serverId` alongside `previousServerId` and `changed`; protected travel internals remain separate |
