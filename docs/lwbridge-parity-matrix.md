@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-055`, 2026-09-26
+**Current through:** `LWB-R8-056`, 2026-09-26
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -54,7 +54,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | City Layout | UI EXACT_BYTES / PARTIAL backend | R8-018 restores exact draft table/key/revision semantics and production draft get/save/clear. R8-050 closes the snapshot host boundary but fences implementation on an owner-excluded authorization-derived request. R8-052 closes exact `city_layout_apply_status` auth-unavailable/disconnect/`getCityLayoutApplyStatus`/5-second/generic-result behavior but fences runtime status on native auth-state admission plus the unrecovered live apply provider. Validate/apply-start/cancel remain missing/protected | Preserve draft contract; implement only host boundaries that can be wired without excluded auth-state reconstruction or invented planner/executor behavior |
 | Hotkeys | UI EXACT_BYTES / PARTIAL backend | R8-019 restores the original ten-field config object/defaults, `hotkey_config_get/save`, exact config error vocabulary and per-profile runtime persistence | Preserve config parity; recover keyboard hooks and in-game actions only from native/runtime evidence |
 | Mini-games | UI exact-derived, backend parity UNKNOWN | Original component assets exist | Recover all connected functions |
-| Settings | PARTIAL backend / original UI contract recovered | R8-020 restores visual-metrics config; R8-021 restores updater idle status; R8-022 recovers feedback result/progress schemas and `exportId` validation; R8-028 restores `profile_settings_save`; R8-035 restores native `set_window_theme`; R8-037 restores `append_log`; R8-053 closes `profile_settings_get` required `profileId`, singleton read and exact `{profileId,revision,value}` projection but keeps runtime getter fenced because native first requires owner-excluded authorization-state admission | Recover remaining profile registry/settings behavior, privacy/redaction/cache/archive lifecycle, updater check/download/open semantics, and exact log rotation/segment retention; keep account/auth settings excluded |
+| Settings | PARTIAL backend / original UI contract recovered | R8-020 restores visual-metrics config; R8-021 restores updater idle status; R8-022 recovers feedback result/progress schemas and `exportId` validation; R8-028 restores `profile_settings_save`; R8-035 restores native `set_window_theme`; R8-037 restores `append_log`; R8-053 closes `profile_settings_get`; R8-056 closes `watermark_lookup` trace-code normalization, `/api/watermark/lookup` request ownership and raw service JSON return, while runtime remains fenced at the excluded authorization-state boundary | Recover remaining profile registry/settings behavior, privacy/redaction/cache/archive lifecycle, updater check/download/open semantics, and exact log rotation/segment retention; keep account/auth settings excluded |
 | Whole-program one-to-one release | NOT READY | Prior acceptance measured reconstructed Home/Map functionality, not whole-program parity | Close every required DEVIATION/UNKNOWN and live-prove the final product |
 
 ## Immediate retained-scope sequence

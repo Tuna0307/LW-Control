@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-055`
+**Current checkpoint:** `LWB-R8-056`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -322,6 +322,14 @@ R8-055 closes the native read-only Treasure status boundary without enabling pro
 The provider result is inspected for `playerUid` and `states`; native transactionally refreshes `treasure_claim_states`, including expired-positive-row cleanup and upsert. Serialization failure uses `MAP_DATA_INVALID` with `serialize treasure claim state: ` detail. After a successful cache update, native returns the original provider JSON through the generic converter, preserving provider-owned fields such as frontend-recognized optional `batch`.
 
 The current rebuild remains a documented deviation: it adds rebuild-only scan/operation/server admission guards, uses an 8-second current-client probe, reconstructs exactly `{playerUid,allianceId,states}`, cannot preserve provider-owned extras, and couples status to generic refresh/live-server plumbing. R8-055 is audit-only; protected `map_treasure_claim` execution remains absent. See `docs/reviews/2026-09-26-r8-055-treasure-claim-status-audit.md`.
+
+## R8-056 watermark_lookup fence
+
+R8-056 closes the retained `watermark_lookup` input/service/result boundary without recreating excluded authorization behavior. The frontend sends `{traceCode}`. Native treats missing/null/non-string `traceCode` as an empty string, trims it, and serializes that string directly into the request body.
+
+Before the service call, native awaits shared authorization state (`STATE_UNAVAILABLE` / `authorization state is unavailable`) and checks authorization `accessRole`; a missing required role returns `ROLE_REQUIRED`. The exact role policy and authorization transport state are owner-excluded and intentionally unimplemented.
+
+The handler sends JSON to exact path `/api/watermark/lookup` through the shared HTTP service helper. That helper exposes native error vocabulary including `REQUEST_TIMEOUT`, `NETWORK_ERROR`, `SERVICE_UNAVAILABLE`, `SESSION_INVALID`, and service `/error/code`/`/error/detail`. On success, the service JSON is returned through the generic converter; the host does not construct a fixed watermark DTO. R8-056 therefore makes no runtime change. See `docs/reviews/2026-09-26-r8-056-watermark-lookup-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
