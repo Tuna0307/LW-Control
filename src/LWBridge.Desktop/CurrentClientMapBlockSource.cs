@@ -26,6 +26,7 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
     private readonly CurrentClientMapBlockSourceHooks? hooks;
     private readonly string overviewRuntimeRoot;
     private readonly string probeRuntimeRoot;
+    private readonly string? assetCacheRoot;
 
     public CurrentClientMapBlockSource(
         OverviewLifecycleService lifecycle,
@@ -36,7 +37,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
             null,
             hooks,
             lifecycle.WaitForHealthyMapScanSessionAsync,
-            lifecycle.MatchesOwnedMapScanSession)
+            lifecycle.MatchesOwnedMapScanSession,
+            lifecycle is null ? null : Path.Combine(lifecycle.ProfileRuntimeRoot, "asset-cache"))
     {
     }
 
@@ -46,7 +48,8 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
         string? probeRuntimeRoot,
         CurrentClientMapBlockSourceHooks? hooks = null,
         Func<OverviewMapScanSession, CancellationToken, Task>? waitForHealthySession = null,
-        Func<OverviewMapScanSession, bool>? matchesOwnedSession = null)
+        Func<OverviewMapScanSession, bool>? matchesOwnedSession = null,
+        string? assetCacheRoot = null)
     {
         this.getSession = getSession ?? throw new ArgumentNullException(nameof(getSession));
         this.waitForHealthySession = waitForHealthySession;
@@ -57,6 +60,9 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
             Path.Combine(local, "LWBridgeRebuild", "overview-bridge");
         this.probeRuntimeRoot = probeRuntimeRoot ??
             Path.Combine(local, "LWBridgeRebuild", "live-resource");
+        this.assetCacheRoot = string.IsNullOrWhiteSpace(assetCacheRoot)
+            ? null
+            : Path.GetFullPath(assetCacheRoot);
     }
 
     public async Task<MapScanBlockCapture> CaptureAsync(

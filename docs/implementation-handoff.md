@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-043`
+**Current checkpoint:** `LWB-R8-044`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -244,6 +244,14 @@ R8-043 closes the native top-level `get_status` / `bridge://status` projection. 
 Native `config` is not a small fixed DTO. It loads `<runtimeRoot>\\config.json`, requires an object-shaped configuration, then migrates/normalizes a broad retained configuration tree through `0x1403AD60C-0x1403B4FCA` before publishing the resulting generic JSON value. The missing-file seed `{enable_eval:false, auto_shield:true, auto_red_packet_treasure:true}` is recovered, but the complete migration/default/preservation table is not yet closed.
 
 Because that config value is directly consumed by multiple retained frontend panels, R8-043 does not replace the rebuild's current status object with another partial projection. The current rebuild `get_status` remains explicitly classified `DEVIATION` until the native config normalizer is recovered one-for-one. See `docs/reviews/2026-09-26-r8-043-get-status-contract-fence.md`.
+
+## R8-044 game_asset_image checkpoint
+
+R8-044 restores the native public `game_asset_image` boundary. `assetPath` and `spriteName` are optional string fields: missing/null/non-string values are absent, strings are trimmed, and exactly one trimmed source is required. Neither/both sources fail with exact `INVALID_REQUEST` / `exactly one image source is required`. A cache miss with no game route fails with exact `GAME_DISCONNECTED` / `game disconnected`.
+
+Native cache lookup happens before game admission. The selected runtime owns an `asset-cache` directory of `.png` entries; native filenames are full lowercase SHA-256 hex plus `.png`, maintenance is gated to once per 60,000 ms, and cleanup activates above the 256 MiB boundary. The exact SHA-256 preimage is not byte-closed, so the rebuild's canonical source-key digest and file-I/O/eviction ordering remain explicitly `EQUIVALENT_REIMPLEMENTATION`, not exact native bytes.
+
+On a cache miss, native issues one `getAssetImage` request with an exact 15,000 ms timeout and no handler retry loop. Successful bytes are admitted by the exact eight-byte PNG signature; invalid bytes fail with `INVALID_ASSET` / `invalid PNG asset`. Public success is exactly `{dataUrl}`, using `data:image/png;base64,` plus the PNG bytes. Rebuild-only IHDR/dimension/4096-pixel gates and the three-attempt RAM-cache retry policy are removed. See `docs/reviews/2026-09-26-r8-044-game-asset-image.md`.
 
 ## Parked protected package-key lane
 

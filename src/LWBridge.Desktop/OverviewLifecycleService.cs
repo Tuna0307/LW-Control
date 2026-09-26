@@ -116,6 +116,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     internal LWBridgeControlPipeHostState? BridgeHostState => bridgeHostState;
 
+    internal string ProfileRuntimeRoot => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "LWBridgeRebuild",
+        "profiles",
+        profileId);
+
     public bool IsReady
     {
         get

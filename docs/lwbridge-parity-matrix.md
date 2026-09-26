@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-043`, 2026-09-26
+**Current through:** `LWB-R8-044`, 2026-09-26
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -27,6 +27,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | `map_scan_status` / `map_scan_stop` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-013 restores shared mutable status, read-only world refresh, lifecycle-dependent native fields, publishing→idle completion, idempotent Stop, exact five-field Stop cleanup and distinct Clear reset | Preserve; generic protected Stop error-envelope precedence and narrow publishing races remain partial |
 | `map_search` public kind/filter/sort boundary | PARTIAL EXACT_CONTRACT | R8-014 restores exactly eight public kinds, original kind-owned query fields and generic keyword predicate. R8-017 removes speculative Monster-distance, City-shield and Railway-quality SQL and fails closed on those authentic but unrecovered sort branches | Preserve the original frontend vocabulary; recover those expressions and complete native multi-sort assembly only from stronger evidence |
 | Scheduled Plunder control plane/UI | EXACT_BYTES-derived frontend + EXACT_CONTRACT/EQUIVALENT persistence | R8-016 restores original result tab, wrappers/locales, five list/schedule/cancel commands, durable jobs/history and two change events; protected robbery workers remain absent | Preserve recovered control plane; recover actual action execution only from permitted reference evidence |
+| `game_asset_image` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-044 restores native optional-string/trim/XOR admission, exact errors, cache-before-connect behavior, one 15-second `getAssetImage` request, PNG signature validation, exact `{dataUrl}` output and native-style disk-cache structure/cadence/size boundary | Byte-close the native SHA-256 cache-key preimage and preserve the retained current-client transport as equivalent plumbing until original transport parity is established |
 | Secret Task Quick Find product feature | DEVIATION REMOVED | Added by R7-151 from a current-game native finder; R8-002 removes the product surface because it is not established as LWBridge 0.3.1 behavior | Restore only if reference evidence proves it exists |
 | Map scan request envelope | EXACT_CONTRACT | `startMapScan` fields, accepted gate, selected types, normal/fast concurrency recovered | Preserve; recover remaining handler internals |
 | Original Map scan algorithm | UNKNOWN | Current scanner is our reconstruction and includes R7-specific strategies | Recover original bridge script/host scan implementation before further redesign |

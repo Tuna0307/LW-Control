@@ -36,7 +36,7 @@ internal static class CurrentClientMapBlockSourceChecks
         await ServerJumpProvesNoOpAndChangedTransition();
         await ServerJumpMapsRecoveredTimeoutContract();
         await ServerJumpRejectsForeignSessionResult();
-        await AssetImageValidatesCachesAndRetriesSessionGap();
+        await AssetImageUsesSingleCallAndPersistentCache();
         await AssetImageRejectsInvalidPng();
         await FastCityBandReturnsTwoHundredFiftyLogicalCaptures();
         await FastCityFullMapReturnsAllLogicalCaptures();
@@ -1623,40 +1623,109 @@ internal static class CurrentClientMapBlockSourceChecks
     }
 
 
-    private static async Task AssetImageValidatesCachesAndRetriesSessionGap()
+    private static async Task AssetImageUsesSingleCallAndPersistentCache()
     {
         const string AssetPath = "Assets/Main/Sprites/ItemIcons/item406";
         const string PngBase64 =
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-        int writes = 0;
-        CurrentClientMapBlockSource source = CreateSource(
+
+        int disconnectedWrites = 0;
+        CurrentClientMapBlockSource disconnectedSource = CreateSource(
             (fields, _) => ProvenEmptyCityCurrentView(fields),
             assetImageResult: fields =>
+            {
+                disconnectedWrites++;
+                return AssetImageResult(
+                    fields,
+                    "failed",
+                    "overview_session_unavailable",
+                    null,
+                    null,
+                    null);
+            });
+        try
+        {
+            _ = await disconnectedSource.GetAssetImageAsync(
+                AssetPath,
+                null,
+                CancellationToken.None);
+            throw new InvalidOperationException(
+                "disconnected asset image request should fail without retry");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "GAME_DISCONNECTED" &&
+            error.Message == "game disconnected")
+        {
+        }
+        Check(disconnectedWrites == 1,
+            "asset image must use one game request and must not retry a disconnected result");
+
+        string cacheRoot = Path.Combine(
+            Path.GetTempPath(),
+            "lwbridge-r8-044-asset-cache-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            int writes = 0;
+            Func<IReadOnlyDictionary<string, string>, string> proven = fields =>
             {
                 writes++;
                 Check(fields["sourceMode"] == "assetPath" && fields["assetPath"] == AssetPath,
                     "asset image protocol must preserve the authoritative game asset path");
                 return AssetImageResult(
                     fields,
-                    writes == 1 ? "failed" : "proven",
-                    writes == 1 ? "overview_session_unavailable" : null,
-                    writes == 1 ? null : PngBase64,
-                    writes == 1 ? null : 1,
-                    writes == 1 ? null : 1);
-            });
+                    "proven",
+                    null,
+                    PngBase64,
+                    1,
+                    1);
+            };
 
-        CurrentClientAssetImageResult first =
-            await source.GetAssetImageAsync(AssetPath, null, CancellationToken.None);
-        CurrentClientAssetImageResult second =
-            await source.GetAssetImageAsync(AssetPath, null, CancellationToken.None);
+            CurrentClientMapBlockSource firstSource = CreateSource(
+                (fields, _) => ProvenEmptyCityCurrentView(fields),
+                assetImageResult: proven,
+                assetCacheRoot: cacheRoot);
+            CurrentClientAssetImageResult first =
+                await firstSource.GetAssetImageAsync(
+                    AssetPath,
+                    null,
+                    CancellationToken.None);
 
-        Check(writes == 2,
-            "asset image should retry one recoverable Overview admission gap and then serve the second request from host cache");
-        Check(first.DataUrl == "data:image/png;base64," + PngBase64 &&
-              second.DataUrl == first.DataUrl &&
-              first.Width == 1 && first.Height == 1 &&
-              first.SourceMode == "assetPath" && first.SourceValue == AssetPath,
-            "asset image result must preserve validated PNG bytes and exact source identity");
+            CurrentClientMapBlockSource secondSource = CreateSource(
+                (fields, _) => ProvenEmptyCityCurrentView(fields),
+                assetImageResult: _ =>
+                {
+                    writes++;
+                    throw new InvalidOperationException(
+                        "persistent asset cache should satisfy the second source instance");
+                },
+                assetCacheRoot: cacheRoot);
+            CurrentClientAssetImageResult second =
+                await secondSource.GetAssetImageAsync(
+                    AssetPath,
+                    null,
+                    CancellationToken.None);
+
+            Check(writes == 1,
+                "asset image should call the game once and reuse the profile disk cache across source instances");
+            Check(Directory.EnumerateFiles(cacheRoot, "*.png").Count() == 1,
+                "asset image cache should persist one PNG file");
+            Check(first.DataUrl == "data:image/png;base64," + PngBase64 &&
+                  second.DataUrl == first.DataUrl &&
+                  first.Width == 1 && first.Height == 1 &&
+                  first.SourceMode == "assetPath" && first.SourceValue == AssetPath,
+                "asset image result must preserve PNG bytes and exact source identity");
+        }
+        finally
+        {
+            try
+            {
+                if (Directory.Exists(cacheRoot))
+                    Directory.Delete(cacheRoot, recursive: true);
+            }
+            catch
+            {
+            }
+        }
     }
 
     private static async Task AssetImageRejectsInvalidPng()
@@ -1688,7 +1757,20 @@ internal static class CurrentClientMapBlockSourceChecks
             _ = await source.GetAssetImageAsync(AssetPath, "frame_sprite", CancellationToken.None);
             throw new InvalidOperationException("asset image request with both source forms should fail closed");
         }
-        catch (BridgeCommandException error) when (error.Code == "INVALID_ASSET")
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_REQUEST" &&
+            error.Message == "exactly one image source is required")
+        {
+        }
+
+        try
+        {
+            _ = await source.GetAssetImageAsync("   ", null, CancellationToken.None);
+            throw new InvalidOperationException("blank asset source should fail the native XOR admission");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "INVALID_REQUEST" &&
+            error.Message == "exactly one image source is required")
         {
         }
     }
@@ -1817,7 +1899,8 @@ internal static class CurrentClientMapBlockSourceChecks
         Func<IReadOnlyDictionary<string, string>, string>? marchFollowResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? assetImageResult = null,
         Func<IReadOnlyDictionary<string, string>, string>? trainListResult = null,
-        Func<IReadOnlyDictionary<string, string>, string>? worldStateResult = null)
+        Func<IReadOnlyDictionary<string, string>, string>? worldStateResult = null,
+        string? assetCacheRoot = null)
     {
         var files = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
         string overviewRoot = @"C:\overview";
@@ -1921,7 +2004,8 @@ internal static class CurrentClientMapBlockSourceChecks
             probeRoot,
             hooks,
             waitForHealthySession,
-            matchesOwnedSession);
+            matchesOwnedSession,
+            assetCacheRoot);
     }
 
     private static IReadOnlyDictionary<string, string> ParseKv(string text) =>

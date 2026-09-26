@@ -538,16 +538,23 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        string? assetPath = ReadOptionalAssetImageString(payload, "assetPath")?.Trim();
+        string? spriteName = ReadOptionalAssetImageString(payload, "spriteName")?.Trim();
+        bool hasAssetPath = !string.IsNullOrEmpty(assetPath);
+        bool hasSpriteName = !string.IsNullOrEmpty(spriteName);
+        if (hasAssetPath == hasSpriteName)
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "exactly one image source is required");
+
         if (getAssetImage is null)
             throw new BridgeCommandException(
-                "GAME_CONNECTION_UNAVAILABLE",
-                "game connection unavailable");
+                "GAME_DISCONNECTED",
+                "game disconnected");
 
-        string? assetPath = ReadOptionalAssetImageString(payload, "assetPath");
-        string? spriteName = ReadOptionalAssetImageString(payload, "spriteName");
         CurrentClientAssetImageResult result = await getAssetImage(
-                assetPath,
-                spriteName,
+                hasAssetPath ? assetPath : null,
+                hasSpriteName ? spriteName : null,
                 cancellationToken)
             .ConfigureAwait(false);
         return new
@@ -559,13 +566,8 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
     private static string? ReadOptionalAssetImageString(JsonElement payload, string name)
     {
         if (!payload.TryGetProperty(name, out JsonElement value) ||
-            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            value.ValueKind != JsonValueKind.String)
             return null;
-        if (value.ValueKind != JsonValueKind.String)
-            throw new BridgeCommandException(
-                "INVALID_ASSET",
-                "invalid PNG asset",
-                $"{name} must be a string");
         return value.GetString();
     }
 

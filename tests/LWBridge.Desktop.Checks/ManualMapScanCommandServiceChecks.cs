@@ -37,6 +37,7 @@ internal static class ManualMapScanCommandServiceChecks
         await AllEightTypesAreAccepted();
         await MarchFollowPublicContractIsRecoveredAndUsesLiveSource();
         await ServerJumpPublicContractIsRecoveredAndBusyGated();
+        await GameAssetImagePublicContractUsesNativeAdmission();
         await ScheduledPlunderControlPlaneIsRecovered();
         await TreasureStateRefreshPublicContractIsReadOnlyAndCached();
         await ZombieBossMixedTypesFilterUnknownKind();
@@ -1588,6 +1589,92 @@ internal static class ManualMapScanCommandServiceChecks
             "Treasure state Lua lane must stay read-only except for the official Supplies detail request");
 
         service.Close();
+    }
+
+    private static async Task GameAssetImagePublicContractUsesNativeAdmission()
+    {
+        using MapDataStore store = MapDataStore.CreateInMemory();
+        string? seenAssetPath = "unset";
+        string? seenSpriteName = "unset";
+        var service = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource(),
+            getAssetImage: (assetPath, spriteName, cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                seenAssetPath = assetPath;
+                seenSpriteName = spriteName;
+                return Task.FromResult(new CurrentClientAssetImageResult(
+                    "data:image/png;base64,iVBORw0KGgo=",
+                    0,
+                    0,
+                    assetPath is null ? "spriteName" : "assetPath",
+                    assetPath ?? spriteName ?? string.Empty));
+            });
+
+        JsonElement accepted = JsonSerializer.SerializeToElement(new
+        {
+            assetPath = 123,
+            spriteName = "  frame_sprite  ",
+        });
+        JsonElement result = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "game_asset_image",
+                accepted,
+                CancellationToken.None),
+            JsonOptions.Default);
+        Check(seenAssetPath is null &&
+              seenSpriteName == "frame_sprite" &&
+              result.EnumerateObject().Select(property => property.Name)
+                  .SequenceEqual(new[] { "dataUrl" }) &&
+              result.GetProperty("dataUrl").GetString() ==
+                  "data:image/png;base64,iVBORw0KGgo=",
+            "game_asset_image must treat non-string sources as absent, trim the selected source, and return only dataUrl");
+
+        foreach (JsonElement invalid in new[]
+                 {
+                     JsonSerializer.SerializeToElement(new { assetPath = 123, spriteName = false }),
+                     JsonSerializer.SerializeToElement(new { assetPath = "a", spriteName = "b" }),
+                     JsonSerializer.SerializeToElement(new { assetPath = "   " }),
+                 })
+        {
+            try
+            {
+                _ = await service.InvokeAsync(
+                    "game_asset_image",
+                    invalid,
+                    CancellationToken.None);
+                throw new InvalidOperationException(
+                    "game_asset_image invalid source combination should fail");
+            }
+            catch (BridgeCommandException error) when (
+                error.Code == "INVALID_REQUEST" &&
+                error.Message == "exactly one image source is required")
+            {
+            }
+        }
+        service.Close();
+
+        var disconnected = new ManualMapScanCommandService(
+            store,
+            _ => Task.FromResult(Context()),
+            new ImmediateSource());
+        try
+        {
+            _ = await disconnected.InvokeAsync(
+                "game_asset_image",
+                JsonSerializer.SerializeToElement(new { assetPath = "x" }),
+                CancellationToken.None);
+            throw new InvalidOperationException(
+                "game_asset_image without a game provider should fail as disconnected");
+        }
+        catch (BridgeCommandException error) when (
+            error.Code == "GAME_DISCONNECTED" &&
+            error.Message == "game disconnected")
+        {
+        }
+        disconnected.Close();
     }
 
     private static async Task ZombieBossMixedTypesFilterUnknownKind()

@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace LWBridge.Desktop;
@@ -14,11 +16,10 @@ internal sealed record CurrentClientAssetImageResult(
 internal sealed partial class CurrentClientMapBlockSource
 {
     private static readonly TimeSpan AssetImageTimeout = TimeSpan.FromSeconds(15);
-    private const int AssetImageCacheEntryLimit = 512;
+    private static readonly TimeSpan AssetCacheMaintenanceInterval = TimeSpan.FromSeconds(60);
+    private const long AssetCacheMaxBytes = 256L * 1024L * 1024L;
     private readonly SemaphoreSlim assetImageGate = new(1, 1);
-    private readonly Dictionary<string, CurrentClientAssetImageResult> assetImageCache =
-        new(StringComparer.Ordinal);
-    private readonly Queue<string> assetImageCacheOrder = new();
+    private long lastAssetCacheMaintenanceAt;
 
     public async Task<CurrentClientAssetImageResult> GetAssetImageAsync(
         string? assetPath,
@@ -26,55 +27,47 @@ internal sealed partial class CurrentClientMapBlockSource
         CancellationToken cancellationToken)
     {
         (string sourceMode, string sourceValue) = NormalizeAssetImageSource(assetPath, spriteName);
-        string cacheKey = sourceMode + ":" + sourceValue;
 
         await assetImageGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (assetImageCache.TryGetValue(cacheKey, out CurrentClientAssetImageResult? cached))
-                return cached;
+            string? cachePath = GetAssetCachePath(sourceMode, sourceValue);
+            if (cachePath is not null && TryReadCachedAsset(cachePath) is byte[] cachedPng)
+                return BuildAssetImageResult(cachedPng, sourceMode, sourceValue);
 
-            OverviewMapScanSession session = RequireReadySession();
-            if (waitForHealthySession is { } waitForHealthy)
+            CurrentClientAssetImageResult result;
+            try
             {
-                await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
-                RequireSameSession(session);
+                OverviewMapScanSession session = RequireReadySession();
+                if (waitForHealthySession is { } waitForHealthy)
+                {
+                    await waitForHealthy(session, cancellationToken).ConfigureAwait(false);
+                    RequireSameSession(session);
+                }
+
+                result = await ProbeAssetImageAsync(
+                        session,
+                        sourceMode,
+                        sourceValue,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (BridgeCommandException error) when (
+                error.Code == "GAME_CONNECTION_UNAVAILABLE")
+            {
+                throw new BridgeCommandException(
+                    "GAME_DISCONNECTED",
+                    "game disconnected",
+                    error.Details);
             }
 
-            Exception? lastError = null;
-            for (int attempt = 1; attempt <= 3; attempt++)
-            {
-                try
-                {
-                    CurrentClientAssetImageResult result = await ProbeAssetImageAsync(
-                            session,
-                            sourceMode,
-                            sourceValue,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                    AddAssetImageCache(cacheKey, result);
-                    return result;
-                }
-                catch (Exception error) when (
-                    error is TimeoutException ||
-                    error is BridgeCommandException bridge &&
-                    bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
-                {
-                    lastError = error;
-                    if (attempt >= 3) break;
-                    if (waitForHealthySession is { } retryHealthy)
-                    {
-                        await retryHealthy(session, cancellationToken).ConfigureAwait(false);
-                        RequireSameSession(session);
-                    }
-                    await DelayAsync(TimeSpan.FromMilliseconds(150), cancellationToken).ConfigureAwait(false);
-                }
-            }
-
-            throw lastError ?? new InvalidOperationException("asset image acquisition failed without an error");
+            if (cachePath is not null)
+                TryWriteCachedAsset(cachePath, DecodeDataUrl(result.DataUrl));
+            return result;
         }
         finally
         {
+            TryMaintainAssetCache();
             assetImageGate.Release();
         }
     }
@@ -166,11 +159,6 @@ internal sealed partial class CurrentClientMapBlockSource
         if (state != "proven")
             throw new InvalidDataException("Asset image result did not contain a supported terminal state.");
 
-        int width = RequirePositiveInt(root, "width");
-        int height = RequirePositiveInt(root, "height");
-        if (width > 4096 || height > 4096)
-            throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset", "asset image dimensions exceed 4096 pixels");
-
         string? base64 = ReadOptionalString(root, "base64");
         if (string.IsNullOrWhiteSpace(base64))
             throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset", "asset image payload is empty");
@@ -185,14 +173,8 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset", error.Message);
         }
 
-        ValidatePngAsset(png, width, height);
-        string normalizedBase64 = Convert.ToBase64String(png);
-        return new CurrentClientAssetImageResult(
-            "data:image/png;base64," + normalizedBase64,
-            width,
-            height,
-            sourceMode,
-            sourceValue);
+        ValidatePngAsset(png);
+        return BuildAssetImageResult(png, sourceMode, sourceValue);
     }
 
     private static (string Mode, string Value) NormalizeAssetImageSource(
@@ -203,54 +185,179 @@ internal sealed partial class CurrentClientMapBlockSource
         string sprite = spriteName?.Trim() ?? string.Empty;
         if ((asset.Length == 0) == (sprite.Length == 0))
             throw new BridgeCommandException(
-                "INVALID_ASSET",
-                "invalid PNG asset",
-                "exactly one of assetPath or spriteName is required");
-
-        string value = asset.Length > 0 ? asset : sprite;
-        if (value.Length > 1024 ||
-            value.IndexOfAny(['\r', '\n', '\0']) >= 0)
-        {
-            throw new BridgeCommandException(
-                "INVALID_ASSET",
-                "invalid PNG asset",
-                "asset source is invalid");
-        }
+                "INVALID_REQUEST",
+                "exactly one image source is required");
 
         return asset.Length > 0 ? ("assetPath", asset) : ("spriteName", sprite);
     }
 
-    private static void ValidatePngAsset(byte[] png, int expectedWidth, int expectedHeight)
+    private static void ValidatePngAsset(byte[] png)
     {
         ReadOnlySpan<byte> signature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-        if (png.Length < 24 ||
-            !png.AsSpan(0, signature.Length).SequenceEqual(signature) ||
-            !png.AsSpan(12, 4).SequenceEqual("IHDR"u8))
+        if (png.Length < signature.Length ||
+            !png.AsSpan(0, signature.Length).SequenceEqual(signature))
         {
             throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset");
         }
-
-        int width = checked((int)BinaryPrimitives.ReadUInt32BigEndian(png.AsSpan(16, 4)));
-        int height = checked((int)BinaryPrimitives.ReadUInt32BigEndian(png.AsSpan(20, 4)));
-        if (width <= 0 || height <= 0 || width != expectedWidth || height != expectedHeight)
-            throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset");
     }
 
-    private void AddAssetImageCache(string key, CurrentClientAssetImageResult result)
+    private static CurrentClientAssetImageResult BuildAssetImageResult(
+        byte[] png,
+        string sourceMode,
+        string sourceValue)
     {
-        if (assetImageCache.ContainsKey(key))
+        ValidatePngAsset(png);
+        (int width, int height) = ReadPngDimensionsIfPresent(png);
+        return new CurrentClientAssetImageResult(
+            "data:image/png;base64," + Convert.ToBase64String(png),
+            width,
+            height,
+            sourceMode,
+            sourceValue);
+    }
+
+    private static (int Width, int Height) ReadPngDimensionsIfPresent(byte[] png)
+    {
+        if (png.Length < 24 || !png.AsSpan(12, 4).SequenceEqual("IHDR"u8))
+            return (0, 0);
+
+        uint width = BinaryPrimitives.ReadUInt32BigEndian(png.AsSpan(16, 4));
+        uint height = BinaryPrimitives.ReadUInt32BigEndian(png.AsSpan(20, 4));
+        return width is > 0 and <= int.MaxValue && height is > 0 and <= int.MaxValue
+            ? ((int)width, (int)height)
+            : (0, 0);
+    }
+
+    private static byte[] DecodeDataUrl(string dataUrl)
+    {
+        const string Prefix = "data:image/png;base64,";
+        if (!dataUrl.StartsWith(Prefix, StringComparison.Ordinal))
+            throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset");
+        try
         {
-            assetImageCache[key] = result;
+            byte[] png = Convert.FromBase64String(dataUrl[Prefix.Length..]);
+            ValidatePngAsset(png);
+            return png;
+        }
+        catch (FormatException error)
+        {
+            throw new BridgeCommandException("INVALID_ASSET", "invalid PNG asset", error.Message);
+        }
+    }
+
+    private string? GetAssetCachePath(string sourceMode, string sourceValue)
+    {
+        if (assetCacheRoot is null) return null;
+
+        // Native uses a SHA-256-derived lowercase-hex PNG filename. The exact
+        // preimage bytes are not yet byte-closed, so the retained rebuild uses a
+        // collision-safe canonical source identity while preserving cache behavior.
+        byte[] keyBytes = Encoding.UTF8.GetBytes(sourceMode + ":" + sourceValue);
+        string digest = Convert.ToHexString(SHA256.HashData(keyBytes)).ToLowerInvariant();
+        return Path.Combine(assetCacheRoot, digest + ".png");
+    }
+
+    private static byte[]? TryReadCachedAsset(string cachePath)
+    {
+        try
+        {
+            if (!File.Exists(cachePath)) return null;
+            byte[] png = File.ReadAllBytes(cachePath);
+            ValidatePngAsset(png);
+            return png;
+        }
+        catch (BridgeCommandException)
+        {
+            throw;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    private static void TryWriteCachedAsset(string cachePath, byte[] png)
+    {
+        try
+        {
+            string directory = Path.GetDirectoryName(cachePath)!;
+            Directory.CreateDirectory(directory);
+            string temporary = cachePath + ".tmp-" + Guid.NewGuid().ToString("N");
+            try
+            {
+                File.WriteAllBytes(temporary, png);
+                File.Move(temporary, cachePath, overwrite: true);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(temporary)) File.Delete(temporary);
+                }
+                catch
+                {
+                }
+            }
+        }
+        catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
+    }
+
+    private void TryMaintainAssetCache()
+    {
+        if (assetCacheRoot is null) return;
+
+        long now = Now().ToUnixTimeMilliseconds();
+        if (lastAssetCacheMaintenanceAt > 0 &&
+            now - lastAssetCacheMaintenanceAt < AssetCacheMaintenanceInterval.TotalMilliseconds)
             return;
-        }
+        lastAssetCacheMaintenanceAt = now;
 
-        while (assetImageCache.Count >= AssetImageCacheEntryLimit && assetImageCacheOrder.Count > 0)
+        try
         {
-            string oldest = assetImageCacheOrder.Dequeue();
-            assetImageCache.Remove(oldest);
-        }
+            if (!Directory.Exists(assetCacheRoot)) return;
+            FileInfo[] entries = new DirectoryInfo(assetCacheRoot)
+                .EnumerateFiles("*.png", SearchOption.TopDirectoryOnly)
+                .ToArray();
+            long totalBytes = 0;
+            foreach (FileInfo entry in entries)
+                totalBytes = totalBytes > long.MaxValue - entry.Length
+                    ? long.MaxValue
+                    : totalBytes + entry.Length;
+            if (totalBytes <= AssetCacheMaxBytes) return;
 
-        assetImageCache[key] = result;
-        assetImageCacheOrder.Enqueue(key);
+            foreach (FileInfo entry in entries
+                         .OrderBy(entry => entry.LastWriteTimeUtc)
+                         .ThenBy(entry => entry.Name, StringComparer.Ordinal))
+            {
+                if (totalBytes <= AssetCacheMaxBytes) break;
+                long length = entry.Length;
+                try
+                {
+                    entry.Delete();
+                    totalBytes = Math.Max(0, totalBytes - length);
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+            }
+        }
+        catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
     }
 }

@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-044",
+  "date": "2026-09-26",
+  "scope": "Restore game_asset_image request admission, disconnect/PNG errors, single 15-second game call, dataUrl result and native-style persistent asset caching.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "game_asset_image handler 0x14017A65C-0x14017C064",
+    "JSON string field helper 0x1401D2EE7",
+    "source trim helper 0x1400385A4",
+    "source XOR validator 0x1403BBE95-0x1403BC1FD",
+    "GAME_DISCONNECTED helper 0x1403AD367-0x1403AD3B8",
+    "getAssetImage request setup around 0x14017B331",
+    "PNG/dataUrl result path 0x14017B3F6-0x14017B5C9",
+    "cache cadence path 0x14017BF4E-0x14017BF76",
+    "cache helper 0x1403B9690",
+    "SHA-256 lower-hex helper 0x1401DE702",
+    "retained GameAssetImage-DEJtwPJL.js consumer"
+  ],
+  "publicContract": {
+    "sources": ["assetPath", "spriteName"],
+    "nonStringSource": "treated as absent",
+    "normalization": "trim before XOR admission",
+    "xorError": {
+      "code": "INVALID_REQUEST",
+      "message": "exactly one image source is required"
+    },
+    "cacheBeforeGameAdmission": true,
+    "disconnectError": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "gameMethod": "getAssetImage",
+    "gameTimeoutMilliseconds": 15000,
+    "nativeRetryCount": 0,
+    "pngSignatureHex": "89504e470d0a1a0a",
+    "invalidPngError": {
+      "code": "INVALID_ASSET",
+      "message": "invalid PNG asset"
+    },
+    "resultFields": ["dataUrl"],
+    "dataUrlPrefix": "data:image/png;base64,"
+  },
+  "cache": {
+    "directoryName": "asset-cache",
+    "extension": ".png",
+    "digestAlgorithm": "SHA-256",
+    "digestFilenameEncoding": "64 lowercase hexadecimal characters",
+    "maintenanceIntervalMilliseconds": 60000,
+    "evictionBoundaryBytes": 268435456,
+    "nativeDigestPreimage": "UNKNOWN",
+    "rebuildDigestPreimage": "UTF-8(sourceMode + ':' + sourceValue)",
+    "rebuildFilenameClassification": "EQUIVALENT_REIMPLEMENTATION",
+    "rebuildWriteAndEvictionPlumbing": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "removedRebuildDeviations": [
+    "INVALID_ASSET used for source XOR failure",
+    "non-string source rejected instead of treated as absent",
+    "1024-character/newline/NUL source restriction",
+    "GAME_CONNECTION_UNAVAILABLE public disconnect code",
+    "three-attempt 150-ms retry loop",
+    "512-entry in-memory-only cache",
+    "IHDR/dimension-match/4096-pixel PNG admission gates"
+  ],
+  "implementation": [
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.AssetImage.cs",
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.cs",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "sourceParsingTrimAndXor": "EXACT_NATIVE",
+    "sourceXorError": "EXACT_NATIVE",
+    "cacheBeforeGameAdmission": "EXACT_NATIVE",
+    "gameDisconnectedError": "EXACT_NATIVE",
+    "gameMethodTimeoutAndSingleShot": "EXACT_NATIVE",
+    "pngSignatureAndError": "EXACT_NATIVE",
+    "publicDataUrlSchema": "EXACT_NATIVE",
+    "cacheDirectoryExtensionDigestShape": "EXACT_NATIVE",
+    "cacheMaintenanceCadenceAndSizeBoundary": "EXACT_NATIVE",
+    "cacheDigestPreimage": "UNKNOWN",
+    "retainedGameTransport": "EQUIVALENT_REIMPLEMENTATION",
+    "cacheFileIoAndEvictionOrdering": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "remainingBoundary": {
+    "cacheDigestPreimage": "not byte-closed",
+    "connectedTimeoutErrorVocabulary": "not separately claimed",
+    "originalGameTransport": "retained adapter remains equivalent plumbing"
+  },
+  "nextCheckpoint": "Continue another fully closable retained read-only/status contract; do not broaden into provider/auth or protected action paths."
+}

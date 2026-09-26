@@ -1347,7 +1347,11 @@ try
         repairConfig,
         repairLifecycle,
         overviewLifecycle: repairLifecycle,
-        profileRuntimeDirectory: repairRoot);
+        profileRuntimeDirectory: repairRoot,
+        proxyStatusTestHooks: new ProxyStatusTestHooks
+        {
+            GameRunning = () => false,
+        });
     using JsonDocument repairEmptyPayload = JsonDocument.Parse("{}");
 
     repairJournalProfile = "foreign-profile";
