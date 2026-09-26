@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-066",
+  "date": "2026-09-26",
+  "state": "proven",
+  "classification": "LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION",
+  "proof": "normal_production_map_window_start_scan_search_render",
+  "client": { "contentVersion": 21, "serverId": 2212 },
+  "lifecycle": {
+    "profileId": "<active-profile>",
+    "instanceId": "<owned-instance>",
+    "gamePid": "<owned-game-pid>",
+    "connectionState": "connected"
+  },
+  "scan": {
+    "selectedTypes": ["resource"],
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "idle"
+  },
+  "search": {
+    "total": 515,
+    "firstRow": { "x": 699, "y": 901, "level": 2, "recordKey": "901700", "updatedAt": 1790417215000 }
+  },
+  "rendered": {
+    "cells": ["699,901", "Iron Mine", "2", "—", "Idle", "9/26/2026, 6:06:55 PM"],
+    "sixColumnShape": true
+  },
+  "validation": {
+    "desktopExitCode": 0,
+    "gameRunningAfterExit": false,
+    "desktopRunningAfterExit": false,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicChecksOk": true,
+    "deterministicFailures": []
+  },
+  "boundary": "This proves the current-v21 production desktop UI path; original LWBridge Map acquisition remains unrecovered.",
+  "privacy": "Local profile, instance, PID and Windows path values are redacted from shared evidence."
+}

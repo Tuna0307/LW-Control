@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-065`
+**Current checkpoint:** `LWB-R8-066`
 
 ## Executive status
 
@@ -18,6 +18,14 @@ The owner now requires a stricter operational baseline: a feature is not called 
 R8-065 re-established that baseline on current-v21. Home manual launch/connect/close and startup auto-launch/connect/close both reached `connectionState="connected"` in the dedicated live lifecycle proof. Map initially failed live on a current-v21 3×9 AOI contraction; after a bounded conservative compatibility fix, same-session all-eight Normal and Fast scans both completed 2500/2500 with 0 failed and 0 unread, and published Fast counts survived database reopen. The wide-FOV shortcut remains removed.
 
 This proves the retained Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION** today. It does not prove original Map acquisition parity or whole-program completion. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md`.
+
+## R8-066 production UI acceptance
+
+R8-066 then proved the normal Release desktop application's actual user-facing Map path rather than a service-only harness: normal persistent profile, Home lifecycle, recovered Map Data WebView, production Manual scanner, native `map_search`, and rendered Resource table. The final current-v21 run reached `connected`, completed Fast Resource scanning at 2500/2500 with 0 failed and 0 unread, returned 515 Resource rows, correlated the first native row to the rendered six-cell table, exited 0, and left neither Last War nor LWBridge running.
+
+The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
+
+This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
 
 ## Reference authority
 

@@ -403,6 +403,18 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-066 production Map UI checkpoint
+
+R8-066 strengthens the R8-065 operational baseline by proving the normal Release desktop application's production Map flow end to end against current-v21. The new `--normal-ui-live-map-proof` mode deliberately keeps the normal persistent profile, `OverviewLifecycleService`, recovered Map Data WebView and `ManualMapScanCommandService` rather than substituting the older bounded live-resource helper.
+
+The gate starts from no Last War/LWBridge process, observes or starts the app-owned lifecycle through the exact R8-042 native `profile_instance_status` projection, waits for `connected`, selects Resource through the rendered checkboxes, clicks the rendered Start Reading button, waits for the production Fast scan, clicks Resource Search, correlates the native `map_search` row to the DOM table, captures the rendered view, then stops the owned game. Final result: server 2212, Fast/concurrency 20, 2500/2500 read, 0 failed, 0 unread, 515 Resource rows, correlated six-cell rendered row, desktop exit 0, and no Last War/LWBridge process afterward.
+
+Three proof-infrastructure problems were exposed and corrected while reaching that gate. Nullable numeric status readers no longer attempt number parsing on explicit JSON null. The stronger UI proof no longer races normal startup reconcile; it observes the exact native instance projection and only calls Start after a stable no-instance state. Finally, the Resource render matcher and passive owner-evidence matcher now accept both the legacy five-cell table and the current six-cell table with resource amount before status and Updated At. Failure-side evidence proved the product had rendered the exact queried row; only the matcher was stale.
+
+The full deterministic checks executable remains green (`ok=true`, all deterministic groups true, `failures=[]`, no game/launcher running), and Release builds remain at zero warnings/errors. This proves the production desktop/WebView path is **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; original Map acquisition remains `UNKNOWN`.
+
+See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md` and `evidence/lwbridge-implementation/2026-09-26-r8-066-production-map-ui-live.json`.
+
 ## R8-065 fresh live Home/Map checkpoint
 
 The owner requires fresh real-game proof before anything is called working. R8-065 therefore ran the current Release build against the installed current-v21 Last War client rather than relying on historical R7 evidence.

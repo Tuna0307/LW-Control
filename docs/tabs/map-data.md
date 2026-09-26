@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-065`, 2026-09-26.
+**Current through:** `LWB-R8-066`, 2026-09-26.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 
@@ -45,6 +45,16 @@ Final same-session live proof:
 - Proof exited with code 0.
 
 See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
+
+## R8-066 production desktop/WebView live proof
+
+R8-066 raises the live acceptance level from direct service proof to the actual user-facing production path. A new proof mode keeps the normal persistent profile, Home lifecycle service, recovered Map Data WebView and production `ManualMapScanCommandService` wired exactly as the normal Release app does. It drives the rendered Resource checkbox and Start Reading button, waits for the real production scan, triggers the rendered Resource Search control, correlates the native `map_search` result to the DOM table, captures a screenshot, and then stops the owned game.
+
+The final current-v21 run reached `connected`, completed a Fast Resource scan on server 2212 at 2500/2500 with 0 failed and 0 unread, returned 515 Resource search rows, and rendered the correlated first row in the current six-column Resource table. The desktop proof exited 0 and both Last War and LWBridge were absent afterward.
+
+While building the gate, failure evidence showed the existing proof matcher was stale: current Resource rows contain six cells because a resource-amount column now precedes status and Updated At. The matcher and passive owner-evidence correlation now accept both the legacy five-cell and current six-cell shapes without weakening coordinate/level/timestamp correlation.
+
+See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md` and `evidence/lwbridge-implementation/2026-09-26-r8-066-production-map-ui-live.json`.
 
 ## Known deviations
 

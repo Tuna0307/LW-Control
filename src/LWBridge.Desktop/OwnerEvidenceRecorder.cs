@@ -155,9 +155,12 @@ internal static class OwnerEvidenceResourceContract
         string coordinate = $"{target.X},{target.Y}";
         string level = target.Level?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "-";
         return snapshot.Rows.Any(row =>
-            !row.IsEmpty && row.Cells.Count == 5 &&
-            row.Cells[0] == coordinate && row.Cells[2] == level && row.Cells[4] == expectedUpdatedText &&
-            !string.IsNullOrWhiteSpace(row.Cells[1]) && !string.IsNullOrWhiteSpace(row.Cells[3]));
+            !row.IsEmpty && row.Cells.Count is 5 or 6 &&
+            row.Cells[0] == coordinate && row.Cells[2] == level &&
+            row.Cells[^1] == expectedUpdatedText &&
+            !string.IsNullOrWhiteSpace(row.Cells[1]) &&
+            !string.IsNullOrWhiteSpace(row.Cells[3]) &&
+            (row.Cells.Count == 5 || !string.IsNullOrWhiteSpace(row.Cells[4])));
     }
 
     private static int? Int32(JsonElement row, string name) =>

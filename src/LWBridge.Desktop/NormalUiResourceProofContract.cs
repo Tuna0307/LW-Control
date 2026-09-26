@@ -107,9 +107,16 @@ internal static class NormalUiResourceProofContract
         NormalUiResourceProofTableRow? matched = null;
         foreach (NormalUiResourceProofTableRow row in snapshot.Rows)
         {
-            if (row.IsEmpty || row.Cells.Count != 5) continue;
-            if (row.Cells[0] != coordinate || row.Cells[2] != level || row.Cells[4] != expectedUpdatedText) continue;
+            // PM13 originally observed five columns. The recovered/current Resource
+            // table now includes a resource-amount column before status, making the
+            // settled row six columns. Accept both exact layouts and correlate
+            // the timestamp from the last cell so the proof remains version-tolerant
+            // without weakening coordinate/level/content checks.
+            if (row.IsEmpty || row.Cells.Count is not (5 or 6)) continue;
+            int updatedAtIndex = row.Cells.Count - 1;
+            if (row.Cells[0] != coordinate || row.Cells[2] != level || row.Cells[updatedAtIndex] != expectedUpdatedText) continue;
             if (string.IsNullOrWhiteSpace(row.Cells[1]) || string.IsNullOrWhiteSpace(row.Cells[3])) continue;
+            if (row.Cells.Count == 6 && string.IsNullOrWhiteSpace(row.Cells[4])) continue;
             if (matched is not null)
                 throw new InvalidDataException("Normal-window resource table rendered duplicate rows for the expected acquisition.");
             matched = row;

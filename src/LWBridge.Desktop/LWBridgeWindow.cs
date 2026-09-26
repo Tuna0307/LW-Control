@@ -37,6 +37,7 @@ internal sealed class LWBridgeWindow : Form
     private readonly string? hostProbePath;
     private readonly FirstLiveResultImport? firstLiveResult;
     private readonly string? normalUiLiveResourceProofPath;
+    private readonly string? normalUiLiveMapProofPath;
     private readonly OwnerEvidenceRecorder? ownerEvidence;
     private CancellationTokenSource? ownerEvidenceRenderCapture;
     private readonly string initialView;
@@ -91,12 +92,14 @@ internal sealed class LWBridgeWindow : Form
         string? theme,
         string? firstLiveResultPath = null,
         string? normalUiLiveResourceProofPath = null,
+        string? normalUiLiveMapProofPath = null,
         string? ownerEvidencePath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
         this.hostProbePath = hostProbePath;
         this.normalUiLiveResourceProofPath = normalUiLiveResourceProofPath;
+        this.normalUiLiveMapProofPath = normalUiLiveMapProofPath;
         ownerEvidence = ownerEvidencePath is null ? null : new OwnerEvidenceRecorder(ownerEvidencePath);
         string[] views = ["overview", "automation", "map-data", "march", "city-layout", "hotkeys", "mini-games", "advanced", "settings"];
         if (!views.Contains(initialView)) throw new ArgumentException("Unknown --view: " + initialView);
@@ -417,6 +420,14 @@ internal sealed class LWBridgeWindow : Form
             if (theme is not null) url += "&theme=" + Uri.EscapeDataString(theme);
             core.Navigate(WithDocumentSession(url, documentSession.Id));
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            if (normalUiLiveMapProofPath is not null)
+            {
+                if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
+                    throw new InvalidOperationException("--normal-ui-live-map-proof requires --view map-data.");
+                await RunNormalUiProductionMapProofAsync(core, normalUiLiveMapProofPath);
+                Close();
+                return;
+            }
             if (normalUiLiveResourceProofPath is not null)
             {
                 if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
@@ -461,11 +472,11 @@ internal sealed class LWBridgeWindow : Form
         }
         catch (Exception ex)
         {
-            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null)
+            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null)
                 MessageBox.Show(this, ex.Message, "LWBridge", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
             {
-                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath!;
+                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath ?? normalUiLiveMapProofPath!;
                 Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
                 await File.WriteAllTextAsync(artifactPath + ".error.txt", ex.ToString());
             }
@@ -542,6 +553,381 @@ internal sealed class LWBridgeWindow : Form
             second,
             generatedAt = DateTimeOffset.UtcNow,
         }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    }
+
+    // R8-066: end-to-end proof of the normal production Map path. Unlike the
+    // historical bounded resource helper proof above, this keeps the actual
+    // ManualMapScanCommandService wired into the recovered WebView and only
+    // automates the same UI controls a user would press.
+    private async Task RunNormalUiProductionMapProofAsync(CoreWebView2 core, string outputPath)
+    {
+        if (manualMapScanService is null || overviewLifecycleService is null)
+            throw new InvalidOperationException("The normal Map Data window does not have the production scan/lifecycle services.");
+
+        string fullOutputPath = Path.GetFullPath(outputPath);
+        string directory = Path.GetDirectoryName(fullOutputPath)!;
+        Directory.CreateDirectory(directory);
+
+        bool controlsReady = false;
+        for (int attempt = 0; attempt < 150; attempt++)
+        {
+            if (await core.ExecuteScriptAsync(
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 8 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+            {
+                controlsReady = true;
+                break;
+            }
+            await Task.Delay(100);
+        }
+        if (!controlsReady)
+            throw new InvalidOperationException("The normal production Map Data manual scan controls did not render.");
+
+        string selectionResult = await core.ExecuteScriptAsync("""
+            (() => {
+              const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
+              if (boxes.length !== 8) return false;
+              boxes.forEach((box, index) => {
+                const shouldBeChecked = index === 1;
+                if (box.checked !== shouldBeChecked) box.click();
+              });
+              return boxes.every((box, index) => box.checked === (index === 1));
+            })()
+            """);
+        if (selectionResult != "true")
+            throw new InvalidOperationException("The normal production Map Data resource-only selection could not be established.");
+
+        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(8));
+        string? instanceId = null;
+        JsonElement startJson = default;
+        try
+        {
+            // The recovered Overview UI may already be reconciling startup while this
+            // proof begins. Observe that app-owned lifecycle first; only issue Start
+            // after the service is stably stopped so we never race normal startup.
+            int stableNoInstancePolls = 0;
+            bool connected = false;
+            for (int attempt = 0; attempt < 2400; attempt++)
+            {
+                operationCts.Token.ThrowIfCancellationRequested();
+                object? nativeStatus = overviewLifecycleService.CreateProfileInstanceStatus();
+                if (nativeStatus is null)
+                {
+                    stableNoInstancePolls++;
+                    if (stableNoInstancePolls >= 20)
+                    {
+                        using JsonDocument empty = JsonDocument.Parse("{}");
+                        await overviewLifecycleService.InvokeAsync(
+                            "profile_instance_start", empty.RootElement.Clone(), operationCts.Token);
+                        object? startedNativeStatus = overviewLifecycleService.CreateProfileInstanceStatus();
+                        if (startedNativeStatus is null)
+                            throw new InvalidDataException("Production UI proof Start completed without a native instance record.");
+                        startJson = JsonSerializer.SerializeToElement(startedNativeStatus, JsonOptions.Default);
+                        instanceId = ReadStatusString(startJson, "instanceId");
+                        string? startedConnectionState = ReadStatusString(startJson, "connectionState");
+                        if (!string.Equals(startedConnectionState, "connected", StringComparison.Ordinal) ||
+                            string.IsNullOrWhiteSpace(instanceId))
+                            throw new InvalidDataException(
+                                $"Production UI proof game lifecycle did not reach connected state: {startedConnectionState ?? "null"}.");
+                        connected = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    stableNoInstancePolls = 0;
+                    startJson = JsonSerializer.SerializeToElement(nativeStatus, JsonOptions.Default);
+                    string phase = ReadStatusString(startJson, "phase") ?? string.Empty;
+                    string? connectionState = ReadStatusString(startJson, "connectionState");
+                    instanceId = ReadStatusString(startJson, "instanceId");
+                    string? lifecycleError = ReadStatusString(startJson, "lastError");
+
+                    if (phase == "running" &&
+                        string.Equals(connectionState, "connected", StringComparison.Ordinal) &&
+                        !string.IsNullOrWhiteSpace(instanceId))
+                    {
+                        connected = true;
+                        break;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(lifecycleError))
+                        throw new InvalidOperationException("Production UI lifecycle entered error: " + lifecycleError);
+                }
+                await Task.Delay(100, operationCts.Token);
+            }
+            if (!connected || string.IsNullOrWhiteSpace(instanceId))
+                throw new TimeoutException("The normal production UI lifecycle did not reach connected state within the proof bound.");
+
+            JsonElement initialStatus = JsonSerializer.SerializeToElement(manualMapScanService.CreateStatus(), JsonOptions.Default);
+            string initialRunId = ReadStatusString(initialStatus, "scanRunId") ?? string.Empty;
+
+            string clickResult = await core.ExecuteScriptAsync("""
+                (() => {
+                  const button = document.querySelector('.map-header .map-actions button.primary');
+                  if (!button || button.disabled) return false;
+                  button.click();
+                  return true;
+                })()
+                """);
+            if (clickResult != "true")
+                throw new InvalidOperationException("The normal production Map Data Start Reading button could not be clicked.");
+
+            JsonElement completedStatus = default;
+            bool completed = false;
+            for (int attempt = 0; attempt < 3600; attempt++)
+            {
+                operationCts.Token.ThrowIfCancellationRequested();
+                JsonElement status = JsonSerializer.SerializeToElement(manualMapScanService.CreateStatus(), JsonOptions.Default);
+                string runId = ReadStatusString(status, "scanRunId") ?? string.Empty;
+                string phase = ReadStatusString(status, "phase") ?? string.Empty;
+                string? error = ReadStatusString(status, "lastError");
+                bool isReading = status.TryGetProperty("isReading", out JsonElement readingValue) &&
+                    readingValue.ValueKind == JsonValueKind.True;
+                int readBlocks = ReadStatusInt32(status, "readBlocks") ?? 0;
+                int failedBlocks = ReadStatusInt32(status, "failedBlocks") ?? 0;
+                int unreadBlocks = ReadStatusInt32(status, "unreadBlocks") ?? 0;
+                if (!string.IsNullOrWhiteSpace(error))
+                    throw new InvalidOperationException("The normal production Map scan failed: " + error);
+                if (!isReading && phase == "idle" && runId.Length > 0 && runId != initialRunId && readBlocks == 2500)
+                {
+                    if (failedBlocks != 0 || unreadBlocks != 0)
+                        throw new InvalidDataException(
+                            $"Production UI scan completed with failed={failedBlocks}, unread={unreadBlocks}.");
+                    completedStatus = status;
+                    completed = true;
+                    break;
+                }
+                await Task.Delay(100, operationCts.Token);
+            }
+            if (!completed)
+                throw new TimeoutException("The normal production Map scan did not complete within the proof bound.");
+
+            bool resourceTabReady = false;
+            for (int attempt = 0; attempt < 150; attempt++)
+            {
+                if (await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button').length > 1") == "true")
+                {
+                    resourceTabReady = true;
+                    break;
+                }
+                await Task.Delay(100, operationCts.Token);
+            }
+            if (!resourceTabReady)
+                throw new InvalidOperationException("The normal production Map Resource tab did not render.");
+            await core.ExecuteScriptAsync("document.querySelectorAll('.map-tabs button')[1]?.click();");
+
+            bool resourceSearchSettled = false;
+            for (int attempt = 0; attempt < 200; attempt++)
+            {
+                if (await core.ExecuteScriptAsync(
+                    "(()=>{const table=document.querySelector('.map-table--resource');return !!table && table.getAttribute('aria-busy') !== 'true';})()") == "true")
+                {
+                    resourceSearchSettled = true;
+                    break;
+                }
+                await Task.Delay(100, operationCts.Token);
+            }
+            if (!resourceSearchSettled)
+                throw new TimeoutException("The normal production Resource tab did not settle.");
+
+            long beforeSearchSequence = GetNormalUiProofSearchSequence();
+            string searchClick = await core.ExecuteScriptAsync("""
+                (() => {
+                  const button = document.querySelector('.map-searchbar > button');
+                  if (!button || button.disabled) return false;
+                  button.click();
+                  return true;
+                })()
+                """);
+            if (searchClick != "true")
+                throw new InvalidOperationException("The normal production Resource Search button could not be clicked.");
+
+            NormalUiResourceProofSearchObservation? observation = null;
+            for (int attempt = 0; attempt < 200; attempt++)
+            {
+                observation = ReadNormalUiProofSearchAfter(beforeSearchSequence);
+                if (observation is not null) break;
+                await Task.Delay(100, operationCts.Token);
+            }
+            if (observation is null)
+                throw new TimeoutException("The normal production Resource Search did not produce a native map_search response.");
+
+            MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(observation.Payload);
+            int completedServerId = ReadStatusInt32(completedStatus, "serverId") ?? 0;
+            if (query.Kind != "resource" || query.Page != 1 || query.ServerId != completedServerId)
+                throw new InvalidDataException("The normal production Resource Search query did not match the completed live scan.");
+            if (!observation.Payload.TryGetProperty("profileId", out JsonElement searchProfile) ||
+                searchProfile.ValueKind != JsonValueKind.String ||
+                !string.Equals(searchProfile.GetString(), backend.ProfileId, StringComparison.Ordinal))
+                throw new InvalidDataException("The normal production Resource Search did not preserve the selected profile identity.");
+
+            JsonElement result = observation.Result;
+            if (result.ValueKind != JsonValueKind.Object ||
+                !result.TryGetProperty("rows", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array ||
+                !result.TryGetProperty("total", out JsonElement totalValue) || !totalValue.TryGetInt32(out int total) || total < 1)
+                throw new InvalidDataException("The normal production Resource Search returned no live rows.");
+            JsonElement queryRow = rows.EnumerateArray().First().Clone();
+
+            int RequiredInt(JsonElement row, string name)
+            {
+                if (!row.TryGetProperty(name, out JsonElement value) ||
+                    value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int parsed))
+                    throw new InvalidDataException($"Production Resource row is missing integer {name}.");
+                return parsed;
+            }
+            long RequiredLong(JsonElement row, string name)
+            {
+                if (!row.TryGetProperty(name, out JsonElement value) ||
+                    value.ValueKind != JsonValueKind.Number || !value.TryGetInt64(out long parsed))
+                    throw new InvalidDataException($"Production Resource row is missing integer {name}.");
+                return parsed;
+            }
+            string RequiredString(JsonElement row, string name)
+            {
+                if (!row.TryGetProperty(name, out JsonElement value) || value.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(value.GetString()))
+                    throw new InvalidDataException($"Production Resource row is missing string {name}.");
+                return value.GetString()!;
+            }
+
+            int? level = null;
+            if (queryRow.TryGetProperty("level", out JsonElement levelValue) &&
+                levelValue.ValueKind == JsonValueKind.Number && levelValue.TryGetInt32(out int parsedLevel))
+                level = parsedLevel;
+
+            var expected = new NormalUiResourceProofExpected(
+                RequiredInt(queryRow, "serverId"),
+                RequiredString(queryRow, "recordKey"),
+                RequiredInt(queryRow, "pointIndex"),
+                RequiredInt(queryRow, "x"),
+                RequiredInt(queryRow, "y"),
+                level,
+                RequiredLong(queryRow, "updatedAt"),
+                string.Empty,
+                string.Empty,
+                null,
+                backend.ProfileId,
+                instanceId,
+                startJson.TryGetProperty("pid", out JsonElement pidValue) && pidValue.TryGetInt32(out int gamePid) ? gamePid : null,
+                null);
+
+            string renderedTimeJson = await core.ExecuteScriptAsync(
+                $"new Date({expected.UpdatedAt.ToString(System.Globalization.CultureInfo.InvariantCulture)}).toLocaleString(document.documentElement.lang || undefined)");
+            string? expectedUpdatedText = JsonSerializer.Deserialize<string?>(renderedTimeJson);
+
+            NormalUiResourceProofMatch? rendered = null;
+            NormalUiResourceProofTableSnapshot? lastRenderSnapshot = null;
+            string? lastRenderRejection = null;
+            for (int attempt = 0; attempt < 200; attempt++)
+            {
+                string snapshotJson = await core.ExecuteScriptAsync(NormalUiResourceProofContract.ResourceTableSnapshotScript);
+                if (snapshotJson != "null")
+                {
+                    try
+                    {
+                        NormalUiResourceProofTableSnapshot? snapshot = JsonSerializer.Deserialize<NormalUiResourceProofTableSnapshot>(
+                            snapshotJson, JsonOptions.Default);
+                        if (snapshot is not null)
+                        {
+                            lastRenderSnapshot = snapshot;
+                            rendered = NormalUiResourceProofContract.RequireRenderedRow(
+                                expected, queryRow, snapshot, expectedUpdatedText ?? string.Empty);
+                            break;
+                        }
+                    }
+                    catch (InvalidDataException ex)
+                    {
+                        lastRenderRejection = ex.Message;
+                    }
+                }
+                await Task.Delay(100, operationCts.Token);
+            }
+            if (rendered is null)
+            {
+                string debugPath = fullOutputPath + ".render-debug.json";
+                await File.WriteAllTextAsync(debugPath, JsonSerializer.Serialize(new
+                {
+                    queryRow,
+                    expected = new
+                    {
+                        coordinate = $"{expected.X},{expected.Y}",
+                        level = expected.Level?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "-",
+                        expected.UpdatedAt,
+                        expectedUpdatedText,
+                    },
+                    snapshot = lastRenderSnapshot,
+                    rejection = lastRenderRejection,
+                }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+                string debugScreenshotPath = fullOutputPath + ".render-debug.png";
+                await using (var debugOutput = File.Create(debugScreenshotPath))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, debugOutput);
+                throw new InvalidOperationException(
+                    "The normal production Resource table never rendered the queried live row. " + lastRenderRejection);
+            }
+
+            await Task.Delay(350, operationCts.Token);
+            string stem = Path.GetFileNameWithoutExtension(fullOutputPath);
+            string screenshotPath = Path.Combine(directory, stem + ".png");
+            await using (var output = File.Create(screenshotPath))
+                await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, output);
+
+            await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                checkpoint = "LWB-R8-066",
+                state = "proven",
+                proof = "normal_production_map_window_start_scan_search_render",
+                windowMode = "persistent_normal_map_data",
+                profileId = backend.ProfileId,
+                instanceId,
+                connectionState = ReadStatusString(startJson, "connectionState"),
+                gamePid = expected.GamePid,
+                selectedTypes = new[] { "resource" },
+                scan = new
+                {
+                    scanRunId = ReadStatusString(completedStatus, "scanRunId"),
+                    serverId = completedServerId,
+                    scanMode = ReadStatusString(completedStatus, "scanMode"),
+                    concurrency = ReadStatusInt32(completedStatus, "concurrency"),
+                    totalBlocks = ReadStatusInt32(completedStatus, "totalBlocks"),
+                    readBlocks = ReadStatusInt32(completedStatus, "readBlocks"),
+                    failedBlocks = ReadStatusInt32(completedStatus, "failedBlocks"),
+                    unreadBlocks = ReadStatusInt32(completedStatus, "unreadBlocks"),
+                    phase = ReadStatusString(completedStatus, "phase"),
+                },
+                search = new
+                {
+                    observation.RequestId,
+                    observation.Payload,
+                    total,
+                    row = queryRow,
+                },
+                rendered = new
+                {
+                    rendered.RowText,
+                    cells = rendered.Cells,
+                },
+                screenshotPath,
+                generatedAt = DateTimeOffset.UtcNow,
+            }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+        }
+        finally
+        {
+            if (!string.IsNullOrWhiteSpace(instanceId))
+            {
+                using var stopCts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+                using JsonDocument stopPayload = JsonDocument.Parse(
+                    JsonSerializer.Serialize(new { instanceId }, JsonOptions.Default));
+                try
+                {
+                    await overviewLifecycleService.InvokeAsync(
+                        "profile_instance_stop", stopPayload.RootElement.Clone(), stopCts.Token);
+                }
+                catch (Exception stopError)
+                {
+                    Console.Error.WriteLine("NORMAL_UI_PRODUCTION_MAP_STOP_FAILED: " + stopError.Message);
+                }
+            }
+        }
     }
 
     private async Task<UiLiveAcquisitionProof> RunUiLiveAcquisitionAsync(
@@ -769,7 +1155,7 @@ internal sealed class LWBridgeWindow : Form
 
     private void RecordNormalUiProofSearch(string requestId, JsonElement payload, object? result)
     {
-        if (normalUiLiveResourceProofPath is null) return;
+        if (normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null) return;
         JsonElement resultElement = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
         lock (normalUiProofGate)
         {
@@ -798,12 +1184,16 @@ internal sealed class LWBridgeWindow : Form
             : null;
 
     private static long? ReadStatusInt64(JsonElement status, string name) =>
-        status.TryGetProperty(name, out JsonElement value) && value.TryGetInt64(out long parsed)
+        status.TryGetProperty(name, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.Number &&
+        value.TryGetInt64(out long parsed)
             ? parsed
             : null;
 
     private static int? ReadStatusInt32(JsonElement status, string name) =>
-        status.TryGetProperty(name, out JsonElement value) && value.TryGetInt32(out int parsed)
+        status.TryGetProperty(name, out JsonElement value) &&
+        value.ValueKind == JsonValueKind.Number &&
+        value.TryGetInt32(out int parsed)
             ? parsed
             : null;
 
@@ -1839,7 +2229,7 @@ internal sealed class LWBridgeWindow : Form
                     return;
                 }
                 if (sessionClosed) return;
-                if (command == "map_search" && normalUiLiveResourceProofPath is not null)
+                if (command == "map_search" && (normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null))
                     RecordNormalUiProofSearch(id, payload, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
                     ownerEvidence.RecordSearch(id, payload, execution.Result);

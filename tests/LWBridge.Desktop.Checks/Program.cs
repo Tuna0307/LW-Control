@@ -2532,12 +2532,20 @@ try
     const string proofRenderedTime = "9/10/2026, 1:14:45 PM";
     var proofGoodSnapshot = new NormalUiResourceProofTableSnapshot(false,
         new[] { new NormalUiResourceProofTableRow(false,
-            new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }) });
+            new[] { "481,32", "Unknown resource", "3", "36,000 / 36,000", "Idle", proofRenderedTime }) });
     NormalUiResourceProofMatch proofMatch = NormalUiResourceProofContract.RequireRenderedRow(
         proofExpected, proofQueryRow, proofGoodSnapshot, proofRenderedTime);
     Check(proofMatch.Cells.SequenceEqual(
+            new[] { "481,32", "Unknown resource", "3", "36,000 / 36,000", "Idle", proofRenderedTime }),
+        "PM13-02 current six-cell rendered Resource row is accepted");
+    var proofLegacySnapshot = new NormalUiResourceProofTableSnapshot(false,
+        new[] { new NormalUiResourceProofTableRow(false,
+            new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }) });
+    NormalUiResourceProofMatch proofLegacyMatch = NormalUiResourceProofContract.RequireRenderedRow(
+        proofExpected, proofQueryRow, proofLegacySnapshot, proofRenderedTime);
+    Check(proofLegacyMatch.Cells.SequenceEqual(
             new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }),
-        "PM13-02 exact rendered Resource cells are accepted");
+        "PM13-02 legacy five-cell rendered Resource row remains accepted");
 
     ExpectInvalidData("still loading", "PM13-02 loading row is rejected", () =>
         NormalUiResourceProofContract.RequireRenderedRow(

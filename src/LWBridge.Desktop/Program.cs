@@ -13,11 +13,12 @@ internal static class Program
         string? liveResourceProofPath = ReadPathOption(args, "--live-resource-proof");
         string? liveCityProofPath = ReadPathOption(args, "--live-city-proof");
         string? normalUiLiveResourceProofPath = ReadPathOption(args, "--normal-ui-live-resource-proof");
+        string? normalUiLiveMapProofPath = ReadPathOption(args, "--normal-ui-live-map-proof");
         string? ownerEvidencePath = ReadPathOption(args, "--owner-evidence");
         string? cityReopenProofPath = ReadPathOption(args, "--city-reopen-proof");
         if (cityReopenProofPath is not null)
         {
-            if (new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, ownerEvidencePath }.Any(path => path is not null))
+            if (new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath }.Any(path => path is not null))
                 throw new ArgumentException("--city-reopen-proof cannot be combined with other probe/capture modes.");
             LiveResourceProofRunner.RunCityReopenAsync(cityReopenProofPath).GetAwaiter().GetResult();
             return;
@@ -26,16 +27,21 @@ internal static class Program
         {
             if (liveResourceProofPath is not null && liveCityProofPath is not null)
                 throw new ArgumentException("--live-resource-proof and --live-city-proof are mutually exclusive.");
-            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || ownerEvidencePath is not null)
+            if (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || ownerEvidencePath is not null)
                 throw new ArgumentException("Live map proof mode cannot be combined with other probe/capture modes.");
             string proofPath = liveCityProofPath ?? liveResourceProofPath!;
             LiveResourceProofRunner.RunTwiceAsync(proofPath, liveCityProofPath is not null ? "city" : "resource").GetAwaiter().GetResult();
             return;
         }
         if (normalUiLiveResourceProofPath is not null &&
-            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || ownerEvidencePath is not null))
+            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveMapProofPath is not null || ownerEvidencePath is not null))
         {
             throw new ArgumentException("--normal-ui-live-resource-proof cannot be combined with other probe/capture modes.");
+        }
+        if (normalUiLiveMapProofPath is not null &&
+            (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null || normalUiLiveResourceProofPath is not null || ownerEvidencePath is not null))
+        {
+            throw new ArgumentException("--normal-ui-live-map-proof cannot be combined with other probe/capture modes.");
         }
         if (new[] { capturePath, liveProbePath, hostProbePath }.Count(path => path is not null) > 1)
             throw new ArgumentException("--capture, --live-probe and --host-probe are mutually exclusive.");
@@ -48,7 +54,7 @@ internal static class Program
         string? theme = ReadValueOption(args, "--theme");
         var window = new LWBridgeWindow(
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
-            normalUiLiveResourceProofPath, ownerEvidencePath);
+            normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath);
         if (hostProbePath is null)
         {
             Application.Run(window);
