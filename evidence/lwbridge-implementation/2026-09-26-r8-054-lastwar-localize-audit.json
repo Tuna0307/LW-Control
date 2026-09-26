@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-054",
+  "date": "2026-09-26",
+  "scope": "Strict-parity audit of existing lastwar_localize reimplementation; close native defaults/admission and record remaining deviations.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "lastwar_localize handler 0x140199316-0x140199C30",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "localization helper 0x140235ED5-0x1402361FE",
+    "locale loader 0x14023509E-0x140235AE7",
+    "prior R7 locale recovery in docs/lwbridge-map-scan.md"
+  ],
+  "nativeContract": {
+    "authorizationUnavailable": {"code":"STATE_UNAVAILABLE","message":"authorization state is unavailable"},
+    "defaultLanguage": "en",
+    "nonObjectPayload": "defaults",
+    "wrongTypeLanguage": "defaults to en",
+    "missingOrWrongTypeKeysContainer": "empty list",
+    "maxKeys": 200,
+    "tooManyCode": "TOO_MANY_LOCALE_KEYS",
+    "fallbackOrder": ["requested locale","en when requested locale is not en","key echo"],
+    "nonStringKeyElementBehavior": "UNKNOWN"
+  },
+  "rebuildComparison": {
+    "normalLookupFallback": "EQUIVALENT_REIMPLEMENTATION",
+    "verifiedLocaleCache": "EQUIVALENT_REIMPLEMENTATION",
+    "authorizationAdmission": "DEVIATION - absent",
+    "strictInvalidPayloadBranches": "DEVIATION",
+    "cacheLocation": "%LOCALAPPDATA%/LWBridgeRebuild/locales - equivalent plumbing"
+  },
+  "evidenceClassification": {
+    "maxKeyBoundary": "EXACT_NATIVE",
+    "fallbackOrder": "EXACT_NATIVE",
+    "loaderErrorVocabulary": "EXACT_NATIVE",
+    "outerPayloadDefaults": "EXACT_NATIVE",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "nonStringKeyElementBehavior": "UNKNOWN",
+    "runtimeOverall": "PARTIAL_EQUIVALENT_REIMPLEMENTATION"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS",
+    "checksReleaseBuild": "PASS",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission",
+    "exact non-string key-array element behavior",
+    "remove rebuild-only INVALID_PAYLOAD branches only when full parser behavior is closed"
+  ],
+  "nextCheckpoint": "Continue retained non-auth recovery; preserve working locale lookup/cache while not calling it exact native parity."
+}

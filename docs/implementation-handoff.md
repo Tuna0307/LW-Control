@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-053`
+**Current checkpoint:** `LWB-R8-054`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -308,6 +308,12 @@ No runtime implementation is added: bypassing native authorization admission or 
 R8-053 closes the read-only `profile_settings_get` persistence/public contract. Native requires JSON-string `profileId`; missing/wrong-type input uses exact `INVALID_REQUEST`. After native authorization-state admission, the command reads the same per-profile singleton settings row recovered in R8-028 (`SELECT revision, value_json FROM settings WHERE id = 1`) and serializes exactly `{profileId, revision, value}`. Malformed stored data can surface native `PROFILE_DATA_INVALID`.
 
 The rebuild already has an equivalent local settings read from R8-028, but native first awaits shared authorization state and returns exact `STATE_UNAVAILABLE` / `authorization state is unavailable` when that state is unavailable. Because authorization/account-state recovery is owner-excluded, R8-053 does not wire a getter that silently bypasses this admission rule. See `docs/reviews/2026-09-26-r8-053-profile-settings-get-fence.md`.
+
+## R8-054 lastwar_localize strict audit
+
+R8-054 reclassifies the existing R7 Last War localization implementation under strict one-to-one parity. Native confirms the exact 200-key cap (`TOO_MANY_LOCALE_KEYS` above it), requested-locale→English→key fallback, and the existing locale-loader error vocabulary/cache verification behavior. The rebuild's verified `%LOCALAPPDATA%\\LWBridgeRebuild\\locales` cache remains equivalent plumbing.
+
+Two strict deviations remain. Native first awaits shared authorization state (`STATE_UNAVAILABLE` / `authorization state is unavailable`), while the rebuild exposes localization without that owner-excluded admission. Native is also permissive for non-object payload, wrong/missing `language` (default `en`), and wrong/missing `keys` container (empty list), whereas the rebuild currently throws `INVALID_PAYLOAD`; exact non-string elements inside a valid `keys` array remain unclosed. R8-054 makes no runtime change rather than partially rewriting the parser. See `docs/reviews/2026-09-26-r8-054-lastwar-localize-audit.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 

@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 one-to-one parity matrix
 
-**Current through:** `LWB-R8-053`, 2026-09-26
+**Current through:** `LWB-R8-054`, 2026-09-26
 **Reference:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -42,6 +42,7 @@ This is now the product-completion matrix for the retained product scope. The ol
 | Treasure/Supplies read paths | PARTIAL EXACT_CONTRACT + reimplementation | Many original fields/query/state contracts recovered; protected orchestration incomplete | Recover original protected handlers/scripts |
 | Treasure claim orchestration | UNKNOWN | Exact original protected implementation not recovered | Recover from original package/host/proxy evidence before enabling |
 | Map SQLite/index/query semantics | PARTIAL EXACT_CONTRACT + reimplementation | Large portions of SQL/query/normalization recovered | Finish unresolved branches and compare exact outputs/errors |
+| Last War locale lookup | PARTIAL EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-054 confirms native max 200, `TOO_MANY_LOCALE_KEYS`, requested-locale→English→key fallback and locale-loader error vocabulary. Current verified local cache is equivalent plumbing; public command still bypasses owner-excluded native authorization-state admission and uses stricter `INVALID_PAYLOAD` branches than native outer defaults | Preserve normal lookup/cache; do not label exact until auth admission and full parser semantics are resolved |
 | Marks / Jump / Follow | PARTIAL EXACT_CONTRACT + reimplementation | R8-009 restores the public `server_jump` success envelope; R8-036 restores `server_jump_history_get/set/import`, exact ID normalization, import-if-missing migration and `map-data.db/app_settings` persistence for the retained profile | Continue tying remaining mark/jump/follow branches and connected-state errors to reference |
 | Auto Scan frontend scheduler/control plane | EXACT_BYTES-derived + EQUIVALENT public-command wiring | R8-015 restores original persisted Fast/Normal config, due predicate, connected-state effect, sequential target flow, Run Now/return/deadline semantics and Auto card; removes R7 restart/one-shot/Stop policies | Preserve; protected `server_jump` and map acquisition internals remain separate |
 | Original bridge pipe framing | PARTIAL EXACT_CONTRACT | Frame length and hello fields recovered | Recover exact hello.ack, readiness, request/result grammar and failure mapping |
