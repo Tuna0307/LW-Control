@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-067`
+**Current checkpoint:** `LWB-R8-068`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,18 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-068 generic Automation live-command fence
+
+R8-068 closes the native/public boundary for `automation_configure`, `automation_start`, and `automation_stop` without inventing a live implementation. Exact handlers are Configure `0x140110C7D-0x1401122A0`, Stop `0x140121C80-0x140122DA2`, and Start `0x14014711B-0x14014809A`.
+
+All three use the same retained admission machinery already recovered for `automation_inspect`: shared authorization-state future, selected-profile runtime resolution, game-route validation, then the shared protected game-call future. The provider methods are `configureAutomationTask`, `startAutomationTask`, and `stopAutomationTask`; each has an exact 5,000 ms result deadline, no handler retry loop, and normal results pass through the generic JSON converter.
+
+The blocker is now precise rather than generic. Native request construction carries authorization-derived `premium` / `admin` material. That projection belongs to the owner-excluded authorization/account-state surface. Omitting it or hard-coding values would change the provider request and therefore is not a strict retained implementation. Configure also runs the native task-config validator `0x1403B9BCE-0x1403BB30B`, whose task-specific validation vocabulary is substantially recovered, but successful Configure still crosses the same excluded request boundary.
+
+No runtime route was added. These three commands are now **audited/fenced**, not genuinely unknown. The R8-067 33 unrouted retained frontend commands therefore split into 18 audited/fenced and 15 genuinely unclosed commands.
+
+See `docs/reviews/2026-09-26-r8-068-generic-automation-live-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-068-generic-automation-live-fence.json`.
 
 ## R8-067 exact frontend command inventory checkpoint
 

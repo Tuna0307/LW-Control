@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-067`
+**Current checkpoint:** `LWB-R8-068`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-068 generic Automation live-command fence
+
+R8-068 closes the recoverable native/public contract for `automation_configure`, `automation_start`, and `automation_stop`. Their exact handlers, immutable frontend payload shapes, shared authorization/profile/runtime/game-route admission, provider methods, 5-second deadlines, timeout behavior and generic provider-result conversion are now identified.
+
+Configure additionally runs the native task-config validator and normalization path before its provider call; the task-specific validation vocabulary is substantially recovered. The live request boundary remains intentionally fenced because native request construction includes authorization-derived `premium` / `admin` material from the same owner-excluded authorization-state surface previously identified by R8-051. Omitting or hard-coding that material would not be one-to-one behavior.
+
+No runtime route is added. The three commands move from the genuinely-unclosed bucket to audited/fenced. The 33 unrouted retained frontend commands now split into 18 audited/fenced and 15 genuinely unclosed.
+
+See `docs/reviews/2026-09-26-r8-068-generic-automation-live-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-068-generic-automation-live-fence.json`.
 
 ## R8-067 command inventory checkpoint
 

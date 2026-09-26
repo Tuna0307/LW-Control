@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-068",
+  "date": "2026-09-26",
+  "scope": "Close the observable native/public boundary of generic Automation configure/start/stop and fence live routing at owner-excluded authorization-derived request material.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "automation_configure handler 0x140110C7D-0x1401122A0",
+    "automation_stop handler 0x140121C80-0x140122DA2",
+    "automation_start handler 0x14014711B-0x14014809A",
+    "task-config validator 0x1403B9BCE-0x1403BB30B",
+    "configure normalization helper 0x1403BB30B-0x1403BBE95",
+    "shared authorization-state future 0x1400DC79E",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "game-route helper 0x1403AD367",
+    "shared game-call future 0x1400E4FAD",
+    "generic JSON result converter 0x1402BB816",
+    "immutable api-ClPPi2JT.js",
+    "immutable AutomationPanel-D06CxhPI.js"
+  ],
+  "frontend": {
+    "automation_configure": {
+      "payload": "{task,config,profileId?}",
+      "defaultConfig": false
+    },
+    "automation_start": {
+      "payload": "{task,config,profileId?}",
+      "defaultConfig": "{}"
+    },
+    "automation_stop": {
+      "payload": "{task,options,profileId?}",
+      "defaultOptions": "{}"
+    }
+  },
+  "sharedAdmission": {
+    "authorizationStateRequired": true,
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "selectedProfileRuntimeRequired": true,
+    "gameRouteRequired": true,
+    "disconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "requestKeyEvidence": [
+      "task",
+      "config",
+      "options",
+      "premium",
+      "admin"
+    ],
+    "authorizationDerivedProjection": "OWNER_EXCLUDED_UNKNOWN"
+  },
+  "providerCalls": {
+    "automation_configure": {
+      "method": "configureAutomationTask",
+      "timeoutMs": 5000,
+      "retryCount": 0,
+      "resultConversion": "shared generic JSON converter"
+    },
+    "automation_start": {
+      "method": "startAutomationTask",
+      "timeoutMs": 5000,
+      "retryCount": 0,
+      "resultConversion": "shared generic JSON converter"
+    },
+    "automation_stop": {
+      "method": "stopAutomationTask",
+      "timeoutMs": 5000,
+      "retryCount": 0,
+      "resultConversion": "shared generic JSON converter"
+    }
+  },
+  "configureValidation": {
+    "validator": "0x1403B9BCE-0x1403BB30B",
+    "normalizer": "0x1403BB30B-0x1403BBE95",
+    "errorCodes": [
+      "INVALID_REQUEST",
+      "INVALID_CONFIG"
+    ],
+    "recoveredExamples": [
+      "construction maxBuilders integer 1..20",
+      "treatment amountPerArmy integer 1..1000000",
+      "common intervalMinutes integer 1..1440",
+      "staminaPotion threshold integer 0..9999",
+      "dispatchAssist delay 0..86400 seconds and interval 5..300 seconds",
+      "ghostRecon allianceFilter one of sr/ur/special",
+      "allianceGather squad array/integer/duplicate checks",
+      "allianceGarrison target/squad/building/duplicate/boolean checks",
+      "allianceTrain carriage/selection-mode/auto-accept checks"
+    ]
+  },
+  "timeout": {
+    "code": "LUA_CALL_TIMEOUT",
+    "messagePattern": "lua call result unknown after timeout: <method>"
+  },
+  "classification": {
+    "handlerAddresses": "EXACT_NATIVE",
+    "frontendPayloadShapes": "EXACT_BYTES",
+    "authorizationDependency": "EXACT_NATIVE",
+    "selectedRuntimeAndGameRoute": "EXACT_NATIVE",
+    "authorizationRoleRequestProjection": "OWNER_EXCLUDED_UNKNOWN",
+    "configureValidator": "EXACT_NATIVE",
+    "providerMethods": "EXACT_NATIVE",
+    "deadlines": "EXACT_NATIVE",
+    "resultConversion": "EXACT_NATIVE",
+    "runtimeImplementation": "FENCED"
+  },
+  "inventoryEffect": {
+    "previousGenuinelyUnclosedRetainedFrontendCommands": 18,
+    "movedToAuditedFenced": [
+      "automation_configure",
+      "automation_start",
+      "automation_stop"
+    ],
+    "remainingGenuinelyUnclosedRetainedFrontendCommands": 15
+  },
+  "reasonForFence": "An exact provider request requires authorization-derived premium/admin material whose projection is owner-excluded. Omitting or hard-coding it would create observable parity risk.",
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "processCleanup": "PASS gameRunning=false launcherRunning=false",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  }
+}
