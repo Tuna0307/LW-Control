@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-069`
+**Current checkpoint:** `LWB-R8-070`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-070 City Layout live-command fence
+
+R8-070 corrects the older “implementation-ready” classification for `city_layout_validate`, `city_layout_apply_start`, and `city_layout_apply_cancel`. Fresh native xrefs prove all three first await the shared owner-excluded authorization-state future, then resolve the selected runtime and invoke their protected game providers.
+
+The recoverable contracts are now exact at the host boundary: Validate sends `{baseRevision,placements}` to `validateCityLayout` at 10 seconds; Apply Start performs the fresh-snapshot/`isInCity` gate before `startCityLayoutApply` at 10 seconds; Cancel sends `{jobId}` to `cancelCityLayoutApply` at 5 seconds. Normal results use the shared generic JSON converter.
+
+No runtime route is added because bypassing mandatory authorization-state admission would change native public behavior. These three commands move to audited/fenced, leaving 10 genuinely-unclosed retained frontend routing gaps.
+
+See `docs/reviews/2026-09-26-r8-070-city-layout-live-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-070-city-layout-live-fence.json`.
 
 ## R8-069 Chat Automation fence
 

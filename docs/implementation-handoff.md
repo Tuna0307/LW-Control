@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-069`
+**Current checkpoint:** `LWB-R8-070`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-070 City Layout live-command fence
+
+Fresh native xrefs close `city_layout_validate`, `city_layout_apply_start`, and `city_layout_apply_cancel` far enough to correct the older 2026-09-24 “implementation-ready” label. All three exact handlers await the shared owner-excluded authorization-state future before selected-runtime/provider execution.
+
+Validate sends `{baseRevision,placements}` to `validateCityLayout` at 10 seconds. Apply Start performs the fresh-snapshot/`isInCity` gate, then calls `startCityLayoutApply` at 10 seconds. Cancel sends `{jobId}` to `cancelCityLayoutApply` at 5 seconds. Normal results use the generic JSON converter; shared authorization-unavailable/disconnected/timeout boundaries apply.
+
+No runtime route is added because bypassing mandatory authorization-state admission would change public error precedence. These three commands move to audited/fenced. The 33 unrouted retained frontend commands now split into 23 audited/fenced and 10 genuinely unclosed.
+
+See `docs/reviews/2026-09-26-r8-070-city-layout-live-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-070-city-layout-live-fence.json`.
 
 ## R8-069 Chat Automation fence
 
