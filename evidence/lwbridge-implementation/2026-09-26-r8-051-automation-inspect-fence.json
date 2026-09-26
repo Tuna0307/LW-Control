@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-051",
+  "date": "2026-09-26",
+  "scope": "Fence automation_inspect at excluded authorization-state request material and the unrecovered allianceGarrison result rewrite while closing observable provider-call behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "automation_inspect handler 0x14015DF53-0x14015F565",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "game-route helper 0x1403AD367-0x1403AD3B8",
+    "shared game-call future 0x1400E4FAD",
+    "generic JSON result converter 0x1402BB816",
+    "retained api-ClPPi2JT.js automation_inspect wrappers"
+  ],
+  "publicContract": {
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "directPayloadField": "task (optional JSON string extraction)",
+    "disconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "gameMethod": "inspectAutomationTask",
+    "gameTimeoutMilliseconds": 5000,
+    "nativeRetryCount": 0,
+    "timeout": {
+      "code": "LUA_CALL_TIMEOUT",
+      "message": "lua call result unknown after timeout: inspectAutomationTask"
+    },
+    "normalResultConversion": "shared generic JSON converter",
+    "allianceGarrisonSpecialCase": true
+  },
+  "allianceGarrisonRewriteEvidence": {
+    "observedKeys": ["allies", "uuid", "serverId", "uid", "updatedAt"],
+    "exactAlgorithm": "UNKNOWN",
+    "rawPassThroughWouldBeExact": false
+  },
+  "requestBoundary": {
+    "authorizationStateRequiredBeforeRequest": true,
+    "nearbyRoleVocabulary": ["premium", "admin"],
+    "authorizationDerivedProjection": "OWNER_EXCLUDED_UNKNOWN",
+    "optionsNormalization": "UNKNOWN"
+  },
+  "evidenceClassification": {
+    "authorizationUnavailableError": "EXACT_NATIVE",
+    "taskExtraction": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "providerMethod": "EXACT_NATIVE",
+    "fiveSecondDeadline": "EXACT_NATIVE",
+    "normalGenericResultConversion": "EXACT_NATIVE",
+    "authorizationRoleRequestProjection": "OWNER_EXCLUDED_UNKNOWN",
+    "optionsNormalization": "UNKNOWN",
+    "allianceGarrisonResultRewrite": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization/role-derived request projection",
+    "exact options normalization",
+    "exact allianceGarrison allies rewrite/filter/enrichment/order semantics"
+  ],
+  "nextCheckpoint": "Continue retained non-auth read-only recovery; do not synthesize authorization role flags or allianceGarrison inspect output."
+}
