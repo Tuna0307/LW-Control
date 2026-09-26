@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-044`
+**Current checkpoint:** `LWB-R8-045`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -252,6 +252,14 @@ R8-044 restores the native public `game_asset_image` boundary. `assetPath` and `
 Native cache lookup happens before game admission. The selected runtime owns an `asset-cache` directory of `.png` entries; native filenames are full lowercase SHA-256 hex plus `.png`, maintenance is gated to once per 60,000 ms, and cleanup activates above the 256 MiB boundary. The exact SHA-256 preimage is not byte-closed, so the rebuild's canonical source-key digest and file-I/O/eviction ordering remain explicitly `EQUIVALENT_REIMPLEMENTATION`, not exact native bytes.
 
 On a cache miss, native issues one `getAssetImage` request with an exact 15,000 ms timeout and no handler retry loop. Successful bytes are admitted by the exact eight-byte PNG signature; invalid bytes fail with `INVALID_ASSET` / `invalid PNG asset`. Public success is exactly `{dataUrl}`, using `data:image/png;base64,` plus the PNG bytes. Rebuild-only IHDR/dimension/4096-pixel gates and the three-attempt RAM-cache retry policy are removed. See `docs/reviews/2026-09-26-r8-044-game-asset-image.md`.
+
+## R8-045 dispatch_assist_state fence
+
+R8-045 closes the native read-only `dispatch_assist_state` top-level contract without inventing its missing live provider. Successful native state is assembled in exact order as `tasks`, `todayCount`, `dailyLimit`, `serverTime`, `updatedAt`, `jobs`. The live provider owns `tasks` plus the daily/server-time scalar state; persisted `jobs` are loaded separately from the profile `dispatch_assist_jobs` table and merged into that public result.
+
+If the live dispatch-assist state is unavailable, native returns exact `STATE_UNAVAILABLE` / `dispatch assist state unavailable`. The persisted job reader selects `task_json,assist_at,status,attempts,last_error,created_at,updated_at` and orders active `scheduled`/`waiting_connection`/`running` jobs before other statuses, then `assist_at ASC, updated_at DESC`.
+
+The rebuild already has the matching SQLite table/index but no production live dispatch-assist provider or exact task/job-row projector. R8-045 therefore makes no runtime-code change: a synthetic idle state or DB-only success object would be non-native behavior. See `docs/reviews/2026-09-26-r8-045-dispatch-assist-state-fence.md`.
 
 ## Parked protected package-key lane
 
