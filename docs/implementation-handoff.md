@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-063`
+**Current checkpoint:** `LWB-R8-064`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -392,6 +392,16 @@ When total profiles fit within capacity, native enables all profiles. When over 
 The capacity transaction updates every row using `UPDATE profiles SET enabled = ?, locked_reason = ?, updated_at = ? WHERE id = ?`: selected members become enabled/unlocked, non-members become disabled with `locked_reason="license_capacity"`, and `updated_at` is current Unix-ms. After commit, native repairs `selected_profile_id` to the surviving primary if the previous selected profile became locked, then returns the same refreshed `{selectedProfileId,maxProfiles,profiles}` projection as `profile_list`.
 
 No production implementation is added because the governing capacity is authorization/license-derived and owner-excluded. See `docs/reviews/2026-09-26-r8-063-profile-enable-set-fence.md`.
+
+## R8-064 profile_create fence
+
+R8-064 closes native `profile_create` far beyond the earlier quota-only fence. Native compares the current controller profile count directly against authorization/entitlement-derived `maxProfiles` and returns exact `PROFILE_LIMIT_REACHED` when `count >= capacity`; that capacity source remains owner-excluded and is not replaced with the rebuild's retained `maxProfiles=1` adaptation.
+
+The local create transaction is now exact: native generates 16 random bytes and encodes them as 22-character Base64URL without padding; reads `SELECT COALESCE(MAX(display_order) + 1, 0) FROM profiles`; formats the default name with literal `账号 ` plus `displayOrder+1`; creates the profile root/`profile.db`; and inserts an enabled, unlocked, non-primary row with role/server/game UID unset, empty note, timestamps, and null `lastLaunchedAt`.
+
+The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
+
+After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
 ## Parked protected package-key lane
 
