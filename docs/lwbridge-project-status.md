@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-072`
+**Current checkpoint:** `LWB-R8-073`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-073 provider-backed Automation/Squad fences
+
+R8-073 closes `equipment_preset_apply`, `resource_automation_run`, and `trade_station_configure` far enough to move them from genuinely unclosed to audited/fenced.
+
+Equipment Apply now has exact preset admission, live `getSquads` and `applyHeroEquipment` 5-second calls, `bridge://equipment-apply-progress`, and provider-result boundaries; the remaining multi-hero planner/aggregation is protected. Resource Run now has exact two-task mapping, unknown-task/state-unavailable/busy behavior, dedicated 10-second runner boundary and status-event ownership, but its live request contains owner-excluded authorization-derived `premium/admin`. Trade Configure now has exact retained fields, enabling validation, shared `trade_station`/`config.json` ownership and 5-second `configureTradeStation` calls.
+
+No runtime routes are added because reproducing any of these exactly would still require excluded authorization state and/or unrecovered live planner/shared-config semantics. The 33 unrouted retained frontend commands now split into 31 audited/fenced and 2 genuinely unclosed: `map_dispatch_share_alliance` and `map_treasure_claim`.
+
+See `docs/reviews/2026-09-26-r8-073-final-provider-actions-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-073-final-provider-actions-fence.json`.
 
 ## R8-072 VIP18 Base Apply / Restore fence
 

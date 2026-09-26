@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-072`
+**Current checkpoint:** `LWB-R8-073`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,20 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-073 final provider-backed Automation/Squad fences
+
+R8-073 closes three of the final five genuinely-unclosed retained frontend commands: `equipment_preset_apply`, `resource_automation_run`, and `trade_station_configure`.
+
+Equipment Preset Apply is now traced through exact preset admission, `getSquads` and `applyHeroEquipment` 5-second calls, equipment request/progress vocabulary, and `bridge://equipment-apply-progress`; execution remains fenced on owner-excluded authorization admission plus incomplete multi-hero binding/result aggregation semantics.
+
+Resource Automation Run is now traced through exact two-task mapping (`buildingResources→collectResources`, `armedTruckReward→collectArmedTruckIdleReward`), unknown-task/state-unavailable/busy errors, the dedicated runner's 10-second game-call boundary, status-event ownership, and the handler's authorization-derived `premium/admin` request material. Runtime stays fenced.
+
+Trade Station Configure is now traced through exact retained config fields and enabling validation, shared `trade_station`/`config.json` ownership, `configureTradeStation` 5-second calls, and generic result conversion. Runtime stays fenced on authorization admission plus the unrecovered shared config migration/merge/write owner.
+
+The 33 unrouted retained frontend commands now split into 31 audited/fenced and only 2 genuinely unclosed: `map_dispatch_share_alliance` and `map_treasure_claim`.
+
+See `docs/reviews/2026-09-26-r8-073-final-provider-actions-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-073-final-provider-actions-fence.json`.
 
 ## R8-072 VIP18 Base Apply / Restore fence
 
