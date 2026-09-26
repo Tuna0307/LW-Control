@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-073`
+**Current checkpoint:** `LWB-R8-074`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,20 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-074 retained frontend routing inventory closed
+
+R8-074 closes the last two genuinely-unclosed retained frontend command contracts: `map_dispatch_share_alliance` and `map_treasure_claim`.
+
+Dispatch Share is now exact at the host boundary: handler `0x140163EF2-0x1401651C5`, authorization-first admission, complete 1..200 row validation, sequential `shareDispatchTaskToAlliance` calls at 5 seconds per row, exact `shared=true` success predicate, and aggregate `{shared,failed,sharedUuids,failedUuids}` result.
+
+Treasure Claim is now exact at the host boundary: handler `0x1401686E4-0x14016A011`, authorization-first admission, server/scope/target/default validation, 5-second `getCurrentServerId` preflight with exact unavailable/mismatch errors, dedicated Treasure candidate SQL ownership, 5-second `claimTreasures` request over `serverId,records,claimScope,targetUuid,prioritizeLuckySlots`, ten immediate result counters, and the original 1-second / 1800-iteration frontend status polling rule.
+
+Neither live route is enabled because both state-changing actions require the owner-excluded authorization-state admission before protected provider execution. The retained frontend routing inventory now has **61 specifically routed + 33 audited/fenced + 0 genuinely unclosed commands**.
+
+This is not whole-product completion. Native-only handlers, host/proxy protocol, secure/plain proxy/script ownership, original Map acquisition internals, protected provider implementations, reconstruction drift and final parity validation remain open.
+
+See `docs/reviews/2026-09-26-r8-074-final-retained-frontend-routing-close.md` and `evidence/lwbridge-implementation/2026-09-26-r8-074-final-retained-frontend-routing-close.json`.
 
 ## R8-073 final provider-backed Automation/Squad fences
 
