@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-049",
+  "date": "2026-09-26",
+  "scope": "Fence VIP18 base read paths at excluded authorization-state and unrecovered shared-config boundaries.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "vip18BaseConfigGet": {
+    "runtimeResolved": true,
+    "configStateHelper": "0x1403C57F7",
+    "unavailableError": {"code":"STATE_UNAVAILABLE","message":"config state is unavailable"},
+    "publicFields": ["selectedSkinId","autoApplyOnStart","favoriteSkinIds"],
+    "normalizerDependency": "shared native config state/migration from R8-043",
+    "implementation": "FENCED"
+  },
+  "vip18BaseList": {
+    "handler": "0x140171337-0x1401727B4",
+    "refreshMissingOrNonBoolean": false,
+    "authorizationStateHelper": "0x1400DC58F",
+    "authorizationUnavailableError": {"code":"STATE_UNAVAILABLE","message":"authorization state is unavailable"},
+    "publicTopLevelFields": ["items"],
+    "cacheFileFormat": "base-skin-catalog-<dynamic-identity>.json",
+    "cacheIdentity": "AUTHORIZATION_STATE_DEPENDENT_PATH; EXACT SOURCE INTENTIONALLY UNCLAIMED",
+    "cacheRecord": {"version":1,"updatedAt":"unix-ms","items":"array/provider projection"},
+    "refreshFalseGameCall": false,
+    "refreshTrueDisconnectedBehavior": "cached-items fallback; no GAME_DISCONNECTED branch",
+    "refreshTrueConnectedMethod": "getVip18BaseSkins",
+    "refreshTrueConnectedTimeoutMilliseconds": 10000,
+    "nativeRetryCount": 0,
+    "implementation": "FENCED"
+  },
+  "evidenceClassification": {
+    "configPublicFieldNames": "EXACT_NATIVE",
+    "configUnavailableError": "EXACT_NATIVE",
+    "listRefreshParsing": "EXACT_NATIVE",
+    "authorizationUnavailableError": "EXACT_NATIVE",
+    "listPublicItemsProjection": "EXACT_NATIVE",
+    "cacheRecordVersionUpdatedAtItems": "EXACT_NATIVE",
+    "liveRefreshMethodAndDeadline": "EXACT_NATIVE",
+    "authorizationStateDependentCacheIdentity": "OWNER_EXCLUDED_UNKNOWN",
+    "sharedConfigMigration": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "nextCheckpoint": "Continue retained non-auth command recovery; do not decode authorization/account state to finish VIP18 cache identity."
+}

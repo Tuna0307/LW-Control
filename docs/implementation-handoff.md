@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-048`
+**Current checkpoint:** `LWB-R8-049`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -280,6 +280,12 @@ Native returns the correlated game JSON through the generic converter rather tha
 R8-048 restores the native read-only `trade_station_catalog` command without enabling Trade Station mutation. It uses the same exact selected-profile runtime admission as R8-046/047, returns exact `GAME_DISCONNECTED` / `game disconnected` through the native game-route helper, then issues one `getTradeStationCatalog` call with empty `{}` args.
 
 Unlike the previous two commands, native gives this call a **10,000 ms** result deadline (`0x2710`). Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getTradeStationCatalog`. Success is the correlated game JSON passed through the generic converter unchanged; the frontend reads `result.items`. The authenticated .NET transport remains equivalent plumbing, generic `call_lua` stays closed, and `trade_station_configure` remains fenced. See `docs/reviews/2026-09-26-r8-048-trade-station-catalog.md`.
+
+## R8-049 VIP18 boundary fence
+
+R8-049 researched the hidden VIP18 base read family far enough to identify its dependency boundary, then stopped without production implementation. `vip18_base_config_get` projects `selectedSkinId`, `autoApplyOnStart`, and `favoriteSkinIds`, but it reads the same shared native config-state/migration layer that remains incomplete under R8-043; unavailable config state is exact `STATE_UNAVAILABLE` / `config state is unavailable`.
+
+`vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
 ## Parked protected package-key lane
 
