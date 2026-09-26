@@ -1,5 +1,7 @@
 # R8-068 — fence generic Automation Configure/Start/Stop at authorization-derived request boundary
 
+> **Superseded correction (R8-091, 2026-09-27):** direct handler tracing proves Configure sends `{task,config}`, Start sends `{task,config}`, and Stop sends `{task,options}`. These handlers do not append `premium` / `admin` provider fields. Their remaining common blocker is mandatory shared authorization-state admission; the original auth-state producer is not yet implemented.
+
 **Date:** 2026-09-26
 **Reference:** verified LWBridge 0.3.1
 **Scope:** close the recoverable native/public contracts of `automation_configure`, `automation_start`, and `automation_stop` without synthesizing owner-excluded authorization-derived request material.
@@ -41,7 +43,7 @@ This is the same admission machinery recovered for `automation_inspect` in R8-05
 - authorization state unavailable: `STATE_UNAVAILABLE` / `authorization state is unavailable`;
 - no usable game route: `GAME_DISCONNECTED` / `game disconnected`.
 
-The request-building code contains the exact request-key cluster `task`, `options`, `premium`, `admin`; Configure and Start use `config` in the corresponding task request construction. The `premium` / `admin` values are derived from the shared authorization state. Their exact projection is owner-excluded and is not reconstructed.
+R8-091 directly traces the request-object construction and corrects the old adjacency inference from the raw `taskoptionspremiumadmin` metadata cluster. Exact provider request keys are Configure `{task,config}`, Start `{task,config}`, and Stop `{task,options}`. These handlers do not add `premium` or `admin` fields.
 ## Provider calls and deadlines
 
 The exact protected methods are:
@@ -74,12 +76,12 @@ It requires a task config object and uses the native validator at `0x1403B9BCE`,
 
 Malformed local task configuration uses native `INVALID_REQUEST` or `INVALID_CONFIG` boundaries depending on the parse/normalization stage.
 
-This recovered local validator evidence is not sufficient to implement Configure exactly because the successful request still appends authorization-derived request material before `configureAutomationTask`.
+R8-091 proves the successful Configure request is exactly `{task,config}`; the validator no longer has an unknown authorization-derived request-field tail.
 ## Why no production route is added
 
-A route that sends only `task` + `config` / `options` would omit native authorization-derived `premium` / `admin` request fields. Hard-coding those fields would recreate owner-excluded account/authorization semantics and could change provider behavior.
+The remaining common blocker is the mandatory shared authorization-state admission that precedes selected-runtime/game-route/provider execution. The rebuild does not yet implement the original producer for that state, so enabling the commands by bypassing admission would change original error precedence and session behavior.
 
-R8-068 therefore makes no runtime implementation change. The three commands remain fail-closed through the existing unimplemented-command boundary until the retained product can reproduce their request without crossing the excluded authorization boundary.
+The three commands therefore remain fail-closed until the authorization-state producer can be represented from source evidence.
 
 This is a deliberate fence, not an unknown command surface.
 
@@ -89,7 +91,8 @@ This is a deliberate fence, not an unknown command surface.
 - frontend payload shapes/defaults: `EXACT_BYTES`;
 - shared authorization-state dependency: `EXACT_NATIVE`;
 - selected-runtime/game-route sequence: `EXACT_NATIVE`;
-- authorization-derived `premium/admin` request values: `OWNER_EXCLUDED_UNKNOWN`;
+- provider request shapes `{task,config}` / `{task,config}` / `{task,options}`: `EXACT_NATIVE`;
+- `premium/admin` provider fields in these handlers: `DISPROVEN_BY_R8_091`;
 - Configure validator function and recovered error vocabulary: `EXACT_NATIVE`;
 - provider method names: `EXACT_NATIVE`;
 - 5,000 ms deadlines: `EXACT_NATIVE`;

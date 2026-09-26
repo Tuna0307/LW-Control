@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-090`
+**Current checkpoint:** `LWB-R8-091`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -403,6 +403,16 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-091 authorization projection and Automation request correction
+
+R8-091 reopens the now-allowed authorization dependency using only host-side evidence. The shared non-role authorization accessor accepts exact `authorized`, plus `grace` only while `now - graceStartedAt < 900001` ms with a positive grace timestamp; expiry yields `ACCOUNT_EXPIRED` and the no-usable-state fallback is `AUTH_REQUIRED`. The shared role gate compares the authorization state's `accessRole` member by exact string membership. `watermark_lookup` uses initial allowed roles `premium|admin` and later an exact `admin` gate.
+
+Exact serde metadata closes `EntitlementResponse` as five fields: `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. `SessionV2` declares seven elements; six direct names are `username,expiresAt,lastHeartbeatAt,graceStartedAt,encryptedToken,encryptedMetadata`; the seventh remains unknown and must not be guessed.
+
+Most importantly, R8-091 corrects R8-051/R8-068: direct handler tracing proves `configureAutomationTask` receives `{task,config}`, `startAutomationTask` receives `{task,config}`, `stopAutomationTask` receives `{task,options}`, and `inspectAutomationTask` receives only `{task}`. None of those four handlers appends `premium/admin`. They remain fenced because the rebuild still lacks the original shared authorization-state producer/admission, not because provider JSON needs invented role booleans.
+
+See `docs/reviews/2026-09-27-r8-091-authorization-projection.md` and `evidence/lwbridge-implementation/2026-09-27-r8-091-authorization-projection.json`.
+
 ## R8-090 pending-call teardown boundary
 
 R8-090 performs a permitted non-executable `bridge_store.rs` metadata pass over the last host↔proxy teardown gap. It source-links the exact `BRIDGE_STOPPED / bridge result channel closed` call-wait branch around source lines 498–501, separately retains `LUA_CALL_TIMEOUT`, and recovers a second metadata copy with `call` at line 554, `command` at line 605 and `timeout` at line 740.
@@ -625,7 +635,7 @@ See `docs/reviews/2026-09-26-r8-070-city-layout-live-fence.md` and `evidence/lwb
 
 R8-069 closes `chat_automation_configure` and `chat_automation_run_pending`. Native handlers are `0x14012CAFF-0x14012E897` and `0x1401285CB-0x140129437`; retained kinds are `redPacket`, `fireworks`, and `treasure`. Configure performs host-side config normalization/validation; Run Pending sends only `kind`. Provider methods are `configureChatAutomation` and `runChatAutomationPending`, each with a 5,000 ms deadline, no retry loop, and generic JSON result conversion.
 
-Both commands still require the shared authorization-state future before selected-runtime/game-route admission. Unlike R8-068 generic Automation, no `premium/admin` request fields are observed; the blocker is the mandatory authorization-state admission itself. Skipping that state changes public error precedence, while recreating it crosses the explicit owner exclusion. No runtime route is added.
+Both commands still require the shared authorization-state future before selected-runtime/game-route admission. R8-091 later proves generic Automation also has no `premium/admin` provider request fields; the common blocker is mandatory authorization-state admission itself. Skipping that state changes public error precedence. No runtime route is added.
 
 These two commands move from genuinely unclosed to audited/fenced. The 33 unrouted retained frontend commands now split into 20 audited/fenced and 13 genuinely unclosed.
 
@@ -637,7 +647,7 @@ R8-068 closes the native/public boundary for `automation_configure`, `automation
 
 All three use the same retained admission machinery already recovered for `automation_inspect`: shared authorization-state future, selected-profile runtime resolution, game-route validation, then the shared protected game-call future. The provider methods are `configureAutomationTask`, `startAutomationTask`, and `stopAutomationTask`; each has an exact 5,000 ms result deadline, no handler retry loop, and normal results pass through the generic JSON converter.
 
-The blocker is now precise rather than generic. Native request construction carries authorization-derived `premium` / `admin` material. That projection belongs to the owner-excluded authorization/account-state surface. Omitting it or hard-coding values would change the provider request and therefore is not a strict retained implementation. Configure also runs the native task-config validator `0x1403B9BCE-0x1403BB30B`, whose task-specific validation vocabulary is substantially recovered, but successful Configure still crosses the same excluded request boundary.
+R8-091 corrects the earlier request-field inference: direct handler tracing proves Configure sends `{task,config}`, Start sends `{task,config}`, and Stop sends `{task,options}`; these handlers do not add `premium` / `admin` provider fields. Configure still runs the native task-config validator `0x1403B9BCE-0x1403BB30B`. The remaining shared blocker is the mandatory original authorization-state admission before runtime/provider execution, whose producer is not yet implemented in the rebuild.
 
 No runtime route was added. These three commands are now **audited/fenced**, not genuinely unknown. The R8-067 33 unrouted retained frontend commands therefore split into 18 audited/fenced and 15 genuinely unclosed commands.
 

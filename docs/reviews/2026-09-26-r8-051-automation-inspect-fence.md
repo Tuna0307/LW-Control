@@ -1,5 +1,7 @@
 # R8-051 - fence automation_inspect at authorization/result-rewrite boundary
 
+> **Superseded correction (R8-091, 2026-09-27):** direct handler tracing proves `inspectAutomationTask` is sent only `{task}`. The earlier claim that request construction carried authorization-derived `premium` / `admin` material was an adjacency inference and is withdrawn. The shared authorization-state admission and incomplete `allianceGarrison` rewrite remain valid blockers.
+
 **Date:** 2026-09-26
 **Reference:** verified LWBridge 0.3.1
 **Scope:** close the recoverable host boundary of the retained read-only `automation_inspect` command without recreating excluded authorization-state inputs or guessing the native `allianceGarrison` rewrite.
@@ -23,9 +25,7 @@ Native awaits the shared authorization-state future before constructing the insp
 - code: `STATE_UNAVAILABLE`
 - message: `authorization state is unavailable`
 
-The handler's request-building state carries authorization-derived material; nearby native vocabulary includes `premium` and `admin`. The exact role/authorization projection is intentionally not decoded because authorization/account-state recovery is owner-excluded.
-
-R8-051 therefore does not substitute hard-coded role flags or frontend assumptions.
+R8-091 later proves the nearby `premium` / `admin` vocabulary is not part of this handler's provider request. The handler still awaits shared authorization state before request construction, but `inspectAutomationTask` itself is built with only `task`.
 
 ## Public request/game-call boundary
 
@@ -44,7 +44,7 @@ The connected request uses:
 
 The shared timeout path therefore yields `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: inspectAutomationTask`.
 
-Native constructs an inspect request containing at least `task`; additional `options`/authorization-derived request semantics are not fully closed and are not guessed.
+R8-091 closes the provider request shape: native constructs `inspectAutomationTask` with exactly the `task` entry; no `options`, `premium`, or `admin` entry is added by this handler.
 
 ## Result handling
 
@@ -56,12 +56,12 @@ The exact filtering/deduplication/enrichment/order semantics of that rewrite are
 
 ## Why no production implementation is added
 
-Two independent dependencies prevent a strict implementation:
+Two independent dependencies still prevent a strict implementation:
 
-1. request construction depends on shared authorization state, whose account/role projection is owner-excluded;
+1. the handler requires the shared authorization-state admission before game routing, and the rebuild does not yet implement the original authorization-state producer;
 2. `allianceGarrison` has a host-side result rewrite whose exact algorithm is still partial.
 
-A generic `inspectAutomationTask` pass-through would silently get both boundaries wrong. R8-051 makes no runtime-code change and keeps `automation_inspect` fenced while preserving the already restored generic automation status/config work.
+A generic `inspectAutomationTask` pass-through that bypasses authorization admission or skips the `allianceGarrison` rewrite would still diverge. The command remains fenced.
 
 ## Evidence classification
 
@@ -71,7 +71,7 @@ A generic `inspectAutomationTask` pass-through would silently get both boundarie
 - provider method `inspectAutomationTask`: `EXACT_NATIVE`;
 - 5,000 ms deadline: `EXACT_NATIVE`;
 - normal generic result conversion: `EXACT_NATIVE`;
-- authorization/role-derived request details: `OWNER_EXCLUDED_UNKNOWN`;
-- `options` request normalization: `UNKNOWN`;
+- provider request shape `{task}`: `EXACT_NATIVE`;
+- `premium/admin/options` provider fields in this handler: `DISPROVEN_BY_R8_091`;
 - exact `allianceGarrison` result rewrite: `UNKNOWN`;
 - runtime implementation: `FENCED`.

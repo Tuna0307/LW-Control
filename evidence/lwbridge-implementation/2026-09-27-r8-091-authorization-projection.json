@@ -1,0 +1,123 @@
+{
+  "authorizationAdmission": {
+    "acceptedPhasePaths": [
+      "authorized",
+      "grace"
+    ],
+    "comparisonImmediateMs": 900001,
+    "expiredError": "ACCOUNT_EXPIRED",
+    "fallbackError": "AUTH_REQUIRED",
+    "graceFreshnessComparison": "now - graceStartedAt < 900001",
+    "graceRequiresPositiveStartedAt": true,
+    "roleComparator": "exact string membership",
+    "roleFieldOffset": "0x310"
+  },
+  "automationCorrection": {
+    "correction": "premium/admin are not fields added by these four handlers; prior adjacency-based request-field inference is withdrawn",
+    "premiumAdminDescriptorRefsInsideHandlers": {
+      "automation_configure": [],
+      "automation_inspect": [],
+      "automation_start": [],
+      "automation_stop": []
+    },
+    "providerRequestShapes": {
+      "configureAutomationTask": [
+        "task",
+        "config"
+      ],
+      "inspectAutomationTask": [
+        "task"
+      ],
+      "startAutomationTask": [
+        "task",
+        "config"
+      ],
+      "stopAutomationTask": [
+        "task",
+        "options"
+      ]
+    },
+    "providers": {
+      "configure": "configureAutomationTask",
+      "inspect": "inspectAutomationTask",
+      "start": "startAutomationTask",
+      "stop": "stopAutomationTask"
+    }
+  },
+  "date": "2026-09-27",
+  "entitlementResponse": {
+    "descriptors": [
+      {
+        "descriptorRaw": "0xc7ee50",
+        "name": "planCode",
+        "stringRaw": "0xc7ee2b"
+      },
+      {
+        "descriptorRaw": "0xc7ee60",
+        "name": "maxProfiles",
+        "stringRaw": "0xc7ee33"
+      },
+      {
+        "descriptorRaw": "0xc7ee70",
+        "name": "expiresAt",
+        "stringRaw": "0xc7eda2"
+      },
+      {
+        "descriptorRaw": "0xc7ee80",
+        "name": "accountExpiresAt",
+        "stringRaw": "0xc7ee3e"
+      },
+      {
+        "descriptorRaw": "0xc7ee90",
+        "name": "serverTime",
+        "stringRaw": "0xc7edab"
+      }
+    ],
+    "fieldCount": 5,
+    "fields": [
+      "planCode",
+      "maxProfiles",
+      "expiresAt",
+      "accountExpiresAt",
+      "serverTime"
+    ]
+  },
+  "findingId": "LWB-R8-091",
+  "implementationDecision": {
+    "doNotUseCurrentFrontendPlaceholdersAsAuthAuthority": true,
+    "nextRequiredWork": "recover/implement the shared authorization-state producer and entitlement/accessRole projection before unfencing auth-dependent live actions",
+    "noLiveBehaviorChangeInThisCheckpoint": true
+  },
+  "limits": [
+    "no credentials or private keys are read",
+    "no auth network request is made",
+    "SessionV2 seventh serde field remains unresolved",
+    "this checkpoint does not claim current rebuild authorization parity"
+  ],
+  "sessionV2": {
+    "declaredFieldCount": 7,
+    "directFieldNames": [
+      "username",
+      "expiresAt",
+      "lastHeartbeatAt",
+      "graceStartedAt",
+      "encryptedToken",
+      "encryptedMetadata"
+    ],
+    "seventhField": "UNKNOWN"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED CONTRACT / CORRECTION",
+  "watermarkRolePolicy": {
+    "initialAllowedRoles": [
+      "premium",
+      "admin"
+    ],
+    "laterRequiredRoles": [
+      "admin"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-090`
+**Current checkpoint:** `LWB-R8-091`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-091 authorization projection and Automation request correction
+
+R8-091 recovers the shared authorization admission far enough to replace several old assumptions. Exact host behavior recognizes `authorized`; permits `grace` only with a positive grace timestamp and `now - graceStartedAt < 900001` ms; surfaces `ACCOUNT_EXPIRED` for expiry and `AUTH_REQUIRED` as the no-usable-state fallback. Role admission compares exact `accessRole` membership. Watermark's role policy is `premium|admin` followed by an `admin`-only gate.
+
+`EntitlementResponse` is now exact as `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. `SessionV2` is declared as seven elements; six direct field names are recovered and the seventh remains unknown.
+
+Direct provider-request tracing also corrects R8-051/R8-068: generic Automation sends only `{task,config}` / `{task,config}` / `{task,options}`, and Inspect sends only `{task}`. The prior `premium/admin` request-field claim was a raw-metadata adjacency inference and is withdrawn. No live route is enabled yet because the rebuild still lacks the original authorization-state producer.
+
+See `docs/reviews/2026-09-27-r8-091-authorization-projection.md`.
 
 ## R8-090 pending-call teardown boundary
 
@@ -225,7 +235,7 @@ See `docs/reviews/2026-09-26-r8-070-city-layout-live-fence.md` and `evidence/lwb
 
 R8-069 closes the retained native/public boundaries of `chat_automation_configure` and `chat_automation_run_pending`. Retained kinds, host-side Configure validation, provider methods, exact 5-second deadlines and generic result conversion are recovered. Both handlers still require the shared authorization-state future before selected-runtime/game-route admission.
 
-No `premium/admin` provider fields are observed here; the fence is the authorization-state admission itself. Skipping it changes native error precedence and recreating it crosses the explicit owner exclusion. No runtime route is added.
+No `premium/admin` provider fields are observed here. R8-091 later proves the same for generic Automation; the fence is the authorization-state admission itself. Skipping it changes native error precedence. No runtime route is added.
 
 The 33 unrouted retained frontend commands now split into 20 audited/fenced and 13 genuinely unclosed.
 
@@ -235,7 +245,7 @@ See `docs/reviews/2026-09-26-r8-069-chat-automation-fence.md`.
 
 R8-068 closes the recoverable native/public contract for `automation_configure`, `automation_start`, and `automation_stop`. Their exact handlers, immutable frontend payload shapes, shared authorization/profile/runtime/game-route admission, provider methods, 5-second deadlines, timeout behavior and generic provider-result conversion are now identified.
 
-Configure additionally runs the native task-config validator and normalization path before its provider call; the task-specific validation vocabulary is substantially recovered. The live request boundary remains intentionally fenced because native request construction includes authorization-derived `premium` / `admin` material from the same owner-excluded authorization-state surface previously identified by R8-051. Omitting or hard-coding that material would not be one-to-one behavior.
+Configure additionally runs the native task-config validator and normalization path before its provider call; the task-specific validation vocabulary is substantially recovered. R8-091 corrects the earlier adjacency-based inference: Configure sends `{task,config}`, Start sends `{task,config}`, Stop sends `{task,options}`, and none of the three handlers adds `premium` / `admin` fields. The live boundary remains fenced because all three still require the original shared authorization-state admission, whose producer is not yet implemented in the rebuild.
 
 No runtime route is added. The three commands move from the genuinely-unclosed bucket to audited/fenced. The 33 unrouted retained frontend commands now split into 18 audited/fenced and 15 genuinely unclosed.
 
