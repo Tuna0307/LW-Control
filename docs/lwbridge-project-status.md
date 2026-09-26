@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-091`
+**Current checkpoint:** `LWB-R8-092`
 
 ## Executive status
 
@@ -27,13 +27,25 @@ The stronger gate also corrected stale proof infrastructure without changing the
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
 
+## R8-092 public AuthState producer
+
+R8-092 recovers the shared 0xC0-byte AuthState object and exact public schema: `phase,username,accessRole,watermarkTraceCode,expiresAt,lastHeartbeatAt,lockedUntil,errorCode`. Exact phases are `checking`, `authorized`, `grace`, `locked`, and `signedOut`; mutations publish through `bridge://auth-state`.
+
+Authorized refresh copies the successful identity/role projection, refreshes public `lastHeartbeatAt`, and clears lock/error. Grace preserves prior identity while changing phase and carrying the current error. Checking preserves the state while clearing the public error. Normal signed-out reset clears identity/timing/error state and restores `accessRole="normal"`; logout uses this exact emitter. A separate session-error transformer maps exact `SESSION_INVALID` to phase `signedOut`, otherwise `locked`.
+
+Heartbeat uses a separate internal grace clock at `+0x420`: after its eligibility predicate, grace is admitted while elapsed time is <=900000 ms, matching R8-091's command-admission `<900001` rule. Renew publishes authorized/locked; heartbeat authorized/grace/locked; the supervisor checking/session-error/signedOut. `auth_state` itself is a snapshot read and does not directly mutate the producer.
+
+No live auth route is enabled yet. The remaining dependency is the underlying SessionV2/secure-storage/service/entitlement source that feeds this now-recovered producer.
+
+See `docs/reviews/2026-09-27-r8-092-auth-state-producer.md`.
+
 ## R8-091 authorization projection and Automation request correction
 
 R8-091 recovers the shared authorization admission far enough to replace several old assumptions. Exact host behavior recognizes `authorized`; permits `grace` only with a positive grace timestamp and `now - graceStartedAt < 900001` ms; surfaces `ACCOUNT_EXPIRED` for expiry and `AUTH_REQUIRED` as the no-usable-state fallback. Role admission compares exact `accessRole` membership. Watermark's role policy is `premium|admin` followed by an `admin`-only gate.
 
 `EntitlementResponse` is now exact as `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. `SessionV2` is declared as seven elements; six direct field names are recovered and the seventh remains unknown.
 
-Direct provider-request tracing also corrects R8-051/R8-068: generic Automation sends only `{task,config}` / `{task,config}` / `{task,options}`, and Inspect sends only `{task}`. The prior `premium/admin` request-field claim was a raw-metadata adjacency inference and is withdrawn. No live route is enabled yet because the rebuild still lacks the original authorization-state producer.
+Direct provider-request tracing also corrects R8-051/R8-068: generic Automation sends only `{task,config}` / `{task,config}` / `{task,options}`, and Inspect sends only `{task}`. The prior `premium/admin` request-field claim was a raw-metadata adjacency inference and is withdrawn. No live route is enabled yet: R8-092 now recovers the authorization-state producer contract, but the rebuild still lacks the original SessionV2/secure-storage/service/entitlement source that feeds it.
 
 See `docs/reviews/2026-09-27-r8-091-authorization-projection.md`.
 

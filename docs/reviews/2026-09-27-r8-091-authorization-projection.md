@@ -1,5 +1,7 @@
 # R8-091 — recover authorization projection and correct Automation request fields
 
+> **Follow-up (R8-092, 2026-09-27):** the shared public AuthState schema, phase emitters, `bridge://auth-state` publication, grace clock and snapshot-only `auth_state` command are now recovered. The remaining blocker is the SessionV2/secure-storage/service/entitlement source feeding that producer, not the producer shape itself.
+
 **Date:** 2026-09-27
 **Reference:** verified LWBridge 0.3.1
 **Status:** RECOVERED CONTRACT / CORRECTION

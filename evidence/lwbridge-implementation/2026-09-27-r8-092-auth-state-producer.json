@@ -1,0 +1,109 @@
+{
+  "authStateCommand": {
+    "classification": "snapshot read; no direct producer mutation",
+    "command": "auth_state",
+    "directEmitterCalls": [],
+    "stateUnavailableCode": "STATE_UNAVAILABLE",
+    "stateUnavailableMessage": "authorization state is unavailable"
+  },
+  "date": "2026-09-27",
+  "exactTerminalErrors": [
+    "NETWORK_GRACE_EXPIRED",
+    "ACCOUNT_EXPIRED",
+    "SESSION_INVALID"
+  ],
+  "findingId": "LWB-R8-092",
+  "graceWindow": {
+    "admissionEquivalentFromR8_091": "elapsedMs < 900001",
+    "elapsedAdmission": "elapsedMs <= 900000",
+    "eligibilityPredicateRva": "0x23CB51",
+    "initializeIfZero": true,
+    "internalClockOffset": "0x420"
+  },
+  "limits": [
+    "no credentials, password material, private keys, or live auth requests are used",
+    "the two-deadline grace eligibility predicate at 0x23CB51 is source-locked but its surrounding field names are not assigned here",
+    "public expiresAt/lastHeartbeatAt/lockedUntil representation is serialized through original helpers; this checkpoint does not invent timestamp formats",
+    "no rebuild live-auth behavior is enabled by this checkpoint"
+  ],
+  "producerTransitions": {
+    "heartbeat": [
+      "authorized",
+      "grace",
+      "locked"
+    ],
+    "loginProjection": "delegates through 0x239937 and then the common state builders",
+    "logout": [
+      "signedOut"
+    ],
+    "renew": [
+      "authorized",
+      "locked"
+    ],
+    "supervisor": [
+      "checking",
+      "locked-or-signedOut for session error",
+      "signedOut"
+    ]
+  },
+  "publicAuthState": {
+    "event": "bridge://auth-state",
+    "fields": [
+      {
+        "length": 5,
+        "name": "phase",
+        "offset": "0x0"
+      },
+      {
+        "length": 8,
+        "name": "username",
+        "offset": "0x18"
+      },
+      {
+        "length": 10,
+        "name": "accessRole",
+        "offset": "0x30"
+      },
+      {
+        "length": 18,
+        "name": "watermarkTraceCode",
+        "offset": "0x48"
+      },
+      {
+        "length": 9,
+        "name": "expiresAt",
+        "offset": "0x60"
+      },
+      {
+        "length": 15,
+        "name": "lastHeartbeatAt",
+        "offset": "0x78"
+      },
+      {
+        "length": 11,
+        "name": "lockedUntil",
+        "offset": "0x90"
+      },
+      {
+        "length": 9,
+        "name": "errorCode",
+        "offset": "0xa8"
+      }
+    ],
+    "lockedDefaultRole": "normal",
+    "phases": [
+      "checking",
+      "authorized",
+      "grace",
+      "locked",
+      "signedOut"
+    ],
+    "signedOutDefaultRole": "normal",
+    "sizeBytes": 192
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED CONTRACT"
+}
