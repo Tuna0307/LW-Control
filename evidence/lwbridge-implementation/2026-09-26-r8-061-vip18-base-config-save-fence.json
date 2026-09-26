@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-061",
+  "date": "2026-09-26",
+  "scope": "Fence vip18_base_config_save at owner-excluded authorization and unrecovered shared config-state ownership while closing field validation, persistence family and success projection.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "retained frontend vip18_base_config_save wrapper",
+    "shared U() profile injector",
+    "vip18_base_config_save handler 0x14014C5B2-0x14014CE40",
+    "authorization-state future 0x1400DC58F-0x1400DC79E",
+    "profile/runtime resolver 0x1402AE43C-0x1402AE4E6",
+    "VIP18 save helper 0x1403B778B-0x1403B7AA8",
+    "shared config-state writer 0x1403CB790-0x1403CBCD3",
+    "VIP18 public projector 0x1403B5192-0x1403B56C2",
+    "R8-049 VIP18 boundary review"
+  ],
+  "publicContract": {
+    "fields": [
+      "selectedSkinId",
+      "autoApplyOnStart",
+      "favoriteSkinIds"
+    ],
+    "sharedWrapperInjectsSelectedProfileId": true,
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "profileErrors": [
+      "PROFILE_ID_REQUIRED",
+      "PROFILE_RUNTIME_UNAVAILABLE"
+    ],
+    "invalidSelectedSkinId": {
+      "code": "INVALID_REQUEST",
+      "message": "invalid base skin id"
+    },
+    "invalidAutoApplyOnStart": {
+      "code": "INVALID_REQUEST",
+      "message": "invalid base skin auto-apply setting"
+    },
+    "favoriteSkinIds": "native sequence-normalized; exact element coercion/drop semantics unresolved",
+    "configStateUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "config state is unavailable"
+    },
+    "successFieldOrderFamily": [
+      "selectedSkinId",
+      "autoApplyOnStart",
+      "favoriteSkinIds"
+    ]
+  },
+  "persistence": {
+    "topLevelFamily": "vip18_profiles",
+    "file": "config.json",
+    "savedFields": [
+      "selectedSkinId",
+      "autoApplyOnStart",
+      "favoriteSkinIds"
+    ],
+    "wholeConfigMigrationNormalizer": "UNKNOWN"
+  },
+  "evidenceClassification": {
+    "frontendPayloadAndProfileInjection": "EXACT_CONTRACT",
+    "authorizationAdmission": "EXACT_NATIVE",
+    "profileRuntimeErrors": "EXACT_NATIVE",
+    "fieldNames": "EXACT_NATIVE",
+    "selectedSkinValidation": "EXACT_NATIVE",
+    "autoApplyValidation": "EXACT_NATIVE",
+    "favoritesSequenceOwnership": "EXACT_NATIVE",
+    "favoritesElementSemantics": "UNKNOWN",
+    "persistenceFamily": "EXACT_NATIVE",
+    "configStateUnavailableError": "EXACT_NATIVE",
+    "successProjection": "EXACT_NATIVE",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "sharedConfigNormalizer": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission implementation",
+    "shared config.json migration/default/merge normalizer",
+    "exact favoriteSkinIds per-element normalization details"
+  ],
+  "nextCheckpoint": "Continue retained non-account recovery; do not implement VIP18 config persistence from frontend defaults or a substitute local config file."
+}

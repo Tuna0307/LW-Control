@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-060`
+**Current checkpoint:** `LWB-R8-061`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -362,6 +362,14 @@ R8-060 closes the retained Construction Rewards claim action in the Automation A
 After admission, native issues exactly one `claimConstructionRewards` call with `{}` args and a 5,000 ms result deadline. Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: claimConstructionRewards`; provider failures use the shared `LUA_CALL_FAILED` mapping, and correlated success JSON is forwarded unchanged through the generic converter.
 
 R8-060 makes no production action change because bypassing the owner-excluded authorization-state admission would make a live reward-claim action callable in states where native rejects it. See `docs/reviews/2026-09-26-r8-060-construction-rewards-claim-fence.md`.
+
+## R8-061 vip18_base_config_save fence
+
+R8-061 extends the hidden VIP18 family beyond R8-049's read boundaries. The frontend passes a config object through shared `U()`, which injects selected `profileId`. Native first awaits authorization state (`STATE_UNAVAILABLE` / `authorization state is unavailable`), then resolves the selected runtime.
+
+The dedicated save helper owns retained fields `selectedSkinId`, `autoApplyOnStart`, and `favoriteSkinIds`. Invalid supplied skin IDs use exact `INVALID_REQUEST` / `invalid base skin id`; invalid or missing/non-boolean auto-apply uses exact `INVALID_REQUEST` / `invalid base skin auto-apply setting`. Favorites pass through a dedicated native sequence normalizer; its exact element coercion/drop/duplicate semantics remain unclosed and are not guessed.
+
+Persistence belongs to the shared config-state owner under top-level `vip18_profiles` in `config.json`. If that state is unavailable, exact failure is `STATE_UNAVAILABLE` / `config state is unavailable`. On success, native returns the same normalized three-field VIP18 config projection as config-get rather than a generic acknowledgment. Because authorization admission is owner-excluded and the shared config migration/default/merge layer remains incomplete under R8-043/R8-049, R8-061 adds no production save implementation. See `docs/reviews/2026-09-26-r8-061-vip18-base-config-save-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
