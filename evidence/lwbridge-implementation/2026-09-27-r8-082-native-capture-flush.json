@@ -1,0 +1,48 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-082",
+  "proxies": [
+    {
+      "forcedEmissionMs": {
+        "activeRun": 250,
+        "idle": 1000
+      },
+      "minimumServiceMs": 16,
+      "proxy": "secure",
+      "serializerRva": "0x38AB0-0x39F15",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    {
+      "forcedEmissionMs": {
+        "activeRun": 250,
+        "idle": 1000
+      },
+      "minimumServiceMs": 16,
+      "proxy": "plain",
+      "serializerRva": "0x38AB0-0x39F15",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+    }
+  ],
+  "recoveredResult": {
+    "activeRunForcedEmissionMs": 250,
+    "emissionClockUpdate": "after an envelope is assembled, the current service timestamp is written to the active or idle emission clock according to scanRunId emptiness",
+    "evaluationPolicy": "active runs always reach final emission evaluation after service/drain; idle state reaches it only when the one-shot wake flag is set or the 1000 ms idle gate is due",
+    "finalEmissionTriggers": [
+      "any drained point/march/removal vector is nonempty",
+      "any remaining point/march/removal pending count is nonzero",
+      "the captured run-id-change one-shot flag is nonzero",
+      "the active 250 ms forced-emission gate is due",
+      "the idle 1000 ms forced-emission gate is due"
+    ],
+    "idleForcedEmissionMs": 1000,
+    "minimumServiceMs": 16,
+    "scanRunIdChange": "when the incoming run id differs from the stored run id, the proxy updates it, resets the active forced-emission clock, and sets a one-shot wake flag",
+    "scanRunIdRole": "nonempty scanRunId selects active cadence; empty scanRunId selects idle cadence",
+    "suppression": "when the applicable evaluation/final-emission gates do not require an envelope, the serializer returns an empty result"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

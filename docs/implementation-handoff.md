@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-081`
+**Current checkpoint:** `LWB-R8-082`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,18 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-082 native-capture service / flush gates
+
+R8-082 recovers the native-capture service/publication policy around the R8-081 drain. Both verified proxies call `KERNEL32!GetTickCount64` and refuse serializer service when fewer than 16 ms have elapsed since the previous service point; admitted service updates that separate service timestamp.
+
+The incoming `scanRunId` is compared against stored run identity. A change updates the stored ID, resets the active forced-emission clock to zero and sets a one-shot wake flag. The stored run ID is then copied into the exact `scanRunId` field used by the serializer.
+
+A nonempty `scanRunId` always reaches final emission evaluation and uses a 250 ms forced-emission clock. Empty `scanRunId` reaches final evaluation only on the run-ID-change wake flag or a 1000 ms idle forced-emission gate. Final emission occurs for drained data, remaining pending counts, the wake flag, or the applicable forced-emission flag. After a real envelope is assembled, the current service timestamp updates the active or idle emission clock selected by `scanRunId` emptiness.
+
+This closes native capture service/flush timing. Remaining Map gaps are the body of `XluaBridgeMapScanTick`: block traversal/order/coordinates, per-tick work/request pacing, retry/backoff, any separate script-level acknowledgement semantics, and remaining per-kind serializers.
+
+See `docs/reviews/2026-09-27-r8-082-native-capture-flush.md` and `evidence/lwbridge-implementation/2026-09-27-r8-082-native-capture-flush.json`.
 
 ## R8-081 native-capture drain budget/order
 
