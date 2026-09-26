@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-089`
+**Current checkpoint:** `LWB-R8-090`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,14 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-090 pending-call teardown boundary
+
+R8-090 performs a permitted non-executable `bridge_store.rs` metadata pass over the last host↔proxy teardown gap. It source-links the exact `BRIDGE_STOPPED / bridge result channel closed` call-wait branch around source lines 498–501, separately retains `LUA_CALL_TIMEOUT`, and recovers a second metadata copy with `call` at line 554, `command` at line 605 and `timeout` at line 740.
+
+The important result is negative: no permitted metadata link proves that ordinary `PIPE_DISCONNECTED` or `PIPE_WRITE_FAILED` closes every outstanding result receiver, nor that generation-scoped route removal is the same operation as result-channel closure. Therefore the rebuild must not invent eager route-wide `BRIDGE_STOPPED` failure. Keep the current R8-075 behavior until new source evidence closes that causal edge.
+
+See `docs/reviews/2026-09-27-r8-090-pending-call-teardown-boundary.md` and `evidence/lwbridge-implementation/2026-09-27-r8-090-pending-call-teardown-boundary.json`.
 
 ## R8-089 host↔proxy heartbeat boundary
 

@@ -1,0 +1,130 @@
+{
+  "bridgeStoreMetadata": {
+    "closedResultChannel": {
+      "code": "BRIDGE_STOPPED",
+      "message": "bridge result channel closed",
+      "nearSourceLines": [
+        498,
+        499,
+        501
+      ]
+    },
+    "pairedDescriptors": {
+      "line554": {
+        "raw": 13670488,
+        "value": "call"
+      },
+      "line605": {
+        "raw": 13670864,
+        "value": "command"
+      },
+      "line740": {
+        "raw": 13671032,
+        "value": "timeout"
+      }
+    },
+    "primarySourceLocations": [
+      {
+        "column": 34,
+        "line": 498,
+        "raw": 8538008
+      },
+      {
+        "column": 34,
+        "line": 499,
+        "raw": 8537960
+      },
+      {
+        "column": 15,
+        "line": 501,
+        "raw": 8537984
+      },
+      {
+        "column": 33,
+        "line": 979,
+        "raw": 8538160
+      },
+      {
+        "column": 28,
+        "line": 980,
+        "raw": 8538136
+      },
+      {
+        "column": 13,
+        "line": 983,
+        "raw": 8538208
+      },
+      {
+        "column": 16,
+        "line": 991,
+        "raw": 8538184
+      }
+    ],
+    "secondarySourceLocations": [
+      {
+        "column": 13,
+        "line": 168,
+        "raw": 13670672
+      },
+      {
+        "column": 13,
+        "line": 554,
+        "raw": 13670456
+      },
+      {
+        "column": 24,
+        "line": 605,
+        "raw": 13670832
+      },
+      {
+        "column": 25,
+        "line": 740,
+        "raw": 13671000
+      },
+      {
+        "column": 5,
+        "line": 979,
+        "raw": 13671760
+      }
+    ],
+    "timeout": {
+      "code": "LUA_CALL_TIMEOUT",
+      "nearSourceLines": [
+        979,
+        980,
+        983,
+        991
+      ]
+    }
+  },
+  "conclusion": {
+    "implementationDecision": "do not change pending-call teardown from R8-075 on this evidence",
+    "notProven": [
+      "ordinary named-pipe disconnect closes every outstanding result receiver immediately",
+      "PIPE_WRITE_FAILED closes every outstanding result receiver immediately",
+      "generation-scoped route removal and result-channel closure are the same operation",
+      "all pending public calls should fail eagerly with BRIDGE_STOPPED on ordinary connection loss"
+    ],
+    "proven": [
+      "original bridge-store call waiting has a BRIDGE_STOPPED / bridge result channel closed branch distinct from LUA_CALL_TIMEOUT",
+      "bridge-store metadata separately exposes call, command, and timeout source locations",
+      "PIPE_DISCONNECTED and PIPE_WRITE_FAILED remain connection-layer terminal vocabulary from prior exact transport recovery"
+    ]
+  },
+  "connectionLayerVocabulary": {
+    "disconnect": "PIPE_DISCONNECTED",
+    "writeFailure": "PIPE_WRITE_FAILED"
+  },
+  "date": "2026-09-27",
+  "findingId": "LWB-R8-090",
+  "limits": [
+    "this checkpoint uses non-executable metadata only and does not disassemble original host executable code",
+    "global Rust oneshot/mpsc metadata exists in the binary but is not sufficient to assign a specific channel implementation to bridge_store from this pass",
+    "no production behavior is changed"
+  ],
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED BOUNDARY / BOUNDED NEGATIVE"
+}

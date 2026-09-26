@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-089`
+**Current checkpoint:** `LWB-R8-090`
 
 ## Executive status
 
@@ -26,6 +26,14 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-090 pending-call teardown boundary
+
+R8-090 narrows the remaining disconnect/write-failure gap without changing production behavior. Original `bridge_store.rs` metadata source-links a distinct `BRIDGE_STOPPED / bridge result channel closed` call-wait branch and a separate `LUA_CALL_TIMEOUT` branch, while also exposing `call`, `command` and `timeout` source locations.
+
+What remains unproven is the causal edge from ordinary named-pipe disconnect/write failure to all outstanding result receivers. No eager route-wide `BRIDGE_STOPPED` policy is added; the live-working equivalent transport keeps the R8-075 teardown behavior until stronger source evidence exists.
+
+See `docs/reviews/2026-09-27-r8-090-pending-call-teardown-boundary.md`.
 
 ## R8-089 host↔proxy heartbeat boundary
 
