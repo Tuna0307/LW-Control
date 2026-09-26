@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-080`
+**Current checkpoint:** `LWB-R8-081`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-081 native-capture drain budget/order
+
+R8-081 recovers the original native-capture queue drain before JSON serialization. Both verified proxies initialize one shared budget to exactly 1024 items, then consume that same counter without reset in strict order: points, marches, point removals, march removals.
+
+Each copied item is destructively removed from its native pending container and decrements that queue's pending counter. Point removals serialize as numeric 32-bit values; march removals serialize as quoted strings. R8-079 remains authoritative that ACKs are not part of this drain: `acks=[]`, `pendingAcks=0`.
+
+This closes most native queue→batch sequencing. Remaining Map gaps are block traversal/order/coordinates, per-tick work inside `XluaBridgeMapScanTick`, retry/backoff, and exact capture publication/flush timing.
+
+See `docs/reviews/2026-09-27-r8-081-native-capture-drain.md` and `evidence/lwbridge-implementation/2026-09-27-r8-081-native-capture-drain.json`.
 
 ## R8-080 outer MapScanTick cadence
 

@@ -1,6 +1,6 @@
 # LWBridge 0.3.1 parity feature ledger
 
-**Current through:** `LWB-R8-080`, 2026-09-27.
+**Current through:** `LWB-R8-081`, 2026-09-27.
 
 This ledger now tracks parity with the original program, not whether our reconstruction happens to work.
 
@@ -31,6 +31,7 @@ This ledger now tracks parity with the original program, not whether our reconst
 | Normal/Fast concurrency 8/20 | EXACT_CONTRACT | Preserve; protected pacing/retry differences remain separate |
 | Native-capture ACK fields | EXACT_CONTRACT | R8-079 proves both verified proxy serializers emit literal `acks=[]` and `pendingAcks=0`; the four point/march/removal pending counts remain dynamic. Do not synthesize an ACK queue from these fields; any separate script/tick acknowledgement mechanism remains unproven |
 | Outer `XluaBridgeMapScanTick` cadence | EXACT_CONTRACT | R8-080 proves both proxies use `GetTickCount64` and an unsigned 50 ms minimum elapsed-time gate, storing `now` before the named tick call. This is pump cadence only, not per-block/request pacing; internal tick work remains unrecovered |
+| Native-capture queue batching | EXACT_CONTRACT | R8-081 recovers a single 1024-item budget shared in order across points, marches, point removals, and march removals; each drained entry is removed and decrements its pending count; point removals are numeric and march removals are strings |
 | City | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Resource | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |
 | Monster | EQUIVALENT_REIMPLEMENTATION | Recover original acquisition algorithm |

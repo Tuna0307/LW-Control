@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-081",
+  "limits": [
+    "does not recover MapScanTick block traversal or coordinate order",
+    "does not recover producer retry/backoff rules",
+    "does not establish how often the serializer is called by the outer application beyond separately recovered pump behavior",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "drainOrder": [
+        "points",
+        "marches",
+        "pointRemovals",
+        "marchRemovals"
+      ],
+      "pendingCounterRvas": {
+        "marchRemovals": "0x911C0",
+        "marches": "0x91140",
+        "pointRemovals": "0x91180",
+        "points": "0x91100"
+      },
+      "proxy": "secure",
+      "serializerRva": "0x38AB0-0x39F15",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "sharedDrainBudget": 1024
+    },
+    {
+      "drainOrder": [
+        "points",
+        "marches",
+        "pointRemovals",
+        "marchRemovals"
+      ],
+      "pendingCounterRvas": {
+        "marchRemovals": "0x921C0",
+        "marches": "0x92140",
+        "pointRemovals": "0x92180",
+        "points": "0x92100"
+      },
+      "proxy": "plain",
+      "serializerRva": "0x38AB0-0x39F15",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "sharedDrainBudget": 1024
+    }
+  ],
+  "recoveredResult": {
+    "acks": "not part of this drain; R8-079 proves native-capture acks=[] and pendingAcks=0",
+    "budgetSemantics": "one shared counter is initialized once and decremented across all four drain loops without reset",
+    "destructiveDrain": "each copied item is unlinked/freed and decrements its queue pending counter",
+    "drainOrder": [
+      "points",
+      "marches",
+      "pointRemovals",
+      "marchRemovals"
+    ],
+    "marchRemovalEncoding": "quoted string values",
+    "pointRemovalEncoding": "numeric 32-bit values",
+    "sharedDrainBudget": 1024
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

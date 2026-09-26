@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-080`
+**Current checkpoint:** `LWB-R8-081`
 
 ## Executive status
 
@@ -26,6 +26,14 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-081 native-capture drain budget/order
+
+R8-081 proves both verified proxies drain native capture with one shared 1024-item budget in fixed order: points → marches → point removals → march removals. The budget is not reset between categories, and every drained entry is removed from its queue while decrementing that queue's pending count.
+
+Point removals are numeric 32-bit values; march removals are quoted strings. ACKs remain outside this drain because R8-079 proves the capture serializer emits `acks=[]` and `pendingAcks=0`.
+
+Traversal/coordinates, per-tick work, retries and exact publication/flush timing remain unrecovered. See `docs/reviews/2026-09-27-r8-081-native-capture-drain.md`.
 
 ## R8-080 outer MapScanTick cadence
 
