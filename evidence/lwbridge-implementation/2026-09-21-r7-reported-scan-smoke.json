@@ -1,0 +1,95 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-129",
+  "date": "2026-09-21",
+  "status": "REPORTED-SCAN-FIXES-FRESH-LIVE-SMOKE-PROVEN",
+  "title": "Re-prove Player City, Truck, and generic Monster/Doom Walker on the pushed post-R7-128 build",
+  "branch": "research/offline-controller",
+  "testedRevision": "b961da6a49485129fb2936068d95620e5974764b",
+  "testIsolation": "All three live proofs ran from a clean detached worktree at the pushed R7-128 revision so unrelated local diagnostic WIP could not affect results.",
+  "serverId": 2212,
+  "playerCity": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build -- --live-current-client-full-city-manual",
+    "legacyDiagnosticModeEnvironment": "fast",
+    "effectiveStrategy": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedCityCount": 6684,
+    "reopenedCityCount": 6684,
+    "scanWallSeconds": 136.6576904,
+    "boundedTransientRetriesObserved": 1,
+    "sortCheckCount": 9,
+    "reopenedSortCheckCount": 9,
+    "filterCheckCount": 7
+  },
+  "truck": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build -- --live-current-client-full-truck-manual",
+    "legacyDiagnosticModeEnvironment": "fast",
+    "effectiveStrategy": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedTruckCount": 215,
+    "reopenedTruckCount": 215,
+    "scanWallSeconds": 135.165346,
+    "specialUrCount": 14,
+    "currentGoodsRowCount": 215,
+    "currentGoodsItemCount": 1499,
+    "plunderableFilterCount": 201,
+    "rewardOptionCount": 18,
+    "sortCheckCount": 15,
+    "reopenedSortCheckCount": 15
+  },
+  "monster": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build -- --live-current-client-full-monster-manual",
+    "legacyDiagnosticModeEnvironment": "fast",
+    "effectiveStrategy": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedMonsterCount": 6848,
+    "reopenedMonsterCount": 6848,
+    "scanWallSeconds": 137.0355255,
+    "boundedTransientRetriesObserved": 3,
+    "filterCheckCount": 8,
+    "doomWalker": {
+      "identity": {
+        "configType": 8,
+        "configSpecial": 11,
+        "monsterNameKey": "monster_boss_name_001"
+      },
+      "liveCount": 25,
+      "observedLevels": [130, 150, 170, 180, 190, 210, 220],
+      "maxObservedLevel": 220,
+      "exampleTemplateIds": [1040004, 1040008, 1040009, 1040010, 1040012, 1040013]
+    }
+  },
+  "cleanup": {
+    "overviewHelperRunning": false,
+    "lastWarRunning": false,
+    "launcherRunning": false,
+    "originalPackageHashes": {
+      "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+      "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+      "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+    }
+  },
+  "safety": {
+    "scanReadOnly": true,
+    "attackPerformed": false,
+    "scoutPerformed": false,
+    "collectPerformed": false,
+    "claimPerformed": false,
+    "plunderPerformed": false,
+    "messagePerformed": false,
+    "sharePerformed": false
+  },
+  "remainingBoundary": "The three owner-reported scan defects are freshly live-proven on the pushed build. Ghost and Supplies positive-population acceptance remain population-dependent; state-changing Truck/Dispatch/Alliance/Treasure actions remain authorization-gated."
+}

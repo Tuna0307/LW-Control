@@ -1,0 +1,79 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-123",
+  "date": "2026-09-21",
+  "status": "NORMAL-WINDOW-SHARED-LISTENER-AND-LAUNCH-BINDING-WIRED/OFFLINE-WINDOWS-PROVEN/REAL-GAME-NOT-LAUNCHED",
+  "title": "Wire recovered shared bridge transport into normal application startup before Overview launch",
+  "branch": "research/offline-controller",
+  "parentRevision": "bbc4757e9ef7a350ad6f14c540bd32416812506c",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL",
+  "sourceBackedBasis": [
+    "LWB-R7-109 application startup owns one shared listener before profile registration",
+    "LWB-R7-117/R7-118 registration-before-helper launch, refresh, environment binding and failure unregister",
+    "LWB-R7-121 shared host listener/RPC composition",
+    "LWB-R7-122 exact <selectedGameRoot>\\Game\\LastWar.exe client image and zero command counter seed"
+  ],
+  "normalComposition": {
+    "windowFile": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "lifecycleFile": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "hostFile": "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "order": [
+      "normal non-isolated window resolves current validated game root",
+      "construct one application-owned LWBridgeControlPipeHostState",
+      "if root is already valid, derive <root>\\Game\\LastWar.exe",
+      "start shared listener/RPC transport with OverviewLifecycleService.BridgeVersion",
+      "construct OverviewLifecycleService using same host",
+      "enable bridge control-pipe launch binding",
+      "real StartAsync rechecks same listener identity before launch registration",
+      "register instance/token before helper launch and explicitly unregister failed launches"
+    ],
+    "expectedClientImage": "<selectedGameRoot>\\Game\\LastWar.exe",
+    "expectedBuildId": "lwbridge-overview-bridge-1",
+    "normalLaunchBindingEnabled": true,
+    "testHookLifecycleStartsNativeListener": false
+  },
+  "hostIdentityPolicy": {
+    "sameBuildAndCanonicalClientImage": "idempotent; returns same listener task",
+    "differentBuildOrClientImageWhileRunning": "rejected",
+    "immediateNativeStartFailure": "call registry/listener identity rolled back before returning"
+  },
+
+  "proof": {
+    "normalCompositionCheck": {
+      "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeNormalCompositionChecks.cs",
+      "focusedCli": "--overview-bridge-normal-composition-check",
+      "result": "PASS"
+    },
+    "hostTransportCheck": {
+      "focusedCli": "--overview-bridge-host-transport-check",
+      "result": "PASS",
+      "observedCommandIds": ["cmd_1", "cmd_2", "cmd_3"],
+      "sameIdentityListenerReuse": true,
+      "differentIdentityRejected": true
+    },
+    "lifecycleLaunchBindingCheck": {
+      "focusedCli": "--overview-bridge-lifecycle-launch-binding-check",
+      "result": "PASS",
+      "sameBindingAcrossRetry": true,
+      "refreshBeyondOriginalDeadline": true,
+      "terminalFailureUnregister": true
+    }
+  },
+  "remainingA11Boundary": {
+    "getStatusPendingExposed": true,
+    "exactGetStatusCall": "enabled by R7-124",
+    "genericCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "successfulProfileStopRegistryUnregister": "source-recovered and implemented by R7-125",
+    "realGamePositiveHandshake": "not performed in this checkpoint"
+  },
+  "nextExactGap": "R7-124/125 supersede the offline data-path and successful-stop cleanup gaps. Next, prove the normal managed game launch authenticates the production route and answers only read-only get_status / call_lua(getStatus,{}) end-to-end, then close the owned game and verify route unregister/restoration.",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-092",
+  "acceptanceCase": "A05",
+  "date": "2026-09-20",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Home managed/unmanaged LastWar process ownership matrix",
+  "branch": "research/offline-controller",
+  "parentRevision": "3ded6969898210671f879f69acda24488f5bf633",
+  "scope": {
+    "claim": "Closes A05 at deterministic/offline scope using real Windows processes named LastWar from temporary fixture paths. The official game is never launched.",
+    "officialGameLaunched": false,
+    "realWindowsProcessEnumerationUsed": true,
+    "realPidPathCreationIdentityUsed": true,
+    "productionCodeChanged": false
+  },
+  "fixture": {
+    "executableSource": "Windows cmd.exe copied into temporary selected/foreign Game\\LastWar.exe paths",
+    "reason": "Exercises Process.GetProcessesByName(\"LastWar\"), MainModule.FileName path matching, PID and StartTime identity without starting the official game.",
+    "cleanup": "Every fixture process is terminated by the test finally block; post-stress residual LastWar inventory was empty."
+  },
+  "sourceIdentity": {
+    "OverviewLifecycleService.cs": "b48b6513c5a5a87ec1adfc5156e6b2c574d5dd2955097f4b5d864eaa9c7342b6",
+    "Program.cs": "4f0f68fc8e730b957110ce9af9406ee3aa3ba2d95d6b89febab3906d5f7cf862",
+    "OverviewProcessOwnershipChecks.cs": "b41da2ec08763f27982d8b9a5a259301527e5f46763008ff1bd61c58e240830d"
+  },
+  "currentClientCompatibility": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "stress": {
+    "iterations": 10,
+    "allManagedForeignPreserved": true,
+    "allManagedOwnedStopped": true,
+    "allSingleManagedStartStop": true,
+    "allDuplicateStartGameRunning": true,
+    "allUnmanagedStatusConflict": true,
+    "allUnmanagedStartConflict": true,
+    "allUnmanagedSelectedPreserved": true,
+    "allUnrelatedPreservedDuringConflict": true,
+    "uniqueManagedPids": 10,
+    "uniqueForeignPids": 10,
+    "uniqueUnmanagedPids": 10,
+    "runs": [
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 21972,
+          "foreignStartedAt": "2026-09-20T08:34:45.1036151Z",
+          "selectedPid": 30284,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 18912,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 22272,
+          "foreignStartedAt": "2026-09-20T08:34:47.8389781Z",
+          "selectedPid": 39096,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 42632,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 36940,
+          "foreignStartedAt": "2026-09-20T08:34:50.6776390Z",
+          "selectedPid": 23360,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 2824,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 20112,
+          "foreignStartedAt": "2026-09-20T08:34:53.4524050Z",
+          "selectedPid": 26448,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 41584,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 41688,
+          "foreignStartedAt": "2026-09-20T08:34:56.2574537Z",
+          "selectedPid": 26284,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 28632,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 19748,
+          "foreignStartedAt": "2026-09-20T08:34:59.0338327Z",
+          "selectedPid": 42800,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 39216,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 22724,
+          "foreignStartedAt": "2026-09-20T08:35:01.8016292Z",
+          "selectedPid": 19700,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 34396,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 8364,
+          "foreignStartedAt": "2026-09-20T08:35:04.6118764Z",
+          "selectedPid": 42408,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 14412,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 6964,
+          "foreignStartedAt": "2026-09-20T08:35:07.4410548Z",
+          "selectedPid": 34664,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 19776,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      },
+      {
+        "ok": true,
+        "acceptanceCase": "A05",
+        "scope": "real Windows LastWar process-name/path/creation-identity ownership matrix using temporary dummy executables; official game never launched",
+        "managed": {
+          "foreignPid": 21460,
+          "foreignStartedAt": "2026-09-20T08:35:10.2849062Z",
+          "selectedPid": 41524,
+          "helperStartCalls": 1,
+          "helperStopCalls": 1,
+          "duplicateStartCode": "GAME_RUNNING",
+          "foreignPreservedBeforeStart": true,
+          "foreignPreservedWhileManagedRunning": true,
+          "foreignPreservedAfterManagedStop": true,
+          "selectedOwnedStopped": true
+        },
+        "unmanaged": {
+          "selectedPid": 34676,
+          "statusError": "UNMANAGED_GAME_RUNNING",
+          "startError": "UNMANAGED_GAME_RUNNING",
+          "selectedProcessPreserved": true,
+          "unrelatedProcessPreserved": true
+        }
+      }
+    ]
+  },
+  "acceptanceMapping": {
+    "managedOwnership": "Each run starts one selected-root dummy LastWar through the lifecycle helper hook, then production ProcessMatches verifies its real PID/path/start-time identity. Duplicate Start returns GAME_RUNNING and does not invoke a second helper.",
+    "unmanagedConflict": "Each run separately starts a selected-root LastWar outside LWBridge. profile_instance_status reports phase=error, exact PID and UNMANAGED_GAME_RUNNING; Start rejects with the same code and never invokes helper start.",
+    "unrelatedProcessPreservation": "A simultaneous foreign-path LastWar process is alive before managed Start, while managed session runs, after managed Stop, and during selected-root unmanaged conflict in every run.",
+    "exactOwnedStop": "Managed Stop receives the exact PID/path/start-time identity and terminates only the selected-root owned fixture; the foreign LastWar remains alive.",
+    "noResidualFixture": "After all ten runs, Get-Process LastWar returned no fixture process."
+  },
+  "supersedes": {
+    "evidence": "LWB-R7-088",
+    "caseId": "A05",
+    "priorStatus": "partial",
+    "newStatus": "pass_current_offline"
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedTenRunOwnershipMatrix": "PASS; 10/10",
+    "existingDeferredRestorationRegression": "PASS",
+    "a10StartupFailureMatrix": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "residualLastWarFixturesAfterStress": "none",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

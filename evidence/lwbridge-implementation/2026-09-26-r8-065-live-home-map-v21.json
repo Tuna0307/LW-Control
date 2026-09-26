@@ -1,0 +1,124 @@
+{
+  "checkpoint": "LWB-R8-065",
+  "date": "2026-09-26",
+  "liveWorkingRule": "working means freshly verified against the real installed game",
+  "currentClient": {
+    "contentVersion": 21,
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "packageSha256": "e888a4ae3faae6df501493e18653fbb92c2406487467ba34312b7c5a22e2caa5",
+    "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
+  },
+  "home": {
+    "command": "--live-overview-home-proof",
+    "exitCode": 0,
+    "diagnosticOk": true,
+    "proof": "home_overview_v17_manual_and_auto_launch",
+    "results": [
+      {
+        "mode": "manual",
+        "instanceId": "bc08fa6fb27c4ee98061ce2760e44fbc",
+        "pid": 41176,
+        "connectionState": "connected"
+      },      {
+        "mode": "auto-start",
+        "instanceId": "fa6811ba50c4423981401089ab9be964",
+        "pid": 24644,
+        "connectionState": "connected"
+      }
+    ],
+    "classification": "LIVE_WORKING_EQUIVALENT_REIMPLEMENTATION"
+  },
+  "mapRegression": {
+    "serverId": 2212,
+    "failingTarget": [665, 875],
+    "oldFootprintRows": [80,81,82,83,84,85,86,87,88],
+    "oldFootprintColumns": [65,66,67],
+    "oldNativeCurrentSetCount": 27,
+    "failureBeforeFix": {
+      "readBlocks": 0,
+      "failedBlocks": 218,
+      "unreadBlocks": 2281
+    },
+    "targetedNudge": {
+      "target": [665, 885],
+      "observedRows": [81,82,83,84,85,86,87,88,89,90],
+      "observedColumns": [65,66,67],
+      "nativeCurrentSetCount": 30
+    }
+  },  "mapFinal": {
+    "command": "--live-current-client-all-eight-modes",
+    "exitCode": 0,
+    "sessionId": "5ec8c8bc97ab4427bef410dff6e0d2b7",
+    "proof": "same_owned_session_all_eight_normal_then_fast",
+    "originalEight": ["city","resource","monster","truck","railway","dispatch","ghost","treasure"],
+    "normal": {
+      "scanMode": "normal",
+      "concurrency": 8,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 118.1438987,
+      "counts": {
+        "city": 6732,
+        "resource": 934,
+        "monster": 2927,
+        "truck": 210,
+        "railway": 2,
+        "dispatch": 159,
+        "ghost": 0,
+        "treasure": 0
+      }
+    },    "fast": {
+      "scanMode": "fast",
+      "concurrency": 20,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 112.943038,
+      "counts": {
+        "city": 6732,
+        "resource": 1932,
+        "monster": 4087,
+        "truck": 249,
+        "railway": 2,
+        "dispatch": 290,
+        "ghost": 0,
+        "treasure": 7
+      },
+      "reopenedCounts": {
+        "city": 6732,
+        "resource": 1932,
+        "monster": 4087,
+        "truck": 249,
+        "railway": 2,
+        "dispatch": 290,
+        "ghost": 0,
+        "treasure": 7
+      }
+    },
+    "classification": "LIVE_WORKING_EQUIVALENT_REIMPLEMENTATION"
+  },  "compatibilityFix": {
+    "wideFovShortcutRestored": false,
+    "acceptedRowCounts": [9, 10],
+    "acceptedColumnRange": [2, 5],
+    "bottomRowCleanupNudgeTiles": 10,
+    "coverageAuthority": "exact 10000 AOI union",
+    "proofTerminalPhase": "idle"
+  },
+  "regressionGate": {
+    "desktopBuildWarnings": 0,
+    "desktopBuildErrors": 0,
+    "checksBuildWarnings": 0,
+    "checksBuildErrors": 0,
+    "deterministicOk": true,
+    "deterministicFailures": [],
+    "frontendCheck": true,
+    "gitDiffCheck": true
+  },
+  "parityCaveat": {
+    "originalMapAcquisitionRecovered": false,
+    "wholeProgramParityComplete": false
+  }
+}

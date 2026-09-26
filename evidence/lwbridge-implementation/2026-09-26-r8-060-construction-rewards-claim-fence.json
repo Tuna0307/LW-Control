@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-060",
+  "date": "2026-09-26",
+  "scope": "Fence construction_rewards_claim at owner-excluded authorization-state admission while closing exact selected-profile, route, method, empty-args, timeout and raw-result behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "retained frontend construction_rewards_claim wrapper",
+    "retained shared U() profile injector",
+    "construction_rewards_claim handler 0x140179BC9-0x14017A65C",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "profile/runtime resolver 0x1402AE43C-0x1402AE4E6",
+    "game-route helper 0x1403AD367-0x1403AD3B8",
+    "shared game-call future 0x1400E4FAD",
+    "generic JSON converter 0x1402BB816"
+  ],
+  "publicContract": {
+    "featurePayload": "none",
+    "sharedWrapperInjectsSelectedProfileId": true,
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "profileIdRequired": {
+      "code": "PROFILE_ID_REQUIRED",
+      "message": "PROFILE_ID_REQUIRED"
+    },
+    "profileRuntimeUnavailable": {
+      "code": "PROFILE_RUNTIME_UNAVAILABLE",
+      "message": "PROFILE_RUNTIME_UNAVAILABLE"
+    },
+    "disconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "gameMethod": "claimConstructionRewards",
+    "gameArgs": {},
+    "gameTimeoutMilliseconds": 5000,
+    "nativeRetryCount": 0,
+    "timeout": {
+      "code": "LUA_CALL_TIMEOUT",
+      "message": "lua call result unknown after timeout: claimConstructionRewards"
+    },
+    "providerFailureCode": "LUA_CALL_FAILED",
+    "success": "correlated provider JSON returned through generic converter"
+  },
+  "admissionOrder": [
+    "authorization state",
+    "profileId/runtime",
+    "game route",
+    "claimConstructionRewards provider call"
+  ],
+  "evidenceClassification": {
+    "sharedWrapperProfileInjection": "EXACT_CONTRACT",
+    "authorizationAdmission": "EXACT_NATIVE",
+    "profileRuntimeErrors": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "providerMethod": "EXACT_NATIVE",
+    "emptyArgs": "EXACT_NATIVE",
+    "fiveSecondDeadline": "EXACT_NATIVE",
+    "timeoutFailureMapping": "EXACT_NATIVE",
+    "rawJsonSuccessReturn": "EXACT_NATIVE",
+    "providerResultSchema": "UNKNOWN",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission implementation",
+    "current-client live validation of claimConstructionRewards provider behavior/result"
+  ],
+  "nextCheckpoint": "Continue retained non-account recovery; do not enable Construction Rewards claiming by bypassing native authorization-state admission."
+}

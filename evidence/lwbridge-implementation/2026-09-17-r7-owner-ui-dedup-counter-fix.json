@@ -1,0 +1,62 @@
+{
+  "findingId": "LWB-R7-020",
+  "date": "2026-09-17",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; owner live retest pending",
+  "scope": "ordinary UI Monster scan accepts deduplicated protection replies from overlapping AOIs",
+  "ownerObservedRun": {
+    "selectedTypes": ["monster"],
+    "totalBlocks": 2500,
+    "status": "discarded",
+    "completedBlocks": 0,
+    "failedBlocks": 31,
+    "failedCounterValidationBlocks": 29,
+    "failedNativeContractBlocks": 2,
+    "counterError": "Fast world Monster Invasion protection detail counters are inconsistent."
+  },
+  "rootCause": {
+    "producerBehavior": "Zombie Boss UUIDs are deduplicated across overlapping AOI responses",
+    "validCarryoverExample": {
+      "targetCount": 1,
+      "newRequestCount": 0,
+      "readyCount": 1
+    },
+    "consumerBug": "ordinary UI batch validation incorrectly required readyCount <= newRequestCount",
+    "correctInvariant": "newRequestCount <= targetCount and readyCount <= targetCount"
+  },
+  "implementation": {
+    "source": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+    "change": "per-AOI validation now compares both new-request and ready counts independently against the current target count",
+    "regression": "FastMonsterAllowsDeduplicatedReadyCarryover",
+    "baseScanPolicy": "optional protection enrichment must not invalidate base Monster acquisition"
+  },
+  "sourceHashes": {
+    "CurrentClientMapBlockSource.FastCity.cs": "5bea073e416e49d11c6bbbee7d2cf1559ddcba9a29c37878bd4d46c074460304",
+    "CurrentClientMapBlockSourceChecks.cs": "9fca8f828b9dbc6d38d2d77bd66b146d8d7659e80346e4a387e4a7cda3a67130"
+  },
+  "releaseBuild": {
+    "exeSha256": "5555cb2d933b3314c5c2d3e3cecdd40ff17365cd617e65a4f9a5c175a4351e82",
+    "dllSha256": "bde1a8e8f565eed920f1bc5a3815fa801cb7dfa31266b8cba1a0d08e2209ae56",
+    "warnings": 0,
+    "errors": 0
+  },
+  "validation": {
+    "deterministicSuiteOk": true,
+    "deterministicFailures": [],
+    "gitDiffCheck": "clean",
+    "currentClientVersion": 18,
+    "currentClientPackageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "currentClientCompatibilityOk": true,
+    "recoveryJournalPresentAfterCleanup": false,
+    "gameOrLauncherRunningAfterCleanup": false
+  },
+  "limits": [
+    "No post-fix live UI scan was run by ChatGPT; the owner will retest the ordinary UI path.",
+    "The two native response/restoration failures occurred during the discarded multi-worker run and are not claimed fixed independently by this checkpoint.",
+    "Positive Zombie Boss Remaining is still not live-positive-proven."
+  ],
+  "ownerNextGate": [
+    "Run one ordinary Normal Monster scan from the delivered Release build.",
+    "First confirm the scan reaches 100 percent without resetting or stalling.",
+    "Only after scan completion, inspect Zombie Boss Remaining without clicking or Jumping."
+  ]
+}

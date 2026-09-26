@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-063",
+  "date": "2026-09-26",
+  "scope": "Fence profile_enable_set at owner-excluded authorization/license capacity while closing exact capacity, selection, SQL mutation, selection-repair and refreshed-list behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "profile_enable_set handler 0x1401101EF-0x140110C7D",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "capacity extractor 0x1400DE81A-0x1400DE8EC",
+    "profileIds sequence parser 0x14028BFB8",
+    "profile-capacity service 0x140419180-0x14041928A",
+    "capacity core 0x1403D614E-0x1403D6E4B",
+    "profile-list loader 0x1403D943E-0x1403D9748",
+    "selection repair 0x1403DA8A1-0x1403DABDA",
+    "profile-list projector/serializer 0x14041C193 / 0x14042E54C"
+  ],
+  "publicContract": {
+    "payloadField": "profileIds",
+    "payloadContainer": "array",
+    "invalidContainerCode": "INVALID_REQUEST",
+    "validCapacities": [1,2,5],
+    "invalidCapacityCode": "INVALID_PROFILE_CAPACITY",
+    "primaryMissingCode": "PROFILE_PRIMARY_MISSING",
+    "selectionRequiredCode": "PROFILE_SELECTION_REQUIRED",
+    "successFields": ["selectedProfileId","maxProfiles","profiles"]
+  },
+  "selectionRules": {
+    "profilesAtOrBelowCapacity": "enable all profiles",
+    "overCapacityAtOne": "keep primary profile enabled",
+    "overCapacityAtTwoOrFive": "submitted unique set count equals capacity; includes primary; all IDs exist",
+    "duplicatesCanReduceUniqueCount": true
+  },
+  "mutation": {
+    "sql": "UPDATE profiles SET enabled = ?, locked_reason = ?, updated_at = ? WHERE id = ?",
+    "enabledMember": {"enabled":true,"lockedReason":null},
+    "disabledMember": {"enabled":false,"lockedReason":"license_capacity"},
+    "updatedAt": "current Unix milliseconds",
+    "transactionContexts": ["begin profile capacity update","update profile capacity","commit profile capacity"],
+    "deletesProfileRows": false
+  },
+  "selectedProfileRepair": {
+    "enabledCheckSql": "SELECT enabled = 1 AND locked_reason IS NULL FROM profiles WHERE id = ?",
+    "fallback": "surviving primary profile",
+    "lockErrorVocabulary": "PROFILE_LOCKED"
+  },
+  "evidenceClassification": {
+    "profileIdsContainer": "EXACT_NATIVE",
+    "individualElementSerdeDetail": "UNKNOWN",
+    "capacityDomainAndError": "EXACT_NATIVE",
+    "primaryInvariant": "EXACT_NATIVE",
+    "selectionRules": "EXACT_NATIVE",
+    "rowMutation": "EXACT_NATIVE",
+    "selectionRepair": "EXACT_NATIVE",
+    "successProjection": "EXACT_NATIVE",
+    "authorizationLicenseCapacity": "OWNER_EXCLUDED_UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization/license capacity source",
+    "exact serde error detail for invalid individual profileIds elements",
+    "runtime command remains fenced until capacity can be supplied without account/license reconstruction"
+  ],
+  "nextCheckpoint": "Continue retained non-auth profile/host recovery; do not implement profile_enable_set with a fabricated maxProfiles/capacity."
+}

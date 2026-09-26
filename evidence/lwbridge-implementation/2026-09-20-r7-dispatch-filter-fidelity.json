@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-073",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "66c0e5723265faa29f29a46cec8ba0506acfab24",
+  "status": "LIVE-PROVEN",
+  "scope": {
+    "feature": "current-v19 Dispatch/Secret Task public result-filter fidelity",
+    "dispatchLiveProven": true,
+    "ghostUsesSameHelper": true,
+    "ghostPositiveRowLiveProofDeferredUntil": "2026-09-24",
+    "readOnly": true,
+    "stateChangingGameplayActionInvoked": false
+  },
+  "recoveredAuthority": {
+    "referenceBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "quality": "LWB-R6-013",
+    "specialOnly": "LWB-R6-006",
+    "completionAndPlunderability": "LWB-R6-014",
+    "level": "recovered inclusive level >= / <= pair with the frontend exact-level form emitting both bounds"
+  },
+  "implementation": {
+    "queryContract": "src/LWBridge.Desktop/MapDataQueryContract.cs",
+    "store": "src/LWBridge.Desktop/MapDataStore.cs",
+    "liveVerifier": "tests/LWBridge.Desktop.Checks/DispatchGhostFilterProofHelper.cs",
+    "dispatchHarness": "tests/LWBridge.Desktop.Checks/LiveManualFullDispatchProof.cs",
+    "verificationMethod": "For every filter scenario, independently compute the expected live row identity set from persisted authoritative row fields, execute the public recovered query against the same frozen wall clock, require exact set equality, then repeat all checks after database reopen."
+  },
+  "liveAcceptance": {
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 131.4536745,
+    "publishedDispatchCount": 69,
+    "reopenedDispatchCount": 69,
+    "requiredIdentityCoverage": 69,
+    "sortComparedRowCount": 69,
+    "sortCheckCount": 9,
+    "reopenedSortCheckCount": 9,
+    "filterComparedRowCount": 69,
+    "filterCheckCount": 12,
+    "reopenedFilterCheckCount": 12,
+    "filterSampledAtUnixMs": 1789861738099,
+    "qualityCounts": {
+      "n": 0,
+      "r": 0,
+      "sr": 20,
+      "ssr": 12,
+      "ur": 37
+    },
+    "specialOnlyCount": 6,
+    "completionStatus": {
+      "pending": 6,
+      "completed": 63,
+      "partitionedAllLiveRows": true
+    },
+    "level": {
+      "sampleLevel": 4,
+      "minLevelCount": 55,
+      "maxLevelCount": 38,
+      "exactLevelCount": 24
+    },
+    "plunderableOnlyCount": 69,
+    "positiveBranchesObserved": [
+      "quality sr",
+      "quality ssr",
+      "quality ur",
+      "specialOnly",
+      "completionStatus pending",
+      "completionStatus completed",
+      "minLevel",
+      "maxLevel",
+      "exact minLevel+maxLevel",
+      "plunderableOnly"
+    ],
+    "zeroPopulationBranchesStillSetCompared": [
+      "quality n",
+      "quality r"
+    ]
+  },
+  "railwayFollowUp": {
+    "purpose": "Attempt to extend the same result-filter closure to the previously positive Railway server without using stale rows.",
+    "targetServerId": 2204,
+    "scanMode": "fast",
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedRailwayCount": 0,
+    "result": "NO_NEW_FILTER_ACCEPTANCE",
+    "cleanup": "returned from 2204 to original server 2212",
+    "interpretation": "R7-071 remains the dated positive Railway authority. The current population no longer contains Railway rows, so no Railway filter claim was added and the temporary unproven Railway filter helper/integration was removed."
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "attacksOrRobberyPerformed": false,
+    "claimsOrCollectionsPerformed": false,
+    "messagesSent": false,
+    "stateChangingGameplayActionsPerformed": false
+  },
+  "privacy": "Aggregate-only evidence. No player identity, point UUID, coordinates, session/challenge identifiers, process identifiers, databases or raw logs are retained."
+}

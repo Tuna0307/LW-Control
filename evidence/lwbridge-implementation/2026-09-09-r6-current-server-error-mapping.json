@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-037",
+  "scope": "LWBridge getCurrentServerId bridge-wrapper result validation and exact SERVER_UNAVAILABLE mapping",
+  "evidenceStatus": "RECOVERED static current-server error branch; bridge-script handler implementation and world-map-state unavailable mapping remain UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "preferred-image virtual addresses from the verified PE"
+  },
+  "commandString": {
+    "text": "getCurrentServerId",
+    "fileOffset": "0x822148",
+    "rva": "0x822D48",
+    "va": "0x140822D48",
+    "codeXrefs": [
+      {
+        "va": "0x1400DC9E8",
+        "functionVaRange": "0x1400DC995-0x1400DCBF4",
+        "sourceMarker": "src\\commands\\map.rs"
+      },
+      {
+        "va": "0x1400F80B9",
+        "functionVaRange": "0x1400F7F47-0x1400F9333",
+        "role": "shared scan-state producer from LWB-R6-036"
+      }
+    ]
+  },
+  "mapCommandWrapper": {
+    "functionVaRange": "0x1400DC995-0x1400DCBF4",
+    "sourceMarkerVa": "0x1400DC9BB",
+    "requestSetupVa": "0x1400DC9E8-0x1400DCA22",
+    "commandLength": 18,
+    "dispatcherCallVa": "0x1400DCA22",
+    "dispatcherTargetVa": "0x1400E4FAD",
+    "serverIdExtractionBranch": {
+      "variantCompareVa": "0x1400DCA98-0x1400DCA9B",
+      "requiredVariantWord": "0x8000000000000000",
+      "keyLoadVa": "0x1400DCABA",
+      "key": "serverId",
+      "extractorCallVa": "0x1400DCAC7",
+      "extractorTargetVa": "0x14023195E",
+      "conditionVa": "0x1400DCACC-0x1400DCACF",
+      "condition": "the extracted signed serverId must be greater than zero"
+    },
+    "customUnavailableError": {
+      "branchVa": "0x1400DCB29",
+      "trigger": "the serverId extraction branch produced a value less than or equal to zero",
+      "code": "SERVER_UNAVAILABLE",
+      "codeLength": 18,
+      "codeLoadVa": "0x1400DCB32",
+      "message": "current server id unavailable",
+      "messageLength": 29,
+      "messageLoadVa": "0x1400DCB39",
+      "constructorCallVa": "0x1400DCB51",
+      "constructorTargetVa": "0x1404170BA"
+    },
+    "limit": "other dispatcher/result variants bypass this custom serverId<=0 branch; their exact transport error identities are preserved from the dispatcher and are not renamed here"
+  },
+  "worldMapStateBoundary": {
+    "command": "getWorldMapState",
+    "codeXrefCount": 1,
+    "onlyRecoveredXref": "0x1400F7FBE inside the shared producer 0x1400F7F47-0x1400F9333",
+    "unavailableLiteralFileOffset": "0xC9A2D8",
+    "unavailableLiteral": "map scan state is unavailable",
+    "rawCluster": "map scan status/error vocabulary containing serverIdSource, isInWorld, SERVER_UNAVAILABLE, current server id unavailable, tileWidth/tileHeight, map scan failed, truckMatchServerIds, map scan state is unavailable and connection/stall diagnostics",
+    "limit": "the exact code reference/condition for map scan state is unavailable remains UNKNOWN/BLOCKED and is not inferred from raw-string proximity"
+  },
+  "bridgeScriptBoundary": {
+    "embeddedPackage": "bridge-scripts.dat",
+    "packageSha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d",
+    "packageStatus": "LWBP version 2 package remains encrypted/high-entropy; plaintext command semantics are not guessed",
+    "loaderRawStrings": [
+      "script package not found",
+      "key envelope missing",
+      "key envelope expired",
+      "key envelope invalid",
+      "package decrypt failed",
+      "loaded script package format=",
+      "__XluaBridgePipeSend",
+      "__XluaBridgeLoad",
+      "__XluaBridgeEvalHook",
+      "__XluaBridgeNativeClaimSchedule",
+      "__XluaBridgeNativeClaimCancel",
+      "__XluaBridgeNativeClaimCancelAll"
+    ],
+    "loaderRawStringRange": "file offsets 0x9F8154-0x9F82D4",
+    "managedNameRawSearchResult": "no raw match in lwbridge-0.3.1.exe for GetCurServerId, DCPlayer, SceneManager, IsInWorld, GameEntry or CustomDataManager",
+    "limit": "this establishes loader/runtime vocabulary only; it does not decrypt the package or prove the R6-035 managed call chain is the implementation of getCurrentServerId"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --target getCurrentServerId",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --target getWorldMapState",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --embedded-assets",
+    "rg -a -b -o \"getCurrentServerId\" ..\\LW\\lwbridge-0.3.1.exe",
+    "rg -a -b -o \"map scan state is unavailable\" ..\\LW\\lwbridge-0.3.1.exe",
+    "rg -a -b -o \"GetCurServerId|DCPlayer|SceneManager|IsInWorld|GameEntry|CustomDataManager\" ..\\LW\\lwbridge-0.3.1.exe"
+  ],
+  "environmentRestrictions": [
+    "SB-50: a proposed raw RVA/value descriptor scan during bridge-package investigation was rejected by automatic review and was not replayed or rerouted",
+    "SB-51: a combined raw-neighborhood search around getCurrentServerId/getWorldMapState was rejected by automatic review; exact raw location and bounded reads were then performed as separate operations"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "resolved": [
+      "getCurrentServerId has a src/commands/map.rs bridge-wrapper xref in addition to the shared producer",
+      "that wrapper extracts serverId and requires it to be greater than zero",
+      "serverId <= 0 on the extraction branch constructs SERVER_UNAVAILABLE with exact message current server id unavailable"
+    ],
+    "unknownBlocked": [
+      "the encrypted bridge-script implementation of getCurrentServerId and whether it invokes R6-035 GameEntry.Data -> CustomDataManager.Player -> DCPlayer.GetCurServerId()",
+      "the exact code/condition producing map scan state is unavailable",
+      "transport failure/timeout identities propagated by the common dispatcher",
+      "live current-client correlation"
+    ],
+    "productionBoundary": "map_summary and map_scan_status remain fail-closed; R6-037 closes only the explicit current-server invalid/unavailable branch"
+  },
+  "implementationImpact": {
+    "classification": "research checkpoint; no production backend change",
+    "nextMethod": "continue the encrypted bridge-package loader/decryptor route or another permitted bridge-handler trace to recover getCurrentServerId/getWorldMapState plaintext semantics; do not replay denied descriptor/string-error xref operations"
+  }
+}

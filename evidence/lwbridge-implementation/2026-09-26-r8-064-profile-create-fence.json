@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-064",
+  "date": "2026-09-26",
+  "scope": "Fence profile_create at owner-excluded entitlement capacity and incomplete post-create runtime provisioning while closing exact local create identity/default/result behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "profile_create handler 0x140156D0A-0x140157871",
+    "capacity source 0x1400DE81A-0x1400DE8EC",
+    "capacity/create service 0x14041C341-0x14041C51E",
+    "controller create helper 0x1403D4A7F-0x1403D51D6",
+    "profile ID helper 0x1403DD939-0x1403DD9B1",
+    "Base64 encoder 0x140401E98-0x140401FC4",
+    "profile-row serializer 0x1403DC2A1-0x1403DC575",
+    "post-create runtime helper 0x1403AC07B-0x1403AC626",
+    "retained frontend profile create/select flow"
+  ],
+  "publicContract": {
+    "commandSpecificPayloadFields": [],
+    "capacityError": "PROFILE_LIMIT_REACHED",
+    "capacityRule": "current profile count >= authorization-derived maxProfiles rejects create",
+    "generatedId": {
+      "randomBytes": 16,
+      "encoding": "Base64URL without padding",
+      "encodedLength": 22,
+      "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+    },
+    "nextDisplayOrderSql": "SELECT COALESCE(MAX(display_order) + 1, 0) FROM profiles",
+    "displayName": "账号 {displayOrder+1}",
+    "insertSql": "INSERT INTO profiles (id, display_name, display_order, enabled, locked_reason, is_primary, created_at, updated_at) VALUES (?, ?, ?, 1, NULL, 0, ?, ?)",
+    "successFieldOrder": [
+      "id",
+      "displayName",
+      "roleName",
+      "serverId",
+      "gameUid",
+      "note",
+      "displayOrder",
+      "enabled",
+      "lockedReason",
+      "isPrimary",
+      "createdAt",
+      "updatedAt",
+      "lastLaunchedAt"
+    ],
+    "frontendAfterSuccess": "profile_select(created.id)"
+  },
+  "newProfileDefaults": {
+    "roleName": null,
+    "serverId": null,
+    "gameUid": null,
+    "note": "",
+    "enabled": true,
+    "lockedReason": null,
+    "isPrimary": false,
+    "lastLaunchedAt": null
+  },
+  "selection": {
+    "controllerCreateWritesSelectedProfileId": false,
+    "frontendSelectsCreatedProfileSeparately": true
+  },
+  "postCreateBoundary": {
+    "runtimeProvisioningRequired": true,
+    "stateUnavailablePossible": true,
+    "exactFailureCleanupSemantics": "UNKNOWN"
+  },
+  "evidenceClassification": {
+    "capacityComparison": "EXACT_NATIVE",
+    "entitlementCapacitySource": "OWNER_EXCLUDED_UNKNOWN",
+    "generatedId": "EXACT_NATIVE",
+    "displayOrderAndName": "EXACT_NATIVE",
+    "insertAndDefaults": "EXACT_NATIVE",
+    "createdProfileProjection": "EXACT_NATIVE",
+    "frontendSeparateSelection": "EXACT_BYTES",
+    "postCreateRuntimePhase": "EXACT_NATIVE",
+    "postCreateFailureCleanup": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization/entitlement maxProfiles source and policy",
+    "exact cleanup/rollback behavior when post-create runtime provisioning fails",
+    "runtime command remains fenced until capacity can be supplied without account/license reconstruction"
+  ],
+  "nextCheckpoint": "Continue retained host/profile recovery after fencing profile_create; do not substitute fixed rebuild maxProfiles for native entitlement capacity."
+}

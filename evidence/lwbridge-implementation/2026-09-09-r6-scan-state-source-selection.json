@@ -1,0 +1,62 @@
+{
+  "findingId": "LWB-R6-044",
+  "date": "2026-09-09",
+  "scope": "PM7-B shared scan-state serverIdSource fallback and reading-mismatch branches",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000",
+    "producerPreferredVaRange": [
+      "0x1400F7F47",
+      "0x1400F9333"
+    ],
+    "coordinateSystem": "preferred-image virtual addresses/RVAs from the verified PE"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.6"
+  },
+  "result": [
+    "The producer extracts getCurrentServerId.serverId into r13 and homeServerId into r12, and distinguishes an exact boolean false isInWorld from true/missing/non-boolean input before selecting its server fallback branch.",
+    "On the exact isInWorld=false branch, a positive homeServerId replaces a nonpositive state serverId and the producer writes serverIdSource=live; an absent/nonpositive homeServerId or already-positive state serverId bypasses that fallback.",
+    "On the current-server branch, a positive current serverId is written back with serverIdSource=live. If isReading is exactly boolean true and the existing state serverId is positive but differs from the current serverId, the producer constructs the exact error text current server changed during map scan instead of silently switching servers.",
+    "When current serverId is nonpositive, exact boolean true isReading preserves the existing state; otherwise an already-positive state serverId is also preserved. Only the remaining nonpositive state-server case writes numeric serverId=0, serverIdSource=none, tileWidth=0 and tileHeight=0."
+  ],
+  "locators": {
+    "currentServerIdExtract": "0x1400F81BE-0x1400F81D8",
+    "isInWorldLookupAndExplicitFalseFlag": "0x1400F8225-0x1400F8260",
+    "homeServerIdExtract": "0x1400F835F-0x1400F8379",
+    "exactFalseBranch": "0x1400F87EE-0x1400F88C4",
+    "currentServerBranch": "0x1400F8978-0x1400F8B3C",
+    "readingMismatchError": "0x1400F89E6-0x1400F8A2F",
+    "noneFallback": "0x1400F89B2-0x1400F8D72"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_scan_state_source_selection.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_scan_state_source_selection.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-scan-state-source-selection.json",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x0F7F47",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x151509",
+    "python -m py_compile tools\\inspect_lwbridge_scan_state_source_selection.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "publicBehaviorEnabled": false,
+    "notProven": [
+      "the protected getWorldMapState/getCurrentServerId handler implementations and their current-client managed linkage",
+      "the common bridge dispatcher's exact failure/timeout error identities",
+      "the exact code/condition that emits the separate map scan state is unavailable message",
+      "the package-key.envelope open/read parser and parsed-field ownership into the recovered crypto helpers",
+      "plain-proxy parity for the R6-043 crypto helpers",
+      "live current-client correlation"
+    ],
+    "interpretationRule": "Only branch conditions, typed JSON-value checks, literal writes and helper calls visible in the hash-locked shared producer are promoted. The separate unavailable literal is not assigned to this producer without a direct recovered reference."
+  },
+  "implementationImpact": {
+    "publicSummary": "remains fail-closed with MAP_INDEX_UNAVAILABLE",
+    "publicStatus": "remains fail-closed until authoritative bridge/readiness integration is recovered",
+    "closedGap": "R6-036 serverIdSource live/none fallback and active-read server-mismatch behavior",
+    "pm7B": "continue protected handler/readiness mapping and package-key loader ownership; do not infer map scan state is unavailable from nearby vocabulary"
+  }
+}

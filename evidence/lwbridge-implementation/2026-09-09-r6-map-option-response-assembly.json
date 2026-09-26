@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-031",
+  "scope": "Native map_data_options noAllianceCount production, top-level assembly order, and scanProgress record selection",
+  "evidenceStatus": "RECOVERED static partial; persisted helper corrected and OFFLINE-TESTED; exact scanProgress JSON serialization/empty-state behavior remains UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets and preferred-image virtual addresses"
+  },
+  "boundedNativeRecovery": {
+    "optionAssemblyFunctionVaRange": [
+      "0x0000000140257AA4",
+      "0x000000014025B436"
+    ],
+    "allianceSql": {
+      "rawFileRange": "0x00C83048-0x00C830C7",
+      "text": "SELECT alliance_name,COUNT(*) FROM <dynamic source> WHERE kind='city' AND <dynamic scope> GROUP BY alliance_name ORDER BY alliance_name COLLATE NOCASE,alliance_name",
+      "priorFinding": "LWB-R6-009"
+    },
+    "allianceRowDecoder": {
+      "functionVaRange": [
+        "0x0000000140287B25",
+        "0x0000000140287C59"
+      ],
+      "nullableTextColumnCall": "0x0000000140287B56 -> 0x00000001404751BF with column index 0",
+      "countColumnCall": "0x0000000140287BE3 -> 0x0000000140474D67 with column index 1",
+      "nullableTextDecoderVaRange": [
+        "0x00000001404751BF",
+        "0x0000000140475416"
+      ],
+      "nullTypeGate": "0x00000001404751FF-0x0000000140475202 tests decoded SQLite value type zero and follows the null branch",
+      "nullCanonicalization": "0x0000000140287B70-0x0000000140287B8D recognizes the decoder's null sentinel and constructs the canonical zero-length name representation before reading COUNT(*)"
+    },
+    "noAllianceAccumulator": {
+      "initializeZero": "0x0000000140258728 and 0x0000000140258734",
+      "decodedNameLengthLoad": "0x000000014025891D loads the decoded alliance-name length",
+      "countLoad": "0x0000000140258935 loads the second SQL column COUNT(*)",
+      "zeroLengthGate": "0x000000014025894A-0x000000014025894D",
+      "nonemptyPath": "0x0000000140258953-0x0000000140258ADA builds and appends an object containing inline keys name and count",
+      "zeroLengthAccumulate": "0x0000000140258AE4 adds COUNT(*) to the running accumulator",
+      "accumulatorStore": "0x0000000140258AE7 stores the updated no-alliance total at stack slot +0x350",
+      "result": "both SQL NULL and empty-string alliance_name groups become zero-length names, are excluded from alliances[], and have their group COUNT(*) added to noAllianceCount"
+    },
+    "topLevelFieldCluster": [
+      {
+        "key": "serverId",
+        "keyXrefVa": "0x000000014025A9C0"
+      },
+      {
+        "key": "counts",
+        "rawFileOffset": "0x00C83A90",
+        "preferredImageVa": "0x0000000140C84690",
+        "keyXrefVa": "0x000000014025AA1D",
+        "valueProducer": "source/scope count helper call at 0x000000014025AA62 -> 0x0000000140271056"
+      },
+      {
+        "key": "alliances",
+        "rawFileOffset": "0x00C83A96",
+        "preferredImageVa": "0x0000000140C84696",
+        "keyXrefVa": "0x000000014025AB2B"
+      },
+      {
+        "key": "names",
+        "rawFileOffset": "0x00C83A9F",
+        "preferredImageVa": "0x0000000140C8469F",
+        "keyXrefVa": "0x000000014025ABA7"
+      },
+      {
+        "key": "dispatchLevels",
+        "rawFileOffset": "0x00C83AA4",
+        "preferredImageVa": "0x0000000140C846A4",
+        "keyXrefVa": "0x000000014025AC23"
+      },
+      {
+        "key": "noAllianceCount",
+        "rawFileOffset": "0x00C83AB2",
+        "preferredImageVa": "0x0000000140C846B2",
+        "keyXrefVa": "0x000000014025AC9F",
+        "valueLoad": "0x000000014025ACBC loads the accumulator from stack slot +0x350 and 0x000000014025ACC4-0x000000014025ACD8 encodes it as the integer value inserted under this key"
+      },
+      {
+        "key": "rewardItems",
+        "rawFileOffset": "0x00C83AC1",
+        "preferredImageVa": "0x0000000140C846C1",
+        "keyXrefVa": "0x000000014025AD09"
+      },
+      {
+        "key": "treasureTypes",
+        "rawFileOffset": "0x00C83ACC",
+        "preferredImageVa": "0x0000000140C846CC",
+        "keyXrefVa": "0x000000014025AD85"
+      },
+      {
+        "key": "scanProgress",
+        "rawFileOffset": "0x00C83AD9",
+        "preferredImageVa": "0x0000000140C846D9",
+        "keyXrefVa": "0x000000014025AE01"
+      }
+    ],
+    "topLevelOrder": [
+      "serverId",
+      "counts",
+      "alliances",
+      "names",
+      "dispatchLevels",
+      "noAllianceCount",
+      "rewardItems",
+      "treasureTypes",
+      "scanProgress"
+    ],
+    "scanProgressSelection": {
+      "runScopePresenceGate": "option prologue 0x0000000140257AD9-0x0000000140257AE6 sets the no-run flag when either optional run pointer or length is absent; R6-030 proves the adapter supplies both only for the matching active scan",
+      "persistedBranch": {
+        "branch": "0x000000014025AE26-0x000000014025AE32 calls 0x000000014025EAEC when there is no active run scope",
+        "sqlXref": "0x000000014025EB5D -> raw 0x00C849FF",
+        "sql": "SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error FROM scan_runs WHERE server_id=?1 AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1",
+        "diagnosticXref": "0x000000014025ED23 -> read latest scan summary"
+      },
+      "activeRunBranch": {
+        "branch": "0x000000014025B06E-0x000000014025B079 calls 0x0000000140276D7B with the exact run pointer/length retained from the R6-030 scope",
+        "sqlXref": "0x0000000140276DF6 -> raw 0x00C8ACC8",
+        "sql": "SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error FROM scan_runs WHERE id=?1",
+        "diagnostics": "bounded RIP-target inspection also identifies read map scan / read scan blocks in this helper"
+      },
+      "result": "without active run scope scanProgress is based on the newest non-discarded run for the requested server; with active run scope it is based on the exact active scanRunId"
+    }
+  },
+  "implementation": {
+    "classification": "RECOVERED behavior applied to the existing persisted-only test kernel",
+    "files": [
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "change": "The alliance aggregation now converts NULL to the same zero-length branch as the original, sums zero-length group counts directly into noAllianceCount, omits those groups from alliances[], and removes the separate implementation-policy COUNT query that had duplicated the no-alliance predicate.",
+    "publicCapability": "none; map_data_options stays fail-closed until exact scanProgress JSON serialization/empty-state/error behavior is recovered"
+  },
+  "reproduction": [
+    "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256",
+    "rg -a -b -o \"noAllianceCount|scanProgress|counts|alliances|names|dispatchLevels|rewardItems|treasureTypes\" ..\\LW\\lwbridge-0.3.1.exe",
+    "pefile offset-to-VA mapping for raw offsets 0x00C83A90 through 0x00C83AD9",
+    "bounded Capstone RIP-xref inspection only inside 0x140257AA4-0x14025B436 for the top-level field cluster",
+    "bounded Capstone inspection of 0x140258640-0x140258B30 for alliance row processing and stack slot +0x350",
+    "bounded Capstone inspection of 0x140287B25-0x140287C59 and 0x1404751BF-0x140475416 for nullable text/count decoding",
+    "rg -a -b -o \"SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error FROM scan_runs[^\\x00]{0,180}\" ..\\LW\\lwbridge-0.3.1.exe",
+    "bounded xref inspection of 0x14025EAEC-0x14025ED53 and 0x140276D7B-0x140277E21 for persisted versus active-run scanProgress queries",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "validation": "Reference SHA-256 rechecked; Release build succeeded with 0 warnings/0 errors; deterministic backend suite returned ok=true with profileRouting/persistence/requestLifetime/mapPersistence/mapContract all true, installed diagnostic valid, no game/launcher process running, failures=[]; git diff --check passed (line-ending warnings only).",
+    "limits": [
+      "the exact JSON object produced from the selected scan-run record remains unresolved, including whether selectedTypes/totalBlocks/completedBlocks/failedBlocks are exposed in scanProgress and the precise null/empty/error representation",
+      "the common scanProgress conversion path after the selected scan-run helper still needs bounded field-level tracing",
+      "complete map_summary unavailable/error integration remains separate",
+      "native ingestion/current-client live accuracy remains separate"
+    ]
+  },
+  "implementationImpact": {
+    "backlog": "closes native noAllianceCount production, native top-level map_data_options insertion order, and persisted-versus-active scanProgress record selection; leaves only scanProgress value serialization/empty-state/error behavior as the principal ESC-003 options-assembly gap",
+    "escalation": "ESC-003 remains NEEDS_INFORMATION because a concrete regular-AI bounded serializer path remains available; no specialist assignment",
+    "nextMethod": "trace the common post-query scanProgress conversion path around 0x14025B07E onward and its bounded helpers/field literals; do not replay historical denied whole-executable scans"
+  }
+}

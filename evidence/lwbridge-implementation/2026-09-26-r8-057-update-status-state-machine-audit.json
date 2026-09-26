@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-057",
+  "date": "2026-09-26",
+  "scope": "Strict audit of stateful update_status behavior beyond the R8-021 idle object, without implementing update_check or update_download_and_open.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "update_status handler 0x14018B725-0x14018BDA8",
+    "updater state copier 0x140242EAC-0x14024306C",
+    "status serializer 0x140243AF5-0x140243D04",
+    "idle constructor around 0x1402426B4",
+    "status transition helpers 0x140240BAA-0x140241460",
+    "manual check cooldown helper 0x140241460-0x14024169B",
+    "update check result path 0x1402419C9 and 0x140240B59",
+    "update_check handler 0x140159201-0x140159C82",
+    "update_download_and_open handler 0x14011DC39-0x14011FCDF",
+    "retained frontend updater wrappers and event"
+  ],
+  "publicStatus": {
+    "fieldOrder": [
+      "phase",
+      "currentVersion",
+      "latestVersion",
+      "releaseNotes",
+      "publishedAt",
+      "progress",
+      "message",
+      "nextManualCheckAt",
+      "downloadDirectory"
+    ],
+    "idle": {
+      "phase": "idle",
+      "currentVersion": "0.3.1",
+      "latestVersion": null,
+      "releaseNotes": "",
+      "publishedAt": null,
+      "progress": null,
+      "message": null,
+      "nextManualCheckAt": null,
+      "downloadDirectory": ""
+    },
+    "phases": [
+      "idle",
+      "checking",
+      "upToDate",
+      "available",
+      "downloading",
+      "opening",
+      "error"
+    ],
+    "event": "bridge://update-status",
+    "readOnlyCommand": true
+  },
+  "transitions": {
+    "checking": {
+      "helper": "0x140240CB0",
+      "progress": null,
+      "message": null,
+      "nextManualCheckAt": "sampled clock plus 60000 ms",
+      "eventPublished": true
+    },
+    "manualCheckCooldownMilliseconds": 60000,
+    "cooldownBehavior": "before nextManualCheckAt, return current snapshot without starting another check",
+    "checkSuccess": {
+      "helper": "0x14024126F",
+      "updateAvailableFalsePhase": "upToDate",
+      "updateAvailableTruePhase": "available",
+      "fills": ["latestVersion", "releaseNotes", "publishedAt"],
+      "clears": ["progress", "message"],
+      "eventPublished": true
+    },
+    "fixedNotAvailableError": {
+      "helper": "0x140240E01",
+      "phase": "error",
+      "message": "UPDATE_NOT_AVAILABLE"
+    },
+    "genericError": {
+      "helper": "0x140240F3D",
+      "phase": "error",
+      "message": "native/service supplied detail"
+    },
+    "downloading": {
+      "helper": "0x140241162",
+      "progress": 0,
+      "message": null,
+      "eventPublished": true
+    },
+    "progressUpdate": {
+      "helper": "0x140241046",
+      "eventPublished": true
+    },
+    "downloadDirectoryUpdate": {
+      "helper": "0x1402410AE",
+      "downloadHandlerCall": "0x14011ED2D",
+      "eventPublished": true
+    },
+    "opening": {
+      "helper": "0x140240BAA",
+      "downloadHandlerCall": "0x14011F85C",
+      "progress": 100,
+      "message": null,
+      "eventPublished": true
+    }
+  },
+  "relatedActionEvidence": {
+    "updateCheckPath": "/api/updates/current",
+    "errorsObserved": [
+      "UPDATE_SIGNATURE_INVALID",
+      "UPDATE_MANIFEST_INVALID",
+      "UPDATE_NOT_AVAILABLE",
+      "UPDATE_URL_INVALID",
+      "UPDATE_HOST_INVALID",
+      "UPDATE_VERSION_INVALID",
+      "UPDATE_OPEN_FAILED",
+      "UPDATE_DOWNLOAD_FAILED",
+      "UPDATE_SIZE_MISMATCH",
+      "UPDATE_HASH_MISMATCH",
+      "UPDATE_TARGET_IS_CURRENT",
+      "UPDATE_DOWNLOAD_TIMEOUT"
+    ],
+    "updateCheckImplementation": "FENCED",
+    "downloadAndOpenImplementation": "FENCED"
+  },
+  "rebuildComparison": {
+    "idleObject": "EXACT_NATIVE from R8-021",
+    "nonIdleStateService": false,
+    "eventTransitions": false,
+    "overall": "DEVIATION outside idle state"
+  },
+  "evidenceClassification": {
+    "serializer": "EXACT_NATIVE",
+    "idle": "EXACT_NATIVE",
+    "phaseMachine": "EXACT_NATIVE",
+    "cooldown": "EXACT_NATIVE",
+    "checkSuccessProjection": "EXACT_NATIVE",
+    "downloadStatusTransitions": "EXACT_NATIVE",
+    "fullActionProtocol": "PARTIAL_EXACT_NATIVE_FENCED",
+    "runtimeNonIdleStatus": "DEVIATION"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "complete update_check request/response/signature/version/error precedence",
+    "download streaming and timeout lifecycle",
+    "size/hash verification and file replacement lifecycle",
+    "executable/process handoff and successful post-open terminal behavior"
+  ],
+  "nextCheckpoint": "Continue retained read/status recovery; keep updater actions fenced until their complete native lifecycle is closed."
+}

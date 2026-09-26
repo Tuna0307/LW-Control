@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-156",
+  "capturedAt": "2026-09-24T11:04:46+08:00",
+  "scope": "Owner-reported Map Data completeness regression: compare the R7-151+ wide/native shortcut against the R7-150 movement/AOI baseline on current Last War v21, then restore correctness-first scanning, remove unrequested Dispatch Quick Find, and harden Clear against transient live-server resolution failures.",
+  "sourceIdentity": {
+    "apiShortcutGitCommit": "2009903",
+    "movementBaselineGitCommit": "24ab001",
+    "currentClientPolicy": "lwbridge-current-client-critical-anchors-3",
+    "gameSha256": "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "xluaSha256": "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45",
+    "assemblyCSharpSha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+    "serverId": 2212,
+    "worldId": 0,
+    "geometry": "1000x1000 / 2500 logical blocks / 10000 AOI cells"
+  },
+  "abResults": {
+    "wideNativeShortcut": {
+      "city": {
+        "published": 93,
+        "allianceFilterCount": 33,
+        "scanWallSeconds": 9.733306,
+        "result": "completed_but_incomplete_population"
+      },
+      "resource": {
+        "published": 0,
+        "result": "failed_positive_authority_guard",
+        "error": "Resource detail enrichment produced no authoritative full Resource rows.",
+        "processRuntimeSeconds": 39.22
+      },
+      "monster": {
+        "published": 71,
+        "scanWallSeconds": 10.5387248,
+        "result": "completed_but_incomplete_population"
+      },
+      "truck": {
+        "published": 0,
+        "result": "failed_positive_population_guard",
+        "error": "Ordinary Manual Truck scan published no Truck records.",
+        "processRuntimeSeconds": 32.37
+      }
+    },
+    "movementAoiBaseline": {
+      "city": {
+        "published": 6727,
+        "allianceFilterCount": 99,
+        "scanWallSeconds": 130.4738609,
+        "result": "live_proven"
+      },
+      "resource": {
+        "published": 624,
+        "fullResourceCount": 572,
+        "scanWallSeconds": 119.8290823,
+        "result": "live_proven"
+      },
+      "monster": {
+        "published": 3370,
+        "scanWallSeconds": 132.3182576,
+        "result": "live_proven"
+      },
+      "truck": {
+        "published": 200,
+        "currentGoodsRows": 200,
+        "scanWallSeconds": 131.9065686,
+        "result": "live_proven"
+      }
+    }
+  },
+  "diagnosis": [
+    "The R7-151 68-request wide path proves AOI index coverage but does not force complete record materialization for City/Resource/Monster on current v21; treating coverage indices as equivalent to a complete population scan was incorrect.",
+    "The R7-148/R7-150 direct Train-list-only shortcut is not a completeness substitute for world Truck population on current v21; the live same-server proof returned zero Truck rows while the movement/AOI scan returned 200.",
+    "The apparent 6-10 second speedup therefore traded away the core acceptance condition: population completeness."
+  ],
+  "implementation": {
+    "scanner": "Restore the R7-150 movement/AOI acquisition path for normal full-world kinds and remove the Truck/Railway-only zero-AOI scan shortcut from the ordinary full scan path.",
+    "quickFind": "Remove the unrequested Dispatch Quick Find UI/API/backend path introduced by R7-151.",
+    "clear": "Make live-server resolution advisory for status/local-data Clear so a transient bridge resolver exception cannot turn a completed Clear into 'The action could not be completed'.",
+    "publication": "Keep exact 2500-block/10000-AOI completion and transactional publication gates unchanged."
+  },
+  "validation": {
+    "releaseBuild": "PASS: 0 warnings, 0 errors",
+    "deterministicSuite": "PASS: failures=[]",
+    "liveCity": "PASS: 6727 rows, 2500/2500, 0 failed/unread",
+    "liveResource": "PASS: 624 rows, 2500/2500, 0 failed/unread",
+    "liveMonster": "PASS: 3370 rows, 2500/2500, 0 failed/unread",
+    "liveTruck": "PASS: 200 rows, 2500/2500, 0 failed/unread",
+    "clearRegression": "PASS: deterministic resolver-failure Clear test added and full suite passed",
+    "quickFindAbsence": "PASS: production/test/tool grep contains no map_dispatch_find_nearest, FindNearestDispatch, dispatchQuickFinding, or Quick Find Secret Task surface"
+  },
+  "limits": [
+    "Counts are live population snapshots and may change; the comparison establishes order-of-magnitude completeness loss, not fixed expected counts.",
+    "Railway positive population is still population-gated on v21; this checkpoint changes ordinary scan correctness policy, not the existing zero-population evidence.",
+    "The movement/AOI route is slower (~2 minutes per server in these proofs). Future acceleration is allowed only if it reproduces the movement baseline population on the same live snapshot or an independently authoritative full-map source proves equivalent completeness."
+  ],
+  "reproduction": [
+    "API shortcut: detached worktree at 2009903; Release build; run --live-current-client-full-city-manual / --live-current-client-full-resource-manual / --live-current-client-full-monster-manual / --live-current-client-full-truck-manual with LWBRIDGE_MANUAL_SCAN_MODE=fast.",
+    "Movement baseline: working tree restored to R7-150 acquisition/probe behavior; same four live proof entry points on server 2212.",
+    "Offline: dotnet build tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --nologo; then run LWBridge.Desktop.Checks.dll with no live flag."
+  ],
+  "r8ParityNote": "Retained as current-client regression evidence and temporary correctness rollback only; does not establish the original LWBridge 0.3.1 scan algorithm or one-to-one parity."
+}

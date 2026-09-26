@@ -1,0 +1,66 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-104",
+  "date": "2026-09-21",
+  "status": "CURRENT-V19-TRUCK-SCAN/LIVE-PROVEN",
+  "title": "Fresh current-v19 full Truck scan acceptance after the five-column AOI fix",
+  "branch": "research/offline-controller",
+  "parentRevision": "39d31fbcde24c1caf5e0f191bae7cb3129bc369e",
+  "scope": {
+    "serverId": 2212,
+    "trigger": "User-reported Truck scan stopping near 98 percent with zero published rows.",
+    "sourceFixRevision": "20b7d44d06156bfadaf8a2930958892cfd013aa8",
+    "productionGameplayActionPerformed": false,
+    "truckRobberyPerformed": false
+  },
+  "liveAcceptance": {
+    "proof": "ordinary_manual_start_full_truck",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "logicalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedTrucks": 129,
+    "reopenedTrucks": 129,
+    "scanWallSeconds": 129.534415,
+    "result": "PASS"
+  },
+  "metadataAcceptance": {
+    "trainTypeRows": 129,
+    "qualityRows": 129,
+    "powerRows": 129,
+    "trainCfgRows": 129,
+    "arriveTsRows": 129,
+    "robTimesRows": 129,
+    "maxLootCountRows": 129,
+    "currentGoodsRows": 129,
+    "currentGoodsItems": 861,
+    "remainingLootCountRows": 129,
+    "specialUrRows": 6,
+    "fullTrainDataJsonRows": 0,
+    "sortChecks": 15,
+    "reopenedSortChecks": 15
+  },
+  "filterAcceptance": {
+    "ordinaryUrRows": 61,
+    "reindeerRows": 6,
+    "plunderableRows": 123,
+    "rewardOptions": 18,
+    "sampleItemFilteredRows": 80
+  },
+  "interpretation": "The shared R7-102 current-v19 five-column AOI validator correction now has fresh end-to-end Truck proof: acquisition completes all logical blocks and publication survives database reopen.",
+  "validation": {
+    "codeChangedByThisCheckpoint": false,
+    "baseCodeValidation": "R7-103 immediately preceding this proof passed Release build with 0 warnings/0 errors, frontend generation, git diff check and all six deterministic groups with failures=[] and real config unchanged.",
+    "gameRunningAfterProof": false,
+    "launcherRunningAfterProof": false,
+    "worktreeBeforeEvidence": "clean"
+  },
+  "privacy": "No truck UUIDs, player names, player IDs, coordinates, raw reward records, session challenge or request identifiers are stored in this evidence file.",
+  "limits": [
+    "This is read-only scan/list/query acceptance only; Truck robbery remains intentionally untested.",
+    "protectTime was absent from this live population and is not fabricated.",
+    "Railway/Train and Secret Task/Dispatch still require separate fresh live acceptance."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-022",
+  "scope": "Map Data treasure option key-prefix recovery and bounded xref exhaustion",
+  "evidenceStatus": "RECOVERED static partial / UNKNOWN suffix construction",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets and preferred-image virtual addresses"
+  },
+  "locators": {
+    "optionResultCluster": "0x00C83AE5-0x00C83B61",
+    "treasurePrefix": "0x00C83B21",
+    "treasureNameKey": "0x00C83B2C",
+    "count": "0x00C83B3B",
+    "suppliesPrefix": "0x00C83B59",
+    "otherTreasurePrefixOccurrence": "0x00C883D1"
+  },
+  "recovered": {
+    "clusterMarkers": ["key", "iconPath", "treasure:", "treasureNameKey", "count", "supplies:"],
+    "treasurePrefixOccurrences": ["0x00C83B21", "0x00C883D1"],
+    "suppliesPrefixOccurrences": ["0x00C83B59"],
+    "scopeInterpretation": "the 0x00C83B21 treasure: and 0x00C83B59 supplies: strings occur inside the Map Data option-result field cluster; the second treasure: occurrence is adjacent to season-supply treasure claim error/query vocabulary and is not treated as Map Data option-key evidence"
+  },
+  "attempts": [
+    {
+      "method": "bounded raw printable-byte read",
+      "result": "confirmed the option result cluster and both prefixes"
+    },
+    {
+      "method": "exact binary occurrence search",
+      "result": "treasure: occurs twice; supplies: occurs once; only the listed cluster occurrence is correlated with Map Data option fields"
+    },
+    {
+      "method": "Capstone 5.0.6 direct RIP-relative xref scan",
+      "result": "no direct code xrefs to either option-cluster prefix"
+    },
+    {
+      "method": "pefile 2024.8.26 absolute-pointer metadata-slot search plus code xrefs to any discovered slots",
+      "result": "no absolute-pointer metadata slots were found for either prefix"
+    }
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_treasure_option_keys.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "unknownBlocked": [
+      "whether the final treasureTypes[].key is prefix plus decimal treasureType/suppliesType or another encoding",
+      "the exact formatting/data-flow helper that combines the prefix with its numeric dimension",
+      "public map_data_options source/run selection and response assembly"
+    ],
+    "reasonNotImplemented": "frontend consumes treasureTypes[].key, so response assembly must not invent the numeric suffix formula from prefix adjacency alone"
+  },
+  "implementationImpact": {
+    "unblocked": "future analysis can start after the failed direct-RIP and absolute-pointer metadata routes instead of repeating them",
+    "stillFailClosed": "no treasure option key is synthesized and public map_data_options remains unavailable"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-043",
+  "date": "2026-09-26",
+  "scope": "Close and fence the native get_status top-level contract while the complete config migration/normalization projection remains partial.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "implementationChanged": false,
+  "authority": [
+    "get_status handler 0x140152388-0x140152C2E",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "status producer 0x1403CEA9A-0x1403CEE28",
+    "status serializer 0x1403D204E-0x1403D21F6",
+    "config loader 0x1403CCC76-0x1403CD4A1",
+    "config normalizer 0x1403AD60C-0x1403B4FCA",
+    "Unix-ms clock helper 0x14023F1C0-0x14023F244",
+    "retained frontend get_status/config consumers"
+  ],
+  "topLevelContract": {
+    "fieldOrder": [
+      "ok",
+      "backend",
+      "runtimeRoot",
+      "pending",
+      "xluaOnline",
+      "lastXluaActivity",
+      "config"
+    ],
+    "ok": "boolean true on successful status production",
+    "backend": "offline|named-pipe selected from route presence",
+    "runtimeRoot": "selected profile runtime-root string",
+    "pending": "scalar native bridge-state pending counter",
+    "xluaOnline": "same route-presence boolean that selects named-pipe backend",
+    "lastXluaActivity": "Unix-ms scalar; max of stored bridge activity and selected-route activity timestamps",
+    "config": "generic JSON value after native config load/migration/normalization"
+  },
+  "errors": {
+    "runtimeResolverCodes": [
+      "PROFILE_ID_REQUIRED",
+      "PROFILE_RUNTIME_UNAVAILABLE"
+    ],
+    "stateUnavailableCode": "STATE_UNAVAILABLE",
+    "stateUnavailableMessage": "bridge state is unavailable",
+    "configFamily": "INVALID_CONFIG"
+  },
+  "configBoundary": {
+    "path": "<runtimeRoot>\\config.json",
+    "requiresObject": true,
+    "missingFileSeedRecovered": {
+      "enable_eval": false,
+      "auto_shield": true,
+      "auto_red_packet_treasure": true
+    },
+    "normalizerRange": "0x1403AD60C-0x1403B4FCA",
+    "completeNormalizerRecovered": false,
+    "reason": "large path-based migration/default/validation routine spans scheduler, tasks, chat, trade station, hotkeys, visual metrics, alliance/train/railway, equipment, stamina and related retained config"
+  },
+  "currentRebuildDeviation": [
+    "missing ok/backend/runtimeRoot/lastXluaActivity",
+    "nullable pending when local RPC state is absent",
+    "xluaOnline uses Overview heartbeat readiness instead of native route presence",
+    "config is a hand-built four-flag plus tasks subset",
+    "generic optional-profile scope gate differs from native selected-runtime resolver"
+  ],
+  "decision": {
+    "classification": "STRICT EVIDENCE BOUNDARY",
+    "runtimeCodeChanged": false,
+    "action": "Do not claim get_status parity or replace the current projection with another partial projection until native config normalization is closed."
+  },
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "topLevelFieldOrder": "EXACT_NATIVE",
+    "backendVocabularyAndRouteOwnership": "EXACT_NATIVE",
+    "runtimeRootOwnership": "EXACT_NATIVE",
+    "pendingScalarOwnership": "EXACT_NATIVE",
+    "xluaOnlineRouteOwnership": "EXACT_NATIVE",
+    "lastXluaActivityTimestampRule": "EXACT_NATIVE",
+    "stateUnavailable": "EXACT_NATIVE",
+    "configMissingFileSeed": "EXACT_NATIVE",
+    "completeConfigNormalizer": "PARTIAL",
+    "currentRebuildProjection": "DEVIATION"
+  },
+  "nextCheckpoint": "Move to another fully closable retained host/status contract; resume get_status implementation only when the complete native config normalizer is recovered."
+}

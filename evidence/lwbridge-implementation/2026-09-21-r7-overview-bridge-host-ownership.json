@@ -1,0 +1,67 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-110",
+  "date": "2026-09-21",
+  "status": "HOST-GLOBAL-OWNER-INTEGRATED/OFFLINE-TESTED/NATIVE-LISTENER-STILL-BLOCKED",
+  "title": "Integrate one application-owned bridge host state into normal desktop lifecycle",
+  "branch": "research/offline-controller",
+  "parentRevision": "63f00283c4517ec66039d614a0b0fd570d94e8f2",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "sourceBackedBasis": {
+    "finding": "LWB-R7-109",
+    "applicationStartup": "RVA 0x40F546",
+    "originalHostConstructor": "RVA 0x4100B5 -> 0x3C30BE",
+    "listenerOwnership": "host-global shared listener",
+    "profileStartUsesSharedHost": true,
+    "explicitLaunchCleanup": "0x1D3203/0x1D393C -> 0x3CC8B3 -> 0x3C2436"
+  },
+  "implementation": {
+    "ownerClass": "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "applicationOwner": "LWBridgeWindow",
+    "normalModeConstruction": "one LWBridgeControlPipeHostState per desktop window/application lifetime",
+    "isolatedProbeModes": "no bridge host owner is constructed",
+    "registryOwnership": "one LWBridgeControlPipeRegistry owned by the shared host state",
+    "profileLifecycle": "OverviewLifecycleService receives the host by reference and does not own/stop it",
+    "backend": "LWBridgeBackend receives the same host by reference for future status/call routing",
+    "shutdownOrder": [
+      "manual map scan close",
+      "live resource service close",
+      "overview/profile lifecycle close",
+      "shared bridge host close"
+    ],
+    "stoppedGuard": "RequireActiveRegistry fails with BRIDGE_STOPPED after application host shutdown"
+  },
+  "tests": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeHostOwnershipChecks.cs",
+    "focusedCli": "--overview-bridge-host-ownership-check",
+    "focusedResult": "PASS",
+    "statusContractResult": "PASS",
+    "coverage": [
+      "single stable pipe identity",
+      "single registry identity",
+      "profile lifecycle borrows host without stopping it",
+      "backend borrows the exact same host",
+      "application close is idempotent",
+      "post-stop registry access returns BRIDGE_STOPPED",
+      "LWBridgeWindow source guard pins construction, dependency injection and profile-before-host shutdown order"
+    ]
+  },
+  "a11Boundary": {
+    "nativePipeOpened": false,
+    "acceptLoopStarted": false,
+    "proxyEnvironmentBoundToProductionLaunch": false,
+    "productionRouteTransportImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "getStatusPending": null,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "reasonForBoundary": "The source-backed ownership problem is now resolved, but exact native listener I/O and route/pending-call lifecycles must be implemented and tested before opening the production pipe or enabling call_lua(getStatus).",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

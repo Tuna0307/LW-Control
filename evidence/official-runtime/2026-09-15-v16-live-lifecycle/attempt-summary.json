@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "lwbridge-overview-bridge-1",
+  "close": {
+    "accepted": true,
+    "method": "Process.CloseMainWindow",
+    "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "pid": 39688,
+    "processExited": true,
+    "startedAtUtc": "2026-09-14T16:31:32.8375313Z",
+    "waitMilliseconds": 10000
+  },
+  "completedAtUtc": "2026-09-14T16:32:27Z",
+  "gamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+  "gamePid": 39688,
+  "gameRunning": false,
+  "installedFilesChanged": false,
+  "profileId": "livev16proof",
+  "restore": {
+    "originalFiles": {
+      "data": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+        "sha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+        "size": 41278785
+      },
+      "metadata": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+        "sha256": "be4805caa5caa062b741a51cf30b9165a57b3e9e4e42a3c9e7a0c103f0fe3c06",
+        "size": 19
+      },
+      "version": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+        "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+        "size": 2
+      }
+    },
+    "packageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+    "restored": true,
+    "restoredFiles": {
+      "data": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+        "sha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+        "size": 41278785
+      },
+      "metadata": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+        "sha256": "be4805caa5caa062b741a51cf30b9165a57b3e9e4e42a3c9e7a0c103f0fe3c06",
+        "size": 19
+      },
+      "version": {
+        "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+        "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+        "size": 2
+      }
+    }
+  },
+  "schemaVersion": 1,
+  "sessionId": "livev16proof20260915a",
+  "status": "COMPLETE"
+}

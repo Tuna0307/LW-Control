@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-033",
+  "date": "2026-09-25",
+  "scope": "Restore host-local red_packet_delay_configure and treasure_delay_configure validation, mirrored persistence, and success result.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "treasure_delay_configure handler VA 0x1401651C5",
+    "red_packet_delay_configure handler VA 0x1401821C6",
+    "shared validation/config builder VA 0x1403B8109",
+    "shared mirrored config writer VA 0x1403CB2E0",
+    "numeric payload parser VA 0x1401D2E32",
+    "original installed runtime/config.json"
+  ],
+  "commands": {
+    "red_packet_delay_configure": {
+      "maximumSeconds": 60,
+      "schedulerKey": "redPacketClaimDelaySeconds",
+      "chatPath": "chat_automation.red_packet.claimDelaySeconds",
+      "errorDetail": "red packet delay must be a valid range from 0 to 60 seconds"
+    },
+    "treasure_delay_configure": {
+      "maximumSeconds": 600,
+      "schedulerKey": "treasureClaimDelaySeconds",
+      "chatPath": "chat_automation.treasure.claimDelaySeconds",
+      "errorDetail": "treasure delay must be a valid range from 0 to 600 seconds"
+    }
+  },
+  "payload": {
+    "profileId": "not public / current profile resolved by command state",
+    "fields": ["minSeconds", "maxSeconds"],
+    "numericParserMissingOrWrongType": "NaN",
+    "validation": "finite; min >= 0; min <= max; max <= command maximum",
+    "errorCode": "INVALID_REQUEST"
+  },
+  "successResult": {
+    "ok": true,
+    "range": "[requested minSeconds, requested maxSeconds]"
+  },
+  "persistence": {
+    "mirrored": true,
+    "configFile": "runtime/config.json",
+    "preserveSiblingFields": true,
+    "store": "ProfileRuntimeConfigStore"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ClaimDelayConfigCommandService.cs",
+    "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/ClaimDelayConfigChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "fencedRelatedWork": {
+    "profile_enable_set": "depends on excluded license_capacity / capacity and selection repair",
+    "profile_delete": "destructive runtime/primary/bound/selection/profile-data cleanup semantics not fully closed",
+    "trade_station_configure": "provider-backed configureTradeStation timeout 5000 ms"
+  },
+  "evidenceClassification": {
+    "payloadFields": "EXACT_NATIVE",
+    "rangeLimits": "EXACT_NATIVE",
+    "validationDetails": "EXACT_NATIVE",
+    "mirrorPaths": "EXACT_NATIVE + original installed config",
+    "successShape": "EXACT_NATIVE",
+    "runtimeStoreImplementation": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "nextCheckpoint": "Recover another retained host-local automation/chat configuration surface with complete evidence."
+}

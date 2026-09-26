@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-105",
+  "date": "2026-09-21",
+  "status": "CURRENT-V19-RAILWAY-SCAN/LIVE-PROVEN",
+  "title": "Fresh current-v19 full Railway/Train scan acceptance after the five-column AOI fix",
+  "branch": "research/offline-controller",
+  "parentRevision": "f195a5884f29f561d8f8db7c419dbae44da3180d",
+  "scope": {
+    "serverId": 2212,
+    "trigger": "User-reported Train scan stopping near 98 percent.",
+    "sourceFixRevision": "20b7d44d06156bfadaf8a2930958892cfd013aa8",
+    "productionGameplayActionPerformed": false,
+    "railwayAttackPerformed": false,
+    "railwayRobberyPerformed": false
+  },
+  "liveAcceptance": {
+    "proof": "ordinary_manual_start_full_railway",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "logicalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedRailway": 1,
+    "reopenedRailway": 1,
+    "scanWallSeconds": 120.2581798,
+    "result": "PASS"
+  },
+  "metadataAcceptance": {
+    "trainTypeRows": 1,
+    "qualityRows": 1,
+    "powerRows": 1,
+    "trainCfgRows": 1,
+    "arriveTsRows": 1,
+    "robTimesRows": 1,
+    "marchUuidRows": 1,
+    "maxLootCountRows": 1,
+    "protectTimeRows": 1,
+    "currentGoodsRows": 1,
+    "currentGoodsItems": 18,
+    "currentGoodsAuditableItems": 18,
+    "fullTrainDataJsonRows": 0,
+    "sortComparedRows": 1,
+    "sortChecks": 12,
+    "reopenedSortChecks": 12
+  },
+  "navigationAcceptance": {
+    "originalServerId": 2212,
+    "targetServerId": 2212,
+    "targetServerJumped": false,
+    "followProven": true,
+    "followMeaning": "identity-preserving camera/march navigation only; no attack, robbery, scout or collect command was invoked"
+  },
+  "interpretation": "The shared R7-102 current-v19 five-column AOI validator correction now has fresh end-to-end Railway/Train proof: all logical blocks complete, the live row is normalized and persisted, and publication survives database reopen.",
+  "validation": {
+    "codeChangedByThisCheckpoint": false,
+    "baseCodeValidation": "R7-103 passed Release build with 0 warnings/0 errors, frontend generation, git diff check and all six deterministic groups with failures=[] and real config unchanged.",
+    "gameRunningAfterProof": false,
+    "launcherRunningAfterProof": false,
+    "worktreeBeforeEvidence": "clean"
+  },
+  "privacy": "No march UUID, player name, player ID, coordinate, raw reward record, session challenge or request identifier is stored in this evidence file.",
+  "limits": [
+    "This is read-only scan/query plus Follow-navigation acceptance only; Railway attack/robbery is intentionally untested.",
+    "Only one Railway/Train row existed in this live population, so relative ordering between multiple live rows was not positive-proven.",
+    "Secret Task/Dispatch still requires separate fresh live acceptance."
+  ]
+}

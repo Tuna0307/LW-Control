@@ -1,0 +1,139 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-126",
+  "date": "2026-09-21",
+  "status": "LIVE-PROVEN",
+  "title": "Fix generic Monster completeness and positively prove ordinary Doom Walker (RunningMonster type 8 / special 11)",
+  "branch": "research/offline-controller",
+  "parentRevision": "993e6d8",
+  "supersedes": {
+    "findingId": "LWB-R7-107",
+    "scope": "ordinary Doom Walker interpretation only",
+    "retainedTruth": "R7-107 remains valid for the separate Doomsday SuperRunningBoss special-32 activity-boss contract."
+  },
+  "trigger": "User reported Doom Walker missing from Monster scan; user specifically identified level 160 and stated Doom Walker levels advance by 10.",
+  "recoveredIdentity": {
+    "monsterNameKey": "monster_boss_name_001",
+    "localizedObservedName": "?????",
+    "configType": 8,
+    "configSpecial": 11,
+    "enumFamily": "LWWorldMonsterType.RunningMonster / WorldMonsterSpecialType.RunningMonster",
+    "runtimeClass": "WorldMarch",
+    "runtimeSource": "WorldScene.MarchDataManager.GetAllMarchesByCS",
+    "liveTemplateIdsByLevel": {
+      "100": 1040001,
+      "110": 1040002,
+      "120": 1040003,
+      "130": 1040004,
+      "140": 1040005,
+      "150": 1040006,
+      "160": 1040007,
+      "170": 1040008,
+      "180": 1040009,
+      "190": 1040010,
+      "200": 1040011,
+      "210": 1040012,
+      "220": 1040013
+    }
+  },
+  "rootCause": {
+    "productionBefore": "Dedicated generic Monster scans used one native LOD2 whole-world MarchDataManager snapshot.",
+    "liveFinding": "Ordinary Doom Walker WorldMarch rows are materialized in LOD0 coverage but were not reliably present in the LOD2 shortcut.",
+    "notNormalizerBug": "The Monster normalizer already accepted the rows; acquisition visibility was the missing boundary."
+  },
+  "implementation": {
+    "genericMonsterStrategy": "current_fast_full_world_v2",
+    "genericMonsterAcquisition": "Exact adaptive LOD0 10,000-cell AOI union over the 1000x1000 world.",
+    "zombieBossStrategy": "current_fast_zombie_boss_lod2_v1",
+    "zombieBossUnchangedSemantics": "Zombie Boss retains native LOD2 whole-world snapshot plus serialized detail path.",
+    "doomsdayRefreshOptimization": "Read-only ActivityDoomsdayMainInfo refresh is issued at most once per scanRunId instead of once per AOI request.",
+    "filterCeiling": "No legacy level ceiling: backend accepts maxLevel=220 and frontend Monster level steps derive from observed maximum."
+  },
+  "deterministicAcceptance": {
+    "doomWalkerFixtures": [
+      {
+        "level": 160,
+        "configId": 1040007,
+        "configType": 8,
+        "configSpecial": 11
+      },
+      {
+        "level": 220,
+        "configId": 1040013,
+        "configType": 8,
+        "configSpecial": 11
+      }
+    ],
+    "genericMonsterZoomCalls": 0,
+    "genericMonsterCoverageCalls": 270,
+    "logicalBlocks": 2500,
+    "level220FilterAccepted": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixDeterministicGroups": true,
+    "failures": []
+  },
+  "liveAcceptanceFinal": {
+    "serverId": 2212,
+    "databasePath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\live-resource\\manual-full-monster-7198cb19eea34581a694263b1c7fe6a8.db",
+    "databaseSha256": "f9d728e6ff1e87376ff0dbb43541d3ed84620f41ad71c3d37605a55f188af620",
+    "scanStrategy": "current_fast_full_world_v2",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "logicalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "publishedMonsterCount": 8839,
+    "reopenedMonsterCount": 8839,
+    "scanWallSeconds": 156.6876179,
+    "doomWalkerCount": 35,
+    "doomWalkerMinLevel": 100,
+    "doomWalkerMaxLevelObservedThisRun": 210,
+    "level160Count": 7,
+    "runtimeClass": "WorldMarch",
+    "configType": 8,
+    "configSpecial": 11,
+    "transientNativeRetry": {
+      "target": "345,675",
+      "error": "target_point_already_loaded",
+      "sourceLocalAttempts": 3,
+      "finalCoverageCompleted": true
+    },
+    "filterComparedRowCount": 8839,
+    "filterCheckCount": 8,
+    "result": "PASS"
+  },
+  "adjacentLiveAcceptance": {
+    "purpose": "Prove the highest active Doom Walker tier observed immediately before the final strategy-label rerun.",
+    "databasePath": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild\\live-resource\\manual-full-monster-938edb8d3de94f19a7ea93bb95c15a4e.db",
+    "databaseSha256": "4b6db12c96dc0c24c88d7789c681aef141a645bd915e3cfa7fbb85552e045308",
+    "publishedMonsterCount": 8249,
+    "reopenedMonsterCount": 8249,
+    "doomWalkerCount": 40,
+    "doomWalkerMinLevel": 100,
+    "doomWalkerMaxLevel": 220,
+    "level160Count": 5,
+    "level220Count": 2,
+    "level220ConfigId": 1040013,
+    "result": "PASS"
+  },
+  "safety": {
+    "stateChangingGameplayActionPerformed": false,
+    "attackPerformed": false,
+    "rallyPerformed": false,
+    "scoutPerformed": false,
+    "collectPerformed": false,
+    "robberyPerformed": false,
+    "claimPerformed": false,
+    "networkReadOnlyQuery": "ActivityDoomsdayMainInfo only; ordinary Doom Walker rows came from passive WorldMarch AOI materialization."
+  },
+  "postProof": {
+    "gameRunning": false,
+    "launcherRunning": false,
+    "manualChecksProcessRunning": false
+  },
+  "limits": [
+    "Doom Walker population is dynamic; individual levels/counts vary between scans.",
+    "monsterType/monsterSpecialType runtime fields on these WorldMarch rows are zero in the observed client; authoritative classification comes from the resolved Monster template configType=8/configSpecial=11."
+  ]
+}

@@ -1,0 +1,707 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-090",
+  "acceptanceCase": "A10",
+  "date": "2026-09-20",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "title": "Overview admitted-startup failure, rollback, cleanup and retry matrix",
+  "branch": "research/offline-controller",
+  "parentRevision": "02ef339894b900421ec4cc6f7b3833223c368286",
+  "scope": {
+    "claim": "Closes A10 for the admitted startup pipeline and helper transaction stages. Request-admission and ownership gates stay under A04/A05/A08.",
+    "liveGameLaunched": false,
+    "syntheticClientFilesOnly": true,
+    "productionCodeChanged": false
+  },
+  "sourceIdentity": {
+    "OverviewLifecycleService.cs": "b48b6513c5a5a87ec1adfc5156e6b2c574d5dd2955097f4b5d864eaa9c7342b6",
+    "OverviewOfficialSettleChecks.cs": "218e251f775aa6d1c13d475f13e5d8b5933839b1412939c48775f41df6dacfa2",
+    "run_overview_bridge.py": "60372ee90f582ba8ba979ffc1f763f43f249d0d9ab1006b0aec8363f8c28be4c",
+    "run_live_resource_probe.py": "1d0cb662c31711d8b12f6b25b06589a85cd6fd218cef907ae6b491722a5add26",
+    "test_overview_start_failure_matrix.py": "7bfb99df27390e7d4573c126a85395c86a1a8749c6171698683a25e9be49eaa5",
+    "csharpWorkflowYml": "12b9d51dd71cb2f6bc845c0e399b835add5dfecea3964adac0ac2b28a5741721"
+  },
+  "currentClient": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "hostPipelineChecks": [
+    {
+      "stage": "official_pending_recovery",
+      "result": "PASS",
+      "behavior": "forced recovery failure blocks settle/helper; no candidate start occurs"
+    },
+    {
+      "stage": "official_settle",
+      "result": "PASS",
+      "behavior": "forced settle failure blocks helper start"
+    },
+    {
+      "stage": "official_lua_update_validation",
+      "result": "PASS",
+      "behavior": "exact Lua update failure forces one fresh settle and one helper retry"
+    },
+    {
+      "stage": "official_launcher_handoff",
+      "result": "PASS",
+      "behavior": "exact launcher spawn timeout retries helper once without repeating settle"
+    },
+    {
+      "stage": "generic_helper_start",
+      "result": "PASS",
+      "behavior": "LAUNCH_FAILED does not fabricate ownership and explicit subsequent retry succeeds then stops cleanly"
+    },
+    {
+      "stage": "post_helper_readiness_correlation",
+      "result": "PASS",
+      "behavior": "BRIDGE_START_TIMEOUT retains exact owned identity, exact stop cleanup succeeds, then explicit retry reaches connected and stops cleanly"
+    }
+  ],
+  "helperTransactionMatrix": {
+    "ok": true,
+    "scope": "A10 isolated production-helper startup failure matrix; no LastWar/launcher process launched",
+    "stages": [
+      {
+        "stage": "unmanaged_game",
+        "failureObserved": "LiveResourceError: the selected LastWar installation is already running (pid 42420); bounded acquisition requires a helper-owned launch session",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [],
+        "failureProcessState": {
+          "gameRunning": true,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": true
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "pending_recovery",
+        "failureObserved": "OverviewBridgeError: A10 injected interrupted-recovery restore failure",
+        "beforeFailureSha256": {
+          "data": "198e0c5e0d66f4f8bc48fb626e461423cdca73649f765a67e662b2c7f33ee339",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "198e0c5e0d66f4f8bc48fb626e461423cdca73649f765a67e662b2c7f33ee339",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": "restoring_interrupted_operation",
+        "helperStartErrorEvidence": [],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "restoring_interrupted_operation",
+          "restoring_interrupted_operation",
+          "restored_1_data",
+          "restored_2_metadata",
+          "restored_3_version",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 1
+      },
+      {
+        "stage": "verify_current",
+        "failureObserved": "OverviewBridgeError: A10 injected current-client verification failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "backup",
+        "failureObserved": "OverviewBridgeError: A10 injected backup failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "arm_recovery",
+        "failureObserved": "OverviewBridgeError: A10 injected recovery-arm failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "candidate_build",
+        "failureObserved": "OverviewBridgeError: A10 injected candidate-build failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "restoring_after_failure",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "install_data",
+        "failureObserved": "OverviewBridgeError: A10 injected failure after install data",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "restoring_after_failure",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "install_metadata",
+        "failureObserved": "OverviewBridgeError: A10 injected failure after install metadata",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "restoring_after_failure",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "install_version",
+        "failureObserved": "OverviewBridgeError: A10 injected failure after install version",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "restoring_after_failure",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "launcher_spawn",
+        "failureObserved": "OSError: A10 injected launcher spawn failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "restoring_after_failure",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "game_spawn",
+        "failureObserved": "OverviewBridgeError: A10 injected game-spawn failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 1,
+          "ownedGameCloseCalls": 0,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "restoring_after_failure",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      },
+      {
+        "stage": "readiness",
+        "failureObserved": "OverviewBridgeError: A10 injected bridge-readiness failure",
+        "beforeFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "afterFailureSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "failureJournalStage": null,
+        "helperStartErrorEvidence": [
+          "helper-start-error.json"
+        ],
+        "failureProcessState": {
+          "gameRunning": false,
+          "launcherRunning": false,
+          "launcherCloseCalls": 0,
+          "ownedGameCloseCalls": 1,
+          "unmanagedProcessPreserved": false
+        },
+        "stageHistory": [
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "restoring_after_failure",
+          "closing_failed_owned_game",
+          "installed_1_data",
+          "installed_2_metadata",
+          "installed_3_version",
+          "active_ready_deferred_restore",
+          "closing_owned_game_for_restore",
+          "restoring_after_owned_game_exit"
+        ],
+        "successfulSubsequentRetry": true,
+        "retryClosedAndRestored": true,
+        "finalSha256": {
+          "data": "ccd14ad38f0d7a61c3b6cef7f726ed516e803305773f81e291ee330f3d044ef9",
+          "metadata": "46c6e117d22bc3ab444e35a693505455ad029768a97bc04da84598913962fba5",
+          "version": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+        },
+        "finalRecoveryJournalPresent": false,
+        "syntheticGameRunning": false,
+        "syntheticLauncherRunning": false,
+        "finalBackupManifestStage": "restored",
+        "pendingRecoveryRestoreFailures": 0
+      }
+    ],
+    "stageCount": 12,
+    "allSuccessfulSubsequentRetry": true,
+    "allFinalRecoveryClear": true,
+    "allSyntheticProcessesStopped": true
+  },
+  "acceptanceMapping": {
+    "failureJournal": "After recovery is armed, helper-start-error evidence and recovery-stage history are exercised. A deliberately interrupted prior recovery preserves recovery.json at restoring_interrupted_operation until the subsequent retry restores it. Cleanly rolled-back failures clear the active recovery journal and leave backup manifest stage restored.",
+    "beforeAfterFileHashes": "Every helper scenario records SHA-256 triplets before failure, after failure, and after retry close. Clean rollback returns immediately to baseline; the interrupted-recovery case intentionally preserves uncertain bytes until the subsequent retry repairs them.",
+    "processCleanup": "Unmanaged process ownership is preserved rather than killed. Game-spawn failure closes the helper-owned launcher; readiness failure closes the exact helper-owned game. Final synthetic launcher/game ownership is false in every case.",
+    "successfulSubsequentRetry": "All 12 helper stages succeed on the next normal start attempt and clean stop; host generic-helper/readiness cases also prove explicit retry after the correct cleanup boundary."
+  },
+  "excludedAdmissionOwnershipGates": [
+    {
+      "gate": "missing/invalid game root and helper deployment",
+      "trackedBy": [
+        "A08"
+      ],
+      "reason": "request admission/environment validation; no startup transaction is armed"
+    },
+    {
+      "gate": "duplicate or concurrent Start",
+      "trackedBy": [
+        "A04"
+      ],
+      "reason": "single-owner request admission before a second startup pipeline is allowed"
+    },
+    {
+      "gate": "pre-existing unmanaged LastWar process",
+      "trackedBy": [
+        "A05",
+        "A08"
+      ],
+      "reason": "ownership conflict; helper-level matrix separately proves the unmanaged process is preserved"
+    }
+  ],
+  "supersedes": {
+    "evidence": "LWB-R7-088",
+    "caseId": "A10",
+    "priorStatus": "partial",
+    "newStatus": "pass_current_offline"
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "overviewOfficialSettleFocused": "PASS",
+    "isolatedHelperFailureMatrix": "PASS; 12/12 stages",
+    "existingDeferredRestorationRegression": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "ciRegressionAdded": true,
+    "gitDiffCheck": "PASS"
+  }
+}

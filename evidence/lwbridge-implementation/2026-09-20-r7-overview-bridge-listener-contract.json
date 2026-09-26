@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-100",
+  "date": "2026-09-20",
+  "status": "RECOVERED-LISTENER-CONTRACT/OFFLINE-TESTED/PROXY-ENV-BLOCKED",
+  "title": "Recover original bridge named-pipe listener contract",
+  "branch": "research/offline-controller",
+  "parentRevision": "9a3fad89531383fda082ec64fc7b9a8e6308c79a",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Recovers the exact original per-user pipe identity, protected current-user/SYSTEM ACL, CreateNamedPipeW arguments, first-instance behavior, asynchronous ConnectNamedPipe result mapping, accept-loop retry, five-second initial handshake deadline, and terminal connection cleanup boundary. The implementation remains an offline contract model and never opens a pipe.",
+    "officialGameLaunched": false,
+    "productionGameplayActionPerformed": false,
+    "productionCallLuaEnabled": false
+  },
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "pipeIdentityPredecessor": "LWB-R5-006",
+    "createServerFunction": "RVA 0x3C1B68-0x3C1E9C",
+    "createNamedPipeCall": "RVA 0x3C1CB7",
+    "acceptLoopFuture": "RVA 0xE4861-0xE4FAD",
+    "createServerCaller": "RVA 0xE49F5",
+    "connectHelper": "RVA 0x47FD44-0x47FE0C",
+    "connectNamedPipeCall": "RVA 0x47FD86",
+    "connectionFuture": "RVA 0xE2DB5-0xE4861"
+  },
+  "listenerContract": {
+    "pipeName": {
+      "prefix": "\\\\.\\pipe\\lwbridge-control-v1-",
+      "suffix": "lowercase first 16 hex chars of SHA-256(UTF-8 current Windows SID text)"
+    },
+    "security": {
+      "sddl": "D:P(A;;GA;;;SY)(A;;GA;;;<current-user-SID>)",
+      "meaning": "protected DACL; GENERIC_ALL for SYSTEM and current Windows user SID only",
+      "builder": "RVA 0x3C1B88-0x3C1BF2 with SDDL template cluster at RVA 0xD09DD8",
+      "conversion": "RVA 0x3C1C25 imports ConvertStringSecurityDescriptorToSecurityDescriptorW with revision 1",
+      "securityAttributesLength": 24,
+      "inheritHandle": false
+    },
+    "createNamedPipeW": {
+      "firstOpenMode": "0x40080003",
+      "replacementOpenMode": "0x40000003",
+      "openModeMeaning": "PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, plus FILE_FLAG_FIRST_PIPE_INSTANCE only for initial server",
+      "pipeMode": "0x00000008",
+      "pipeModeMeaning": "byte-mode/wait defaults plus PIPE_REJECT_REMOTE_CLIENTS",
+      "maxInstances": 255,
+      "outboundBufferBytes": 65536,
+      "inboundBufferBytes": 65536,
+      "defaultTimeoutMilliseconds": 0
+    },
+    "firstInstanceState": {
+      "initial": "RVA 0xE48BF writes word 1, making first-instance byte true",
+      "afterFirstCreate": "RVA 0xE4A23 writes word 0x0100, clearing first-instance byte while advancing adjacent state",
+      "policy": "FILE_FLAG_FIRST_PIPE_INSTANCE appears only on the first server object; replacement accept instances omit it"
+    },
+    "connectNamedPipe": {
+      "immediateTrue": "connected",
+      "errorNoData232": "completed path",
+      "errorPipeConnected535": "completed path",
+      "errorIoPending997": "overlapped pending path",
+      "otherWin32Error": "failed connection instance",
+      "failedAcceptBehavior": "PIPE_CONNECT_FAILED is emitted at RVA 0xE4EC4; failed server state is dropped and RVA 0xE4F58 jumps back to RVA 0xE49D2 to create the next server instance instead of terminating the shared listener"
+    },
+    "handshake": {
+      "timeoutSeconds": 5,
+      "evidence": "RVA 0xE2E92 loads 5 seconds into timeout helper RVA 0x2EF2A0; timeout branch references PIPE_HANDSHAKE_TIMEOUT at RVA 0xE2F35"
+    },
+    "terminalConnectionCleanup": {
+      "disconnectMarker": "PIPE_DISCONNECTED xref RVA 0xE31A3",
+      "writeFailureMarkers": [
+        "PIPE_WRITE_FAILED xref RVA 0xE35E1",
+        "PIPE_WRITE_FAILED xref RVA 0xE36D6"
+      ],
+      "handshakeRejectedMarker": "PIPE_HANDSHAKE_REJECTED xref RVA 0xE3D9F",
+      "claimedRouteRemoval": "generation-scoped bridge-store disconnect call RVA 0xE340C -> RVA 0x3C24EF",
+      "commonCleanup": "RVA 0xE3DFC-0xE3F4D drops connection I/O state, marks task complete and emits the terminal bridge outcome through the common reporting helper",
+      "staleReconnectProtection": "retains R7-098 instanceId + generation semantics; an older connection teardown cannot remove a newer reconnect route"
+    }
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeListenerContract.cs",
+    "productionIntegration": false,
+    "productionNamedPipeListenerImplemented": false,
+    "proxyEnvironmentBindingImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": "null"
+  },
+  "tests": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeListenerContractChecks.cs",
+    "focusedCli": "--overview-bridge-listener-contract-check",
+    "focusedResult": "PASS",
+    "defaultSuiteGuard": true,
+    "coverage": [
+      "initial versus replacement open mode",
+      "remote-client rejection and 255 max instances",
+      "64 KiB input/output buffers and zero default timeout",
+      "protected SYSTEM/current-user SID SDDL",
+      "first-server-only FILE_FLAG_FIRST_PIPE_INSTANCE",
+      "ConnectNamedPipe immediate/232/535/997/other classification",
+      "five-second handshake timeout"
+    ]
+  },
+  "remainingBlocker": "Recover the authentic proxy launch environment binding and prove how profileId, instanceId and pipe token are injected into the launched xLua proxy process before constructing any production listener or enabling allowlisted call_lua(getStatus).",
+  "safety": {
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedListenerContractGuard": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "defaultDeterministicSuite": "PASS; failures=[]",
+    "frontendGenerationCheck": "PASS",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-045",
+  "date": "2026-09-26",
+  "scope": "Close the native dispatch_assist_state top-level schema, unavailable-state error and persisted job ownership while fencing unrecovered live-provider success behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "dispatch_assist_state handler 0x14017C7A8-0x14017DA63",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "unavailable-state branch 0x14017CDCB-0x14017CDEA",
+    "persisted job list provider 0x140260FC6-0x140261342",
+    "retained AutomationPanel-D06CxhPI.js consumer"
+  ],
+  "publicContract": {
+    "fieldOrder": ["tasks", "todayCount", "dailyLimit", "serverTime", "updatedAt", "jobs"],
+    "unavailableError": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "dispatch assist state unavailable"
+    },
+    "tasksSource": "live dispatch-assist provider",
+    "counterAndClockSource": "live dispatch-assist provider",
+    "jobsSource": "profile map-data database"
+  },
+  "persistedJobs": {
+    "table": "dispatch_assist_jobs",
+    "selectColumns": ["task_json", "assist_at", "status", "attempts", "last_error", "created_at", "updated_at"],
+    "order": "CASE WHEN status IN ('scheduled','waiting_connection','running') THEN 0 ELSE 1 END, assist_at ASC, updated_at DESC",
+    "rebuildSchemaPresent": true
+  },
+  "evidenceClassification": {
+    "topLevelFieldOrder": "EXACT_NATIVE",
+    "stateUnavailableError": "EXACT_NATIVE",
+    "jobSelectAndOrdering": "EXACT_NATIVE",
+    "liveTaskProvider": "UNKNOWN",
+    "taskRowProjection": "UNKNOWN",
+    "numericDefaults": "UNKNOWN",
+    "jobEnrichmentProjection": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "deviationAvoided": "No synthetic idle state, frontend-derived task list, or DB-only success object was added.",
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "gitDiffCheck": "PASS",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "desktopReleaseBuild": "PASS",
+    "checksReleaseBuild": "PASS",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "live provider acquisition and refresh semantics",
+    "task-row JSON normalization",
+    "todayCount/dailyLimit/serverTime/updatedAt fallback semantics",
+    "job-row enrichment fields and scheduleSource ownership",
+    "schedule/cancel/retry validation and mutation contracts"
+  ],
+  "nextCheckpoint": "Move to another retained command whose native observable contract can be closed without the dispatch-assist live provider."
+}

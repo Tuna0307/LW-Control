@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-011",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 map_data_options source selection, option/count aggregation, and recovered public result envelope.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-option-source-selector.json",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-option-response-assembly.json"
+  ],
+  "exactContract": {
+    "request": ["serverId"],
+    "topLevelOrder": ["serverId", "counts", "alliances", "names", "dispatchLevels", "noAllianceCount", "rewardItems", "treasureTypes", "scanProgress"],
+    "countKinds": ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
+    "nameFamilies": ["resource", "monster"],
+    "activeSelector": "requested serverId > 0 AND isReading=true AND scan-state server matches AND raw scanRunId string length > 0",
+    "activeSource": "scan_records scoped by server_id and run_id",
+    "fallbackSource": "map_records scoped by requested server_id",
+    "scanRunIdStringSemantics": "raw nonempty; whitespace-only remains nonempty"
+  },
+  "removedDeviations": [
+    "names.zombie_boss public option family",
+    "counts.zombie_boss ninth public count key",
+    "rebuild-only monsterLevels public field",
+    "serverId=0 all-published-servers option aggregation",
+    "non-reference top-level response assembly order"
+  ],
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/MapDataStore.cs",
+    "src/LWBridge.Desktop/WebUi/preview-host.js"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/Program.cs",
+    "tests/LWBridge.Desktop.Checks/MapDataOptionsLiveVerifier.cs",
+    "tests/LWBridge.Desktop.Checks/LiveMapDataOptionsProof.cs"
+  ],
+  "validation": {
+    "gitDiffCheck": "PASS",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "frontendGeneratorCheck": "PASS",
+    "mapClearBrowser": "PASS",
+    "ownerWorkflowBrowser": "PASS",
+    "mapPersistenceBrowser": "PASS",
+    "autoNavigationBrowser": "PASS",
+    "autoRestartBrowser": "PASS",
+    "scanStrategyBrowser": "PASS"
+  },
+  "evidenceClassification": {
+    "requestEnvelope": "EXACT_BYTES",
+    "topLevelAssemblyOrder": "EXACT_CONTRACT",
+    "activeVsPublishedSourceSelector": "EXACT_CONTRACT",
+    "eightCountKinds": "EXACT_CONTRACT",
+    "allianceNameDispatchTreasureRewardAggregation": "EXACT_CONTRACT",
+    "scanProgressRowSelection": "EXACT_CONTRACT",
+    "completeScanProgressSerializer": "PARTIAL"
+  },
+  "notClaimed": [
+    "complete nested scanProgress serializer key set/order and exact absent-row representation",
+    "original Manual Scan eight-kind/scanMode public contract",
+    "map_scan_status and map_scan_stop serializer/state parity",
+    "map_search strict parity and removal of rebuild-added Monster level-filter semantics",
+    "original Auto Scan state machine",
+    "Scheduled Plunder restoration",
+    "protected/original Map acquisition internals"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "findingId": "LWB-R7-028",
+  "date": "2026-09-18",
+  "status": "LIVE-PROVEN",
+  "scope": "dedicated Zombie Boss Manual Scan, authoritative Remaining enrichment, persistent result filters, and repeated-scan performance",
+  "client": {
+    "contentVersion": 18,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "packageSize": 41296021,
+    "packageCrc32": 738537259,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-1",
+    "compatibilityOkAfterCleanup": true
+  },
+  "dedicatedTransportProof": {
+    "discoveredZombieBossCount": 54,
+    "detailTargetCount": 54,
+    "firstRequestCount": 54,
+    "detailReadyCount": 48,
+    "unresolvedAfterOneRetry": 6,
+    "activeProtectionDeadlineCount": 7,
+    "scanWallSeconds": 21.9,
+    "unresolvedPolicy": "A normal detail reply that still omits isProtected after one retry remains unknown; Remaining is not fabricated."
+  },  "desktopUiProof": [
+    {
+      "phase": "fresh-app-restored-filter",
+      "savedZombieBossCount": 48,
+      "keyword": "Zombie",
+      "maxLevel": 65,
+      "filteredRows": 7,
+      "searchButtonPressed": false,
+      "nameOption": "Zombie Boss (48)"
+    },
+    {
+      "phase": "first-live-rescan",
+      "zombieBossCount": 45,
+      "elapsedSeconds": 18.51,
+      "filteredRows": 6,
+      "visiblePositiveRemainingRows": 6,
+      "keywordAfter": "Zombie",
+      "maxLevelAfter": 65,
+      "activeTabAfter": "zombie_boss",
+      "selectedTypesAfter": ["zombie_boss"]
+    },    {
+      "phase": "immediate-repeat",
+      "zombieBossCount": 45,
+      "elapsedSeconds": 14.594,
+      "filteredRows": 6,
+      "keywordAfter": "Zombie",
+      "maxLevelAfter": 65,
+      "activeTabAfter": "zombie_boss"
+    }
+  ],
+  "deterministicSplitContract": {
+    "genericMonsterProtectionDetailRequests": 0,
+    "dedicatedZombieBossKind": true,
+    "localizedNameKeySearch": true,
+    "knownLiveDeadlineCarryForwardOnUnresolvedRefresh": true
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroupsAllTrue": true,
+    "javascriptSyntaxCheck": true,
+    "gitDiffCheckClean": true,
+    "officialV18Restored": true,
+    "compatibilityOk": true,
+    "gameLauncherAndDesktopProcessesAfterCleanup": 0
+  },
+  "privacy": "Aggregate-only evidence; no live UUIDs, coordinates, account identifiers, player identities, profile identifiers, session identifiers, challenge identifiers, logs, databases, or raw live records retained."
+}

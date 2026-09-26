@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-046",
+  "date": "2026-09-26",
+  "scope": "Restore the native squad_list profile admission, game call, timeout/error behavior and raw JSON success forwarding.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "squad_list handler 0x14011D1A6-0x14011DC39",
+    "profile/runtime resolver 0x1402AE43C",
+    "runtime lookup helper 0x14041C8AB",
+    "game-route helper 0x1403AD367",
+    "game-call future 0x1400E4FAD-0x1400E537E",
+    "generic result converter 0x1402BB816",
+    "squad response consumer 0x1403B8BE0-0x1403B9690",
+    "retained AutomationPanel-D06CxhPI.js consumer"
+  ],
+  "publicContract": {
+    "missingProfile": {
+      "code": "PROFILE_ID_REQUIRED",
+      "message": "PROFILE_ID_REQUIRED"
+    },
+    "unknownProfile": {
+      "code": "PROFILE_RUNTIME_UNAVAILABLE",
+      "message": "PROFILE_RUNTIME_UNAVAILABLE"
+    },
+    "disconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "gameMethod": "getSquads",
+    "gameArgs": {},
+    "gameTimeoutMilliseconds": 5000,
+    "nativeRetryCount": 0,
+    "timeout": {
+      "code": "LUA_CALL_TIMEOUT",
+      "message": "lua call result unknown after timeout: getSquads"
+    },
+    "gameFailureCode": "LUA_CALL_FAILED",
+    "success": "correlated game JSON value forwarded unchanged"
+  },
+  "gamePayloadEvidence": {
+    "topLevelArray": "squads",
+    "observedFields": ["index", "positions", "heroes", "squadIndex", "uuid", "name", "position", "equips"],
+    "hostDtoClaimed": false
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs",
+    "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "src/LWBridge.Desktop/LWBridgeControlPipeRpcSessionTransport.cs",
+    "tests/LWBridge.Desktop.Checks/OverviewStatusTransportChecks.cs"
+  ],
+  "transport": {
+    "classification": "EQUIVALENT_REIMPLEMENTATION",
+    "publicCallLuaWidened": false,
+    "existingDefaultTimeoutChanged": false,
+    "perCallDeadlineAdded": true
+  },
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "jsonSyntax": "PASS",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "profileParsingAndErrors": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "getSquadsMethodAndEmptyArgs": "EXACT_NATIVE",
+    "fiveSecondDeadline": "EXACT_NATIVE",
+    "timeoutCodeAndMessage": "EXACT_NATIVE",
+    "luaFailureCodeAndErrorPrefix": "EXACT_NATIVE",
+    "successRawJsonPassThrough": "EXACT_NATIVE",
+    "retainedDotNetTransport": "EQUIVALENT_REIMPLEMENTATION",
+    "rareGlobalStateUnavailableInternals": "UNKNOWN"
+  },
+  "remainingBoundary": [
+    "live current-client getSquads provider compatibility validation",
+    "rare native global-state-unavailable branch outside normal retained composition",
+    "monster_catalog_options and other missing read-only squad/AFK commands remain separate checkpoints"
+  ],
+  "nextCheckpoint": "Continue another retained read-only Squads/AFK command, preferably monster_catalog_options, research-first."
+}

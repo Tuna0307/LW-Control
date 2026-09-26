@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-010",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 map_summary state/count source selection and exact public result envelope.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md"
+  ],
+  "exactContract": {
+    "successEnvelope": ["serverId", "counts", "scanState"],
+    "countKinds": ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
+    "activeSource": "scan_records for shared-state server + raw nonempty scanRunId while isReading=true",
+    "idleSource": "map_records for shared-state server",
+    "errorPolicy": "shared-state/count failures propagate"
+  },
+  "removedDeviations": [
+    "savedServerIds field in map_summary",
+    "saved_profile_index fallback",
+    "saved-server selection fallback",
+    "LiveResourceProbeCommandService.CurrentServerId fallback",
+    "firstLiveResultServerId fallback",
+    "rebuild-only zombie_boss count key"
+  ],
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LiveResourceProofRunner.cs"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/MapSummaryParityChecks.cs",
+    "tests/LWBridge.Desktop.Checks/LiveMapSummaryProof.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "validation": {
+    "gitDiffCheck": "PASS",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "frontendGeneratorCheck": "PASS",
+    "mapClearBrowser": "PASS",
+    "ownerWorkflowBrowser": "PASS",
+    "mapPersistenceBrowser": "PASS",
+    "autoNavigationBrowser": "PASS",
+    "autoRestartBrowser": "PASS"
+  },
+  "remainingMapParity": [
+    "shared map_scan_status serializer parity",
+    "map_data_options exact result and selector contract",
+    "original Auto Scan state machine",
+    "Scheduled Plunder restoration",
+    "Normal/Fast remaining semantics",
+    "protected/original acquisition internals"
+  ]
+}

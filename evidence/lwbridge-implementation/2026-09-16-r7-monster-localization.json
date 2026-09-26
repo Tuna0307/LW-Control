@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-011",
+  "capturedAtUtc": "2026-09-16T09:08:21.644454Z",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "reference": {
+    "artifact": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "inspector": "tools/inspect_lwbridge_map_scan.py",
+    "locators": {
+      "commandRva": "0x23509e",
+      "localeLoaderRva": "0x2ba43f",
+      "fallbackIteratorRva": "0x20b716"
+    },
+    "maxKeys": 200,
+    "fallbackOrder": [
+      "requested-language",
+      "en",
+      "key"
+    ],
+    "manifest": {
+      "version": 1,
+      "sourceVersion": "23443",
+      "format": "json-gzip",
+      "keyCount": 1020,
+      "languages": {
+        "en": {
+          "file": "en.json.gz",
+          "size": 19760,
+          "sha256": "0f766e91ca81d488f4d15976244be93683b18860f8c2eb05a9cd6e64bc17fa08"
+        },
+        "zh-CN": {
+          "file": "zh-CN.json.gz",
+          "size": 22145,
+          "sha256": "0b11f739a41806a96ec916ac0d490d7640c1143132e23e0831b99a2a9dbe4836"
+        },
+        "zh-TW": {
+          "file": "zh-TW.json.gz",
+          "size": 22223,
+          "sha256": "fd1b7de4e5b875f24bcf59ca23d5fe4564c7df8db0b5e7d5c39628889cc761b1"
+        },
+        "ja": {
+          "file": "ja.json.gz",
+          "size": 21353,
+          "sha256": "99bd4de20c82753f59a137ca998556fc8e536129a02be83d449e641a2ac57df0"
+        },
+        "ko": {
+          "file": "ko.json.gz",
+          "size": 21463,
+          "sha256": "2c1a645f4ce6f1c1c00b56c4cf2356a13648fb33621835b08f5c5452e7e42be3"
+        },
+        "vi": {
+          "file": "vi.json.gz",
+          "size": 23430,
+          "sha256": "1fd2ac801372afeb180d5348f86945b77f6cff8ab4f4d40721609964a70ac09c"
+        },
+        "id": {
+          "file": "id.json.gz",
+          "size": 20509,
+          "sha256": "d46f905f8a5f5bcef4cd33b9b2a9cbe6022e2a2c6e7283a1f4f023c281a71749"
+        },
+        "ru": {
+          "file": "ru.json.gz",
+          "size": 25369,
+          "sha256": "a0227559a4761e1e2bcae903ba15e56634623e92328fd8493219af5e13dc7683"
+        },
+        "pt": {
+          "file": "pt.json.gz",
+          "size": 21543,
+          "sha256": "05b5b2326c879eb3f8fa46d2d7e785bcc363f85dec91826d9768e0fc9260ab3d"
+        }
+      }
+    },
+    "inspectorSha256": "f66778f427367585d78c9fa2d759db0a63957d9e5775934c94433ca10c5243b4"
+  },
+  "implementation": {
+    "cachePolicy": "%LOCALAPPDATA%\\LWBridgeRebuild\\locales; verified cache is outside the repository and no game-owned locale payload is committed",
+    "files": {
+      "src/LWBridge.Desktop/LastWarLocaleService.cs": "0b75439d32fef1f59cf2eeafa61bd986148f6b13949973e26a22c8e243ee4385",
+      "src/LWBridge.Desktop/LWBridgeBackend.cs": "d06024c55fe2b82837d3ceb84fd7c3bb075b596b89748a1e4e466d4808ba1f7d",
+      "tests/LWBridge.Desktop.Checks/LastWarLocaleChecks.cs": "9180d4a580b91a4159a679479904d2a314b25d9d1ecf9e27b9cd69cd8d9c3bdd",
+      "tests/LWBridge.Desktop.Checks/Program.cs": "c01442634cf2ef63079e14b84a581189ce4102797390cf865fa8efb85ca5e91d",
+      "tools/extract_lwbridge_locale_cache.py": "b4478eb261b320cbbbdeb213abed9c58fa0d98db41d6506bfcf50e0cbc4d69f1",
+      "src/LWBridge.Desktop/WebUi/preview-host.js": "de54b0597259d98a944b72780460e5c2196f41e7156412f45a44b249c3bfd701",
+      "tools/check_lwbridge_frontend.cjs": "6be44d4ca68c33d4270160d35606b06926816c02464d343f4aa518437e073119",
+      "tools/build_lwbridge_frontend.py": "78e6daedb0e0305f3b7d5b5c5ecc4e9bdb49a42129232602f94fa78541fee840"
+    }
+  },
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "checks": {
+      "ok": true,
+      "failures": [],
+      "groups": [
+        "profileRouting",
+        "persistence",
+        "requestLifetime",
+        "mapPersistence",
+        "mapContract",
+        "bridgeControlPipeContract"
+      ]
+    },
+    "realCacheBackendProof": {
+      "languages": [
+        "en",
+        "zh-CN"
+      ],
+      "keys": [
+        "2000001",
+        "2000003",
+        "2000005"
+      ],
+      "allResolvedToNonKeyStrings": true,
+      "gameTextValuesStoredInEvidence": false
+    },
+    "extractor": {
+      "pyCompile": true,
+      "wrongReferenceRejected": true,
+      "wrongReferenceExitCode": 1
+    },
+    "frontendGeneratorCheck": true,
+    "browser": {
+      "checkCount": 36,
+      "errors": [],
+      "interactions": [
+        {
+          "interaction": ".automation-categories button",
+          "count": 6
+        },
+        {
+          "interaction": ".map-tabs button",
+          "count": 9
+        },
+        {
+          "interaction": ".squad-tabs button",
+          "count": 2
+        },
+        {
+          "interaction": "monster-locale-switch",
+          "englishLocaleCalls": 2,
+          "chineseLocaleCalls": 4
+        }
+      ]
+    },
+    "processStateAfterChecks": {
+      "gameRunning": false,
+      "launcherRunning": false
+    },
+    "pixelComparison": {
+      "pairs": 32,
+      "identical": 32,
+      "maxMae": 0.0,
+      "maxHighDeltaRate": 0.0
+    },
+    "gitDiffCheck": true
+  },
+  "limits": [
+    "Localization is reference-derived and offline-tested, not current-client LIVE-PROVEN.",
+    "The verified cache is tied to reference sourceVersion 23443 and fails closed when manifest/hash evidence changes.",
+    "Monster acquisition/publication remains separately LIVE-PROVEN under LWB-R7-010.",
+    "The frontend generator drift discovered during this checkpoint was the prior LWB-R7-009 selection-preservation patch; exact anchored transforms were added so --check reproduces current production output."
+  ],
+  "tools": {
+    "python": "3.12.10",
+    "dotnet": "10.0.400",
+    "node": "24.18.0",
+    "playwright": "1.62.1",
+    "browserChannel": "msedge"
+  }
+}

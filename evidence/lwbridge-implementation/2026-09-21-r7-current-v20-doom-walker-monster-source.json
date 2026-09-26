@@ -1,0 +1,110 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-107",
+  "date": "2026-09-21",
+  "status": "CURRENT-V20-DOOM-WALKER-SOURCE/FIXED-OFFLINE-AND-LIVE-NONREGRESSION; POSITIVE-LIVE-ROW-PENDING",
+  "title": "Current-v20 Doom Walker / SuperRunningBoss recovery for generic Monster scans",
+  "branch": "research/offline-controller",
+  "parentRevision": "63910c943aab5197318cfc2d84b8f86de0f2ad06",
+  "trigger": "User-reported level-200 Doom Walker visible on the world map but absent from the Monster scan/filter list.",
+  "currentClient": {
+    "luaFileVersion": 3,
+    "luaContentVersion": 20,
+    "luaEntryCount": 18734,
+    "luaPackageSha256": "fedd635a7f972843b72d274128e2d443d81463272d86497e5a8a32223c6bb7a9",
+    "luaMetadata": "41297404|2254471072"
+  },
+  "recoveredContract": {
+    "specialEnumName": "WorldMonsterSpecialType.SuperRunningBoss",
+    "specialEnumValue": 32,
+    "requestDefine": "ActivityDoomsdayMainInfo",
+    "requestCommand": "activity.doomsday.main.info",
+    "responseModule": "Net.Msgs.Activity.Doomsday.ActivityDoomsdayMainInfoMessage",
+    "manager": "DataCenter.LWDoomsdayManager",
+    "managerCollections": ["theaterBosses", "allianceBosses"],
+    "wireToManagerFields": {
+      "monster_id": "monsterId",
+      "monster_uid": "uid",
+      "point_id": "targetPos",
+      "expire_time": "refreshTime",
+      "isRally": "isRally"
+    },
+    "uiClassification": "UIDoomsdayBossItem.Refresh uses WorldMonsterSpecialType.SuperRunningBoss for these event bosses"
+  },
+  "implementation": {
+    "genericMonsterOnly": true,
+    "zombieBossPathChanged": false,
+    "requestBehavior": "Issue the same read-only ActivityDoomsdayMainInfo request once at the start of a generic whole-world Monster probe and allow a bounded 0.75-second settle.",
+    "mergeBehavior": "Merge only manager rows whose current Monster template special equals SuperRunningBoss; derive coordinates from point_id, template config/name/level from MonsterTemplateManager, retain exact monster_uid string identity, and deduplicate against already-materialized WorldMarch rows by exact UUID.",
+    "failClosed": [
+      "Missing SuperRunningBoss enum fails the Monster probe.",
+      "Invalid point_id fails the Monster probe.",
+      "Incomplete template identity fails the Monster probe.",
+      "Host requires doomsdayBossCount to equal normalized manager-provenance rows for generic Monster scans and to be zero for Zombie Boss scans."
+    ]
+  },
+  "sourceInspector": {
+    "tool": "tools/inspect_current_doom_walker_sources.py",
+    "packageSha256": "fedd635a7f972843b72d274128e2d443d81463272d86497e5a8a32223c6bb7a9",
+    "checks": [
+      "ActivityDoomsdayMainInfo -> activity.doomsday.main.info",
+      "MsgMap -> ActivityDoomsdayMainInfoMessage",
+      "UIDoomsday.OnCreate performs a one-argument read-only SendMessage",
+      "response forwards to LWDoomsdayManager.OnGetMainInfo",
+      "manager normalizes server_boss/alliance_boss identity and position fields",
+      "UIDoomsdayBossItem.Refresh classifies the row as SuperRunningBoss",
+      "SuperRunningBoss enum value is 32"
+    ],
+    "result": "PASS"
+  },
+  "deterministicAcceptance": {
+    "positiveFixture": "A synthetic current-v20 manager-provenance SuperRunningBoss row is published as kind=monster with special/configSpecial=32 and is excluded from kind=zombie_boss.",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixDeterministicGroups": true,
+    "failures": [],
+    "realConfigUnchanged": true
+  },
+  "liveAcceptance": {
+    "serverId": 2212,
+    "scanMode": "fast",
+    "logicalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "publishedMonsterCount": 5107,
+    "reopenedMonsterCount": 5107,
+    "scanWallSeconds": 8.8737818,
+    "distanceCount": 5107,
+    "minDistance": 4.4721360206604,
+    "maxDistance": 755.8955078125,
+    "filterComparedRowCount": 5107,
+    "filterCheckCount": 8,
+    "monsterInvasionBossCount": 0,
+    "earlierCurrentV20ReadOnlyDoomInfoProbe": {
+      "requestSent": true,
+      "theaterBossCount": 0,
+      "allianceBossCount": 0,
+      "interpretation": "No active Doomsday/SuperRunningBoss population was available in the tested server session."
+    },
+    "result": "PASS-NONREGRESSION"
+  },
+  "safety": {
+    "stateChangingGameplayActionPerformed": false,
+    "attackPerformed": false,
+    "scoutPerformed": false,
+    "collectPerformed": false,
+    "robberyPerformed": false,
+    "claimPerformed": false,
+    "networkActionUsed": "Read-only ActivityDoomsdayMainInfo query only"
+  },
+  "postProof": {
+    "gameRunning": false,
+    "launcherRunning": false,
+    "manualChecksProcessRunning": false
+  },
+  "limits": [
+    "A positive live Doom Walker row could not be proven on 2026-09-21 because the Doomsday/SuperRunningBoss event population was inactive/empty on server 2212 during the proof window.",
+    "The structural source contract and positive normalization path are source-backed and deterministic-tested, but LIVE-PROVEN positive-row status remains pending until the event is active.",
+    "The user-visible localized English string 'Doom Walker' is not hard-coded as the classifier; classification uses the game's SuperRunningBoss enum/template contract."
+  ]
+}

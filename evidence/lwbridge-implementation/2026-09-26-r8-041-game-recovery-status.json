@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-041",
+  "date": "2026-09-26",
+  "scope": "Restore game_recovery_status native public schema, validation, defaults, notice identity and terminal status publication without changing process-control policy.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "game_recovery_status handler 0x140199C30-0x14019A46F",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "recovery-state reader/error helper 0x14033A877-0x14033AA17",
+    "recovery event publisher 0x14033A045-0x14033A19B",
+    "recovery-status serializer 0x14033B396-0x14033B5FA",
+    "default status constructor 0x14031894C-0x1403189CB",
+    "recovery-start transition 0x140338FD4-0x140339356",
+    "default reset 0x14033A19B-0x14033A3E2",
+    "terminal transition 0x14033A3E2-0x14033A877",
+    "retry transition 0x14033AA65-0x14033ADDF"
+  ],
+  "contract": {
+    "resultFields": [
+      "state",
+      "reason",
+      "updateDetected",
+      "restarted",
+      "startedAt",
+      "completedAt",
+      "attempts",
+      "nextRetryAt",
+      "error",
+      "noticeId",
+      "noticeVisible"
+    ],
+    "idle": {
+      "state": "idle",
+      "reason": null,
+      "updateDetected": false,
+      "restarted": false,
+      "startedAt": 0,
+      "completedAt": null,
+      "attempts": 0,
+      "nextRetryAt": null,
+      "error": null,
+      "noticeId": 0,
+      "noticeVisible": false
+    },
+    "errors": [
+      "PROFILE_ID_REQUIRED",
+      "PROFILE_RUNTIME_UNAVAILABLE",
+      "STATE_UNAVAILABLE"
+    ],
+    "stateUnavailableMessage": "game recovery state is unavailable",
+    "startNoticeSemantics": "increment noticeId; state=waiting; startedAt=now; attempts=0; restarted=false; noticeVisible=true",
+    "terminalSemantics": "state=succeeded|failed; completedAt=now; preserve notice identity; noticeVisible=true; error only on failure",
+    "automationDisabledReset": "restore native idle defaults while preserving current noticeId"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/GameRecoveryStatusCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs",
+    "src/LWBridge.Desktop/OverviewRecoveryPolicy.cs",
+    "tests/LWBridge.Desktop.Checks/GameRecoveryStatusChecks.cs",
+    "tests/LWBridge.Desktop.Checks/OverviewReconnectPolicyChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "validationStatus": {
+    "staticRecoveryInspector": "PASS ok=true",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "publicFieldOrder": "EXACT_NATIVE",
+    "scalarAndNullableJsonSemantics": "EXACT_NATIVE",
+    "idleDefaults": "EXACT_NATIVE",
+    "startNoticeTransition": "EXACT_NATIVE",
+    "terminalSucceededFailedTransition": "EXACT_NATIVE",
+    "retryStatusMutation": "EXACT_NATIVE",
+    "automationDisabledStatusReset": "EXACT_NATIVE",
+    "profileRuntimeErrorCodes": "EXACT_NATIVE",
+    "stateUnavailableMessage": "EXACT_NATIVE",
+    "profileRuntimeErrorProse": "UNKNOWN",
+    "recoveryProcessControl": "OUT_OF_SCOPE_UNCHANGED"
+  },
+  "remainingBoundary": {
+    "launcherProxyMutationLifecycle": "still incomplete",
+    "protectedPackageKeyLane": "untouched",
+    "recoveryWorkerCadence": "existing implementation policy remains",
+    "profileRegistryMutations": "enable/create/delete still incomplete"
+  },
+  "nextCheckpoint": "Recover another retained host-side contract, preferring profile_instance_status or remaining profile registry behavior with complete native evidence."
+}

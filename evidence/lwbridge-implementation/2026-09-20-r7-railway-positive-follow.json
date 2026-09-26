@@ -1,0 +1,114 @@
+{
+  "evidenceId": "LWB-R7-071",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "909da6c1be081326d8db73e1168d293527e7a887",
+  "status": "LIVE-PROVEN",
+  "scope": {
+    "feature": "current-v19 Railway positive population, recovered live sorting, and moving Follow",
+    "readOnly": true,
+    "stateChangingGameplayActionInvoked": false
+  },
+  "harness": {
+    "path": "tests/LWBridge.Desktop.Checks/LiveManualFullRailwayProof.cs",
+    "readinessFix": "Resolve the initial owned current-client context through CurrentClientMapBlockSource.GetCurrentContextAsync before reading original server identity.",
+    "targetServerSetting": "LWBRIDGE_RAILWAY_TARGET_SERVER",
+    "productionSemanticsChanged": false
+  },
+  "negativeControl": {
+    "serverId": 2213,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "phase": "completed",
+    "publishedRailwayCount": 0,
+    "conclusion": "Authoritative full-world scan found no Railway row; the earlier Train-list hint was cache-contaminated and is not acceptance evidence."
+  },
+  "candidateSelection": {
+    "kind": "bounded read-only diagnostic only",
+    "forcedTrainListRefresh": true,
+    "reportedRailwaySourceServerId": 2204,
+    "usedAsAcceptanceEvidence": false,
+    "temporaryDiscoveryCodeRetained": false,
+    "acceptanceAuthority": "ordinary full-world Railway scanner"
+  },
+  "liveAcceptance": {
+    "originalServerId": 2212,
+    "targetServerId": 2204,
+    "targetServerJumped": true,
+    "serverJumpCommand": "server_jump",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "completed",
+    "scanWallSeconds": 119.2540435,
+    "publishedRailwayCount": 3,
+    "reopenedRailwayCount": 3,
+    "trainTypeCount": 3,
+    "qualityCount": 3,
+    "powerCount": 3,
+    "trainCfgCount": 3,
+    "trainDataCount": 0,
+    "arriveTsCount": 3,
+    "robTimesCount": 3,
+    "marchUuidCount": 3,
+    "maxLootCountCount": 3,
+    "protectTimeCount": 3,
+    "currentGoodsRowCount": 3,
+    "currentGoodsItemCount": 46,
+    "currentGoodsAuditableCount": 46,
+    "sortComparedRowCount": 3,
+    "sortCheckCount": 12,
+    "reopenedSortCheckCount": 12,
+    "relativeSortProven": true,
+    "itemCountLiveCoverage": true,
+    "follow": {
+      "command": "map_march_follow",
+      "inputIdentity": "exact published Railway row serverId + marchUuid",
+      "correlatedIdentityPreserved": true,
+      "proven": true
+    }
+  },
+  "sortCoverage": {
+    "publicKeys": [
+      "quality",
+      "power",
+      "itemCount",
+      "protectTime",
+      "updatedAt"
+    ],
+    "singleKeyDirections": "ASC and DESC for quality, power, protectTime, updatedAt; itemCount ASC/DESC when a nonempty item key exists",
+    "multiSort": true,
+    "reopenRepeat": true,
+    "meaningfulRelativeOrdering": "PROVEN_WITH_3_LIVE_ROWS"
+  },
+  "cleanup": {
+    "returnToOriginalServer": true,
+    "returnedServerId": 2212,
+    "returnObservedThrough": "correlated public server_jump result",
+    "ownedOverviewReadyControlLeaseHeartbeatMarkersPresentAfterStop": false,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "validation": {
+    "luaAstParse": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixDeterministicGroups": "PASS",
+    "deterministicFailures": 0,
+    "railwaySortInspector": "PASS",
+    "railwaySortInspectorOriginalSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "railwaySortInspectorFrontendSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e"
+  },
+  "limits": [
+    "The three live Railway rows did not expose raw trainData, so no positive live trainData population claim is made.",
+    "Train-list discovery was used only to nominate server 2204; full-world scan publication remains the live acceptance authority.",
+    "No robbery, attack, claim, collection, message, alliance share, or consumable action was invoked."
+  ],
+  "privacy": "Aggregate-only evidence. No player identity, march UUID, coordinates, session/challenge identifiers, process identifiers, databases, or raw logs are retained."
+}

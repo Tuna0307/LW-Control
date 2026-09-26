@@ -1,0 +1,36 @@
+{
+  "evidenceId": "LWB-R7-047",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "24cf097046fd693c7963be9bac1d6cc37413945f",
+  "scope": {
+    "feature": "current-v19 Fast Truck goods/max-loot scan fidelity",
+    "liveProven": true,
+    "readOnly": true,
+    "robberyOrConsumingAction": false
+  },
+  "liveFindings": {
+    "xluaTrainTypeRepresentation": "Truck: 1",
+    "authoritativeTrainData": "DataCenter.LWTrainDataManager:GetOneTrain/GetOneTrainByMarchUuid",
+    "authoritativeRewards": "TrainData:GetCurRewardData()",
+    "authoritativeMaxLoot": "TrainData.maxLootPerTrain",
+    "truckFullTrainDataJson": "not captured; ToJson/GetDump remains Railway-only",
+    "hostEnrichment": "post-acquisition on final deduplicated Truck rows"
+  },
+  "rejectedApproaches": [
+    "reflection/object-access experiment: 0/24 currentGoods and 0/24 maxLootCount",
+    "per-AOI host JSON parsing: severe acquisition regression",
+    "numeric-only enum parsing: dropped live XLua value Truck: 1",
+    "raw WorldMarch.train.trainData first: no authoritative current rewards on v19"
+  ],
+  "finalLiveProof": {
+    "totalBlocks": 2500, "scanMode": "fast", "concurrency": 20, "scanWallSeconds": 125.4511513,
+    "publishedTruckCount": 244, "reopenedTruckCount": 244, "currentGoodsRowCount": 244,
+    "currentGoodsItemCount": 1782, "maxLootCountCount": 244, "specialUrCount": 19, "trainDataCount": 0
+  },
+  "validation": {
+    "releaseBuildWarnings": 0, "releaseBuildErrors": 0, "gitDiffCheck": "PASS",
+    "deterministicGroups": ["profileRouting","persistence","requestLifetime","mapPersistence","mapContract","bridgeControlPipeContract"],
+    "deterministicFailures": 0, "currentClientCompatibility": "exact v19 PASS", "postProofProcesses": "LastWar/Launcher absent"
+  }
+}

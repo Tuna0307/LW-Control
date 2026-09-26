@@ -1,0 +1,274 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-142",
+  "date": "2026-09-22",
+  "title": "Native point/march add-update-remove-movement transition closure",
+  "status": "PASS_CURRENT_PLUS_LIVE",
+  "branch": "research/offline-controller",
+  "baseRevision": "e4059b3aea215815fc75c1b50cf1aa978dd545f3",
+  "acceptanceCase": "B11",
+  "scope": {
+    "productionBehaviorChanged": false,
+    "claim": "B11 is closed by a current deterministic end-to-end native-parser/index transition matrix plus a current live same-session Truck transition observation. The live run directly proves march add/remove/movement; point add/update/remove is exercised deterministically through the same production parser and transactional index."
+  },
+  "deterministicTransitionMatrix": {
+    "path": "CurrentClientMapBlockSource -> MapScanEngine -> MapDataStoreScanSink -> MapDataStore.SearchIndexed",
+    "selectedTypes": [
+      "dispatch",
+      "truck"
+    ],
+    "fullWorld": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "totalBlocks": 2500
+    },
+    "scanA": {
+      "dispatch": [
+        {
+          "recordKey": "90011",
+          "pointId": 90011,
+          "state": "stable",
+          "level": 5,
+          "quality": 3
+        },
+        {
+          "recordKey": "90012",
+          "pointId": 90012,
+          "state": "temporary"
+        }
+      ],
+      "truck": [
+        {
+          "recordKey": "truck-stable",
+          "uuid": "truck-stable",
+          "x": 9,
+          "y": 9,
+          "pointIndex": 9010,
+          "state": "stable"
+        },
+        {
+          "recordKey": "truck-remove",
+          "uuid": "truck-remove",
+          "x": 12,
+          "y": 18,
+          "state": "temporary"
+        }
+      ]
+    },
+    "scanB": {
+      "dispatch": [
+        {
+          "recordKey": "90011",
+          "pointId": 90011,
+          "state": "updated",
+          "level": 7,
+          "quality": 5,
+          "isSpecial": true
+        },
+        {
+          "recordKey": "90013",
+          "pointId": 90013,
+          "state": "added"
+        }
+      ],
+      "truck": [
+        {
+          "recordKey": "truck-stable",
+          "uuid": "truck-stable",
+          "x": 985,
+          "y": 985,
+          "pointIndex": 985986,
+          "quality": 5,
+          "power": 2000,
+          "state": "moved_updated"
+        },
+        {
+          "recordKey": "truck-added",
+          "uuid": "truck-added",
+          "state": "added"
+        }
+      ]
+    },
+    "assertions": {
+      "pointIdentityRule": "Dispatch recordKey is native pointId text",
+      "marchIdentityRule": "Truck recordKey is exact native march UUID text",
+      "stablePointUpdatedInPlace": true,
+      "pointRemoved": true,
+      "pointAdded": true,
+      "stableMarchMovedAcrossMapBlocksWithoutDuplicate": true,
+      "marchRemoved": true,
+      "marchAdded": true,
+      "querySetChangedToSecondSnapshot": true,
+      "transactionalWholeKindReplacement": true
+    }
+  },
+  "liveTruckTransition": {
+    "serverId": 2212,
+    "scanStrategy": "current_fast_full_world_v2",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "snapshots": [
+      {
+        "label": "A",
+        "runId": "51020280a40d41fc8d318585097bc856",
+        "rows": 244,
+        "wallSeconds": 85.7687769,
+        "totalBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0
+      },
+      {
+        "label": "B",
+        "runId": "cba878348eb148e5bd16c668a34b8d0e",
+        "rows": 255,
+        "wallSeconds": 76.929701,
+        "totalBlocks": 2500,
+        "failedBlocks": 0,
+        "unreadBlocks": 0
+      }
+    ],
+    "compared": "A->B",
+    "common": 58,
+    "added": 197,
+    "removed": 186,
+    "moved": 58,
+    "metadataChanged": 0,
+    "totalObservedTransitions": 441,
+    "allCommonMoved": true,
+    "identity": {
+      "recordKeyEqualsNativeMarchUuid": true,
+      "exact64BitTextPreserved": true
+    },
+    "sampleMoves": [
+      {
+        "marchUuid": "1417409933821387962",
+        "before": {
+          "x": 545,
+          "y": 756,
+          "pointIndex": 756546
+        },
+        "after": {
+          "x": 556,
+          "y": 772,
+          "pointIndex": 772557
+        }
+      },
+      {
+        "marchUuid": "1417409934031103048",
+        "before": {
+          "x": 934,
+          "y": 169,
+          "pointIndex": 169935
+        },
+        "after": {
+          "x": 953,
+          "y": 160,
+          "pointIndex": 160954
+        }
+      },
+      {
+        "marchUuid": "1417409934039491603",
+        "before": {
+          "x": 389,
+          "y": 471,
+          "pointIndex": 471390
+        },
+        "after": {
+          "x": 400,
+          "y": 487,
+          "pointIndex": 487401
+        }
+      }
+    ],
+    "transientAdmissionRetries": [
+      {
+        "targetX": 845,
+        "targetY": 175,
+        "rowStart": 10,
+        "attempt": "1/3",
+        "error": "overview_session_unavailable"
+      },
+      {
+        "targetX": 5,
+        "targetY": 875,
+        "rowStart": 80,
+        "attempt": "1/3",
+        "error": "overview_session_unavailable"
+      }
+    ],
+    "safety": {
+      "readOnlyMapScanning": true,
+      "followInvoked": false,
+      "attackOrPlunder": false,
+      "claimOrCollect": false,
+      "messaging": false
+    }
+  },
+  "historicalLiveContext": {
+    "references": [
+      "2026-09-17-r7-truck-full-manual.json",
+      "2026-09-18-r7-railway-full-manual.json",
+      "2026-09-20-r7-dispatch-filter-fidelity.json"
+    ],
+    "note": "Earlier live proofs establish authentic current-client Truck/Railway/Dispatch population and parser fidelity; R7-142 adds the direct same-session Truck transition observation."
+  },
+  "cleanup": {
+    "gameRunning": false,
+    "launcherRunning": false,
+    "packageVersion": 20,
+    "packageHashes": {
+      "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+      "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+      "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+    }
+  },
+  "regression": {
+    "files": [
+      {
+        "path": "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+        "worktreeSha256": "5E7D4062FD862329C59F8BF19427B517C46410942698B7B2FDA57C09C4E40FF6"
+      },
+      {
+        "path": "tests/LWBridge.Desktop.Checks/Program.cs",
+        "worktreeSha256": "F66C53766A9002E44CD349F208BA075E129E4F4051C8C91EF4746D4471252A87"
+      },
+      {
+        "path": "tests/LWBridge.Desktop.Checks/LiveNativeTransitionProof.cs",
+        "worktreeSha256": "041FF6885E4A46F6151D6693FA54202694C25DD2A82D79A9CCC1E2164BC51AFB",
+        "committedCheckoutSha256": "84DF3B12BAC8B95B1DD302EBA23A403DD77632E2203541F4B5305E207BAEA080",
+        "hashDifferenceReason": "Git line-ending normalization only; staged checkout is the commit-candidate identity."
+      }
+    ]
+  },
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "liveHarnessExitCode": 0,
+    "liveHarnessRuntimeSeconds": 211.86
+  },
+  "acceptanceEffect": {
+    "B11": {
+      "status": "pass_current_plus_live",
+      "rationale": "Current deterministic full-world point/march scans prove add/update/remove/movement identity and query semantics; current live same-session Truck scans directly prove real native UUID add/remove/movement while preserving exact 64-bit indexed identity."
+    }
+  },
+  "remaining": [
+    "F04 final human normal-user built-executable restart/walkthrough remains the only ordinary partial case.",
+    "Ghost/Supplies positive-population gates remain separate partial_population rows.",
+    "State-changing Truck/Dispatch/Alliance/Treasure acceptance remains authorization/implementation dependent.",
+    "Simultaneous real multi-account UI population remains unavailable."
+  ]
+}

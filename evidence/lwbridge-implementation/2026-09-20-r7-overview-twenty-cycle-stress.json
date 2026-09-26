@@ -1,0 +1,537 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-089",
+  "acceptanceCase": "A09",
+  "title": "Twenty consecutive Home lifecycle cycles",
+  "startedAtUtc": "2026-09-20T07:05:10.118653+00:00",
+  "finishedAtUtc": "2026-09-20T07:11:14.824738+00:00",
+  "requestedCycles": 20,
+  "completedCycles": 20,
+  "proofRuns": [
+    {
+      "proofRun": 1,
+      "elapsedSeconds": 43.61,
+      "cycles": [
+        1,
+        2
+      ]
+    },
+    {
+      "proofRun": 2,
+      "elapsedSeconds": 34.938,
+      "cycles": [
+        3,
+        4
+      ]
+    },
+    {
+      "proofRun": 3,
+      "elapsedSeconds": 34.796,
+      "cycles": [
+        5,
+        6
+      ]
+    },
+    {
+      "proofRun": 4,
+      "elapsedSeconds": 35.031,
+      "cycles": [
+        7,
+        8
+      ]
+    },
+    {
+      "proofRun": 5,
+      "elapsedSeconds": 35.36,
+      "cycles": [
+        9,
+        10
+      ]
+    },
+    {
+      "proofRun": 6,
+      "elapsedSeconds": 35.703,
+      "cycles": [
+        11,
+        12
+      ]
+    },
+    {
+      "proofRun": 7,
+      "elapsedSeconds": 34.984,
+      "cycles": [
+        13,
+        14
+      ]
+    },
+    {
+      "proofRun": 8,
+      "elapsedSeconds": 34.813,
+      "cycles": [
+        15,
+        16
+      ]
+    },
+    {
+      "proofRun": 9,
+      "elapsedSeconds": 35.266,
+      "cycles": [
+        17,
+        18
+      ]
+    },
+    {
+      "proofRun": 10,
+      "elapsedSeconds": 34.203,
+      "cycles": [
+        19,
+        20
+      ]
+    }
+  ],
+  "cycles": [
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "756d90ce3b03424995f800c92b03c87d",
+      "gamePid": 41352,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:05:34.8678592+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:05:37.5199141+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 1
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "4fc867b2c52b45b7980e5e3e4de04d4d",
+      "gamePid": 35984,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:05:51.0185653+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:05:53.6428023+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 2
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "5fb324c6c7a244c9866ef3ae67f5d4f8",
+      "gamePid": 42092,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:06:10.1894906+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:06:12.7470868+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 3
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "b4d1b1df2896414481a8ef0f2bbcce84",
+      "gamePid": 38612,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:06:26.4309992+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:06:29.0842032+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 4
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "0c2a9590abef4454ac5c33cd67c97c69",
+      "gamePid": 10092,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:06:45.7288463+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:06:48.3229077+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 5
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "52c9198a630e45d0a6ebfd708fa09a08",
+      "gamePid": 21052,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:07:01.7877548+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:07:04.4028573+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 6
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "fda2df8900f947658037c72140d87e7f",
+      "gamePid": 39260,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:07:20.8478989+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:07:23.4930965+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 7
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "e9a36b0270e74315845b8cd71e5cf5f0",
+      "gamePid": 39852,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:07:37.3567658+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:07:39.9673959+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 8
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "198de9c4625f40cf84a17e472fc91540",
+      "gamePid": 41644,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:07:56.9231389+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:07:59.6128945+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 9
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "c8b0dfcec5f94f0184c5bcb74c2ec8ab",
+      "gamePid": 13928,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:08:13.2903645+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:08:15.8901761+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 10
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "54507b6222474151827852f0aa01e6f7",
+      "gamePid": 26044,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:08:32.9863977+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:08:35.6850419+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 11
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "d1de6823d4f64a8cb8e442c833e6b4e1",
+      "gamePid": 35004,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:08:49.4993389+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:08:52.1191997+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 12
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "c39d1888c5494ee684f248fee348150f",
+      "gamePid": 30404,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:09:09.0124746+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:09:11.6539485+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 13
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "4a07cf8b13494b28b464267a049ee4d3",
+      "gamePid": 3428,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:09:25.0256657+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:09:27.6604092+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 14
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "4bcea07e032b46e092461a30116ed963",
+      "gamePid": 42748,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:09:44.0990657+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:09:46.7350588+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 15
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "3a352803af4c4572b27826e8b47c403f",
+      "gamePid": 21604,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:10:00.463328+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:10:03.0449519+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 16
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "ec6e5dd24a5e49be85e06c73880a0197",
+      "gamePid": 34236,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:10:19.6783515+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:10:22.2672834+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 17
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "658ec0b8c34046b08689aa4690e579c6",
+      "gamePid": 2672,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:10:36.1725147+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:10:38.8518932+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 18
+    },
+    {
+      "mode": "manual",
+      "profileId": "home-manual-v17-proof",
+      "sessionId": "38a2d8ce0b28492ea9fc5082a9b5638b",
+      "gamePid": 21444,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:10:55.0981746+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:10:57.7250784+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 19
+    },
+    {
+      "mode": "auto-start",
+      "profileId": "home-auto-v17-proof",
+      "sessionId": "95534014bd544f3ca7f614fc6212624f",
+      "gamePid": 18016,
+      "connectionState": "connected",
+      "startRecordedAtUtc": "2026-09-20T07:11:11.1559147+00:00",
+      "stopRecordedAtUtc": "2026-09-20T07:11:13.6660031+00:00",
+      "closeMethod": "Process.CloseMainWindow",
+      "processExited": true,
+      "restored": true,
+      "restoredPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "installedFilesChangedAfterClose": false,
+      "helperGameRunningAfterClose": false,
+      "cycle": 20
+    }
+  ],
+  "sourceIdentity": {
+    "checksExe": {
+      "size": 162816,
+      "sha256": "3e27c2dacec3a937e101b962dc10ed6e67d75f1cdf4d9208571709425a9c7a82"
+    },
+    "desktopDll": {
+      "size": 1131520,
+      "sha256": "22fa91f47f86567704cdfc3f6e936a0eb53393e64f8122d6cdc6adf66daf14e9"
+    },
+    "overviewHelper": {
+      "size": 1029,
+      "sha256": "8fde2093b36efe3fe43da282bfe851470d35055fff328784aac3a68b2bcdb310"
+    }
+  },
+  "clientBaseline": {
+    "LWScripts.data": {
+      "name": "LWScripts.data",
+      "size": 41296373,
+      "sha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+    },
+    "LWScripts.txt": {
+      "name": "LWScripts.txt",
+      "size": 19,
+      "sha256": "15f0b4f3ea53d4f6327630a764281255abee05e109a2ff53f384635a7fa4a0b4"
+    },
+    "version.txt": {
+      "name": "version.txt",
+      "size": 2,
+      "sha256": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+    }
+  },
+  "clientFinal": {
+    "LWScripts.data": {
+      "name": "LWScripts.data",
+      "size": 41296373,
+      "sha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+    },
+    "LWScripts.txt": {
+      "name": "LWScripts.txt",
+      "size": 19,
+      "sha256": "15f0b4f3ea53d4f6327630a764281255abee05e109a2ff53f384635a7fa4a0b4"
+    },
+    "version.txt": {
+      "name": "version.txt",
+      "size": 2,
+      "sha256": "9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767"
+    }
+  },
+  "allSessionsUnique": true,
+  "finalProcesses": [],
+  "failure": null,
+  "acceptance": {
+    "everyStartReachedConnected": true,
+    "everyStopExitedOwnedProcess": true,
+    "everyStopRestoredOriginalFiles": true,
+    "noResidualGameOrLauncher": true,
+    "baselineFilesExactAfterStress": true
+  },
+  "safety": {
+    "gameplayActionsPerformed": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "branch": "research/offline-controller",
+  "baseRevision": "d47ced4630a20a0351c7c6b3e2510e7297e423c5",
+  "runner": {
+    "path": "tools/run_overview_twenty_cycle_stress.py",
+    "sha256": "efb590d90a8322330f5e2a0c2e1f3ea20dc9329b6d2035a0081cd87c7d6003e5"
+  },
+  "currentClientCompatibility": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "observed": {
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "contentVersion": 19,
+      "criticalEntries": {
+        "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+        "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+        "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+        "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e"
+      },
+      "entryCount": 18734,
+      "fileVersion": 3,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "metadata": "41296373|1913170558",
+      "packageCrc32": 1913170558,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "version": "19",
+      "versionMarker": 19,
+      "versionMarkerMatchesContentVersion": true,
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f"
+    },
+    "ok": true,
+    "problems": []
+  },
+  "notes": [
+    "The historical profile labels home-manual-v17-proof and home-auto-v17-proof are fixture/profile identifiers only; the compatibility check for this run identifies the live client as contentVersion 19.",
+    "Each proof invocation performs one manual Start/Close and one startup-reconcile Start/Close through the production OverviewLifecycleService and current helper.",
+    "The stress runner never retries a failed proof invocation; only the product own recovered bounded launch retry policy can retry internally.",
+    "R7-088 acceptance snapshot recorded A09 as not_run before this live proof; R7-089 supersedes that row only."
+  ],
+  "summary": {
+    "manualCycles": 10,
+    "autoStartCycles": 10,
+    "uniqueSessions": 20,
+    "uniqueGamePids": 20,
+    "totalProofElapsedSeconds": 358.704,
+    "currentContentVersion": 19,
+    "currentPackageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+  },
+  "postStressValidation": {
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "deterministicSixGroups": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "currentClientCompatibility": "PASS; contentVersion 19",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

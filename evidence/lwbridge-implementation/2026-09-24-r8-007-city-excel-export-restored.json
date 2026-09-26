@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-007",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 City Excel export end-to-end.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "contract": {
+    "command": "map_city_export",
+    "frontendRequest": "map_city_export(query,{headers,sheetName,yesLabel,noLabel})",
+    "pageSize": 200,
+    "maxPages": 1000,
+    "maxRows": 200000,
+    "defaultFilename": "map-cities-{serverId}-{YYYY}{MM}{DD}-{HH}{mm}{ss}.xlsx",
+    "resultFields": ["canceled","path","rowCount"],
+    "columnCount": 12,
+    "xlsxPartCount": 6
+  },
+  "restored": [
+    "original API wrapper/export alias",
+    "original City panel export state/handler/button",
+    "all nine original locale export labels",
+    "native desktop save-dialog routing",
+    "paged indexed City export query",
+    "exact workbook writer",
+    "default filename and result envelope",
+    "deterministic workbook/backend regression coverage",
+    "browser/CI strict-parity export presence check"
+  ],
+  "validation": {
+    "frontendGeneratorCheck": "PASS",
+    "releaseTestBuild": "PASS: 0 warnings, 0 errors",
+    "deterministicSuite": "PASS: ok=true, failures=[]",
+    "browserCheck": "PASS: City Excel export strict-parity browser check passed",
+    "generalFrontendBrowser": "PASS: 36 light/dark English/Chinese comparisons",
+    "mapBrowserRegressions": "PASS: scan strategy, R7-131, R7-156, R7-136 restart",
+    "diffCheck": "PASS"
+  },
+  "sourceResearch": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md",
+    "evidence/lwbridge-0.3.1/frontend",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-export-frontend.json",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-export-native-structure.json"
+  ],
+  "remainingMapParity": [
+    "Scheduled Plunder restoration",
+    "original Auto Scan orchestration",
+    "public scan kind and scanMode corrections",
+    "protected original acquisition/action implementation"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "findingId": "LWB-PM-REVIEW-008",
+  "dateLocal": "2026-09-10",
+  "reviewedCommit": "4ec7ef8d1bb3c70f816265b1d2328143b6e3c7de",
+  "previousPmCommit": "fe975429c85299ee6228bd2c647a81172781aeca",
+  "branch": "research/offline-controller",
+  "startingWorktreeClean": true,
+  "commits": [
+    {
+      "commit": "62aabdadfa24b40a61e8ebb52714029f62608e66",
+      "subject": "Integrate Map Data option source scopes"
+    },
+    {
+      "commit": "c0914451d12be3b15272a4648ed72be1e3045643",
+      "subject": "Recover bridge runtime key-envelope boundary"
+    },
+    {
+      "commit": "183cdfe5ce1ddd2b71aff71355beed10b3324dc8",
+      "subject": "Recover runtime envelope persistence"
+    },
+    {
+      "commit": "7c0e2374a35182ac2e93eb18e5b407e7afa5cfe5",
+      "subject": "Recover device-key envelope prerequisite boundary"
+    },
+    {
+      "commit": "01663b4816a03b3a7ceae9df0dac351f1f3ad455",
+      "subject": "Recover proxy device-key configuration names"
+    },
+    {
+      "commit": "c5456630dff67e7011920708db4f221f2f1c7204",
+      "subject": "Recover secure proxy device-key crypto contract"
+    },
+    {
+      "commit": "03443cf5562cf776653033ac414d74069bd2a3a5",
+      "subject": "Recover shared scan-state source fallbacks"
+    },
+    {
+      "commit": "ef1f3d15a6e7157ce08b412dec52c61bff27af7b",
+      "subject": "Recover secure proxy package crypto boundary"
+    },
+    {
+      "commit": "4ec7ef8d1bb3c70f816265b1d2328143b6e3c7de",
+      "subject": "Recover package-key envelope read boundary"
+    }
+  ],
+  "sourceHashes": {
+    "evidence/lwbridge-implementation/2026-09-09-r6-bridge-runtime-material.json": "948f1d6be2802ea6200618e1c95425b403839e61409128e5d872f9afaa36c8a4",
+    "evidence/lwbridge-implementation/2026-09-09-r6-device-key-boundary.json": "b2d6a4f3890e309e1cffc18cf3a3dc41f8993990ab79288b3371529a00813e6f",
+    "evidence/lwbridge-implementation/2026-09-09-r6-map-option-source-integration.json": "d8335161a9aa3c5e9cd6b759f8d561f1b0dbbd7bb774e1ef395912c8ea1c338d",
+    "evidence/lwbridge-implementation/2026-09-09-r6-proxy-device-key-config.json": "798ddf76e321fb1c5725a7e01b7aa0a28d70ed24156c416f2af9f72b6bd2fbbd",
+    "evidence/lwbridge-implementation/2026-09-09-r6-proxy-device-key-crypto.json": "e7c4d83dcf8ee7f942e3d116f294c2cf7a6aa86d4d48ef121ee8d1046c5378cc",
+    "evidence/lwbridge-implementation/2026-09-09-r6-proxy-package-crypto-boundary.json": "70aa76c1d36f48bd6668f5e99c5b02f065cf5777207f11a1142286752e49e5ea",
+    "evidence/lwbridge-implementation/2026-09-09-r6-proxy-package-key-reader.json": "8ea153d320e6d7d93f68ad429207eaa2b5bb35c71fc3366a6a571c874baac292",
+    "evidence/lwbridge-implementation/2026-09-09-r6-runtime-material-persistence.json": "fb37074878ffe4a20b47d24c90f99d7a075bfb01c8c4b0d3d5aa89bfa604ffa5",
+    "evidence/lwbridge-implementation/2026-09-09-r6-scan-state-source-selection.json": "1c497f42c5f6e6c6102e3a715f6336c3aee833890c05e480f89cf761797b6916",
+    "tools/inspect_lastwar_update_health.py": "8a8b2882ca732fb2f63489ee3be8699a78c2b1a1a88ee495d0512da8ef4da30e",
+    "src/LWBridge.Desktop/MapDataStore.cs": "6fcbe14782cba699ead6f5767b8fbab93b0ac198decef5dfd3a117231e1ae8da",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs": "724307d3def3cfeebad3d59fc3af257037743d3af0fbdf68acff29a603a8fbe1",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "56f79c90e275bdfe68a0386dab8dedbac06360598bcf0f9d0212737610f9764b"
+  },
+  "accepted": "R6-038 bounded service integration; R6-039\u2013046 recorded static findings only; no new public game function",
+  "runtimeIncident": "LWB-PM8-001; docs/lastwar-update-incident.md and three dated official-runtime JSON reports",
+  "checks": {
+    "releaseBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0
+    },
+    "backend": "ok=true, all five deterministic groups true, no failures; --verify-real-config-unchanged",
+    "frontendIntegrity": true,
+    "preferenceScenarios": 5,
+    "missingNativeTransport": true,
+    "transportBoundary": true,
+    "inspectorSyntaxFiles": 31,
+    "newRecoveryJsonParsed": 9,
+    "acceptanceRowsUnchanged": 47,
+    "updateHealth": "patch/base match; failed output CRC reproduced; recovery not performed",
+    "markdownLinkTargets": 256,
+    "markdownBrokenLinks": [],
+    "gitDiffCheck": "PASS",
+    "incidentFilesBackedUpLocallyAndHashesVerified": 5
+  },
+  "tasks": {
+    "PM8-0": "OPEN recovery; diagnosis complete",
+    "PM7-A": "DONE bounded integration",
+    "PM7-B": "IN PROGRESS; ESC-005 tracks remaining loader question",
+    "PM7-C": "TODO connection/native identity/small scan",
+    "PM7-D": "BACKLOG"
+  },
+  "escalations": {
+    "ESC-001": "CLOSED",
+    "ESC-002": "NEEDS_INFORMATION",
+    "ESC-003": "NOT_ASSIGNED",
+    "ESC-004": "NEEDS_INFORMATION",
+    "ESC-005": "NEEDS_INFORMATION",
+    "assigned": []
+  },
+  "completion": {
+    "roughEngineeringRange": [
+      25,
+      30
+    ],
+    "signedOffFullCases": 0,
+    "totalFullCases": 47
+  },
+  "limits": [
+    "No live game actions or repair",
+    "No installed game/script/configuration file modified",
+    "No native reference analysis or denied operation rerun",
+    "No new screenshot/host-probe matrix; relevant code unchanged",
+    "Recorded static findings accepted without independent binary reproduction",
+    "14 sampled runtime anchors compared; not all installed files",
+    "Official update health failure is separate from passing rebuild tests"
+  ],
+  "delivery": "PM commit must be pushed to existing branch and independently verified; report actual delivery commit separately.",
+  "githubBeforePmCommit": {
+    "command": "git ls-remote --heads origin research/offline-controller",
+    "commit": "4ec7ef8d1bb3c70f816265b1d2328143b6e3c7de"
+  },
+  "previousFindingId": "LWB-PM8-002",
+  "idCorrection": "Review 9 disambiguates this PM audit from the later incident retry finding using LWB-PM8-002. Technical observations unchanged; the incident retains its ID."
+}

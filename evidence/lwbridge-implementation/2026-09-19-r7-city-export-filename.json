@@ -1,0 +1,234 @@
+{
+  "findingId": "LWB-R7-058",
+  "date": "2026-09-19",
+  "scope": "original City export default filename format and timestamp clock",
+  "evidenceStatus": "RECOVERED static with one explicitly derived argument binding",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "sourceReferences": {
+    "rustcFormatLowering": "https://github.com/rust-lang/rust/blob/4a4ef493e3a1488c6e321570238084b38948f6db/compiler/rustc_ast_lowering/src/format.rs",
+    "timeDate": "https://github.com/time-rs/time/blob/v0.3.54/time/src/date.rs",
+    "timeTime": "https://github.com/time-rs/time/blob/v0.3.54/time/src/time.rs",
+    "timeOffsetDateTime": "https://github.com/time-rs/time/blob/v0.3.54/time/src/offset_date_time.rs"
+  },
+  "formatBytecode": {
+    "rustcCommit": "4a4ef493e3a1488c6e321570238084b38948f6db",
+    "compilerRule": "0xC0 placeholder; bit0 flags, bit1 width; flags bit24 zero-pad, bit27 width-present; literal widths are little-endian u16",
+    "cityRawOffset": "0x00821F12",
+    "feedbackRawOffset": "0x00823008",
+    "cityPieces": [
+      {
+        "kind": "literal",
+        "value": "map-cities-"
+      },
+      {
+        "kind": "placeholder",
+        "argument": 0,
+        "flags": "0x60000020",
+        "zeroPad": false,
+        "widthPresent": false,
+        "width": null,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "literal",
+        "value": "-"
+      },
+      {
+        "kind": "placeholder",
+        "argument": 1,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 4,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 2,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 3,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "literal",
+        "value": "-"
+      },
+      {
+        "kind": "placeholder",
+        "argument": 4,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 5,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 6,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "literal",
+        "value": ".xlsx"
+      }
+    ],
+    "feedbackPieces": [
+      {
+        "kind": "literal",
+        "value": "lwbridge-feedback-"
+      },
+      {
+        "kind": "placeholder",
+        "argument": 0,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 4,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 1,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 2,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "literal",
+        "value": "-"
+      },
+      {
+        "kind": "placeholder",
+        "argument": 3,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 4,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "placeholder",
+        "argument": 5,
+        "flags": "0x69000020",
+        "zeroPad": true,
+        "widthPresent": true,
+        "width": 2,
+        "widthIndirect": false,
+        "precision": null,
+        "precisionIndirect": false
+      },
+      {
+        "kind": "literal",
+        "value": ".zip"
+      }
+    ]
+  },
+  "filename": {
+    "pattern": "map-cities-{serverId}-{YYYY}{MM}{DD}-{HH}{mm}{ss}.xlsx",
+    "serverId": "positive parsed serverId; default decimal formatting",
+    "timestampZone": "UTC",
+    "timestampWidths": [
+      4,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "timestampZeroPadded": true
+  },
+  "timestampSource": {
+    "import": "kernel32.dll!GetSystemTimePreciseAsFileTime",
+    "iatVa": "0x1407B94B0",
+    "filetimeUnixEpoch100ns": 116444736000000000,
+    "timeCrate": "time-0.3.54",
+    "dateLayout": "time 0.3.54 Date.value packs year<<10, leap bit 9, ordinal low 9; caller extracts year/month/day from that representation",
+    "timeLayout": "time 0.3.54 little-endian Time packs second/minute/hour at bits 32/40/48; caller extracts those exact bytes",
+    "utcOffsetStores": [
+      "+0xC word 0",
+      "+0xE byte 0"
+    ]
+  },
+  "argumentBinding": {
+    "arg0": "serverId (direct)",
+    "arg1": "year (derived by exhaustive structure: year is computed immediately before the 7-argument formatter; args2-6 are directly month/day/hour/minute/second; the timestamp bytecode has exactly six date/time placeholders)",
+    "arg2": "month (direct)",
+    "arg3": "day (direct)",
+    "arg4": "hour (direct)",
+    "arg5": "minute (direct)",
+    "arg6": "second (direct)"
+  },
+  "corroboration": "lwbridge-feedback- uses the identical six zero-padded UTC timestamp placeholder sequence, without City's leading serverId placeholder",
+  "restriction": "SB-99: a later request to inspect the earlier RSI assignment was rejected; it was not replayed or rerouted and is not used as evidence"
+}

@@ -1,0 +1,207 @@
+{
+  "evidenceId": "LWB-R7-067",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "ab882f988b40e937fb19558540869423577bcf1b",
+  "scope": {
+    "ownerRequirement": "Remove Manual/Auto Normal/Fast user controls and make acquisition strategy an internal backend decision.",
+    "manualSpeedSelector": "REMOVED",
+    "autoSpeedSelector": "REMOVED",
+    "manualModePersistence": "REMOVED",
+    "autoModePersistence": "REMOVED",
+    "frontendStartScanModeField": "REMOVED",
+    "legacyCallerScanMode": "IGNORED_COMPATIBILITY_INPUT",
+    "backendStrategyPlanner": "IMPLEMENTED",
+    "effectiveStrategyDiagnostics": "IMPLEMENTED",
+    "currentV19LivePlannerProof": "LIVE_PROVEN"
+  },
+  "authority": {
+    "type": "OWNER_OVERRIDE",
+    "effectiveDate": "2026-09-19",
+    "requirement": "The user selects scan contents only. The backend chooses the fastest currently proven-safe acquisition strategy while preserving existing exact coverage, retry, publication, Stop and Clear truthfulness.",
+    "historicalParity": "Recovered Normal concurrency 8 / Fast concurrency 20 and prior Normal/Fast live proofs remain historical evidence, not user-facing product settings."
+  },
+  "planner": {
+    "standardCurrentWorld": {
+      "admission": "worldId=0, tileWidth=1000, tileHeight=1000",
+      "defaultPlan": {
+        "scanMode": "fast",
+        "concurrency": 20,
+        "strategyId": "current_fast_full_world_v2"
+      },
+      "dedicatedMonsterOrZombieBoss": {
+        "scanMode": "fast",
+        "concurrency": 20,
+        "strategyId": "current_fast_monster_lod2_v1"
+      },
+      "reason": "The current-v19 fast current-world paths have exact 10,000-AOI/2,500-logical-block coverage and existing bounded retry/publication gates."
+    },
+    "nonstandardWorld": {
+      "provenFallback": {
+        "selectedTypes": [
+          "city",
+          "resource"
+        ],
+        "requirement": "exactly one selected type",
+        "scanMode": "normal",
+        "concurrency": 8,
+        "strategyId": "current_lod0_block_v1"
+      },
+      "otherKinds": {
+        "result": "FAIL_CLOSED",
+        "code": "LIVE_BLOCK_TYPES_UNSUPPORTED",
+        "reason": "No proven ordinary current-client source exists for those categories under nonstandard geometry."
+      }
+    },
+    "legacyInputPolicy": {
+      "scanMode": "Older callers may still send scanMode, including unknown values, but NormalizeStart no longer validates or uses it to steer acquisition.",
+      "selectedTypes": "Existing allowlist/filter/dedup/default behavior is preserved.",
+      "persistedRunIdentity": "The effective backend-selected scanMode/concurrency remain persisted as run identity/diagnostics."
+    }
+  },
+  "frontend": {
+    "method": "Surgical edit of the current shipped R7 bundles, preserving later R7 frontend patches instead of regenerating from the older source transformer.",
+    "manual": {
+      "removed": [
+        "lwbridge.mapScanMode localStorage key",
+        "Normal/Fast React state",
+        "mode persistence effect",
+        "map-speed-toggle fieldset",
+        "map-scan-speed radios",
+        "scanMode field from map_scan_start payload"
+      ],
+      "retained": [
+        "content selection",
+        "dedicated Zombie Boss exclusivity",
+        "Start Scan",
+        "Stop",
+        "Clear",
+        "Scheduled Plunder Start blocking"
+      ]
+    },
+    "auto": {
+      "removed": [
+        "scanMode default field",
+        "scanMode sanitizer/persistence field",
+        "Speed select",
+        "scanMode field from scheduler map_scan_start payload"
+      ],
+      "retained": [
+        "enable/disable",
+        "interval",
+        "target server list",
+        "content selection",
+        "Run Now",
+        "return-to-original",
+        "existing server sequencing/timer ownership"
+      ]
+    },
+    "locales": {
+      "count": 9,
+      "removedKeys": [
+        "map.speed",
+        "map.normalSpeed",
+        "map.fastSpeed"
+      ]
+    }
+  },
+  "statusContract": {
+    "preContext": {
+      "scanMode": "auto",
+      "scanStrategy": "pending",
+      "concurrency": 0
+    },
+    "effectiveRun": {
+      "scanMode": "effective internal compatibility token",
+      "scanStrategy": "explicit backend-selected strategy id",
+      "concurrency": "effective backend-selected diagnostic value"
+    },
+    "idleFallback": {
+      "scanMode": "auto",
+      "scanStrategy": "none",
+      "concurrency": 0
+    }
+  },
+  "deterministicValidation": {
+    "releaseBuild": {
+      "command": "dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --nologo",
+      "warnings": 0,
+      "errors": 0
+    },
+    "plannerCases": [
+      "standard 1000x1000 original-eight -> fast/20/current_fast_full_world_v2",
+      "standard 1000x1000 dedicated Zombie Boss -> fast/20/current_fast_monster_lod2_v1",
+      "nonstandard 40x20 City -> normal/8/current_lod0_block_v1",
+      "nonstandard 40x20 Railway -> LIVE_BLOCK_TYPES_UNSUPPORTED",
+      "caller scanMode=turbo does not affect selected-type normalization or planning"
+    ],
+    "fullSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "browser": {
+      "command": "NODE_PATH=.codex-live/pm15-ui-check/node_modules node tools/check_scan_strategy_auto.cjs",
+      "result": "PASS",
+      "assertions": [
+        "Map Data loads without JavaScript errors",
+        "Manual speed toggle/radios absent",
+        "Manual Start remains visible",
+        "Auto speed selector/Speed label absent",
+        "Manual Start payload contains selectedTypes and no scanMode",
+        "Auto scheduler Start payload contains selectedTypes/resume and no scanMode",
+        "Auto persistence contains no scanMode",
+        "all nine shipped locale bundles omit map.speed/map.normalSpeed/map.fastSpeed"
+      ]
+    }
+  },
+  "liveValidation": {
+    "currentClient": "v19",
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-restore -- --live-auto-zombie-cycle-proof",
+    "result": {
+      "ok": true,
+      "proof": "auto_scan_backend_cycle_zombie_boss",
+      "serverId": 2212,
+      "serverJumpNoOpProven": true,
+      "callerScanModeProvided": false,
+      "scanMode": "fast",
+      "scanStrategy": "current_fast_monster_lod2_v1",
+      "concurrency": 20,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "zombieBossCount": 0,
+      "scanWallSeconds": 5.1184257,
+      "processExitCode": 0
+    },
+    "populationNote": "The proof is strategy/lifecycle acceptance, not positive Zombie Boss population acceptance. Zero current rows are valid because exact 2,500-block acquisition completed; the first attempt's obsolete positive-row harness gate was removed rather than fabricating population.",
+    "sideEffects": "Read-only scan plus same-server no-op server jump. No attack, plunder, claim, collection, message or consumable action.",
+    "cleanup": {
+      "gameRunning": false,
+      "launcherRunning": false,
+      "lwbridgeRunning": false
+    }
+  },
+  "preservedSafety": [
+    "exact 2,500 logical-block publication gate",
+    "exact current Fast 10,000-AOI coverage gate",
+    "zero-failure completion requirement",
+    "existing bounded Fast retry behavior",
+    "no speculative slow fallback for categories/geometries without a proven source",
+    "Stop/Clear ownership",
+    "transactional run identity/publication",
+    "dedicated Zombie Boss exclusivity"
+  ],
+  "remaining": [
+    "Treasure result/status/read-only claim-state plumbing remains separate.",
+    "Ghost positive-row live proof remains owner-deferred until 2026-09-24.",
+    "Railway positive-row sort/Follow acceptance and Supplies positive-row acceptance remain population-dependent.",
+    "Auto Scan core scheduler was already live-proven by R7-038/R7-039; navigation-away lifecycle acceptance and a naturally occurring native travel failure remain limited separate gaps."
+  ]
+}

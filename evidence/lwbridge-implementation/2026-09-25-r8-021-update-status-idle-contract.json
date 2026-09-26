@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-021",
+  "date": "2026-09-25",
+  "scope": "Correct production update_status idle-envelope parity for the verified 0.3.1 reference without implementing network update check/download/open behavior.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "fileVersion": "0.3.1",
+    "productVersion": "0.3.1"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/index-sfL2sT3K.js update-panel state",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js updater wrappers",
+    "native update-status serializer near VA 0x140243af5",
+    "native updater constructor near VA 0x1402426b4",
+    "native updater command registration and src/services/update.rs string cluster"
+  ],
+  "frontend": {
+    "changedThisCheckpoint": false,
+    "immutableOriginalIndexSha256": "4d18cbc036a417b1a13a2c9905f1abc5dda1427531ad1ab4f7b03f4b269704b3",
+    "currentRebuildIndexSha256": "54ef8a40a45cfe6a91196c6a6be31c1f783a01388d65ecf1f48c9da00ed28614",
+    "classification": "SOURCE_DERIVED_ORIGINAL_CONTRACT / current whole bundle intentionally transformed by earlier checkpoints"
+  },
+  "command": "update_status",
+  "idleStatus": {
+    "phase": "idle",
+    "currentVersion": "0.3.1",
+    "latestVersion": null,
+    "releaseNotes": "",
+    "publishedAt": null,
+    "progress": null,
+    "message": null,
+    "nextManualCheckAt": null,
+    "downloadDirectory": ""
+  },
+  "serializer": {
+    "fieldCount": 9,
+    "fields": [
+      "phase",
+      "currentVersion",
+      "latestVersion",
+      "releaseNotes",
+      "publishedAt",
+      "progress",
+      "message",
+      "nextManualCheckAt",
+      "downloadDirectory"
+    ]
+  },
+  "nativeEvidenceInventory": {
+    "event": "bridge://update-status",
+    "manualCheckCooldownMilliseconds": 60000,
+    "updateDirectoryFamily": "updates",
+    "portableFilePattern": "lwbridge-<version>.exe",
+    "defaultHost": "download.songunity.com",
+    "phaseStrings": [
+      "idle",
+      "checking",
+      "opening",
+      "upToDate",
+      "available",
+      "error"
+    ],
+    "errorStrings": [
+      "UPDATE_SIGNATURE_INVALID",
+      "UPDATE_MANIFEST_INVALID",
+      "UPDATE_NOT_AVAILABLE",
+      "UPDATE_URL_INVALID",
+      "UPDATE_HOST_INVALID",
+      "UPDATE_VERSION_INVALID",
+      "UPDATE_OPEN_FAILED"
+    ]
+  },
+  "fencedCommands": {
+    "update_check": "COMMAND_NOT_IMPLEMENTED",
+    "update_download_and_open": "COMMAND_NOT_IMPLEMENTED",
+    "classification": "intentional rebuild fence; not claimed as native error parity"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/UpdateStatusChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "exact nine-field status envelope",
+    "idle phase",
+    "currentVersion 0.3.1 for verified reference",
+    "latestVersion null",
+    "releaseNotes empty",
+    "publishedAt null",
+    "progress null",
+    "message null",
+    "nextManualCheckAt null",
+    "downloadDirectory empty",
+    "update_check remains COMMAND_NOT_IMPLEMENTED",
+    "update_download_and_open remains COMMAND_NOT_IMPLEMENTED"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-021 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "statusFieldSet": "EXACT_NATIVE serializer-derived",
+    "idleDefaults": "EXACT_NATIVE constructor-derived",
+    "currentVersion": "EXACT for verified 0.3.1 reference executable",
+    "frontendContract": "SOURCE_DERIVED from immutable original",
+    "networkCheck": "PROTECTED_UNKNOWN / intentionally absent",
+    "downloadAndOpen": "PROTECTED_UNKNOWN / intentionally absent"
+  },
+  "notClaimed": [
+    "manifest request/endpoint semantics",
+    "signature/public-key verification",
+    "full version-comparison behavior",
+    "manual-check cooldown persistence",
+    "download streaming/progress",
+    "hash/size verification",
+    "file replacement",
+    "process handoff",
+    "desktop shortcut replacement",
+    "bridge://update-status transition timing",
+    "native updater error mapping beyond recovered evidence inventory"
+  ],
+  "nextCheckpoint": "Recover another retained non-account offline surface; keep updater network/download/open behavior fenced until its complete native protocol and lifecycle are evidence-backed."
+}

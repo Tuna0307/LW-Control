@@ -1,0 +1,66 @@
+{
+  "findingId": "LWB-PM13-001B",
+  "date": "2026-09-10",
+  "scope": "PM13-01 rediscovery of the exact saved production store and ordinary-window Resource Search after restart",
+  "status": "NORMAL-WINDOW SAVED-ROW PROVEN; historical live row only, no new game acquisition",
+  "implementationRevision": "837ccc040a5bb3ca2bd2d3ec346a7319f2698d3f",
+  "sourceIdentity": {
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "packageLocalConfig": "C:/Users/chimw/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/LocalCache/Local/LWBridgeRebuild/config.json",
+    "packageLocalDatabase": "C:/Users/chimw/AppData/Local/Packages/OpenAI.Codex_2p2nqsd0c76g0/LocalCache/Local/LWBridgeRebuild/profiles/local-bd7b2533b1a146bca0aba9efb193a4a2/map-data.db",
+    "configSha256": "b3792e7004f562e9d090720eae9b714eee2f7d692aa480d45adeb99b3d5ca459",
+    "databaseSha256": "29ddb3f162b45d2899d8e89f7241f568b5099f4a8e1aafc36460fcc0ae5c4ff6",
+    "persistedRow": {
+      "kind": "resource",
+      "serverId": 2212,
+      "recordKey": "32482",
+      "pointIndex": 32482,
+      "x": 481,
+      "y": 32,
+      "level": 3,
+      "updatedAt": 1789033099000,
+      "rebuildGatherOccupancyKnown": true,
+      "rebuildGatherOccupied": false
+    }
+  },
+  "discovery": {
+    "result": "The exact config/profile/database pair from review 13 exists under the OpenAI Codex package LocalCache\\Local mirror. The earlier direct-desktop check looked only at C:/Users/chimw/AppData/Local/LWBridgeRebuild, where config/profile files were absent. The package-local database content matches the review-13 saved-evidence identity: one resource row on server 2212.",
+    "directDesktopPrestate": {
+      "configExists": false,
+      "databaseExists": false,
+      "profileDirectoryExists": false,
+      "presentationDirectoryExists": true
+    }
+  },
+  "normalWindowVerification": {
+    "method": "Copied the exact config and database bytes to the direct desktop LocalApplicationData root solely for this bounded verification; source and destination SHA-256 matched before launch. Launched the Release executable normally with --view map-data; WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS only enabled a localhost DevTools endpoint for observation/clicking and did not select fixture/probe mode.",
+    "firstSession": {
+      "pid": 20612,
+      "nativeSession": "2d9876e4f5c64c4680b6969861490a67",
+      "resourceTabCount": 1,
+      "searchResultCount": 1,
+      "renderedRow": "481,32 | unknown resource | level 3 | idle | 2026/9/10 17:38:19"
+    },
+    "restart": {
+      "close": "Process.CloseMainWindow returned true and the first process exited within 5 seconds",
+      "pid": 8064,
+      "nativeSession": "309254a5ae9944ab8fd47451df71ab73",
+      "explicitSearchClicked": true,
+      "resourceTabCount": 1,
+      "searchResultCount": 1,
+      "renderedRow": "481,32 | unknown resource | level 3 | idle | 2026/9/10 17:38:19",
+      "domEvidence": "evidence/lwbridge-implementation/pm13-saved-reopen/reopen-dom.json",
+      "domSha256": "6a1021a6949bca24c3a29024e35d8fb1fb458821e051fb363f6e748c4e7bf39f",
+      "screenshot": "evidence/lwbridge-implementation/pm13-saved-reopen/resource-after-reopen.png",
+      "screenshotSha256": "3d76d7c5bba99a51603f5762254f9cb3b5f409543967d69f55c6da5170d90e3d"
+    }
+  },
+  "cleanup": {
+    "result": "Second app process closed normally. Temporary direct-root config, backup, lock and copied profile database were removed because all were absent in the recorded prestate; existing Presentation/WebView data was preserved. The package-local source config/database remained unchanged and retained the recorded hashes."
+  },
+  "limits": [
+    "This proves PM13-01 saved browsing/display through the ordinary production UI using the exact persisted source-backed database; it is not a new resource acquisition or proof of persistent bridge readiness.",
+    "The resource name remains source-unmapped and therefore truthfully renders as unknown resource.",
+    "PM13-03 cancellation/ownership races, PM13-02 proof-harness correlation, and PM13-04 fresh two-read normal-window acquisition remain open."
+  ]
+}

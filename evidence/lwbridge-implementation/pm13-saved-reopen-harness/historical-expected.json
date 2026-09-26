@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "state": "historical-source-backed-test-input",
+  "sourceFinding": "LWB-PM13-001B",
+  "sourceDatabaseSha256": "29ddb3f162b45d2899d8e89f7241f568b5099f4a8e1aafc36460fcc0ae5c4ff6",
+  "expected": {
+    "profileId": "local-bd7b2533b1a146bca0aba9efb193a4a2",
+    "serverId": 2212,
+    "recordKey": "32482",
+    "pointIndex": 32482,
+    "x": 481,
+    "y": 32,
+    "level": 3,
+    "capturedAtUnixMilliseconds": 1789033099000,
+    "searchRow": { "updatedAt": 1789033099000 }
+  },
+  "limits": "Derived only to exercise the reopen verifier against the exact historical saved row; not a fresh acquisition."
+}

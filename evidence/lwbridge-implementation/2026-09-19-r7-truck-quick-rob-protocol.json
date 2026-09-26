@@ -1,0 +1,156 @@
+{
+  "evidenceId": "LWB-R7-042",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "0e0da8101a4e5ced46dcf1e8a2a6f551c0ba7654",
+  "scope": {
+    "currentV19TruckQuickRobExecutionProtocol": "IMPLEMENTED_OFFLINE_TESTED_INTERNAL_ONLY",
+    "publicTruckSchedule": "FAIL_CLOSED",
+    "liveRobberyAcceptance": "NOT_RUN"
+  },
+  "currentV19": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "entryCount": 18734,
+    "recoveredLua": {
+      "DataCenter/LWRailway/Util/RailwayUtil.luac": "59bafe773cec053e4616094625a1ee0b71972f2391d8b0c79bea85ea5c64b42f",
+      "DataCenter/LWRailway/Train/LWTrainDataManager.luac": "77f4dbbd6d0f60980ad66aa9245464a2ea88f066e28da44de228bb8eb9f2f019",
+      "DataCenter/LWRailway/Station/LWMyStationDataManager.luac": "94133ab998308e926ccbbae975376406dff3f0e61f035a7a1b4dee1ee4ae6865",
+      "DataCenter/LWFakePVPBattle/FakePVPLogic.luac": "d7a0ed1d9bc43d916154ade556a73cec0dcb747ed00f10ea00e082c7a4e081e6",
+      "DataCenter/LWBattle/LWBattleManager.luac": "b3fd779bd480c9a8cfb4b0154e03c56b8f85eede233e63550cfada0733068543",
+      "Net/Msgs/Railway/AttackTrainMessage.luac": "9f7e6bdcf200ec91ffe5d37b72343957553bb9a0f1be9fe2ac355c5139614066",
+      "UI/UILWHero/UIHeroFakePVPFormationPanel/View/UIHeroFakePVPFormationPanelView.luac": "3f9e704543194be7d056c00871c32ab7c2c19b65afd8a51184865d64cc2294b1"
+    }
+  },
+  "sourceBackedExecutionChain": {
+    "targetResolution": [
+      "WorldMarch.uuid is the persisted marchUuid.",
+      "WorldMarch.train.uuid is the persisted trainUuid.",
+      "LWTrainDataManager indexes TrainData by both train uuid and marchUid.",
+      "The rebuild resolves by enumerating the same live WorldMarch collection used by the scanner and compares exact decimal strings, avoiding Lua-number coercion of 64-bit identities."
+    ],
+    "officialEntry": {
+      "function": "RailwayUtil.ClickAttackTrain(trainData, true)",
+      "truckChecks": [
+        "daily robbery count",
+        "matched server",
+        "per-Truck robbery cap",
+        "special UR repeat robbery rule",
+        "per-player failure-count limit"
+      ],
+      "battle": {
+        "type": "PVEType.FakePVP",
+        "enterType": "PVEEnterType.TruckRob",
+        "sceneId": 51,
+        "quickFlag": "extraData.isTruckQuickRob"
+      }
+    },
+    "formationAndSend": {
+      "uiSequence": [
+        "LWMyStationDataManager:TrySaveTruckFormation(squadData, true)",
+        "LWMyStationDataManager:TryAttackTrain(trainUuid, trainServerId, squadData)"
+      ],
+      "unattendedFormation": "LWMyStationDataManager:GetRobFormation() falls back to GetMaxBattlePowerFreeAttackFormation().",
+      "message": "train.attack",
+      "payload": [
+        "uuid: PutLong(trainUuid)",
+        "serverId: PutInt(trainServerId)",
+        "squadNo: PutInt(squadNo)",
+        "heroInfo: PutSFSArray(heroArray)",
+        "chipEquipGroup: optional positive 1..4"
+      ]
+    },
+    "authoritativeResponse": {
+      "handler": "AttackTrainMessage",
+      "successOnlyEvent": "EventId.TrainSkirmishDataReceived",
+      "terminalEvent": "EventId.TrainAttackReceived",
+      "successEffects": [
+        "RewardManager applies message rewards.",
+        "LWMyStationDataManager:OnRob updates dailyRobCount.",
+        "FakePVPLogic.OnGetBattleData stores reward/extraPlunder/retake and parses battle data."
+      ],
+      "quickCompletion": "Successful quick robbery calls FakePVPLogic:JumpToEnd().",
+      "battleWonRule": "battleWon = not battleData.topPlayerWin"
+    }
+  },
+  "implementation": {
+    "gameBridgeRequest": "truck-quick-rob.txt",
+    "gameBridgeResult": "truck-quick-rob-result.json",
+    "hostMethod": "CurrentClientMapBlockSource.ExecuteTruckQuickRobAsync",
+    "publicCommandExposed": false,
+    "identity": [
+      "profileId",
+      "sessionId",
+      "challenge",
+      "gamePid",
+      "requestId",
+      "serverId",
+      "marchUuid exact decimal string",
+      "trainUuid exact decimal string"
+    ],
+    "singleSendRule": "TryAttackTrain is called once after the exact live target, Truck type, server, battle logic and listener-ready state are proven.",
+    "cleanup": "Bridge listeners are detached and only the bridge-owned matching Truck battle is exited.",
+    "timeouts": {
+      "setupSeconds": 15,
+      "responseSeconds": 30,
+      "hostEnvelopeSeconds": 50,
+      "classification": "implementation policy"
+    },
+    "ambiguityRule": "Any timeout or missing authoritative result after train.attack was sent is non-retryable ambiguous state; no automatic resend occurs."
+  },
+  "deterministicValidation": {
+    "exactLargeIdTextRoundTrip": true,
+    "battleWinOrientation": true,
+    "battleLossOrientation": true,
+    "rewardCount": true,
+    "serverRejectionTerminal": true,
+    "postSendTimeoutAmbiguous": true,
+    "postSendTimeoutProtocolWrites": 1,
+    "foreignSessionRejected": true,
+    "sourceInvariantChecks": true,
+    "luaParse": true,
+    "overviewTopLevelLocalCount": 113,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSuite": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "checkOnlyCandidate": {
+    "ok": true,
+    "installedFilesChanged": false,
+    "packageSha256": "aad368de2832af931eafe3bea749842e5c5a9ef397fe0bef55effc11e5f9c046",
+    "packageSize": 41355679,
+    "packageCrc32": 4165915378,
+    "bridgeSourceSha256": "8b907c57bf41deaea8494e8bed7429154df3badb83d407875ee7370cf2950fae",
+    "wrapperPlaintextSha256": "ed0404b99cb6f4cdf4b5bf78a3a9c7049eddff91b6d6155cb670e6a38bd18163",
+    "entryCount": 18735
+  },
+  "liveSafety": {
+    "liveRobberyAttempted": false,
+    "reason": "A live robbery consumes a real daily game action and affects another player. This checkpoint is intentionally static/offline-only.",
+    "gameProcessesRunningAfterValidation": false,
+    "officialPackageChanged": false
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "liveTrainOrMarchIdsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Recover and normalize the authoritative Truck reward object shape needed for truck_plunder_history.plunderRewards.",
+    "Build durable one-owner scheduling/reconciliation around the internal executor without treating ambiguous post-send state as retryable.",
+    "Keep map_truck_plunder_schedule fail-closed until persistence state transitions and result reconciliation are deterministic-test proven.",
+    "Perform live robbery acceptance only when explicitly appropriate because it consumes a real account action."
+  ]
+}

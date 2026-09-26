@@ -1,0 +1,134 @@
+{
+  "evidenceId": "LWB-R7-043",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "3de0906a476674ea598d49ea50264001ab2bd515",
+  "scope": {
+    "truckRewardNormalization": "IMPLEMENTED_OFFLINE_TESTED",
+    "truckResultPersistence": "IMPLEMENTED_OFFLINE_TESTED",
+    "truckAttemptArchiving": "RECOVERED_NOT_YET_IMPLEMENTED",
+    "publicTruckSchedule": "FAIL_CLOSED",
+    "liveRobberyAcceptance": "NOT_RUN"
+  },
+  "originalReference": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "binaryFindings": {
+      "resultJsonFieldsOffset": "0x00C86663",
+      "resultJsonFields": ["battleWon", "plunderRewards", "jobId"],
+      "readResultTargetSqlOffset": "0x00C86698",
+      "readResultTargetSql": "SELECT truck_json,execute_at,status,attempts,last_error,created_at,updated_at FROM truck_plunder_jobs WHERE server_id=?1 AND train_uuid=?2",
+      "historyInsertOffset": "0x00C86770",
+      "historyInsert": "INSERT INTO truck_plunder_history(job_id,server_id,train_uuid,truck_json,execute_at,status,attempts,last_error,created_at,updated_at) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10) ON CONFLICT(job_id) DO NOTHING",
+      "readArmableSqlOffset": "0x00C87BE8",
+      "readArmablePredicate": "status IN ('scheduled','waiting_connection') AND execute_at<=?1+?2 AND (expire_at IS NULL OR expire_at>?1) ORDER BY execute_at ASC LIMIT 1",
+      "recordResultSqlOffset": "0x00C87D9C",
+      "recordResultSql": "UPDATE truck_plunder_jobs SET truck_json=?3,status=?4,last_error=?5,updated_at=?6 WHERE server_id=?1 AND train_uuid=?2",
+      "statusUpdateSqlOffset": "0x00C87E98",
+      "statusUpdateSql": "UPDATE truck_plunder_jobs SET status=?3,last_error=?4,attempts=attempts+CASE WHEN ?5 THEN 1 ELSE 0 END,updated_at=?6 WHERE server_id=?1 AND train_uuid=?2",
+      "restartRecoveryOffset": "0x00C88860",
+      "restartRecovery": "UPDATE truck_plunder_jobs SET status='waiting_connection',last_error='client restarted',updated_at=?1 WHERE status='running'",
+      "offlineDueOffset": "0x00C891AB",
+      "offlineDue": "UPDATE truck_plunder_jobs SET status='waiting_connection',last_error='game disconnected',updated_at=?1 WHERE status='scheduled' AND execute_at<=?1+?2 AND (expire_at IS NULL OR expire_at>?1)",
+      "lifecycleInference": "A terminal result is first recorded in the active row. A previous attempt is archived separately when the same Truck is scheduled again; history is not the immediate destination of every result."
+    }
+  },
+  "currentV19": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "luaSources": {
+      "DataCenter/LWRailway/Train/TrainData.luac": "bb5fd255ec56774d2aa430db6725b3051849accbb3efa46f2a34a8f12fefbf29",
+      "DataCenter/LWRailway/TruckRecord/TruckRobData.luac": "489980af4ab3dd6cbe156f16febfeba479356a895ef0839df623341ebc4d9c35",
+      "DataCenter/LWFakePVPBattle/FakePVPLogic.luac": "d7a0ed1d9bc43d916154ade556a73cec0dcb747ed00f10ea00e082c7a4e081e6"
+    },
+    "rewardModel": {
+      "fakePvp": "TruckRob success starts attackTrainReward with msg.reward, appends msg.extraPlunder with TrainRewardState.Extra, and appends msg.retake with TrainRewardState.Recapture.",
+      "truckRobData": ["plunderReward", "extraPlunderReward", "retakeReward", "isWin"],
+      "trainRewardShape": "Reward entries use reward.type and reward.value; GOODS commonly use value={id,num}, while resource-style rewards use type/value directly.",
+      "displayResolvers": [
+        "DataCenter.ItemTemplateManager:GetItemTemplate/GetName",
+        "DataCenter.RewardManager:GetNameByType/GetPicByType",
+        "LoadPath.ItemPath"
+      ]
+    }
+  },
+  "implementation": {
+    "overviewBridge": {
+      "normalizer": "normalize_truck_plunder_rewards",
+      "resultFields": ["plunderRewards", "rewardNormalizationComplete"],
+      "aggregationKey": "reward:<rewardType>:<itemId>",
+      "aggregationKeyPolicy": "rebuild internal identity; exact original plunderRewards key producer remains unrecovered",
+      "incompleteNormalizationRule": "A successful battle remains proven and non-retryable even when reward display normalization is incomplete."
+    },
+    "host": {
+      "resultRecord": "CurrentClientTruckQuickRobResult",
+      "validation": "Requires each normalized reward row to have unique nonempty key/name/iconPath, positive count/rewardType/itemId, and carries rewardNormalizationComplete separately."
+    },
+    "store": {
+      "method": "MapDataStore.RecordTruckPlunderSuccess",
+      "transaction": [
+        "Read current truck_json for exact server_id/train_uuid.",
+        "Enrich truck_json with battleWon and plunderRewards.",
+        "Write rebuild diagnostic plunderRewardsComplete.",
+        "Update same active row to status='succeeded', last_error=NULL, updated_at.",
+        "Preserve attempts unchanged."
+      ],
+      "historyBehavior": "Does not archive immediately; this matches the recovered separation between result recording and archive-on-reschedule."
+    }
+  },
+  "deterministicValidation": {
+    "hostRewardArrayValidation": true,
+    "hostCompleteNormalization": true,
+    "hostIncompleteNormalizationStillProven": true,
+    "storeSuccessResult": true,
+    "storeMissingTargetNotFabricated": true,
+    "battleWonPersisted": true,
+    "plunderRewardsPersisted": true,
+    "attemptCountPreserved": true,
+    "lastErrorCleared": true,
+    "databaseReopenPersistence": true,
+    "overviewTopLevelLocalCount": 114,
+    "luaParse": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSuite": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "checkOnlyCandidate": {
+    "ok": true,
+    "installedFilesChanged": false,
+    "packageSha256": "8fb5b1285bc610b87df6685dc198d20a177dfb06d2120126812d1a5e8f499fbb",
+    "packageSize": 41356755,
+    "packageCrc32": 2823672389,
+    "bridgeSourceSha256": "5f3c69219ab7c4dd9896d16d9eb42d04b1af7dc0eefc527edf2dde37db965591",
+    "wrapperPlaintextSha256": "3c70dbeccfec6b709cb2118433b149394040d18d56e424b353a7a13beca4121d",
+    "entryCount": 18735
+  },
+  "liveSafety": {
+    "liveRobberyAttempted": false,
+    "gameProcessesRunningAfterValidation": false,
+    "officialPackageChanged": false
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "marchOrTrainIdsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Implement the recovered archive-previous-attempt transaction used when a terminal Truck row is scheduled again.",
+    "Recover/generate the exact original-style jobId behavior sufficiently for deterministic history identity.",
+    "Implement schedule upsert and durable single-owner worker state transitions.",
+    "Keep ambiguous post-send execution non-retryable.",
+    "Keep map_truck_plunder_schedule fail-closed until worker ownership, archive/reschedule, restart recovery and change-event semantics are deterministic-test proven."
+  ]
+}

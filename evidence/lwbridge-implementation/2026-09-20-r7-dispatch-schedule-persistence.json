@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-080",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "eac235cd8a284cc6c44146d16209df6e7dfce106",
+  "status": "RECOVERED_AND_IMPLEMENTED_OFFLINE_TESTED",
+  "scope": {
+    "feature": "Dispatch plunder public schedule/cancel contract and internal persistence kernel",
+    "publicScheduleHandlerEnabled": false,
+    "publicCancelHandlerEnabled": true,
+    "durableDispatchWorkerImplemented": false,
+    "currentV19ExecutorProven": false,
+    "livePlunderAttempted": false
+  },
+  "originalReference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontend": "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "frontendSha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+  },
+  "frontendWrappers": {
+    "schedule": "map_dispatch_plunder_schedule({rows})",
+    "cancel": "map_dispatch_plunder_cancel({serverId,taskUuid})",
+    "scheduleRandomization": {
+      "inputDefaultMaxRandomDelaySeconds": 0,
+      "effectiveDelaySeconds": "uniform integer 0..min(configured max, floor((taskExpireTime-plunderAt-1)/1000) when expiry positive, floor((2^53-1-plunderAt)/1000)); lower bounded at 0",
+      "emittedFields": [
+        "plunderAt adjusted by randomDelaySeconds*1000",
+        "maxRandomDelaySeconds",
+        "randomDelaySeconds"
+      ]
+    }
+  },
+  "scheduleRecovery": {
+    "wrapperFunctionRva": "0x115331-0x116210",
+    "wrapperXrefRva": "0x1153D2",
+    "serviceFunctionRva": "0x268029-0x2687A1",
+    "requiredRowsError": {
+      "code": "INVALID_REQUEST",
+      "message": "secret task rows are required"
+    },
+    "rowCount": {
+      "minimum": 1,
+      "maximum": 200,
+      "code": "INVALID_REQUEST",
+      "message": "select between 1 and 200 secret tasks"
+    },
+    "invalidRow": {
+      "code": "INVALID_REQUEST",
+      "message": "secret task scheduling data is invalid"
+    },
+    "rowFields": [
+      "serverId",
+      "uuid",
+      "completionTime",
+      "plunderAt",
+      "taskExpireTime",
+      "stolenCount",
+      "maxStealCount"
+    ],
+    "rowPredicate": [
+      "serverId > 0",
+      "uuid is a nonempty JSON string containing only ASCII decimal digits",
+      "completionTime > 0",
+      "plunderAt >= completionTime",
+      "taskExpireTime <= 0 OR taskExpireTime > plunderAt",
+      "maxStealCount <= 0 OR stolenCount < maxStealCount"
+    ],
+    "numericAccessor": "same recovered integer-like accessor used by R7-046; numeric values and signed decimal numeric strings are accepted, invalid/missing maps to 0",
+    "guardedWriteFailure": {
+      "code": "MAP_DATA_ERROR",
+      "message": "scheduled plunder job is missing"
+    }
+  },
+  "cancelRecovery": {
+    "wrapperFunctionRva": "0x15042A-0x150D54",
+    "typedTargetParserRva": "0x2315B8-0x231727",
+    "databaseFunctionRva": "0x266840-0x266C2B",
+    "highLevelFunctionRva": "0x33EE06-0x33EFAE",
+    "payload": [
+      "serverId",
+      "taskUuid"
+    ],
+    "predicate": [
+      "serverId > 0",
+      "taskUuid is a nonempty JSON string containing only ASCII decimal digits"
+    ],
+    "invalidTarget": {
+      "code": "INVALID_REQUEST",
+      "message": "server ID and secret task UUID are required"
+    },
+    "missingOrNonCancellable": {
+      "code": "NOT_FOUND",
+      "message": "scheduled plunder job not found"
+    },
+    "successEvent": "bridge://dispatch-plunder-changed"
+  },
+  "recoveredSql": {
+    "scheduleRawFileOffset": "0xC8777A",
+    "schedule": "INSERT INTO dispatch_plunder_jobs(server_id,task_uuid,task_json,completion_time,plunder_at,expire_at,status,attempts,last_error,created_at,updated_at) VALUES (?1,?2,?3,?4,?5,?6,'scheduled',0,NULL,?7,?7) ON CONFLICT(server_id,task_uuid) DO UPDATE SET task_json=excluded.task_json,completion_time=excluded.completion_time,plunder_at=excluded.plunder_at,expire_at=excluded.expire_at,updated_at=excluded.updated_at WHERE dispatch_plunder_jobs.status IN ('scheduled','waiting_connection')",
+    "scheduleReadback": "SELECT task_json,status,attempts,last_error,created_at,updated_at FROM dispatch_plunder_jobs WHERE server_id=?1 AND task_uuid=?2",
+    "cancelRawFileOffset": "0xC86D98",
+    "cancel": "UPDATE dispatch_plunder_jobs SET status='cancelled',last_error=NULL,updated_at=?3 WHERE server_id=?1 AND task_uuid=?2 AND status IN ('scheduled','waiting_connection')"
+  },
+  "persistenceSemantics": {
+    "freshSchedule": "status=scheduled, attempts=0, last_error=NULL, created_at=updated_at=now",
+    "activeReschedule": "only scheduled/waiting_connection rows are updated; task_json/completion_time/plunder_at/expire_at/updated_at change while status/attempts/last_error/created_at are preserved",
+    "runningOrTerminalConflict": "guarded ON CONFLICT update affects no row; schedule is rejected rather than replacing the prior attempt",
+    "expireAt": "positive taskExpireTime becomes expire_at; nonpositive/missing becomes SQL NULL",
+    "cancel": "only scheduled/waiting_connection transitions to cancelled; last_error cleared; updated_at replaced"
+  },
+  "implementation": {
+    "store": "src/LWBridge.Desktop/MapDataStore.Plunder.cs",
+    "tests": "tests/LWBridge.Desktop.Checks/MapPlunderPersistenceChecks.cs",
+    "newInternalMethods": [
+      "ScheduleDispatchPlunder",
+      "CancelDispatchPlunder"
+    ],
+    "publicBoundary": "Public Dispatch cancel is enabled and emits the recovered change event. Public Dispatch schedule remains unavailable until a current-v19 authoritative executor and durable worker are recovered/implemented.",
+    "contract": "src/LWBridge.Desktop/DispatchPlunderContract.cs",
+    "commandService": "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "eventForwarder": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "inspector": "tools/inspect_lwbridge_dispatch_plunder.py"
+  },
+  "offlineValidation": {
+    "freshScheduleDefaults": true,
+    "waitingReschedulePreservesStatusAttemptsErrorAndCreatedAt": true,
+    "runningReplacementRejected": true,
+    "terminalReplacementRejected": true,
+    "scheduledCancel": true,
+    "waitingCancel": true,
+    "runningCancelRejected": true,
+    "secondCancelRejected": true,
+    "cancelClearsErrorAndUpdatesTimestamp": true,
+    "databaseReopenPersistence": true,
+    "publicCancelNullSuccess": true,
+    "publicCancelInvalidTargetExactError": true,
+    "publicCancelNotFoundExactError": true,
+    "publicCancelChangeEvent": true,
+    "scheduleValidatorExactMessages": true,
+    "scheduleValidatorRecoveredPredicates": true,
+    "publicScheduleStillFailClosed": true,
+    "originalContractInspectorPass": true
+  },
+  "recoveredWorkerInputsForNextCheckpoint": {
+    "expireTransition": "scheduled/waiting_connection -> expired with DISPATCH_PLUNDER_TASK_EXPIRED when expire_at<=now",
+    "armableRead": "scheduled/waiting_connection with plunder_at<=now+lead ordered by plunder_at ASC LIMIT 1",
+    "statusUpdate": "status/error update with optional exactly-one attempt increment",
+    "restartRecovery": "running -> waiting_connection / DISPATCH_PLUNDER_CLIENT_RESTARTED",
+    "offlineDue": "scheduled due and unexpired -> waiting_connection / DISPATCH_PLUNDER_GAME_DISCONNECTED",
+    "dailyLimit": "scheduled/waiting_connection -> failed / DISPATCH_PLUNDER_DAILY_LIMIT_REACHED",
+    "executionErrorVocabulary": [
+      "DISPATCH_PLUNDER_INVALID_TARGET",
+      "DISPATCH_PLUNDER_REQUEST_PENDING",
+      "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE",
+      "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED",
+      "DISPATCH_PLUNDER_CROSS_SERVER_UNAVAILABLE",
+      "DISPATCH_PLUNDER_RESPONSE_TIMEOUT",
+      "DISPATCH_PLUNDER_INVALID_SCHEDULE",
+      "DISPATCH_PLUNDER_ALREADY_ARMED",
+      "DISPATCH_PLUNDER_SEND_FAILED",
+      "DISPATCH_PLUNDER_SERVER_REJECTED"
+    ]
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "liveDispatchScheduleCreated": false,
+    "liveDispatchScheduleCancelled": false,
+    "liveDispatchPlunderAttempted": false,
+    "liveTruckRobberyAttempted": false,
+    "messageOrAllianceShareSent": false
+  },
+  "privacy": "Static recovery plus disposable synthetic database tests only. No live player identity, target UUID, coordinates, session identifiers, database, or raw runtime logs are retained.",
+  "currentActionBoundary": {
+    "map_dispatch_plunder_cancel": "IMPLEMENTED/OFFLINE-TESTED public local-scheduler cancellation; no gameplay action",
+    "map_dispatch_plunder_schedule": "BLOCKED/COMMAND_NOT_IMPLEMENTED pending durable worker/current-v19 executor",
+    "liveDispatchPlunder": "NOT_RUN"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-036",
+  "status": "LIVE-PROVEN",
+  "recordedDate": "2026-09-19",
+  "scope": "mixed selectedTypes, original all-eight selection, same-owned-session repeat runs, and Normal/Fast all-eight acceptance on the shared current-v19 Manual Scan engine",
+  "privacy": "aggregate-only; no player identity, UUID, coordinates, server/session/challenge identifiers, raw rows, or databases retained",
+  "selectionContract": {
+    "recoveredDefaultTypes": [
+      "city",
+      "resource",
+      "monster",
+      "truck",
+      "railway",
+      "dispatch",
+      "ghost",
+      "treasure"
+    ],
+    "dedicatedZombieBoss": "separate ninth selectable kind; remains standalone because its Monster normalizer intentionally changes output kind only in a dedicated run",
+    "mixedOriginalEightSupported": true,
+    "missingSelectedTypesDefaultsToRecoveredEight": true
+  },
+  "deterministic": {
+    "fullWorldAllEight": "one synthetic 10,000-AOI / 2,500-logical-block acquisition drives all eight normalizers in the same run",
+    "publication": "all eight selected kind/server scopes are transactionally replaced only after complete successful scan publication",
+    "zombieBossMixedRejectedBeforeContext": true,
+    "manualUi": "multi-select restored; Zombie Boss mutually exclusive; Normal/Fast control restored"
+  },
+  "liveMixedThenAllEightNormal": {
+    "sameOwnedSession": true,
+    "mixed": {
+      "selected": [
+        "city",
+        "truck",
+        "dispatch",
+        "treasure"
+      ],
+      "scanMode": "normal",
+      "concurrency": 8,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 129.3349007,
+      "counts": {
+        "city": 237,
+        "truck": 160,
+        "dispatch": 25,
+        "treasure": 0
+      }
+    },
+    "allEight": {
+      "scanMode": "normal",
+      "concurrency": 8,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 127.2110683,
+      "counts": {
+        "city": 179,
+        "resource": 289,
+        "monster": 11531,
+        "truck": 146,
+        "railway": 0,
+        "dispatch": 13,
+        "ghost": 0,
+        "treasure": 2
+      },
+      "reopenExact": true
+    }
+  },
+  "liveAllEightNormalThenFast": {
+    "sameOwnedSession": true,
+    "normal": {
+      "concurrency": 8,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 133.8908957,
+      "counts": {
+        "city": 372,
+        "resource": 1028,
+        "monster": 10879,
+        "truck": 146,
+        "railway": 1,
+        "dispatch": 69,
+        "ghost": 0,
+        "treasure": 10
+      }
+    },
+    "fast": {
+      "concurrency": 20,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "scanWallSeconds": 127.0581974,
+      "counts": {
+        "city": 450,
+        "resource": 808,
+        "monster": 11850,
+        "truck": 147,
+        "railway": 2,
+        "dispatch": 77,
+        "ghost": 0,
+        "treasure": 1
+      },
+      "reopenExact": true
+    }
+  },
+  "populationNotes": [
+    "row counts are dynamic and are not fixed invariants",
+    "Ghost remained zero in these combined runs and keeps its separate positive-row LIVE-PENDING gate",
+    "Railway was zero in one all-eight population but positive in the later Normal/Fast population; Railway already has an independent positive-row live proof"
+  ],
+  "validation": {
+    "currentClientContentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "compatible": true,
+    "releaseWarnings": 0,
+    "releaseErrors": 0,
+    "gitDiffCheck": true,
+    "postRunGameRunning": false,
+    "postRunRecoveryJournalPresent": false,
+    "officialPackageRestored": true
+  },
+  "next": "Shared Manual acquisition selection/mode acceptance is closed. Continue Auto Scan on this same engine; keep Ghost positive-row acceptance pending until a real type-29 population exists."
+}

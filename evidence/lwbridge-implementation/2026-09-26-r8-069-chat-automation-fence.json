@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-069",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "handlers": {
+    "chat_automation_run_pending": "0x1401285CB-0x140129437",
+    "chat_automation_configure": "0x14012CAFF-0x14012E897"
+  },
+  "frontendPayloads": {
+    "chat_automation_configure": "{kind,config,profileId?}",
+    "chat_automation_run_pending": "{kind,profileId?}"
+  },
+  "retainedKinds": ["redPacket", "fireworks", "treasure"],
+  "configureVocabulary": ["claimDelaySeconds", "replyPhrases", "replyEnabled", "enabled", "dispatchRetrySeconds", "dispatchEnabled", "dispatchSquadPriority"],
+  "configureErrors": [
+    {"code":"INVALID_CONFIG","message":"object required"},
+    {"code":"INVALID_REQUEST","message":"at least one reply phrase is required"},
+    {"code":"INVALID_REQUEST","message":"treasure dispatch retry must be from 1 to 300 seconds"}
+  ],
+  "sharedAdmission": {
+    "authorizationStateRequired": true,
+    "authorizationUnavailable": {"code":"STATE_UNAVAILABLE","message":"authorization state is unavailable"},
+    "selectedProfileRuntimeRequired": true,
+    "gameRouteRequired": true,
+    "disconnected": {"code":"GAME_DISCONNECTED","message":"game disconnected"}
+  },
+  "provider": {
+    "chat_automation_configure": {"method":"configureChatAutomation","timeoutMs":5000,"retryCount":0,"result":"generic JSON converter"},
+    "chat_automation_run_pending": {"method":"runChatAutomationPending","timeoutMs":5000,"retryCount":0,"result":"generic JSON converter"}
+  },
+  "runtimeImplementation": "FENCED",
+  "fenceReason": "Native authorization-state admission is mandatory before the retained provider action; reproducing that state is owner-excluded and skipping it changes observable precedence.",
+  "inventoryEffect": {
+    "previousGenuinelyUnclosed": 15,
+    "movedToAuditedFenced": ["chat_automation_configure","chat_automation_run_pending"],
+    "remainingGenuinelyUnclosed": 13
+  }
+}

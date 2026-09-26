@@ -1,0 +1,127 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-149",
+  "title": "Scheduled Plunder owner retirement",
+  "date": "2026-09-23",
+  "parentRevision": "a41037df4e105db62379c5bf799ba35f3a93a197",
+  "ownerDecision": "remove Scheduled Plunder completely from the shipped product",
+  "removedSurface": {
+    "frontend": [
+      "scheduledPlunder result tab",
+      "Dispatch/Truck schedule controls",
+      "cancel/retry/Plunder Again controls",
+      "scheduler job renderers",
+      "scheduler-only locale strings"
+    ],
+    "apiCommands": [
+      "map_plunder_jobs_list",
+      "map_dispatch_plunder_schedule",
+      "map_dispatch_plunder_cancel",
+      "map_truck_plunder_schedule",
+      "map_truck_plunder_cancel"
+    ],
+    "events": [
+      "bridge://dispatch-plunder-changed",
+      "bridge://truck-plunder-changed"
+    ],
+    "runtimeFiles": [
+      "DispatchPlunderContract.cs",
+      "DispatchPlunderWorker.cs",
+      "TruckPlunderWorker.cs",
+      "MapDataStore.Plunder.cs"
+    ],
+    "gameActionLanes": [
+      "truck-quick-rob.txt lane",
+      "dispatch-plunder.txt lane"
+    ],
+    "storage": [
+      "dispatch_plunder_jobs",
+      "truck_plunder_jobs",
+      "truck_plunder_history"
+    ]
+  },
+  "preservedReadOnlySurface": [
+    "Truck/Dispatch scan data",
+    "plunderability/status filters",
+    "goods/reward metadata",
+    "protection/arrival/completion timing",
+    "robbed/steal counts",
+    "normal result browsing",
+    "cross-server row navigation",
+    "Truck/Railway Follow"
+  ],
+  "acceptanceCasesRetired": [
+    "E03",
+    "E04",
+    "E05"
+  ],
+  "currentAcceptanceMatrix": "evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json",
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "generatedJavaScriptSyntax": true,
+    "shippedRetiredTokenMatches": 0,
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministic": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "browser": {
+      "sourceParityChecks": 36,
+      "cityExportRemoval": true,
+      "automaticScanStrategy": true,
+      "r7131MapData": true,
+      "r7132Auto": true,
+      "r7136RestartOwnership": true
+    },
+    "normalProductionWindowSmoke": {
+      "workingTreeBuild": {
+        "ok": true,
+        "mode": "normal-production-services-with-passive-owner-evidence",
+        "autoLaunchSuppressed": true,
+        "stateChangingOwnerCommandsBlocked": true,
+        "executableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
+        "overviewResponsive": true,
+        "mapDataResponsive": true,
+        "configSha256Unchanged": true,
+        "configBackupSha256Unchanged": true,
+        "finalProcesses": {
+          "desktop": 0,
+          "lastWar": 0,
+          "launcher": 0,
+          "helper": 0
+        },
+        "validationScope": "checkout-index exported staged snapshot used for final validation"
+      },
+      "exportedStagedSnapshotBuild": {
+        "ok": true,
+        "mode": "normal-production-services-with-passive-owner-evidence",
+        "autoLaunchSuppressed": true,
+        "stateChangingOwnerCommandsBlocked": true,
+        "executableSha256": "8A228D9AD619BB9406855A8CEBAECA3E10E397102B5153569CA43E50DE24A489",
+        "overviewResponsive": true,
+        "mapDataResponsive": true,
+        "configSha256Unchanged": true,
+        "configBackupSha256Unchanged": true,
+        "finalProcesses": {
+          "desktop": 0,
+          "lastWar": 0,
+          "launcher": 0,
+          "helper": 0
+        }
+      },
+      "hashScopeNote": "Apphost byte identity depends on build/export context; no universal binary hash is inferred. Both builds passed the same normal production window smoke."
+    }
+  },
+  "safety": {
+    "stateChangingGameplayActionExecuted": false
+  }
+}

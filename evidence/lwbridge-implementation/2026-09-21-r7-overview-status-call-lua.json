@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-124",
+  "date": "2026-09-21",
+  "status": "GET-STATUS-PENDING-LIVE/NARROW-CALL-LUA-GETSTATUS-WINDOWS-PROVEN/GENERIC-CALL-LUA-BLOCKED",
+  "title": "Expose authentic pending-call count and enable only call_lua(getStatus,{})",
+  "branch": "research/offline-controller",
+  "parentRevision": "d23ef0c0a26fbcc0b262ddd379b6ec2375d467b1",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "IMPLEMENTED/OFFLINE-WINDOWS-PROVEN",
+  "sourceBackedBasis": [
+    "LWB-R7-096 get_status.pending is exactly the outstanding bridge-to-Lua call/result collection length",
+    "LWB-R7-097 command/call and result envelopes plus LUA_CALL_FAILED fallback",
+    "LWB-R7-098 unique literal default routing",
+    "LWB-R7-119 200 ms timeout and pending-call lifecycle",
+    "LWB-R7-120/R7-121 authenticated session transport and shared host routing",
+    "LWB-R7-123 normal application startup listener and launch binding"
+  ],
+  "implementation": {
+    "backendFile": "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "getStatusPending": "bridgeHostState?.PendingCallCount",
+    "callLuaAsyncIntercept": true,
+    "allowedFunction": "getStatus",
+    "allowedArgs": {},
+    "route": "default",
+    "timestampSource": "RecoveredWallClock.UnixTimeMilliseconds()",
+    "unsupportedFunctionError": "COMMAND_NOT_IMPLEMENTED",
+    "nonEmptyGetStatusArgsError": "COMMAND_NOT_IMPLEMENTED",
+    "missingOrNonObjectArgsError": "INVALID_PAYLOAD",
+    "missingTransportFallback": "LUA_CALL_FAILED",
+    "genericCallLuaEnabled": false
+  },
+  "windowsBackendProof": {
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewStatusTransportChecks.cs",
+    "focusedCli": "--overview-status-transport-check",
+    "result": "PASS",
+    "temporaryLocalPipeOnly": true,
+    "authenticated": true,
+    "pendingSequence": [0, 1, 0],
+    "commandId": "cmd_1",
+    "functionName": "getStatus",
+    "args": {},
+    "successResultState": "lua-ready",
+    "otherFunctionBlocked": true,
+    "nonEmptyArgsBlocked": true,
+    "noTransportError": "LUA_CALL_FAILED"
+  },
+
+  "frontendContract": {
+    "visiblePendingSource": "get_status.pending",
+    "zeroFallback": "frontend nullish fallback only",
+    "refreshOrder": [
+      "get_status",
+      "proxy_status",
+      "call_lua(getStatus,{})"
+    ],
+    "statusContractFocusedResult": "PASS"
+  },
+  "remainingBoundary": {
+    "allOtherCallLuaFunctions": "COMMAND_NOT_IMPLEMENTED",
+    "successfulProfileStopRegistryUnregister": "not source-recovered; not invented",
+    "realGamePositiveHandshake": "not performed in this checkpoint"
+  },
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

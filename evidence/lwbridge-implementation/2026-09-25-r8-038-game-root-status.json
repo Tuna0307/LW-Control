@@ -1,0 +1,90 @@
+{
+    "schemaVersion":  1,
+    "checkpoint":  "LWB-R8-038",
+    "date":  "2026-09-25",
+    "scope":  "Restore game_root_status native public projection and candidate resolution.",
+    "referenceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendChanged":  false,
+    "authority":  [
+                      "game_root_status handler RVA 0x15B277-0x15BB41",
+                      "root resolver/candidate assembly RVA 0x3323E7-0x333023",
+                      "candidate ingestion RVA 0x33213C-0x332366",
+                      "candidate normalizer RVA 0x333302-0x33365F",
+                      "top-level serializer RVA 0x33365F-0x33377A",
+                      "candidate serializer RVA 0x33377A-0x33383B",
+                      "public validity predicate RVA 0x33383B-0x333A73",
+                      "selection helper RVA 0x333A73-0x333B63",
+                      "retained frontend game_root_status wrapper/Overview valid consumer"
+                  ],
+    "contract":  {
+                     "topLevelFields":  [
+                                            "root",
+                                            "source",
+                                            "valid",
+                                            "candidates"
+                                        ],
+                     "candidateFields":  [
+                                             "path",
+                                             "source"
+                                         ],
+                     "invalidState":  {
+                                          "root":  "",
+                                          "source":  "",
+                                          "valid":  false,
+                                          "candidates":  [
+
+                                                         ]
+                                      },
+                     "validityPredicate":  [
+                                               "Game/LastWar.exe exists",
+                                               "Game/LastWar_Data/Plugins/x86_64 directory exists"
+                                           ],
+                     "sourceOrder":  [
+                                         "saved",
+                                         "environment",
+                                         "nearby",
+                                         "bridge-root-file",
+                                         "default",
+                                         "process",
+                                         "registry"
+                                     ],
+                     "stateUnavailable":  {
+                                              "code":  "STATE_UNAVAILABLE",
+                                              "message":  "path state is unavailable"
+                                          }
+                 },
+    "implementation":  [
+                           "src/LWBridge.Desktop/GameInstallationService.cs",
+                           "src/LWBridge.Desktop/LWBridgeBackend.cs",
+                           "tests/LWBridge.Desktop.Checks/GameRootNativeStatusChecks.cs",
+                           "tests/LWBridge.Desktop.Checks/Program.cs"
+                       ],
+    "validationStatus":  {
+                             "desktopReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "checksReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "deterministicSuite":  "PASS ok=true failures=[] exitCode=0",
+                             "frontendChanged":  "NO",
+                             "frontendGeneratorCheck":  "PASS",
+                             "gitDiffCheck":  "PASS",
+                             "jsonSyntax":  "PASS",
+                             "stagedDiffCheck":  "PASS"
+                         },
+    "evidenceClassification":  {
+                                   "topLevelSchema":  "EXACT_NATIVE",
+                                   "candidateSchema":  "EXACT_NATIVE",
+                                   "emptyInvalidProjection":  "EXACT_NATIVE",
+                                   "publicValidityPredicate":  "EXACT_NATIVE",
+                                   "sourceLabelsAndOrdering":  "EXACT_NATIVE",
+                                   "stateUnavailableError":  "EXACT_NATIVE",
+                                   "savedRootStorage":  "EQUIVALENT_REIMPLEMENTATION_LOCALCONFIG_FOR_NATIVE_GAME_ROOT_TXT",
+                                   "processRegistryDiscovery":  "EQUIVALENT_REIMPLEMENTATION_CSHARP_FOR_NATIVE_POWERSHELL_CIM_REGISTRY",
+                                   "internalLaunchValidation":  "REBUILD_SAFETY_LAYER_NOT_PUBLIC_NATIVE_STATUS"
+                               },
+    "remainingBoundary":  {
+                              "gameRootSelect":  "native picker/result persistence semantics remain a separate partial contract",
+                              "launcherLifecycle":  "full original launcher/proxy lifecycle remains incomplete",
+                              "appExitConfirm":  "native managed proxy restoration is recovered in research but not implemented because the rebuild lacks the original proxy-backup ownership primitive",
+                              "updater":  "update_check and update_download_and_open remain fenced pending full stateful updater recovery"
+                          },
+    "nextCheckpoint":  "Recover another complete retained host-side contract without inventing network, account, entitlement, or protected gameplay-provider behavior."
+}

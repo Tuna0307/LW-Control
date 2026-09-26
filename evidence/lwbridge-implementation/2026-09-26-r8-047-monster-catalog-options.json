@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-047",
+  "date": "2026-09-26",
+  "scope": "Restore native monster_catalog_options profile admission, private game request, timeout/error behavior and raw JSON success forwarding.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "authority": [
+    "monster_catalog_options handler 0x14019676B-0x140197132",
+    "profile/runtime resolver 0x1402AE43C",
+    "game-call future 0x1400E4FAD-0x1400E537E",
+    "generic result converter 0x1402BB816",
+    "retained api-ClPPi2JT.js wrapper",
+    "retained SquadPanel-ClRUC9pv.js consumer"
+  ],
+  "publicContract": {
+    "missingProfile": {"code":"PROFILE_ID_REQUIRED","message":"PROFILE_ID_REQUIRED"},
+    "unknownProfile": {"code":"PROFILE_RUNTIME_UNAVAILABLE","message":"PROFILE_RUNTIME_UNAVAILABLE"},
+    "disconnected": {"code":"GAME_DISCONNECTED","message":"game disconnected"},
+    "gameMethod": "getMonsterCatalogOptions",
+    "gameArgs": {},
+    "gameTimeoutMilliseconds": 5000,
+    "nativeRetryCount": 0,
+    "timeout": {"code":"LUA_CALL_TIMEOUT","message":"lua call result unknown after timeout: getMonsterCatalogOptions"},
+    "gameFailureCode": "LUA_CALL_FAILED",
+    "success": "correlated game JSON value forwarded unchanged"
+  },
+  "frontendPayloadEvidence": {
+    "topLevelArray": "options",
+    "observedFields": ["key","group","monsterNameKey","monsterType","monsterSpecial","monsterIds","searchable","minLevel","maxLevel","attackMinLevel","attackMaxLevel"],
+    "hostDtoClaimed": false
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/OverviewStatusTransportChecks.cs"
+  ],
+  "transport": {
+    "classification": "EQUIVALENT_REIMPLEMENTATION",
+    "publicCallLuaWidened": false,
+    "reusesPerCallDeadlineFromR8046": true
+  },
+  "evidenceClassification": {
+    "profileParsingAndErrors": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "gameMethodAndEmptyArgs": "EXACT_NATIVE",
+    "fiveSecondDeadline": "EXACT_NATIVE",
+    "timeoutCodeAndMessage": "EXACT_NATIVE",
+    "successRawJsonPassThrough": "EXACT_NATIVE",
+    "retainedDotNetTransport": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "validationStatus": {
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "jsonSyntax": "PASS",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "live current-client getMonsterCatalogOptions compatibility validation",
+    "live Monster AFK/provider actions remain separate",
+    "other retained Squads/AFK commands remain separate checkpoints"
+  ]
+}

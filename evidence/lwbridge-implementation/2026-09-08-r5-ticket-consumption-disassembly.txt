@@ -1,0 +1,190 @@
+# LWB-R5-005 focused static disassembly evidence
+# Outer reference SHA-256: 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff
+# Embedded lwbridge-profile-launcher.exe SHA-256: 8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de
+# Coordinate system: embedded launcher preferred VA, image base 0x140000000
+# Source checkpoint: previously saved bounded disassembly under .codex-live; no binary execution in this evidence-copy step.
+
+## Ticket consumption / ownership polling routine
+### FN 0x140028870-0x140028a94
+0x140028870: push     rbp
+0x140028871: push     r15
+0x140028873: push     r14
+0x140028875: push     r13
+0x140028877: push     r12
+0x140028879: push     rsi
+0x14002887a: push     rdi
+0x14002887b: push     rbx
+0x14002887c: sub      rsp, 0x58
+0x140028880: lea      rbp, [rsp + 0x50]
+0x140028885: mov      qword ptr [rbp], 0xfffffffffffffffe
+0x14002888d: mov      rdi, r9
+0x140028890: mov      rbx, r8
+0x140028893: mov      r14, rdx
+0x140028896: mov      r15, rcx
+0x140028899: call     0x14006ac50
+0x14002889e: mov      r8d, 0x3c
+0x1400288a4: mov      rcx, rax
+0x1400288a7: xor      r9d, r9d
+0x1400288aa: call     0x14006f5e0
+0x1400288af: mov      r12, rax
+0x1400288b2: mov      dword ptr [rbp - 0x18], edx
+0x1400288b5: jmp      0x1400288cc
+0x1400288b7: nop      word ptr [rax + rax]
+0x1400288c0: xor      ecx, ecx
+0x1400288c2: mov      edx, 0x2faf080
+0x1400288c7: call     0x14006b7b0
+0x1400288cc: call     0x14006ac50
+0x1400288d1: cmp      rax, r12
+0x1400288d4: jne      0x1400288d9
+0x1400288d6: cmp      edx, dword ptr [rbp - 0x18]
+0x1400288d9: jae      0x14002895f
+0x1400288df: lea      rcx, [rbp - 0x30]
+0x1400288e3: mov      rdx, r15
+0x1400288e6: mov      r8, r14
+0x1400288e9: call     0x140060b30
+0x1400288ee: mov      rsi, qword ptr [rbp - 0x30]
+0x1400288f2: mov      rax, rsi
+0x1400288f5: neg      rax
+0x1400288f8: jo       0x140028970
+0x1400288fa: cmp      qword ptr [rbp - 0x20], rdi
+0x1400288fe: jne      0x14002892e
+0x140028900: mov      r13, qword ptr [rbp - 0x28]
+0x140028904: mov      rcx, r13
+0x140028907: mov      rdx, rbx
+0x14002890a: mov      r8, rdi
+0x14002890d: call     0x1400816b7
+0x140028912: test     eax, eax
+0x140028914: jne      0x14002892e
+0x140028916: test     rsi, rsi
+0x140028919: je       0x1400288c0
+0x14002891b: mov      r8d, 1
+0x140028921: mov      rcx, r13
+0x140028924: mov      rdx, rsi
+0x140028927: call     0x14001e9f0
+0x14002892c: jmp      0x1400288c0
+0x14002892e: lea      rdi, [rip + 0x5ed9b] ; 'LAUNCH_TICKET_OWNERSHIP_CHANGEDLAUNCH_TICKET_CONSUMPTION_FAILEDLAUNCH_TICKET_CONSUMPTION_TIMEOUTGAME_XLUA_ABI_UNSUPPORTEDGAME_PID_HANDOFF_FAILEDHOOK_READY_TIMEOUTHOOK_LOAD_FAILEDHO'
+0x140028935: mov      edx, 0x1f
+0x14002893a: test     rsi, rsi
+0x14002893d: je       0x140028a80
+0x140028943: mov      rcx, qword ptr [rbp - 0x28]
+0x140028947: mov      r8d, 1
+0x14002894d: mov      rdx, rsi
+0x140028950: call     0x14001e9f0
+0x140028955: mov      edx, 0x1f
+0x14002895a: jmp      0x140028a80
+0x14002895f: mov      edx, 0x21
+0x140028964: lea      rdi, [rip + 0x5eda4] ; 'LAUNCH_TICKET_CONSUMPTION_TIMEOUTGAME_XLUA_ABI_UNSUPPORTEDGAME_PID_HANDOFF_FAILEDHOOK_READY_TIMEOUTHOOK_LOAD_FAILEDHOOK_INJECT_TIMEOUTOFFICIAL_LAUNCHER_HOOK_FAILEDstage=official_la'
+0x14002896b: jmp      0x140028a80
+0x140028970: mov      rax, qword ptr [rbp - 0x28]
+0x140028974: mov      ecx, eax
+0x140028976: and      ecx, 3
+0x140028979: lea      rdx, [rip + 0x60380]
+0x140028980: movsxd   rcx, dword ptr [rdx + rcx*4]
+0x140028984: add      rcx, rdx
+0x140028987: jmp      rcx
+0x140028989: cmp      byte ptr [rax + 0x10], 0
+0x14002898d: jne      0x140028a1c
+0x140028993: jmp      0x1400289be
+0x140028995: shr      rax, 0x20
+0x140028999: xor      edi, edi
+0x14002899b: lea      ecx, [rax - 0xf]
+0x14002899e: cmp      ecx, 0x34
+0x1400289a1: ja       0x140028a14
+0x1400289a3: movabs   rdx, 0x10004000000001
+0x1400289ad: bt       rdx, rcx
+0x1400289b1: jae      0x140028a14
+0x1400289b3: jmp      0x140028a80
+0x1400289b8: shr      rax, 0x20
+0x1400289bc: jne      0x140028a1c
+0x1400289be: xor      edi, edi
+0x1400289c0: jmp      0x140028a80
+0x1400289c5: cmp      byte ptr [rax + 0xf], 0
+0x1400289c9: je       0x140028a25
+0x1400289cb: lea      rcx, [rax - 1]
+0x1400289cf: mov      qword ptr [rbp - 0x18], rcx
+0x1400289d3: mov      rcx, qword ptr [rax - 1]
+0x1400289d7: mov      qword ptr [rbp - 0x10], rcx
+0x1400289db: mov      rax, qword ptr [rax + 7]
+0x1400289df: mov      qword ptr [rbp - 8], rax
+0x1400289e3: mov      rax, qword ptr [rax]
+0x1400289e6: test     rax, rax
+0x1400289e9: je       0x1400289f1
+0x1400289eb: mov      rcx, qword ptr [rbp - 0x10]
+0x1400289ef: call     rax
+0x1400289f1: mov      rcx, qword ptr [rbp - 0x10]
+0x1400289f5: mov      rax, qword ptr [rbp - 8]
+0x1400289f9: mov      rdx, qword ptr [rax + 8]
+0x1400289fd: lea      rdi, [rip + 0x5eceb] ; 'LAUNCH_TICKET_CONSUMPTION_FAILEDLAUNCH_TICKET_CONSUMPTION_TIMEOUTGAME_XLUA_ABI_UNSUPPORTEDGAME_PID_HANDOFF_FAILEDHOOK_READY_TIMEOUTHOOK_LOAD_FAILEDHOOK_INJECT_TIMEOUTOFFICIAL_LAUNC'
+0x140028a04: test     rdx, rdx
+0x140028a07: je       0x140028a67
+0x140028a09: mov      r8, qword ptr [rax + 0x10]
+0x140028a0d: call     0x14001e9f0
+0x140028a12: jmp      0x140028a67
+0x140028a14: add      eax, -2
+0x140028a17: cmp      eax, 2
+0x140028a1a: jb       0x140028a80
+0x140028a1c: lea      rdi, [rip + 0x5eccc] ; 'LAUNCH_TICKET_CONSUMPTION_FAILEDLAUNCH_TICKET_CONSUMPTION_TIMEOUTGAME_XLUA_ABI_UNSUPPORTEDGAME_PID_HANDOFF_FAILEDHOOK_READY_TIMEOUTHOOK_LOAD_FAILEDHOOK_INJECT_TIMEOUTOFFICIAL_LAUNC'
+0x140028a23: jmp      0x140028a7b
+0x140028a25: lea      rcx, [rax - 1]
+0x140028a29: mov      qword ptr [rbp - 0x18], rcx
+0x140028a2d: mov      rcx, qword ptr [rax - 1]
+0x140028a31: mov      qword ptr [rbp - 0x10], rcx
+0x140028a35: mov      rax, qword ptr [rax + 7]
+0x140028a39: mov      qword ptr [rbp - 8], rax
+0x140028a3d: mov      rax, qword ptr [rax]
+0x140028a40: test     rax, rax
+0x140028a43: je       0x140028a4b
+0x140028a45: mov      rcx, qword ptr [rbp - 0x10]
+0x140028a49: call     rax
+0x140028a4b: mov      rcx, qword ptr [rbp - 0x10]
+0x140028a4f: mov      rax, qword ptr [rbp - 8]
+0x140028a53: mov      rdx, qword ptr [rax + 8]
+0x140028a57: test     rdx, rdx
+0x140028a5a: je       0x140028a65
+0x140028a5c: mov      r8, qword ptr [rax + 0x10]
+0x140028a60: call     0x14001e9f0
+0x140028a65: xor      edi, edi
+0x140028a67: mov      edx, 0x18
+0x140028a6c: mov      r8d, 8
+0x140028a72: mov      rcx, qword ptr [rbp - 0x18]
+0x140028a76: call     0x14001e9f0
+0x140028a7b: mov      edx, 0x20
+0x140028a80: mov      rax, rdi
+0x140028a83: add      rsp, 0x58
+0x140028a87: pop      rbx
+0x140028a88: pop      rdi
+0x140028a89: pop      rsi
+0x140028a8a: pop      r12
+0x140028a8c: pop      r13
+0x140028a8e: pop      r14
+0x140028a90: pop      r15
+0x140028a92: pop      rbp
+0x140028a93: ret
+
+
+## Cross-use of compare helper 0x1400816B7
+0x14001c9d0: test     r14, r14
+0x14001c9d3: je       0x14001ca20
+0x14001c9d5: lea      rdi, [rax + 0x18]
+0x14001c9d9: mov      rdx, qword ptr [rax + 8]
+0x14001c9dd: mov      r8, qword ptr [rax + 0x10]
+0x14001c9e1: mov      r13, rsi
+0x14001c9e4: sub      r13, r8
+0x14001c9e7: cmovb    r8, rsi
+0x14001c9eb: mov      rcx, rbx
+0x14001c9ee: call     0x1400816b7
+0x14001c9f3: cdqe
+0x14001c9f5: test     eax, eax
+0x14001c9f7: cmovne   r13, rax
+0x14001c9fb: test     r13, r13
+0x14001c9fe: sets     al
+0x14001ca01: setg     cl
+0x14001ca04: sub      cl, al
+0x14001ca06: inc      r15
+0x14001ca09: add      r14, -0x18
+0x14001ca0d: mov      rax, rdi
+0x14001ca10: cmp      cl, 1
+0x14001ca13: je       0x14001c9d0
+0x14001ca15: movzx    eax, cl
+0x14001ca18: test     eax, eax
+0x14001ca1a: je       0x14001ca3f

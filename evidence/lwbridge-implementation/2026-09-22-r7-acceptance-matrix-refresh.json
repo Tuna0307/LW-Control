@@ -1,0 +1,571 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-134",
+  "title": "Current 47-case acceptance matrix refresh and deterministic browser-port hardening",
+  "date": "2026-09-22",
+  "branch": "research/offline-controller",
+  "parentRevision": "4e3c77f537e410d8f6d3ed043a3bf5ca7b2adb93",
+  "scope": {
+    "claim": "Current acceptance ledger refresh using durable R7-089 through R7-133 evidence plus a fresh clean-worktree Release/browser/visual rerun. This is not final integrated live acceptance.",
+    "activeAcceptanceCases": 46,
+    "retiredCases": 1,
+    "retiredCaseIds": [
+      "C06"
+    ]
+  },
+  "reference": {
+    "lwbridge031Sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "release": {
+    "relativeExecutable": "src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.exe",
+    "sizeBytes": 163328,
+    "sha256": "22140a8feadc9c2691d3209e82a600e3a07f550cbe9d41c3cc9715729592a2cb",
+    "buildWarnings": 0,
+    "buildErrors": 0
+  },
+  "defectsFoundAndRepaired": [
+    {
+      "defect": "Canonical frontend generator was stale relative to maintained shipped WebUi.",
+      "initialFailure": "build_lwbridge_frontend.py --check rejected api-ClPPi2JT.js as stale.",
+      "cause": "R7-066/R7-067 and six earlier maintained MapDataPanel checkpoints had direct generated-bundle changes not fully represented by the generator.",
+      "repair": "Generator now encodes R7-066/R7-067 explicitly and applies a SHA-256 locked exact MapDataPanel delta for source commits 9def72b,5c7e1cd,59ddce3,16bfa14,81aed0c,c64752c.",
+      "final": "Generator rebuild reproduces every tracked WebUi asset byte-for-byte; --check PASS."
+    },
+    {
+      "defect": "Original-parity browser and pixel checks treated documented Map Data owner overrides as regressions.",
+      "initialFailure": "Browser text parity expected Normal/Fast + Export Excel and no Zombie Boss; pixel comparator rejected the same four Map Data screenshot pairs.",
+      "repair": "Map Data parity now structurally excludes only those documented nodes while asserting the deviations explicitly; pixel audit keeps strict thresholds for 28 unchanged pairs and bounded thresholds for four documented Map Data pairs.",
+      "final": "36 browser checks PASS; export-removal PASS; automatic-strategy PASS; pixel audit PASS."
+    },
+    {
+      "defect": "R7-131/R7-132 browser fixtures used OS-assigned ephemeral loopback ports; Chromium can reject an assigned port such as 10080 with ERR_UNSAFE_PORT.",
+      "initialFailure": "Fresh R7-134 acceptance run failed check_map_data_r7131.cjs at http://127.0.0.1:10080 with net::ERR_UNSAFE_PORT before application assertions ran.",
+      "cause": "http.Server.listen(0) delegated port choice to the OS without accounting for Chromium's restricted-port list.",
+      "repair": "R7-131 and R7-132 fixtures now use dedicated safe loopback defaults 18081/18082 with LWBRIDGE_R7131_PORT/LWBRIDGE_R7132_PORT overrides.",
+      "final": "Both regressions pass, followed by 36 full browser checks and the visual comparator."
+    }
+  ],
+  "currentChecks": {
+    "frontendGenerationCheck": "PASS",
+    "r7131BrowserPersistenceSavedServerStopClear": "PASS",
+    "r7132BrowserNavigationRefreshReconnect": "PASS",
+    "browserSourceParity": "PASS (36 checks)",
+    "cityExportRemovalBrowser": "PASS",
+    "pixelAudit": {
+      "result": "PASS",
+      "pairs": 32,
+      "strictPairs": 28,
+      "strictIdentical": 28,
+      "intentionalMapDataPairs": 4,
+      "strictMaxMae": 0.0,
+      "strictMaxHighDeltaRate": 0.0,
+      "mapDataMaxMae": 7.029053943437155,
+      "mapDataMaxHighDeltaRate": 0.03264880830570676
+    },
+    "allPythonToolsCompile": "PASS",
+    "releaseBuild": "PASS (0 warnings, 0 errors)",
+    "deterministicSixGroups": "PASS (0 failures)",
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "gameRunningAfterChecks": false,
+    "launcherRunningAfterChecks": false
+  },
+  "runtimeAfterAudit": {
+    "gameRunning": false,
+    "launcherOrGameProcesses": "none",
+    "stateChangingGameActionsPerformed": false,
+    "treasureClaim": false,
+    "suppliesScoutOrMarch": false,
+    "truckOrDispatchPlunder": false,
+    "allianceShareMessage": false
+  },
+  "caseStatusCounts": {
+    "blocked_implementation": 1,
+    "blocked_implementation_authorization": 1,
+    "not_run_authorization": 1,
+    "partial": 10,
+    "partial_offline_action": 2,
+    "partial_offline_authorization": 1,
+    "partial_population": 4,
+    "pass_current_offline": 15,
+    "pass_current_plus_historical": 6,
+    "pass_historical_live": 5,
+    "retired_by_owner": 1
+  },
+  "acceptanceCases": [
+    {
+      "caseId": "A01",
+      "status": "pass_current_plus_historical",
+      "note": "No-game startup/auto-launch-off behavior is covered by current isolated host/capture checks plus prior Home lifecycle proof.",
+      "evidenceRefs": [
+        "LWB-OVR-015",
+        "R7-088 host probe"
+      ]
+    },
+    {
+      "caseId": "A02",
+      "status": "pass_historical_live",
+      "note": "Startup reconcile/auto-launch ownership has prior current-client live lifecycle proof.",
+      "evidenceRefs": [
+        "LWB-OVR-015",
+        "LWB-OVR-018"
+      ]
+    },
+    {
+      "caseId": "A03",
+      "status": "pass_current_plus_historical",
+      "note": "Picker cancel/invalid is current-isolated tested; valid persisted game root is covered by prior Home lifecycle proof.",
+      "evidenceRefs": [
+        "R7-088 host probe",
+        "LWB-OVR-015"
+      ]
+    },
+    {
+      "caseId": "A04",
+      "status": "pass_current_offline",
+      "note": "R7-091 closes the Launch-spam/refresh matrix offline: ten runs held one admitted Start while 48 duplicate Launch calls and 120 status refreshes per run preserved one in-flight session and one helper Start.",
+      "evidenceRefs": [
+        "LWB-R7-091"
+      ]
+    },
+    {
+      "caseId": "A05",
+      "status": "pass_current_offline",
+      "note": "R7-092 closes managed/unmanaged ownership offline with selected-root and foreign temporary LastWar processes; only the exact owned selected-root process is stopped and unrelated processes survive.",
+      "evidenceRefs": [
+        "LWB-R7-092"
+      ]
+    },
+    {
+      "caseId": "A06",
+      "status": "pass_current_offline",
+      "note": "R7-095 closes the Home Close timing matrix offline across idle/launching/scanning/recovering ownership, durable scan interruption, restoration and non-resurrection; R7-128 additionally live-proves close during production startup rollback.",
+      "evidenceRefs": [
+        "LWB-R7-095",
+        "LWB-R7-128"
+      ]
+    },
+    {
+      "caseId": "A07",
+      "status": "pass_current_offline",
+      "note": "R7-093 closes enabled-versus-disabled reconnect policy offline across threshold recovery, cancellation of future recovery, retained desired-running intent and intentional-Stop non-resurrection.",
+      "evidenceRefs": [
+        "LWB-R7-093"
+      ]
+    },
+    {
+      "caseId": "A08",
+      "status": "pass_current_offline",
+      "note": "R7-094 closes the admitted fault matrix offline across path/permission/PE/ABI/readiness/timeouts, bounded cleanup and successful retry without fabricated connected state.",
+      "evidenceRefs": [
+        "LWB-R7-094"
+      ]
+    },
+    {
+      "caseId": "A09",
+      "status": "pass_historical_live",
+      "note": "R7-089 live-proves 20 consecutive current-v19 lifecycle cycles: 20 unique sessions/PIDs reached running/connected and every exact owned Stop restored the package with final hashes matching baseline.",
+      "evidenceRefs": [
+        "LWB-R7-089"
+      ]
+    },
+    {
+      "caseId": "A10",
+      "status": "pass_current_offline",
+      "note": "R7-090 closes the startup failure matrix offline across six host branches and twelve production-helper transaction stages with journals/hashes/cleanup and a successful retry after every injected failure.",
+      "evidenceRefs": [
+        "LWB-R7-090"
+      ]
+    },
+    {
+      "caseId": "A11",
+      "status": "pass_current_plus_historical",
+      "note": "Composed current evidence closes Refresh Status semantics: R7-091 proves repeated refresh during an admitted launch; R7-127 live-proves authenticated get_status/call_lua getStatus with truthful pending 0 before/after and owned Stop; browser status scoping remains deterministic-covered.",
+      "evidenceRefs": [
+        "LWB-R7-091",
+        "LWB-R7-127"
+      ]
+    },
+    {
+      "caseId": "A12",
+      "status": "pass_historical_live",
+      "note": "Same-server and successful cross-server navigation/return remain live-proven; R7-133 additionally live-proves the authoritative native failure branch (2148 precheck rejection) leaves context on 2212 and the same session remains usable.",
+      "evidenceRefs": [
+        "LWB-R7-037",
+        "LWB-R7-061",
+        "LWB-R7-071",
+        "LWB-R7-133"
+      ]
+    },
+    {
+      "caseId": "B01",
+      "status": "pass_historical_live",
+      "note": "All-eight shared-engine full-world acceptance is live-proven with exact completion/publication and no user speed control.",
+      "evidenceRefs": [
+        "LWB-R7-036",
+        "LWB-R7-067"
+      ]
+    },
+    {
+      "caseId": "B02",
+      "status": "pass_current_plus_historical",
+      "note": "Backend-owned strategy selection is deterministic-pinned and no-mode current-client acceptance is live-proven; current browser regression confirms no user speed selector.",
+      "evidenceRefs": [
+        "LWB-R7-067",
+        "R7-088 strategy browser"
+      ]
+    },
+    {
+      "caseId": "B03",
+      "status": "partial_population",
+      "note": "Individual/shared engine coverage is extensive and mixed selection is live-proven; positive Ghost population remains owner-deferred.",
+      "evidenceRefs": [
+        "LWB-R7-036",
+        "LWB-R7-033"
+      ]
+    },
+    {
+      "caseId": "B04",
+      "status": "pass_current_offline",
+      "note": "Missing/duplicate/unknown/empty type normalization is covered by current deterministic Map contract checks.",
+      "evidenceRefs": [
+        "R7-088 deterministic"
+      ]
+    },
+    {
+      "caseId": "B05",
+      "status": "partial",
+      "note": "Single-owner duplicate Start is covered; the complete mid-scan type-change interaction matrix is not freshly closed.",
+      "evidenceRefs": [
+        "R7-088 deterministic",
+        "LWB-R6-056"
+      ]
+    },
+    {
+      "caseId": "B06",
+      "status": "partial",
+      "note": "Cancellation ownership is deterministic-tested and R7-130 live-proves active Fast Stop returning idle; the requested early/mid/near-completion three-timing acceptance set is not all recorded.",
+      "evidenceRefs": [
+        "LWB-R7-012",
+        "LWB-R7-130"
+      ]
+    },
+    {
+      "caseId": "B07",
+      "status": "partial",
+      "note": "R7-130 live scans recover transient overview_session_unavailable and R7-133 proves a real native travel failure does not poison the same owned session; a deliberate bridge-loss during an active scan remains unrecorded.",
+      "evidenceRefs": [
+        "LWB-R7-064",
+        "LWB-R7-130",
+        "LWB-R7-133"
+      ]
+    },
+    {
+      "caseId": "B08",
+      "status": "partial",
+      "note": "Persistence/reopen is broadly proven, but an intentional process/app kill during an active scan and its resume/rejection policy is not closed.",
+      "evidenceRefs": [
+        "LWB-R6-056"
+      ]
+    },
+    {
+      "caseId": "B09",
+      "status": "pass_current_offline",
+      "note": "Current host/transport and deterministic checks reject stale/foreign session, profile, request and duplicate identities.",
+      "evidenceRefs": [
+        "R7-088 host probe",
+        "R7-088 transport boundary"
+      ]
+    },
+    {
+      "caseId": "B10",
+      "status": "pass_current_offline",
+      "note": "Deterministic scan contract covers failed/unread/drop/publication failure semantics and prevents false complete.",
+      "evidenceRefs": [
+        "LWB-R6-055",
+        "LWB-R6-058",
+        "LWB-R6-059",
+        "R7-088 deterministic"
+      ]
+    },
+    {
+      "caseId": "B11",
+      "status": "partial",
+      "note": "Stable identities and live moving-target follow are proven; the full native add/update/remove/movement transition matrix remains incomplete.",
+      "evidenceRefs": [
+        "LWB-R7-040",
+        "LWB-R7-071"
+      ]
+    },
+    {
+      "caseId": "B12",
+      "status": "pass_historical_live",
+      "note": "Many repeated completed full-world scans across categories/strategies/servers are durably live-proven.",
+      "evidenceRefs": [
+        "LWB-R7-036",
+        "LWB-R7-063",
+        "LWB-R7-064"
+      ]
+    },
+    {
+      "caseId": "B13",
+      "status": "partial_population",
+      "note": "All result tabs have schemas and legitimate-empty handling, but positive Ghost and Supplies populations remain unavailable/deferred.",
+      "evidenceRefs": [
+        "LWB-R7-033",
+        "LWB-R7-072"
+      ]
+    },
+    {
+      "caseId": "B14",
+      "status": "partial_population",
+      "note": "Source-backed names/numeric fields are proven across populated kinds; Ghost/Supplies positive representative samples remain unavailable.",
+      "evidenceRefs": [
+        "LWB-R7-073",
+        "LWB-R7-074",
+        "LWB-R7-075",
+        "LWB-R7-076",
+        "LWB-R7-072"
+      ]
+    },
+    {
+      "caseId": "C01",
+      "status": "partial_population",
+      "note": "Major per-kind filter families are live-proven; remaining positive-population-dependent Ghost/Supplies/Treasure branches prevent a blanket all-kind closure.",
+      "evidenceRefs": [
+        "LWB-R7-073",
+        "LWB-R7-074",
+        "LWB-R7-075",
+        "LWB-R7-076",
+        "LWB-R7-068"
+      ]
+    },
+    {
+      "caseId": "C02",
+      "status": "pass_current_plus_historical",
+      "note": "Typed sorting/paging/large-ID behavior is deterministic-covered and live sort acceptance exists for Railway/other populated kinds.",
+      "evidenceRefs": [
+        "LWB-R7-071",
+        "R7-088 deterministic"
+      ]
+    },
+    {
+      "caseId": "C03",
+      "status": "pass_current_offline",
+      "note": "Current browser/transport ownership rejects stale request/session responses and keeps current display context authoritative.",
+      "evidenceRefs": [
+        "R7-088 browser",
+        "R7-088 transport boundary"
+      ]
+    },
+    {
+      "caseId": "C04",
+      "status": "partial",
+      "note": "Mark/query persistence exists, but the full mark->rescan->restart->relocate acceptance sequence is not freshly closed end-to-end.",
+      "evidenceRefs": [
+        "LWB-R7-075"
+      ]
+    },
+    {
+      "caseId": "C05",
+      "status": "pass_current_offline",
+      "note": "Server-scoped Clear is atomic/deterministic and R7-131 real-browser delayed-race acceptance proves Clear invalidates the old search without launching a replacement query or surfacing the stale failure.",
+      "evidenceRefs": [
+        "LWB-R7-054",
+        "LWB-R7-131"
+      ]
+    },
+    {
+      "caseId": "C06",
+      "status": "retired_by_owner",
+      "note": "City Excel export was removed from product scope on 2026-09-19 and is not an acceptance requirement.",
+      "evidenceRefs": [
+        "LWB-R7-066",
+        "R7-088 export-removal browser"
+      ]
+    },
+    {
+      "caseId": "C07",
+      "status": "partial",
+      "note": "Coordinate Jump plus Truck/Railway moving Follow are live-proven; all vanished/replaced-target failure branches are not jointly live-proven.",
+      "evidenceRefs": [
+        "LWB-R7-061",
+        "LWB-R7-040",
+        "LWB-R7-071"
+      ]
+    },
+    {
+      "caseId": "D01",
+      "status": "pass_current_plus_historical",
+      "note": "Auto config/default normalization and durable scheduling retain historical live proof; R7-131 real-browser reload proves Manual/Auto/result/saved-server choices persist per profile.",
+      "evidenceRefs": [
+        "LWB-R7-039",
+        "LWB-R7-070",
+        "LWB-R7-131"
+      ]
+    },
+    {
+      "caseId": "D02",
+      "status": "partial",
+      "note": "Ordered multi-server Auto sequencing/return and durable scheduling are live-proven, and R7-130 adds a fresh two-server all-eight scan/store/reopen/return proof. The explicit acceptance target of at least three authorized full multi-server Auto cycles has not been recorded as one set.",
+      "evidenceRefs": [
+        "LWB-R7-038",
+        "LWB-R7-039",
+        "LWB-R7-130"
+      ]
+    },
+    {
+      "caseId": "D03",
+      "status": "pass_current_offline",
+      "note": "Single-owner scheduler/manual collision remains deterministic-covered; R7-132 adds one-owner navigation/Refresh Status/reconnect cycle admission and confirmed-travel ordering.",
+      "evidenceRefs": [
+        "LWB-R7-070",
+        "LWB-R7-132"
+      ]
+    },
+    {
+      "caseId": "D04",
+      "status": "partial",
+      "note": "Disable-during-cycle/app restart scheduling has historical proof, R7-131 Stop prevents the next target, and R7-132 disconnect/reconnect cannot duplicate or retroactively resume an interrupted cycle. An explicit process/app restart while a target is actively mid-cycle is still not recorded as one acceptance run.",
+      "evidenceRefs": [
+        "LWB-R7-039",
+        "LWB-R7-131",
+        "LWB-R7-132"
+      ]
+    },
+    {
+      "caseId": "E01",
+      "status": "blocked_implementation_authorization",
+      "note": "Read-only Treasure states are live-proven, but map_treasure_claim is intentionally unrouted and no consuming claim/scout action is authorized/run.",
+      "evidenceRefs": [
+        "LWB-R7-069",
+        "LWB-R7-086",
+        "LWB-R7-087"
+      ]
+    },
+    {
+      "caseId": "E02",
+      "status": "blocked_implementation",
+      "note": "Bulk scopes/lucky frontend/status behavior is recovered, but protected scope/lucky/scout executor orchestration remains UNKNOWN/BLOCKED.",
+      "evidenceRefs": [
+        "LWB-R7-086",
+        "LWB-R7-087"
+      ]
+    },
+    {
+      "caseId": "E03",
+      "status": "partial_offline_action",
+      "note": "Dispatch/Truck schedule-cancel-worker/restart behavior is implemented and offline-tested; live robbery/plunder remains NOT_RUN.",
+      "evidenceRefs": [
+        "LWB-R7-046",
+        "LWB-R7-084"
+      ]
+    },
+    {
+      "caseId": "E04",
+      "status": "partial_offline_action",
+      "note": "Eligibility/rejection gates are source-backed/offline-tested, but suitable live protected/full/vanished/cross-server rejection targets were not consumed.",
+      "evidenceRefs": [
+        "LWB-R7-081",
+        "LWB-R7-082"
+      ]
+    },
+    {
+      "caseId": "E05",
+      "status": "not_run_authorization",
+      "note": "No real plunder victory/defeat or ambiguous live response was generated; code remains fail-closed/non-retryable on ambiguity.",
+      "evidenceRefs": [
+        "LWB-R7-082"
+      ]
+    },
+    {
+      "caseId": "E06",
+      "status": "partial_offline_authorization",
+      "note": "Alliance-share validation/payload is offline-tested; live delivery remains intentionally unavailable without explicit messaging authorization.",
+      "evidenceRefs": [
+        "LWB-R7-085"
+      ]
+    },
+    {
+      "caseId": "F01",
+      "status": "pass_current_offline",
+      "note": "Current isolated browser/capture suite passes themes, nine languages, 900/1120/1440 layouts and navigation; 28 unchanged screenshot pairs are pixel-identical and four documented Map Data deltas are bounded.",
+      "evidenceRefs": [
+        "R7-088 browser",
+        "R7-088 pixel audit"
+      ]
+    },
+    {
+      "caseId": "F02",
+      "status": "pass_current_offline",
+      "note": "Deterministic capture and isolated host probe suppress startup auto-launch and report no live game commands.",
+      "evidenceRefs": [
+        "R7-088 capture",
+        "R7-088 host probe"
+      ]
+    },
+    {
+      "caseId": "F03",
+      "status": "pass_current_offline",
+      "note": "Malformed/duplicate/stale identity, external navigation and late-response boundaries are current-isolated tested.",
+      "evidenceRefs": [
+        "R7-088 host probe",
+        "R7-088 transport boundary"
+      ]
+    },
+    {
+      "caseId": "F04",
+      "status": "partial",
+      "note": "R7-128 live-proves the normal Release window is responsive and close-during-start is safe, but the complete human normal-user built-executable restart/walkthrough across the two pages is still open because the available remote connector has no GUI input primitive.",
+      "evidenceRefs": [
+        "LWB-R7-128"
+      ]
+    }
+  ],
+  "remainingExternalOrLiveGates": [
+    "Ghost positive-row proof remains owner-deferred until Thursday 2026-09-24.",
+    "Supplies positive-row proof remains population-pending.",
+    "Treasure protected claimTreasures scope/lucky/scout executor remains UNKNOWN/BLOCKED under the preserved SB-79 boundary.",
+    "Truck/Dispatch plunder and Alliance share live acceptance require suitable explicitly authorized targets/actions.",
+    "B08 intentional app/process restart during an active scan remains an explicit interruption-proof gap.",
+    "D02 still lacks the requested set of at least three authorized full multi-server Auto cycles.",
+    "D04 still lacks one explicit app/process restart while a target is actively mid-cycle.",
+    "F04 final human built-executable normal-user restart/walkthrough remains open because the available connector has no GUI input primitive.",
+    "Simultaneous real multi-account UI population remains unavailable.",
+    "Final integrated release acceptance remains open."
+  ],
+  "supersedes": {
+    "matrix": "LWB-R7-088 acceptanceCases only",
+    "laterDurableEvidenceIntegrated": [
+      "LWB-R7-089",
+      "LWB-R7-090",
+      "LWB-R7-091",
+      "LWB-R7-092",
+      "LWB-R7-093",
+      "LWB-R7-094",
+      "LWB-R7-095",
+      "LWB-R7-127",
+      "LWB-R7-128",
+      "LWB-R7-130",
+      "LWB-R7-131",
+      "LWB-R7-132",
+      "LWB-R7-133"
+    ]
+  },
+  "sourceIdentity": {
+    "tools/check_map_data_r7131.cjs.sha256": "3F58DC00C9D0B39E37F04892695C8BB7600E293DD7349BE9C589BC343008F49D",
+    "tools/check_map_auto_r7132.cjs.sha256": "F1337AFC80750956B4CBDE91E9534A31FF0E789C410B60E65F7CADEBAE45264F"
+  },
+  "verificationEnvironment": {
+    "node": "v24.18.0",
+    "playwright": "1.63.0",
+    "microsoftEdge": "153.0.4234.32",
+    "releaseExecutableSha256": "6A82617C8414F3E1DA591C04625EFF4D79C0338651D97C8A38590E675F457AE2"
+  }
+}

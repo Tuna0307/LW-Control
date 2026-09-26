@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-032",
+  "date": "2026-09-25",
+  "scope": "Restore the fixed-primary profile_primary_set guard and native primary uniqueness invariant.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "public profile_primary_set handler VA 0x140158026",
+    "native primary guard helper VA 0x1403d3f81",
+    "shared profile-ID validator VA 0x1403dc23e",
+    "original controller.db primary index"
+  ],
+  "behavior": {
+    "primaryQuery": "SELECT id FROM profiles WHERE is_primary = 1",
+    "samePrimary": "success without mutation",
+    "existingNonPrimaryCode": "PROFILE_PRIMARY_FIXED",
+    "missingProfileCode": "PROFILE_NOT_FOUND",
+    "invalidProfileIdCode": "INVALID_PROFILE_ID",
+    "invalidPublicPayloadCode": "INVALID_REQUEST",
+    "primaryMutation": "none recovered / none implemented",
+    "successResult": "refreshed selectedProfileId/maxProfiles/profiles state"
+  },
+  "schema": {
+    "indexName": "idx_profiles_primary",
+    "indexSql": "CREATE UNIQUE INDEX IF NOT EXISTS idx_profiles_primary ON profiles(is_primary) WHERE is_primary = 1"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ProfileRegistryStore.cs",
+    "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/ProfileRegistryChecks.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "notClaimed": [
+    "profile_enable_set",
+    "profile_select focus behavior",
+    "profile create/delete behavior",
+    "launcher/game instance ownership",
+    "Trade Station provider execution"
+  ],
+  "tradeStationFence": {
+    "command": "trade_station_configure",
+    "nativeProtectedMethod": "configureTradeStation",
+    "nativeTimeoutMs": 5000,
+    "implementation": "intentionally fenced"
+  },
+  "nextCheckpoint": "Recover the next host-local profile registry mutation whose complete observable contract can be proven."
+}

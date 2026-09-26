@@ -1,0 +1,108 @@
+{
+  "findingId": "LWB-R8-003",
+  "date": "2026-09-24",
+  "scope": "LWBP2 bridge package binary layout, AAD and package AES-GCM argument ownership",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "bridgePackage": {
+      "hostRva": "0x8699E0",
+      "hostRawOffset": "0x868DE0",
+      "size": 1172723,
+      "sha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d"
+    },
+    "secureProxy": {
+      "hostRva": "0x987F74",
+      "hostRawOffset": "0x987374",
+      "size": 612352,
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    "coordinateRule": "outer-host asset constants are RVAs; raw offsets are PE-mapped and reported separately"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.7"
+  },
+  "packageLayout": {
+    "magic": "LWBP",
+    "version": 2,
+    "buildIdLength": 22,
+    "buildId": "9BupJXpEgm34lybhNhbbcQ",
+    "header": {
+      "magicOffset": 0,
+      "versionOffset": 4,
+      "buildIdLengthOffset": 8,
+      "buildIdOffset": 12,
+      "nonceOffset": 34,
+      "nonceLength": 12,
+      "ciphertextLengthOffset": 46,
+      "ciphertextOffset": 50,
+      "ciphertextLength": 1172657,
+      "tagOffset": 1172707,
+      "tagLength": 16
+    },
+    "aadAscii": "LWBP2|9BupJXpEgm34lybhNhbbcQ",
+    "aadLength": 28,
+    "nonceHex": "b453b00eef518fec961c214a",
+    "tagHex": "6ee94101f118ffe58b1b18e8675e04fb",
+    "totalSize": 1172723
+  },
+  "proxyContract": {
+    "packageFunction": {
+      "beginRva": "0x3D260",
+      "endRva": "0x3DCF5",
+      "sha256HelperRva": "0x3F5C0",
+      "aesGcmCallRva": "0x3DA4A",
+      "aesGcmHelperRva": "0x3CB60",
+      "expectedBuildIdContextOffset": "0x20",
+      "expectedBuildIdLengthContextOffset": "0x30",
+      "expectedSha256HexContextOffset": "0x40"
+    },
+    "aesGcmArguments": {
+      "rcx": "32-byte package key vector (original package-function R8)",
+      "rdx": "12-byte package nonce vector",
+      "r8": "ciphertext vector",
+      "r9": "16-byte authentication-tag vector",
+      "stackArg5": "AAD string: LWBP2| + buildId",
+      "stackArg6": "plaintext output vector"
+    },
+    "packageFunctionOutputs": {
+      "originalR9": "decrypted package bytes on success",
+      "stackArg5": "error text on failure"
+    },
+    "sha256Algorithm": "SHA256"
+  },
+  "result": [
+    "LWBP v2 layout is magic/version/build-length/build-id, then a 12-byte nonce, u32 little-endian ciphertext length, ciphertext, and a final 16-byte GCM tag.",
+    "The verified 1,172,723-byte package has a 1,172,657-byte ciphertext and satisfies exact total-size relation 66+ciphertextLength.",
+    "Package AAD is exactly ASCII LWBP2| followed by the 22-byte build ID.",
+    "The package function compares SHA256(package) as lowercase hexadecimal against context +0x40 and compares the embedded build ID against context +0x20/+0x30 before decrypting.",
+    "At RVA 0x3DA4A, AES-GCM receives the original third package-function argument as the 32-byte key, parsed nonce/ciphertext/tag, AAD, and a plaintext output vector.",
+    "Successful plaintext is copied to the original fourth package-function argument; failure uses the fifth argument for error text."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_package_layout.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_proxy_package_layout.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-24-r8-003-lwbp2-package-layout.json",
+    "python -m py_compile tools\\inspect_lwbridge_proxy_package_layout.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "notProven": [
+      "package-key.envelope field grammar",
+      "how the 32-byte package key is derived from envelope fields",
+      "which envelope field supplies the 65-byte peer public key to agreement helper RVA 0x3DD00",
+      "bridge-scripts.dat plaintext or its post-decrypt container/entry structure",
+      "protected bridge command handler plaintext",
+      "plain-proxy instruction parity"
+    ],
+    "restrictionPreserved": "SB-79 is not replayed or rerouted: this inspector never decodes or queries RVA 0x3F8E0-0x40A6D.",
+    "interpretationRule": "Only hash-locked package bytes and exact instructions in previously permitted unwind-bounded package/AES/SHA functions are treated as recovered."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "closedGap": "exact LWBP2 package field layout plus package-function SHA/build checks, AAD and AES key/nonce/tag/ciphertext ownership",
+    "next": "recover package-key.envelope grammar/key derivation through independent permitted evidence, then decrypt and preserve original script bytes"
+  }
+}

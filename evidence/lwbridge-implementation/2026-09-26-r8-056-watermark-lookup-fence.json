@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-056",
+  "date": "2026-09-26",
+  "scope": "Fence watermark_lookup at its owner-excluded authorization-role service boundary while closing exact input, endpoint, generic HTTP and result behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "watermark_lookup handler 0x1401277C4-0x1401285CB",
+    "authorization-state helper 0x1400DC58F-0x1400DC79E",
+    "role gate 0x140237398-0x14023743F",
+    "optional-string extractor 0x14023F10C-0x14023F1C0",
+    "trim helper 0x1400385A4",
+    "JSON-string converter 0x1402AD5D7-0x1402AD647",
+    "HTTP helper 0x1400F5347-0x1400F643A",
+    "generic JSON converter 0x1402BB816",
+    "retained frontend watermark_lookup wrapper"
+  ],
+  "publicContract": {
+    "inputField": "traceCode",
+    "missingNullOrNonStringTraceCode": "empty string",
+    "normalization": "trim",
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "roleRequiredCode": "ROLE_REQUIRED",
+    "roleField": "accessRole",
+    "requestPath": "/api/watermark/lookup",
+    "requestJsonField": "traceCode",
+    "success": "service JSON returned through generic converter"
+  },
+  "httpHelperVocabulary": [
+    "REQUEST_TIMEOUT",
+    "NETWORK_ERROR",
+    "SERVICE_UNAVAILABLE",
+    "SESSION_INVALID",
+    "/error/code",
+    "/error/detail"
+  ],
+  "evidenceClassification": {
+    "traceCodeParsing": "EXACT_NATIVE",
+    "endpointAndRequestOwnership": "EXACT_NATIVE",
+    "authorizationUnavailableError": "EXACT_NATIVE",
+    "roleGate": "EXACT_NATIVE",
+    "genericHttpErrorVocabulary": "EXACT_NATIVE",
+    "genericJsonSuccessReturn": "EXACT_NATIVE",
+    "authorizationTransportState": "OWNER_EXCLUDED_UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization access-role semantics",
+    "owner-excluded service authorization transport state",
+    "live service compatibility is intentionally not exercised with real account material"
+  ],
+  "nextCheckpoint": "Continue retained non-auth read/status recovery; do not implement watermark networking by reconstructing excluded authorization state."
+}

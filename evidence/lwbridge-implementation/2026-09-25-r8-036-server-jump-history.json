@@ -1,0 +1,94 @@
+{
+    "schemaVersion":  1,
+    "checkpoint":  "LWB-R8-036",
+    "date":  "2026-09-25",
+    "scope":  "Restore server jump history get/set/import storage ownership and migration semantics.",
+    "referenceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendChanged":  false,
+    "authority":  [
+                      "server_jump_history_get handler VA 0x14013E893",
+                      "server_jump_history_import handler VA 0x140153890",
+                      "server_jump_history_set handler VA 0x140154EF0",
+                      "profile runtime resolver VA 0x1402AE43C",
+                      "history normalizer VA 0x1402313E7",
+                      "app-setting read helper VA 0x14025593C",
+                      "app-setting write helper VA 0x140255E7B",
+                      "retained React frontend legacy migration flow"
+                  ],
+    "storage":  {
+                    "database":  "per-profile map-data.db",
+                    "table":  "app_settings",
+                    "key":  "serverJumpHistory",
+                    "readSql":  "SELECT value_json FROM app_settings WHERE key=?1",
+                    "writeSql":  "INSERT INTO app_settings(key,value_json,updated_at) VALUES (?1,?2,?3) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.updated_at",
+                    "oldRebuildLocalConfigOwner":  "no longer used by public history commands"
+                },
+    "normalization":  {
+                          "minimumServerId":  1,
+                          "maximumServerId":  99999,
+                          "dedupe":  "first-seen order",
+                          "maximumItems":  5,
+                          "invalidElements":  "ignored",
+                          "missingOrNonArrayHistory":  [
+
+                                                       ]
+                      },
+    "commands":  {
+                     "get":  {
+                                 "missingSetting":  [
+
+                                                    ],
+                                 "writesOnMissing":  false,
+                                 "result":  "normalized stored history"
+                             },
+                     "set":  {
+                                 "behavior":  "normalize payload history, upsert app setting, return normalized history"
+                             },
+                     "import":  {
+                                    "existingSetting":  "return existing history without overwrite",
+                                    "missingSetting":  "normalize supplied legacy history, persist, return"
+                                }
+                 },
+    "frontendMigration":  {
+                              "legacyKey":  "lastwar.serverJumpHistory",
+                              "removeLegacyKey":  "only after successful server_jump_history_import",
+                              "normalJumpMutation":  "new server first, remove duplicate old occurrence, cap to five, then server_jump_history_set"
+                          },
+    "errors":  {
+                   "missingBlankOrNonStringProfileId":  "PROFILE_ID_REQUIRED",
+                   "missingProfileRuntime":  "PROFILE_RUNTIME_UNAVAILABLE",
+                   "malformedStoredJson":  "INVALID_SETTING",
+                   "profileErrorMessageText":  "not claimed; stable native codes are proven"
+               },
+    "implementation":  [
+                           "src/LWBridge.Desktop/MapDataStore.cs",
+                           "src/LWBridge.Desktop/ServerJumpHistoryCommandService.cs",
+                           "src/LWBridge.Desktop/LWBridgeBackend.cs",
+                           "tests/LWBridge.Desktop.Checks/ServerJumpHistoryChecks.cs",
+                           "tests/LWBridge.Desktop.Checks/Program.cs"
+                       ],
+    "validationStatus":  {
+                             "desktopReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "checksReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "deterministicSuite":  "PASS ok=true failures=[] exitCode=0",
+                             "frontendChanged":  "NO",
+                             "frontendGeneratorCheck":  "PASS",
+                             "gitDiffCheck":  "PASS",
+                             "jsonSyntax":  "PASS",
+                             "stagedDiffCheck":  "PASS"
+                         },
+    "evidenceClassification":  {
+                                   "appSettingsSql":  "EXACT_NATIVE",
+                                   "normalization":  "EXACT_NATIVE",
+                                   "getSetImportSemantics":  "EXACT_NATIVE",
+                                   "profileErrorCodes":  "EXACT_NATIVE",
+                                   "frontendMigration":  "EXACT_BYTES_DERIVED",
+                                   "singleProfileRuntimeOwnerWiring":  "EQUIVALENT_REIMPLEMENTATION"
+                               },
+    "remainingBoundary":  {
+                              "legacyLocalConfigField":  "retained only for backward compatibility and not used by public history commands",
+                              "multiProfileRuntimeMap":  "full native multi-profile runtime ownership remains part of launcher lifecycle recovery",
+                              "profile_create":  "still fenced by license_capacity/profile limit behavior"
+                          },
+    "nextCheckpoint":  "Recover another complete retained-scope host/local contract without inventing entitlement or provider behavior."
+}

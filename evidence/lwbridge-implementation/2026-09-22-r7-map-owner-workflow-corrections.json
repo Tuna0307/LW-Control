@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R7-147",
+  "date": "2026-09-22",
+  "parentRevision": "91d07d04ada09b1cfd143c6171a0d45c19760828",
+  "scope": "Owner-reported Map Data workflow corrections 1-8 plus current-v20 Railway source/population verification",
+  "ownerFindings": [
+    {
+      "id": 1,
+      "finding": "scan data persisted across app sessions",
+      "status": "corrected",
+      "contract": "normal startup and teardown clear scan data; durable marks/settings/jobs preserved"
+    },
+    {
+      "id": 2,
+      "finding": "no All saved-server filter",
+      "status": "corrected",
+      "contract": "serverId=0 aggregates published rows/options across current-session saved servers"
+    },
+    {
+      "id": 3,
+      "finding": "Run now disabled when recurring Auto unchecked",
+      "status": "corrected",
+      "contract": "one-shot runOnceRequestedAt admission independent of recurring enabled flag"
+    },
+    {
+      "id": 4,
+      "finding": "cross-server result Jump did not enter row server first",
+      "status": "corrected",
+      "contract": "server_jump completes before coordinate Jump/Follow"
+    },
+    {
+      "id": 5,
+      "finding": "Clear failed after Auto and Auto lacked Clear",
+      "status": "corrected",
+      "contract": "stopped local-data Clear supports serverId=0; active scan still rejects Clear"
+    },
+    {
+      "id": 6,
+      "finding": "Doom Walker used Jump instead of Follow",
+      "status": "corrected",
+      "contract": "Follow for configType=8/configSpecial=11 ordinary Doom Walker and special=32 moving boss route"
+    },
+    {
+      "id": 7,
+      "finding": "Train scan produced no rows",
+      "status": "source_corrected_positive_population_unavailable",
+      "contract": "one official LWTrainDataManager TryGetTrainList(true) refresh after full-world coverage; merge allianceTrainList rows by exact march UUID"
+    },
+    {
+      "id": 8,
+      "finding": "Manual Scan exposed server filter despite scanning one live server",
+      "status": "corrected",
+      "contract": "Manual hides server selector; Auto/saved-data view owns All/saved-server browse"
+    }
+  ],
+  "railwayCurrentV20": {
+    "assemblyCSharpRdlSha256": "F8F12F40E16B1D839526A58B53BC4320EFA262906AF22D4EDBA29D9BA16857E1",
+    "trainType": {
+      "Truck": 1,
+      "Train": 2
+    },
+    "officialSource": "DataCenter.LWTrainDataManager.TryGetTrainList(true)+OnTrainListGet(allianceTrainList)",
+    "fullWorldControl2204": {
+      "coverage": "2500/2500",
+      "trainListState": "proven",
+      "refreshObserved": true,
+      "rows": 0,
+      "positiveRowAssertion": "not_satisfied_due_to_current_population",
+      "note": "cleanup return later observed game connection unavailable after the positive-row assertion; this does not alter the completed acquisition/list result"
+    },
+    "populationProbe": {
+      "originalServerId": 2212,
+      "servers": [
+        2175,
+        2180,
+        2185,
+        2190,
+        2195,
+        2196
+      ],
+      "observations": [
+        {
+          "serverId": 2175,
+          "state": "proven",
+          "rows": 0,
+          "followProven": false
+        },
+        {
+          "serverId": 2180,
+          "state": "proven",
+          "rows": 0,
+          "followProven": false
+        },
+        {
+          "serverId": 2185,
+          "state": "proven",
+          "rows": 0,
+          "followProven": false
+        },
+        {
+          "serverId": 2190,
+          "state": "proven",
+          "rows": 0,
+          "followProven": false
+        },
+        {
+          "serverId": 2195,
+          "state": "proven",
+          "rows": 0,
+          "followProven": false
+        },
+        {
+          "serverId": 2196,
+          "state": "proven",
+          "rows": 0,
+          "followProven": false
+        }
+      ],
+      "interpretation": "authoritative current empty population; not evidence that future Train population is impossible"
+    },
+    "historicalPositiveEvidence": "evidence/lwbridge-implementation/2026-09-20-r7-railway-positive-follow.json"
+  },
+  "installedPackage": {
+    "version": 20,
+    "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+    "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+    "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+  },
+  "safety": {
+    "readOnlyNavigationAndScanningOnly": true,
+    "claim": false,
+    "plunder": false,
+    "attack": false,
+    "messaging": false
+  },
+  "validationSummary": {
+    "dotnetDeterministic": "pass",
+    "luaTopLevelLocalGuard": "pass",
+    "frontendGeneratorCheck": "pass",
+    "ownerWorkflowBrowser": "pass",
+    "legacyCityExportRemoved": "pass",
+    "legacyScanStrategyAuto": "pass_after_contract_update",
+    "legacyR7131": "pass_after_manual_auto_filter_contract_update",
+    "legacyR7132": "pass_after_one_shot_ownership_contract_update",
+    "legacyR7136Restart": "pass",
+    "legacyFullFrontend": "pass_after_optional_option_family_hardening",
+    "normalProductionWindowSmoke": {
+      "ok": true,
+      "mode": "normal-production-services-with-passive-owner-evidence",
+      "executableSha256CleanWorktree": "C5B67351FB4AAFC5D6C708545B345214793FC27297F4286071FD26541819A262",
+      "overviewResponsive": true,
+      "mapDataResponsive": true,
+      "autoLaunchSuppressed": true,
+      "configSha256Unchanged": true,
+      "configBackupSha256Unchanged": true,
+      "finalProcesses": {
+        "desktop": 0,
+        "lastWar": 0,
+        "launcher": 0,
+        "helper": 0
+      }
+    }
+  },
+  "additionalValidationCorrection": {
+    "finding": "Generic full-frontend interaction sweep exposed Map tab crashes when optional name/reward option families were absent.",
+    "status": "corrected",
+    "contract": "Missing option-name/reward arrays normalize to empty arrays; Zombie Boss/Truck result tabs remain renderable under partial/empty option payloads."
+  }
+}

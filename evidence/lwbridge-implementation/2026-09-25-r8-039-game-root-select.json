@@ -1,0 +1,85 @@
+{
+    "schemaVersion":  1,
+    "checkpoint":  "LWB-R8-039",
+    "date":  "2026-09-25",
+    "scope":  "Restore game_root_select native result and persistence boundary.",
+    "referenceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendChanged":  false,
+    "authority":  [
+                      "game_root_select handler RVA 0x1437DB-0x144B76",
+                      "candidate normalizer RVA 0x333302-0x33365F",
+                      "public root validity predicate RVA 0x33383B-0x333A73",
+                      "root persistence helper RVA 0x333C6A-0x334007",
+                      "native INVALID_GAME_ROOT/error-message strings",
+                      "retained frontend game_root_select wrapper and canceled/valid consumers"
+                  ],
+    "contract":  {
+                     "resultFields":  [
+                                          "canceled",
+                                          "path",
+                                          "valid"
+                                      ],
+                     "cancel":  {
+                                    "canceled":  true,
+                                    "path":  null,
+                                    "valid":  false
+                                },
+                     "invalidSelection":  {
+                                              "canceled":  false,
+                                              "path":  "\u003cnormalized selected path\u003e",
+                                              "valid":  false,
+                                              "persisted":  false
+                                          },
+                     "validSelection":  {
+                                            "canceled":  false,
+                                            "path":  "\u003cnormalized selected path\u003e",
+                                            "valid":  true,
+                                            "persisted":  true
+                                        },
+                     "stateUnavailable":  {
+                                              "code":  "STATE_UNAVAILABLE",
+                                              "message":  "path state is unavailable"
+                                          },
+                     "invalidGameRoot":  {
+                                             "code":  "INVALID_GAME_ROOT",
+                                             "message":  "select the folder containing Game\\LastWar.exe"
+                                         }
+                 },
+    "implementation":  [
+                           "src/LWBridge.Desktop/GameInstallationService.cs",
+                           "src/LWBridge.Desktop/LWBridgeBackend.cs",
+                           "src/LWBridge.Desktop/LWBridgeWindow.cs",
+                           "tests/LWBridge.Desktop.Checks/GameRootSelectChecks.cs",
+                           "tests/LWBridge.Desktop.Checks/Program.cs"
+                       ],
+    "validationStatus":  {
+                             "desktopReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "checksReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "deterministicSuite":  "PASS ok=true failures=[] exitCode=0",
+                             "frontendChanged":  "NO",
+                             "frontendGeneratorCheck":  "PASS",
+                             "gitDiffCheck":  "PASS",
+                             "jsonSyntax":  "PASS",
+                             "stagedDiffCheck":  "PASS"
+                         },
+    "evidenceClassification":  {
+                                   "resultSchemaAndValues":  "EXACT_NATIVE",
+                                   "cancelSemantics":  "EXACT_NATIVE",
+                                   "normalizationAndValidity":  "EXACT_NATIVE",
+                                   "invalidSelectionNoSave":  "EXACT_NATIVE",
+                                   "validSelectionPersistenceTiming":  "EXACT_NATIVE",
+                                   "stateUnavailableError":  "EXACT_NATIVE",
+                                   "invalidGameRootError":  "EXACT_NATIVE",
+                                   "folderDialogImplementation":  "EQUIVALENT_REIMPLEMENTATION_WINFORMS_FOR_NATIVE_DIALOG_STACK",
+                                   "savedRootStorage":  "EQUIVALENT_REIMPLEMENTATION_LOCALCONFIG_FOR_NATIVE_GAME_ROOT_TXT",
+                                   "internalLaunchRebindValidation":  "REBUILD_SAFETY_LAYER_NOT_PUBLIC_NATIVE_SELECT"
+                               },
+    "remainingBoundary":  {
+                              "dialogPresentation":  "exact native folder-dialog title/layout is not claimed",
+                              "persistenceIoFailures":  "exact native storage I/O failure envelope is not separately claimed",
+                              "launcherLifecycle":  "full original launcher/proxy lifecycle remains incomplete",
+                              "appExitConfirm":  "managed proxy restoration remains fenced pending original proxy-backup ownership",
+                              "updater":  "update_check and update_download_and_open remain fenced pending complete updater recovery"
+                          },
+    "nextCheckpoint":  "Recover another complete retained host-side contract without inventing network, account, entitlement, or protected gameplay-provider behavior."
+}

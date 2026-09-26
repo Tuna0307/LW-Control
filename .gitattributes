@@ -1,0 +1,4 @@
+# Preserve recovered asset bytes and their SHA-256 provenance on Windows.
+evidence/lwbridge-0.3.1/frontend/** -text
+src/LWBridge.Desktop/WebUi/assets/** -text
+src/LWBridge.Desktop/WebUi/index.html -text

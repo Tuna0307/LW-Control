@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-035",
+  "status": "LIVE-PROVEN",
+  "recordedDate": "2026-09-18",
+  "scope": "Treasure ordinary Manual Start full-world acquisition/publication/reopen on the shared scanner, with recovered ordinary Treasure and Supplies row shapes",
+  "privacy": "aggregate-only; no player identity, UUID, coordinates, session/challenge identifiers, raw rows or databases retained",
+  "currentClient": {
+    "contentVersion": 19,
+    "versionMarker": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "compatible": true
+  },
+  "recoveredRowContract": {
+    "ordinaryTreasure": {
+      "pointType": 21,
+      "runtimeClassSuffix": "TreasurePointInfo",
+      "typeShape": "treasureType > 0 and suppliesType = 0",
+      "source": "WorldPointManager._pointInfos+TreasurePointInfo",
+      "sourceBackedFields": [
+        "uuid",
+        "pointId",
+        "server/world identity",
+        "tile coordinates",
+        "owner/alliance fields when present",
+        "event/type",
+        "timing/completion",
+        "rewardedCount",
+        "diggingCount",
+        "rewardMax",
+        "remainingBoxes"
+      ]
+    },
+    "supplies": {
+      "pointType": 27,
+      "runtimeClassSuffix": "WorldSuppliesPoint",
+      "typeShape": "treasureType = 0 and suppliesType > 0",
+      "configSource": "TableName.LWIceSupplies",
+      "source": "WorldPointManager._pointInfos+WorldSuppliesPoint+TableName.LWIceSupplies",
+      "sourceBackedFields": [
+        "uuid",
+        "pointId",
+        "server/world identity",
+        "tile coordinates",
+        "configId",
+        "suppliesType",
+        "state",
+        "user/reward counts",
+        "discoverer identity when present",
+        "work timing/state"
+      ]
+    },
+    "failurePolicy": "wrong type/runtime/config/type-dimension/identity/geometry/server/world data fails closed; no Treasure or Supplies row is synthesized"
+  },
+  "fullManualAcceptance": {
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 123.1499154,
+    "publishedTreasureCount": 1,
+    "reopenedTreasureCount": 1,
+    "ordinaryTreasureCount": 1,
+    "suppliesCount": 0,
+    "validIdentityCount": 1,
+    "validSourceCount": 1,
+    "ordinaryRewardedCountRows": 1,
+    "ordinaryDiggingCountRows": 1,
+    "ordinaryRewardMaxRows": 1,
+    "ordinaryRemainingBoxesRows": 1,
+    "suppliesStateRows": 0,
+    "suppliesRewardedCountRows": 0
+  },
+  "liveCoverageLimit": "The accepted live population contained one ordinary TreasurePointInfo row and zero WorldSuppliesPoint rows. Supplies acquisition is current-v19 source-recovered and deterministically covered, but a positive Supplies row is not claimed as live-proven by this finding.",
+  "validation": {
+    "releaseWarnings": 0,
+    "releaseErrors": 0,
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "gitDiffCheck": true,
+    "postRunGameRunning": false,
+    "postRunRecoveryJournalPresent": false,
+    "officialPackageRestored": true
+  },
+  "implementationFiles": [
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+    "tools/current_live_resource_probe.lua",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullTreasureProof.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "next": "Run mixed-selection and all-eight shared-scanner acceptance. Keep Ghost positive-row acceptance pending until a real type-29 row exists. Treasure refresh/status/claims remain a separate later backlog item."
+}

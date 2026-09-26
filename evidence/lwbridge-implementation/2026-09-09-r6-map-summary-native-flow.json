@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-025",
+  "scope": "Native map_summary server/count/scan-state data flow and fail-closed rebuild boundary",
+  "evidenceStatus": "RECOVERED static partial; IMPLEMENTATION POLICY/OFFLINE-TESTED fail-closed gate; optional run-scope producer UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "preferred-image virtual addresses from the verified PE"
+  },
+  "nativeFlow": {
+    "mapSummaryFutureVaRange": [
+      "0x0000000140151509",
+      "0x0000000140152388"
+    ],
+    "scanStateProducerVaRange": [
+      "0x00000001400F7F47",
+      "0x00000001400F9333"
+    ],
+    "countHelperVaRange": [
+      "0x0000000140271056",
+      "0x0000000140271864"
+    ],
+    "locators": {
+      "commandLiteral": "0x00000001401515AD",
+      "scanStateProducerCall": "0x0000000140151A26",
+      "serverIdFieldLookup": "0x0000000140151AFD",
+      "serverIdLookupCall": "0x0000000140151B0D",
+      "optionalScopeProducerCall": "0x0000000140151B26",
+      "countHelperCall": "0x0000000140151BC0",
+      "responseServerIdKey": "0x0000000140151C59",
+      "responseCountsKey": "0x0000000140151CD6",
+      "responseScanStateKey": "0x0000000140151D74"
+    },
+    "recovered": [
+      "map_summary first awaits the shared map-scan state producer before reading the server field or querying counts",
+      "the returned scan-state value is copied into an owned local value and later serialized under the response key scanState",
+      "the serverId field lookup result is held in rsi, passed as the count helper r8 argument at 0x140151BC0, and serialized as response serverId at 0x140151C76-0x140151C8D",
+      "the native response envelope assembled on the successful path has the three keys serverId, counts and scanState",
+      "the count helper prologue moves r8 to its server parameter and tests its optional run pointer/length inputs: absent pointer or length selects map_records with server_id=?1; both present select scan_records with server_id=?1 AND run_id=?2",
+      "map_summary passes the count helper optional run pointer/length from an internal value produced immediately after extracting scanState.serverId, so the public summary count source is controlled by backend state rather than a frontend runId"
+    ],
+    "unknownBlocked": [
+      "the exact semantic condition implemented by helper 0x140344F1D that produces the optional run scope",
+      "the exact scan-run identity source when the optional scope is present",
+      "complete null/error behavior when shared scan state or its serverId is unavailable beyond the separately recovered shared producer error vocabulary",
+      "production integration of the recovered shared scan-state producer and count source with the rebuilt host",
+      "live current-client validation"
+    ]
+  },
+  "sharedStateContext": {
+    "producer": "0x1400F7F47-0x1400F9333",
+    "observedMarkers": [
+      "getCurrentServerId",
+      "isInWorld",
+      "homeServerId",
+      "seasonServerIds"
+    ],
+    "knownErrorVocabulary": [
+      "SERVER_UNAVAILABLE / current server id unavailable",
+      "map scan state is unavailable"
+    ],
+    "limit": "these markers identify the shared state path used by map_summary; they do not by themselves establish the unresolved optional run-scope selector"
+  },
+  "frontendCrossCheck": {
+    "findings": [
+      "LWB-R6-004",
+      "LWB-R6-016"
+    ],
+    "result": "the recovered frontend consumes exactly serverId, counts and scanState; it stores scanState through the shared scan-state path and scopes count replacement by matching server identity"
+  },
+  "implementation": {
+    "classification": "IMPLEMENTATION POLICY",
+    "change": "the production rebuild no longer returns a synthetic successful map_summary object with serverId=0 and extra available/unavailableReason fields; it rejects with the existing MAP_INDEX_UNAVAILABLE gate until the native summary state is integrated",
+    "previewBoundary": "the explicit preview fixture remains synthetic and keeps the recovered three-field envelope for visual/offline rendering",
+    "publicCapability": "no new live/public map capability is enabled by this checkpoint"
+  },
+  "reproduction": [
+    "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x151509",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x0F7F47",
+    "python tools\\inspect_lwbridge_map_scan.py ..\\LW\\lwbridge-0.3.1.exe --dump-rva 0x271056",
+    "python tools\\inspect_lwbridge_map_frontend_consumers.py evidence\\lwbridge-0.3.1\\frontend --json",
+    "python tools\\inspect_lwbridge_map_count_consumers.py evidence\\lwbridge-0.3.1\\frontend --json",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+  ],
+  "environmentRestrictions": [
+    "SB-17: a fresh bounded dump request for helpers 0x140345030, 0x140344F1D and 0x1400FF37C was rejected by automatic safety review because it could not determine the operation's safety status; it was not retried or rerouted",
+    "SB-18: a later PowerShell range-read of the already generated map_summary disassembly scratch text was rejected by the same automatic review; it was not retried or rerouted and contributed no finding",
+    "SB-19: a combined scratch-cleanup/JSON/help/diff validation command was rejected by the outer execution policy before it ran; validation was split into narrower permitted commands and the denied combined command contributed no finding"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "validation": "hash-locked bounded native disassembly plus existing hash-locked frontend consumer evidence; JSON metadata parses; both frontend consumer inspectors pass; git diff --check passes; Release build succeeds with zero warnings/errors; deterministic backend suite returns ok=true with profileRouting, persistence, requestLifetime, mapPersistence and mapContract all true",
+    "limit": "the response/server/count flow is recovered, but the optional run-scope producer is not. Enabling a summary against either persisted or staging rows would therefore invent the original selector."
+  },
+  "implementationImpact": {
+    "files": [
+      "src/LWBridge.Desktop/LWBridgeBackend.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "backlog": "narrows DB-05 summary-server/scan-state work and removes a synthetic production success path while leaving the unrecovered selector gated",
+    "nextMethod": "continue with readable/saved caller evidence or a supported active-scan observation target if one becomes available; do not replay SB-17/SB-18"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "findingId": "LWB-R7-082",
+  "status": "RECOVERED/INTERNAL_EXECUTOR_OFFLINE_TESTED",
+  "date": "2026-09-20",
+  "baseCommit": "95976eacbb3a3a62ddabed8fd325a0f1803305cc",
+  "scope": "Original Dispatch post-arm/result semantics plus an internal current-v19 session-correlated DispatchSteal executor. Public scheduling and live plunder remain blocked.",
+  "originalAuthority": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "inspector": "tools/inspect_lwbridge_dispatch_result.py",
+    "inspectorResult": "PASS",
+    "workerRva": "0xF04EC-0xF1C9E",
+    "resultHandlerRva": "0x33DAAB-0x33EAE3",
+    "connectionPredicateRva": "0x3CF086-0x3CF0E7",
+    "eventType": "map.dispatch-plunder-result",
+    "eventPayloadFields": [
+      "serverId",
+      "taskUuid",
+      "success",
+      "errorCode",
+      "serverDayStartAt"
+    ],
+    "resultIdentity": "(serverId, taskUuid)",
+    "successStatus": "succeeded",
+    "failureStatus": "failed",
+    "pendingResultDeadline": "max(now, executeAt) + 30000ms",
+    "armHostTimeoutMilliseconds": 5000,
+    "preArmDisconnected": "waiting_connection / DISPATCH_PLUNDER_GAME_DISCONNECTED",
+    "armFailureConnected": "failed / preserve arm error",
+    "armFailureDisconnected": "waiting_connection / preserve arm error",
+    "dailyLimitAfterResult": "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED stops remaining scheduled/waiting jobs",
+    "serverDayStartAt": "optional positive value prunes old Dispatch plunder history",
+    "changeEvent": "bridge://dispatch-plunder-changed",
+    "knownErrorFamily": [
+      "DISPATCH_PLUNDER_INVALID_TARGET",
+      "DISPATCH_PLUNDER_REQUEST_PENDING",
+      "DISPATCH_PLUNDER_MANAGER_UNAVAILABLE",
+      "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED",
+      "DISPATCH_PLUNDER_CROSS_SERVER_UNAVAILABLE",
+      "DISPATCH_PLUNDER_RESPONSE_TIMEOUT",
+      "DISPATCH_PLUNDER_INVALID_SCHEDULE",
+      "DISPATCH_PLUNDER_ALREADY_ARMED",
+      "DISPATCH_PLUNDER_SEND_FAILED",
+      "DISPATCH_PLUNDER_SERVER_REJECTED"
+    ]
+  },
+  "currentV19Authority": {
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "inspector": "tools/inspect_current_dispatch_plunder_sources.py",
+    "inspectorResult": "PASS",
+    "dispatcher": {
+      "MsgDefines.DispatchSteal": "hero.dispatch.steal",
+      "MsgMap.DispatchSteal": "Net.Msgs.DispatchTask.DispatchStealMessage",
+      "messageClass": "module-returned class table",
+      "hook": "temporary wrapper around HandleMessage which always calls the original handler unchanged"
+    },
+    "wireRequest": "SFSNetwork.SendMessage(MsgDefines.DispatchSteal, uuid, targetServer)",
+    "wireIdentity": "task UUID retained as decimal text in the host protocol, then parsed through CS.System.Int64.Parse; Lua tonumber is not used for the 64-bit task UUID",
+    "preSendRechecks": [
+      "authoritative UITimeManager.GetServerTime() >= executeAt",
+      "ActDispatchTaskDataManager.GetTodayStealNum() < GetDispatchSetting('steal_count')",
+      "cross-server target requires ActDispatchTaskDataManager.IsOpenCrossSteal()"
+    ],
+    "responseCorrelation": "matching DispatchStealMessage.HandleMessage message.uuid only",
+    "serverError": "message.errorCode; numeric/unrecognized values remain DISPATCH_PLUNDER_SERVER_REJECTED: <detail>"
+  },
+  "implementation": {
+    "luaBridge": "tools/current_overview_bridge.lua",
+    "host": "src/LWBridge.Desktop/CurrentClientMapBlockSource.WorldReady.cs",
+    "commandPath": "dispatch-plunder.txt",
+    "resultPath": "dispatch-plunder-result.json",
+    "states": [
+      "armed",
+      "proven",
+      "rejected",
+      "failed",
+      "ambiguous"
+    ],
+    "armLeadMaximumMilliseconds": 10000,
+    "hostArmAcknowledgementMilliseconds": 5000,
+    "bridgeResultDeadlineMilliseconds": 30000,
+    "hostTerminalEnvelopeSeconds": 50,
+    "singleSend": true,
+    "postSendTimeout": "ambiguous/non-retryable",
+    "sessionLossCleanup": "temporary HandleMessage hook restored and pending request abandoned",
+    "publicScheduleRoute": "ABSENT/BLOCKED"
+  },
+  "deterministicCoverage": {
+    "exactLargeTaskUuidText": true,
+    "executeAtAndTargetServer": true,
+    "authoritativeSuccess": true,
+    "numericServerRejectionNormalization": true,
+    "namedRecoveredErrorNormalization": true,
+    "ambiguousPostSendNoRetry": true,
+    "foreignSessionResultRejected": true,
+    "luaSourceContract": true,
+    "topLevelLuaLocalLimit": true
+  },
+  "validation": {
+    "currentV19Inspector": "PASS",
+    "originalResultInspector": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "standaloneLuaParserAvailable": false,
+    "luaLiveBootProof": "NOT_RUN",
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "actionBoundary": {
+    "map_dispatch_plunder_cancel": "IMPLEMENTED/OFFLINE-TESTED local scheduler mutation",
+    "map_dispatch_plunder_schedule": "BLOCKED/COMMAND_NOT_IMPLEMENTED",
+    "internalCurrentV19Executor": "IMPLEMENTED/OFFLINE-TESTED; not live-executed",
+    "durableDispatchWorker": "NOT YET WIRED",
+    "liveDispatchPlunder": "NOT_RUN"
+  },
+  "safety": "No Dispatch steal/plunder, Truck robbery, Treasure claim, message/share, consumable, collection, or other state-changing gameplay action was executed."
+}

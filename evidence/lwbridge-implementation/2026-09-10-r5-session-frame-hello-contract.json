@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "findingId": "LWB-R5-007",
+  "date": "2026-09-10",
+  "scope": "minimum original control-pipe frame, secure-proxy hello schema, endpoint roles, and host handshake/error boundary",
+  "evidenceLabels": {
+    "frameAndProxyHello": "RECOVERED",
+    "rebuildCodecAndParser": "IMPLEMENTED/OFFLINE-TESTED",
+    "helloAckHeartbeatAndRequestResult": "UNKNOWN/BLOCKED"
+  },
+  "source": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "hostSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "secureProxyRawOffset": "0x987374",
+    "secureProxySize": 612352,
+    "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "secureProxyImageBase": "0x180000000"
+  },
+  "hello": {
+    "functionRva": [
+      "0x97B0",
+      "0xA55F"
+    ],
+    "fragments": {
+      "buildId": {
+        "raw": "0x6F308",
+        "text": ",\"buildId\":"
+      },
+      "pid": {
+        "raw": "0x6F318",
+        "text": ",\"pid\":"
+      },
+      "payloadToken": {
+        "raw": "0x6F320",
+        "text": ",\"payload\":{\"token\":"
+      },
+      "requestTimestamp": {
+        "raw": "0x6F338",
+        "text": ",\"requestId\":\"\",\"timestamp\":"
+      },
+      "instanceId": {
+        "raw": "0x6F358",
+        "text": ",\"instanceId\":"
+      },
+      "prefix": {
+        "raw": "0x6F368",
+        "text": "{\"version\":1,\"type\":\"hello\",\"profileId\":"
+      }
+    },
+    "xrefs": {
+      "prefix": "0x9A2E",
+      "instanceId": "0x9B2D",
+      "requestTimestamp": "0x9BD8",
+      "payloadToken": "0x9C85",
+      "pid": "0x9D2E",
+      "buildId": "0x9DDB"
+    },
+    "shape": {
+      "version": 1,
+      "type": "hello",
+      "requestId": "",
+      "topLevelFields": [
+        "version",
+        "type",
+        "profileId",
+        "instanceId",
+        "requestId",
+        "timestamp",
+        "payload"
+      ],
+      "payloadFields": [
+        "token",
+        "pid",
+        "buildId"
+      ]
+    }
+  },
+  "frame": {
+    "functionRva": [
+      "0xAD60",
+      "0xB293"
+    ],
+    "lengthPrefixBytes": 4,
+    "byteOrder": "little-endian",
+    "payloadLengthMin": 1,
+    "payloadLengthMax": 8388608,
+    "completeFrameBytes": "payloadLength + 4",
+    "incompletePollMs": 5,
+    "instructions": {
+      "0xB000": "call qword ptr [rip + 0x6412a]",
+      "0xB00A": "cmp dword ptr [rsp + 0x34], 4",
+      "0xB011": "movzx eax, byte ptr [rsp + 0x33]",
+      "0xB016": "shl rax, 8",
+      "0xB01A": "movzx ecx, byte ptr [rsp + 0x32]",
+      "0xB022": "shl rax, 8",
+      "0xB026": "movzx ecx, byte ptr [rsp + 0x31]",
+      "0xB02E": "shl rax, 8",
+      "0xB032": "movzx ecx, byte ptr [rsp + 0x30]",
+      "0xB03A": "lea rcx, [rax - 1]",
+      "0xB03E": "cmp rcx, 0x7fffff",
+      "0xB047": "lea rcx, [rax + 4]",
+      "0xB054": "mov ecx, 5"
+    }
+  },
+  "endpointRoles": {
+    "proxyImports": [
+      "CreateFileW",
+      "ReadFile",
+      "WriteFile",
+      "PeekNamedPipe"
+    ],
+    "hostImports": [
+      "CreateNamedPipeW",
+      "ConnectNamedPipe",
+      "ReadFile",
+      "WriteFile",
+      "GetNamedPipeClientProcessId"
+    ],
+    "interpretation": "original host is the named-pipe server; xLua proxy opens the pipe as the client"
+  },
+  "hostMarkers": {
+    "src\\services\\bridge_pipe.rs": "0x824458",
+    "/payload/token": "0x8244A8",
+    "/payload/pid": "0x8244B6",
+    "/payload/buildId": "0x8244C2",
+    "PIPE_HANDSHAKE_REJECTED": "0x824554",
+    "hello.ack": "0x824590",
+    "PIPE_DISCONNECTED": "0x8245B9",
+    "PIPE_HANDSHAKE_TIMEOUT": "0x824638",
+    "PIPE_CONNECT_FAILED": "0x82468B",
+    "PIPE_WRITE_FAILED": "0x824718",
+    "src\\services\\bridge_store.rs": "0x824748",
+    "BRIDGE_STOPPED": "0x8247B0",
+    "bridge result channel closed": "0x8247BE",
+    "LUA_CALL_TIMEOUT": "0x824804"
+  },
+  "hostMetadata": {
+    "helloAckStringDescriptor": {
+      "raw": "0x8245A0",
+      "pointer": "0x140825190",
+      "length": 9,
+      "stringRaw": "0x824590"
+    },
+    "limit": "the string descriptor proves the exact type literal but not the surrounding hello.ack JSON/object serialization"
+  },
+  "reproduction": {
+    "tool": "Python 3.12.10 + pefile 2024.8.26 + capstone 5.0.6",
+    "command": "python tools\\inspect_lwbridge_control_pipe_protocol.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-10-r5-session-frame-hello-contract.json",
+    "method": "hash-gate host, extract embedded secure proxy at raw 0x987374/612352 bytes, hash-gate proxy, verify exact hello literals/xrefs and fixed frame instructions, then verify host/proxy import roles and bridge-pipe marker cluster"
+  },
+  "validationAndLimits": {
+    "staticOnly": true,
+    "liveProven": false,
+    "implemented": [
+      "src/LWBridge.Desktop/LWBridgeControlPipeProtocol.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "implementationPolicy": "MatchesExpectedIdentity compares the recovered profileId/instanceId/token/buildId identity tuple only; it does not claim the original hello.ack or readiness algorithm."
+  },
+  "implementationImpact": {
+    "enabled": "rebuild can encode/decode the recovered frame and parse/identity-check a proxy hello without claiming readiness",
+    "notEnabled": "no production INativeAsyncCommandService, hello.ack writer, heartbeat-ready transition, command request/result correlation, or map_scan_start",
+    "nextExactGap": "recover the host-to-proxy post-hello acknowledgement/readiness contract and command/result envelope sufficient for one correlated current-client request"
+  },
+  "limits": [
+    "hello.ack output field/value serialization is not recovered",
+    "heartbeat freshness/readiness timing is not recovered",
+    "host-to-proxy command envelope and result correlation grammar are not recovered",
+    "this is static recovery, not a live connected-session result"
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-109",
+  "date": "2026-09-21",
+  "status": "RECOVERED-LISTENER-OWNERSHIP/REGISTER-LAUNCH-ORDER/FAILURE-UNREGISTER/OFFLINE-TESTED",
+  "title": "Recover original bridge listener ownership and profile-start registration cleanup",
+  "branch": "research/offline-controller",
+  "parentRevision": "9274b3c69dae5f30f1831cf99bf87da51f40ded7",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Pins the original host-global shared listener owner, ordinary profile_instance_start launch future, startup registration before LaunchEnvelope handoff, 90-second pending refresh during launch progression, and explicit unregister cleanup on post-registration launch cleanup paths.",
+    "staticOnly": true,
+    "officialGameLaunchedByThisCheckpoint": false,
+    "productionNamedPipeListenerImplemented": false,
+    "productionCallLuaEnabled": false,
+    "pendingCallCollectionImplemented": false
+  },
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "listenerOwnership": {
+    "applicationStartupFunction": "RVA 0x40F546",
+    "hostConstructorCall": "RVA 0x4100B5 -> 0x3C30BE",
+    "meaning": "The application startup path constructs the recovered bridge host. R7-098/R7-100 established that this host constructor derives the per-user pipe identity and starts the shared asynchronous accept loop, so listener ownership is host-global rather than per profile launch."
+  },
+  "ordinaryProfileStart": {
+    "command": "profile_instance_start",
+    "commandNameXref": "RVA 0x1FF23B inside 0x1FF192",
+    "wrapperFunction": "RVA 0x1FF192",
+    "launchPollCall": "RVA 0x1FF83B -> 0x1D3F1B",
+    "launchPollFunction": "RVA 0x1D3F1B-0x1DCAD1"
+  },
+  "ordering": {
+    "startupRegistration": "RVA 0x1D7C94 -> 0x3CCA38",
+    "launchEnvelopeCloneSource": "RVA 0x1DB119 reads state +0x730",
+    "launchEnvelopeClone": "RVA 0x1DB12B -> 0x02A2C0",
+    "conclusion": "The startup registration is established before the later recovered LaunchEnvelope handoff into the profile-launch task.",
+    "asyncCaveat": "The profile launch function is an async state-machine poll, so raw address ordering alone was not used as proof; the recovered branch/state flow and nested futures were inspected."
+  },
+  "pendingRegistrationRefresh": {
+    "clock": "RVA 0x1DC033 -> 0x23F1C0",
+    "deadlineAdjustment": "RVA 0x1DC038 adds 0x15F90 = 90000 ms",
+    "instanceIdSlice": "state +0x390/+0x398 at RVA 0x1DC04C/0x1DC057",
+    "refreshCall": "RVA 0x1DC071 -> 0x3C2F0C",
+    "meaning": "While startup progresses, the same pending registration receives a new current-clock-plus-90-second deadline."
+  },
+  "expiryCorrection": {
+    "finding": "Registration deadline expiry rejects a first handshake but does not delete the retained pending registration.",
+    "consequence": "An expired unclaimed instance key still rejects duplicate Register until explicit Unregister releases it.",
+    "test": "OverviewBridgeRegistryChecks now pins expired-retention, duplicate-after-expiry, and explicit-unregister release behavior.",
+    "supersedesInference": "Do not model failed pre-handshake launch cleanup as passive expiry."
+  },
+  "launchFailureCleanup": {
+    "firstCleanupFuture": "RVA 0x1D311F",
+    "outerCleanupAwaitExample": "RVA 0x1D7D99 -> 0x1D311F",
+    "instanceIdSlice": "RVA 0x1D31FB/0x1D31FF",
+    "firstUnregisterCall": "RVA 0x1D3203 -> 0x3CC8B3",
+    "laterCleanupFuture": "RVA 0x1D337A",
+    "laterUnregisterCall": "RVA 0x1D393C -> 0x3CC8B3",
+    "wrapperToCore": "RVA 0x3CC8D2 -> 0x3C2436",
+    "meaning": "Post-registration launch cleanup explicitly unregisters the instance instead of relying on deadline expiry."
+  },
+  "separateReconcilePath": {
+    "call": "RVA 0x203922 -> 0x3CC8B3",
+    "owner": "profile_instances_reconcile at RVA 0x2022FA",
+    "boundary": "This call is not used as evidence for ordinary profile_instance_start cleanup."
+  },
+  "implementation": {
+    "contractFile": "src/LWBridge.Desktop/LWBridgeControlPipeStartupContract.cs",
+    "testFile": "tests/LWBridge.Desktop.Checks/OverviewBridgeStartupContractChecks.cs",
+    "inspector": "tools/inspect_lwbridge_listener_launch_order.py",
+    "productionIntegration": false,
+    "productionNamedPipeListenerImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": "null"
+  },
+  "tests": {
+    "startupFocusedCli": "--overview-bridge-startup-contract-check",
+    "startupFocusedResult": "PASS",
+    "registryFocusedCli": "--overview-bridge-registry-check",
+    "registryFocusedResult": "PASS",
+    "hashLockedInspector": "PASS"
+  },
+  "remainingBlocker": "Implement source-backed host-owned listener lifetime and real outbound RPC transport, then recover pending-call add/correlate/timeout/shutdown ownership before enabling the narrow call_lua(getStatus) path or exposing non-null get_status.pending.",
+  "safety": {
+    "gameLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

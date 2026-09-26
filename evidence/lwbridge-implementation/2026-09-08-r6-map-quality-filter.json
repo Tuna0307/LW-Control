@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-013",
+  "scope": "Map Data ordinary quality selector mapping and truck UR exclusion",
+  "evidenceStatus": "RECOVERED static",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "raw PE file offsets and preferred-image virtual addresses"
+  },
+  "locators": {
+    "mapSearchFunctionVaRange": [
+      "0x0000000140271864",
+      "0x0000000140276D7B"
+    ],
+    "qualityFieldFileOffset": "0x00C89E59",
+    "qualityFieldXrefVa": "0x0000000140273E02",
+    "qualityHelperVaRange": [
+      "0x000000014027A129",
+      "0x000000014027A1E3"
+    ],
+    "truckUrGuardXrefVa": "0x0000000140274093",
+    "specialUrGuardFileOffset": "0x00C89E60"
+  },
+  "result": {
+    "frontendStringSelectors": {
+      "n": {
+        "predicate": "quality = ?",
+        "parameter": 1
+      },
+      "r": {
+        "predicate": "quality = ?",
+        "parameter": 2
+      },
+      "sr": {
+        "predicate": "quality = ?",
+        "parameter": 3
+      },
+      "ssr": {
+        "predicate": "quality = ?",
+        "parameter": 4
+      },
+      "ur": {
+        "predicate": "quality >= 5",
+        "parameter": null
+      }
+    },
+    "truckUrAdditionalPredicate": "COALESCE(CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER),0) = 0",
+    "truckUrMeaning": "ordinary truck UR excludes rows with nonzero isSpecialURQuality",
+    "numericBackendBranch": "the original backend also accepts a numeric quality value and binds equality, but the recovered frontend emits selector strings"
+  },
+  "analysisTools": {
+    "capstone": {
+      "version": "5.0.6",
+      "package": "PyPI capstone==5.0.6"
+    },
+    "pefile": {
+      "version": "2024.8.26",
+      "package": "PyPI pefile==2024.8.26"
+    }
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_map_quality.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  ],
+  "validationAndLimits": {
+    "validation": "verified binary hash, selector comparisons, helper parameter binding, literal UR SQL and truck+UR guard xref",
+    "liveProven": false,
+    "limits": "no live query or ingestion proof; production implementation should expose the recovered frontend string forms and keep unrelated DB-05 filters gated"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-010",
+  "scope": "Map Data quality selector kind gates and correction of railway reindeerOnly overreach",
+  "frontendReference": {
+    "path": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "coordinateSystem": "UTF-8 JavaScript character offset"
+  },
+  "locators": {
+    "qualityKinds": 5977,
+    "qualityDisplayMapping": 9155,
+    "specialOnlyBuilder": 37243,
+    "reindeerOnlyBuilder": 37279,
+    "qualitySelect": 52301,
+    "reindeerOption": 52723
+  },
+  "recovered": {
+    "qualityKinds": ["truck", "railway", "dispatch", "ghost"],
+    "ordinaryValues": ["n", "r", "sr", "ssr", "ur"],
+    "displayMapping": {
+      "1": "N",
+      "2": "R",
+      "3": "SR",
+      "4": "SSR",
+      ">=5": "UR"
+    },
+    "specialOnlyVisibleKinds": ["dispatch", "ghost"],
+    "reindeerOnlyVisibleKinds": ["truck"],
+    "reindeerPredicateFromLWB-R6-006": "CAST(json_extract(data_json,'$.isSpecialURQuality') AS INTEGER) = 1"
+  },
+  "implementation": {
+    "status": "IMPLEMENTED/OFFLINE-TESTED",
+    "files": [
+      "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "change": "railway reindeerOnly is rejected as MAP_QUERY_UNRECOVERED; truck reindeerOnly remains supported"
+  },
+  "blocked": [
+    "exact ordinary-quality backend predicate and string-to-number binding",
+    "whether ur means equality to one numeric value or a >=5 range"
+  ],
+  "validation": {
+    "status": "RECOVERED static plus IMPLEMENTED/OFFLINE-TESTED",
+    "liveProven": false
+  }
+}

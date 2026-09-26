@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-042",
+  "date": "2026-09-26",
+  "scope": "Restore profile_instance_status native null-or-record projection, active connection-state classification and retained single-profile profile/runtime errors without changing launch/stop/reconcile process control.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "profile_instance_status handler 0x1401662AD-0x140167645",
+    "selected-profile resolver 0x1402AE43C-0x1402AE4E6",
+    "runtime resolver 0x14041C8AB-0x14041CBB1",
+    "instance-record provider 0x14041CBB1-0x14041D722",
+    "optional-record clone 0x14038118D-0x14038128E",
+    "base-record serializer 0x14041DB57",
+    "connection-state classifier 0x1403D28C3-0x1403D2A01",
+    "bridge supplement provider 0x1403CEA9A",
+    "Unix-millisecond clock helper 0x14023F1C0",
+    "identity-confirm transition around 0x1404183B3",
+    "lease-required setter 0x14041BAA4-0x14041BC3F",
+    "lease-active predicate 0x140408F2C"
+  ],
+  "contract": {
+    "noInstanceResult": null,
+    "resultFields": [
+      "profileId",
+      "instanceId",
+      "phase",
+      "pid",
+      "startedAt",
+      "lastError",
+      "identityConfirmed",
+      "leaseRequired",
+      "connectionState",
+      "bridgeConnected",
+      "lastHeartbeatAt",
+      "leaseActive"
+    ],
+    "activeFieldTypes": {
+      "profileId": "string",
+      "instanceId": "string",
+      "phase": "string",
+      "pid": "integer|null",
+      "startedAt": "integer Unix milliseconds",
+      "lastError": "string|null",
+      "identityConfirmed": "boolean",
+      "leaseRequired": "boolean",
+      "connectionState": "string",
+      "bridgeConnected": "boolean",
+      "lastHeartbeatAt": "integer|null",
+      "leaseActive": "boolean"
+    },
+    "phases": [
+      "starting",
+      "awaitingIdentity",
+      "running",
+      "recovering",
+      "error"
+    ],
+    "connectionState": {
+      "lastError": "error",
+      "starting": "starting",
+      "recovering": "recovering",
+      "awaitingIdentity": "awaitingLogin",
+      "retainedOrdinaryConnected": "bridgeConnected && heartbeatFresh && identityConfirmed",
+      "retainedOrdinaryFallback": "reconnecting",
+      "heartbeatFreshness": "lastHeartbeatAt > 0 && nowMs - lastHeartbeatAt < 15001"
+    },
+    "retainedLeaseState": {
+      "leaseRequired": false,
+      "leaseActive": false,
+      "reason": "native fields belong to excluded multi-entitlement leasing; retained single-profile path does not require a multi lease"
+    },
+    "errors": [
+      "PROFILE_ID_REQUIRED",
+      "PROFILE_RUNTIME_UNAVAILABLE",
+      "STATE_UNAVAILABLE"
+    ],
+    "errorProse": "not independently claimed beyond stable codes"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs",
+    "src/LWBridge.Desktop/OverviewLifecycleProfileInstanceStatus.cs",
+    "tests/LWBridge.Desktop.Checks/OverviewLaunchSpamChecks.cs",
+    "tests/LWBridge.Desktop.Checks/OverviewProcessOwnershipChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "nullWhenNoInstance": "EXACT_NATIVE",
+    "publicFieldOrder": "EXACT_NATIVE",
+    "scalarAndNullableJsonSemantics": "EXACT_NATIVE",
+    "startedAtUnixMilliseconds": "EXACT_NATIVE",
+    "phaseVocabulary": "EXACT_NATIVE",
+    "retainedConnectionStateClassifier": "EXACT_NATIVE",
+    "bridgeConnectedSemantics": "EXACT_NATIVE",
+    "lastHeartbeatAtSemantics": "EXACT_NATIVE",
+    "profileAndRuntimeErrorCodes": "EXACT_NATIVE",
+    "publicErrorProse": "UNKNOWN",
+    "bridgeRegistryAndHeartbeatPlumbing": "EQUIVALENT_REIMPLEMENTATION",
+    "retainedSingleProfileLeaseFlags": "EXACT_NATIVE",
+    "multiEntitlementLeaseLifecycle": "EXCLUDED",
+    "startStopReconcileProcessControl": "OUT_OF_SCOPE_UNCHANGED"
+  },
+  "remainingBoundary": {
+    "profileInstanceStartStopReturnObjects": "existing rebuild-internal lifecycle projection remains outside this checkpoint",
+    "nativeCrossRestartInstanceAdoption": "not claimed fully identical; existing rebuild recovery/adoption plumbing remains separate",
+    "launcherProxyMutationLifecycle": "still incomplete",
+    "multiEntitlementLeaseLifecycle": "excluded by owner scope",
+    "protectedPackageKeyLane": "untouched",
+    "remainingProfileRegistryMutations": "enable/create/delete still incomplete or fenced"
+  },
+  "nextCheckpoint": "Continue retained host/profile recovery from the next evidence-closed command; do not fake entitlement-backed capacity or cross protected auth/package boundaries."
+}

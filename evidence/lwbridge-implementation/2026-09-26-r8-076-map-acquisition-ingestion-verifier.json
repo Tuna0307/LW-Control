@@ -1,0 +1,43 @@
+{
+  "commonMapEventHandler": "0x14033FFA1-0x140341913",
+  "eventCompilerMarkers": {
+    "map.native.capture": [
+      "0x833640"
+    ],
+    "map.records": [
+      "packed compare at RVA 0x340083-0x3400AB"
+    ],
+    "map.scan.complete": [
+      "0xC96380"
+    ]
+  },
+  "mapRecordsHandler": "0x140341FCC-0x140342926",
+  "nativeCapturePublishedHelper": "0x1402574CD-0x1402577E2",
+  "normalizedRecordBuilder": "0x1402785BA-0x1402793BE",
+  "scanRecordBatchHelper": "0x14025F01D-0x14025F5C8",
+  "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "sharedUpsert": "0x14027A1E3-0x14027AA73",
+  "verifiedCalls": {
+    "0x2575A8": "0x2785BA",
+    "0x25767E": "0x27A1E3",
+    "0x25F2D1": "0x2785BA",
+    "0x25F368": "0x27A1E3",
+    "0x3400C1": "0x341FCC",
+    "0x3406D8": "0x2574CD",
+    "0x342330": "0x25F01D"
+  },
+  "verifiedFieldXrefs": {
+    "0x34204D": "scanRunId",
+    "0x34211F": "selectedTypes",
+    "0x3421D4": "serverId",
+    "0x3421FB": "tileWidth",
+    "0x342215": "tileHeight",
+    "0x34223F": "records",
+    "0x342440": "type",
+    "0x342594": "payload"
+  },
+  "verifiedTableXrefs": {
+    "0x257666": "map_records",
+    "0x25F361": "scan_records"
+  }
+}

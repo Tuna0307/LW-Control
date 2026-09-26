@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-076",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "scope": "Recover original host-side Map acquisition event ingestion and separate direct-scan staging from passive native-capture publication.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "classification": "PARTIAL_EXACT_CONTRACT",
+  "existingAuthorityRetained": {
+    "blockGeometry": "ceil(tileWidth/20) * ceil(tileHeight/20) from R6-052",
+    "normalizedRecordBuilder": "0x1402785BA-0x1402793BE",
+    "sharedUpsert": "0x14027A1E3-0x14027AA73",
+    "recordIdentity": "R6-049",
+    "normalizedScalars": "R6-051",
+    "completionSafety": "R6-055",
+    "publicationOwnership": "R6-058"
+  },
+  "protectedStart": {
+    "worker": "0x1400F9333-0x1400FB8D8",
+    "totalBlocks": "ceil(tileWidth / 20) * ceil(tileHeight / 20)",
+    "provider": "startMapScan",
+    "requestFields": [
+      "scanRunId",
+      "serverId",
+      "worldId",
+      "scanMode",
+      "concurrency",
+      "selectedTypes",
+      "tileWidth",
+      "tileHeight"
+    ],
+    "timeoutMs": 5000,
+    "responseFields": ["accepted", "totalBlocks", "error"],
+    "acceptanceFailureMessage": "map scan was not accepted",
+    "responseTotalBlocksCheck": "provider totalBlocks must equal host-computed totalBlocks before native capture readiness is published",
+    "nativeCaptureReadyTransition": "false before protected acceptance; true only after accepted startMapScan response"
+  },
+  "hostEventTopology": {
+    "commonHandler": "0x14033FFA1-0x140341913",
+    "soleDirectCaller": "0x1402ADF8C in 0x1402ADE92-0x1402AE2DF",
+    "exactEventTypes": [
+      "map.records",
+      "map.scan.diagnostic",
+      "map.native.capture",
+      "map.scan.progress",
+      "map.scan.complete",
+      "map.scan.error"
+    ],
+    "outerFields": ["type", "payload"]
+  },
+  "directScanRecords": {
+    "eventType": "map.records",
+    "handler": "0x140341FCC-0x140342926",
+    "eventFields": ["scanRunId", "records"],
+    "scanStateFieldsRead": ["selectedTypes", "serverId", "tileWidth", "tileHeight"],
+    "recordEntryFields": ["type", "payload"],
+    "typeAdmission": "original eight Map kinds plus current selectedTypes membership",
+    "payloadContextAugmentation": ["serverId", "tileWidth", "tileHeight"],
+    "stageHelper": "0x14025F01D-0x14025F5C8",
+    "stageHelperDiagnostics": ["begin scan record batch", "commit scan record batch"],
+    "normalizedBuilderCall": "0x14025F2D1 -> 0x1402785BA",
+    "scanRecordsUpsertCall": "0x14025F368 -> 0x14027A1E3",
+    "tableSelector": "scan_records",
+    "runIdOwnership": "map.records payload scanRunId is carried to scan_records run_id",
+    "postStageCounters": ["record batch count", "accumulated record count", "max record batch size"]
+  },
+  "scanRecordsSql": "INSERT INTO scan_records(run_id,kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)",
+  "builderSignature": {
+    "function": "0x1402785BA-0x1402793BE",
+    "kind": "string pointer + length",
+    "rawRecord": "JSON object",
+    "existingRules": "R6-049/R6-051 remain authoritative"
+  },
+  "nativeCapturePublishedPath": {
+    "eventType": "map.native.capture",
+    "helper": "0x1402574CD-0x1402577E2",
+    "normalizedBuilderCall": "0x1402575A8 -> 0x1402785BA",
+    "publishedUpsertCall": "0x14025767E -> 0x14027A1E3",
+    "tableSelector": "map_records",
+    "classification": "passive live native-hook update path distinct from run-scoped direct scan staging"
+  },
+  "embeddedProxyCapture": {
+    "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "plainProxySha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+    "globals": [
+      "__XLUA_BRIDGE_NATIVE_WORLD_CAPTURE_RUN",
+      "__XluaBridgeNativeWorldCapture",
+      "XluaBridgeMapScanTick",
+      "XluaBridgeNativeUpdate",
+      "XluaBridgePoll"
+    ],
+    "captureEnvelopeFields": [
+      "scanRunId", "ready", "points", "marches", "pointRemovals", "marchRemovals",
+      "acks", "error", "dropped", "pendingAcks", "pendingMarchRemovals",
+      "pendingPointRemovals", "pendingMarches", "pendingPoints"
+    ],
+    "hookedManagers": [
+      "WorldPointManager",
+      "WorldTileInfo",
+      "WorldMarchDataManager",
+      "WorldTroopManager"
+    ],
+    "hookMethods": [
+      "AddPointInfo",
+      "RemovePointInfo",
+      "ParseWorldPointRemove",
+      "ParseWorldPointFoldUp",
+      "AddMarch",
+      "UpdateMarch",
+      "AddOrUpdateMarch",
+      "TryRemoveMarch",
+      "UpdateTroop"
+    ],
+    "states": [
+      "native world capture is initializing",
+      "native world capture hooks ready",
+      "required hooks ready; optional hooks pending",
+      "native world capture hooks unavailable",
+      "native world capture queue overflow"
+    ]
+  },
+  "remainingStrictParityGaps": [
+    "exact block traversal order and coordinate envelope",
+    "Normal/Fast pacing beyond concurrency 8/20",
+    "XluaBridgeMapScanTick registration and scheduling loop",
+    "point/march/removal/ack drain and retry ordering",
+    "exact native capture queue to every map.records batch conversion",
+    "remaining per-kind serializer optionality and scalar/string typing"
+  ],
+  "negativeEvidence": {
+    "secureTickExactStringXrefs": 0,
+    "plainTickExactStringXrefs": 0,
+    "nearbyRdataRangeDirectRipXrefs": 0,
+    "decision": "Do not infer game-side tick/traversal behavior from marker strings alone."
+  },
+  "currentRebuild": {
+    "classification": "LIVE_WORKING_EQUIVALENT_REIMPLEMENTATION",
+    "scanner": "current-v21 host-driven movement/AOI path",
+    "parityNote": "The 2500-block cardinality on a 1000x1000 world matches native geometry but does not prove traversal equivalence."
+  },
+  "reproduction": {
+    "tool": "tools/inspect_lwbridge_map_acquisition_ingestion.py",
+    "verifierOutput": "evidence/lwbridge-implementation/2026-09-26-r8-076-map-acquisition-ingestion-verifier.json",
+    "pythonCompile": "PASS",
+    "hashLockedVerifier": "PASS"
+  },
+  "verification": {
+    "tool": "tools/inspect_lwbridge_map_acquisition_ingestion.py",
+    "hashLocked": true,
+    "result": "PASS",
+    "verified": [
+      "host ingestion call graph",
+      "map.records packed dispatcher compare",
+      "scanRunId/selectedTypes/serverId/tileWidth/tileHeight/records/type/payload field xrefs",
+      "scan_records and map_records table selectors",
+      "map.native.capture and map.scan.complete compiler markers"
+    ]
+  },
+  "backlogEffect": "Change original Map acquisition from wholly UNKNOWN to PARTIAL EXACT_CONTRACT; continue only the protected game-side traversal/tick/ack and remaining serializer details."
+}

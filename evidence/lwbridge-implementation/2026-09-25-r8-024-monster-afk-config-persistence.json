@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-024",
+  "date": "2026-09-25",
+  "scope": "Restore monster_afk_config_save validation, shared runtime-config persistence at tasks.monsterSweep, and get_status.config.tasks read-back while keeping Monster AFK runtime execution fenced.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/SquadPanel-ClRUC9pv.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "original per-profile runtime/config.json",
+    "native monster_afk_config_save handler near VA 0x140126348",
+    "native Monster AFK validator at VA 0x1403bc1fd",
+    "native /tasks/monsterSweep xref at VA 0x14012689d",
+    "native shared config-state error path"
+  ],
+  "frontend": {
+    "changed": false,
+    "squadPanelSha256": "3211da6582edb72e99db942c1b5ad4a0d7b3ed831df7548e020e0eab666c03af",
+    "currentRebuildSquadPanelSha256": "3211da6582edb72e99db942c1b5ad4a0d7b3ed831df7548e020e0eab666c03af",
+    "status": "EXACT_BYTES"
+  },
+  "originalRuntimeConfig": {
+    "observedSha256": "4f7981d85da6703174eb8daeea1c4658aac262c920f0f4cbdddbfce75c01fa55",
+    "taskPath": "tasks.monsterSweep",
+    "nativePatchPath": "/tasks/monsterSweep"
+  },
+  "command": {
+    "name": "monster_afk_config_save",
+    "scope": "profile-scoped",
+    "frontendInput": "{...config, profileId}",
+    "frontendReadBack": "get_status(profile).config.tasks.monsterSweep",
+    "resultShape": "saved config-shaped object"
+  },
+  "topLevelValidation": {
+    "required": {
+      "enabled": "boolean",
+      "strategies": "array",
+      "allianceDrill": "object"
+    },
+    "error": {
+      "code": "INVALID_REQUEST",
+      "message": "invalid monster AFK config"
+    }
+  },
+  "allianceDrillValidation": {
+    "required": {
+      "enabled": "boolean",
+      "activeRally": "boolean",
+      "squadIndexes": "array"
+    },
+    "squadIndexRange": [1, 4],
+    "errors": [
+      "INVALID_REQUEST / invalid alliance drill config",
+      "INVALID_REQUEST / invalid squad index",
+      "INVALID_REQUEST / duplicate alliance drill squad",
+      "INVALID_REQUEST / alliance drill squad required"
+    ],
+    "enabledRequiresSquad": true
+  },
+  "strategyValidation": {
+    "id": "nonblank Unicode-trimmed string; unique after trim",
+    "kinds": ["farm", "join"],
+    "kindActionCoupling": {
+      "farm": {
+        "attackEnabled": true,
+        "joinEnabled": false
+      },
+      "join": {
+        "attackEnabled": false,
+        "joinEnabled": true,
+        "rally": true
+      }
+    },
+    "executionLimit": "optional nonnegative integer",
+    "levelFilter": {
+      "activeWhen": "levelFilterEnabled is boolean true",
+      "minLevel": "positive integer",
+      "nonProgressiveRule": "maxLevel >= minLevel",
+      "progressiveLevelsTrue": "relaxes max/min ordering"
+    },
+    "enabled": "required boolean",
+    "squadIndexes": "required array; unique integers 1..4; empty allowed only when strategy disabled",
+    "errors": [
+      "INVALID_REQUEST / invalid monster AFK strategy id",
+      "INVALID_REQUEST / invalid monster AFK strategy kind",
+      "INVALID_REQUEST / invalid monster AFK strategy action",
+      "INVALID_REQUEST / invalid monster AFK execution limit",
+      "INVALID_REQUEST / invalid monster AFK level range",
+      "INVALID_REQUEST / invalid monster AFK strategy state",
+      "INVALID_REQUEST / invalid squad index",
+      "INVALID_REQUEST / duplicate monster AFK squad",
+      "INVALID_REQUEST / monster AFK squad required"
+    ]
+  },
+  "persistence": {
+    "rebuildPathFamily": "%LOCALAPPDATA%/LWBridgeRebuild/profiles/<profile>/runtime/config.json",
+    "patchTarget": "tasks.monsterSweep",
+    "profileIdPersisted": false,
+    "preservesRootSiblings": true,
+    "preservesSiblingTasks": true,
+    "preservesOpaqueMonsterAfkFields": true,
+    "statusReadBack": "get_status.config.tasks now reads the same shared runtime tasks snapshot"
+  },
+  "sharedStateFailure": {
+    "code": "STATE_UNAVAILABLE",
+    "message": "config state is unavailable"
+  },
+  "runtimeFences": {
+    "monster_afk_start": "COMMAND_NOT_IMPLEMENTED",
+    "monster_afk_stop": "COMMAND_NOT_IMPLEMENTED",
+    "classification": "intentional rebuild fence; no game/provider execution claimed"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/MonsterAfkConfigCommandService.cs",
+    "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/MonsterAfkConfigChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "save result config shape",
+    "profileId removed from saved task/result",
+    "opaque Monster AFK fields preserved",
+    "root and task siblings preserved",
+    "get_status reloads saved monsterSweep",
+    "disabled strategy may have zero squads",
+    "progressive level mode relaxes max/min ordering",
+    "top-level and alliance-drill validation",
+    "squad range exactly 1..4",
+    "duplicate squad validation",
+    "strategy ID/kind/action/execution/level/state validation",
+    "STATE_UNAVAILABLE on malformed runtime state",
+    "monster_afk_start/stop remain COMMAND_NOT_IMPLEMENTED"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0 after get_status integration",
+    "squadPanelHash": "PASS exact immutable 0.3.1",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-024 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "commandWrapper": "EXACT_BYTES frontend",
+    "storagePath": "EXACT_NATIVE + observed original runtime config",
+    "validation": "EXACT_NATIVE branch/error-derived",
+    "statusReadBackNeed": "EXACT_BYTES frontend consumer; bounded equivalent backend wiring",
+    "runtimeExecution": "PROTECTED_UNKNOWN / intentionally absent"
+  },
+  "notClaimed": [
+    "monster_afk_start runtime semantics",
+    "monster_afk_stop runtime semantics",
+    "worker lifecycle",
+    "map target acquisition",
+    "attack/rally dispatch",
+    "march ownership",
+    "stamina consumption",
+    "retry/progression scheduling",
+    "game-side status/event timing"
+  ],
+  "nextCheckpoint": "Recover another offline Squads/AFK configuration surface, likely alliance_garrison_config_save, while keeping live action execution fenced until provider/protocol evidence is complete."
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-070",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "handlers": {
+    "city_layout_apply_cancel": "0x140113007-0x140113C01",
+    "city_layout_apply_start": "0x140183AFC-0x1401847DD",
+    "city_layout_validate": "0x1401869E7-0x140187506"
+  },
+  "sharedAdmission": {
+    "authorizationStateFuture": "0x1400DC79E",
+    "authorizationUnavailable": {"code":"STATE_UNAVAILABLE","message":"authorization state is unavailable"},
+    "selectedProfileRuntimeResolver": "0x1402AE43C",
+    "disconnected": {"code":"GAME_DISCONNECTED","message":"game disconnected"}
+  },
+  "commands": {
+    "city_layout_validate": {
+      "request": "{baseRevision,placements}",
+      "provider": "validateCityLayout",
+      "timeoutMs": 10000,
+      "result": "{valid,issues,totalMoves,temporaryMoves} minimum; generic provider JSON conversion"
+    },
+    "city_layout_apply_start": {
+      "request": "{baseRevision,placements}",
+      "precondition": "fresh snapshot; isInCity=false => CITY_LAYOUT_NOT_IN_CITY",
+      "provider": "startCityLayoutApply",
+      "timeoutMs": 10000,
+      "result": "{accepted,status,issues?} minimum; generic provider JSON conversion"
+    },
+    "city_layout_apply_cancel": {
+      "request": "{jobId}",
+      "provider": "cancelCityLayoutApply",
+      "timeoutMs": 5000,
+      "result": "ApplyStatus; generic provider JSON conversion"
+    }
+  },
+  "runtimeImplementation": "FENCED",
+  "fenceReason": "Mandatory original authorization-state admission is owner-excluded; bypassing it changes observable public error precedence.",
+  "inventoryEffect": {
+    "previousGenuinelyUnclosed": 13,
+    "movedToAuditedFenced": ["city_layout_validate","city_layout_apply_start","city_layout_apply_cancel"],
+    "remainingGenuinelyUnclosed": 10
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-106",
+  "date": "2026-09-21",
+  "status": "CURRENT-V19-DISPATCH-SCAN/LIVE-PROVEN",
+  "title": "Fresh current-v19 Secret Task/Dispatch full-scan acceptance after the five-column AOI fix",
+  "branch": "research/offline-controller",
+  "parentRevision": "56e85e6",
+  "scope": {
+    "serverId": 2212,
+    "trigger": "User-reported Secret Task scan stopping near 98 percent with an action failure.",
+    "sourceFixRevision": "20b7d44d06156bfadaf8a2930958892cfd013aa8",
+    "productionGameplayActionPerformed": false,
+    "dispatchPlunderPerformed": false
+  },
+  "liveAcceptance": {
+    "proof": "ordinary_manual_start_full_dispatch",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "logicalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedDispatch": 61,
+    "reopenedDispatch": 61,
+    "scanWallSeconds": 127.573577,
+    "result": "PASS"
+  },
+  "rowFieldAcceptance": {
+    "pointTypeRows": 61,
+    "runtimeClassRows": 61,
+    "configRows": 61,
+    "levelRows": 61,
+    "qualityRows": 61,
+    "specialFlagRows": 61,
+    "completionTimeRows": 61,
+    "rewardedRows": 61,
+    "actEndTimeRows": 61,
+    "expiredTimeRows": 61,
+    "ownerUidRows": 61,
+    "allianceIdRows": 61,
+    "stealListRows": 61,
+    "accListRows": 61,
+    "nameKeyRows": 61,
+    "sourceRows": 61
+  },
+  "sortFilterAcceptance": {
+    "sortComparedRows": 61,
+    "specialSortValues": 7,
+    "completionSortValues": 61,
+    "sortChecks": 9,
+    "reopenedSortChecks": 9,
+    "filterComparedRows": 61,
+    "filterChecks": 12,
+    "specialRows": 7,
+    "pendingRows": 16,
+    "completedRows": 45,
+    "plunderableRows": 60
+  },
+  "interpretation": "The shared R7-102 current-v19 five-column AOI validator correction now has fresh end-to-end Secret Task/Dispatch proof: all logical blocks complete, required source/config fields survive normalization, and publication survives database reopen.",
+  "validation": {
+    "codeChangedByThisCheckpoint": false,
+    "baseCodeValidation": "R7-103 passed Release build with 0 warnings/0 errors, frontend generation, git diff check and all six deterministic groups with failures=[] and real config unchanged.",
+    "gameRunningAfterProof": false,
+    "launcherRunningAfterProof": false,
+    "worktreeBeforeEvidence": "clean"
+  },
+  "privacy": "No Dispatch UUIDs, player names, player IDs, alliance IDs, coordinates, raw task records, session challenge or request identifiers are stored in this evidence file.",
+  "limits": [
+    "This is read-only scan/query/filter/sort acceptance only; Dispatch plunder remains intentionally untested.",
+    "Doom Walker remains a separate Monster-scan regression and is not closed by this checkpoint."
+  ]
+}

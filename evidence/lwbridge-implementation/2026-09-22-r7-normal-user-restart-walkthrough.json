@@ -1,0 +1,197 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-143",
+  "date": "2026-09-22",
+  "title": "Built Release normal-user restart walkthrough closure",
+  "status": "PASS_CURRENT_NORMAL_USER",
+  "branch": "research/offline-controller",
+  "baseRevision": "817c4bca4441d212104e90289e0b3bf27f5292b7",
+  "acceptanceCase": "F04",
+  "scope": {
+    "productionBehaviorChanged": false,
+    "claim": "F04 is closed by actual built-Release user-path verification. A read-only owner-evidence calibration correlates the physical Map Data click; the two acceptance runs themselves launch with zero application arguments and use only OS-level mouse input on the shipped sidebar, normal window close, process restart, and active-nav pixel assertions.",
+    "humanBoundary": "OS-level mouse automation stands in for a human hand. No application test flag, --view shortcut, capture/probe route, backend invocation shortcut, or injected DOM script participates in either acceptance run."
+  },
+  "maintainedVerifier": {
+    "path": "tools/check_normal_user_restart_walkthrough.ps1",
+    "worktreeSha256": "CEDD2EDFFB5C2159300A6116E49ADE29839F96EF5915A857B6818F5E26E73DC4",
+    "committedCheckoutSha256": "18D207F151D9FBE030EA6A71FFE66FC7948208F4E28F6230DDA0EB86EAE6674B",
+    "hashDifferenceReason": "Git line-ending normalization only; staged checkout is the commit-candidate verifier identity.",
+    "outputPath": ".codex-live/normal-user-restart-walkthrough.json",
+    "worktreeOutputSha256": "96FBE257C22BED0C4920AA757EBF3EB2A8E6848100A1DA0A4AFAA068EA7182DA"
+  },
+  "calibration": {
+    "applicationArguments": [
+      "--owner-evidence",
+      "<temporary-read-only-directory>"
+    ],
+    "mapDataClickClient": {
+      "x": 94,
+      "y": 229
+    },
+    "eventTypes": [
+      "session-start",
+      "owner-command-blocked",
+      "city-search-response",
+      "city-render-observation",
+      "session-end"
+    ],
+    "mapDataCorrelated": true,
+    "purpose": "Calibration only. It proves the physical client coordinate reaches the real Map Data saved City search/render path before the zero-argument acceptance runs."
+  },
+  "acceptanceRuns": {
+    "executableSha256": "5415D9179ED8AA0F9A94122E12A832969590F517B88CE3948936A29E5D5E897C",
+    "applicationArguments": [],
+    "usesViewFlag": false,
+    "usesCaptureOrProbeMode": false,
+    "input": {
+      "mechanism": "Win32 foreground mouse click",
+      "mapDataClient": {
+        "x": 94,
+        "y": 229
+      },
+      "overviewClient": {
+        "x": 94,
+        "y": 143
+      }
+    },
+    "run1": {
+      "processId": 40568,
+      "responding": true,
+      "overview": {
+        "captureSha256": "A3BC7F839E02C923BD984DCBE22F6DB7C6C4223DA2B3EB0E767F0F618FDD202C",
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 227
+        },
+        "mapIndicatorPixel": {
+          "r": 235,
+          "g": 235,
+          "b": 237
+        }
+      },
+      "mapData": {
+        "captureSha256": "68E53305B0624620F50341757ECA4A0DB6F761E63005E0706D8F677507643C1D",
+        "overviewIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 227
+        }
+      },
+      "overviewReturn": {
+        "captureSha256": "92BC573EF2D7EBFD3C6155613A75D9A1B9494BCFE7B12799328184EF35716406",
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 226
+        },
+        "mapIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      },
+      "normalClose": true
+    },
+    "run2": {
+      "processId": 8696,
+      "responding": true,
+      "overview": {
+        "captureSha256": "4B023D6110C3AF2A588EAA9C72A5AC835CCBF2753F6F51F216E0B2AA39E22160",
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 226
+        },
+        "mapIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      },
+      "mapData": {
+        "captureSha256": "EA5C43A6915F7D78C49E3A67CDF2F973DD19DC55A80D07325695EDE03357F996",
+        "overviewIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 227
+        }
+      },
+      "overviewReturn": {
+        "captureSha256": "CBE092AD80B745E7A645DE32B0EC276A502DB22341DC41763C3A19CAF9A60B5F",
+        "activeIndicatorPixel": {
+          "r": 0,
+          "g": 113,
+          "b": 226
+        },
+        "mapIndicatorPixel": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        }
+      },
+      "normalClose": true
+    },
+    "restartBoundary": {
+      "firstProcessClosedNormally": true,
+      "secondProcessIdDiffers": true,
+      "presentationProfileNotIsolated": true
+    }
+  },
+  "stateIntegrity": {
+    "configSha256Unchanged": true,
+    "configBackupSha256Unchanged": true,
+    "packageIdentityUnchanged": true,
+    "installedPackageVersion": 20,
+    "packageHashes": {
+      "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+      "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+      "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+    },
+    "finalProcesses": {
+      "desktop": 0,
+      "lastWar": 0,
+      "launcher": 0,
+      "helper": 0
+    }
+  },
+  "safety": {
+    "navigationOnly": true,
+    "mapScanInvoked": false,
+    "followInvoked": false,
+    "attackOrPlunder": false,
+    "claimOrCollect": false,
+    "messaging": false
+  },
+  "priorAuthorities": [
+    {
+      "evidenceId": "LWB-R7-128",
+      "role": "Normal Release window responsiveness and close-during-start cancellation/owned-process cleanup."
+    },
+    {
+      "evidenceId": "LWB-R7-135",
+      "role": "Normal production-service composition and saved City search/render smoke, explicitly not a click-through."
+    }
+  ],
+  "acceptanceEffect": {
+    "F04": {
+      "status": "pass_current_normal_user",
+      "rationale": "Physical user-path navigation on the actual built Release executable succeeds before and after normal process restart with zero application arguments, real shipped sidebar active-state changes, normal close, unchanged state identities, and no leftover processes."
+    }
+  },
+  "remaining": {
+    "ordinaryPartialCount": 0,
+    "note": "Population-, authorization-, implementation- and owner-retired rows remain separate categories and are not converted into generic pass claims by R7-143."
+  }
+}

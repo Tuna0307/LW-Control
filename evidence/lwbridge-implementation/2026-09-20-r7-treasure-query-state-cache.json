@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-068",
+  "capturedAt": "2026-09-20",
+  "scope": "Treasure result visibility, viewer identity, lucky ordering and persistent read-only claim-state cache overlay",
+  "status": "RECOVERED static + IMPLEMENTED/OFFLINE-TESTED",
+  "baseCommit": "fea398895d965644b875f05ea8fc4fc01d2605ff",
+  "originalReference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "inspector": "tools/inspect_lwbridge_map_treasure_query_state.py",
+    "reproduction": "python tools\\inspect_lwbridge_map_treasure_query_state.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  },
+  "recoveredOriginalBackend": {
+    "includeForeignRadarTreasures": {
+      "fieldOffset": "0x00C89511",
+      "falseWithExplicitViewerAllianceId": "(COALESCE(CAST(json_extract(data_json,'$.treasureType') AS INTEGER),0)<>1\n                      OR CAST(json_extract(data_json,'$.allianceId') AS TEXT)=?)",
+      "explicitPredicateOffset": "0x00C8952D",
+      "falseWithoutExplicitViewerAllianceId": "(COALESCE(CAST(json_extract(data_json,'$.treasureType') AS INTEGER),0)<>1\n                      OR (COALESCE(CAST(json_extract(data_json,'$.allianceId') AS TEXT),'')<>''\n                        AND CAST(json_extract(data_json,'$.allianceId') AS TEXT)=COALESCE(CAST(json_extract(data_json,'$.viewerAllianceId') AS TEXT),'')))",
+      "fallbackPredicateOffset": "0x00C895C7",
+      "trueBehavior": "predicate omitted",
+      "meaning": "non-radar rows pass; treasureType=1 radar rows are same-alliance only unless the caller opts to include foreign radar treasures"
+    },
+    "luckyFirst": {
+      "fieldOffset": "0x00C8A3AF",
+      "priorityOffset": "0x00C8A424",
+      "priority": "COALESCE(cached state_json.claimPriority,1)",
+      "direction": "ASC",
+      "explicitViewerUid": "state.player_uid = caller viewerUid",
+      "fallbackViewerUid": "COALESCE(CAST(json_extract(page.data_json,'$.viewerUid') AS TEXT),'')",
+      "stableContinuation": "ordinary recovered sort followed by record_key ASC"
+    },
+    "claimStateCache": {
+      "primaryKey": ["server_id", "player_uid", "treasure_uuid"],
+      "cleanupOffset": "0x00C883FA",
+      "cleanup": "DELETE FROM treasure_claim_states WHERE expire_time IS NOT NULL AND expire_time>0 AND expire_time<=?1",
+      "upsertOffset": "0x00C88472",
+      "upsert": "INSERT INTO treasure_claim_states(server_id,player_uid,treasure_uuid,expire_time,updated_at,state_json) ... ON CONFLICT(server_id,player_uid,treasure_uuid) DO UPDATE SET expire_time=excluded.expire_time,updated_at=excluded.updated_at,state_json=excluded.state_json",
+      "pageJoinOffset": "0x00C8A743",
+      "pageJoin": "LEFT JOIN treasure_claim_states AS state ON state.server_id=page.server_id AND state.player_uid=<viewer> AND state.treasure_uuid=page.uuid",
+      "pageProjection": "state.state_json is selected for Treasure pages"
+    },
+    "readOnlyRpcNames": {
+      "getTreasureClaimStatus": {
+        "offset": "0x00822630"
+      },
+      "inspectTreasureStates": {
+        "offset": "0x008226B0",
+        "staticallyObservedRequestFields": ["records", "refresh"]
+      }
+    }
+  },
+  "recoveredOriginalFrontend": {
+    "source": "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "sha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "queryFields": [
+      "includeForeignRadarTreasures",
+      "luckyFirst",
+      "viewerUid",
+      "viewerAllianceId"
+    ],
+    "booleanBehavior": "includeForeignRadarTreasures and luckyFirst are emitted explicitly even when false",
+    "refresh": "Treasure page results call map_treasure_state_refresh(serverId, rows) when connected/current/not scanning and overlay returned states by uuid",
+    "overlayPrecedence": "state values overwrite same-named persisted row fields"
+  },
+  "currentClientV19": {
+    "assemblyPath": "Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+    "assemblySha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "TreasurePointInfo": {
+      "typeDef": 1769,
+      "fields": [
+        "rewardUserList",
+        "diggingUserList",
+        "complete",
+        "expireTime",
+        "allianceId",
+        "startTime",
+        "completionTime"
+      ],
+      "methods": {
+        "IsHaveGetReward": {"methodDef": 13530, "rva": "0x152b83"},
+        "IsHaveWorking": {"methodDef": 13531, "rva": "0x152bb7"},
+        "GetRewardMaxNum": {"methodDef": 13532, "rva": "0x152bd0"},
+        "IsReceiveAllReward": {"methodDef": 13533, "rva": "0x152c18"},
+        "IsComplete": {"methodDef": 13534, "rva": "0x152c4c"}
+      }
+    },
+    "WorldSuppliesPoint": {
+      "typeDef": 1879,
+      "fields": [
+        "uidList",
+        "userCount",
+        "createTime",
+        "discovererAllianceId",
+        "discovererUid",
+        "workEndTime",
+        "workState"
+      ]
+    },
+    "sourceNotes": [
+      "Current game Lua sends WorldGetSuppliesPointDetail for WorldSuppliesPoint and reads WorldPointDetailManager:GetWorldSuppliesPointDetailData(uuid).",
+      "Current game Lua uses chargeData:GetPercent(), HasPlayer(), HasDiscoverer(), rewardCount/rewardMax and CheckBtnState for Supplies UI eligibility.",
+      "Ordinary Treasure UI uses TreasurePointInfo:IsHaveWorking(playerUid) to choose callback versus Treasure action."
+    ]
+  },
+  "implementation": {
+    "MapDataQueryContract": [
+      "accepts both boolean forms for Treasure-only includeForeignRadarTreasures/luckyFirst",
+      "accepts Treasure-only viewerUid/viewerAllianceId",
+      "keeps these fields fail-closed on other kinds"
+    ],
+    "MapDataStore": [
+      "applies recovered foreign-radar visibility predicate",
+      "applies recovered lucky-first cached claimPriority ordering",
+      "joins cached state by server/viewer/treasure identity",
+      "overlays cached state_json over the indexed Treasure row",
+      "implements recovered transactional expiry cleanup plus upsert"
+    ],
+    "stateChangingClaims": "not enabled"
+  },
+  "deterministicAcceptance": {
+    "releaseBuild": "0 warnings, 0 errors",
+    "fullSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "coveredCases": [
+      "foreign radar excluded with explicit viewerAllianceId",
+      "foreign radar excluded using row-embedded viewerAllianceId fallback",
+      "includeForeignRadarTreasures=true admits foreign radar",
+      "luckyFirst sorts claimPriority=0 ahead of default/1",
+      "viewerUid row fallback drives cache join when caller identity is absent",
+      "state_json overlay wins over base row fields while indexed serverId stays authoritative",
+      "positive expired cached rows are pruned on the next state update",
+      "Treasure-only fields remain unsupported on non-Treasure kinds"
+    ]
+  },
+  "limitsAndNext": [
+    "The hidden original bridge script's complete mapping to worldClaimState/playerClaimState/claimBlockReason strings is not present as clear Rust strings and is not guessed.",
+    "map_treasure_state_refresh, map_treasure_state_refresh_all and map_treasure_claim_status remain to be wired to a source-proven current-v19 read-only inspector.",
+    "map_treasure_claim remains blocked; no claim/scout/dispatch/reward action was performed.",
+    "No live game was launched for this checkpoint."
+  ],
+  "privacy": "Synthetic deterministic identities only; no player/private live identity captured."
+}

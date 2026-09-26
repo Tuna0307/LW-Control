@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "indexId": "LWB-R7-155-CURRENT-EVIDENCE-INDEX",
+  "generatedAt": "2026-09-24",
+  "parentRevision": "f7711e4d9e08a8dbbc1765dafc73a2aa35c62ebb",
+  "policy": "Curated current navigation only. Historical evidence remains in place and is not superseded as provenance.",
+  "groups": {
+    "home": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-twenty-cycle-stress.json",
+        "sha256": "46BB932B63AB2DD1C44AB10E574B67A594CE14908D5B8FD789171907DD1BB1CA"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-startup-failure-matrix.json",
+        "sha256": "F3E5C5E6D6B276217FD3915D9E8D31EBE793B0CAA592F56A9202BACE396D0021"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-launch-spam-refresh.json",
+        "sha256": "2945EF803714E5EC487EB84ABC5C46C384EE9E856939DC0B462ECEE71CE3E039"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-process-ownership-matrix.json",
+        "sha256": "831D1D30D57A528C6989AD15839B6D389ADA284B593FE13DCD25B75641AFE4FC"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-reconnect-policy-matrix.json",
+        "sha256": "466B6439D1E0397241BF6F7493F780C1937F958C096BC382695940706C257872"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-fault-admission-matrix.json",
+        "sha256": "5759E0E56FB4980B84D86D00A7D4FC91FA17376DADE97FD90DBF9535A4CA8969"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-overview-close-timing-matrix.json",
+        "sha256": "94C0CBD965C0C00215250FED03F0F8DB4FF42C9220A1B9F5D36FD32DC0A3B85C"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-21-r7-home-a11-live-transport-ui.json",
+        "sha256": "C833A426BFBDDE914F532657E3383A09034612BC6EB79AFFE9FBE78EBEC6FA16"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-21-r7-normal-window-close-cancellation.json",
+        "sha256": "22D3C36F837ACE4342C85DA9D5AB0188899AB8B9F3AE9AA91642F6CCB20D7DFC"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough-autolaunch.json",
+        "sha256": "1DF306524EB8F8F7FB34F6266BE2276C4E9CD3AB558911C03A47B67EB04BD786"
+      }
+    ],
+    "mapData": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-155-railway-v21-negative-population.json",
+        "sha256": "0F0193B40E4AC098F49435BDC8E5E55EC5E29A67485D8AE19F1992131598F228"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json",
+        "sha256": "7145460A4689F8A00AE48AC68B9E3B1F95D40AFF2413FD1CBC18522219AFEABE"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-153-supplies-population-recheck.json",
+        "sha256": "650385C65E6EEB6C6267B48A7B52451C35AEA8B9F0E4BBC8345796FE8BF8A411"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-152-ghost-population-recheck.json",
+        "sha256": "44E844BBAEA8D87023CD78DDE52CDE122CDEDD1806E067D909EE2FE9CB6FBC03"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json",
+        "sha256": "9CDD78F8A897D8ABCF98EC33CB01ED0CABAE428DAF371AE0CFBC93D27D5F0433"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-train-list-no-jump-auto.json",
+        "sha256": "379AD8644C21422A6FC00723DE3F61D8CECD621F828AB9BCCF5516AB0C818689"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-scheduled-plunder-retirement.json",
+        "sha256": "9402CD8CD60DA1C2491296A3CF0AF6403831021CA37D29205283F9D8F7FF2BB4"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-direct-train-list-speed.json",
+        "sha256": "2E8B90A695E4A478315B07320BF858CE413368615C5AF9ED02FE7F85B8BE4CC2"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-map-owner-workflow-corrections.json",
+        "sha256": "ABCE82EEC050F02B5F6D6B2DA04FAEE606E1FA75EEC6E6E93D7E03D27AF35250"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-automatic-scan-strategy.json",
+        "sha256": "D5B8BACD32024C6A952699B8F77A1EA38673593FC23E28C766A6E8C891036FB3"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-railway-positive-follow.json",
+        "sha256": "A2E4B1C586C507F1E70E612A9FA7A723169BB231399A1496232D8215FBD33962"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-treasure-state-refresh.json",
+        "sha256": "3A8DA7C9DF58B2113B05652770747151DE3610ABDA20AF87005739CF9CE2D9DF"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-offline-contract.json",
+        "sha256": "D6185C5C9B4247FFD78595BD799210C86D71770EFA13749000FB0492194A2434"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-treasure-claim-frontend-status.json",
+        "sha256": "72248592803C4D8211A366697E0644F8BF05947DD1A354CD354220A2A4572287"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-21-r7-doom-walker-lod0-live-acceptance.json",
+        "sha256": "060A458ABF0A70FD2E8F82CFE4A6C5390189C14B2022B3D31294182C1613D66F"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-21-r7-reported-scan-smoke.json",
+        "sha256": "D272A1A5C74EB7E3B247FBCC5701FF2DE6DD04A6C53165036C84D0400DEDF51B"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-map-correctness-multiserver-speed.json",
+        "sha256": "80AF789A714B400F5A5359DC54A8786BB0C54A05D716E27D7110324CB7FEA3E8"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-map-browser-acceptance-clear-race.json",
+        "sha256": "605F16C459CD36F551B3E4F8E75872B0C14C6B08C4CFF44EA1D588D846C8FA26"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-auto-scheduler-navigation-reconnect.json",
+        "sha256": "794DEABE66BE8C6155406FBEB3D9DE30F06B14ADBB01EF724488F3C052B9F648"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-native-auto-failure-continuation.json",
+        "sha256": "971E0AF8A78B6F2EAC905DAF97E34B2C4B851137FD375C2C7823CBA5438E154B"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-scan-restart-safety.json",
+        "sha256": "675EB6CBE2472D76F7EE9BDCA5B34B4D946D9181F29ED0B9B558364AA817C037"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-three-multiserver-auto-cycles.json",
+        "sha256": "5F9498A95F602A1BA788A6447F7472E30BD20D0968CFFD0C3E628FA815B51C33"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-scan-ownership-stop-timing.json",
+        "sha256": "75350CA8ACF480CAB1F4B97E9DE9145E2258A4BF42868AC239972DCE75DAEF95"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-bridge-loss-scan-failfast.json",
+        "sha256": "7D7216D4B7B2A44D08E3BBB0511B986237B0EB0C75DC23F17B8C6A1F61E04B12"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-player-mark-relocation.json",
+        "sha256": "547BCF8C30ACA9DF6AA3B559B06FAA8286E8C546B469D9F43BCDEA8E2DD30EBE"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-moving-target-failure.json",
+        "sha256": "46CCDD55A349F737ED37081D1CF915096B3FEC7615FBD2AB3C38D26AE266D146"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-native-transition-matrix.json",
+        "sha256": "5FF1542F176E317273920EEA5CF73DED3C09D5C8372009F3EC5DED0B24C26A75"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-supplies-population-recheck.json",
+        "sha256": "39E5476EB1CF22DA4B335246A59814C5B9F38017B08270074FAFE5BC10E736E8"
+      }
+    ],
+    "sharedRelease": [
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-154-railway-v21-status-hygiene.json",
+        "sha256": "7145460A4689F8A00AE48AC68B9E3B1F95D40AFF2413FD1CBC18522219AFEABE"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-24-r7-151-v21-dispatch-fast-scan.json",
+        "sha256": "9CDD78F8A897D8ABCF98EC33CB01ED0CABAE428DAF371AE0CFBC93D27D5F0433"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-23-r7-acceptance-matrix-r7149.json",
+        "sha256": "2B1392263ADF29EE2F2CBD5038A0663D35BD4A74124A4D4C1DBE0C942EAE1532"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-20-r7-release-integrity-audit.json",
+        "sha256": "176CD8F294B9E5605A0E39C804798EF3FBA024BA4ABD39BFFE9F8C4EF5A35175"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-normal-production-window-smoke.json",
+        "sha256": "AA08B0EF363B2FF1661C94F961DEB46C518B3AEFFC7D4EE85577A779862794B5"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-normal-user-restart-walkthrough.json",
+        "sha256": "79AAB9396A14E464F34D573D9B54749F385C37BCF731E36900F327C9E49A98FF"
+      },
+      {
+        "path": "evidence/lwbridge-implementation/2026-09-22-r7-doc-evidence-self-audit.json",
+        "sha256": "6A0A499F55752ACADFF6BBF67FAB5F779D8EB06B24CDAC897FCD323845027E85"
+      }
+    ]
+  },
+  "inventory": {
+    "jsonFiles": 298,
+    "txtFiles": 13,
+    "markdownIndexFiles": 1,
+    "exactDuplicateGroups": 0
+  }
+}

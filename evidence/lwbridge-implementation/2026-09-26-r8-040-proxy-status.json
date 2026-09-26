@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-040",
+  "date": "2026-09-26",
+  "scope": "Restore proxy_status native public projection and read-only proxy/install classification.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "proxy_status handler RVA 0x15636E-0x156D0A",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "runtime lookup/error path 0x14041C8AB",
+    "launch-component snapshot helper 0x1403A2C27",
+    "runtime-managed helper 0x1403A297B",
+    "public projector 0x1403A2A66",
+    "base proxy-status builder 0x1403E3AB1-0x1403E48A8",
+    "proxy path builder 0x1403E37A2-0x1403E3A08",
+    "proxy hash/mode helper 0x1403E5B7A-0x1403E5F9A",
+    "result serialization helper 0x1402BB816"
+  ],
+  "contract": {    "fullResultFields": [
+      "state",
+      "installed",
+      "resourceAvailable",
+      "targetExists",
+      "originalExists",
+      "installedMode",
+      "gameRunning",
+      "targetPath",
+      "runtimeManaged",
+      "repairRequired"
+    ],
+    "reducedResultFields": [
+      "state",
+      "installed",
+      "resourceAvailable",
+      "targetExists",
+      "originalExists",
+      "gameRunning",
+      "targetPath",
+      "runtimeManaged",
+      "repairRequired"
+    ],
+    "states": ["resourceMissing", "targetMissing", "needsRepair", "installed"],
+    "installedModes": ["secure", "plain", null],
+    "targetRelativePath": "Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+    "originalRelativePath": "Game\\LastWar_Data\\Plugins\\x86_64\\xlua_.dll",    "repairRequiredPredicate": "!runtimeManaged && gameRunning && state == needsRepair",
+    "errors": ["PROFILE_ID_REQUIRED", "PROFILE_RUNTIME_UNAVAILABLE", "STATE_UNAVAILABLE"],
+    "removedRebuildOnlyFields": ["launcherRunning", "bridgeOnline", "gamePid", "launcherPid"]
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ProxyStatusCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "tests/LWBridge.Desktop.Checks/ProxyStatusChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "publicFullSchema": "EXACT_NATIVE",
+    "publicReducedSchema": "EXACT_NATIVE",
+    "stateVocabularyAndPrecedence": "EXACT_NATIVE",
+    "targetOriginalPathLayout": "EXACT_NATIVE",
+    "installedModeClassification": "EXACT_NATIVE",
+    "runtimeManagedPublicProjection": "EXACT_CONTRACT",
+    "runtimeManagedOwnershipSource": "EQUIVALENT_REIMPLEMENTATION",
+    "repairRequiredPredicate": "EXACT_NATIVE",
+    "profileRuntimeErrorCodes": "EXACT_NATIVE",
+    "profileRuntimeErrorProse": "UNKNOWN",
+    "resourceDiscoveryPlumbing": "EQUIVALENT_REIMPLEMENTATION",
+    "launcherProxyMutationLifecycle": "UNKNOWN"
+  },
+  "remainingBoundary": {
+    "proxyInstallMutation": "not restored by this checkpoint",
+    "proxyBackupRestore": "not restored by this checkpoint",
+    "launcherLifecycle": "still incomplete",
+    "exitRestoration": "still fenced pending original proxy backup/restore ownership",
+    "multiInstanceRuntimeOwnership": "public runtimeManaged projection restored; original table implementation not claimed"
+  },
+  "nextCheckpoint": "Recover another complete retained host-side contract without inventing protected, account, entitlement, or unrecovered launcher behavior."
+}

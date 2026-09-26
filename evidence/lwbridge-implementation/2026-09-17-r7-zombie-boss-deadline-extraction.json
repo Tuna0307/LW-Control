@@ -1,0 +1,77 @@
+{
+  "findingId": "LWB-R7-021",
+  "date": "2026-09-17",
+  "status": "OWNER-POSITIVE DIAGNOSIS; correction IMPLEMENTED/OFFLINE-TESTED; owner retest pending",
+  "scope": "Zombie Boss active protection deadline extraction and retry yield",
+  "ownerScan": {
+    "status": "completed",
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "scanWallMilliseconds": 74791,
+    "publishedMonsterCount": 10297,
+    "detailTargetCount": 65,
+    "detailRequestCount": 65,
+    "detailRetryCount": 65,
+    "detailReadyCount": 43,
+    "detailError": "monster_invasion_protection_response_timeout"
+  },
+  "ownerVisualEvidence": {
+    "activeTimerA": "00:07:02",
+    "activeTimerB": "00:05:31",
+    "timerSeparationSeconds": 91,
+    "capturedCreateTimeSeparationMilliseconds": 90799
+  },
+  "diagnosis": {
+    "receivedActiveExample": "authoritative reply received with isProtected=true but captured protectionEndTime=0",
+    "unansweredExample": "another visibly protected Zombie Boss remained monsterProtectionKnown=false",
+    "rootCause": "the manager getter depends on the boss march/troop still being loaded when the asynchronous reply arrives"
+  },
+  "recoveredGameFormula": {
+    "expression": "protectionEndTime = march.createTime + DataConfig(monster_invasion,k12) * 1000",
+    "sourceBehavior": "MonsterProtection.Refresh computes protectionEndTime before OnGetDetail; GetMonsterProtectionEndTime later returns showEndTime only while the local protection object exists"
+  },
+  "implementation": {
+    "deadline": [
+      "capture the source-backed march createTime while the boss AOI is loaded",
+      "read the live monster_invasion.k12 configuration",
+      "when an authoritative reply says isProtected=true and the manager getter is zero, use the same recovered formula",
+      "never synthesize a deadline for isProtected=false or an unanswered reply"
+    ],
+    "retry": [
+      "remove the 40 ms per-batch retry that duplicated every request before first replies arrived",
+      "retain one initial request per deduplicated boss while its AOI is loaded",
+      "at final run-bound collection retry only still-unanswered targets once",
+      "keep the existing bounded three-second final response collection and fail-soft base scan behavior"
+    ]
+  },
+  "privacy": {
+    "liveBossCoordinatesPersisted": false,
+    "liveBossUuidsPersisted": false,
+    "sessionIdsPersisted": false
+  },
+  "validation": {
+    "luaParse": "ok",
+    "deterministicSuite": {
+      "ok": true,
+      "failures": []
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0,
+      "exeSha256": "e364aeddd462a9a62082e3be647f87735b6f1dfad08cbd623a60d38594ba04af",
+      "dllSha256": "653cf2381be74216a941660cb04c21043decb1a809b4a2c6f26478b5ff1f93c1"
+    },
+    "probeLuaSha256": "5b28726d0668574635140aac4dea34d0b8cf9aaf50dd346f08162c1c1081875e",
+    "packagedLuaMatchesSource": true,
+    "gitDiffCheck": "clean",
+    "officialV18Restored": true,
+    "officialV18CompatibilityOk": true,
+    "recoveryJournalPresentAfterCleanup": false
+  },
+  "limits": [
+    "No post-fix live scan has been run yet.",
+    "Positive Remaining is not claimed fixed until the owner confirms it in the normal UI.",
+    "Unanswered protection detail remains unknown rather than inferred."
+  ]
+}

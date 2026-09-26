@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-125",
+  "date": "2026-09-21",
+  "status": "SUCCESSFUL-PROFILE-STOP-UNREGISTER-SOURCE-RECOVERED/HASH-LOCKED/OFFLINE-TESTED",
+  "title": "Recover successful profile_instance_stop bridge unregister semantics",
+  "branch": "research/offline-controller",
+  "parentRevision": "01555682a066fcb80eb53a30c2b5d7f50b092e5d",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "IMPLEMENTED/OFFLINE-PROVEN",
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "inspector": "tools/inspect_lwbridge_stop_unregister.py",
+    "inspectorResult": "PASS"
+  },
+  "originalStopHandler": {
+    "function": "RVA 0x13FCFB-0x141336",
+    "commandLiteral": "profile_instance_stop",
+    "commandLiteralRef": "RVA 0x13FDA4",
+    "commandLength": 21,
+    "profileIdLiteralRef": "RVA 0x140158",
+    "instanceIdLiteralRef": "RVA 0x14019F",
+    "reasonLiteral": "user_stop",
+    "reasonLiteralRef": "RVA 0x140225"
+  },
+  "successfulStopUnregister": {
+    "instanceIdPointerLoad": "RVA 0x140874: rdx = [state+0x23B0]",
+    "instanceIdLengthLoad": "RVA 0x14087B: r8 = [state+0x23B8]",
+    "unregisterWrapperCall": "RVA 0x140882 -> 0x3CC8B3",
+    "unregisterCoreCall": "RVA 0x3CC8D2 -> 0x3C2436",
+    "postUnregisterStoppedConstruction": [
+      "RVA 0x140B2B writes bytes 3..6 of stopped",
+      "RVA 0x140B32 writes bytes 0..3 of stopped"
+    ],
+    "ordering": "successful owned close completes -> retained instance unregister -> stopped-state construction"
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+    "placement": "after ValidateStopResult and host stop evidence; before StopLeaseTimer/runtime-session cleanup",
+    "operation": "bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId)",
+    "guard": "bridgeControlPipeLaunchBindingEnabled"
+  },
+  "deterministicProof": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeLifecycleLaunchBindingChecks.cs",
+    "successfulRunningSessionRetainsClaimedRouteUntilStop": true,
+    "successfulStopRemovesRegistrationAndRoute": true,
+    "failedStartStillUnregisters": true,
+    "sourceOrderingGuard": "ValidateStopResult < CancelLaunchBinding(snapshot.InstanceId) < StopLeaseTimer"
+  },
+  "relationshipToEarlierProof": {
+    "failedStartUnregister": "R7-109",
+    "reconcileUnregister": "R7-109",
+    "successfulStopUnregister": "R7-125"
+  },
+  "remainingA11Boundary": {
+    "getStatusPending": "implemented by R7-124",
+    "exactGetStatusCall": "implemented by R7-124",
+    "genericCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "realManagedGameHandshake": "not yet positively proven"
+  },
+  "nextExactGap": "Run a managed, read-only A11 positive test against the real game: start through Overview, require authenticated production route, call only get_status and call_lua(getStatus,{}), then perform the already-authorized owned profile stop and verify route unregister plus client restoration.",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

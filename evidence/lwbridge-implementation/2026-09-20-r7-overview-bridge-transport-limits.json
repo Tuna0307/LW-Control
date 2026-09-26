@@ -1,0 +1,101 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-099",
+  "date": "2026-09-20",
+  "status": "RECOVERED-LIMITS/OFFLINE-TESTED/LISTENER-OPTIONS-BLOCKED",
+  "title": "Recover bridge transport queue and timeout limits",
+  "branch": "research/offline-controller",
+  "parentRevision": "eada24fa92b198f1e9b92b74e3d3a4848310270d",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Recovers exact original outbound/inbound queue limits, byte budgets, and idle/backpressure/write timeouts and models only their numeric admission boundaries offline. No named-pipe listener or production queue is created.",
+    "officialGameLaunched": false,
+    "productionGameplayActionPerformed": false,
+    "productionCallLuaEnabled": false
+  },
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "outboundRouting": "RVA 0x3C3BEC-0x3C405E",
+    "outboundChannelConstruct": "RVA 0xE3FED-0xE401B; constructor RVA 0x1F2684-0x1F278C",
+    "outboundTrySend": "RVA 0x1F278C-0x1F28AC",
+    "outboundByteSemaphoreConstruct": "RVA 0xE405E-0xE407E",
+    "inboundIoStateMachine": "RVA 0x4065E9-0x407500",
+    "inboundAccountingAdd": "RVA 0x3C12EA-0x3C1491",
+    "inboundAccountingRemove": "RVA 0x3C1491-0x3C183E",
+    "timeoutHelpers": "RVA 0x2EF0A4-0x2EF390"
+  },
+  "transportLimits": {
+    "outbound": {
+      "queueItemCapacity": 4096,
+      "channelPermitUnitsInitial": 8192,
+      "permitUnitsPerItem": 2,
+      "byteBudget": 67108864,
+      "byteBudgetMiB": 64,
+      "queueFullStringXref": "RVA 0x3C3FF0 -> named pipe outbound queue is full",
+      "byteBudgetFullStringXref": "RVA 0x3C3F4B -> named pipe outbound byte budget is full"
+    },
+    "inbound": {
+      "queueItemCapacity": 4096,
+      "byteBudget": 33554432,
+      "byteBudgetMiB": 32,
+      "itemBoundaryCheck": "RVA 0x406EA0 compares existing count to 0x0FFF",
+      "byteBoundaryCheck": "RVA 0x406EAE-0x406EC4 compares post-add bytes to 0x02000000"
+    },
+    "timeoutsSeconds": {
+      "inboundBackpressure": 30,
+      "write": 10,
+      "idleActivity": 30
+    },
+    "timeoutEvidence": {
+      "inboundBackpressure": "RVA 0x40702A loads 0x1E seconds before timeout helper; error xref RVA 0x406D39/0x406D40",
+      "write": "RVA 0x40728A loads 0x0A seconds before timeout helper; error xref RVA 0x407331/0x407338",
+      "idleActivity": "RVA 0x4067DA loads 0x1E seconds before timeout helper; error xref RVA 0x4068B2/0x4068B9",
+      "unitProof": "timeout helper family adds seconds plus nanoseconds and normalizes nanoseconds against 1000000000"
+    }
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeTransportLimits.cs",
+    "productionIntegration": false,
+    "persistentNamedPipeListenerImplemented": false,
+    "productionQueuesImplemented": false,
+    "pipeServerOptionsRecovered": false,
+    "proxyEnvironmentBindingImplemented": false,
+    "pendingCallCollectionImplemented": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": "null"
+  },
+  "tests": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeTransportLimitsChecks.cs",
+    "focusedCli": "--overview-bridge-transport-limits-check",
+    "focusedResult": "PASS",
+    "defaultSuiteGuard": true,
+    "coverage": [
+      "outbound 4096-item boundary",
+      "outbound 64 MiB byte boundary",
+      "inbound 4096-item boundary",
+      "inbound 32 MiB byte boundary",
+      "30-second inbound backpressure timeout",
+      "10-second write timeout",
+      "30-second idle/activity timeout"
+    ]
+  },
+  "remainingBlocker": "Recover exact CreateNamedPipeW/accept-loop options and connection closure/error propagation, then recover authentic proxy launch environment binding before any live listener or allowlisted call_lua(getStatus).",
+  "safety": {
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedTransportLimitsGuard": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "defaultDeterministicSuite": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

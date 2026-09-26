@@ -1,0 +1,103 @@
+{
+  "evidenceId": "LWB-R7-063",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "24516c37eee72232d7fefc690070182eb0af8a6e",
+  "ownerObserved": {
+    "targetServerId": 2204,
+    "scanMode": "fast",
+    "truck": {
+      "uiProgressPercent": 98,
+      "resultCount": 0,
+      "message": "The action could not be completed."
+    },
+    "dispatch": {
+      "uiProgressPercent": 98,
+      "resultCount": 0,
+      "message": "The action could not be completed."
+    }
+  },
+  "failedRunEvidence": {
+    "truckRunId": "51748de0553c4a698cd58a342a8c9cf4",
+    "dispatchRunId": "4aa3445448ef4c0fa4471f609549e099",
+    "truck": {
+      "completedBlocks": 2499,
+      "failedBlocks": 1,
+      "failedBlockIndex": 0,
+      "attempts": 2,
+      "error": "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint."
+    },
+    "dispatch": {
+      "completedBlocks": 2499,
+      "failedBlocks": 1,
+      "failedBlockIndex": 0,
+      "attempts": 2,
+      "error": "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint."
+    },
+    "publicationBehavior": "full-run publication correctly failed closed, so no partial rows were exposed"
+  },
+  "targetedCrossServerDiagnostic": {
+    "homeServerId": 2212,
+    "targetServerId": 2204,
+    "requestMode": "coverage",
+    "targetTile": {"x": 5, "y": 75},
+    "requestedCount": 8,
+    "viewLevel": -1,
+    "holdMilliseconds": 0,
+    "requestedIndicesShape": "100 rows x 3 consecutive columns",
+    "columns": [0, 1, 2],
+    "state": "proven",
+    "conclusion": "cross-server Fast AOI acquisition is valid; the failure is a transient malformed sample, not an unsupported server"
+  },
+  "rootCause": {
+    "file": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+    "problem": "ValidateAdaptiveRowFootprint ran after the three-attempt recoverable-probe loop, so InvalidDataException from a transient non-rectangular footprint bypassed retries and failed the whole run",
+    "fix": "validate each observation inside the existing three-attempt loop; malformed footprints now retry under the same bounded recoverable-error policy as timeouts and temporary connection loss",
+    "coverageTruthUnchanged": true,
+    "maxProbeAttemptsUnchanged": 3,
+    "slowFallbackAdded": false
+  },
+  "deterministicRegression": {
+    "case": "first Fast footprint non-rectangular, second footprint valid",
+    "expected": "full 2500-block capture succeeds after bounded retry",
+    "result": "PASS"
+  },
+  "liveAcceptance": {
+    "truck": {
+      "serverId": 2204,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "failedBlocks": 0,
+      "scanWallSeconds": 117.3351044,
+      "publishedCount": 278,
+      "reopenedCount": 278,
+      "currentGoodsRows": 278,
+      "currentGoodsItems": 2019,
+      "sortChecks": 15,
+      "reopenedSortChecks": 15
+    },
+    "dispatch": {
+      "serverId": 2204,
+      "scanMode": "fast",
+      "concurrency": 20,
+      "totalBlocks": 2500,
+      "completedBlocks": 2500,
+      "failedBlocks": 0,
+      "scanWallSeconds": 123.8015415,
+      "publishedCount": 319,
+      "reopenedCount": 319,
+      "sortChecks": 9,
+      "reopenedSortChecks": 9
+    }
+  },
+  "safety": {
+    "readOnlyMapScanning": true,
+    "serverNavigationOnly": true,
+    "attackOrPlunder": false,
+    "claimOrCollect": false,
+    "messaging": false,
+    "gameplayConsumables": false
+  }
+}

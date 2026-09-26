@@ -1,0 +1,58 @@
+{
+  "baseCommit": "08c1364eee2c88dec333b1098f08ef6d7fd6b266",
+  "checks": {
+    "desktopDeterministicSuite": "PASS: ok=true, failures=[]",
+    "generatedFrontendCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "overviewLifecycleIsolated": "PASS",
+    "recoveryInspector": "PASS against pinned original; saved originalRecovery equals fresh inspector output",
+    "releaseBuild": "PASS: 0 warnings, 0 errors"
+  },
+  "currentClient": {
+    "build": 1078,
+    "luaScriptsDataSha256": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+    "version": "1.0.361"
+  },
+  "date": "2026-09-12",
+  "findingId": "LWB-OVR-009",
+  "implementationFilesSha256": {
+    "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs": "eb97165c31913f11a1f12dd361e28efbc20b2f595e3218634d4292d0099238b0",
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs": "253c74a9bf2707d7c40c5ac1a3f015e1ad9a4fb63a48c6e848f1dff4e29f7ceb",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "1dd60aa091ad03010405c6d849d3e6942b1b86b83743e93dfbe99cf689cffa0c",
+    "tools/current_overview_bridge.lua": "fbe773368b109637aa6022ac2fc28824b52a970dfb400595ac09db2c001bb3a9",
+    "tools/inspect_lwbridge_game_recovery.py": "1575187524bf99f8c6af60f04ca1956b065fcf4488df13c2dcce35ccea6f0f1f"
+  },
+  "implementationPolicies": [
+    "current-client confirmation hooks map source-backed reload/quit/reconnect-timeout actions because the protected original producer is unavailable",
+    "confirmed action is retained for the existing 5-second heartbeat freshness window so the 1-second host monitor cannot miss immediate reload/quit",
+    "C# update fingerprint representation uses last-write metadata plus file size; only the monitored targets/change semantics are claimed as recovered parity"
+  ],
+  "implemented": [
+    "confirmed event requests fail closed unless exact-session, unambiguous and source-backed",
+    "confirmed events enter waiting, can verify in place for 15s, and escalate after 60s if still unhealthy",
+    "fresh confirmed action reason survives an immediate game exit and the original two-missing-process gate",
+    "forceUpdate preserves update-detected provenance",
+    "updater activity fingerprint monitors manifest.json, Temp and Game/LastWar_Data/Plugins/x86_64/xlua.dll",
+    "metadata change resets updater inactivity; 900000ms stall terminates only selected-root launcher/updater/sync family",
+    "stalled update returns to normal retry family beginning at 15s",
+    "updater detection as well as termination is selected-root path scoped"
+  ],
+  "limits": [
+    "not LIVE-PROVEN",
+    "current-client confirmation hooks require bounded real-game verification",
+    "owner-visible combined O04/O05 acceptance remains required before Player City"
+  ],
+  "originalReference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "reproduction": [
+    "python tools\\inspect_lwbridge_game_recovery.py ..\\LW\\lwbridge-0.3.1.exe --pretty",
+    "python tools\\build_lwbridge_frontend.py --check",
+    "python tools\\test_overview_bridge_lifecycle.py",
+    "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release -- --verify-real-config-unchanged"
+  ],
+  "scope": "Overview O05 confirmed event recovery plus stalled-updater completion; live acceptance pending",
+  "status": "IMPLEMENTED/OFFLINE-TESTED"
+}

@@ -1,0 +1,80 @@
+{
+  "findingId": "LWB-R7-059",
+  "date": "2026-09-19",
+  "scope": "original City export rfd save-dialog, default-location and cancellation contract",
+  "evidenceStatus": "RECOVERED static + upstream-source corroboration",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "upstreamSources": {
+    "rfd": {
+      "version": "0.16.0",
+      "tagCommit": "5d32eec3a7930eb43b7e864eb773831bbd3d91b4",
+      "fileDialogImplBlob": "d5c414a87a6f42416b2c63c7b53a5eeaa079ae7e",
+      "dialogFfiBlob": "29e9dd330259db60a88569c64528ef7c5a3b5485",
+      "fileDialogUrl": "https://github.com/PolyMeilex/rfd/blob/0.16.0/src/backend/win_cid/file_dialog.rs",
+      "dialogFfiUrl": "https://github.com/PolyMeilex/rfd/blob/0.16.0/src/backend/win_cid/file_dialog/dialog_ffi.rs"
+    },
+    "serdeJson": {
+      "version": "1.0.151",
+      "valueEnumUrl": "https://github.com/serde-rs/json/blob/v1.0.151/src/value/mod.rs",
+      "variantOrder": [
+        "Null",
+        "Bool",
+        "Number",
+        "String",
+        "Array",
+        "Object"
+      ]
+    },
+    "windows": {
+      "commonDialogUrl": "https://learn.microsoft.com/windows/win32/shell/common-file-dialog",
+      "defaultSaveOptions": [
+        "FOS_OVERWRITEPROMPT",
+        "FOS_NOREADONLYRETURN",
+        "FOS_PATHMUSTEXIST",
+        "FOS_NOCHANGEDIR"
+      ]
+    }
+  },
+  "builder": {
+    "filter": {
+      "name": "Excel workbook",
+      "extensions": [
+        "xlsx"
+      ]
+    },
+    "fileName": "formatted R7-058 City default filename",
+    "startingDirectory": null,
+    "title": null,
+    "startingDirectoryMeaning": "no application SetFolder call; Windows common dialog chooses its persisted/system default location",
+    "filterMeaning": "rfd sets first filter extension as IFileDialog default extension and SetFileTypes"
+  },
+  "saveDialog": {
+    "api": "rfd::FileDialog::save_file",
+    "windowsBackend": "IFileSaveDialog",
+    "overwritePrompt": true,
+    "overwriteReason": "rfd build_save_file does not SetOptions; Windows Save dialog default options include FOS_OVERWRITEPROMPT",
+    "rfdErrorBehavior": "FileSaveDialogImpl::save_file calls run(self).ok(); user cancellation and any build/show/get_result COM error both collapse to Option::None"
+  },
+  "noneResult": {
+    "canceled": true,
+    "path": "",
+    "rowCount": 0,
+    "decode": "serde_json 1.0.151 Value order: Bool tag=1 with payload=1; Number tag=2 with zero payload; String tag=3 with empty String descriptor",
+    "dialogErrorDistinguishableFromUserCancel": false
+  },
+  "refinement": {
+    "previousDialogLabel": "R6-018's 'Excel workbook' dialog-label wording is refined: the callsite proves it is the file-filter display name; custom dialog title remains unset"
+  },
+  "restrictions": {
+    "replayed": [],
+    "preserved": [
+      "SB-08",
+      "SB-09",
+      "SB-99"
+    ],
+    "note": "R7-059 does not inspect the denied SB-99 formatter-argument range"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "findingIds": [
+    "LWB-R7-014",
+    "LWB-OVR-016"
+  ],
+  "date": "2026-09-17",
+  "validatedBaseCommit": "6c2ff68bfd734643ee97300f0382c8dc33bd72ff",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "status": "LIVE-PROVEN Monster distance/full-world acquisition and repeated-launch warm-up reuse; IMPLEMENTED/OFFLINE-TESTED shield-only Remaining, <= level filter, Monster sorting/query preservation and same-tick camera restoration",
+  "currentClient": {
+    "contentVersion": 17,
+    "packageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "packageSize": 41293716,
+    "packageCrc32": 2113157353,
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "ownerReportedIssues": [
+    "Monster Remaining must represent Zombie/Boss shield time, not generic march endTime.",
+    "full-world scan visibly flickers/jumps the game camera",
+    "unchanged game starts appeared as launcher/game warm-up then second real launch",
+    "Monster Distance column was blank",
+    "Monster Level/Distance sort clicks could clear the table",
+    "Monster level selector must mean selected level or below"
+  ],
+  "implementation": {
+    "remaining": "Monster Remaining uses only positive zMBossInfo.shieldEndTime normalized to shieldEndTime; local UI clock ticks once per second; absent/nonpositive stays -.",
+    "levelFilter": "Monster selector sends only positive maxLevel; backend applies page.level <= maxLevel. Monster min/range forms stay fail-closed.",
+    "sorting": "Monster production query accepts unique level/distance/updatedAt sorts and preserves record_key ASC tie-break. Failed query no longer replaces current rows with empty data.",
+    "homePosition": "world readiness resolves CS.GameEntry.Data.Player.PlayerWorldPointId with WorldPointManager.GetMyPointInfo().pointIndex fallback and propagates PlayerTileX/Y into the scan request.",
+    "distance": "current client computes distanceFromHome with WorldScene.TileDistance(homeTile, monsterTile) and persists it in JSON plus normalized distance.",
+    "camera": "zero-hold coverage request restores camera position/FOV in the same Lua callback after UpdateViewRequest queues the request; proof label is WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore.",
+    "launchWarmup": "each start still performs read-only recovery/current-client compatibility; destructive official launcher/game settlement is skipped when schema-1 marker matches exact selected root and validated package SHA-256."
+  },
+  "liveProof": {
+    "worldContext": {
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000,
+      "playerTileX": 230,
+      "playerTileY": 257,
+      "playerSource": "CS.GameEntry.Data.Player"
+    },
+    "monsterFullRun": {
+      "logicalBlocks": 2500,
+      "failedBlocks": 0,
+      "publishedMonsterCount": 12731,
+      "reopenedMonsterCount": 12731,
+      "scanMode": "normal",
+      "concurrency": 8,
+      "scanWallSeconds": 111.5103454,
+      "distanceCount": 12731,
+      "minDistance": 2.0,
+      "maxDistance": 1061.5389404297,
+      "shieldDeadlineCount": 0
+    },
+    "cameraRestorePriorRun": {
+      "logicalBlocks": 2500,
+      "failedBlocks": 0,
+      "publishedMonsterCount": 13115,
+      "reopenedMonsterCount": 13115,
+      "scanWallSeconds": 71.0537623,
+      "result": "same-tick camera restoration retained complete full-world acquisition"
+    },
+    "launchWarmupReuse": {
+      "markerPath": "%LOCALAPPDATA%\\LWBridgeRebuild\\overview-evidence\\official-settled-client.json",
+      "markerPackageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+      "markerSettledAtUtc": "2026-09-16T17:51:00.7496732+00:00",
+      "result": "later successful production lifecycle launches reused the unchanged marker instead of rewriting it; manual/startup lifecycle both reached connected and closed/restored cleanly"
+    }
+  },
+  "validation": {
+    "desktopAndChecksReleaseBuild": "0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; six deterministic groups true; failures=[]",
+    "frontendGenerator": "passed",
+    "frontendBrowserChecks": 36,
+    "overviewOfficialSettleChecks": "ok",
+    "liveRuntimeContext": "passed",
+    "liveFullMonsterDistance": "passed",
+    "finalGitDiffCheck": "passed"
+  },
+  "limits": [
+    "No positive zMBossInfo.shieldEndTime occurred in the latest 12,731-row live population, so active Zombie shield Remaining is source-wired but not live-positive in this checkpoint.",
+    "Same-tick camera restoration is technically full-scan proven; owner-visible flicker reduction still requires the next owner UI observation.",
+    "The warm-up marker is rebuild policy. The first launch after a genuinely changed compatible package may still perform one official warm-up; critical changes still fail closed.",
+    "Resource and Truck/Railway/Dispatch/Ghost/Treasure common-engine acceptance, mixed/all-eight and Auto Scan remain subsequent work."
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "1564bee363114dd2b61e18bfded97a8e9607f3a7815b7332e0243dcb51fdbd1f",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs": "c7f6c53ca57e40c116f3ced4080808bd591aa75ccffc16aaa334ae10634c47df",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs": "f86ce956078cd4594126124387d80887b79363e7de68fee525cab15dfe64f2fc",
+    "src/LWBridge.Desktop/MapDataStore.cs": "bf71cd4d0f8e0c39d811e8eae8d71d3c5590d94eb353d6bed3d7dcac11ef6de9",
+    "src/LWBridge.Desktop/MapScanEngineContracts.cs": "aa99cf9f80b72d3408b2f414efa2bdd10dd817b89bc7f93be4adcd25553a7b62",
+    "src/LWBridge.Desktop/OverviewLifecycleOfficialSettle.cs": "81a17d2e9ea5b73898b81ada64a66d65341e40ccd469c618140177b34fc1eda9",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js": "61ee61f266414dc3cd11e06e9957e4cb64780858ae668604bf11d78e5b4bccbf",
+    "src/LWBridge.Desktop/WebUi/preview-host.js": "9ab4e7fe98d2e77980635f8e9245d1d31e06185f9aeb6768d579d99f44918728",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "0c0d541ba8b7a02639a7686c6a89c1b2e4bf2de814323d0f88d60169e4e1181a",
+    "tests/LWBridge.Desktop.Checks/LiveCurrentClientMapBlockProof.cs": "af6f3eee1f8ddb9db386d7b0615de7374750d9007fca983006985af16d1dc0d1",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullMonsterProof.cs": "5ae6ca3ebf9a8b6f8865fcb9a71f1c49e1a5eee037546b9e6a230ffb6625da93",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "c5ee32fd89e9104b5e4f122a1f17a91c81d765b4285aed2ba2f89582beb62495",
+    "tools/build_lwbridge_frontend.py": "f75510a39e1801f1deb7ec0859f4d2c3949e5346db93bf64b8054ae5f51a2d25",
+    "tools/check_lwbridge_frontend.cjs": "47ee2fb2715050ad532324c2c1af55e2bfe1edbc1215ae03defa58e17fa4713e",
+    "tools/current_live_resource_probe.lua": "3cd8994dc32c3733bb5e3a7d32c18f59810f28b728355c55765fc7c65f0de941",
+    "tools/current_overview_bridge.lua": "24a4b8513112c3a5eeed70e4fe4dbd33008304eea482615dd35878decd1196ac"
+  }
+}

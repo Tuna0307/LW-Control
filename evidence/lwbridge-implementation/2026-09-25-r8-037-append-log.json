@@ -1,0 +1,67 @@
+{
+    "schemaVersion":  1,
+    "checkpoint":  "LWB-R8-037",
+    "date":  "2026-09-25",
+    "scope":  "Restore append_log profile-runtime logging side effect.",
+    "referenceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendChanged":  false,
+    "authority":  [
+                      "append_log handler RVA 0x12FC8E-0x13050B",
+                      "profile runtime resolver RVA 0x2AE43C",
+                      "Unicode scalar truncation helper RVA 0x393D5A",
+                      "CR/LF line sanitizer RVA 0x3F5C8C",
+                      "runtime log writer RVA 0x3CE0D2",
+                      "Unix millisecond clock RVA 0x23F1C0",
+                      "format descriptor bytes near RVA 0xD0A724",
+                      "retained frontend append_log wrapper and selected-profile injection"
+                  ],
+    "contract":  {
+                     "pathWithinRuntime":  "logs/xlua-bridge.log",
+                     "lineFormat":  "[\u003cunix-milliseconds\u003e] [bridge-app] \u003csanitized-message\u003e\n",
+                     "encoding":  "UTF-8",
+                     "writeMode":  "append",
+                     "successResult":  null,
+                     "maximumUnicodeScalars":  2000,
+                     "newlineSanitization":  "each CR and each LF becomes one ASCII space",
+                     "emptyStringAllowed":  true,
+                     "ioFailurePolicy":  "best effort; command success is preserved"
+                 },
+    "profileErrors":  {
+                          "missingBlankOrNonStringProfileId":  "PROFILE_ID_REQUIRED",
+                          "missingProfileRuntime":  "PROFILE_RUNTIME_UNAVAILABLE",
+                          "messageDeserialization":  "native framework rejects malformed or non-string message before writer; exact framework text not claimed"
+                      },
+    "implementation":  [
+                           "src/LWBridge.Desktop/AppendLogCommandService.cs",
+                           "src/LWBridge.Desktop/LWBridgeBackend.cs",
+                           "src/LWBridge.Desktop/LWBridgeWindow.cs",
+                           "tests/LWBridge.Desktop.Checks/AppendLogChecks.cs",
+                           "tests/LWBridge.Desktop.Checks/Program.cs"
+                       ],
+    "validationStatus":  {
+                             "desktopReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "checksReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "deterministicSuite":  "PASS ok=true failures=[] exitCode=0",
+                             "frontendChanged":  "NO",
+                             "frontendGeneratorCheck":  "PASS",
+                             "gitDiffCheck":  "PASS",
+                             "jsonSyntax":  "PASS",
+                             "stagedDiffCheck":  "PASS"
+                         },
+    "evidenceClassification":  {
+                                   "profileRuntimeResolution":  "EXACT_NATIVE",
+                                   "pathAndFileName":  "EXACT_NATIVE",
+                                   "timestampAndLineFormat":  "EXACT_NATIVE",
+                                   "unicodeScalarLimit":  "EXACT_NATIVE",
+                                   "newlineSanitization":  "EXACT_NATIVE",
+                                   "successAndBestEffortWriteBehavior":  "EXACT_NATIVE",
+                                   "frontendProfileInjection":  "EXACT_BYTES_DERIVED",
+                                   "singleProfileRuntimeDirectoryWiring":  "EQUIVALENT_REIMPLEMENTATION",
+                                   "malformedMessageApplicationErrorCode":  "REBUILD_BOUNDARY_NOT_CLAIMED_NATIVE"
+                               },
+    "remainingBoundary":  {
+                              "rotationAndSegments":  "native wider log manager is visible but exact rotation and retention policy is not claimed by R8-037",
+                              "multiProfileRuntimeMap":  "full native multi-profile launcher/runtime ownership remains separate"
+                          },
+    "nextCheckpoint":  "Recover another complete retained host-side contract without inventing account, entitlement, or protected gameplay-provider behavior."
+}

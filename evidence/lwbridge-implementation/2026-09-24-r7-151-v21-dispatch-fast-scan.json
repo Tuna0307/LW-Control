@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R7-151",
+  "date": "2026-09-24",
+  "title": "Last War v21 update-safe lifecycle and Dispatch/Secret Task acceleration",
+  "client": {"version":21,"gameSha256":"905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d","assemblyCSharpSha256":"bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e","xluaSha256":"d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45","luaPackageSha256":"e888a4ae3faae6df501493e18653fbb92c2406487467ba34312b7c5a22e2caa5"},
+  "findings": [
+    {"id":"R7151-UPD-01","status":"IMPLEMENTED/OFFLINE-TESTED","result":"startup now restores LWBridge files, runs the untouched official launcher/update to completion, closes the clean preflight game, strictly validates the final client, then installs/starts LWBridge; restore-only recovery permits an intermediate updated binary but candidate injection still requires final compatibility approval"},
+    {"id":"R7151-MAP-01","status":"LIVE-PROVEN","result":"v21 safe full-world coverage uses FOV 175, cameraY 220 and AOI-boundary-aligned targets; aspect 4-12 all produce 6x25=150 AOIs; cameraY 240+ enters the unsupported split path; the exact 100x100 AOI union therefore requires 17x4=68 primary requests"},
+    {"id":"R7151-MAP-02","status":"LIVE-PROVEN","result":"500 ms parking settle failed first-request stability; 1 s passed. A separate startup settle was redundant and removed after zero-startup-settle Dispatch and City proofs completed 2500/2500 blocks"},
+    {"id":"R7151-MAP-03","status":"LIVE-PROVEN","result":"full Dispatch scan on server 2175 completed in 7.028 s after startup-settle removal with 2 rows persisted/reopened; same-session warm scans previously measured about 6.28-6.31 s per server"},
+    {"id":"R7151-MAP-04","status":"LIVE-PROVEN","result":"official read-only DispatchFindNearestPoint returns one Secret Task location in about 0.5 s and does not enumerate the full world task set"},
+    {"id":"R7151-MAP-05","status":"IMPLEMENTATION POLICY + BROWSER-PROVEN","result":"when Auto Scan includes Dispatch, after confirmed server travel it runs one native Quick Find and emits the coordinate before starting the complete scan; the one-target result is never merged into authoritative scan storage"}
+  ],
+  "liveProofs": {"dispatchColdSeconds":7.0282977,"dispatchRows":2,"citySeconds":10.3927662,"cityRows":94,"warmMultiServerSeconds":{"2175":9.92,"2180":6.28,"2185":6.31},"quickFindFirstWallSeconds":0.58,"probePackagedBytes":63971},
+  "rejectedExperiments": ["messagebulk world browser timed out / lacked authoritative empty-batch completion","coverage-chain experiment was not production-proven and was removed","aspect-only tuning cannot beat 6x25 at cameraY 220"],
+  "validation": {"desktopDeterministic":"pass; zero failures","runtimeContractV21":"pass","mapBrowserCheck":"pass including Auto Quick Find before map_scan_start and visible-result event","gitDiffCheck":"pass except line-ending warnings","launcherSelfTest":"pass","normalReleaseWindowScript":"blocked by local PowerShell execution policy; no policy change attempted"},
+  "reproduction": ["dotnet tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll --live-current-client-full-dispatch-manual","dotnet tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll --live-current-coverage-geometry-sweep","python tools\\check_current_client_runtime_contract.py","node tools\\check_map_data_r7131.cjs"],
+  "limits": ["wall time varies with network/world state","Quick Find is one-target only and is not a completeness substitute","68 requests is the best safe footprint proven for the current camera-based v21 path, not a universal theoretical lower bound","normal Release scripted window smoke remains unrerun because the machine blocks .ps1 execution"]
+}

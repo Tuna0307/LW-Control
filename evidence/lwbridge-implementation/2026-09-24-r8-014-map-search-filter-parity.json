@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-014",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 map_search eight-kind admission, frontend filter ownership, query builder, and generic keyword behavior; alternate-sort internals remain partial.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md#5-map_search",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "original executable map_search handler/predicate evidence summarized by the exact-contract report"
+  ],
+  "publicKinds": [
+    "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"
+  ],
+  "removedPublicExtensions": [
+    "zombie_boss kind",
+    "monsterNameKeys localized-key side channel",
+    "Monster level selector/maxLevel semantics",
+    "Resource level selector/minLevel/maxLevel semantics",
+    "resourceIdleOnly",
+    "resourceFullOnly",
+    "excludeBlackTile"
+  ],
+  "filterOwnership": {
+    "resourceNameKey": ["resource"],
+    "monsterNameKey": ["monster"],
+    "minLevel": ["dispatch"],
+    "maxLevel": ["dispatch"]
+  },
+  "keywordContract": {
+    "publicPredicate": "generic LIKE predicate over name, alliance_name, uuid, and data_json",
+    "monsterSpecialCase": false,
+    "localizedMonsterKeysPublic": false,
+    "rawJsonParticipates": true
+  },
+  "unknownExtraKeyPolicy": {
+    "resourceTruthKeys": "inert extras; no invented original semantics",
+    "recoveredNamedWrongKindFields": "fail closed through UnsupportedFeatures / MAP_QUERY_UNRECOVERED"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs",
+    "src/LWBridge.Desktop/MapDataStore.cs",
+    "tools/build_lwbridge_frontend.py",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/Program.cs",
+    "tools/check_map_search_r8014.cjs"
+  ],
+  "regressions": {
+    "zombieBossPublicSearch": "INVALID_MAP_KIND",
+    "monsterNameKeysExtension": "does not extend public keyword predicate",
+    "monsterRawJsonKeyword": "restored",
+    "monsterMaxLevel": "MAP_QUERY_UNRECOVERED",
+    "resourceTruthFlags": "ignored/inert",
+    "resourceLevelBounds": "MAP_QUERY_UNRECOVERED",
+    "generatedRemovedVocabulary": "absent"
+  },
+  "validation": {
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "focusedFrontendCheck": "PASS tools/check_map_search_r8014.cjs",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-014 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "eightKindAdmission": "EXACT_CONTRACT",
+    "frontendFilterOwnership": "EXACT_CONTRACT",
+    "frontendQueryBuilder": "EXACT_CONTRACT",
+    "genericKeywordPredicate": "EXACT_CONTRACT",
+    "removedRebuildExtensions": "EXACT negative evidence + original frontend bytes",
+    "alternateSortInternals": "PARTIAL"
+  },
+  "notClaimed": [
+    "complete exact implementation of every alternate-sort branch",
+    "game-side protected scan acquisition/traversal/extraction",
+    "original Auto Scan scheduler/state machine",
+    "Scheduled Plunder",
+    "Login / Account / Authentication behavior"
+  ],
+  "nextCheckpoint": "Restore original Auto Scan frontend scheduler/state machine; keep remaining map_search alternate-sort internals explicitly partial until stronger evidence exists."
+}

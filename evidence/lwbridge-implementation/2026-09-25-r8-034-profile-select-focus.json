@@ -1,0 +1,77 @@
+{
+    "schemaVersion":  1,
+    "checkpoint":  "LWB-R8-034",
+    "date":  "2026-09-25",
+    "scope":  "Restore profile_select selected-profile state and native best-effort game-window focus semantics.",
+    "referenceSha256":  "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendChanged":  false,
+    "authority":  [
+                      "public profile_select handler VA 0x14016D01A",
+                      "registry selection helper VA 0x1403DA8A1",
+                      "shared profile-ID validator VA 0x1403DC23E",
+                      "focusGame parser VA 0x1403ABF8E",
+                      "focus/path precheck helper VA 0x14033C3A7",
+                      "visible-window focus helper VA 0x140337A21",
+                      "EnumWindows callback VA 0x14033C8DF",
+                      "retained frontend API profile_select wrapper"
+                  ],
+    "selection":  {
+                      "query":  "SELECT enabled = 1 AND locked_reason IS NULL FROM profiles WHERE id = ?",
+                      "update":  "UPDATE controller_state SET value = ? WHERE key = \u0027selected_profile_id\u0027",
+                      "missingProfileCode":  "PROFILE_NOT_FOUND",
+                      "disabledOrLockedCode":  "PROFILE_LOCKED",
+                      "invalidProfileIdCode":  "INVALID_PROFILE_ID",
+                      "invalidPublicPayloadCode":  "INVALID_REQUEST",
+                      "profileMetadataChange":  "none",
+                      "successResult":  "refreshed selectedProfileId/maxProfiles/profiles state"
+                  },
+    "focusGame":  {
+                      "booleanTrue":  "attempt focus",
+                      "booleanFalse":  "skip focus",
+                      "missing":  true,
+                      "wrongType":  true,
+                      "failurePolicy":  "best effort; selection remains successful"
+                  },
+    "focusSequence":  {
+                          "processEvidence":  "selected game root Game/LastWar.exe plus matching running PID",
+                          "enumeration":  "EnumWindows",
+                          "match":  "GetWindowThreadProcessId equals game PID and IsWindowVisible is true",
+                          "showWindowCommand":  9,
+                          "foregroundCall":  "SetForegroundWindow",
+                          "noWindow":  "no error"
+                      },
+    "implementation":  [
+                           "src/LWBridge.Desktop/ProfileRegistryStore.cs",
+                           "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+                           "src/LWBridge.Desktop/ProfileWindowFocusService.cs",
+                           "src/LWBridge.Desktop/LWBridgeWindow.cs",
+                           "src/LWBridge.Desktop/LWBridgeBackend.cs",
+                           "tests/LWBridge.Desktop.Checks/ProfileRegistryChecks.cs"
+                       ],
+    "validationStatus":  {
+                             "desktopReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "checksReleaseBuild":  "PASS 0 warnings 0 errors",
+                             "deterministicSuite":  "PASS ok=true failures=[] exitCode=0",
+                             "frontendChanged":  "NO",
+                             "frontendGeneratorCheck":  "PASS",
+                             "gitDiffCheck":  "PASS",
+                             "jsonSyntax":  "PASS",
+                             "stagedDiffCheck":  "PASS"
+                         },
+    "fencedRelatedWork":  {
+                              "profile_enable_set":  "capacity/license state remains excluded",
+                              "profile_create":  "not restored",
+                              "profile_delete":  "destructive cleanup/runtime semantics not fully closed",
+                              "launcherOwnership":  "not restored",
+                              "chat_automation_configure":  "provider-backed configureChatAutomation timeout 5000 ms",
+                              "chat_automation_run_pending":  "provider-backed runChatAutomationPending timeout 5000 ms"
+                          },
+    "evidenceClassification":  {
+                                   "selectionSql":  "EXACT_NATIVE",
+                                   "selectionErrors":  "EXACT_NATIVE",
+                                   "focusGameDefault":  "EXACT_NATIVE + retained frontend",
+                                   "focusSequence":  "EXACT_NATIVE",
+                                   "gameProcessEvidenceReuse":  "EQUIVALENT_REIMPLEMENTATION"
+                               },
+    "nextCheckpoint":  "Recover another host-local command whose complete observable contract can be proven without entitlement/provider invention."
+}

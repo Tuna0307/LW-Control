@@ -1,0 +1,70 @@
+{
+  "findingId": "LWB-R7-026",
+  "date": "2026-09-18",
+  "status": "LIVE-PROVEN",
+  "scope": "current-v18 Monster whole-world LOD2 fast acquisition with automatic Zombie Boss Remaining",
+  "client": {
+    "contentVersion": 18,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "packageSize": 41296021,
+    "packageCrc32": 738537259
+  },
+  "coarseCapability": {
+    "state": "proven",
+    "elapsedSeconds": 0.34733450226486,
+    "postServerLod": 2,
+    "postBlockSize": 1000,
+    "postBlockCount": 1,
+    "restoredServerLod": 0,
+    "restoredBlockSize": 10,
+    "restoredBlockCount": 100,
+    "cameraTileStable": true,
+    "monsterRows": 7429,
+    "zombieBossRows": 67
+  },
+  "liveRuns": [
+    {
+      "totalBlocks": 2500,
+      "failedBlocks": 0,
+      "publishedMonsterCount": 7271,
+      "reopenedMonsterCount": 7271,
+      "scanWallSeconds": 11.4181272,
+      "distanceCount": 7271,
+      "monsterInvasionBossCount": 63,
+      "monsterProtectionDetailTargetCount": 63,
+      "monsterProtectionDetailRequestCount": 10,
+      "monsterProtectionDetailRetryCount": 0,
+      "monsterProtectionDetailReadyCount": 10,
+      "activeShieldDeadlineCount": 10,
+      "monsterProtectionDetailError": null
+    },
+    {
+      "totalBlocks": 2500,
+      "failedBlocks": 0,
+      "publishedMonsterCount": 7194,
+      "reopenedMonsterCount": 7194,
+      "scanWallSeconds": 10.9026483,
+      "distanceCount": 7194,
+      "monsterInvasionBossCount": 60,
+      "monsterProtectionDetailTargetCount": 60,
+      "monsterProtectionDetailRequestCount": 9,
+      "monsterProtectionDetailRetryCount": 0,
+      "monsterProtectionDetailReadyCount": 9,
+      "activeShieldDeadlineCount": 9,
+      "monsterProtectionDetailError": null
+    }
+  ],
+  "fallback": {
+    "policy": "LOD2 validation/timeout failures fall back to conservative exact-coverage LOD0 acquisition",
+    "deterministicRegression": true
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroupsAllTrue": true,
+    "gitDiffCheckClean": true,
+    "officialV18Restored": true,
+    "recoveryJournalPresent": false
+  },
+  "privacy": "Aggregate-only evidence; no live UUIDs, coordinates, account identifiers, profile identifiers, session identifiers, or challenges retained."
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "LWB-R7-076",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "e822d67298488144a29c8f51a8606081420d8e09",
+  "status": "LIVE-PROVEN",
+  "scope": {
+    "feature": "current-v19 Monster result-filter fidelity",
+    "readOnly": true,
+    "stateChangingGameplayActionInvoked": false,
+    "zombieBossPositivePopulationClaimed": false
+  },
+  "authority": {
+    "monsterNameKey": "LWB-R6-005 exact monsterNameKey equality predicate",
+    "keywordEscaping": "LWB-R6-007 literal substring escaping/NOCASE construction, specialized for Monster visible fields by LWB-R7-013 policy",
+    "resolvedLocalizedNameKeys": "LWB-R7-013 rebuild usability policy; frontend-resolved displayed names provide bounded monsterNameKeys",
+    "maximumLevel": "LWB-R7-014 current owner policy, retained by LWB-R7-017: selected Monster level is inclusive maximum and UI buckets are multiples of five"
+  },
+  "implementation": {
+    "liveVerifier": "tests/LWBridge.Desktop.Checks/MonsterFilterProofHelper.cs",
+    "monsterHarness": "tests/LWBridge.Desktop.Checks/LiveManualFullMonsterProof.cs",
+    "verificationMethod": "Read raw persisted live Monster rows, derive expected UUID sets independently, execute production indexed queries, and repeat every filter check after database reopen."
+  },
+  "liveAcceptance": {
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 8.6235202,
+    "publishedMonsterCount": 5105,
+    "reopenedMonsterCount": 5105,
+    "distanceCount": 5105,
+    "filterComparedRowCount": 5105,
+    "filterCheckCount": 8,
+    "reopenedFilterCheckCount": 8,
+    "monsterNameCount": 1584,
+    "selectedMaxLevel": 20,
+    "maxLevelCount": 2916,
+    "nameAndMaxCount": 861,
+    "keywordIdentityCount": 1,
+    "keywordPercentLiteralCount": 0,
+    "keywordUnderscoreLiteralCount": 1,
+    "keywordBackslashLiteralCount": 0,
+    "resolvedNameKeyCount": 3101
+  },
+  "coverage": {
+    "exactSetChecks": [
+      "monsterNameKey",
+      "maxLevel inclusive current policy",
+      "monsterNameKey+maxLevel",
+      "identity keyword",
+      "literal percent keyword",
+      "literal underscore keyword",
+      "literal backslash keyword",
+      "resolved monsterNameKeys keyword expansion"
+    ],
+    "resolvedNameKeyInterpretation": "Live-proves the shipped rebuild resolved-name-key query path over authentic current-v19 rows; it is not claimed as original LWBridge frontend behavior.",
+    "keywordDirectScope": "name, uuid, monsterNameKey only; raw data_json schema keys are intentionally excluded by R7-013.",
+    "identityHarnessCorrection": "First live attempt completed acquisition but verifier assumed search rows exposed recordKey. Monster rows are compared by authoritative UUID instead; product query behavior was not changed."
+  },
+  "populationLimits": {
+    "zMBossInfoCount": 0,
+    "shieldDeadlineCount": 0,
+    "activeShieldDeadlineCount": 0,
+    "monsterInvasionBossCount": 0,
+    "monsterProtectionDetailTargetCount": 0,
+    "interpretation": "No positive Zombie/Boss protection-detail or active-shield claim is added by this filter checkpoint."
+  },
+  "validation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "gitDiffCheck": "PASS",
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": {
+    "attacksOrRobberyPerformed": false,
+    "claimsOrCollectionsPerformed": false,
+    "messagesSent": false,
+    "stateChangingGameplayActionsPerformed": false
+  },
+  "privacy": "Aggregate-only evidence. Sample Monster UUID/name key, coordinates, session/challenge identifiers, process identifiers, databases and raw logs are not retained."
+}

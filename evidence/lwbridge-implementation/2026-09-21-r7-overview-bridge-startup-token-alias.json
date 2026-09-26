@@ -1,0 +1,49 @@
+{
+  "boundary": {
+    "productionCallLuaEnabled": false,
+    "productionListenerImplemented": false,
+    "staticOnly": true
+  },
+  "conclusion": "The raw pipeToken generated into launch-state +0x3A0 supplies the exact +0x3A8/+0x3B0 pointer/length slice forwarded unchanged into startup registration; no challenge alias or token transform occurs.",
+  "directStartupRegistration": {
+    "profileLength": "mov r9, qword ptr [r14 + 0x398]",
+    "profilePointer": "mov r8, qword ptr [r14 + 0x390]",
+    "tokenSlice": "movups xmm0, xmmword ptr [r14 + 0x3a8]",
+    "tokenStackForward": "movups xmmword ptr [rsp + 0x20], xmm0",
+    "wrapperCall": "call 0x1403cca38"
+  },
+  "findingId": "LWB-R7-108",
+  "ok": true,
+  "pipeTokenObject": {
+    "launchStateOffset": "0x3A0",
+    "objectBytes": 24,
+    "payloadLengthOffset": "0x3B0",
+    "payloadPointerOffset": "0x3A8",
+    "producer": {
+      "call": "call 0x1403a2e51",
+      "destination": "lea rcx, [r14 + 0x3a0]",
+      "storeLength": "mov qword ptr [rsi + 0x10], r15",
+      "storeOwner": "mov qword ptr [rsi], rbx",
+      "storePointer": "mov qword ptr [rsi + 8], r12"
+    }
+  },
+  "registryTokenUse": {
+    "hashCall": "call 0x1403eb155",
+    "hashLengthArg": "mov r8, r15",
+    "hashPointerArg": "mov rdx, r13",
+    "minimumLengthCheck": "cmp r15, 7",
+    "tokenLengthLoad": "mov r15, qword ptr [rsp + 0x168]",
+    "tokenPointerLoad": "mov r13, qword ptr [rsp + 0x160]"
+  },
+  "registryWrapper": {
+    "forwardTokenSlice": "movups xmmword ptr [rsp + 0x30], xmm0",
+    "receiveTokenSlice": "movaps xmm0, xmmword ptr [rsp + 0x120]",
+    "registryCall": "call 0x1403c2a69"
+  },
+  "schemaVersion": 1,
+  "source": {
+    "imageBase": "0x140000000",
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

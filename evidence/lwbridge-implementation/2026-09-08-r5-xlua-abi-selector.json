@@ -1,0 +1,106 @@
+{
+  "findingId": "LWB-R5-002",
+  "date": "2026-09-08",
+  "scope": "xLua PE export ABI fingerprint algorithm and secure/plain selector",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "reference": "..\\LW\\lwbridge-0.3.1.exe",
+    "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProfileLauncherSha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de",
+    "coordinateSystem": "preferred launcher virtual addresses (VA); embedded asset RVAs are outer-PE RVAs"
+  },
+  "staticRecovery": {
+    "launcherSha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de",
+    "classifierFunctionPreferredVa": "0x140030FD0-0x14003205C",
+    "sortFunctionPreferredVa": "0x140032720-0x14003277D",
+    "insertionComparatorPreferredVa": "0x140034980-0x140034A85",
+    "locatorsPreferredVa": {
+      "exportBaseRead": "0x1400314EA",
+      "exportBaseValue": "0x140031512",
+      "nameOrdinalLookup": "0x1400317DC",
+      "nameOrdinalValue": "0x140031810",
+      "ordinalAddBase": "0x140031817",
+      "recordOrdinalStore": "0x14003183D",
+      "sortCall": "0x14003187D",
+      "headerTail": "0x1400318F4",
+      "headerHead": "0x1400318FA",
+      "recordSpan": "0x14003191D",
+      "recordNameOffset": "0x140031A91",
+      "formatCall": "0x140031AD9",
+      "sha256IvLoad0": "0x140031C35",
+      "sha256IvLoad1": "0x140031C40",
+      "smallSortRecordSpan": "0x140032745",
+      "smallSortCompareCall": "0x14003275B",
+      "ordinalCompareLoad": "0x140034992",
+      "ordinalCompare": "0x140034994",
+      "ordinalAlreadyOrdered": "0x1400349CE"
+    },
+    "sha256InitialStateRva": "0x89318"
+  },
+  "algorithm": {
+    "prefixAscii": "LWXE1\\n",
+    "recordFormat": "<decimal export ordinal>:<UTF-8 export name>\\n",
+    "ordinal": "IMAGE_EXPORT_DIRECTORY.Base + AddressOfNameOrdinals[i]",
+    "ordering": "ascending export ordinal; export-name byte order breaks equal-ordinal ties",
+    "digest": "SHA-256 over prefix followed by every named-export record"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "secureExportFingerprint": "69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9",
+    "plainExportFingerprint": "dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd",
+    "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "plainProxySha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+  },
+  "validation": {
+    "embeddedLegacyXlua": {
+      "sha256": "f4979b11e1990a7c064a937a80231fbb11fa13f5f8a19d2a321569dd6e5b254a",
+      "exportBase": 1,
+      "namedExportCount": 255,
+      "canonicalPrefixHex": "4c575845310a",
+      "recordFormat": "<decimal export ordinal>:<UTF-8 export name>\\n",
+      "sort": "ascending export ordinal; export-name byte order breaks equal-ordinal ties",
+      "fingerprintSha256": "dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd",
+      "classification": "plain"
+    },
+    "embeddedPlainProxy": {
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "exportBase": 1,
+      "namedExportCount": 255,
+      "canonicalPrefixHex": "4c575845310a",
+      "recordFormat": "<decimal export ordinal>:<UTF-8 export name>\\n",
+      "sort": "ascending export ordinal; export-name byte order breaks equal-ordinal ties",
+      "fingerprintSha256": "dbf663268c49da286f1a282786e69e18c885a719c7734234b89c43fd521932dd",
+      "classification": "plain"
+    },
+    "embeddedSecureProxy": {
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "exportBase": 1,
+      "namedExportCount": 266,
+      "canonicalPrefixHex": "4c575845310a",
+      "recordFormat": "<decimal export ordinal>:<UTF-8 export name>\\n",
+      "sort": "ascending export ordinal; export-name byte order breaks equal-ordinal ties",
+      "fingerprintSha256": "116d2f7832094d7884cc9cd1b9290073bfb934a1fc45bf05d6c516474d23bf2d",
+      "classification": "unsupported",
+      "limit": "proxy self-exports are not the selector input; this proxy contains additional forwarding/wrapper exports"
+    },
+    "suppliedGameXlua": {
+      "sourceLabel": "%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+      "sha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "exportBase": 1,
+      "namedExportCount": 254,
+      "canonicalPrefixHex": "4c575845310a",
+      "recordFormat": "<decimal export ordinal>:<UTF-8 export name>\\n",
+      "sort": "ascending export ordinal; export-name byte order breaks equal-ordinal ties",
+      "fingerprintSha256": "69c9f22bdd71eb1e9ce6f577ef03531685a8528349ff04ccfbeda7de6d788da9",
+      "classification": "secure"
+    }
+  },
+  "limits": [
+    "Static launcher recovery plus byte-for-byte fingerprint reproduction does not prove launch/injection success.",
+    "The secure/plain selector is now recovered, but descriptor proof/ticket semantics and child-launcher input decoding remain unresolved."
+  ],
+  "implementationImpact": [
+    "R5 xLua ABI selector recovery can be marked complete.",
+    "Production launch must still fail closed until the remaining launch-proof/ticket/input contracts are recovered."
+  ]
+}

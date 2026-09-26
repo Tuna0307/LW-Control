@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-PM12-002",
+  "date": "2026-09-10",
+  "baseCommit": "4bf5cbfdd6f2e6fb678c836ee3bcbce5ea2a02fa",
+  "branch": "research/offline-controller",
+  "status": {
+    "pm12B": "IMPLEMENTED/OFFLINE-TESTED",
+    "pm12C": "PARTIAL IMPLEMENTED/OFFLINE-TESTED"
+  },
+  "scope": "Bounded live-resource adapter lifecycle and result-integrity hardening. No installed-file mutation or new live acquisition was performed for this checkpoint.",
+  "sourceIdentity": {
+    "lwbridgeReferenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "supportedLiveRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true) -> WorldPointManager._pointInfos",
+    "currentClientHashesRequiredByProductionService": {
+      "LWScripts.data": "09ddc4d1727bc0676ef6320db79814852cacc5c82b53551c703722052ebdbace",
+      "xlua.dll": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "Assembly-CSharp.rdl": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+    }
+  },
+  "implementation": {
+    "lifecycle": [
+      "map_scan_start rejects an overlapping acquisition with MAP_SCAN_ALREADY_RUNNING instead of queueing it",
+      "map_scan_stop cancels the active app operation and reports cancelling while helper-owned cleanup continues",
+      "window close cancels publication before disposing the Map Data store",
+      "a supervised helper timeout keeps helper ownership until process exit and never imports a late result",
+      "a successful Start returns phase=idle with isReading=false"
+    ],
+    "resultIntegrity": [
+      "the helper copies one parsed response byte snapshot to results/<requestId>.json",
+      "the desktop validates, hashes and imports one in-memory byte snapshot without reopening the result for persistence",
+      "production accepts only the request-owned result path for the active request",
+      "schema/probe/request/state/route/source/capture-time and supported server continuity are checked before persistence",
+      "production rejects reuse_loaded_probe until independently verified owned-session identity exists",
+      "production helper evidence requires the recorded current-client package/xLua/Assembly-CSharp fingerprints and exact post-run restoration"
+    ]
+  },
+  "locators": [
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:95 CanHandle map_scan_start/map_scan_stop/map_scan_status",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:125 duplicate-start rejection",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:165 immutable correlated import",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:229 ImportCorrelatedResult",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:401 RunHelperAsync supervision",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:521 ValidateCurrentClientHelperEvidence",
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs:549 ObserveLateHelperExitAsync",
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs:54 ImportOneResource(ReadOnlyMemory<byte>, sourcePath)",
+    "tools/run_live_resource_probe.py:255 paths(game_root)",
+    "tools/run_live_resource_probe.py:520 persist_request_result",
+    "tools/run_live_resource_probe.py:532 await_result",
+    "tests/LWBridge.Desktop.Checks/Program.cs:681 immutable replacement-between-reads regression",
+    "tests/LWBridge.Desktop.Checks/Program.cs:760 duplicate/Stop/cancellation regression"
+  ],
+  "implementationFileSha256": {
+    "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs": "f302b2f719649eb896cee7dabda09e3a56191789dbff84a618e6f7df87e60eb6",
+    "src/LWBridge.Desktop/FirstLiveResultImporter.cs": "74756850a8f25c7e0a52239a61224ff134b329488c34cc88d524bfe46c77e07c",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs": "5af817ebf63023dac912e82131f5d918881d0b866f1ca3717371e6f503ba8022",
+    "src/LWBridge.Desktop/LiveResourceProofRunner.cs": "9f60bc6627db17b7b123e6df72818a9cbb420fe928454126c1be413009f3ca90",
+    "tools/run_live_resource_probe.py": "db7f4bbc8125364076122d85e478e307ef15be7bbb6121474650c46193e47e3e",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "973aa3b55597d43724e7714b548b8d328a9eca38beb6a4f971e41f297ccd4f37"
+  },
+  "validation": [
+    {
+      "command": "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release",
+      "result": "PASS: 0 warnings, 0 errors"
+    },
+    {
+      "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged",
+      "result": "PASS: six deterministic groups true; failures=[]; installed diagnostic valid; game and launcher stopped"
+    },
+    {
+      "command": "python evidence\\lwbridge-implementation\\2026-09-10-pm12-recovery-regression.py",
+      "result": "PASS: ok=true; all install/restore injected stages, interrupted recovery, shared lease and dual-error cases pass"
+    },
+    {
+      "command": "python -m py_compile tools\\run_live_resource_probe.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python tools\\build_lwbridge_frontend.py --check",
+      "result": "PASS: recovered hashes verified and login-free frontend regenerated consistently"
+    },
+    {
+      "command": "NODE_PATH=<global npm root> node tools\\check_lwbridge_frontend.cjs",
+      "result": "PASS: 35 browser checks"
+    },
+    {
+      "command": "node tools\\check_lwbridge_preference_provider.cjs; node tools\\check_lwbridge_transport_boundary.cjs; node tools\\check_lwbridge_live_transport.cjs",
+      "result": "PASS: five preference scenarios plus both transport checks"
+    }
+  ],
+  "validationRestriction": {
+    "command": "python tools\\run_live_resource_probe.py --check-only",
+    "result": "BLOCKED by the current environment automatic safety review before execution",
+    "impact": "No new current-client hash/candidate round-trip claim is made by this checkpoint. The deterministic desktop diagnostic still reported the selected installation valid and no game/launcher process running."
+  },
+  "limits": [
+    "PM12-A still lacks exact live installation/session/PID targeting; the prior process-control patch was environment-denied and was not rerouted.",
+    "PM12-C does not yet have independently verified game-session/profile/PID identity for the bounded route. Server continuity is enforced only after the first accepted source result establishes a server.",
+    "Loaded-probe reuse is disabled in production rather than treated as session proof.",
+    "No new live acquisition or installed-file mutation was run for this checkpoint.",
+    "PM12-D normal-window fresh-row screenshot/interaction proof remains open.",
+    "Original LWBridge pipe readiness, full-world scan scheduling/ack/retry/resume/completion and all non-resource kinds remain UNKNOWN/BLOCKED.",
+    "No full task.md acceptance case is newly signed off."
+  ]
+}

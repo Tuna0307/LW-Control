@@ -1,0 +1,68 @@
+﻿{
+  "findingId": "LWB-R7-016",
+  "date": "2026-09-17",
+  "status": "LIVE-PROVEN current-v17 Truck-only ordinary Manual Start complete-world acquisition/publication/reopen",
+  "validatedBaseCommit": "81ce0af88ef5eff1621203b38b84bddb9b2e1f71",
+  "currentClient": {
+    "contentVersion": 17,
+    "packageSha256": "070f30914c671fc7c7469c0e0c11007be87d287ff9cdb4ece98fe8eec8f4c837",
+    "packageSize": 41293716,
+    "packageCrc32": 2113157353,
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd"
+  },
+  "implementation": {
+    "route": "ordinary production map_scan_start -> ManualMapScanCommandService -> MapScanEngine -> CurrentClientMapBlockSource",
+    "fullWorldPlanner": "Truck joins the current-v17 200-request full-world native AOI planner with the exact 10,000/10,000 union gate and 2,500 logical 20x20 blocks unchanged",
+    "source": "WorldScene.MarchDataManager.GetAllMarchesByCS + WorldMarch.train inside each native AOI footprint",
+    "classification": "use top-level trainType when present, otherwise trainDataJson.type; unclassifiable rows remain unknown; current-v17 Truck type is 1 and non-1 train rows are not admitted as Truck",
+    "truckFields": "source-backed uuid/owner/alliance/server/world/coordinates/position/quality/power/trainUuid/trainCfgId/carriageNum plus raw trainDataJson",
+    "normalization": "trainDataJson.arriveTime -> arriveTs (Unix milliseconds) and trainDataJson.marchInfo.robTimes -> robTimes; absent or malformed values remain absent",
+    "publication": "same transactional per-kind staging/publication and database reopen path already used by City, Monster and Resource"
+  },
+  "liveProof": {
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalLogicalBlocks": 2500,
+    "completedLogicalBlocks": 2500,
+    "failedLogicalBlocks": 0,
+    "unreadLogicalBlocks": 0,
+    "scanWallSeconds": 71.3212178,
+    "publishedTruckCount": 175,
+    "reopenedTruckCount": 175,
+    "trainTypeCount": 175,
+    "qualityCount": 175,
+    "powerCount": 175,
+    "trainCfgCount": 175,
+    "trainDataCount": 175,
+    "arriveTsCount": 175,
+    "robTimesCount": 175,
+    "result": "complete full-world Truck run reached completed, published, and reopened with exact count equality; every published row in this population carried the proven source-backed and normalized metric fields counted above"
+  },
+  "privacy": "aggregate-only durable evidence; no Truck/player identity, alliance, coordinate, UUID, raw trainDataJson, reward payload, or other live row is committed",
+  "validation": {
+    "checksReleaseBuild": "LWBridge.Desktop and LWBridge.Desktop.Checks: 0 warnings / 0 errors",
+    "deterministicSuite": "ok=true; all six deterministic groups true; failures=[]",
+    "truckFullWorldRegression": "offline test requires 200 native responses, 2,500 logical captures, edge-block Truck placement, trainType fallback from trainDataJson, and arriveTs/robTimes normalization",
+    "sourceOnlyLiveProof": "current_client_full_truck_source completed 2,500 captures / 100% coverage with 83 live Truck records in 68.077194 seconds during the same checkpoint investigation",
+    "liveRunner": "LWBridge.Desktop.Checks.exe --live-current-client-full-truck-manual exited 0",
+    "postRunCompatibility": "check_current_client_compat.py ok=true; exact current-v17 package/game/xLua/Assembly anchors restored",
+    "finalProcessState": "no LastWar/launcher/LWBridge/LWBridge.Desktop.Checks process remained"
+  },
+  "limits": [
+    "The observed Truck population is dynamic; 175 rows is an observation from this run, not a fixed invariant.",
+    "Current live trainDataJson and direct current-v17 runtime observations did not establish maxLootCount, protectTime, isSpecialURQuality, or the recovered UI-ready currentGoods shape. Production does not synthesize defaults for those fields.",
+    "This checkpoint proves Truck acquisition/publication/reopen plus the stated normalization slice; it does not prove Truck plunder actions or all recovered downstream filters/sorts/options.",
+    "Railway/Train, Dispatch/Secret Task, Ghost Ops, Treasure, mixed/all-eight selections, and Auto Scan remain open.",
+    "Native acknowledgement/removal/drain and full original scheduler parity remain separately unrecovered; this checkpoint does not infer them."
+  ],
+  "sourceHashes": {
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "9316fed0c89482a9dad5a43d6ab35e43313f2383f95f09b5e24386325991e8cc",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs": "b69e731447d8827e9b695d6173955e993ad9eb52788f1fb38381b576895318d8",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "3955a6bd9ce5703876827148dc4c3e75b855bceda0b94549e641555ae7e5a1ed",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullTruckProof.cs": "b0e95a70b157f34ba47919de1aac594d1b0498ba5941cb806d91c4ca68f2ab5d",
+    "tests/LWBridge.Desktop.Checks/Program.cs": "d5f7e58799bd9b1ae481e0454e15ef4ee7113883d4de3980e8eebcf6e38d64e8",
+    "tools/current_live_resource_probe.lua": "a7f5447eddc5233155a4380c78a7e28a5de92964fbd8d762c9a6450a180739f6"
+  }
+}

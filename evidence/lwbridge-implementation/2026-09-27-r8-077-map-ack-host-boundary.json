@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-077",
+  "limits": [
+    "this does not recover the protected proxy acks[] item schema",
+    "this does not prove pending queues are irrelevant before map.scan.complete is emitted",
+    "this does not recover XluaBridgeMapScanTick scheduling, traversal order or retry policy",
+    "the protected RVA boundary 0x3F8E0-0x40A6D is not inspected by this verifier"
+  ],
+  "locators": {
+    "aggregateRegisterOverwrite": "0x140340AD3-0x140340ADB",
+    "droppedGate": "0x140340CBC-0x140340CC5",
+    "eventWindow": [
+      "0x140340990",
+      "0x140341390"
+    ],
+    "fieldLookups": {
+      "dropped": "0x140340a3b",
+      "pendingAcks": "0x140340a20",
+      "pendingMarchRemovals": "0x1403409ff",
+      "pendingMarches": "0x1403409cc",
+      "pendingPointRemovals": "0x1403409e7",
+      "pendingPoints": "0x1403409af"
+    },
+    "pendingAggregateFinalAdd": "0x140340A38",
+    "pendingStateWrite": "0x140340AA6-0x140340ACF"
+  },
+  "recoveredResult": {
+    "dropGate": "positive dropped remains an explicit host failure/cleanup input",
+    "hostAckItemParsing": "no acks[] item lookup is performed in the recovered map.scan.complete host window",
+    "nativePendingRecords": "pendingPoints + pendingMarches + pendingPointRemovals + pendingMarchRemovals + pendingAcks",
+    "ownershipConclusion": "ack item schema, ack consumption and any ack-to-block completion linkage occur below the recovered host event layer",
+    "pendingAcksRole": "count-only input to nativePendingRecords in map.scan.complete host handling",
+    "terminalAdmission": "the pending aggregate is serialized, then its working registers are overwritten before the terminal failure/publication branch"
+  },
+  "scope": "original host-side Map acknowledgement and native-drain boundary",
+  "sourceIdentity": {
+    "imageBase": "0x140000000",
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

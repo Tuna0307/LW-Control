@@ -1,0 +1,92 @@
+{
+  "findingId": "LWB-R5-005",
+  "date": "2026-09-08",
+  "scope": "embedded profile-launcher post-start launch-ticket ownership and consumption polling state machine",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "outerArtifact": "../LW/lwbridge-0.3.1.exe",
+    "outerSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProfileLauncherSha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de",
+    "preferredImageBase": "0x140000000",
+    "coordinateSystem": "embedded launcher preferred virtual addresses (VA)",
+    "durableFocusedDisassembly": "evidence/lwbridge-implementation/2026-09-08-r5-ticket-consumption-disassembly.txt",
+    "durableFocusedDisassemblyNormalizedTextSha256": "66aa1db0dac98117e13e156cec13030bd62ecd1a34ae8eb925bbc3f5db1103c1"
+  },
+  "locators": {
+    "pollingRoutine": "0x140028870-0x140028A94",
+    "deadlineInitialization": "0x140028899-0x1400288B2",
+    "pollDelay": "0x1400288C0-0x1400288C7",
+    "deadlineComparison": "0x1400288CC-0x1400288D9",
+    "pollQuery": "0x1400288DF-0x1400288E9 -> 0x140060B30",
+    "observedLengthComparison": "0x1400288FA-0x1400288FE",
+    "sequenceComparison": "0x140028900-0x140028914 -> 0x1400816B7",
+    "ownershipChanged": "0x14002892E-0x14002895A",
+    "consumptionTimeout": "0x14002895F-0x14002896B",
+    "resultVariantDispatch": "0x140028970-0x140028A7B",
+    "compareHelperCrossUse": "0x14001C9D0-0x14001CA1A"
+  },
+  "result": {
+    "opaqueInputs": {
+      "pollQueryInputA": "original rcx, preserved in r15 and passed to helper 0x140060B30 as rdx",
+      "pollQueryInputB": "original rdx, preserved in r14 and passed to helper 0x140060B30 as r8",
+      "expectedSequencePointer": "original r8, preserved in rbx and passed to helper 0x1400816B7 as rdx",
+      "expectedSequenceLength": "original r9, preserved in rdi, compared against [rbp-0x20], then passed to helper 0x1400816B7 as r8"
+    },
+    "polling": [
+      "The routine obtains a current value at 0x140028899 and derives a stored deadline/state via 0x14006F5E0 with r8d=0x3C.",
+      "The retry path calls 0x14006B7B0 with ecx=0 and edx=0x02FAF080 before rechecking the stored deadline/state.",
+      "The units and higher-level semantic names of 0x3C and 0x02FAF080 are not recovered and are therefore not assigned."
+    ],
+    "ownershipCheck": [
+      "The poll helper 0x140060B30 writes a result under [rbp-0x30].",
+      "For the non-error result path, [rbp-0x20] must equal the expected length preserved from original r9; otherwise control branches to LAUNCH_TICKET_OWNERSHIP_CHANGED.",
+      "When lengths match, [rbp-0x28], the expected pointer from original r8, and the expected length are passed to 0x1400816B7. A nonzero helper result also branches to LAUNCH_TICKET_OWNERSHIP_CHANGED.",
+      "A separate cross-use at 0x14001C9EE passes two pointers plus a bounded length to 0x1400816B7 and consumes the returned sign/nonzero value in ordering logic. The helper's implementation itself is not separately recovered in this checkpoint."
+    ],
+    "authoritativeErrors": [
+      {
+        "code": "LAUNCH_TICKET_OWNERSHIP_CHANGED",
+        "length": 31,
+        "preferredVa": "0x14002892E"
+      },
+      {
+        "code": "LAUNCH_TICKET_CONSUMPTION_TIMEOUT",
+        "length": 33,
+        "preferredVa": "0x14002895F-0x140028964"
+      },
+      {
+        "code": "LAUNCH_TICKET_CONSUMPTION_FAILED",
+        "length": 32,
+        "preferredVa": "0x1400289FD / 0x140028A1C"
+      }
+    ],
+    "resultVariantLimit": "The dispatch beginning at 0x140028970 maps multiple internal result variants either to null/success-like returns or LAUNCH_TICKET_CONSUMPTION_FAILED, but exact enum/result meanings are not recovered."
+  },
+  "reproduction": {
+    "sourceTrace": "bounded inspection of the previously saved embedded-launcher disassembly under .codex-live/r5-ticket-disasm.txt and .codex-live/r5-helper-disasm.txt",
+    "durableEvidenceCheck": "python tools\\inspect_lwbridge_ticket_consumption_evidence.py --json",
+    "syntaxCheck": "python -m py_compile tools\\inspect_lwbridge_ticket_consumption_evidence.py",
+    "currentCheckpointExecution": "The environment safety review rejected broader binary/deeper-disassembly requests because it could not determine their safety status. This checkpoint therefore preserves and validates the already-saved static disassembly only; it does not claim a fresh reference-binary extraction."
+  },
+  "validationAndLimits": {
+    "validation": "RECOVERED static only from the identified embedded launcher; no live game operation was performed",
+    "liveProven": false,
+    "unknownBlocked": [
+      "semantic identities of the first two inputs passed to poll helper 0x140060B30",
+      "producer-side identity and origin of the expected sequence pointer/length",
+      "time units and exact semantics of constants 0x3C and 0x02FAF080",
+      "exact internal result-variant meanings beginning at 0x140028970",
+      "caller/argument construction for routine 0x140028870 beyond the preserved static slice",
+      "launchProof and gameLaunchTicket signing inputs/producers",
+      "semantic meaning of the LWLT2 extra positive decimal field",
+      "semantic contract of outer helper 0x14033C51B",
+      "exact outer-host child argument construction/quoting/input channel",
+      "current-client live launch/bootstrap acceptance"
+    ]
+  },
+  "implementationImpact": {
+    "ticketConsumption": "post-start polling branches and the three authoritative failure codes are recovered; producer/caller identities and variant semantics remain blocked",
+    "profileInstanceStart": "remains fail-closed with OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED",
+    "nextTrace": "recover the caller/producer identities feeding 0x140028870, result-variant semantics, launch material producers/signing inputs, and exact child argument construction without assigning unsupported field names or time units"
+  }
+}

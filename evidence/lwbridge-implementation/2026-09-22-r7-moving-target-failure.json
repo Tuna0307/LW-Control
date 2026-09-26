@@ -1,0 +1,126 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-141",
+  "date": "2026-09-22",
+  "title": "Moving-target Follow vanished/replaced failure acceptance",
+  "status": "PASS_CURRENT_PLUS_HISTORICAL",
+  "branch": "research/offline-controller",
+  "baseRevision": "64a89069202fd61dec3c938b363ca3f5e54f4c2f",
+  "scope": {
+    "productionBehaviorChanged": false,
+    "acceptanceCase": "C07",
+    "claim": "C07 is closed by current deterministic host/service/source-contract failure evidence composed with existing live coordinate-jump and moving Follow success authorities. R7-141 does not claim a newly induced live target disappearance."
+  },
+  "currentFailureAcceptance": {
+    "hostProtocol": {
+      "requestedServerId": 2212,
+      "requestedMarchUuid": "7654321090123",
+      "vanished": {
+        "gameSideError": "march_follow_completion_timeout",
+        "publicCode": "MARCH_FOLLOW_FAILED",
+        "explicitFailure": true,
+        "hiddenRetry": false
+      },
+      "replacedIdentity": {
+        "gameSideError": "march_identity_mismatch",
+        "publicCode": "MARCH_FOLLOW_FAILED",
+        "explicitFailure": true,
+        "staleSuccess": false
+      },
+      "replacedServer": {
+        "gameSideError": "march_server_mismatch",
+        "publicCode": "MARCH_FOLLOW_FAILED",
+        "explicitFailure": true,
+        "staleSuccess": false
+      },
+      "forgedProvenWrongUuid": {
+        "resultRejected": true,
+        "exception": "InvalidDataException",
+        "reason": "March Follow result did not match the active owned game session or requested march."
+      }
+    },
+    "publicServiceRecovery": {
+      "command": "map_march_follow",
+      "firstAttempt": "MARCH_FOLLOW_FAILED / march_follow_completion_timeout",
+      "secondAttempt": "success",
+      "sameServiceInstance": true,
+      "navigationOwnershipReleasedAfterFailure": true
+    },
+    "shippedLuaSourceContract": {
+      "file": "tools/current_overview_bridge.lua",
+      "exactManagerLookup": "call(manager, \"GetMarch\", request.marchUuid)",
+      "exactWorldLookup": "call(world, \"GetMarch\", request.marchUuid)",
+      "identityMismatchFailure": "march_identity_mismatch",
+      "serverMismatchFailure": "march_server_mismatch",
+      "successRequiresObservedRequestedUuid": true,
+      "vanishedTerminalFailure": "march_follow_completion_timeout",
+      "recoveredNativeWindowSeconds": 5
+    }
+  },
+  "liveSuccessAuthorities": [
+    {
+      "evidenceId": "LWB-R7-061",
+      "action": "map_coordinate_jump",
+      "status": "LIVE_PROVEN",
+      "fact": "Owned-session coordinate jump reached the requested tile and returned to player."
+    },
+    {
+      "evidenceId": "LWB-R7-040",
+      "action": "map_march_follow Truck",
+      "status": "LIVE_PROVEN",
+      "fact": "Truck moving Follow succeeded through JumpToMarchByUuid/GetMarchPos."
+    },
+    {
+      "evidenceId": "LWB-R7-071",
+      "action": "map_march_follow Railway",
+      "status": "LIVE_PROVEN",
+      "fact": "Railway positive-row public Follow succeeded on an exact published marchUuid."
+    }
+  ],
+  "regression": {
+    "files": [
+      {
+        "path": "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+        "worktreeSha256": "4FE308EDEC15F295116CD38BE24B55FE0140F21CBE8BB56A5BB8B80A5EB68000"
+      },
+      {
+        "path": "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+        "worktreeSha256": "07918448F7C4014DB86AA7E87C39104D6F1A92561633D739DDC8CA5C6781843A"
+      },
+      {
+        "path": "tests/LWBridge.Desktop.Checks/MovingTargetFailureChecks.cs",
+        "worktreeSha256": "FE21D8C40111DBC481CF9690C2488925FBB95054C8C5CE0C6D3334D137A51B1C",
+        "committedCheckoutSha256": "48395C69504DB0AE9ED78B481A07AAF07F66F63CD51C3903333DE7A19A216CD3",
+        "hashDifferenceReason": "Git line-ending normalization only; staged checkout is the commit-candidate identity."
+      }
+    ]
+  },
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "deterministicGroups": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true
+    },
+    "deterministicFailures": [],
+    "gameRunningAfterChecks": false,
+    "launcherRunningAfterChecks": false
+  },
+  "acceptanceEffect": {
+    "C07": {
+      "status": "pass_current_plus_historical",
+      "rationale": "Current bytes prove vanished/replaced moving targets end in explicit failure, correlated forged success with the wrong march identity is rejected, and failure releases navigation ownership. Historical live evidence proves successful coordinate jump and Truck/Railway moving Follow."
+    }
+  },
+  "remaining": [
+    "B11 native add/update/remove/movement transition matrix remains the last technically actionable read-only Map acceptance gap.",
+    "F04 final human normal-user built-executable walkthrough remains open.",
+    "Ghost/Supplies positive-population and state-changing action gates remain separate."
+  ]
+}

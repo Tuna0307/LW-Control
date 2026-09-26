@@ -1,0 +1,98 @@
+{
+  "findingId": "LWB-R7-081",
+  "status": "RECOVERED/IMPLEMENTED/OFFLINE-TESTED",
+  "date": "2026-09-20",
+  "baseCommit": "9139029c73527fbd16127bb1aa765df6e0d3919b",
+  "scope": "Current-v19 Dispatch steal prerequisites, schedulable row enrichment, and original durable-worker persistence/arming primitives. Public scheduling and live plunder remain blocked.",
+  "currentV19Authority": {
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "fileVersion": 3,
+    "contentVersion": 19,
+    "entryCount": 18734,
+    "inspector": "tools/inspect_current_dispatch_plunder_sources.py",
+    "inspectorResult": "PASS",
+    "dispatchStealPayload": {
+      "command": "SFSNetwork.SendMessage(MsgDefines.DispatchSteal, uuid, targetServer)",
+      "uuidEncoding": "PutLong",
+      "targetServerEncoding": "PutInt"
+    },
+    "successHandling": [
+      "errorCode present -> UIUtil.ShowTipsId(errorCode), success mutations skipped",
+      "reward present -> fromDispatchStealMessage + RewardManager.AddRewardsAndRes + ShowReward",
+      "success always -> UpdateTodayNum(message) then UpdateSteal(message.uuid)"
+    ],
+    "worldPointEligibility": {
+      "completion": "completionTime > 0 and completionTime <= server time and rewarded == 0",
+      "protection": "completionTime + LwDispatchTask.protect_times * 60000",
+      "alreadyStolen": "local UID absent from stealList",
+      "dailyLimit": "GetTodayStealNum() < GetDispatchSetting('steal_count')",
+      "perTaskLimit": "stealList.Count < LwDispatchTask.steal_maxtimes",
+      "crossServer": "IsOpenCrossSteal(), otherwise CrossServerUtil.NeedIntercept(500019) may intercept"
+    },
+    "derivedPersistedRowFields": {
+      "plunderAt": "completionTime + protect_times * 60000",
+      "stolenCount": "stealList.Count",
+      "maxStealCount": "LwDispatchTask.steal_maxtimes",
+      "taskExpireTime": "UNKNOWN / deliberately not synthesized"
+    },
+    "taskExpireTimeBoundary": "No current-v19 Dispatch-named Lua module uses taskExpireTime. HeroDispatchMissionPointInfo.expiredTime is preserved as raw current data but is not promoted to the historical schedule expiry field."
+  },
+  "originalWorkerAuthority": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "workerRva": "0xF04EC-0xF1C9E",
+    "sourcePathString": "src\\services\\dispatch_plunder.rs",
+    "inspector": "tools/inspect_lwbridge_dispatch_worker.py",
+    "inspectorResult": "PASS",
+    "armLeadMilliseconds": 10000,
+    "runningBeforeArm": true,
+    "armCommand": "armMapPlunder",
+    "armCommandKind": "dispatch",
+    "armCallTimeoutMilliseconds": 5000,
+    "responseHorizonConstantMilliseconds": 30000,
+    "timingInterpretation": "The 10-second value is an arming/preparation lead. The original request carries executeAt into armMapPlunder; it is not evidence that the steal may execute 10 seconds early."
+  },
+  "workerPersistence": {
+    "implementedFile": "src/LWBridge.Desktop/MapDataStore.Plunder.cs",
+    "armableRead": "scheduled|waiting_connection, plunder_at <= now + lead, unexpired, ORDER BY plunder_at ASC LIMIT 1",
+    "runningTransition": "generic status update sets running, clears error and increments attempts exactly once when requested",
+    "expiry": "active -> expired / DISPATCH_PLUNDER_TASK_EXPIRED",
+    "restartRecovery": "running -> waiting_connection / DISPATCH_PLUNDER_CLIENT_RESTARTED, attempts preserved",
+    "offlineDue": "scheduled with plunder_at <= now -> waiting_connection / DISPATCH_PLUNDER_GAME_DISCONNECTED; the 10-second arm lead is not used",
+    "dailyLimit": "scheduled|waiting_connection -> failed / DISPATCH_PLUNDER_DAILY_LIMIT_REACHED"
+  },
+  "offlineValidation": {
+    "derivedPlunderAt": true,
+    "derivedStolenCount": true,
+    "derivedMaxStealCount": true,
+    "taskExpireTimeNotSynthesized": true,
+    "dispatchArmableLead": true,
+    "dispatchAttemptIncrement": true,
+    "dispatchExpiry": true,
+    "dispatchRestartRecovery": true,
+    "dispatchDisconnectedDueWithoutLead": true,
+    "dispatchDailyLimitTerminalization": true,
+    "missingStatusUpdateDoesNotFabricateRow": true
+  },
+  "validation": {
+    "currentV19Inspector": "PASS",
+    "originalWorkerInspector": "PASS",
+    "pythonCompile": "PASS",
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false,
+    "legacyV14CheckOnly": "NOT_APPLICABLE_STALE_SOURCE_GUARD",
+    "legacyV14CheckOnlyDetail": "run_live_resource_probe.py --check-only and run_overview_bridge.py check-only retain the older live-proven v14 package fingerprint and correctly reject current-v19 LWScripts.data; R7-081 uses the dedicated hash-locked current-v19 inspector instead."
+  },
+  "actionBoundary": {
+    "map_dispatch_plunder_cancel": "IMPLEMENTED/OFFLINE-TESTED local scheduler cancellation from R7-080",
+    "map_dispatch_plunder_schedule": "BLOCKED/COMMAND_NOT_IMPLEMENTED",
+    "durableDispatchWorker": "NOT YET WIRED; arm-result/runtime branch still requires semantic closure",
+    "currentV19DispatchExecutor": "SOURCE CHAIN RECOVERED; bridge request/result correlation not yet implemented",
+    "liveDispatchPlunder": "NOT_RUN"
+  },
+  "safety": "No Dispatch steal, robbery/plunder, claim, message/share, consumable, or other state-changing game action was executed."
+}

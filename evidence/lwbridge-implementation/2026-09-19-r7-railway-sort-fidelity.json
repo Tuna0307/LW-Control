@@ -1,0 +1,77 @@
+{
+  "evidenceId": "LWB-R7-050",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "0e8f4ddd50ab0fed5a29a25185daeb1a7063b2dd",
+  "scope": {
+    "feature": "current-v19 Railway alternate sort fidelity",
+    "implementationStatus": "IMPLEMENTED/OFFLINE-TESTED",
+    "liveSortProof": "POPULATION_PENDING",
+    "readOnly": true,
+    "robberyOrConsumingAction": false
+  },
+  "staticRecovery": {
+    "originalBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "frontendMapPanelSha256": "fc39de8154c54ee0937b6f9f9377d671e0dbad533ed2d9eda29a99d35e380f5e",
+    "sortKeys": [
+      "quality",
+      "power",
+      "itemCount",
+      "protectTime",
+      "updatedAt"
+    ],
+    "qualityRule": "plain indexed quality; Railway bypasses Truck/Ghost special-quality branches",
+    "itemCountGate": "requires nonempty itemKey and explicitly admits Railway",
+    "protectTimeExpression": "NULLIF(CAST(json_extract(data_json,'$.protectTime') AS INTEGER),0)",
+    "nullOrder": "nulls last for ASC and DESC",
+    "stableTieBreak": "record_key ASC",
+    "multiSort": "preserves frontend sort-array order",
+    "verifier": "tools/inspect_lwbridge_railway_sort_assembly.py"
+  },
+  "implementation": {
+    "contract": "Railway accepts ordered unique subsets of the five recovered public keys; itemCount requires itemKey",
+    "sql": "recovered Railway expressions use the shared native null-last/order/tie assembly",
+    "outOfScope": [
+      "City alternate sorts",
+      "Resource alternate sorts",
+      "Dispatch/Ghost alternate sorts",
+      "unknown Railway sort keys"
+    ]
+  },
+  "deterministicAcceptance": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "allSixSuites": "PASS",
+    "failures": 0,
+    "coverage": [
+      "ASC and DESC for every recovered Railway key",
+      "nulls-last behavior",
+      "plain Railway quality",
+      "itemCount/itemKey coupling",
+      "protectTime zero-to-null behavior",
+      "ordered multi-sort precedence",
+      "stable record-key ties",
+      "sorted pagination",
+      "unsupported/duplicate key fail-closed behavior"
+    ]
+  },
+  "liveAttempt": {
+    "mode": "fast",
+    "totalBlocks": 2500,
+    "phase": "completed",
+    "publishedRailwayCount": 0,
+    "positivePopulationGate": "FAILED_AS_DESIGNED",
+    "processRuntimeSeconds": 158.60,
+    "sortAssertionsRun": 0,
+    "reason": "current-v19 map exposed zero Railway/Train rows; harness refused to accept an empty population",
+    "currentClientCompatibilityBefore": "exact v19 PASS",
+    "currentClientCompatibilityAfter": "exact v19 PASS",
+    "postProofProcesses": "LastWar/Launcher absent"
+  },
+  "limits": [
+    "Production eligibility is based on hash-locked original static recovery plus deterministic multi-row acceptance.",
+    "Current-v19 live ordering remains population-pending until at least one Railway row exists; meaningful relative-order proof requires at least two rows.",
+    "Live itemCount sorting additionally requires a Railway row with nonempty currentGoods.",
+    "No positive-row or live ordering claim is made by this checkpoint."
+  ]
+}

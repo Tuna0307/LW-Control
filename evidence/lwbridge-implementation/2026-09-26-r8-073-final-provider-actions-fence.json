@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-073",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "commands": {
+    "equipment_preset_apply": {
+      "handler": "0x140142659-0x1401437DB",
+      "payload": "{presetId,squadIndex,operationId,profileId?}",
+      "authorizationStateRequired": true,
+      "invalidPreset": {
+        "code": "INVALID_REQUEST",
+        "message": "invalid equipment preset"
+      },
+      "applyHelper": "0x1400E103B-0x1400E2DB5",
+      "providers": {
+        "getSquads": 5000,
+        "applyHeroEquipment": 5000
+      },
+      "progressEvent": "bridge://equipment-apply-progress",
+      "progressVocabulary": ["phase","applying","heroName","heroUuid","operationId"],
+      "providerVocabulary": ["equips","equipUuid","equipment_request_rejected"],
+      "resultConversion": "shared generic JSON converter",
+      "remainingUnknown": "exact multi-hero preset binding/planner and complete partial/rejection aggregation"
+    },
+    "resource_automation_run": {
+      "handler": "0x14015C3B8-0x14015CD66",
+      "payload": "{task,profileId?}",
+      "authorizationStateRequired": true,
+      "requestKeys": ["task","options","premium","admin"],
+      "source": "manual",
+      "authorizationDerivedRequestProjection": "OWNER_EXCLUDED_UNKNOWN",
+      "tasks": {
+        "buildingResources": "collectResources",
+        "armedTruckReward": "collectArmedTruckIdleReward"
+      },
+      "unknownTask": {
+        "code": "INVALID_REQUEST",
+        "messagePrefix": "unknown resource automation task: "
+      },
+      "runner": "0x1400DF9B9-0x1400E079A",
+      "stateUnavailable": {
+        "code": "STATE_UNAVAILABLE",
+        "message": "resource state is unavailable"
+      },
+      "busy": {
+        "code": "AUTOMATION_BUSY",
+        "message": "another resource task is already running"
+      },
+      "gameCallTimeoutMs": 10000,
+      "statusEvent": "bridge://resource-automation-status",
+      "resultConversion": "shared generic JSON converter"
+    },
+    "trade_station_configure": {
+      "handler": "0x140138AB2-0x14013A2E8",
+      "payload": "{config,profileId?}",
+      "authorizationStateRequired": true,
+      "validator": "0x1403BE9A1-0x1403BEE50",
+      "fields": ["enabled","crossServerEnabled","selectedItemIds","selectedCurrencyIds"],
+      "validationErrors": [
+        {
+          "code": "INVALID_REQUEST",
+          "message": "select at least one trade station currency"
+        },
+        {
+          "code": "INVALID_REQUEST",
+          "message": "select at least one trade station good before enabling"
+        }
+      ],
+      "configOwnership": {
+        "path": "trade_station",
+        "file": "config.json",
+        "unavailable": {
+          "code": "STATE_UNAVAILABLE",
+          "message": "config state is unavailable"
+        }
+      },
+      "provider": "configureTradeStation",
+      "timeoutMs": 5000,
+      "providerCallSites": 2,
+      "resultConversion": "shared generic JSON converter",
+      "remainingUnknown": "exact branch-selection and provider/config persistence atomicity"
+    }
+  },
+  "runtimeImplementation": "FENCED",
+  "inventoryEffect": {
+    "previousGenuinelyUnclosed": 5,
+    "movedToAuditedFenced": [
+      "equipment_preset_apply",
+      "resource_automation_run",
+      "trade_station_configure"
+    ],
+    "auditedFencedTotal": 31,
+    "remainingGenuinelyUnclosed": 2,
+    "remainingCommands": [
+      "map_dispatch_share_alliance",
+      "map_treasure_claim"
+    ]
+  }
+}

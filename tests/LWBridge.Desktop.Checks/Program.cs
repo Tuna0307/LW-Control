@@ -1,0 +1,7217 @@
+using System.Text.Json;
+using System.Diagnostics;
+using LWBridge.Desktop;
+
+if (args.Contains("--live-auto-zombie-cycle-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAutoZombieCycleProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-auto-three-multiserver-cycles", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAutoThreeMultiServerCyclesProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-bridge-loss-during-scan", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBridgeLossDuringScanProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-server-jump-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveServerJumpProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-auto-native-failure-continuation", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAutoNativeFailureContinuationProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-coordinate-jump-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCoordinateJumpProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-asset-image", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveAssetImageProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-block-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-city-sample", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCityScanSampleProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-manual-stop", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualStopProof.RunAsync();
+    return 0;
+}
+if (args.Contains("--live-current-client-full-city-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullCityProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-resource-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullResourceProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-railway-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullRailwayProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-train-list-population", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveTrainListPopulationProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-train-list-no-jump", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveTrainListNoJumpProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-dispatch-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullDispatchProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-dispatch-stress", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveDispatchSameSessionStressProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-ghost-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullGhostProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-all-eight-modes", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualAllEightModesProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-map-data-options", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveMapDataOptionsProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-map-summary", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveMapSummaryProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-mixed-all-eight-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualMixedAllEightProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-treasure-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullTreasureProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-treasure-state-refresh", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveTreasureStateRefreshProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-truck-source", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunSourceOnlyAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-truck-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullTruckProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-native-transition-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveNativeTransitionProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-monster-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullMonsterProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-client-full-zombie-boss-manual", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveManualFullZombieBossProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-bulk-aoi-diagnostic", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-full-map-coverage", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveBulkAoiDiagnosticProof.RunFullCoverageAsync();
+    return 0;
+}
+
+if (args.Contains("--live-current-runtime-diagnostic", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveCurrentClientMapBlockProof.RunRuntimeDiagnosticOnlyAsync();
+    return 0;
+}
+
+if (args.Contains("--live-overview-home-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveOverviewLifecycleProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--live-overview-a11-transport-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LiveOverviewA11TransportProof.RunAsync();
+    return 0;
+}
+
+if (args.Contains("--local-lastwar-locale-proof", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunLocalCacheProofAsync();
+    return 0;
+}
+
+if (args.Contains("--overview-official-settle-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
+    Console.WriteLine("overview official settle checks: ok");
+    return 0;
+}
+
+if (args.Contains("--overview-launch-spam-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-process-ownership-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-reconnect-policy-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewReconnectPolicyChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-fault-admission-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewFaultAdmissionChecks.RunAsync(includeTimeoutRegression: true);
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-close-timing-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewCloseTimingChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-status-contract-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-rpc-protocol-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeRpcProtocolChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-registry-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeRegistryChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-transport-limits-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeTransportLimitsChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-listener-contract-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeListenerContractChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-proxy-environment-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeProxyEnvironmentChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-startup-contract-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeStartupContractChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-host-ownership-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeHostOwnershipChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-native-server-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeNativeServerChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-native-connect-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeNativeConnectChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-handshake-identity-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeHandshakeIdentityChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-client-path-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeClientPathChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-isolated-handshake-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeIsolatedHandshakeChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-isolated-accept-loop-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeIsolatedAcceptLoopChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-launch-binding-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeLaunchBindingChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-lifecycle-launch-binding-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeLifecycleLaunchBindingChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-call-registry-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-rpc-session-transport-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeRpcSessionTransportChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-host-transport-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-bridge-normal-composition-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = LWBridge.Desktop.Checks.OverviewBridgeNormalCompositionChecks.Run();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--overview-status-transport-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewStatusTransportChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+var failures = new List<string>();
+failures.AddRange(await LWBridge.Desktop.Checks.LastWarLocaleChecks.RunAsync());
+LWBridge.Desktop.Checks.CurrentClientCompatibilityChecks.Run();
+LWBridge.Desktop.Checks.CityExportWorkbookChecks.Run();
+await LWBridge.Desktop.Checks.CityLayoutDraftChecks.RunAsync();
+await LWBridge.Desktop.Checks.HotkeyConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.VisualMetricsConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.WindowThemeChecks.RunAsync();
+await LWBridge.Desktop.Checks.ServerJumpHistoryChecks.RunAsync();
+await LWBridge.Desktop.Checks.AppendLogChecks.RunAsync();
+await LWBridge.Desktop.Checks.GameRootNativeStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.GameRootSelectChecks.RunAsync();
+await LWBridge.Desktop.Checks.ProxyStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.GameRecoveryStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.EquipmentConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.MonsterAfkConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.AllianceGarrisonConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.ResourceAutomationConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.ClaimDelayConfigChecks.RunAsync();
+await LWBridge.Desktop.Checks.AutomationStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.ProfileSettingsChecks.RunAsync();
+await LWBridge.Desktop.Checks.ProfileRegistryChecks.RunAsync();
+await LWBridge.Desktop.Checks.UpdateStatusChecks.RunAsync();
+await LWBridge.Desktop.Checks.FeedbackExportContractChecks.RunAsync();
+LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();
+await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
+await LWBridge.Desktop.Checks.MapSummaryParityChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewOfficialSettleChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewLaunchSpamChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewReconnectPolicyChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewFaultAdmissionChecks.RunAsync(includeTimeoutRegression: false);
+await LWBridge.Desktop.Checks.OverviewCloseTimingChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewStatusContractChecks.RunAsync();
+LWBridge.Desktop.Checks.OverviewBridgeRpcProtocolChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeRegistryChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeTransportLimitsChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeListenerContractChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeProxyEnvironmentChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeStartupContractChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeHostOwnershipChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeNativeServerChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeNativeConnectChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeHandshakeIdentityChecks.Run();
+LWBridge.Desktop.Checks.OverviewBridgeClientPathChecks.Run();
+await LWBridge.Desktop.Checks.OverviewBridgeIsolatedHandshakeChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeIsolatedAcceptLoopChecks.RunAsync();
+LWBridge.Desktop.Checks.OverviewBridgeLaunchBindingChecks.Run();
+await LWBridge.Desktop.Checks.OverviewBridgeLifecycleLaunchBindingChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeCallRegistryChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeRpcSessionTransportChecks.RunAsync();
+await LWBridge.Desktop.Checks.OverviewBridgeHostTransportChecks.RunAsync();
+LWBridge.Desktop.Checks.OverviewBridgeNormalCompositionChecks.Run();
+await LWBridge.Desktop.Checks.OverviewStatusTransportChecks.RunAsync();
+
+void Check(bool condition, string name)
+{
+    if (!condition) failures.Add(name);
+}
+
+async Task ExpectBridgeError(string expectedCode, string name, Func<Task> action)
+{
+    try
+    {
+        await action();
+        failures.Add(name);
+    }
+    catch (BridgeCommandException error)
+    {
+        Check(error.Code == expectedCode, name + $" (expected {expectedCode}, got {error.Code})");
+    }
+}
+
+void ExpectConfigError(string expectedCode, string name, Action action)
+{
+    try
+    {
+        action();
+        failures.Add(name);
+    }
+    catch (LocalConfigStoreException error)
+    {
+        Check(error.Code == expectedCode, name + $" (expected {expectedCode}, got {error.Code})");
+    }
+}
+
+void ExpectInvalidData(string expectedMessageFragment, string name, Action action)
+{
+    try
+    {
+        action();
+        failures.Add(name);
+    }
+    catch (InvalidDataException error)
+    {
+        Check(error.Message.Contains(expectedMessageFragment, StringComparison.OrdinalIgnoreCase),
+            name + $" (expected message containing {expectedMessageFragment}, got {error.Message})");
+    }
+}
+
+string FindRepoRoot()
+{
+    DirectoryInfo? current = new(Directory.GetCurrentDirectory());
+    while (current is not null)
+    {
+        if (File.Exists(Path.Combine(current.FullName, "task.md")) &&
+            Directory.Exists(Path.Combine(current.FullName, "src", "LWBridge.Desktop")))
+            return current.FullName;
+        current = current.Parent;
+    }
+    throw new InvalidOperationException("Could not locate repository root for deterministic source checks.");
+}
+
+string WriteFakeLiveHelper(string root, string name, int delayMilliseconds, int pointId)
+{
+    string helperPath = Path.Combine(root, name + ".py");
+    string resultPath = Path.Combine(root, name + "-result.json");
+    string resultLiteral = JsonSerializer.Serialize(resultPath);
+    File.WriteAllText(helperPath, $$"""
+        import argparse
+        import json
+        import time
+
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument("--request-id", required=True)
+        parser.add_argument("--map-kind", choices=["resource", "city"], default="resource")
+        args, _ = parser.parse_known_args()
+        time.sleep({{delayMilliseconds}} / 1000.0)
+        point = {
+            "kind": "player_base",
+            "pointType": 6,
+            "serverId": 2212,
+            "pointId": {{pointId}},
+            "x": 481,
+            "y": 32,
+            "uuid": "fake-city-{{pointId}}",
+            "ownerUid": "fake-owner-{{pointId}}",
+            "ownerName": "Fake City {{pointId}}",
+            "allianceId": "fake-alliance",
+            "allianceName": "FAKE",
+            "level": 30,
+            "protectEndTime": 1893456000,
+            "source": "WorldPointManager._pointInfos"
+        } if args.map_kind == "city" else {
+            "kind": "resource_point",
+            "serverId": 2212,
+            "pointId": {{pointId}},
+            "x": 481,
+            "y": 32,
+            "level": 3,
+            "source": "WorldPointManager._pointInfos"
+        }
+        result = {
+            "schemaVersion": 1,
+            "probeVersion": "lwbridge-live-resource-probe-2",
+            "requestId": args.request_id,
+            "state": "proven",
+            "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+            "source": "WorldPointManager._pointInfos",
+            "capturedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "acquisitionOrdinal": 1,
+            "mapKind": args.map_kind,
+            "point_records": [point]
+        }
+        with open({{resultLiteral}}, "w", encoding="utf-8") as stream:
+            json.dump(result, stream)
+        print(json.dumps({
+            "ok": True,
+            "probeVersion": "lwbridge-live-resource-probe-2",
+            "requestId": args.request_id,
+            "mapKind": args.map_kind,
+            "resultPath": {{resultLiteral}}
+        }))
+        """);
+    return helperPath;
+}
+
+string WriteCorrelatedLiveResult(
+    string root,
+    string name,
+    string requestId,
+    int serverId = 2212,
+    string capturedAt = "2026-09-10T05:20:00Z",
+    string source = "WorldPointManager._pointInfos",
+    string pointSource = "WorldPointManager._pointInfos",
+    string? profileId = null,
+    string? launchSessionId = null,
+    int? gamePid = null)
+{
+    string resultPath = Path.Combine(root, name + ".json");
+    File.WriteAllText(resultPath, JsonSerializer.Serialize(new
+    {
+        schemaVersion = 1,
+        probeVersion = "lwbridge-live-resource-probe-2",
+        requestId,
+        profileId,
+        launchSessionId,
+        gamePid,
+        state = "proven",
+        requestRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+        source,
+        capturedAt,
+        acquisitionOrdinal = 1,
+        point_records = new[]
+        {
+            new
+            {
+                kind = "resource_point",
+                serverId,
+                pointId = 1009,
+                x = 481,
+                y = 32,
+                level = 3,
+                source = pointSource,
+            },
+        },
+    }, JsonOptions.Default));
+    return resultPath;
+}
+
+(bool IsReading, string Phase) ReadLiveStatus(LiveResourceProbeCommandService service)
+{
+    using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(service.CreateStatus(), JsonOptions.Default));
+    JsonElement root = document.RootElement;
+    return (
+        root.GetProperty("isReading").GetBoolean(),
+        root.GetProperty("phase").GetString() ?? string.Empty);
+}
+
+async Task<bool> WaitForLiveState(
+    LiveResourceProbeCommandService service,
+    Func<(bool IsReading, string Phase), bool> predicate,
+    int timeoutMilliseconds = 4000)
+{
+    DateTime deadline = DateTime.UtcNow.AddMilliseconds(timeoutMilliseconds);
+    while (DateTime.UtcNow < deadline)
+    {
+        if (predicate(ReadLiveStatus(service))) return true;
+        await Task.Delay(20);
+    }
+    return predicate(ReadLiveStatus(service));
+}
+
+string repoRoot = FindRepoRoot();
+bool verifyRealConfigUnchanged = args.Contains("--verify-real-config-unchanged", StringComparer.OrdinalIgnoreCase);
+string realConfigPath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "LWBridgeRebuild", "config.json");
+byte[]? realConfigBefore = verifyRealConfigUnchanged && File.Exists(realConfigPath)
+    ? File.ReadAllBytes(realConfigPath)
+    : null;
+bool realConfigExistedBefore = verifyRealConfigUnchanged && File.Exists(realConfigPath);
+
+Check(
+    LWBridgeControlPipeContract.GetFullPathForSid("S-1-5-21-1-2-3-1001") ==
+    @"\\.\pipe\lwbridge-control-v1-c169ebe52e9c0ba4",
+    "recovered LWBridge control pipe name uses first 16 lowercase SHA-256 hex characters of UTF-8 user SID");
+Check(
+    LWBridgeControlPipeContract.GetCurrentUserFullPath().StartsWith(
+        LWBridgeControlPipeContract.FullPathPrefix,
+        StringComparison.Ordinal),
+    "current-user LWBridge control pipe name uses recovered prefix");
+
+// LWB-R5-007: base framing and proxy hello parsing. R7-097 adds focused
+// hello.ack / command / result wire checks in OverviewBridgeRpcProtocolChecks.
+byte[] helloPayload = System.Text.Encoding.UTF8.GetBytes(
+    "{\"version\":1,\"type\":\"hello\",\"profileId\":\"profile-a\",\"instanceId\":\"instance-b\",\"requestId\":\"\",\"timestamp\":123456789,\"payload\":{\"token\":\"token-c\",\"pid\":4321,\"buildId\":\"build-d\"}}");
+byte[] helloFrame = LWBridgeControlPipeProtocol.EncodeFrame(helloPayload);
+Check(
+    System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(helloFrame) == helloPayload.Length,
+    "recovered control-pipe frame uses a four-byte little-endian payload length");
+Check(
+    LWBridgeControlPipeProtocol.TryDecodeFrame(helloFrame, out byte[] decodedHelloPayload, out int helloBytesConsumed) &&
+    helloBytesConsumed == helloFrame.Length && decodedHelloPayload.SequenceEqual(helloPayload),
+    "recovered control-pipe frame round-trips one complete payload");
+Check(
+    !LWBridgeControlPipeProtocol.TryDecodeFrame(helloFrame.AsSpan(0, helloFrame.Length - 1), out _, out _),
+    "incomplete recovered control-pipe frame remains pending");
+bool rejectedZeroLengthFrame = false;
+try
+{
+    LWBridgeControlPipeProtocol.TryDecodeFrame([0, 0, 0, 0], out _, out _);
+}
+catch (InvalidDataException)
+{
+    rejectedZeroLengthFrame = true;
+}
+Check(rejectedZeroLengthFrame, "zero-length recovered control-pipe frame fails closed");
+
+LWBridgeProxyHello hello = LWBridgeControlPipeProtocol.ParseProxyHello(decodedHelloPayload);
+Check(
+    hello.Version == 1 && hello.Type == "hello" && hello.ProfileId == "profile-a" &&
+    hello.InstanceId == "instance-b" && hello.RequestId.Length == 0 &&
+    hello.Timestamp.ValueKind == JsonValueKind.Number && hello.Timestamp.GetRawText() == "123456789" &&
+    hello.Token == "token-c" && hello.Pid.ValueKind == JsonValueKind.Number && hello.Pid.GetRawText() == "4321" &&
+    hello.BuildId == "build-d",
+    "recovered proxy hello schema preserves version, identity, timestamp and nested token/pid/build fields");
+Check(
+    LWBridgeControlPipeProtocol.MatchesExpectedIdentity(hello, "profile-a", "instance-b", "token-c", "build-d"),
+    "recovered proxy hello identity fields match the expected profile/instance/token/build tuple");
+Check(
+    !LWBridgeControlPipeProtocol.MatchesExpectedIdentity(hello, "profile-a", "foreign-instance", "token-c", "build-d"),
+    "identity comparison policy rejects a foreign proxy hello tuple");
+
+// Deterministic config/persistence checks use isolated temporary storage.
+string configRoot = Path.Combine(Path.GetTempPath(), "lwbridge-checks-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(configRoot);
+try
+{
+    var store = new LocalConfigStore(configRoot);
+    string originalProfileId = store.Snapshot.ProfileId;
+    string configPath = Path.Combine(configRoot, "config.json");
+    Check(File.Exists(configPath), "new isolated config is persisted");
+
+    using (JsonDocument saved = JsonDocument.Parse(File.ReadAllText(configPath)))
+    {
+        Check(saved.RootElement.GetProperty("schemaVersion").GetInt32() == LWBridgeLocalConfig.CurrentSchemaVersion,
+            "config writes schema version");
+        Check(saved.RootElement.GetProperty("owner").GetString() == LWBridgeLocalConfig.CurrentOwner,
+            "config writes ownership marker");
+    }
+
+    store.Update(c => c with { AutoReconnect = true });
+    var reloaded = new LocalConfigStore(configRoot);
+    Check(reloaded.Snapshot.ProfileId == originalProfileId, "profile identity survives restart");
+    Check(reloaded.Snapshot.AutoReconnect, "saved preference survives restart");
+
+    // Two independently loaded owners must refresh the committed baseline under
+    // the storage lock instead of losing the first writer's successful change.
+    var writerA = new LocalConfigStore(configRoot);
+    var writerB = new LocalConfigStore(configRoot);
+    writerA.Update(c => c with { AutoLaunchGame = false });
+    writerB.Update(c => c with { AutoReconnect = false });
+    var afterCompetingWriters = new LocalConfigStore(configRoot);
+    Check(!afterCompetingWriters.Snapshot.AutoLaunchGame && !afterCompetingWriters.Snapshot.AutoReconnect,
+        "competing config owners serialize and preserve both committed changes");
+
+    // A crash can leave an uncommitted uniquely-named temp file. It must not be
+    // treated as authoritative on restart or replace the last committed bytes.
+    byte[] committedBeforeAbandonedTemp = File.ReadAllBytes(configPath);
+    string abandonedTemp = configPath + ".tmp.abandoned";
+    File.WriteAllText(abandonedTemp, "{\"schemaVersion\":1,\"owner\":\"LWBridgeRebuild\",\"profileId\":\"uncommitted\"}");
+    var afterAbandonedTemp = new LocalConfigStore(configRoot);
+    Check(afterAbandonedTemp.Snapshot.ProfileId == originalProfileId,
+        "abandoned replacement temp cannot replace committed profile identity");
+    Check(File.ReadAllBytes(configPath).SequenceEqual(committedBeforeAbandonedTemp),
+        "abandoned replacement temp leaves committed config bytes unchanged");
+
+    // Legacy rebuild config can still contain this obsolete field, but R8-036
+    // moves the public server-jump-history commands to map-data.db/app_settings.
+    store.Update(c => c with { ServerJumpHistory = new[] { 9, 9, 0, 100000, 8, 7, 6, 5, 4 } });
+    var historyReloaded = new LocalConfigStore(configRoot);
+    Check(historyReloaded.Snapshot.ServerJumpHistory.SequenceEqual(new[] { 9, 8, 7, 6, 5 }),
+        "legacy config history remains readable during storage-owner migration");
+
+    // A valid backup must recover identity without silently inventing a new profile.
+    File.WriteAllText(configPath, "{ definitely not valid json");
+    var recovered = new LocalConfigStore(configRoot);
+    Check(recovered.Snapshot.ProfileId == originalProfileId, "corrupt config recovers stable profile identity from backup");
+    Check(Directory.GetFiles(configRoot, "config.json.corrupt.*").Length == 1,
+        "corrupt primary is preserved during recovery");
+}
+finally
+{
+    try { Directory.Delete(configRoot, recursive: true); }
+    catch { }
+}
+
+string backendPartialRoot = Path.Combine(Path.GetTempPath(), "lwbridge-backend-partial-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(backendPartialRoot);
+try
+{
+    var ownerAStore = new LocalConfigStore(backendPartialRoot);
+    var ownerBStore = new LocalConfigStore(backendPartialRoot);
+    var ownerABackend = new LWBridgeBackend(ownerAStore);
+    var ownerBBackend = new LWBridgeBackend(ownerBStore);
+    string originalProfileId = ownerABackend.ProfileId;
+
+    using (JsonDocument reconnectPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = ownerBBackend.ProfileId,
+        name = "autoForceUpdateReload",
+        enabled = true,
+    })))
+    {
+        await ownerBBackend.InvokeAsync("set_automation", reconnectPayload.RootElement.Clone(), CancellationToken.None);
+    }
+    ownerBStore.Update(c => c with { GameRoot = @"C:\LastWar\RecoveredRoot" });
+
+    using (JsonDocument partialSave = JsonDocument.Parse("{\"autoLaunchGame\":false}"))
+    {
+        await ownerABackend.InvokeAsync("local_config_set", partialSave.RootElement.Clone(), CancellationToken.None);
+    }
+
+    LWBridgeLocalConfig persisted = new LocalConfigStore(backendPartialRoot).Snapshot;
+    Check(persisted.ProfileId == originalProfileId && !persisted.AutoLaunchGame && persisted.AutoReconnect,
+        "backend partial config save preserves profile identity and another owner's reconnect update");
+    Check(persisted.GameRoot == @"C:\LastWar\RecoveredRoot",
+        "backend partial config save preserves another owner's root update");
+}
+finally
+{
+    try { Directory.Delete(backendPartialRoot, recursive: true); }
+    catch { }
+}
+
+string missingPrimaryRoot = Path.Combine(Path.GetTempPath(), "lwbridge-missing-primary-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(missingPrimaryRoot);
+try
+{
+    var store = new LocalConfigStore(missingPrimaryRoot);
+    string originalProfileId = store.Snapshot.ProfileId;
+    store.Update(c => c with { AutoReconnect = true });
+    File.Delete(Path.Combine(missingPrimaryRoot, "config.json"));
+
+    var recovered = new LocalConfigStore(missingPrimaryRoot);
+    Check(recovered.Snapshot.ProfileId == originalProfileId,
+        "missing primary recovers stable profile identity from valid owned backup");
+    Check(File.Exists(Path.Combine(missingPrimaryRoot, "config.json")),
+        "missing-primary recovery restores a primary config from the owned backup");
+}
+finally
+{
+    try { Directory.Delete(missingPrimaryRoot, recursive: true); }
+    catch { }
+}
+
+string missingPrimaryIncompatibleBackupRoot = Path.Combine(Path.GetTempPath(), "lwbridge-missing-primary-incompatible-backup-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(missingPrimaryIncompatibleBackupRoot);
+try
+{
+    string backupPath = Path.Combine(missingPrimaryIncompatibleBackupRoot, "config.backup.json");
+    byte[] backupBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"owner\":\"OtherApplication\",\"profileId\":\"foreign-backup\"}");
+    File.WriteAllBytes(backupPath, backupBytes);
+
+    ExpectConfigError("CONFIG_OWNER_MISMATCH", "missing primary does not convert an incompatible backup into a new install", () =>
+        new LocalConfigStore(missingPrimaryIncompatibleBackupRoot));
+    Check(!File.Exists(Path.Combine(missingPrimaryIncompatibleBackupRoot, "config.json")) &&
+          File.ReadAllBytes(backupPath).SequenceEqual(backupBytes),
+        "incompatible backup remains byte-for-byte unchanged when the primary is absent");
+}
+finally
+{
+    try { Directory.Delete(missingPrimaryIncompatibleBackupRoot, recursive: true); }
+    catch { }
+}
+
+string writeFailureRoot = Path.Combine(Path.GetTempPath(), "lwbridge-write-failure-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(writeFailureRoot);
+try
+{
+    var store = new LocalConfigStore(writeFailureRoot);
+    bool original = store.Snapshot.AutoLaunchGame;
+    Directory.CreateDirectory(Path.Combine(writeFailureRoot, "config.backup.json"));
+    ExpectConfigError("CONFIG_WRITE_FAILED", "failed durable write rejects update", () =>
+        store.Update(c => c with { AutoLaunchGame = !original }));
+    Check(store.Snapshot.AutoLaunchGame == original, "failed durable write leaves in-memory config unchanged");
+}
+finally
+{
+    try { Directory.Delete(writeFailureRoot, recursive: true); }
+    catch { }
+}
+
+string invalidOwnerRoot = Path.Combine(Path.GetTempPath(), "lwbridge-invalid-owner-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(invalidOwnerRoot);
+try
+{
+    string configPath = Path.Combine(invalidOwnerRoot, "config.json");
+    byte[] foreignBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"owner\":\"OtherApp\",\"profileId\":\"keep-me\"}");
+    File.WriteAllBytes(configPath, foreignBytes);
+    ExpectConfigError("CONFIG_OWNER_MISMATCH", "foreign config ownership fails closed", () => new LocalConfigStore(invalidOwnerRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(foreignBytes),
+        "foreign config without backup is left byte-for-byte untouched after rejection");
+}
+finally
+{
+    try { Directory.Delete(invalidOwnerRoot, recursive: true); }
+    catch { }
+}
+
+string futureSchemaRoot = Path.Combine(Path.GetTempPath(), "lwbridge-future-schema-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(futureSchemaRoot);
+try
+{
+    string configPath = Path.Combine(futureSchemaRoot, "config.json");
+    byte[] futureBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":999,\"owner\":\"LWBridgeRebuild\",\"profileId\":\"future\"}");
+    File.WriteAllBytes(configPath, futureBytes);
+    ExpectConfigError("CONFIG_SCHEMA_UNSUPPORTED", "future config schema fails closed", () => new LocalConfigStore(futureSchemaRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(futureBytes),
+        "future-schema config without backup is left byte-for-byte untouched after rejection");
+}
+finally
+{
+    try { Directory.Delete(futureSchemaRoot, recursive: true); }
+    catch { }
+}
+
+string incompatibleWithBackupRoot = Path.Combine(Path.GetTempPath(), "lwbridge-incompatible-backup-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(incompatibleWithBackupRoot);
+try
+{
+    var store = new LocalConfigStore(incompatibleWithBackupRoot);
+    store.Update(c => c with { AutoReconnect = true });
+    string configPath = Path.Combine(incompatibleWithBackupRoot, "config.json");
+    byte[] foreignBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1,\"owner\":\"OtherApplication\",\"profileId\":\"foreign-with-backup\"}");
+    File.WriteAllBytes(configPath, foreignBytes);
+    ExpectConfigError("CONFIG_OWNER_MISMATCH", "foreign primary is not replaced by valid backup", () => new LocalConfigStore(incompatibleWithBackupRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(foreignBytes),
+        "foreign primary remains byte-for-byte unchanged when a valid owned backup exists");
+
+    byte[] futureBytes = System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":999,\"owner\":\"LWBridgeRebuild\",\"profileId\":\"future-with-backup\"}");
+    File.WriteAllBytes(configPath, futureBytes);
+    ExpectConfigError("CONFIG_SCHEMA_UNSUPPORTED", "future-schema primary is not replaced by valid backup", () => new LocalConfigStore(incompatibleWithBackupRoot));
+    Check(File.ReadAllBytes(configPath).SequenceEqual(futureBytes),
+        "future-schema primary remains byte-for-byte unchanged when a valid owned backup exists");
+}
+finally
+{
+    try { Directory.Delete(incompatibleWithBackupRoot, recursive: true); }
+    catch { }
+}
+
+string unreadablePrimaryRoot = Path.Combine(Path.GetTempPath(), "lwbridge-unreadable-primary-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(unreadablePrimaryRoot);
+try
+{
+    string configPath = Path.Combine(unreadablePrimaryRoot, "config.json");
+    Directory.CreateDirectory(configPath);
+    ExpectConfigError("CONFIG_READ_FAILED", "unreadable primary storage is not treated as a new install", () => new LocalConfigStore(unreadablePrimaryRoot));
+    Check(Directory.Exists(configPath), "unreadable primary storage is preserved after read failure");
+}
+finally
+{
+    try { Directory.Delete(unreadablePrimaryRoot, recursive: true); }
+    catch { }
+}
+
+// Profile routing and command-boundary checks use an in-memory config.
+var backend = new LWBridgeBackend(new LocalConfigStore(persistent: false));
+using (JsonDocument readOnlyBootstrap = JsonDocument.Parse(JsonSerializer.Serialize(
+    backend.GetBootstrap(fixture: false, sessionId: "test-session", suppressAutoLaunch: true), JsonOptions.Default)))
+{
+    Check(readOnlyBootstrap.RootElement.GetProperty("autoLaunchGame").ValueKind == JsonValueKind.False,
+        "read-only production probe explicitly suppresses startup launch reconciliation");
+}
+using JsonDocument emptyPayload = JsonDocument.Parse("{}");
+object? profileList = await backend.InvokeAsync("profile_list", emptyPayload.RootElement.Clone(), CancellationToken.None);
+Check(profileList is not null, "global profile_list works without active profile payload");
+
+await ExpectBridgeError("PROFILE_REQUIRED", "profile-scoped command rejects missing profile", async () =>
+    await backend.InvokeAsync("get_status", emptyPayload.RootElement.Clone(), CancellationToken.None));
+
+await ExpectBridgeError("PROFILE_ID_REQUIRED", "native instance status requires profileId", async () =>
+    await backend.InvokeAsync("profile_instance_status", emptyPayload.RootElement.Clone(), CancellationToken.None));
+
+using JsonDocument foreignProfile = JsonDocument.Parse("{\"profileId\":\"foreign-profile\"}");
+await ExpectBridgeError("PROFILE_RUNTIME_UNAVAILABLE", "unknown instance-status runtime is rejected", async () =>
+    await backend.InvokeAsync("profile_instance_status", foreignProfile.RootElement.Clone(), CancellationToken.None));
+
+using JsonDocument profilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = backend.ProfileId }));
+await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "launch remains fail-closed until bootstrap is recovered", async () =>
+    await backend.InvokeAsync("profile_instance_start", profilePayload.RootElement.Clone(), CancellationToken.None));
+
+// OVL-02/03/04: the normal production window now supplies an explicit
+// OverviewLifecycleService. The bare backend above intentionally stays fail-closed;
+// exercise the lifecycle independently with a same-session game-side response.
+string overviewLifecycleRoot = Path.Combine(Path.GetTempPath(), "lwbridge-overview-lifecycle-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(overviewLifecycleRoot);
+try
+{
+    const string overviewProfile = "overview-test-profile";
+    const int overviewPid = 42420;
+    const int overviewLauncherPid = 42421;
+    const string overviewStartedAtUtc = "2026-09-12T01:00:00.0000000Z";
+    string overviewGamePath = Path.Combine(overviewLifecycleRoot, "Game", "LastWar.exe");
+    bool overviewProcessAlive = false;
+    string heartbeatMode = "fresh";
+    string? activeOverviewSession = null;
+    string? activeOverviewChallenge = null;
+    var overviewInvocations = new List<OverviewHelperInvocation>();
+
+    byte[] OverviewHeartbeatBytes()
+    {
+        string challenge = heartbeatMode == "foreign" ? "foreign_challenge" : activeOverviewChallenge!;
+        long updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - (heartbeatMode == "stale" ? 30 : 0);
+        return JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            schemaVersion = 1,
+            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = overviewProfile,
+            sessionId = activeOverviewSession,
+            challenge,
+            gamePid = overviewPid,
+            updatedAt,
+            ready = true,
+            messageVisible = true,
+            messageText = OverviewLifecycleService.ReadyMessage,
+        });
+    }
+
+    var overviewHooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (pid, path, startedAtUtc) => overviewProcessAlive && startedAtUtc == overviewStartedAtUtc && pid == overviewPid &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(overviewGamePath), StringComparison.OrdinalIgnoreCase),
+        ReadAllBytes = _ => OverviewHeartbeatBytes(),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        RunHelperAsync = (invocation, _) =>
+        {
+            overviewInvocations.Add(invocation);
+            if (invocation.Operation == "start")
+            {
+                activeOverviewSession = invocation.SessionId;
+                activeOverviewChallenge = invocation.Challenge;
+                overviewProcessAlive = true;
+                string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_install_launch_ready_deferred_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = invocation.SessionId,
+                    challengeSha256,
+                    gamePid = overviewPid,
+                    gamePath = overviewGamePath,
+                    gameStartedAtUtc = overviewStartedAtUtc,
+                    launcherPid = overviewLauncherPid,
+                    ready = new
+                    {
+                        schemaVersion = 1,
+                        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId = overviewProfile,
+                        sessionId = invocation.SessionId,
+                        challenge = invocation.Challenge,
+                        gamePid = overviewPid,
+                        readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        ready = true,
+                        messageVisible = true,
+                        messageText = OverviewLifecycleService.ReadyMessage,
+                    },
+                    restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                    gameRunning = true,
+                    installedFilesChanged = true,
+                }));
+            }
+            bool wasAlive = overviewProcessAlive;
+            overviewProcessAlive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_exact_pid_close_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = overviewProfile,
+                sessionId = invocation.SessionId,
+                gamePid = overviewPid,
+                gamePath = overviewGamePath,
+                gameStartedAtUtc = overviewStartedAtUtc,
+                close = wasAlive
+                    ? new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false }
+                    : new { method = "already_exited", accepted = false, processExited = true, alreadyExited = true },
+                restore = new { restored = true },
+                gameRunning = false,
+                installedFilesChanged = false,
+            }));
+        },
+    };
+
+    var overviewConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config"));
+    overviewConfig.Update(c => c with { AutoLaunchGame = true });
+    using var overviewLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        overviewLifecycleRoot,
+        helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: overviewConfig,
+        testHooks: overviewHooks,
+        startRecoveryMonitor: false);
+    using JsonDocument overviewProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
+    using JsonDocument startupReconcilePayload = JsonDocument.Parse("{}");
+    object? startupReconcile = await overviewLifecycle.InvokeAsync(
+        "profile_instances_reconcile", startupReconcilePayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument startup = JsonDocument.Parse(JsonSerializer.Serialize(startupReconcile, JsonOptions.Default)))
+        Check(startup.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
+              overviewInvocations.Count(i => i.Operation == "start") == 1,
+            "Overview startup reconcile defaults autoLaunchAll on and uses the proven lifecycle exactly once");
+    using JsonDocument repeatedReconcilePayload = JsonDocument.Parse("{\"autoLaunchAll\":true}");
+    await overviewLifecycle.InvokeAsync(
+        "profile_instances_reconcile", repeatedReconcilePayload.RootElement.Clone(), CancellationToken.None);
+    Check(overviewInvocations.Count(i => i.Operation == "start") == 1,
+        "repeated Overview startup reconcile cannot double-start the owned game");
+    object? overviewStart = overviewLifecycle.CreateInstanceStatus();
+    using (JsonDocument status = JsonDocument.Parse(JsonSerializer.Serialize(overviewStart, JsonOptions.Default)))
+    {
+        Check(status.RootElement.GetProperty("phase").GetString() == "running" &&
+              status.RootElement.GetProperty("pid").GetInt32() == overviewPid &&
+              status.RootElement.GetProperty("connectionState").GetString() == "connected",
+            "Overview lifecycle reports running only after correlated game-side readiness");
+    }
+    string firstOverviewSession = activeOverviewSession!;
+    string firstOverviewChallenge = activeOverviewChallenge!;
+    Check(overviewLifecycle.IsReady, "fresh exact-session Overview heartbeat is authoritative ready evidence");
+    heartbeatMode = "stale";
+    Check(!overviewLifecycle.IsReady, "stale Overview heartbeat cannot keep the bridge ready");
+    heartbeatMode = "foreign";
+    Check(!overviewLifecycle.IsReady, "foreign challenge heartbeat cannot green the active Overview session");
+    heartbeatMode = "fresh";
+    Check(overviewLifecycle.IsReady, "matching fresh heartbeat restores current-session readiness");
+    await ExpectBridgeError("GAME_RUNNING", "duplicate Overview start is rejected while owned game is active", async () =>
+        await overviewLifecycle.InvokeAsync("profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None));
+    using JsonDocument wrongOverviewStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = overviewProfile,
+        instanceId = "wrong-instance",
+    }));
+    await ExpectBridgeError("INSTANCE_NOT_OWNED", "Overview stop rejects a foreign instance id", async () =>
+        await overviewLifecycle.InvokeAsync("profile_instance_stop", wrongOverviewStop.RootElement.Clone(), CancellationToken.None));
+    using JsonDocument overviewStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = overviewProfile,
+        instanceId = firstOverviewSession,
+    }));
+    await overviewLifecycle.InvokeAsync("profile_instance_stop", overviewStop.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument status = JsonDocument.Parse(JsonSerializer.Serialize(overviewLifecycle.CreateInstanceStatus(), JsonOptions.Default)))
+        Check(status.RootElement.GetProperty("phase").GetString() == "stopped",
+            "Overview normal close clears owned lifecycle state after exact-PID exit proof");
+
+    object? secondStart = await overviewLifecycle.InvokeAsync(
+        "profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None);
+    Check(secondStart is not null && activeOverviewSession != firstOverviewSession && activeOverviewChallenge != firstOverviewChallenge,
+        "a second Overview launch receives a new session and challenge so stale prior evidence cannot match");
+    string secondOverviewSession = activeOverviewSession!;
+    overviewProcessAlive = false;
+    await overviewLifecycle.RunRecoveryObservationForTestAsync();
+    await overviewLifecycle.RunRecoveryObservationForTestAsync();
+    using (JsonDocument exitedStatus = JsonDocument.Parse(JsonSerializer.Serialize(overviewLifecycle.CreateInstanceStatus(), JsonOptions.Default)))
+    {
+        Check(exitedStatus.RootElement.GetProperty("phase").GetString() == "error" &&
+              exitedStatus.RootElement.GetProperty("instanceId").GetString() == secondOverviewSession &&
+              exitedStatus.RootElement.GetProperty("connectionState").GetString() == "recovering",
+            "an already-exited owned game preserves its session until deferred restoration completes");
+    }
+    using JsonDocument secondStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = overviewProfile,
+        instanceId = secondOverviewSession,
+    }));
+    await overviewLifecycle.InvokeAsync("profile_instance_stop", secondStop.RootElement.Clone(), CancellationToken.None);
+    Check(overviewInvocations.Count(i => i.Operation == "start") == 2 && overviewInvocations.Count(i => i.Operation == "stop") == 2,
+        "Overview lifecycle owns exactly the expected start/close helper operations");
+
+    int startsBeforeSuppressedReconcile = overviewInvocations.Count(i => i.Operation == "start");
+    var startupOffConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-startup-off"));
+    startupOffConfig.Update(c => c with { AutoLaunchGame = false });
+    using (var startupOffLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        overviewLifecycleRoot,
+        helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: startupOffConfig,
+        testHooks: overviewHooks))
+    {
+        object? suppressed = await startupOffLifecycle.InvokeAsync(
+            "profile_instances_reconcile", startupReconcilePayload.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument suppressedJson = JsonDocument.Parse(JsonSerializer.Serialize(suppressed, JsonOptions.Default));
+        Check(suppressedJson.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
+              overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
+            "Overview startup OFF leaves the game untouched");
+    }
+
+    var payloadFalseConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-payload-false"));
+    payloadFalseConfig.Update(c => c with { AutoLaunchGame = true });
+    using (var payloadFalseLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        overviewLifecycleRoot,
+        helperPath: Path.Combine(overviewLifecycleRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: payloadFalseConfig,
+        testHooks: overviewHooks))
+    using (JsonDocument reconcileFalsePayload = JsonDocument.Parse("{\"autoLaunchAll\":false}"))
+    {
+        await payloadFalseLifecycle.InvokeAsync(
+            "profile_instances_reconcile", reconcileFalsePayload.RootElement.Clone(), CancellationToken.None);
+        Check(overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
+            "Overview reconcile autoLaunchAll=false suppresses launch even when the saved startup preference is ON");
+    }
+
+    // OVL-06: interrupted active Overview sessions are repairable only when the
+    // durable journal, selected executable, profile, and live PID all correlate.
+    string repairRoot = Path.Combine(overviewLifecycleRoot, "repair-case");
+    Directory.CreateDirectory(Path.Combine(repairRoot, "Game"));
+    string repairGamePath = Path.Combine(repairRoot, "Game", "LastWar.exe");
+    const string repairInterruptedSession = "repair-session-old";
+    const int repairOldPid = 45210;
+    const int repairNewPid = 45211;
+    const int repairLauncherPid = 45212;
+    const string repairOldStartedAtUtc = "2026-09-12T02:00:00.0000000Z";
+    const string repairNewStartedAtUtc = "2026-09-12T03:00:00.0000000Z";
+    string? repairCurrentStartedAtUtc = repairOldStartedAtUtc;
+    bool repairJournalIncludesStartedAt = true;
+    bool repairOldAlive = true;
+    bool repairNewAlive = false;
+    bool repairStopFails = false;
+    string repairJournalProfile = overviewProfile;
+    int repairJournalPid = repairOldPid;
+    string repairJournalGamePath = repairGamePath;
+    string repairJournalStage = "active_ready_deferred_restore";
+    string repairBackupPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "LWBridgeRebuild", "overview-bridge-backups", "repair-test");
+    string repairJournalBackupPath = repairBackupPath;
+    string? repairLaunchSession = null;
+    string? repairLaunchChallenge = null;
+    var repairInvocations = new List<OverviewHelperInvocation>();
+
+    byte[] RepairJournalBytes()
+    {
+        var journal = new Dictionary<string, object?>
+        {
+            ["schemaVersion"] = 1,
+            ["requestId"] = repairInterruptedSession,
+            ["profileId"] = repairJournalProfile,
+            ["sessionId"] = repairInterruptedSession,
+            ["stage"] = repairJournalStage,
+            ["gamePid"] = repairJournalPid,
+            ["gamePath"] = repairJournalGamePath,
+            ["backupPath"] = repairJournalBackupPath,
+            ["originalFiles"] = new
+            {
+                data = new { sha256 = "test-data" },
+                metadata = new { sha256 = "test-metadata" },
+                version = new { sha256 = "test-version" },
+            },
+        };
+        if (repairJournalIncludesStartedAt) journal["gameStartedAtUtc"] = repairOldStartedAtUtc;
+        return JsonSerializer.SerializeToUtf8Bytes(journal);
+    }
+
+    byte[] RepairHeartbeatBytes() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+        profileId = overviewProfile,
+        sessionId = repairLaunchSession,
+        challenge = repairLaunchChallenge,
+        gamePid = repairNewPid,
+        updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ready = true,
+        messageVisible = true,
+        messageText = OverviewLifecycleService.ReadyMessage,
+    });
+
+    var repairHooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (pid, path, startedAtUtc) =>
+            startedAtUtc == repairCurrentStartedAtUtc &&
+            (repairOldAlive && pid == repairOldPid || repairNewAlive && pid == repairNewPid) &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(repairGamePath), StringComparison.OrdinalIgnoreCase),
+        ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+            ? RepairJournalBytes()
+            : RepairHeartbeatBytes(),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        RunHelperAsync = (invocation, _) =>
+        {
+            repairInvocations.Add(invocation);
+            if (invocation.Operation == "stop")
+            {
+                if (repairStopFails) throw new InvalidOperationException("simulated repair stop failure");
+                repairOldAlive = false;
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_exact_pid_close_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = repairInterruptedSession,
+                    gamePid = repairOldPid,
+                    gamePath = repairGamePath,
+                    gameStartedAtUtc = repairOldStartedAtUtc,
+                    close = new
+                    {
+                        method = "Process.CloseMainWindow",
+                        accepted = true,
+                        processExited = true,
+                        alreadyExited = false,
+                    },
+                    restore = new { restored = true },
+                    gameRunning = false,
+                    installedFilesChanged = false,
+                }));
+            }
+
+            repairLaunchSession = invocation.SessionId;
+            repairLaunchChallenge = invocation.Challenge;
+            repairNewAlive = true;
+            repairCurrentStartedAtUtc = repairNewStartedAtUtc;
+            string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_install_launch_ready_deferred_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = overviewProfile,
+                sessionId = invocation.SessionId,
+                challengeSha256,
+                gamePid = repairNewPid,
+                gamePath = repairGamePath,
+                gameStartedAtUtc = repairNewStartedAtUtc,
+                launcherPid = repairLauncherPid,
+                ready = new
+                {
+                    schemaVersion = 1,
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = invocation.SessionId,
+                    challenge = invocation.Challenge,
+                    gamePid = repairNewPid,
+                    readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    ready = true,
+                    messageVisible = true,
+                    messageText = OverviewLifecycleService.ReadyMessage,
+                },
+                restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                gameRunning = true,
+                installedFilesChanged = true,
+            }));
+        },
+    };
+
+    var repairConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-repair"));
+    repairConfig.Update(c => c with { ProfileId = overviewProfile, AutoLaunchGame = true });
+    using var repairLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        repairRoot,
+        helperPath: Path.Combine(repairRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: repairConfig,
+        testHooks: repairHooks,
+        startRecoveryMonitor: false);
+    var repairBackend = new LWBridgeBackend(
+        repairConfig,
+        repairLifecycle,
+        overviewLifecycle: repairLifecycle,
+        profileRuntimeDirectory: repairRoot,
+        proxyStatusTestHooks: new ProxyStatusTestHooks
+        {
+            GameRunning = () => false,
+        });
+    using JsonDocument repairEmptyPayload = JsonDocument.Parse("{}");
+
+    repairJournalProfile = "foreign-profile";
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a recovery journal for another profile");
+    object? noRepairResult = await repairBackend.InvokeAsync(
+        "profile_instances_update_and_restart", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument result = JsonDocument.Parse(JsonSerializer.Serialize(noRepairResult, JsonOptions.Default)))
+        Check(result.RootElement.GetProperty("restarted").GetArrayLength() == 0 &&
+              result.RootElement.GetProperty("errors").GetArrayLength() == 0,
+            "Overview update-and-restart is a no-op when no correlated repair is required");
+
+    repairJournalProfile = overviewProfile;
+    repairJournalPid = repairOldPid + 1;
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a journal whose live PID does not correlate");
+    repairJournalPid = repairOldPid;
+    repairJournalGamePath = Path.Combine(repairRoot, "Game", "Other.exe");
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a journal for a different executable path");
+    repairJournalGamePath = repairGamePath;
+    repairJournalBackupPath = Path.Combine(repairRoot, "outside-backup");
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair refuses a backup path outside the Overview backup root");
+    repairJournalBackupPath = repairBackupPath;
+    repairCurrentStartedAtUtc = repairNewStartedAtUtc;
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair rejects a reused PID/path whose process creation identity differs");
+    repairCurrentStartedAtUtc = repairOldStartedAtUtc;
+    repairJournalIncludesStartedAt = false;
+    Check(!repairLifecycle.RepairRequired,
+        "Overview repair fails closed when the live journal has no process creation identity");
+    repairJournalIncludesStartedAt = true;
+    Check(repairLifecycle.RepairRequired,
+        "Overview repair activates only for an exact profile/session/PID/path/creation journal");
+    object? repairReconcile = await repairLifecycle.InvokeAsync(
+        "profile_instances_reconcile", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument reconciled = JsonDocument.Parse(JsonSerializer.Serialize(repairReconcile, JsonOptions.Default)))
+        Check(reconciled.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
+              repairInvocations.Count == 0,
+            "startup reconcile leaves a correlated repair-required game untouched without a false unmanaged-game error");
+
+    using JsonDocument repairProfilePayload = JsonDocument.Parse(
+        JsonSerializer.Serialize(new { profileId = overviewProfile }));
+    object? repairProxyStatus = await repairBackend.InvokeAsync(
+        "proxy_status", repairProfilePayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument proxy = JsonDocument.Parse(JsonSerializer.Serialize(repairProxyStatus, JsonOptions.Default)))
+        Check(proxy.RootElement.GetProperty("repairRequired").ValueKind == JsonValueKind.False,
+            "proxy_status no longer projects the rebuild-only Overview recovery flag");
+
+    repairStopFails = true;
+    object? failedRepair = await repairBackend.InvokeAsync(
+        "profile_instances_update_and_restart", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument failed = JsonDocument.Parse(JsonSerializer.Serialize(failedRepair, JsonOptions.Default)))
+        Check(failed.RootElement.GetProperty("restarted").GetArrayLength() == 0 &&
+              failed.RootElement.GetProperty("errors").GetArrayLength() == 1 &&
+              failed.RootElement.GetProperty("errors")[0].GetProperty("error").GetString() == "GAME_CLOSE_FAILED",
+            "Overview repair reports close/restore failure through the recovered errors[].error envelope");
+    Check(repairLifecycle.RepairRequired &&
+          repairInvocations.Count(i => i.Operation == "start") == 0,
+        "failed Overview repair preserves the correlated repair state and does not relaunch");
+
+    repairStopFails = false;
+    object? successfulRepair = await repairBackend.InvokeAsync(
+        "profile_instances_update_and_restart", repairEmptyPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument repaired = JsonDocument.Parse(JsonSerializer.Serialize(successfulRepair, JsonOptions.Default)))
+        Check(repaired.RootElement.GetProperty("restarted").GetArrayLength() == 1 &&
+              repaired.RootElement.GetProperty("errors").GetArrayLength() == 0,
+            "Overview repair returns one restarted entry after exact restoration and fresh relaunch");
+    Check(repairInvocations.Count(i => i.Operation == "stop") == 2 &&
+          repairInvocations.Count(i => i.Operation == "start") == 1 &&
+          repairInvocations.Where(i => i.Operation == "stop").All(i =>
+              i.ProfileId == overviewProfile && i.SessionId == repairInterruptedSession &&
+              i.GamePid == repairOldPid && i.GameStartedAtUtc == repairOldStartedAtUtc &&
+              string.Equals(Path.GetFullPath(i.GamePath!), Path.GetFullPath(repairGamePath), StringComparison.OrdinalIgnoreCase)),
+        "Overview repair uses only the exact journaled session/PID/path for cleanup before relaunch");
+    Check(repairLifecycle.IsReady && !repairLifecycle.RepairRequired &&
+          repairConfig.Snapshot.GameDesiredRunning &&
+          repairLaunchSession is not null && repairLaunchSession != repairInterruptedSession,
+        "successful Overview repair owns a fresh ready session and restores desired-running intent");
+
+    // OVL-05: deterministic recovery tests preserve the original two-gate contract,
+    // two-observation process-exit classifier, retry tables, and intentional-stop semantics.
+    string recoveryRoot = Path.Combine(overviewLifecycleRoot, "recovery-case");
+    Directory.CreateDirectory(Path.Combine(recoveryRoot, "Game"));
+    string recoveryGamePath = Path.Combine(recoveryRoot, "Game", "LastWar.exe");
+    const int recoveryLauncherPid = 43421;
+    int recoveryPid = 43420;
+    int recoveryPidSequence = 0;
+    string recoveryStartedAtUtc = "2026-09-12T04:00:00.0000000Z";
+    bool recoveryProcessAlive = false;
+    bool recoveryHeartbeatAvailable = true;
+    bool recoveryGameStateObserved = true;
+    bool recoveryGameHealthy = true;
+    bool recoveryProcessHung = false;
+    bool recoveryRequestObserved = false;
+    bool recoveryRequestConfirmed = false;
+    bool recoveryRequestAmbiguous = false;
+    string? recoveryRequestReason = null;
+    bool recoveryRequestUpdateDetected = false;
+    long recoveryClockMilliseconds = 0;
+    bool updateProcessRunning = false;
+    string updateActivityFingerprint = "activity-a";
+    int updateTerminationCalls = 0;
+    bool clearUpdateAfterMaintenanceDelay = false;
+    bool failNextRecoveryLaunch = false;
+    bool disableReconnectOnNormalRetry = false;
+    string? recoverySession = null;
+    string? recoveryChallenge = null;
+    var recoveryInvocations = new List<OverviewHelperInvocation>();
+    var recoveryDelays = new List<TimeSpan>();
+    var recoveryEvents = new List<OverviewRecoveryStatus>();
+    var recoveryTerminations = new List<(int Pid, string Path)>();
+    var recoveryConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-recovery"));
+    recoveryConfig.Update(c => c with { ProfileId = overviewProfile, AutoLaunchGame = false, AutoReconnect = true });
+    OverviewLifecycleService? recoveryLifecycle = null;
+    LWBridgeBackend? recoveryBackend = null;
+
+    byte[] RecoveryHeartbeatBytes() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+        profileId = overviewProfile,
+        sessionId = recoverySession,
+        challenge = recoveryChallenge,
+        gamePid = recoveryPid,
+        updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ready = true,
+        messageVisible = true,
+        messageText = OverviewLifecycleService.ReadyMessage,
+        gameStateObserved = recoveryGameStateObserved,
+        gameReady = recoveryGameHealthy,
+        loggedIn = recoveryGameHealthy,
+        connected = recoveryGameHealthy,
+        connecting = false,
+        gameUid = recoveryGameHealthy ? "player-test" : "",
+        serverId = recoveryGameHealthy ? 2212 : 0,
+        worldPos = recoveryGameHealthy ? 12345 : 0,
+        recoveryObserved = recoveryRequestObserved,
+        recoveryConfirmed = recoveryRequestConfirmed,
+        recoveryAmbiguous = recoveryRequestAmbiguous,
+        recoveryReason = recoveryRequestReason,
+        recoveryUpdateDetected = recoveryRequestUpdateDetected,
+    });
+
+    var recoveryHooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (pid, path, startedAtUtc) => recoveryProcessAlive && startedAtUtc == recoveryStartedAtUtc && pid == recoveryPid &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
+        ReadAllBytes = _ => recoveryHeartbeatAvailable
+            ? RecoveryHeartbeatBytes()
+            : throw new IOException("synthetic missing heartbeat"),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        UtcNow = () => DateTimeOffset.UtcNow,
+        MonotonicMilliseconds = () => recoveryClockMilliseconds,
+        UpdateProcessRunning = () => updateProcessRunning,
+        UpdateActivityFingerprint = () => updateActivityFingerprint,
+        TerminateUpdateProcessesAsync = _ =>
+        {
+            updateTerminationCalls++;
+            updateProcessRunning = false;
+            return Task.CompletedTask;
+        },
+        ProcessHung = (pid, path) => recoveryProcessHung && recoveryProcessAlive && pid == recoveryPid &&
+            string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
+        TerminateOwnedProcessAsync = (pid, path, startedAtUtc, _) =>
+        {
+            Check(recoveryProcessAlive && pid == recoveryPid && startedAtUtc == recoveryStartedAtUtc &&
+                  string.Equals(Path.GetFullPath(path), Path.GetFullPath(recoveryGamePath), StringComparison.OrdinalIgnoreCase),
+                "recovery force-termination hook receives only the exact owned PID/path");
+            recoveryTerminations.Add((pid, Path.GetFullPath(path)));
+            recoveryProcessAlive = false;
+            recoveryHeartbeatAvailable = false;
+            recoveryProcessHung = false;
+            return Task.CompletedTask;
+        },
+        DelayAsync = async (delay, token) =>
+        {
+            recoveryDelays.Add(delay);
+            if (clearUpdateAfterMaintenanceDelay && delay == OverviewRecoveryPolicy.MaintenanceRetryDelays[0])
+            {
+                clearUpdateAfterMaintenanceDelay = false;
+                updateProcessRunning = false;
+            }
+            if (disableReconnectOnNormalRetry && delay == OverviewRecoveryPolicy.NormalRetryDelays[0])
+            {
+                disableReconnectOnNormalRetry = false;
+                using JsonDocument disablePayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+                {
+                    profileId = overviewProfile,
+                    name = "autoForceUpdateReload",
+                    enabled = false,
+                }));
+                await recoveryBackend!.InvokeAsync("set_automation", disablePayload.RootElement.Clone(), CancellationToken.None);
+            }
+            token.ThrowIfCancellationRequested();
+        },
+        RunHelperAsync = (invocation, _) =>
+        {
+            recoveryInvocations.Add(invocation);
+            if (invocation.Operation == "start")
+            {
+                if (failNextRecoveryLaunch)
+                {
+                    failNextRecoveryLaunch = false;
+                    throw new BridgeCommandException("LAUNCH_FAILED", "synthetic recovery launch failure");
+                }
+                recoverySession = invocation.SessionId;
+                recoveryChallenge = invocation.Challenge;
+                recoveryPid = 43420 + ++recoveryPidSequence;
+                recoveryStartedAtUtc = $"2026-09-12T04:{recoveryPidSequence:00}:00.0000000Z";
+                recoveryProcessAlive = true;
+                recoveryHeartbeatAvailable = true;
+                recoveryGameStateObserved = true;
+                recoveryGameHealthy = true;
+                recoveryProcessHung = false;
+                recoveryRequestObserved = false;
+                recoveryRequestConfirmed = false;
+                recoveryRequestAmbiguous = false;
+                recoveryRequestReason = null;
+                recoveryRequestUpdateDetected = false;
+                string challengeSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_install_launch_ready_deferred_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = overviewProfile,
+                    sessionId = invocation.SessionId,
+                    challengeSha256,
+                    gamePid = recoveryPid,
+                    gamePath = recoveryGamePath,
+                    gameStartedAtUtc = recoveryStartedAtUtc,
+                    launcherPid = recoveryLauncherPid,
+                    ready = new
+                    {
+                        schemaVersion = 1,
+                        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId = overviewProfile,
+                        sessionId = invocation.SessionId,
+                        challenge = invocation.Challenge,
+                        gamePid = recoveryPid,
+                        readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        ready = true,
+                        messageVisible = true,
+                        messageText = OverviewLifecycleService.ReadyMessage,
+                    },
+                    restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                    gameRunning = true,
+                    installedFilesChanged = true,
+                }));
+            }
+
+            bool wasAlive = recoveryProcessAlive;
+            recoveryProcessAlive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_exact_pid_close_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = overviewProfile,
+                sessionId = invocation.SessionId,
+                gamePid = invocation.GamePid,
+                gamePath = invocation.GamePath,
+                gameStartedAtUtc = invocation.GameStartedAtUtc,
+                close = wasAlive
+                    ? new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false }
+                    : new { method = "already_exited", accepted = false, processExited = true, alreadyExited = true },
+                restore = new { restored = true },
+                gameRunning = false,
+                installedFilesChanged = false,
+            }));
+        },
+    };
+
+    recoveryLifecycle = new OverviewLifecycleService(
+        overviewProfile,
+        recoveryRoot,
+        helperPath: Path.Combine(recoveryRoot, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: recoveryConfig,
+        testHooks: recoveryHooks,
+        startRecoveryMonitor: false);
+    using (recoveryLifecycle)
+    {
+        recoveryLifecycle.RecoveryStatusChanged += recoveryEvents.Add;
+        recoveryBackend = new LWBridgeBackend(
+            recoveryConfig,
+            asyncCommands: recoveryLifecycle,
+            overviewLifecycle: recoveryLifecycle,
+            profileRuntimeDirectory: recoveryRoot);
+        using JsonDocument recoveryProfilePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = overviewProfile }));
+        await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        Check(recoveryConfig.Snapshot.GameDesiredRunning,
+            "manual Overview launch persists desired-running true for reconnect eligibility");
+
+        recoveryProcessAlive = false;
+        int startsBeforeRecovery = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == startsBeforeRecovery &&
+              recoveryInvocations.Count(i => i.Operation == "stop") == 0,
+            "one missing-process observation does not trigger recovery");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "stop") == 1 &&
+              recoveryInvocations.Count(i => i.Operation == "start") == startsBeforeRecovery + 1,
+            "second missing-process observation restores the exited session and relaunches through the proven lifecycle");
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              recoveryLifecycle.CurrentRecoveryStatus.Restarted &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeId > 0 &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeVisible &&
+              recoveryEvents.Any(e => e.State == "waiting") &&
+              recoveryEvents.Any(e => e.State == "repairing") &&
+              recoveryEvents.Any(e => e.State == "launching") &&
+              recoveryEvents.Any(e => e.State == "verifying"),
+            "successful recovery publishes native waiting/repairing/launching/verifying states then succeeded");
+        Check(recoveryDelays.Contains(OverviewRecoveryPolicy.StableVerification),
+            "successful recovery requires the recovered 15-second stable verification window");
+
+        // Original game.recovery_requested requires confirmed=true; current-client
+        // window observation alone is deliberately fail-closed.
+        int eventTermsBefore = recoveryTerminations.Count;
+        int eventStartsBefore = recoveryInvocations.Count(i => i.Operation == "start");
+        recoveryClockMilliseconds = 500_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = false;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "disconnect";
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              recoveryTerminations.Count == eventTermsBefore,
+            "unconfirmed recovery-window observation cannot replace the terminal recovery status");
+
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              recoveryTerminations.Count == eventTermsBefore,
+            "ambiguous confirmed recovery observation fails closed without replacing terminal status");
+
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "unsupported";
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded",
+            "unknown confirmed recovery reason is rejected without replacing terminal status");
+
+        recoveryRequestReason = "crossDisconnect";
+        recoveryEvents.Clear();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryEvents.Any(e => e.State == "waiting" && e.Reason == "crossDisconnect") &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "verifying",
+            "confirmed crossDisconnect enters waiting then verifies an in-place recovery");
+        recoveryClockMilliseconds += 14_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "verifying" &&
+              recoveryTerminations.Count == eventTermsBefore,
+            "in-place recovery is not accepted before the recovered 15-second stable window");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              !recoveryLifecycle.CurrentRecoveryStatus.Restarted &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeVisible &&
+              recoveryTerminations.Count == eventTermsBefore &&
+              recoveryInvocations.Count(i => i.Operation == "start") == eventStartsBefore,
+            "stable confirmed event ends in native succeeded without restarting the game");
+
+        // A confirmed action may quit/reload before the next one-second host tick.
+        // The fresh exact-session heartbeat must preserve its event reason across
+        // the original two-missing-process classifier.
+        recoveryClockMilliseconds = 550_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "exitPrompt";
+        recoveryRequestUpdateDetected = false;
+        recoveryGameHealthy = false;
+        recoveryProcessAlive = false;
+        int immediateExitStartsBefore = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == immediateExitStartsBefore,
+            "confirmed exit action still respects the first missing-process observation");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == immediateExitStartsBefore + 1 &&
+              recoveryEvents.Any(e => e.State == "repairing" && e.Reason == "exitPrompt"),
+            "fresh confirmed heartbeat preserves exitPrompt reason when the game exits before host observation");
+
+        recoveryClockMilliseconds = 600_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "disconnect";
+        recoveryRequestUpdateDetected = false;
+        recoveryGameHealthy = false;
+        eventTermsBefore = recoveryTerminations.Count;
+        eventStartsBefore = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 59_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "waiting",
+            "confirmed disconnect waits while the existing game has not recovered");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore + 1 &&
+              recoveryInvocations.Count(i => i.Operation == "start") == eventStartsBefore + 1 &&
+              recoveryEvents.Any(e => e.Reason == "disconnect" && e.State == "repairing"),
+            "confirmed disconnect escalates after 60 seconds to exact-PID recovery");
+
+        recoveryClockMilliseconds = 700_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestReason = "forceUpdate";
+        recoveryRequestUpdateDetected = true;
+        recoveryGameHealthy = false;
+        updateProcessRunning = true;
+        eventTermsBefore = recoveryTerminations.Count;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryLifecycle.CurrentRecoveryStatus.State == "updating" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
+            "confirmed forceUpdate preserves update-detected state while updater activity is present");
+        recoveryClockMilliseconds += 70_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore,
+            "active official updater suppresses event-driven process termination");
+        updateProcessRunning = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore + 1 &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected &&
+              recoveryLifecycle.CurrentRecoveryStatus.NoticeVisible,
+            "forceUpdate recovery retains update-detected provenance in native succeeded status");
+
+        recoveryClockMilliseconds = 9_000_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestAmbiguous = false;
+        recoveryRequestReason = "forceUpdate";
+        recoveryRequestUpdateDetected = true;
+        recoveryGameHealthy = false;
+        updateProcessRunning = true;
+        updateActivityFingerprint = "activity-a";
+        int updaterStopsBeforeStall = updateTerminationCalls;
+        eventTermsBefore = recoveryTerminations.Count;
+        recoveryDelays.Clear();
+        recoveryEvents.Clear();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 899_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(updateTerminationCalls == updaterStopsBeforeStall,
+            "active updater is not stopped before 15 minutes without activity");
+
+        updateActivityFingerprint = "activity-b";
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 899_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(updateTerminationCalls == updaterStopsBeforeStall,
+            "manifest/temp/xlua activity fingerprint change resets the updater inactivity clock");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(updateTerminationCalls == updaterStopsBeforeStall + 1 &&
+              recoveryTerminations.Count == eventTermsBefore + 1 &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "succeeded" &&
+              recoveryLifecycle.CurrentRecoveryStatus.UpdateDetected,
+            "15 minutes without original updater activity stops the scoped updater family and ends succeeded");
+        Check(recoveryEvents.Any(e => e.State == "waiting" &&
+                    e.Error == "game update had no activity for 15 minutes") &&
+              recoveryDelays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]),
+            "stalled update reports the recovered inactivity error and returns to the normal 15-second retry family");
+
+        recoveryClockMilliseconds = 800_000;
+        recoveryRequestObserved = true;
+        recoveryRequestConfirmed = true;
+        recoveryRequestReason = "exitPrompt";
+        recoveryRequestUpdateDetected = false;
+        recoveryGameHealthy = false;
+        eventTermsBefore = recoveryTerminations.Count;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        using (JsonDocument disablePendingEvent = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            name = "autoForceUpdateReload",
+            enabled = false,
+        })))
+            await recoveryBackend!.InvokeAsync("set_automation", disablePendingEvent.RootElement.Clone(), CancellationToken.None);
+        recoveryClockMilliseconds += 120_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == eventTermsBefore &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "idle" &&
+              recoveryConfig.Snapshot.GameDesiredRunning,
+            "disabling reconnect cancels a pending confirmed event without clearing desired-running intent");
+        using (JsonDocument reenablePendingEvent = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            name = "autoForceUpdateReload",
+            enabled = true,
+        })))
+            await recoveryBackend.InvokeAsync("set_automation", reenablePendingEvent.RootElement.Clone(), CancellationToken.None);
+        recoveryRequestObserved = recoveryRequestConfirmed = recoveryRequestAmbiguous = false;
+        recoveryRequestReason = null;
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        int terminationsBeforeHang = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 1_000_000;
+        recoveryHeartbeatAvailable = false;
+        recoveryProcessHung = true;
+        updateProcessRunning = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 29_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeHang,
+            "hung owned game is not terminated before the recovered 30-second boundary");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeHang + 1 &&
+              recoveryEvents.Any(e => e.Reason == "hang" && e.State == "repairing"),
+            "30-second offline+hung condition terminates only the exact owned process and enters hang recovery");
+
+        int terminationsBeforeDisconnect = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 2_000_000;
+        recoveryHeartbeatAvailable = false;
+        recoveryProcessHung = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 59_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeDisconnect,
+            "offline owned game is not terminated before the recovered 60-second disconnect boundary");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeDisconnect + 1 &&
+              recoveryEvents.Any(e => e.Reason == "disconnect" && e.State == "repairing"),
+            "60-second bridge-offline condition terminates the exact owned process and enters disconnect recovery");
+
+        int terminationsBeforeUpdater = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 3_000_000;
+        recoveryHeartbeatAvailable = false;
+        updateProcessRunning = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 120_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeUpdater,
+            "official launcher/updater/sync activity suppresses running-process disconnect termination");
+        updateProcessRunning = false;
+        recoveryHeartbeatAvailable = true;
+        recoveryGameStateObserved = true;
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        int terminationsBeforeUnknown = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 4_000_000;
+        recoveryHeartbeatAvailable = true;
+        recoveryGameStateObserved = false;
+        recoveryGameHealthy = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 300_000;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeUnknown,
+            "unknown current-client game state is not converted into a disconnect recovery");
+
+        recoveryGameStateObserved = true;
+        recoveryGameHealthy = true;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        int terminationsBeforeLoginUnavailable = recoveryTerminations.Count;
+        recoveryClockMilliseconds = 5_000_000;
+        recoveryGameHealthy = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        recoveryClockMilliseconds += 179_999;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeLoginUnavailable,
+            "observed unhealthy game state is not terminated before the recovered 180-second boundary");
+        recoveryClockMilliseconds += 1;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryTerminations.Count == terminationsBeforeLoginUnavailable + 1 &&
+              recoveryEvents.Any(e => e.Reason == "disconnect" && e.State == "repairing"),
+            "180-second observed login/connection failure terminates the exact owned process and enters disconnect recovery");
+
+        recoveryHeartbeatAvailable = true;
+        recoveryGameStateObserved = true;
+        recoveryGameHealthy = true;
+        recoveryProcessHung = false;
+        updateProcessRunning = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+
+        string recoveredSession = recoverySession!;
+        using JsonDocument recoveredStopPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            instanceId = recoveredSession,
+        }));
+        await recoveryLifecycle.InvokeAsync("profile_instance_stop", recoveredStopPayload.RootElement.Clone(), CancellationToken.None);
+        int startsAfterIntentionalClose = recoveryInvocations.Count(i => i.Operation == "start");
+        Check(!recoveryConfig.Snapshot.GameDesiredRunning,
+            "intentional Overview Close clears desired-running before cleanup");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == startsAfterIntentionalClose,
+            "intentional Overview Close cannot be resurrected by Automatic Reconnection");
+
+        using JsonDocument enableReconnectPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            name = "autoForceUpdateReload",
+            enabled = true,
+        }));
+        await recoveryBackend.InvokeAsync("set_automation", enableReconnectPayload.RootElement.Clone(), CancellationToken.None);
+        await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        failNextRecoveryLaunch = true;
+        disableReconnectOnNormalRetry = true;
+        recoveryProcessAlive = false;
+        recoveryDelays.Clear();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(!recoveryConfig.Snapshot.AutoReconnect && recoveryConfig.Snapshot.GameDesiredRunning,
+            "disabling Automatic Reconnection cancels recovery without erasing desired-running intent");
+        Check(recoveryDelays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]) &&
+              recoveryLifecycle.CurrentRecoveryStatus.State == "idle",
+            "active normal recovery uses the original 15-second first retry and cancels cleanly when reconnect is disabled");
+        int startsAfterDisable = recoveryInvocations.Count(i => i.Operation == "start");
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryInvocations.Count(i => i.Operation == "start") == startsAfterDisable,
+            "Automatic Reconnection OFF suppresses all later recovery launches");
+
+        await recoveryBackend.InvokeAsync("set_automation", enableReconnectPayload.RootElement.Clone(), CancellationToken.None);
+        await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        updateProcessRunning = true;
+        clearUpdateAfterMaintenanceDelay = true;
+        recoveryDelays.Clear();
+        recoveryProcessAlive = false;
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        await recoveryLifecycle.RunRecoveryObservationForTestAsync();
+        Check(recoveryDelays.Count >= 2 &&
+              recoveryDelays[0] == OverviewRecoveryPolicy.MaintenanceRetryDelays[0] &&
+              recoveryDelays.Contains(OverviewRecoveryPolicy.StableVerification),
+            "update-process recovery uses the original two-minute maintenance delay before relaunch verification");
+        Check(recoveryEvents.Any(e => e.State == "updating" && e.UpdateDetected),
+            "update-process recovery publishes the recovered updating state");
+
+        object? recoveryStatusResult = await recoveryBackend.InvokeAsync(
+            "game_recovery_status", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument recoveryStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(recoveryStatusResult, JsonOptions.Default)))
+            Check(recoveryStatusJson.RootElement.GetProperty("state").GetString() == "succeeded" &&
+                  recoveryStatusJson.RootElement.GetProperty("restarted").ValueKind == JsonValueKind.True &&
+                  recoveryStatusJson.RootElement.GetProperty("noticeId").ValueKind == JsonValueKind.Number &&
+                  recoveryStatusJson.RootElement.GetProperty("noticeVisible").ValueKind == JsonValueKind.True,
+                "game_recovery_status exposes native terminal succeeded and numeric notice state");
+
+        using JsonDocument finalRecoveryStop = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = overviewProfile,
+            instanceId = recoverySession,
+        }));
+        await recoveryLifecycle.InvokeAsync("profile_instance_stop", finalRecoveryStop.RootElement.Clone(), CancellationToken.None);
+        Check(!recoveryConfig.Snapshot.GameDesiredRunning,
+            "final deterministic recovery cleanup leaves desired-running false");
+
+        failNextRecoveryLaunch = true;
+        try
+        {
+            await recoveryLifecycle.InvokeAsync("profile_instance_start", recoveryProfilePayload.RootElement.Clone(), CancellationToken.None);
+            Check(false, "failed manual Overview launch must throw");
+        }
+        catch (BridgeCommandException) { }
+        Check(!recoveryConfig.Snapshot.GameDesiredRunning,
+            "failed manual Overview launch does not arm desired-running recovery intent");
+    }
+}
+finally
+{
+    try { Directory.Delete(overviewLifecycleRoot, recursive: true); }
+    catch { }
+}
+
+// R8-010 strict parity: map_summary is driven by the shared map-scan state producer.
+// This baseline backend fixture intentionally has no such producer, so it is not a
+// valid map_summary execution context and no saved/index fallback is asserted here.
+
+// PM10-03: saved-capture replay is a bounded importer with its own in-memory
+// store. Invalid or out-of-slice resource identities fail closed instead of
+// silently selecting a later record, and normal production gates stay closed.
+string firstLiveReplayRoot = Path.Combine(Path.GetTempPath(), "lwbridge-first-live-replay-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(firstLiveReplayRoot);
+try
+{
+    string validReplayPath = Path.Combine(firstLiveReplayRoot, "valid.json");
+    File.WriteAllText(validReplayPath, """
+        {
+          "sourceCaptureSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "probeVersion": "lwcontrol-world-full-scan-probe-9",
+          "point_records": [
+            {
+              "kind": "resource_point",
+              "serverId": 2212,
+              "pointId": 1006,
+              "x": 5,
+              "y": 1,
+              "source": "WorldPointManager._pointInfos"
+            }
+          ]
+        }
+        """);
+
+    FirstLiveReplay replay = FirstLiveResultImporter.CreateIsolatedReplay(validReplayPath);
+    using (replay.Store)
+    {
+        Check(replay.Import.ServerId == 2212 && replay.Import.PointIndex == 1006 &&
+              replay.Import.X == 5 && replay.Import.Y == 1,
+            "first-live replay imports the source-backed resource identity and coordinates");
+        Check(replay.Import.Level is null && replay.Import.ProbeVersion == "lwcontrol-world-full-scan-probe-9" &&
+              replay.Import.DeclaredSourceCaptureSha256 == "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "first-live replay preserves capture provenance while optional unsupported fields remain unknown");
+        using (JsonDocument replayData = JsonDocument.Parse(replay.Import.DataJson))
+        {
+            Check(replayData.RootElement.GetProperty("kind").GetString() == "resource" &&
+                  replayData.RootElement.GetProperty("sourceKind").GetString() == "resource_point" &&
+                  !replayData.RootElement.TryGetProperty("resourceNameKey", out _) &&
+                  !replayData.RootElement.TryGetProperty("level", out _) &&
+                  replayData.RootElement.GetProperty("rebuildGatherOccupancyKnown").ValueKind == JsonValueKind.False,
+                "first-live replay maps only the bounded public kind, preserves optional resource unknowns, and marks gathering occupancy unknown");
+        }
+        Check(replay.Store.CountRecords("resource", 2212) == 1,
+            "first-live replay stores exactly one imported resource in its isolated map index");
+
+        var replayBackend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            mapData: replay.Store,
+            firstLiveResultServerId: replay.Import.ServerId,
+            mapScanStatusProvider: () => new
+            {
+                serverId = replay.Import.ServerId,
+                isReading = false,
+                scanRunId = string.Empty,
+                phase = "unavailable",
+                serverIdSource = "saved_capture_replay",
+            });
+        using JsonDocument replayProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = replayBackend.ProfileId }));
+        object? replaySummary = await replayBackend.InvokeAsync("map_summary", replayProfile.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument replaySummaryJson = JsonDocument.Parse(JsonSerializer.Serialize(replaySummary, JsonOptions.Default)))
+        {
+            JsonElement scanState = replaySummaryJson.RootElement.GetProperty("scanState");
+            Check(scanState.GetProperty("phase").GetString() == "unavailable" &&
+                  scanState.GetProperty("serverIdSource").GetString() == "saved_capture_replay" &&
+                  scanState.GetProperty("isReading").ValueKind == JsonValueKind.False,
+                "saved-capture summary explicitly reports replay data without an active fresh scan");
+        }
+        await ExpectBridgeError("BRIDGE_NOT_READY", "saved-capture replay cannot start a production map scan", async () =>
+            await replayBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+            {
+                profileId = replayBackend.ProfileId,
+                serverId = 2212,
+                selectedTypes = new[] { "resource" },
+            })).RootElement.Clone(), CancellationToken.None));
+    }
+
+    string knownIdlePath = Path.Combine(firstLiveReplayRoot, "known-idle.json");
+    File.WriteAllText(knownIdlePath, """
+        {
+          "capturedAt": "2026-09-10T07:39:22Z",
+          "probeVersion": "lwbridge-live-resource-probe-2",
+          "point_records": [
+            {
+              "kind": "resource_point",
+              "serverId": 2212,
+              "pointId": 32482,
+              "x": 481,
+              "y": 32,
+              "gatherOccupancyKnown": true,
+              "gatherOccupied": false,
+              "source": "WorldPointManager._pointInfos"
+            }
+          ]
+        }
+        """);
+    using (MapDataStore knownIdleStore = MapDataStore.CreateInMemory())
+    {
+        FirstLiveResultImport knownIdle = FirstLiveResultImporter.ImportOneResource(knownIdleStore, knownIdlePath);
+        using JsonDocument knownIdleData = JsonDocument.Parse(knownIdle.DataJson);
+        Check(knownIdleData.RootElement.GetProperty("rebuildGatherOccupancyKnown").ValueKind == JsonValueKind.True &&
+              knownIdleData.RootElement.GetProperty("rebuildGatherOccupied").ValueKind == JsonValueKind.False,
+            "bounded live importer preserves source-backed known idle occupancy");
+    }
+
+    string knownGatheringPath = Path.Combine(firstLiveReplayRoot, "known-gathering.json");
+    File.WriteAllText(knownGatheringPath, """
+        {
+          "capturedAt": "2026-09-10T07:39:50Z",
+          "probeVersion": "lwbridge-live-resource-probe-2",
+          "point_records": [
+            {
+              "kind": "resource_point",
+              "serverId": 2212,
+              "pointId": 32483,
+              "x": 482,
+              "y": 32,
+              "gatherOccupancyKnown": true,
+              "gatherOccupied": true,
+              "source": "WorldPointManager._pointInfos"
+            }
+          ]
+        }
+        """);
+    using (MapDataStore knownGatheringStore = MapDataStore.CreateInMemory())
+    {
+        FirstLiveResultImport knownGathering = FirstLiveResultImporter.ImportOneResource(knownGatheringStore, knownGatheringPath);
+        using JsonDocument knownGatheringData = JsonDocument.Parse(knownGathering.DataJson);
+        Check(knownGatheringData.RootElement.GetProperty("rebuildGatherOccupancyKnown").ValueKind == JsonValueKind.True &&
+              knownGatheringData.RootElement.GetProperty("rebuildGatherOccupied").ValueKind == JsonValueKind.True,
+            "bounded live importer preserves source-backed known gathering occupancy");
+    }
+
+    using (var productionMapStore = MapDataStore.CreateInMemory())
+    {
+        var productionMapBackend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            mapData: productionMapStore);
+        Check(productionMapStore.CountRecords("resource", 2212) == 0,
+            "saved replay import never writes into a separate production map index");
+        // Synthetic stale-row fixture: even when the production index already contains
+        // older data, a disconnected backend must not promote it to a fresh scan result.
+        productionMapStore.UpsertRecord(new MapStoredRecord(
+            "resource", 2212, "synthetic-stale-resource", 1005, null, null, null,
+            3, null, null, null, null, 1,
+            "{\"serverId\":2212,\"pointIndex\":1005,\"x\":4,\"y\":1,\"updatedAt\":1}"));
+        Check(productionMapStore.CountRecords("resource", 2212) == 1,
+            "synthetic stale production row exists before disconnected freshness-gate checks");
+        using JsonDocument productionProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = productionMapBackend.ProfileId }));
+        Check(productionMapStore.ReadPublishedServerIds().SequenceEqual(new[] { 2212 }),
+            "disconnected persisted rows remain discoverable only as saved data, not as map_summary live state");
+        await ExpectBridgeError("BRIDGE_NOT_READY", "disconnected production scan never presents a stale indexed row as fresh", async () =>
+            await productionMapBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+            {
+                profileId = productionMapBackend.ProfileId,
+                serverId = 2212,
+                selectedTypes = new[] { "resource" },
+            })).RootElement.Clone(), CancellationToken.None));
+        await ExpectBridgeError("OVERVIEW_LAUNCH_BOOTSTRAP_UNRECOVERED", "production launch gate remains closed after a replay import", async () =>
+            await productionMapBackend.InvokeAsync("profile_instance_start", productionProfile.RootElement.Clone(), CancellationToken.None));
+
+        string boundedCityHelper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-city", 0, 2000);
+        var boundedLiveService = new LiveResourceProbeCommandService(
+            productionMapStore,
+            boundedCityHelper);
+        using (JsonDocument boundedStatus = JsonDocument.Parse(JsonSerializer.Serialize(boundedLiveService.CreateStatus(), JsonOptions.Default)))
+        {
+            JsonElement root = boundedStatus.RootElement;
+            Check(root.GetProperty("serverId").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("liveResourceAcquisitionOrdinal").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("totalBlocks").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("progressPercent").ValueKind == JsonValueKind.Null &&
+                  root.GetProperty("nativeCaptureReady").ValueKind == JsonValueKind.Null,
+                "bounded live status preserves unavailable identity and unmeasured full-scan metrics as unknown");
+        }
+        var boundedLiveBackend = new LWBridgeBackend(
+            new LocalConfigStore(persistent: false),
+            asyncCommands: boundedLiveService,
+            mapData: productionMapStore);
+        using JsonDocument boundedProfile = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = boundedLiveBackend.ProfileId }));
+        object? boundedStatusEnvelope = await boundedLiveBackend.InvokeAsync("get_status", boundedProfile.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument boundedStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(boundedStatusEnvelope, JsonOptions.Default)))
+        {
+            Check(boundedStatusJson.RootElement.GetProperty("xluaOnline").ValueKind == JsonValueKind.False,
+                "bounded direct resource probe never promotes its heartbeat to original bridge online state");
+        }
+        object? boundedCityStatus = await boundedLiveBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = boundedLiveBackend.ProfileId,
+            selectedTypes = new[] { "city" },
+            scanMode = "normal",
+        })).RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument boundedCityStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(boundedCityStatus, JsonOptions.Default)))
+        {
+            JsonElement selectedTypes = boundedCityStatusJson.RootElement.GetProperty("selectedTypes");
+            Check(selectedTypes.GetArrayLength() == 1 && selectedTypes[0].GetString() == "city" &&
+                  boundedCityStatusJson.RootElement.GetProperty("serverId").GetInt32() == 2212,
+                "bounded live route accepts Player City alone and reports the acquired server context");
+        }
+        Check(productionMapStore.CountRecords("city", 2212) == 1,
+            "bounded live Player City acquisition persists exactly one source-backed city row");
+        using JsonDocument boundedCitySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = boundedLiveBackend.ProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City", page = 1, pageSize = 10 },
+        }));
+        object? boundedCitySearchResult = await boundedLiveBackend.InvokeAsync(
+            "map_search", boundedCitySearch.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument boundedCitySearchJson = JsonDocument.Parse(JsonSerializer.Serialize(boundedCitySearchResult, JsonOptions.Default)))
+        {
+            JsonElement rows = boundedCitySearchJson.RootElement.GetProperty("rows");
+            Check(boundedCitySearchJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+                  rows.GetArrayLength() == 1 &&
+                  rows[0].GetProperty("ownerName").GetString() == "Fake City 2000" &&
+                  rows[0].GetProperty("allianceName").GetString() == "FAKE" &&
+                  rows[0].GetProperty("level").GetInt32() == 30,
+                "fresh Player City acquisition is immediately visible through normal persisted map_search");
+        }
+        string targetedCityRoutePath = Path.Combine(firstLiveReplayRoot, "targeted-city-route.json");
+        string targetedCityRoute = "WorldPointManager.StartViewRequest+UpdateViewRequest(true)+SendViewRequest(PlayerWorldPointId,currentLOD,currentServerId)";
+        File.WriteAllText(targetedCityRoutePath, JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            probeVersion = "lwbridge-live-resource-probe-2",
+            requestId = "targeted-city-request",
+            mapKind = "city",
+            state = "proven",
+            requestRoute = targetedCityRoute,
+            source = "WorldPointManager._pointInfos",
+            capturedAt = DateTimeOffset.UtcNow,
+            acquisitionOrdinal = 2,
+            point_records = new[]
+            {
+                new
+                {
+                    kind = "player_base",
+                    pointType = 6,
+                    serverId = 2212,
+                    pointId = 2010,
+                    x = 482,
+                    y = 33,
+                    uuid = "targeted-city-2010",
+                    ownerUid = "targeted-owner-2010",
+                    ownerName = "Targeted City 2010",
+                    allianceName = "TGT",
+                    level = 31,
+                    source = "WorldPointManager._pointInfos",
+                },
+            },
+        }, JsonOptions.Default));
+        FirstLivePreparedResource targetedCityPrepared = LiveResourceProbeCommandService.PrepareCorrelatedResult(
+            targetedCityRoutePath, "targeted-city-request", out int? targetedCityOrdinal,
+            expectedServerId: 2212, nowUtc: DateTimeOffset.UtcNow.AddSeconds(1), mapKind: "city");
+        Check(targetedCityOrdinal == 2 && targetedCityPrepared.Record.Kind == "city" && targetedCityPrepared.Record.RecordKey == "2010",
+            "bounded Player City correlation accepts the recovered same-server PlayerWorldPointId targeted view route");
+        string wrongTargetedCityRoutePath = Path.Combine(firstLiveReplayRoot, "wrong-targeted-city-route.json");
+        File.WriteAllText(wrongTargetedCityRoutePath,
+            File.ReadAllText(targetedCityRoutePath).Replace(targetedCityRoute.Replace("+", "\\u002B", StringComparison.Ordinal), (targetedCityRoute + "+unknown").Replace("+", "\\u002B", StringComparison.Ordinal), StringComparison.Ordinal));
+        ExpectInvalidData("supported recovered request route", "bounded Player City correlation rejects any unrecognized targeted route", () =>
+            LiveResourceProbeCommandService.PrepareCorrelatedResult(
+                wrongTargetedCityRoutePath, "targeted-city-request", out _,
+                expectedServerId: 2212, nowUtc: DateTimeOffset.UtcNow.AddSeconds(1), mapKind: "city"));
+
+        await ExpectBridgeError("LIVE_RESOURCE_TYPES_UNSUPPORTED", "bounded live route still rejects mixed map kinds before helper launch", async () =>
+            await boundedLiveBackend.InvokeAsync("map_scan_start", JsonDocument.Parse(JsonSerializer.Serialize(new
+            {
+                profileId = boundedLiveBackend.ProfileId,
+                selectedTypes = new[] { "city", "resource" },
+                scanMode = "normal",
+            })).RootElement.Clone(), CancellationToken.None));
+
+        string foreignLiveResultPath = Path.Combine(firstLiveReplayRoot, "foreign-live-resource-result.json");
+        File.WriteAllText(foreignLiveResultPath, """
+            {
+              "schemaVersion": 1,
+              "probeVersion": "lwbridge-live-resource-probe-2",
+              "requestId": "foreign-request",
+              "state": "proven",
+              "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+              "source": "WorldPointManager._pointInfos",
+              "capturedAt": "2026-09-10T05:00:00Z",
+              "point_records": [
+                {
+                  "kind": "resource_point",
+                  "serverId": 2212,
+                  "pointId": 9999,
+                  "x": 10,
+                  "y": 20,
+                  "source": "WorldPointManager._pointInfos"
+                }
+              ]
+            }
+            """);
+        int recordsBeforeForeignResult = productionMapStore.CountRecords("resource", 2212);
+        ExpectInvalidData("correlation contract", "bounded live route rejects a foreign result before persistence", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore, foreignLiveResultPath, "expected-request", out _));
+        Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeForeignResult,
+            "foreign live result cannot mutate the normal map index before correlation succeeds");
+
+        string immutableResultPath = Path.Combine(firstLiveReplayRoot, "immutable-live-resource-result.json");
+        File.WriteAllText(immutableResultPath, """
+            {
+              "schemaVersion": 1,
+              "probeVersion": "lwbridge-live-resource-probe-2",
+              "requestId": "immutable-request",
+              "state": "proven",
+              "requestRoute": "WorldPointManager.StartViewRequest+UpdateViewRequest(true)",
+              "source": "WorldPointManager._pointInfos",
+              "capturedAt": "2026-09-10T05:20:00Z",
+              "acquisitionOrdinal": 7,
+              "point_records": [
+                {
+                  "kind": "resource_point",
+                  "serverId": 2212,
+                  "pointId": 1008,
+                  "x": 481,
+                  "y": 32,
+                  "level": 3,
+                  "source": "WorldPointManager._pointInfos"
+                }
+              ]
+            }
+            """);
+        int immutableReadCount = 0;
+        FirstLiveResultImport immutableImport = LiveResourceProbeCommandService.ImportCorrelatedResult(
+            productionMapStore,
+            immutableResultPath,
+            "immutable-request",
+            out int? immutableOrdinal,
+            path =>
+            {
+                immutableReadCount++;
+                byte[] bytes = File.ReadAllBytes(path);
+                File.WriteAllText(path, File.ReadAllText(foreignLiveResultPath));
+                return bytes;
+            });
+        Check(immutableReadCount == 1 && immutableOrdinal == 7 && immutableImport.PointIndex == 1008,
+            "correlated live import validates, hashes and persists one immutable byte snapshot even if the shared path is replaced after the read");
+        Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeForeignResult + 1,
+            "immutable correlated import persists only the row from the validated byte snapshot");
+
+        int recordsBeforeScopeRejections = productionMapStore.CountRecords("resource", 2212);
+        string wrongServerPath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot, "wrong-server-live-result", "wrong-server-request", serverId: 2213);
+        ExpectInvalidData("different server", "bounded live route rejects a result from a different established server", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore,
+                wrongServerPath,
+                "wrong-server-request",
+                out _,
+                expectedServerId: 2212,
+                operationStartedAtUtc: DateTimeOffset.Parse("2026-09-10T05:10:00Z"),
+                nowUtc: DateTimeOffset.Parse("2026-09-10T05:30:00Z")));
+
+        string staleLiveResultPath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot,
+            "stale-live-result",
+            "stale-request",
+            capturedAt: "2026-09-10T05:00:00Z");
+        ExpectInvalidData("stale", "bounded live route rejects a result predating the active acquisition", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore,
+                staleLiveResultPath,
+                "stale-request",
+                out _,
+                expectedServerId: 2212,
+                operationStartedAtUtc: DateTimeOffset.Parse("2026-09-10T05:10:00Z"),
+                nowUtc: DateTimeOffset.Parse("2026-09-10T05:30:00Z")));
+
+        string wrongSourcePath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot,
+            "wrong-source-live-result",
+            "wrong-source-request",
+            source: "OtherSource");
+        ExpectInvalidData("WorldPointManager._pointInfos source", "bounded live route rejects a mismatched top-level source", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore, wrongSourcePath, "wrong-source-request", out _));
+
+        string wrongPointSourcePath = WriteCorrelatedLiveResult(
+            firstLiveReplayRoot,
+            "wrong-point-source-live-result",
+            "wrong-point-source-request",
+            pointSource: "OtherPointSource");
+        ExpectInvalidData("WorldPointManager._pointInfos source", "bounded live route rejects a mismatched point source", () =>
+            LiveResourceProbeCommandService.ImportCorrelatedResult(
+                productionMapStore, wrongPointSourcePath, "wrong-point-source-request", out _));
+        Check(productionMapStore.CountRecords("resource", 2212) == recordsBeforeScopeRejections,
+            "stale, foreign-server and mismatched-source results are rejected before persistence");
+
+        using (var identityStore = MapDataStore.CreateInMemory())
+        {
+            string identityPath = WriteCorrelatedLiveResult(
+                firstLiveReplayRoot,
+                "owned-session-live-result",
+                "owned-session-request",
+                profileId: "profile-a",
+                launchSessionId: "launch-session-a",
+                gamePid: 4321);
+            FirstLiveResultImport identityImport = LiveResourceProbeCommandService.ImportCorrelatedResult(
+                identityStore,
+                identityPath,
+                "owned-session-request",
+                out _,
+                expectedProfileId: "profile-a",
+                expectedLaunchSessionId: "launch-session-a",
+                expectedGamePid: 4321);
+            Check(identityImport.ServerId == 2212 && identityStore.CountRecords("resource", 2212) == 1,
+                "bounded live route accepts a result only when app profile, helper launch session and exact game PID identity match");
+            ExpectInvalidData("profile identity", "bounded live route rejects a foreign app profile identity", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore, identityPath, "owned-session-request", out _, expectedProfileId: "profile-b"));
+            ExpectInvalidData("launch session identity", "bounded live route rejects a foreign helper launch session", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore, identityPath, "owned-session-request", out _, expectedLaunchSessionId: "launch-session-b"));
+            ExpectInvalidData("game PID identity", "bounded live route rejects a foreign game PID", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore, identityPath, "owned-session-request", out _, expectedGamePid: 9876));
+            string missingIdentityPath = WriteCorrelatedLiveResult(
+                firstLiveReplayRoot, "missing-owned-session-live-result", "missing-owned-session-request");
+            ExpectInvalidData("profile identity", "bounded live route rejects missing first-session identity when production requires it", () =>
+                LiveResourceProbeCommandService.ImportCorrelatedResult(
+                    identityStore,
+                    missingIdentityPath,
+                    "missing-owned-session-request",
+                    out _,
+                    expectedProfileId: "profile-a",
+                    expectedLaunchSessionId: "launch-session-a",
+                    expectedGamePid: 4321));
+        }
+    }
+
+    using (var emptySavedStore = MapDataStore.CreateInMemory())
+    {
+        Check(emptySavedStore.ReadPublishedServerIds().Count == 0,
+            "empty profile map index exposes no fabricated saved server context");
+    }
+
+    using (var ambiguousSavedStore = MapDataStore.CreateInMemory())
+    {
+        ambiguousSavedStore.UpsertRecord(new MapStoredRecord(
+            "resource", 2212, "saved-a", 1, null, null, null, 1, null, null, null, null, 10,
+            "{\"serverId\":2212,\"pointIndex\":1,\"x\":1,\"y\":1,\"updatedAt\":10}"));
+        ambiguousSavedStore.UpsertRecord(new MapStoredRecord(
+            "resource", 2213, "saved-b", 2, null, null, null, 1, null, null, null, null, 20,
+            "{\"serverId\":2213,\"pointIndex\":2,\"x\":2,\"y\":2,\"updatedAt\":20}"));
+        Check(ambiguousSavedStore.ReadPublishedServerIds().SequenceEqual(new[] { 2212, 2213 }),
+            "saved browse server discovery is distinct, ordered and profile-store scoped");
+        Check(ambiguousSavedStore.CountRecords("resource", 2212) == 1 &&
+              ambiguousSavedStore.CountRecords("resource", 2213) == 1,
+            "multiple saved server datasets remain persisted without being promoted into map_summary state");
+    }
+
+    using (var profileAStore = MapDataStore.CreateInMemory())
+    using (var profileBStore = MapDataStore.CreateInMemory())
+    {
+        profileAStore.UpsertRecord(new MapStoredRecord(
+            "resource", 2212, "profile-a", 1, null, null, null, 1, null, null, null, null, 10,
+            "{\"serverId\":2212,\"pointIndex\":1,\"x\":1,\"y\":1,\"updatedAt\":10}"));
+        profileBStore.UpsertRecord(new MapStoredRecord(
+            "resource", 3301, "profile-b", 2, null, null, null, 2, null, null, null, null, 20,
+            "{\"serverId\":3301,\"pointIndex\":2,\"x\":2,\"y\":2,\"updatedAt\":20}"));
+        Check(profileAStore.ReadPublishedServerIds().SequenceEqual(new[] { 2212 }) &&
+              profileBStore.ReadPublishedServerIds().SequenceEqual(new[] { 3301 }),
+            "saved map data remains isolated to each profile store without map_summary selecting it as current state");
+    }
+
+    var proofExpected = new NormalUiResourceProofExpected(
+        2212, "32482", 32482, 481, 32, 3, 1789017285000,
+        "result.json", "proof-sha", "lwbridge-live-resource-probe-2",
+        "profile-proof", "session-proof", 4242, "source-sha");
+    JsonElement proofSearchPayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "profile-proof",
+        kind = "resource",
+        query = new { serverId = 2212, page = 1, pageSize = 50 }
+    }, JsonOptions.Default);
+    JsonElement proofSearchResult = JsonSerializer.SerializeToElement(new
+    {
+        rows = new[]
+        {
+            new
+            {
+                serverId = 2212, recordKey = "32482", pointIndex = 32482,
+                x = 481, y = 32, level = 3, updatedAt = 1789017285000
+            }
+        },
+        total = 1
+    }, JsonOptions.Default);
+    var proofSearchObservation = new NormalUiResourceProofSearchObservation(
+        1, "proof-search-request", proofSearchPayload, proofSearchResult);
+    JsonElement proofQueryRow = NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+        proofExpected, proofSearchObservation);
+    Check(proofQueryRow.GetProperty("recordKey").GetString() == "32482",
+        "PM13-02 exact Resource Search row correlates to acquisition identity");
+    const string proofRenderedTime = "9/10/2026, 1:14:45 PM";
+    var proofGoodSnapshot = new NormalUiResourceProofTableSnapshot(false,
+        new[] { new NormalUiResourceProofTableRow(false,
+            new[] { "481,32", "Unknown resource", "3", "36,000 / 36,000", "Idle", proofRenderedTime }) });
+    NormalUiResourceProofMatch proofMatch = NormalUiResourceProofContract.RequireRenderedRow(
+        proofExpected, proofQueryRow, proofGoodSnapshot, proofRenderedTime);
+    Check(proofMatch.Cells.SequenceEqual(
+            new[] { "481,32", "Unknown resource", "3", "36,000 / 36,000", "Idle", proofRenderedTime }),
+        "PM13-02 current six-cell rendered Resource row is accepted");
+    var proofLegacySnapshot = new NormalUiResourceProofTableSnapshot(false,
+        new[] { new NormalUiResourceProofTableRow(false,
+            new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }) });
+    NormalUiResourceProofMatch proofLegacyMatch = NormalUiResourceProofContract.RequireRenderedRow(
+        proofExpected, proofQueryRow, proofLegacySnapshot, proofRenderedTime);
+    Check(proofLegacyMatch.Cells.SequenceEqual(
+            new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }),
+        "PM13-02 legacy five-cell rendered Resource row remains accepted");
+
+    ExpectInvalidData("still loading", "PM13-02 loading row is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(true,
+                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "481,32", "Unknown resource", "3", "Idle", proofRenderedTime }) }),
+            proofRenderedTime));
+    ExpectInvalidData("did not render", "PM13-02 empty-state row is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(false,
+                new[] { new NormalUiResourceProofTableRow(true,
+                    new[] { "No saved data of this type." }) }),
+            proofRenderedTime));
+    ExpectInvalidData("did not render", "PM13-02 unrelated stale row is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(false,                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "9,9", "Unknown resource", "3", "Idle", "Yesterday" }) }),
+            proofRenderedTime));
+    ExpectInvalidData("did not render", "PM13-02 same-point stale timestamp is rejected", () =>
+        NormalUiResourceProofContract.RequireRenderedRow(
+            proofExpected, proofQueryRow,
+            new NormalUiResourceProofTableSnapshot(false,
+                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "481,32", "Unknown resource", "3", "Idle", "9/10/2026, 1:13:45 PM" }) }),
+            proofRenderedTime));
+
+    JsonElement proofStaleSearchResult = JsonSerializer.SerializeToElement(new
+    {
+        rows = new[]
+        {
+            new
+            {
+                serverId = 2212, recordKey = "32482", pointIndex = 32482,
+                x = 481, y = 32, level = 3, updatedAt = 1789017225000
+            }
+        },
+        total = 1
+    }, JsonOptions.Default);
+    ExpectInvalidData("exact newly acquired", "PM13-02 stale same-point query row is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                2, "proof-search-stale", proofSearchPayload, proofStaleSearchResult)));
+    JsonElement proofWrongServerPayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "profile-proof",
+        kind = "resource",
+        query = new { serverId = 2213, page = 1, pageSize = 50 }
+    }, JsonOptions.Default);
+    ExpectInvalidData("expected page-1", "PM13-02 wrong-server Search query is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                3, "proof-search-wrong-server", proofWrongServerPayload, proofSearchResult)));
+    ExpectInvalidData("request id", "PM13-02 missing Search request id is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                4, "", proofSearchPayload, proofSearchResult)));
+
+    JsonElement proofWrongProfilePayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "profile-other",
+        kind = "resource",
+        query = new { serverId = 2212, page = 1, pageSize = 50 }
+    }, JsonOptions.Default);
+    ExpectInvalidData("profile identity", "PM13-02 wrong-profile Search query is rejected", () =>
+        NormalUiResourceProofContract.RequireCorrelatedSearchRow(
+            proofExpected,
+            new NormalUiResourceProofSearchObservation(
+                5, "proof-search-wrong-profile", proofWrongProfilePayload, proofSearchResult)));
+
+    Check(OwnerEvidenceResourceContract.IsResourceSearch(proofSearchPayload),
+        "owner evidence recognizes normal Resource Search without triggering it");
+    JsonElement ownerCityPayload = JsonSerializer.SerializeToElement(new
+    {
+        profileId = "owner-city-profile",
+        kind = "city",
+        query = new { serverId = 2212, keyword = "PRIVATE QUERY", alliance = "PRIVATE FILTER", page = 1, pageSize = 50 },
+    }, JsonOptions.Default);
+    JsonElement ownerCityResult = JsonSerializer.SerializeToElement(new
+    {
+        rows = new[]
+        {
+            new
+            {
+                serverId = 2212, recordKey = "40496", pointIndex = 40496, x = 495, y = 40, level = 27, updatedAt = 1789250251000L,
+                ownerName = "PRIVATE PLAYER", ownerUid = "PRIVATE UID", uuid = "PRIVATE UUID",
+                allianceName = "PRIVATE ALLIANCE", allianceId = "PRIVATE ALLIANCE ID",
+            },
+        },
+        total = 1,
+    }, JsonOptions.Default);
+    Check(OwnerEvidenceResourceContract.IsCitySearch(ownerCityPayload) &&
+          !OwnerEvidenceResourceContract.IsResourceSearch(ownerCityPayload),
+        "owner evidence recognizes normal Player City Search separately from Resource Search");
+    string sanitizedOwnerCityJson = JsonSerializer.Serialize(
+        OwnerEvidenceResourceContract.SanitizeCitySearchResult(ownerCityResult), JsonOptions.Default);
+    string sanitizedOwnerCityPayloadJson = JsonSerializer.Serialize(
+        OwnerEvidenceResourceContract.SanitizeCitySearchPayload(ownerCityPayload), JsonOptions.Default);
+    Check(!sanitizedOwnerCityPayloadJson.Contains("PRIVATE QUERY", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityPayloadJson.Contains("PRIVATE FILTER", StringComparison.Ordinal) &&
+          sanitizedOwnerCityPayloadJson.Contains("2212", StringComparison.Ordinal),
+        "owner Player City Search payload evidence removes keyword/alliance identity-bearing filters");
+    Check(sanitizedOwnerCityJson.Contains("40496", StringComparison.Ordinal) &&
+          sanitizedOwnerCityJson.Contains("495", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE UID", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE UUID", StringComparison.Ordinal) &&
+          !sanitizedOwnerCityJson.Contains("PRIVATE ALLIANCE", StringComparison.Ordinal),
+        "owner Player City Search evidence removes player/alliance identity while retaining row correlation fields");
+    OwnerEvidenceResourceTarget? ownerCityTarget = OwnerEvidenceResourceContract.TryGetFirstTarget(ownerCityResult);
+    var ownerCitySnapshot = new OwnerEvidenceCityTableSnapshot(false,
+        new[] { new OwnerEvidenceCityTableRow(false, "495,40", "27", "9/13/2026, 5:57:31 AM") });
+    Check(OwnerEvidenceResourceContract.IsCityCorrelated(ownerCityTarget, false, ownerCitySnapshot, "9/13/2026, 5:57:31 AM") &&
+          !OwnerEvidenceResourceContract.IsCityCorrelated(ownerCityTarget, false, ownerCitySnapshot, "9/13/2026, 5:57:30 AM"),
+        "owner Player City render evidence requires exact coordinates, level and rendered update time");
+    Check(OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains(".map-table--city", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("cells[2]", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("cells[3]", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("ownerName", StringComparison.Ordinal) &&
+          !OwnerEvidenceResourceContract.CityTableSnapshotScript.Contains("allianceName", StringComparison.Ordinal),
+        "owner Player City DOM snapshot deliberately excludes player/alliance identity cells");
+    string syntheticUserProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    string sharedCityProofInput = JsonSerializer.Serialize(new
+    {
+        profileId = "local-0123456789abcdef",
+        ownerName = "PRIVATE PLAYER",
+        gamePath = Path.Combine(syntheticUserProfile, "AppData", "Local", "FunFly", "Last War-Survival Game", "Game", "LastWar.exe"),
+        mapDatabase = Path.Combine(syntheticUserProfile, "AppData", "Local", "LWBridgeRebuild", "profiles", "local-0123456789abcdef", "map-data.db"),
+    }, JsonOptions.Default);
+    string sharedCityProof = LiveResourceProofRunner.SanitizeCityProofJsonForSharedEvidence(sharedCityProofInput);
+    using JsonDocument sharedCityProofDocument = JsonDocument.Parse(sharedCityProof);
+    JsonElement sharedCityProofRoot = sharedCityProofDocument.RootElement;
+    string? sharedCityProfile = sharedCityProofRoot.GetProperty("profileId").GetString();
+    string? sharedCityGamePath = sharedCityProofRoot.GetProperty("gamePath").GetString();
+    string? sharedCityMapPath = sharedCityProofRoot.GetProperty("mapDatabase").GetString();
+    Check(!sharedCityProof.Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+          !sharedCityProof.Contains("local-0123456789abcdef", StringComparison.Ordinal) &&
+          sharedCityProfile == "<active-profile>" &&
+          sharedCityGamePath is not null && sharedCityGamePath.StartsWith("%USERPROFILE%", StringComparison.Ordinal) &&
+          sharedCityMapPath is not null && sharedCityMapPath.StartsWith("%USERPROFILE%", StringComparison.Ordinal) &&
+          sharedCityMapPath.Contains("profiles\\<active-profile>\\map-data.db", StringComparison.Ordinal),
+        "shared Player City proof removes player identity, local profile id and Windows user path");
+    Check(OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_scan_start") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_scan_clear") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_treasure_claim") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("profile_instance_start") &&
+          OwnerEvidenceResourceContract.IsBlockedOwnerCommand("call_lua") &&
+          !OwnerEvidenceResourceContract.IsBlockedOwnerCommand("map_search"),
+        "owner evidence mode blocks scan/state-changing Map Data commands while allowing Search");
+    OwnerEvidenceResourceTarget? ownerTarget = OwnerEvidenceResourceContract.TryGetFirstTarget(proofSearchResult);
+    Check(ownerTarget is { ServerId: 2212, RecordKey: "32482", X: 481, Y: 32, Level: 3, UpdatedAt: 1789017285000 },
+        "owner evidence derives render target only from the actual Search result");
+    Check(OwnerEvidenceResourceContract.IsCorrelated(ownerTarget, false, proofGoodSnapshot, proofRenderedTime),
+        "owner evidence accepts exact settled render for the Search result");
+    Check(!OwnerEvidenceResourceContract.IsCorrelated(ownerTarget, false,
+            new NormalUiResourceProofTableSnapshot(false,
+                new[] { new NormalUiResourceProofTableRow(false,
+                    new[] { "481,32", "Unknown resource", "3", "Idle", "9/10/2026, 1:13:45 PM" }) }),
+            proofRenderedTime),
+        "owner evidence rejects stale rendered timestamp");
+    JsonElement ownerEmptyResult = JsonSerializer.SerializeToElement(new { rows = Array.Empty<object>(), total = 0 }, JsonOptions.Default);
+    Check(OwnerEvidenceResourceContract.TryGetFirstTarget(ownerEmptyResult) is null &&
+          OwnerEvidenceResourceContract.IsEmptyResult(ownerEmptyResult) &&
+          OwnerEvidenceResourceContract.IsCorrelated(null, true,
+              new NormalUiResourceProofTableSnapshot(false,
+                  new[] { new NormalUiResourceProofTableRow(true, new[] { "No saved data of this type." }) }), null),
+        "owner evidence correlates an actual empty Search result only to settled empty-state rendering");
+    JsonElement ownerMalformedNonempty = JsonSerializer.SerializeToElement(new { rows = new[] { new { serverId = 2212 } }, total = 1 }, JsonOptions.Default);
+    Check(OwnerEvidenceResourceContract.TryGetFirstTarget(ownerMalformedNonempty) is null &&
+          !OwnerEvidenceResourceContract.IsEmptyResult(ownerMalformedNonempty) &&
+          !OwnerEvidenceResourceContract.IsCorrelated(null, false,
+              new NormalUiResourceProofTableSnapshot(false,
+                  new[] { new NormalUiResourceProofTableRow(true, new[] { "No saved data of this type." }) }), null),
+        "owner evidence cannot treat a malformed nonempty Search result as an empty result");
+
+    string ownerWindowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+    Check(ownerWindowSource.Contains("firstLiveResult is not null || ownerEvidence is not null", StringComparison.Ordinal),
+        "owner evidence mode suppresses startup auto-launch before the normal page is shown");
+    Check(ownerWindowSource.Contains("sessionScopedMapData = !isolated", StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("mapData.ClearAllScanData();", StringComparison.Ordinal) &&
+          ownerWindowSource.Contains("if (sessionScopedMapData)", StringComparison.Ordinal),
+        "normal LWBridge window must treat published map scan rows as session data and clear them on startup/teardown while isolated proofs remain untouched");
+
+    string ownerRecorderRoot = Path.Combine(Path.GetTempPath(), "lwbridge-owner-recorder-" + Guid.NewGuid().ToString("N"));
+    try
+    {
+        using (var recorder = new OwnerEvidenceRecorder(ownerRecorderRoot))
+        {
+            recorder.RecordSearch("owner-request-1", proofSearchPayload, JsonSerializer.Deserialize<object>(proofSearchResult.GetRawText(), JsonOptions.Default));
+            recorder.RecordRender("owner-request-1", proofSearchPayload, proofSearchResult, proofGoodSnapshot,
+                true, null, ownerTarget, proofRenderedTime);
+            recorder.RecordCommandError("owner-summary-1", "map_summary", "MAP_SAVED_CONTEXT_UNAVAILABLE",
+                "No saved map server context.", new { serverIds = Array.Empty<int>() });
+            recorder.RecordCitySearch("owner-city-request-1", ownerCityPayload,
+                JsonSerializer.Deserialize<object>(ownerCityResult.GetRawText(), JsonOptions.Default));
+            recorder.RecordCityRender("owner-city-request-1", ownerCityPayload,
+                OwnerEvidenceResourceContract.SanitizeCitySearchResult(ownerCityResult), ownerCitySnapshot,
+                true, null, ownerCityTarget, "9/13/2026, 5:57:31 AM");
+        }
+        string ownerJsonl = Directory.GetFiles(ownerRecorderRoot, "ui-session-*.jsonl").Single();
+        string[] ownerLines = File.ReadAllLines(ownerJsonl);
+        Check(ownerLines.Length == 5 &&
+              ownerLines[0].Contains("owner-request-1", StringComparison.Ordinal) &&
+              ownerLines[1].Contains("owner-request-1", StringComparison.Ordinal) &&
+              ownerLines[2].Contains("owner-summary-1", StringComparison.Ordinal) &&
+              ownerLines[2].Contains("MAP_SAVED_CONTEXT_UNAVAILABLE", StringComparison.Ordinal) &&
+              ownerLines[3].Contains("city-search-response", StringComparison.Ordinal) &&
+              ownerLines[4].Contains("city-render-observation", StringComparison.Ordinal) &&
+              ownerLines[4].Contains("\"correlated\":true", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE UID", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE UUID", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE ALLIANCE", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE QUERY", StringComparison.Ordinal) &&
+              !ownerLines[3].Contains("PRIVATE FILTER", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE QUERY", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE FILTER", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE PLAYER", StringComparison.Ordinal) &&
+              !ownerLines[4].Contains("PRIVATE UID", StringComparison.Ordinal),
+            "owner evidence recorder preserves Resource evidence and appends identity-redacted Player City Search/render correlation");
+    }
+    finally
+    {
+        try { Directory.Delete(ownerRecorderRoot, recursive: true); } catch { }
+    }
+
+    string cityPersistencePath = Path.Combine(firstLiveReplayRoot, "city-persistence.db");
+    foreach (string suffix in new[] { string.Empty, "-shm", "-wal" })
+        try { File.Delete(cityPersistencePath + suffix); } catch { }
+    var cityProfileConfig = new LocalConfigStore(persistent: false);
+    string persistedCityProfileId;
+    long firstPersistedCityUpdatedAt;
+    using (var firstCityStore = new MapDataStore(cityPersistencePath))
+    {
+        string firstCityHelper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-city-persist-1", 0, 2100);
+        var firstCityService = new LiveResourceProbeCommandService(firstCityStore, firstCityHelper);
+        var firstCityBackend = new LWBridgeBackend(cityProfileConfig, asyncCommands: firstCityService, mapData: firstCityStore);
+        persistedCityProfileId = firstCityBackend.ProfileId;
+        await firstCityBackend.InvokeAsync("map_scan_start", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            selectedTypes = new[] { "city" },
+            scanMode = "normal",
+        }), CancellationToken.None);
+        object? firstSearch = await firstCityBackend.InvokeAsync("map_search", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City 2100", page = 1, pageSize = 10 },
+        }), CancellationToken.None);
+        using JsonDocument firstSearchJson = JsonDocument.Parse(JsonSerializer.Serialize(firstSearch, JsonOptions.Default));
+        JsonElement firstRows = firstSearchJson.RootElement.GetProperty("rows");
+        firstPersistedCityUpdatedAt = firstRows[0].GetProperty("updatedAt").GetInt64();
+        Check(firstSearchJson.RootElement.GetProperty("total").GetInt32() == 1 && firstRows[0].GetProperty("ownerName").GetString() == "Fake City 2100",
+            "file-backed Player City acquisition is searchable before profile reopen");
+    }
+    await Task.Delay(1100);
+    using (var reopenedCityStore = new MapDataStore(cityPersistencePath))
+    {
+        string secondCityHelper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-city-persist-2", 0, 2101);
+        var secondCityService = new LiveResourceProbeCommandService(reopenedCityStore, secondCityHelper);
+        var reopenedCityBackend = new LWBridgeBackend(cityProfileConfig, asyncCommands: secondCityService, mapData: reopenedCityStore);
+        Check(reopenedCityBackend.ProfileId == persistedCityProfileId,
+            "same profile identity is preserved when reopening the file-backed Player City store");
+        object? reopenedSearch = await reopenedCityBackend.InvokeAsync("map_search", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City 2100", page = 1, pageSize = 10 },
+        }), CancellationToken.None);
+        using (JsonDocument reopenedSearchJson = JsonDocument.Parse(JsonSerializer.Serialize(reopenedSearch, JsonOptions.Default)))
+            Check(reopenedSearchJson.RootElement.GetProperty("total").GetInt32() == 1,
+                "same-profile reopen preserves the prior Player City through normal map_search");
+        await reopenedCityBackend.InvokeAsync("map_scan_start", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            selectedTypes = new[] { "city" },
+            scanMode = "normal",
+        }), CancellationToken.None);
+        object? newerSearch = await reopenedCityBackend.InvokeAsync("map_search", JsonSerializer.SerializeToElement(new
+        {
+            profileId = persistedCityProfileId,
+            kind = "city",
+            query = new { serverId = 2212, keyword = "Fake City", page = 1, pageSize = 10 },
+        }), CancellationToken.None);
+        using JsonDocument newerSearchJson = JsonDocument.Parse(JsonSerializer.Serialize(newerSearch, JsonOptions.Default));
+        JsonElement newerRows = newerSearchJson.RootElement.GetProperty("rows");
+        JsonElement newerCity = newerRows.EnumerateArray().Single(row => row.GetProperty("ownerName").GetString() == "Fake City 2101");
+        Check(newerSearchJson.RootElement.GetProperty("total").GetInt32() == 2 && newerCity.GetProperty("updatedAt").GetInt64() > firstPersistedCityUpdatedAt,
+            "a distinct second Player City acquisition persists as a newer normal Search result after reopen");
+    }
+    foreach (string suffix in new[] { string.Empty, "-shm", "-wal" })
+        try { File.Delete(cityPersistencePath + suffix); } catch { }
+
+    using JsonDocument lifecycleStartPayload = JsonDocument.Parse("""
+        {"selectedTypes":["resource"],"scanMode":"normal"}
+        """);
+    using JsonDocument lifecycleStopPayload = JsonDocument.Parse("{}");
+
+    using (var lifecycleStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-cancel", 500, 2001);
+        var service = new LiveResourceProbeCommandService(lifecycleStore, helper, TimeSpan.FromSeconds(3));
+        Task<object?> firstStart = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(await WaitForLiveState(service, state => state.IsReading && state.Phase == "reading"),
+            "fake live helper enters reading state before lifecycle cancellation checks");
+        await ExpectBridgeError("MAP_SCAN_ALREADY_RUNNING", "duplicate live Start rejects immediately instead of queueing", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+
+        object? stopStatus = await service.InvokeAsync(
+            "map_scan_stop", lifecycleStopPayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument stopStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(stopStatus, JsonOptions.Default)))
+        {
+            Check(stopStatusJson.RootElement.GetProperty("isReading").GetBoolean() &&
+                  stopStatusJson.RootElement.GetProperty("phase").GetString() == "cancelling",
+                "map_scan_stop targets the active acquisition and reports cancelling while helper cleanup continues");
+        }
+        bool firstCancelled = false;
+        try { await firstStart; }
+        catch (OperationCanceledException) { firstCancelled = true; }
+        Check(firstCancelled && lifecycleStore.CountRecords("resource", 2212) == 0,
+            "cancelled live acquisition cannot publish the helper's later successful result");
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "idle"),
+            "cancelled helper completion releases operation ownership back to idle");
+
+        object? retryStatus = await service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument retryStatusJson = JsonDocument.Parse(JsonSerializer.Serialize(retryStatus, JsonOptions.Default)))
+        {
+            Check(retryStatusJson.RootElement.GetProperty("isReading").ValueKind == JsonValueKind.False &&
+                  retryStatusJson.RootElement.GetProperty("phase").GetString() == "idle" &&
+                  retryStatusJson.RootElement.GetProperty("serverId").GetInt32() == 2212,
+                "a new Start returns a truthful completed status after cancelled helper cleanup has completed");
+        }
+        Check(lifecycleStore.CountRecords("resource", 2212) == 1,
+            "successful retry imports exactly one fake-helper resource row");
+    }
+
+    using (var timeoutStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-timeout", 900, 2002);
+        var service = new LiveResourceProbeCommandService(timeoutStore, helper, TimeSpan.FromMilliseconds(120));
+        await ExpectBridgeError("LIVE_RESOURCE_ACQUISITION_FAILED", "hung fake helper is bounded by process supervision", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+        (bool IsReading, string Phase) stuck = ReadLiveStatus(service);
+        Check(stuck.IsReading && stuck.Phase == "helper_stuck",
+            "timed-out helper retains operation ownership while its cleanup process is still running");
+        await ExpectBridgeError("MAP_SCAN_ALREADY_RUNNING", "duplicate Start remains rejected while timed-out helper is still owned", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "error", 4000),
+            "late fake-helper exit releases ownership without importing its result");
+        Check(timeoutStore.CountRecords("resource", 2212) == 0,
+            "supervised timeout never persists a late helper result");
+    }
+
+    using (var closeStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-close", 500, 2003);
+        var service = new LiveResourceProbeCommandService(closeStore, helper, TimeSpan.FromSeconds(3));
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(await WaitForLiveState(service, state => state.IsReading),
+            "fake helper is active before application-close lifecycle check");
+        service.Close();
+        bool closeCancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { closeCancelled = true; }
+        Check(closeCancelled && closeStore.CountRecords("resource", 2212) == 0,
+            "application close cancels publication and leaves the store untouched after helper completion");
+        await ExpectBridgeError("MAP_SCAN_CLOSED", "closed service rejects any later Start", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+    }
+
+    using (var cancelCommitStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-precommit-cancel", 20, 2010);
+        using var beforeCommitReached = new ManualResetEventSlim(false);
+        using var releaseCommitDecision = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            cancelCommitStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                BeforeCommitDecision = () =>
+                {
+                    beforeCommitReached.Set();
+                    if (!releaseCommitDecision.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("pre-commit test barrier timed out");
+                },
+            });
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(beforeCommitReached.Wait(TimeSpan.FromSeconds(3)),
+            "PM13-03 pre-commit barrier is reached after result validation and before store mutation");
+        await service.InvokeAsync("map_scan_stop", lifecycleStopPayload.RootElement.Clone(), CancellationToken.None);
+        releaseCommitDecision.Set();
+        bool cancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { cancelled = true; }
+        Check(cancelled && cancelCommitStore.CountRecords("resource", 2212) == 0,
+            "PM13-03 cancellation that wins before commit leaves no late persisted resource row");
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "idle"),
+            "PM13-03 cancellation winner releases operation ownership to idle");
+    }
+
+    using (var closeCommitStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-precommit-close", 20, 2013);
+        using var beforeCommitReached = new ManualResetEventSlim(false);
+        using var releaseCommitDecision = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            closeCommitStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                BeforeCommitDecision = () =>
+                {
+                    beforeCommitReached.Set();
+                    if (!releaseCommitDecision.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("pre-commit close test barrier timed out");
+                },
+            });
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(beforeCommitReached.Wait(TimeSpan.FromSeconds(3)),
+            "PM13-03 close pre-commit barrier is reached before store mutation");
+        service.Close();
+        releaseCommitDecision.Set();
+        bool cancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { cancelled = true; }
+        Check(cancelled && closeCommitStore.CountRecords("resource", 2212) == 0,
+            "PM13-03 Close that wins before commit leaves no late persisted resource row");
+        await ExpectBridgeError("MAP_SCAN_CLOSED", "PM13-03 pre-commit Close permanently rejects later Start", async () =>
+            await service.InvokeAsync("map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+    }
+
+    using (var commitWinnerStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-commit-wins", 20, 2011);
+        using var commitWon = new ManualResetEventSlim(false);
+        using var releaseStoreCommit = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            commitWinnerStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                AfterCommitDecisionBeforeStore = () =>
+                {
+                    commitWon.Set();
+                    if (!releaseStoreCommit.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("post-decision test barrier timed out");
+                },
+            });
+        Task<object?> start = service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None);
+        Check(commitWon.Wait(TimeSpan.FromSeconds(3)),
+            "PM13-03 commit decision can be observed before the SQLite mutation begins");
+        object? stopDuringCommit = await service.InvokeAsync(
+            "map_scan_stop", lifecycleStopPayload.RootElement.Clone(), CancellationToken.None);
+        using (JsonDocument stopJson = JsonDocument.Parse(JsonSerializer.Serialize(stopDuringCommit, JsonOptions.Default)))
+        {
+            Check(stopJson.RootElement.GetProperty("isReading").GetBoolean() &&
+                  stopJson.RootElement.GetProperty("phase").GetString() == "committing",
+                "PM13-03 Stop arriving after the commit decision does not retroactively cancel the winning commit");
+        }
+        releaseStoreCommit.Set();
+        object? completed = await start;
+        using (JsonDocument completedJson = JsonDocument.Parse(JsonSerializer.Serialize(completed, JsonOptions.Default)))
+        {
+            Check(completedJson.RootElement.GetProperty("phase").GetString() == "idle" &&
+                  completedJson.RootElement.GetProperty("serverId").GetInt32() == 2212,
+                "PM13-03 commit winner returns a truthful completed status");
+        }
+        Check(commitWinnerStore.CountRecords("resource", 2212) == 1,
+            "PM13-03 commit winner persists exactly one resource row");
+    }
+
+    using (var helperOwnershipStore = MapDataStore.CreateInMemory())
+    {
+        string helper = WriteFakeLiveHelper(firstLiveReplayRoot, "fake-live-helper-ownership", 600, 2012);
+        using var helperStarted = new ManualResetEventSlim(false);
+        using var releaseOwnershipRegistration = new ManualResetEventSlim(false);
+        var service = new LiveResourceProbeCommandService(
+            helperOwnershipStore,
+            helper,
+            TimeSpan.FromSeconds(3),
+            testHooks: new LiveResourceProbeTestHooks
+            {
+                HelperStartedBeforeOwnershipRegistration = () =>
+                {
+                    helperStarted.Set();
+                    if (!releaseOwnershipRegistration.Wait(TimeSpan.FromSeconds(3)))
+                        throw new TimeoutException("helper ownership test barrier timed out");
+                },
+            });
+        Task<object?> start = Task.Run(() => service.InvokeAsync(
+            "map_scan_start", lifecycleStartPayload.RootElement.Clone(), CancellationToken.None));
+        Check(helperStarted.Wait(TimeSpan.FromSeconds(3)) && service.HasHelperCleanupOwnership,
+            "PM13-03 helper cleanup ownership is reserved before the started child can be registered");
+        service.Close();
+        Check(service.HasHelperCleanupOwnership,
+            "PM13-03 Close during process-start/registration cannot orphan the already-started helper");
+        releaseOwnershipRegistration.Set();
+        bool cancelled = false;
+        try { await start; }
+        catch (OperationCanceledException) { cancelled = true; }
+        Check(cancelled && helperOwnershipStore.CountRecords("resource", 2212) == 0,
+            "PM13-03 close during helper registration cancels publication after owned helper cleanup");
+        Check(await WaitForLiveState(service, state => !state.IsReading && state.Phase == "idle") &&
+              !service.HasHelperCleanupOwnership,
+            "PM13-03 helper ownership is released only after the child exits and cleanup drains");
+    }
+
+    string missingTimestampPath = Path.Combine(firstLiveReplayRoot, "missing-timestamp.json");
+    File.WriteAllText(missingTimestampPath, "{\"point_records\":[]}");
+    ExpectInvalidData("capturedAt", "first-live replay rejects a missing capture timestamp", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(missingTimestampPath));
+
+    string invalidTimestampPath = Path.Combine(firstLiveReplayRoot, "invalid-timestamp.json");
+    File.WriteAllText(invalidTimestampPath, "{\"capturedAt\":\"not-a-time\",\"point_records\":[]}");
+    ExpectInvalidData("capturedAt", "first-live replay rejects an invalid capture timestamp", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(invalidTimestampPath));
+
+    string missingRecordsPath = Path.Combine(firstLiveReplayRoot, "missing-records.json");
+    File.WriteAllText(missingRecordsPath, "{\"capturedAt\":\"2026-09-09T19:02:27Z\"}");
+    ExpectInvalidData("point_records", "first-live replay rejects missing point records", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(missingRecordsPath));
+
+    string invalidFirstResourcePath = Path.Combine(firstLiveReplayRoot, "invalid-first-resource.json");
+    File.WriteAllText(invalidFirstResourcePath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":2212,"pointId":1006,"x":-1,"y":1},
+            {"kind":"resource_point","serverId":2212,"pointId":1007,"x":6,"y":2}
+          ]
+        }
+        """);
+    ExpectInvalidData("x", "first-live replay rejects a negative edge coordinate instead of silently choosing a later record", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(invalidFirstResourcePath));
+
+    string overflowCoordinatePath = Path.Combine(firstLiveReplayRoot, "overflow-coordinate.json");
+    File.WriteAllText(overflowCoordinatePath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":2212,"pointId":1006,"x":2147483648,"y":1}
+          ]
+        }
+        """);
+    ExpectInvalidData("x", "first-live replay rejects coordinates outside the documented Int32 demo boundary", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(overflowCoordinatePath));
+
+    string invalidServerPath = Path.Combine(firstLiveReplayRoot, "invalid-server.json");
+    File.WriteAllText(invalidServerPath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":100000,"pointId":1006,"x":5,"y":1}
+          ]
+        }
+        """);
+    ExpectInvalidData("1 through 99999", "first-live replay enforces the recovered public Map Data server boundary before storage", () =>
+        FirstLiveResultImporter.CreateIsolatedReplay(invalidServerPath));
+
+    string maxBoundaryPath = Path.Combine(firstLiveReplayRoot, "max-boundary.json");
+    File.WriteAllText(maxBoundaryPath, """
+        {
+          "capturedAt": "2026-09-09T19:02:27Z",
+          "point_records": [
+            {"kind":"resource_point","serverId":99999,"pointId":2147483647,"x":2147483647,"y":2147483647}
+          ]
+        }
+        """);
+    FirstLiveReplay maxBoundaryReplay = FirstLiveResultImporter.CreateIsolatedReplay(maxBoundaryPath);
+    using (maxBoundaryReplay.Store)
+    {
+        Check(maxBoundaryReplay.Import.ServerId == 99999 && maxBoundaryReplay.Import.PointIndex == int.MaxValue &&
+              maxBoundaryReplay.Import.X == int.MaxValue && maxBoundaryReplay.Import.Y == int.MaxValue,
+            "first-live replay accepts the documented positive Int32 upper boundary");
+    }
+}
+finally
+{
+    try { Directory.Delete(firstLiveReplayRoot, recursive: true); }
+    catch { }
+}
+
+using JsonDocument scalarPayload = JsonDocument.Parse("\"bad\"");
+await ExpectBridgeError("INVALID_PAYLOAD", "native boundary rejects non-object payloads", async () =>
+    await backend.InvokeAsync("profile_list", scalarPayload.RootElement.Clone(), CancellationToken.None));
+
+// Native request lifetime: duplicate IDs, explicit cancellation and teardown are deterministic.
+using (var requests = new NativeRequestRegistry())
+{
+    Check(requests.TryStart("delayed", out CancellationTokenSource? delayed) && delayed is not null,
+        "request registry accepts first request ID");
+    Check(!requests.TryStart("delayed", out _), "request registry rejects duplicate active request ID");
+    Task delayedWork = Task.Delay(TimeSpan.FromSeconds(30), delayed!.Token);
+    Check(requests.Cancel("delayed"), "request registry accepts explicit cancellation");
+    try
+    {
+        await delayedWork;
+        failures.Add("explicit request cancellation reaches delayed native work");
+    }
+    catch (OperationCanceledException)
+    {
+        Check(true, "explicit request cancellation reaches delayed native work");
+    }
+    requests.Complete("delayed", delayed);
+
+    Check(requests.TryStart("close-owned", out CancellationTokenSource? closeOwned) && closeOwned is not null,
+        "request registry owns active request before teardown");
+    requests.Close();
+    Check(closeOwned!.Token.IsCancellationRequested, "session teardown cancels owned native work without disposing its token early");
+    Check(!requests.TryStart("late", out _), "closed native session rejects late requests");
+    requests.Complete("close-owned", closeOwned);
+}
+
+// Host-integrated async lifetime: the same executor used by LWBridgeWindow owns
+// backend work, duplicate IDs, cancellation, teardown and publication eligibility.
+using JsonDocument delayedPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = backend.ProfileId }));
+
+var explicitCancelService = new ControlledAsyncCommandService(ignoreCancellationWhileWaiting: false);
+var explicitCancelBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), explicitCancelService);
+using (var executor = new NativeRequestExecutor())
+{
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = explicitCancelBackend.ProfileId }));
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("explicit-cancel", token =>
+        explicitCancelBackend.InvokeAsync(ControlledAsyncCommandService.Command, payload.RootElement.Clone(), token));
+    await explicitCancelService.Entered;
+    Check(executor.ActiveCount == 1 && explicitCancelService.ActiveOwners == 1,
+        "host executor has one owner while delayed backend work is active");
+
+    NativeRequestExecution duplicate = await executor.ExecuteAsync("explicit-cancel", _ => Task.FromResult<object?>(new { unexpected = true }));
+    Check(duplicate.Status == NativeRequestExecutionStatus.Rejected,
+        "host executor rejects duplicate active request IDs before starting another operation");
+    Check(executor.Cancel("explicit-cancel"), "host executor propagates explicit cancellation");
+
+    NativeRequestExecution cancelled = await pending;
+    Check(cancelled.Status == NativeRequestExecutionStatus.Cancelled,
+        "cancelled backend work cannot publish a success result");
+    Check(explicitCancelService.CommitCount == 0 && explicitCancelService.ActiveOwners == 0 && executor.ActiveCount == 0,
+        "explicit cancellation drains service/request ownership without committing state");
+}
+
+var lateCompletionService = new ControlledAsyncCommandService(ignoreCancellationWhileWaiting: true);
+var lateCompletionBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), lateCompletionService);
+using (var executor = new NativeRequestExecutor())
+{
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = lateCompletionBackend.ProfileId }));
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("late-completion", token =>
+        lateCompletionBackend.InvokeAsync(ControlledAsyncCommandService.Command, payload.RootElement.Clone(), token));
+    await lateCompletionService.Entered;
+    Check(executor.Cancel("late-completion"), "timeout-style cancellation reaches a delayed backend owner");
+    lateCompletionService.Release();
+
+    NativeRequestExecution cancelled = await pending;
+    Check(cancelled.Status == NativeRequestExecutionStatus.Cancelled && lateCompletionService.CommitCount == 0,
+        "late completion after cancellation is rejected before service state mutation");
+}
+
+var closeService = new ControlledAsyncCommandService(ignoreCancellationWhileWaiting: true);
+var closeBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), closeService);
+using (var executor = new NativeRequestExecutor())
+{
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = closeBackend.ProfileId }));
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("close-owned", token =>
+        closeBackend.InvokeAsync(ControlledAsyncCommandService.Command, payload.RootElement.Clone(), token));
+    await closeService.Entered;
+    executor.Close();
+    closeService.Release();
+
+    NativeRequestExecution cancelled = await pending;
+    Check(cancelled.Status == NativeRequestExecutionStatus.Cancelled && closeService.CommitCount == 0,
+        "session close cancels delayed backend work and suppresses late success");
+    NativeRequestExecution afterClose = await executor.ExecuteAsync("after-close", _ => Task.FromResult<object?>(null));
+    Check(afterClose.Status == NativeRequestExecutionStatus.Rejected,
+        "closed host executor rejects requests until a new session owner is created");
+}
+
+using (var reloadedExecutor = new NativeRequestExecutor())
+{
+    NativeRequestExecution reloaded = await reloadedExecutor.ExecuteAsync("after-close", _ => Task.FromResult<object?>(new { ok = true }));
+    Check(reloaded.Status == NativeRequestExecutionStatus.Success,
+        "new session owner accepts fresh work after prior session teardown");
+}
+
+using (var executor = new NativeRequestExecutor())
+{
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("noncooperative-return", _ => release.Task);
+    executor.Close();
+    release.SetResult(new { late = true });
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status == NativeRequestExecutionStatus.Cancelled && executor.ActiveCount == 0,
+        "noncooperative normal return after close resolves as cancelled and drains ownership");
+}
+
+using (var executor = new NativeRequestExecutor())
+{
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("noncooperative-fault", _ => release.Task);
+    executor.Close();
+    release.SetException(new InvalidOperationException("late closed-session fault"));
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status == NativeRequestExecutionStatus.Cancelled && executor.ActiveCount == 0,
+        "noncooperative late fault after close follows cancelled closed-session policy");
+}
+
+using (var executor = new NativeRequestExecutor())
+{
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync("noncooperative-explicit-cancel", _ => release.Task);
+    Check(executor.Cancel("noncooperative-explicit-cancel"), "explicit cancel owns a noncooperative request before late return");
+    release.SetResult(new { late = true });
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status == NativeRequestExecutionStatus.Cancelled && executor.ActiveCount == 0,
+        "noncooperative normal return after explicit cancel cannot publish success");
+}
+
+for (int iteration = 0; iteration < 32; iteration++)
+{
+    using var executor = new NativeRequestExecutor();
+    string requestId = "cancel-complete-race-" + iteration;
+    var release = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+    Task<NativeRequestExecution> pending = executor.ExecuteAsync(requestId, _ => release.Task);
+    using var startRace = new ManualResetEventSlim(false);
+    Task cancel = Task.Run(() =>
+    {
+        startRace.Wait();
+        executor.Cancel(requestId);
+    });
+    Task complete = Task.Run(() =>
+    {
+        startRace.Wait();
+        release.TrySetResult(new { iteration });
+    });
+    startRace.Set();
+    await Task.WhenAll(cancel, complete);
+    NativeRequestExecution completion = await pending;
+    Check(completion.Status is NativeRequestExecutionStatus.Success or NativeRequestExecutionStatus.Cancelled,
+        "cancel/completion race resolves to one valid terminal status");
+    Check(executor.ActiveCount == 0, "cancel/completion race drains request ownership");
+}
+
+var listenerOwners = new NativeSubscriptionRegistry(new[] { "bridge://status", "bridge://map-scan-status" });
+Check(listenerOwners.Count == 0, "native listener ownership starts at baseline");
+Check(listenerOwners.Listen("bridge://status") && !listenerOwners.Listen("bridge://status") && listenerOwners.Count == 1,
+    "duplicate listen does not create duplicate native listener owners");
+Check(listenerOwners.Unlisten("bridge://status") && listenerOwners.Count == 0,
+    "navigation-style unlisten returns native listener ownership to baseline");
+Check(!listenerOwners.Listen("bridge://not-allowed"), "native listener allowlist rejects unknown events");
+listenerOwners.Listen("bridge://map-scan-status");
+listenerOwners.Close();
+Check(listenerOwners.Count == 0 && !listenerOwners.Listen("bridge://status"),
+    "session teardown clears listeners and rejects late subscriptions");
+
+// Recovered Map Data persistence schema and stable keys. The test supplies an
+// explicit recordKey because per-kind record-key derivation remains unrecovered.
+string mapStoreRoot = Path.Combine(Path.GetTempPath(), "lwbridge-map-store-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(mapStoreRoot);
+string mapDatabasePath = Path.Combine(mapStoreRoot, "map-data.db");
+const string largeOwnerUid = "900719925474099312345";
+try
+{
+    using (var mapStore = new MapDataStore(mapDatabasePath))
+    {
+        IReadOnlyDictionary<string, string> schema = mapStore.ReadSchemaDefinitions();
+        string[] recoveredTables =
+        [
+            "metadata", "map_records", "scan_runs", "scan_blocks", "scan_records", "player_marks",
+            "app_settings", "treasure_claim_states", "dispatch_plunder_jobs", "truck_plunder_jobs",
+            "truck_plunder_history", "dispatch_assist_jobs",
+        ];
+        Check(recoveredTables.All(schema.ContainsKey),
+            "map store must include ordinary recovered tables plus R8-016 Scheduled Plunder jobs/history");
+        Check(schema["map_records"].Contains("PRIMARY KEY (kind, server_id, record_key)", StringComparison.Ordinal),
+            "map record identity is recovered as kind/server/record_key");
+        Check(schema["scan_records"].Contains("PRIMARY KEY (run_id, kind, server_id, record_key)", StringComparison.Ordinal),
+            "scan staging identity is recovered as run/kind/server/record_key");
+        Check(schema["player_marks"].Contains("PRIMARY KEY (server_id, owner_uid)", StringComparison.Ordinal),
+            "player mark identity is recovered as server/owner_uid");
+        string[] recoveredIndexes =
+        [
+            "idx_map_kind_server", "idx_map_kind_server_quality_power", "idx_map_kind_server_level",
+            "idx_map_kind_server_updated", "idx_map_kind_server_point", "idx_scan_records_run_kind",
+            "idx_dispatch_plunder_due", "idx_truck_plunder_due", "idx_truck_plunder_history_updated",
+            "idx_dispatch_assist_due", "idx_treasure_claim_states_expire",
+        ];
+        Check(recoveredIndexes.All(schema.ContainsKey),
+            "map store must include recovered Scheduled Plunder due/history indexes");
+
+        string firstCityJson = JsonSerializer.Serialize(new
+        {
+            serverId = 77,
+            ownerUid = largeOwnerUid,
+            ownerName = "First",
+            allianceName = "ABC",
+            level = 30,
+            x = 10,
+            y = 20,
+            updatedAt = 1000L,
+        });
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 77, "explicit-city-key", 15, "city-uuid", "First", "ABC",
+            30, null, 9_000_000_000_000_000_000L, null, null, 1000, firstCityJson));
+
+        string updatedCityJson = JsonSerializer.Serialize(new
+        {
+            serverId = 77,
+            ownerUid = largeOwnerUid,
+            ownerName = "Updated",
+            allianceName = "ABC",
+            level = 31,
+            x = 11,
+            y = 21,
+            updatedAt = 2000L,
+        });
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 77, "explicit-city-key", 16, "city-uuid-2", "Updated", "ABC",
+            31, null, 9_000_000_000_000_000_001L, null, null, 2000, updatedCityJson));
+        Check(mapStore.CountRecords("city", 77) == 1,
+            "same recovered map identity updates instead of duplicating a row");
+        MapStoredRecord? updatedRecord = mapStore.GetRecord("city", 77, "explicit-city-key");
+        Check(updatedRecord?.UpdatedAt == 2000 && updatedRecord.Name == "Updated" &&
+              updatedRecord.Power == 9_000_000_000_000_000_001L &&
+              updatedRecord.DataJson.Contains(largeOwnerUid, StringComparison.Ordinal),
+            "map upsert preserves updated fields, Int64 power and large string UIDs");
+
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 78, "explicit-city-key", 1, null, "Other server", null,
+            1, null, null, null, null, 1000, "{\"ownerUid\":\"other\"}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "monster", 77, "explicit-city-key", 2, null, "Other kind", null,
+            2, null, null, null, null, 1000, "{\"monsterNameKey\":\"m1\"}"));
+        Check(mapStore.CountRecords("city", 78) == 1 && mapStore.CountRecords("monster", 77) == 1,
+            "same record_key remains distinct across recovered kind/server identity dimensions");
+
+        // IMPLEMENTATION POLICY LWB-R6-008: a search count and page are one read snapshot.
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 79, "snapshot-a", 1, "snapshot-a", "Snapshot A", null,
+            1, null, null, null, null, 1000, "{\"ownerUid\":\"snapshot-a\",\"ownerName\":\"Snapshot A\",\"updatedAt\":1000}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 79, "snapshot-b", 2, "snapshot-b", "Snapshot B", null,
+            1, null, null, null, null, 900, "{\"ownerUid\":\"snapshot-b\",\"ownerName\":\"Snapshot B\",\"updatedAt\":900}"));
+        using (var concurrentWriter = new MapDataStore(mapDatabasePath))
+        using (JsonDocument snapshotQuery = JsonDocument.Parse(
+            "{\"kind\":\"city\",\"query\":{\"serverId\":79,\"page\":1,\"pageSize\":50}}"))
+        {
+            MapSearchResult snapshotResult = mapStore.SearchIndexedForSnapshotTest(
+                MapDataQueryContract.NormalizeSearch(snapshotQuery.RootElement),
+                () => concurrentWriter.UpsertRecord(new MapStoredRecord(
+                    "city", 79, "snapshot-c", 3, "snapshot-c", "Snapshot C", null,
+                    1, null, null, null, null, 1100, "{\"ownerUid\":\"snapshot-c\",\"ownerName\":\"Snapshot C\",\"updatedAt\":1100}")));
+            Check(snapshotResult.Total == 2 && snapshotResult.Rows.Count == 2 &&
+                  snapshotResult.Rows.All(row => row.GetProperty("ownerName").GetString() != "Snapshot C"),
+                "map_search count/page stay on one SQLite snapshot across a concurrent WAL writer");
+        }
+        Check(mapStore.CountRecords("city", 79) == 3,
+            "concurrent writer commits after the search snapshot without losing the new row");
+
+        // PM7-A / LWB-R6-038 IMPLEMENTATION POLICY: all option/count families in
+        // one source context observe one read snapshot while a WAL writer commits.
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 84, "option-snapshot-a", 1, "option-snapshot-a", "Option Snapshot A", "Alpha",
+            1, null, null, null, null, 1000,
+            "{\"ownerUid\":\"option-snapshot-a\",\"ownerName\":\"Option Snapshot A\"}"));
+        MapOptionSourceSelection optionSnapshotSource =
+            MapDataStore.SelectOptionSource(84, isReading: false, scanStateServerId: 84, scanRunId: null);
+        using (var optionConcurrentWriter = new MapDataStore(mapDatabasePath))
+        {
+            MapOptionAggregates optionSnapshot = mapStore.ReadOptionAggregatesAtForSnapshotTest(
+                optionSnapshotSource,
+                nowUnixMilliseconds: 5_000,
+                () => optionConcurrentWriter.UpsertRecord(new MapStoredRecord(
+                    "city", 84, "option-snapshot-b", 2, "option-snapshot-b", "Option Snapshot B", "Beta",
+                    1, null, null, null, null, 1100,
+                    "{\"ownerUid\":\"option-snapshot-b\",\"ownerName\":\"Option Snapshot B\"}")));
+            Check(optionSnapshot.Alliances.Count == 1 && optionSnapshot.Alliances[0].Name == "Alpha" &&
+                  optionSnapshot.Counts["city"] == 1,
+                "option alliances and counts stay on one SQLite snapshot across a concurrent WAL writer");
+        }
+        MapOptionAggregates optionAfterWriter =
+            mapStore.ReadOptionAggregatesAt(optionSnapshotSource, nowUnixMilliseconds: 5_000);
+        Check(optionAfterWriter.Alliances.Count == 2 && optionAfterWriter.Counts["city"] == 2,
+            "option aggregate snapshot releases cleanly and exposes the committed concurrent row on the next read");
+
+        // LWB-R6-019: exercise only the recovered completed-kind delete/copy transaction.
+        // The helper remains test-only because the original scan-completeness eligibility
+        // gate and native record-key derivation are separate UNKNOWN/BLOCKED contracts.
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 80, "publish-old-a", 1, "publish-old-a", "Old A", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"publish-old-a\",\"ownerName\":\"Old A\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 80, "publish-old-b", 2, "publish-old-b", "Old B", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"publish-old-b\",\"ownerName\":\"Old B\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "monster", 80, "publish-monster", 3, null, "Keep Monster", null,
+            2, null, null, null, null, 100, "{\"monsterNameKey\":\"keep\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 81, "publish-other-server", 4, null, "Keep Other Server", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"other-server\",\"updatedAt\":100}"));
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "publish-run-80", 80, "[\"city\"]", "completed", 2, 2, 0, 100, 200, null));
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "publish-other-run-80", 80, "[\"city\"]", "completed", 1, 1, 0, 100, 200, null));
+        mapStore.StageRecordForPublishTest("publish-run-80", new MapStoredRecord(
+            "city", 80, "publish-new-a", 10, "publish-new-a", "New A", "NEW",
+            10, null, null, null, null, 300, "{\"ownerUid\":\"publish-new-a\",\"ownerName\":\"New A\",\"updatedAt\":300}"));
+        mapStore.StageRecordForPublishTest("publish-run-80", new MapStoredRecord(
+            "city", 80, "publish-new-b", 11, "publish-new-b", "New B", "NEW",
+            11, null, null, null, null, 301, "{\"ownerUid\":\"publish-new-b\",\"ownerName\":\"New B\",\"updatedAt\":301}"));
+        mapStore.StageRecordForPublishTest("publish-other-run-80", new MapStoredRecord(
+            "city", 80, "publish-wrong-run", 12, "publish-wrong-run", "Wrong Run", null,
+            12, null, null, null, null, 302, "{\"ownerUid\":\"publish-wrong-run\",\"updatedAt\":302}"));
+
+        int publishedRows = mapStore.ReplacePublishedKindFromStagingForTest("publish-run-80", "city", 80);
+        Check(publishedRows == 2 && mapStore.CountRecords("city", 80) == 2 &&
+              mapStore.GetRecord("city", 80, "publish-new-a")?.Name == "New A" &&
+              mapStore.GetRecord("city", 80, "publish-new-b")?.Name == "New B" &&
+              mapStore.GetRecord("city", 80, "publish-old-a") is null &&
+              mapStore.GetRecord("city", 80, "publish-old-b") is null &&
+              mapStore.GetRecord("city", 80, "publish-wrong-run") is null,
+            "recovered publish slice atomically replaces one kind/server from only the selected scan run");
+        Check(mapStore.CountRecords("monster", 80) == 1 && mapStore.CountRecords("city", 81) == 1,
+            "recovered publish slice leaves other kinds and servers unchanged");
+
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 82, "rollback-old-a", 1, "rollback-old-a", "Rollback Old A", null,
+            1, null, null, null, null, 100, "{\"ownerUid\":\"rollback-old-a\",\"ownerName\":\"Rollback Old A\",\"updatedAt\":100}"));
+        mapStore.UpsertRecord(new MapStoredRecord(
+            "city", 82, "rollback-old-b", 2, "rollback-old-b", "Rollback Old B", null,
+            1, null, null, null, null, 101, "{\"ownerUid\":\"rollback-old-b\",\"ownerName\":\"Rollback Old B\",\"updatedAt\":101}"));
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "rollback-run-82", 82, "[\"city\"]", "completed", 1, 1, 0, 100, 200, null));
+        mapStore.StageRecordForPublishTest("rollback-run-82", new MapStoredRecord(
+            "city", 82, "rollback-new", 10, "rollback-new", "Rollback New", null,
+            10, null, null, null, null, 300, "{\"ownerUid\":\"rollback-new\",\"ownerName\":\"Rollback New\",\"updatedAt\":300}"));
+
+        try
+        {
+            mapStore.ReplacePublishedKindFromStagingForTest(
+                "rollback-run-82", "city", 82,
+                () => throw new InvalidOperationException("deterministic publish failure"));
+            failures.Add("staged publication rollback preserves the prior published kind/server on mid-transaction failure");
+        }
+        catch (InvalidOperationException error) when (error.Message == "deterministic publish failure")
+        {
+            Check(mapStore.CountRecords("city", 82) == 2 &&
+                  mapStore.GetRecord("city", 82, "rollback-old-a")?.Name == "Rollback Old A" &&
+                  mapStore.GetRecord("city", 82, "rollback-old-b")?.Name == "Rollback Old B" &&
+                  mapStore.GetRecord("city", 82, "rollback-new") is null,
+                "staged publication rollback preserves the prior published kind/server on mid-transaction failure");
+        }
+
+        // LWB-R6-028 IMPLEMENTATION POLICY: exercise restart-safe persistence over
+        // the recovered scan_blocks schema without claiming original scheduling,
+        // acknowledgement, retry or status-transition behavior.
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "checkpoint-run-83", 83, "[\"city\"]", "synthetic-running", 3, 0, 0, 100, 100, null));
+        mapStore.UpsertScanBlockCheckpointForTest(
+            "checkpoint-run-83",
+            new MapScanBlockCheckpoint(0, "{\"block\":0}", "synthetic-pending", 0, null, 110));
+        mapStore.UpsertScanBlockCheckpointForTest(
+            "checkpoint-run-83",
+            new MapScanBlockCheckpoint(1, "{\"block\":1}", "synthetic-failed", 2, "synthetic failure", 120));
+        mapStore.UpsertScanBlockCheckpointForTest(
+            "checkpoint-run-83",
+            new MapScanBlockCheckpoint(1, "{\"block\":1,\"retry\":true}", "synthetic-retry", 3, null, 130));
+
+        IReadOnlyList<MapScanBlockCheckpoint> checkpointRows =
+            mapStore.ReadScanBlockCheckpointsForTest("checkpoint-run-83");
+        Check(checkpointRows.Count == 2 &&
+              checkpointRows[0].BlockIndex == 0 && checkpointRows[0].Attempts == 0 &&
+              checkpointRows[1].BlockIndex == 1 && checkpointRows[1].Attempts == 3 &&
+              checkpointRows[1].Status == "synthetic-retry" && checkpointRows[1].Error is null &&
+              checkpointRows[1].PayloadJson.Contains("retry", StringComparison.Ordinal),
+              "scan block checkpoint upsert is keyed by recovered run/block identity and preserves the latest durable state");
+
+        await ExpectBridgeError("INVALID_MAP_RECORD", "map store refuses guessed/missing record identity", () =>
+            Task.Run(() => mapStore.UpsertRecord(new MapStoredRecord(
+                "city", 77, "", null, null, null, null, null, null, null, null, null, 1, "{}"))));
+
+        mapStore.UpsertPlayerMark(new MapPlayerMark(
+            77, largeOwnerUid, "active", 3000, null,
+            JsonSerializer.Serialize(new { serverId = 77, ownerUid = largeOwnerUid, ownerName = "Updated", allianceName = "ABC", level = 31 })));
+        MapPlayerMark? mark = mapStore.GetPlayerMark(77, largeOwnerUid);
+        Check(mark?.OwnerUid == largeOwnerUid && mark.State == "active" && mark.PlayerJson.Contains(largeOwnerUid, StringComparison.Ordinal),
+            "player mark is keyed by server/owner UID and preserves large UID text");
+
+        mapStore.InsertScanRun(new MapScanRunSeed(
+            "run-77", 77, "[\"city\"]", "running", 100, 10, 0, 1000, 2000, null));
+        Check(mapStore.CountScanRuns(77) == 1, "recovered scan run is stored before scoped clear");
+
+        MapClearResult cleared = mapStore.ClearServer(77);
+        Check(cleared.DeletedRuns == 1 && cleared.DeletedRecords == 2,
+            "map clear deletes scan runs and all map records for the selected server");
+        Check(mapStore.CountRecords("city", 77) == 0 && mapStore.CountRecords("monster", 77) == 0 &&
+              mapStore.CountRecords("city", 78) == 1,
+            "map clear is server-scoped and leaves other server records intact");
+        Check(mapStore.GetPlayerMark(77, largeOwnerUid) is not null,
+            "recovered clear semantics preserve player marks outside map_records/scan_runs");
+    }
+
+    using (var reopenedMapStore = new MapDataStore(mapDatabasePath))
+    {
+        MapPlayerMark? persistedMark = reopenedMapStore.GetPlayerMark(77, largeOwnerUid);
+        Check(persistedMark?.OwnerUid == largeOwnerUid && persistedMark.State == "active",
+            "player mark identity/state survives database restart after map-data clear");
+        Check(reopenedMapStore.CountRecords("city", 78) == 1,
+            "unrelated server map records survive database restart");
+        Check(reopenedMapStore.ReadPublishedServerIds().Contains(78),
+            "published server discovery survives database restart");
+        IReadOnlyList<MapScanBlockCheckpoint> reopenedCheckpoints =
+            reopenedMapStore.ReadScanBlockCheckpointsForTest("checkpoint-run-83");
+        Check(reopenedCheckpoints.Count == 2 &&
+              reopenedCheckpoints[1].BlockIndex == 1 && reopenedCheckpoints[1].Attempts == 3 &&
+              reopenedCheckpoints[1].Status == "synthetic-retry" && reopenedCheckpoints[1].Error is null,
+            "scan block checkpoints survive database restart for later resume/reconciliation");
+        MapClearResult checkpointClear = reopenedMapStore.ClearServer(83);
+        Check(checkpointClear.DeletedRuns == 1 &&
+              reopenedMapStore.ReadScanBlockCheckpointsForTest("checkpoint-run-83").Count == 0,
+            "server-scoped scan clear cascades recovered scan-run deletion to persisted block checkpoints");
+        Check(reopenedMapStore.DeletePlayerMark(77, largeOwnerUid) && reopenedMapStore.GetPlayerMark(77, largeOwnerUid) is null,
+            "player mark delete uses recovered server/owner UID identity");
+    }
+}
+finally
+{
+    try { Directory.Delete(mapStoreRoot, recursive: true); }
+    catch { }
+}
+
+// LWB-R6-030 RECOVERED / OFFLINE-TESTED: validate the recovered native source/run
+// decision without enabling the still-incomplete public map_data_options response.
+MapOptionSourceSelection activeOptionSource =
+    MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: "active-run-120");
+Check(activeOptionSource.UsesStagingRecords &&
+      activeOptionSource.ServerId == 120 &&
+      activeOptionSource.ScanRunId == "active-run-120",
+    "map option source selector uses the active scan run only for a matching reading server with nonempty scanRunId");
+
+Check(!MapDataStore.SelectOptionSource(120, isReading: false, scanStateServerId: 120, scanRunId: "active-run-120").UsesStagingRecords,
+    "map option source selector falls back to published rows when scan state is not reading");
+Check(!MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 121, scanRunId: "active-run-120").UsesStagingRecords,
+    "map option source selector falls back to published rows when scan-state server differs from the requested server");
+Check(!MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: null).UsesStagingRecords &&
+      !MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: "").UsesStagingRecords,
+    "map option source selector requires a present nonempty scanRunId for staging rows");
+Check(MapDataStore.SelectOptionSource(120, isReading: true, scanStateServerId: 120, scanRunId: " ").UsesStagingRecords,
+    "map option source selector preserves the recovered raw nonempty-string test without trimming scanRunId");
+
+// PM7-A / LWB-R6-038 IMPLEMENTED/OFFLINE-TESTED: one source-aware aggregate
+// service now evaluates the recovered option/count SQL families against either the
+// published map_records scope or the exact active scan_records run scope. Public
+// assembly remains fail-closed until exact scanProgress serialization/state is proven.
+using (var persistedOptionsStore = MapDataStore.CreateInMemory())
+{
+    const int optionServerId = 120;
+    const long optionNowUnixMilliseconds = 5_000;
+
+    void SeedOptionRecord(
+        string kind,
+        int serverId,
+        string recordKey,
+        string dataJson,
+        string? allianceName = null,
+        int? level = null,
+        long updatedAt = 1_000)
+    {
+        persistedOptionsStore.UpsertRecord(new MapStoredRecord(
+            kind, serverId, recordKey, null, null, null, allianceName,
+            level, null, null, null, null, updatedAt, dataJson));
+    }
+
+    void SeedStagedOptionRecord(
+        string runId,
+        string kind,
+        int serverId,
+        string recordKey,
+        string dataJson,
+        string? allianceName = null,
+        int? level = null,
+        long updatedAt = 1_000)
+    {
+        persistedOptionsStore.StageRecordForPublishTest(runId, new MapStoredRecord(
+            kind, serverId, recordKey, null, null, null, allianceName,
+            level, null, null, null, null, updatedAt, dataJson));
+    }
+
+    SeedOptionRecord("city", optionServerId, "city-alpha-1", "{\"ownerUid\":\"a1\"}", "Alpha");
+    SeedOptionRecord("city", optionServerId, "city-alpha-2", "{\"ownerUid\":\"a2\"}", "Alpha");
+    SeedOptionRecord("city", optionServerId, "city-empty", "{\"ownerUid\":\"empty\"}", "");
+    SeedOptionRecord("city", optionServerId, "city-null", "{\"ownerUid\":\"null\"}");
+    SeedOptionRecord("city", optionServerId + 1, "city-other-server", "{\"ownerUid\":\"other\"}", "Other");
+
+    SeedOptionRecord("resource", optionServerId, "resource-wood-1", "{\"resourceNameKey\":\"wood\"}");
+    SeedOptionRecord("resource", optionServerId, "resource-wood-2", "{\"resourceNameKey\":\"wood\"}");
+    SeedOptionRecord("resource", optionServerId, "resource-empty", "{\"resourceNameKey\":\"\"}");
+    SeedOptionRecord("monster", optionServerId, "monster-zombie", "{\"monsterNameKey\":\"zombie\"}");
+    SeedOptionRecord("zombie_boss", optionServerId, "zombie-boss-invasion",
+        "{\"monsterNameKey\":\"2901012\"}", level: 8);
+
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-3-a", "{}", level: 3);
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-1", "{}", level: 1);
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-3-b", "{}", level: 3);
+    SeedOptionRecord("dispatch", optionServerId, "dispatch-level-0", "{}", level: 0);
+
+    SeedOptionRecord("treasure", optionServerId, "treasure-ordinary-1",
+        "{\"suppliesType\":0,\"treasureType\":12,\"treasureNameKey\":\"treasure-12\"}");
+    SeedOptionRecord("treasure", optionServerId, "treasure-ordinary-2",
+        "{\"suppliesType\":0,\"treasureType\":12,\"treasureNameKey\":\"treasure-12-new\"}");
+    SeedOptionRecord("treasure", optionServerId, "treasure-supplies",
+        "{\"suppliesType\":4,\"treasureType\":99,\"treasureNameKey\":\"supplies-4\"}");
+    SeedOptionRecord("treasure", optionServerId, "treasure-zero",
+        "{\"suppliesType\":0,\"treasureType\":0,\"treasureNameKey\":\"zero\"}");
+
+    SeedOptionRecord("truck", optionServerId, "truck-future",
+        "{\"arriveTs\":6000,\"currentGoods\":[{\"key\":\"iron\",\"name\":\"Iron\",\"iconPath\":\"iron.png\"},{\"key\":\"iron\",\"name\":\"Iron\",\"iconPath\":\"iron.png\"}]}");
+    SeedOptionRecord("truck", optionServerId, "truck-past",
+        "{\"arriveTs\":4000,\"currentGoods\":[{\"key\":\"past\",\"name\":\"Past\",\"iconPath\":\"past.png\"}]}");
+    SeedOptionRecord("railway", optionServerId, "railway-no-arrival",
+        "{\"currentGoods\":[{\"key\":\"food\",\"name\":\"Food\"},{\"key\":\"missing-name\"}]}");
+    SeedOptionRecord("truck", optionServerId + 1, "truck-other-server",
+        "{\"arriveTs\":6000,\"currentGoods\":[{\"key\":\"other\",\"name\":\"Other\"}]}");
+
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-run-old", optionServerId, "[\"city\"]", "completed", 100, 100, 0, 500, 1_000, null));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-run-new", optionServerId, "[\"city\",\"truck\"]", "running", 100, 40, 1, 1_500, 3_000, "one failed block"));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-run-discarded", optionServerId, "[\"city\"]", "discarded", 100, 100, 0, 2_000, 4_000, null));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-active-run", optionServerId,
+        "[\"city\",\"resource\",\"truck\",\"dispatch\",\"treasure\"]",
+        "running", 200, 75, 2, 2_100, 2_500, "synthetic active failure"));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-other-run", optionServerId, "[\"city\"]", "running", 50, 10, 0, 2_200, 2_600, null));
+    persistedOptionsStore.InsertScanRun(new MapScanRunSeed(
+        "options-other-server-run", optionServerId + 1, "[\"city\"]", "running", 50, 10, 0, 2_300, 2_700, null));
+
+    SeedStagedOptionRecord("options-active-run", "city", optionServerId,
+        "staged-city-alpha", "{\"ownerUid\":\"stage-alpha\"}", "StageAlpha");
+    SeedStagedOptionRecord("options-active-run", "city", optionServerId,
+        "staged-city-no-alliance", "{\"ownerUid\":\"stage-none\"}", "");
+    SeedStagedOptionRecord("options-active-run", "resource", optionServerId,
+        "staged-resource-stone", "{\"resourceNameKey\":\"stone\"}");
+    SeedStagedOptionRecord("options-active-run", "dispatch", optionServerId,
+        "staged-dispatch-level-7", "{}", level: 7);
+    SeedStagedOptionRecord("options-active-run", "treasure", optionServerId,
+        "staged-treasure-21", "{\"suppliesType\":0,\"treasureType\":21,\"treasureNameKey\":\"treasure-21\"}");
+    SeedStagedOptionRecord("options-active-run", "truck", optionServerId,
+        "staged-truck", "{\"arriveTs\":6000,\"currentGoods\":[{\"key\":\"stage-iron\",\"name\":\"Stage Iron\"}]}");
+
+    SeedStagedOptionRecord("options-other-run", "city", optionServerId,
+        "wrong-run-city", "{\"ownerUid\":\"wrong-run\"}", "WrongRun");
+    SeedStagedOptionRecord("options-other-run", "resource", optionServerId,
+        "wrong-run-resource", "{\"resourceNameKey\":\"wrong-run\"}");
+    SeedStagedOptionRecord("options-other-server-run", "city", optionServerId + 1,
+        "wrong-server-city", "{\"ownerUid\":\"wrong-server\"}", "WrongServer");
+
+    MapOptionSourceSelection publishedOptionSource =
+        MapDataStore.SelectOptionSource(optionServerId, isReading: false, scanStateServerId: optionServerId, scanRunId: null);
+    MapOptionAggregates persistedOptions =
+        persistedOptionsStore.ReadOptionAggregatesAt(publishedOptionSource, optionNowUnixMilliseconds);
+
+    Check(persistedOptions.Alliances.Count == 1 &&
+          persistedOptions.Alliances.Single(item => item.Name == "Alpha").Count == 2 &&
+          persistedOptions.Alliances.All(item => item.Name != "Other"),
+        "persisted option alliance aggregation emits only nonempty alliance names while keeping recovered ordering and server scope");
+    Check(persistedOptions.Names.Count == 2 &&
+          persistedOptions.Names.Any(item => item.Kind == "resource" && item.Key == "wood" && item.Count == 2) &&
+          persistedOptions.Names.Any(item => item.Kind == "monster" && item.Key == "zombie" && item.Count == 1) &&
+          persistedOptions.Names.All(item => item.Kind is "resource" or "monster" && item.Key.Length > 0),
+        "strict-parity option aggregation exposes only original Resource/Monster name families and excludes Zombie Boss");
+    Check(persistedOptions.DispatchLevels.SequenceEqual(new[] { 1, 3 }),
+        "persisted dispatch option levels are distinct positive integers ordered ascending");
+    Check(persistedOptions.TreasureTypes.Count == 2 &&
+          persistedOptions.TreasureTypes[0].Key == "treasure:12" &&
+          persistedOptions.TreasureTypes[0].SuppliesType == 0 &&
+          persistedOptions.TreasureTypes[0].TreasureType == 12 &&
+          persistedOptions.TreasureTypes[0].Count == 2 &&
+          persistedOptions.TreasureTypes[0].TreasureNameKey == "treasure-12-new" &&
+          persistedOptions.TreasureTypes[1].Key == "supplies:4" &&
+          persistedOptions.TreasureTypes[1].SuppliesType == 4 &&
+          persistedOptions.TreasureTypes[1].TreasureType == 0 &&
+          persistedOptions.TreasureTypes[1].Count == 1,
+        "persisted treasure options preserve recovered key formatting, ordinary/supplies normalization, grouping and ordering");
+    Check(persistedOptions.RewardItems.Count == 2 &&
+          persistedOptions.RewardItems[0].Kind == "railway" && persistedOptions.RewardItems[0].Key == "food" &&
+          persistedOptions.RewardItems[1].Kind == "truck" && persistedOptions.RewardItems[1].Key == "iron" &&
+          persistedOptions.RewardItems.All(item => item.Key != "past" && item.Key != "other"),
+        "persisted reward options deduplicate current goods, apply recovered Unix-ms arrival cutoff and isolate server scope");
+    Check(persistedOptions.Counts.Count == 8 &&
+          persistedOptions.Counts.Keys.SequenceEqual(MapScanContract.RecoveredDefaultTypes) &&
+          persistedOptions.Counts["city"] == 4 &&
+          persistedOptions.Counts["resource"] == 3 &&
+          persistedOptions.Counts["monster"] == 1 &&
+          !persistedOptions.Counts.ContainsKey("zombie_boss") &&
+          persistedOptions.Counts["truck"] == 2 &&
+          persistedOptions.Counts["railway"] == 1 &&
+          persistedOptions.Counts["dispatch"] == 4 &&
+          persistedOptions.Counts["ghost"] == 0 &&
+          persistedOptions.Counts["treasure"] == 4,
+        "persisted option test kernel returns exactly the eight original count keys and excludes Zombie Boss");
+    Check(persistedOptions.NoAllianceCount == 2,
+        "persisted option test kernel accumulates null and empty alliance groups into native noAllianceCount instead of alliances[]");
+    Check(persistedOptions.ScanProgress?.Id == "options-run-new" &&
+          persistedOptions.ScanProgress.ServerId == optionServerId &&
+          persistedOptions.ScanProgress.Status == "running" &&
+          persistedOptions.ScanProgress.CompletedBlocks == 40 &&
+          persistedOptions.ScanProgress.FailedBlocks == 1 &&
+          persistedOptions.ScanProgress.Error == "one failed block",
+        "persisted option scan progress selects newest non-discarded run for the requested server");
+
+    MapOptionAggregates otherServerOptions =
+        persistedOptionsStore.ReadOptionAggregatesAt(
+            MapDataStore.SelectOptionSource(
+                optionServerId + 1, isReading: false, scanStateServerId: optionServerId + 1, scanRunId: null),
+            optionNowUnixMilliseconds);
+    Check(otherServerOptions.Alliances.Count == 1 &&
+          otherServerOptions.Alliances[0].Name == "Other" &&
+          otherServerOptions.RewardItems.Count == 1 &&
+          otherServerOptions.RewardItems[0].Key == "other" &&
+          otherServerOptions.Counts["city"] == 1 &&
+          otherServerOptions.Counts["truck"] == 1 &&
+          otherServerOptions.Counts.Where(item => item.Key is not "city" and not "truck").All(item => item.Value == 0) &&
+          otherServerOptions.NoAllianceCount == 0 &&
+          otherServerOptions.ScanProgress?.Id == "options-other-server-run" &&
+          otherServerOptions.ScanProgress.ServerId == optionServerId + 1,
+        "persisted option aggregation does not mix rows, counts, no-alliance state or scan progress across servers");
+
+    MapOptionAggregates stagedOptions = persistedOptionsStore.ReadOptionAggregatesAt(
+        MapDataStore.SelectOptionSource(
+            optionServerId, isReading: true, scanStateServerId: optionServerId, scanRunId: "options-active-run"),
+        optionNowUnixMilliseconds);
+    Check(stagedOptions.Alliances.Count == 1 &&
+          stagedOptions.Alliances[0].Name == "StageAlpha" && stagedOptions.Alliances[0].Count == 1 &&
+          stagedOptions.NoAllianceCount == 1,
+        "active option aggregation reads alliance/no-alliance groups only from the exact staged run");
+    Check(stagedOptions.Names.Count == 1 &&
+          stagedOptions.Names[0].Kind == "resource" && stagedOptions.Names[0].Key == "stone" &&
+          stagedOptions.DispatchLevels.SequenceEqual(new[] { 7 }),
+        "active option aggregation reads names and dispatch levels from the staged source without published/run leakage");
+    Check(stagedOptions.TreasureTypes.Count == 1 && stagedOptions.TreasureTypes[0].Key == "treasure:21" &&
+          stagedOptions.RewardItems.Count == 1 && stagedOptions.RewardItems[0].Key == "stage-iron",
+        "active option aggregation applies recovered treasure keys and reward cutoff within the exact staged run");
+    Check(stagedOptions.Counts["city"] == 2 && stagedOptions.Counts["resource"] == 1 &&
+          stagedOptions.Counts["truck"] == 1 && stagedOptions.Counts["dispatch"] == 1 &&
+          stagedOptions.Counts["treasure"] == 1 &&
+          stagedOptions.Counts.Where(item => item.Key is not "city" and not "resource" and not "truck" and not "dispatch" and not "treasure")
+              .All(item => item.Value == 0),
+        "active option counts use the same exact staged run as every option family");
+    Check(stagedOptions.ScanProgress?.Id == "options-active-run" &&
+          stagedOptions.ScanProgress.ServerId == optionServerId &&
+          stagedOptions.ScanProgress.CompletedBlocks == 75 && stagedOptions.ScanProgress.FailedBlocks == 2,
+        "active option progress record selection uses the exact staged scanRunId rather than the newest run");
+}
+
+using (var backendMapStore = MapDataStore.CreateInMemory())
+{
+    bool backendMapReading = false;
+    string backendMapRunId = "";
+    var mapBackend = new LWBridgeBackend(
+        new LocalConfigStore(persistent: false),
+        mapData: backendMapStore,
+        mapScanStatusProvider: () => new
+        {
+            serverId = 91,
+            serverIdSource = MapScanClearOwnership.LiveServerSource,
+            scanRunId = backendMapRunId,
+            isReading = backendMapReading,
+        });
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "city", 91, "backend-city-key", 7, "backend-city-uuid", "Backend City", "XYZ",
+        28, null, 1234567890123456789L, null, null, 1000,
+        "{\"serverId\":91,\"ownerUid\":\"12345678901234567890\",\"ownerName\":\"Backend City\"}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "monster", 91, "backend-monster-alpha", 11, "monster-a", "monster.alpha", null,
+        7, null, null, 12, null, 1100,
+        "{\"serverId\":91,\"uuid\":\"monster-a\",\"monsterNameKey\":\"monster.alpha\",\"level\":7,\"zombieRushId\":0,\"endTime\":410000}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "monster", 91, "backend-monster-beta", 12, "monster-b", "monster.beta", null,
+        9, null, null, 34, null, 1200,
+        "{\"serverId\":91,\"uuid\":\"monster-b\",\"monsterNameKey\":\"monster.beta\",\"level\":9,\"zombieRushId\":0,\"endTime\":420000}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "zombie_boss", 91, "backend-zombie-boss", 13, "boss-a", "monster.boss", null,
+        8, null, null, 56, 2_000_000_000_000L, 1250,
+        "{\"serverId\":91,\"uuid\":\"boss-a\",\"monsterNameKey\":\"monster.boss\",\"level\":8,\"monsterProtectionKnown\":true,\"monsterProtectionActive\":true,\"shieldEndTime\":2000000000000}"));
+    backendMapStore.InsertScanRun(new MapScanRunSeed(
+        "backend-run", 91, "[\"city\",\"resource\"]", "running", 100, 0, 0, 1000, 1000, null));
+    backendMapStore.StageRecordForPublishTest("backend-run", new MapStoredRecord(
+        "city", 91, "backend-staged-city", 70, "backend-staged-city-uuid", "Staged City", "STAGE",
+        30, null, null, null, null, 1400,
+        "{\"serverId\":91,\"ownerUid\":\"staged-owner\",\"ownerName\":\"Staged City\"}"));
+    backendMapStore.StageRecordForPublishTest("backend-run", new MapStoredRecord(
+        "resource", 91, "backend-staged-resource", 71, "backend-staged-resource-uuid", "resource.stone", null,
+        6, null, null, null, null, 1450,
+        "{\"serverId\":91,\"resourceNameKey\":\"resource.stone\"}"));
+    backendMapStore.UpsertRecord(new MapStoredRecord(
+        "city", 92, "backend-other-city", 8, "backend-other-uuid", "Other Server City", null,
+        20, null, null, null, null, 1300,
+        "{\"serverId\":92,\"ownerUid\":\"other-owner\",\"ownerName\":\"Other Server City\"}"));
+    backendMapStore.InsertScanRun(new MapScanRunSeed(
+        "backend-other-run", 92, "[\"city\"]", "completed", 10, 10, 0, 1000, 1300, null));
+
+    using JsonDocument optionsPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 91,
+    }));
+    object? optionsResult = await mapBackend.InvokeAsync(
+        "map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument optionsJson = JsonDocument.Parse(JsonSerializer.Serialize(optionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = optionsJson.RootElement;
+        string[] topLevelKeys = root.EnumerateObject().Select(property => property.Name).ToArray();
+        string[] countKeys = root.GetProperty("counts").EnumerateObject().Select(property => property.Name).ToArray();
+        string[] nameKeys = root.GetProperty("names").EnumerateObject().Select(property => property.Name).ToArray();
+        Check(topLevelKeys.SequenceEqual(new[]
+              {
+                  "serverId", "counts", "alliances", "names", "dispatchLevels",
+                  "noAllianceCount", "rewardItems", "treasureTypes", "scanProgress",
+              }) &&
+              countKeys.SequenceEqual(MapScanContract.RecoveredDefaultTypes) &&
+              nameKeys.SequenceEqual(new[] { "resource", "monster" }) &&
+              root.GetProperty("serverId").GetInt32() == 91 &&
+              root.GetProperty("names").GetProperty("monster").GetArrayLength() == 2 &&
+              !root.TryGetProperty("monsterLevels", out _) &&
+              !root.GetProperty("counts").TryGetProperty("zombie_boss", out _) &&
+              root.GetProperty("counts").GetProperty("monster").GetInt32() == 2,
+            "public map_data_options matches the recovered original top-level order and excludes rebuild-only Zombie Boss/monsterLevels fields");
+    }
+
+    using JsonDocument zeroServerOptionsPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 0,
+    }));
+    object? zeroServerOptionsResult = await mapBackend.InvokeAsync(
+        "map_data_options", zeroServerOptionsPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument zeroServerOptionsJson = JsonDocument.Parse(
+               JsonSerializer.Serialize(zeroServerOptionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = zeroServerOptionsJson.RootElement;
+        Check(root.GetProperty("serverId").GetInt32() == 0 &&
+              root.GetProperty("counts").EnumerateObject().All(property => property.Value.GetInt32() == 0) &&
+              root.GetProperty("alliances").GetArrayLength() == 0 &&
+              root.GetProperty("scanProgress").ValueKind == JsonValueKind.Null,
+            "map_data_options serverId=0 remains server-scoped and never aggregates saved rows from unrelated servers");
+    }
+
+    backendMapReading = true;
+    backendMapRunId = "backend-run";
+    object? activeOptionsResult = await mapBackend.InvokeAsync(
+        "map_data_options", optionsPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument activeOptionsJson = JsonDocument.Parse(
+               JsonSerializer.Serialize(activeOptionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = activeOptionsJson.RootElement;
+        Check(root.GetProperty("counts").GetProperty("city").GetInt32() == 1 &&
+              root.GetProperty("counts").GetProperty("resource").GetInt32() == 1 &&
+              root.GetProperty("counts").GetProperty("monster").GetInt32() == 0 &&
+              root.GetProperty("alliances")[0].GetProperty("name").GetString() == "STAGE" &&
+              root.GetProperty("names").GetProperty("resource")[0].GetProperty("key").GetString() == "resource.stone" &&
+              root.GetProperty("scanProgress").GetProperty("id").GetString() == "backend-run",
+            "public map_data_options uses the exact active scan_records run scope instead of published map_records");
+    }
+    backendMapReading = false;
+    backendMapRunId = "";
+
+    using JsonDocument localizedMonsterSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            keyword = "Alpha Localized",
+            monsterNameKeys = new[] { "monster.alpha" },
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? localizedMonsterResult = await mapBackend.InvokeAsync(
+        "map_search", localizedMonsterSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument searchJson = JsonDocument.Parse(JsonSerializer.Serialize(localizedMonsterResult, JsonOptions.Default)))
+        Check(searchJson.RootElement.GetProperty("total").GetInt32() == 0,
+            "rebuild-only monsterNameKeys must not extend the original generic keyword predicate");
+
+    using JsonDocument zombieBossSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "zombie_boss",
+        query = new { serverId = 91 },
+    }));
+    await ExpectBridgeError("INVALID_MAP_KIND", "public Zombie Boss search is outside the original eight-kind contract", async () =>
+        await mapBackend.InvokeAsync("map_search", zombieBossSearch.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument unrelatedMonsterKeyword = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            keyword = "Zombie",
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? unrelatedMonsterKeywordResult = await mapBackend.InvokeAsync(
+        "map_search", unrelatedMonsterKeyword.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument zombieJson = JsonDocument.Parse(JsonSerializer.Serialize(unrelatedMonsterKeywordResult, JsonOptions.Default)))
+        Check(zombieJson.RootElement.GetProperty("total").GetInt32() == 2,
+            "original generic keyword predicate includes data_json, including matching raw schema text such as zombieRushId");
+
+    using JsonDocument maximumMonsterLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            maxLevel = 7,
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Monster maxLevel is not owned by original map_search", async () =>
+        await mapBackend.InvokeAsync("map_search", maximumMonsterLevelSearch.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument doomWalkerMaximum = JsonDocument.Parse(
+        "{\"kind\":\"monster\",\"query\":{\"serverId\":2212,\"maxLevel\":220}}");
+    MapDataQueryOptions doomWalkerMaximumOptions =
+        MapDataQueryContract.NormalizeSearch(doomWalkerMaximum.RootElement);
+    Check(doomWalkerMaximumOptions.MaxLevel == 220 &&
+          doomWalkerMaximumOptions.UnsupportedFeatures.SequenceEqual(new[] { "maxLevel" }),
+        "Monster level bounds remain parseable but fail closed because original map_search owns them only for Dispatch");
+
+    using JsonDocument monsterLevelRange = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            minLevel = 7,
+            maxLevel = 9,
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Monster min/range filtering stays fail-closed", async () =>
+        await mapBackend.InvokeAsync("map_search", monsterLevelRange.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument monsterSortSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        kind = "monster",
+        query = new
+        {
+            serverId = 91,
+            page = 1,
+            pageSize = 50,
+            sorts = new[]
+            {
+                new { sortBy = "level", sortOrder = "desc" },
+                new { sortBy = "distance", sortOrder = "asc" },
+            },
+        },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED",
+        "Monster distance stays fail-closed because its exact native expression/direction remains partial", async () =>
+        await mapBackend.InvokeAsync(
+            "map_search", monsterSortSearch.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument exportPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        query = new
+        {
+            serverId = 91,
+            page = 1,
+            pageSize = 200,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+        headers = new[] { "Server", "X", "Y", "Player", "UID", "UUID", "Alliance", "Level", "HP", "Shield Ends", "Marked", "Updated At" },
+        sheetName = "City",
+        yesLabel = "Yes",
+        noLabel = "No",
+    }));
+    CityExportRequest preparedExport = mapBackend.PrepareCityExport(
+        exportPayload.RootElement.Clone(),
+        new DateTimeOffset(2026, 9, 19, 1, 2, 3, TimeSpan.Zero));
+    Check(preparedExport.DefaultFileName == "map-cities-91-20260919-010203.xlsx",
+        "city export preparation uses the recovered UTC default filename contract");
+    string exportPath = Path.Combine(
+        Path.GetTempPath(),
+        "lwbridge-city-export-" + Guid.NewGuid().ToString("N") + ".xlsx");
+    try
+    {
+        object exportResult = mapBackend.WriteCityExport(preparedExport, exportPath);
+        using JsonDocument exportJson = JsonDocument.Parse(
+            JsonSerializer.Serialize(exportResult, JsonOptions.Default));
+        Check(exportJson.RootElement.GetProperty("canceled").ValueKind == JsonValueKind.False &&
+              exportJson.RootElement.GetProperty("path").GetString() == exportPath &&
+              exportJson.RootElement.GetProperty("rowCount").GetInt32() > 0 &&
+              File.Exists(exportPath) && new FileInfo(exportPath).Length > 0,
+            "city export backend writes the filtered XLSX and returns the recovered success envelope");
+    }
+    finally
+    {
+        try { if (File.Exists(exportPath)) File.Delete(exportPath); }
+        catch { }
+    }
+    await ExpectBridgeError("NATIVE_DIALOG_REQUIRED", "direct backend City export remains host-dialog gated", async () =>
+        await mapBackend.InvokeAsync("map_city_export", exportPayload.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument markPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        row = new
+        {
+            serverId = 91,
+            ownerUid = "12345678901234567890",
+            ownerName = "Backend City",
+            allianceName = "XYZ",
+            level = 28,
+        },
+        marked = true,
+    }));
+    object? markResult = await mapBackend.InvokeAsync("map_player_mark_set", markPayload.RootElement.Clone(), CancellationToken.None);
+    Check(backendMapStore.GetPlayerMark(91, "12345678901234567890")?.State == "active" &&
+          JsonSerializer.Serialize(markResult, JsonOptions.Default).Contains("\"marked\":true", StringComparison.Ordinal),
+        "backend map_player_mark_set persists recovered server/owner identity and returns marked state");
+
+    using JsonDocument clearAllPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 0,
+    }));
+    await ExpectBridgeError("SERVER_UNAVAILABLE", "backend map_scan_clear rejects rebuild-only clear-all serverId=0", async () =>
+        await mapBackend.InvokeAsync("map_scan_clear", clearAllPayload.RootElement.Clone(), CancellationToken.None));
+    using JsonDocument clearOtherPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 92,
+    }));
+    await ExpectBridgeError("SERVER_UNAVAILABLE", "backend map_scan_clear rejects a non-current server", async () =>
+        await mapBackend.InvokeAsync("map_scan_clear", clearOtherPayload.RootElement.Clone(), CancellationToken.None));
+    Check(backendMapStore.CountRecords("city", 91) == 1 &&
+          backendMapStore.CountRecords("city", 92) == 1 &&
+          backendMapStore.CountScanRuns(91) == 1 &&
+          backendMapStore.CountScanRuns(92) == 1,
+        "rejected map_scan_clear requests do not mutate current or saved-server scan data");
+
+    using JsonDocument clearPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        serverId = 91,
+    }));
+    object? clearResult = await mapBackend.InvokeAsync("map_scan_clear", clearPayload.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument clearJson = JsonDocument.Parse(JsonSerializer.Serialize(clearResult, JsonOptions.Default)))
+    {
+        Check(clearJson.RootElement.GetProperty("serverId").GetInt32() == 91 &&
+              clearJson.RootElement.GetProperty("phase").GetString() == "idle" &&
+              clearJson.RootElement.GetProperty("lastError").ValueKind == JsonValueKind.Null &&
+              clearJson.RootElement.GetProperty("resumeAvailable").ValueKind == JsonValueKind.False,
+            "backend map_scan_clear returns the selected server in an idle non-resumable post-clear scan status");
+    }
+    Check(backendMapStore.CountRecords("city", 91) == 0 && backendMapStore.CountScanRuns(91) == 0 &&
+          backendMapStore.CountRecords("city", 92) == 1 && backendMapStore.CountScanRuns(92) == 1 &&
+          backendMapStore.GetPlayerMark(91, "12345678901234567890") is not null,
+        "backend map_scan_clear removes only the current live server map/scan scope while preserving other servers and player marks");
+
+    using JsonDocument unmarkPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        row = new { serverId = 91, ownerUid = "12345678901234567890" },
+        marked = false,
+    }));
+    await mapBackend.InvokeAsync("map_player_mark_set", unmarkPayload.RootElement.Clone(), CancellationToken.None);
+    Check(backendMapStore.GetPlayerMark(91, "12345678901234567890") is null,
+        "backend unmark deletes the recovered server/owner player-mark identity");
+
+    using JsonDocument invalidMarkPayload = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = mapBackend.ProfileId,
+        row = new { serverId = 91 },
+        marked = true,
+    }));
+    await ExpectBridgeError("INVALID_PAYLOAD", "backend mark rejects rows without ownerUid", async () =>
+        await mapBackend.InvokeAsync("map_player_mark_set", invalidMarkPayload.RootElement.Clone(), CancellationToken.None));
+}
+
+// R8-012: exact original Manual Map Scan public kinds/mode contract.
+using JsonDocument defaultScan = JsonDocument.Parse("{}");
+MapScanStartOptions defaultOptions = MapScanContract.NormalizeStart(defaultScan.RootElement);
+Check(defaultOptions.SelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes) &&
+      defaultOptions.ScanMode == "normal",
+    "missing selectedTypes/scanMode defaults to the original eight kinds and normal mode");
+
+using JsonDocument fastFilteredScan = JsonDocument.Parse(
+    "{\"scanMode\":\"fast\",\"selectedTypes\":[\"truck\",\"bogus\",\"city\",\"truck\",7,\"treasure\"]}");
+MapScanStartOptions fastFilteredOptions = MapScanContract.NormalizeStart(fastFilteredScan.RootElement);
+Check(fastFilteredOptions.ScanMode == "fast" &&
+      fastFilteredOptions.SelectedTypes.SequenceEqual(new[] { "truck", "city", "treasure" }),
+    "fast mode is preserved while scan types filter unknown/non-string entries and deduplicate in first-seen order");
+
+using JsonDocument invalidModeScan = JsonDocument.Parse(
+    "{\"scanMode\":\"turbo\",\"selectedTypes\":[\"city\"]}");
+MapScanStartOptions invalidStringOptions = MapScanContract.NormalizeStart(invalidModeScan.RootElement);
+Check(invalidStringOptions.ScanMode == "turbo",
+    "invalid string scanMode is preserved until post-admission validation");
+
+using JsonDocument nullModeScan = JsonDocument.Parse(
+    "{\"scanMode\":null,\"selectedTypes\":[\"city\"]}");
+using JsonDocument numericModeScan = JsonDocument.Parse(
+    "{\"scanMode\":20,\"selectedTypes\":[\"city\"]}");
+Check(MapScanContract.NormalizeStart(nullModeScan.RootElement).ScanMode == "normal" &&
+      MapScanContract.NormalizeStart(numericModeScan.RootElement).ScanMode == "normal",
+    "null and non-string scanMode values follow the original normal-mode default path");
+
+using JsonDocument zombieScan = JsonDocument.Parse(
+    "{\"scanMode\":\"fast\",\"selectedTypes\":[\"zombie_boss\"]}");
+try
+{
+    MapScanContract.NormalizeStart(zombieScan.RootElement);
+    failures.Add("Zombie Boss is rejected as a non-reference Map scan kind");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN_TYPES" &&
+          error.Message == "no valid map scan types selected",
+        "Zombie Boss is rejected by the original eight-kind allowlist");
+}
+
+using JsonDocument extraTargetFieldScan = JsonDocument.Parse(
+    "{\"scanMode\":\"normal\",\"selectedTypes\":[\"truck\",\"railway\"],\"targetServerId\":2182}");
+MapScanStartOptions extraTargetFieldOptions = MapScanContract.NormalizeStart(extraTargetFieldScan.RootElement);
+Check(extraTargetFieldOptions.ScanMode == "normal" &&
+      extraTargetFieldOptions.SelectedTypes.SequenceEqual(new[] { "truck", "railway" }),
+    "rebuild-only targetServerId does not alter the original map_scan_start feature-owned contract");
+
+using JsonDocument invalidTypes = JsonDocument.Parse("{\"selectedTypes\":[\"unknown\",5]}");
+try
+{
+    MapScanContract.NormalizeStart(invalidTypes.RootElement);
+    failures.Add("empty normalized scan type list is rejected");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN_TYPES" &&
+          error.Message == "no valid map scan types selected",
+        "empty normalized scan type list uses the exact original error");
+}
+
+Check(MapScanStrategyPlanner.ConcurrencyForMode("normal") == 8 &&
+      MapScanStrategyPlanner.ConcurrencyForMode("fast") == 20,
+    "original scan modes map to normal=8 and fast=20 concurrency");
+
+var standardScanContext = new CurrentClientMapContext(2212, 0, 1000, 1000);
+MapScanStrategyPlan normalAllEightPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    MapScanContract.RecoveredDefaultTypes,
+    "normal");
+Check(normalAllEightPlan.ScanMode == "normal" &&
+      normalAllEightPlan.Concurrency == 8 &&
+      normalAllEightPlan.StrategyId == MapScanStrategyPlanner.FastFullWorldStrategy,
+    "current-client compatibility strategy preserves original normal mode/concurrency on a standard world");
+MapScanStrategyPlan fastMonsterPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    new[] { "monster" },
+    "fast");
+Check(fastMonsterPlan.ScanMode == "fast" &&
+      fastMonsterPlan.Concurrency == 20 &&
+      fastMonsterPlan.StrategyId == MapScanStrategyPlanner.FastFullWorldStrategy,
+    "current-client compatibility strategy preserves original fast mode/concurrency");
+MapScanStrategyPlan fastTruckPlan = MapScanStrategyPlanner.Plan(
+    standardScanContext,
+    new[] { "truck" },
+    "fast");
+Check(fastTruckPlan.ScanMode == "fast" &&
+      fastTruckPlan.Concurrency == 20 &&
+      fastTruckPlan.StrategyId == MapScanStrategyPlanner.FastTrainListStrategy,
+    "Truck-only current-client acquisition preserves the requested original mode/concurrency");
+MapScanStrategyPlan fallbackCityPlan = MapScanStrategyPlanner.Plan(
+    new CurrentClientMapContext(2212, 0, 40, 20),
+    new[] { "city" },
+    "fast");
+Check(fallbackCityPlan.ScanMode == "fast" &&
+      fallbackCityPlan.Concurrency == 20 &&
+      fallbackCityPlan.StrategyId == MapScanStrategyPlanner.NormalBlockStrategy,
+    "nonstandard current-client fallback does not rewrite the public requested mode");
+try
+{
+    MapScanStrategyPlanner.Plan(
+        new CurrentClientMapContext(2212, 0, 40, 20),
+        new[] { "railway" },
+        "normal");
+    failures.Add("backend planner rejects unsupported nonstandard-world category acquisition");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "LIVE_BLOCK_TYPES_UNSUPPORTED",
+        "backend planner rejects unsupported nonstandard-world category acquisition");
+}
+
+// LWB-R6-052: recovered direct-scan block-grid cardinality and scalar completion prerequisite.
+MapScanBlockGrid oneBlockGrid = MapScanGeometry.FromTileDimensions(20, 20);
+Check(oneBlockGrid == new MapScanBlockGrid(1, 1, 1),
+    "20x20 map dimensions recover one direct scan block");
+MapScanBlockGrid boundaryGrid = MapScanGeometry.FromTileDimensions(21, 41);
+Check(boundaryGrid == new MapScanBlockGrid(2, 3, 6),
+    "direct scan block grid uses ceil(tileWidth/20) by ceil(tileHeight/20)");
+MapScanInitialCounters initialScanCounters = MapScanGeometry.InitialCounters(boundaryGrid);
+Check(initialScanCounters == new MapScanInitialCounters(6, 0, 6, 0, 0),
+    "direct scan counters initialize total/unread from the recovered grid with other block counts zero");
+Check(MapScanGeometry.MeetsRecoveredScalarCompletionPrerequisite(6, 6, 0),
+    "direct scan scalar completion prerequisite accepts all blocks completed with zero failures");
+Check(!MapScanGeometry.MeetsRecoveredScalarCompletionPrerequisite(6, 5, 0) &&
+      !MapScanGeometry.MeetsRecoveredScalarCompletionPrerequisite(6, 5, 1),
+    "direct scan scalar completion prerequisite rejects incomplete or failed block accounting");
+try
+{
+    MapScanGeometry.FromTileDimensions(0, 20);
+    failures.Add("nonpositive direct scan dimensions are rejected");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "MAP_SIZE_UNAVAILABLE", "nonpositive direct scan dimensions use recovered MAP_SIZE_UNAVAILABLE");
+}
+
+// LWB-R6-053: recovered shared scan-state unread/progress derivation.
+MapScanDerivedProgress emptyProgress = MapScanProgress.Derive(0, 0, 0, "completed");
+Check(emptyProgress == new MapScanDerivedProgress(0, 0.0),
+    "zero-total scan progress remains zero even when status says completed");
+MapScanDerivedProgress partialProgress = MapScanProgress.Derive(100, 12, 3, "scanning");
+Check(partialProgress == new MapScanDerivedProgress(85, 15.0),
+    "scan progress counts completed plus failed blocks and derives unread remainder");
+MapScanDerivedProgress cappedProgress = MapScanProgress.Derive(100, 100, 0, "scanning");
+Check(cappedProgress == new MapScanDerivedProgress(0, 98.0),
+    "non-completed scan progress is capped at recovered 98 percent");
+MapScanDerivedProgress completedProgress = MapScanProgress.Derive(100, 100, 0, "completed");
+Check(completedProgress == new MapScanDerivedProgress(0, 100.0),
+    "completed positive-total scan progress reports 100 percent");
+MapScanDerivedProgress roundedProgress = MapScanProgress.Derive(2000, 1, 0, "scanning");
+Check(roundedProgress.ProgressPercent == 0.1,
+    "scan progress rounds to one decimal using the recovered CRT-round tenths formula");
+
+// LWB-R6-054: recovered map.scan.progress counter normalization and scan-rate derivation.
+MapScanSchedulerCounters schedulerCounters = MapScanSchedulerProgress.Normalize(100, 8, 25, 5, 20);
+Check(schedulerCounters == new MapScanSchedulerCounters(25, 25, 5, 62, 8),
+    "scan scheduler bounds inflight work by concurrency and derives unread after inflight");
+MapScanSchedulerCounters clampedCounters = MapScanSchedulerProgress.Normalize(100, 20, -5, 3, -7);
+Check(clampedCounters == new MapScanSchedulerCounters(0, 0, 3, 97, 0),
+    "scan scheduler clamps negative completed/inflight inputs while preserving failed work");
+try
+{
+    MapScanSchedulerProgress.Normalize(100, 8, 80, 30, 0);
+    failures.Add("scan scheduler rejects completed plus failed work beyond total");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN_PROGRESS",
+        "scan scheduler uses recovered INVALID_SCAN_PROGRESS for impossible accounting");
+}
+Check(MapScanSchedulerProgress.ComputeScanRate(25, 2500) == 10.0 &&
+      MapScanSchedulerProgress.ComputeScanRate(1, 3000) == 0.33,
+    "scan rate is completed blocks per elapsed second rounded to two decimals");
+Check(MapScanSchedulerProgress.ComputeScanRate(1, 0) == 1000.0,
+    "scan rate floors elapsed milliseconds to one before division");
+
+// LWB-R6-055: recovered native-capture completion safety and stopped-state reset.
+MapScanNativeCaptureMetrics nativeMetrics = MapScanCompletionSafety.DeriveNativeCaptureMetrics(3, 4, 5, 6, 7, 2);
+Check(nativeMetrics == new MapScanNativeCaptureMetrics(25, 2),
+    "native pending records sum points, marches, removals and acknowledgements while dropped stays separate");
+Check(MapScanCompletionSafety.HasDroppedNativeCapture(1) && !MapScanCompletionSafety.HasDroppedNativeCapture(0),
+    "positive native dropped count is a recovered pre-publication failure condition");
+MapScanCompletionSafety.ValidateDirectCompletion(100, 100, 0);
+try
+{
+    MapScanCompletionSafety.ValidateDirectCompletion(100, 99, 0);
+    failures.Add("direct completion rejects incomplete block coverage");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INCOMPLETE_SCAN" && error.Message == "direct map scan is incomplete",
+        "direct completion uses recovered incomplete-scan error for missing coverage");
+}
+try
+{
+    MapScanCompletionSafety.ValidateDirectCompletion(100, 99, 1);
+    failures.Add("direct completion rejects failed blocks");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INCOMPLETE_SCAN" && error.Message == "direct map scan contains failed batches",
+        "direct completion uses recovered failed-batches error when failed blocks are nonzero");
+}
+try
+{
+    MapScanCompletionSafety.ValidateDirectCompletion(100, 100, 0, 1);
+    failures.Add("direct completion helper rejects its recovered extra failed-batch input");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INCOMPLETE_SCAN" && error.Message == "direct map scan contains failed batches",
+        "direct completion helper preserves the recovered extra failed-batch gate even though production passes zero");
+}
+Check(MapScanCompletionSafety.RecoveredStoppedState() == new MapScanStoppedState(false, "idle", 0, false),
+    "stopped scan state resets reading, phase, inflight and resume fields to recovered values");
+
+// LWB-R6-056: recovered start ownership and explicit resume gating.
+Check(MapScanStartOwnership.ResolveIntent(false, false) == MapScanStartIntent.Fresh &&
+      MapScanStartOwnership.ResolveIntent(true, false) == MapScanStartIntent.Fresh &&
+      MapScanStartOwnership.ResolveIntent(true, true) == MapScanStartIntent.ResumeExisting,
+    "resume request only selects the existing-state path when current resumeAvailable is true");
+MapScanStartOwnership.RequireConnection(true);
+MapScanStartOwnership.RejectAlreadyRunning(false);
+try
+{
+    MapScanStartOwnership.RequireConnection(false);
+    failures.Add("map scan start rejects missing game connection");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "GAME_CONNECTION_UNAVAILABLE" && error.Message == "game connection unavailable",
+        "map scan start preserves recovered missing-connection error contract");
+}
+try
+{
+    MapScanStartOwnership.RejectAlreadyRunning(true);
+    failures.Add("map scan start rejects a second active scan");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "SCAN_RUNNING" && error.Message == "map scan already running",
+        "map scan start preserves recovered duplicate-start error contract");
+}
+
+// LWB-R6-057: recovered Clear ownership and current-live-server validation.
+MapScanClearOwnership.Validate(2212, false, 2212, "live");
+try
+{
+    MapScanClearOwnership.Validate(2212, true, 2212, "live");
+    failures.Add("map scan clear rejects an active scan");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "SCAN_RUNNING" && error.Message == "stop the map scan first",
+        "map scan clear preserves recovered active-scan error contract");
+}
+foreach ((int requested, int current, string? source) in new[]
+{
+    (0, 2212, (string?)"live"),
+    (2213, 2212, (string?)"live"),
+    (2212, 2212, (string?)"saved_capture_replay"),
+})
+{
+    try
+    {
+        MapScanClearOwnership.Validate(requested, false, current, source);
+        failures.Add("map scan clear rejects unavailable or mismatched current server");
+    }
+    catch (BridgeCommandException error)
+    {
+        Check(error.Code == "SERVER_UNAVAILABLE" && error.Message == "current server id unavailable",
+            "map scan clear preserves recovered current-live-server gate");
+    }
+}
+
+// LWB-R6-058: recovered transactional completion ownership guard.
+MapScanPublicationOwnership.ValidateCompletionTransition(1);
+MapScanPublicationOwnership.ValidatePostCommitRunPresent(true);
+try
+{
+    MapScanPublicationOwnership.ValidateCompletionTransition(0);
+    failures.Add("direct completion rejects a stale/non-running run inside publication transaction");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN" && error.Message == "map scan is not running",
+        "direct completion preserves recovered compare-and-set failure contract");
+}
+try
+{
+    MapScanPublicationOwnership.ValidatePostCommitRunPresent(false);
+    failures.Add("direct completion rejects a missing run after commit");
+}
+catch (BridgeCommandException error)
+{
+    Check(error.Code == "INVALID_SCAN" && error.Message == "map scan disappeared",
+        "direct completion preserves recovered post-commit reread failure contract");
+}
+
+// LWB-R6-059: recovered terminal failure-list gate before publishing.
+Check(MapScanTerminalPublicationGate.CanEnterPublishing(0, null) &&
+      MapScanTerminalPublicationGate.CanEnterPublishing(0, string.Empty),
+    "terminal publication gate accepts zero failed blocks with no last error");
+Check(MapScanTerminalPublicationGate.HasTerminalScanFailure(1, null),
+    "terminal publication gate rejects positive failed block count");
+Check(MapScanTerminalPublicationGate.HasTerminalScanFailure(0, "map scan failed"),
+    "terminal publication gate rejects a nonempty last error");
+Check(MapScanTerminalPublicationGate.HasTerminalScanFailure(0, " "),
+    "terminal publication gate preserves recovered nonempty-string semantics without trimming");
+
+// Recovered Map Data query envelope: eight kinds, page size 50 and ordered asc/desc sorts.
+using JsonDocument mapQuery = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":7,\"page\":2,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"asc\"},{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}");
+MapDataQueryOptions mapOptions = MapDataQueryContract.NormalizeSearch(mapQuery.RootElement);
+Check(mapOptions.Kind == "city" && mapOptions.ServerId == 7 && mapOptions.Page == 2 && mapOptions.PageSize == 50,
+    "map query normalizes recovered kind/server/page contract");
+Check(mapOptions.Sorts.SequenceEqual(new[] { new MapDataSort("level", "asc"), new MapDataSort("updatedAt", "desc") }),
+    "map query preserves ordered recovered sort contract");
+Check(mapOptions.UnsupportedFeatures.Count == 0,
+    "recovered City multi-sort envelope is accepted");
+
+using JsonDocument minimalMapQuery = JsonDocument.Parse("{\"kind\":\"monster\",\"query\":{\"serverId\":1}}");
+MapDataQueryOptions minimalMapOptions = MapDataQueryContract.NormalizeSearch(minimalMapQuery.RootElement);
+Check(minimalMapOptions.Page == 1 && minimalMapOptions.PageSize == MapDataQueryContract.RecoveredPageSize &&
+      minimalMapOptions.Sorts.SequenceEqual(new[] { new MapDataSort("updatedAt", "desc") }),
+    "map query defaults to page 1, recovered page size 50 and updatedAt desc");
+Check(!minimalMapOptions.MarkedOnly && minimalMapOptions.UnsupportedFeatures.Count == 0,
+    "default indexed map query contains no unrecovered filter/sort features");
+
+using JsonDocument badMapKind = JsonDocument.Parse("{\"kind\":\"bogus\",\"query\":{\"serverId\":1}}");
+await ExpectBridgeError("INVALID_MAP_KIND", "unknown map result kind is rejected", () =>
+    Task.Run(() => { MapDataQueryContract.NormalizeSearch(badMapKind.RootElement); }));
+
+using JsonDocument badMapSort = JsonDocument.Parse("{\"kind\":\"city\",\"query\":{\"serverId\":1,\"sorts\":[{\"sortBy\":\"level\",\"sortOrder\":\"sideways\"}]}}");
+await ExpectBridgeError("INVALID_MAP_QUERY", "invalid map sort order is rejected", () =>
+    Task.Run(() => { MapDataQueryContract.NormalizeSearch(badMapSort.RootElement); }));
+
+// LWB-R6-004: representative serialized envelopes produced by each real Map Data tab.
+var frontendMapQueryCases = new (string Name, string Json, string[] Unsupported)[]
+{
+    ("city", "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"alliance\":\"ONE\",\"markedOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("resource", "{\"kind\":\"resource\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"resourceNameKey\":\"iron\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("monster", "{\"kind\":\"monster\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"monsterNameKey\":\"doom\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("truck", "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ur\",\"itemKey\":\"item:1\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("railway", "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"itemKey\":\"item:2\",\"plunderableOnly\":true,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("dispatch", "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"specialOnly\":true,\"completionStatus\":\"pending\",\"plunderableOnly\":true,\"minLevel\":5,\"maxLevel\":5,\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("ghost", "{\"kind\":\"ghost\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"quality\":\"ssr\",\"completionStatus\":\"completed\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+    ("treasure", "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"keyword\":\"\",\"treasureType\":1,\"suppliesType\":0,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\",\"page\":1,\"pageSize\":50,\"sorts\":[{\"sortBy\":\"updatedAt\",\"sortOrder\":\"desc\"}]}}", []),
+};
+foreach ((string name, string json, string[] unsupported) in frontendMapQueryCases)
+{
+    using JsonDocument frontendQuery = JsonDocument.Parse(json);
+    MapDataQueryOptions normalized = MapDataQueryContract.NormalizeSearch(frontendQuery.RootElement);
+    Check(normalized.Kind == name && normalized.UnsupportedFeatures.SequenceEqual(unsupported),
+        $"real frontend {name} query envelope preserves recovered fields and fail-closed unsupported set");
+}
+
+using JsonDocument zeroMapFilter = JsonDocument.Parse(
+    "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"minLevel\":0,\"maxLevel\":0}}");
+MapDataQueryOptions zeroMapOptions = MapDataQueryContract.NormalizeSearch(zeroMapFilter.RootElement);
+Check(zeroMapOptions.UnsupportedFeatures.SequenceEqual(new[] { "minLevel", "maxLevel" }),
+    "explicit numeric zero is not collapsed into an omitted/empty Map Data filter");
+
+using (var indexedSearchStore = MapDataStore.CreateInMemory())
+{
+    var indexedSearchBackend = new LWBridgeBackend(new LocalConfigStore(persistent: false), mapData: indexedSearchStore);
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 7, "city-a", 11, "uuid-a", "Alpha", "ONE",
+        30, null, null, null, null, 3000,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\",\"updatedAt\":3000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 7, "city-b", 12, "uuid-b", "Bravo", "TWO",
+        29, null, null, null, null, 3000,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000002\",\"ownerName\":\"Bravo\",\"updatedAt\":3000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 7, "city-c", 13, "uuid-c", "Charlie", null,
+        28, null, null, null, null, 1000,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000003\",\"ownerName\":\"Charlie\",\"updatedAt\":1000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "resource", 7, "resource-iron", 21, "resource-a", "Iron Mine", null,
+        10, null, null, null, null, 2500,
+        "{\"serverId\":7,\"resourceNameKey\":\"iron\",\"level\":10,\"rebuildGatherOccupancyKnown\":true,\"rebuildGatherOccupied\":false,\"resourceDetailKnown\":true,\"resourceRemainingAmount\":216000,\"resourceFullAmount\":216000,\"resourceFull\":true,\"blackTileKnown\":true,\"isBlackTile\":false,\"updatedAt\":2500}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "resource", 7, "resource-food", 22, "resource-b", "Food Field", null,
+        10, null, null, null, null, 2400,
+        "{\"serverId\":7,\"resourceNameKey\":\"food\",\"level\":10,\"rebuildGatherOccupancyKnown\":true,\"rebuildGatherOccupied\":false,\"resourceDetailKnown\":true,\"resourceRemainingAmount\":120000,\"resourceFullAmount\":216000,\"resourceFull\":false,\"blackTileKnown\":true,\"isBlackTile\":true,\"updatedAt\":2400}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "monster", 7, "monster-doom", 31, "monster-a", "Doom Elite", null,
+        20, null, null, null, null, 2300,
+        "{\"serverId\":7,\"monsterNameKey\":\"doom\",\"level\":20,\"updatedAt\":2300}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "monster", 7, "monster-zombie", 32, "monster-b", "Zombie", null,
+        20, null, null, null, null, 2200,
+        "{\"serverId\":7,\"monsterNameKey\":\"zombie\",\"level\":20,\"updatedAt\":2200}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-item-1", 41, "truck-a", "Truck A", null,
+        null, 5, null, null, null, 2100,
+        "{\"serverId\":7,\"uuid\":\"truck-a\",\"quality\":5,\"isSpecialURQuality\":false,\"currentGoods\":[{\"key\":\"item:1\",\"count\":2}],\"updatedAt\":2100}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-item-2", 42, "truck-b", "Truck B", null,
+        null, 4, null, null, null, 2000,
+        "{\"serverId\":7,\"uuid\":\"truck-b\",\"quality\":4,\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":2000}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-reindeer", 43, "truck-c", "Truck C", null,
+        null, 6, null, null, null, 1900,
+        "{\"serverId\":7,\"uuid\":\"truck-c\",\"quality\":6,\"isSpecialURQuality\":true,\"updatedAt\":1900}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-n", 44, "truck-d", "Truck D", null,
+        null, 1, null, null, null, 1890,
+        "{\"serverId\":7,\"uuid\":\"truck-d\",\"quality\":1,\"updatedAt\":1890}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-r", 45, "truck-e", "Truck E", null,
+        null, 2, null, null, null, 1880,
+        "{\"serverId\":7,\"uuid\":\"truck-e\",\"quality\":2,\"updatedAt\":1880}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-sr", 46, "truck-f", "Truck F", null,
+        null, 3, null, null, null, 1870,
+        "{\"serverId\":7,\"uuid\":\"truck-f\",\"quality\":3,\"updatedAt\":1870}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 7, "truck-quality-ur-high", 47, "truck-g", "Truck G", null,
+        null, 7, null, null, null, 1860,
+        "{\"serverId\":7,\"uuid\":\"truck-g\",\"quality\":7,\"isSpecialURQuality\":false,\"updatedAt\":1860}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "truck", 8, "truck-quality-ur-other-server", 48, "truck-server8", "Truck Server 8", null,
+        null, 8, null, null, null, 1855,
+        "{\"serverId\":8,\"uuid\":\"truck-server8\",\"quality\":8,\"isSpecialURQuality\":false,\"updatedAt\":1855}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "railway", 7, "railway-quality-ur-special", 49, "railway-a", "Railway A", null,
+        null, 6, null, null, null, 1850,
+        "{\"serverId\":7,\"uuid\":\"railway-a\",\"quality\":6,\"isSpecialURQuality\":true,\"currentGoods\":[{\"key\":\"item:2\",\"count\":1}],\"updatedAt\":1850}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "dispatch", 7, "dispatch-regular", 51, "dispatch-a", "Dispatch A", null,
+        6, null, null, null, null, 1800,
+        "{\"serverId\":7,\"uuid\":\"dispatch-a\",\"level\":6,\"isSpecial\":false,\"updatedAt\":1800}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "dispatch", 7, "dispatch-special", 52, "dispatch-b", "Dispatch B", null,
+        5, null, null, null, null, 1700,
+        "{\"serverId\":7,\"uuid\":\"dispatch-b\",\"level\":5,\"isSpecial\":true,\"updatedAt\":1700}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "dispatch", 7, "dispatch-quality-ur-special", 55, "dispatch-c", "Dispatch C", null,
+        7, 6, null, null, null, 1690,
+        "{\"serverId\":7,\"uuid\":\"dispatch-c\",\"level\":7,\"quality\":6,\"isSpecial\":false,\"isSpecialURQuality\":true,\"updatedAt\":1690}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "ghost", 7, "ghost-quality-ur-special", 56, "ghost-a", "Ghost A", null,
+        null, 7, null, null, null, 1680,
+        "{\"serverId\":7,\"uuid\":\"ghost-a\",\"quality\":7,\"isSpecialURQuality\":true,\"updatedAt\":1680}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-standard", 53, "treasure-a", "Treasure A", null,
+        null, null, null, null, null, 1650,
+        "{\"serverId\":7,\"uuid\":\"treasure-a\",\"treasureType\":5,\"suppliesType\":0,\"treasureNameKey\":\"standard-five\",\"updatedAt\":1650}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-supplies", 54, "treasure-b", "Treasure B", null,
+        null, null, null, null, null, 1640,
+        "{\"serverId\":7,\"uuid\":\"treasure-b\",\"treasureType\":5,\"suppliesType\":3,\"treasureNameKey\":\"supplies-three\",\"updatedAt\":1640}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-radar-own", 55, "treasure-radar-own", "Radar Own", null,
+        null, null, null, null, null, 1630,
+        "{\"serverId\":7,\"uuid\":\"treasure-radar-own\",\"treasureType\":1,\"suppliesType\":0,\"allianceId\":\"20002\",\"viewerAllianceId\":\"20002\",\"viewerUid\":\"10001\",\"updatedAt\":1630}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "treasure", 7, "treasure-radar-foreign", 56, "treasure-radar-foreign", "Radar Foreign", null,
+        null, null, null, null, null, 1620,
+        "{\"serverId\":7,\"uuid\":\"treasure-radar-foreign\",\"treasureType\":1,\"suppliesType\":0,\"allianceId\":\"99999\",\"viewerAllianceId\":\"20002\",\"viewerUid\":\"10001\",\"updatedAt\":1620}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 8, "city-literal-wildcards", 61, "literal-a", "A%_\\B", "LIT",
+        null, null, null, null, null, 1600,
+        "{\"serverId\":8,\"ownerUid\":\"literal-owner\",\"ownerName\":\"A%_\\\\B\",\"updatedAt\":1600}"));
+    indexedSearchStore.UpsertRecord(new MapStoredRecord(
+        "city", 8, "city-wildcard-control", 62, "control-a", "AxyzQB", "CONTROL",
+        null, null, null, null, null, 1500,
+        "{\"serverId\":8,\"ownerUid\":\"control-owner\",\"ownerName\":\"AxyzQB\",\"updatedAt\":1500}"));
+    indexedSearchStore.UpsertPlayerMark(new MapPlayerMark(
+        7, "10000000000000000001", "active", 4000, null,
+        "{\"serverId\":7,\"ownerUid\":\"10000000000000000001\",\"ownerName\":\"Alpha\"}"));
+
+    using JsonDocument allServersSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new
+        {
+            serverId = 0,
+            page = 1,
+            pageSize = 50,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? allServersResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", allServersSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(allServersResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        int[] rowServers = rows.EnumerateArray().Select(row => row.GetProperty("serverId").GetInt32()).Distinct().Order().ToArray();
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 5 &&
+              rowServers.SequenceEqual(new[] { 7, 8 }),
+            "serverId=0 map_search must page/sort across every current-session published server while preserving each row server identity");
+    }
+
+    using JsonDocument allServersOptions = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        serverId = 0,
+    }));
+    object? allOptionsResult = await indexedSearchBackend.InvokeAsync(
+        "map_data_options", allServersOptions.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument optionsJson = JsonDocument.Parse(JsonSerializer.Serialize(allOptionsResult, JsonOptions.Default)))
+    {
+        JsonElement root = optionsJson.RootElement;
+        Check(root.GetProperty("serverId").GetInt32() == 0 &&
+              root.GetProperty("counts").EnumerateObject().All(property => property.Value.GetInt32() == 0) &&
+              root.GetProperty("alliances").GetArrayLength() == 0 &&
+              root.GetProperty("scanProgress").ValueKind == JsonValueKind.Null,
+            "serverId=0 map_data_options must remain server-scoped and must not aggregate published rows from unrelated servers");
+    }
+
+    using JsonDocument firstPageSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new
+        {
+            serverId = 7,
+            keyword = "",
+            page = 1,
+            pageSize = 2,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } },
+        },
+    }));
+    object? firstPageResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", firstPageSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(firstPageResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 3 && rows.GetArrayLength() == 2,
+            "persisted default map_search returns recovered rows/total pagination envelope");
+        Check(rows[0].GetProperty("ownerName").GetString() == "Alpha" &&
+              rows[1].GetProperty("ownerName").GetString() == "Bravo",
+            "default map_search orders by updatedAt desc with record_key asc tie-breaker");
+        Check(rows[0].GetProperty("marked").GetBoolean() && !rows[1].GetProperty("marked").GetBoolean(),
+            "city map_search joins persisted player marks into visible marked state");
+    }
+
+    using JsonDocument secondPageSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, page = 2, pageSize = 2 },
+    }));
+    object? secondPageResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", secondPageSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(secondPageResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(rows.GetArrayLength() == 1 && rows[0].GetProperty("ownerName").GetString() == "Charlie",
+            "persisted map_search uses recovered LIMIT/OFFSET page semantics");
+    }
+
+    using JsonDocument ascendingSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new
+        {
+            serverId = 7,
+            page = 1,
+            pageSize = 3,
+            sorts = new[] { new { sortBy = "updatedAt", sortOrder = "asc" } },
+        },
+    }));
+    object? ascendingResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", ascendingSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(ascendingResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(rows.GetArrayLength() == 3 &&
+              rows[0].GetProperty("ownerName").GetString() == "Charlie" &&
+              rows[1].GetProperty("ownerName").GetString() == "Alpha" &&
+              rows[2].GetProperty("ownerName").GetString() == "Bravo",
+            "persisted map_search supports recovered updatedAt asc with record_key asc tie-breaker");
+    }
+
+    using JsonDocument markedOnlySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, markedOnly = true },
+    }));
+    object? markedOnlyResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", markedOnlySearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(markedOnlyResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("marked").GetBoolean(),
+            "city markedOnly search uses recovered server/owner mark join");
+    }
+
+    using JsonDocument allianceSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, alliance = "ONE" },
+    }));
+    object? allianceResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", allianceSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(allianceResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty("ownerName").GetString() == "Alpha",
+            "city alliance search uses recovered alliance_name equality predicate");
+    }
+
+    using JsonDocument withoutAllianceSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, withoutAlliance = true },
+    }));
+    object? withoutAllianceResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", withoutAllianceSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(withoutAllianceResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty("ownerName").GetString() == "Charlie",
+            "city no-alliance search uses recovered null/empty alliance predicate");
+    }
+
+    foreach ((string kind, string field, string value) in new[]
+    {
+        ("resource", "resourceNameKey", "iron"),
+        ("monster", "monsterNameKey", "doom"),
+    })
+    {
+        string queryJson = $"{{\"profileId\":\"{indexedSearchBackend.ProfileId}\",\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"{field}\":\"{value}\"}}}}";
+        using JsonDocument filteredSearch = JsonDocument.Parse(queryJson);
+        object? filteredResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", filteredSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(filteredResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty(field).GetString() == value,
+            $"{kind} name-key search uses recovered JSON equality predicate");
+        Check(indexedSearchStore.SearchIndexed(MapDataQueryContract.NormalizeSearch(filteredSearch.RootElement)).Total == 1,
+            $"{kind} name-key predicate is applied by persisted store");
+    }
+
+    using JsonDocument resourceTruthSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "resource",
+        query = new
+        {
+            serverId = 7, resourceIdleOnly = true, resourceFullOnly = true, excludeBlackTile = true,
+        },
+    }));
+    MapDataQueryOptions resourceTruthOptions = MapDataQueryContract.NormalizeSearch(resourceTruthSearch.RootElement);
+    Check(resourceTruthOptions.UnsupportedFeatures.Count == 0 &&
+          !resourceTruthOptions.ResourceIdleOnly && !resourceTruthOptions.ResourceFullOnly &&
+          !resourceTruthOptions.ExcludeBlackTile,
+        "rebuild-only Resource truth keys are inert extras at the original public map_search boundary");
+    MapSearchResult resourceTruthResult = indexedSearchStore.SearchIndexed(resourceTruthOptions);
+    Check(resourceTruthResult.Total == 2,
+        "rebuild-only Resource truth keys must not filter original public results");
+
+    using JsonDocument resourceLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "resource",
+        query = new { serverId = 7, minLevel = 10, maxLevel = 10 },
+    }));
+    MapDataQueryOptions resourceLevelOptions = MapDataQueryContract.NormalizeSearch(resourceLevelSearch.RootElement);
+    Check(resourceLevelOptions.UnsupportedFeatures.SequenceEqual(new[] { "minLevel", "maxLevel" }),
+        "Resource level bounds are outside the original kind-owned filter contract");
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "Resource level filtering stays fail-closed", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", resourceLevelSearch.RootElement.Clone(), CancellationToken.None));
+
+    using JsonDocument itemSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "truck",
+        query = new { serverId = 7, itemKey = "item:1" },
+    }));
+    object? itemResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", itemSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(itemResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows[0].GetProperty("uuid").GetString() == "truck-a",
+            "truck itemKey search uses recovered currentGoods membership predicate");
+    }
+
+    foreach ((string kind, string field, string expectedUuid) in new[]
+    {
+        ("dispatch", "specialOnly", "dispatch-b"),
+        ("truck", "reindeerOnly", "truck-c"),
+    })
+    {
+        string queryJson = $"{{\"profileId\":\"{indexedSearchBackend.ProfileId}\",\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"{field}\":true}}}}";
+        using JsonDocument booleanSearch = JsonDocument.Parse(queryJson);
+        object? booleanResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", booleanSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(booleanResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"{kind} {field} search uses recovered JSON boolean predicate");
+    }
+
+    foreach ((int treasureType, int suppliesType, string expectedUuid) in new[]
+    {
+        (5, 0, "treasure-a"),
+        (0, 3, "treasure-b"),
+    })
+    {
+        using JsonDocument treasureSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "treasure",
+            query = new { serverId = 7, treasureType, suppliesType },
+        }));
+        object? treasureResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", treasureSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(treasureResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"treasure option filter preserves recovered treasure/supplies dimension {treasureType}/{suppliesType}");
+    }
+
+    using JsonDocument invalidTreasureSelection = JsonDocument.Parse(
+        "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"treasureType\":5,\"suppliesType\":3}}");
+    Check(MapDataQueryContract.NormalizeSearch(invalidTreasureSelection.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "treasureType", "suppliesType" }),
+        "treasure filter rejects both-positive dimensions outside the recovered option shape");
+
+    using JsonDocument partialTreasureSelection = JsonDocument.Parse(
+        "{\"kind\":\"treasure\",\"query\":{\"serverId\":7,\"treasureType\":5}}");
+    Check(MapDataQueryContract.NormalizeSearch(partialTreasureSelection.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "treasureType", "suppliesType" }),
+        "treasure filter rejects a partial selection because the frontend emits both dimensions");
+
+    foreach ((string quality, string expectedUuid) in new[]
+    {
+        ("n", "truck-d"),
+        ("r", "truck-e"),
+        ("sr", "truck-f"),
+        ("ssr", "truck-b"),
+    })
+    {
+        using JsonDocument qualitySearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "truck",
+            query = new { serverId = 7, quality },
+        }));
+        object? qualityResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", qualitySearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(qualityResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"truck quality {quality} uses recovered ordinary-quality predicate and binding");
+    }
+
+    foreach ((int page, string expectedUuid) in new[]
+    {
+        (1, "truck-a"),
+        (2, "truck-g"),
+    })
+    {
+        using JsonDocument truckUrSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "truck",
+            query = new { serverId = 7, quality = "ur", page, pageSize = 1 },
+        }));
+        object? truckUrResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", truckUrSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(truckUrResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 2 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid,
+            $"truck UR page {page} keeps count/page consistent, includes non-special quality above five and remains server-scoped");
+    }
+
+    foreach ((string kind, string? itemKey, string expectedUuid) in new[]
+    {
+        ("railway", "item:2", "railway-a"),
+        ("dispatch", null, "dispatch-c"),
+        ("ghost", null, "ghost-a"),
+    })
+    {
+        object query = itemKey is null
+            ? new { serverId = 7, quality = "ur" }
+            : new { serverId = 7, quality = "ur", itemKey };
+        using JsonDocument nonTruckUrSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind,
+            query,
+        }));
+        object? nonTruckUrResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", nonTruckUrSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(nonTruckUrResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == expectedUuid &&
+              rows[0].GetProperty("isSpecialURQuality").GetBoolean(),
+            $"{kind} persisted UR search retains special-UR rows because the recovered exclusion is truck-only");
+    }
+
+    foreach (string kind in new[] { "truck", "railway", "dispatch", "ghost" })
+    {
+        using JsonDocument supportedQuality = JsonDocument.Parse(
+            $"{{\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"quality\":\"ur\"}}}}");
+        Check(MapDataQueryContract.NormalizeSearch(supportedQuality.RootElement).UnsupportedFeatures.Count == 0,
+            $"ordinary quality accepts recovered frontend kind {kind}");
+    }
+
+    using JsonDocument mismatchedQuality = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"quality\":\"ur\"}}");
+    Check(MapDataQueryContract.NormalizeSearch(mismatchedQuality.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "quality" }),
+        "ordinary quality remains fail-closed outside the four recovered frontend kinds");
+
+    using JsonDocument unknownQuality = JsonDocument.Parse(
+        "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"quality\":\"legendary\"}}");
+    Check(MapDataQueryContract.NormalizeSearch(unknownQuality.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "quality" }),
+        "unknown quality selector remains fail-closed");
+
+    using JsonDocument numericQuality = JsonDocument.Parse(
+        "{\"kind\":\"truck\",\"query\":{\"serverId\":7,\"quality\":5}}");
+    Check(MapDataQueryContract.NormalizeSearch(numericQuality.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "quality" }),
+        "numeric backend quality form remains outside the recovered frontend public contract");
+
+    using JsonDocument dispatchLevelSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "dispatch",
+        query = new { serverId = 7, minLevel = 5, maxLevel = 5 },
+    }));
+    object? dispatchLevelResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", dispatchLevelSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(dispatchLevelResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("uuid").GetString() == "dispatch-b",
+            "dispatch exact-level filter uses the recovered level >= / <= predicate pair");
+    }
+
+    using JsonDocument mismatchedSpecialSearch = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"specialOnly\":true}}");
+    Check(MapDataQueryContract.NormalizeSearch(mismatchedSpecialSearch.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "specialOnly" }),
+        "specialOnly remains fail-closed outside recovered dispatch/ghost kinds");
+
+    foreach ((string kind, string field) in new[]
+    {
+        ("dispatch", "specialOnly"),
+        ("ghost", "specialOnly"),
+        ("truck", "reindeerOnly"),
+    })
+    {
+        using JsonDocument supportedBoolean = JsonDocument.Parse(
+            $"{{\"kind\":\"{kind}\",\"query\":{{\"serverId\":7,\"{field}\":true}}}}");
+        Check(MapDataQueryContract.NormalizeSearch(supportedBoolean.RootElement).UnsupportedFeatures.Count == 0,
+            $"{field} accepts recovered frontend kind {kind}");
+    }
+
+    using JsonDocument mismatchedReindeerSearch = JsonDocument.Parse(
+        "{\"kind\":\"railway\",\"query\":{\"serverId\":7,\"reindeerOnly\":true}}");
+    Check(MapDataQueryContract.NormalizeSearch(mismatchedReindeerSearch.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "reindeerOnly" }),
+        "reindeerOnly remains fail-closed on railway because the recovered visible selector only emits it for truck");
+
+    using JsonDocument explicitFalseSpecial = JsonDocument.Parse(
+        "{\"kind\":\"dispatch\",\"query\":{\"serverId\":7,\"specialOnly\":false}}");
+    Check(MapDataQueryContract.NormalizeSearch(explicitFalseSpecial.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "specialOnly" }),
+        "explicit false specialOnly stays fail-closed because the recovered frontend omits that form");
+
+    foreach ((string keyword, string expectedOwner) in new[]
+    {
+        ("alpha", "Alpha"),
+        ("one", "Alpha"),
+        ("uuid-b", "Bravo"),
+        ("10000000000000000003", "Charlie"),
+    })
+    {
+        using JsonDocument keywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            profileId = indexedSearchBackend.ProfileId,
+            kind = "city",
+            query = new { serverId = 7, keyword },
+        }));
+        object? keywordResult = await indexedSearchBackend.InvokeAsync(
+            "map_search", keywordSearch.RootElement.Clone(), CancellationToken.None);
+        using JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(keywordResult, JsonOptions.Default));
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("ownerName").GetString() == expectedOwner,
+            $"keyword literal substring searches recovered name/alliance/uuid/data_json columns for {keyword}");
+    }
+
+    using JsonDocument nameColumnKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "resource",
+        query = new { serverId = 7, keyword = "mine" },
+    }));
+    object? nameColumnKeywordResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", nameColumnKeywordSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(nameColumnKeywordResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("resourceNameKey").GetString() == "iron",
+            "keyword searches the indexed name column when data_json does not contain the display name");
+    }
+
+    using JsonDocument escapedKeywordSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 8, keyword = "%_\\" },
+    }));
+    object? escapedKeywordResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", escapedKeywordSearch.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(escapedKeywordResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 1 &&
+              rows.GetArrayLength() == 1 && rows[0].GetProperty("ownerName").GetString() == "A%_\\B",
+            "keyword escapes backslash, percent and underscore before literal-substring matching");
+    }
+
+    // LWB-R7-068: exact original Treasure visibility/lucky/state-cache SQL.
+    const long treasureStateNow = 10_000;
+    indexedSearchStore.UpsertTreasureClaimStates(
+    [
+        new MapTreasureClaimState(
+            7, "10001", "treasure-a", 50_000, 9_000,
+            "{\"uuid\":\"treasure-a\",\"claimPriority\":1,\"worldClaimState\":\"claimable\",\"playerClaimState\":\"claimed\",\"rewardedCount\":7}"),
+        new MapTreasureClaimState(
+            7, "10001", "treasure-radar-own", 50_000, 9_100,
+            "{\"uuid\":\"treasure-radar-own\",\"claimPriority\":0,\"worldClaimState\":\"claimable\",\"playerClaimState\":\"unclaimed\",\"rewardedCount\":2}"),
+        new MapTreasureClaimState(
+            7, "10001", "treasure-radar-foreign", 9_000, 8_000,
+            "{\"uuid\":\"treasure-radar-foreign\",\"claimPriority\":0,\"worldClaimState\":\"expired\"}"),
+    ],
+    treasureStateNow);
+    Check(indexedSearchStore.ReadTreasureClaimStateForTest(7, "10001", "treasure-radar-foreign") is not null,
+        "treasure state update cleans expired rows before inserting the current update batch");
+
+    indexedSearchStore.UpsertTreasureClaimStates(
+    [
+        new MapTreasureClaimState(
+            7, "10001", "treasure-b", 50_000, 9_200,
+            "{\"uuid\":\"treasure-b\",\"claimPriority\":1,\"worldClaimState\":\"charging\",\"playerClaimState\":\"digging\",\"chargePercent\":0.5}"),
+    ],
+    treasureStateNow);
+    Check(indexedSearchStore.ReadTreasureClaimStateForTest(7, "10001", "treasure-radar-foreign") is null,
+        "treasure state update prunes positive expired claim-state rows with expire_time <= sampled now");
+
+    using JsonDocument hiddenForeignRadar = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new
+        {
+            serverId = 7,
+            includeForeignRadarTreasures = false,
+            viewerUid = "10001",
+            viewerAllianceId = "20002",
+        },
+    }));
+    object? hiddenForeignResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", hiddenForeignRadar.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(hiddenForeignResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        string[] uuids = rows.EnumerateArray().Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 3 &&
+              uuids.Contains("treasure-radar-own", StringComparer.Ordinal) &&
+              !uuids.Contains("treasure-radar-foreign", StringComparer.Ordinal),
+            "includeForeignRadarTreasures=false keeps non-radar rows and same-alliance radar while excluding foreign radar");
+        JsonElement cached = rows.EnumerateArray().Single(row => row.GetProperty("uuid").GetString() == "treasure-a");
+        Check(cached.GetProperty("playerClaimState").GetString() == "claimed" &&
+              cached.GetProperty("worldClaimState").GetString() == "claimable" &&
+              cached.GetProperty("rewardedCount").GetInt32() == 7 &&
+              cached.GetProperty("serverId").GetInt32() == 7,
+            "Treasure map_search overlays cached state_json while indexed server scope remains authoritative");
+    }
+
+    using JsonDocument rowIdentityFallback = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new { serverId = 7, includeForeignRadarTreasures = false },
+    }));
+    object? fallbackVisibilityResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", rowIdentityFallback.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(fallbackVisibilityResult, JsonOptions.Default)))
+    {
+        string[] uuids = resultJson.RootElement.GetProperty("rows").EnumerateArray()
+            .Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+        Check(uuids.Contains("treasure-radar-own", StringComparer.Ordinal) &&
+              !uuids.Contains("treasure-radar-foreign", StringComparer.Ordinal),
+            "Treasure foreign-radar visibility falls back to each row's embedded viewerAllianceId when query identity is absent");
+    }
+
+    using JsonDocument includeForeignLucky = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new
+        {
+            serverId = 7,
+            includeForeignRadarTreasures = true,
+            luckyFirst = true,
+            viewerUid = "10001",
+            viewerAllianceId = "20002",
+        },
+    }));
+    object? luckyResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", includeForeignLucky.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(luckyResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(resultJson.RootElement.GetProperty("total").GetInt32() == 4 &&
+              rows[0].GetProperty("uuid").GetString() == "treasure-radar-own" &&
+              rows.EnumerateArray().Any(row => row.GetProperty("uuid").GetString() == "treasure-radar-foreign"),
+            "includeForeignRadarTreasures=true skips visibility predicate and luckyFirst orders cached claimPriority=0 before default/1");
+    }
+
+    using JsonDocument luckyRowViewerFallback = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "treasure",
+        query = new { serverId = 7, includeForeignRadarTreasures = true, luckyFirst = true },
+    }));
+    object? luckyFallbackResult = await indexedSearchBackend.InvokeAsync(
+        "map_search", luckyRowViewerFallback.RootElement.Clone(), CancellationToken.None);
+    using (JsonDocument resultJson = JsonDocument.Parse(JsonSerializer.Serialize(luckyFallbackResult, JsonOptions.Default)))
+    {
+        JsonElement rows = resultJson.RootElement.GetProperty("rows");
+        Check(rows[0].GetProperty("uuid").GetString() == "treasure-radar-own" &&
+              rows[0].GetProperty("playerClaimState").GetString() == "unclaimed",
+            "luckyFirst and cached-state join fall back to row viewerUid when query viewerUid is absent");
+    }
+
+    using JsonDocument treasureFieldsWrongKind = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":7,\"includeForeignRadarTreasures\":false,\"luckyFirst\":true,\"viewerUid\":\"10001\",\"viewerAllianceId\":\"20002\"}}");
+    Check(MapDataQueryContract.NormalizeSearch(treasureFieldsWrongKind.RootElement).UnsupportedFeatures
+            .SequenceEqual(new[] { "includeForeignRadarTreasures", "luckyFirst", "viewerUid", "viewerAllianceId" }),
+        "Treasure visibility/lucky/viewer fields remain fail-closed on non-Treasure kinds");
+
+    using JsonDocument unrecoveredCityPowerSort = JsonDocument.Parse(JsonSerializer.Serialize(new
+    {
+        profileId = indexedSearchBackend.ProfileId,
+        kind = "city",
+        query = new { serverId = 7, sorts = new[] { new { sortBy = "power", sortOrder = "asc" } } },
+    }));
+    await ExpectBridgeError("MAP_QUERY_UNRECOVERED", "non-public City sort stays fail-closed", async () =>
+        await indexedSearchBackend.InvokeAsync("map_search", unrecoveredCityPowerSort.RootElement.Clone(), CancellationToken.None));
+}
+
+// LWB-R7-049: hash-locked native Truck sort expressions and order assembly.
+using (var truckSortStore = MapDataStore.CreateInMemory())
+{
+    const int truckSortServer = 91;
+    const long truckSortNow = 1_800_000_000_000L;
+
+    void SeedTruckSort(
+        string recordKey,
+        string uuid,
+        int? quality,
+        long? power,
+        long updatedAt,
+        string fields)
+    {
+        string json = $"{{\"serverId\":{truckSortServer},\"uuid\":\"{uuid}\",{fields},\"updatedAt\":{updatedAt}}}";
+        truckSortStore.UpsertRecord(new MapStoredRecord(
+            "truck", truckSortServer, recordKey, null, uuid, uuid, null,
+            null, quality, power, null, null, updatedAt, json));
+    }
+
+    SeedTruckSort("key-a", "sort-a", 5, 100, 1000,
+        $"\"quality\":5,\"isSpecialURQuality\":false,\"remainingLootCount\":2,\"arriveTs\":{truckSortNow + 100},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":3}}]");
+    SeedTruckSort("key-b", "sort-b", 4, 50, 900,
+        $"\"quality\":4,\"isSpecialURQuality\":true,\"remainingLootCount\":0,\"arriveTs\":{truckSortNow + 300},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":1}}]");
+    SeedTruckSort("key-c", "sort-c", 7, null, 1100,
+        "\"quality\":7,\"isSpecialURQuality\":false,\"remainingLootCount\":1,\"currentGoods\":[{\"key\":\"item:y\",\"count\":9}]");
+    SeedTruckSort("key-d", "sort-d", 5, 100, 1200,
+        $"\"quality\":5,\"isSpecialURQuality\":false,\"remainingLootCount\":2,\"arriveTs\":{truckSortNow + 200},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":3}}]");
+    SeedTruckSort("key-e", "sort-e", null, 200, 800,
+        $"\"isSpecialURQuality\":false,\"arriveTs\":{truckSortNow + 400},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":2}}]");
+    SeedTruckSort("key-f", "sort-f", 5, 100, 1200,
+        $"\"quality\":5,\"isSpecialURQuality\":false,\"remainingLootCount\":2,\"arriveTs\":{truckSortNow + 200},\"currentGoods\":[{{\"key\":\"item:x\",\"count\":3}}]");
+
+    MapDataQueryOptions TruckSortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "truck",
+            query = new
+            {
+                serverId = truckSortServer,
+                page,
+                pageSize,
+                itemKey,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] TruckSortUuids(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+
+    void ExpectTruckSort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = TruckSortQuery(sorts, itemKey, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered Truck sort");
+        MapSearchResult result = truckSortStore.SearchIndexedAtForTest(options, truckSortNow);
+        Check(TruckSortUuids(result).SequenceEqual(expected),
+            $"{label} preserves recovered Truck order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allTruckSorts = TruckSortQuery(
+    [
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("power", "asc"),
+        new MapDataSort("itemCount", "desc"),
+        new MapDataSort("remainingLootCount", "asc"),
+        new MapDataSort("arriveTime", "desc"),
+        new MapDataSort("updatedAt", "asc"),
+    ], "item:x");
+    Check(allTruckSorts.UnsupportedFeatures.Count == 0,
+        "all six public Truck sort keys are recovered when itemCount has the frontend-required itemKey");
+
+    MapDataQueryOptions itemSortWithoutKey = TruckSortQuery([new MapDataSort("itemCount", "desc")]);
+    Check(itemSortWithoutKey.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "Truck itemCount sort stays fail-closed without the frontend-required itemKey");
+
+    MapDataQueryOptions duplicateTruckSort = TruckSortQuery(
+    [
+        new MapDataSort("power", "desc"),
+        new MapDataSort("power", "asc"),
+    ]);
+    Check(duplicateTruckSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate Truck sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownTruckSort = TruckSortQuery([new MapDataSort("distance", "asc")]);
+    Check(unknownTruckSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public Truck sort keys remain fail-closed");
+
+    using (JsonDocument cityAlternateSort = JsonDocument.Parse(
+        "{\"kind\":\"city\",\"query\":{\"serverId\":91,\"sorts\":[{\"sortBy\":\"power\",\"sortOrder\":\"desc\"}]}}"))
+    {
+        Check(MapDataQueryContract.NormalizeSearch(cityAlternateSort.RootElement).UnsupportedFeatures
+                .SequenceEqual(new[] { "sorts" }),
+            "non-Train alternate sorts remain fail-closed outside the recovered Truck/Railway scopes");
+    }
+
+    ExpectTruckSort(
+        "Truck quality desc",
+        [new MapDataSort("quality", "desc")],
+        ["sort-b", "sort-c", "sort-a", "sort-d", "sort-f", "sort-e"]);
+    ExpectTruckSort(
+        "Truck quality asc",
+        [new MapDataSort("quality", "asc")],
+        ["sort-a", "sort-d", "sort-f", "sort-c", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck power asc",
+        [new MapDataSort("power", "asc")],
+        ["sort-b", "sort-a", "sort-d", "sort-f", "sort-e", "sort-c"]);
+    ExpectTruckSort(
+        "Truck power desc",
+        [new MapDataSort("power", "desc")],
+        ["sort-e", "sort-a", "sort-d", "sort-f", "sort-b", "sort-c"]);
+    ExpectTruckSort(
+        "Truck remaining loot asc",
+        [new MapDataSort("remainingLootCount", "asc")],
+        ["sort-b", "sort-e", "sort-c", "sort-a", "sort-d", "sort-f"]);
+    ExpectTruckSort(
+        "Truck remaining loot desc",
+        [new MapDataSort("remainingLootCount", "desc")],
+        ["sort-a", "sort-d", "sort-f", "sort-c", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck arrival asc",
+        [new MapDataSort("arriveTime", "asc")],
+        ["sort-a", "sort-d", "sort-f", "sort-b", "sort-e", "sort-c"]);
+    ExpectTruckSort(
+        "Truck arrival desc",
+        [new MapDataSort("arriveTime", "desc")],
+        ["sort-e", "sort-b", "sort-d", "sort-f", "sort-a", "sort-c"]);
+    ExpectTruckSort(
+        "Truck updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["sort-d", "sort-f", "sort-c", "sort-a", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck itemCount desc",
+        [new MapDataSort("itemCount", "desc")],
+        ["sort-a", "sort-d", "sort-f", "sort-e", "sort-b"],
+        itemKey: "item:x");
+    ExpectTruckSort(
+        "Truck itemCount asc",
+        [new MapDataSort("itemCount", "asc")],
+        ["sort-b", "sort-e", "sort-a", "sort-d", "sort-f"],
+        itemKey: "item:x");
+    ExpectTruckSort(
+        "Truck ordered multi-sort",
+        [
+            new MapDataSort("quality", "asc"),
+            new MapDataSort("power", "desc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["sort-d", "sort-f", "sort-a", "sort-c", "sort-b", "sort-e"]);
+    ExpectTruckSort(
+        "Truck sorted pagination page 2",
+        [new MapDataSort("quality", "desc")],
+        ["sort-a", "sort-d"],
+        page: 2,
+        pageSize: 2);
+}
+
+// R8-017: retain only evidenced Railway power/itemCount/protectTime/updatedAt sorts; quality remains partial.
+using (var railwaySortStore = MapDataStore.CreateInMemory())
+{
+    const int railwaySortServer = 92;
+    const long railwaySortNow = 1_800_000_000_000L;
+
+    void SeedRailwaySort(
+        string recordKey,
+        string uuid,
+        int? quality,
+        long? power,
+        long updatedAt,
+        string fields)
+    {
+        string json = $"{{\"serverId\":{railwaySortServer},\"uuid\":\"{uuid}\",{fields},\"updatedAt\":{updatedAt}}}";
+        railwaySortStore.UpsertRecord(new MapStoredRecord(
+            "railway", railwaySortServer, recordKey, null, uuid, uuid, null,
+            null, quality, power, null, null, updatedAt, json));
+    }
+
+    SeedRailwaySort("key-a", "rail-sort-a", 5, 100, 1000,
+        "\"quality\":5,\"protectTime\":2000,\"currentGoods\":[{\"key\":\"item:x\",\"count\":3}]");
+    SeedRailwaySort("key-b", "rail-sort-b", 4, 50, 900,
+        "\"quality\":4,\"protectTime\":0,\"currentGoods\":[{\"key\":\"item:x\",\"count\":1}]");
+    SeedRailwaySort("key-c", "rail-sort-c", 7, null, 1100,
+        "\"quality\":7,\"protectTime\":1000,\"currentGoods\":[{\"key\":\"item:y\",\"count\":9}]");
+    SeedRailwaySort("key-d", "rail-sort-d", 5, 100, 1200,
+        "\"quality\":5,\"protectTime\":2000,\"currentGoods\":[{\"key\":\"item:x\",\"count\":3}]");
+    SeedRailwaySort("key-e", "rail-sort-e", null, 200, 800,
+        "\"currentGoods\":[{\"key\":\"item:x\",\"count\":2}]");
+    SeedRailwaySort("key-f", "rail-sort-f", 5, 100, 1200,
+        "\"quality\":5,\"protectTime\":2000,\"currentGoods\":[{\"key\":\"item:x\",\"count\":3}]");
+
+    MapDataQueryOptions RailwaySortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "railway",
+            query = new
+            {
+                serverId = railwaySortServer,
+                page,
+                pageSize,
+                itemKey,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] RailwaySortUuids(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("uuid").GetString()!).ToArray();
+
+    void ExpectRailwaySort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        string? itemKey = null,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = RailwaySortQuery(sorts, itemKey, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered Railway sort");
+        MapSearchResult result = railwaySortStore.SearchIndexedAtForTest(options, railwaySortNow);
+        Check(RailwaySortUuids(result).SequenceEqual(expected),
+            $"{label} preserves recovered Railway order/null/tie semantics");
+    }
+
+    MapDataQueryOptions recoveredRailwaySorts = RailwaySortQuery(
+    [
+        new MapDataSort("power", "asc"),
+        new MapDataSort("itemCount", "desc"),
+        new MapDataSort("protectTime", "asc"),
+        new MapDataSort("updatedAt", "asc"),
+    ], "item:x");
+    Check(recoveredRailwaySorts.UnsupportedFeatures.Count == 0,
+        "evidenced Railway sort keys remain recovered when itemCount has the frontend-required itemKey");
+
+    MapDataQueryOptions unresolvedRailwayQuality =
+        RailwaySortQuery([new MapDataSort("quality", "desc")]);
+    Check(unresolvedRailwayQuality.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "Railway quality remains fail-closed because its exact native branch is partial");
+
+    MapDataQueryOptions railwayItemSortWithoutKey = RailwaySortQuery([new MapDataSort("itemCount", "desc")]);
+    Check(railwayItemSortWithoutKey.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "Railway itemCount sort stays fail-closed without the frontend-required itemKey");
+
+    MapDataQueryOptions duplicateRailwaySort = RailwaySortQuery(
+    [
+        new MapDataSort("power", "desc"),
+        new MapDataSort("power", "asc"),
+    ]);
+    Check(duplicateRailwaySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate Railway sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownRailwaySort = RailwaySortQuery([new MapDataSort("remainingLootCount", "asc")]);
+    Check(unknownRailwaySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public Railway sort keys remain fail-closed");
+
+    ExpectRailwaySort(
+        "Railway power asc",
+        [new MapDataSort("power", "asc")],
+        ["rail-sort-b", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-e", "rail-sort-c"]);
+    ExpectRailwaySort(
+        "Railway power desc",
+        [new MapDataSort("power", "desc")],
+        ["rail-sort-e", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-b", "rail-sort-c"]);
+    ExpectRailwaySort(
+        "Railway protection asc",
+        [new MapDataSort("protectTime", "asc")],
+        ["rail-sort-c", "rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway protection desc",
+        [new MapDataSort("protectTime", "desc")],
+        ["rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-c", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["rail-sort-d", "rail-sort-f", "rail-sort-c", "rail-sort-a", "rail-sort-b", "rail-sort-e"]);
+    ExpectRailwaySort(
+        "Railway itemCount desc",
+        [new MapDataSort("itemCount", "desc")],
+        ["rail-sort-a", "rail-sort-d", "rail-sort-f", "rail-sort-e", "rail-sort-b"],
+        itemKey: "item:x");
+    ExpectRailwaySort(
+        "Railway itemCount asc",
+        [new MapDataSort("itemCount", "asc")],
+        ["rail-sort-b", "rail-sort-e", "rail-sort-a", "rail-sort-d", "rail-sort-f"],
+        itemKey: "item:x");
+    ExpectRailwaySort(
+        "Railway evidenced ordered multi-sort",
+        [
+            new MapDataSort("power", "desc"),
+            new MapDataSort("protectTime", "asc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["rail-sort-e", "rail-sort-d", "rail-sort-f", "rail-sort-a", "rail-sort-b", "rail-sort-c"]);
+    ExpectRailwaySort(
+        "Railway evidenced sorted pagination page 2",
+        [new MapDataSort("power", "desc")],
+        ["rail-sort-d", "rail-sort-f"],
+        page: 2,
+        pageSize: 2);
+}
+
+// LWB-R7-051: hash-locked native Resource level/updatedAt sort assembly.
+using (var resourceSortStore = MapDataStore.CreateInMemory())
+{
+    const int resourceSortServer = 93;
+
+    void SeedResourceSort(string recordKey, int? level, long updatedAt)
+    {
+        string levelJson = level.HasValue ? $",\"level\":{level.Value}" : string.Empty;
+        string json = $"{{\"serverId\":{resourceSortServer},\"recordKey\":\"{recordKey}\"{levelJson},\"updatedAt\":{updatedAt}}}";
+        resourceSortStore.UpsertRecord(new MapStoredRecord(
+            "resource", resourceSortServer, recordKey, null, null, recordKey, null,
+            level, null, null, null, null, updatedAt, json));
+    }
+
+    SeedResourceSort("key-a", 5, 1000);
+    SeedResourceSort("key-b", 3, 900);
+    SeedResourceSort("key-c", 7, 1100);
+    SeedResourceSort("key-d", 5, 1200);
+    SeedResourceSort("key-e", null, 800);
+    SeedResourceSort("key-f", 5, 1200);
+
+    MapDataQueryOptions ResourceSortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "resource",
+            query = new
+            {
+                serverId = resourceSortServer,
+                page,
+                pageSize,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] ResourceSortKeys(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("recordKey").GetString()!).ToArray();
+
+    void ExpectResourceSort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = ResourceSortQuery(sorts, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered Resource sort");
+        MapSearchResult result = resourceSortStore.SearchIndexedAtForTest(options, 1_800_000_000_000L);
+        Check(ResourceSortKeys(result).SequenceEqual(expected),
+            $"{label} preserves recovered Resource order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allResourceSorts = ResourceSortQuery(
+    [
+        new MapDataSort("level", "asc"),
+        new MapDataSort("updatedAt", "desc"),
+    ]);
+    Check(allResourceSorts.UnsupportedFeatures.Count == 0,
+        "both public Resource sort keys are accepted in frontend order");
+
+    MapDataQueryOptions duplicateResourceSort = ResourceSortQuery(
+    [
+        new MapDataSort("level", "desc"),
+        new MapDataSort("level", "asc"),
+    ]);
+    Check(duplicateResourceSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate Resource sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownResourceSort = ResourceSortQuery([new MapDataSort("power", "asc")]);
+    Check(unknownResourceSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public Resource sort keys remain fail-closed");
+
+    ExpectResourceSort(
+        "Resource level desc",
+        [new MapDataSort("level", "desc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectResourceSort(
+        "Resource level asc",
+        [new MapDataSort("level", "asc")],
+        ["key-b", "key-a", "key-d", "key-f", "key-c", "key-e"]);
+    ExpectResourceSort(
+        "Resource updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
+    ExpectResourceSort(
+        "Resource updatedAt asc",
+        [new MapDataSort("updatedAt", "asc")],
+        ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
+    ExpectResourceSort(
+        "Resource ordered multi-sort",
+        [
+            new MapDataSort("level", "asc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["key-b", "key-d", "key-f", "key-a", "key-c", "key-e"]);
+    ExpectResourceSort(
+        "Resource sorted pagination page 2",
+        [new MapDataSort("level", "desc")],
+        ["key-d", "key-f"],
+        page: 2,
+        pageSize: 2);
+}
+
+// R8-017: retain only evidenced City level/health/updatedAt sorts; shield remains partial.
+using (var citySortStore = MapDataStore.CreateInMemory())
+{
+    const int citySortServer = 94;
+    const long citySortNow = 1_800_000_000_000L;
+    const long citySortNowSeconds = citySortNow / 1000;
+
+    void SeedCitySort(
+        string recordKey,
+        int? level,
+        double? health,
+        long? shieldEndTime,
+        long? protectEndTime,
+        long updatedAt)
+    {
+        string levelJson = level.HasValue ? $",\"level\":{level.Value}" : string.Empty;
+        string healthJson = health.HasValue ? $",\"health\":{health.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}" : string.Empty;
+        string protectJson = protectEndTime.HasValue ? $",\"protectEndTime\":{protectEndTime.Value}" : string.Empty;
+        string json = $"{{\"serverId\":{citySortServer},\"recordKey\":\"{recordKey}\"{levelJson}{healthJson}{protectJson},\"updatedAt\":{updatedAt}}}";
+        citySortStore.UpsertRecord(new MapStoredRecord(
+            "city", citySortServer, recordKey, null, null, recordKey, null,
+            level, null, null, null, shieldEndTime, updatedAt, json));
+    }
+
+    SeedCitySort("key-a", 5, 50, citySortNow + 100_000, null, 1000);
+    SeedCitySort("key-b", 3, 0, citySortNowSeconds + 100_000, null, 900);
+    SeedCitySort("key-c", 7, 80, citySortNow - 1_000, null, 1100);
+    SeedCitySort("key-d", 5, 25, null, citySortNowSeconds + 50_000, 1200);
+    SeedCitySort("key-e", null, null, null, null, 800);
+    SeedCitySort("key-f", 5, 50, citySortNow + 100_000, null, 1200);
+
+    MapDataQueryOptions CitySortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = "city",
+            query = new
+            {
+                serverId = citySortServer,
+                page,
+                pageSize,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] CitySortKeys(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("recordKey").GetString()!).ToArray();
+
+    void ExpectCitySort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = CitySortQuery(sorts, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0, $"{label} normalizes as recovered City sort");
+        MapSearchResult result = citySortStore.SearchIndexedAtForTest(options, citySortNow);
+        Check(CitySortKeys(result).SequenceEqual(expected),
+            $"{label} preserves recovered City clock/null/order/tie semantics");
+    }
+
+    MapDataQueryOptions recoveredCitySorts = CitySortQuery(
+    [
+        new MapDataSort("level", "asc"),
+        new MapDataSort("health", "desc"),
+        new MapDataSort("updatedAt", "desc"),
+    ]);
+    Check(recoveredCitySorts.UnsupportedFeatures.Count == 0,
+        "evidenced City sort keys remain recovered in frontend order");
+
+    MapDataQueryOptions unresolvedCityShield =
+        CitySortQuery([new MapDataSort("shield", "asc")]);
+    Check(unresolvedCityShield.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "City shield remains fail-closed because its exact native expression/data flow is partial");
+
+    MapDataQueryOptions duplicateCitySort = CitySortQuery(
+    [
+        new MapDataSort("level", "desc"),
+        new MapDataSort("level", "asc"),
+    ]);
+    Check(duplicateCitySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "duplicate City sort keys stay outside the recovered ordered frontend contract");
+
+    MapDataQueryOptions unknownCitySort = CitySortQuery([new MapDataSort("power", "asc")]);
+    Check(unknownCitySort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        "non-public City sort keys remain fail-closed");
+
+    ExpectCitySort(
+        "City level desc",
+        [new MapDataSort("level", "desc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City level asc",
+        [new MapDataSort("level", "asc")],
+        ["key-b", "key-a", "key-d", "key-f", "key-c", "key-e"]);
+    ExpectCitySort(
+        "City health desc",
+        [new MapDataSort("health", "desc")],
+        ["key-c", "key-a", "key-f", "key-d", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City health asc",
+        [new MapDataSort("health", "asc")],
+        ["key-d", "key-a", "key-f", "key-c", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City updatedAt asc",
+        [new MapDataSort("updatedAt", "asc")],
+        ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
+    ExpectCitySort(
+        "City evidenced ordered multi-sort",
+        [
+            new MapDataSort("health", "desc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["key-c", "key-f", "key-a", "key-d", "key-b", "key-e"]);
+    ExpectCitySort(
+        "City evidenced sorted pagination page 2",
+        [new MapDataSort("health", "desc")],
+        ["key-f", "key-d"],
+        page: 2,
+        pageSize: 2);
+}
+
+// LWB-R7-053: hash-locked Dispatch/Ghost level/quality/completionTime/updatedAt sort assembly.
+foreach ((string dispatchGhostKind, int dispatchGhostServer) in new[]
+{
+    ("dispatch", 95),
+    ("ghost", 96),
+})
+{
+    using var dispatchGhostSortStore = MapDataStore.CreateInMemory();
+
+    void SeedDispatchGhostSort(
+        string recordKey,
+        int? level,
+        int? quality,
+        bool isSpecial,
+        long? completionTime,
+        long updatedAt)
+    {
+        string levelJson = level.HasValue ? $",\"level\":{level.Value}" : string.Empty;
+        string qualityJson = quality.HasValue ? $",\"quality\":{quality.Value}" : string.Empty;
+        string completionJson = completionTime.HasValue ? $",\"completionTime\":{completionTime.Value}" : string.Empty;
+        string json = $"{{\"serverId\":{dispatchGhostServer},\"recordKey\":\"{recordKey}\"{levelJson}{qualityJson},\"isSpecial\":{isSpecial.ToString().ToLowerInvariant()}{completionJson},\"updatedAt\":{updatedAt}}}";
+        dispatchGhostSortStore.UpsertRecord(new MapStoredRecord(
+            dispatchGhostKind, dispatchGhostServer, recordKey, null, null, recordKey, null,
+            level, quality, null, null, null, updatedAt, json));
+    }
+
+    SeedDispatchGhostSort("key-a", 5, 5, false, 2000, 1000);
+    SeedDispatchGhostSort("key-b", 3, 4, true, 0, 900);
+    SeedDispatchGhostSort("key-c", 7, 7, false, 1000, 1100);
+    SeedDispatchGhostSort("key-d", 5, 5, false, 2000, 1200);
+    SeedDispatchGhostSort("key-e", null, null, false, null, 800);
+    SeedDispatchGhostSort("key-f", 5, 5, false, 2000, 1200);
+
+    MapDataQueryOptions DispatchGhostSortQuery(
+        IReadOnlyList<MapDataSort> sorts,
+        int page = 1,
+        int pageSize = 50)
+    {
+        JsonElement payload = JsonSerializer.SerializeToElement(new
+        {
+            kind = dispatchGhostKind,
+            query = new
+            {
+                serverId = dispatchGhostServer,
+                page,
+                pageSize,
+                sorts = sorts.Select(sort => new { sortBy = sort.SortBy, sortOrder = sort.SortOrder }).ToArray(),
+            },
+        });
+        return MapDataQueryContract.NormalizeSearch(payload);
+    }
+
+    static string[] DispatchGhostSortKeys(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("recordKey").GetString()!).ToArray();
+
+    void ExpectDispatchGhostSort(
+        string label,
+        IReadOnlyList<MapDataSort> sorts,
+        string[] expected,
+        int page = 1,
+        int pageSize = 50)
+    {
+        MapDataQueryOptions options = DispatchGhostSortQuery(sorts, page, pageSize);
+        Check(options.UnsupportedFeatures.Count == 0,
+            $"{dispatchGhostKind} {label} normalizes as recovered sort");
+        MapSearchResult result = dispatchGhostSortStore.SearchIndexedAtForTest(
+            options, 1_800_000_000_000L);
+        Check(DispatchGhostSortKeys(result).SequenceEqual(expected),
+            $"{dispatchGhostKind} {label} preserves recovered order/null/tie semantics");
+    }
+
+    MapDataQueryOptions allDispatchGhostSorts = DispatchGhostSortQuery(
+    [
+        new MapDataSort("level", "asc"),
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("completionTime", "asc"),
+        new MapDataSort("updatedAt", "desc"),
+    ]);
+    Check(allDispatchGhostSorts.UnsupportedFeatures.Count == 0,
+        $"all four public {dispatchGhostKind} sort keys are accepted in frontend order");
+
+    MapDataQueryOptions duplicateDispatchGhostSort = DispatchGhostSortQuery(
+    [
+        new MapDataSort("quality", "desc"),
+        new MapDataSort("quality", "asc"),
+    ]);
+    Check(duplicateDispatchGhostSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        $"duplicate {dispatchGhostKind} sort keys stay outside the recovered ordered contract");
+
+    MapDataQueryOptions unknownDispatchGhostSort =
+        DispatchGhostSortQuery([new MapDataSort("power", "asc")]);
+    Check(unknownDispatchGhostSort.UnsupportedFeatures.SequenceEqual(new[] { "sorts" }),
+        $"non-public {dispatchGhostKind} sort keys remain fail-closed");
+
+    ExpectDispatchGhostSort(
+        "level desc",
+        [new MapDataSort("level", "desc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "level asc",
+        [new MapDataSort("level", "asc")],
+        ["key-b", "key-a", "key-d", "key-f", "key-c", "key-e"]);
+    ExpectDispatchGhostSort(
+        "quality desc",
+        [new MapDataSort("quality", "desc")],
+        ["key-b", "key-c", "key-a", "key-d", "key-f", "key-e"]);
+    ExpectDispatchGhostSort(
+        "quality asc",
+        [new MapDataSort("quality", "asc")],
+        ["key-a", "key-d", "key-f", "key-c", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "completionTime desc",
+        [new MapDataSort("completionTime", "desc")],
+        ["key-a", "key-d", "key-f", "key-c", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "completionTime asc",
+        [new MapDataSort("completionTime", "asc")],
+        ["key-c", "key-a", "key-d", "key-f", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "updatedAt desc",
+        [new MapDataSort("updatedAt", "desc")],
+        ["key-d", "key-f", "key-c", "key-a", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "updatedAt asc",
+        [new MapDataSort("updatedAt", "asc")],
+        ["key-e", "key-b", "key-a", "key-c", "key-d", "key-f"]);
+    ExpectDispatchGhostSort(
+        "ordered multi-sort",
+        [
+            new MapDataSort("quality", "asc"),
+            new MapDataSort("completionTime", "desc"),
+            new MapDataSort("updatedAt", "desc"),
+        ],
+        ["key-d", "key-f", "key-a", "key-c", "key-b", "key-e"]);
+    ExpectDispatchGhostSort(
+        "sorted pagination page 2",
+        [new MapDataSort("quality", "desc")],
+        ["key-a", "key-d"],
+        page: 2,
+        pageSize: 2);
+}
+
+// LWB-R6-014: deterministic wall-clock boundaries use an isolated store so the
+// recovered time predicates cannot change the older quality/count fixtures.
+using (var timeFilterStore = MapDataStore.CreateInMemory())
+{
+    const long recoveredNow = 1_800_000_000_000L;
+
+    void SeedTimeRecord(string kind, int serverId, string uuid, long updatedAt, string fields)
+    {
+        string json = $"{{\"serverId\":{serverId},\"uuid\":\"{uuid}\",{fields},\"updatedAt\":{updatedAt}}}";
+        timeFilterStore.UpsertRecord(new MapStoredRecord(
+            kind, serverId, uuid, null, uuid, uuid, null,
+            null, null, null, null, null, updatedAt, json));
+    }
+
+    MapSearchResult SearchAt(string kind, int serverId, string extraQuery = "")
+    {
+        using JsonDocument query = JsonDocument.Parse(
+            $"{{\"kind\":\"{kind}\",\"query\":{{\"serverId\":{serverId}{extraQuery}}}}}");
+        return timeFilterStore.SearchIndexedAtForTest(
+            MapDataQueryContract.NormalizeSearch(query.RootElement), recoveredNow);
+    }
+
+    static HashSet<string> ResultUuids(MapSearchResult result) =>
+        result.Rows.Select(row => row.GetProperty("uuid").GetString()!).ToHashSet(StringComparer.Ordinal);
+
+    SeedTimeRecord("truck", 77, "truck-null-arrival", 106, "\"arriveTs\":null,\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-future", 105, $"\"arriveTs\":{recoveredNow + 1},\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-at-now", 104, $"\"arriveTs\":{recoveredNow},\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-expired", 103, $"\"arriveTs\":{recoveredNow - 1},\"remainingLootCount\":1");
+    SeedTimeRecord("truck", 77, "truck-empty", 102, $"\"arriveTs\":{recoveredNow + 10},\"remainingLootCount\":0");
+    SeedTimeRecord("truck", 77, "truck-fallback", 101, $"\"arriveTs\":{recoveredNow + 20},\"maxLootCount\":2,\"robTimes\":1");
+    SeedTimeRecord("truck", 77, "truck-special-full", 100, $"\"arriveTs\":{recoveredNow + 30},\"isSpecialURQuality\":true,\"maxLootCount\":3,\"robTimes\":1,\"remainingLootCount\":0");
+
+    MapSearchResult truckDefault = SearchAt("truck", 77);
+    Check(truckDefault.Total == 5 && ResultUuids(truckDefault).SetEquals(
+            new[] { "truck-null-arrival", "truck-future", "truck-empty", "truck-fallback", "truck-special-full" }),
+        "truck default search keeps null/future arrivals and excludes arriveTs <= sampled now");
+
+    MapSearchResult truckPlunderable = SearchAt("truck", 77, ",\"plunderableOnly\":true");
+    Check(truckPlunderable.Total == 2 && ResultUuids(truckPlunderable).SetEquals(
+            new[] { "truck-future", "truck-fallback" }),
+        "truck plunderableOnly requires a future non-null arrival and positive direct/fallback remaining loot");
+
+    SeedTimeRecord("railway", 77, "railway-future", 202, $"\"arriveTs\":{recoveredNow + 1},\"remainingLootCount\":1");
+    SeedTimeRecord("railway", 77, "railway-expired", 201, $"\"arriveTs\":{recoveredNow - 1},\"remainingLootCount\":1");
+    MapSearchResult railwayPlunderable = SearchAt("railway", 77, ",\"plunderableOnly\":true");
+    Check(railwayPlunderable.Total == 1 && ResultUuids(railwayPlunderable).SetEquals(new[] { "railway-future" }),
+        "railway plunderableOnly shares the recovered active-arrival and remaining-loot predicates");
+
+    SeedTimeRecord("dispatch", 78, "dispatch-null", 305, "\"completionTime\":null");
+    SeedTimeRecord("dispatch", 78, "dispatch-zero", 304, "\"completionTime\":0");
+    SeedTimeRecord("dispatch", 78, "dispatch-future", 303, $"\"completionTime\":{recoveredNow + 1}");
+    SeedTimeRecord("dispatch", 78, "dispatch-now", 302, $"\"completionTime\":{recoveredNow}");
+    SeedTimeRecord("dispatch", 78, "dispatch-past", 301, $"\"completionTime\":{recoveredNow - 1}");
+
+    MapSearchResult dispatchPending = SearchAt("dispatch", 78, ",\"completionStatus\":\"pending\"");
+    Check(dispatchPending.Total == 3 && ResultUuids(dispatchPending).SetEquals(
+            new[] { "dispatch-null", "dispatch-zero", "dispatch-future" }),
+        "dispatch pending completion includes null/nonpositive/future and excludes completionTime <= sampled now");
+    MapSearchResult dispatchCompleted = SearchAt("dispatch", 78, ",\"completionStatus\":\"completed\"");
+    Check(dispatchCompleted.Total == 2 && ResultUuids(dispatchCompleted).SetEquals(
+            new[] { "dispatch-now", "dispatch-past" }),
+        "dispatch completed completion requires positive completionTime <= sampled now");
+
+    SeedTimeRecord("ghost", 79, "ghost-future", 402, $"\"completionTime\":{recoveredNow + 1}");
+    SeedTimeRecord("ghost", 79, "ghost-past", 401, $"\"completionTime\":{recoveredNow - 1}");
+    Check(SearchAt("ghost", 79, ",\"completionStatus\":\"pending\"").Total == 1 &&
+          SearchAt("ghost", 79, ",\"completionStatus\":\"completed\"").Total == 1,
+        "ghost completionStatus uses the same recovered pending/completed wall-clock boundary");
+
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-valid", 505,
+        $"\"completionTime\":{recoveredNow - 100},\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":2,\"stolenCount\":1");
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-expired", 504,
+        $"\"completionTime\":{recoveredNow - 100},\"taskExpireTime\":{recoveredNow},\"maxStealCount\":2,\"stolenCount\":1");
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-full", 503,
+        $"\"completionTime\":{recoveredNow - 100},\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":2,\"stolenCount\":2");
+    SeedTimeRecord("dispatch", 80, "dispatch-plunder-zero", 502,
+        $"\"completionTime\":{recoveredNow - 100},\"plunderAt\":0,\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":0");
+    SeedTimeRecord("dispatch", 80, "dispatch-completion-zero", 501,
+        $"\"completionTime\":0,\"taskExpireTime\":{recoveredNow + 1},\"maxStealCount\":0");
+    MapSearchResult dispatchPlunderable = SearchAt("dispatch", 80, ",\"plunderableOnly\":true");
+    Check(dispatchPlunderable.Total == 1 && ResultUuids(dispatchPlunderable).SetEquals(new[] { "dispatch-plunder-valid" }),
+        "dispatch plunderableOnly enforces completion, plunderAt fallback, strict expiry and steal-capacity predicates");
+
+    foreach ((string json, string expectedFeature) in new[]
+    {
+        ("{\"kind\":\"truck\",\"query\":{\"serverId\":77,\"completionStatus\":\"pending\"}}", "completionStatus"),
+        ("{\"kind\":\"dispatch\",\"query\":{\"serverId\":78,\"completionStatus\":\"later\"}}", "completionStatus"),
+        ("{\"kind\":\"ghost\",\"query\":{\"serverId\":79,\"plunderableOnly\":true}}", "plunderableOnly"),
+        ("{\"kind\":\"dispatch\",\"query\":{\"serverId\":80,\"plunderableOnly\":false}}", "plunderableOnly"),
+    })
+    {
+        using JsonDocument unsupportedTimeFilter = JsonDocument.Parse(json);
+        Check(MapDataQueryContract.NormalizeSearch(unsupportedTimeFilter.RootElement).UnsupportedFeatures
+                .SequenceEqual(new[] { expectedFeature }),
+            $"unrecovered public time-filter form remains fail-closed for {expectedFeature}");
+    }
+}
+
+using JsonDocument unavailableSearch = JsonDocument.Parse(JsonSerializer.Serialize(new
+{
+    profileId = backend.ProfileId,
+    kind = "city",
+    query = new { serverId = 1, page = 1, pageSize = 50, sorts = new[] { new { sortBy = "updatedAt", sortOrder = "desc" } } },
+}));
+await ExpectBridgeError("MAP_INDEX_UNAVAILABLE", "valid recovered map search reaches explicit offline index gate", async () =>
+    await backend.InvokeAsync("map_search", unavailableSearch.RootElement.Clone(), CancellationToken.None));
+
+// Generated adapter checks pin the recovered original implicit-profile/event rules.
+string liveProbeHelperSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "run_live_resource_probe.py"));
+Check(liveProbeHelperSource.Contains("closing_owned_game_after_failure_for_restore", StringComparison.Ordinal) &&
+      liveProbeHelperSource.Contains("restoring_after_failure_owned_game_close", StringComparison.Ordinal) &&
+      liveProbeHelperSource.Contains("close_owned_game_process_for_restore(p, owned_game)", StringComparison.Ordinal),
+    "live helper failure cleanup retains exact helper-owned PID normal-close restoration fallback");
+string liveCityProbeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_live_resource_probe.lua"));
+int cityCollectorStart = liveCityProbeSource.IndexOf("local function city_aoi_records", StringComparison.Ordinal);
+int cityCollectorEnd = cityCollectorStart >= 0
+    ? liveCityProbeSource.IndexOf("local function resource_aoi_records", cityCollectorStart, StringComparison.Ordinal)
+    : -1;
+string cityCollectorSource = cityCollectorStart >= 0 && cityCollectorEnd > cityCollectorStart
+    ? liveCityProbeSource[cityCollectorStart..cityCollectorEnd]
+    : string.Empty;
+Check(
+    cityCollectorSource.Contains("GetAllMainBaseList", StringComparison.Ordinal) &&
+    cityCollectorSource.Contains("source = \"WorldPointManager.GetAllMainBaseList\"", StringComparison.Ordinal) &&
+    !cityCollectorSource.Contains("WorldPointManager._pointInfos", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("if bulk_aoi_request.includeCity == true then", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("details.matchedCityCount = #city_records", StringComparison.Ordinal),
+    "current-v19 City AOI collector must use the unique retained GetAllMainBaseList source and keep matchedCityCount tied to the published City snapshot");
+string r7130GeneratedIndexSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "index-sfL2sT3K.js"));
+string r7130GeneratedMapPanelSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
+Check(
+    r7130GeneratedIndexSource.Contains("for(let t of n){if(e||!Je.current.enabled)break;let n=await Se(t);", StringComparison.Ordinal) &&
+    r7130GeneratedIndexSource.Contains("Mt(await Te({selectedTypes:i.selectedTypes,scanMode:i.scanMode,resume:!1}))", StringComparison.Ordinal) &&
+    !r7130GeneratedIndexSource.Contains("automatic map scan cycle finished completed=", StringComparison.Ordinal) &&
+    !r7130GeneratedIndexSource.Contains("autoCycleRequested", StringComparison.Ordinal) &&
+    !r7130GeneratedIndexSource.Contains("autoTrainListSelection", StringComparison.Ordinal) &&
+    !r7130GeneratedIndexSource.Contains("targetServerId:t", StringComparison.Ordinal),
+    "R8-015 Auto Scan must use the original sequential target loop, persisted scanMode and outer-cycle failure path");
+Check(
+    r7130GeneratedMapPanelSource.Contains("function mapPrefKey(e,t)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapManualScanTypes", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapScanTab", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapResultTab", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("mapBrowseServer", StringComparison.Ordinal),
+    "Map Data user choices must persist per profile across app reopen");
+Check(
+    !r7130GeneratedMapPanelSource.Contains("stopAutoScan", StringComparison.Ordinal) &&
+    !r7130GeneratedMapPanelSource.Contains("runOnceRequestedAt", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("disabled:!h||!S.enabled||be||w.isReading,onClick:()=>$({nextRunAt:Date.now()})", StringComparison.Ordinal),
+    "R8-015 Auto Scan must restore original Run Now semantics and remove rebuild-only Auto Stop/one-shot state");
+Check(
+    r7130GeneratedMapPanelSource.Contains("async function Qn(){E.current+=1,Pe.current+=1", StringComparison.Ordinal),
+    "Map Clear must invalidate in-flight saved search and treasure refresh generations before mutating SQLite");
+Check(
+    r7130GeneratedMapPanelSource.Contains("let e=await ne(L);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
+    !r7130GeneratedMapPanelSource.Contains("let e=await ne(0);clearAutoSearchOnce.current=!0", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("Y===`auto`&&Array.isArray(p?.savedServerIds)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("value:0,children:C(`map.allServers`)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("nextRunAt:Date.now()", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("await serverJump(rowServer)", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("n===8&&r===11", StringComparison.Ordinal) &&
+    !r7130GeneratedMapPanelSource.Contains("map jump blocked stale server=", StringComparison.Ordinal),
+    "Map Data owner workflow must preserve strict current-server Clear and browsing/navigation compatibility while R8-015 restores original enabled-only Auto Run Now semantics");
+Check(
+    r7130GeneratedMapPanelSource.Contains("(dt[F]??[]).map", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("(dt.resource??[]).forEach", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("(dt.monster??[]).forEach", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("e=Array.isArray(e)?e:[];let a=", StringComparison.Ordinal),
+    "Map Data must render/localize missing original option-name/reward families as empty arrays instead of crashing a result tab");
+Check(
+    r7130GeneratedMapPanelSource.Contains("savedServerIds.length>1", StringComparison.Ordinal) &&
+    r7130GeneratedMapPanelSource.Contains("p.savedServerIds.map", StringComparison.Ordinal),
+    "Map Data must expose a selector for every saved server dataset");
+Check(
+    liveCityProbeSource.Contains("local function doomsday_boss_records", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("WorldMonsterSpecialType.SuperRunningBoss unavailable", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("ActivityDoomsdayMainInfo", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("DataCenter.LWDoomsdayManager.", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("details.doomsdayBossCount = #doomsday_records", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("bulk_aoi_request.includeMonsterProtection ~= true", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("M._doomsdayMainInfoScanRunId ~= request.scanRunId", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("M._doomsdayMainInfoScanRunId = request.scanRunId", StringComparison.Ordinal),
+    "current-v20 generic Monster probe must merge source-backed SuperRunningBoss rows, refresh their read-only main info only once per scan run, and leave Zombie Boss scans on their separate protection path");
+Check(
+    liveCityProbeSource.Contains("protectTimeMinutes = protect_time", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("stealMaxTimes = steal_max_times", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("\"protect_times\"", StringComparison.Ordinal) &&
+    liveCityProbeSource.Contains("\"steal_maxtimes\"", StringComparison.Ordinal),
+    "current-v19 Dispatch probe must preserve source-backed protection and per-task steal-cap config");
+string overviewBridgeSource = File.ReadAllText(Path.Combine(repoRoot, "tools", "current_overview_bridge.lua"));
+Check(
+    overviewBridgeSource.Contains("GoToUtil.JumpToMarchByUuid", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("pcall(jump_march, request.marchUuid, request.serverId, 0)", StringComparison.Ordinal) &&
+    overviewBridgeSource.Contains("local NAVIGATION_TIMEOUT_SECONDS = 5", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("write_march_follow_result(request, \"failed\", \"march_unavailable\")", StringComparison.Ordinal),
+    "March Follow must use the current-v19 JumpToMarchByUuid server-position fallback, preserve the recovered 5-second native window, and never fail merely because the march is not already locally loaded");
+int overviewBridgeTopLevelLocalCount = 0;
+foreach (string sourceLine in overviewBridgeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+{
+    if (!sourceLine.StartsWith("local ", StringComparison.Ordinal)) continue;
+    if (sourceLine.StartsWith("local function ", StringComparison.Ordinal))
+    {
+        overviewBridgeTopLevelLocalCount++;
+        continue;
+    }
+    string declaration = sourceLine["local ".Length..];
+    int equals = declaration.IndexOf('=');
+    if (equals >= 0) declaration = declaration[..equals];
+    overviewBridgeTopLevelLocalCount += declaration.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
+}
+Check(overviewBridgeTopLevelLocalCount < 200,
+    $"current Overview bridge uses {overviewBridgeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
+string manualMapServiceSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "ManualMapScanCommandService.cs"));
+string windowSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "LWBridgeWindow.cs"));
+string mapStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.cs"));
+string plunderStoreSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.PlunderControlPlane.cs"));
+string dispatchPlunderContractSource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs"));
+Check(
+    File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderContract.cs")) &&
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "DispatchPlunderWorker.cs")) &&
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "TruckPlunderWorker.cs")) &&
+    File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.PlunderControlPlane.cs")) &&
+    !File.Exists(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "MapDataStore.Plunder.cs")) &&
+    manualMapServiceSource.Contains("map_plunder_jobs_list", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_dispatch_plunder_schedule", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_dispatch_plunder_cancel", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_truck_plunder_schedule", StringComparison.Ordinal) &&
+    manualMapServiceSource.Contains("map_truck_plunder_cancel", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("select between 1 and 200 secret tasks", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("secret task scheduling data is invalid", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal) &&
+    windowSource.Contains("bridge://dispatch-plunder-changed", StringComparison.Ordinal) &&
+    windowSource.Contains("bridge://truck-plunder-changed", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("truck-quick-rob.txt", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("dispatch-plunder.txt", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("dispatch_plunder_runtime", StringComparison.Ordinal) &&
+    !overviewBridgeSource.Contains("pump_truck_quick_rob", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS dispatch_plunder_jobs", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_jobs", StringComparison.Ordinal) &&
+    mapStoreSource.Contains("CREATE TABLE IF NOT EXISTS truck_plunder_history", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("WHERE dispatch_plunder_jobs.status IN ('scheduled','waiting_connection')", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("WHERE truck_plunder_jobs.status<>'running'", StringComparison.Ordinal) &&
+    plunderStoreSource.Contains("UNION ALL", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("ReadArmable", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("TryMark", StringComparison.Ordinal) &&
+    !plunderStoreSource.Contains("RecordTruckPlunderSuccess", StringComparison.Ordinal),
+    "R8-016 must restore Scheduled Plunder control-plane persistence/events while protected robbery workers and execution helpers remain absent");
+string dispatchAllianceShareContractSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "DispatchAllianceShareContract.cs"));
+Check(
+    dispatchAllianceShareContractSource.Contains("select between 1 and 200 dispatch tasks", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("selected dispatch task cannot be shared", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentPostType = \"Text_PointShare\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentShareChannel = \"TO_ALLIANCE\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentCommand = \"hero.dispatch.share.chat\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("CurrentDispatchLabelKey = \"456288\"", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("[\"dispatch\"] = 1", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("[\"cfgId\"] = row.CfgId", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("[\"uuid\"] = row.Uuid", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("targetServer uses PutInt", StringComparison.Ordinal) &&
+    dispatchAllianceShareContractSource.Contains("uuid uses PutLong", StringComparison.Ordinal),
+    "Dispatch alliance-share offline contract must preserve recovered original validation and current-v19 point-share transport fields");
+Check(
+    !manualMapServiceSource.Contains("command == \"map_dispatch_share_alliance\"", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("DispatchAllianceShareContract.NormalizeRows(payload)", StringComparison.Ordinal),
+    "Dispatch alliance share must remain unavailable in production until explicit messaging authorization enables a live sender");
+string treasureClaimContractSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "TreasureClaimContract.cs"));
+Check(
+    treasureClaimContractSource.Contains("claimScope is not (\"boxes\" or \"season\" or \"single\")", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("claimScope == \"single\" && string.IsNullOrEmpty(targetUuid)", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("priorityValue.ValueKind != JsonValueKind.False", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("CurrentV19Command = \"detect.event.claim.treasure\"", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("targetServer is < 1 or > 99_999", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("NumberStyles.None", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("message.TryGetProperty(\"errorCode\"", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("message.TryGetProperty(\"reward\"", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("OriginalFrontendStatusPollIntervalMilliseconds = 1_000", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("OriginalFrontendStatusPollLimit = 1_800", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("!string.Equals(storedValue, \"false\", StringComparison.Ordinal)", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("string uuid = row.Uuid.Trim();", StringComparison.Ordinal) &&
+    treasureClaimContractSource.Contains("hasBatch && !string.Equals(state, \"running\", StringComparison.Ordinal)", StringComparison.Ordinal),
+    "Treasure claim offline/frontend contract must preserve recovered scopes, lucky default, 1s/1800 status polling, trimmed row UUID gate, running-only nonterminal batch semantics and current-v19 direct response boundary");
+string treasureClaimStoreSource = File.ReadAllText(
+    Path.Combine(
+        repoRoot,
+        "src",
+        "LWBridge.Desktop",
+        "MapDataStore.TreasureClaim.cs"));
+Check(
+    treasureClaimStoreSource.Contains("COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0) IN (1,3,4)", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("COALESCE(CAST(json_extract(data_json,'$.complete') AS INTEGER),0)=1", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("uuid IS NOT NULL AND TRIM(uuid)<>'' AND uuid<>'0'", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("CAST(json_extract(data_json,'$.expireTime') AS INTEGER)>?2", StringComparison.Ordinal) &&
+    treasureClaimStoreSource.Contains("ORDER BY point_index ASC", StringComparison.Ordinal),
+    "Treasure claim candidate store must preserve the recovered completed-ordinary/Supplies-1-3-4 UUID expiry query");
+Check(
+    !manualMapServiceSource.Contains("\"map_treasure_claim\" or", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("command == \"map_treasure_claim\"", StringComparison.Ordinal) &&
+    !manualMapServiceSource.Contains("TreasureClaimContract.NormalizeRequest(payload)", StringComparison.Ordinal),
+    "Treasure claim must remain unavailable in production while protected claimTreasures scope/lucky/scout orchestration is unrecovered");
+int liveProbeTopLevelLocalCount = 0;
+foreach (string sourceLine in liveCityProbeSource.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+{
+    if (!sourceLine.StartsWith("local ", StringComparison.Ordinal)) continue;
+    if (sourceLine.StartsWith("local function ", StringComparison.Ordinal))
+    {
+        liveProbeTopLevelLocalCount++;
+        continue;
+    }
+    string declaration = sourceLine["local ".Length..];
+    int equals = declaration.IndexOf('=');
+    if (equals >= 0) declaration = declaration[..equals];
+    liveProbeTopLevelLocalCount += declaration.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
+}
+Check(liveProbeTopLevelLocalCount < 200,
+    $"current live Resource probe uses {liveProbeTopLevelLocalCount} top-level Lua locals; Lua 5.3 bootstrap must stay below the 200-local chunk limit");
+int boundedMarchCompletionGuardCalls = liveCityProbeSource
+    .Split("collection, enumerator, scanned, MAX_POINTS, \"march\")", StringSplitOptions.None).Length - 1;
+Check(boundedMarchCompletionGuardCalls == 3 &&
+      liveCityProbeSource.Contains("local function bounded_enumerator_completion_error", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("prefix .. \"_count_outside_bounded_limit\"", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("prefix .. \"_enumeration_mismatch\"", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if moved == true then return prefix .. \"_count_outside_bounded_limit\" end", StringComparison.Ordinal),
+    "bounded WorldMarch enumeration must prove exhaustion for Train, Monster and protection-target capture instead of publishing a silently truncated 50,000-row prefix");
+Check(liveCityProbeSource.Contains("local resource_scan_detail_runtime = {", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("function resource_scan_detail_runtime.pump(now)", StringComparison.Ordinal),
+    "Resource detail scan state/helpers must remain collapsed behind one top-level runtime table to protect the Lua local budget");
+Check(liveCityProbeSource.Contains("PlayerWorldPointId", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("SendViewRequest", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("currentLOD,currentServerId", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("scalar_field(info, { \"playerName\", \"PlayerName\" })", StringComparison.Ordinal),
+    "Player City helper retains current-runtime BuildPointInfo fields and same-server targeted view fallback");
+Check(!liveCityProbeSource.Contains("pump_monster_protection_batch_retry", StringComparison.Ordinal) &&
+      !liveCityProbeSource.Contains("send_monster_invasion_protection_requests", StringComparison.Ordinal) &&
+      !liveCityProbeSource.Contains("unanswered_monster_protection_targets", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("ensure_monster_protection_message_capture", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("Net.Msgs.MonsterInvasionBossDetailMessge", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("pump_monster_protection_queue()", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("capture.responses[target.uuid] = nil", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("requestProtectionDetail = true", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("monster_protection_manager_end_time", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("monster_protection_should_show", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("pending.sourceProtectionEndTime", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("server has confirmed isProtected=true", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("scan.staleResponseCount", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("MONSTER_INVASION_PROTECTION_PER_TARGET_SECONDS", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("monster_invasion_protection_partial_response", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("capture.responses[target.uuid] = {", StringComparison.Ordinal) &&
+      !liveCityProbeSource.Contains("monster_protection_response_uuid_mismatch", StringComparison.Ordinal),
+    "Monster Protection detail must serialize the shared-UUID game message, request authoritative detail for every boss, ignore stale cross-scan replies, and use the original protected/visible deadline fallback when the coarse scan cannot instantiate the manager object");
+Check(liveCityProbeSource.Contains("try_recover_zoom_aoi_geometry", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("UpdateLWAoi_Normal", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("details.zoomRecoveryAttempted ~= true", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("zoom_restore_confirmation_timeout", StringComparison.Ordinal),
+    "whole-world zoom restore timeout must make one bounded native AOI-grid recovery attempt before failing");
+Check(liveCityProbeSource.Contains("normalize_train_current_goods", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("local raw_train_data = safe_get(train, \"trainData\")", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("local train_data = nil", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("call(manager, \"GetOneTrain\", train_uuid)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("call(manager, \"GetOneTrainByMarchUuid\", march_uuid)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if train_data == nil and raw_train_data ~= nil then train_data = raw_train_data end", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("tostring(train_type_raw):match(\":%s*(-?%d+)%s*$\")", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GetCurRewardData", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckCurrentGoodsRaw = truck_current_goods_raw", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckMaxLootCount = truck_max_loot_count", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("resolve_reward_display_metadata", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("M._rewardMetadataCache", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("name = reward_name", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("iconPath = reward_icon", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("tonumber(safe_get(train_data, \"maxLootPerTrain\"))", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("marchInfo.carriageList", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("train_goods.cur", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("MAX_LOOT_PER_TRAIN", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("Delete_Train_Times", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("alliance_train_vip", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("ItemTemplateManager", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("RewardManager", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("Internal rebuild identity only", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("marchUuid = march_uuid", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("allianceAbbr = scalar_field(march", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if train_type == 2 then", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("if train_type == 2 and train_data ~= nil then", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckMetadataKnown = truck_metadata_known", StringComparison.Ordinal),
+    "Train rows must parse current-v19 XLua enum strings, prefer game LWTrainDataManager objects, keep full TrainData JSON Railway-only, and expose Truck GetCurRewardData/maxLootPerTrain as lightweight metadata");
+Check(liveCityProbeSource.Contains("enemyTrucks", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("enemyTrains", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("matchServers", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("truckServerIds", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("railwayServerIds", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("matchServerIds", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("OnTrainListGet(ls)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("OnTrainListGet(allianceTrainList)", StringComparison.Ordinal),
+    "direct Train-list acquisition must preserve Truck/Railway source separation and game-owned cross-server match coverage");
+Check(liveCityProbeSource.Contains("ghost_aoi_records", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GetGhostreconPointInfoByIndex", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("LwGhostreconTask", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("pointType = 29", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("GhostreconPointInfo", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("memberListCount = collection_count(member_list)", StringComparison.Ordinal) &&
+      liveCityProbeSource.Contains("WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask", StringComparison.Ordinal),
+    "Ghost Ops rows must remain a distinct type-29 GhostreconPointInfo path with current LwGhostreconTask config and source-backed task/list metadata");
+string fastCitySource = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "CurrentClientMapBlockSource.FastCity.cs"));
+Check(
+    fastCitySource.Contains("data[\"plunderAt\"] = completion + protect * 60_000L", StringComparison.Ordinal) &&
+    fastCitySource.Contains("data[\"stolenCount\"] = stolenCount.Value", StringComparison.Ordinal) &&
+    fastCitySource.Contains("data[\"maxStealCount\"] = maxStealCount.Value", StringComparison.Ordinal) &&
+    fastCitySource.Contains("Do not map HeroDispatchMissionPointInfo.expiredTime", StringComparison.Ordinal),
+    "Dispatch row enrichment must derive only source-backed steal timing/capacity and keep task expiry unknown");
+Check(!fastCitySource.Contains("MonsterProtectionResponseSettleDelay", StringComparison.Ordinal),
+    "optional Monster Protection detail must not pause each AOI acquisition step");
+Check(fastCitySource.Contains("MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35)", StringComparison.Ordinal),
+    "dedicated Zombie Boss enrichment must allow the bounded target-count-sized serialized detail window");
+Check(fastCitySource.Contains("[\"isSpecialURQuality\"] = quality == 10", StringComparison.Ordinal),
+    "Truck/Train row normalization must preserve current-v19 TrainData special-UR quality semantics");
+Check(fastCitySource.Contains("ApplyFinalTruckMetadataEnrichment", StringComparison.Ordinal) &&
+      fastCitySource.Contains("TruckSourceMetadata", StringComparison.Ordinal) &&
+      fastCitySource.Contains("CurrentGoodsJson", StringComparison.Ordinal) &&
+      fastCitySource.Contains("ExactMaxLootCount", StringComparison.Ordinal) &&
+      fastCitySource.Contains("ReadTruckCurrentGoods", StringComparison.Ordinal) &&
+      fastCitySource.Contains("TryReadSourceSafeTruckMaxLootCount", StringComparison.Ordinal) &&
+      fastCitySource.Contains("source.ExactMaxLootCount is int exact", StringComparison.Ordinal) &&
+      fastCitySource.Contains("ApplyTruckRemainingLootCount", StringComparison.Ordinal) &&
+      fastCitySource.Contains("effectiveMaxLootCount = 1", StringComparison.Ordinal) &&
+      fastCitySource.Contains("TryReadInt64", StringComparison.Ordinal) &&
+      fastCitySource.Contains("post-acquisition", StringComparison.Ordinal) &&
+      fastCitySource.Contains("kind == \"railway\" && row.TryGetProperty(\"trainDataJson\"", StringComparison.Ordinal) &&
+      !fastCitySource.Contains("data[\"trainDataJson\"] is not JsonValue rawValue", StringComparison.Ordinal) &&
+      fastCitySource.Contains("AppendTruckGoods(source.CurrentGoodsJson, totals, metadata)", StringComparison.Ordinal) &&
+      fastCitySource.Contains("good[\"name\"] = display.Name", StringComparison.Ordinal) &&
+      fastCitySource.Contains("good[\"iconPath\"] = display.IconPath", StringComparison.Ordinal) &&
+      fastCitySource.Contains("reward:{rewardType}:{itemId}", StringComparison.Ordinal),
+    "Truck enrichment must remain post-acquisition, derive frontend-compatible remaining loot, retain cached game reward display metadata, avoid double-counting split arrays, and keep full TrainData JSON off the Truck hot path");
+Check(fastCitySource.Contains("Generic Monster intentionally does not use this shortcut", StringComparison.Ordinal) &&
+      fastCitySource.Contains("exact 10,000-cell", StringComparison.Ordinal) &&
+      fastCitySource.Contains("Zombie Boss keeps the proven whole-world LOD2", StringComparison.Ordinal),
+    "Generic Monster must use complete LOD0 coverage for Doom Walker while Zombie Boss retains its proven LOD2 detail route");
+
+string mapDataPanelSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "MapDataPanel-C1HVeNHr.js"));
+Check(mapDataPanelSource.Contains(
+          "function Ue(e){return e===`resource`||e===`monster`}",
+          StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("monsterNameKey:n===`monster`?Ot.monster:void 0", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("minLevel:n===`dispatch`&&Wt?Number(Wt):void 0,maxLevel:n===`dispatch`&&Wt?Number(Wt):void 0", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("zombie_boss", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("monsterLevelSteps", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("monsterNameKeys", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("resourceIdleOnly", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("resourceFullOnly", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("excludeBlackTile", StringComparison.Ordinal) &&
+      !mapDataPanelSource.Contains("resourceLevel", StringComparison.Ordinal),
+    "R8-014 generated Map Data panel must expose only the original eight-kind search/filter contract");
+Check(mapDataPanelSource.Contains("filterStoreKey=`lwbridge.mapResultFilters.v1`", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("localStorage.setItem(filterStoreKey", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("savedResultFilters=readResultFilters()", StringComparison.Ordinal),
+    "Map Data result filters must persist across rescans and app restarts");
+Check(!mapDataPanelSource.Contains("manualDefaultTypes", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("function scanTypeSelection(", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("selectedTypes:t.target.checked?[...S.selectedTypes,e.key]:S.selectedTypes.filter(t=>t!==e.key)", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("onClick:Xn,disabled:w.isReading", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("scheduledPlunder", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("v(await ae({selectedTypes:e,scanMode:P}))", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("map-speed-toggle", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("name:`map-scan-speed`", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("lwbridge.mapScanMode", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("scanMode:P", StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("value:S.scanMode", StringComparison.Ordinal),
+    "R8-016 Map Data must preserve original Manual/Auto speed controls while the Scheduled Plunder result tab is restored");
+Check(mapDataPanelSource.Contains(
+          "if(!w.isReading&&F!==`dispatch`&&F!==`ghost`&&F!==`truck`&&F!==`scheduledPlunder`)return",
+          StringComparison.Ordinal) &&
+      mapDataPanelSource.Contains("window.setInterval(()=>nn(Date.now()),1e3)", StringComparison.Ordinal),
+    "result countdown clock must remain limited to the original time-sensitive tabs");
+
+string generatedIndexSource = File.ReadAllText(Path.Combine(
+    repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "index-sfL2sT3K.js"));
+Check(generatedIndexSource.Contains(
+          "var Un=new Set([`city`,`resource`,`monster`,`truck`,`railway`,`dispatch`,`ghost`,`treasure`]),Wn=",
+          StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains(
+          "var Un=new Set([`city`,`resource`,`monster`,`zombie_boss`",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "localStorage.setItem(`lwbridge.mapAutoScan.${e}`",
+          StringComparison.Ordinal),
+    "Auto Scan sanitizer must preserve the original eight-kind allowlist even before its mode/state-machine rollback");
+Check(generatedIndexSource.Contains("MAP_AUTO_SCAN_TIMEOUT", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("automatic map scan cycle started servers=", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "for(let t of n){if(e||!Je.current.enabled)break;let n=await Se(t);F(n.changed?",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "Mt(await Te({selectedTypes:i.selectedTypes,scanMode:i.scanMode,resume:!1}))",
+          StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("autoTrainListSelection", StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("AutoTrainCoverage", StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("targetServerId:t", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("scanMode:i.scanMode", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("scanMode:e?.scanMode===`normal`?`normal`:`fast`", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains("automatic map scan returned to server", StringComparison.Ordinal),
+    "R8-015 Auto Scan parent scheduler must restore original per-target travel/wait flow and persisted Normal/Fast preference");
+Check(generatedIndexSource.Contains(
+          "n.enabled&&!t.enabled&&(n.nextRunAt=Date.now()),n.enabled||(n.nextRunAt=0)",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "function Zn(e,t,n,r,i){return e.enabled&&n&&!r&&!i&&t>=e.nextRunAt}",
+          StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("autoOnlineRef", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "if(!Zn(i,Date.now(),P,qe.current,Ye.current))return",
+          StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("function autoCycleRequested(e,t)", StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("runOnceRequestedAt", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "for(let t of n){if(e||!Je.current.enabled)break",
+          StringComparison.Ordinal) &&
+      !generatedIndexSource.Contains("automatic map scan cycle finished completed=", StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "return()=>{e=!0,window.clearInterval(a)}},[u.selectedProfileId,P]),(0,M.jsxs)(M.Fragment",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "if(!e&&i.returnToOriginalServer&&a>0",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "let e=Xn(Je.current,Date.now());Je.current=e,We(e),$n(n,e)",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "window.setInterval(()=>{i()},5e3)",
+          StringComparison.Ordinal),
+    "R8-015 Auto Scan scheduler must match original enable/deadline admission, connected-state lifecycle, return-finally and persisted next schedule");
+Check(generatedIndexSource.Contains(
+          "h.has(`map-data`)&&(0,M.jsx)(j.Activity,{mode:p===`map-data`?`visible`:`hidden`",
+          StringComparison.Ordinal) &&
+      generatedIndexSource.Contains(
+          "autoScanConfig:Ue,autoScanRunning:Ge,onAutoScanConfig:Ft",
+          StringComparison.Ordinal),
+    "Auto Scan scheduler/config ownership must remain in the top-level app while Map Data is a visibility-controlled child");
+
+string generatedApi = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "assets", "api-ClPPi2JT.js"));
+Check(generatedApi.Contains("n&&!(`profileId`in r)&&(r.profileId=n)", StringComparison.Ordinal),
+    "generated API injects active profile when wrapper omits profileId");
+Check(generatedApi.Contains("n.profileId!==T()", StringComparison.Ordinal),
+    "generated API filters foreign profile event envelopes");
+string localProviders = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "local-providers.js"));
+Check(localProviders.Contains("autoLaunchCommitted.current", StringComparison.Ordinal) &&
+      localProviders.Contains("setAutoLaunch(autoLaunchCommitted.current)", StringComparison.Ordinal) &&
+      localProviders.Contains("profile-save-error", StringComparison.Ordinal),
+    "auto-launch preference rolls back to confirmed storage and surfaces rejected saves");
+string previewHost = File.ReadAllText(Path.Combine(repoRoot, "src", "LWBridge.Desktop", "WebUi", "preview-host.js"));
+Check(previewHost.Contains("NATIVE_TRANSPORT_MISSING", StringComparison.Ordinal) &&
+      previewHost.Contains("liveRequested ? await liveInvoke", StringComparison.Ordinal),
+    "requested live mode fails visibly instead of falling through to fixtures when native transport is missing");
+Check(previewHost.Contains("command === 'profile_instances_reconcile'", StringComparison.Ordinal) &&
+      previewHost.Contains("? 360000 : 30000", StringComparison.Ordinal),
+    "startup reconcile receives the long-running native timeout because it can launch the game");
+
+// OVL-01: deterministic game-root matrix covers selection, relocation, permissions,
+// Unicode/space paths, architecture/image validation, and exact-path process ownership.
+string o01Root = Path.Combine(Path.GetTempPath(), "lwbridge-o01-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(o01Root);
+string systemCmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "cmd.exe");
+string systemKernel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "kernel32.dll");
+string CreateValidGameRoot(string path)
+{
+    Directory.CreateDirectory(Path.Combine(path, "Game", "LastWar_Data", "Plugins", "x86_64"));
+    File.Copy(systemCmd, Path.Combine(path, "LastWarLauncher.exe"), overwrite: true);
+    File.Copy(systemCmd, Path.Combine(path, "Game", "LastWar.exe"), overwrite: true);
+    File.Copy(systemKernel, Path.Combine(path, "Game", "LastWar_Data", "Plugins", "x86_64", "xlua.dll"), overwrite: true);
+    return path;
+}
+
+string o01ValidRoot = CreateValidGameRoot(Path.Combine(o01Root, "valid root æµ‹è¯• Î©"));
+var o01Config = new LocalConfigStore(Path.Combine(o01Root, "config"));
+var o01Installation = new GameInstallationService(o01Config);
+GameRootStatus o01Valid = o01Installation.Validate(o01ValidRoot, "self-check");
+Check(o01Valid.Valid && o01Valid.Is64Bit == true && Path.GetFullPath(o01Valid.Path) == Path.GetFullPath(o01ValidRoot),
+    "Game Root accepts a valid AMD64 install under spaces/non-ASCII path characters");
+GameRootStatus o01Saved = o01Installation.SaveSelectedRoot(o01ValidRoot);
+Check(o01Saved.Valid && string.Equals(o01Config.Snapshot.GameRoot, Path.GetFullPath(o01ValidRoot), StringComparison.OrdinalIgnoreCase),
+    "valid Game Root selection persists the normalized install path");
+string savedRootBeforeInvalid = o01Config.Snapshot.GameRoot!;
+string o01MissingRoot = Path.Combine(o01Root, "moved-away-old-root");
+GameRootStatus invalidSelection = o01Installation.SaveSelectedRoot(o01MissingRoot);
+Check(!invalidSelection.Valid && o01Config.Snapshot.GameRoot == savedRootBeforeInvalid,
+    "invalid/cancel-equivalent Game Root selection cannot overwrite the previous valid configuration");
+
+var movedConfig = new LocalConfigStore(Path.Combine(o01Root, "moved-config"));
+movedConfig.Update(c => c with { GameRoot = o01MissingRoot });
+var movedInstallation = new GameInstallationService(movedConfig, new GameInstallationTestHooks { DefaultRoot = o01ValidRoot });
+GameRootStatus movedStatus = movedInstallation.GetStatus();
+Check(movedStatus.Valid && movedStatus.Source == "detected" &&
+      string.Equals(Path.GetFullPath(movedStatus.Path), Path.GetFullPath(o01ValidRoot), StringComparison.OrdinalIgnoreCase),
+    "moved installation falls back from a stale configured root to the currently detected valid root");
+
+var deniedInstallation = new GameInstallationService(new LocalConfigStore(persistent: false),
+    new GameInstallationTestHooks { OpenRead = _ => throw new UnauthorizedAccessException("synthetic denied read") });
+GameRootStatus deniedStatus = deniedInstallation.Validate(o01ValidRoot, "self-check");
+Check(!deniedStatus.Valid && deniedStatus.Error == "GAME_ROOT_PERMISSION_DENIED",
+    "Game Root permission failure is reported explicitly and fails closed");
+var unreadableInstallation = new GameInstallationService(new LocalConfigStore(persistent: false),
+    new GameInstallationTestHooks { OpenRead = _ => throw new IOException("synthetic unreadable file") });
+GameRootStatus unreadableStatus = unreadableInstallation.Validate(o01ValidRoot, "self-check");
+Check(!unreadableStatus.Valid && unreadableStatus.Error == "GAME_ROOT_UNREADABLE",
+    "Game Root unreadable-file failure is reported explicitly and fails closed");
+
+string invalidPeRoot = CreateValidGameRoot(Path.Combine(o01Root, "invalid-pe"));
+File.WriteAllText(Path.Combine(invalidPeRoot, "Game", "LastWar.exe"), "not-a-pe");
+GameRootStatus invalidPeStatus = o01Installation.Validate(invalidPeRoot, "self-check");
+Check(!invalidPeStatus.Valid && invalidPeStatus.Error == "GAME_ROOT_PE_INVALID",
+    "Game Root rejects malformed executable images");
+
+string sysWowCmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "SysWOW64", "cmd.exe");
+if (File.Exists(sysWowCmd))
+{
+    string unsupportedRoot = CreateValidGameRoot(Path.Combine(o01Root, "unsupported-architecture"));
+    File.Copy(sysWowCmd, Path.Combine(unsupportedRoot, "Game", "LastWar.exe"), overwrite: true);
+    GameRootStatus unsupported = o01Installation.Validate(unsupportedRoot, "self-check");
+    Check(!unsupported.Valid && unsupported.Error == "GAME_ROOT_ARCH_UNSUPPORTED" && unsupported.Is64Bit == false,
+        "Game Root rejects a non-AMD64 game executable");
+}
+string foreignRoot = CreateValidGameRoot(Path.Combine(o01Root, "foreign-root"));
+var processConfig = new LocalConfigStore(Path.Combine(o01Root, "process-config"));
+processConfig.Update(c => c with { GameRoot = o01ValidRoot });
+var processInstallation = new GameInstallationService(processConfig);
+Process StartTemporaryLastWar(string executable, int pingCount)
+{
+    var startInfo = new ProcessStartInfo
+    {
+        FileName = executable,
+        UseShellExecute = false,
+        CreateNoWindow = true,
+    };
+    startInfo.ArgumentList.Add("/c");
+    startInfo.ArgumentList.Add($"ping 127.0.0.1 -n {pingCount} > nul");
+    return Process.Start(startInfo) ?? throw new InvalidOperationException("temporary LastWar process did not start");
+}
+
+using (Process foreignGame = StartTemporaryLastWar(Path.Combine(foreignRoot, "Game", "LastWar.exe"), 4))
+{
+    await Task.Delay(250);
+    GameProcessStatus foreignStatus = processInstallation.GetProcessStatus();
+    Check(!foreignStatus.GameRunning,
+        "same-named LastWar process from a different path is never treated as the selected game");
+    await foreignGame.WaitForExitAsync();
+}
+using (Process selectedGame = StartTemporaryLastWar(Path.Combine(o01ValidRoot, "Game", "LastWar.exe"), 4))
+{
+    await Task.Delay(250);
+    GameProcessStatus selectedStatus = processInstallation.GetProcessStatus();
+    Check(selectedStatus.GameRunning && selectedStatus.GamePid == selectedGame.Id &&
+          string.Equals(Path.GetFullPath(selectedStatus.GamePath!), Path.GetFullPath(Path.Combine(o01ValidRoot, "Game", "LastWar.exe")), StringComparison.OrdinalIgnoreCase),
+        "selected-path LastWar process is recognized with its exact PID/path");
+    await selectedGame.WaitForExitAsync();
+    await Task.Delay(100);
+    GameProcessStatus staleStatus = processInstallation.GetProcessStatus();
+    Check(!staleStatus.GameRunning && staleStatus.GamePid is null,
+        "exited selected-path process cannot remain as stale Game Root process state");
+}
+
+var invalidProcessConfig = new LocalConfigStore(Path.Combine(o01Root, "invalid-process-config"));
+invalidProcessConfig.Update(c => c with { GameRoot = o01MissingRoot });
+var invalidProcessInstallation = new GameInstallationService(invalidProcessConfig,
+    new GameInstallationTestHooks { DefaultRoot = o01MissingRoot });
+using (Process foreignGame = StartTemporaryLastWar(Path.Combine(foreignRoot, "Game", "LastWar.exe"), 4))
+{
+    await Task.Delay(250);
+    GameProcessStatus invalidRootStatus = invalidProcessInstallation.GetProcessStatus();
+    Check(!invalidRootStatus.GameRunning && invalidRootStatus.GamePid is null && invalidRootStatus.GamePath is null,
+        "missing/invalid selected root never classifies an arbitrary same-named LastWar process as selected-game status");
+    await foreignGame.WaitForExitAsync();
+}
+
+
+// PM16-01: backend/lifecycle integration must use the newly selected valid root
+// immediately at a stopped boundary, without requiring an app restart.
+async Task RunRootRebindCase(string initialRoot, string selectedRoot, string label)
+{
+    var cfg = new LocalConfigStore(Path.Combine(o01Root, "rebind-" + label));
+    if (!string.IsNullOrWhiteSpace(initialRoot)) cfg.Update(c => c with { GameRoot = initialRoot });
+    string? session = null;
+    string? challenge = null;
+    string started = "2026-09-12T05:00:00.0000000Z";
+    const int pid = 45501;
+    const int launcherPid = 45502;
+    bool alive = false;
+    var invocations = new List<OverviewHelperInvocation>();
+    byte[] Heartbeat() => JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        schemaVersion = 1,
+        bridgeVersion = OverviewLifecycleService.BridgeVersion,
+        profileId = cfg.Snapshot.ProfileId,
+        sessionId = session,
+        challenge,
+        gamePid = pid,
+        updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        ready = true,
+        messageVisible = true,
+        messageText = OverviewLifecycleService.ReadyMessage,
+    });
+    var hooks = new OverviewLifecycleTestHooks
+    {
+        ProcessMatches = (candidatePid, path, created) => alive && candidatePid == pid && created == started,
+        ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+            ? throw new FileNotFoundException(path)
+            : Heartbeat(),
+        WriteLease = (_, _, _) => { },
+        DeleteFile = _ => { },
+        RunHelperAsync = (invocation, _) =>
+        {
+            invocations.Add(invocation);
+            string selected = cfg.Snapshot.GameRoot!;
+            if (invocation.Operation == "start")
+            {
+                session = invocation.SessionId;
+                challenge = invocation.Challenge;
+                alive = true;
+                string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(challenge!))).ToLowerInvariant();
+                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                {
+                    ok = true,
+                    mode = "overview_install_launch_ready_deferred_restore",
+                    bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                    profileId = cfg.Snapshot.ProfileId,
+                    sessionId = session,
+                    challengeSha256 = hash,
+                    gamePid = pid,
+                    gamePath = Path.Combine(selected, "Game", "LastWar.exe"),
+                    gameStartedAtUtc = started,
+                    launcherPid,
+                    ready = new
+                    {
+                        schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                        profileId = cfg.Snapshot.ProfileId, sessionId = session, challenge,
+                        gamePid = pid, readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        ready = true, messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+                    },
+                    restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                    gameRunning = true,
+                    installedFilesChanged = true,
+                }));
+            }
+            alive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true,
+                mode = "overview_exact_pid_close_restore",
+                bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = cfg.Snapshot.ProfileId,
+                sessionId = invocation.SessionId,
+                gamePid = pid,
+                gamePath = invocation.GamePath,
+                gameStartedAtUtc = started,
+                close = new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false },
+                restore = new { restored = true },
+                gameRunning = false,
+                installedFilesChanged = false,
+            }));
+        },
+    };
+    string? constructorRoot = string.IsNullOrWhiteSpace(initialRoot) ? null : initialRoot;
+    using var lifecycle = new OverviewLifecycleService(
+        cfg.Snapshot.ProfileId, constructorRoot,
+        helperPath: Path.Combine(o01Root, "fake-overview-helper.py"),
+        requireCurrentClientEvidence: false,
+        config: cfg,
+        testHooks: hooks,
+        startRecoveryMonitor: false);
+    var integrated = new LWBridgeBackend(cfg, lifecycle, overviewLifecycle: lifecycle);
+    GameRootStatus saved = integrated.SaveGameRoot(selectedRoot);
+    Check(saved.Valid && string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+        $"{label}: backend persists the newly selected valid root");
+    GameRootStatus selectedStatus = integrated.GetGameRootStatus();
+    Check(selectedStatus.Valid && string.Equals(selectedStatus.Path, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+        $"{label}: backend status immediately follows the newly selected root");
+    string invalidCandidate = Path.Combine(o01Root, "invalid-rebind-" + label);
+    Directory.CreateDirectory(invalidCandidate);
+    GameRootStatus rejectedSelection = integrated.SaveGameRoot(invalidCandidate);
+    Check(!rejectedSelection.Valid && string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+        $"{label}: invalid selection preserves the previously selected valid root");
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = cfg.Snapshot.ProfileId }));
+    bool launched = true;
+    try { await lifecycle.InvokeAsync("profile_instance_start", payload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { launched = false; }
+    Check(launched && invocations.Any(i => i.Operation == "start"),
+        $"{label}: existing lifecycle launches immediately from the newly selected root without restart");
+    if (launched)
+    {
+        if (!string.IsNullOrWhiteSpace(initialRoot) &&
+            !string.Equals(Path.GetFullPath(initialRoot), Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase))
+        {
+            bool activeRetargetRejected = false;
+            try { integrated.SaveGameRoot(initialRoot); }
+            catch (BridgeCommandException ex) { activeRetargetRejected = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+            Check(activeRetargetRejected &&
+                  string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
+                $"{label}: active owned session stays bound to its launch root and rejects retargeting");
+        }
+        string active = session!;
+        using JsonDocument stop = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = cfg.Snapshot.ProfileId, instanceId = active }));
+        await lifecycle.InvokeAsync("profile_instance_stop", stop.RootElement.Clone(), CancellationToken.None);
+    }
+}
+
+string o01RootA = CreateValidGameRoot(Path.Combine(o01Root, "integration-A"));
+string o01RootB = CreateValidGameRoot(Path.Combine(o01Root, "integration-B"));
+await RunRootRebindCase(string.Empty, o01RootB, "missing-root-to-valid");
+await RunRootRebindCase(o01RootA, o01RootB, "A-to-B-stopped");
+
+var pm16RepairConfig = new LocalConfigStore(Path.Combine(o01Root, "repair-root-guard"));
+pm16RepairConfig.Update(c => c with { GameRoot = o01RootA });
+byte[] repairJournal = JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = 1,
+    profileId = pm16RepairConfig.Snapshot.ProfileId,
+    stage = "active_ready_deferred_restore",
+    gamePath = Path.Combine(o01RootA, "Game", "LastWar.exe"),
+});
+var pm16RepairHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+        ? repairJournal
+        : throw new FileNotFoundException(path),
+};
+using (var repairLifecycle = new OverviewLifecycleService(
+    pm16RepairConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-overview-helper.py"),
+    requireCurrentClientEvidence: false,
+    config: pm16RepairConfig,
+    testHooks: pm16RepairHooks,
+    startRecoveryMonitor: false))
+{
+    var repairBackend = new LWBridgeBackend(pm16RepairConfig, repairLifecycle, overviewLifecycle: repairLifecycle);
+    bool repairRetargetRejected = false;
+    try { repairBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { repairRetargetRejected = ex.Code == "GAME_REPAIR_REQUIRED"; }
+    Check(repairRetargetRejected &&
+          string.Equals(pm16RepairConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "pending repair journal keeps lifecycle/configuration bound to installation A until cleanup/restoration finishes");
+    GameRootStatus sameRepairRoot = repairBackend.SaveGameRoot(o01RootA);
+    Check(sameRepairRoot.Valid &&
+          string.Equals(pm16RepairConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "re-selecting the same repair-owned root is a harmless persistence-only no-op");
+}
+// PM17-02: recovery.json belongs to the shared Overview runtime. Only an absent
+// journal or an explicitly restored journal whose backup manifest confirms the
+// same completed cleanup may permit installation retargeting.
+void RunPm17JournalRebindCase(string label, byte[]? recoveryBytes, byte[]? manifestBytes, bool unreadable, bool shouldAllow)
+{
+    var cfg = new LocalConfigStore(Path.Combine(o01Root, "pm17-journal-" + label));
+    cfg.Update(c => c with { GameRoot = o01RootA });
+    int recoveryReads = 0;
+    var hooks = new OverviewLifecycleTestHooks
+    {
+        ReadAllBytes = path =>
+        {
+            if (path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase))
+            {
+                recoveryReads++;
+                if (unreadable) throw new IOException("synthetic unreadable recovery journal");
+                if (recoveryBytes is null) throw new FileNotFoundException(path);
+                return recoveryBytes.ToArray();
+            }
+            if (path.EndsWith("manifest.json", StringComparison.OrdinalIgnoreCase) && manifestBytes is not null)
+                return manifestBytes.ToArray();
+            throw new FileNotFoundException(path);
+        },
+    };
+    using var lifecycle = new OverviewLifecycleService(cfg.Snapshot.ProfileId, o01RootA,
+        helperPath: Path.Combine(o01Root, "fake-overview-helper.py"), requireCurrentClientEvidence: false,
+        config: cfg, testHooks: hooks, startRecoveryMonitor: false);
+    var backend = new LWBridgeBackend(cfg, lifecycle, overviewLifecycle: lifecycle);
+    bool allowed = true;
+    string? code = null;
+    try { backend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { allowed = false; code = ex.Code; }
+    Check(recoveryReads > 0, $"PM17-02 {label}: root selection inspects the shared recovery journal");
+    Check(allowed == shouldAllow, $"PM17-02 {label}: journal classification {(shouldAllow ? "permits" : "blocks")} retargeting");
+    Check(shouldAllow
+            ? string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase)
+            : string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase) && code == "GAME_REPAIR_REQUIRED",
+        $"PM17-02 {label}: selection preserves the correct configuration/root outcome");
+}
+byte[] Pm17Journal(string stage, string? profile = null, int schema = 1) => JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = schema,
+    profileId = profile,
+    requestId = "pm17-request",
+    sessionId = "pm17-request",
+    backupPath = Path.Combine(o01Root, "pm17-backup"),
+    originalFiles = new { scripts = "sha256" },
+    stage,
+});
+foreach (string stage in new[]
+{
+    "backup_ready", "installed_0_scripts", "restoring_after_failure", "closing_failed_owned_game",
+    "restoring_after_failed_owned_game_close", "active_ready_deferred_restore", "closing_owned_game_for_restore",
+    "restoring_after_owned_game_exit", "restoring_interrupted_operation", "restored_0_scripts",
+    "restoring_while_running", "restoring_after_owned_game_close",
+})
+    RunPm17JournalRebindCase("pending-" + stage, Pm17Journal(stage, pm16RepairConfig.Snapshot.ProfileId), null, false, false);
+RunPm17JournalRebindCase("unknown-stage", Pm17Journal("future_unknown_stage", pm16RepairConfig.Snapshot.ProfileId), null, false, false);
+RunPm17JournalRebindCase("foreign-profile", Pm17Journal("active_ready_deferred_restore", "foreign-profile"), null, false, false);
+RunPm17JournalRebindCase("missing-profile", JsonSerializer.SerializeToUtf8Bytes(new { schemaVersion = 1, stage = "backup_ready" }), null, false, false);
+RunPm17JournalRebindCase("missing-schema", JsonSerializer.SerializeToUtf8Bytes(new { profileId = pm16RepairConfig.Snapshot.ProfileId, stage = "backup_ready" }), null, false, false);
+RunPm17JournalRebindCase("unsupported-schema", Pm17Journal("backup_ready", pm16RepairConfig.Snapshot.ProfileId, 2), null, false, false);
+RunPm17JournalRebindCase("json-null", JsonSerializer.SerializeToUtf8Bytes<object?>(null), null, false, false);
+RunPm17JournalRebindCase("json-array", JsonSerializer.SerializeToUtf8Bytes(new[] { "backup_ready" }), null, false, false);
+RunPm17JournalRebindCase("unreadable", Pm17Journal("backup_ready", pm16RepairConfig.Snapshot.ProfileId), null, true, false);
+RunPm17JournalRebindCase("absent", null, null, false, true);
+byte[] restoredRecovery = Pm17Journal("restored", pm16RepairConfig.Snapshot.ProfileId);
+byte[] restoredManifest = Pm17Journal("restored", pm16RepairConfig.Snapshot.ProfileId);
+RunPm17JournalRebindCase("verified-completed", restoredRecovery, restoredManifest, false, true);
+RunPm17JournalRebindCase("unverified-completed", restoredRecovery, null, false, false);
+
+// PM17-01: a failed-before-launch attempt may be released only after there is no
+// helper, selected-root process or pending/unknown restoration obligation.
+var pm17LaunchConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-abandoned-launch"));
+pm17LaunchConfig.Update(c => c with { GameRoot = o01RootA });
+string? pm17Session = null;
+string? pm17Challenge = null;
+const int pm17Pid = 46601;
+const int pm17LauncherPid = 46602;
+const string pm17Started = "2026-09-13T00:10:00.0000000Z";
+bool pm17Alive = false;
+int pm17StartCalls = 0;
+byte[] Pm17Heartbeat() => JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+    profileId = pm17LaunchConfig.Snapshot.ProfileId, sessionId = pm17Session, challenge = pm17Challenge,
+    gamePid = pm17Pid, updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(), ready = true,
+    messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+});
+var pm17LaunchHooks = new OverviewLifecycleTestHooks
+{
+    ProcessMatches = (pid, _, started) => pm17Alive && pid == pm17Pid && started == pm17Started,
+    ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+        ? throw new FileNotFoundException(path) : Pm17Heartbeat(),
+    WriteLease = (_, _, _) => { }, DeleteFile = _ => { },
+    RunHelperAsync = (invocation, _) =>
+    {
+        if (invocation.Operation == "stop")
+        {
+            pm17Alive = false;
+            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            {
+                ok = true, mode = "overview_exact_pid_close_restore", bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = pm17LaunchConfig.Snapshot.ProfileId, sessionId = invocation.SessionId, gamePid = pm17Pid,
+                gamePath = invocation.GamePath, gameStartedAtUtc = pm17Started,
+                close = new { method = "Process.CloseMainWindow", accepted = true, processExited = true, alreadyExited = false },
+                restore = new { restored = true }, gameRunning = false, installedFilesChanged = false,
+            }));
+        }
+        pm17StartCalls++;
+        if (pm17StartCalls == 1) throw new InvalidOperationException("synthetic failure before game launch");
+        pm17Session = invocation.SessionId; pm17Challenge = invocation.Challenge; pm17Alive = true;
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(pm17Challenge!))).ToLowerInvariant();
+        return Task.FromResult(JsonSerializer.SerializeToElement(new
+        {
+            ok = true, mode = "overview_install_launch_ready_deferred_restore", bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = pm17LaunchConfig.Snapshot.ProfileId, sessionId = pm17Session, challengeSha256 = hash,
+            gamePid = pm17Pid, gamePath = Path.Combine(pm17LaunchConfig.Snapshot.GameRoot!, "Game", "LastWar.exe"),
+            gameStartedAtUtc = pm17Started, launcherPid = pm17LauncherPid,
+            ready = new { schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = pm17LaunchConfig.Snapshot.ProfileId,
+                sessionId = pm17Session, challenge = pm17Challenge, gamePid = pm17Pid, readyAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                ready = true, messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage },
+            restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+            gameRunning = true, installedFilesChanged = true,
+        }));
+    },
+};
+using (var pm17LaunchLifecycle = new OverviewLifecycleService(pm17LaunchConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17LaunchConfig, testHooks: pm17LaunchHooks, startRecoveryMonitor: false))
+{
+    var pm17LaunchBackend = new LWBridgeBackend(pm17LaunchConfig, pm17LaunchLifecycle, overviewLifecycle: pm17LaunchLifecycle);
+    using JsonDocument pm17ActivePayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17LaunchConfig.Snapshot.ProfileId }));
+    try { await pm17LaunchLifecycle.InvokeAsync("profile_instance_start", pm17ActivePayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    JsonElement failedStatus = JsonSerializer.SerializeToElement(pm17LaunchLifecycle.CreateInstanceStatus());
+    string? abandonedInstance = failedStatus.GetProperty("instanceId").GetString();
+    Check(failedStatus.GetProperty("phase").GetString() == "error" && !string.IsNullOrWhiteSpace(abandonedInstance),
+        "PM17-01 failed-before-launch retains useful error state and attempt identity until cleanup is verified");
+    GameRootStatus sameRootAfterFailure = pm17LaunchBackend.SaveGameRoot(o01RootA);
+    Check(sameRootAfterFailure.Valid && string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 same-root persistence remains available after a failed launch attempt");
+    string invalidPm17Root = Path.Combine(o01Root, "pm17-invalid-after-failure");
+    Directory.CreateDirectory(invalidPm17Root);
+    GameRootStatus invalidAfterFailure = pm17LaunchBackend.SaveGameRoot(invalidPm17Root);
+    JsonElement afterInvalidStatus = JsonSerializer.SerializeToElement(pm17LaunchLifecycle.CreateInstanceStatus());
+    Check(!invalidAfterFailure.Valid && afterInvalidStatus.GetProperty("instanceId").GetString() == abandonedInstance &&
+          string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 invalid selection preserves the old root and abandoned-attempt identity");
+    string pm17ConfigBackup = Path.Combine(o01Root, "pm17-abandoned-launch", "config.backup.json");
+    if (File.Exists(pm17ConfigBackup)) File.Delete(pm17ConfigBackup);
+    Directory.CreateDirectory(pm17ConfigBackup);
+    bool pm17WriteFailed = false;
+    try { pm17LaunchBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { pm17WriteFailed = ex.Code == "CONFIG_WRITE_FAILED"; }
+    Directory.Delete(pm17ConfigBackup);
+    JsonElement afterWriteFailure = JsonSerializer.SerializeToElement(pm17LaunchLifecycle.CreateInstanceStatus());
+    Check(pm17WriteFailed && afterWriteFailure.GetProperty("instanceId").GetString() == abandonedInstance &&
+          string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 persistence failure preserves the old root and abandoned-attempt identity");
+    bool reboundAfterFailure = true;
+    try { pm17LaunchBackend.SaveGameRoot(o01RootB); } catch (BridgeCommandException) { reboundAfterFailure = false; }
+    Check(reboundAfterFailure && string.Equals(pm17LaunchConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 failed-before-launch A -> B releases abandoned attempt identity without app restart");
+    bool secondLaunchWorked = true;
+    try { await pm17LaunchLifecycle.InvokeAsync("profile_instance_start", pm17ActivePayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { secondLaunchWorked = false; }
+    Check(secondLaunchWorked && pm17StartCalls == 2,
+        "PM17-01 newly selected B launches successfully through the existing lifecycle after abandoned A attempt");
+    if (secondLaunchWorked)
+    {
+        using JsonDocument stop = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17LaunchConfig.Snapshot.ProfileId, instanceId = pm17Session }));
+        await pm17LaunchLifecycle.InvokeAsync("profile_instance_stop", stop.RootElement.Clone(), CancellationToken.None);
+    }
+
+
+// PM17-01: an in-flight fake helper keeps the lifecycle in starting ownership
+// until it exits; root changes cannot clear that state early.
+var pm17ActiveConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-active-helper"));
+pm17ActiveConfig.Update(c => c with { GameRoot = o01RootA });
+var pm17ActiveEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+var pm17ActiveRelease = new TaskCompletionSource<JsonElement>(TaskCreationOptions.RunContinuationsAsynchronously);
+var pm17ActiveHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => throw new FileNotFoundException(path),
+    RunHelperAsync = async (_, _) =>
+    {
+        pm17ActiveEntered.TrySetResult();
+        return await pm17ActiveRelease.Task.ConfigureAwait(false);
+    },
+};
+using (var pm17ActiveLifecycle = new OverviewLifecycleService(pm17ActiveConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-active-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17ActiveConfig, testHooks: pm17ActiveHooks, startRecoveryMonitor: false))
+{
+    var pm17ActiveBackend = new LWBridgeBackend(pm17ActiveConfig, pm17ActiveLifecycle, overviewLifecycle: pm17ActiveLifecycle);
+    using JsonDocument pm17TimeoutPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17ActiveConfig.Snapshot.ProfileId }));
+    Task<object?> activeStart = pm17ActiveLifecycle.InvokeAsync("profile_instance_start", pm17TimeoutPayload.RootElement.Clone(), CancellationToken.None);
+    await pm17ActiveEntered.Task;
+    bool activeBlocked = false;
+    try { pm17ActiveBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { activeBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+    Check(activeBlocked && string.Equals(pm17ActiveConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 active helper prevents installation retargeting");
+    pm17ActiveRelease.TrySetException(new InvalidOperationException("synthetic active helper failure"));
+    try { await activeStart; } catch (BridgeCommandException) { }
+    GameRootStatus afterActiveExit = pm17ActiveBackend.SaveGameRoot(o01RootB);
+    Check(afterActiveExit.Valid && string.Equals(pm17ActiveConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 failed helper may release abandoned identity after the helper exits and no cleanup obligation exists");
+}
+
+// PM17-01: a supervised real helper timeout must retain helper ownership until
+// that exact helper exits, even though StartAsync has already returned an error.
+string timeoutHelper = Path.Combine(o01Root, "pm17-timeout-helper.py");
+File.WriteAllText(timeoutHelper, "import time, json\ntime.sleep(0.35)\nprint(json.dumps({'ok': False, 'error': 'late synthetic helper'}))\n");
+var pm17TimeoutConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-timeout-helper-config"));
+pm17TimeoutConfig.Update(c => c with { GameRoot = o01RootA });
+var pm17TimeoutHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => throw new FileNotFoundException(path),
+};
+using (var pm17TimeoutLifecycle = new OverviewLifecycleService(pm17TimeoutConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: timeoutHelper, helperSupervisionTimeout: TimeSpan.FromMilliseconds(50), requireCurrentClientEvidence: false,
+    config: pm17TimeoutConfig, testHooks: pm17TimeoutHooks, startRecoveryMonitor: false))
+{
+    var pm17TimeoutBackend = new LWBridgeBackend(pm17TimeoutConfig, pm17TimeoutLifecycle, overviewLifecycle: pm17TimeoutLifecycle);
+    using JsonDocument pm17PendingPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17TimeoutConfig.Snapshot.ProfileId }));
+    try { await pm17TimeoutLifecycle.InvokeAsync("profile_instance_start", pm17PendingPayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    bool timeoutBlocked = false;
+    try { pm17TimeoutBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { timeoutBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+    Check(timeoutBlocked && string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 timed-out helper retains ownership and blocks retargeting while it is still alive");
+    await Task.Delay(600);
+    GameRootStatus afterTimeoutExit = pm17TimeoutBackend.SaveGameRoot(o01RootB);
+    Check(afterTimeoutExit.Valid && string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 timed-out helper ownership releases only after the helper actually exits and no cleanup obligation remains");
+}
+
+// PM17-01 + PM17-02: a failed attempt with a pending shared recovery journal
+// must remain pinned to the old root even after the helper itself is gone.
+var pm17PendingConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-pending-after-failure"));
+pm17PendingConfig.Update(c => c with { GameRoot = o01RootA });
+byte[] pm17PendingJournal = JsonSerializer.SerializeToUtf8Bytes(new
+{
+    schemaVersion = 1, requestId = "pm17-pending", backupPath = Path.Combine(o01Root, "pm17-pending-backup"),
+    originalFiles = new { scripts = "sha256" }, stage = "backup_ready",
+});
+var pm17PendingHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase)
+        ? pm17PendingJournal : throw new FileNotFoundException(path),
+    RunHelperAsync = (_, _) => throw new InvalidOperationException("synthetic failure with pending restoration"),
+};
+using (var pm17PendingLifecycle = new OverviewLifecycleService(pm17PendingConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-pending-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17PendingConfig, testHooks: pm17PendingHooks, startRecoveryMonitor: false))
+{
+    var pm17PendingBackend = new LWBridgeBackend(pm17PendingConfig, pm17PendingLifecycle, overviewLifecycle: pm17PendingLifecycle);
+    using JsonDocument pm17PartialPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17PendingConfig.Snapshot.ProfileId }));
+    try { await pm17PendingLifecycle.InvokeAsync("profile_instance_start", pm17PartialPayload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    bool pendingBlocked = false;
+    try { pm17PendingBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { pendingBlocked = ex.Code == "GAME_REPAIR_REQUIRED"; }
+    Check(pendingBlocked && string.Equals(pm17PendingConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 pending restoration keeps the failed attempt pinned to installation A");
+}
+
+// PM17-01: if the helper fails after a same-path LastWar process appears,
+// retargeting stays blocked until that exact process is gone.
+var pm17PartialConfig = new LocalConfigStore(Path.Combine(o01Root, "pm17-partial-launch"));
+pm17PartialConfig.Update(c => c with { GameRoot = o01RootA });
+Process? pm17PartialProcess = null;
+var pm17PartialHooks = new OverviewLifecycleTestHooks
+{
+    ReadAllBytes = path => throw new FileNotFoundException(path),
+    RunHelperAsync = (_, _) =>
+    {
+        pm17PartialProcess = StartTemporaryLastWar(Path.Combine(o01RootA, "Game", "LastWar.exe"), 3);
+        throw new InvalidOperationException("synthetic failure after selected-root process appeared");
+    },
+};
+using (var pm17PartialLifecycle = new OverviewLifecycleService(pm17PartialConfig.Snapshot.ProfileId, o01RootA,
+    helperPath: Path.Combine(o01Root, "fake-pm17-partial-helper.py"), requireCurrentClientEvidence: false,
+    config: pm17PartialConfig, testHooks: pm17PartialHooks, startRecoveryMonitor: false))
+{
+    var pm17PartialBackend = new LWBridgeBackend(pm17PartialConfig, pm17PartialLifecycle, overviewLifecycle: pm17PartialLifecycle);
+    using JsonDocument payload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17PartialConfig.Snapshot.ProfileId }));
+    try { await pm17PartialLifecycle.InvokeAsync("profile_instance_start", payload.RootElement.Clone(), CancellationToken.None); }
+    catch (BridgeCommandException) { }
+    await Task.Delay(150);
+    bool partialBlocked = false;
+    try { pm17PartialBackend.SaveGameRoot(o01RootB); }
+    catch (BridgeCommandException ex) { partialBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
+    Check(partialBlocked && string.Equals(pm17PartialConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 partial selected-root launch blocks retargeting while that process remains alive");
+    if (pm17PartialProcess is not null) await pm17PartialProcess.WaitForExitAsync();
+    GameRootStatus afterPartialExit = pm17PartialBackend.SaveGameRoot(o01RootB);
+    Check(afterPartialExit.Valid && string.Equals(pm17PartialConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "PM17-01 partial-launch identity releases after the selected-root process exits and no journal/helper remains");
+}
+pm17PartialProcess?.Dispose();
+}
+try { Directory.Delete(o01Root, recursive: true); } catch { }
+
+// Installed-game checks are diagnostics by default and become a gate only when requested.
+bool requireInstalled = args.Contains("--require-installed", StringComparer.OrdinalIgnoreCase);
+string detectedRoot = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "FunFly", "Last War-Survival Game");
+var installation = new GameInstallationService(new LocalConfigStore(persistent: false));
+GameRootStatus installed = installation.Validate(detectedRoot, "diagnostic");
+if (requireInstalled)
+    Check(installed.Valid, "installed Last War root validates when --require-installed is requested");
+if (installed.Valid)
+{
+    Check(installed.Is64Bit == true, "installed game and xlua are AMD64 PE32+");
+    Check(installed.GameMachine?.StartsWith("0x8664/", StringComparison.Ordinal) == true,
+        "installed LastWar.exe machine type is AMD64");
+    Check(installed.XluaMachine?.StartsWith("0x8664/", StringComparison.Ordinal) == true,
+        "installed xlua.dll machine type is AMD64");
+    Check(File.Exists(installed.LauncherPath), "official launcher exists");
+    Check(File.Exists(installed.GamePath), "game executable exists");
+    Check(File.Exists(installed.XluaPath), "original xlua exists");
+}
+
+GameRootStatus invalid = installation.Validate(
+    Path.Combine(Path.GetTempPath(), "lwbridge-missing-root-" + Guid.NewGuid().ToString("N")),
+    "self-check");
+Check(!invalid.Valid && invalid.Error == "GAME_ROOT_REQUIRED_FILES_MISSING", "missing root fails closed");
+
+GameProcessStatus process = installation.GetProcessStatus();
+if (verifyRealConfigUnchanged)
+{
+    bool existsAfter = File.Exists(realConfigPath);
+    Check(existsAfter == realConfigExistedBefore,
+        "deterministic checks do not create or remove the real user config");
+    if (realConfigExistedBefore && existsAfter && realConfigBefore is not null)
+        Check(File.ReadAllBytes(realConfigPath).SequenceEqual(realConfigBefore),
+            "deterministic checks leave real user config bytes unchanged");
+}
+
+var report = new
+{
+    ok = failures.Count == 0,
+    deterministic = new
+    {
+        profileRouting = true,
+        persistence = true,
+        requestLifetime = true,
+        mapPersistence = true,
+        mapContract = true,
+        bridgeControlPipeContract = true,
+    },
+    installedDiagnostic = new
+    {
+        required = requireInstalled,
+        installed.Valid,
+        installed.Source,
+        installed.Path,
+        installed.Error,
+        installed.Is64Bit,
+        installed.GameMachine,
+        installed.XluaMachine,
+    },
+    process = new
+    {
+        process.GameRunning,
+        process.LauncherRunning,
+        process.GamePid,
+        process.LauncherPid,
+    },
+    failures,
+};
+
+Console.WriteLine(JsonSerializer.Serialize(report, JsonOptions.Indented));
+return failures.Count == 0 ? 0 : 1;
+
+internal sealed class ControlledAsyncCommandService : INativeAsyncCommandService
+{
+    public const string Command = "diagnostic_delayed_operation";
+
+    private readonly bool ignoreCancellationWhileWaiting;
+    private readonly TaskCompletionSource entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private int activeOwners;
+    private int commitCount;
+
+    public ControlledAsyncCommandService(bool ignoreCancellationWhileWaiting)
+    {
+        this.ignoreCancellationWhileWaiting = ignoreCancellationWhileWaiting;
+    }
+
+    public Task Entered => entered.Task;
+    public int ActiveOwners => Volatile.Read(ref activeOwners);
+    public int CommitCount => Volatile.Read(ref commitCount);
+
+    public bool CanHandle(string command) => string.Equals(command, Command, StringComparison.Ordinal);
+
+    public void Release() => release.TrySetResult();
+
+    public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!CanHandle(command))
+            throw new InvalidOperationException("Unexpected controlled async command: " + command);
+
+        Interlocked.Increment(ref activeOwners);
+        entered.TrySetResult();
+        try
+        {
+            if (ignoreCancellationWhileWaiting)
+                await release.Task.ConfigureAwait(false);
+            else
+                await release.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            int committed = Interlocked.Increment(ref commitCount);
+            return new { committed = true, commitCount = committed };
+        }
+        finally
+        {
+            Interlocked.Decrement(ref activeOwners);
+        }
+    }
+}

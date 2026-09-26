@@ -1,0 +1,66 @@
+{
+  "findingId": "LWB-PM16-001",
+  "date": "2026-09-12",
+  "scope": "PM16-02 process-incarnation ownership hardening for Overview repair/close/recovery",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; READY_FOR_PM_REVIEW",
+  "auditSource": "docs/reviews/2026-09-12-review-16-overview-zero-open.md#pm16-02",
+  "implementationPolicy": "The rebuild binds a live owned LastWar process to profile/session plus PID, exact executable path, and Windows process creation timestamp. The timestamp is additional rebuild ownership evidence; it is not claimed as recovered original LWBridge semantics.",
+  "preFixReproduction": {
+    "method": "isolated synthetic process-identity seam; no real game/process action",
+    "result": "same PID/path with a different process creation timestamp was accepted and proceeded toward close",
+    "scratchCommand": "python .codex-live\\pm16_02_prefx_repro.py",
+    "observed": {
+      "preFixAcceptedDifferentCreationIdentity": true,
+      "closeAttempted": true,
+      "journalStartedAtUtc": "2026-09-12T01:00:00.0000000Z",
+      "replacementStartedAtUtc": "2026-09-12T02:00:00.0000000Z"
+    }
+  },
+  "sourceIdentity": {
+    "OverviewLifecycleService.cs": "c77e1470462ab9c39b3ad3e05531cd418ee14a104f142939b9e5068a6dd00031",
+    "OverviewLifecycleRecovery.cs": "5fa57a5ba9201b709d6f387f627fbe1db9c9a89d731073153e7c99ff576bd939",
+    "run_overview_bridge.py": "103224b89fb972ff82b75c6be925ce40054a5d1a197d045d51c7d7bfba79410e",
+    "run_live_resource_probe.py": "1394656b4eb899b039f52567ff8d39f36fd643360ca17c026a5401dee1aaa822",
+    "test_overview_bridge_lifecycle.py": "734dcbe3b7c9f2c5a1598344a24192812bc0c017c85eace023944e95ccd6e9d3",
+    "DesktopChecks.Program.cs": "11a15524dc3831077a9f5b7690b7a317295eb09d03ef7128f3c224ed9f0bcb47"
+  },
+  "implementation": [
+    "run_overview_bridge.py persists gameStartedAtUtc from the acquired process into the durable recovery journal and returns it in start/stop results.",
+    "OverviewLifecycleService stores that timestamp in the owned snapshot, repair snapshot, helper invocation, readiness checks, and stop-result validation.",
+    "OverviewLifecycleRecovery validates the same process incarnation before hang classification and before forced owned-process termination.",
+    "run_stop requires journal/request/current-process creation identity agreement whenever a live process exists.",
+    "close_owned_game_process_for_restore re-reads process creation identity before Process.CloseMainWindow and the PowerShell close script rechecks it again immediately before the destructive call.",
+    "Unreadable/missing creation identity remains unknown and cannot authorize ownership of a live process.",
+    "The already-exited branch restores the validated journal without attempting to touch another process."
+  ],
+  "locators": [
+    "src/LWBridge.Desktop/OverviewLifecycleService.cs: OverviewHelperInvocation, TryGetRepairSnapshot, ProcessMatches, ValidateStartResult, ValidateStopResult, OwnedSnapshot",
+    "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs: RecoveryObservationAsync, RecoverOwnedSessionAsync, TerminateOwnedProcessAsync, ValidateExactProcessIdentity",
+    "tools/run_overview_bridge.py: run_start, run_stop",
+    "tools/run_live_resource_probe.py: parse_selected_game_processes, require_process_started_at, close_owned_game_process_for_restore",
+    "tools/test_overview_bridge_lifecycle.py: exact identity, replacement identity, missing identity, final-close identity swap, already-exited cases",
+    "tests/LWBridge.Desktop.Checks/Program.cs: Overview lifecycle/repair/recovery process-incarnation regressions"
+  ],
+  "reproduction": {
+    "helperBoundary": "python tools\\test_overview_bridge_lifecycle.py",
+    "desktopSuite": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release --no-build",
+    "hygiene": "git diff --check"
+  },
+  "tests": {
+    "samePidPathDifferentCreationRejected": true,
+    "missingOrUnreadableCreationRejected": true,
+    "creationChangedBetweenDetectionAndFinalCloseRejected": true,
+    "exactOriginalCreationIdentityRepairable": true,
+    "alreadyExitedOriginalRestoresWithoutTouchingReplacement": true,
+    "foreignSessionRejected": true,
+    "desktopDeterministicFailures": [],
+    "realGameTouched": false
+  },
+  "validationLimits": [
+    "PID reuse is synthetic; no attempt was made to force real Windows PID reuse.",
+    "The process creation timestamp is a rebuild ownership policy, not a claim about the protected original LWBridge implementation.",
+    "Existing successful live repair/close evidence remains credited, but this checkpoint adds offline negative ownership coverage rather than a new live game run.",
+    "PM16-01 selected-root propagation and PM16-03 document/evidence reconciliation remain open after this finding."
+  ],
+  "implementationImpact": "PM16-02 is corrected at the desktop and helper boundaries. Live process ownership no longer relies on PID/path alone, and unknown or changed creation identity cannot authorize repair close or recovery termination."
+}

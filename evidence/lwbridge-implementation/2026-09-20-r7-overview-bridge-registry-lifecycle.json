@@ -1,0 +1,125 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-098",
+  "date": "2026-09-20",
+  "status": "RECOVERED-REGISTRY/OFFLINE-TESTED/TRANSPORT-LISTENER-BLOCKED",
+  "title": "Recover bridge instance registry lifecycle",
+  "branch": "research/offline-controller",
+  "parentRevision": "dc6dd2ea9c758bb218da47e21a0f29b505307355",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "scope": {
+    "claim": "Recovers and implements the original bridge-store instance registration, handshake claim, reconnect generation routing, ordinary disconnect and explicit unregister semantics as a protocol-independent in-memory model. It does not create a named-pipe listener, set proxy launch environment, enable call_lua, or claim queue/timeouts that remain unrecovered.",
+    "officialGameLaunched": false,
+    "productionGameplayActionPerformed": false,
+    "productionCallLuaEnabled": false
+  },
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "register": "RVA 0x3C2A69-0x3C2D1B",
+    "pendingExists": "RVA 0x3C2D1B-0x3C2D92",
+    "connectedLookup": "RVA 0x3C2D92-0x3C2F0C",
+    "refreshPending": "RVA 0x3C2F0C-0x3C30BE",
+    "hostConstructor": "RVA 0x3C30BE-0x3C3BEC",
+    "outboundRouting": "RVA 0x3C3BEC-0x3C405E",
+    "handshakeClaim": "RVA 0x3C47AB-0x3C4976",
+    "explicitUnregister": "RVA 0x3C2436-0x3C24EF; wrapper call RVA 0x3CC8D2",
+    "generationDisconnect": "RVA 0x3C24EF-0x3C2A69; connection teardown call RVA 0xE340C",
+    "startupRegistrationCaller": "RVA 0x3A231F adds 0x15F90 (90000 ms) to current clock before registration"
+  },
+  "registryContract": {
+    "key": "instanceId",
+    "registrationFields": [
+      "profileId",
+      "SHA-256(token)",
+      "expiry deadline",
+      "claimed flag"
+    ],
+    "registrationValidation": {
+      "profileIdNonEmpty": true,
+      "instanceIdNonEmpty": true,
+      "minimumTokenBytes": 7,
+      "deadlinePositive": true
+    },
+    "startupRegistrationLifetimeMilliseconds": 90000,
+    "duplicatePolicy": "same instanceId rejected if already present in pending or connected state",
+    "refreshPolicy": "only an existing unclaimed pending registration may receive a positive new deadline",
+    "firstHandshake": "requires instanceId lookup, exact profileId, exact SHA-256 token hash, and deadline strictly greater than current time; then marks registration claimed",
+    "reconnect": "claimed registration is retained; profile/token checks remain, first-claim deadline check is skipped, and a newer connected route replaces the prior route",
+    "generation": "host-global UInt64 monotonic counter saturating at UInt64.MaxValue",
+    "ordinaryDisconnect": "removes connected route only when both instanceId and connection generation match; retained registration is not removed",
+    "explicitUnregister": "removes pending registration and connected route for the instance key",
+    "defaultRoute": "literal default resolves only when exactly one connected route exists",
+    "staleProtection": "old connection generation cannot remove a newer reconnect route"
+  },
+  "hostConstructorContract": {
+    "requiresNonEmptyBuildId": true,
+    "derivesPerUserPipeIdentityFromCurrentWindowsSid": true,
+    "resolvesExpectedGameExecutable": true,
+    "startsSharedAsyncAcceptLoop": true
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeRegistry.cs",
+    "productionIntegration": false,
+    "persistentNamedPipeListenerImplemented": false,
+    "proxyEnvironmentBindingImplemented": false,
+    "outboundQueueLimitsRecovered": false,
+    "postHandshakeTimeoutValuesRecovered": false,
+    "pendingCallCollectionImplemented": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED",
+    "getStatusPending": "null"
+  },
+  "tests": {
+    "file": "tests/LWBridge.Desktop.Checks/OverviewBridgeRegistryChecks.cs",
+    "focusedCli": "--overview-bridge-registry-check",
+    "focusedResult": "PASS",
+    "coverage": [
+      "invalid registration",
+      "duplicate registration",
+      "exact expiry boundary",
+      "wrong profile",
+      "wrong token",
+      "pending refresh",
+      "refresh rejection after claim",
+      "ordinary disconnect retaining registration",
+      "post-expiry authenticated reconnect after claim",
+      "generation advance",
+      "stale disconnect protection",
+      "default route uniqueness",
+      "explicit unregister",
+      "re-register after unregister",
+      "missing refresh",
+      "UInt64 generation saturation"
+    ]
+  },
+  "harnessCorrection": {
+    "finding": "R7-097 status/RPC calls had been inserted inside the focused --overview-close-timing-check branch instead of the main default sequence.",
+    "impact": "R7-097 focused RPC protocol check itself passed and the ordinary deterministic suite passed, but the RPC guard was not actually invoked by every default run as previously intended.",
+    "correction": "R7-098 removes those calls from the close-timing branch and places status, RPC protocol and registry checks in the main deterministic sequence."
+  },
+  "remainingBlocker": "Recover exact transport listener/I/O queue limits and timeouts plus the authentic proxy launch environment binding before constructing a live host or enabling allowlisted call_lua(getStatus).",
+  "safety": {
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  },
+  "postValidation": {
+    "focusedRegistryGuard": "PASS",
+    "focusedRpcProtocolGuard": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "defaultDeterministicSuite": "PASS; failures=[]",
+    "defaultA11Guards": [
+      "OverviewStatusContractChecks",
+      "OverviewBridgeRpcProtocolChecks",
+      "OverviewBridgeRegistryChecks"
+    ],
+    "r7_097HarnessIntegrationCorrected": true,
+    "realConfigUnchanged": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false,
+    "gitDiffCheck": "PASS"
+  }
+}

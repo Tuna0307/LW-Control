@@ -1,0 +1,173 @@
+{
+  "evidenceId": "LWB-R7-046",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "7e3e2d13bf4ded5c4eafbb108fac34c89fc6c8ca",
+  "scope": {
+    "publicCommand": "map_truck_plunder_schedule",
+    "publicScheduleContract": "IMPLEMENTED_OFFLINE_TESTED",
+    "archiveReschedulePersistence": "IMPLEMENTED_OFFLINE_TESTED",
+    "durableWorker": "IMPLEMENTED_OFFLINE_TESTED",
+    "liveRobberyAcceptance": "NOT_RUN",
+    "liveProven": false
+  },
+  "originalReference": {
+    "binarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "command": {
+      "name": "map_truck_plunder_schedule",
+      "rawOffset": "0x00820B91",
+      "wrapperXrefVa": "0x140152CD6",
+      "wrapperFunction": {
+        "beginVa": "0x140152C2E",
+        "endVa": "0x140153890"
+      }
+    },
+    "payload": {
+      "property": "rows",
+      "missingRows": {
+        "code": "INVALID_REQUEST",
+        "message": "truck rows are required"
+      },
+      "rowCount": {
+        "minimum": 1,
+        "maximum": 200,
+        "invalidCode": "INVALID_REQUEST",
+        "invalidMessage": "select between 1 and 200 trucks"
+      },
+      "invalidRow": {
+        "code": "INVALID_REQUEST",
+        "message": "truck scheduling data is invalid"
+      }
+    },
+    "rowValidation": {
+      "serverId": "numeric-like value > 0",
+      "uuid": "nonempty JSON string containing ASCII decimal digits only",
+      "executeAt": "numeric-like value > 0",
+      "maxLootCount": "numeric-like value > 0",
+      "robTimes": "numeric-like value strictly less than maxLootCount; no separate nonnegative check",
+      "numericAccessor": {
+        "function": "0x14023195E..0x140231B2A",
+        "accepts": [
+          "JSON integer/number",
+          "signed decimal numeric string"
+        ],
+        "missingOrInvalid": 0
+      },
+      "validationBeforePersistence": true,
+      "notableEdge": "Negative robTimes remains valid when robTimes < maxLootCount, matching the recovered literal predicate."
+    },
+    "serviceScheduleTransaction": {
+      "function": "0x14026515B..0x140266840",
+      "serverIdReadVa": "0x140265177",
+      "uuidReadVa": "0x14026519A",
+      "executeAtReadVa": "0x1402651BA",
+      "protectTimeFallbackVa": "0x1402651DA",
+      "expireAtReadVa": "0x140265200",
+      "effectiveExecuteAt": "Use executeAt when present; otherwise protectTime. Effective value must be positive.",
+      "expireAt": "Persist only when present and > 0; otherwise SQL NULL.",
+      "serviceInvalid": {
+        "code": "INVALID_REQUEST",
+        "message": "invalid truck plunder job"
+      }
+    },
+    "batch": {
+      "function": "0x14020A2D3..0x14020A3F1",
+      "adapter": "0x14020DAE2..0x14020DB40",
+      "behavior": "Iterates validated rows and schedules each row; stops on first service/database error; no per-row success aggregation.",
+      "successResult": "unit/null compatible with shipped frontend, which awaits but ignores the return value"
+    },
+    "frontend": {
+      "call": "map_truck_plunder_schedule({rows:selectedRows.map(row=>({...row,executeAt:max(now,protectTime||0)}))})",
+      "successValueConsumed": false
+    }
+  },
+  "implementation": {
+    "owner": "ManualMapScanCommandService",
+    "backendDispatch": "LWBridgeBackend invokes async command services before its synchronous switch, so the single-owner service receives the production command.",
+    "validation": [
+      "Require rows array.",
+      "Require 1..200 rows.",
+      "Validate every row before the first persistence write.",
+      "Require positive supported server id, decimal-string uuid, positive executeAt/maxLootCount, and robTimes < maxLootCount.",
+      "Accept integer-like numbers and signed decimal numeric strings."
+    ],
+    "storeHandoff": "Each validated row calls MapDataStore.ScheduleTruckPlunder using RecoveredWallClock.UnixTimeMilliseconds().",
+    "result": null,
+    "event": "One immediate TruckPlunderChanged notification is emitted after a successful batch.",
+    "gameOperation": "Scheduling itself is DB-only and does not claim the game-operation busy gate; the durable worker claims that gate only when due work executes.",
+    "serverDomainBoundary": "Recovered public wrapper only proves serverId > 0. The rebuild retains the existing MapDataStore domain 1..99999; values above that domain are not claimed as exact original parity.",
+    "expiryBoundary": "Current-v19 Truck scan does not source-prove a public expireAt field. A row with no explicit positive expireAt therefore persists SQL NULL. The rebuild does not invent expireAt from arriveTs.",
+    "executionBoundary": "Durable worker executes only when the job server equals the current live server and never performs an implicit server jump."
+  },
+  "deterministicValidation": {
+    "serviceCanHandlePublicSchedule": true,
+    "successResultIsNull": true,
+    "oneImmediateChangeEvent": true,
+    "twoRowBatchPersists": true,
+    "freshJobIdentityGenerated": true,
+    "executeAtPersisted": true,
+    "positiveExpireAtPersisted": true,
+    "nonpositiveExpireAtBecomesNull": true,
+    "numericStringFieldsAccepted": true,
+    "negativeRobTimesLiteralPredicatePreserved": true,
+    "missingRowsExactError": true,
+    "emptyRowsExactError": true,
+    "over200RowsExactError": true,
+    "invalidLaterRowExactError": true,
+    "wholePublicBatchValidatedBeforeFirstWrite": true,
+    "noWorkerOrGameExecutionInPublicContractTest": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSuite": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "currentV19Validation": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "contentVersion": 19,
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+    "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+    "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "checkOnlyCandidate": {
+      "ok": true,
+      "installedFilesChanged": false,
+      "packageSha256": "419c9c22211b1c53882ba3cc120a1f7432b0e2ea2034d4a49b5930ecee120e41",
+      "packageSize": 41356822,
+      "packageCrc32": 1148589539,
+      "bridgeSourceSha256": "9df78b9045e9670bf4622683d32345bc43eedf8655b4c9229ff6e80dedd3b235",
+      "wrapperPlaintextSha256": "5287839ee4bba09661f07eb69a1ce9eb9308459bfc919d9d011157c6f95a2714",
+      "entryCount": 18735
+    }
+  },
+  "safety": {
+    "publicScheduleEnabled": true,
+    "liveRobberyAttempted": false,
+    "liveAcceptanceClaimed": false,
+    "implicitServerJumpEnabled": false,
+    "automaticRetryAfterAmbiguousSendEnabled": false,
+    "automaticRetryAfterStaleRunningRestartEnabled": false,
+    "expireAtSynthesizedFromArriveTs": false,
+    "officialPackageChanged": false
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "marchOrTrainIdsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Do not claim live Truck robbery acceptance until an explicit safe live test is authorized; a real robbery consumes a daily action.",
+    "Improve source-backed current-v19 Truck row fidelity where possible, especially maxLootCount/protectTime and post-success robTimes, without synthesizing values.",
+    "Keep cross-server Truck execution pending until explicit server-travel ownership is designed; current worker waits rather than jumping implicitly."
+  ]
+}

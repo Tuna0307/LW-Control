@@ -1,0 +1,47 @@
+{
+  "findingId": "LWB-R7-032",
+  "status": "LIVE-PROVEN",
+  "date": "2026-09-18",
+  "scope": "Dispatch/Secret Task-only ordinary Manual Start on the shared full-world scanner",
+  "acceptance": {
+    "scanMode": "normal",
+    "concurrency": 8,
+    "totalBlocks": 2500,
+    "completedBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "scanWallSeconds": 105.7823425,
+    "publishedDispatchCount": 74,
+    "reopenedDispatchCount": 74
+  },
+  "requiredLiveRowCoverage": {
+    "pointType17Rows": 74,
+    "heroDispatchRuntimeClassRows": 74,
+    "configRows": 74,
+    "levelRows": 74,
+    "qualityRows": 74,
+    "specialFlagRows": 74,
+    "sourceIdentityRows": 74
+  },
+  "optionalLiveRowCoverage": {
+    "completionTimeRows": 74,
+    "rewardedRows": 74,
+    "actEndTimeRows": 74,
+    "expiredTimeRows": 74,
+    "ownerUidRows": 74,
+    "allianceIdRows": 70,
+    "stealListCountRows": 74,
+    "accListCountRows": 74,
+    "dispatchNameKeyRows": 74
+  },
+  "source": "WorldPointManager._pointInfos + pointType 17 HeroDispatchMissionPointInfo + TableName.LwDispatchTask config",
+  "postRun": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "compatibilityOk": true,
+    "gameLauncherBridgeProcessesPresent": false,
+    "recoveryJournalPresent": false
+  },
+  "privacy": "Aggregate-only evidence. No player identity, point UUID, coordinates, session/challenge identifiers, process identifiers, databases or logs are retained."
+}

@@ -1,0 +1,166 @@
+{
+  "findingId": "LWB-R6-043",
+  "date": "2026-09-09",
+  "scope": "PM7-B secure-proxy device-key identity, public-key format, KDF and AES-GCM contract",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProxy": "xlua-proxy-secure.dll",
+    "embeddedProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "embeddedProxyHostRawOffset": "0x987374",
+    "coordinateSystem": "secure-proxy preferred-image RVAs/VAs plus raw offsets"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.6"
+  },
+  "functions": {
+    "aes_gcm_decrypt": {
+      "beginRva": "0x3CB60",
+      "endRva": "0x3CFEA"
+    },
+    "agreement_derive": {
+      "beginRva": "0x3DD00",
+      "endRva": "0x3E01E"
+    },
+    "export_device_public_key": {
+      "beginRva": "0x430C0",
+      "endRva": "0x432BE"
+    },
+    "open_persisted_device_key": {
+      "beginRva": "0x432C0",
+      "endRva": "0x43380"
+    }
+  },
+  "literals": {
+    "ECCPUBLICBLOB": {
+      "proxyRawOffset": "0x708A0",
+      "proxyRva": "0x714A0",
+      "proxyVa": "0x1800714A0",
+      "encoding": "utf-16le"
+    },
+    "AES": {
+      "proxyRawOffset": "0x72DA8",
+      "proxyRva": "0x739A8",
+      "proxyVa": "0x1800739A8",
+      "encoding": "utf-16le"
+    },
+    "ChainingModeGCM": {
+      "proxyRawOffset": "0x72DB0",
+      "proxyRva": "0x739B0",
+      "proxyVa": "0x1800739B0",
+      "encoding": "utf-16le"
+    },
+    "ChainingMode": {
+      "proxyRawOffset": "0x72DD0",
+      "proxyRva": "0x739D0",
+      "proxyVa": "0x1800739D0",
+      "encoding": "utf-16le"
+    },
+    "device key missing": {
+      "proxyRawOffset": "0x72DF0",
+      "proxyRva": "0x739F0",
+      "proxyVa": "0x1800739F0",
+      "encoding": "ascii"
+    },
+    "Microsoft Software Key Storage Provider": {
+      "proxyRawOffset": "0x72E10",
+      "proxyRva": "0x73A10",
+      "proxyVa": "0x180073A10",
+      "encoding": "utf-16le"
+    },
+    "key envelope agreement failed": {
+      "proxyRawOffset": "0x72E60",
+      "proxyRva": "0x73A60",
+      "proxyVa": "0x180073A60",
+      "encoding": "ascii"
+    },
+    "TRUNCATE": {
+      "proxyRawOffset": "0x72E80",
+      "proxyRva": "0x73A80",
+      "proxyVa": "0x180073A80",
+      "encoding": "utf-16le"
+    },
+    "device key unavailable": {
+      "proxyRawOffset": "0x72EB0",
+      "proxyRva": "0x73AB0",
+      "proxyVa": "0x180073AB0",
+      "encoding": "ascii"
+    },
+    "device key mismatch": {
+      "proxyRawOffset": "0x72EC8",
+      "proxyRva": "0x73AC8",
+      "proxyVa": "0x180073AC8",
+      "encoding": "ascii"
+    },
+    "key envelope decrypt failed": {
+      "proxyRawOffset": "0x72EE0",
+      "proxyRva": "0x73AE0",
+      "proxyVa": "0x180073AE0",
+      "encoding": "ascii"
+    },
+    "{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}": {
+      "proxyRawOffset": "0x73090",
+      "proxyRva": "0x73C90",
+      "proxyVa": "0x180073C90",
+      "encoding": "utf-16le"
+    },
+    "DEVICE_KEY_PROVIDER": {
+      "proxyRawOffset": "0x730E0",
+      "proxyRva": "0x73CE0",
+      "proxyVa": "0x180073CE0",
+      "encoding": "ascii"
+    },
+    "DEVICE_KEY_EXPORT": {
+      "proxyRawOffset": "0x730F8",
+      "proxyRva": "0x73CF8",
+      "proxyVa": "0x180073CF8",
+      "encoding": "ascii"
+    },
+    "DEVICE_KEY_FORMAT": {
+      "proxyRawOffset": "0x73110",
+      "proxyRva": "0x73D10",
+      "proxyVa": "0x180073D10",
+      "encoding": "ascii"
+    },
+    "DEVICE_KEY_MISSING": {
+      "proxyRawOffset": "0x73128",
+      "proxyRva": "0x73D28",
+      "proxyVa": "0x180073D28",
+      "encoding": "ascii"
+    }
+  },
+  "result": [
+    "DEVICE_KEY_PROVIDER, DEVICE_KEY_EXPORT and DEVICE_KEY_FORMAT are diagnostic labels on concrete failure/validation branches, not runtime configuration-variable names.",
+    "The secure proxy opens Microsoft Software Key Storage Provider and then opens persisted key {2D337A4D-7E6C-49EF-9486-54F0A00D8A41}; provider-open failure maps to DEVICE_KEY_PROVIDER and key-open failure maps to DEVICE_KEY_MISSING.",
+    "The proxy exports ECCPUBLICBLOB, requires magic ECK1 (0x314B4345), cbKey=32 and total blob size 72 bytes, then emits a 65-byte public-key representation beginning with 0x04 followed by the 64 coordinate bytes. Export failure maps to DEVICE_KEY_EXPORT and structural mismatch maps to DEVICE_KEY_FORMAT.",
+    "The agreement path accepts only the same 65-byte 0x04-prefixed public-key form, reconstructs an ECK1/32-byte ECCPUBLICBLOB, imports it, performs NCryptSecretAgreement, and derives exactly 32 bytes using NCryptDeriveKey with KDF name TRUNCATE.",
+    "The symmetric decrypt helper requires a 32-byte key, 12-byte nonce and 16-byte authentication tag, opens AES, sets ChainingMode to ChainingModeGCM, creates the symmetric key and calls BCryptDecrypt."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_device_key_crypto.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_proxy_device_key_crypto.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-proxy-device-key-crypto.json",
+    "python -m py_compile tools\\inspect_lwbridge_proxy_device_key_crypto.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "secureProxyOnly": true,
+    "notProven": [
+      "the host instruction-level provisioning path that creates/finalizes the persisted key",
+      "whether the plain proxy uses instruction-identical code for these helpers",
+      "the exact package-key.envelope open/read caller and envelope field layout",
+      "which recovered symmetric-decrypt callsite consumes the package key versus the protected script package",
+      "bridge-scripts.dat plaintext and getWorldMapState/getCurrentServerId protected handler implementation",
+      "authoritative transport/readiness error propagation and live current-client behavior"
+    ],
+    "interpretationRule": "Only direct literals, bounded function control flow and imported-call targets in the hash-locked secure proxy are treated as recovered. Caller ownership outside these functions remains open."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "supersedesR6042Interpretation": "DEVICE_KEY_PROVIDER/EXPORT/FORMAT are diagnostic labels rather than configuration-variable names",
+    "pm7B": "device-key provider/name/export/KDF/AES-GCM prerequisites recovered for the secure proxy; continue with package-key envelope open/read caller and protected handler/readiness linkage",
+    "mapSummary": "remains fail-closed"
+  }
+}

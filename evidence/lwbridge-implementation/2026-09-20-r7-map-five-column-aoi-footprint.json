@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-102",
+  "date": "2026-09-20",
+  "status": "CURRENT-V19-REGRESSION-FIXED/OFFLINE-TESTED/LIVE-RETEST-PENDING",
+  "title": "Accept current-v19 five-column native AOI footprints in fast full-world scans",
+  "branch": "research/offline-controller",
+  "parentRevision": "3b80c7e379608c921b8bb80af5936292f9099116",
+  "scope": {
+    "trigger": "User-reported server-2212 Truck, Train and Secret Task scans stopping at 98% with 'The action could not be completed.'",
+    "liveFailureSource": "%LOCALAPPDATA%/LWBridgeRebuild/profiles/local-9370d887d93e4475a8d4fee049b50632/map-data.db",
+    "productionGameplayActionPerformed": false
+  },
+  "liveFailure": {
+    "runId": "8a0bece309064cb4b61c20e30708f2a9",
+    "serverId": 2212,
+    "selectedTypes": ["dispatch"],
+    "status": "failed",
+    "totalBlocks": 2500,
+    "completedBlocks": 2499,
+    "failedBlocks": 1,
+    "failedBlockIndex": 0,
+    "failedBlockAttempts": 2,
+    "runError": "direct map scan contains failed batches",
+    "sourceError": "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint",
+    "target": [45, 75],
+    "nativeCurrentSetCount": 50,
+    "rows": [0,1,2,3,4,5,6,7,8,9],
+    "columns": [2,3,4,5,6],
+    "interpretation": "The rejected footprint is actually a complete rectangular 10-row by 5-contiguous-column native footprint (10*5=50 AOIs)."
+  },
+  "persistedLastSuccessfulProbe": {
+    "path": "%LOCALAPPDATA%/LWBridgeRebuild/live-resource/bulk-aoi-diagnostic-result.json",
+    "serverId": 2212,
+    "includeDispatch": true,
+    "targetTileX": 995,
+    "targetTileY": 975,
+    "state": "proven",
+    "nativeCurrentSetCount": 33,
+    "meaning": "The type-specific probe remained healthy at the far map edge; the terminal failure was the host adaptive-footprint validator, not a Dispatch normalization failure."
+  },
+  "rootCause": {
+    "file": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+    "method": "ValidateAdaptiveRowFootprint",
+    "oldBoundary": "columns.Length < 2 or > 4",
+    "currentV19Observation": "valid contiguous width 5",
+    "why98Percent": "The direct scan persisted 2499 completed logical blocks and one failed block after the adaptive sweep rejected a valid live footprint."
+  },
+  "implementation": {
+    "newBoundary": "columns.Length < 2 or > 5",
+    "rectangleChecksPreserved": true,
+    "contiguousColumnCheckPreserved": true,
+    "exactRowsCheckPreserved": true,
+    "exactCartesianProductCheckPreserved": true,
+    "coverageRequirement": "still exactly 10,000 LOD0 AOIs before publication"
+  },
+  "test": {
+    "file": "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs",
+    "name": "FastFullMapAcceptsFiveColumnFootprint",
+    "fixture": "10 rows x 5 contiguous columns at a current-v19-shaped interior footprint",
+    "selectedType": "dispatch",
+    "expectedCaptures": 2500,
+    "result": "PASS"
+  },
+  "impact": {
+    "sharedFastSweepKinds": ["city","resource","truck","railway","dispatch","ghost","treasure"],
+    "truckTrainSecretTask": "The identified validator defect is shared by Truck/Railway/Dispatch fast full-world sweeps. Deterministic regression is fixed; fresh live scans are still required before claiming each user-visible mode live-proven.",
+    "monster": "Monster-only uses the separate whole-world LOD2 path and is not fixed or changed by this checkpoint.",
+    "cityUndercount": "Not claimed fixed; investigated separately."
+  },
+  "postValidation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "defaultDeterministicSuite": "PASS; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false
+  }
+}

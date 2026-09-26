@@ -1,0 +1,75 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-119",
+  "date": "2026-09-21",
+  "status": "PENDING-CALL-REGISTRY-IMPLEMENTED/SOURCE-HASH-LOCKED/OFFLINE-TESTED/PIPE-TRANSPORT-NOT-YET-WIRED",
+  "title": "Implement host-global bridge-to-Lua pending-call/result correlation registry",
+  "branch": "research/offline-controller",
+  "parentRevision": "3fb651dbd1898cc5173b077d882945284d75471d",
+  "acceptanceCase": "A11",
+  "acceptanceStatus": "PARTIAL/BLOCKED",
+  "source": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "rustSource": "src\\services\\bridge_store.rs",
+    "timeoutFuture": "RVA 0x0E537E-0x0E5535",
+    "timeoutInit": "RVA 0x0E53A1-0x0E53B4",
+    "timeoutSourceRecord": "RVA 0x825418 = bridge_store.rs:980:28",
+    "timerBuilder": "RVA 0x63B474-0x63B537",
+    "nanosecondInvariant": "RVA 0x63B4B2 compares against 0x3B9ACA00 = 1000000000"
+  },
+  "recoveredTimeout": {
+    "seconds": 0,
+    "nanoseconds": 200000000,
+    "milliseconds": 200,
+    "evidence": [
+      "RVA 0x0E53AC xor edx,edx",
+      "RVA 0x0E53AE mov r8d,0x0BEBC200",
+      "RVA 0x0E53B4 call 0x63B764",
+      "timer object stores duration seconds and nanoseconds separately"
+    ]
+  },
+  "implementation": {
+    "file": "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs",
+    "pendingCount": "exact dictionary length of outstanding bridge-to-Lua calls",
+    "commandIds": "monotonic cmd_<n> using an explicit initial counter seed",
+    "firstProcessCounterSeedRecovered": false,
+    "correlation": "payload.id; outer requestId equality remains deliberately unasserted",
+    "authenticatedRouteBinding": "profileId + instanceId must match the authenticated session owning the pending call",
+    "success": "remove pending entry and complete with cloned result JSON",
+    "luaFailure": "remove pending entry and complete with LUA_CALL_FAILED",
+    "timeout": "remove pending entry and complete with LUA_CALL_TIMEOUT after 200 ms",
+    "lateUnknownResult": "not correlated / returns false",
+    "shutdown": "atomically drain all entries with APP_SHUTTING_DOWN / application is shutting down",
+    "newCallAfterStop": "BRIDGE_STOPPED"
+  },
+
+  "validation": {
+    "inspector": "tools/inspect_lwbridge_call_timeout.py",
+    "inspectorResult": "PASS",
+    "test": "tests/LWBridge.Desktop.Checks/OverviewBridgeCallRegistryChecks.cs",
+    "focusedCli": "--overview-bridge-call-registry-check",
+    "focusedResult": "PASS",
+    "timeoutObservedMilliseconds": 212.0405,
+    "successCorrelated": true,
+    "failureCorrelated": true,
+    "routeMismatchRejected": true,
+    "lateResultIgnored": true,
+    "shutdownDrainedTwo": true
+  },
+  "productionBoundary": {
+    "pipeSessionTransportImplemented": false,
+    "productionPendingExposed": false,
+    "productionListenerStarted": false,
+    "productionCallLua": "COMMAND_NOT_IMPLEMENTED"
+  },
+  "nextExactGap": "Implement framed authenticated-session write/read transport using the recovered outbound/inbound queue and byte limits, encode pending calls as command/call frames, parse inbound result frames, and complete this registry from the authenticated route. Keep normal application composition disabled until the transport is Windows-proven.",
+  "safety": {
+    "realGameLaunched": false,
+    "realLauncherLaunched": false,
+    "mapScanPerformed": false,
+    "claimOrCollectPerformed": false,
+    "plunderOrAttackPerformed": false,
+    "messageOrSharePerformed": false
+  }
+}

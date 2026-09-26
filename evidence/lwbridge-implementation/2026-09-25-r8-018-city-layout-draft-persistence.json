@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-018",
+  "date": "2026-09-25",
+  "scope": "Restore City Layout profile_state draft persistence and the draft get/save/clear production commands, leaving protected snapshot/validation/apply behavior unimplemented.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-city-layout-exact-contract.md",
+    "evidence/lwbridge-0.3.1/frontend/assets/CityLayoutPanel-B4B03XEi.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js"
+  ],
+  "restoredCommands": [
+    "city_layout_draft_get",
+    "city_layout_draft_save",
+    "city_layout_draft_clear"
+  ],
+  "storage": {
+    "rebuildPath": "%LOCALAPPDATA%\\LWBridgeRebuild\\profiles\\<profileId>\\profile.db",
+    "pathClassification": "compatibility mapping of recovered per-profile profile database concept",
+    "table": "profile_state",
+    "schema": "key TEXT PRIMARY KEY, value_json TEXT NOT NULL, revision INTEGER NOT NULL",
+    "key": "city_layout_draft_v1"
+  },
+  "revisionContract": {
+    "firstSave": 1,
+    "matchingUpdate": "revision + 1",
+    "staleSave": "PROFILE_REVISION_CONFLICT",
+    "clear": "DELETE WHERE key = ? AND revision = ?",
+    "staleClear": "PROFILE_REVISION_CONFLICT",
+    "malformedJson": "PROFILE_DATA_INVALID"
+  },
+  "missingState": {
+    "result": {
+      "profileId": "<selected>",
+      "key": "city_layout_draft_v1",
+      "revision": 0,
+      "value": null
+    },
+    "classification": "EQUIVALENT/PARTIAL because original native no-row envelope is not fully recovered"
+  },
+  "profileRouting": {
+    "selectedProfileAuthoritative": true,
+    "mismatch": "INVALID_PROFILE_STATE"
+  },
+  "frontend": {
+    "changed": false,
+    "cityLayoutPanel": "existing byte-identical original chunk retained"
+  },
+  "stillMissingCommands": [
+    "city_layout_snapshot_get",
+    "city_layout_validate",
+    "city_layout_apply_start",
+    "city_layout_apply_status",
+    "city_layout_apply_cancel"
+  ],
+  "protectedBoundary": [
+    "getCityLayoutSnapshot producer",
+    "validateCityLayout planner",
+    "startCityLayoutApply executor",
+    "apply-status protected job result internals",
+    "cancel transition semantics"
+  ],
+  "implementation": [
+    "src/LWBridge.Desktop/ProfileStateStore.cs",
+    "src/LWBridge.Desktop/CityLayoutDraftCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/CityLayoutDraftChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "empty get",
+    "first save revision 1",
+    "sequential save revision increment",
+    "stale save conflict and no overwrite",
+    "stale clear conflict",
+    "profile mismatch",
+    "reopen persistence",
+    "valid clear",
+    "malformed stored JSON"
+  ],
+  "validation": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-018 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "tableSchema": "EXACT_CONTRACT",
+    "draftKey": "EXACT_CONTRACT",
+    "revisionSqlSemantics": "EXACT_CONTRACT",
+    "productionCommandRouting": "EQUIVALENT_REIMPLEMENTATION",
+    "missingRowEnvelope": "PARTIAL/EQUIVALENT",
+    "protectedGameplayCommands": "MISSING / PROTECTED_UNKNOWN"
+  },
+  "nextCheckpoint": "Implement City Layout snapshot host boundary only when an evidence-backed game-bridge provider is available; do not invent planner/executor behavior."
+}

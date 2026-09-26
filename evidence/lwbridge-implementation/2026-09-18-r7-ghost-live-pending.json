@@ -1,0 +1,46 @@
+{
+  "findingId": "LWB-R7-033",
+  "status": "IMPLEMENTED-LIVE-PENDING",
+  "date": "2026-09-18",
+  "scope": "Ghost Ops ordinary Manual Start support on the shared full-world scanner",
+  "recoveredSource": {
+    "worldPointType": 29,
+    "worldPointTypeName": "GHOSTRECON_POINT",
+    "runtimeClass": "GhostreconPointInfo",
+    "pointManagerAccessor": "WorldPointManager.GetGhostreconPointInfoByIndex",
+    "configTable": "TableName.LwGhostreconTask",
+    "source": "WorldPointManager._pointInfos+GhostreconPointInfo+TableName.LwGhostreconTask"
+  },
+  "offlineValidation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministicGroupsPassed": 6,
+    "fullWorldGhostRegression": true,
+    "manualGhostTypeAccepted": true
+  },
+  "liveAttempt": {
+    "mode": "normal",
+    "totalBlocksReachedBeforePositiveRowGate": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedGhostCount": 0,
+    "positiveRowGatePassed": false,
+    "harnessRuntimeSeconds": 141.07,
+    "finalNativeResultState": "proven",
+    "finalNativeMatchedGhostCount": 0,
+    "finalNativeBlockSize": 10,
+    "finalNativeBlockCount": 100,
+    "finalNativeServerLod": 0,
+    "failure": "Ordinary Manual Ghost scan published no Ghost Ops records."
+  },
+  "postRun": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+    "compatibilityOk": true,
+    "gameLauncherBridgeProcessesPresent": false,
+    "recoveryJournalPresent": false
+  },
+  "acceptanceRule": "Do not mark Ghost Ops LIVE-PROVEN until a complete run publishes at least one authentic type-29 GhostreconPointInfo row and reopen count matches publication.",
+  "privacy": "Aggregate-only evidence. No player identity, point UUID, coordinates, session/challenge identifiers, process identifiers, databases or logs are retained."
+}

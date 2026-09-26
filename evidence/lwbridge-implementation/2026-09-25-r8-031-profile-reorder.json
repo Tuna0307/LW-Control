@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-031",
+  "date": "2026-09-25",
+  "scope": "Restore profile_reorder profile-ID validation, exact-permutation admission, transactional display-order persistence, and refreshed profile-list result.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "frontendChanged": false,
+  "authority": [
+    "public profile_reorder handler VA 0x14014f296",
+    "registry wrapper VA 0x14041c7ae",
+    "native reorder core VA 0x1403dade0",
+    "shared profile-ID validator VA 0x1403dc23e",
+    "ASCII ID character predicate VA 0x14020da92"
+  ],
+  "request": {
+    "field": "profileIds",
+    "requiredType": "array",
+    "missingOrNonArrayCode": "INVALID_REQUEST",
+    "nonStringElementMapping": "EQUIVALENT_REIMPLEMENTATION; exact generic Rust/Tauri parser wording not claimed"
+  },
+  "profileIdValidation": {
+    "utf8ByteLength": "1..64 inclusive",
+    "allowedBytes": "ASCII letters, digits, underscore, hyphen",
+    "errorCode": "INVALID_PROFILE_ID"
+  },
+  "orderValidation": {
+    "submittedCountEqualsCurrentCount": true,
+    "submittedIdsUnique": true,
+    "allCurrentIdsPresent": true,
+    "errorCode": "INVALID_PROFILE_ORDER",
+    "classification": "EXACT_NATIVE"
+  },
+  "transaction": {
+    "nativeSql": "UPDATE profiles SET display_order = ?, updated_at = ? WHERE id = ?",
+    "displayOrder": "zero-based submitted index",
+    "timestamp": "one captured timestamp shared by all rows",
+    "commitAfterAllUpdates": true,
+    "successResult": "refreshed selectedProfileId/maxProfiles/profiles state"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ProfileRegistryStore.cs",
+    "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/ProfileRegistryChecks.cs"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "notClaimed": [
+    "exact generic deserializer wording for non-string profileIds element",
+    "profile_select focus behavior",
+    "profile_primary_set fixed-primary invariants",
+    "profile_enable_set entitlement/capacity behavior",
+    "profile create/delete behavior",
+    "launcher/game instance ownership"
+  ],
+  "nextCheckpoint": "Recover another host-local profile registry mutation without guessing provider/window side effects."
+}

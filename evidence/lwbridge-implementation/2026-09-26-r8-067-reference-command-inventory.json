@@ -1,0 +1,481 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-067",
+  "date": "2026-09-26",
+  "scope": "exact reference frontend command/event inventory plus production routing gap audit",
+  "reference": {
+    "apiAsset": "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "apiSha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47",
+    "productionApiSha256": "8b978e9fa87f412990be510ca567b1a74d2a1acb14ef637b15d65d1428337064",
+    "frontendCommandCount": 104,
+    "commands": [
+      "alliance_garrison_config_save",
+      "app_exit_confirm",
+      "append_log",
+      "auth_activate",
+      "auth_credentials",
+      "auth_login",
+      "auth_logout",
+      "auth_renew",
+      "auth_state",
+      "auth_unbind",
+      "auth_unbind_preview",
+      "automation_configure",
+      "automation_inspect",
+      "automation_start",
+      "automation_status",
+      "automation_stop",
+      "call_lua",
+      "chat_automation_configure",
+      "chat_automation_run_pending",
+      "city_layout_apply_cancel",
+      "city_layout_apply_start",
+      "city_layout_apply_status",
+      "city_layout_draft_clear",
+      "city_layout_draft_get",
+      "city_layout_draft_save",
+      "city_layout_snapshot_get",
+      "city_layout_validate",
+      "construction_rewards_claim",
+      "dispatch_assist_cancel",
+      "dispatch_assist_retry",
+      "dispatch_assist_schedule",
+      "dispatch_assist_state",
+      "equipment_config_get",
+      "equipment_config_save",
+      "equipment_preset_apply",
+      "feedback_export",
+      "game_asset_image",
+      "game_recovery_status",
+      "game_root_select",
+      "game_root_status",
+      "get_status",
+      "hotkey_config_get",
+      "hotkey_config_save",
+      "lastwar_localize",
+      "map_city_export",
+      "map_coordinate_jump",
+      "map_data_options",
+      "map_dispatch_plunder_cancel",
+      "map_dispatch_plunder_schedule",
+      "map_dispatch_share_alliance",
+      "map_march_follow",
+      "map_player_mark_set",
+      "map_plunder_jobs_list",
+      "map_scan_clear",
+      "map_scan_start",
+      "map_scan_status",
+      "map_scan_stop",
+      "map_search",
+      "map_summary",
+      "map_treasure_claim",
+      "map_treasure_claim_status",
+      "map_treasure_state_refresh",
+      "map_treasure_state_refresh_all",
+      "map_truck_plunder_cancel",
+      "map_truck_plunder_schedule",
+      "monopoly_cell_open",
+      "monster_afk_config_save",
+      "monster_catalog_options",
+      "multi_activate",
+      "multi_entitlement_get",
+      "profile_create",
+      "profile_delete",
+      "profile_instance_start",
+      "profile_instance_status",
+      "profile_instance_stop",
+      "profile_instances_reconcile",
+      "profile_instances_update_and_restart",
+      "profile_list",
+      "profile_note_set",
+      "profile_reorder",
+      "profile_select",
+      "proxy_status",
+      "resource_automation_configure",
+      "resource_automation_run",
+      "resource_automation_status",
+      "server_jump",
+      "server_jump_history_import",
+      "server_jump_history_set",
+      "set_automation",
+      "set_window_theme",
+      "squad_list",
+      "trade_station_catalog",
+      "trade_station_configure",
+      "update_check",
+      "update_download_and_open",
+      "update_status",
+      "vip18_base_apply",
+      "vip18_base_config_get",
+      "vip18_base_config_save",
+      "vip18_base_list",
+      "vip18_base_restore",
+      "visual_metrics_config_get",
+      "visual_metrics_config_save",
+      "watermark_lookup"
+    ],
+    "frontendEventCount": 15,
+    "events": [
+      "app://close-requested",
+      "bridge://auth-state",
+      "bridge://automation-status",
+      "bridge://dispatch-plunder-changed",
+      "bridge://equipment-apply-progress",
+      "bridge://feedback-export-progress",
+      "bridge://game-recovery",
+      "bridge://map-scan-status",
+      "bridge://multi-entitlement",
+      "bridge://player-mark-changed",
+      "bridge://profile-identity",
+      "bridge://resource-automation-status",
+      "bridge://status",
+      "bridge://truck-plunder-changed",
+      "bridge://update-status"
+    ]
+  },
+  "ownerExclusion": {
+    "count": 10,
+    "commands": [
+      "auth_activate",
+      "auth_credentials",
+      "auth_login",
+      "auth_logout",
+      "auth_renew",
+      "auth_state",
+      "auth_unbind",
+      "auth_unbind_preview",
+      "multi_activate",
+      "multi_entitlement_get"
+    ],
+    "reason": "Account/Login/Authentication and account-purpose activation/entitlement are explicitly outside retained scope."
+  },
+  "retainedFrontend": {
+    "count": 94,
+    "specificallyRoutedCount": 61,
+    "unroutedCount": 33,
+    "routes": {
+      "alliance_garrison_config_save": [
+        "AllianceGarrisonConfigCommandService"
+      ],
+      "app_exit_confirm": [],
+      "append_log": [
+        "LWBridgeBackend"
+      ],
+      "automation_configure": [],
+      "automation_inspect": [],
+      "automation_start": [],
+      "automation_status": [
+        "LWBridgeBackend",
+        "AutomationStatusCommandService"
+      ],
+      "automation_stop": [],
+      "call_lua": [
+        "LWBridgeBackend"
+      ],
+      "chat_automation_configure": [],
+      "chat_automation_run_pending": [],
+      "city_layout_apply_cancel": [],
+      "city_layout_apply_start": [],
+      "city_layout_apply_status": [],
+      "city_layout_draft_clear": [
+        "CityLayoutDraftCommandService"
+      ],
+      "city_layout_draft_get": [
+        "CityLayoutDraftCommandService"
+      ],
+      "city_layout_draft_save": [
+        "CityLayoutDraftCommandService"
+      ],
+      "city_layout_snapshot_get": [],
+      "city_layout_validate": [],
+      "construction_rewards_claim": [],
+      "dispatch_assist_cancel": [],
+      "dispatch_assist_retry": [],
+      "dispatch_assist_schedule": [],
+      "dispatch_assist_state": [],
+      "equipment_config_get": [
+        "EquipmentConfigCommandService"
+      ],
+      "equipment_config_save": [
+        "EquipmentConfigCommandService"
+      ],
+      "equipment_preset_apply": [],
+      "feedback_export": [
+        "LWBridgeBackend"
+      ],
+      "game_asset_image": [
+        "ManualMapScanCommandService"
+      ],
+      "game_recovery_status": [
+        "LWBridgeBackend"
+      ],
+      "game_root_select": [
+        "LWBridgeWindow-special"
+      ],
+      "game_root_status": [
+        "LWBridgeBackend"
+      ],
+      "get_status": [
+        "LWBridgeBackend"
+      ],
+      "hotkey_config_get": [
+        "HotkeyConfigCommandService"
+      ],
+      "hotkey_config_save": [
+        "HotkeyConfigCommandService"
+      ],
+      "lastwar_localize": [
+        "LWBridgeBackend"
+      ],
+      "map_city_export": [
+        "LWBridgeBackend",
+        "LWBridgeWindow-special"
+      ],
+      "map_coordinate_jump": [
+        "ManualMapScanCommandService"
+      ],
+      "map_data_options": [
+        "LWBridgeBackend"
+      ],
+      "map_dispatch_plunder_cancel": [
+        "ManualMapScanCommandService"
+      ],
+      "map_dispatch_plunder_schedule": [
+        "ManualMapScanCommandService"
+      ],
+      "map_dispatch_share_alliance": [],
+      "map_march_follow": [
+        "ManualMapScanCommandService"
+      ],
+      "map_player_mark_set": [
+        "LWBridgeBackend"
+      ],
+      "map_plunder_jobs_list": [
+        "ManualMapScanCommandService"
+      ],
+      "map_scan_clear": [
+        "LWBridgeBackend",
+        "ManualMapScanCommandService"
+      ],
+      "map_scan_start": [
+        "LWBridgeBackend",
+        "ManualMapScanCommandService"
+      ],
+      "map_scan_status": [
+        "LWBridgeBackend",
+        "ManualMapScanCommandService"
+      ],
+      "map_scan_stop": [
+        "LWBridgeBackend",
+        "ManualMapScanCommandService"
+      ],
+      "map_search": [
+        "LWBridgeBackend"
+      ],
+      "map_summary": [
+        "LWBridgeBackend"
+      ],
+      "map_treasure_claim": [],
+      "map_treasure_claim_status": [
+        "ManualMapScanCommandService"
+      ],
+      "map_treasure_state_refresh": [
+        "ManualMapScanCommandService"
+      ],
+      "map_treasure_state_refresh_all": [
+        "ManualMapScanCommandService"
+      ],
+      "map_truck_plunder_cancel": [
+        "ManualMapScanCommandService"
+      ],
+      "map_truck_plunder_schedule": [
+        "ManualMapScanCommandService"
+      ],
+      "monopoly_cell_open": [],
+      "monster_afk_config_save": [
+        "MonsterAfkConfigCommandService"
+      ],
+      "monster_catalog_options": [
+        "LWBridgeBackend"
+      ],
+      "profile_create": [],
+      "profile_delete": [],
+      "profile_instance_start": [
+        "LWBridgeBackend",
+        "OverviewLifecycleService"
+      ],
+      "profile_instance_status": [
+        "LWBridgeBackend",
+        "OverviewLifecycleService"
+      ],
+      "profile_instance_stop": [
+        "LWBridgeBackend",
+        "OverviewLifecycleService"
+      ],
+      "profile_instances_reconcile": [
+        "LWBridgeBackend",
+        "OverviewLifecycleService"
+      ],
+      "profile_instances_update_and_restart": [
+        "OverviewLifecycleService"
+      ],
+      "profile_list": [
+        "LWBridgeBackend",
+        "ProfileRegistryCommandService"
+      ],
+      "profile_note_set": [
+        "ProfileRegistryCommandService"
+      ],
+      "profile_reorder": [
+        "ProfileRegistryCommandService"
+      ],
+      "profile_select": [
+        "ProfileRegistryCommandService"
+      ],
+      "proxy_status": [
+        "LWBridgeBackend"
+      ],
+      "resource_automation_configure": [
+        "ResourceAutomationConfigCommandService"
+      ],
+      "resource_automation_run": [],
+      "resource_automation_status": [
+        "LWBridgeBackend",
+        "ResourceAutomationConfigCommandService"
+      ],
+      "server_jump": [
+        "ManualMapScanCommandService"
+      ],
+      "server_jump_history_import": [
+        "LWBridgeBackend"
+      ],
+      "server_jump_history_set": [
+        "LWBridgeBackend"
+      ],
+      "set_automation": [
+        "LWBridgeBackend"
+      ],
+      "set_window_theme": [
+        "LWBridgeBackend",
+        "LWBridgeWindow-special"
+      ],
+      "squad_list": [
+        "LWBridgeBackend"
+      ],
+      "trade_station_catalog": [
+        "LWBridgeBackend"
+      ],
+      "trade_station_configure": [],
+      "update_check": [],
+      "update_download_and_open": [],
+      "update_status": [
+        "LWBridgeBackend"
+      ],
+      "vip18_base_apply": [],
+      "vip18_base_config_get": [],
+      "vip18_base_config_save": [],
+      "vip18_base_list": [],
+      "vip18_base_restore": [],
+      "visual_metrics_config_get": [
+        "VisualMetricsConfigCommandService"
+      ],
+      "visual_metrics_config_save": [
+        "VisualMetricsConfigCommandService"
+      ],
+      "watermark_lookup": []
+    },
+    "unroutedCommands": [
+      "app_exit_confirm",
+      "automation_configure",
+      "automation_inspect",
+      "automation_start",
+      "automation_stop",
+      "chat_automation_configure",
+      "chat_automation_run_pending",
+      "city_layout_apply_cancel",
+      "city_layout_apply_start",
+      "city_layout_apply_status",
+      "city_layout_snapshot_get",
+      "city_layout_validate",
+      "construction_rewards_claim",
+      "dispatch_assist_cancel",
+      "dispatch_assist_retry",
+      "dispatch_assist_schedule",
+      "dispatch_assist_state",
+      "equipment_preset_apply",
+      "map_dispatch_share_alliance",
+      "map_treasure_claim",
+      "monopoly_cell_open",
+      "profile_create",
+      "profile_delete",
+      "resource_automation_run",
+      "trade_station_configure",
+      "update_check",
+      "update_download_and_open",
+      "vip18_base_apply",
+      "vip18_base_config_get",
+      "vip18_base_config_save",
+      "vip18_base_list",
+      "vip18_base_restore",
+      "watermark_lookup"
+    ],
+    "contractAuditedButFencedCount": 15,
+    "contractAuditedButFencedCommands": [
+      "app_exit_confirm",
+      "automation_inspect",
+      "city_layout_apply_status",
+      "city_layout_snapshot_get",
+      "construction_rewards_claim",
+      "dispatch_assist_state",
+      "monopoly_cell_open",
+      "profile_create",
+      "profile_delete",
+      "update_check",
+      "update_download_and_open",
+      "vip18_base_config_get",
+      "vip18_base_config_save",
+      "vip18_base_list",
+      "watermark_lookup"
+    ],
+    "genuinelyUnclosedRoutingCount": 18,
+    "genuinelyUnclosedRoutingCommands": [
+      "automation_configure",
+      "automation_start",
+      "automation_stop",
+      "chat_automation_configure",
+      "chat_automation_run_pending",
+      "city_layout_apply_cancel",
+      "city_layout_apply_start",
+      "city_layout_validate",
+      "dispatch_assist_cancel",
+      "dispatch_assist_retry",
+      "dispatch_assist_schedule",
+      "equipment_preset_apply",
+      "map_dispatch_share_alliance",
+      "map_treasure_claim",
+      "resource_automation_run",
+      "trade_station_configure",
+      "vip18_base_apply",
+      "vip18_base_restore"
+    ]
+  },
+  "nativeInventoryBoundary": {
+    "confirmedNativeOnlyExamples": [
+      "equipment_initial_apply",
+      "profile_enable_set",
+      "profile_primary_set",
+      "profile_settings_get",
+      "profile_settings_save",
+      "red_packet_delay_configure",
+      "server_jump_history_get",
+      "treasure_delay_configure"
+    ],
+    "note": "These recovered native handlers have no matching literal anywhere in the recovered frontend assets; therefore this checkpoint does not claim a complete native command inventory."
+  },
+  "method": {
+    "frontendCommands": "unique literal command names passed to shared U(...) invoke wrapper in the exact recovered API asset",
+    "frontendEvents": "unique app:// or bridge:// literals across all recovered reference frontend JavaScript",
+    "productionRoutes": "central backend cases/special handlers, three WebView host special branches, and production-composed INativeAsyncCommandService files",
+    "warning": "A specific route is not a parity verdict; routed commands may still be partial or fenced internally."
+  }
+}

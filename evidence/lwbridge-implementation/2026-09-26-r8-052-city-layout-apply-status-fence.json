@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-052",
+  "date": "2026-09-26",
+  "scope": "Fence city_layout_apply_status at its owner-excluded authorization-state admission while closing exact route/provider/deadline/result behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "city_layout_apply_status handler 0x140122DA2-0x140123765",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "shared game-call future 0x1400E4FAD",
+    "generic result converter 0x1402BB816",
+    "retained frontend city_layout_apply_status wrapper"
+  ],
+  "publicContract": {
+    "frontendPayload": "none",
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "disconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "gameMethod": "getCityLayoutApplyStatus",
+    "gameTimeoutMilliseconds": 5000,
+    "nativeRetryCount": 0,
+    "timeout": {
+      "code": "LUA_CALL_TIMEOUT",
+      "message": "lua call result unknown after timeout: getCityLayoutApplyStatus"
+    },
+    "success": "correlated provider JSON passed through generic converter"
+  },
+  "evidenceClassification": {
+    "authorizationUnavailableError": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "providerMethod": "EXACT_NATIVE",
+    "fiveSecondDeadline": "EXACT_NATIVE",
+    "successGenericJsonConversion": "EXACT_NATIVE",
+    "authorizationStateImplementation": "OWNER_EXCLUDED_UNKNOWN",
+    "liveApplyStatusSchema": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS",
+    "checksReleaseBuild": "PASS",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "owner-excluded authorization-state admission implementation",
+    "live City Layout apply provider/status schema",
+    "city_layout_validate/apply_start/apply_cancel remain separate provider/action boundaries"
+  ],
+  "nextCheckpoint": "Continue retained non-auth recovery; do not synthesize City Layout apply idle status or bypass authorization-state admission."
+}

@@ -1,0 +1,33 @@
+{
+  "findingId": "LWB-R6-059",
+  "date": "2026-09-14",
+  "scope": "map.scan.complete terminal failure-list and publishing admission",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "imageBase": "0x140000000"
+  },
+  "recoveredResult": {
+    "failedBlocks": "positive failedBlocks contributes a terminal failure; zero or negative does not",
+    "lastError": "present nonempty lastError contributes a terminal failure; empty/missing does not",
+    "failurePath": "a nonempty terminal failure list is joined and routed through the shared failure/stop cleanup helper",
+    "publishingPath": "only an empty terminal failure list writes phase=publishing and calls direct completion",
+    "pendingAcksBoundary": "pendingAcks is reported through nativePendingRecords but is not an input to this recovered terminal failure-list branch"
+  },
+  "locators": {
+    "eventWindow": [
+      "0x1403408e0",
+      "0x140341390"
+    ],
+    "failedBlocksGate": "0x1403410BA-0x140341163",
+    "lastErrorGate": "0x14034116E-0x140341221",
+    "failureDispatch": "0x140341226-0x140341284",
+    "publishingAndCompletion": "0x1403412C2-0x140341379"
+  },
+  "limits": [
+    "this finding does not prove pending native records or pending acknowledgements are globally irrelevant to completion",
+    "native drop/session-stop/error handling is covered separately by LWB-R6-055",
+    "game-side traversal, retry, acknowledgement consumption and drain scheduling remain unrecovered"
+  ]
+}

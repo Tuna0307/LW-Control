@@ -1,0 +1,72 @@
+{
+  "findingId": "LWB-R7-018",
+  "date": "2026-09-17",
+  "status": "IMPLEMENTED/OFFLINE-TESTED; owner live retest pending",
+  "scope": "Monster scan resilience while Zombie Boss protection detail is unresolved",
+  "currentClient": {
+    "contentVersion": 18,
+    "packageSha256": "e4f875a8227ffcf907aac60ba20c60e0830236cba070c4a6de9eacba63d9d2a1",
+    "packageSize": 41296021,
+    "packageCrc32": 738537259,
+    "compatibilityOkAfterRecovery": true
+  },
+  "ownerObservedFailure": {
+    "symptom": "Monster scan repeatedly reached about 4.5 percent, reset to 0, and repeated",
+    "persistedRunStatus": "discarded",
+    "totalBlocks": 2500,
+    "completedBlocks": 0,
+    "failedBlocks": 2,
+    "failedBlockAttempts": [2, 2],
+    "error": "Fast world batch failed: monster_invasion_protection_response_timeout"
+  },
+  "rootCause": {
+    "component": "optional Monster Invasion protection enrichment",
+    "problem": "missing protection-detail responses were promoted to batch failure, causing base Monster acquisition retries/discard",
+    "notAClaim": "This does not prove the MonsterInvasionBossDetail response path itself is fixed."
+  },
+  "implementation": {
+    "luaPolicy": [
+      "MonsterInvasionBossDetail timeout no longer calls fail_bulk_aoi",
+      "transport/send failure records unresolved protection detail and continues base Monster collection",
+      "timed-out pending UUID correlation is cleared to prevent stale late capture",
+      "unresolved protection remains monsterProtectionKnown=false"
+    ],
+    "normalizationPolicy": [
+      "Monster Protection counters require ready <= requested <= targeted",
+      "missing optional responses do not invalidate AOI coverage",
+      "Invasion Zombie Boss rows are marked monsterProtectionEligible",
+      "eligible-but-unknown protection does not fall back to zMBossInfo shield data",
+      "known inactive protection suppresses Remaining",
+      "known active protection may populate ShieldEndTime from Monster Protection"
+    ]
+  },
+  "sourceHashes": {
+    "tools/current_live_resource_probe.lua": "7f5a45480ee8453bf10349a086e0ea549bb88bad3c665f18717584e851f8fd4e",
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "f036eaf15299b63358d08027767a57c5b4242c3c873e8e6976d4ffd17425d037",
+    "tests/LWBridge.Desktop.Checks/CurrentClientMapBlockSourceChecks.cs": "b9dcb2201758adf0b3bb529b7f47f0c765b22d2b1a00a00a8a2addd33cf42fea",
+    "tests/LWBridge.Desktop.Checks/LiveManualFullMonsterProof.cs": "af6e57508d514f910dec5f421f01aabe43e4eac823662f0cb4904720bae565d0"
+  },
+  "validation": {
+    "luaParse": "ok",
+    "deterministicSuite": {
+      "ok": true,
+      "failures": []
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0,
+      "exeSha256": "a5efdc27906e291052f9c68e8817d29e054167dbadaceafd8e22e753eb5a4c24",
+      "dllSha256": "4069c4528845e65d3bdf84b19984447733d30ba01d2de13d6de44dfa6bd0cebc"
+    },
+    "packagedLuaMatchesSource": true,
+    "gitDiffCheck": "clean",
+    "installedClientRecoveredToOriginalV18": true,
+    "recoveryJournalPresentAfterCleanup": false,
+    "gameOrLauncherRunningAfterCleanup": false
+  },
+  "limits": [
+    "No live post-fix Monster scan was run; the owner will perform the next UI test.",
+    "The positive Zombie Boss Remaining countdown is not live-proven yet.",
+    "Protection-detail timeout remains diagnostic evidence, not proof that the server does not expose protection data."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-078",
+  "limits": [
+    "this finding does not recover producer-side block traversal, acknowledgement item schema, queue drain timing or retry scheduling",
+    "diagnostic payload contents are logged but this finding does not assign producer semantics to arbitrary diagnostic text",
+    "this finding describes host handling after events have already been emitted",
+    "no production scanner behavior is changed"
+  ],
+  "locators": {
+    "commonEventHandler": [
+      "0x14033ffa1",
+      "0x140341913"
+    ],
+    "diagnosticBranch": "0x1403400CB-0x140340168",
+    "errorFallbackHelper": "0x1403810d5",
+    "ordinaryFailHelper": [
+      "0x140277e21",
+      "0x1402785ba"
+    ],
+    "preserveFailHelper": [
+      "0x14026a12e",
+      "0x14026aac0"
+    ],
+    "scanErrorBranch": "0x140340C5B -> 0x140341182-0x1403417D6",
+    "sharedCleanupHelper": "0x14033fbe8"
+  },
+  "recoveredResult": {
+    "completeTerminalFailure": {
+      "publishesStaging": true,
+      "requestsStopMapScan": false,
+      "runTransition": "same failed transition",
+      "stagingCleanup": "DELETE FROM scan_records WHERE run_id=?1",
+      "stagingPublication": "INSERT OR REPLACE INTO map_records(...) SELECT ... FROM scan_records WHERE run_id=?1"
+    },
+    "diagnostic": {
+      "behavior": "formats the event payload with prefix 'map scan diagnostic ' and sends it to the bridge log helper; the bounded branch then returns without scan-state mutation",
+      "event": "map.scan.diagnostic",
+      "logHelper": "0x1403CE0D2"
+    },
+    "scanErrorFailure": {
+      "publishesStaging": false,
+      "requestsStopMapScan": true,
+      "runTransition": "status='failed' with error and updated_at only while status='running'",
+      "staging": "DELETE FROM scan_records WHERE run_id=?1"
+    },
+    "scanErrorMessagePrecedence": [
+      "event error when it is a string",
+      "current scan-state lastError when it is a string",
+      "literal 'map scan failed'"
+    ],
+    "sharedCleanup": "both paths reset visible scan state through 0x14033FBE8; the two caller flags independently select preserve-vs-ordinary failure and stopMapScan dispatch"
+  },
+  "scope": "Map diagnostic/error event handling and failed-run persistence split",
+  "sourceIdentity": {
+    "imageBase": "0x140000000",
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

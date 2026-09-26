@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-058",
+  "date": "2026-09-26",
+  "scope": "Fence app_exit_confirm at the missing native managed-runtime shutdown and original-proxy restore lifecycle while closing the public close-request, success and failure boundaries.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "retained frontend app_exit_confirm wrapper",
+    "app_exit_confirm handler 0x14017DA63-0x14017EA20",
+    "main-window close hook 0x1404122EE-0x14041263A",
+    "game-close helper 0x1400E563D-0x1400E579C",
+    "original-proxy restore helper 0x1403A0B48-0x1403A0E71",
+    "success JSON helper 0x1402BB774-0x1402BB816",
+    "R8-040 proxy-status recovery"
+  ],
+  "publicContract": {
+    "frontendPayload": "none",
+    "closeRequestedEvent": "app://close-requested",
+    "closeRequestedPayload": {
+      "instanceCount": "number"
+    },
+    "scope": "global app state",
+    "perManagedRuntimeMethod": "bridge_exit",
+    "gameCloseTimeout": {
+      "code": "GAME_CLOSE_TIMEOUT",
+      "message": "The game did not close in time."
+    },
+    "restoreEvidence": [
+      "originalExists",
+      "app exit restored original proxy"
+    ],
+    "success": null,
+    "failureCode": "APP_EXIT_FAILED",
+    "failureMessageDetail": "dynamic underlying failure; universal fixed text not closed"
+  },
+  "nativeOrdering": [
+    "intercept main-window close and emit close-requested event",
+    "confirm enumerates managed runtime instances",
+    "dispatch bridge_exit for applicable managed runtimes",
+    "perform game shutdown and managed-instance cleanup",
+    "restore original proxy state",
+    "complete final application-exit path"
+  ],
+  "rebuildBoundary": {
+    "appExitConfirmHandler": "absent",
+    "originalProxyInstallBackupRestoreLifecycle": "unrecovered",
+    "directCloseSubstituteAllowed": false
+  },
+  "evidenceClassification": {
+    "closeRequestedEvent": "EXACT_NATIVE",
+    "instanceCountPayload": "EXACT_NATIVE",
+    "confirmAdmission": "EXACT_NATIVE",
+    "bridgeExitDispatch": "EXACT_NATIVE",
+    "gameCloseTimeout": "EXACT_NATIVE",
+    "originalProxyRestoreRequirement": "EXACT_NATIVE",
+    "successNull": "EXACT_NATIVE",
+    "appExitFailedCode": "EXACT_NATIVE",
+    "universalFailureMessageDetail": "UNKNOWN",
+    "proxyMutationLifecycle": "UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "recover original proxy install/backup/restore mutation lifecycle",
+    "close universal APP_EXIT_FAILED message/detail mapping if a fixed mapping exists",
+    "wire confirmed exit only after the native cleanup primitive exists"
+  ],
+  "nextCheckpoint": "Continue retained non-account recovery; do not implement app_exit_confirm as a simple direct close that skips bridge_exit and original-proxy restoration."
+}

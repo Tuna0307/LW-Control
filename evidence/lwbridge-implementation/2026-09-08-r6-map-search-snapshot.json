@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "findingId": "LWB-R6-008",
+  "classification": [
+    "IMPLEMENTATION POLICY",
+    "IMPLEMENTED/OFFLINE-TESTED"
+  ],
+  "scope": "Map Data persisted search count/page generation consistency",
+  "source": {
+    "review": "docs/lwbridge-project-status.md review 4 R6 query-integrity finding",
+    "baseRevision": "d5be1d8b5567b44c73f7a986cbd725678f9ba1dd",
+    "referenceArtifact": {
+      "path": "../LW/lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+      "use": "identity check only; original map_search transaction mode was not inferred"
+    },
+    "sqliteProvider": {
+      "package": "Microsoft.Data.Sqlite",
+      "version": "10.0.11",
+      "assemblySha256": "4abd9c2a61e580eb853e93ca8953a3cef2c05714ae28d2d1859d4dbc5e5700bc",
+      "api": "SqliteConnection.BeginTransaction(Boolean deferred)"
+    }
+  },
+  "policy": {
+    "statement": "one map_search response must derive its total and rows from one SQLite read snapshot",
+    "rationale": "the store instance lock cannot prevent another SQLite connection from publishing between separate count and page reads",
+    "originalParityClaim": false
+  },
+  "implementation": {
+    "files": [
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "behavior": [
+      "begin one deferred SQLite transaction before count",
+      "assign the transaction to count and page commands",
+      "commit the read transaction after page materialization"
+    ]
+  },
+  "reproduction": {
+    "command": "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release",
+    "scenario": "two initial city rows; second MapDataStore connection commits a third row after count and before page",
+    "expected": "in-flight result total=2 and rows=2 without the third row; post-search database count=3"
+  },
+  "validation": {
+    "status": "passed",
+    "deterministicResult": {
+      "ok": true,
+      "mapPersistence": true,
+      "mapContract": true
+    },
+    "limits": [
+      "not recovered original LWBridge transaction semantics",
+      "not live scan ingestion proof",
+      "advanced query predicates/sorts remain separately gated",
+      "map_data_options, authoritative summary state, export and native record-key derivation remain open"
+    ]
+  },
+  "implementationImpact": {
+    "backlog": "R6 query-integrity snapshot subtask closed",
+    "featureLedger": "M07 remains partial; existing supported query subset now has consistent count/page generation semantics"
+  }
+}

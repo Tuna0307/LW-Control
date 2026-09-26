@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-015",
+  "date": "2026-09-24",
+  "scope": "Restore the original LWBridge 0.3.1 Auto Scan persisted configuration, frontend controls, scheduler admission/effect ownership, multi-server cycle semantics, Normal/Fast ownership, and Run Now behavior.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/index-sfL2sT3K.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md"
+  ],
+  "byteIdenticalRestoredBlocks": [
+    "Auto config/sanitizer helpers",
+    "Auto scheduler-owned state segment",
+    "Auto scheduler effect",
+    "Auto Scan card"
+  ],
+  "defaultConfig": {
+    "enabled": false,
+    "intervalMinutes": 60,
+    "serverIds": [],
+    "selectedTypes": ["truck", "railway", "dispatch", "ghost", "treasure"],
+    "scanMode": "fast",
+    "returnToOriginalServer": true,
+    "nextRunAt": 0
+  },
+  "normalization": {
+    "intervalMinutes": "clamped 20..1440",
+    "serverIds": "valid unique integers 1..99999, maximum 20",
+    "selectedTypes": "original eight-kind allowlist, fallback to Auto defaults",
+    "scanMode": "exact normal else fast",
+    "returnToOriginalServer": "default true",
+    "nextRunAt": "nonnegative integer",
+    "storageKey": "lwbridge.mapAutoScan.<profileId>"
+  },
+  "scheduler": {
+    "duePredicate": "enabled && online && !mapScanActive && !autoCycleRunning && now >= nextRunAt",
+    "effectDependencies": ["selectedProfileId", "connected"],
+    "tickMilliseconds": 5000,
+    "statusPollMilliseconds": 2000,
+    "terminalTimeoutMilliseconds": 2700000,
+    "startPayload": {
+      "selectedTypes": "configured Auto types",
+      "scanMode": "configured Auto mode",
+      "resume": false
+    },
+    "targetOrder": "configured serverIds in order, else current positive server",
+    "terminalLastError": "logged; loop may continue",
+    "thrownTargetFailure": "escapes single outer catch; later targets are not attempted",
+    "returnToOriginalServer": "attempted in finally when configured and original server is positive",
+    "nextDeadline": "advanced after a live effect cycle with now + intervalMinutes * 60000"
+  },
+  "runNow": {
+    "requiresEnabled": true,
+    "action": "set nextRunAt to Date.now()",
+    "independentOneShotField": false
+  },
+  "removedR7Policies": [
+    "Auto scanMode removal / backend-selected speed policy",
+    "per-target exception isolation and synthetic cycle summary",
+    "autoOnlineRef reconnect-stable scheduler ownership",
+    "lwbridge.mapAutoScanCycle restart marker",
+    "autoRestartRecovery",
+    "runOnceRequestedAt",
+    "autoCycleRequested",
+    "dedicated Auto Stop control",
+    "scheduler-specific liveServerId current-server fallback"
+  ],
+  "implementation": [
+    "tools/build_lwbridge_frontend.py",
+    "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/Program.cs",
+    "tools/check_map_auto_r8015.cjs"
+  ],
+  "validation": {
+    "byteExactAutoCheck": "PASS",
+    "frontendGeneratorCheck": "PASS",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "gitDiffCheck": "PASS (line-ending notices only)",
+    "jsonSyntax": "PASS for R8-015 evidence and current evidence index",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "autoConfigHelpers": "EXACT_BYTES-derived",
+    "autoSchedulerState": "EXACT_BYTES-derived",
+    "autoSchedulerEffect": "EXACT_BYTES-derived",
+    "autoPanel": "EXACT_BYTES-derived",
+    "sharedPublicCommandCalls": "EXACT_CONTRACT from prior R8 checkpoints",
+    "protectedAcquisitionTraversal": "UNKNOWN/PARTIAL"
+  },
+  "notClaimed": [
+    "protected map acquisition/traversal/extraction internals",
+    "protected Normal/Fast pacing/retry internals beyond public mode/concurrency",
+    "protected server_jump travel implementation",
+    "Scheduled Plunder",
+    "remaining map_search alternate-sort internals",
+    "Login / Account / Authentication behavior"
+  ],
+  "nextCheckpoint": "Restore Scheduled Plunder control plane and original UI without inventing protected robbery execution internals."
+}

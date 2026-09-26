@@ -1,0 +1,86 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-133",
+  "date": "2026-09-22",
+  "status": "LIVE-PROVEN_BACKEND_CONTINUATION_BROWSER_PROVEN_SCHEDULER",
+  "title": "Native server-jump failure followed by same-session Auto target continuation",
+  "branch": "research/offline-controller",
+  "baseRevision": "b16020e564b67b0736c99c3a7cfe7d23326f159b",
+  "implementation": {
+    "productionBehaviorChanged": false,
+    "liveHarness": "tests/LWBridge.Desktop.Checks/LiveAutoNativeFailureContinuationProof.cs",
+    "liveHarnessSha256": "4717F8388E837E5A17BD30B4B2C39BFD3C40BB83B2277E023BA00C4941D460EC",
+    "commandLineEntryPoint": "--live-auto-native-failure-continuation"
+  },
+  "liveProof": {
+    "homeServerId": 2212,
+    "failingTargetServerId": 2148,
+    "nativeFailureCode": "SERVER_JUMP_FAILED",
+    "nativeFailureMessage": "server_jump_precheck_failed",
+    "postFailureServerId": 2212,
+    "postFailureSameServerNoOp": true,
+    "nextValidTargetServerId": 2212,
+    "scan": {
+      "selectedTypes": ["zombie_boss"],
+      "callerScanModeProvided": false,
+      "scanMode": "fast",
+      "scanStrategy": "current_fast_zombie_boss_lod2_v1",
+      "concurrency": 20,
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "zombieBossCount": 0,
+      "scanWallSeconds": 5.5303191
+    },
+    "processExitCode": 0
+  },
+  "schedulerEvidenceComposition": {
+    "browserAuthority": "LWB-R7-132",
+    "browserProof": [
+      "per-target failure is isolated by the shipped top-level scheduler",
+      "target continuation occurs only while Auto remains enabled and online",
+      "server jump must resolve before map_scan_start",
+      "navigation, Refresh Status and reconnect do not duplicate a due cycle"
+    ],
+    "nativeAuthority": "LWB-R7-133",
+    "nativeProof": [
+      "real current-client server_jump can fail with server_jump_precheck_failed",
+      "failure leaves authoritative server context on 2212",
+      "same owned bridge/session remains usable",
+      "next valid public scan path completes 2500/2500 immediately after failure"
+    ],
+    "explicitLimit": "the React/WebView scheduler itself was not live-driven through the 2148 failure; scheduler handling is browser-proven and native failure/continuation is live-proven through the same public command/service boundaries"
+  },
+  "cleanup": {
+    "lastWarProcesses": 0,
+    "launcherProcesses": 0,
+    "overviewHelperProcesses": 0,
+    "restoredHashes": {
+      "LWScripts.data": "FEDD635A7F972843B72D274128E2D443D81463272D86497E5A8A32223C6BB7A9",
+      "LWScripts.txt": "FDC4DCD824C5EBC9E36DBEBD10A733588A01DEBF07E7E2014EBBE8ACAAB21F7F",
+      "version.txt": "F5CA38F748A1D6EAF726B8A42FB575C3C71F1864A8143301782DE13DA2D9202B"
+    }
+  },
+  "safety": {
+    "treasureClaimPerformed": false,
+    "suppliesScoutPerformed": false,
+    "truckRobberyPerformed": false,
+    "dispatchPlunderPerformed": false,
+    "allianceShareOrMessagePerformed": false,
+    "collectionOrSpendPerformed": false,
+    "liveOperations": [
+      "owned lifecycle start/stop",
+      "one rejected server jump precheck",
+      "one same-server no-op",
+      "read-only Zombie Boss map scan"
+    ]
+  },
+  "remaining": {
+    "normalUserBuiltExecutableWalkthrough": "OPEN",
+    "ghostPositivePopulation": "OPEN; owner-deferred to 2026-09-24",
+    "suppliesPositivePopulation": "OPEN",
+    "stateChangingGameplayAcceptance": "OPEN; explicit authorization required",
+    "treasureProtectedLoaderRecovery": "BLOCKED; SB-79 restriction preserved"
+  }
+}

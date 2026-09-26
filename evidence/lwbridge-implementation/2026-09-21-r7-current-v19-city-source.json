@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-103",
+  "date": "2026-09-21",
+  "status": "CURRENT-V19-CITY-SOURCE-FIXED/LIVE-PROVEN",
+  "title": "Use the current-v19 unique retained main-base source for Player City scans",
+  "branch": "research/offline-controller",
+  "parentRevision": "20b7d44d06156bfadaf8a2930958892cfd013aa8",
+  "scope": {
+    "serverId": 2212,
+    "userRegression": "Full Player City scans traversed the world but returned only roughly 279-403 rows.",
+    "productionGameplayActionPerformed": false
+  },
+  "rootCause": {
+    "oldCitySource": "WorldPointManager._pointInfos",
+    "finding": "_pointInfos is a current response/delta representation in current v19 and can omit retained player bases already present in WorldPointManager state.",
+    "replacementSource": "WorldPointManager.GetAllMainBaseList()",
+    "replacementMeaning": "public/xLua-wrapped unique BuildPointInfo main-base list retained by the current WorldPointManager",
+    "lodCauseRuledOut": true
+  },
+  "targetedLiveProof": {
+    "oldSourceCitiesInProvenAois": 0,
+    "uniqueMainBasesInSameProvenAois": 4,
+    "allViewCityTilesInSameProvenAois": 36,
+    "uniqueMainBasesTotalAtThatObservation": 48,
+    "allViewCityTilesTotalAtThatObservation": 432
+  },
+  "implementation": {
+    "file": "tools/current_live_resource_probe.lua",
+    "probeSourceSha256": "d0eb892184702275e37994a2a6d407c26ab54b2cd48bcb97efe8d5163ed947f3",
+    "cityCollector": "GetAllMainBaseList with direct call then reflected fallback",
+    "filtering": "returned unique main bases are filtered back to the exact native AOI footprint proven by each response",
+    "matchedCityCount": "is derived from the same published City snapshot",
+    "otherMapTypeSourcesChanged": false,
+    "temporaryInvestigationDiagnosticsShipped": false
+  },
+  "finalLiveAcceptance": {
+    "proof": "ordinary_manual_start_full_city",
+    "scanMode": "fast",
+    "concurrency": 20,
+    "logicalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "publishedCities": 6674,
+    "reopenedCities": 6674,
+    "scanWallSeconds": 130.4889958,
+    "sortComparedRows": 6674,
+    "sortChecks": 9,
+    "reopenedSortChecks": 9,
+    "filterComparedRows": 6674,
+    "filterChecks": 7,
+    "result": "PASS"
+  },
+  "historicalComparison": {
+    "previousCurrentV19UndercountRange": "approximately 279-403 rows despite complete traversal",
+    "earlierFullWorldProductionCities": 2592,
+    "earlierIndependentComparatorCities": 2254,
+    "interpretation": "City counts are population-dependent and are not fixed invariants; exact full-world coverage plus publish/reopen equality is the acceptance invariant."
+  },
+  "tests": {
+    "cityFixtureSource": "WorldPointManager.GetAllMainBaseList",
+    "generatedAdapterGuard": "pins GetAllMainBaseList City ownership, rejects _pointInfos inside city_aoi_records, and pins matchedCityCount to the published snapshot"
+  },
+  "postValidation": {
+    "releaseBuild": "PASS; 0 warnings, 0 errors",
+    "defaultDeterministicSuite": "PASS; ok=true; all six groups true; failures=[]",
+    "realConfigUnchanged": "PASS",
+    "frontendGenerationCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "gameRunningAfterValidation": false,
+    "launcherRunningAfterValidation": false
+  },
+  "privacy": "No player names, player IDs, coordinates, raw City records, session challenge or request identifiers are stored in this evidence file.",
+  "limits": [
+    "The live City count is not treated as a stable population invariant.",
+    "This checkpoint changes Player City acquisition only; Resource, Dispatch, Ghost, Treasure, Truck, Railway and Monster source ownership are not broadened.",
+    "Truck, Railway and Dispatch still require their own fresh read-only live acceptance after R7-102."
+  ]
+}

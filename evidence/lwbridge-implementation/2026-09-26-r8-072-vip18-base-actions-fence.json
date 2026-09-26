@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-072",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "handlers": {
+    "vip18_base_apply": "0x14013AB5F-0x14013BBE7",
+    "vip18_base_restore": "0x14016A7C6-0x14016B69A"
+  },
+  "frontendPayloads": {
+    "vip18_base_apply": "{skinId,profileId?}",
+    "vip18_base_restore": "{profileId?}"
+  },
+  "sharedAdmission": {
+    "authorizationStateRequired": true,
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "profileRuntimeRequired": true,
+    "gameRouteRequired": true,
+    "gameDisconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    }
+  },
+  "apply": {
+    "validation": {
+      "field": "skinId",
+      "rule": "positive integer-like value",
+      "error": {
+        "code": "INVALID_REQUEST",
+        "message": "invalid base skin id"
+      }
+    },
+    "provider": "setLocalVip18BaseSkin",
+    "providerArgs": "{skinId}",
+    "timeoutMs": 10000,
+    "configPatchAfterProviderSuccess": {
+      "selectedSkinId": "skinId"
+    }
+  },
+  "restore": {
+    "provider": "restoreLocalBaseSkin",
+    "providerArgs": "{}",
+    "timeoutMs": 10000,
+    "configPatchAfterProviderSuccess": {
+      "selectedSkinId": null,
+      "autoApplyOnStart": false
+    }
+  },
+  "configOwnership": {
+    "projector": "0x1403B5192",
+    "saveHelper": "0x1403B778B",
+    "family": "vip18_profiles / shared config.json",
+    "unavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "config state is unavailable"
+    },
+    "fullMigrationNormalizer": "UNKNOWN"
+  },
+  "ordering": "provider action first, then shared VIP18 config reconciliation",
+  "atomicity": "NOT_ATOMIC",
+  "successResult": "original provider JSON through shared generic converter",
+  "runtimeImplementation": "FENCED",
+  "fenceReason": "Exact execution requires owner-excluded authorization admission before provider action and unrecovered shared config-state migration/merge/write semantics afterward.",
+  "inventoryEffect": {
+    "previousGenuinelyUnclosed": 7,
+    "movedToAuditedFenced": [
+      "vip18_base_apply",
+      "vip18_base_restore"
+    ],
+    "remainingGenuinelyUnclosed": 5
+  }
+}

@@ -1,0 +1,145 @@
+"""Fail-closed current-client compatibility gate for LWBridge helpers.
+
+IMPLEMENTATION POLICY: package identity may advance automatically only when the
+recovered runtime and critical Lua anchors remain exact. Core/critical changes
+remain unsupported until separately recovered and validated.
+"""
+from __future__ import annotations
+
+import hashlib
+from pathlib import Path
+
+POLICY = "lwbridge-current-client-critical-anchors-3"
+EXPECTED_FILE_VERSION = 3
+EXPECTED_GAME_SHA256 = "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d"
+EXPECTED_XLUA_SHA256 = "d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45"
+EXPECTED_ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
+CRITICAL_ENTRIES = {
+    "DataCenter/Global/LuaEntry.luac": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+    "Global/ConstDefine.luac": "95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd",
+    "Util/CSharpCallLuaInterface.luac": "af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e",
+    "UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac": "3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b",
+}
+
+
+class CurrentClientCompatibilityError(RuntimeError):
+    pass
+def _sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def validate_version_marker(version_text: str, content_version: int) -> tuple[int | None, str | None]:
+    try:
+        marker = int(version_text)
+    except ValueError:
+        return None, "version.txt is not a positive numeric Lua content marker"
+    if marker <= 0:
+        return marker, "version.txt is not a positive numeric Lua content marker"
+    if marker > content_version:
+        return marker, "version.txt is newer than the current LWLF content version"
+    return marker, None
+
+
+def inspect_current(lr, p: dict[str, Path]) -> dict[str, object]:
+    problems: list[str] = []
+    for key in ("launcher", "game", "xlua", "assembly", "data", "metadata", "version"):
+        if not p[key].is_file():
+            problems.append(f"missing required current-client file: {p[key]}")
+    if problems:
+        return {"ok": False, "compatibilityPolicy": POLICY, "problems": problems}
+
+    game_hash = lr.sha256_file(p["game"])
+    xlua_hash = lr.sha256_file(p["xlua"])
+    assembly_hash = lr.sha256_file(p["assembly"])
+    if game_hash != EXPECTED_GAME_SHA256:
+        problems.append("LastWar.exe changed from the recovered supported build")
+    if xlua_hash != EXPECTED_XLUA_SHA256:
+        problems.append("xlua.dll changed from the recovered LENC contract")
+    if assembly_hash != EXPECTED_ASSEMBLY_SHA256:
+        problems.append("Assembly-CSharp.rdl changed from the recovered map/runtime contract")
+
+    file_version, content_version, entries = lr.read_lwlf(p["data"])
+    mapped = dict(entries)
+    if file_version != EXPECTED_FILE_VERSION:
+        problems.append(f"LWLF file version changed from {EXPECTED_FILE_VERSION} to {file_version}")
+    if content_version <= 0:
+        problems.append("LWLF content version is not positive")
+    if lr.ORIGINAL_LUA_ENTRY in mapped:
+        problems.append("script package already contains the LWBridge preserved-entry marker")
+
+    critical_hashes: dict[str, str | None] = {}
+    for name, expected in CRITICAL_ENTRIES.items():
+        value = mapped.get(name)
+        actual = _sha256_bytes(value) if value is not None else None
+        critical_hashes[name] = actual
+        if actual != expected:
+            problems.append(f"critical Lua entry changed: {name}")
+
+    package_size = p["data"].stat().st_size
+    package_crc = lr.crc32_file(p["data"])
+    package_hash = lr.sha256_file(p["data"])
+    metadata = p["metadata"].read_text(encoding="utf-8-sig").strip()
+    version_text = p["version"].read_text(encoding="utf-8-sig").strip()
+    if metadata != f"{package_size}|{package_crc}":
+        problems.append("LWScripts.txt does not match the current package size/CRC")
+    version_marker, version_problem = validate_version_marker(version_text, content_version)
+    if version_problem is not None:
+        problems.append(version_problem)
+
+    observed = {
+        "packageSha256": package_hash,
+        "packageSize": package_size,
+        "packageCrc32": package_crc,
+        "fileVersion": file_version,
+        "contentVersion": content_version,
+        "entryCount": len(entries),
+        "gameSha256": game_hash,
+        "xluaSha256": xlua_hash,
+        "assemblyCSharpSha256": assembly_hash,
+        "luaEntrySha256": critical_hashes["DataCenter/Global/LuaEntry.luac"],
+        "criticalEntries": critical_hashes,
+        "metadata": metadata,
+        "version": version_text,
+        "versionMarker": version_marker,
+        "versionMarkerMatchesContentVersion": version_marker == content_version,
+    }
+    return {
+        "ok": not problems,
+        "compatibilityPolicy": POLICY,
+        "observed": observed,
+        "problems": problems,
+    }
+
+
+def install_dynamic_verifier(lr) -> None:
+    if getattr(lr, "_lwbridge_dynamic_verifier_installed", False):
+        return
+    def verify_current(p: dict[str, Path]) -> dict[str, object]:
+        report = inspect_current(lr, p)
+        if not report["ok"]:
+            details = "; ".join(report.get("problems", []))
+            raise CurrentClientCompatibilityError(
+                "current Last War update is not automatically compatible: " + details
+            )
+        observed = dict(report["observed"])
+        lr.EXPECTED_CONTENT_VERSION = int(observed["contentVersion"])
+        lr.EXPECTED_PACKAGE_SHA256 = str(observed["packageSha256"])
+        lr.EXPECTED_PACKAGE_SIZE = int(observed["packageSize"])
+        lr.EXPECTED_PACKAGE_CRC32 = int(observed["packageCrc32"])
+
+        # v19 proves that the official launcher may advance the authoritative
+        # LWLF header/package metadata while leaving LocalLow version.txt at the
+        # prior content number. Re-inspect every authoritative anchor instead of
+        # delegating to the historical verifier that requires exact marker parity.
+        second = inspect_current(lr, p)
+        if not second["ok"] or dict(second.get("observed", {})) != observed:
+            details = "; ".join(second.get("problems", [])) if not second["ok"] else "observed identity changed"
+            raise CurrentClientCompatibilityError(
+                "current Last War files changed during compatibility verification: " + details
+            )
+        verified = dict(second["observed"])
+        verified["compatibilityPolicy"] = POLICY
+        return verified
+
+    lr.verify_current = verify_current
+    lr._lwbridge_dynamic_verifier_installed = True

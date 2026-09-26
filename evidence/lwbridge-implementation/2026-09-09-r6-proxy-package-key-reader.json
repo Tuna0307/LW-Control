@@ -1,0 +1,91 @@
+{
+  "findingId": "LWB-R6-046",
+  "date": "2026-09-09",
+  "scope": "PM7-B secure-proxy package-key path construction and bounded file-read boundary",
+  "evidenceLabel": "RECOVERED",
+  "source": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "embeddedProxy": "xlua-proxy-secure.dll",
+    "embeddedProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "embeddedProxyHostRawOffset": "0x987374",
+    "coordinateSystem": "secure-proxy preferred-image RVAs/VAs plus raw offsets"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.6"
+  },
+  "packageKeyPath": {
+    "suffix": "\\bridge-runtime\\package-key.envelope",
+    "suffixUtf16CodeUnits": 36,
+    "suffixBytes": 72,
+    "proxyRawOffset": "0x70B70",
+    "proxyRva": "0x71770",
+    "pathFunction": {
+      "beginRva": "0x1B300",
+      "endRva": "0x1B4BF",
+      "suffixReferenceRvas": [
+        "0x1B373",
+        "0x1B38F"
+      ],
+      "runtimeRootHelperRva": "0x16360"
+    }
+  },
+  "boundedTextReader": {
+    "beginRva": "0x1BD80",
+    "endRva": "0x1C09F",
+    "pathBuilderCallRva": "0x1C447",
+    "readerCallRva": "0x1C45B",
+    "callerMaxBytes": 4096,
+    "behavior": [
+      "The reader receives its maximum size in R8 and copies it to RSI at RVA 0x1BDAC.",
+      "The reader rejects a computed length that is nonpositive or greater than the caller maximum before allocating the destination buffer.",
+      "After the internal stream buffer-fill path succeeds, the reader removes trailing CR (0x0D) and LF (0x0A) bytes and NUL-terminates the returned string.",
+      "Failure branches return an empty string; internal C++ stream helper identities are intentionally left unnamed."
+    ]
+  },
+  "opaquePathConsumer": {
+    "enclosingLoaderBeginRva": "0x1C0A0",
+    "enclosingLoaderEndRva": "0x1D46F",
+    "secondPathBuilderCallRva": "0x1C8B8",
+    "pathToRcxRva": "0x1C8DF",
+    "consumerCallRva": "0x1C8E2",
+    "consumerTargetRva": "0x3F8E0",
+    "consumerUnwindEndRva": "0x40A6D",
+    "successTestRva": "0x1C8E7",
+    "bodyInspected": false
+  },
+  "result": [
+    "Secure-proxy function RVA 0x1B300-0x1B4BF appends the exact 36-code-unit/72-byte UTF-16 suffix \\bridge-runtime\\package-key.envelope to a runtime-root value returned by helper RVA 0x16360.",
+    "Enclosing loader RVA 0x1C0A0-0x1D46F calls that path constructor at RVA 0x1C447 and immediately passes the returned path to bounded text reader RVA 0x1BD80 with an exact 0x1000-byte caller maximum.",
+    "The reader rejects nonpositive/oversized input, fills a destination string through internal stream helpers, returns empty on failure, and strips trailing CR/LF bytes on success.",
+    "The same enclosing loader calls the path constructor again at RVA 0x1C8B8, passes the returned path directly as RCX to RVA 0x3F8E0 at 0x1C8E2, and tests AL for success. This source-attributes an exact package-key.envelope path consumer without inspecting its restricted body."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_package_key_reader.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_proxy_package_key_reader.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-proxy-package-key-reader.json",
+    "python -m py_compile tools\\inspect_lwbridge_proxy_package_key_reader.py"
+  ],
+  "limits": {
+    "staticOnly": true,
+    "secureProxyOnly": true,
+    "notProven": [
+      "the internal field grammar or parser behavior of path consumer RVA 0x3F8E0",
+      "which parsed envelope field supplies the 65-byte peer public key to agreement helper RVA 0x3DD00",
+      "envelope nonce/tag/ciphertext field ownership or decrypted package-key serialization",
+      "the package-file caller and exact AES key/nonce/tag/ciphertext ownership at RVA 0x3DA4A",
+      "plain-proxy instruction parity",
+      "protected getWorldMapState/getCurrentServerId handler plaintext and authoritative readiness/error mapping",
+      "live current-client behavior"
+    ],
+    "restrictionPreserved": "SB-79 remains in force. This inspector proves the direct path-to-RCX callsite into RVA 0x3F8E0 from the already identified enclosing loader and does not query or disassemble the consumer body.",
+    "interpretationRule": "Only hash-locked literals, unwind ranges, exact instructions and direct calls outside the restricted consumer body are treated as recovered. No envelope field meanings are inferred from call adjacency or local stack layout."
+  },
+  "implementationImpact": {
+    "publicBehaviorEnabled": false,
+    "closedGap": "exact package-key.envelope path constructor plus bounded file-read contract and direct opaque path-consumer callsite",
+    "pm7B": "continue from permitted caller/output semantics around RVA 0x3F8E0 or an independent artifact path to parsed-field ownership into agreement helper RVA 0x3DD00; do not replay SB-79",
+    "mapSummary": "remains fail-closed"
+  }
+}

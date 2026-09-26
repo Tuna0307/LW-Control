@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-012",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 Manual map_scan_start kinds, scanMode parsing, Manual mode UI/persistence, concurrency semantics, and recovered defaults.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md",
+    "docs/reviews/2026-09-24-r8-012-invalid-scanmode-helper-evidence.md",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js",
+    "original executable map_scan_start worker RVA 0xF9333-0xFB8D8"
+  ],
+  "exactContract": {
+    "scanKinds": ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
+    "manualRequestFields": ["selectedTypes", "scanMode"],
+    "preferenceKey": "lwbridge.mapScanMode",
+    "validStringModes": ["normal", "fast"],
+    "concurrency": {"normal": 8, "fast": 20},
+    "frontendFallbackRetryCount": 2,
+    "invalidTypesCode": "INVALID_SCAN_TYPES",
+    "invalidTypesMessage": "no valid map scan types selected",
+    "invalidStringModeCode": "INVALID_SCAN_MODE",
+    "invalidStringModeMessage": "map scan mode must be normal or fast"
+  },  "scanModeInputMatrix": {
+    "missing": "normal",
+    "null": "normal",
+    "nonString": "normal",
+    "emptyString": "INVALID_SCAN_MODE",
+    "normal": "normal/8",
+    "fast": "fast/20",
+    "otherString": "INVALID_SCAN_MODE",
+    "stringComparison": "exact case-sensitive, no trimming/coercion"
+  },
+  "helperReportSha256": "A6E908198763A6395FD0ADE9D2C373F25F681F14176249A1D37E30053FA3A5FA",
+  "nativeLocators": {
+    "workerRva": "0xF9333-0xFB8D8",
+    "rawOffsets": {
+      "scanMode": "0x826431",
+      "normal": "0x826439",
+      "fast": "0x82643F",
+      "invalidCode": "0x826443",
+      "invalidMessage": "0x826454"
+    },
+    "xrefs": {
+      "defaultNormal": "0xF9C9E",
+      "scanModeLookup": "0xF9CB3",
+      "stringVariantSelection": "0xF9CD0",
+      "invalidCode": "0xF9D18",
+      "invalidMessage": "0xF9D1F",
+      "normalConcurrency8": "0xF9DC4",
+      "fastCompare": "0xFB731",
+      "fastConcurrency20": "0xFB73D"
+    }
+  },  "validationOrdering": {
+    "exact": "invalid string scanMode is validated after earlier game/active-scan/world preparation and before startMapScan",
+    "consequence": "earlier connection/running/world-readiness failures may take precedence over INVALID_SCAN_MODE"
+  },
+  "selectedTypesNormalization": {
+    "missingOrNonArray": "all eight",
+    "unknownEntries": "discard",
+    "nonStringEntries": "discard",
+    "duplicates": "discard after first accepted occurrence",
+    "zeroAccepted": "INVALID_SCAN_TYPES / no valid map scan types selected"
+  },
+  "removedDeviations": [
+    "public zombie_boss Manual scan kind",
+    "Manual Normal/Fast control removal",
+    "backend rewriting requested Manual mode",
+    "feature-owned targetServerId Manual input behavior",
+    "default/reset scanMode=auto",
+    "default/reset concurrency=0",
+    "rejecting null/non-string scanMode instead of defaulting to normal"
+  ],
+  "compatibilityBoundary": {
+    "manualScanPublicAllowlist": "original eight only",
+    "mapSearch": "separate later checkpoint; existing internal zombie_boss query/storage compatibility retained until that audit",
+    "autoScan": "separate later checkpoint; current R7-derived scheduler remains pending"
+  },  "implementation": [
+    "src/LWBridge.Desktop/MapScanContract.cs",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/MapDataStore.cs",
+    "src/LWBridge.Desktop/MapDataQueryContract.cs",
+    "tools/build_lwbridge_frontend.py",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+    "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/Program.cs",
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/MapDataStoreScanEngineChecks.cs",
+    "tests/LWBridge.Desktop.Checks/MapSummaryParityChecks.cs",
+    "tools/check_scan_strategy_auto.cjs"
+  ],
+  "validation": {
+    "gitDiffCheck": "PASS",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "frontendGeneratorCheck": "PASS",
+    "mapClearBrowser": "PASS",
+    "ownerWorkflowBrowser": "PASS",
+    "mapPersistenceBrowser": "PASS",
+    "autoNavigationBrowser": "PASS",
+    "autoRestartBrowser": "PASS",
+    "manualScanModeBrowser": "PASS"
+  },  "evidenceClassification": {
+    "manualEightKindAllowlist": "EXACT_CONTRACT",
+    "selectedTypesNormalization": "EXACT_CONTRACT",
+    "normalFastModeValues": "EXACT_CONTRACT",
+    "normalFastConcurrency": "EXACT_CONTRACT",
+    "invalidStringModeCodeMessage": "EXACT_BYTES + EXACT_CONTRACT",
+    "nullNonStringModeDefault": "EXACT_CONTRACT",
+    "invalidModeRelativeAdmissionOrdering": "EXACT_CONTRACT",
+    "manualFrontendModeControlPersistence": "EXACT_BYTES-derived",
+    "frontendFallbackRetryCount": "EXACT_BYTES; R8-013 proves it is not a native/public status field",
+    "protectedAcquisitionTraversal": "UNKNOWN"
+  },
+  "notClaimed": [
+    "protected game-side traversal/acquisition order",
+    "mode-specific pacing beyond recovered concurrency",
+    "protected mode-specific retry/pacing internals beyond recovered public mode/concurrency",
+    "protected acknowledgement/drain/extraction internals",
+    "complete map_scan_status serializer/state parity",
+    "complete map_scan_stop uncommon error behavior",
+    "map_search strict parity",
+    "original Auto Scan scheduler/state machine",
+    "Scheduled Plunder",
+    "Login / Account / Authentication behavior"
+  ]
+}

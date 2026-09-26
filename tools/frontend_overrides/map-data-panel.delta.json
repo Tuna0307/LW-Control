@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 1,
+  "scope": "MapDataPanel-C1HVeNHr.js maintained rebuild delta",
+  "baseSha256": "b1a4f9355c55952499e8c0b3a1c20b3d65ab3122871b0520bb7385a357d8a0f7",
+  "resultSha256": "b539aa7535ea187f460b7cb2fa702d1956bb8a4ef09f4d34ddc56b3ddb82f3b7",
+  "sourceCommits": [
+    "9def72b",
+    "5c7e1cd",
+    "59ddce3",
+    "16bfa14",
+    "81aed0c",
+    "c64752c"
+  ],
+  "edits": [
+    {
+      "start": 892,
+      "deleteLength": 0,
+      "insert": ":0,zombie_boss"
+    },
+    {
+      "start": 5486,
+      "deleteLength": 0,
+      "insert": "filterStoreKey=`lwbridge.mapResultFilters.v1`;function readResultFilters(){try{let e=JSON.parse(localStorage.getItem(filterStoreKey)||`{}`);return e&&typeof e===`object`&&!Array.isArray(e)?e:{}}catch{return{}}}var "
+    },
+    {
+      "start": 5632,
+      "deleteLength": 0,
+      "insert": ",enabled:!0},{key:`zombie_boss`,label:`Zombie Boss`"
+    },
+    {
+      "start": 5930,
+      "deleteLength": 0,
+      "insert": "manualDefaultTypes=O.filter(e=>e!==`zombie_boss`),"
+    },
+    {
+      "start": 6093,
+      "deleteLength": 0,
+      "insert": "zombie_boss:`Zombie Boss`,"
+    },
+    {
+      "start": 6318,
+      "deleteLength": 0,
+      "insert": ":[{sortBy:`updatedAt`,sortOrder:`desc`}],zombie_boss"
+    },
+    {
+      "start": 7316,
+      "deleteLength": 0,
+      "insert": "||e===`zombie_boss`"
+    },
+    {
+      "start": 7923,
+      "deleteLength": 0,
+      "insert": "}function monsterKeywordKeyList(e,t,n,r){if((e!==`monster`&&e!==`zombie_boss`)||!t.trim())return[];let i=t.trim().toLocaleLowerCase();return(n[e]||[]).filter(e=>String(j(r,e.key,e.key)).toLocaleLowerCase().includes(i)).map(e=>e.key)"
+    },
+    {
+      "start": 10652,
+      "deleteLength": 0,
+      "insert": "`Amount`,width:`140px`,value:e=>{let t=Number(k(e,`resourceRemainingAmount`)),r=Number(k(e,`resourceFullAmount`));return Number.isFinite(t)&&Number.isFinite(r)?`${F(t,n)} / ${F(r,n)}`:`—`}},{label:"
+    },
+    {
+      "start": 10893,
+      "deleteLength": 0,
+      "insert": "("
+    },
+    {
+      "start": 10906,
+      "deleteLength": 0,
+      "insert": "||e===`zombie_boss`)"
+    },
+    {
+      "start": 14720,
+      "deleteLength": 0,
+      "insert": "includes(`zombie_boss`)?t.length===1?t:t.filter(e=>e!==`zombie_boss`):t."
+    },
+    {
+      "start": 14735,
+      "deleteLength": 1,
+      "insert": "manualDefaultTypes"
+    },
+    {
+      "start": 14737,
+      "deleteLength": 0,
+      "insert": "}function scanTypeSelection(e,t,n){let r=tt(e);if(n)return t===`zombie_boss`?[t]:r.includes(`zombie_boss`)?[t]:tt([...r,t]);let i=r.filter(e=>e!==t);return i.length>0?i:r"
+    },
+    {
+      "start": 29955,
+      "deleteLength": 0,
+      "insert": "localeKeywordRefreshRef=(0,b.useRef)(``),savedResultFilters=readResultFilters(),"
+    },
+    {
+      "start": 30064,
+      "deleteLength": 0,
+      "insert": "()=>typeof savedResultFilters.keyword===`string`?savedResultFilters.keyword:"
+    },
+    {
+      "start": 30176,
+      "deleteLength": 0,
+      "insert": ":[],zombie_boss"
+    },
+    {
+      "start": 30428,
+      "deleteLength": 0,
+      "insert": "()=>typeof savedResultFilters.cityAlliance===`string`?savedResultFilters.cityAlliance:"
+    },
+    {
+      "start": 30458,
+      "deleteLength": 0,
+      "insert": "()=>savedResultFilters.nameKeys&&typeof savedResultFilters.nameKeys===`object`&&!Array.isArray(savedResultFilters.nameKeys)?savedResultFilters.nameKeys:"
+    },
+    {
+      "start": 30485,
+      "deleteLength": 0,
+      "insert": "()=>savedResultFilters.markedOnly==="
+    },
+    {
+      "start": 30486,
+      "deleteLength": 1,
+      "insert": "0"
+    },
+    {
+      "start": 30538,
+      "deleteLength": 0,
+      "insert": "()=>savedResultFilters.qualities&&typeof savedResultFilters.qualities===`object`&&!Array.isArray(savedResultFilters.qualities)?savedResultFilters.qualities:"
+    },
+    {
+      "start": 30565,
+      "deleteLength": 0,
+      "insert": "()=>savedResultFilters.itemKeys&&typeof savedResultFilters.itemKeys===`object`&&!Array.isArray(savedResultFilters.itemKeys)?savedResultFilters.itemKeys:"
+    },
+    {
+      "start": 30592,
+      "deleteLength": 0,
+      "insert": "()=>typeof savedResultFilters.treasureType===`string`?savedResultFilters.treasureType:"
+    },
+    {
+      "start": 30619,
+      "deleteLength": 0,
+      "insert": "()=>savedResultFilters.statuses&&typeof savedResultFilters.statuses===`object`&&!Array.isArray(savedResultFilters.statuses)?savedResultFilters.statuses:"
+    },
+    {
+      "start": 30646,
+      "deleteLength": 0,
+      "insert": "()=>savedResultFilters.plunderable&&typeof savedResultFilters.plunderable===`object`&&!Array.isArray(savedResultFilters.plunderable)?savedResultFilters.plunderable:"
+    },
+    {
+      "start": 30673,
+      "deleteLength": 0,
+      "insert": "()=>typeof savedResultFilters.dispatchLevel===`string`?savedResultFilters.dispatchLevel:"
+    },
+    {
+      "start": 30775,
+      "deleteLength": 0,
+      "insert": "()=>typeof savedResultFilters.monsterLevel===`string`?savedResultFilters.monsterLevel:"
+    },
+    {
+      "start": 30777,
+      "deleteLength": 0,
+      "insert": "),[resourceLevel,setResourceLevel]=(0,b.useState)(()=>typeof savedResultFilters.resourceLevel===`string`?savedResultFilters.resourceLevel:``),[resourceIdleOnly,setResourceIdleOnly]=(0,b.useState)(()=>savedResultFilters.resourceIdleOnly!==!1),[resourceFullOnly,setResourceFullOnly]=(0,b.useState)(()=>savedResultFilters.resourceFullOnly!==!1),[excludeBlackTile,setExcludeBlackTile]=(0,b.useState)(()=>savedResultFilters.excludeBlackTile!==!1"
+    },
+    {
+      "start": 31792,
+      "deleteLength": 0,
+      "insert": "]),(0,b.useEffect)(()=>{localStorage.setItem(filterStoreKey,JSON.stringify({keyword:I,cityAlliance:Et,nameKeys:Ot,markedOnly:At,qualities:Pt,itemKeys:It,treasureType:Rt,statuses:Bt,plunderable:Ht,dispatchLevel:Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile}))},[I,Et,Ot,At,Pt,It,Rt,Bt,Ht,Wt,monsterLevel,resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile"
+    },
+    {
+      "start": 33636,
+      "deleteLength": 0,
+      "insert": "`zombie_boss`&&F!=="
+    },
+    {
+      "start": 34507,
+      "deleteLength": 0,
+      "insert": "resourceLevel,resourceIdleOnly,resourceFullOnly,excludeBlackTile,"
+    },
+    {
+      "start": 34936,
+      "deleteLength": 4,
+      "insert": ""
+    },
+    {
+      "start": 34941,
+      "deleteLength": 107,
+      "insert": ""
+    },
+    {
+      "start": 35056,
+      "deleteLength": 44,
+      "insert": ""
+    },
+    {
+      "start": 35101,
+      "deleteLength": 98,
+      "insert": ""
+    },
+    {
+      "start": 35207,
+      "deleteLength": 1,
+      "insert": ""
+    },
+    {
+      "start": 35209,
+      "deleteLength": 43,
+      "insert": ""
+    },
+    {
+      "start": 35273,
+      "deleteLength": 1,
+      "insert": ""
+    },
+    {
+      "start": 35275,
+      "deleteLength": 61,
+      "insert": ""
+    },
+    {
+      "start": 35344,
+      "deleteLength": 1,
+      "insert": ""
+    },
+    {
+      "start": 35346,
+      "deleteLength": 41,
+      "insert": ""
+    },
+    {
+      "start": 35848,
+      "deleteLength": 0,
+      "insert": "("
+    },
+    {
+      "start": 35861,
+      "deleteLength": 0,
+      "insert": "||F===`zombie_boss`)"
+    },
+    {
+      "start": 35865,
+      "deleteLength": 8,
+      "insert": "[F]"
+    },
+    {
+      "start": 36394,
+      "deleteLength": 0,
+      "insert": "if("
+    },
+    {
+      "start": 36395,
+      "deleteLength": 3,
+      "insert": "!=="
+    },
+    {
+      "start": 36407,
+      "deleteLength": 2,
+      "insert": ")return;"
+    },
+    {
+      "start": 36414,
+      "deleteLength": 0,
+      "insert": ";if((F===`monster`||F===`zombie_boss`)&&I.trim()){let t=monsterKeywordKeyList(F,I,dt,e),n=`${F}|${I.trim().toLocaleLowerCase()}|${t.join(`,`)}`;n!==localeKeywordRefreshRef.current&&(localeKeywordRefreshRef.current=n,er(1,t))}"
+    },
+    {
+      "start": 36901,
+      "deleteLength": 0,
+      "insert": ",zombie_boss:[]"
+    },
+    {
+      "start": 37273,
+      "deleteLength": 0,
+      "insert": ",resolvedMonsterNameKeys"
+    },
+    {
+      "start": 37493,
+      "deleteLength": 14,
+      "insert": "resourceIdleOnly"
+    },
+    {
+      "start": 37512,
+      "deleteLength": 0,
+      "insert": "`resource`&&resourceIdleOnly?!0:void 0,resourceFullOnly:n===`resource`&&resourceFullOnly?!0:void 0,excludeBlackTile:n===`resource`&&excludeBlackTile?!0:void 0,monsterNameKey:(n==="
+    },
+    {
+      "start": 37521,
+      "deleteLength": 0,
+      "insert": "||n===`zombie_boss`)"
+    },
+    {
+      "start": 37524,
+      "deleteLength": 8,
+      "insert": "[n]"
+    },
+    {
+      "start": 38191,
+      "deleteLength": 0,
+      "insert": "("
+    },
+    {
+      "start": 38204,
+      "deleteLength": 0,
+      "insert": "||n===`zombie_boss`)"
+    },
+    {
+      "start": 38215,
+      "deleteLength": 0,
+      "insert": "(resolvedMonsterNameKeys??monsterKeywordKeyList(n,I,"
+    },
+    {
+      "start": 38217,
+      "deleteLength": 28,
+      "insert": ","
+    },
+    {
+      "start": 38247,
+      "deleteLength": 12,
+      "insert": ""
+    },
+    {
+      "start": 38260,
+      "deleteLength": 74,
+      "insert": ""
+    },
+    {
+      "start": 38351,
+      "deleteLength": 0,
+      "insert": ":n===`resource`&&resourceLevel?Number(resourceLevel)"
+    },
+    {
+      "start": 38402,
+      "deleteLength": 0,
+      "insert": "`resource`&&resourceLevel?Number(resourceLevel):n==="
+    },
+    {
+      "start": 38428,
+      "deleteLength": 0,
+      "insert": "("
+    },
+    {
+      "start": 38441,
+      "deleteLength": 0,
+      "insert": "||n===`zombie_boss`)"
+    },
+    {
+      "start": 38506,
+      "deleteLength": 0,
+      "insert": ",resolvedMonsterNameKeys"
+    },
+    {
+      "start": 38599,
+      "deleteLength": 0,
+      "insert": ",Oe,resolvedMonsterNameKeys"
+    },
+    {
+      "start": 44408,
+      "deleteLength": 0,
+      "insert": "||F===`scheduledPlunder`"
+    },
+    {
+      "start": 46174,
+      "deleteLength": 0,
+      "insert": "]})"
+    },
+    {
+      "start": 46582,
+      "deleteLength": 21,
+      "insert": "scanTypeSelection("
+    },
+    {
+      "start": 46624,
+      "deleteLength": 3,
+      "insert": ",t"
+    },
+    {
+      "start": 46628,
+      "deleteLength": 13,
+      "insert": "target"
+    },
+    {
+      "start": 46642,
+      "deleteLength": 19,
+      "insert": "checked"
+    },
+    {
+      "start": 48513,
+      "deleteLength": 0,
+      "insert": "scanTypeSelection(n,e.key,"
+    },
+    {
+      "start": 48529,
+      "deleteLength": 35,
+      "insert": ""
+    },
+    {
+      "start": 49772,
+      "deleteLength": 0,
+      "insert": "`resource`&&(0,D.jsxs)(`select`,{\"aria-label\":C(`map.level`),value:resourceLevel,onChange:e=>{setResourceLevel(e.target.value),B(1)},children:[(0,D.jsx)(`option`,{value:``,children:C(`squad.afkAnyLevel`)}),Array.from({length:12},(e,t)=>t+1).map(e=>(0,D.jsx)(`option`,{value:e,children:e},e))]}),F===`resource`&&(0,D.jsxs)(`label`,{className:`map-filter-field`,children:[(0,D.jsx)(`input`,{type:`checkbox`,checked:resourceIdleOnly,onChange:e=>{setResourceIdleOnly(e.target.checked),B(1)}}),(0,D.jsx)(`span`,{children:`Idle only`})]}),F===`resource`&&(0,D.jsxs)(`label`,{className:`map-filter-field`,children:[(0,D.jsx)(`input`,{type:`checkbox`,checked:resourceFullOnly,onChange:e=>{setResourceFullOnly(e.target.checked),e.target.checked&&setResourceIdleOnly(!0),B(1)}}),(0,D.jsx)(`span`,{children:`Full only`})]}),F===`resource`&&(0,D.jsxs)(`label`,{className:`map-filter-field`,children:[(0,D.jsx)(`input`,{type:`checkbox`,checked:excludeBlackTile,onChange:e=>{setExcludeBlackTile(e.target.checked),B(1)}}),(0,D.jsx)(`span`,{children:`Exclude black tile`})]}),(F==="
+    },
+    {
+      "start": 49781,
+      "deleteLength": 0,
+      "insert": "||F===`zombie_boss`)"
+    }
+  ]
+}

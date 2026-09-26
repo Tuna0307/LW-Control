@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "type": "foundation-implementation-checkpoint",
+  "startingRevision": "0664e0a0b38bfc37d7ff195a45bf30b56ec93825",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implemented": [
+    "recovered implicit active-profile injection in generated API wrapper",
+    "recovered profile event-envelope filtering/unwrapping",
+    "native command scope and malformed/missing/foreign profile validation",
+    "durable config write before in-memory commit",
+    "config schema and owner markers with backup recovery and corrupt-primary preservation",
+    "cross-instance/file config ownership lock with committed-baseline refresh before updates",
+    "abandoned replacement temp files ignored without changing committed bytes",
+    "isolated config for deterministic checks, captures and read-only probes",
+    "startup-toggle UI rollback after rejected native persistence",
+    "persistent normalized five-entry server-jump history",
+    "request registry duplicate/cancel/teardown/late-request ownership",
+    "shared host NativeRequestExecutor used by LWBridgeWindow and deterministic checks",
+    "backend-integrated controlled delayed service proves duplicate/cancel/close/reload/late-completion behavior",
+    "cancelled delayed work checks cancellation at commit boundary and records zero state commits",
+    "allowlisted single-owner native subscription registry with baseline cleanup on unlisten/close",
+    "browser-boundary wrong-session response/event rejection and switched-profile late-event filtering",
+    "browser timeout sends native cancel and ignores late completion",
+    "requested-live missing-native failure instead of fixture fallback",
+    "read-only production bootstrap suppression of startup auto-launch",
+    "AMD64 COFF machine plus PE32+ validation for game and xlua",
+    "Windows CI workflow now runs deterministic backend/transport and missing-native checks",
+    "recovered Map Data search envelope validation with page size 50 and ordered sort contract"
+  ],
+  "deterministicChecks": {
+    "result": "pass",
+    "failures": [],
+    "storage": [
+      "restart retains profile identity and preferences",
+      "corrupt primary recovers from backup and preserves corrupt bytes",
+      "forced durable-write failure leaves in-memory state unchanged",
+      "foreign owner fails closed without replacing file",
+      "server-jump history normalizes and persists",
+      "competing config owners preserve both committed updates",
+      "abandoned replacement temp cannot replace the committed primary",
+      "optional real-user config byte comparison passes"
+    ],
+    "transport": [
+      "global versus profile-scoped command validation",
+      "foreign/missing/malformed profile rejection",
+      "duplicate request ID rejection",
+      "explicit cancellation reaches delayed task",
+      "teardown cancellation and post-close rejection",
+      "backend-integrated delayed operation has one request/service owner while active",
+      "duplicate host request does not start a second backend operation",
+      "explicit cancel drains request/service ownership with zero commit",
+      "timeout-style late completion is rejected before service state mutation",
+      "session close plus late release produces cancellation with zero commit and no success",
+      "fresh executor accepts work after prior session teardown",
+      "listener duplicate/unlisten/close returns owner count to baseline",
+      "generated active-profile injection for implicit/number/null payloads",
+      "explicit profile is preserved for native validation",
+      "wrong-session browser responses/events are ignored",
+      "foreign-profile and switched-profile late events are filtered",
+      "browser timeout sends cancel and late response is ignored"
+    ]
+  },
+  "captureIsolation": {
+    "result": "pass",
+    "mode": "fixture WebView capture",
+    "configExistedBefore": true,
+    "configExistedAfter": true,
+    "beforeSha256": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9",
+    "afterSha256": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9",
+    "unchanged": true
+  },
+  "installedDiagnostic": {
+    "rootValidated": true,
+    "gameMachine": "0x8664/Amd64/PE32+",
+    "xluaMachine": "0x8664/Amd64/PE32+",
+    "gameRunning": false,
+    "launcherRunning": false
+  },
+  "productionReadOnlyProbe": {
+    "result": "pass-before-startup-suppression-patch",
+    "mode": "live",
+    "frontendFailures": [],
+    "bridgeOnline": false,
+    "gameRunning": false,
+    "launcherRunning": false
+  },
+  "postPatchReadOnlySafety": {
+    "bootstrapSuppressionDeterministicCheck": "pass",
+    "missingNativeBrowserRuntimeCheck": "pass with NATIVE_TRANSPORT_MISSING",
+    "productionExecutableProbeRerun": "not run; environment safety review blocked the executable invocation on both the original and resumed verification attempts"
+  },
+  "resumedVerification": {
+    "date": "2026-09-08",
+    "releaseBuild": "pass; 0 warnings, 0 errors",
+    "frontendIntegrity": "pass",
+    "missingNativeBrowserRuntime": "pass",
+    "browserTransportBoundary": "pass",
+    "deterministicBackend": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true
+    },
+    "fixtureWebViewMatrix": {
+      "result": "pass",
+      "views": 9,
+      "uiErrors": 0
+    },
+    "realConfigSha256Before": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9",
+    "realConfigSha256After": "6D1B41347D39AC383B08393E280ADBFE8E2046E803878DCEBAFC8F86567081F9",
+    "realConfigUnchanged": true,
+    "matchingProcessesAfter": 0,
+    "productionExecutableProbe": "blocked by environment safety review before execution"
+  },
+  "remaining": [
+    "first real lifecycle/scan worker wired through proven request/event ownership plus durable correlated diagnostics",
+    "controlled production-WebView smoke rerun after startup-suppression patch",
+    "exact LaunchEnvelope producer/proof/ticket contract",
+    "exact secure/plain xlua export fingerprint selection",
+    "authoritative per-kind map persistent identity/update/removal rules"
+  ],
+  "liveGameSideEffectsPerformed": false
+}

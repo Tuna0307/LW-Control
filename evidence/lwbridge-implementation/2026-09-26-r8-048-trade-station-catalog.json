@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-048",
+  "date": "2026-09-26",
+  "scope": "Restore native trade_station_catalog profile admission, game-route error, private getTradeStationCatalog request, 10-second timeout and raw JSON forwarding.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "authority": [
+    "trade_station_catalog handler 0x14012B557-0x14012BFEA",
+    "profile/runtime resolver 0x1402AE43C",
+    "game-route helper 0x1403AD367-0x1403AD3B8",
+    "game-call future 0x1400E4FAD-0x1400E537E",
+    "generic result converter 0x1402BB816",
+    "retained Automation Trade Station consumer"
+  ],
+  "publicContract": {
+    "missingProfile": {"code":"PROFILE_ID_REQUIRED","message":"PROFILE_ID_REQUIRED"},
+    "unknownProfile": {"code":"PROFILE_RUNTIME_UNAVAILABLE","message":"PROFILE_RUNTIME_UNAVAILABLE"},
+    "disconnected": {"code":"GAME_DISCONNECTED","message":"game disconnected"},
+    "gameMethod": "getTradeStationCatalog",
+    "gameArgs": {},
+    "gameTimeoutMilliseconds": 10000,
+    "nativeRetryCount": 0,
+    "timeout": {"code":"LUA_CALL_TIMEOUT","message":"lua call result unknown after timeout: getTradeStationCatalog"},
+    "gameFailureCode": "LUA_CALL_FAILED",
+    "success": "correlated game JSON value forwarded unchanged"
+  },
+  "frontendPayloadEvidence": {
+    "topLevelArray": "items",
+    "hostDtoClaimed": false
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "tests/LWBridge.Desktop.Checks/OverviewStatusTransportChecks.cs"
+  ],
+  "transport": {
+    "classification": "EQUIVALENT_REIMPLEMENTATION",
+    "publicCallLuaWidened": false,
+    "tradeStationConfigureEnabled": false,
+    "reusesPerCallDeadlineFromR8046": true
+  },
+  "evidenceClassification": {
+    "profileParsingAndErrors": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "gameMethodAndEmptyArgs": "EXACT_NATIVE",
+    "tenSecondDeadline": "EXACT_NATIVE",
+    "timeoutCodeAndMessage": "EXACT_NATIVE",
+    "successRawJsonPassThrough": "EXACT_NATIVE",
+    "retainedDotNetTransport": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "validationStatus": {
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "jsonSyntax": "PASS",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "live current-client getTradeStationCatalog compatibility validation",
+    "trade_station_configure provider execution remains fenced",
+    "remaining retained Automation/Squads read-only commands remain separate checkpoints"
+  ]
+}

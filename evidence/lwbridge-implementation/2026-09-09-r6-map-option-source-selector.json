@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-030",
+  "scope": "Native map_data_options/map_summary optional run-scope selector and internal rebuild decision helper",
+  "evidenceStatus": "RECOVERED static selector; IMPLEMENTED/OFFLINE-TESTED internal decision helper; full public options/summary assembly remains UNKNOWN/BLOCKED",
+  "reference": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "coordinateSystem": "preferred-image virtual addresses from the verified PE"
+  },
+  "recoverySource": {
+    "classification": "previously successful bounded static trace, promoted from saved session evidence",
+    "note": "This continuation reverified the reference hash and promoted the already successful native trace. It did not rerun the denied helper-disassembly operations recorded as SB-17/SB-18.",
+    "savedTraceSummary": "The prior trace established the helper branch and caller flow; this file records the exact returned addresses and conditions so the finding is durable in the repository."
+  },
+  "nativeFlow": {
+    "selectorHelperVaRange": [
+      "0x0000000140344F1D",
+      "0x0000000140345030"
+    ],
+    "optionAdapterVa": "0x000000014033FEEA",
+    "optionRoutineVa": "0x0000000140257AA4",
+    "publicCallerEvidence": "caller path around 0x000000014013A69B; public map_data_options path begins around 0x000000014013A2E8",
+    "locators": {
+      "requestedServerPositiveGate": "0x0000000140344F2A",
+      "isReadingLookup": "0x0000000140344F46",
+      "isReadingTrueGate": "0x0000000140344F6F",
+      "serverIdLookup": "0x0000000140344F75",
+      "serverIdEqualityGate": "0x0000000140344F8A",
+      "scanRunIdLookup": "0x0000000140344F99",
+      "scanRunIdStringTypeGate": "0x0000000140344FB9",
+      "scanRunIdLengthLoad": "0x0000000140344FC0",
+      "scanRunIdLengthTest": "0x0000000140344FC4",
+      "scanRunIdInvalidOrEmptyGate": "0x0000000140344FCA",
+      "noRunScopeReturn": "0x0000000140344FCE",
+      "nonemptyRunScopePath": "0x0000000140344FE9",
+      "selectorHelperCallFromAdapter": "0x000000014033FF37",
+      "optionRoutineCallFromAdapter": "0x000000014033FF69"
+    }
+  },
+  "selectorDecision": {
+    "stagingCondition": "requested serverId > 0 AND scan state isReading=true AND scan state serverId equals requested serverId AND scanRunId is a string with length > 0",
+    "stagingResult": "supply the exact nonempty scanRunId as optional run scope; R6-024 separately proves that a present run scope selects scan_records scoped by server_id=?1 AND run_id=?2",
+    "fallbackResult": "return no run scope; R6-024 separately proves that absent run scope selects persisted map_records scoped by server_id=?1",
+    "stringSemantics": "the recovered native gate is a raw nonempty-string length test; no trim/whitespace normalization is evidenced",
+    "summaryImpact": "R6-025 previously identified helper 0x140344F1D as the unknown optional run-scope producer used by map_summary counts; this finding closes that helper's semantic condition and run identity source"
+  },
+  "implementation": {
+    "classification": "IMPLEMENTED/OFFLINE-TESTED internal helper only",
+    "files": [
+      "src/LWBridge.Desktop/MapDataStore.cs",
+      "tests/LWBridge.Desktop.Checks/Program.cs"
+    ],
+    "change": "MapDataStore.SelectOptionSourceForTest mirrors the recovered selector and returns the exact requested server plus optional active scanRunId. Tests cover reading=false, server mismatch, null/empty run id, positive match, and the recovered non-trimmed whitespace nonempty case.",
+    "publicCapability": "none; map_data_options and map_summary remain fail-closed with MAP_INDEX_UNAVAILABLE"
+  },
+  "unknownBlocked": [
+    "exact native noAllianceCount producer and whether every no-alliance branch shares the persisted helper predicate already validated offline",
+    "complete native map_data_options response assembly, ordering and deduplication across every option family",
+    "exact scanProgress serialization/empty-state behavior on the public options path",
+    "complete map_summary unavailable/error behavior and integration with the rebuilt live scan-state producer",
+    "native ingestion/current-client live proof"
+  ],
+  "reproduction": [
+    "Get-FileHash ..\\LW\\lwbridge-0.3.1.exe -Algorithm SHA256 and verify 2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "Bounded static-analysis step: inspect preferred-image VA 0x140344F1D-0x140345030 and verify the isReading/serverId/scanRunId lookups and the branch locators recorded above",
+    "Bounded caller step: inspect adapter 0x14033FEEA and verify the selector helper call at 0x14033FF37 followed by the option routine call at 0x14033FF69",
+    "Cross-check evidence/lwbridge-implementation/2026-09-09-r6-map-option-source-candidates.json for the two source/scope SQL candidates",
+    "Cross-check evidence/lwbridge-implementation/2026-09-09-r6-map-summary-native-flow.json for helper 0x140344F1D as the previously unresolved summary optional-scope producer",
+    "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj --configuration Release"
+  ],
+  "environmentRestrictions": [
+    "SB-29: an initial combined repository/memory inspection command was rejected before execution; narrower repository and memory reads succeeded and the denied command contributed no finding",
+    "SB-30: a raw local-session JSONL parser intended to print the previously successful trace excerpts was rejected before execution; it was not retried or rerouted, and the saved rollout summary plus previously returned trace details were used instead",
+    "SB-31: a later combined multi-file source/document read was rejected before execution; single-file reads succeeded and the denied combined command contributed no technical evidence"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "validation": "reference SHA-256 reverified; Release build succeeds with zero warnings/errors; LWBridge.Desktop.Checks returns ok=true with profileRouting, persistence, requestLifetime, mapPersistence and mapContract all true; git diff --check reports no whitespace errors",
+    "limit": "This finding closes the source/run decision itself. It does not prove the remaining native option fields or make a synthetic/persisted-only response acceptable as the public command."
+  },
+  "implementationImpact": {
+    "backlog": "closes the DB-05 public options/summary optional run-scope selector and run identity subproblem; remaining DB-05 public blockers are noAlliance/full options assembly, exact scanProgress public serialization, summary unavailable/error integration and unresolved alternate sorts",
+    "escalation": "ESC-003 is narrowed and returned to NEEDS_INFORMATION for the remaining response-assembly questions; no specialist assignment is created",
+    "nextMethod": "continue permitted saved/native option-assembly and serializer-edge recovery for noAllianceCount, scanProgress and complete response assembly before enabling map_data_options"
+  }
+}

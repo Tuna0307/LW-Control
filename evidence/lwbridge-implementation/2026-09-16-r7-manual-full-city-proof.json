@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "findingId": "LWB-R7-008",
+  "capturedAtUtc": "2026-09-16T02:18:00Z",
+  "officialLuaPackageSha256": "943873f26af843c6cb03b9bb0a449c06fb90ae9c26ec4de23d3f6aab1375d0b4",
+  "officialXluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+  "baseAssemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+  "candidateLuaPackageSha256": "601017c2cea437e5d2afdbc13112dc86789ce04df6a99a2692750845ff70d81f",
+  "probeSourceSha256": "ecff0f93860c610c30e6d68e7461c4c1c4c5e560ac89d839d7a01740dc422024",
+  "productionManualStart": {
+    "result": "live_proven",
+    "logicalBlocks": 2500,
+    "failedBlocks": 0,
+    "requiredAoiUnion": 10000,
+    "publishedCities": 2592,
+    "reopenedCities": 2592,
+    "scanWallSeconds": 51.5242146,
+    "processExitCode": 0
+  },
+  "dedicatedComparator": {
+    "result": "live_proven",
+    "coveredAoiCells": 10000,
+    "totalAoiCells": 10000,
+    "primaryRequests": 250,
+    "cleanupRequests": 0,
+    "retries": 2,
+    "capturedCities": 2254,
+    "publishedCities": 2254,
+    "reopenedCities": 2254,
+    "acquisitionWallSeconds": 78.532,
+    "publicationSeconds": 2.468,
+    "meanResponseSeconds": 0.13280960596352837,
+    "maxResponseSeconds": 0.35022529494017
+  },
+  "privacy": "No player names, IDs, coordinates, raw records, session challenge or request identifiers are stored in this evidence file.",
+  "limits": [
+    "Live City counts are not treated as a fixed invariant across sequential scans; coverage plus publish/reopen equality is the acceptance invariant.",
+    "The production full-City source returns all 2,500 logical captures only after the full native AOI union is proven, so active progress is currently coarse rather than incremental.",
+    "Only Player City is promoted by this finding; Resource and the remaining six scan kinds still require category acceptance.",
+    "No raw live map dataset is committed."
+  ]
+}

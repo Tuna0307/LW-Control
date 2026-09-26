@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-026",
+  "date": "2026-09-25",
+  "scope": "Restore Resource Automation task admission, configure validation/persistence, exact normal missing-runtime-status projection, configure event, and status command while keeping resource_automation_run fenced.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "evidence/lwbridge-0.3.1/frontend/assets/AutomationPanel-D06CxhPI.js",
+    "evidence/lwbridge-0.3.1/frontend/assets/api-ClPPi2JT.js",
+    "native two-entry resource task parser near VA 0x1403b9b64",
+    "native configure validator near VA 0x1403b7aa8",
+    "native resource-status builder near VA 0x1403b57f6",
+    "native missing automation-status reconstruction near VA 0x1403b6d34",
+    "native config/status projection near VA 0x1403c9e82",
+    "original installed profile runtime/config.json",
+    "original installed profile with no runtime/automation-status.json"
+  ],
+  "frontend": {
+    "changed": false,
+    "automationPanelSha256": "6ceabc4c1e1e7fba512d1e6b6b9d0e1639aaf0adf5212ae27151b6bdb7d714ca",
+    "status": "byte-identical to immutable 0.3.1"
+  },
+  "tasks": {
+    "buildingResources": {
+      "nativeAction": "collectResources",
+      "defaultConfig": {
+        "enabled": false,
+        "intervalMinutes": 60
+      }
+    },
+    "armedTruckReward": {
+      "nativeAction": "collectArmedTruckIdleReward",
+      "defaultConfig": {
+        "enabled": false,
+        "intervalMinutes": 60
+      }
+    }
+  },
+  "configure": {
+    "command": "resource_automation_configure",
+    "taskAdmission": [
+      "buildingResources",
+      "armedTruckReward"
+    ],
+    "unknownTask": {
+      "code": "INVALID_REQUEST",
+      "messagePrefix": "unknown resource automation task: "
+    },
+    "intervalMinutes": {
+      "required": true,
+      "integer": true,
+      "minimum": 1,
+      "maximum": 1440,
+      "errorCode": "INVALID_REQUEST",
+      "errorMessage": "interval must be an integer from 1 to 1440 minutes"
+    },
+    "enabled": {
+      "required": false,
+      "trueOnlyWhenJsonTrue": true,
+      "missing": false,
+      "false": false,
+      "wrongType": false
+    },
+    "persistence": "replace tasks.<task> with canonical enabled/intervalMinutes object and preserve siblings",
+    "event": "bridge://resource-automation-status",
+    "result": "updated status.tasks.<task>"
+  },
+  "runtimeStatus": {
+    "nativeFile": "runtime/automation-status.json",
+    "missingFile": "normal native condition; original installed profile has no file",
+    "stateUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "resource state is unavailable"
+    },
+    "invalidCode": "INVALID_AUTOMATION_STATUS",
+    "nativeStates": [
+      "disabled",
+      "waiting",
+      "running"
+    ],
+    "nativeDefaultInternalState": "idle",
+    "nativeDefaultStep": "not_loaded"
+  },
+  "normalIdleStatus": {
+    "topLevel": [
+      "updatedAt",
+      "runningTask",
+      "tasks"
+    ],
+    "runningTask": null,
+    "taskProjection": {
+      "name": "<taskName>",
+      "state": "disabled when config disabled, waiting when enabled and not running",
+      "step": "not_loaded",
+      "running": false,
+      "enabled": "from config",
+      "intervalMinutes": "from config or native default 60",
+      "lastRunAt": "absent when no runtime history",
+      "nextRunAt": "null when disabled; now when enabled with no history"
+    },
+    "nextRunFormulaWhenHistoryExists": "max(lastRunAt + intervalMinutes*60000, now)"
+  },
+  "existingRuntimeStatusParsing": {
+    "classification": "PARTIAL/EQUIVALENT",
+    "behavior": "read recovered generic task metadata conservatively",
+    "malformedDocument": {
+      "code": "INVALID_AUTOMATION_STATUS",
+      "message": "fallback uses code text because exact native human-readable malformed-state message is not isolated"
+    }
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ResourceAutomationConfigCommandService.cs",
+    "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/ResourceAutomationConfigChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "exact two-task admission/order",
+    "original persisted defaults",
+    "native idle status top level",
+    "disabled/waiting state projection",
+    "step not_loaded and running false",
+    "missing lastRunAt absent",
+    "disabled nextRunAt null",
+    "enabled first-run nextRunAt now",
+    "configure returns task status",
+    "configure emits resource status event",
+    "root/sibling task preservation",
+    "canonical resource config persistence",
+    "missing/wrong-type enabled becomes false",
+    "exact interval validation error",
+    "exact dynamic unknown-task error",
+    "malformed runtime status uses INVALID_AUTOMATION_STATUS code",
+    "production resource_automation_status routing",
+    "resource_automation_run remains COMMAND_NOT_IMPLEMENTED"
+  ],
+  "validationStatus": {
+    "releaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "automationPanelHash": "PASS exact immutable 0.3.1",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "frontend": "EXACT_BYTES",
+    "taskAdmission": "EXACT_NATIVE",
+    "configureValidation": "EXACT_NATIVE",
+    "configDefaults": "EXACT installed original profile + immutable frontend",
+    "configurePersistence": "EQUIVALENT_REIMPLEMENTATION of native shared runtime config",
+    "missingRuntimeStatusFallback": "EXACT_NATIVE + original installed profile",
+    "existingRuntimeStatusParser": "PARTIAL/EQUIVALENT",
+    "liveRun": "PROTECTED_UNKNOWN / intentionally absent"
+  },
+  "notClaimed": [
+    "resource_automation_run",
+    "collectResources execution",
+    "collectArmedTruckIdleReward execution",
+    "live game/provider calls",
+    "complete scheduler-lock semantics",
+    "live scheduler write/update ownership",
+    "complete automation-status validation/migration semantics",
+    "runtime lastRunAt production",
+    "task execution result details"
+  ],
+  "nextCheckpoint": "Recover another retained Automation offline/config surface; keep resource Run Now and other live automation actions fenced until provider/protocol evidence is complete."
+}

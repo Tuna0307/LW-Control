@@ -1,0 +1,238 @@
+{
+  "evidenceId": "LWB-R7-065",
+  "capturedAt": "2026-09-20",
+  "branch": "research/offline-controller",
+  "baseCommit": "092c2edb3ff8f67118ce45c8e1a661fe12891038",
+  "scope": {
+    "truckRewardArtwork": "LIVE-PROVEN",
+    "publicGameAssetImageAssetPath": "LIVE-PROVEN",
+    "pngValidationAndHostCache": "IMPLEMENTED/OFFLINE-TESTED_AND_LIVE-PROVEN",
+    "packedAtlasExtraction": "LIVE-PROVEN",
+    "spriteNameResolution": "UNKNOWN/BLOCKED_FAIL_CLOSED"
+  },
+  "originalReference": {
+    "path": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "stringFindings": [
+      {
+        "locator": "file offset 0x00820EC4",
+        "values": ["game_asset_image", "assetPath", "spriteName"],
+        "label": "RECOVERED"
+      },
+      {
+        "locator": "file offset 0x008235FA",
+        "values": ["asset-cache", ".png", "getAssetImage", "base64", "data:image/png;base64,"],
+        "label": "RECOVERED"
+      },
+      {
+        "locator": "file offset 0x00823769",
+        "values": ["INVALID_ASSET", "invalid PNG asset", "write asset cache", "create asset cache", "read cached asset"],
+        "label": "RECOVERED"
+      }
+    ],
+    "reproduction": "Read-only byte/string inspection of the verified reference executable around getAssetImage/game_asset_image/INVALID_ASSET."
+  },
+  "currentV19": {
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "compatibility": {
+      "ok": true,
+      "contentVersion": 19,
+      "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2",
+      "packageSize": 41296373,
+      "packageCrc32": 1913170558,
+      "gameSha256": "df5abcf8618d48500befa9f587b509ed4f58373ff34932bb87ce217f0cf267d5",
+      "xluaSha256": "21eb704afdb7e528f4b90fa1b90bf414c221b06ba990d625aaaaed31b292740f",
+      "assemblyCSharpSha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+      "luaEntrySha256": "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137",
+      "problems": []
+    },
+    "managedMetadata": {
+      "artifact": "Game/LastWar_Data/Assemblies/Assembly-CSharp.rdl",
+      "type": "UnityUIExtension",
+      "typeDefIndex": 605,
+      "method": "LoadSpriteAuto(UnityEngine.SpriteRenderer,string,System.Action<UnityEngine.Sprite>,string)",
+      "methodDefIndex": 4984,
+      "rva": "0x0009CD84",
+      "supportingMethod": "LoadSpriteImpl(string,string,UnityEngine.Object) -> UnityEngine.Sprite",
+      "supportingMethodDefIndex": 4992,
+      "supportingMethodRva": "0x0009CFA4",
+      "label": "RECOVERED"
+    },
+    "liveLua": {
+      "loadPathItemPath": "Assets/Main/Sprites/ItemIcons/%s",
+      "loaderCall": "SpriteRenderer:LoadSpriteAuto(assetPath, callback, \"\")",
+      "label": "LIVE-PROVEN",
+      "note": "The authoritative GOODS path is intentionally extensionless when the item template icon is extensionless. Direct GameEntry.Resource:HasAsset on that string is not equivalent to LoadSpriteAuto and returned false in the diagnostic attempt."
+    }
+  },
+  "implementation": {
+    "host": {
+      "file": "src/LWBridge.Desktop/CurrentClientMapBlockSource.AssetImage.cs",
+      "locators": {
+        "entry": "GetAssetImageAsync near line 23",
+        "protocol": "ProbeAssetImageAsync near line 82",
+        "validation": "ValidateAssetImageResult near line 129",
+        "pngValidation": "ValidatePngAsset near line 223"
+      },
+      "publicRouter": "src/LWBridge.Desktop/ManualMapScanCommandService.cs game_asset_image near lines 87-100 and GetAssetImageAsync near line 135",
+      "result": "{dataUrl: data:image/png;base64,...}",
+      "validation": [
+        "owned profile/session/challenge/gamePid/request correlation",
+        "fresh terminal capture",
+        "PNG signature and IHDR",
+        "positive matching dimensions up to 4096x4096"
+      ],
+      "cache": {
+        "type": "bounded in-memory exact-source cache",
+        "entryLimit": 512,
+        "eviction": "FIFO",
+        "label": "IMPLEMENTATION POLICY",
+        "note": "The original executable proves an asset cache exists but its exact eviction/persistence policy has not been recovered."
+      }
+    },
+    "gameSide": {
+      "file": "tools/current_live_resource_probe.lua",
+      "locators": {
+        "request": "asset_image_runtime.read_request near line 882",
+        "renderer": "asset_image_runtime.render_sprite_png near line 932",
+        "loader": "asset_image_runtime.begin near line 1083; SpriteRenderer:LoadSpriteAuto near line 1134",
+        "pump": "asset_image_runtime.pump near line 1142"
+      },
+      "renderPath": "SpriteRenderer.LoadSpriteAuto(extension) -> Sprite.texture/textureRect -> Graphics.Blit -> Texture2D.ReadPixels -> ImageConversion.EncodeToPNG -> System.Convert.ToBase64String",
+      "packing": {
+        "supported": ["None", "FlipHorizontal", "FlipVertical", "Rotate180"],
+        "otherPackedRotation": "fails closed"
+      },
+      "topLevelLuaLocals": 195,
+      "bootstrapLimit": 200
+    },
+    "frontend": {
+      "truckCurrentGoods": "Recovered MapDataPanel renders GameAssetImage with assetPath=e.iconPath.",
+      "spriteName": "Used by other frontend surfaces such as Trade Station quality frames; Truck currentGoods does not depend on spriteName."
+    }
+  },
+  "deterministicValidation": {
+    "checks": [
+      "AssetImageValidatesCachesAndRetriesSessionGap",
+      "AssetImageRejectsInvalidPng"
+    ],
+    "sessionGapRetry": true,
+    "exactCacheReuse": true,
+    "malformedPngFailsClosed": true,
+    "dualSourceFormFailsClosed": true,
+    "luaTopLevelLocalGuard": 195,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullSuite": {
+      "ok": true,
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    }
+  },
+  "liveProof": {
+    "command": "tests/LWBridge.Desktop.Checks/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.exe --live-current-client-asset-image",
+    "publicPath": "ManualMapScanCommandService.InvokeAsync(\"game_asset_image\")",
+    "assetCount": 4,
+    "observations": [
+      {
+        "assetPath": "Assets/Main/Sprites/ItemIcons/item406",
+        "width": 153,
+        "height": 153,
+        "pngBytes": 19740,
+        "pngSha256": "be77afead91be8754ae3aca9ef6b13b2809e25b58503912a475514f2d48ac0ff",
+        "packed": false,
+        "packingRotation": "None: 0",
+        "textureWidth": 2048,
+        "textureHeight": 2048,
+        "cacheReuseExact": true
+      },
+      {
+        "assetPath": "Assets/Main/Sprites/ItemIcons/item210451.png",
+        "width": 117,
+        "height": 117,
+        "pngBytes": 18272,
+        "pngSha256": "e990ec570dab50622ef2698977d488bf07e6edd6db3f7addf07be7070e46262a",
+        "packed": false,
+        "packingRotation": "None: 0",
+        "textureWidth": 2048,
+        "textureHeight": 2048,
+        "cacheReuseExact": true
+      },
+      {
+        "assetPath": "Assets/Main/Sprites/UI/LWCommon/Sprite/cfm_zhujiemian_tubiao_ziyuan1.png",
+        "width": 60,
+        "height": 60,
+        "pngBytes": 3855,
+        "pngSha256": "55f818d1297d0d48f916a3690af49f19ab02170a94b0d3b557795b18ad830fc3",
+        "packed": true,
+        "packingRotation": "None: 0",
+        "textureWidth": 1024,
+        "textureHeight": 2048,
+        "cacheReuseExact": true
+      },
+      {
+        "assetPath": "Assets/Main/Sprites/ItemIcons/cfm_icon_baoxiang_putongziyuan",
+        "width": 153,
+        "height": 153,
+        "pngBytes": 26402,
+        "pngSha256": "0c25502011cb3c3b5fa21a696e7529ac45f447e03e9702d29ae3b1c7e2a96a16",
+        "packed": false,
+        "packingRotation": "None: 0",
+        "textureWidth": 2048,
+        "textureHeight": 2048,
+        "cacheReuseExact": true
+      }
+    ],
+    "pixelValidation": {
+      "item406": {
+        "size": [153, 153],
+        "nonzeroAlphaPixels": 10837,
+        "opaquePixels": 9786,
+        "uniqueRgba": 4238,
+        "bbox": [21, 9, 131, 140],
+        "rgbaExtrema": [[33, 255], [24, 241], [7, 198], [0, 255]]
+      },
+      "packedResourceIcon": {
+        "assetPath": "Assets/Main/Sprites/UI/LWCommon/Sprite/cfm_zhujiemian_tubiao_ziyuan1.png",
+        "size": [60, 60],
+        "nonzeroAlphaPixels": 2189,
+        "opaquePixels": 2040,
+        "uniqueRgba": 434,
+        "bbox": [4, 3, 56, 56],
+        "rgbaExtrema": [[0, 255], [16, 255], [0, 123], [0, 255]]
+      }
+    },
+    "cleanup": {
+      "gameRunningAfterProof": false,
+      "launcherRunningAfterProof": false
+    },
+    "label": "LIVE-PROVEN"
+  },
+  "historicalTruckPopulationSupport": {
+    "source": "%LOCALAPPDATA%/LWBridgeRebuild/live-truck/manual-full-truck-a08c29d556a847d4bd4f19c627dc990a.db",
+    "truckRows": 279,
+    "currentGoodsEntries": 2027,
+    "uniqueAuthoritativeIconPaths": 16,
+    "note": "Only aggregate icon-path evidence was used. No player names, player IDs, train/march IDs or coordinates are retained in this evidence file."
+  },
+  "validationAndLimits": {
+    "cameraRenderAttempt": "A first off-screen Camera/SpriteRenderer attempt produced a structurally valid but fully transparent 153x153 PNG and was rejected as acceptance evidence. Graphics.Blit(textureRect) replaced it.",
+    "spriteName": "Still fails closed as asset_sprite_name_resolution_unrecovered. No guessed sprite-name mapping is introduced. This does not block Truck retained-goods artwork because the recovered Truck frontend supplies authoritative assetPath.",
+    "diskCache": "Original executable strings prove an asset-cache exists, but exact disk-cache naming/eviction semantics remain unrecovered. The rebuild currently uses validated bounded memory caching.",
+    "stateChangingActions": "None. Live proof only launched/closed the owned game and read/rendered assets."
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "playerIdsRetained": false,
+    "marchOrTrainIdsRetained": false,
+    "coordinatesRetained": false,
+    "serverIdsRetained": false,
+    "sessionChallengesRetained": false,
+    "rawLogsRetained": false
+  }
+}

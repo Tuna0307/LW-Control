@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-029",
+  "date": "2026-09-25",
+  "scope": "Restore the normal retained single-profile profile_list path using a local controller registry instead of a synthetic profile object.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "public profile_list handler VA 0x14014bd06",
+    "native profile-list query helper VA 0x1403d943e",
+    "native public-profile mapping path VA 0x14041cbb1",
+    "native profile-list normalization path VA 0x14041a971",
+    "original installed controller.db profiles/controller_state schemas",
+    "retained original frontend profile consumers"
+  ],
+  "frontendChanged": false,
+  "nativeListSql": "SELECT id, display_name, role_name, server_id, game_uid, note, display_order, enabled, locked_reason, is_primary, created_at, updated_at, last_launched_at FROM profiles ORDER BY display_order, created_at, id",
+  "publicResult": {
+    "fields": [
+      "selectedProfileId",
+      "maxProfiles",
+      "profiles"
+    ],
+    "profileFields": [
+      "id",
+      "displayName",
+      "roleName",
+      "serverId",
+      "gameUid",
+      "note",
+      "displayOrder",
+      "enabled",
+      "lockedReason",
+      "isPrimary",
+      "lastLaunchedAt"
+    ],
+    "notPublicProfileFields": [
+      "createdAt",
+      "updatedAt",
+      "connectionState"
+    ]
+  },
+  "retainedScope": {
+    "maxProfiles": 1,
+    "classification": "EQUIVALENT_REIMPLEMENTATION",
+    "reason": "multi-entitlement/account quota behavior is excluded; the retained rebuild currently exposes one stable local profile"
+  },
+  "storage": {
+    "nativeRoot": "original Roaming lwbridge/controller.db",
+    "rebuildRoot": "%LOCALAPPDATA%/LWBridgeRebuild/controller.db",
+    "tables": [
+      "controller_state",
+      "profiles"
+    ],
+    "normalSelectionKey": "selected_profile_id",
+    "seedBehavior": "insert current stable local profile and selected_profile_id only when absent; preserve existing metadata"
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ProfileRegistryStore.cs",
+    "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/ProfileRegistryChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "stable current profile seeded in controller.db",
+    "selected_profile_id seeded",
+    "enabled primary unlocked defaults",
+    "idempotent seeding preserves later metadata",
+    "profile_list wrapper fields",
+    "recovered public profile field set",
+    "rebuild-only connectionState excluded",
+    "database-only createdAt and updatedAt excluded",
+    "backend routes profile_list to registry service"
+  ],
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "profilesTableSchema": "EXACT_REFERENCE_DB",
+    "controllerStateSchema": "EXACT_REFERENCE_DB",
+    "listQueryAndOrder": "EXACT_NATIVE",
+    "publicProfileFields": "EXACT_CONTRACT",
+    "selectedProfileIdNormalPath": "EXACT_CONTRACT",
+    "maxProfilesFixedOne": "EQUIVALENT_REIMPLEMENTATION",
+    "filesystemRoot": "EQUIVALENT_REIMPLEMENTATION",
+    "selectionRepairFallback": "NOT_CLAIMED"
+  },
+  "notClaimed": [
+    "profile_select",
+    "profile_enable_set",
+    "profile_primary_set",
+    "profile create/delete/note/reorder behavior",
+    "multi-profile entitlement locking",
+    "malformed or stale selected-profile repair behavior",
+    "instance launch ownership",
+    "original application-data root path"
+  ],
+  "nextCheckpoint": "Recover another local profile-registry mutation such as profile_select, enable, primary, note, or reorder only after its complete observable contract is closed."
+}

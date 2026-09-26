@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "type": "project-manager-review",
+  "implementationRevision": "0664e0a0b38bfc37d7ff195a45bf30b56ec93825",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "scope": "Documentation and source/evidence audit; no implementation edits or live game operations.",
+  "checks": [
+    {
+      "command": "python tools/build_lwbridge_frontend.py --check",
+      "result": "passed",
+      "scope": "Recovered hash integrity and generated source"
+    },
+    {
+      "command": "dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj --configuration Release",
+      "result": "passed",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj --configuration Release",
+      "result": "passed",
+      "failures": [],
+      "gameRunning": false,
+      "launcherRunning": false,
+      "scope": "Installed-root/PE32+ inspection, missing-root rejection, launch rejection, one foreign-profile case and map input normalization; machine-dependent, real config store"
+    },
+    {
+      "command": "./tools/capture_lwbridge_ui.ps1 -OutputDirectory .codex-live/lwbridge-pm-audit-2026-09-08/captures",
+      "result": "passed",
+      "scope": "Nine fixture pages, nonempty UI, no reported errors/auth commands"
+    },
+    {
+      "method": "Python ast.parse",
+      "result": "passed",
+      "files": [
+        "tools/inspect_lwbridge_injection.py",
+        "tools/inspect_lwbridge_map_scan.py",
+        "tools/inspect_lwbridge_proxy_map_scan.py",
+        "tools/inspect_official_runtime.py"
+      ],
+      "scope": "Syntax only; inspectors not rerun"
+    },
+    {
+      "method": "Local Markdown link resolution before edits",
+      "result": "passed",
+      "filesChecked": 11,
+      "brokenLinks": []
+    }
+  ],
+  "captures": [
+    {
+      "view": "overview",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/overview.json",
+      "imageSha256": "aaf98907863d65016c3d30fe0c39054dc4361e3eb5fed151e5289a83f5402237",
+      "reportedErrors": 0
+    },
+    {
+      "view": "automation",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/automation.json",
+      "imageSha256": "30802e4bcf7e2abc79b12888a4bcfc098ddb14c397eccac44dd37368c9526f00",
+      "reportedErrors": 0
+    },
+    {
+      "view": "map-data",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/map-data.json",
+      "imageSha256": "cff1b54fda18156d59ea45219f3857fb16cadf8b6ee39db6dbbff4dbb416dbf2",
+      "reportedErrors": 0
+    },
+    {
+      "view": "march",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/march.json",
+      "imageSha256": "7942188082c0148f5d9ce20aeed944ccbc1692a2c566dc0df6a0ac5cddc9ae3d",
+      "reportedErrors": 0
+    },
+    {
+      "view": "city-layout",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/city-layout.json",
+      "imageSha256": "590473702bd0d69dd9e1551b04b6e7b342854d3c4b079571ea20ac898e3e4dca",
+      "reportedErrors": 0
+    },
+    {
+      "view": "hotkeys",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/hotkeys.json",
+      "imageSha256": "6078e40ba23fb67bd907989eda792246bf998514892dba14f796533d1c99ffdf",
+      "reportedErrors": 0
+    },
+    {
+      "view": "mini-games",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/mini-games.json",
+      "imageSha256": "75fa0f2fc2c02a55de1f8cd87ae4c0d590082217309374b98760b6e4cbb7c0fe",
+      "reportedErrors": 0
+    },
+    {
+      "view": "advanced",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/advanced.json",
+      "imageSha256": "df8dbfb53f477cb7148526488a0e4c7a49e4c3c4e40dbfa30b52ad342ee9aa38",
+      "reportedErrors": 0
+    },
+    {
+      "view": "settings",
+      "passed": true,
+      "report": ".codex-live/lwbridge-pm-audit-2026-09-08/captures/settings.json",
+      "imageSha256": "004a0daaabb9d3c51d071518d21c254aff78272e29402f77827422f1c022454f",
+      "reportedErrors": 0
+    }
+  ],
+  "historicalOnly": [
+    "32 paired pixel comparisons",
+    "35 browser checks",
+    "official-runtime inspection snapshot"
+  ],
+  "acceptance": {
+    "fullCasesInSpecification": 47,
+    "fullCasesSignedOffByThisAudit": 0,
+    "note": "Passing subchecks do not establish full-case acceptance."
+  },
+  "remainingWork": [
+    "R1 profile-aware RPC",
+    "R2 persistence and storage isolation",
+    "R3 async cancellation/event lifetime",
+    "R4 production-mode and CI verification",
+    "R5 bootstrap and Overview lifecycle",
+    "R6 offline map contracts/index/query/export",
+    "R7 real manual scan",
+    "R8 automatic scan and server travel",
+    "R9 conditional actions/jobs",
+    "R10 integrated acceptance"
+  ],
+  "cleanup": {
+    "trackedCleanupCommit": "0664e0a",
+    "externalLegacyArchiveStillPresent": true,
+    "externalLegacyArchive": "../LW/LWControl.zip",
+    "policy": "Excluded authority; do not restore deleted legacy implementation. No deletion during this audit."
+  },
+  "liveProof": false
+}

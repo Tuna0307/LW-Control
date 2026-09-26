@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-034",
+  "scope": "Current official Last War build-1078 current-server and in-world managed contracts for the unresolved map_summary shared-state seam",
+  "evidenceStatus": "RECOVERED current-client static contract; production bridge integration and exact LWBridge shared-producer error mapping remain UNKNOWN/BLOCKED",
+  "officialRuntime": {
+    "appVersion": "1.0.361",
+    "appVersionCode": 1078,
+    "path": "%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl",
+    "size": 15640576,
+    "sha256": "871efe06819fbac438413eb96b7df8193d0be56094f3a44d5ff141e6219adcbd",
+    "container": "RG wrapper with RGMD metadata root at file offset 0x9a88a8",
+    "metadataCounts": {
+      "typeDef": 5828,
+      "methodDef": 54474
+    }
+  },
+  "tooling": {
+    "tool": "tools/inspect_lastwar_rdl_metadata.py",
+    "provenance": "recovered unchanged parser logic from historical Macro-Clicker-and-Icon-Watcher commit 0d23432, then documented in this repository",
+    "mode": "read-only metadata/CIL parser; it does not load or execute the game or rewrite the RDL"
+  },
+  "managedContracts": {
+    "currentServer": {
+      "method": "DCPlayer::GetCurServerId",
+      "methodRow": 3426,
+      "rva": "0x4b3d8",
+      "signature": "int32 DCPlayer::GetCurServerId()",
+      "xluaWrapper": "XLua.CSObjectWrap.DCPlayerWrap::_m_GetCurServerId(native int L)",
+      "xluaWrapperMethodRow": 22900,
+      "xluaWrapperRva": "0x2102ac",
+      "cil": [
+        "IL_0001 ldarg.0",
+        "IL_0002 ldfld token(0x679EE982)",
+        "IL_0007 ldc.i4.0",
+        "IL_0008 blt.s IL_0011",
+        "IL_000a ldarg.0",
+        "IL_000b ldfld token(0x679EE982)",
+        "IL_0010 ret",
+        "IL_0011 ldarg.0",
+        "IL_0012 ldfld token(0x679EE9A2)",
+        "IL_0017 ret"
+      ],
+      "crossCheck": {
+        "method": "DCPlayer::GetCrossServerId",
+        "methodRow": 3424,
+        "rva": "0x4b3ab",
+        "cil": "ldarg.0; ldfld token(0x679EE982); ret",
+        "result": "the first GetCurServerId field is exactly the value returned by GetCrossServerId"
+      },
+      "recoveredResult": "GetCurServerId returns the GetCrossServerId field when that signed value is >= 0; otherwise it returns a second DCPlayer field. The second modified field token is deliberately left unnamed because the attempted exact GetSelfServerId follow-up output was unavailable after automatic review rejection.",
+      "limit": "This establishes the current-client callable contract and branch shape, not the DCPlayer instance producer used by LWBridge or a host-side invocation path."
+    },
+    "worldState": {
+      "method": "SceneManager::IsInWorld",
+      "methodRow": 9116,
+      "rva": "0xe1456",
+      "signature": "bool SceneManager::IsInWorld()",
+      "xluaWrapper": "XLua.CSObjectWrap.SceneManagerWrap::_m_IsInWorld_xlua_st_(native int L)",
+      "xluaWrapperMethodRow": 27311,
+      "xluaWrapperRva": "0x29a4f4",
+      "cil": [
+        "IL_0001 ldsfld token(0x679DF242)",
+        "IL_0006 ldc.i4.2",
+        "IL_0007 ceq",
+        "IL_0009 ret"
+      ],
+      "recoveredResult": "the current client exposes a static IsInWorld predicate to xLua; its body compares one static scene-state field with integer 2",
+      "limit": "The modified static field token is not named from this evidence. No independent claim is made about the enum/value name; the authoritative callable contract is SceneManager.IsInWorld itself."
+    }
+  },
+  "lwbridgeCrossCheck": {
+    "findings": ["LWB-R6-025", "LWB-R6-030", "LWB-R6-033"],
+    "result": "the verified LWBridge shared map-state producer carries getCurrentServerId/isInWorld markers before map_summary consumes scanState.serverId. The current official client now independently proves matching managed current-server and in-world callable contracts exist and are xLua-exposed.",
+    "nonClaim": "This does not prove that LWBridge calls these exact managed methods directly, does not recover the DCPlayer instance/source used by its getCurrentServerId bridge helper, and does not recover the original condition-to-error mapping."
+  },
+  "reproduction": [
+    "Get-FileHash $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl -Algorithm SHA256",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --member ServerId",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --member IsIn",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method DCPlayer::GetCurServerId",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method DCPlayer::GetCrossServerId",
+    "python tools\\inspect_lastwar_rdl_metadata.py $env:LOCALAPPDATA\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Assemblies\\Assembly-CSharp.rdl --method SceneManager::IsInWorld"
+  ],
+  "environmentRestrictions": [
+    "SB-41: a combined command mixing inspector/source reads, repository string searches and a direct binary-byte string scan was rejected by automatic review because safety status could not be determined; it was not retried or rerouted and supplied no evidence",
+    "SB-42: a targeted LWBridge string-xref inspector process started, but the session-output poll was rejected by automatic review because safety status could not be determined; no output from that process is accepted as evidence and the operation was not rerouted",
+    "SB-43: a broad combined repository search for LWScripts/RDL decoder paths was rejected before execution; it supplied no evidence and narrower repository/memory reads identified the historical RDL tool instead",
+    "SB-44: a broad current-RDL DCPlayer type dump produced by the recovered read-only parser could not be retrieved because automatic review rejected the session-output poll; it was not retried and contributes no field mapping",
+    "SB-45: the exact current-RDL GetSelfServerId follow-up process output could not be retrieved because automatic review rejected the session-output poll; the second GetCurServerId field therefore remains deliberately unnamed"
+  ],
+  "validationAndLimits": {
+    "liveProven": false,
+    "publicCommandEnabled": false,
+    "validation": "current RDL SHA-256 reverified; Python tool compiles; exact GetCurServerId/GetCrossServerId/IsInWorld method inspections reproduce the recorded RGMD counts, RVAs and CIL; evidence JSON parses; git diff --check passes; recovered frontend hash check passes; Release desktop build succeeds with zero warnings/errors; LWBridge.Desktop.Checks returns ok=true with profileRouting, persistence, requestLifetime, mapPersistence and mapContract all true",
+    "runtimeObservation": "the deterministic installed diagnostic reported gameRunning=false and launcherRunning=false, so no supported live correlation target was available during this checkpoint",
+    "resolved": [
+      "a repository-reproducible decoder now exists for the identified build-1078 Assembly-CSharp.rdl source",
+      "the current official client exposes DCPlayer.GetCurServerId and SceneManager.IsInWorld through xLua wrappers",
+      "GetCurServerId's first branch source is the same field returned by GetCrossServerId"
+    ],
+    "unknownBlocked": [
+      "the authoritative DCPlayer instance/access path used by LWBridge's shared producer",
+      "the exact LWBridge shared-producer condition-to-error-code/message mapping",
+      "the production bridge transport that can obtain current server/world state and scan state with authoritative lifecycle/error semantics",
+      "live current-client correlation"
+    ],
+    "boundary": "LWBridgeBackend map_scan_status and map_summary remain fail-closed; wiring the current synthetic unavailable scan status or an unproven managed access path into summary would invent production behavior."
+  },
+  "implementationImpact": {
+    "classification": "research/tooling checkpoint",
+    "files": ["tools/inspect_lastwar_rdl_metadata.py"],
+    "publicCapability": "none",
+    "backlog": "narrows DB-05 summary integration and satisfies R6-029's previously missing current-RDL decoder path for future current-contract research",
+    "nextMethod": "use the now-reproducible current-RDL metadata/CIL path to identify the authoritative DCPlayer access/source and any managed bridge-facing state owner; separately use supported LWBridge evidence for exact shared-producer error mapping. Keep scanProgress callback SB-33 restricted and use an active-scan observation only if a supported target becomes available.",
+    "escalation": "no Daybreak request: a permitted current-runtime method produced positive evidence and regular-AI methods remain available"
+  }
+}

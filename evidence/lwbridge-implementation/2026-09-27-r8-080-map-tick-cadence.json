@@ -1,0 +1,92 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-080",
+  "limits": [
+    "50 ms is a minimum elapsed-time gate serviced by the proxy pump, not a guaranteed exact-period timer",
+    "does not recover how many blocks/requests XluaBridgeMapScanTick advances per invocation",
+    "does not recover traversal order, request coordinates, retry/backoff, or completion/drain policy",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "cadence": {
+        "XluaBridgeInputPoll": {
+          "callRva": "0x1FB6F",
+          "lastRunOffset": "0x20",
+          "thresholdMs": 16
+        },
+        "XluaBridgeMapScanTick": {
+          "callRva": "0x1FB4F",
+          "lastRunOffset": "0x28",
+          "thresholdMs": 50
+        },
+        "XluaBridgeNativeUpdate": {
+          "callRva": "0x1FFFA",
+          "lastRunOffset": "0x18",
+          "thresholdMs": 200
+        },
+        "XluaBridgePoll": {
+          "callRva": "0x20059",
+          "lastRunOffset": "0x30",
+          "thresholdMs": 500
+        }
+      },
+      "proxy": "secure",
+      "pumpRva": "0x1F800-0x2014F",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "timer": {
+        "callRva": "0x1F9C5",
+        "iatRva": "0x6F180",
+        "import": "KERNEL32.dll!GetTickCount64"
+      }
+    },
+    {
+      "cadence": {
+        "XluaBridgeInputPoll": {
+          "callRva": "0x1FB6F",
+          "lastRunOffset": "0x20",
+          "thresholdMs": 16
+        },
+        "XluaBridgeMapScanTick": {
+          "callRva": "0x1FB4F",
+          "lastRunOffset": "0x28",
+          "thresholdMs": 50
+        },
+        "XluaBridgeNativeUpdate": {
+          "callRva": "0x1FFFA",
+          "lastRunOffset": "0x18",
+          "thresholdMs": 200
+        },
+        "XluaBridgePoll": {
+          "callRva": "0x20059",
+          "lastRunOffset": "0x30",
+          "thresholdMs": 500
+        }
+      },
+      "proxy": "plain",
+      "pumpRva": "0x1F800-0x2014F",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "timer": {
+        "callRva": "0x1F9C5",
+        "iatRva": "0x6F180",
+        "import": "KERNEL32.dll!GetTickCount64"
+      }
+    }
+  ],
+  "recoveredResult": {
+    "mapScanTickOuterGateMs": 50,
+    "modeBoundary": "the recovered outer MapScanTick gate uses a fixed 50 ms constant and contains no Normal/Fast branch; mode-specific work inside XluaBridgeMapScanTick remains unrecovered",
+    "relatedPumpCadenceMs": {
+      "inputPoll": 16,
+      "nativeUpdate": 200,
+      "poll": 500
+    },
+    "semantics": "on each serviced proxy pump, unsigned elapsed now-lastMapTick is compared with 50 ms; below threshold skips, otherwise lastMapTick is updated to now before XluaBridgeMapScanTick is called",
+    "timerSource": "GetTickCount64"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

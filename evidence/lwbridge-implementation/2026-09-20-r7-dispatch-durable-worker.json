@@ -1,0 +1,79 @@
+{
+  "findingId": "LWB-R7-083",
+  "status": "IMPLEMENTED/OFFLINE-TESTED",
+  "date": "2026-09-20",
+  "baseCommit": "9ca0e5e770ef5809958ae8c0626ef95b113045e1",
+  "scope": "Durable single-owner Dispatch plunder worker wired to the R7-081 persistence kernel and R7-082 current-v19 executor. Public scheduling and live plunder remain blocked.",
+  "recoveredAuthority": {
+    "armLeadMilliseconds": 10000,
+    "armableRead": "scheduled|waiting_connection, plunder_at <= now + 10000, unexpired, plunder_at ASC LIMIT 1",
+    "runningBeforeArm": true,
+    "attemptIncrement": "exactly once when entering running",
+    "offlineDue": "scheduled and plunder_at <= now -> waiting_connection / DISPATCH_PLUNDER_GAME_DISCONNECTED; arm lead is not used",
+    "expiry": "scheduled|waiting_connection -> expired / DISPATCH_PLUNDER_TASK_EXPIRED",
+    "dailyLimit": "scheduled|waiting_connection -> failed / DISPATCH_PLUNDER_DAILY_LIMIT_REACHED",
+    "originalRestartRecovery": "running -> waiting_connection / DISPATCH_PLUNDER_CLIENT_RESTARTED"
+  },
+  "currentV19SafetyPolicy": {
+    "restartDivergence": "stale running -> failed / DISPATCH_PLUNDER_CLIENT_RESTARTED",
+    "restartReason": "after a host restart the current-v19 replacement cannot prove whether DispatchSteal had already been sent; making the job retryable could duplicate a real plunder",
+    "guardedRunningTransition": "only scheduled|waiting_connection may enter running; clears error and increments attempts exactly once",
+    "guardedRunningReason": "prevents a cancel/reschedule race from resurrecting a terminal or cancelled row after armable read",
+    "crossServer": "worker does not require current live server == target server; current-v19 DispatchSteal carries targetServer and R7-082 executor rechecks IsOpenCrossSteal()",
+    "postRunningUnknown": "cancellation, state-unknown, ambiguous or unknown executor failure terminalizes to failed / DISPATCH_PLUNDER_RESPONSE_TIMEOUT and is never retried"
+  },
+  "worker": {
+    "implementation": "src/LWBridge.Desktop/DispatchPlunderWorker.cs",
+    "store": "src/LWBridge.Desktop/MapDataStore.Plunder.cs",
+    "serviceOwner": "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "executor": "CurrentClientMapBlockSource.ExecuteDispatchPlunderAsync",
+    "operationOwnership": "shared serialized Map Data game-operation gate with scans, navigation, Treasure inspection and Truck plunder",
+    "changeEvent": "DispatchPlunderWorker.Changed -> ManualMapScanCommandService.DispatchPlunderChanged -> bridge://dispatch-plunder-changed",
+    "loopCadence": "1 second implementation policy; eligibility remains governed by recovered 10-second lead"
+  },
+  "stateMachine": [
+    "expire active due-expired rows before selecting work",
+    "no live game connection: move due scheduled rows to waiting_connection without using arm lead",
+    "read one armable scheduled|waiting_connection row within 10-second lead",
+    "validate exact task UUID/server/timing identity before attempt",
+    "obtain shared game-operation ownership",
+    "guarded active-only running transition with one attempt increment",
+    "execute target server/task UUID/plunderAt through R7-082 internal current-v19 executor",
+    "authoritative success -> succeeded / NULL error",
+    "authoritative rejection -> failed / normalized error",
+    "daily-limit rejection -> fail current row then fail all remaining active Dispatch jobs",
+    "pre-send connection loss proven by executor + live connection now absent -> waiting_connection",
+    "pre-send arm timeout while still connected -> failed",
+    "post-send/ambiguous/state-unknown -> failed / DISPATCH_PLUNDER_RESPONSE_TIMEOUT; no retry"
+  ],
+  "deterministicCoverage": {
+    "crossServerTargetExecutesWithoutImplicitTravel": true,
+    "successExactlyOneExecuteAndOneAttemptIncrement": true,
+    "dailyLimitStopsRemainingJobs": true,
+    "postSendTimeoutTerminalNoRetry": true,
+    "busyOwnershipDefersWithoutAttempt": true,
+    "cancelRaceCannotBeResurrected": true,
+    "offlineDueWaitingConnection": true,
+    "offlineArmLeadFutureJobRemainsScheduled": true,
+    "invalidCurrentV19UuidFailsBeforeAttempt": true,
+    "preSendDisconnectBecomesWaitingConnection": true,
+    "connectedPreSendTimeoutIsTerminal": true,
+    "staleRunningRestartIsConservativelyTerminal": true
+  },
+  "publicBoundary": {
+    "map_dispatch_plunder_cancel": "PUBLIC/OFFLINE-TESTED",
+    "map_dispatch_plunder_schedule": "ABSENT/COMMAND_NOT_IMPLEMENTED",
+    "durableDispatchWorker": "IMPLEMENTED/OFFLINE-TESTED",
+    "liveDispatchPlunder": "NOT_RUN"
+  },
+  "validation": {
+    "gitDiffCheck": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "fullDeterministicSixGroups": "PASS",
+    "deterministicFailures": 0,
+    "postValidationGameRunning": false,
+    "postValidationLauncherRunning": false
+  },
+  "safety": "No Dispatch steal/plunder, Truck robbery, Treasure claim, alliance/message send, collection, consumable, or other state-changing live gameplay action was executed."
+}

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-008",
+  "date": "2026-09-24",
+  "scope": "Restore original LWBridge 0.3.1 map_scan_clear admission, storage scope, returned-state and frontend control contract.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "docs/reviews/2026-09-24-r8-map-control-plane-exact-contract.md",
+    "evidence/lwbridge-0.3.1/frontend/assets/MapDataPanel-C1HVeNHr.js"
+  ],
+  "exactContract": {
+    "request": "{serverId}",
+    "activeScanError": "SCAN_RUNNING / stop the map scan first",
+    "serverGateError": "SERVER_UNAVAILABLE / current server id unavailable",
+    "serverGate": "requested serverId > 0 AND requested serverId == scanState.serverId AND scanState.serverIdSource == live",
+    "storageDelete": ["scan_runs admitted server", "map_records admitted server"],
+    "storagePreserve": ["player_marks", "other server map_records", "other server scan_runs"],
+    "frontend": "one Manual-only Clear binding; Qn invokes map_scan_clear with current server L"
+  },
+  "removedDeviations": [
+    "serverId=0 session-wide clear-all",
+    "saved/non-live server Clear",
+    "Auto Scan Clear button",
+    "frontend Qn rewrite from ne(L) to ne(0)"
+  ],
+  "implementation": [
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+    "src/LWBridge.Desktop/MapScanClearOwnership.cs",
+    "tools/build_lwbridge_frontend.py",
+    "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js"
+  ],
+  "regressionCoverage": [
+    "tests/LWBridge.Desktop.Checks/ManualMapScanCommandServiceChecks.cs",
+    "tests/LWBridge.Desktop.Checks/MapScanClearParityChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs",
+    "tools/check_map_clear_r8008.cjs",
+    "tools/check_map_owner_workflow_r7147.cjs"
+  ],
+  "validation": {
+    "frontendGenerator": "PASS reproducible",
+    "frontendContract": "PASS R8-008 strict map_scan_clear frontend contract check",
+    "dotnetBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[]",
+    "ownerWorkflowBrowser": "PASS",
+    "generalFrontendBrowser": "PASS 36 comparisons",
+    "cityExcelBrowser": "PASS",
+    "scanStrategyBrowser": "PASS",
+    "mapR7131Browser": "PASS",
+    "mapR7156Browser": "PASS",
+    "mapR7136RestartBrowser": "PASS",
+    "visualComparison": {
+      "pairs": 32,
+      "strictPairs": 28,
+      "intentionalMapDataPairs": 4,
+      "strictMaxHighDeltaRate": 0.0
+    },
+    "gitDiffCheck": "PASS"
+  },
+  "remainingMapParity": [
+    "Normal/Fast frontend and backend semantics",
+    "remove or segregate rebuild-only zombie_boss scan kind",
+    "server_jump exact result contract",
+    "map_summary exact result contract",
+    "map_data_options exact selector/result contract",
+    "original Auto Scan state machine",
+    "Scheduled Plunder restoration",
+    "protected/original acquisition internals"
+  ]
+}

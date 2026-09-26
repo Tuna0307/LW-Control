@@ -1,0 +1,85 @@
+{
+  "findingId": "LWB-R6-040",
+  "date": "2026-09-09",
+  "scope": "PM7-B parsed package-key envelope persistence and invalid cleanup",
+  "evidenceStatus": "RECOVERED",
+  "sourceIdentity": {
+    "artifact": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "preferredImageBase": "0x140000000",
+    "coordinateSystem": "preferred virtual addresses (VA)"
+  },
+  "parsedEnvelopePersistence": {
+    "authResponseFunctionPreferredVa": "0x14023C7EC-0x14023CB51",
+    "runtimePathDataPreferredVa": "0x14023C9CE",
+    "runtimePathLengthPreferredVa": "0x14023C9D5",
+    "runtimePathServiceOffsets": [
+      "0x1A0",
+      "0x1A8"
+    ],
+    "formatterDescriptorPreferredVa": "0x140C80070",
+    "formatterDescriptorHex": "c0010a00",
+    "formatterCallPreferredVa": "0x14023C9FE",
+    "formatterPreferredVa": "0x1400276B0",
+    "persistCallPreferredVa": "0x14023CA11",
+    "persistHelperPreferredVa": "0x14023D8FC",
+    "serializedContent": "packageKeyEnvelope response string followed by one LF byte"
+  },
+  "writePath": {
+    "persistFunctionPreferredVa": "0x14023D8FC-0x14023DB02",
+    "contentDispatchCallPreferredVa": "0x14023DA6B",
+    "contentDispatchPreferredVa": "0x140037A58",
+    "ntWriteWrapperCallPreferredVa": "0x140037A94",
+    "ntWriteWrapperPreferredVa": "0x1405BB570",
+    "ntWriteFileCallPreferredVa": "0x1405BB5DA",
+    "ntWriteFileImportIatPreferredVa": "0x1407B98F8",
+    "ntWriteFileImport": "ntdll.dll!NtWriteFile",
+    "finalizeCallPreferredVa": "0x14023DAF8",
+    "finalizeWrapperPreferredVa": "0x14027D760",
+    "movePrimitiveCallPreferredVa": "0x14027D777",
+    "movePrimitivePreferredVa": "0x1405B6BC0",
+    "moveFileExCallPreferredVa": "0x1405B6CDE",
+    "moveFileExImportIatPreferredVa": "0x1407B97D8",
+    "moveFileExImport": "kernel32.dll!MoveFileExW",
+    "moveFileExFlagPreferredVa": "0x1405B6CD8",
+    "moveFileExFlags": 1,
+    "moveFileExFlagMeaning": "MOVEFILE_REPLACE_EXISTING"
+  },
+  "invalidOrExpiredCleanup": {
+    "runtimePathDataPreferredVa": "0x14023CA49",
+    "runtimePathLengthPreferredVa": "0x14023CA50",
+    "deleteWrapperCallPreferredVa": "0x14023CA57",
+    "deleteWrapperPreferredVa": "0x1405B6540",
+    "deletePrimitiveCallPreferredVa": "0x1405B65BD",
+    "deletePrimitivePreferredVa": "0x1405B8C00",
+    "deleteFileCallPreferredVa": "0x1405B8C17",
+    "deleteFileImportIatPreferredVa": "0x1407B96B8",
+    "deleteFileImport": "kernel32.dll!DeleteFileW",
+    "resultCode": "KEY_ENVELOPE_INVALID"
+  },
+  "result": [
+    "The packageKeyEnvelope success branch loads the package-key.envelope runtime path from the auth-service state, formats the parsed response field with the verified one-argument-plus-LF descriptor, and passes that path and serialized content to the shared persistence helper.",
+    "The persistence helper writes through a content-dispatch chain that reaches ntdll!NtWriteFile, then finalizes through MoveFileExW with MOVEFILE_REPLACE_EXISTING.",
+    "The invalid/expired branch loads the same runtime path, reaches kernel32!DeleteFileW, and returns KEY_ENVELOPE_INVALID."
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_runtime_material_persistence.py ..\\LW\\lwbridge-0.3.1.exe",
+    "python tools\\inspect_lwbridge_runtime_material_persistence.py ..\\LW\\lwbridge-0.3.1.exe --output evidence\\lwbridge-implementation\\2026-09-09-r6-runtime-material-persistence.json"
+  ],
+  "validationAndLimits": {
+    "validation": "static-only against immutable verified LWBridge 0.3.1 host code",
+    "liveProven": false,
+    "unknownBlocked": [
+      "the exact embedded proxy function/dataflow that opens and parses package-key.envelope",
+      "key-envelope agreement/decrypt inputs and protected bridge-scripts.dat plaintext",
+      "plaintext getWorldMapState/getCurrentServerId handler implementation",
+      "propagated bridge readiness/transport errors and exact map scan state is unavailable trigger",
+      "live authoritative correlation against the current Last War client"
+    ]
+  },
+  "implementationImpact": {
+    "closedGap": "R6-039 direct parsed packageKeyEnvelope -> package-key.envelope persistence/cleanup gap",
+    "pm7B": "continue at the proxy read/decrypt and protected handler/readiness boundary",
+    "mapSummary": "remains fail-closed; this persistence recovery alone does not prove an authoritative shared-state provider"
+  }
+}

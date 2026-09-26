@@ -1,0 +1,97 @@
+{
+  "evidenceId": "LWB-R7-040",
+  "capturedAt": "2026-09-19",
+  "branch": "research/offline-controller",
+  "baseCommit": "2878aa4",
+  "status": {
+    "truckFollow": "LIVE_PROVEN",
+    "railwayFollow": "IMPLEMENTED_SHARED_ROUTE_POSITIVE_POPULATION_PENDING",
+    "indexedServerScope": "LIVE_PROVEN",
+    "originalFollowContract": "RECOVERED_STATIC",
+    "currentV19MarchRoute": "RECOVERED_STATIC"
+  },
+  "currentClient": {
+    "contentVersion": 19,
+    "compatibilityPolicy": "lwbridge-current-client-critical-anchors-2",
+    "packageSha256": "e7c5742a44d5f5862e4eb6c94944b4150969b6c4bd0a1c1cb9a337cfd1141fa2"
+  },
+  "originalContract": {
+    "command": "map_march_follow",
+    "payloadFields": ["serverId", "marchUuid"],
+    "invalidCode": "INVALID_MARCH",
+    "invalidMessage": "server ID and march UUID are required",
+    "nativeRoutine": "gotoWorldMarch",
+    "nativeTimeoutMilliseconds": 5000,
+    "extraFrontendCoordinatesRequired": false,
+    "extraFrontendWorldOrMarchTypeRequired": false,
+    "referenceBinarySha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "currentV19Source": {
+    "genericRoute": "GoToUtil.JumpToMarchByUuid(marchUuid, serverId, 0)",
+    "loadedMarchBehavior": "GotoMarchCurPos then OnClickWorldPoint",
+    "unloadedMarchBehavior": "MsgDefines.GetMarchPos server lookup",
+    "responseBehavior": "GetMarchPosMessage calls GoToUtil.MoveToWorldMarchAndOpen with authoritative response position/server/world",
+    "independentCallSites": [
+      "DataCenter/Mastery/MasteryManager.luac",
+      "DataCenter/WorldBattle/WorldBattleGuideManager.luac"
+    ],
+    "railwaySpecificSource": "DataCenter/LWRailway/Util/RailwayUtil.luac"
+  },
+  "mapSearchServerScopeFix": {
+    "defect": "indexed rows returned data_json without authoritative serverId, causing the recovered frontend stale-server guard to stop Follow before native invocation",
+    "fix": "SearchIndexed selects page.server_id and injects it into every returned row",
+    "livePageRowsChecked": 50,
+    "liveRowsWithServerId": 50,
+    "liveRowsMatchingCurrentServer": 50,
+    "liveRowsWithMarchUuid": 50
+  },
+  "truckLiveProof": {
+    "freshFastScan": {
+      "totalBlocks": 2500,
+      "readBlocks": 2500,
+      "failedBlocks": 0,
+      "unreadBlocks": 0,
+      "publishedRowsAtCompletion": 91
+    },
+    "renderedUi": {
+      "mapDataTruckTabUsed": true,
+      "searchButtonUsed": true,
+      "followButtonUsed": true
+    },
+    "followResult": {
+      "state": "proven",
+      "error": null,
+      "method": "GoToUtil.JumpToMarchByUuid",
+      "requestedServerMatchedCurrentServer": true,
+      "requestedMarchObserved": true,
+      "worldPositionObserved": true
+    }
+  },
+  "railwayPopulation": {
+    "activeRowsAtAcceptance": 0,
+    "claim": "No positive Railway Follow live claim is made from an empty population."
+  },
+  "deterministicValidation": {
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "profileRouting": true,
+    "persistence": true,
+    "requestLifetime": true,
+    "mapPersistence": true,
+    "mapContract": true,
+    "bridgeControlPipeContract": true,
+    "luaSyntax": true,
+    "gitDiffCheck": true
+  },
+  "privacy": {
+    "playerNamesRetained": false,
+    "marchUuidsRetained": false,
+    "coordinatesRetained": false,
+    "numericLiveServerIdsRetained": false,
+    "rawLogsRetained": false
+  },
+  "remaining": [
+    "Positive Railway Follow live acceptance awaits a current active Railway row.",
+    "Truck/Railway filter and plunder-action parity remain separate Map Data work."
+  ]
+}

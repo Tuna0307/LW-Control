@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R7-154",
+  "date": "2026-09-24",
+  "title": "Railway v21 proof status hygiene and preserved external-game ownership boundary",
+  "parentRevision": "e88a7f160a7a2ff856a30ddead8e04766e4e773e",
+  "client": {"contentVersion":21},
+  "findings": [
+    {"id":"R7154-RAIL-01","status":"BLOCKED_BY_EXTERNAL_OWNERSHIP","result":"A fresh v21 Railway positive-row/Follow proof targeting server 2207 was attempted with the strict LiveManualFullRailwayProof. Admission failed before LWBridge ownership because Last War was already running outside the application; the lifecycle returned 'Close the game started outside this application first.' No process was closed, attached to, or hijacked."},
+    {"id":"R7154-RAIL-02","status":"STATUS_CORRECTED","result":"Current guidance now distinguishes historical v20 Railway Train-list/acquisition/Follow evidence from the still-pending fresh v21 positive Railway row/Follow acceptance. Historical v20 evidence remains valid provenance but is not labeled a fresh v21 pass."},
+    {"id":"R7154-SCOPE-01","status":"STATUS_CORRECTED","result":"Two stale current-guidance references to Truck/Dispatch state-changing Plunder acceptance were removed. Scheduled Truck/Dispatch Plunder remains retired by owner since R7-149; current authorization-gated state-changing guidance is limited to Treasure and Alliance."}
+  ],
+  "externalProcessSnapshot": {"lastWarRunning":true,"lastWarLauncherRunning":false,"lwbridgeDesktopRunning":false,"lwbridgeHelperRunning":false,"lastWarStartLocal":"2026-09-24T08:27:38+08:00"},
+  "railwayProof": {"command":"dotnet tests\\LWBridge.Desktop.Checks\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.Checks.dll --live-current-client-full-railway-manual","targetServerId":2207,"environment":{"LWBRIDGE_MANUAL_SCAN_MODE":"fast","LWBRIDGE_RAILWAY_TARGET_SERVER":"2207"},"started":false,"followProven":false,"error":"Close the game started outside this application first."},
+  "acceptanceImpact":"none; the current 47-case acceptance matrix remains unchanged",
+  "limits":["No fresh v21 Railway row was observed because the strict proof never acquired ownership of the external game session.","The externally launched game process was deliberately left untouched.","Historical v20 Railway positive evidence remains provenance only until a fresh v21 proof passes."]
+}

@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-028",
+  "date": "2026-09-25",
+  "scope": "Restore profile_settings_save for the current local rebuild profile with native revisioned settings persistence and recovered error codes.",
+  "reference": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "authority": [
+    "public profile_settings_save handler VA 0x14011c732",
+    "native profile-settings save helper VA 0x1403d5ace",
+    "native profile-existence helper VA 0x1403d5862",
+    "native profile-settings read helper VA 0x1403dbc87",
+    "original controller.db profiles schema",
+    "original per-profile profile.db settings/profile_state schemas",
+    "original installed settings row revision=0 value_json={}"
+  ],
+  "frontendChanged": false,
+  "publicPayload": {
+    "required": [
+      "profileId",
+      "revision",
+      "value"
+    ],
+    "invalidPayloadCode": "INVALID_REQUEST",
+    "revision": "non-negative integer",
+    "value": "must be JSON object after public payload admission"
+  },
+  "profileLookup": {
+    "nativeQuery": "SELECT 1 FROM profiles WHERE id = ?",
+    "missingProfileCode": "PROFILE_NOT_FOUND",
+    "rebuildScope": "current local profile only"
+  },
+  "settingsStorage": {
+    "table": "settings",
+    "singletonId": 1,
+    "columns": [
+      "id INTEGER PRIMARY KEY CHECK(id = 1)",
+      "revision INTEGER NOT NULL",
+      "value_json TEXT NOT NULL"
+    ],
+    "installedReferenceInitialRow": {
+      "id": 1,
+      "revision": 0,
+      "value_json": "{}"
+    },
+    "nativeUpdateSql": "UPDATE settings SET value_json = ?, revision = revision + 1 WHERE id = 1 AND revision = ?",
+    "nativeReadSql": "SELECT revision, value_json FROM settings WHERE id = 1",
+    "staleRevisionCode": "PROFILE_REVISION_CONFLICT",
+    "invalidSettingsCode": "INVALID_PROFILE_SETTINGS",
+    "successResult": {
+      "revision": "incremented revision",
+      "value": "saved JSON object"
+    }
+  },
+  "implementation": [
+    "src/LWBridge.Desktop/ProfileSettingsStore.cs",
+    "src/LWBridge.Desktop/ProfileSettingsCommandService.cs",
+    "src/LWBridge.Desktop/LWBridgeBackend.cs",
+    "src/LWBridge.Desktop/LWBridgeWindow.cs",
+    "tests/LWBridge.Desktop.Checks/ProfileSettingsChecks.cs",
+    "tests/LWBridge.Desktop.Checks/Program.cs"
+  ],
+  "regressionCoverage": [
+    "initial settings row revision 0 and empty object",
+    "revisioned save returns incremented revision and saved value",
+    "persistence in profile.db",
+    "profile_state sibling data preserved",
+    "stale revision returns PROFILE_REVISION_CONFLICT",
+    "unknown profile returns PROFILE_NOT_FOUND",
+    "non-object value returns INVALID_PROFILE_SETTINGS",
+    "bad or missing revision returns INVALID_REQUEST",
+    "backend routes profile_settings_save",
+    "backend mismatched profile reaches PROFILE_NOT_FOUND"
+  ],
+  "storageBoundary": {
+    "nativeApplicationDataRoot": "original Roaming lwbridge tree",
+    "rebuildApplicationDataRoot": "existing LWBridgeRebuild per-profile storage namespace",
+    "claim": "observable table/revision contract restored; filesystem-root path parity not claimed"
+  },
+  "validationStatus": {
+    "desktopReleaseBuild": "PASS 0 warnings 0 errors",
+    "checksReleaseBuild": "PASS 0 warnings 0 errors",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendChanged": "NO",
+    "frontendGeneratorCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "jsonSyntax": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "evidenceClassification": {
+    "payloadKeys": "EXACT_NATIVE",
+    "errorCodes": "EXACT_NATIVE",
+    "settingsSchema": "EXACT_REFERENCE_DB",
+    "revisionUpdateSql": "EXACT_NATIVE",
+    "readbackSql": "EXACT_NATIVE",
+    "successShape": "EXACT_CONTRACT",
+    "filesystemRoot": "EQUIVALENT_REIMPLEMENTATION",
+    "multiProfileRegistryBehavior": "PARTIAL"
+  },
+  "notClaimed": [
+    "full profile list/select/create/delete/enable/primary parity",
+    "original application-data root path",
+    "exact database-error mapping outside recovered normal and conflict cases",
+    "profile instance ownership beyond prior checkpoints"
+  ],
+  "nextCheckpoint": "Recover another retained profile, Settings, Automation, or Mini-game host-side surface whose complete observable contract is locally provable."
+}

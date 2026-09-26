@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "findingId": "LWB-R6-019",
+  "scope": "Map Data scan-record staging and one-kind/server publication transaction",
+  "evidenceStatus": "RECOVERED transaction slice + IMPLEMENTATION POLICY/OFFLINE-TESTED infrastructure",
+  "sourceIdentity": {
+    "reference": {
+      "path": "..\\LW\\lwbridge-0.3.1.exe",
+      "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+    },
+    "existingFinding": "docs\\lwbridge-map-scan.md persistent map-index schema and identities section",
+    "recoveredFacts": [
+      "scan_records primary key is (run_id,kind,server_id,record_key)",
+      "completed direct-scan publication deletes one kind/server from map_records and copies matching scan_records for the selected run"
+    ]
+  },
+  "implementation": {
+    "file": "src\\LWBridge.Desktop\\MapDataStore.cs",
+    "methods": ["StageRecordForPublishTest", "ReplacePublishedKindFromStagingForTest"],
+    "policy": "test-only infrastructure accepts an already-derived recordKey and deliberately does not decide scan completion/eligibility; production ingestion and completion gating remain unavailable",
+    "transaction": [
+      "DELETE FROM map_records WHERE kind=$kind AND server_id=$server",
+      "INSERT INTO map_records(...) SELECT ... FROM scan_records WHERE run_id=$run AND kind=$kind AND server_id=$server",
+      "commit both statements as one SQLite transaction"
+    ]
+  },
+  "validation": {
+    "testFile": "tests\\LWBridge.Desktop.Checks\\Program.cs",
+    "cases": [
+      "two pre-existing city rows are replaced by exactly two staged rows from the selected run",
+      "a staged row from another run is not published",
+      "another kind on the same server is preserved",
+      "the same kind on another server is preserved"
+    ],
+    "commands": [
+      "dotnet build src\\LWBridge.Desktop\\LWBridge.Desktop.csproj -c Release --nologo",
+      "dotnet run --project tests\\LWBridge.Desktop.Checks\\LWBridge.Desktop.Checks.csproj -c Release -- --verify-real-config-unchanged"
+    ],
+    "result": "build 0 warnings/0 errors; deterministic suite ok=true with mapPersistence=true and mapContract=true",
+    "liveProven": false
+  },
+  "unknownBlocked": [
+    "native per-kind record_key derivation and normalization",
+    "exact scan-completeness/failed-batch eligibility gate before publication",
+    "scan block scheduler, acknowledgement and retry semantics",
+    "production scan worker/session integration and stale-generation rejection"
+  ],
+  "implementationImpact": {
+    "unblocked": "offline transaction/failure testing can now exercise the recovered staging-to-published replacement scope without inventing native ingestion identity",
+    "stillFailClosed": "no public scan command uses these test-only helpers; production publication remains gated on recovered completion and native capture contracts"
+  }
+}

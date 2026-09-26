@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "findingId": "LWB-R7-127",
+  "date": "2026-09-21",
+  "status": "A11-TRANSPORT-LIVE-PROVEN/HOME-ACTIVE-ACCOUNT-UI-BROWSER-PROVEN",
+  "title": "Complete production read-only getStatus transport and make Home account rail follow owned running instances",
+  "branch": "research/offline-controller",
+  "parentRevision": "b9c8750c326a0d06cadc3a11a288d4a26b6ebeb1",
+  "acceptanceCase": "A11",
+  "reference": {
+    "binary": "../LW/lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "productionTransport": {
+    "controlPipePath": "rebuild host computes the recovered per-user named-pipe path and passes it through the same-session helper control boundary",
+    "launchEnvironmentPreserved": [
+      "LWBRIDGE_PROFILE_ID",
+      "LWBRIDGE_INSTANCE_ID",
+      "LWBRIDGE_PIPE_TOKEN",
+      "LWBRIDGE_BUILD_ID"
+    ],
+    "gameSideAdapter": "LWBridge.GamePipeAdapter.dll loaded inside LastWar.exe",
+    "adapterSha256": "21ee69b7232250c87bd20116914ae5e872d203a118caa65e3c1c64a8218c1696",
+    "framing": "version-1 JSON envelope over 4-byte little-endian length-prefixed frames",
+    "ioPolicy": "single background pipe I/O loop; PeekNamedPipe gates complete inbound frames while outbound mailbox frames are serviced on the same thread",
+    "luaHandler": "exact allowlisted getStatus request/result path only; generic call_lua remains fail-closed"
+  },
+  "liveAcceptance": {
+    "command": "dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build -- --live-overview-a11-transport-proof",
+    "diagnosticOk": true,
+    "ownedInstance": true,
+    "pidObserved": true,
+    "connectionState": "connected",
+    "authenticatedRouteCount": 1,
+    "xluaOnline": true,
+    "pendingBefore": 0,
+    "exactGetStatusSucceeded": true,
+    "luaResultKind": "Object",
+    "luaResultPropertyCount": 4,
+    "pendingAfter": 0,
+    "genericCallBlocked": true,
+    "managedStop": {
+      "stopped": true,
+      "routeUnregistered": true,
+      "restoreValidated": true,
+      "gameRunningAfterStop": false
+    }
+  },
+  "homeUi": {
+    "implementationPolicy": "The Home account rail represents LWBridge-owned running instances only. Active means profile_instance_status has both a non-null pid and a non-empty instanceId; unmanaged games therefore cannot enter the active rail.",
+    "generatedFrontend": true,
+    "autoSelection": "If the currently selected configured profile is not in the active owned set and another owned running profile exists, select the first active profile so the existing detail loaders target a live account.",
+    "stopBinding": "The active row Stop action passes the exact polled instanceId to profile_instance_stop.",
+    "browserFixture": {
+      "configuredProfiles": 2,
+      "stoppedProfiles": 1,
+      "ownedRunningProfiles": 1,
+      "visibleAccountCount": 1,
+      "visibleAccountText": "Profile 2",
+      "activeClassPresent": true,
+      "overviewDetailPanelCount": 1,
+      "profileSwitchLoadingCount": 0,
+      "statusPollCount": 6,
+      "pageErrors": []
+    },
+    "browserScopeLimit": "The two-profile browser proof is deterministic fixture coverage of generated UI selection/rendering. Real-game transport and Stop are proven separately by the live A11 proof; simultaneous multi-account real-game UI population was not exercised in this checkpoint."
+  },
+  "validation": {
+    "frontendGeneratorCheck": true,
+    "generatedBundleNodeSyntax": true,
+    "luaParse": true,
+    "pythonCompile": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "deterministic": {
+      "profileRouting": true,
+      "persistence": true,
+      "requestLifetime": true,
+      "mapPersistence": true,
+      "mapContract": true,
+      "bridgeControlPipeContract": true,
+      "failures": []
+    },
+    "processCleanup": {
+      "lastWarRunning": false,
+      "launcherRunning": false
+    }
+  },
+  "safety": {
+    "mapScanPerformed": false,
+    "scoutPerformed": false,
+    "collectPerformed": false,
+    "attackPerformed": false,
+    "claimPerformed": false,
+    "plunderPerformed": false,
+    "messagePerformed": false,
+    "sharePerformed": false
+  },
+  "remainingBoundary": "A11 read-only transport and the reported Home active-list/right-pane selection path are implemented and proven at the scopes above. The final all-feature release walkthrough and unrelated Map Data population/action gates remain separate acceptance work."
+}
