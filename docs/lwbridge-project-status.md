@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-087`
+**Current checkpoint:** `LWB-R8-088`
 
 ## Executive status
 
@@ -26,6 +26,14 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-088 native-capture point population
+
+R8-088 closes safe point-side population in both verified proxies. The fixed 50-field IL2CPP bundle plus R8-084 identity fields and R8-086 getters now source-account for all 57 R8-083 point serializer fields.
+
+Exact transforms include five `List<T>._size` count projections, IL2CPP runtime-class naming, special/complete boolean derivation, three int32-to-i64 time sign extensions, eleven string conversions, TreasurePointInfo start/expire/create plus treasureType fallback logic, and WorldSuppliesPoint cfgId override.
+
+Together with R8-087, both safe full-record producer population models are closed; the central Map acquisition gap is now the protected MapScanTick traversal/work layer. See `docs/reviews/2026-09-27-r8-088-native-capture-point-population.md`.
 
 ## R8-087 native-capture march/train population
 

@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-087`
+**Current checkpoint:** `LWB-R8-088`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,14 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-088 native-capture point population
+
+R8-088 closes the safe point producer in both verified proxies. The producer resolves a fixed 50-field IL2CPP offset bundle; together with R8-084 core point identity and R8-086 point getters, every one of the 57 R8-083 serialized point fields now has a source-backed population rule.
+
+The checkpoint also closes exact transforms: five list-derived counts read runtime `List<T>._size`; `runtimeClass` is the actual IL2CPP runtime class name; `specialType != 0` drives `isSpecial`; `protectEndTime`, `shieldEndTime`, and `lastHpTime` are int32 sign-extended to i64; eleven strings use the shared IL2CPP string converter; `TreasurePointInfo` owns start/expire/create times plus treasureType getter/raw-type fallback; and `WorldSuppliesPoint` may override raw cfgId through `get_configId`.
+
+With R8-087, both safe full-record producer population models are now recovered. The central remaining original Map acquisition gap is the protected `XluaBridgeMapScanTick` traversal/work layer. See `docs/reviews/2026-09-27-r8-088-native-capture-point-population.md`.
 
 ## R8-087 native-capture march/train population
 

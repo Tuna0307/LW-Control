@@ -1,0 +1,1083 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-088",
+  "limits": [
+    "covers safe-region point producer population; protected MapScanTick remains outside scope",
+    "does not inspect or cross protected native region 0x3F8E0-0x40A6D",
+    "does not recover block traversal/order/coordinates, per-tick work/request pacing, retry/backoff, or protected acknowledgement behavior",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "classSpecificRules": {
+        "TreasurePointInfo": [
+          "startTime",
+          "expireTime",
+          "createTime",
+          "treasureType"
+        ],
+        "WorldSuppliesPoint": [
+          "cfgId getter override"
+        ]
+      },
+      "listCountField": "_size",
+      "pointBundleFields": [
+        "ownerUid",
+        "uuid",
+        "serverId",
+        "srcServerId",
+        "worldId",
+        "itemId",
+        "id",
+        "level",
+        "quality",
+        "state",
+        "curHp",
+        "curMaxHp",
+        "allianceId",
+        "playerName",
+        "alAbbr",
+        "name",
+        "power",
+        "specialType",
+        "protectEndTime",
+        "shieldEndTime",
+        "completionTime",
+        "cfgId",
+        "stealList",
+        "expiredTime",
+        "taskExpireTime",
+        "actEndTime",
+        "gatherMarchUuid",
+        "gatherUid",
+        "gatherAllianceId",
+        "lastHpTime",
+        "unavailableTime",
+        "recoverSpeed",
+        "fireSpeed",
+        "heroList",
+        "rewarded",
+        "memberList",
+        "ownerServer",
+        "eventId",
+        "allianceAbbr",
+        "rewardUserList",
+        "diggingUserList",
+        "complete",
+        "ownerName",
+        "startTime",
+        "expireTime",
+        "createTime",
+        "type",
+        "fromPoint",
+        "multiple",
+        "killerId"
+      ],
+      "pointSerializerFieldCoverage": [
+        {
+          "field": "pointIndex",
+          "source": "PointInfo.pointIndex",
+          "transform": "direct positive canonical identity"
+        },
+        {
+          "field": "mainIndex",
+          "source": "PointInfo.mainIndex",
+          "transform": "non-positive falls back to pointIndex"
+        },
+        {
+          "field": "isMainPoint",
+          "source": "pointIndex/mainIndex",
+          "transform": "equality after normalization"
+        },
+        {
+          "field": "pointType",
+          "source": "PointInfo.pointType",
+          "transform": "direct"
+        },
+        {
+          "field": "serverId",
+          "source": "serverId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "srcServerId",
+          "source": "srcServerId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "worldId",
+          "source": "worldId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "uuid",
+          "source": "uuid",
+          "transform": "direct nullable quoted-i64"
+        },
+        {
+          "field": "ownerUid",
+          "source": "ownerUid",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "allianceId",
+          "source": "allianceId",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "playerName",
+          "source": "playerName",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "alAbbr",
+          "source": "alAbbr",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "name",
+          "source": "name",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "power",
+          "source": "power",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "id",
+          "source": "id",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "itemId",
+          "source": "itemId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "cfgId",
+          "source": "cfgId/get_configId",
+          "transform": "raw nullable i32; WorldSuppliesPoint getter overrides when available"
+        },
+        {
+          "field": "level",
+          "source": "level",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "quality",
+          "source": "quality",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "isSpecial",
+          "source": "specialType",
+          "transform": "present raw field -> specialType != 0"
+        },
+        {
+          "field": "resType",
+          "source": "GetResType",
+          "transform": "pointType == 7 getter"
+        },
+        {
+          "field": "resLevel",
+          "source": "GetResLevel",
+          "transform": "pointType == 7 getter"
+        },
+        {
+          "field": "state",
+          "source": "state",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "curHp",
+          "source": "curHp",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "curMaxHp",
+          "source": "curMaxHp",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "shieldEndTime",
+          "source": "shieldEndTime",
+          "transform": "int32 sign-extended to nullable i64"
+        },
+        {
+          "field": "protectEndTime",
+          "source": "protectEndTime",
+          "transform": "int32 sign-extended to nullable i64"
+        },
+        {
+          "field": "completionTime",
+          "source": "completionTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "expiredTime",
+          "source": "expiredTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "taskExpireTime",
+          "source": "taskExpireTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "actEndTime",
+          "source": "actEndTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "gatherMarchUuid",
+          "source": "gatherMarchUuid",
+          "transform": "direct nullable quoted-i64"
+        },
+        {
+          "field": "gatherUid",
+          "source": "gatherUid",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "gatherAllianceId",
+          "source": "gatherAllianceId",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "stolenCount",
+          "source": "stealList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "heroCount",
+          "source": "heroList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "rewarded",
+          "source": "rewarded",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "memberCount",
+          "source": "memberList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "ownerServer",
+          "source": "ownerServer",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "treasureType",
+          "source": "GetWorldTreasureType/type",
+          "transform": "TreasurePointInfo getter, raw type fallback"
+        },
+        {
+          "field": "rewardedCount",
+          "source": "rewardUserList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "diggingCount",
+          "source": "diggingUserList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "fromPoint",
+          "source": "fromPoint",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "multiple",
+          "source": "multiple",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "lastHpTime",
+          "source": "lastHpTime",
+          "transform": "int32 sign-extended to nullable i64"
+        },
+        {
+          "field": "unavailableTime",
+          "source": "unavailableTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "startTime",
+          "source": "startTime",
+          "transform": "TreasurePointInfo-only nullable i64"
+        },
+        {
+          "field": "expireTime",
+          "source": "expireTime",
+          "transform": "TreasurePointInfo-only nullable i64"
+        },
+        {
+          "field": "createTime",
+          "source": "createTime",
+          "transform": "TreasurePointInfo-only nullable i64"
+        },
+        {
+          "field": "recoverSpeed",
+          "source": "recoverSpeed",
+          "transform": "direct nullable f32"
+        },
+        {
+          "field": "fireSpeed",
+          "source": "fireSpeed",
+          "transform": "direct nullable f32"
+        },
+        {
+          "field": "complete",
+          "source": "complete",
+          "transform": "raw byte -> nullable bool"
+        },
+        {
+          "field": "runtimeClass",
+          "source": "IL2CPP runtime class name",
+          "transform": "object_get_class + class_get_name"
+        },
+        {
+          "field": "eventId",
+          "source": "eventId",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "allianceAbbr",
+          "source": "allianceAbbr",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "ownerName",
+          "source": "ownerName",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "killerId",
+          "source": "killerId",
+          "transform": "IL2CPP string conversion"
+        }
+      ],
+      "proxy": "secure",
+      "runtimeClassRule": "il2cpp_object_get_class -> il2cpp_class_get_name",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    {
+      "classSpecificRules": {
+        "TreasurePointInfo": [
+          "startTime",
+          "expireTime",
+          "createTime",
+          "treasureType"
+        ],
+        "WorldSuppliesPoint": [
+          "cfgId getter override"
+        ]
+      },
+      "listCountField": "_size",
+      "pointBundleFields": [
+        "ownerUid",
+        "uuid",
+        "serverId",
+        "srcServerId",
+        "worldId",
+        "itemId",
+        "id",
+        "level",
+        "quality",
+        "state",
+        "curHp",
+        "curMaxHp",
+        "allianceId",
+        "playerName",
+        "alAbbr",
+        "name",
+        "power",
+        "specialType",
+        "protectEndTime",
+        "shieldEndTime",
+        "completionTime",
+        "cfgId",
+        "stealList",
+        "expiredTime",
+        "taskExpireTime",
+        "actEndTime",
+        "gatherMarchUuid",
+        "gatherUid",
+        "gatherAllianceId",
+        "lastHpTime",
+        "unavailableTime",
+        "recoverSpeed",
+        "fireSpeed",
+        "heroList",
+        "rewarded",
+        "memberList",
+        "ownerServer",
+        "eventId",
+        "allianceAbbr",
+        "rewardUserList",
+        "diggingUserList",
+        "complete",
+        "ownerName",
+        "startTime",
+        "expireTime",
+        "createTime",
+        "type",
+        "fromPoint",
+        "multiple",
+        "killerId"
+      ],
+      "pointSerializerFieldCoverage": [
+        {
+          "field": "pointIndex",
+          "source": "PointInfo.pointIndex",
+          "transform": "direct positive canonical identity"
+        },
+        {
+          "field": "mainIndex",
+          "source": "PointInfo.mainIndex",
+          "transform": "non-positive falls back to pointIndex"
+        },
+        {
+          "field": "isMainPoint",
+          "source": "pointIndex/mainIndex",
+          "transform": "equality after normalization"
+        },
+        {
+          "field": "pointType",
+          "source": "PointInfo.pointType",
+          "transform": "direct"
+        },
+        {
+          "field": "serverId",
+          "source": "serverId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "srcServerId",
+          "source": "srcServerId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "worldId",
+          "source": "worldId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "uuid",
+          "source": "uuid",
+          "transform": "direct nullable quoted-i64"
+        },
+        {
+          "field": "ownerUid",
+          "source": "ownerUid",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "allianceId",
+          "source": "allianceId",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "playerName",
+          "source": "playerName",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "alAbbr",
+          "source": "alAbbr",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "name",
+          "source": "name",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "power",
+          "source": "power",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "id",
+          "source": "id",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "itemId",
+          "source": "itemId",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "cfgId",
+          "source": "cfgId/get_configId",
+          "transform": "raw nullable i32; WorldSuppliesPoint getter overrides when available"
+        },
+        {
+          "field": "level",
+          "source": "level",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "quality",
+          "source": "quality",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "isSpecial",
+          "source": "specialType",
+          "transform": "present raw field -> specialType != 0"
+        },
+        {
+          "field": "resType",
+          "source": "GetResType",
+          "transform": "pointType == 7 getter"
+        },
+        {
+          "field": "resLevel",
+          "source": "GetResLevel",
+          "transform": "pointType == 7 getter"
+        },
+        {
+          "field": "state",
+          "source": "state",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "curHp",
+          "source": "curHp",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "curMaxHp",
+          "source": "curMaxHp",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "shieldEndTime",
+          "source": "shieldEndTime",
+          "transform": "int32 sign-extended to nullable i64"
+        },
+        {
+          "field": "protectEndTime",
+          "source": "protectEndTime",
+          "transform": "int32 sign-extended to nullable i64"
+        },
+        {
+          "field": "completionTime",
+          "source": "completionTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "expiredTime",
+          "source": "expiredTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "taskExpireTime",
+          "source": "taskExpireTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "actEndTime",
+          "source": "actEndTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "gatherMarchUuid",
+          "source": "gatherMarchUuid",
+          "transform": "direct nullable quoted-i64"
+        },
+        {
+          "field": "gatherUid",
+          "source": "gatherUid",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "gatherAllianceId",
+          "source": "gatherAllianceId",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "stolenCount",
+          "source": "stealList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "heroCount",
+          "source": "heroList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "rewarded",
+          "source": "rewarded",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "memberCount",
+          "source": "memberList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "ownerServer",
+          "source": "ownerServer",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "treasureType",
+          "source": "GetWorldTreasureType/type",
+          "transform": "TreasurePointInfo getter, raw type fallback"
+        },
+        {
+          "field": "rewardedCount",
+          "source": "rewardUserList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "diggingCount",
+          "source": "diggingUserList._size",
+          "transform": "runtime list _size"
+        },
+        {
+          "field": "fromPoint",
+          "source": "fromPoint",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "multiple",
+          "source": "multiple",
+          "transform": "direct nullable i32"
+        },
+        {
+          "field": "lastHpTime",
+          "source": "lastHpTime",
+          "transform": "int32 sign-extended to nullable i64"
+        },
+        {
+          "field": "unavailableTime",
+          "source": "unavailableTime",
+          "transform": "direct nullable i64"
+        },
+        {
+          "field": "startTime",
+          "source": "startTime",
+          "transform": "TreasurePointInfo-only nullable i64"
+        },
+        {
+          "field": "expireTime",
+          "source": "expireTime",
+          "transform": "TreasurePointInfo-only nullable i64"
+        },
+        {
+          "field": "createTime",
+          "source": "createTime",
+          "transform": "TreasurePointInfo-only nullable i64"
+        },
+        {
+          "field": "recoverSpeed",
+          "source": "recoverSpeed",
+          "transform": "direct nullable f32"
+        },
+        {
+          "field": "fireSpeed",
+          "source": "fireSpeed",
+          "transform": "direct nullable f32"
+        },
+        {
+          "field": "complete",
+          "source": "complete",
+          "transform": "raw byte -> nullable bool"
+        },
+        {
+          "field": "runtimeClass",
+          "source": "IL2CPP runtime class name",
+          "transform": "object_get_class + class_get_name"
+        },
+        {
+          "field": "eventId",
+          "source": "eventId",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "allianceAbbr",
+          "source": "allianceAbbr",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "ownerName",
+          "source": "ownerName",
+          "transform": "IL2CPP string conversion"
+        },
+        {
+          "field": "killerId",
+          "source": "killerId",
+          "transform": "IL2CPP string conversion"
+        }
+      ],
+      "proxy": "plain",
+      "runtimeClassRule": "il2cpp_object_get_class -> il2cpp_class_get_name",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+    }
+  ],
+  "recoveredResult": {
+    "classSpecificRules": {
+      "TreasurePointInfo": [
+        "startTime",
+        "expireTime",
+        "createTime",
+        "treasureType"
+      ],
+      "WorldSuppliesPoint": [
+        "cfgId getter override"
+      ]
+    },
+    "listCountField": "_size",
+    "pointBundleFields": [
+      "ownerUid",
+      "uuid",
+      "serverId",
+      "srcServerId",
+      "worldId",
+      "itemId",
+      "id",
+      "level",
+      "quality",
+      "state",
+      "curHp",
+      "curMaxHp",
+      "allianceId",
+      "playerName",
+      "alAbbr",
+      "name",
+      "power",
+      "specialType",
+      "protectEndTime",
+      "shieldEndTime",
+      "completionTime",
+      "cfgId",
+      "stealList",
+      "expiredTime",
+      "taskExpireTime",
+      "actEndTime",
+      "gatherMarchUuid",
+      "gatherUid",
+      "gatherAllianceId",
+      "lastHpTime",
+      "unavailableTime",
+      "recoverSpeed",
+      "fireSpeed",
+      "heroList",
+      "rewarded",
+      "memberList",
+      "ownerServer",
+      "eventId",
+      "allianceAbbr",
+      "rewardUserList",
+      "diggingUserList",
+      "complete",
+      "ownerName",
+      "startTime",
+      "expireTime",
+      "createTime",
+      "type",
+      "fromPoint",
+      "multiple",
+      "killerId"
+    ],
+    "pointSerializerFieldCoverage": [
+      {
+        "field": "pointIndex",
+        "source": "PointInfo.pointIndex",
+        "transform": "direct positive canonical identity"
+      },
+      {
+        "field": "mainIndex",
+        "source": "PointInfo.mainIndex",
+        "transform": "non-positive falls back to pointIndex"
+      },
+      {
+        "field": "isMainPoint",
+        "source": "pointIndex/mainIndex",
+        "transform": "equality after normalization"
+      },
+      {
+        "field": "pointType",
+        "source": "PointInfo.pointType",
+        "transform": "direct"
+      },
+      {
+        "field": "serverId",
+        "source": "serverId",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "srcServerId",
+        "source": "srcServerId",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "worldId",
+        "source": "worldId",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "uuid",
+        "source": "uuid",
+        "transform": "direct nullable quoted-i64"
+      },
+      {
+        "field": "ownerUid",
+        "source": "ownerUid",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "allianceId",
+        "source": "allianceId",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "playerName",
+        "source": "playerName",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "alAbbr",
+        "source": "alAbbr",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "name",
+        "source": "name",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "power",
+        "source": "power",
+        "transform": "direct nullable i64"
+      },
+      {
+        "field": "id",
+        "source": "id",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "itemId",
+        "source": "itemId",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "cfgId",
+        "source": "cfgId/get_configId",
+        "transform": "raw nullable i32; WorldSuppliesPoint getter overrides when available"
+      },
+      {
+        "field": "level",
+        "source": "level",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "quality",
+        "source": "quality",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "isSpecial",
+        "source": "specialType",
+        "transform": "present raw field -> specialType != 0"
+      },
+      {
+        "field": "resType",
+        "source": "GetResType",
+        "transform": "pointType == 7 getter"
+      },
+      {
+        "field": "resLevel",
+        "source": "GetResLevel",
+        "transform": "pointType == 7 getter"
+      },
+      {
+        "field": "state",
+        "source": "state",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "curHp",
+        "source": "curHp",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "curMaxHp",
+        "source": "curMaxHp",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "shieldEndTime",
+        "source": "shieldEndTime",
+        "transform": "int32 sign-extended to nullable i64"
+      },
+      {
+        "field": "protectEndTime",
+        "source": "protectEndTime",
+        "transform": "int32 sign-extended to nullable i64"
+      },
+      {
+        "field": "completionTime",
+        "source": "completionTime",
+        "transform": "direct nullable i64"
+      },
+      {
+        "field": "expiredTime",
+        "source": "expiredTime",
+        "transform": "direct nullable i64"
+      },
+      {
+        "field": "taskExpireTime",
+        "source": "taskExpireTime",
+        "transform": "direct nullable i64"
+      },
+      {
+        "field": "actEndTime",
+        "source": "actEndTime",
+        "transform": "direct nullable i64"
+      },
+      {
+        "field": "gatherMarchUuid",
+        "source": "gatherMarchUuid",
+        "transform": "direct nullable quoted-i64"
+      },
+      {
+        "field": "gatherUid",
+        "source": "gatherUid",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "gatherAllianceId",
+        "source": "gatherAllianceId",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "stolenCount",
+        "source": "stealList._size",
+        "transform": "runtime list _size"
+      },
+      {
+        "field": "heroCount",
+        "source": "heroList._size",
+        "transform": "runtime list _size"
+      },
+      {
+        "field": "rewarded",
+        "source": "rewarded",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "memberCount",
+        "source": "memberList._size",
+        "transform": "runtime list _size"
+      },
+      {
+        "field": "ownerServer",
+        "source": "ownerServer",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "treasureType",
+        "source": "GetWorldTreasureType/type",
+        "transform": "TreasurePointInfo getter, raw type fallback"
+      },
+      {
+        "field": "rewardedCount",
+        "source": "rewardUserList._size",
+        "transform": "runtime list _size"
+      },
+      {
+        "field": "diggingCount",
+        "source": "diggingUserList._size",
+        "transform": "runtime list _size"
+      },
+      {
+        "field": "fromPoint",
+        "source": "fromPoint",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "multiple",
+        "source": "multiple",
+        "transform": "direct nullable i32"
+      },
+      {
+        "field": "lastHpTime",
+        "source": "lastHpTime",
+        "transform": "int32 sign-extended to nullable i64"
+      },
+      {
+        "field": "unavailableTime",
+        "source": "unavailableTime",
+        "transform": "direct nullable i64"
+      },
+      {
+        "field": "startTime",
+        "source": "startTime",
+        "transform": "TreasurePointInfo-only nullable i64"
+      },
+      {
+        "field": "expireTime",
+        "source": "expireTime",
+        "transform": "TreasurePointInfo-only nullable i64"
+      },
+      {
+        "field": "createTime",
+        "source": "createTime",
+        "transform": "TreasurePointInfo-only nullable i64"
+      },
+      {
+        "field": "recoverSpeed",
+        "source": "recoverSpeed",
+        "transform": "direct nullable f32"
+      },
+      {
+        "field": "fireSpeed",
+        "source": "fireSpeed",
+        "transform": "direct nullable f32"
+      },
+      {
+        "field": "complete",
+        "source": "complete",
+        "transform": "raw byte -> nullable bool"
+      },
+      {
+        "field": "runtimeClass",
+        "source": "IL2CPP runtime class name",
+        "transform": "object_get_class + class_get_name"
+      },
+      {
+        "field": "eventId",
+        "source": "eventId",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "allianceAbbr",
+        "source": "allianceAbbr",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "ownerName",
+        "source": "ownerName",
+        "transform": "IL2CPP string conversion"
+      },
+      {
+        "field": "killerId",
+        "source": "killerId",
+        "transform": "IL2CPP string conversion"
+      }
+    ],
+    "runtimeClassRule": "il2cpp_object_get_class -> il2cpp_class_get_name"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}
