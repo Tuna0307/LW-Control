@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-079`
+**Current checkpoint:** `LWB-R8-080`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-080 outer MapScanTick cadence
+
+R8-080 recovers the original outer proxy-pump cadence around `XluaBridgeMapScanTick` in both verified embedded proxies. Pump `RVA 0x1F800-0x2014F` reads `KERNEL32!GetTickCount64`, compares unsigned elapsed time against `0x32` (50 ms), skips when below threshold, otherwise stores the current tick count before invoking `XluaBridgeMapScanTick`.
+
+The same pump gates `XluaBridgeInputPoll` at 16 ms, `XluaBridgeNativeUpdate` at 200 ms, and `XluaBridgePoll` at 500 ms. The Map gate contains no Normal/Fast branch.
+
+This is a pump-serviced minimum elapsed-time gate, not proof that one block/request occurs every 50 ms or that the tick runs on an independent exact-period timer. Per-tick work, traversal/order/coordinates, retries, queue drain and completion remain unrecovered.
+
+See `docs/reviews/2026-09-27-r8-080-map-tick-cadence.md` and `evidence/lwbridge-implementation/2026-09-27-r8-080-map-tick-cadence.json`.
 
 ## R8-079 native-capture ACK constants
 
