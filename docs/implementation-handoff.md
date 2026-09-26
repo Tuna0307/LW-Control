@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-071`
+**Current checkpoint:** `LWB-R8-072`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,16 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-072 VIP18 Base Apply / Restore fence
+
+R8-072 closes `vip18_base_apply` and `vip18_base_restore`. Native handlers are Apply `0x14013AB5F-0x14013BBE7` and Restore `0x14016A7C6-0x14016B69A`. Apply validates positive `skinId`, calls `setLocalVip18BaseSkin({skinId})` at 10 seconds, then patches only `selectedSkinId=skinId`. Restore calls `restoreLocalBaseSkin({})` at 10 seconds, then patches `selectedSkinId=null` and `autoApplyOnStart=false`.
+
+Both actions execute the game provider **before** shared VIP18 config reconciliation, so provider success followed by config-state failure is observably non-atomic. Full success returns the provider JSON through the generic converter rather than replacing it with the VIP18 config projection.
+
+No runtime route is added. Both commands still require owner-excluded authorization-state admission before the provider call and the unrecovered shared `config.json` migration/merge/write lane after it. These two commands move to audited/fenced. The 33 unrouted retained frontend commands now split into 28 audited/fenced and 5 genuinely unclosed.
+
+See `docs/reviews/2026-09-26-r8-072-vip18-base-actions-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-072-vip18-base-actions-fence.json`.
 
 ## R8-071 Dispatch Assist action fence
 

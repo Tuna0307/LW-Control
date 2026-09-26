@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-071`
+**Current checkpoint:** `LWB-R8-072`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-072 VIP18 Base Apply / Restore fence
+
+R8-072 closes `vip18_base_apply` and `vip18_base_restore` at the retained host/provider/config boundary. Apply validates `skinId`, calls `setLocalVip18BaseSkin({skinId})` at 10 seconds, then patches `selectedSkinId`. Restore calls `restoreLocalBaseSkin({})` at 10 seconds, then patches `selectedSkinId=null` and `autoApplyOnStart=false`.
+
+Both commands perform the game action before shared VIP18 config reconciliation. A later config-state failure can therefore occur after the in-game change; full success returns the provider JSON through the shared generic converter.
+
+No runtime route is added because exact execution still needs owner-excluded authorization-state admission and the unrecovered shared `config.json` migration/merge/write owner. These two commands move to audited/fenced, leaving 5 genuinely-unclosed retained frontend routing gaps.
+
+See `docs/reviews/2026-09-26-r8-072-vip18-base-actions-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-072-vip18-base-actions-fence.json`.
 
 ## R8-071 Dispatch Assist action fence
 
