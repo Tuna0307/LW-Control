@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-051`
+**Current checkpoint:** `LWB-R8-052`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -296,6 +296,12 @@ After that dependency, native resolves the selected profile runtime, requires a 
 R8-051 closes the recoverable read-only `automation_inspect` host boundary. Native awaits the same shared authorization-state future before request construction; unavailable state is exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. It directly extracts `task`, resolves the selected runtime, requires a connected game route (`GAME_DISCONNECTED` / `game disconnected`), then calls `inspectAutomationTask` with a 5,000 ms deadline. The shared timeout is `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: inspectAutomationTask`.
 
 A generic raw pass-through is not exact. Native explicitly special-cases task `allianceGarrison`, parses `allies` rows and fields including `uuid`, `serverId`, `uid`, and later `updatedAt`, then rebuilds result content. In addition, request-building state carries authorization-derived role material; nearby native vocabulary includes `premium` and `admin`. Those authorization/role details are owner-excluded, and the exact `allianceGarrison` rewrite is still partial, so R8-051 makes no production implementation. See `docs/reviews/2026-09-26-r8-051-automation-inspect-fence.md`.
+
+## R8-052 city_layout_apply_status fence
+
+R8-052 closes the observable read-only `city_layout_apply_status` boundary. The frontend supplies no payload. Native first awaits the shared authorization-state future; unavailable state is exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. After that succeeds, native resolves the selected runtime, requires a connected game route (`GAME_DISCONNECTED` / `game disconnected`), and calls `getCityLayoutApplyStatus` with a 5,000 ms deadline. Timeout follows the shared exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getCityLayoutApplyStatus` path, and successful provider JSON goes through the generic converter without a host DTO rewrite.
+
+No runtime implementation is added: bypassing native authorization admission or fabricating an idle status from local draft state would be observable non-native behavior, and the live apply provider/status schema remains unrecovered. See `docs/reviews/2026-09-26-r8-052-city-layout-apply-status-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
