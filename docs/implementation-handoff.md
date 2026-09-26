@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-088`
+**Current checkpoint:** `LWB-R8-089`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -403,6 +403,16 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-089 host↔proxy heartbeat boundary
+
+R8-089 narrows the last open heartbeat contract without claiming the protected Lua/package serializer. Original-host non-executable `src\services\bridge_pipe.rs` metadata contains exact `/payload/time` beside `pipe_heartbeat`, pipe activity/generation/age counters and the no-inbound-frame `PIPE_IDLE_TIMEOUT` diagnostic. R7-099 remains authoritative for the exact 30-second idle timeout.
+
+Both verified proxy natives use the same safe classifier at `RVA 0x1A3C0-0x1A74A`: an already serialized message whose type is exact `heartbeat` maps to category 2, while exact `result` maps to category 1, before forwarding. This proves native classifier ownership but not the heartbeat JSON serializer.
+
+Still unrecovered are `payload.time` type/value source, heartbeat requestId, timestamp/time equality, exact package cadence, and the mapping from payload/arrival activity into public `lastHeartbeatAt`. The dirty five-second heartbeat in `current_overview_bridge.lua` remains EQUIVALENT_REIMPLEMENTATION and is not staged by this checkpoint.
+
+See `docs/reviews/2026-09-27-r8-089-pipe-heartbeat-boundary.md` and `evidence/lwbridge-implementation/2026-09-27-r8-089-pipe-heartbeat-boundary.json`.
+
 ## R8-088 native-capture point population
 
 R8-088 closes the safe point producer in both verified proxies. The producer resolves a fixed 50-field IL2CPP offset bundle; together with R8-084 core point identity and R8-086 point getters, every one of the 57 R8-083 serialized point fields now has a source-backed population rule.
@@ -535,7 +545,7 @@ R8-075 corrects a stale broad backlog item. The host wire/session contract is no
 
 R8-042 and R8-043 close the public readiness split: `get_status.backend/xluaOnline` use named-pipe route presence only, while retained `profile_instance_status.connectionState=connected` additionally requires identity confirmation and heartbeat freshness `now-lastHeartbeatAt < 15001 ms`.
 
-The remaining strict protocol gaps are now narrow: exact wire-`heartbeat` payload/native activity-update ownership; exact disconnect/write-failure to outstanding result-channel/public-call completion mapping; and original secure/plain xLua script/provider dispatch below the recovered host wire. Native exposes `PIPE_DISCONNECTED`, `PIPE_WRITE_FAILED`, `BRIDGE_STOPPED / bridge result channel closed`, and `LUA_CALL_TIMEOUT`, but current evidence does not yet prove the complete causal mapping among those branches, so no eager route-wide pending-call failure is invented.
+R8-089 narrows the heartbeat portion further: host bridge-pipe metadata references exact `/payload/time` and both proxy natives classify an already serialized `heartbeat`. Remaining heartbeat exactness is the protected/package serializer, `payload.time` type/value source, requestId/timestamp relation, cadence and public `lastHeartbeatAt` assignment. Other protocol gaps remain exact disconnect/write-failure to outstanding result-channel/public-call completion mapping and original secure/plain xLua script/provider dispatch below the recovered host wire. Native exposes `PIPE_DISCONNECTED`, `PIPE_WRITE_FAILED`, `BRIDGE_STOPPED / bridge result channel closed`, and `LUA_CALL_TIMEOUT`, but current evidence does not yet prove the complete causal mapping among those branches, so no eager route-wide pending-call failure is invented.
 
 The current game-side `LWBridge.GamePipeAdapter.dll` plus `pipe-inbound/outbound-XXXXXXXX.json` mailbox and `current_overview_bridge.lua` parser is explicitly equivalent plumbing. It preserves the recovered live wire for the allowlisted read-only path, but is not claimed as the original xLua proxy dispatcher.
 

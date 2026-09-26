@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-088`
+**Current checkpoint:** `LWB-R8-089`
 
 ## Executive status
 
@@ -26,6 +26,14 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-089 host↔proxy heartbeat boundary
+
+R8-089 proves the original host bridge-pipe heartbeat metadata references exact `/payload/time` and tracks heartbeat/activity state beside the no-inbound-frame idle-timeout path. It also proves both verified proxy natives classify an already serialized `heartbeat` separately from `result`; the native classifier is not itself the heartbeat JSON serializer.
+
+This narrows the protocol gap but does not close exact heartbeat parity. The protected/package serializer, `payload.time` type/value source, requestId/timestamp choices, cadence and public `lastHeartbeatAt` assignment remain unrecovered. The current five-second Lua writer remains equivalent plumbing.
+
+See `docs/reviews/2026-09-27-r8-089-pipe-heartbeat-boundary.md`.
 
 ## R8-088 native-capture point population
 
@@ -149,7 +157,7 @@ R8-075 narrows the previously broad host/proxy protocol gap. The source-backed h
 
 Public readiness semantics are also split exactly: R8-043 proves `get_status.backend/xluaOnline` are route-presence state, while R8-042 proves retained `profile_instance_status.connectionState=connected` additionally requires identity confirmation and a heartbeat fresher than 15,001 ms.
 
-The exact protocol backlog is therefore reduced to three items: wire-`heartbeat` payload/native activity ownership; disconnect/write-failure to outstanding result-channel/public-call completion mapping; and original secure/plain xLua script/provider dispatch. The current GamePipeAdapter/mailbox/Lua command handler remains live-working equivalent plumbing, not original proxy parity.
+R8-089 narrows the first item: the host bridge-pipe heartbeat path references exact `/payload/time`, and both proxy natives classify a pre-serialized `heartbeat`, but the protected/package serializer, `payload.time` type/value source, requestId/timestamp choices, cadence and public `lastHeartbeatAt` assignment remain open. The other exact protocol gaps are disconnect/write-failure to outstanding result-channel/public-call completion mapping and original secure/plain xLua script/provider dispatch. The current GamePipeAdapter/mailbox/Lua command handler remains live-working equivalent plumbing, not original proxy parity.
 
 See `docs/reviews/2026-09-26-r8-075-host-proxy-protocol-reaudit.md` and `evidence/lwbridge-implementation/2026-09-26-r8-075-host-proxy-protocol-reaudit.json`.
 
