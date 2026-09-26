@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-062`
+**Current checkpoint:** `LWB-R8-063`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -382,6 +382,16 @@ Deletion rejects a running profile with `PROFILE_RUNNING`, a missing row with `P
 Native deletes the controller row transactionally, repairs `selected_profile_id` to the surviving primary profile when the deleted profile was selected, commits, then removes the profile-data directory. Profile-data cleanup failure is `IO_ERROR` with `delete profile data` context and can therefore occur after the registry change already committed. Native then reconciles runtime state and returns the same refreshed `{selectedProfileId,maxProfiles,profiles}` projection as `profile_list`.
 
 No production delete is added because the owner-excluded authorization-state admission has precedence over every destructive side effect. See `docs/reviews/2026-09-26-r8-062-profile-delete-fence.md`.
+
+## R8-063 profile_enable_set fence
+
+R8-063 closes the native capacity-reconciliation contract for `profile_enable_set`. It is not a `{profileId,enabled}` toggle: native requires a `profileIds` array, awaits authorization-derived capacity, and the controller core accepts only capacities `1`, `2`, or `5` (`INVALID_PROFILE_CAPACITY` otherwise). A missing primary profile returns `PROFILE_PRIMARY_MISSING`.
+
+When total profiles fit within capacity, native enables all profiles. When over capacity at 1, it keeps the primary profile. When over capacity at 2 or 5, the submitted unique profile-ID set must contain exactly `capacity` existing IDs and include the primary; otherwise native returns `PROFILE_SELECTION_REQUIRED`. Exact serde detail for individual invalid array elements remains unclosed.
+
+The capacity transaction updates every row using `UPDATE profiles SET enabled = ?, locked_reason = ?, updated_at = ? WHERE id = ?`: selected members become enabled/unlocked, non-members become disabled with `locked_reason="license_capacity"`, and `updated_at` is current Unix-ms. After commit, native repairs `selected_profile_id` to the surviving primary if the previous selected profile became locked, then returns the same refreshed `{selectedProfileId,maxProfiles,profiles}` projection as `profile_list`.
+
+No production implementation is added because the governing capacity is authorization/license-derived and owner-excluded. See `docs/reviews/2026-09-26-r8-063-profile-enable-set-fence.md`.
 
 ## Parked protected package-key lane
 
