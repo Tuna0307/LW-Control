@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-075`
+**Current checkpoint:** `LWB-R8-076`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -403,6 +403,18 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-076 original Map acquisition ingestion
+
+R8-076 moves the original Map acquisition lane from wholly UNKNOWN to PARTIAL EXACT_CONTRACT without changing the production scanner.
+
+The common original Map event handler is `0x14033FFA1-0x140341913` and distinguishes `map.records`, `map.scan.diagnostic`, `map.native.capture`, `map.scan.progress`, `map.scan.complete`, and `map.scan.error`. The `map.records` route enters dedicated handler `0x140341FCC-0x140342926`, binds event `scanRunId`, reads current selected types/server/dimensions, filters each `{type,payload}` entry against the original eight kinds/current selection, adds scan-state server/dimension context, and sends the batch through the shared normalized-record builder into transactional `scan_records`.
+
+The scan-record transaction helper is `0x14025F01D-0x14025F5C8`, with exact begin/commit batch diagnostics. The separate `map.native.capture` route enters `0x1402574CD-0x1402577E2`, uses the same normalized builder, but upserts exact `map_records`; it is therefore a passive live native-hook publication path, not the direct-scan staging path.
+
+This closes the production host ingestion linkage that R6-049/R6-051 left open. Remaining exact acquisition work is below that boundary: game-side block traversal/order/coordinates, `XluaBridgeMapScanTick` registration/scheduling/pacing, native point/march/removal/ack queue→batch drain sequencing, and remaining per-kind serializer optionality/types. The current v21 movement/AOI scanner stays LIVE-WORKING EQUIVALENT_REIMPLEMENTATION.
+
+See `docs/reviews/2026-09-26-r8-076-original-map-acquisition-ingestion.md` and `evidence/lwbridge-implementation/2026-09-26-r8-076-original-map-acquisition-ingestion.json`.
+
 ## R8-075 host↔proxy protocol re-audit
 
 R8-075 corrects a stale broad backlog item. The host wire/session contract is not still unknown: R5/R7 already recover pipe identity, framing, `hello`, `hello.ack`, PID/path/build/token admission, protected listener/accept-loop behavior, `command/call`, first `cmd_1`, `result`, `payload.id` correlation, queue/byte limits, principal transport timeouts, reconnect generation and terminal route cleanup. R7-127 then live-proves the production named-pipe route and correlated read-only `getStatus` result against the real game.
@@ -519,7 +531,7 @@ The gate starts from no Last War/LWBridge process, observes or starts the app-ow
 
 Three proof-infrastructure problems were exposed and corrected while reaching that gate. Nullable numeric status readers no longer attempt number parsing on explicit JSON null. The stronger UI proof no longer races normal startup reconcile; it observes the exact native instance projection and only calls Start after a stable no-instance state. Finally, the Resource render matcher and passive owner-evidence matcher now accept both the legacy five-cell table and the current six-cell table with resource amount before status and Updated At. Failure-side evidence proved the product had rendered the exact queried row; only the matcher was stale.
 
-The full deterministic checks executable remains green (`ok=true`, all deterministic groups true, `failures=[]`, no game/launcher running), and Release builds remain at zero warnings/errors. This proves the production desktop/WebView path is **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; original Map acquisition remains `UNKNOWN`.
+The full deterministic checks executable remains green (`ok=true`, all deterministic groups true, `failures=[]`, no game/launcher running), and Release builds remain at zero warnings/errors. This proves the production desktop/WebView path is **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; original Map acquisition is now `PARTIAL EXACT_CONTRACT` after R8-076 closes the host event/staging/live-capture ingestion architecture; protected game-side traversal/tick/ack details remain open.
 
 See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md` and `evidence/lwbridge-implementation/2026-09-26-r8-066-production-map-ui-live.json`.
 
@@ -533,7 +545,7 @@ Production keeps the conservative complete-coverage scanner. The fix accepts onl
 
 Final live proof exited 0: Normal and Fast both read 2500/2500 with 0 failed and 0 unread in the same owned game session, and Fast counts were unchanged after SQLite reopen. Offline regression remained green (`ok=true`, `failures=[]`, zero build warnings/errors, frontend check passed, `git diff --check` passed).
 
-Classification remains deliberately split: Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; the original Map acquisition algorithm is still `UNKNOWN`; whole-program one-to-one parity is still not complete. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
+Classification remains deliberately split: Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; the original Map acquisition architecture is `PARTIAL EXACT_CONTRACT` with protected traversal/tick/ack internals still open; whole-program one-to-one parity is still not complete. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
 
 ## Parked protected package-key lane
 
