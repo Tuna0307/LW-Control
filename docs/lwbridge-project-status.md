@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-085`
+**Current checkpoint:** `LWB-R8-086`
 
 ## Executive status
 
@@ -26,6 +26,12 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-086 native-capture getter population routes
+
+R8-086 proves nine resolved game-facing methods feed exact R8-083 native-record fields. Point routes are resource type/level under the `pointType == 7` branch, treasure type only for `TreasurePointInfo`, and config ID only for `WorldSuppliesPoint`. March routes are positive preferred current point index, max HP, and the three monster/rally/normal booleans; `IsMonsterOrOrdinaryBoss` is normalized with `> 0`.
+
+This removes ambiguity for those nine routes while leaving the rest of point/march field population, protected MapScanTick traversal/work and retry behavior open. See `docs/reviews/2026-09-27-r8-086-native-capture-population-routes.md`.
 
 ## R8-085 native-capture memory budget
 

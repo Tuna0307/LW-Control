@@ -1,0 +1,268 @@
+{
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "findingId": "LWB-R8-086",
+  "limits": [
+    "covers only the nine safe-region resolved getter routes named in R8-084",
+    "does not claim complete population semantics for every R8-083 point/march field",
+    "does not inspect or cross protected native region 0x3F8E0-0x40A6D",
+    "does not recover XluaBridgeMapScanTick traversal, coordinate order, per-tick work, or retry/backoff",
+    "does not change production scanner behavior"
+  ],
+  "proxies": [
+    {
+      "marchRoutes": [
+        {
+          "field": "pointIndex",
+          "gate": "getter result > 0",
+          "presenceOffset": "0x14",
+          "source": "GetMarchCurPosIndex",
+          "transform": "positive result preferred; otherwise preserve existing value or enter direct-field fallback chain",
+          "valueOffset": "0x10"
+        },
+        {
+          "field": "maxHp",
+          "gate": "getter available",
+          "presenceOffset": "0x3C",
+          "source": "GetMaxHP",
+          "transform": "int32 direct",
+          "valueOffset": "0x38"
+        },
+        {
+          "field": "isMonster",
+          "gate": "resolved producer path",
+          "presenceOffset": "0xA1",
+          "source": "IsMonsterOrOrdinaryBoss",
+          "transform": "result > 0",
+          "valueOffset": "0xA0"
+        },
+        {
+          "field": "requiresRally",
+          "gate": "getter available",
+          "presenceOffset": "0xA3",
+          "source": "IsOrdinaryBoss",
+          "transform": "returned byte",
+          "valueOffset": "0xA2"
+        },
+        {
+          "field": "normalType",
+          "gate": "getter available",
+          "presenceOffset": "0xA5",
+          "source": "IsNormalType",
+          "transform": "returned byte",
+          "valueOffset": "0xA4"
+        }
+      ],
+      "pointRoutes": [
+        {
+          "field": "resType",
+          "gate": "pointType == 7",
+          "presenceOffset": "0x6C",
+          "source": "GetResType",
+          "transform": "int32 direct",
+          "valueOffset": "0x68"
+        },
+        {
+          "field": "resLevel",
+          "gate": "pointType == 7",
+          "presenceOffset": "0x74",
+          "source": "GetResLevel",
+          "transform": "int32 direct",
+          "valueOffset": "0x70"
+        },
+        {
+          "field": "treasureType",
+          "gate": "runtimeClass == TreasurePointInfo",
+          "presenceOffset": "0xA4",
+          "source": "GetWorldTreasureType",
+          "transform": "int32 direct; producer has a direct-field fallback when getter is unavailable",
+          "valueOffset": "0xA0"
+        },
+        {
+          "field": "cfgId",
+          "gate": "runtimeClass == WorldSuppliesPoint",
+          "presenceOffset": "0x44",
+          "source": "get_configId",
+          "transform": "int32 direct",
+          "valueOffset": "0x40"
+        }
+      ],
+      "proxy": "secure",
+      "recordBases": {
+        "march": "rbp-0xD0",
+        "point": "rbp-0xA0"
+      },
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400"
+    },
+    {
+      "marchRoutes": [
+        {
+          "field": "pointIndex",
+          "gate": "getter result > 0",
+          "presenceOffset": "0x14",
+          "source": "GetMarchCurPosIndex",
+          "transform": "positive result preferred; otherwise preserve existing value or enter direct-field fallback chain",
+          "valueOffset": "0x10"
+        },
+        {
+          "field": "maxHp",
+          "gate": "getter available",
+          "presenceOffset": "0x3C",
+          "source": "GetMaxHP",
+          "transform": "int32 direct",
+          "valueOffset": "0x38"
+        },
+        {
+          "field": "isMonster",
+          "gate": "resolved producer path",
+          "presenceOffset": "0xA1",
+          "source": "IsMonsterOrOrdinaryBoss",
+          "transform": "result > 0",
+          "valueOffset": "0xA0"
+        },
+        {
+          "field": "requiresRally",
+          "gate": "getter available",
+          "presenceOffset": "0xA3",
+          "source": "IsOrdinaryBoss",
+          "transform": "returned byte",
+          "valueOffset": "0xA2"
+        },
+        {
+          "field": "normalType",
+          "gate": "getter available",
+          "presenceOffset": "0xA5",
+          "source": "IsNormalType",
+          "transform": "returned byte",
+          "valueOffset": "0xA4"
+        }
+      ],
+      "pointRoutes": [
+        {
+          "field": "resType",
+          "gate": "pointType == 7",
+          "presenceOffset": "0x6C",
+          "source": "GetResType",
+          "transform": "int32 direct",
+          "valueOffset": "0x68"
+        },
+        {
+          "field": "resLevel",
+          "gate": "pointType == 7",
+          "presenceOffset": "0x74",
+          "source": "GetResLevel",
+          "transform": "int32 direct",
+          "valueOffset": "0x70"
+        },
+        {
+          "field": "treasureType",
+          "gate": "runtimeClass == TreasurePointInfo",
+          "presenceOffset": "0xA4",
+          "source": "GetWorldTreasureType",
+          "transform": "int32 direct; producer has a direct-field fallback when getter is unavailable",
+          "valueOffset": "0xA0"
+        },
+        {
+          "field": "cfgId",
+          "gate": "runtimeClass == WorldSuppliesPoint",
+          "presenceOffset": "0x44",
+          "source": "get_configId",
+          "transform": "int32 direct",
+          "valueOffset": "0x40"
+        }
+      ],
+      "proxy": "plain",
+      "recordBases": {
+        "march": "rbp-0xD0",
+        "point": "rbp-0xA0"
+      },
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794"
+    }
+  ],
+  "recoveredResult": {
+    "marchGetterRoutes": [
+      {
+        "field": "pointIndex",
+        "gate": "getter result > 0",
+        "presenceOffset": "0x14",
+        "source": "GetMarchCurPosIndex",
+        "transform": "positive result preferred; otherwise preserve existing value or enter direct-field fallback chain",
+        "valueOffset": "0x10"
+      },
+      {
+        "field": "maxHp",
+        "gate": "getter available",
+        "presenceOffset": "0x3C",
+        "source": "GetMaxHP",
+        "transform": "int32 direct",
+        "valueOffset": "0x38"
+      },
+      {
+        "field": "isMonster",
+        "gate": "resolved producer path",
+        "presenceOffset": "0xA1",
+        "source": "IsMonsterOrOrdinaryBoss",
+        "transform": "result > 0",
+        "valueOffset": "0xA0"
+      },
+      {
+        "field": "requiresRally",
+        "gate": "getter available",
+        "presenceOffset": "0xA3",
+        "source": "IsOrdinaryBoss",
+        "transform": "returned byte",
+        "valueOffset": "0xA2"
+      },
+      {
+        "field": "normalType",
+        "gate": "getter available",
+        "presenceOffset": "0xA5",
+        "source": "IsNormalType",
+        "transform": "returned byte",
+        "valueOffset": "0xA4"
+      }
+    ],
+    "pointGetterRoutes": [
+      {
+        "field": "resType",
+        "gate": "pointType == 7",
+        "presenceOffset": "0x6C",
+        "source": "GetResType",
+        "transform": "int32 direct",
+        "valueOffset": "0x68"
+      },
+      {
+        "field": "resLevel",
+        "gate": "pointType == 7",
+        "presenceOffset": "0x74",
+        "source": "GetResLevel",
+        "transform": "int32 direct",
+        "valueOffset": "0x70"
+      },
+      {
+        "field": "treasureType",
+        "gate": "runtimeClass == TreasurePointInfo",
+        "presenceOffset": "0xA4",
+        "source": "GetWorldTreasureType",
+        "transform": "int32 direct; producer has a direct-field fallback when getter is unavailable",
+        "valueOffset": "0xA0"
+      },
+      {
+        "field": "cfgId",
+        "gate": "runtimeClass == WorldSuppliesPoint",
+        "presenceOffset": "0x44",
+        "source": "get_configId",
+        "transform": "int32 direct",
+        "valueOffset": "0x40"
+      }
+    ],
+    "recordBases": {
+      "march": "rbp-0xD0",
+      "point": "rbp-0xA0"
+    }
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  }
+}

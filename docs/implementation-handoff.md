@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-085`
+**Current checkpoint:** `LWB-R8-086`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -402,6 +402,12 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-086 native-capture getter population routes
+
+R8-086 converts nine R8-084 resolved game-facing methods into exact native-record field routes in both verified proxies. Point: `GetResType -> resType` and `GetResLevel -> resLevel` only for `pointType == 7`; `GetWorldTreasureType -> treasureType` only for exact runtime class `TreasurePointInfo`; `get_configId -> cfgId` only for exact runtime class `WorldSuppliesPoint`.
+
+March: positive `GetMarchCurPosIndex -> pointIndex` with existing/direct-field fallback when unavailable or non-positive; `GetMaxHP -> maxHp`; `IsMonsterOrOrdinaryBoss -> isMonster` after `result > 0`; `IsOrdinaryBoss -> requiresRally`; `IsNormalType -> normalType`. This closes only these nine routes, not every R8-083 field-population rule or the protected MapScanTick body. See `docs/reviews/2026-09-27-r8-086-native-capture-population-routes.md`.
 
 ## R8-085 native-capture memory budget
 
