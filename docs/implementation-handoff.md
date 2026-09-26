@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-070`
+**Current checkpoint:** `LWB-R8-071`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,20 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-071 Dispatch Assist action fence
+
+R8-071 closes `dispatch_assist_schedule`, `dispatch_assist_cancel`, and `dispatch_assist_retry` far enough to remove them from the unknown-routing queue. Exact handlers are Schedule `0x140134912-0x140136EC4`, Cancel `0x14010DFC8-0x14010F017`, and Retry `0x14019D007-0x14019E6F4`.
+
+Native live helpers are now pinned: `getAllianceDispatchTasks` and `armAllianceDispatchAssist` both use 5-second deadlines; Cancel calls `cancelAllianceDispatchAssist` at 5 seconds. Persisted job ownership is also exact: Schedule inserts a `dispatch_assist_jobs` row, Retry rewrites a job to scheduled/new assist time, Cancel marks it cancelled and clears last error, and the action paths publish `bridge://dispatch-assist-changed`.
+
+Public validation/error branches are materially closed: Schedule requires 1–200 task UUIDs, live-task presence and no existing scheduled job; Retry requires an existing retryable job plus matching live task; Cancel requires a scheduled persisted job. The exact NOT_FOUND/INVALID_REQUEST messages are recorded in the R8-071 review/evidence.
+
+No runtime route is added. Schedule/Retry require the still-unrecovered live Dispatch Assist task projection already fenced in R8-045, and all three retain mandatory owner-excluded authorization-state admission. A DB-only implementation or admission bypass would diverge.
+
+These three commands move to audited/fenced. The 33 unrouted retained frontend commands now split into 26 audited/fenced and 7 genuinely unclosed.
+
+See `docs/reviews/2026-09-26-r8-071-dispatch-assist-actions-fence.md` and `evidence/lwbridge-implementation/2026-09-26-r8-071-dispatch-assist-actions-fence.json`.
 
 ## R8-070 City Layout live-command fence
 

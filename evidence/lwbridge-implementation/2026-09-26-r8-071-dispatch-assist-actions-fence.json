@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-071",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "handlers": {
+    "dispatch_assist_cancel": "0x14010DFC8-0x14010F017",
+    "dispatch_assist_schedule": "0x140134912-0x140136EC4",
+    "dispatch_assist_retry": "0x14019D007-0x14019E6F4"
+  },
+  "frontendPayloads": {
+    "dispatch_assist_schedule": "{taskUuids}",
+    "dispatch_assist_cancel": "{taskUuid}",
+    "dispatch_assist_retry": "{taskUuid}"
+  },
+  "liveHelpers": {
+    "refresh": {
+      "range": "0x1400EEAEE-0x1400EF486",
+      "provider": "getAllianceDispatchTasks",
+      "timeoutMs": 5000
+    },
+    "arm": {
+      "range": "0x1400EF486-0x1400F0120",
+      "provider": "armAllianceDispatchAssist",
+      "timeoutMs": 5000,
+      "vocabulary": ["targetServer","assistAt","maximumLeadMs","armed","fireAt","attempts","leadMs"]
+    },
+    "cancelProvider": {
+      "provider": "cancelAllianceDispatchAssist",
+      "timeoutMs": 5000,
+      "resultConversion": "shared generic JSON converter"
+    }
+  },
+  "persistedJobHelpers": {
+    "read": "0x14025E85C-0x14025EAEC",
+    "retryUpdate": "0x14026225B-0x140262625",
+    "cancelUpdate": "0x140262625-0x1402629D7",
+    "delete": "0x1402629D7-0x140262C90",
+    "scheduleInsert": "0x14026793E-0x140268029"
+  },
+  "publicErrors": {
+    "scheduleMissingTasks": {"code":"INVALID_REQUEST","message":"alliance dispatch tasks are required"},
+    "scheduleCount": {"code":"INVALID_REQUEST","message":"select between 1 and 200 tasks"},
+    "taskUnavailable": {"code":"NOT_FOUND","message":"alliance dispatch task unavailable"},
+    "alreadyScheduled": {"code":"INVALID_REQUEST","message":"dispatch assist task already scheduled"},
+    "retryJobMissing": {"code":"NOT_FOUND","message":"dispatch assist job not found"},
+    "retryNotAllowed": {"code":"INVALID_REQUEST","message":"dispatch assist job cannot be retried"},
+    "cancelJobMissing": {"code":"NOT_FOUND","message":"scheduled assist job not found"},
+    "stateUnavailable": {"code":"STATE_UNAVAILABLE","message":"dispatch assist state unavailable"}
+  },
+  "event": "bridge://dispatch-assist-changed",
+  "runtimeImplementation": "FENCED",
+  "fenceReason": "Schedule/Retry require the unrecovered live dispatch-assist task projection and all actions retain mandatory owner-excluded authorization-state admission; DB-only or authorization-bypass routing would diverge.",
+  "inventoryEffect": {
+    "previousGenuinelyUnclosed": 10,
+    "movedToAuditedFenced": ["dispatch_assist_schedule","dispatch_assist_cancel","dispatch_assist_retry"],
+    "remainingGenuinelyUnclosed": 7
+  }
+}
