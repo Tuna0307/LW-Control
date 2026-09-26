@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-074`
+**Current checkpoint:** `LWB-R8-075`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -402,6 +402,18 @@ The local create transaction is now exact: native generates 16 random bytes and 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-075 host↔proxy protocol re-audit
+
+R8-075 corrects a stale broad backlog item. The host wire/session contract is not still unknown: R5/R7 already recover pipe identity, framing, `hello`, `hello.ack`, PID/path/build/token admission, protected listener/accept-loop behavior, `command/call`, first `cmd_1`, `result`, `payload.id` correlation, queue/byte limits, principal transport timeouts, reconnect generation and terminal route cleanup. R7-127 then live-proves the production named-pipe route and correlated read-only `getStatus` result against the real game.
+
+R8-042 and R8-043 close the public readiness split: `get_status.backend/xluaOnline` use named-pipe route presence only, while retained `profile_instance_status.connectionState=connected` additionally requires identity confirmation and heartbeat freshness `now-lastHeartbeatAt < 15001 ms`.
+
+The remaining strict protocol gaps are now narrow: exact wire-`heartbeat` payload/native activity-update ownership; exact disconnect/write-failure to outstanding result-channel/public-call completion mapping; and original secure/plain xLua script/provider dispatch below the recovered host wire. Native exposes `PIPE_DISCONNECTED`, `PIPE_WRITE_FAILED`, `BRIDGE_STOPPED / bridge result channel closed`, and `LUA_CALL_TIMEOUT`, but current evidence does not yet prove the complete causal mapping among those branches, so no eager route-wide pending-call failure is invented.
+
+The current game-side `LWBridge.GamePipeAdapter.dll` plus `pipe-inbound/outbound-XXXXXXXX.json` mailbox and `current_overview_bridge.lua` parser is explicitly equivalent plumbing. It preserves the recovered live wire for the allowlisted read-only path, but is not claimed as the original xLua proxy dispatcher.
+
+See `docs/reviews/2026-09-26-r8-075-host-proxy-protocol-reaudit.md` and `evidence/lwbridge-implementation/2026-09-26-r8-075-host-proxy-protocol-reaudit.json`.
 
 ## R8-074 retained frontend routing inventory closed
 

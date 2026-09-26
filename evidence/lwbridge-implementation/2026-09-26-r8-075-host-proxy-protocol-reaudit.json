@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-075",
+  "date": "2026-09-26",
+  "implementationChanged": false,
+  "scope": "Re-audit the broad host-proxy protocol backlog against R5/R7 recovery/live proof and R8 status audits; narrow remaining strict-parity gaps without changing live transport.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "recoveredHostWire": {
+    "pipeIdentity": "R5-006 exact",
+    "frame": "4-byte little-endian length; payload 1..0x800000",
+    "hello": "version=1/type=hello/profileId/instanceId/requestId empty/timestamp/payload token,pid,buildId",
+    "helloAck": "version-1 hello.ack; echoes identity/requestId; fresh host timestamp; empty object payload",
+    "commandType": "command",
+    "callPayloadFields": ["id","kind","fn","args","createdAt"],
+    "callKind": "call",
+    "firstCommandId": "cmd_1",
+    "resultType": "result",
+    "resultPayloadFields": ["id","ok","result|error"],
+    "resultCorrelation": "authenticated route + payload.id",
+    "inboundOuterRequestIdEqualsPayloadIdValidation": "UNKNOWN"
+  },
+  "listenerAndSession": {
+    "aclAndCreateNamedPipe": "R7-100 exact",
+    "handshakeTimeoutMs": 5000,
+    "clientIdentityAdmission": "PID + canonical executable path + buildId + token/registry",
+    "ordinaryDisconnect": "generation-scoped connected-route removal; claimed registration retained",
+    "explicitUnregister": "removes retained registration and connected route",
+    "queueLimits": {
+      "outboundItems": 4096,
+      "outboundBytes": 67108864,
+      "inboundItems": 4096,
+      "inboundBytes": 33554432
+    },
+    "ioTimeoutsMs": {
+      "inboundBackpressure": 30000,
+      "write": 10000,
+      "idleActivity": 30000
+    },
+    "genericLuaCallTimeoutMs": 200,
+    "productionLiveProof": "R7-127 authenticated current-game getStatus request/result succeeded; pending 0->1->0; managed stop removed route"
+  },
+  "publicReadiness": {
+    "getStatusTransportOnline": "named-pipe route presence only (R8-043)",
+    "profileInstanceConnected": "bridgeConnected && identityConfirmed && heartbeatFresh (R8-042)",
+    "heartbeatFreshness": "lastHeartbeatAt > 0 && nowMs-lastHeartbeatAt < 15001",
+    "wireHeartbeatPayload": "UNKNOWN",
+    "nativeHeartbeatToActivityOwnership": "UNKNOWN",
+    "rebuildHeartbeatPlumbing": "EQUIVALENT_REIMPLEMENTATION"
+  },
+  "failureBoundary": {
+    "pipeDisconnected": {
+      "code": "PIPE_DISCONNECTED",
+      "message": "named pipe connection closed",
+      "connectionCleanup": "generation-scoped route removal + common I/O cleanup"
+    },
+    "pipeWriteFailedCode": "PIPE_WRITE_FAILED",
+    "bridgeResultChannelClosed": {
+      "code": "BRIDGE_STOPPED",
+      "message": "bridge result channel closed"
+    },
+    "luaCallTimeoutCode": "LUA_CALL_TIMEOUT",
+    "exactDisconnectOrWriteToAllPendingCallMapping": "UNKNOWN",
+    "decision": "Do not introduce eager route-wide pending-call failure without stronger source proof."
+  },
+  "currentGameSideTransport": {
+    "classification": "LIVE-WORKING EQUIVALENT_REIMPLEMENTATION",
+    "adapter": "LWBridge.GamePipeAdapter.dll",
+    "hostToGameMailbox": "pipe-inbound-XXXXXXXX.json",
+    "gameToHostMailbox": "pipe-outbound-XXXXXXXX.json",
+    "luaConsumer": "tools/current_overview_bridge.lua",
+    "allowlistedLiveCommand": "command/call getStatus {}",
+    "originalSecurePlainProxyScriptDispatcher": "UNKNOWN"
+  },
+  "classification": {
+    "pipeIdentity": "EXACT_NATIVE",
+    "framing": "EXACT_NATIVE",
+    "hello": "EXACT_NATIVE",
+    "helloAck": "EXACT_NATIVE",
+    "authentication": "EXACT_NATIVE",
+    "listenerContract": "EXACT_NATIVE",
+    "commandCallEnvelope": "EXACT_NATIVE",
+    "commandIdSeed": "EXACT_NATIVE",
+    "resultEnvelope": "EXACT_NATIVE",
+    "payloadIdCorrelation": "EXACT_NATIVE",
+    "transportLimits": "EXACT_NATIVE",
+    "reconnectAndRouteCleanup": "EXACT_NATIVE",
+    "hostTransportProductionOperation": "LIVE_WORKING",
+    "sessionImplementationPlumbing": "EQUIVALENT_REIMPLEMENTATION",
+    "wireHeartbeatSchema": "UNKNOWN",
+    "pendingFailureMappingOnRouteLoss": "UNKNOWN",
+    "originalGameSideScriptDispatch": "UNKNOWN"
+  },
+  "remainingExactProtocolGaps": [
+    "wire heartbeat payload and native activity update ownership",
+    "disconnect/write failure to outstanding result-channel/public-call completion mapping",
+    "original secure/plain xLua command-to-script/provider dispatch and result production"
+  ],
+  "backlogEffect": "Replace stale broad protocol wording with the three narrow remaining exact-parity gaps; do not mark whole protocol/proxy lane complete."
+}

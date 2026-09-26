@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-26
-**Current checkpoint:** `LWB-R8-074`
+**Current checkpoint:** `LWB-R8-075`
 
 ## Executive status
 
@@ -26,6 +26,16 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+
+## R8-075 host↔proxy protocol re-audit
+
+R8-075 narrows the previously broad host/proxy protocol gap. The source-backed host wire now includes exact pipe identity/framing, `hello` and `hello.ack`, PID/path/build/token authentication, protected listener/accept-loop semantics, `command/call`, first `cmd_1`, `result`, `payload.id` correlation, queue/byte limits, principal timeouts, reconnect generation and terminal route cleanup. R7-127 already live-proves the production authenticated named-pipe route and correlated read-only `getStatus` response against the real game.
+
+Public readiness semantics are also split exactly: R8-043 proves `get_status.backend/xluaOnline` are route-presence state, while R8-042 proves retained `profile_instance_status.connectionState=connected` additionally requires identity confirmation and a heartbeat fresher than 15,001 ms.
+
+The exact protocol backlog is therefore reduced to three items: wire-`heartbeat` payload/native activity ownership; disconnect/write-failure to outstanding result-channel/public-call completion mapping; and original secure/plain xLua script/provider dispatch. The current GamePipeAdapter/mailbox/Lua command handler remains live-working equivalent plumbing, not original proxy parity.
+
+See `docs/reviews/2026-09-26-r8-075-host-proxy-protocol-reaudit.md` and `evidence/lwbridge-implementation/2026-09-26-r8-075-host-proxy-protocol-reaudit.json`.
 
 ## R8-074 retained frontend routing inventory closed
 
@@ -126,7 +136,7 @@ That proof is limited because the rebuild intentionally transformed the main/API
 ## Largest parity gaps
 
 1. Full plaintext/original handler recovery from `bridge-scripts.dat`.
-2. Exact host/proxy request-result protocol and readiness semantics.
+2. Remaining exact host/proxy parity: wire-heartbeat payload/activity ownership, disconnect/write-failure to outstanding-call completion mapping, and original secure/plain xLua script/provider dispatch. R8-075 confirms the rest of the retained host wire/session contract is recovered and the read-only production route is live-working.
 3. Original Map Scan internals and per-kind acquisition strategy.
 4. Removal of rebuild-only additions such as Secret Task Quick Find.
 5. Restoration of remaining retained product features previously retired/customized. City Excel is restored in R8-007, Map Clear in R8-008, `server_jump` in R8-009, `map_summary` in R8-010, `map_data_options` in R8-011, Manual Scan public contract in R8-012, status/Stop lifecycle in R8-013, `map_search` public kind/filter ownership in R8-014, the original Auto Scan frontend scheduler/control plane in R8-015, and Scheduled Plunder list/schedule/cancel persistence/events/original UI in R8-016. R8-017 removes speculative Monster-distance, City-shield and Railway-quality sort implementations and gates those branches pending stronger evidence. R8-044 restores the native `game_asset_image` public request/result/error contract, one 15-second game call, PNG-signature validation and persistent profile-runtime `asset-cache` behavior; the exact native SHA-256 cache-key preimage and original transport/file-I/O plumbing remain unclaimed. Complete native multi-sort assembly and protected Plunder execution remain partial/unknown. R8-054 re-audits the existing `lastwar_localize` path: requested-locale→English→key fallback, the exact 200-key cap and locale-cache error vocabulary remain evidence-backed, but the command is only partial/equivalent because the rebuild bypasses native owner-excluded authorization-state admission and has stricter outer payload parsing. R8-055 additionally audits `map_treasure_claim_status`: native awaits owner-excluded authorization state, calls `getTreasureClaimStatus` once with a 5-second deadline, transactionally maintains `treasure_claim_states`, then returns the original provider JSON. The current rebuild status route remains a documented deviation because it adds scan/operation/server guards, uses an 8-second inspection path, rebuilds a fixed DTO, and cannot preserve provider extras such as optional `batch`. R8-074 now closes the original `map_treasure_claim` host contract but keeps live claim/scout execution fenced on owner-excluded authorization state plus unrecovered protected executor internals. Account/Login/Authentication is intentionally excluded.
