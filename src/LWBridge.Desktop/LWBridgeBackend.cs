@@ -13,6 +13,7 @@ internal sealed class LWBridgeBackend
     private static readonly string[] MapKinds = MapScanContract.AllTypes;
     private static readonly TimeSpan SquadListTimeout = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan MonsterCatalogTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan TradeStationCatalogTimeout = TimeSpan.FromSeconds(10);
     private static readonly HashSet<string> GlobalCommands = new(StringComparer.Ordinal)
     {
         "profile_list",
@@ -176,6 +177,16 @@ internal sealed class LWBridgeBackend
                 StringComparison.Ordinal))
         {
             return await MonsterCatalogOptionsAsync(
+                    payload,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        if (string.Equals(
+                command,
+                "trade_station_catalog",
+                StringComparison.Ordinal))
+        {
+            return await TradeStationCatalogAsync(
                     payload,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -382,6 +393,58 @@ internal sealed class LWBridgeBackend
                 throw new BridgeCommandException(
                     "COMMAND_NOT_IMPLEMENTED",
                     $"Command '{command}' is not implemented by the production backend yet.");
+        }
+    }
+
+    private async Task<object?> TradeStationCatalogAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        RequireNativeProfileRuntime(payload);
+
+        if (bridgeHostState is null ||
+            !bridgeHostState.IsRpcTransportStarted ||
+            !bridgeHostState.IsRouteConnected(
+                LWBridgeControlPipeRegistry.DefaultRoute))
+        {
+            throw new BridgeCommandException(
+                "GAME_DISCONNECTED",
+                "game disconnected");
+        }
+
+        JsonElement args = JsonSerializer.SerializeToElement(
+            new { },
+            JsonOptions.Default);
+        long now = RecoveredWallClock.UnixTimeMilliseconds();
+        try
+        {
+            JsonElement? result = await bridgeHostState.CallLuaAsync(
+                    LWBridgeControlPipeRegistry.DefaultRoute,
+                    "getTradeStationCatalog",
+                    args,
+                    timestamp: now,
+                    createdAt: now,
+                    cancellationToken: cancellationToken,
+                    resultTimeout: TradeStationCatalogTimeout,
+                    timeoutMessage:
+                        "lua call result unknown after timeout: getTradeStationCatalog")
+                .ConfigureAwait(false);
+            return result is JsonElement value ? value : null;
+        }
+        catch (InvalidOperationException error) when (
+            error.Message.Contains(
+                "bridge route",
+                StringComparison.OrdinalIgnoreCase) ||
+            error.Message.Contains(
+                "RPC session is not running",
+                StringComparison.OrdinalIgnoreCase) ||
+            error.Message.Contains(
+                "RPC transport is not started",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new BridgeCommandException(
+                "GAME_DISCONNECTED",
+                "game disconnected");
         }
     }
 

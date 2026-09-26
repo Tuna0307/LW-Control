@@ -366,6 +366,102 @@ internal static class OverviewStatusTransportChecks
             catalogTimeoutWatch.Elapsed < TimeSpan.FromSeconds(6.5),
             "monster_catalog_options uses native 5000 ms deadline and message");
 
+        Task<object?> tradeCatalogTask = backend.InvokeAsync(
+            "trade_station_catalog",
+            profilePayload,
+            CancellationToken.None);
+        byte[] tradeCatalogCommandPayload =
+            await ReadFrameAsync(clientStream);
+        using (JsonDocument tradeCatalogCommandDoc =
+               JsonDocument.Parse(tradeCatalogCommandPayload))
+        {
+            JsonElement tradeCommand = tradeCatalogCommandDoc.RootElement;
+            Check(
+                tradeCommand.GetProperty("payload")
+                    .GetProperty("id").GetString() == "cmd_6" &&
+                tradeCommand.GetProperty("payload")
+                    .GetProperty("fn").GetString() ==
+                    "getTradeStationCatalog" &&
+                tradeCommand.GetProperty("payload")
+                    .GetProperty("args").GetRawText() == "{}",
+                "trade_station_catalog emits exact game call");
+        }
+
+        await WriteFrameAsync(
+            clientStream,
+            CreateEnvelope(
+                LWBridgeControlPipeProtocol.ResultType,
+                backend.ProfileId,
+                Instance,
+                "outer-trade-catalog-not-required",
+                Now + 4,
+                new
+                {
+                    id = "cmd_6",
+                    ok = true,
+                    result = new
+                    {
+                        items = new[]
+                        {
+                            new
+                            {
+                                itemId = "good-1",
+                                itemName = "Iron",
+                                itemNameKey = "item.iron",
+                                currencyIds = new[] { "coin" },
+                            },
+                        },
+                        opaqueTradeCatalog = "preserved",
+                    },
+                }));
+        JsonElement tradeCatalogResult =
+            JsonSerializer.SerializeToElement(
+                await tradeCatalogTask.WaitAsync(
+                    TimeSpan.FromSeconds(2)),
+                JsonOptions.Default);
+        Check(
+            tradeCatalogResult.GetProperty("items")[0]
+                .GetProperty("itemId").GetString() == "good-1" &&
+            tradeCatalogResult.GetProperty("opaqueTradeCatalog")
+                .GetString() == "preserved",
+            "trade_station_catalog forwards game JSON unchanged");
+
+        Task<object?> tradeCatalogTimeoutTask = backend.InvokeAsync(
+            "trade_station_catalog",
+            profilePayload,
+            CancellationToken.None);
+        byte[] tradeCatalogTimeoutPayload =
+            await ReadFrameAsync(clientStream);
+        using (JsonDocument tradeCatalogTimeoutDoc =
+               JsonDocument.Parse(tradeCatalogTimeoutPayload))
+        {
+            Check(
+                tradeCatalogTimeoutDoc.RootElement
+                    .GetProperty("payload")
+                    .GetProperty("id").GetString() == "cmd_7" &&
+                tradeCatalogTimeoutDoc.RootElement
+                    .GetProperty("payload")
+                    .GetProperty("fn").GetString() ==
+                    "getTradeStationCatalog",
+                "second trade station catalog request remains correlated");
+        }
+
+        var tradeCatalogTimeoutWatch =
+            System.Diagnostics.Stopwatch.StartNew();
+        BridgeCommandException tradeCatalogTimeout =
+            await ExpectBridgeErrorAsync(
+                "LUA_CALL_TIMEOUT",
+                "trade_station_catalog native deadline",
+                async () => await tradeCatalogTimeoutTask.WaitAsync(
+                    TimeSpan.FromSeconds(12)));
+        tradeCatalogTimeoutWatch.Stop();
+        Check(
+            tradeCatalogTimeout.Message ==
+                "lua call result unknown after timeout: getTradeStationCatalog" &&
+            tradeCatalogTimeoutWatch.Elapsed >= TimeSpan.FromSeconds(9.5) &&
+            tradeCatalogTimeoutWatch.Elapsed < TimeSpan.FromSeconds(11.5),
+            "trade_station_catalog uses native 10000 ms deadline and message");
+
         await ExpectBridgeErrorAsync(
             "COMMAND_NOT_IMPLEMENTED",
             "other Lua function blocked",
@@ -471,6 +567,44 @@ internal static class OverviewStatusTransportChecks
             catalogDisconnected.Message == "game disconnected",
             "monster_catalog_options disconnected uses native message");
 
+        BridgeCommandException tradeMissingProfile =
+            await ExpectBridgeErrorAsync(
+                "PROFILE_ID_REQUIRED",
+                "trade_station_catalog missing profile",
+                () => noHostBackend.InvokeAsync(
+                    "trade_station_catalog",
+                    JsonSerializer.SerializeToElement(new { }),
+                    CancellationToken.None));
+        Check(
+            tradeMissingProfile.Message == "PROFILE_ID_REQUIRED",
+            "trade_station_catalog missing profile uses native message");
+
+        BridgeCommandException tradeUnknownProfile =
+            await ExpectBridgeErrorAsync(
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "trade_station_catalog unknown profile",
+                () => noHostBackend.InvokeAsync(
+                    "trade_station_catalog",
+                    JsonSerializer.SerializeToElement(
+                        new { profileId = "other-profile" }),
+                    CancellationToken.None));
+        Check(
+            tradeUnknownProfile.Message == "PROFILE_RUNTIME_UNAVAILABLE",
+            "trade_station_catalog unknown runtime uses native message");
+
+        BridgeCommandException tradeDisconnected =
+            await ExpectBridgeErrorAsync(
+                "GAME_DISCONNECTED",
+                "trade_station_catalog disconnected",
+                () => noHostBackend.InvokeAsync(
+                    "trade_station_catalog",
+                    JsonSerializer.SerializeToElement(
+                        new { profileId = noHostBackend.ProfileId }),
+                    CancellationToken.None));
+        Check(
+            tradeDisconnected.Message == "game disconnected",
+            "trade_station_catalog disconnected uses native message");
+
         await host.StopRpcTransportAsync();
         await listener.WaitAsync(TimeSpan.FromSeconds(2));
         Check(
@@ -519,6 +653,20 @@ internal static class OverviewStatusTransportChecks
                         "lua call result unknown after timeout: getMonsterCatalogOptions",
                     disconnectedError = "GAME_DISCONNECTED",
                 },
+                tradeStationCatalog = new
+                {
+                    commandId = "cmd_6",
+                    functionName = "getTradeStationCatalog",
+                    args = "{}",
+                    rawResultPassThrough = true,
+                    timeoutCommandId = "cmd_7",
+                    timeoutMilliseconds = 10000,
+                    timeoutCode = "LUA_CALL_TIMEOUT",
+                    timeoutMessage =
+                        "lua call result unknown after timeout: getTradeStationCatalog",
+                    nativeProfileErrors = true,
+                    disconnectedError = "GAME_DISCONNECTED",
+                },
             },
             boundary = new
             {
@@ -526,6 +674,7 @@ internal static class OverviewStatusTransportChecks
                 onlyGetStatusEmptyArgsEnabled = true,
                 squadListUsesPrivateRecoveredGameCall = true,
                 monsterCatalogUsesPrivateRecoveredGameCall = true,
+                tradeStationCatalogUsesPrivateRecoveredGameCall = true,
             },
         }, JsonOptions.Default);
     }

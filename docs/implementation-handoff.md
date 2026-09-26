@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-047`
+**Current checkpoint:** `LWB-R8-048`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -274,6 +274,12 @@ The authenticated .NET bridge transport remains `EQUIVALENT_REIMPLEMENTATION`. R
 R8-047 restores the native read-only `monster_catalog_options` command over the same private retained game-call path. It uses the same exact profile/runtime admission as `squad_list`, returns exact `GAME_DISCONNECTED` / `game disconnected` without a route, then issues one `getMonsterCatalogOptions` call with `{}` and a 5,000 ms result deadline. Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getMonsterCatalogOptions`.
 
 Native returns the correlated game JSON through the generic converter rather than rebuilding option rows. The frontend consumes `result.options` and fields including `key`, `group`, `monsterNameKey`, `monsterType`, level bounds and searchability, but the host preserves the provider JSON unchanged. The authenticated .NET transport remains equivalent plumbing and public `call_lua` is not widened. See `docs/reviews/2026-09-26-r8-047-monster-catalog-options.md`.
+
+## R8-048 trade_station_catalog checkpoint
+
+R8-048 restores the native read-only `trade_station_catalog` command without enabling Trade Station mutation. It uses the same exact selected-profile runtime admission as R8-046/047, returns exact `GAME_DISCONNECTED` / `game disconnected` through the native game-route helper, then issues one `getTradeStationCatalog` call with empty `{}` args.
+
+Unlike the previous two commands, native gives this call a **10,000 ms** result deadline (`0x2710`). Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: getTradeStationCatalog`. Success is the correlated game JSON passed through the generic converter unchanged; the frontend reads `result.items`. The authenticated .NET transport remains equivalent plumbing, generic `call_lua` stays closed, and `trade_station_configure` remains fenced. See `docs/reviews/2026-09-26-r8-048-trade-station-catalog.md`.
 
 ## Parked protected package-key lane
 
