@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-059`
+**Current checkpoint:** `LWB-R8-060`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -354,6 +354,14 @@ R8-059 closes the first retained Mini-game live-action boundary. The per-command
 After admission, native requires the selected runtime (`PROFILE_ID_REQUIRED` / `PROFILE_RUNTIME_UNAVAILABLE`), then connected game transport (`GAME_DISCONNECTED` / `game disconnected`). It issues exactly one `openMonopolyCell` call with `{}` args and a 5,000 ms deadline; timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: openMonopolyCell`, provider failures use the shared `LUA_CALL_FAILED` path, and success forwards the correlated provider JSON unchanged through the generic converter.
 
 No runtime action is added because original LWBridge requires owner-excluded authorization-state admission before enabling this live action. A direct provider call would weaken observable admission semantics. See `docs/reviews/2026-09-26-r8-059-monopoly-cell-open-fence.md`.
+
+## R8-060 construction_rewards_claim fence
+
+R8-060 closes the retained Construction Rewards claim action in the Automation API block. The feature wrapper supplies no claim-specific fields; shared `U()` normalizes to `{}` and injects the selected `profileId`. Native awaits authorization state first, then resolves profile/runtime and connected game route, preserving exact `STATE_UNAVAILABLE`, `PROFILE_ID_REQUIRED`, `PROFILE_RUNTIME_UNAVAILABLE`, and `GAME_DISCONNECTED` precedence.
+
+After admission, native issues exactly one `claimConstructionRewards` call with `{}` args and a 5,000 ms result deadline. Timeout is exact `LUA_CALL_TIMEOUT` / `lua call result unknown after timeout: claimConstructionRewards`; provider failures use the shared `LUA_CALL_FAILED` mapping, and correlated success JSON is forwarded unchanged through the generic converter.
+
+R8-060 makes no production action change because bypassing the owner-excluded authorization-state admission would make a live reward-claim action callable in states where native rejects it. See `docs/reviews/2026-09-26-r8-060-construction-rewards-claim-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
