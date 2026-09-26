@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-050",
+  "date": "2026-09-26",
+  "scope": "Fence city_layout_snapshot_get at its owner-excluded authorization-state-derived request boundary while closing observable game-call/result behavior.",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "implementationChanged": false,
+  "authority": [
+    "city_layout_snapshot_get handler 0x140198AA5-0x140199316",
+    "authorization-state future 0x1400DC79E-0x1400DC995",
+    "City Layout game helper 0x1400DC30C-0x1400DC58F",
+    "selected-profile runtime resolver 0x1402AE43C",
+    "shared game-call future 0x1400E4FAD",
+    "generic result converter 0x1402BB816",
+    "retained api-ClPPi2JT.js wrapper"
+  ],
+  "publicContract": {
+    "frontendPayload": "none",
+    "authorizationUnavailable": {
+      "code": "STATE_UNAVAILABLE",
+      "message": "authorization state is unavailable"
+    },
+    "disconnected": {
+      "code": "GAME_DISCONNECTED",
+      "message": "game disconnected"
+    },
+    "gameMethod": "getCityLayoutSnapshot",
+    "gameTimeoutMilliseconds": 10000,
+    "nativeRetryCount": 0,
+    "success": "correlated provider JSON forwarded unchanged"
+  },
+  "requestArgument": {
+    "source": "authorization-state result",
+    "exactShape": "OWNER_EXCLUDED_UNKNOWN",
+    "substituteAdded": false
+  },
+  "evidenceClassification": {
+    "authorizationUnavailableError": "EXACT_NATIVE",
+    "disconnectError": "EXACT_NATIVE",
+    "gameMethod": "EXACT_NATIVE",
+    "tenSecondDeadline": "EXACT_NATIVE",
+    "successRawJsonPassThrough": "EXACT_NATIVE",
+    "authorizationDerivedRequestArgument": "OWNER_EXCLUDED_UNKNOWN",
+    "runtimeImplementation": "FENCED"
+  },
+  "validationStatus": {
+    "jsonSyntax": "PASS",
+    "desktopReleaseBuild": "PASS",
+    "checksReleaseBuild": "PASS",
+    "deterministicSuite": "PASS ok=true failures=[] exitCode=0",
+    "frontendGeneratorCheck": "PASS recovered hashes verified",
+    "gitDiffCheck": "PASS",
+    "stagedDiffCheck": "PASS"
+  },
+  "remainingBoundary": [
+    "authorization-state-derived request argument intentionally excluded",
+    "live getCityLayoutSnapshot provider implementation",
+    "city_layout_validate/apply_start/apply_status/apply_cancel remain separate provider/action boundaries"
+  ],
+  "nextCheckpoint": "Continue retained non-auth read-only recovery; do not decode authorization/account state to implement City Layout snapshot."
+}

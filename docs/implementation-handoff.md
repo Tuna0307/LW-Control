@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-049`
+**Current checkpoint:** `LWB-R8-050`
 **Date:** 2026-09-26
 
 ## Current directive
@@ -284,6 +284,12 @@ Unlike the previous two commands, native gives this call a **10,000 ms** result 
 ## R8-049 VIP18 boundary fence
 
 R8-049 researched the hidden VIP18 base read family far enough to identify its dependency boundary, then stopped without production implementation. `vip18_base_config_get` projects `selectedSkinId`, `autoApplyOnStart`, and `favoriteSkinIds`, but it reads the same shared native config-state/migration layer that remains incomplete under R8-043; unavailable config state is exact `STATE_UNAVAILABLE` / `config state is unavailable`.
+
+## R8-050 city_layout_snapshot_get fence
+
+R8-050 closes the recoverable host boundary of the read-only `city_layout_snapshot_get` command. The frontend supplies no payload. Native first awaits shared authorization state; unavailable state is exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. That authorization-state result is then carried as the argument to the City Layout game helper, so its exact request shape is owner-excluded and intentionally unclaimed.
+
+After that dependency, native resolves the selected profile runtime, requires a connected game route (`GAME_DISCONNECTED` / `game disconnected`), and issues one `getCityLayoutSnapshot` call with a 10,000 ms deadline. The correlated provider JSON is returned through the shared generic converter unchanged. No runtime implementation is added because substituting `{}`, a profile ID, or frontend-derived fields would not match the original authorization-derived request. See `docs/reviews/2026-09-26-r8-050-city-layout-snapshot-fence.md`.
 
 `vip18_base_list` parses optional boolean `refresh` with false fallback and returns a public `items` projection. Its persistent cache record uses `version`, `updatedAt`, and `items`; successful live refresh writes version 1 plus current Unix-ms. `refresh=false` is cache-only; `refresh=true` uses cached items when the game is disconnected, and when connected calls `getVip18BaseSkins` with a 10,000 ms deadline. Before constructing the cache identity, however, native awaits authorization state and can return exact `STATE_UNAVAILABLE` / `authorization state is unavailable`. The cache filename is `base-skin-catalog-<dynamic-identity>.json`; the identity is carried across an authorization-state-dependent path, but its exact source is intentionally not decoded because authorization/account-state recovery is owner-excluded. See `docs/reviews/2026-09-26-r8-049-vip18-boundary-fence.md`.
 
