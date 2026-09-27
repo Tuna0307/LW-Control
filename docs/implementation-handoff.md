@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-094`
+**Current checkpoint:** `LWB-R8-095`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -403,6 +403,18 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-095 auth-service response projection
+
+R8-095 closes the successful service-response-to-state mutation layer. Login and Register share projector `0x140239937-0x140239BF2`; exact response fields include `token`, `expired`, `username`, `accessRole`, `watermarkTraceCode`, and `expiresAt`. Missing/non-string/empty `token` becomes exact `SESSION_INVALID`. Only JSON boolean `expired=true` triggers ticket/envelope cleanup, skips new artifact ingestion, and publishes `locked` with exact `ACCOUNT_EXPIRED`; false/missing/non-boolean follows the authorized path.
+
+The role normalizer outputs only `normal|premium|admin`, defaulting invalid/missing input to `normal`. Watermark codes are accepted only as 12 characters from `23456789ABCDEFGHJKLMNPQRSTUVWXYZ`; invalid/missing input normalizes to empty.
+
+Renew and heartbeat both retain the previous username when their response omits/mistypes `username`, but expiry inheritance differs: Renew has no prior-expiry fallback, whereas Heartbeat explicitly retains the existing `expiresAt` if the response omits/mistypes it. Both then normalize role/watermark, publish `authorized`, and persist SessionV2.
+
+R8-095 also closes the plaintext source of protected SessionV2 fields. The current raw service token is protected through the established `0x14039F4C5` host protection helper to become `encryptedToken`. `encryptedMetadata` is exactly protected JSON containing only `accessRole` and `watermarkTraceCode`, built from the normalized current AuthState. No production auth path is enabled yet.
+
+See `docs/reviews/2026-09-27-r8-095-auth-response-projection.md` and `evidence/lwbridge-implementation/2026-09-27-r8-095-auth-response-projection.json`.
+
 ## R8-094 runtime cleanup correction
 
 R8-094 corrects the R8-093 interpretation of helper `0x14023CBB8`: it is shared best-effort runtime-artifact cleanup, not a grace-clock reset. The no-usable-session supervisor branch invokes this cleanup and then publishes normal `signedOut`; other recovered callers place the same helper in heartbeat, session-error, login projection and artifact-ingestion lifecycle paths. Exact owned paths/offsets are source-locked in `docs/reviews/2026-09-27-r8-094-auth-runtime-cleanup.md` and its evidence JSON.
@@ -417,7 +429,7 @@ The auth-service constructor owns both legacy and v2 paths. Restore checks `auth
 
 Persisted encrypted token and metadata are decoded through the original secure-storage helper; decode failure is normalized to `SESSION_INVALID`. Successful metadata is parsed and passed to the common role/authorization projection, proving that `accessRole` is reconstructed from metadata rather than stored as a SessionV2 field. The same service owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; auth heartbeat defaults to 120 seconds and accepts configured integer values only in the inclusive range 30..300.
 
-This checkpoint still does not wire live auth. Remaining source work is the secure-storage/device-key acquisition lifecycle, legacy migration details where needed, authorization-ticket/package-key-envelope lifecycle, exact service response-to-session mutations, and entitlement/capacity refresh/persistence.
+This checkpoint still does not wire live auth. R8-095 later closes the successful service-response-to-session projection. Remaining source work is credential/device-key bootstrap and legitimate service execution, legacy migration details where needed, entitlement/capacity refresh/persistence, and remaining service scheduling/error behavior.
 
 See `docs/reviews/2026-09-27-r8-093-session-v2-source.md` and `evidence/lwbridge-implementation/2026-09-27-r8-093-session-v2-source.json`.
 

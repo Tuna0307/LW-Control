@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-094`
+**Current checkpoint:** `LWB-R8-095`
 
 ## Executive status
 
@@ -27,6 +27,16 @@ The stronger gate also corrected stale proof infrastructure without changing the
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
 
+## R8-095 auth-service response projection
+
+R8-095 closes the successful login/register/renew/heartbeat response-to-state layer. Login/Register share one projector: raw `token` is mandatory and empty/missing/non-string becomes `SESSION_INVALID`; only exact JSON boolean `expired=true` cleans runtime artifacts and yields `locked / ACCOUNT_EXPIRED`. The projector also owns `username`, `accessRole`, `watermarkTraceCode`, and `expiresAt`.
+
+Role normalization is exact `normal|premium|admin` with fallback `normal`. Watermark trace code must be exactly 12 characters from `23456789ABCDEFGHJKLMNPQRSTUVWXYZ`, otherwise it normalizes empty. Renew and Heartbeat retain prior username on omission; only Heartbeat retains prior `expiresAt` when omitted/mistyped, while Renew passes an empty optional expiry into the authorized emitter.
+
+SessionV2 persistence is now tied to its plaintext source: raw service token -> host protection -> `encryptedToken`; normalized `{accessRole,watermarkTraceCode}` JSON -> host protection -> `encryptedMetadata`. No production auth route is enabled yet; credential/device-key bootstrap, real service execution, entitlement/capacity refresh/persistence, remaining scheduling/error semantics, rebuild wiring and live proof remain open.
+
+See `docs/reviews/2026-09-27-r8-095-auth-response-projection.md`.
+
 ## R8-094 runtime cleanup correction
 
 R8-094 corrects the R8-093 interpretation of helper `0x14023CBB8`: it is shared best-effort runtime-artifact cleanup, not a grace-clock reset. The no-usable-session branch invokes that cleanup and then publishes normal `signedOut`. See `docs/reviews/2026-09-27-r8-094-auth-runtime-cleanup.md`.
@@ -37,7 +47,7 @@ R8-093 identifies SessionV2's seventh field as exact `version`, closes the typed
 
 The heartbeat/session supervisor is the centralized restore owner. Restored encrypted token and metadata pass through original secure-storage decode helpers; failed restored material normalizes to `SESSION_INVALID`. Successful decoded metadata feeds the common authorization-role projection alongside persisted identity/timing state, so role is reconstructed rather than directly persisted in SessionV2. A no-usable-session result best-effort deletes stored `authorization.ticket` and `package-key.envelope` before publishing normal `signedOut`.
 
-The auth service also owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; heartbeat defaults to 120 seconds and only accepts configured integers 30..300 inclusive. No production auth path is enabled yet; secure-storage/device-key acquisition, ticket/envelope lifecycle, remaining service-to-session mutation, entitlement/capacity ownership, implementation and live proof remain open.
+The auth service also owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; heartbeat defaults to 120 seconds and only accepts configured integers 30..300 inclusive. R8-095 later closes the successful service-response-to-session projection. No production auth path is enabled yet; credential/device-key bootstrap, legitimate service execution, entitlement/capacity ownership, remaining service scheduling/error behavior, implementation and live proof remain open.
 
 See `docs/reviews/2026-09-27-r8-093-session-v2-source.md`.
 

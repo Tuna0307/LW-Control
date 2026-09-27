@@ -184,7 +184,7 @@ Still open before any auth-dependent action can be called LIVE-WORKING:
 - exact secure-storage/device-key acquisition lifecycle needed to reproduce the original decode source safely;
 - legacy v1 -> v2 migration details where relevant;
 - authorization ticket and package-key-envelope lifecycle;
-- exact login/renew/heartbeat service response-to-session mutations beyond the producer transitions already recovered;
+- exact login/renew/heartbeat service response-to-session mutations beyond the producer transitions already recovered (**closed by R8-095**);
 - entitlement/capacity persistence and refresh ownership;
 - rebuild implementation and then real current-client/live validation.
 

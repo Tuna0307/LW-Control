@@ -1,0 +1,81 @@
+{
+  "date": "2026-09-27",
+  "findingId": "LWB-R8-095",
+  "heartbeatProjection": {
+    "accessRole": "normalize to normal/premium/admin",
+    "expiresAt": "optional response string; retain prior expiresAt when absent/mistyped",
+    "then": [
+      "authorized publication",
+      "SessionV2 persistence"
+    ],
+    "username": "response string else retain previous username",
+    "watermarkTraceCode": "12-char restricted alphabet else empty"
+  },
+  "limits": [
+    "0x39F4C5 protection classification reuses established R7 evidence (CryptProtectData plus Base64); crypto internals are not reopened here",
+    "no real credentials, tokens, encrypted session data, private keys, or auth network requests are read or executed",
+    "service-side token issuance/signature semantics are not reconstructed",
+    "no production auth behavior is enabled by this checkpoint"
+  ],
+  "loginRegisterProjection": {
+    "callers": {
+      "login": "0xF20DF",
+      "register": "0xF3AD9"
+    },
+    "expiredRule": "only JSON bool true triggers ticket/envelope cleanup, skips new artifact ingestion, and publishes locked/ACCOUNT_EXPIRED; false/missing/non-bool follows authorized path",
+    "persistsSessionV2": true,
+    "responseFields": [
+      "token",
+      "expired",
+      "username",
+      "accessRole",
+      "watermarkTraceCode",
+      "expiresAt"
+    ],
+    "sharedProjector": "0x239937-0x239BF2",
+    "tokenRule": "missing/non-string/empty token -> SESSION_INVALID"
+  },
+  "normalization": {
+    "accessRole": {
+      "accepted": [
+        "normal",
+        "premium",
+        "admin"
+      ],
+      "fallback": "normal"
+    },
+    "watermarkTraceCode": {
+      "alphabet": "23456789ABCDEFGHJKLMNPQRSTUVWXYZ",
+      "invalidOrMissing": "empty normalized string",
+      "length": 12
+    }
+  },
+  "renewProjection": {
+    "accessRole": "normalize to normal/premium/admin",
+    "expiresAt": "optional response string; no prior-value fallback before authorized emitter",
+    "then": [
+      "authorized publication",
+      "SessionV2 persistence"
+    ],
+    "username": "response string else retain previous username",
+    "watermarkTraceCode": "12-char restricted alphabet else empty"
+  },
+  "sessionV2ProtectionSource": {
+    "encryptedMetadata": {
+      "plaintextJsonKeys": [
+        "accessRole",
+        "watermarkTraceCode"
+      ],
+      "protection": "0x39F4C5",
+      "serialization": "0x5A24DB",
+      "source": "normalized current AuthState"
+    },
+    "encryptedToken": "current raw service token -> 0x39F4C5 protection",
+    "restoreDecodeHelperFromR8_093": "0x39F5CE"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED CONTRACT"
+}
