@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-100`
+**Current checkpoint:** `LWB-R8-102`
 
 ## Executive status
 
@@ -20,6 +20,14 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-102 build-manifest boundary
+
+R8-102 closes the adjacent post-envelope false lead at proxy RVA `0x40A70`. In both verified proxies the enclosing package/auth loader orders `0x1CC14 -> 0x40A70`, then `0x1CC3A -> 0x3D260`, then `0x1CC54 -> 0x125C0`. The first helper is a build-manifest/proxy-bundle validator with `LWBM1`/`LWBM2`, `build manifest missing/invalid/mismatch`, and bundle fields including `compositeSha256`, `proxySha256`, and `exportFingerprint`.
+
+The actual decrypted module-table ownership is separate: `0x3D260` writes plaintext to caller local `rbp-0x60`, and `0x125C0` immediately consumes that same buffer as the R8-099 format-2 module table. Therefore `0x40A70` is not a hidden package-key/plaintext/cache owner and should not be pursued further for Map source recovery. Authentic decrypted bytes remain unavailable, so Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-102-build-manifest-boundary.md` and `evidence/lwbridge-implementation/2026-09-27-r8-102-build-manifest-boundary.json`.
 
 ## R8-100 bounded-work / new-chat handoff checkpoint
 

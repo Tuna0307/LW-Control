@@ -1,0 +1,76 @@
+{
+  "findingId": "LWB-R8-102",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "manifestBoundary": "0x40A70 is a build-manifest/proxy-bundle validator, not the package plaintext producer",
+    "decryptBoundary": "0x3D260 separately produces the decrypted buffer at rbp-0x60",
+    "parserBoundary": "0x125C0 immediately consumes that same rbp-0x60 buffer as the format-2 module table",
+    "impact": "do not pursue 0x40A70 as a hidden plaintext/cache boundary"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "order": [
+        "0x1CC14 -> 0x40A70 build-manifest validation",
+        "0x1CC3A -> 0x3D260 package validation/AES-GCM decrypt",
+        "0x1CC54 -> 0x125C0 format-2 module-table parser"
+      ],
+      "buildManifest": {
+        "validatorRva": "0x40A70",
+        "formats": [
+          "LWBM1",
+          "LWBM2"
+        ],
+        "errors": [
+          "build manifest missing",
+          "build manifest invalid",
+          "build manifest mismatch"
+        ],
+        "bundleFields": [
+          "compositeSha256",
+          "proxySha256",
+          "exportFingerprint"
+        ]
+      },
+      "plaintextOwnership": "0x3D260 arg4/output rbp-0x60 is consumed as 0x125C0 arg1; it is distinct from 0x40A70 output locals"
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "order": [
+        "0x1CC14 -> 0x40A70 build-manifest validation",
+        "0x1CC3A -> 0x3D260 package validation/AES-GCM decrypt",
+        "0x1CC54 -> 0x125C0 format-2 module-table parser"
+      ],
+      "buildManifest": {
+        "validatorRva": "0x40A70",
+        "formats": [
+          "LWBM1",
+          "LWBM2"
+        ],
+        "errors": [
+          "build manifest missing",
+          "build manifest invalid",
+          "build manifest mismatch"
+        ],
+        "bundleFields": [
+          "compositeSha256",
+          "proxySha256",
+          "exportFingerprint"
+        ]
+      },
+      "plaintextOwnership": "0x3D260 arg4/output rbp-0x60 is consumed as 0x125C0 arg1; it is distinct from 0x40A70 output locals"
+    }
+  ],
+  "limits": [
+    "does not recover package-key bytes or module plaintext",
+    "does not inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}
