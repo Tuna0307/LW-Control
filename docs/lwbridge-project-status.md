@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-102`
+**Current checkpoint:** `LWB-R8-103`
 
 ## Executive status
 
@@ -20,6 +20,14 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-103 sensitive-buffer cleanup
+
+R8-103 recovers the common cleanup for the exact package-key vector and decrypted module-table buffer used by the authentic package path. In both verified proxies, loader cleanup at `0x1D0F0` calls `0x3F4A0` on the `rsp+0x48` key vector; that helper overwrites every byte in `[begin,end)` with zero before shrinking/releasing storage. Loader cleanup at `0x1D0F9` calls `0x3F350` on the `rbp-0x60` decrypted buffer; that helper overwrites every logical byte with zero, sets length to zero and terminates before later storage cleanup.
+
+R8-102 already ties that `rbp-0x60` object to `0x3D260` decrypt output and `0x125C0` format-2 parser input. Therefore post-return allocator residue is not an intended recovery boundary for either the package key or decrypted module table; any legitimate runtime capture must occur while the enclosing package-processing call still owns those buffers, before common cleanup. Authentic bytes remain unrecovered, so Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-103-sensitive-cleanup.md` and `evidence/lwbridge-implementation/2026-09-27-r8-103-sensitive-cleanup.json`.
 
 ## R8-102 build-manifest boundary
 

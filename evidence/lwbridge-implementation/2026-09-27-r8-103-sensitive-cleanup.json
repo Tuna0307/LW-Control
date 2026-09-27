@@ -1,0 +1,53 @@
+{
+  "findingId": "LWB-R8-103",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "packageKeyLifetime": "the caller-owned 32-byte package-key vector is explicitly zeroized by 0x3F4A0 on common cleanup",
+    "plaintextLifetime": "the decrypted module-table buffer is explicitly zeroized by 0x3F350 on common cleanup",
+    "captureImpact": "authentic key/plaintext capture must occur before loader cleanup; post-return memory residue is not an intended recovery boundary"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "keyCleanup": {
+        "callRva": "0x1D0F0",
+        "helperRva": "0x3F4A0",
+        "object": "rsp+0x48 vector",
+        "behavior": "zero every byte in [begin,end), then set end=begin before later storage release"
+      },
+      "plaintextCleanup": {
+        "callRva": "0x1D0F9",
+        "helperRva": "0x3F350",
+        "object": "rbp-0x60 string/vector output",
+        "behavior": "zero every byte across logical length, set length=0 and terminate before later storage release"
+      }
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "keyCleanup": {
+        "callRva": "0x1D0F0",
+        "helperRva": "0x3F4A0",
+        "object": "rsp+0x48 vector",
+        "behavior": "zero every byte in [begin,end), then set end=begin before later storage release"
+      },
+      "plaintextCleanup": {
+        "callRva": "0x1D0F9",
+        "helperRva": "0x3F350",
+        "object": "rbp-0x60 string/vector output",
+        "behavior": "zero every byte across logical length, set length=0 and terminate before later storage release"
+      }
+    }
+  ],
+  "limits": [
+    "does not expose package-key value or plaintext bytes",
+    "does not inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}

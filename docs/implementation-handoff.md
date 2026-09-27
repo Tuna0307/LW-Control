@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-102`
+**Current checkpoint:** `LWB-R8-103`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -30,6 +30,8 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 **R8-098/R8-099 Map source boundary:** both verified original proxies resolve `luaL_newstate`, `lua_close`, `luaL_loadbufferx`, `lua_dump` and `lua_tolstring`, then use native compiler `0x26380-0x26735` to compile Lua text in mode `"t"` and dump bytecode. R8-099 closes the pre-compiler plaintext format: AES plaintext is a format-2 module table with a 1..1024 module count and repeated `{u32_le nameLength,u32_le sourceLength,name,source}` entries. Non-bootstrap modules are wrapped into `package.preload`; a non-empty `bootstrap` module is appended raw. Next Map work is to obtain the authentic decrypted module table/source and locate `XluaBridgeMapScanTick` directly, not infer another traversal algorithm.
 
 **R8-102 post-envelope correction:** the adjacent helper at `0x40A70` is now closed as a build-manifest/proxy-bundle validator (`LWBM1`/`LWBM2`, `build manifest missing/invalid/mismatch`, `compositeSha256`, `proxySha256`, `exportFingerprint`). It is not a hidden plaintext owner. The loader separately calls `0x3D260`, whose output local `rbp-0x60` is then passed directly to the R8-099 parser at `0x125C0`. Do not spend another block pursuing `0x40A70` for source recovery.
+
+**R8-103 sensitive lifetime:** after package processing, the original loader explicitly zeroizes both sensitive buffers before release. `0x1D0F0 -> 0x3F4A0` overwrites every byte in the `rsp+0x48` package-key vector; `0x1D0F9 -> 0x3F350` overwrites every logical byte in the `rbp-0x60` decrypted module-table buffer. Do not rely on post-return allocator residue as the source-recovery path; any legitimate runtime capture must happen before this common cleanup.
 
 The unfinished auth/lease scratch investigation that had started under the R8-097 name is paused by the owner reset and is not a completed checkpoint. R8-098 and R8-099 have since recovered the original proxy compiler/source boundary and exact decrypted module-table/source-assembly contract. The next technical recovery starts from the authentic plaintext/module-source bottleneck documented in `docs/handoffs/2026-09-27-r8-100-chat-handoff.md`.
 
