@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-099`
+**Current checkpoint:** `LWB-R8-100`
 
 ## Executive status
 
@@ -20,6 +20,12 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-100 bounded-work / new-chat handoff checkpoint
+
+The owner requires ChatGPT Web work to run in bounded blocks of roughly 20 minutes maximum because longer uninterrupted sessions have been observed to risk cutoff/stall near ~25 minutes. Around minute 17–18, stop starting new investigations, preserve evidence/state, close a coherent checkpoint where appropriate, return a summary with the exact resume point, and wait for the owner to say `continue`. The rule is durable in `AGENTS.md`, `docs/team-workflow.md`, `docs/implementation-handoff.md`, and the full new-chat handoff at `docs/handoffs/2026-09-27-r8-100-chat-handoff.md`.
+
+R8-100 does not change production behavior or Map/Home acceptance. It is a documentation/continuity checkpoint; the technical recovery baseline remains R8-099 and Map/Home remain **NOT WORKING**.
 
 ## R8-099 decrypted module-table/source assembly
 

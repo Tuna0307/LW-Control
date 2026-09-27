@@ -1,6 +1,6 @@
 # Team workflow — strict parity phase
 
-**Current through:** `LWB-R8-097`, 2026-09-27.
+**Current through:** `LWB-R8-100`, 2026-09-27.
 
 ## Roles
 
@@ -12,6 +12,8 @@
 ## Mandatory workflow
 
 **Priority override:** finish original Map acquisition first, then original Home lifecycle. Do not switch to unrelated auth/entitlement/secondary-tab recovery unless it is a demonstrated dependency. Equivalent implementations are not fallback acceptance paths.
+
+**Bounded-session rule:** each ChatGPT Web work block must return an owner-facing summary by roughly 20 minutes. Stop starting new investigations around 17–18 minutes, preserve/commit a coherent checkpoint when appropriate, summarize actual status and the exact resume point, then wait for the owner to say `continue` before starting another block.
 
 1. Read `AGENTS.md`, `docs/strict-parity-recovery.md`, `docs/lwbridge-parity-matrix.md` and `BACKLOG.md`.
 2. Verify the reference EXE identity before new original-artifact recovery.

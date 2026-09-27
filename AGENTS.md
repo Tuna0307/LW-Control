@@ -93,13 +93,26 @@ User consent does not change system/developer policy, OS permissions or unavaila
 
 ### Standing live-testing and Computer Use authorization — 2026-09-10
 
-The user explicitly authorizes every AI working on this project to **open, close and restart the official game and launcher whenever needed for testing**, including the user's already-open game session, and to **control the computer through the Computer Use plugin for project testing**. This includes navigating the game and rebuilt app, observing their state, running the bounded scan/data-read demonstration, and capturing relevant verification evidence. Do not repeatedly ask the user to launch/close the game or reconfirm routine project-related computer control.
+The user authorizes ChatGPT Web to **open, close and restart the official game and launcher when needed for project testing** and to control the computer through an available authorized computer-control capability. However, the owner later clarified that there are **no concurrent project workers** and that an already-running Last War process may simply be the owner playing. Therefore, before any lifecycle/live test, inspect process/session ownership. **Do not close, kill or repurpose an already-running owner game session unless it is clearly assistant-launched for the current test or the owner explicitly asks.** This includes navigating the game and rebuilt app, observing their state, running bounded demonstrations, and capturing relevant verification evidence when the session is assistant-owned or the owner has explicitly handed it over.
 
-Identify the actual target session/process/window before controlling it; do not stop unrelated applications or another task's tools. Prefer normal close/restart and coordinate shared computer access. User permission to control an existing game session does not prove the rebuild owns that session or has established its bridge connection; preserve those distinct production acceptance gates.
+Identify the actual target session/process/window before controlling it. There are no concurrent AI workers to blame for unexpected Last War activity; treat an unexplained pre-existing game session as owner activity unless evidence shows it was assistant-launched. Do not stop unrelated applications or the owner's play session. For assistant-owned tests, prefer normal close/restart. Process existence never proves the rebuild owns that session or has established its bridge connection; preserve those distinct production acceptance gates.
 
 Use the Computer Use skill/plugin when available and follow its tool instructions. Missing integration may be addressed under the standing tool-setup authorization, but permission does not create unavailable native-control capabilities or override system/developer rules. Record actual capability/restriction failures accurately, continue independent permitted work, and never reroute a denied operation. Existing explicit messaging/spending boundaries still apply; this grant is project testing permission, not unrestricted unrelated computer activity.
 
-## 4. Completion requires evidence, documentation and GitHub delivery
+## 4. Bounded work blocks — owner runtime rule 2026-09-27
+
+The owner has observed that very long uninterrupted ChatGPT reasoning/tool sessions can be cut off or appear stuck around the 25-minute range. **All primary ChatGPT Web work must therefore run in bounded blocks and return control to the owner regularly.**
+
+- Target **no more than roughly 20 minutes total per work block** from the first technical action to the owner-facing summary.
+- Around **17–18 minutes**, stop opening new investigative branches or starting long-running jobs. Use the remaining time to preserve useful output, update durable notes/evidence when warranted, terminate unnecessary scratch jobs, check Git/worktree state, and prepare the summary.
+- If a coherent checkpoint is reached earlier, stop and summarize earlier. If the remote/tool connection drops or another blocking event occurs, stop the block and summarize the actual state instead of silently beginning another long recovery path.
+- At the end of every block, give the owner a concise but complete summary covering: what was actually discovered/changed; evidence/tests performed; what remains `NOT WORKING`/`UNKNOWN`; Git/checkpoint state when relevant; and the exact next continuation point.
+- **Do not automatically begin the next work block after the summary.** Wait for the owner's `continue` / `ok continue` (or another explicit instruction), then resume from the saved continuation point.
+- The time boundary never lowers evidence standards. Do not label a feature WORKING, invent a result, skip a required validation, or promote a fallback merely because the block is ending.
+- Scratch work may remain uncommitted when it is not a coherent checkpoint, but the summary must say so and must identify the exact saved scratch/evidence needed to resume.
+- This is an operating-cadence rule, not permission to perform background/asynchronous work. All work still happens in the active chat turn.
+
+## 5. Completion requires evidence, documentation and GitHub delivery
 
 The user explicitly requires **commit and push to GitHub after each completed task or coherent checkpoint**. This is standing project authorization for the relevant work; do not ask for the same routine commit/push permission again.
 
@@ -114,7 +127,7 @@ A task/checkpoint is complete only after ALL applicable steps are done:
 
 If checks, permissions, authentication, remote divergence or connectivity prevent a step, preserve the work and record the exact failure and next action. Do not claim it was pushed or the feature is complete. A checkpoint intentionally preserving known failures must say so in its docs and commit message; it is not a release or a waiver of those failures. Do not defer all documentation/commits until the entire reconstruction is finished.
 
-## 5. Required reading and handoff structure
+## 6. Required reading and handoff structure
 
 - `AGENTS.md` ? mandatory project rules; applies to all work and future sessions.
 - `docs/strict-parity-recovery.md` ? current one-to-one product directive.
@@ -127,9 +140,9 @@ If checks, permissions, authentication, remote divergence or connectivity preven
 
 Always start from the saved checkpoint, inspect the current code/evidence and continue unresolved parity work. Do not preserve an R7 customization merely because it already works. Preserve historical evidence, recover the original reference behavior, and make the current-client implementation match it.
 
-## 6. Regular AI first; evidence-backed Daybreak escalation only
+## 7. Regular AI first; evidence-backed Daybreak escalation only
 
-**Explicit user requirement, updated 2026-09-11:** ChatGPT Web is the single primary implementation/research/verification worker. The owner supplies guided manual observations and screenshots when native control is unavailable. There is no separate Sol assignment. Follow section 8 for ownership and automated evidence collection. Daybreak is a specialist escalation destination, not the automatic owner of all binary analysis or difficult tasks. The DB-01–06 labels describe subjects; they do not assign a model.
+**Explicit user requirement, updated 2026-09-11:** ChatGPT Web is the single primary implementation/research/verification worker. The owner supplies guided manual observations and screenshots when native control is unavailable. There is no separate Sol assignment. Follow section 9 for ownership and automated evidence collection. Daybreak is a specialist escalation destination, not the automatic owner of all binary analysis or difficult tasks. The DB-01–06 labels describe subjects; they do not assign a model.
 
 - Follow `docs/implementation-handoff.md` for the regular task and `docs/deep-binary-handoff.md` for protected-package/deep-binary work. Both inherit the R8 strict-parity directive. The historical 47 Home/Map cases remain evidence, but they are not the whole-program completion boundary.
 - Before requesting Daybreak, exhaust the relevant permitted methods you can reasonably identify. Review existing findings, readable assets/current-client code, scripts and available local tools; diagnose setup failures and correct invalid searches. Install a needed tool under section 3 when it materially helps. Document why any relevant alternative cannot answer the question. There is no arbitrary attempt count and no requirement to install unrelated tools or repeat failed commands indefinitely.
@@ -137,7 +150,7 @@ Always start from the saved checkpoint, inspect the current code/evidence and co
 - Separate capability/research exhaustion from tool setup, missing live targets, external service dependencies and environment restrictions. A safety denial alone is not evidence that Daybreak can or may do the denied action. Never use a different model, tool, task or CI job to reroute a prohibited operation. Record restrictions and continue independent permitted work.
 - The project manager reviews requests as `NEEDS_INFORMATION`, `READY_FOR_PM_REVIEW`, `APPROVED`, `ASSIGNED`, `RETURNED_FOR_INTEGRATION`, `CLOSED` or `NOT_ASSIGNED`. Do not self-approve or dispatch a specialist task just by adding a DB tag. Explicit user assignment can select scope, subject to higher-priority restrictions.
 - A specialist takes only the specific approved question. It returns durable source-attributed findings, unresolved edges, tests/limits and the exact implementation now unblocked. It does not absorb all remaining project work. The regular AI integrates/validates the result; a specialist research checkpoint does not close a live feature.
-- Preserve one owner per active work item and coordinate file/build access. Inspect HEAD/worktree before edits and delivery; do not overwrite another AI's changes, build the same output concurrently, switch their branch or stage their unfinished work. Update shared status/ledger at a coherent checkpoint, commit/push and verify the remote under section 4.
+- Preserve one owner per active work item and coordinate file/build access. Inspect HEAD/worktree before edits and delivery; do not overwrite another AI's changes, build the same output concurrently, switch their branch or stage their unfinished work. Update shared status/ledger at a coherent checkpoint, commit/push and verify the remote under section 5.
 - While an escalation is pending, continue the highest-priority independent supported work. Do not claim all methods were exhausted unless the recorded attempt history supports that statement.
 
 ### Restriction outcomes must be explicit at every checkpoint
@@ -146,7 +159,7 @@ For each unresolved contract associated with a denied operation, report whether 
 
 Keep unresolved production-blocking questions in the escalation register as NEEDS_INFORMATION when a request is not yet complete; this is a tracking record, not an automatic assignment or a claim of exhaustion. Include method/alternative/result evidence before requesting PM approval. Do not indefinitely replace investigation of the same missing public contract with unrelated test-only checkpoints without explaining their integration value. Research/test-only progress must be labelled separately from an enabled UI command and from live acceptance.
 
-## 7. Current delivery status ? reset 2026-09-24
+## 8. Current delivery status ? reset 2026-09-24
 
 The previous ?ordinary Home / Map work is complete? status is superseded as a product-completion claim. It remains historical evidence that selected reconstructed behaviors worked.
 
@@ -166,7 +179,7 @@ Map Data specifically must stop accumulating custom scanner design. R7 performan
 
 Historical feature retirements and owner customizations are no longer current product direction. Restore the original reference behavior unless later explicit owner instruction again changes the parity goal.
 
-## 8. Mandatory delivery hierarchy and owner-assisted testing — updated 2026-09-11
+## 9. Mandatory delivery hierarchy and owner-assisted testing — updated 2026-09-11
 
 The owner evaluates delivered results in the live game. Research volume, commits, passing offline checks and tool setup do not substitute for a working feature.
 
@@ -181,7 +194,7 @@ Follow [the current team workflow](docs/team-workflow.md). Current order: Web wo
 
 Use [the live test handoff](docs/live-test-handoff.md) for technical identity, capture paths, results and resume state, and [the owner guide](docs/user-test-checklist.md) for plain UI steps. Web fills both and records technical results; PM records acceptance. READY_FOR_OWNER_CHECKS requires an actual tested collection script/entry point and complete instructions for the explicitly permitted scope. It does not authorize a restricted action or imply live success. Unimplemented collection remains pending, not a promise that it already works.
 
-During owner testing, Web must not rebuild/replace the tested app or mutate its profile/store. Save results after each step; after interruption inspect actual state and cleanup obligations before resuming. Do not replay a live action blindly. Preserve unrelated work and follow section 4 for each coherent delivery.
+During owner testing, Web must not rebuild/replace the tested app or mutate its profile/store. Save results after each step; after interruption inspect actual state and cleanup obligations before resuming. Do not replay a live action blindly. Preserve unrelated work and follow section 5 for each coherent delivery.
 
 ### Mandatory automatic evidence collection
 

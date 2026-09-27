@@ -2,10 +2,14 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-099`
+**Current checkpoint:** `LWB-R8-100`
 **Date:** 2026-09-27
 
 ## Current directive
+
+### Mandatory bounded-work cadence
+
+To avoid long ChatGPT sessions being cut off or appearing stuck near the observed ~25-minute runtime boundary, work only in **bounded blocks of roughly 20 minutes maximum**. Around minute 17–18, stop opening new investigative branches, preserve useful evidence/state, close or terminate unnecessary long-running scratch jobs, update/commit a coherent checkpoint when warranted, and prepare the owner summary. The summary must state what was actually found/changed, tests/evidence, current WORKING/NOT WORKING status, Git/checkpoint state, and the exact next continuation point. After the summary, **wait for the owner to say `continue` / `ok continue` before beginning the next block**. If blocked/disconnected earlier, summarize earlier rather than silently starting another long path.
 
 Stop designing our own LWBridge.
 
@@ -13,7 +17,7 @@ The verified `lwbridge-0.3.1.exe` is the product specification for every retaine
 
 **Updated owner direction (2026-09-26):** authentication/authorization/entitlement/account-session internals may now be researched, restored and implemented when they are needed to reproduce retained features or make them work live. Do not hard-code roles, capacity, credentials or synthetic premium/admin state. Login/Register/account-management UI remains non-priority unless the original retained-state pipeline requires it. Historical R8 fences that cite the former owner exclusion should be revisited, not silently treated as permanently blocked.
 
-Read `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` before touching production code.
+Read `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` before touching production code. For a new chat/session, also read the full continuation handoff at `docs/handoffs/2026-09-27-r8-100-chat-handoff.md`.
 
 ### Owner working/acceptance reset — 2026-09-27
 
@@ -25,7 +29,7 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 
 **R8-098/R8-099 Map source boundary:** both verified original proxies resolve `luaL_newstate`, `lua_close`, `luaL_loadbufferx`, `lua_dump` and `lua_tolstring`, then use native compiler `0x26380-0x26735` to compile Lua text in mode `"t"` and dump bytecode. R8-099 closes the pre-compiler plaintext format: AES plaintext is a format-2 module table with a 1..1024 module count and repeated `{u32_le nameLength,u32_le sourceLength,name,source}` entries. Non-bootstrap modules are wrapped into `package.preload`; a non-empty `bootstrap` module is appended raw. Next Map work is to obtain the authentic decrypted module table/source and locate `XluaBridgeMapScanTick` directly, not infer another traversal algorithm.
 
-The unfinished auth/lease scratch investigation that had started under the R8-097 name is paused by this owner reset and is not a completed checkpoint. Resume technical recovery at R8-098 after this documentation checkpoint.
+The unfinished auth/lease scratch investigation that had started under the R8-097 name is paused by the owner reset and is not a completed checkpoint. R8-098 and R8-099 have since recovered the original proxy compiler/source boundary and exact decrypted module-table/source-assembly contract. The next technical recovery starts from the authentic plaintext/module-source bottleneck documented in `docs/handoffs/2026-09-27-r8-100-chat-handoff.md`.
 
 ## Reference
 

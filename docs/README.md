@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R8-099`, 2026-09-27.
+**Current checkpoint:** `LWB-R8-100`, 2026-09-27.
 
 The project direction changed on 2026-09-24 from “working reconstruction with selected owner customizations” to **strict one-to-one recovery of LWBridge 0.3.1**.
 
@@ -20,15 +20,16 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 2. [`strict-parity-recovery.md`](strict-parity-recovery.md) — current product directive.
 3. [`lwbridge-parity-matrix.md`](lwbridge-parity-matrix.md) — current whole-program completion matrix.
 4. [`implementation-handoff.md`](implementation-handoff.md) — current continuation state.
-5. [`../BACKLOG.md`](../BACKLOG.md) — current parity work queue.
-6. [`lwbridge-project-status.md`](lwbridge-project-status.md) — project-manager status.
-7. [`deep-binary-handoff.md`](deep-binary-handoff.md) — retained protected-package/binary recovery reference; subordinate to the current Map/Home priority.
-8. [`lwbridge-architecture.md`](lwbridge-architecture.md) — recovered original architecture.
-9. [`lwbridge-ui.md`](lwbridge-ui.md) — recovered frontend provenance.
-10. [`lwbridge-map-scan.md`](lwbridge-map-scan.md) — cumulative Map recovery evidence.
-11. [`tabs/home.md`](tabs/home.md), [`tabs/map-data.md`](tabs/map-data.md), [`tabs/shared-release.md`](tabs/shared-release.md) — current parity interpretation of previously reconstructed surfaces.
-12. [`external-audit-guide.md`](external-audit-guide.md) — reviewer guidance.
-13. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — chronological evidence navigation.
+5. [`handoffs/2026-09-27-r8-100-chat-handoff.md`](handoffs/2026-09-27-r8-100-chat-handoff.md) — full new-chat handoff, including the mandatory ~20-minute bounded-work cadence and exact R8-099 resume point.
+6. [`../BACKLOG.md`](../BACKLOG.md) — current parity work queue.
+7. [`lwbridge-project-status.md`](lwbridge-project-status.md) — project-manager status.
+8. [`deep-binary-handoff.md`](deep-binary-handoff.md) — retained protected-package/binary recovery reference; subordinate to the current Map/Home priority.
+9. [`lwbridge-architecture.md`](lwbridge-architecture.md) — recovered original architecture.
+10. [`lwbridge-ui.md`](lwbridge-ui.md) — recovered frontend provenance.
+11. [`lwbridge-map-scan.md`](lwbridge-map-scan.md) — cumulative Map recovery evidence.
+12. [`tabs/home.md`](tabs/home.md), [`tabs/map-data.md`](tabs/map-data.md), [`tabs/shared-release.md`](tabs/shared-release.md) — current parity interpretation of previously reconstructed surfaces.
+13. [`external-audit-guide.md`](external-audit-guide.md) — reviewer guidance.
+14. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — chronological evidence navigation.
 
 ## Reference authority
 
