@@ -1,0 +1,92 @@
+{
+  "findingId": "LWB-R8-099",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "aesPlaintext": "format-2 module table, not final concatenated Lua source",
+    "assembledSource": "module table parser synthesizes package.preload wrappers for non-bootstrap modules and appends bootstrap source raw",
+    "mapRecoveryImpact": "once authentic AES plaintext is obtained, modules can be split exactly and XluaBridgeMapScanTick searched directly without reconstructing traversal"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "moduleTableParserRva": "0x125C0",
+      "sourceGlobalRva": "0x8f170",
+      "formatOut": 2,
+      "moduleCount": {
+        "encoding": "u32 little-endian",
+        "min": 1,
+        "max": 1024
+      },
+      "entry": {
+        "layout": [
+          "u32 nameLength",
+          "u32 sourceLength",
+          "name[nameLength]",
+          "source[sourceLength]"
+        ],
+        "nameAllowed": ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+      },
+      "bootstrap": {
+        "name": "bootstrap",
+        "mustProduceNonEmptySource": true,
+        "appendedRawAtEnd": true
+      },
+      "generatedSource": {
+        "prefix": "local __bridge_preload = package.preload\n",
+        "perNonBootstrap": "package.loaded[\"<name>\"] = nil\\n__bridge_preload[\"<name>\"] = function(...)\\n<source>\\nend\\n"
+      },
+      "terminalChecks": [
+        "all decrypted bytes consumed",
+        "non-empty bootstrap present"
+      ]
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "moduleTableParserRva": "0x125C0",
+      "sourceGlobalRva": "0x90170",
+      "formatOut": 2,
+      "moduleCount": {
+        "encoding": "u32 little-endian",
+        "min": 1,
+        "max": 1024
+      },
+      "entry": {
+        "layout": [
+          "u32 nameLength",
+          "u32 sourceLength",
+          "name[nameLength]",
+          "source[sourceLength]"
+        ],
+        "nameAllowed": ".0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+      },
+      "bootstrap": {
+        "name": "bootstrap",
+        "mustProduceNonEmptySource": true,
+        "appendedRawAtEnd": true
+      },
+      "generatedSource": {
+        "prefix": "local __bridge_preload = package.preload\n",
+        "perNonBootstrap": "package.loaded[\"<name>\"] = nil\\n__bridge_preload[\"<name>\"] = function(...)\\n<source>\\nend\\n"
+      },
+      "terminalChecks": [
+        "all decrypted bytes consumed",
+        "non-empty bootstrap present"
+      ]
+    }
+  ],
+  "limits": [
+    "authentic AES plaintext/module bytes are not yet recovered",
+    "does not inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_module_table.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  ]
+}

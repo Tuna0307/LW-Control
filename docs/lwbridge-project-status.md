@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-098`
+**Current checkpoint:** `LWB-R8-099`
 
 ## Executive status
 
@@ -20,6 +20,12 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-099 decrypted module-table/source assembly
+
+R8-099 recovers the exact post-AES plaintext format before the R8-098 compiler boundary. The decrypted package is a format-2 module table: little-endian module count 1..1024 followed by repeated `u32 nameLength`, `u32 sourceLength`, name bytes and source bytes. Module names use only `.0-9A-Z_a-z`; non-bootstrap modules are wrapped into exact `package.loaded` / `package.preload` source, while one non-empty `bootstrap` module is appended raw. Terminal success requires exact byte consumption and a bootstrap. This means authentic AES plaintext can be deterministically split into original modules and searched directly for `XluaBridgeMapScanTick`. Authentic decrypted bytes are still unavailable, so Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-099-module-table.md` and `evidence/lwbridge-implementation/2026-09-27-r8-099-module-table.json`.
 
 ## R8-098 original bridge-script compiler/source boundary
 

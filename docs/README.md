@@ -1,6 +1,6 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R8-098`, 2026-09-27.
+**Current checkpoint:** `LWB-R8-099`, 2026-09-27.
 
 The project direction changed on 2026-09-24 from “working reconstruction with selected owner customizations” to **strict one-to-one recovery of LWBridge 0.3.1**.
 
@@ -54,7 +54,7 @@ A historical file may say a feature was intentionally removed or optimized. Thos
 
 ## P0 evidence focus
 
-R8-097 makes the immediate P0 the **original Map acquisition engine**, followed by the remaining original Home lifecycle. R8-098 now proves the original proxies compile a proxy-owned Lua-text `@bridge-scripts.dat` source through `luaL_loadbufferx` + `lua_dump`; direct source capture is the next Map recovery route. The protected `bridge-scripts.dat` package remains an important recovery source, but general package/auth work is paused unless it directly answers a Home/Map blocker. R6-039 through R6-046 established the loader/crypto boundary; R8-003 recovered the exact LWBP2/AES contract; R8-004 recovered outer `LWKE1` framing; R8-005 recovered exact client ECDH login material; R8-006 proves the precise opaque-consumer output pointer that becomes the 32-byte package AES key. That package-key chain remains documented for later continuation, but it is not the next task unless it directly blocks original Map/Home recovery.
+R8-097 makes the immediate P0 the **original Map acquisition engine**, followed by the remaining original Home lifecycle. R8-098 proves the original proxies compile a proxy-owned Lua-text `@bridge-scripts.dat` source through `luaL_loadbufferx` + `lua_dump`; R8-099 additionally recovers the exact decrypted format-2 module table and source-assembly rules feeding that compiler. Authentic module/source capture is the next Map recovery route. The protected `bridge-scripts.dat` package remains an important recovery source, but general package/auth work is paused unless it directly answers a Home/Map blocker. R6-039 through R6-046 established the loader/crypto boundary; R8-003 recovered the exact LWBP2/AES contract; R8-004 recovered outer `LWKE1` framing; R8-005 recovered exact client ECDH login material; R8-006 proves the precise opaque-consumer output pointer that becomes the 32-byte package AES key. That package-key chain remains documented for later continuation, but it is not the next task unless it directly blocks original Map/Home recovery.
 
 Latest owner acceptance checkpoint: [`reviews/2026-09-27-r8-097-owner-working-acceptance-reset.md`](reviews/2026-09-27-r8-097-owner-working-acceptance-reset.md).
 

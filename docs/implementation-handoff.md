@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-098`
+**Current checkpoint:** `LWB-R8-099`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -23,7 +23,7 @@ For Home and Map there is **no production fallback acceptance**. Equivalent impl
 
 Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
 
-**R8-098 Map source boundary:** both verified original proxies resolve `luaL_newstate`, `lua_close`, `luaL_loadbufferx`, `lua_dump` and `lua_tolstring`, then use native compiler `0x26380-0x26735` to compile Lua text in mode `"t"` and dump bytecode. The bootstrap compiles a proxy-owned source `std::string` as `@bridge-scripts.dat`; the package/auth function owns that same string. Next Map work is to recover/preserve that authentic source and locate `XluaBridgeMapScanTick` directly, not infer another traversal algorithm.
+**R8-098/R8-099 Map source boundary:** both verified original proxies resolve `luaL_newstate`, `lua_close`, `luaL_loadbufferx`, `lua_dump` and `lua_tolstring`, then use native compiler `0x26380-0x26735` to compile Lua text in mode `"t"` and dump bytecode. R8-099 closes the pre-compiler plaintext format: AES plaintext is a format-2 module table with a 1..1024 module count and repeated `{u32_le nameLength,u32_le sourceLength,name,source}` entries. Non-bootstrap modules are wrapped into `package.preload`; a non-empty `bootstrap` module is appended raw. Next Map work is to obtain the authentic decrypted module table/source and locate `XluaBridgeMapScanTick` directly, not infer another traversal algorithm.
 
 The unfinished auth/lease scratch investigation that had started under the R8-097 name is paused by this owner reset and is not a completed checkpoint. Resume technical recovery at R8-098 after this documentation checkpoint.
 
