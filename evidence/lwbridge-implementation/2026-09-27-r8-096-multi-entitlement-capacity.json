@@ -1,0 +1,77 @@
+{
+  "capacityPolicy": {
+    "consumer": "shared entitlement-state byte +0xA8",
+    "profileMutationAcceptedDomainFromR8_063": [
+      1,
+      2,
+      5
+    ],
+    "publicProjection": "use normalized capacity except two internal initialization/restriction gates force 1",
+    "serviceNormalization": {
+      "2": 2,
+      "5": 5,
+      "other": 1
+    }
+  },
+  "commands": {
+    "multi_activate": {
+      "endpoint": "/api/multi/activate",
+      "handlerRva": "0x14884F-0x14964C",
+      "requestField": "licenseCode",
+      "responseParserRva": "0x23420C-0x23463B"
+    },
+    "multi_entitlement_get": {
+      "endpoint": "/api/multi/entitlement",
+      "fetchHelperRva": "0x0E993A-0x0E9CD2",
+      "handlerRva": "0x18C614-0x18CC4D"
+    }
+  },
+  "date": "2026-09-27",
+  "entitlementState": {
+    "event": "bridge://multi-entitlement",
+    "fields": [
+      "phase",
+      "planCode",
+      "maxProfiles",
+      "expiresAt",
+      "accountExpiresAt",
+      "serverTime",
+      "graceExpiresAt",
+      "errorCode"
+    ],
+    "maxProfilesOffset": "0xA8",
+    "phases": [
+      "restricted",
+      "grace",
+      "initializing",
+      "authorized",
+      "single"
+    ]
+  },
+  "findingId": "LWB-R8-096",
+  "limits": [
+    "internal boolean meanings that select single/initializing/authorized/grace/restricted are not renamed without stronger evidence",
+    "exact automatic entitlement refresh cadence remains unresolved",
+    "per-instance lease scheduler/proof lifecycle is only partially recovered and is not implemented by this checkpoint",
+    "no credentials, private keys, or live service requests are used",
+    "no production behavior is changed"
+  ],
+  "refreshOwnership": {
+    "automaticSubsystem": "0x0E6E89-0x0E902D calls the same fetch helper and also owns lease recovery/proof/expiry work",
+    "exactAutomaticCadence": "UNKNOWN",
+    "explicitCommand": "multi_entitlement_get performs a service refresh through the common fetch helper"
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED CONTRACT",
+  "statusMirror": [
+    "multiPhase",
+    "multiMaxProfiles",
+    "multiExpiresAt",
+    "multiServerTime",
+    "multiGraceExpiresAt",
+    "multiErrorCode"
+  ]
+}

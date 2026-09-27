@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-095`
+**Current checkpoint:** `LWB-R8-096`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -391,17 +391,29 @@ When total profiles fit within capacity, native enables all profiles. When over 
 
 The capacity transaction updates every row using `UPDATE profiles SET enabled = ?, locked_reason = ?, updated_at = ? WHERE id = ?`: selected members become enabled/unlocked, non-members become disabled with `locked_reason="license_capacity"`, and `updated_at` is current Unix-ms. After commit, native repairs `selected_profile_id` to the surviving primary if the previous selected profile became locked, then returns the same refreshed `{selectedProfileId,maxProfiles,profiles}` projection as `profile_list`.
 
-No production implementation is added because the governing capacity is authorization/license-derived and owner-excluded. See `docs/reviews/2026-09-26-r8-063-profile-enable-set-fence.md`.
+R8-096 later closes that capacity source: native consumes the shared multi-entitlement `maxProfiles` byte after exact 1/2/5 normalization. Production implementation still remains fenced because the authenticated multi-entitlement refresh/lease lifecycle is not yet implemented. See `docs/reviews/2026-09-26-r8-063-profile-enable-set-fence.md`.
 
 ## R8-064 profile_create fence
 
-R8-064 closes native `profile_create` far beyond the earlier quota-only fence. Native compares the current controller profile count directly against authorization/entitlement-derived `maxProfiles` and returns exact `PROFILE_LIMIT_REACHED` when `count >= capacity`; that capacity source remains owner-excluded and is not replaced with the rebuild's retained `maxProfiles=1` adaptation.
+R8-064 closes native `profile_create` far beyond the earlier quota-only fence. Native compares the current controller profile count directly against entitlement-derived `maxProfiles` and returns exact `PROFILE_LIMIT_REACHED` when `count >= capacity`. R8-096 later closes that source/policy as the shared multi-entitlement `maxProfiles` projection with exact raw normalization 2->2, 5->5, otherwise 1; it is not replaced with the rebuild's retained `maxProfiles=1` adaptation.
 
 The local create transaction is now exact: native generates 16 random bytes and encodes them as 22-character Base64URL without padding; reads `SELECT COALESCE(MAX(display_order) + 1, 0) FROM profiles`; formats the default name with literal `账号 ` plus `displayOrder+1`; creates the profile root/`profile.db`; and inserts an enabled, unlocked, non-primary row with role/server/game UID unset, empty note, timestamps, and null `lastLaunchedAt`.
 
 The successful command serializes the created profile in exact 13-field order: `id`, `displayName`, `roleName`, `serverId`, `gameUid`, `note`, `displayOrder`, `enabled`, `lockedReason`, `isPrimary`, `createdAt`, `updatedAt`, `lastLaunchedAt`. The retained frontend then explicitly calls `profile_select(created.id)`; the controller create SQL itself does not update `selected_profile_id`.
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
+
+## R8-096 multi-entitlement capacity ownership
+
+R8-096 closes the original source and normalization policy for profile capacity. Exact retained commands are `multi_entitlement_get` and `multi_activate`; the former refreshes through `/api/multi/entitlement`, while activation sends `licenseCode` to `/api/multi/activate`. Both feed the common `EntitlementResponse` parser.
+
+Native normalizes raw service `maxProfiles` exactly: raw 2 -> 2, raw 5 -> 5, every other value -> 1. The shared entitlement projection exposes exact fields `phase,planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime,graceExpiresAt,errorCode`, with public `maxProfiles` at `+0xA8`. Two internal initialization/restriction gates force the public value to 1; otherwise the normalized 1/2/5 value is preserved. The shared capacity extractor used by profile operations reads that exact `+0xA8` byte.
+
+Exact multi-entitlement phases are `single,initializing,authorized,grace,restricted`, distinct from AuthState phases. Refreshes publish `bridge://multi-entitlement`. A long-lived automatic subsystem reuses the same entitlement fetch but also owns multi-lease recovery/proof/expiry work; its exact refresh cadence remains unknown.
+
+This supersedes the old “capacity source unknown/owner-excluded” wording for `profile_enable_set` and `profile_create`. Their capacity policy is now source-backed. They remain fenced because the rebuild still lacks the original authenticated multi-entitlement bootstrap/refresh plus per-instance lease lifecycle, and `profile_create` still has incomplete post-create runtime cleanup semantics.
+
+See `docs/reviews/2026-09-27-r8-096-multi-entitlement-capacity.md` and `evidence/lwbridge-implementation/2026-09-27-r8-096-multi-entitlement-capacity.json`.
 
 ## R8-095 auth-service response projection
 
@@ -429,7 +441,7 @@ The auth-service constructor owns both legacy and v2 paths. Restore checks `auth
 
 Persisted encrypted token and metadata are decoded through the original secure-storage helper; decode failure is normalized to `SESSION_INVALID`. Successful metadata is parsed and passed to the common role/authorization projection, proving that `accessRole` is reconstructed from metadata rather than stored as a SessionV2 field. The same service owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; auth heartbeat defaults to 120 seconds and accepts configured integer values only in the inclusive range 30..300.
 
-This checkpoint still does not wire live auth. R8-095 later closes the successful service-response-to-session projection. Remaining source work is credential/device-key bootstrap and legitimate service execution, legacy migration details where needed, entitlement/capacity refresh/persistence, and remaining service scheduling/error behavior.
+This checkpoint still does not wire live auth. R8-095 later closes the successful service-response-to-session projection, and R8-096 later closes multi-entitlement capacity ownership/refresh boundaries. Remaining source work is credential/device-key bootstrap and legitimate service execution, legacy migration details where needed, automatic entitlement cadence plus multi-lease recovery/proof lifecycle, and remaining service scheduling/error behavior.
 
 See `docs/reviews/2026-09-27-r8-093-session-v2-source.md` and `evidence/lwbridge-implementation/2026-09-27-r8-093-session-v2-source.json`.
 
@@ -441,7 +453,7 @@ The `authorized` emitter copies identity/role/watermark/expiry, refreshes public
 
 Heartbeat owns a separate numeric grace clock at internal offset `+0x420`. On the recovered grace-eligible path it initializes that clock once and publishes `grace` while elapsed time is at most 900000 ms, exactly matching R8-091's admission-side `<900001` comparison. Renew can publish authorized/locked; heartbeat authorized/grace/locked; the supervisor checking/session-error/signedOut. The public `auth_state` command is snapshot-only with respect to this producer family and returns exact `STATE_UNAVAILABLE` / `authorization state is unavailable` when the shared state cannot be read.
 
-This removes the unknown AuthState schema/phase-producer gap but does not enable live auth-dependent commands. R8-093 subsequently closes the persisted SessionV2 schema/restore side; remaining source dependencies are lower-level device-key acquisition, ticket/envelope lifecycle, exact service-to-session mutation and entitlement/capacity refresh/persistence. Do not invent any of those values.
+This removes the unknown AuthState schema/phase-producer gap but does not enable live auth-dependent commands. R8-093 subsequently closes persisted SessionV2 restore, R8-095 closes successful service-to-session mutation, and R8-096 closes multi-entitlement capacity ownership. Remaining source dependencies are lower-level credential/device-key bootstrap, legitimate service execution, automatic entitlement cadence/multi-lease lifecycle, and remaining service scheduling/error behavior. Do not invent any of those values.
 
 See `docs/reviews/2026-09-27-r8-092-auth-state-producer.md` and `evidence/lwbridge-implementation/2026-09-27-r8-092-auth-state-producer.json`.
 
