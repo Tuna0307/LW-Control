@@ -1,6 +1,8 @@
 # LWBridge Map Scan recovery
 
 > **R8-097 owner acceptance supersession (2026-09-27):** Map is NOT WORKING until the recovered original LWBridge acquisition/traversal/tick/queue/completion logic itself is the production path and succeeds live. The existing movement/AOI scanner is not a fallback; retain it only for evidence/comparison/testing. Immediate recovery priority is the original Map engine.
+>
+> **R8-098 original-source boundary (2026-09-27):** both verified original proxies resolve `luaL_newstate` / `lua_close` / `luaL_loadbufferx` / `lua_dump` / `lua_tolstring` and use native compiler RVA `0x26380-0x26735` to compile Lua text with mode `"t"`, dump bytecode with `strip=0`, and close the temporary state. The bootstrap feeds a proxy-owned `std::string` to this path as `@bridge-scripts.dat`; the package/auth function owns the same source string. The next direct Map target is therefore the authentic source bytes and `XluaBridgeMapScanTick` within them. See `docs/reviews/2026-09-27-r8-098-proxy-bridge-compiler.md`.
 
 > **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
 >

@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-097`
+**Current checkpoint:** `LWB-R8-098`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -22,6 +22,8 @@ For owner-facing status, **WORKING is binary**. A feature is WORKING only when t
 For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
 
 Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
+**R8-098 Map source boundary:** both verified original proxies resolve `luaL_newstate`, `lua_close`, `luaL_loadbufferx`, `lua_dump` and `lua_tolstring`, then use native compiler `0x26380-0x26735` to compile Lua text in mode `"t"` and dump bytecode. The bootstrap compiles a proxy-owned source `std::string` as `@bridge-scripts.dat`; the package/auth function owns that same string. Next Map work is to recover/preserve that authentic source and locate `XluaBridgeMapScanTick` directly, not infer another traversal algorithm.
 
 The unfinished auth/lease scratch investigation that had started under the R8-097 name is paused by this owner reset and is not a completed checkpoint. Resume technical recovery at R8-098 after this documentation checkpoint.
 

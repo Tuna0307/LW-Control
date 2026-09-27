@@ -1,0 +1,72 @@
+{
+  "findingId": "LWB-R8-098",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "bridgeCompiler": "temporary lua state -> luaL_loadbufferx(source, chunk, mode='t') -> on success lua_dump(writer, strip=0) -> close state",
+    "compileErrors": [
+      "bridge compiler unavailable",
+      "bridge compiler state unavailable",
+      "bridge compile failed",
+      "bridge bytecode dump failed"
+    ],
+    "bridgeScriptsLoad": "package/auth path owns the source std::string later passed to the compiler wrapper as @bridge-scripts.dat in text mode before original xLua load",
+    "captureImplication": "the original bridge script source exists as a contiguous std::string in proxy memory after successful package processing and before/during bootstrap compilation"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "compilerApiSlotsRva": [
+        "0x90e00",
+        "0x90e08",
+        "0x90e10",
+        "0x90e18",
+        "0x90e20"
+      ],
+      "sourceGlobalRva": "0x8f170",
+      "functions": {
+        "compileWrapper": "0x16C10-0x16DE1",
+        "bridgeCompiler": "0x26380-0x26735",
+        "bootstrap": "0x14D50-0x16287",
+        "packageAuthorization": "0x1C0A0-0x1D46F"
+      },
+      "bridgeScriptsChunk": "@bridge-scripts.dat",
+      "compileMode": "t",
+      "dumpWriterRva": "0x26360"
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "compilerApiSlotsRva": [
+        "0x91e00",
+        "0x91e08",
+        "0x91e10",
+        "0x91e18",
+        "0x91e20"
+      ],
+      "sourceGlobalRva": "0x90170",
+      "functions": {
+        "compileWrapper": "0x16C10-0x16DE1",
+        "bridgeCompiler": "0x26380-0x26735",
+        "bootstrap": "0x14D50-0x16287",
+        "packageAuthorization": "0x1C0A0-0x1D46F"
+      },
+      "bridgeScriptsChunk": "@bridge-scripts.dat",
+      "compileMode": "t",
+      "dumpWriterRva": "0x26360"
+    }
+  ],
+  "limits": [
+    "does not recover the plaintext bytes themselves",
+    "does not prove an authentic package can currently be admitted/decrypted",
+    "does not yet recover XluaBridgeMapScanTick traversal logic"
+  ],
+  "reproduction": [
+    "python tools\\inspect_lwbridge_proxy_bridge_compiler.py ..\\LW\\lwbridge-0.3.1.exe --json"
+  ]
+}

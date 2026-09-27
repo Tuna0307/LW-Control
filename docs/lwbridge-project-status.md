@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-097`
+**Current checkpoint:** `LWB-R8-098`
 
 ## Executive status
 
@@ -20,6 +20,12 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-098 original bridge-script compiler/source boundary
+
+Both hash-verified original xLua proxies contain the same Lua source-to-bytecode compiler. They resolve `luaL_newstate`, `lua_close`, `luaL_loadbufferx`, `lua_dump` and `lua_tolstring`; compile text with mode `"t"`; dump bytecode with `strip=0`; and report exact compiler/state/compile/dump failures. The bootstrap passes a proxy-owned source `std::string` to that compiler as chunk `@bridge-scripts.dat`. The package/auth function owns the same source string and contains the package-decrypt/load path. This creates a direct recovery target for the original Map Lua implementation: preserve the authentic source bytes and recover `XluaBridgeMapScanTick` from source rather than redesigning traversal. Plaintext bytes are not yet recovered, so Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-098-proxy-bridge-compiler.md` and `evidence/lwbridge-implementation/2026-09-27-r8-098-proxy-bridge-compiler.json`.
 
 ## R8-065 fresh current-client acceptance
 
