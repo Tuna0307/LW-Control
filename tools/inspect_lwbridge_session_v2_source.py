@@ -138,8 +138,8 @@ def inspect(binary: Path) -> dict[str, object]:
 
     # Restore ownership is centralized in the heartbeat/session supervisor.
     require(direct_call_target(0x0F7C08) == 0x236567, "session supervisor restore call mismatch")
-    # No usable restored session resets grace clock then publishes normal signedOut.
-    require(direct_call_target(0x0F7C82) == 0x23CBB8, "grace-clock reset mismatch")
+    # No usable restored session best-effort removes ticket/envelope artifacts, then publishes normal signedOut.
+    require(direct_call_target(0x0F7C82) == 0x23CBB8, "ticket/envelope cleanup mismatch")
     require(direct_call_target(0x0F7C99) == 0x23855D, "signedOut emitter mismatch")
 
     # Low-level secure/device-key vocabulary remains distinct beneath restore.
@@ -198,7 +198,7 @@ def inspect(binary: Path) -> dict[str, object]:
             "encryptedMetadataDecode": "0x39F5CE",
             "decodeFailure": "SESSION_INVALID",
             "roleProjection": "0x23B9EB from decrypted metadata plus persisted session identity/timing",
-            "noUsableSession": "reset grace clock then publish signedOut",
+            "noUsableSession": "best-effort delete authorization.ticket and package-key.envelope, then publish signedOut",
         },
         "persistence": {
             "serializer": "0x23EB78",

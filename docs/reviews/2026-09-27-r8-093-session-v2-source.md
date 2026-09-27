@@ -71,7 +71,7 @@ Its precedence is:
 2. if present, read and deserialize the v2 session;
 3. if the v2 path is absent, test the legacy session path at `+0xC0/+0xC8`;
 4. use the legacy restore/migration path when that older file is present;
-5. if there is no usable restored session, the supervisor resets the grace clock and publishes normal `signedOut`.
+5. if there is no usable restored session, the supervisor best-effort deletes `authorization.ticket` and `package-key.envelope`, then publishes normal `signedOut`.
 
 The exact legacy migration internals below that fallback remain open; R8-093 does not guess them.
 
@@ -87,8 +87,10 @@ This means disk/session reconstruction is centralized. Retained commands consume
 
 When the restore result reports no usable session, the same supervisor:
 
-1. resets the internal grace clock through `0x14023CBB8`;
+1. calls `0x14023CBB8`, which best-effort deletes stored `authorization.ticket` and `package-key.envelope`;
 2. publishes the normal signed-out state through the R8-092 emitter `0x14023855D`.
+
+**Correction:** the initial R8-093 wording briefly labeled `0x14023CBB8` as a grace-clock reset. R8-094 disassembly closes that helper as ticket/envelope cleanup instead.
 
 ## Encrypted token and metadata boundary
 

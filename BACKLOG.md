@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-093`, 2026-09-27.
+**Current through:** `LWB-R8-094`, 2026-09-27.
 
 This backlog supersedes the former “finish the reconstructed Home/Map implementation” queue. The target is the retained LWBridge 0.3.1 product scope one-for-one. Owner direction changed on 2026-09-26: authentication/authorization/entitlement/account-session internals may be recovered when retained behavior depends on them, but credentials, roles, capacities and premium/admin state must not be invented. Standalone Login/Register/account-management product UI remains non-priority unless that retained-state pipeline requires it.
 

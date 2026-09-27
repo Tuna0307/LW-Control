@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-093`
+**Current checkpoint:** `LWB-R8-094`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -403,11 +403,17 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-094 runtime cleanup correction
+
+R8-094 corrects the R8-093 interpretation of helper `0x14023CBB8`: it is shared best-effort runtime-artifact cleanup, not a grace-clock reset. The no-usable-session supervisor branch invokes this cleanup and then publishes normal `signedOut`; other recovered callers place the same helper in heartbeat, session-error, login projection and artifact-ingestion lifecycle paths. Exact owned paths/offsets are source-locked in `docs/reviews/2026-09-27-r8-094-auth-runtime-cleanup.md` and its evidence JSON.
+
+No production behavior changes in this checkpoint.
+
 ## R8-093 SessionV2 persistence and restore source
 
 R8-093 closes most of the persisted-session side of the R8-092 AuthState source. `SessionV2` is an exact 0x88-byte seven-field structure serialized as `version,username,expiresAt,lastHeartbeatAt,graceStartedAt,encryptedToken,encryptedMetadata`; the formerly unknown seventh field is exact `version`. Native writes `version=2` and restore rejects any other version through `SESSION_INVALID`.
 
-The auth-service constructor owns both legacy and v2 paths. Restore checks `auth-session.v2.json` first and falls back to `auth-session.json` only when the v2 file is absent. The centralized heartbeat/session supervisor is the sole direct caller of the recovered restore function. If no usable session is restored, it resets the grace clock and publishes normal `signedOut`.
+The auth-service constructor owns both legacy and v2 paths. Restore checks `auth-session.v2.json` first and falls back to `auth-session.json` only when the v2 file is absent. The centralized heartbeat/session supervisor is the sole direct caller of the recovered restore function. If no usable session is restored, it best-effort deletes the stored `authorization.ticket` and `package-key.envelope`, then publishes normal `signedOut`.
 
 Persisted encrypted token and metadata are decoded through the original secure-storage helper; decode failure is normalized to `SESSION_INVALID`. Successful metadata is parsed and passed to the common role/authorization projection, proving that `accessRole` is reconstructed from metadata rather than stored as a SessionV2 field. The same service owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; auth heartbeat defaults to 120 seconds and accepts configured integer values only in the inclusive range 30..300.
 

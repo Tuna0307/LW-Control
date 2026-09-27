@@ -1,0 +1,51 @@
+{
+  "cleanupHelper": {
+    "deleteWrapper": "0x5B6540",
+    "envelopeDataLengthMembers": [
+      "service+0x1A0",
+      "service+0x1A8"
+    ],
+    "envelopePathBufStart": "service+0x198",
+    "errorPolicy": "best-effort: delete errors are consumed and cleanup continues",
+    "rva": "0x23CBB8-0x23CC15",
+    "ticketDataLengthMembers": [
+      "service+0x180",
+      "service+0x188"
+    ],
+    "ticketPathBufStart": "service+0x178"
+  },
+  "correction": {
+    "replacement": "0x23CBB8 best-effort deletes authorization.ticket and package-key.envelope",
+    "withdrawn": "0x23CBB8 resets the grace clock"
+  },
+  "date": "2026-09-27",
+  "directCallers": {
+    "auth_artifact_ingest": "0x23cab9",
+    "auth_state_related": "0x23b2ee",
+    "heartbeat_error": "0xf6deb",
+    "login_projection": "0x2399f7",
+    "service_cleanup_wrapper": "0x23c6ba",
+    "supervisor_no_session": "0xf7c82",
+    "supervisor_session_error": "0xf7352"
+  },
+  "findingId": "LWB-R8-094",
+  "limits": [
+    "R6-040 remains authority for the downstream DeleteFileW wrapper classification",
+    "this checkpoint does not read stored ticket/envelope contents",
+    "this checkpoint does not reconstruct protected package decryption or private key material",
+    "no production behavior is changed"
+  ],
+  "noUsableSession": {
+    "cleanup": "0x23CBB8",
+    "then": "normal signedOut emitter 0x23855D"
+  },
+  "ownedFiles": [
+    "authorization.ticket",
+    "package-key.envelope"
+  ],
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED CONTRACT / CORRECTION"
+}

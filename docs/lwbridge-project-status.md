@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-093`
+**Current checkpoint:** `LWB-R8-094`
 
 ## Executive status
 
@@ -27,11 +27,15 @@ The stronger gate also corrected stale proof infrastructure without changing the
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
 
+## R8-094 runtime cleanup correction
+
+R8-094 corrects the R8-093 interpretation of helper `0x14023CBB8`: it is shared best-effort runtime-artifact cleanup, not a grace-clock reset. The no-usable-session branch invokes that cleanup and then publishes normal `signedOut`. See `docs/reviews/2026-09-27-r8-094-auth-runtime-cleanup.md`.
+
 ## R8-093 SessionV2 persistence and restore source
 
 R8-093 identifies SessionV2's seventh field as exact `version`, closes the typed 0x88-byte seven-field layout and proves native persists `version=2` and rejects other versions as `SESSION_INVALID`. Restore prefers `auth-session.v2.json` and falls back to legacy `auth-session.json` only when v2 is absent.
 
-The heartbeat/session supervisor is the centralized restore owner. Restored encrypted token and metadata pass through original secure-storage decode helpers; failed restored material normalizes to `SESSION_INVALID`. Successful decoded metadata feeds the common authorization-role projection alongside persisted identity/timing state, so role is reconstructed rather than directly persisted in SessionV2.
+The heartbeat/session supervisor is the centralized restore owner. Restored encrypted token and metadata pass through original secure-storage decode helpers; failed restored material normalizes to `SESSION_INVALID`. Successful decoded metadata feeds the common authorization-role projection alongside persisted identity/timing state, so role is reconstructed rather than directly persisted in SessionV2. A no-usable-session result best-effort deletes stored `authorization.ticket` and `package-key.envelope` before publishing normal `signedOut`.
 
 The auth service also owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; heartbeat defaults to 120 seconds and only accepts configured integers 30..300 inclusive. No production auth path is enabled yet; secure-storage/device-key acquisition, ticket/envelope lifecycle, remaining service-to-session mutation, entitlement/capacity ownership, implementation and live proof remain open.
 
