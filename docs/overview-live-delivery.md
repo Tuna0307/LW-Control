@@ -16,4 +16,6 @@ Use:
 
 Overview must now be audited against the exact original LWBridge 0.3.1 host/launcher/profile/account behavior. Current-client compatibility is required, but product semantics may not be redesigned.
 
+**R8-097 supersession:** Home is currently **NOT WORKING** for owner acceptance. Prior reconstructed lifecycle live proofs remain evidence only; no equivalent lifecycle may serve as a production fallback.
+
 Historical delivery detail remains in Git history, `docs/lwbridge-overview-recovery.md`, `docs/reviews/`, and evidence files.

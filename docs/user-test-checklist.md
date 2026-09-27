@@ -1,8 +1,10 @@
 # Owner test checklist — strict parity phase
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-097`, 2026-09-27.
 
 There is no broad owner retest requested right now.
+
+Home and Map are currently **NOT WORKING** under the owner acceptance rule. Do not ask the owner to validate the equivalent scanner/lifecycle as a substitute. The next owner test is only after a recovered original Home or Map path is ready for live proof with fallback disabled.
 
 The active work is reverse-engineering the original LWBridge 0.3.1 implementation and reconciling the rebuild to it. Owner testing should happen only after a specific original feature has been recovered and a parity candidate is ready.
 

@@ -14,9 +14,19 @@ Previous owner-specific removals/customizations are historical evidence, not cur
 
 `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` are now mandatory reading and completion authority. The former 47-case Home/Map matrix remains historical implementation evidence only.
 
-The protected `bridge-scripts.dat` package and exact host/proxy/script contracts are P0. Historical environment denials remain restriction records; do not reroute a prohibited operation, but continue the underlying recovery question through genuinely permitted methods.
+The protected `bridge-scripts.dat` package and exact host/proxy/script contracts remain retained parity targets. Under the 2026-09-27 owner reset, the immediate P0 is the original Map acquisition engine, followed by the remaining original Home lifecycle; general package/auth work resumes only when it directly blocks those surfaces or after they meet acceptance. Historical environment denials remain restriction records; do not reroute a prohibited operation.
 
 ## 1. Reverse-engineer first; do not invent behavior or values
+
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
 
 **MUST prioritize evidence from the verified LWBridge reference and official Last War artifacts over guesses, recollection, generic game assumptions or plausible-looking implementations.**
 

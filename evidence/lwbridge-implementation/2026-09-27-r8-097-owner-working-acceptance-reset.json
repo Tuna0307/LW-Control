@@ -1,0 +1,19 @@
+{
+  "checkpoint": "LWB-R8-097",
+  "date": "2026-09-27",
+  "type": "documentation-policy-reset",
+  "productionBehaviorChanged": false,
+  "ownerWorkingRule": "WORKING only when recovered original LWBridge 0.3.1 logic is the production path and succeeds live",
+  "homeOwnerStatus": "NOT WORKING",
+  "mapOwnerStatus": "NOT WORKING",
+  "fallbackPolicy": "No production fallback acceptance for Home/Map; equivalent paths may remain only as historical evidence, comparison/oracle tooling, or isolated test harnesses",
+  "priority": [
+    "recover original Map acquisition engine and live-prove it",
+    "recover remaining original Home lifecycle and live-prove it",
+    "resume unrelated parity work afterward unless directly blocking Home/Map"
+  ],
+  "historicalLiveEvidencePreserved": [
+    "LWB-R8-065",
+    "LWB-R8-066"
+  ]
+}

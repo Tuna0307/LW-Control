@@ -1,7 +1,7 @@
 # Strict one-to-one parity recovery directive
 
 **Effective:** 2026-09-24
-**Checkpoint:** `LWB-R8-001`
+**Checkpoint:** `LWB-R8-097`
 **Reference authority:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **Verified SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 
@@ -12,6 +12,16 @@ This document supersedes every earlier project direction that allowed redesign, 
 The end product must reproduce LWBridge 0.3.1 one-for-one as a working program for every retained product feature, subject only to the explicit owner exception below. The reference executable decides what retained features are called, how they look, how they behave, what defaults they use, what errors they show, what requests they send, and what results they expose.
 
 The implementation language, compatibility shims, internal process structure, or current-client adaptation may differ only when necessary to make the recovered original behavior work. Those internal differences must not intentionally change observable product behavior.
+
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
 
 ## Owner direction — authentication dependencies may be recovered
 
@@ -26,7 +36,7 @@ Standalone account-product work such as redesigning Login/Register/account manag
 1. Do not add a feature because it seems useful.
 2. Do not remove a retained reference feature because it is inconvenient, slow, obsolete, gated, or difficult. Authentication/authorization/entitlement dependencies may be recovered when retained behavior requires them; standalone account-product work remains non-priority unless that retained-state pipeline requires it.
 3. Do not redesign workflows, labels, tabs, defaults, timing, search semantics, scan semantics, navigation, storage behavior, or error handling without recovered reference evidence.
-4. Do not optimize an original behavior by substituting a different algorithm unless the substitution is proven observationally equivalent to the reference and does not change any exposed contract.
+4. Do not substitute a different algorithm as the production acceptance path for a retained feature. An equivalent implementation may support research/comparison, but it does not make the feature WORKING; the recovered original logic must be the live production path.
 5. Do not treat current Last War APIs, LW Atlas, community tools, or our previous implementation as product authority. They are research aids only.
 6. When exact original bytes are recovered, preserve them byte-for-byte. Do not hand-edit extracted frontend chunks, icons, locale bundles, embedded assets, or other recovered payloads.
 7. When original bytes are not yet recovered, recover the contract before implementing it. Unsupported behavior is a parity gap, not an invitation to invent.
@@ -60,9 +70,9 @@ From R8 onward, research order is:
 
 **reference LWBridge -> recover exact implementation/contract -> map to current Last War -> implement only what was recovered -> compare against reference -> live-prove functionality.**
 
-## Protected bridge scripts are P0
+## Protected bridge scripts remain a retained recovery target
 
-`bridge-scripts.dat` is part of the original implementation and must be treated as a top-priority recovery target. The project already recovered substantial surrounding loader/crypto architecture, but not the complete plaintext package.
+`bridge-scripts.dat` is part of the original implementation and remains important to exact parity. Under R8-097, however, immediate work stays on the original Map acquisition engine and then Home lifecycle. General package/auth recovery resumes when it directly answers a blocker for those surfaces or after they meet owner acceptance.
 
 The goal is to recover the original script/package contents through permitted analysis methods, preserve the recovered bytes, identify every handler and contract they contain, and use those findings to replace guesses in the rebuild.
 

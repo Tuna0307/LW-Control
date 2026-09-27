@@ -1,5 +1,7 @@
 # Daybreak escalation register
 
+> **R8-097 priority supersession (2026-09-27):** original Map acquisition is the immediate P0, followed by original Home lifecycle. Equivalent Home/Map paths do not count as WORKING and are not production fallbacks. Unrelated auth/entitlement/package escalation work is paused unless it directly blocks those two surfaces. Historical escalation records below remain unchanged.
+
 > **R8 strict-parity direction (2026-09-24):** this file is retained for technical/historical evidence. Current product authority is `docs/strict-parity-recovery.md` plus `docs/lwbridge-parity-matrix.md`. Earlier redesign, retirement, optimization or owner-customization statements remain historical only when they conflict with one-to-one LWBridge 0.3.1 parity. Do not rewrite the evidence below; recover the original reference behavior and use it to classify current parity.
 
 

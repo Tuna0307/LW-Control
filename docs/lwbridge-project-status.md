@@ -1,11 +1,21 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-096`
+**Current checkpoint:** `LWB-R8-097`
 
 ## Executive status
 
 The project is not complete.
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
+**Current owner-facing status:** Home = **NOT WORKING**; Map = **NOT WORKING**. R8-065/R8-066 remain valuable live evidence that equivalent reconstructed paths can operate against the current client, but those paths no longer qualify for the WORKING label.
 
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
@@ -17,7 +27,7 @@ The owner now requires a stricter operational baseline: a feature is not called 
 
 R8-065 re-established that baseline on current-v21. Home manual launch/connect/close and startup auto-launch/connect/close both reached `connectionState="connected"` in the dedicated live lifecycle proof. Map initially failed live on a current-v21 3×9 AOI contraction; after a bounded conservative compatibility fix, same-session all-eight Normal and Fast scans both completed 2500/2500 with 0 failed and 0 unread, and published Fast counts survived database reopen. The wide-FOV shortcut remains removed.
 
-This proves the retained Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION** today. It does not prove original Map acquisition parity or whole-program completion. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md`.
+This proves only that the equivalent reconstructed Home lifecycle and Manual Map scanner can operate live on that client. Under R8-097 they are **NOT WORKING for owner acceptance** because the recovered original LWBridge logic is not yet the production path. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md`.
 
 ## R8-066 production UI acceptance
 
@@ -25,7 +35,7 @@ R8-066 then proved the normal Release desktop application's actual user-facing M
 
 The stronger gate also corrected stale proof infrastructure without changing the product scanner: nullable numeric status readers now respect explicit JSON nulls, startup observation uses the exact R8-042 native `profile_instance_status` projection rather than racing reconcile, and Resource render correlation accepts the current six-cell shape while preserving legacy five-cell coverage.
 
-This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
+This upgrades historical operational evidence for the equivalent Map reconstruction from backend/service execution to the real desktop/WebView path. It does not make Map WORKING under R8-097 and does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
 
 ## R8-096 multi-entitlement capacity ownership
 
@@ -87,7 +97,7 @@ See `docs/reviews/2026-09-27-r8-091-authorization-projection.md`.
 
 R8-090 narrows the remaining disconnect/write-failure gap without changing production behavior. Original `bridge_store.rs` metadata source-links a distinct `BRIDGE_STOPPED / bridge result channel closed` call-wait branch and a separate `LUA_CALL_TIMEOUT` branch, while also exposing `call`, `command` and `timeout` source locations.
 
-What remains unproven is the causal edge from ordinary named-pipe disconnect/write failure to all outstanding result receivers. No eager route-wide `BRIDGE_STOPPED` policy is added; the live-working equivalent transport keeps the R8-075 teardown behavior until stronger source evidence exists.
+What remains unproven is the causal edge from ordinary named-pipe disconnect/write failure to all outstanding result receivers. No eager route-wide `BRIDGE_STOPPED` policy is added; the equivalent transport keeps the R8-075 teardown behavior as research/compatibility evidence until stronger source evidence exists. It is not owner-accepted WORKING or a fallback acceptance path.
 
 See `docs/reviews/2026-09-27-r8-090-pending-call-teardown-boundary.md`.
 
@@ -211,7 +221,7 @@ The common native Map event handler distinguishes `map.records`, `map.scan.diagn
 
 The separate `map.native.capture` event uses the same normalized builder but writes published `map_records`, proving that passive native-hook updates and direct full-scan staging are distinct original paths.
 
-The protected remaining work is game-side block traversal/order/coordinates, `XluaBridgeMapScanTick` registration/scheduling/pacing, native point/march/removal/ack queue-to-batch drain/retry semantics, and remaining per-kind serializer details. The current v21 movement/AOI scanner remains LIVE-WORKING EQUIVALENT_REIMPLEMENTATION and is not replaced by guesses.
+The protected remaining work is game-side block traversal/order/coordinates, `XluaBridgeMapScanTick` registration/scheduling/pacing, native point/march/removal/ack queue-to-batch drain/retry semantics, and remaining per-kind serializer details. The current v21 movement/AOI scanner remains historical live-success equivalent evidence/comparison tooling only. Under R8-097 it is NOT WORKING and must not be used as a production fallback.
 
 See `docs/reviews/2026-09-26-r8-076-original-map-acquisition-ingestion.md` and `evidence/lwbridge-implementation/2026-09-26-r8-076-original-map-acquisition-ingestion.json`.
 
@@ -221,7 +231,7 @@ R8-075 narrows the previously broad host/proxy protocol gap. The source-backed h
 
 Public readiness semantics are also split exactly: R8-043 proves `get_status.backend/xluaOnline` are route-presence state, while R8-042 proves retained `profile_instance_status.connectionState=connected` additionally requires identity confirmation and a heartbeat fresher than 15,001 ms.
 
-R8-089 narrows the first item: the host bridge-pipe heartbeat path references exact `/payload/time`, and both proxy natives classify a pre-serialized `heartbeat`, but the protected/package serializer, `payload.time` type/value source, requestId/timestamp choices, cadence and public `lastHeartbeatAt` assignment remain open. The other exact protocol gaps are disconnect/write-failure to outstanding result-channel/public-call completion mapping and original secure/plain xLua script/provider dispatch. The current GamePipeAdapter/mailbox/Lua command handler remains live-working equivalent plumbing, not original proxy parity.
+R8-089 narrows the first item: the host bridge-pipe heartbeat path references exact `/payload/time`, and both proxy natives classify a pre-serialized `heartbeat`, but the protected/package serializer, `payload.time` type/value source, requestId/timestamp choices, cadence and public `lastHeartbeatAt` assignment remain open. The other exact protocol gaps are disconnect/write-failure to outstanding result-channel/public-call completion mapping and original secure/plain xLua script/provider dispatch. The current GamePipeAdapter/mailbox/Lua command handler remains equivalent compatibility/research plumbing, not original proxy parity and not owner-accepted WORKING.
 
 See `docs/reviews/2026-09-26-r8-075-host-proxy-protocol-reaudit.md` and `evidence/lwbridge-implementation/2026-09-26-r8-075-host-proxy-protocol-reaudit.json`.
 
@@ -321,10 +331,12 @@ The recovered frontend is the closest portion to true one-to-one recovery. Origi
 
 That proof is limited because the rebuild intentionally transformed the main/API boundary and removed/changed some product surfaces.
 
-## Largest parity gaps
+## Largest parity gaps — inventory, not execution priority
+
+R8-097 execution priority is fixed: **original Map acquisition engine first, then remaining original Home lifecycle**. The numbered list below inventories large whole-program gaps and is not a work-order ranking.
 
 1. Full plaintext/original handler recovery from `bridge-scripts.dat`.
-2. Remaining exact host/proxy parity: wire-heartbeat payload/activity ownership, disconnect/write-failure to outstanding-call completion mapping, and original secure/plain xLua script/provider dispatch. R8-075 confirms the rest of the retained host wire/session contract is recovered and the read-only production route is live-working.
+2. Remaining exact host/proxy parity: wire-heartbeat payload/activity ownership, disconnect/write-failure to outstanding-call completion mapping, and original secure/plain xLua script/provider dispatch. R8-075 confirms the rest of the retained host wire/session contract is recovered and the read-only equivalent production route has historical live-success evidence; that does not by itself satisfy the R8-097 owner WORKING label.
 3. Remaining original Map Scan internals: game-side traversal/order/coordinates, per-tick work/request pacing and retry/backoff inside `XluaBridgeMapScanTick`, any separate protected script/tick acknowledgement semantics, and still-unmapped per-field population/transformation rules. R8-076 closes host event/normalization/staging; R8-079 closes native-capture ACK fields; R8-080 closes the 50 ms outer Map tick gate; R8-081 closes shared 1024-item queue draining; R8-082 closes 16 ms service plus 250/1000 ms active/idle flush timing; R8-083 closes exact point/march/train JSON representation; R8-084 closes safe-region hook routing, queue identity/admission, `pointIds` removal parsing and named producer field/getter inputs. The lane remains PARTIAL EXACT_CONTRACT.
 4. Removal of rebuild-only additions such as Secret Task Quick Find.
 5. Restoration of remaining retained product features previously retired/customized. City Excel is restored in R8-007, Map Clear in R8-008, `server_jump` in R8-009, `map_summary` in R8-010, `map_data_options` in R8-011, Manual Scan public contract in R8-012, status/Stop lifecycle in R8-013, `map_search` public kind/filter ownership in R8-014, the original Auto Scan frontend scheduler/control plane in R8-015, and Scheduled Plunder list/schedule/cancel persistence/events/original UI in R8-016. R8-017 removes speculative Monster-distance, City-shield and Railway-quality sort implementations and gates those branches pending stronger evidence. R8-044 restores the native `game_asset_image` public request/result/error contract, one 15-second game call, PNG-signature validation and persistent profile-runtime `asset-cache` behavior; the exact native SHA-256 cache-key preimage and original transport/file-I/O plumbing remain unclaimed. Complete native multi-sort assembly and protected Plunder execution remain partial/unknown. R8-054 re-audits the existing `lastwar_localize` path: requested-locale→English→key fallback, the exact 200-key cap and locale-cache error vocabulary remain evidence-backed, but the command is only partial/equivalent because the rebuild bypasses native owner-excluded authorization-state admission and has stricter outer payload parsing. R8-055 additionally audits `map_treasure_claim_status`: native awaits owner-excluded authorization state, calls `getTreasureClaimStatus` once with a 5-second deadline, transactionally maintains `treasure_claim_states`, then returns the original provider JSON. The current rebuild status route remains a documented deviation because it adds scan/operation/server guards, uses an 8-second inspection path, rebuilds a fixed DTO, and cannot preserve provider extras such as optional `batch`. R8-074 now closes the original `map_treasure_claim` host contract but keeps live claim/scout execution fenced on owner-excluded authorization state plus unrecovered protected executor internals. Authentication/authorization/entitlement/session dependencies may now be recovered when retained behavior requires them; standalone account-product UI remains non-priority unless that dependency pipeline requires it.
@@ -343,7 +355,7 @@ Therefore no R7 performance optimization is accepted as original parity unless t
 
 Earlier R8 work recovered substantial package/crypto structure, but the remaining LWKE1 field map/AAD is evidence-limited and requires a genuinely new permitted artifact/source. Do not keep repeating the same searches, cross the protected boundary, or expand this lane into Account/Login/Authentication recovery.
 
-The package lane is parked while the main researcher restores Map and other retained product surfaces. It may resume for retained non-account runtime compatibility only when new permitted evidence exists.
+The package lane is parked while the main researcher finishes the original Map acquisition engine and then the remaining original Home lifecycle. It may resume earlier only when new permitted evidence directly blocks those priority surfaces, or later when genuinely new permitted evidence exists.
 
 ## Completion rule
 

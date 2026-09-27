@@ -1,16 +1,16 @@
 # Home / Overview — strict parity status
 
-**Current through:** `LWB-R8-065`, 2026-09-26.
+**Current through:** `LWB-R8-097`, 2026-09-27.
 
-The retained Home lifecycle is freshly **LIVE-WORKING** against the installed current-v21 game as of R8-065: manual launch reached `connected` and closed cleanly, then startup auto-launch reached `connected` and closed cleanly in the same dedicated proof. This is current-client functionality evidence, not one-to-one parity completion. The acceptance target remains exact retained LWBridge 0.3.1 behavior.
+R8-065 proved that the equivalent reconstructed Home lifecycle can operate against the installed current-v21 game. Under the R8-097 owner rule, Home is nevertheless **NOT WORKING** because the recovered original LWBridge lifecycle is not yet the production path. The old live proof remains evidence only.
 
 ## Current parity interpretation
 
 | Area | Current classification | Next parity requirement |
 |---|---|---|
 | Original Overview component/assets | EXACT_BYTES-derived | Keep original assets unchanged |
-| Launch / Close lifecycle | LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION | R8-065 fresh live proof reached `connected` and closed the real game cleanly; audit exact original launcher/profile/ownership/error semantics |
-| Launch at startup | LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION | R8-065 fresh live proof auto-launched the real game and reached `connected`; recover exact original persistence/timing/default behavior |
+| Launch / Close lifecycle | NOT WORKING / EQUIVALENT_REIMPLEMENTATION with historical live proof | R8-065 fresh live proof reached `connected` and closed the real game cleanly; audit exact original launcher/profile/ownership/error semantics |
+| Launch at startup | NOT WORKING / EQUIVALENT_REIMPLEMENTATION with historical live proof | R8-065 fresh live proof auto-launched the real game and reached `connected`; recover exact original persistence/timing/default behavior |
 | Automatic reconnect | EQUIVALENT_REIMPLEMENTATION | Tie thresholds/cancellation/errors to reference |
 | Status / pending / refresh | PARTIAL EXACT_CONTRACT | Close exact bridge readiness/request-result grammar |
 | Same/cross-server navigation | EQUIVALENT_REIMPLEMENTATION | Recover original routing and error semantics |
@@ -25,6 +25,8 @@ The lifecycle stress, rollback, reconnect, status and navigation evidence remain
 It does not prove that the implementation is the same as LWBridge 0.3.1.
 
 ## Required direction
+
+No fallback path is acceptable for completion. Recover the original lifecycle first; compatibility shims may adapt only demonstrated client-level differences and may not replace the original higher-level behavior.
 
 Do not redesign Home around our current service model. Recover the retained original Rust/Tauri command/service behavior, launcher descriptor, profile semantics and bridge readiness, then make the current-client compatibility layer reproduce those contracts. Account/Login/Authentication-purpose flows remain explicitly excluded.
 

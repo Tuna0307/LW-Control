@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-096`
+**Current checkpoint:** `LWB-R8-097`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -14,6 +14,16 @@ The verified `lwbridge-0.3.1.exe` is the product specification for every retaine
 **Updated owner direction (2026-09-26):** authentication/authorization/entitlement/account-session internals may now be researched, restored and implemented when they are needed to reproduce retained features or make them work live. Do not hard-code roles, capacity, credentials or synthetic premium/admin state. Login/Register/account-management UI remains non-priority unless the original retained-state pipeline requires it. Historical R8 fences that cite the former owner exclusion should be revisited, not silently treated as permanently blocked.
 
 Read `docs/strict-parity-recovery.md` and `docs/lwbridge-parity-matrix.md` before touching production code.
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
+The unfinished auth/lease scratch investigation that had started under the R8-097 name is paused by this owner reset and is not a completed checkpoint. Resume technical recovery at R8-098 after this documentation checkpoint.
 
 ## Reference
 
@@ -607,7 +617,7 @@ The common original Map event handler is `0x14033FFA1-0x140341913` and distingui
 
 The scan-record transaction helper is `0x14025F01D-0x14025F5C8`, with exact begin/commit batch diagnostics. The separate `map.native.capture` route enters `0x1402574CD-0x1402577E2`, uses the same normalized builder, but upserts exact `map_records`; it is therefore a passive live native-hook publication path, not the direct-scan staging path.
 
-This closes the production host ingestion linkage that R6-049/R6-051 left open. Remaining exact acquisition work is below that boundary: game-side block traversal/order/coordinates, `XluaBridgeMapScanTick` registration/scheduling/pacing, native point/march/removal/ack queue→batch drain sequencing, and remaining per-kind serializer optionality/types. The current v21 movement/AOI scanner stays LIVE-WORKING EQUIVALENT_REIMPLEMENTATION.
+This closes the production host ingestion linkage that R6-049/R6-051 left open. Remaining exact acquisition work is below that boundary: game-side block traversal/order/coordinates, `XluaBridgeMapScanTick` registration/scheduling/pacing, native point/march/removal/ack queue→batch drain sequencing, and remaining per-kind serializer optionality/types. The current v21 movement/AOI scanner remains historical live-success evidence/comparison tooling only; under R8-097 it is NOT WORKING and must not serve as a production fallback.
 
 See `docs/reviews/2026-09-26-r8-076-original-map-acquisition-ingestion.md` and `evidence/lwbridge-implementation/2026-09-26-r8-076-original-map-acquisition-ingestion.json`.
 
@@ -727,7 +737,7 @@ The gate starts from no Last War/LWBridge process, observes or starts the app-ow
 
 Three proof-infrastructure problems were exposed and corrected while reaching that gate. Nullable numeric status readers no longer attempt number parsing on explicit JSON null. The stronger UI proof no longer races normal startup reconcile; it observes the exact native instance projection and only calls Start after a stable no-instance state. Finally, the Resource render matcher and passive owner-evidence matcher now accept both the legacy five-cell table and the current six-cell table with resource amount before status and Updated At. Failure-side evidence proved the product had rendered the exact queried row; only the matcher was stale.
 
-The full deterministic checks executable remains green (`ok=true`, all deterministic groups true, `failures=[]`, no game/launcher running), and Release builds remain at zero warnings/errors. This proves the production desktop/WebView path is **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; original Map acquisition is now `PARTIAL EXACT_CONTRACT` after R8-076 closes the host event/staging/live-capture ingestion architecture; protected game-side traversal/tick/ack details remain open.
+The full deterministic checks executable remained green (`ok=true`, all deterministic groups true, `failures=[]`, no game/launcher running), and Release builds remained at zero warnings/errors. This is historical live-success evidence for the equivalent production desktop/WebView path. Under R8-097 it does **not** make Map WORKING; original Map acquisition remains `PARTIAL EXACT_CONTRACT` and protected game-side traversal/tick/ack details remain open.
 
 See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md` and `evidence/lwbridge-implementation/2026-09-26-r8-066-production-map-ui-live.json`.
 
@@ -741,7 +751,7 @@ Production keeps the conservative complete-coverage scanner. The fix accepts onl
 
 Final live proof exited 0: Normal and Fast both read 2500/2500 with 0 failed and 0 unread in the same owned game session, and Fast counts were unchanged after SQLite reopen. Offline regression remained green (`ok=true`, `failures=[]`, zero build warnings/errors, frontend check passed, `git diff --check` passed).
 
-Classification remains deliberately split: Home lifecycle and core Manual Map scan are **LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION**; the original Map acquisition architecture is `PARTIAL EXACT_CONTRACT` with protected traversal/tick/ack internals still open; whole-program one-to-one parity is still not complete. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
+R8-097 supersedes the old owner-facing classification: the R8-065 Home lifecycle and Manual Map results remain historical live-success evidence for equivalent reimplementations, but **Home = NOT WORKING** and **Map = NOT WORKING** until the recovered original logic itself is the production path and succeeds live. Original Map acquisition remains `PARTIAL EXACT_CONTRACT` with protected traversal/tick/ack internals still open. See `docs/reviews/2026-09-26-r8-065-live-home-map-v21.md` and `evidence/lwbridge-implementation/2026-09-26-r8-065-live-home-map-v21.json`.
 
 ## Parked protected package-key lane
 
@@ -773,13 +783,13 @@ Do not further optimize the wide-FOV scanner.
 
 Do not treat the current Train list, Dispatch finder or any other Last War-native source as the intended product design unless the original LWBridge evidence proves that mapping.
 
-The old complete traversal may remain as a temporary safety/reference oracle, but production parity must ultimately follow the recovered original LWBridge behavior.
+The old complete traversal may remain only as an isolated reference/comparison oracle or test harness. It must not execute as a production fallback or make Map appear WORKING; production must follow the recovered original LWBridge behavior.
 
 ## Whole-program scope
 
 The project is no longer limited to Home and Map Data. Automation, Squads/AFK, City Layout, Hotkeys, Mini-games, Settings, and retained conditional/nested features in the reference are part of the parity target.
 
-Account/Login/Authentication and all related activation, renewal, unbind, logout, entitlement, credential-persistence and account UI/backend surfaces are intentionally excluded by current owner direction and must not be reintroduced as parity backlog.
+Authentication/authorization/entitlement/account-session internals may be recovered when a retained feature depends on them, but unrelated account-product work remains non-priority and synthetic credentials, roles, capacity or premium/admin state are forbidden. Under R8-097, such work is paused unless it directly blocks original Map or Home recovery.
 
 Other previously retired original features remain parity gaps unless separately excluded by a current explicit owner directive.
 

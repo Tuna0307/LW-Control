@@ -1,8 +1,18 @@
 # LWBridge documentation index
 
-**Current checkpoint:** `LWB-R8-010`, 2026-09-24.
+**Current checkpoint:** `LWB-R8-097`, 2026-09-27.
 
 The project direction changed on 2026-09-24 from “working reconstruction with selected owner customizations” to **strict one-to-one recovery of LWBridge 0.3.1**.
+
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
 
 ## Read in this order
 
@@ -12,7 +22,7 @@ The project direction changed on 2026-09-24 from “working reconstruction with 
 4. [`implementation-handoff.md`](implementation-handoff.md) — current continuation state.
 5. [`../BACKLOG.md`](../BACKLOG.md) — current parity work queue.
 6. [`lwbridge-project-status.md`](lwbridge-project-status.md) — project-manager status.
-7. [`deep-binary-handoff.md`](deep-binary-handoff.md) — protected package / binary recovery priority.
+7. [`deep-binary-handoff.md`](deep-binary-handoff.md) — retained protected-package/binary recovery reference; subordinate to the current Map/Home priority.
 8. [`lwbridge-architecture.md`](lwbridge-architecture.md) — recovered original architecture.
 9. [`lwbridge-ui.md`](lwbridge-ui.md) — recovered frontend provenance.
 10. [`lwbridge-map-scan.md`](lwbridge-map-scan.md) — cumulative Map recovery evidence.
@@ -44,6 +54,8 @@ A historical file may say a feature was intentionally removed or optimized. Thos
 
 ## P0 evidence focus
 
-The protected `bridge-scripts.dat` package is now a first-class recovery target. R6-039 through R6-046 established the loader/crypto boundary; R8-003 recovered the exact LWBP2/AES contract; R8-004 recovered outer `LWKE1` framing; R8-005 recovered exact client ECDH login material; R8-006 proves the precise opaque-consumer output pointer that becomes the 32-byte package AES key. The next work is the returned envelope's decoded peer/agreement and encrypted-key fields, then reproduction of that output and preservation of the decrypted original scripts.
+R8-097 makes the immediate P0 the **original Map acquisition engine**, followed by the remaining original Home lifecycle. The protected `bridge-scripts.dat` package remains an important recovery source, but general package/auth work is paused unless it directly answers a Home/Map blocker. R6-039 through R6-046 established the loader/crypto boundary; R8-003 recovered the exact LWBP2/AES contract; R8-004 recovered outer `LWKE1` framing; R8-005 recovered exact client ECDH login material; R8-006 proves the precise opaque-consumer output pointer that becomes the 32-byte package AES key. That package-key chain remains documented for later continuation, but it is not the next task unless it directly blocks original Map/Home recovery.
+
+Latest owner acceptance checkpoint: [`reviews/2026-09-27-r8-097-owner-working-acceptance-reset.md`](reviews/2026-09-27-r8-097-owner-working-acceptance-reset.md).
 
 Historical SB-79 records an operation rejected by a previous environment. Preserve that record and do not reroute a prohibited operation. Do not mistake the historical denial for evidence that the underlying package is impossible to recover.

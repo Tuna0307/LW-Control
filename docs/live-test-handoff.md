@@ -1,10 +1,12 @@
 # Current live-test handoff — strict parity phase
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-097`, 2026-09-27.
 
 Live testing is no longer driven by the old “close remaining Home/Map acceptance rows” matrix. The primary task is now original-reference recovery and parity implementation.
 
 ## Current testing rule
+
+A live test of an equivalent/reconstructed path may be recorded as evidence, but it cannot produce a WORKING status. Home/Map acceptance requires the recovered original path itself to be the path under test; no fallback may be enabled.
 
 Do not ask the owner to repeatedly test reconstructed behavior that has not first been tied back to LWBridge 0.3.1.
 

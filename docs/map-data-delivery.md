@@ -16,6 +16,8 @@ Use:
 
 The R7 47-case acceptance matrix remains historical evidence for the reconstructed Map behavior it tested. It is not R8 one-to-one completion authority.
 
-Map work now begins from the original LWBridge 0.3.1 implementation: recover the original bridge scripts/host scan behavior and reproduce it exactly before designing or optimizing alternatives.
+Map work now begins from the original LWBridge 0.3.1 implementation: recover the original acquisition/traversal/tick/queue/completion behavior and reproduce it exactly before designing or optimizing alternatives.
+
+**R8-097 supersession:** Map is currently **NOT WORKING** for owner acceptance. The existing movement/AOI scanner is historical evidence/comparison tooling only and must not be a production fallback.
 
 Historical delivery details remain available in Git history, `docs/reviews/`, and `evidence/lwbridge-implementation/`.

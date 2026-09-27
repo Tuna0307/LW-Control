@@ -15,6 +15,8 @@ Use this document when reviewing the repository after the 2026-09-24 direction r
 
 ## Audit question
 
+Under R8-097, also ask whether the **recovered original logic itself** is the live production path. A successful equivalent/fallback implementation is evidence, not WORKING status. Home and Map are currently NOT WORKING by this rule.
+
 Do not ask only “does the rebuild work?”
 
 Ask:

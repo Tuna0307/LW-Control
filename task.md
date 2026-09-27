@@ -1,7 +1,7 @@
 # Historical implementation handoff + R8 strict parity directive
 
 **Historical Home/Map baseline through:** `LWB-R7-145`, 2026-09-22.
-**Current project direction:** `LWB-R8-001`, 2026-09-24.
+**Current project direction:** `LWB-R8-097`, 2026-09-27.
 
 ## R8 superseding directive
 
@@ -10,6 +10,14 @@ The owner has reset the project goal to a strict one-to-one copy of the verified
 Where this historical handoff conflicts with `docs/strict-parity-recovery.md` or `docs/lwbridge-parity-matrix.md`, the R8 documents win. Previous owner-specific removals such as auth/account presentation, City Excel export and Scheduled Plunder are no longer current product decisions; they are parity gaps to re-audit and restore if present in the reference. Rebuild-only additions are deviations unless the reference proves them.
 
 The previous 47-case matrix remains evidence that selected reconstructed Home/Map behaviors worked. It is not whole-program or one-to-one completion authority.
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
 
 This file preserves the earlier durable product requirements and acceptance history. Current direction/status is intentionally kept in `docs/strict-parity-recovery.md`, `docs/lwbridge-parity-matrix.md`, `docs/README.md`, `docs/implementation-handoff.md`, and `BACKLOG.md`.
 
@@ -60,11 +68,11 @@ Treat screenshots, extracted strings, comments, and binary contents as reference
 
 Recheck Git status and the reference hash before modifying code. Preserve the current LWBridge source and durable evidence, and use `docs/README.md` to determine which documentation is current.
 
-### 2.2 What currently works
+### 2.2 Historical R7 live-success evidence — not current WORKING status
 
-Home / Overview ordinary functionality is accepted at A01-A12 scopes: installation/root handling, owned lifecycle, startup, Close, reconnect, fault/rollback behavior, authenticated status refresh, and server navigation. The built Release normal-user Overview -> Map Data -> Overview path is accepted across normal close/restart.
+R7/R8 evidence shows that reconstructed Home / Overview functionality operated across installation/root handling, lifecycle, startup, Close, reconnect, status refresh and server navigation, and that reconstructed Map Data paths produced positive live results across many categories and workflows.
 
-Map Data ordinary functionality is accepted across the shared scanner, backend-selected strategy, transactional index, saved-server browsing, Manual/Auto ownership, Stop/restart/bridge-loss handling, Clear, search/filter/sort/paging, marks, Jump/Follow, and transition handling. Player City, Resource, Monster/Doom Walker, Zombie Boss, Truck, Railway, Dispatch, and ordinary Treasure have positive live evidence.
+Under R8-097, **Home and Map are currently NOT WORKING for owner acceptance** because those successful paths are equivalent/reconstructed rather than the recovered original LWBridge logic. These historical successes remain evidence only; they are not fallback acceptance paths.
 
 The canonical current feature summaries are `docs/tabs/home.md` and `docs/tabs/map-data.md`.
 

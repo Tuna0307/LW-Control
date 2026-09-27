@@ -1,6 +1,6 @@
 # Team workflow — strict parity phase
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-097`, 2026-09-27.
 
 ## Roles
 
@@ -10,6 +10,8 @@
 - **Daybreak/specialist:** bounded escalation only when the repository's escalation rules are satisfied.
 
 ## Mandatory workflow
+
+**Priority override:** finish original Map acquisition first, then original Home lifecycle. Do not switch to unrelated auth/entitlement/secondary-tab recovery unless it is a demonstrated dependency. Equivalent implementations are not fallback acceptance paths.
 
 1. Read `AGENTS.md`, `docs/strict-parity-recovery.md`, `docs/lwbridge-parity-matrix.md` and `BACKLOG.md`.
 2. Verify the reference EXE identity before new original-artifact recovery.

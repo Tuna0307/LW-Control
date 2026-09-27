@@ -1,6 +1,6 @@
 # Map Data — strict parity status
 
-**Current through:** `LWB-R8-066`, 2026-09-26.
+**Current through:** `LWB-R8-097`, 2026-09-27.
 
 This page supersedes the former performance-oriented Map status. Map Data is now judged only against the original LWBridge 0.3.1 behavior.
 
@@ -14,7 +14,7 @@ Do not promote a Last War-native API, manager, finder, wide-FOV trick, no-jump r
 
 Recover the original LWBridge Map implementation first. Current-game APIs are allowed only as compatibility mechanisms for reproducing that recovered behavior.
 
-As of R8-065, the retained Manual Map scan is freshly **LIVE-WORKING** against the installed current-v21 game in both Normal and Fast modes. This does not upgrade the current acquisition algorithm to original parity; it remains an equivalent current-client reconstruction until the original LWBridge implementation is recovered.
+R8-065/R8-066 proved that the equivalent current-client scanner can operate live, including the production UI path. Under R8-097, Map is **NOT WORKING** for owner acceptance because the recovered original LWBridge acquisition engine is not yet the production path. The equivalent scanner is evidence/comparison tooling only and must not be used as a fallback.
 
 ## What is actually exact today
 
@@ -30,7 +30,7 @@ As of R8-065, the retained Manual Map scan is freshly **LIVE-WORKING** against t
 | `map_summary` | EXACT_CONTRACT + EQUIVALENT_REIMPLEMENTATION | R8-010 restores exact `{serverId, counts, scanState}`, eight original count kinds, shared-state ownership and run-scoped staging vs published counts; scanState serialization remains separate |
 | Native capture vocabulary/hooks | PARTIAL EXACT_CONTRACT | Recovered from original proxy |
 | Query/storage/filter contracts | PARTIAL EXACT_CONTRACT | Significant original SQL/normalization recovered |
-| Current-client Manual Normal/Fast operation | LIVE-WORKING / EQUIVALENT_REIMPLEMENTATION | R8-065 completed same-session Normal and Fast all-eight scans at 2500/2500, 0 failed, 0 unread, with persisted results surviving database reopen |
+| Current-client Manual Normal/Fast operation | NOT WORKING / historical LIVE-PROVEN EQUIVALENT_REIMPLEMENTATION | R8-065 completed same-session Normal and Fast all-eight scans at 2500/2500, 0 failed, 0 unread, with persisted results surviving database reopen |
 | Original acquisition algorithms | UNKNOWN | Current production scanner is our reconstruction |
 
 ## R8-065 current-v21 live compatibility proof
@@ -70,7 +70,7 @@ See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md` and `evidence/lwb
 
 The wide-FOV work could report complete logical coverage while returning only tens of Player Cities where the older complete traversal returned thousands. This proves that our own coverage model is not a substitute for original behavior or semantic completeness.
 
-The old complete traversal can remain temporarily as a reference oracle while original Map code is recovered, but it is not automatically the final parity implementation either.
+The old complete traversal may remain only as an isolated comparison oracle/test harness while original Map code is recovered. It must not execute as a production fallback, and its success never changes Map from NOT WORKING.
 
 ## Per-kind parity status
 
@@ -88,7 +88,7 @@ The old complete traversal can remain temporarily as a reference oracle while or
 
 ## Immediate P0
 
-1. Recover `bridge-scripts.dat` and original map handlers.
+1. Recover the original `XluaBridgeMapScanTick` traversal/work engine: traversal/order/coordinates, queue/work scheduling, request pacing, retry/backoff, drop/removal handling and exact completion.
 2. Recover exact host/proxy scan control and result grammar.
 3. Identify original acquisition path for every selected type.
 4. Restore original Map UI/features previously removed.

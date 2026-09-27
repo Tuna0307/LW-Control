@@ -1,8 +1,8 @@
-# Deep binary / protected package handoff — strict parity priority
+# Deep binary / protected package handoff — retained parity reference
 
-**Current through:** `LWB-R8-010`, 2026-09-24.
+**Current through:** `LWB-R8-097`, 2026-09-27.
 
-Protected original implementation recovery is now P0 because the project goal is exact LWBridge 0.3.1 parity.
+Protected/package recovery remains important, but R8-097 narrows the immediate P0 to the original Map acquisition engine and then the original Home lifecycle. Resume general package/auth work only when it directly answers a Home/Map blocker or after those two surfaces meet owner acceptance.
 
 ## Primary target
 
