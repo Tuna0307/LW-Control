@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-103`
+**Current checkpoint:** `LWB-R8-104`
 
 ## Executive status
 
@@ -20,6 +20,14 @@ Immediate priority is **original Map acquisition engine first**, then any remain
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-104 assembled-source capture window
+
+R8-104 recovers the exact bootstrap-owned lifetime of the authentic assembled Lua source. In both verified proxies, bootstrap calls package/auth refresh at `0x153E2`, checks the proxy-owned source global length at `0x1547A`, reads that same source object into the `@bridge-scripts.dat` compiler at `0x15A08-0x15A3E`, then zeroizes the same global only at `0x16183-0x1618A`.
+
+This means raw decrypted module-table bytes do not need to survive loader cleanup for later compilation: parser output is promoted into the source global. If a permitted authentic package/bootstrap state can be reached, the assembled source can be preserved during this later pre-zeroization window and searched directly for `XluaBridgeMapScanTick`. No source bytes are recovered yet, so Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-104-source-capture-window.md` and `evidence/lwbridge-implementation/2026-09-27-r8-104-source-capture-window.json`.
 
 ## R8-103 sensitive-buffer cleanup
 

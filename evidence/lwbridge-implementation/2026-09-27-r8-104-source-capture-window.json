@@ -1,0 +1,74 @@
+{
+  "findingId": "LWB-R8-104",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "window": "after package/auth call returns at 0x153E7 and bootstrap observes nonzero source length at 0x1547A, the authentic assembled source remains in the proxy-owned global through compiler read/call at 0x15A08-0x15A3E until final zeroization at 0x16183-0x1618A",
+    "ownership": "package refresh assigns parser output into the same source global before bootstrap compiler consumption",
+    "captureImpact": "a permitted authentic runtime capture can target the assembled source global during this bootstrap-owned pre-zeroization window; raw decrypted module-table capture is not required if this later source window is reachable"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "sourceGlobalRva": "0x8f170",
+      "bootstrapRange": "0x14D50-0x16287",
+      "packageCallRva": "0x153E2",
+      "readyLengthCheckRva": "0x1547A",
+      "compileWindow": {
+        "sourceReadStartRva": "0x15A08",
+        "compilerCallRva": "0x15A3E",
+        "compilerRva": "0x16C10"
+      },
+      "finalZeroize": {
+        "sourceAddressRva": "0x16183",
+        "zeroizerCallRva": "0x1618A",
+        "zeroizerRva": "0x3F350"
+      },
+      "bootstrapDirectSourceRefs": [
+        "0x1547a",
+        "0x15a08",
+        "0x15a0f",
+        "0x15a17",
+        "0x15a32",
+        "0x16183"
+      ]
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "sourceGlobalRva": "0x90170",
+      "bootstrapRange": "0x14D50-0x16287",
+      "packageCallRva": "0x153E2",
+      "readyLengthCheckRva": "0x1547A",
+      "compileWindow": {
+        "sourceReadStartRva": "0x15A08",
+        "compilerCallRva": "0x15A3E",
+        "compilerRva": "0x16C10"
+      },
+      "finalZeroize": {
+        "sourceAddressRva": "0x16183",
+        "zeroizerCallRva": "0x1618A",
+        "zeroizerRva": "0x3F350"
+      },
+      "bootstrapDirectSourceRefs": [
+        "0x1547a",
+        "0x15a08",
+        "0x15a0f",
+        "0x15a17",
+        "0x15a32",
+        "0x16183"
+      ]
+    }
+  ],
+  "limits": [
+    "does not recover source bytes",
+    "does not prove current machine can enter the successful package/bootstrap state",
+    "does not inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}
