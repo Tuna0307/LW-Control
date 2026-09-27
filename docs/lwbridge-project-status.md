@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-092`
+**Current checkpoint:** `LWB-R8-093`
 
 ## Executive status
 
@@ -27,6 +27,16 @@ The stronger gate also corrected stale proof infrastructure without changing the
 
 This upgrades the operational evidence for Map from backend/service execution to the real desktop/WebView path. It still does not close original acquisition parity. See `docs/reviews/2026-09-26-r8-066-production-map-ui-live.md`.
 
+## R8-093 SessionV2 persistence and restore source
+
+R8-093 identifies SessionV2's seventh field as exact `version`, closes the typed 0x88-byte seven-field layout and proves native persists `version=2` and rejects other versions as `SESSION_INVALID`. Restore prefers `auth-session.v2.json` and falls back to legacy `auth-session.json` only when v2 is absent.
+
+The heartbeat/session supervisor is the centralized restore owner. Restored encrypted token and metadata pass through original secure-storage decode helpers; failed restored material normalizes to `SESSION_INVALID`. Successful decoded metadata feeds the common authorization-role projection alongside persisted identity/timing state, so role is reconstructed rather than directly persisted in SessionV2.
+
+The auth service also owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; heartbeat defaults to 120 seconds and only accepts configured integers 30..300 inclusive. No production auth path is enabled yet; secure-storage/device-key acquisition, ticket/envelope lifecycle, remaining service-to-session mutation, entitlement/capacity ownership, implementation and live proof remain open.
+
+See `docs/reviews/2026-09-27-r8-093-session-v2-source.md`.
+
 ## R8-092 public AuthState producer
 
 R8-092 recovers the shared 0xC0-byte AuthState object and exact public schema: `phase,username,accessRole,watermarkTraceCode,expiresAt,lastHeartbeatAt,lockedUntil,errorCode`. Exact phases are `checking`, `authorized`, `grace`, `locked`, and `signedOut`; mutations publish through `bridge://auth-state`.
@@ -35,7 +45,7 @@ Authorized refresh copies the successful identity/role projection, refreshes pub
 
 Heartbeat uses a separate internal grace clock at `+0x420`: after its eligibility predicate, grace is admitted while elapsed time is <=900000 ms, matching R8-091's command-admission `<900001` rule. Renew publishes authorized/locked; heartbeat authorized/grace/locked; the supervisor checking/session-error/signedOut. `auth_state` itself is a snapshot read and does not directly mutate the producer.
 
-No live auth route is enabled yet. The remaining dependency is the underlying SessionV2/secure-storage/service/entitlement source that feeds this now-recovered producer.
+No live auth route is enabled yet. R8-093 subsequently closes the persisted SessionV2 schema/restore side; remaining dependencies are lower-level device-key acquisition, ticket/envelope lifecycle, exact service-to-session mutation, entitlement/capacity refresh/persistence and rebuild/live validation.
 
 See `docs/reviews/2026-09-27-r8-092-auth-state-producer.md`.
 
@@ -43,9 +53,9 @@ See `docs/reviews/2026-09-27-r8-092-auth-state-producer.md`.
 
 R8-091 recovers the shared authorization admission far enough to replace several old assumptions. Exact host behavior recognizes `authorized`; permits `grace` only with a positive grace timestamp and `now - graceStartedAt < 900001` ms; surfaces `ACCOUNT_EXPIRED` for expiry and `AUTH_REQUIRED` as the no-usable-state fallback. Role admission compares exact `accessRole` membership. Watermark's role policy is `premium|admin` followed by an `admin`-only gate.
 
-`EntitlementResponse` is now exact as `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. `SessionV2` is declared as seven elements; six direct field names are recovered and the seventh remains unknown.
+`EntitlementResponse` is exact as `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. R8-091 initially recovered six SessionV2 names; R8-093 later closes the seventh as exact `version`, persisted and required as value `2`.
 
-Direct provider-request tracing also corrects R8-051/R8-068: generic Automation sends only `{task,config}` / `{task,config}` / `{task,options}`, and Inspect sends only `{task}`. The prior `premium/admin` request-field claim was a raw-metadata adjacency inference and is withdrawn. No live route is enabled yet: R8-092 now recovers the authorization-state producer contract, but the rebuild still lacks the original SessionV2/secure-storage/service/entitlement source that feeds it.
+Direct provider-request tracing also corrects R8-051/R8-068: generic Automation sends only `{task,config}` / `{task,config}` / `{task,options}`, and Inspect sends only `{task}`. The prior `premium/admin` request-field claim was a raw-metadata adjacency inference and is withdrawn. No live route is enabled yet: R8-092/R8-093 recover the AuthState producer and SessionV2 persistence contract, but the rebuild still lacks the lower-level device-key/ticket-envelope/service/entitlement source and implementation.
 
 See `docs/reviews/2026-09-27-r8-091-authorization-projection.md`.
 

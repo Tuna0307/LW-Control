@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-092`
+**Current checkpoint:** `LWB-R8-093`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -403,6 +403,18 @@ The successful command serializes the created profile in exact 13-field order: `
 
 After local creation, native still performs substantial post-create runtime/state provisioning through `0x1403AC07B`, which can return `STATE_UNAVAILABLE`; exact failure cleanup/rollback across the local row/directory/runtime phase remains unclosed. No production implementation is added. See `docs/reviews/2026-09-26-r8-064-profile-create-fence.md`.
 
+## R8-093 SessionV2 persistence and restore source
+
+R8-093 closes most of the persisted-session side of the R8-092 AuthState source. `SessionV2` is an exact 0x88-byte seven-field structure serialized as `version,username,expiresAt,lastHeartbeatAt,graceStartedAt,encryptedToken,encryptedMetadata`; the formerly unknown seventh field is exact `version`. Native writes `version=2` and restore rejects any other version through `SESSION_INVALID`.
+
+The auth-service constructor owns both legacy and v2 paths. Restore checks `auth-session.v2.json` first and falls back to `auth-session.json` only when the v2 file is absent. The centralized heartbeat/session supervisor is the sole direct caller of the recovered restore function. If no usable session is restored, it resets the grace clock and publishes normal `signedOut`.
+
+Persisted encrypted token and metadata are decoded through the original secure-storage helper; decode failure is normalized to `SESSION_INVALID`. Successful metadata is parsed and passed to the common role/authorization projection, proving that `accessRole` is reconstructed from metadata rather than stored as a SessionV2 field. The same service owns `LWBRIDGE_AUTH_URL` with default `https://auth.songunity.com`; auth heartbeat defaults to 120 seconds and accepts configured integer values only in the inclusive range 30..300.
+
+This checkpoint still does not wire live auth. Remaining source work is the secure-storage/device-key acquisition lifecycle, legacy migration details where needed, authorization-ticket/package-key-envelope lifecycle, exact service response-to-session mutations, and entitlement/capacity refresh/persistence.
+
+See `docs/reviews/2026-09-27-r8-093-session-v2-source.md` and `evidence/lwbridge-implementation/2026-09-27-r8-093-session-v2-source.json`.
+
 ## R8-092 public AuthState producer
 
 R8-092 closes the original host-side public authorization-state object and its phase publication. The shared AuthState is a 0xC0-byte eight-field object serialized in exact order: `phase,username,accessRole,watermarkTraceCode,expiresAt,lastHeartbeatAt,lockedUntil,errorCode`. Exact public phases are `checking`, `authorized`, `grace`, `locked`, and `signedOut`, and every state mutation publishes the refreshed object through `bridge://auth-state`.
@@ -411,7 +423,7 @@ The `authorized` emitter copies identity/role/watermark/expiry, refreshes public
 
 Heartbeat owns a separate numeric grace clock at internal offset `+0x420`. On the recovered grace-eligible path it initializes that clock once and publishes `grace` while elapsed time is at most 900000 ms, exactly matching R8-091's admission-side `<900001` comparison. Renew can publish authorized/locked; heartbeat authorized/grace/locked; the supervisor checking/session-error/signedOut. The public `auth_state` command is snapshot-only with respect to this producer family and returns exact `STATE_UNAVAILABLE` / `authorization state is unavailable` when the shared state cannot be read.
 
-This removes the unknown AuthState schema/phase-producer gap but does not enable live auth-dependent commands. The next dependency is the producer's source material: persisted SessionV2, secure-storage/device-key recovery, renew/heartbeat service results, entitlement/accessRole projection, and startup persistence/scheduling. Do not invent any of those values.
+This removes the unknown AuthState schema/phase-producer gap but does not enable live auth-dependent commands. R8-093 subsequently closes the persisted SessionV2 schema/restore side; remaining source dependencies are lower-level device-key acquisition, ticket/envelope lifecycle, exact service-to-session mutation and entitlement/capacity refresh/persistence. Do not invent any of those values.
 
 See `docs/reviews/2026-09-27-r8-092-auth-state-producer.md` and `evidence/lwbridge-implementation/2026-09-27-r8-092-auth-state-producer.json`.
 
@@ -419,9 +431,9 @@ See `docs/reviews/2026-09-27-r8-092-auth-state-producer.md` and `evidence/lwbrid
 
 R8-091 reopens the now-allowed authorization dependency using only host-side evidence. The shared non-role authorization accessor accepts exact `authorized`, plus `grace` only while `now - graceStartedAt < 900001` ms with a positive grace timestamp; expiry yields `ACCOUNT_EXPIRED` and the no-usable-state fallback is `AUTH_REQUIRED`. The shared role gate compares the authorization state's `accessRole` member by exact string membership. `watermark_lookup` uses initial allowed roles `premium|admin` and later an exact `admin` gate.
 
-Exact serde metadata closes `EntitlementResponse` as five fields: `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. `SessionV2` declares seven elements; six direct names are `username,expiresAt,lastHeartbeatAt,graceStartedAt,encryptedToken,encryptedMetadata`; the seventh remains unknown and must not be guessed.
+Exact serde metadata closes `EntitlementResponse` as five fields: `planCode,maxProfiles,expiresAt,accountExpiresAt,serverTime`. R8-091 initially identified six SessionV2 names; R8-093 later closes the seventh as exact `version`, with required persisted value `2`.
 
-Most importantly, R8-091 corrects R8-051/R8-068: direct handler tracing proves `configureAutomationTask` receives `{task,config}`, `startAutomationTask` receives `{task,config}`, `stopAutomationTask` receives `{task,options}`, and `inspectAutomationTask` receives only `{task}`. None of those four handlers appends `premium/admin`. They remain fenced because R8-092 now recovers the shared authorization-state producer contract but the rebuild still lacks the original SessionV2/secure-storage/service/entitlement source that feeds it, not because provider JSON needs invented role booleans.
+Most importantly, R8-091 corrects R8-051/R8-068: direct handler tracing proves `configureAutomationTask` receives `{task,config}`, `startAutomationTask` receives `{task,config}`, `stopAutomationTask` receives `{task,options}`, and `inspectAutomationTask` receives only `{task}`. None of those four handlers appends `premium/admin`. They remain fenced because R8-092/R8-093 recover the AuthState producer and SessionV2 persistence contract but the rebuild still lacks the lower-level device-key/ticket-envelope/service/entitlement source and implementation, not because provider JSON needs invented role booleans.
 
 See `docs/reviews/2026-09-27-r8-091-authorization-projection.md` and `evidence/lwbridge-implementation/2026-09-27-r8-091-authorization-projection.json`.
 

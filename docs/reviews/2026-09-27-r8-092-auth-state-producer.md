@@ -1,5 +1,7 @@
 # R8-092 — recover the original public AuthState producer
 
+> **Follow-up (R8-093, 2026-09-27):** the persisted SessionV2 source is now substantially recovered: exact seven-field schema including `version`, required `version=2`, v2-first restore, centralized supervisor ownership, restored token/metadata decode boundary and metadata-to-role projection. The remaining source gap is below/around that persisted session: device-key acquisition, ticket/envelope lifecycle, service mutations and entitlement/capacity refresh.
+
 **Date:** 2026-09-27
 **Reference:** verified LWBridge 0.3.1
 **Status:** RECOVERED CONTRACT

@@ -1,0 +1,103 @@
+{
+  "date": "2026-09-27",
+  "findingId": "LWB-R8-093",
+  "limits": [
+    "no real credentials, encrypted session payloads, device keys, private keys, or auth requests are read or executed",
+    "legacy auth-session.json migration internals below the v2-first fallback are not fully reconstructed here",
+    "the low-level secure-storage/device-key algorithms are not reconstructed; only host-visible ownership and error boundaries are recorded",
+    "no rebuild live-auth behavior is enabled by this checkpoint"
+  ],
+  "lowLevelErrorVocabulary": [
+    "SECURE_STORAGE_UNAVAILABLE",
+    "DEVICE_KEY_MISSING",
+    "DEVICE_KEY_MISMATCH",
+    "DEVICE_KEY_UNAVAILABLE",
+    "KEY_ENVELOPE_EXPIRED"
+  ],
+  "persistence": {
+    "serializer": "0x23EB78",
+    "target": "active v2 session path",
+    "writeHelper": "0x23D8FC"
+  },
+  "restore": {
+    "centralOwner": "heartbeat/session supervisor 0xF6F41-0xF7F47",
+    "decodeFailure": "SESSION_INVALID",
+    "encryptedMetadataDecode": "0x39F5CE",
+    "encryptedTokenDecode": "0x39F5CE",
+    "noUsableSession": "reset grace clock then publish signedOut",
+    "priority": [
+      "auth-session.v2.json",
+      "auth-session.json legacy fallback"
+    ],
+    "roleProjection": "0x23B9EB from decrypted metadata plus persisted session identity/timing"
+  },
+  "service": {
+    "authUrlEnv": "LWBRIDGE_AUTH_URL",
+    "defaultAuthUrl": "https://auth.songunity.com",
+    "heartbeatIntervalSeconds": {
+      "acceptedMax": 300,
+      "acceptedMin": 30,
+      "default": 120
+    }
+  },
+  "sessionV2": {
+    "fields": [
+      {
+        "name": "version",
+        "offset": "0x80"
+      },
+      {
+        "name": "username",
+        "offset": "0x0"
+      },
+      {
+        "name": "expiresAt",
+        "offset": "0x48"
+      },
+      {
+        "name": "lastHeartbeatAt",
+        "offset": "0x60"
+      },
+      {
+        "name": "graceStartedAt",
+        "offset": "0x78"
+      },
+      {
+        "name": "encryptedToken",
+        "offset": "0x18"
+      },
+      {
+        "name": "encryptedMetadata",
+        "offset": "0x30"
+      }
+    ],
+    "requiredVersion": 2,
+    "serializedOrder": [
+      "version",
+      "username",
+      "expiresAt",
+      "lastHeartbeatAt",
+      "graceStartedAt",
+      "encryptedToken",
+      "encryptedMetadata"
+    ],
+    "serializedVersion": 2,
+    "sizeBytes": 136
+  },
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "status": "RECOVERED CONTRACT",
+  "storagePaths": {
+    "authorizationChallenge": "authorization.challenge",
+    "authorizationTicket": "authorization.ticket",
+    "buildManifest": "build.manifest",
+    "credentialsV2": "auth-credentials.v2.json",
+    "deviceKeyCleanupPending": "device-key-cleanup.pending",
+    "legacyCredentials": "auth-credentials.json",
+    "legacySession": "auth-session.json",
+    "packageKeyEnvelope": "package-key.envelope",
+    "sessionV2": "auth-session.v2.json"
+  }
+}
