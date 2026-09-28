@@ -1,0 +1,77 @@
+{
+  "findingId": "LWL-R9-003",
+  "date": "2026-09-28",
+  "status": "STATIC FLOW RECOVERY / VERSION-PARITY SUPPORTED",
+  "managed": {
+    "command": "startGame",
+    "payload": [
+      "accountId"
+    ]
+  },
+  "startGameArgs": {
+    "arg1": "managed accountId",
+    "arg2": "protected helper-B output; local launch-session authenticator / expected session value",
+    "arg3": "protected helper-B output; process/account-bound launch-session identity metadata",
+    "arg4": "RuntimeModuleRemoteFile; protected helper C always materializes it on the recovered path because the intervening local check is constant false",
+    "arg5": "process-id output",
+    "arg6": "status/error string",
+    "arg7": "runtime download progress callback",
+    "arg8": "boolean output",
+    "arg9": "RegistryRestartContext"
+  },
+  "localHandshake": {
+    "function": "0x1C7C20",
+    "timeoutMs": 60000,
+    "imports": [
+      "GetProcessId",
+      "WaitForSingleObject",
+      "select",
+      "accept",
+      "getpeername",
+      "ntohl",
+      "send",
+      "closesocket"
+    ],
+    "validationFunction": "0x17DCD0",
+    "note": "arg2 participates in multi-input validation with connected-client/session values; cryptographic semantics not asserted"
+  },
+  "launchSessionRegistry": {
+    "wrapper": "0x1D0CD0",
+    "constructorLike": "0x1D06A0",
+    "processIdOffset": "0x10",
+    "accountIdOffset": "0x18",
+    "helperBArg3Offset": "0x38"
+  },
+  "runtimeIdentityCallback": {
+    "signature": "bool(unsigned int, const string&, const RuntimeIdentity&, string&, string&)",
+    "0.3.29": {
+      "thunk": "0x1EC4E0",
+      "body": "0x1EBE90"
+    },
+    "0.3.34": {
+      "thunk": "0x1ECB50",
+      "body": [
+        "0x1EC500",
+        "0x1EC7E1"
+      ]
+    },
+    "validation": [
+      "process-indexed local state lookup",
+      "identity leading field length 6..32",
+      "identity leading field decimal digits only",
+      "additional local identity/registry checks before outputs"
+    ]
+  },
+  "conclusion": "The launch path uses a stable process-bound internal-client identity/session protocol across 0.3.29 and 0.3.34; protected pre-launch material is consumed by a localhost handshake and LaunchSessionRegistry before the game is resumed.",
+  "limits": [
+    "No exact semantic name asserted for helper-B arg3",
+    "0x17DCD0 not claimed cryptographic without stronger evidence",
+    "No auth/license/session state modified",
+    "No patching"
+  ],
+  "correction": {
+    "localCheck034": "0x13B0F0 = xor al,al; ret",
+    "localCheck029": "0x13C750 = xor al,al; ret",
+    "consequence": "helper C is mandatory on the recovered startGame path in both versions"
+  }
+}

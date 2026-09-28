@@ -1,7 +1,7 @@
 # Strict one-to-one parity recovery directive
 
 **Effective:** 2026-09-24
-**Checkpoint:** `LWB-R8-121`
+**Checkpoint:** `LWB-R8-122`
 **Reference authority:** `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
 **Verified SHA-256:** `2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
 

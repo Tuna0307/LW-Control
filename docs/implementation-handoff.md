@@ -2,7 +2,7 @@
 
 **Project:** Last War Bot / LW-Control
 **Branch:** `research/offline-controller`
-**Current checkpoint:** `LWB-R8-121`
+**Current checkpoint:** `LWB-R8-122`
 **Date:** 2026-09-27
 
 ## Current directive
@@ -50,6 +50,8 @@ Immediate priority is **make Map work first by any effective route**, then make 
 **R8-112 native pipe dispatch:** R7-097 host wire carries `payload.fn`, but the native proxies do not route it. Their update loop forwards each 32-byte serialized-message string to fixed Lua global `XluaBridgeHandlePipeMessage`; helper `0x13890` resolves that one global, pushes the entire string, and calls `lua_pcall(L,1,0,0)`. Therefore function/provider routing lives in the unrecovered bridge Lua. R8-111 scratch recovered Lua-side `__XluaBridgeLoad`/`__XluaBridgeEvalHook`, but R8-111 remains unpromoted after its verifier was blocked. Do not assume `call_lua(fn="__XluaBridgeLoad")` is authentic/reachable until the original `XluaBridgeHandlePipeMessage` dispatch contract is recovered.
 
 **R8-113 environment surface:** both proxies have the same closed 13-name `LWBRIDGE_*` UTF-16 environment inventory; every call to generic readers `0x149D0`/`0x14BE0` uses one of those constant keys. `LWBRIDGE_HOST_DIAGNOSTIC="1"` only enables the fixed embedded diagnostic with a 2000 ms gate, and `LWBRIDGE_PROFILE_RUNTIME_ROOT` also builds the normal `xlua-proxy.log` path. There is no environment variable for Lua source/eval input/alternate bridge scripts/chunk override. Do not revisit environment-based source injection without genuinely new evidence.
+
+**R8-122 untouched original live observation boundary:** WebView2 CDP now attaches directly to the immutable original frontend at `http://tauri.localhost/`. Original native `auth_state` is signedOut and `profile_list` / reconcile / instance-status all return `AUTH_REQUIRED`, proving frontend-only spoofing is insufficient. Real dummy/no-credential service probes recover the missing `{ok:true,data:{...}}` wrapper for both password challenge and build manifest; this explains the earlier native `SERVICE_UNAVAILABLE`. Native challenge/salt validation is now pinned, and a disposable public `research/original-auth-mock` branch hosts wrapped challenge/build/login/renew/heartbeat fixtures. Current original is launched against that fixture base with CDP enabled and dummy Login fields prefilled; the next transition requires one physical Login click because programmatic native submission was platform-blocked. See `docs/reviews/2026-09-27-r8-122-original-live-observation-boundary.md`.
 
 **R8-121 Map all-eight Normal/Fast live proof:** one owned current Last War session ran all eight retained acquisition kinds in Normal then Fast. Normal: concurrency 8, 2500/2500, 0 failed, 0 unread. Fast: concurrency 20, 2500/2500, 0 failed, 0 unread. Fast persisted counts survived database reopen exactly. Combined with R8-120's normal Release/WebView Start Reading proof, Map scanning/acquisition is now WORKING under the owner operational acceptance rule. Next priority is normal Home UI validation; do not reopen Login or Map acquisition without a concrete regression. See `docs/reviews/2026-09-27-r8-121-map-all-eight-normal-fast-live.md`.
 

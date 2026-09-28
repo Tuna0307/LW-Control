@@ -1,0 +1,113 @@
+{
+  "findingId": "LWB-R8-143",
+  "date": "2026-09-28",
+  "status": "RECOVERED 0.3.17 AUTH/MULTI SERVICE SURFACE PARITY",
+  "sourceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "authService": {
+    "endpoints": {
+      "passwordChallenge": "0x82E5A0",
+      "login": "0x82E5F8",
+      "register": "0x82E8FA",
+      "renew": "0x82E630",
+      "heartbeat": "0x82EA18"
+    },
+    "requestVocabulary": [
+      "username",
+      "password",
+      "passwordVerifier",
+      "passwordVersion",
+      "passwordIterations",
+      "passwordSalt"
+    ],
+    "retainedHeaders": [
+      "Accept: application/json",
+      "X-Device-Fingerprint",
+      "X-Client-Build-Id",
+      "X-Client-Auth-Policy"
+    ],
+    "inlineRequestNameChunks": {
+      "devicePu": [
+        "0xF3458",
+        "0xF452E"
+      ],
+      "ublicKey": [
+        "0xF344A",
+        "0xF4520"
+      ],
+      "launchNo": [
+        "0xF3507",
+        "0xF45C7",
+        "0xF587B",
+        "0xF72AD"
+      ]
+    },
+    "passwordIterationConstant600000Rvas": [
+      "0xF4159",
+      "0xF43A1",
+      "0x3AD2F7",
+      "0x3AD3FB",
+      "0xD681C0"
+    ],
+    "newlyObservedNativeOnlyVocabulary": {
+      "AUTH_CHALLENGE_INVALID": "0xD55616",
+      "classification": "not found in retained 0.3.1 research tree; cannot prove version-new because original 0.3.1 executable is no longer available"
+    }
+  },
+  "multiEntitlement": {
+    "commandRvaLiteral": "0x829744",
+    "entitlementEndpoint": "/api/multi/entitlement",
+    "entitlementEndpointRva": "0x82DB60",
+    "activateCommand": "multi_activate",
+    "activateEndpoint": "/api/multi/activate",
+    "activateEndpointRva": "0x82DC30",
+    "requestField": "licenseCode",
+    "event": "bridge://multi-entitlement",
+    "publicFields": [
+      "phase",
+      "planCode",
+      "maxProfiles",
+      "expiresAt",
+      "accountExpiresAt",
+      "serverTime",
+      "graceExpiresAt",
+      "errorCode"
+    ],
+    "phases": [
+      "single",
+      "initializing",
+      "authorized",
+      "grace",
+      "restricted"
+    ],
+    "statusMirror": [
+      "multiPhase",
+      "multiMaxProfiles",
+      "multiExpiresAt",
+      "multiServerTime",
+      "multiGraceExpiresAt",
+      "multiErrorCode"
+    ],
+    "leaseVocabulary": [
+      "MULTI_LEASE_RECOVERY_MISSING",
+      "leaseProof",
+      "multi_lease_expired",
+      "/api/multi/leases/",
+      "/release",
+      "/heartbeat",
+      "SERVICE_UNAVAILABLE"
+    ]
+  },
+  "liveBaseline": {
+    "authPhase": "signedOut",
+    "profileAdmission": "AUTH_REQUIRED",
+    "multiEntitlement": "SESSION_INVALID",
+    "sessionFilePresent": false
+  },
+  "conclusion": "0.3.17 retains the broad 0.3.1 auth challenge/device-bound request/ticket-envelope/multi-entitlement architecture. No obvious new top-level entitlement gate was identified in the static service surface.",
+  "limits": [
+    "No auth or entitlement network request was made.",
+    "No credential contents were read.",
+    "No license/session/ticket/envelope material was synthesized or modified.",
+    "The 600000 constant is present in auth-code neighborhoods, but direct instruction-level semantic proof is not claimed because disassembly of the auth builder was tool-layer rejected."
+  ]
+}

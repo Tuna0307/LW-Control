@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-121`
+**Current checkpoint:** `LWB-R8-122`
 
 ## Executive status
 
@@ -13,13 +13,23 @@ For owner-facing status, **WORKING is binary and operational**. A feature is WOR
 
 Any bypass, replacement, synthetic local state, hook/shim, patch, compatibility layer, custom proxy/loader, fallback, or equivalent implementation is acceptable in the final program if it makes the retained feature work reliably. Original LWBridge remains an important behavior/source oracle, not an internal-path acceptance requirement.
 
-Immediate priority is **finish normal Home UI validation**. Map scanning/acquisition is now WORKING under R8-121; original LWBridge recovery remains useful as an oracle, but completed operational paths should not be reopened without a concrete regression.
+Immediate priority is **observe the untouched original LWBridge live before further rebuild planning**. R8-122 establishes CDP access to the real original frontend, proves native profile commands are AUTH_REQUIRED while signed out, recovers the real `{ok:true,data:{...}}` auth-service wrapper, and prepares a disposable wrapped HTTPS fixture. Map scanning/acquisition remains WORKING under R8-121; do not reopen it while this observation track is active.
 
 **Current owner-facing status:** Login/admission bypass = **WORKING** in the normal production frontend. Map scanning/acquisition = **WORKING**: R8-120 proves the normal production WebView/Start Reading path and R8-121 freshly proves all eight retained kinds in both Normal and Fast at 2500/2500 with 0 failed and 0 unread. Home launch/connect/stop lifecycle = **WORKING** through the admission-free production service route; normal Home-tab interaction remains to be freshly checked.
 
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-122 untouched original live observation boundary
+
+The real immutable `lwbridge-0.3.1.exe` is now observable through WebView2 CDP on localhost. Direct original Tauri calls prove `auth_state=signedOut` and `profile_list`, `profile_instances_reconcile`, and `profile_instance_status` all return `AUTH_REQUIRED`, so frontend-only authorization spoofing cannot unlock genuine Home lifecycle behavior.
+
+Live dummy/no-credential service probing recovered the missing response contract: both password challenge and build manifest use `{ok:true,data:{...}}`. This explains the prior `SERVICE_UNAVAILABLE`: the first disposable mock placed typed fields at the JSON root. Native challenge validator `0x23E239-0x23E465` and salt decoder `0x214338-0x2144E5` are now source-locked, including canonical URL-safe/no-padding 16-byte salt handling.
+
+A disposable public branch `research/original-auth-mock` hosts wrapped fixtures for the original build-manifest/challenge/login/renew/heartbeat paths. The untouched original is currently launched against that fixture base with CDP enabled; its Login form is prefilled with dummy values but intentionally not programmatically submitted because direct `auth_login` submission was platform-blocked. One physical Login click is the next live transition to observe.
+
+See `docs/reviews/2026-09-27-r8-122-original-live-observation-boundary.md`.
 
 ## R8-121 Map all-eight Normal/Fast live proof
 

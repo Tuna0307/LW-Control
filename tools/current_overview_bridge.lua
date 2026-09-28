@@ -37,6 +37,7 @@ local registration_method = nil
 local timer_handle = nil
 local update_callback = nil
 local last_heartbeat_clock = -1000
+local last_pipe_heartbeat_clock = -1000
 local last_ready_session = nil
 local pending_recovery_signal = nil
 local pending_recovery_signal_until_clock = nil
@@ -197,6 +198,7 @@ local function close_pipe_runtime()
     pipe_runtime.sessionId = nil
     pipe_runtime.inboundSequence = 0
     pipe_runtime.outboundSequence = 0
+    last_pipe_heartbeat_clock = -1000
     pipe_runtime.pipeName = nil
     pipe_runtime.clientConnected = false
     pipe_runtime.state = "idle"
@@ -2002,6 +2004,53 @@ local function write_pipe_result(control, request_id, result)
             "pipe_result_publish_failed:" .. tostring(rename_error)
         return false
     end
+    return true
+end
+
+-- CURRENT-CLIENT EQUIVALENT IMPLEMENTATION: the original secure proxy
+-- accepts a pre-serialized "heartbeat" envelope from its loaded Lua package,
+-- while the original host requires /payload/time and disconnects after 30s
+-- without any frame. The protected package serializer/cadence is unrecovered,
+-- so emit the recovered host-compatible envelope every five seconds.
+local function write_pipe_heartbeat(control)
+    if not pipe_runtime.adapterActive or
+       not pipe_runtime.clientConnected or
+       pipe_runtime.state ~= "connected" then
+        return true
+    end
+    local clock = runtime_clock()
+    if clock - last_pipe_heartbeat_clock < 5.0 then return true end
+
+    pipe_runtime.outboundSequence =
+        (pipe_runtime.outboundSequence or 0) + 1
+    local sequence = pipe_runtime.outboundSequence
+    local final_path = pipe_mailbox_path("outbound", sequence)
+    local temp_path = final_path .. ".tmp"
+    local now_ms = (tonumber(os.time()) or 0) * 1000
+    local envelope = {
+        version = 1,
+        type = "heartbeat",
+        profileId = control.profileId,
+        instanceId = control.sessionId,
+        requestId = "",
+        timestamp = now_ms,
+        payload = {
+            time = now_ms,
+        },
+    }
+    if not write_json(temp_path, envelope) then
+        pipe_runtime.error = "pipe_heartbeat_write_failed"
+        return false
+    end
+    pcall(os.remove, final_path)
+    local renamed, rename_error = os.rename(temp_path, final_path)
+    if not renamed then
+        pcall(os.remove, temp_path)
+        pipe_runtime.error =
+            "pipe_heartbeat_publish_failed:" .. tostring(rename_error)
+        return false
+    end
+    last_pipe_heartbeat_clock = clock
     return true
 end
 

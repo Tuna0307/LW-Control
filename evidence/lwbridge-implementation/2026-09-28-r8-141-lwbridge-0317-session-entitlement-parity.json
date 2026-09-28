@@ -1,0 +1,102 @@
+{
+  "findingId": "LWB-R8-141",
+  "date": "2026-09-28",
+  "status": "RECOVERED 0.3.17 SESSION/ENTITLEMENT SCHEMA PARITY",
+  "source": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "authStateEvidence": {
+    "fields": [
+      "phase",
+      "username",
+      "accessRole",
+      "watermarkTraceCode",
+      "expiresAt",
+      "lastHeartbeatAt",
+      "lockedUntil",
+      "errorCode"
+    ],
+    "event": "bridge://auth-state",
+    "stateUnavailableCode": "STATE_UNAVAILABLE",
+    "stateUnavailableMessage": "authorization state is unavailable",
+    "phaseBuilderImmediateCluster": "0x3A6Cxx-0x3ABFxx"
+  },
+  "sessionV2": {
+    "typeLiteral": "struct SessionV2 with 7 elements",
+    "typeLiteralRva": "0xD4FD2D",
+    "directFieldCluster": [
+      [
+        "username",
+        "0xD4FCE0"
+      ],
+      [
+        "expiresAt",
+        "0xD4FCE8"
+      ],
+      [
+        "lastHeartbeatAt",
+        "0xD4FCF1"
+      ],
+      [
+        "graceStartedAt",
+        "0xD4FD00"
+      ],
+      [
+        "encryptedToken",
+        "0xD4FD0E"
+      ],
+      [
+        "encryptedMetadata",
+        "0xD4FD1C"
+      ]
+    ],
+    "seventhFieldPlacement": "UNRESOLVED_IN_0.3.17",
+    "note": "0.3.1 proves the seventh field is version=2; this checkpoint does not assume the exact 0.3.17 placement without source evidence."
+  },
+  "entitlementResponse": {
+    "typeLiteral": "struct EntitlementResponse with 5 elements",
+    "typeLiteralRva": "0xD50530",
+    "fields": [
+      "planCode",
+      "maxProfiles",
+      "expiresAt",
+      "accountExpiresAt",
+      "serverTime"
+    ],
+    "fieldCluster": {
+      "planCode": "0xD54E2B",
+      "maxProfiles": "0xD54E33",
+      "expiresAt": "0xD54DA2",
+      "accountExpiresAt": "0xD54E3E",
+      "serverTime": "0xD54DAB"
+    }
+  },
+  "storageAndConfig": {
+    "names": [
+      "auth-session.json",
+      "auth-credentials.json",
+      "auth-session.v2.json",
+      "auth-credentials.v2.json",
+      "device-key-cleanup.pending",
+      "authorization.challenge",
+      "authorization.ticket",
+      "package-key.envelope",
+      "build.manifest"
+    ],
+    "authUrlEnv": "LWBRIDGE_AUTH_URL",
+    "defaultAuthUrl": "https://auth.songunity.com",
+    "heartbeatField": "heartbeatIntervalSeconds"
+  },
+  "liveState": {
+    "authSessionV2Present": false,
+    "authCredentialsV2Present": true,
+    "nativeBaselineFromR8139": "signedOut / multi_entitlement_get -> SESSION_INVALID"
+  },
+  "limits": [
+    "No credential file contents were read.",
+    "No auth network request was made.",
+    "No executable or DLL bytes were modified.",
+    "Direct auth-builder disassembly was tool-layer rejected; no patchable native branch address is claimed."
+  ]
+}

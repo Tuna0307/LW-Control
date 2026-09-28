@@ -1,6 +1,6 @@
 # LWBridge strict parity backlog
 
-**Current through:** `LWB-R8-121`, 2026-09-27.
+**Current through:** `LWB-R8-122`, 2026-09-27.
 
 This backlog targets a working retained LWBridge/LW-Control product against the current Last War client. Owner direction on 2026-09-27 explicitly allows **any bypass or replacement** that helps make the program work, including login/auth bypass, synthetic local state, patches, hooks/shims, custom loaders/proxies, compatibility layers, equivalent implementations and fallbacks. These routes may be production paths. Original LWBridge remains the main behavior/source oracle but internal one-to-one provenance is no longer an acceptance requirement.
 

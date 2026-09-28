@@ -1,0 +1,79 @@
+{
+  "findingId": "LWL-R9-001",
+  "date": "2026-09-28",
+  "specimen": {
+    "version": "0.3.34",
+    "sha256": "D8140C997DB145473D30D8C0882659C72214EE8EBF8E247E9531E7A49BFA6B26"
+  },
+  "startGame": {
+    "function": [
+      "0x1EA7F0",
+      "0x1EC4EC"
+    ],
+    "singletonRva": "0x5F5440",
+    "signature": "bool LocalLoaderStore::StartGame(const string&, const string&, const string&, const RuntimeModuleRemoteFile&, unsigned int&, string&, const function<bool(uint64,uint64)>&, bool*, RegistryRestartContext*)",
+    "createProcessCallsite": "0x1EB86B",
+    "createFlags": "0x404",
+    "localHandoffFunction": "0x1BFEC0",
+    "waitCallsite": "0x1EBE69",
+    "waitMilliseconds": 5000,
+    "resumeThreadCallsite": "0x1EBEBF"
+  },
+  "chain": {
+    "export": "LwlExecuteCommand",
+    "exportRva": "0x1B62B0",
+    "directAdapterCallsite": "0x1B8D1B",
+    "adapter": [
+      "0x1AFCD0",
+      "0x1B016E"
+    ],
+    "adapterToHandlerCallsite": "0x1AFEC1",
+    "handler": [
+      "0x1AF7C0",
+      "0x1AFCCE"
+    ],
+    "handlerToStartGameCallsite": "0x1AF9F0"
+  },
+  "protectedPrelaunch": {
+    "probableCoordinatorRva": "0x5F5100",
+    "auxiliaryGlobalRva": "0x5F5340",
+    "uniqueHelpers": [
+      "0x186F30",
+      "0x183F20",
+      "0x189110"
+    ],
+    "protectedSection": {
+      "name": ".E\\\"w",
+      "rva": "0x638000",
+      "size": "0x62D2F8",
+      "entropy": 7.332
+    },
+    "exampleProtectedTargets": [
+      "0x7F9547",
+      "0x9C9DF7",
+      "0xA68613",
+      "0xC31D42"
+    ]
+  },
+  "runtimeHandoff": {
+    "descendant": "0x1BFEC0 -> 0x3E0830",
+    "imports": [
+      "OpenProcess",
+      "WriteProcessMemory",
+      "WaitForSingleObject"
+    ]
+  },
+  "localProtocol": [
+    "LWLOCAL-STARTUP-V2",
+    "LWLOCAL-PROOF-V2",
+    "SHA-256",
+    "AES-256-GCM"
+  ],
+  "conclusion": "The meaningful authorization/runtime materialization boundary is immediately upstream of LocalLoaderStore::StartGame and is protected/virtualized; StartGame itself performs suspended-process launch and local runtime handoff.",
+  "limits": [
+    "No login attempted",
+    "No token/session/license material synthesized",
+    "No executable patched",
+    "No auth state modified"
+  ]
+}

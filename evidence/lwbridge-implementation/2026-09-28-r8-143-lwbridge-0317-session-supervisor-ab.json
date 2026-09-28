@@ -1,0 +1,74 @@
+{
+  "findingId": "LWB-R8-143",
+  "date": "2026-09-28",
+  "status": "LIVE-PROVEN 0.3.17 SESSION SUPERVISOR A/B",
+  "source": {
+    "executable": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+  },
+  "control": {
+    "condition": "no auth-session.v2.json and no auth-session.json",
+    "authState": {
+      "phase": "signedOut",
+      "errorCode": null,
+      "accessRole": "normal"
+    },
+    "profileListError": "AUTH_REQUIRED",
+    "multiEntitlementError": "SESSION_INVALID"
+  },
+  "malformedV2Fixture": {
+    "fixture": "{}",
+    "purpose": "local controlled deserialization-failure fixture only",
+    "authState": {
+      "phase": "signedOut",
+      "errorCode": "SESSION_INVALID",
+      "accessRole": "normal"
+    },
+    "profileListError": "SESSION_INVALID",
+    "multiEntitlementError": "SESSION_INVALID",
+    "retainedAfterStartup": true,
+    "observedSizeBytes": 3
+  },
+  "restoredControl": {
+    "pid": 45648,
+    "authState": {
+      "phase": "signedOut",
+      "errorCode": null,
+      "accessRole": "normal"
+    },
+    "profileListError": "AUTH_REQUIRED",
+    "multiEntitlementError": "SESSION_INVALID"
+  },
+  "artifactPostCheck": {
+    "authSessionV2Present": false,
+    "legacyAuthSessionPresent": false,
+    "authorizationTicketPresent": false,
+    "packageKeyEnvelopePresent": false,
+    "authCredentialsV2Present": true
+  },
+  "conclusion": [
+    "0.3.17 distinguishes no persisted session from an existing but invalid persisted v2 session.",
+    "An invalid persisted session is normalized into public signedOut plus SESSION_INVALID and causes profile_list to return SESSION_INVALID instead of AUTH_REQUIRED.",
+    "Removing the invalid local fixture restores the original no-session baseline.",
+    "This behavior is consistent with the recovered 0.3.1 centralized SessionV2 supervisor contract.",
+    "The observed invalid v2 session file is not automatically deleted by startup rejection.",
+    "With v2 absent, malformed legacy auth-session.json also reaches the invalid-session surface, consistent with v2-first / legacy-fallback restore."
+  ],
+  "limits": [
+    "No credential contents were read.",
+    "No vendor login, activation, renew, heartbeat, entitlement activation, ticket, or envelope was synthesized.",
+    "No executable or DLL bytes were modified.",
+    "The fixture was removed and the original no-session state was re-proven."
+  ],
+  "malformedLegacyFixture": {
+    "fixture": "{}",
+    "authState": {
+      "phase": "signedOut",
+      "errorCode": "SESSION_INVALID",
+      "accessRole": "normal"
+    },
+    "profileListError": "SESSION_INVALID",
+    "multiEntitlementError": "SESSION_INVALID",
+    "interpretation": "with v2 absent, 0.3.17 still attempts legacy session restore and rejects unusable legacy state"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "findingId": "LWB-R8-144",
+  "date": "2026-09-28",
+  "status": "RECOVERED LOCKOUT OWNERSHIP / NO LIVE BRUTE FORCE",
+  "source": {
+    "executableSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "frontendBundle": "index-BVfnK1wp.js",
+    "frontendBundleSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+  },
+  "frontend": {
+    "lockRendererChar": 214041,
+    "authScreenLockedUntilChar": 215120,
+    "lockCodes": [
+      "ACCOUNT_LOCKED",
+      "TOO_MANY_REQUESTS"
+    ],
+    "countdownSource": "auth_state.lockedUntil",
+    "loginDisabledRule": "login mode && lockedUntil != null && Date.parse(lockedUntil) > Date.now()",
+    "behavior": "frontend counts down a native-provided lock timestamp and disables only the Login submit button while the timestamp is in the future"
+  },
+  "native": {
+    "tooManyRequestsRva": "0x829580",
+    "lockedUntilRvas": [
+      "0x82E602",
+      "0xD558B4"
+    ],
+    "retryAfterRva": "0x82E60D",
+    "loginEndpointRva": "0x82E5F8",
+    "observation": "lockedUntil/retryAfter are in the native auth request/response schema neighborhood beside /api/login"
+  },
+  "parity": {
+    "031FrontendHasAccountLocked": true,
+    "031FrontendHasTooManyRequests": true,
+    "conclusion": "the client-side lock countdown/error rendering predates 0.3.17"
+  },
+  "conclusion": [
+    "The 15-minute UI countdown is client presentation/enforcement around a native-provided lock timestamp, not the sole source of rate limiting.",
+    "Removing the frontend disabled state would not remove native/server TOO_MANY_REQUESTS or lockedUntil/retryAfter handling.",
+    "No live brute-force or rate-limit evasion test was performed."
+  ],
+  "safeNextTest": "Use a local/mock auth service to reproduce lock responses and verify client/native behavior without sending repeated guesses to the production service."
+}

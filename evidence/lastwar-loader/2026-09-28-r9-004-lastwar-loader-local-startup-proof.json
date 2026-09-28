@@ -1,0 +1,65 @@
+{
+  "findingId": "LWL-R9-004",
+  "date": "2026-09-28",
+  "status": "STATIC LOCAL-PROTOCOL RECOVERY",
+  "constantFalseChecks": {
+    "0.3.29": {
+      "rva": "0x13C750",
+      "instructions": [
+        "xor al, al",
+        "ret"
+      ]
+    },
+    "0.3.34": {
+      "rva": "0x13B0F0",
+      "instructions": [
+        "xor al, al",
+        "ret"
+      ]
+    },
+    "consequence": "protected helper C always executes on the recovered startGame path"
+  },
+  "startupEnvelope": {
+    "function": [
+      "0x17DCD0",
+      "0x17EA37"
+    ],
+    "bcrypt": {
+      "0x3D9618": "BCryptOpenAlgorithmProvider",
+      "0x3D961E": "BCryptGetProperty",
+      "0x3D9624": "BCryptSetProperty",
+      "0x3D962A": "BCryptCloseAlgorithmProvider",
+      "0x3D9630": "BCryptGenerateSymmetricKey",
+      "0x3D9636": "BCryptEncrypt",
+      "0x3D963C": "BCryptDestroyKey",
+      "0x3D9642": "BCryptCreateHash",
+      "0x3D9648": "BCryptHashData",
+      "0x3D964E": "BCryptFinishHash",
+      "0x3D9654": "BCryptDestroyHash",
+      "0x3D965A": "BCryptGenRandom"
+    },
+    "schema": [
+      "LWLOCAL-STARTUP-V2",
+      "type=startup",
+      "cipher=aes-256-gcm",
+      "tag"
+    ],
+    "classification": "authenticated/encrypted local startup-envelope construction"
+  },
+  "proofPath": {
+    "marker": "LWLOCAL-PROOF-V2",
+    "markerRva": "0x48D7B8",
+    "protectedFunction": [
+      "0xC30C1B",
+      "0xC30EE7"
+    ],
+    "markerReference": "0xC30C96",
+    "exactDirection": "unresolved; generation vs verification not asserted"
+  },
+  "correction": "RuntimeModuleRemoteFile is mandatory on the observed wrapper path because the apparent skip check is constant false.",
+  "limits": [
+    "No bypass claimed",
+    "No auth/license/session state modified",
+    "No patching"
+  ]
+}
