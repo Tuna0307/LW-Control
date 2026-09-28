@@ -1,0 +1,29 @@
+{
+  "findingId": "LWB-R8-139",
+  "date": "2026-09-28",
+  "status": "LIVE-PROVEN ORIGINAL 0.3.17 AUTH BASELINE",
+  "source": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "runtimeBuild": "yoWZOvy8GWpsTNLrcZGcYQ",
+    "pid": 44748
+  },
+  "nativeAuthState": {
+    "phase": "signedOut",
+    "accessRole": "normal",
+    "expiresAt": null,
+    "lastHeartbeatAt": null,
+    "lockedUntil": null,
+    "errorCode": null
+  },
+  "nativeGateResults": {
+    "profile_list": "AUTH_REQUIRED",
+    "profile_instance_status": "AUTH_REQUIRED",
+    "multi_entitlement_get": "SESSION_INVALID"
+  },
+  "frontendAssets": {
+    "index-BVfnK1wp.js": {"bytes":377972,"sha256":"44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"},
+    "zh-CN-ByrbNejR.js": {"bytes":69293,"sha256":"521521c8df711a9d49fd98ce951c4d2a316a9dbfe704bd9e5f65e7686079e9be"}
+  },
+  "limits": ["No login/activation request was sent.", "No license/session material was fabricated.", "No EXE/DLL bytes were modified."]
+}

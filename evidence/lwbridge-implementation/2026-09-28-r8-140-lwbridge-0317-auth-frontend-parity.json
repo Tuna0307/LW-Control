@@ -1,0 +1,46 @@
+{
+  "findingId": "LWB-R8-140",
+  "date": "2026-09-28",
+  "status": "RECOVERED 0.3.17 AUTH/PROFILE FRONTEND PARITY",
+  "sources": {
+    "lwbridge0317": {
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+      "mainBundle": "index-BVfnK1wp.js",
+      "mainBundleSha256": "44c4e4043825b7db296b64171951b27176f8850ff8d7d337cc991df4765524c6"
+    },
+    "lwbridge031": {
+      "mainBundle": "index-sfL2sT3K.js",
+      "mainBundleSha256": "4d18cbc036a417b1a13a2c9905f1abc5dda1427531ad1ab4f7b03f4b269704b3",
+      "apiBundle": "api-ClPPi2JT.js",
+      "apiBundleSha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+    }
+  },
+  "authRequestShapesEqual": true,
+  "profileProviderOrderingEqual": true,
+  "identityEventRefreshesProfileListDirectly": true,
+  "multiEntitlementEventRefreshesProfileListWithEventEntitlement": true,
+  "exactSharedFragments": {
+    "login": "auth_login`,{username:e,password:t}",
+    "activate": "auth_activate`,{username:e,password:t,licenseCode:n}",
+    "renew": "auth_renew`,{licenseCode:e}",
+    "reconcile": "profile_instances_reconcile`,{autoLaunchAll:e}",
+    "initialRefreshHelper": "return{entitlement:await e(),profiles:await t()}",
+    "eventRefreshHelper": "return{entitlement:e,profiles:await t()}"
+  },
+  "sourceOffsets": {
+    "0317InitialRefreshHelperChar": 195019,
+    "0317EventRefreshHelperChar": 195091,
+    "0317ProfileIdentityChar": 329420,
+    "031ApiInitialRefreshHelperChar": 9785,
+    "031ApiEventRefreshHelperChar": 9856,
+    "031ProfileIdentityChar": 306704
+  },
+  "correction": "ACCOUNT_EXPIRED, DEVICE_MISMATCH, CLIENT_BUILD_UNAUTHORIZED and CLIENT_UPDATE_REQUIRED are already present in the recovered 0.3.1 frontend; their presence alone is not a 0.3.17 delta.",
+  "nearbyVersionDelta": "0.3.17 call_lua accepts optional profile scoping via a third wrapper argument; the recovered 0.3.1 wrapper is unscoped.",
+  "nativeWork": "0.3.17 string RVAs were located, but the full executable xref sweep did not return a reliable result and was terminated; no native branch address is claimed.",
+  "limits": [
+    "No login, activation or renew request was sent.",
+    "No credential file was read.",
+    "No EXE or DLL bytes were modified."
+  ]
+}
