@@ -1,0 +1,53 @@
+{
+  "findingId": "LWB-R8-115",
+  "date": "2026-09-27",
+  "status": "RECOVERED LIFECYCLE SYNTHESIS",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "sourceCheckpoints": ["R8-004", "R8-005", "R8-092", "R8-093", "R8-094", "R8-095", "R8-104", "R8-105", "R8-106", "R8-107", "R8-114"],
+  "artifactIngest": {
+    "functionRva": "0x23C7EC",
+    "onlyDirectTextCallsites": {
+      "renew": "0xF4D3B",
+      "heartbeat": "0xF6980",
+      "loginRegisterProjector": "0x239A11"
+    },
+    "responseFields": ["authorizationTicket", "authorizationTicketExpiresAt", "packageKeyEnvelope", "packageKeyEnvelopeExpiresAt"]
+  },
+  "freshLogin": {
+    "endpoint": "/api/login",
+    "deviceKeyMode": 0,
+    "deviceKeyMeaning": "open-or-create ECDH_P256 persisted key then export public key",
+    "requestBinding": ["devicePublicKey", "launchNonce"],
+    "normalSuccess": ["artifact ingest", "authorized publication", "SessionV2 persistence"],
+    "expiredTrue": ["ticket/envelope cleanup", "locked ACCOUNT_EXPIRED"]
+  },
+  "existingSession": {
+    "restoreOwner": "heartbeat/session supervisor",
+    "deviceKeyMode": 1,
+    "deviceKeyMeaning": "open-existing-only",
+    "refreshEndpoints": ["/api/renew", "/api/heartbeat"],
+    "heartbeatIntervalSeconds": {"default": 120, "acceptedConfiguredRangeInclusive": [30, 300]}
+  },
+  "noUsableSession": ["best-effort delete authorization.ticket", "best-effort delete package-key.envelope", "publish signedOut"],
+  "sourceTransition": {
+    "proxyBootstrapPackageRefreshCallRva": "0x153E2",
+    "assembledSourceNonzeroGateRva": "0x1547A",
+    "compilerReadRange": "0x15A08-0x15A3E",
+    "sourceZeroizerRange": "0x16183-0x1618A",
+    "target": "XluaBridgeMapScanTick"
+  },
+  "currentMachine": {
+    "authorizationChallenge": true,
+    "matchingBuildManifest": true,
+    "authorizationTicket": false,
+    "packageKeyEnvelope": false,
+    "decision": "do not launch merely for source recovery until legitimate auth lifecycle has populated required runtime artifacts"
+  },
+  "limits": [
+    "no credentials or auth network requests used",
+    "no private-key export",
+    "no synthetic ticket/envelope/session material",
+    "protected proxy envelope-consumer body remains untouched",
+    "Map remains NOT WORKING"
+  ]
+}

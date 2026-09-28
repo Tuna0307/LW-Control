@@ -1,7 +1,7 @@
 # Current project status — strict one-to-one recovery
 
 **Date:** 2026-09-27
-**Current checkpoint:** `LWB-R8-104`
+**Current checkpoint:** `LWB-R8-121`
 
 ## Executive status
 
@@ -9,17 +9,151 @@ The project is not complete.
 
 ### Owner working/acceptance reset — 2026-09-27
 
-For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+For owner-facing status, **WORKING is binary and operational**. A feature is WORKING when the production program performs that feature successfully against the real current Last War client. The internal implementation no longer has to be the recovered original LWBridge path.
 
-For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+Any bypass, replacement, synthetic local state, hook/shim, patch, compatibility layer, custom proxy/loader, fallback, or equivalent implementation is acceptable in the final program if it makes the retained feature work reliably. Original LWBridge remains an important behavior/source oracle, not an internal-path acceptance requirement.
 
-Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+Immediate priority is **finish normal Home UI validation**. Map scanning/acquisition is now WORKING under R8-121; original LWBridge recovery remains useful as an oracle, but completed operational paths should not be reopened without a concrete regression.
 
-**Current owner-facing status:** Home = **NOT WORKING**; Map = **NOT WORKING**. R8-065/R8-066 remain valuable live evidence that equivalent reconstructed paths can operate against the current client, but those paths no longer qualify for the WORKING label.
+**Current owner-facing status:** Login/admission bypass = **WORKING** in the normal production frontend. Map scanning/acquisition = **WORKING**: R8-120 proves the normal production WebView/Start Reading path and R8-121 freshly proves all eight retained kinds in both Normal and Fast at 2500/2500 with 0 failed and 0 unread. Home launch/connect/stop lifecycle = **WORKING** through the admission-free production service route; normal Home-tab interaction remains to be freshly checked.
 
 Previous R7 status pages measured whether the reconstructed Home/Map product worked at its chosen scope. On 2026-09-24 the owner reset the goal to exact LWBridge 0.3.1 parity across the retained program. On 2026-09-26 the owner also lifted the earlier blanket auth/entitlement exclusion for dependency recovery: those internals may now be recovered when retained features require them, without inventing credentials, roles, capacity or synthetic premium/admin state. Standalone Login/Register/account-management product UI remains non-priority unless the retained-state pipeline requires it.
 
 The old acceptance matrix remains useful implementation evidence but is no longer completion authority.
+
+## R8-121 Map all-eight Normal/Fast live proof
+
+The current-client Map acquisition implementation is freshly live-proven after the R8-120 production bypass. One owned Last War session ran all eight retained kinds (`city`, `resource`, `monster`, `truck`, `railway`, `dispatch`, `ghost`, `treasure`) first in Normal, then in Fast. Normal used concurrency 8 and completed 2500/2500 with 0 failed/0 unread; Fast used concurrency 20 and also completed 2500/2500 with 0 failed/0 unread. Fast published counts survived database reopen exactly.
+
+Combined with R8-120's normal Release WebView proof of the actual Map Data Start Reading control, Map scanning/acquisition is now **WORKING** under the owner operational acceptance rule. Zero live rows for a selected kind do not constitute a route failure when the selected all-eight scan completes the full world with zero failed/unread; this run observed no Ghost rows in either mode and no Railway rows in Fast, while Normal independently observed one Railway row.
+
+Next priority is normal Home UI validation. See `docs/reviews/2026-09-27-r8-121-map-all-eight-normal-fast-live.md`.
+
+## R8-120 production login/admission bypass live proof
+
+R8-120 turns the R8-119 policy into a production implementation. `LWBridgeBackend` now returns a local `authorized` AuthState and single-profile entitlement, and `InvokeAsync` delegates lifecycle-owned commands to the already live-proven `OverviewLifecycleService` before the old synchronous stubs.
+
+Fresh current-client proof is end-to-end. Direct manual and reconcile lifecycle launches both reached `connected`; authenticated control-pipe proof reached one live route with `xluaOnline=true` and successful Lua `getStatus`; runtime diagnostic returned live server/world/player/runtime-object state. Most importantly, the normal Release WebView consumed the bypassed AuthState, entered Map Data without Login, launched Last War, completed production Fast Resource scan 2500/2500 with 0 failed and 0 unread, returned 864 resource rows, and rendered a correlated Iron Mine row. Cleanup left no game/launcher/Desktop process running.
+
+This solves Login/admission as a practical blocker. Next priority is fresh production validation of all eight Map kinds in both Normal and Fast modes, then normal Home UI proof. See `docs/reviews/2026-09-27-r8-120-production-auth-bypass-live.md`.
+
+## R8-119 owner acceptance / unrestricted bypass correction
+
+The owner explicitly supersedes the remaining strict internal-parity restriction: **any bypass is allowed if it helps make the program work**. This includes login/auth bypass, synthetic local state, hard-coded admission/capacity/role state where useful, patched research or production copies, hooks/shims, custom loader/proxy, compatibility layers, fallbacks, or equivalent implementations. These routes may be used in the final program, not just research.
+
+The only acceptance question is operational: does the current production program perform the retained feature successfully against the real current Last War client? Original LWBridge recovery remains useful as a behavior oracle and source of missing logic, but is no longer mandatory as the internal production implementation.
+
+The R8-118 login-bypass effort did **not** prove login bypass impossible. Two direct mutation attempts (reference-EXE admission patch and synthetic SessionV2 write) were blocked by the execution environment before they could run and were not rerouted. Separate hypotheses were actually closed: plain proxy follows the same package/auth pipeline, and original proxies are LWAT2-only rather than accepting LWAT1.
+
+Next work should continue bypassing login/admission through a genuinely different executable route and/or restore the historically live-working equivalent Home/Map paths, whichever reaches reliable live operation fastest.
+
+## R8-118 bypass classification / policy correction
+
+Owner direction now explicitly permits invented local **research bypasses** when they help expose/recover original LWBridge behavior. These bypasses remain research scaffolding and do not satisfy the binary WORKING acceptance label by themselves.
+
+Static comparison of the exact secure/plain proxies proves identical outer package/auth control flow (105 direct calls and 144 branches) and identical critical envelope/package/decrypt/parser callsites. Plain proxy therefore does not bypass the package-key path. Both proxies contain only `LWAT2`, not `LWAT1`; the LWAT2 verifier uses a hardcoded P-256 public key and no static private ECC key blob exists in the host/proxies. A bounded current-client scan found no bridge Map/dispatcher/load/eval symbols. Direct patch/session-fabrication executions were blocked by the environment and not rerouted.
+
+Next bypass work should target a genuinely different loader/proxy substitution or controlled post-admission instrumentation path while preserving the immutable reference. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-118-proxy-package-bypass-classification.md` and `evidence/lwbridge-implementation/2026-09-27-r8-118-proxy-package-parity.json`.
+
+## R8-117 original credential persistence/restore
+
+R8-117 closes the original `auth_credentials` backing store. Credential restore is v2-first at `0x23A24C-0x23A60A`, using service path offsets `+0x120/+0x128`, exact credential version 2 and secure decode helper `0x39F5CE`. Its only fallback is legacy credentials at `+0xE0/+0xE8`, with exact JSON keys `version`, `username`, `encryptedPassword`; a valid legacy record is decoded then migrated through the v2 save path. Save at `0x239D61-0x23A111` protects the password through `0x39F4C5`, serializes version 2 / username / encryptedPassword through `0x23E7EE-0x23E8DA`, and persists the v2 credential path via `0x23D8FC`.
+
+A full indexed filename search under the accessible user profile found no original credential/session/ticket/envelope persistence file. Therefore there is no legitimate stored-login state currently available to research tooling. Do not repeat owner-login prompts, inspect password-manager/browser secrets, synthesize credentials, or bypass admission checks. The next independent route returns to the authentic package/source boundary. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-117-auth-credentials-persistence.md` and `evidence/lwbridge-implementation/2026-09-27-r8-117-auth-credentials-persistence.json`.
+
+## R8-116 reference frontend auth-to-launch orchestration
+
+R8-116 recovers the exact reference frontend bridge from signed-out UI to the launch lifecycle. The Login form calls `auth_login({username,password})`, with required username length 3..50 and password length 8..72. It may prefill empty fields through `auth_credentials`, but this checkpoint reads no credential content. Successful login/activation is treated as a post-auth-launch transition: on `authorized`/`grace`, frontend best-effort calls `multi_entitlement_get`, then `profile_instances_reconcile({autoLaunchAll:<setting>})`. The `lwbridge.autoLaunchGame` setting defaults true unless its stored value is exact string `false`.
+
+A filename-only search of the relevant Local/Roaming AppData roots found no original session, credential, ticket or envelope files. The next authentic source-recovery transition is therefore owner-driven normal login in the reference product, followed by its original reconcile/auto-launch path; it is not fabricated state or research-only service probing. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-116-auth-launch-frontend.md` and `evidence/lwbridge-implementation/2026-09-27-r8-116-auth-launch-frontend.json`.
+
+## R8-115 legitimate envelope lifecycle trigger
+
+R8-115 cross-checks the already recovered host lifecycle and closes the immediate trigger question without contacting auth. Fresh login uses device-key mode `0` (open-or-create + public export), sends `devicePublicKey` and `launchNonce`, and a successful non-expired login/register response reaches the shared ticket/envelope ingest. Successful `/api/renew` and `/api/heartbeat` responses also reach that same ingest owner and can replace the runtime artifacts. By contrast, startup with no usable SessionV2 best-effort deletes `authorization.ticket` and `package-key.envelope` and publishes `signedOut`.
+
+The current machine still has only challenge + matching build manifest, so launching Last War now would not exercise the R8-104 assembled-source path. Once a legitimate authorized original-host lifecycle has populated ticket/envelope, the next authentic proxy bootstrap/package refresh should return directly to the R8-104 source window and search the recovered source for `XluaBridgeMapScanTick`. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-115-envelope-lifecycle-trigger.md` and `evidence/lwbridge-implementation/2026-09-27-r8-115-envelope-lifecycle-trigger.json`.
+
+## R8-114 native proxy file-input surface closure
+
+R8-114 closes the product-owned native file-based source/eval shortcut. The recovered bootstrap/runtime inputs are semantically typed: `bridge-scripts.dat`, authorization ticket/challenge, package-key envelope, build manifest, proxy-bundle JSON, original-xLua DLL path, multi-proof path, and runtime/log paths. Bounded text reader `0x1BD80` has exactly two callers—`package-key.envelope` and `LWBRIDGE_MULTI_PROOF_PATH`—both with max `0x1000`. The encrypted `bridge-scripts.dat` package has dedicated reader `0x1B910` with exactly one caller, `0x1CAFD`, inside the authentic package/auth flow. No recovered native file path/reader provides arbitrary Lua source, eval input, alternate chunk loading or diagnostic script override.
+
+This is not a claim about every CRT/internal filesystem helper. It closes the product-owned bootstrap/runtime source-recovery file surface. After R8-113/R8-114 there is no environment or native-file shortcut around the authentic package/source route; return to the R8-104 legitimate-source-state bottleneck. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-114-proxy-file-input-surface.md` and `evidence/lwbridge-implementation/2026-09-27-r8-114-proxy-file-input-surface.json`.
+
+## R8-113 native proxy environment surface closure
+
+R8-113 exhaustively recovers the original secure/plain proxy environment-variable surface. Both proxies expose the same exact 13 UTF-16 `LWBRIDGE_*` keys, and every caller of the two generic `GetEnvironmentVariableW` wrappers supplies a constant member of that same set. Direct reads are likewise limited to profile/instance/pipe identity, the diagnostic toggle, and runtime-root log-path construction.
+
+The only diagnostic key is `LWBRIDGE_HOST_DIAGNOSTIC`: it must equal exact wide value `"1"` and triggers the fixed embedded host diagnostic no more often than every 2000 ms. `LWBRIDGE_PROFILE_RUNTIME_ROOT` additionally constructs the ordinary `\logs\xlua-proxy.log` path (with bridge-runtime fallback). No environment variable supplies Lua source, eval input, alternate bridge-script source/package, chunk path, or diagnostic source override. This closes the environment/config shortcut raised after R8-112; it does not claim every possible file/registry/protocol input elsewhere is absent. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-113-proxy-environment-surface.md` and `evidence/lwbridge-implementation/2026-09-27-r8-113-proxy-environment-surface.json`.
+
+## R8-112 native pipe-to-Lua dispatch boundary
+
+R8-112 closes the native half of original host→proxy call dispatch. R7-097 proves the host sends `command/kind=call` with `payload.fn` and `payload.args`, but both verified proxies contain no native `"kind":"call"` or `"fn"` routing literal. Instead the native update loop iterates 32-byte string records and calls one fixed Lua global, `XluaBridgeHandlePipeMessage`, through helper `0x13890`. That helper performs `xlua_getglobal(globalName)`, pushes the entire record through `lua_pushlstring`, then executes `lua_pcall(L,1,0,0)`.
+
+Therefore `payload.fn` routing belongs below the native boundary in the unrecovered bridge Lua. The R8-111 scratch discovery of Lua global `__XluaBridgeLoad` does **not** prove that `call_lua(fn="__XluaBridgeLoad")` is reachable or equivalent; that would require the authentic `XluaBridgeHandlePipeMessage` dispatch/provider contract. Do not use generic `call_lua` as a source-loader/eval shortcut without that evidence. R8-111 remains scratch-only because its verifier execution was blocked; R8-112 is independently verifier-backed. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-112-proxy-pipe-dispatch-boundary.md` and `evidence/lwbridge-implementation/2026-09-27-r8-112-proxy-pipe-dispatch-boundary.json`.
+
+## R8-110 compiled-bytecode lifetime closure
+
+R8-110 closes the proposed compiled-bytecode route as a later retained artifact. `0x16C10` has two branches: a direct `luaL_loadbufferx(..., mode="t")` text-load branch that creates no compiled vector, and a compiler branch where `lua_dump` writes to a wrapper-local byte vector. The compiler branch inserts `LENC` at vector begin, applies an in-place ChaCha-family stream transform to bytes after the four-byte prefix, passes that same vector synchronously to `xluaL_loadbuffer`, and frees the vector allocation before `0x16C10` returns.
+
+For `@bridge-scripts.dat`, this owned encoded-bytecode lifetime ends before the caller later zeroizes the assembled source at `0x16183-0x1618A`. The vector is freed rather than explicitly zeroized, so transient allocator residue is not disproven, but there is no recovered global/file/cache owner for the raw `LENC` buffer. The proxy's `lua_dump` slot is confined to resolver/compiler use and exposes no later function-dump surface. Therefore compiled-bytecode caching is not a better/later recovery route than the R8-104 source global. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-110-compiled-bytecode-lifetime.md` and `evidence/lwbridge-implementation/2026-09-27-r8-110-compiled-bytecode-lifetime.json`.
+
+## R8-109 envelope exposure-surface closure
+
+R8-109 exhaustively closes exact host literal/xref ownership for `packageKeyEnvelope`, `packageKeyEnvelopeExpiresAt`, `package-key.envelope`, and `KEY_ENVELOPE_EXPIRED`. The response fields are referenced only by auth-response ingest, the runtime filename only by auth-service path construction, and the expired label only by the static auth error/status table. No second host command result, IPC/provider payload, log/debug message, status payload, or alternate persisted-owner surface carries the actual envelope value.
+
+Combined with R8-107, the host-side lifecycle is closed as `auth response -> stack-local envelope -> package-key.envelope -> local response strings destroyed`. Do not repeat searches for an envelope-returning host command/debug endpoint unless new evidence changes this exact inventory. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-109-envelope-exposure-surface.md` and `evidence/lwbridge-implementation/2026-09-27-r8-109-envelope-exposure-surface.json`.
+
+## R8-108 assembled-source capture specification
+
+R8-108 converts the R8-104 authentic assembled-source lifetime into a hash-locked offline capture specification. For both verified proxies, the source object is an MSVC 32-byte `std::string`: data/heap pointer at `+0x00`, logical length at `+0x10`, capacity at `+0x18`, and small-string threshold `15`. The capture identity must be the exact secure/plain proxy SHA-256, the observation must be stable across a header-before/header-after read, and captured bytes must begin with the exact R8-099 prefix `local __bridge_preload = package.preload\n`.
+
+A live read-only process-memory reader was started during this checkpoint, but the environment blocked further implementation. That rejected operation was not rerouted and the incomplete reader file was deleted. Therefore only the offline capture specification is READY; live capture is NOT AVAILABLE and no original source bytes have been recovered. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-108-source-capture-spec.md` and `evidence/lwbridge-implementation/2026-09-27-r8-108-source-capture-spec.json`.
+
+## R8-107 envelope post-response ownership
+
+R8-107 closes the host-side copy/lifetime question for `packageKeyEnvelope`. The response value is extracted into a stack-local string, validated, serialized and persisted to the service-owned `package-key.envelope` runtime path; the stack-local envelope and expiry strings are then destroyed. Exhaustive direct references to the auth-service object inside `0x23C7EC-0x23CB51` are all read-only path accesses. The envelope text is never assigned into persistent service state. SessionV2's exact seven fields exclude the envelope.
+
+Current-machine checks found no final or temporary filename containing `package-key.envelope` under Local/Roaming AppData and no crash/WER dump of the original `lwbridge-0.3.1.exe`. No File History source is configured; elevated VSS/USN access was not bypassed. Therefore no permitted surviving local copy is currently available from the known host/session/runtime/dump paths. Authentic login can self-provision the local ECDH key (R8-106), but a legitimately issued envelope or genuinely new authentic artifact is still required before the R8-104 assembled-source capture window can be reached. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-107-envelope-copy-ownership.md` and `evidence/lwbridge-implementation/2026-09-27-r8-107-envelope-copy-ownership.json`.
+
+## R8-106 device-key mode contract
+
+R8-106 closes the remaining local device-key provisioning ambiguity. The normal original login path explicitly selects device-key operation mode `0`; the auth wrapper carries that byte unchanged into Tokio task `+0x40`, and worker `0x318D61` dispatches mode `0` to `0x39ED6B`, the open-or-create persisted-key helper. Exact `NCryptOpenKey == 0x80090016` therefore triggers local creation/finalization of the named `ECDH_P256` key before public export.
+
+The normal supervisor selects mode `1`, which dispatches to `0x39ECBD` for open-existing + export only. The cleanup-pending path selects mode `2`, which reaches `0x39F03D` delete/already-missing cleanup.
+
+Therefore the currently absent persisted device key is not a lasting local reachability blocker: authentic login is designed to self-provision it. The current missing package-decrypt material is `package-key.envelope`; no remote auth request, credential use, synthetic key, private-key export, or envelope synthesis was performed. Map remains **NOT WORKING** because neither the envelope/package key nor authentic assembled Lua source has been recovered.
+
+See `docs/reviews/2026-09-27-r8-106-device-key-mode-contract.md` and `evidence/lwbridge-implementation/2026-09-27-r8-106-device-key-mode-contract.json`.
+
+## R8-105 current-machine source reachability
+
+R8-105 applies the already recovered original runtime-material/device-key/package contracts to the machine's current state. The profile runtime root currently contains a structurally valid R8-005 `authorization.challenge` and an `LWBM2` `build.manifest` whose build/package/launcher/hook/composite identity fields match the extracted original 0.3.1 runtime. The challenge contents are not preserved in repository evidence. `authorization.ticket` and `package-key.envelope` are absent.
+
+A non-exporting CNG readiness check opens `Microsoft Software Key Storage Provider` successfully but cannot open the exact recovered persisted device-key name `{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}` (status `0x80090016`). The machine's current at-rest proxy prerequisites are therefore incomplete: the persisted ECDH device key is not presently openable and the package-key envelope is absent. R8-105 does not establish whether the original host lifecycle can locally provision the missing key before proxy bootstrap. No credentials, auth request, private-key export, synthetic key, or envelope were used. Map remains **NOT WORKING**.
+
+See `docs/reviews/2026-09-27-r8-105-current-runtime-reachability.md` and `evidence/lwbridge-implementation/2026-09-27-r8-105-current-runtime-reachability.json`.
 
 ## R8-104 assembled-source capture window
 

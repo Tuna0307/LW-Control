@@ -1,0 +1,80 @@
+{
+  "findingId": "LWB-R8-107",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "responseOwnership": "packageKeyEnvelope is extracted into a stack-local string, validated, serialized with LF, and persisted to the service-owned runtime path",
+    "serviceObject": "all direct rdi/service-object references in 0x23C7EC-0x23CB51 are read-only path reads; the envelope text is never assigned into service state",
+    "localLifetime": "packageKeyEnvelope and packageKeyEnvelopeExpiresAt stack locals are explicitly destroyed before return",
+    "sessionV2": "the exact seven persisted fields are version, username, expiresAt, lastHeartbeatAt, graceStartedAt, encryptedToken, encryptedMetadata; packageKeyEnvelope is not persisted there",
+    "durableCopy": "within the recovered host contract, package-key.envelope is the sole post-response durable owner of the envelope token"
+  },
+  "serviceObjectReferences": [
+    {
+      "rva": "0x23c872",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x180",
+      "instruction": "mov r15, qword ptr [rdi + 0x180]"
+    },
+    {
+      "rva": "0x23c879",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x188",
+      "instruction": "mov r12, qword ptr [rdi + 0x188]"
+    },
+    {
+      "rva": "0x23c8ed",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x180",
+      "instruction": "mov rcx, qword ptr [rdi + 0x180]"
+    },
+    {
+      "rva": "0x23c8f4",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x188",
+      "instruction": "mov rdx, qword ptr [rdi + 0x188]"
+    },
+    {
+      "rva": "0x23c9ce",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x1a0",
+      "instruction": "mov rbx, qword ptr [rdi + 0x1a0]"
+    },
+    {
+      "rva": "0x23c9d5",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x1a8",
+      "instruction": "mov r15, qword ptr [rdi + 0x1a8]"
+    },
+    {
+      "rva": "0x23ca49",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x1a0",
+      "instruction": "mov rcx, qword ptr [rdi + 0x1a0]"
+    },
+    {
+      "rva": "0x23ca50",
+      "operand": 1,
+      "access": 1,
+      "displacement": "0x1a8",
+      "instruction": "mov rdx, qword ptr [rdi + 0x1a8]"
+    }
+  ],
+  "limits": [
+    "does not prove absence from unrecovered external OS artifacts such as inaccessible filesystem journals or snapshots",
+    "does not read credentials, auth tokens, package-key.envelope contents, private keys, or contact auth services",
+    "does not inspect the protected proxy envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}

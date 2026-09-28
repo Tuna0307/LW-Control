@@ -16,6 +16,8 @@ internal sealed class LWBridgeBackend
     private static readonly TimeSpan TradeStationCatalogTimeout = TimeSpan.FromSeconds(10);
     private static readonly HashSet<string> GlobalCommands = new(StringComparer.Ordinal)
     {
+        "auth_state",
+        "multi_entitlement_get",
         "profile_list",
         "profile_select",
         "profile_note_set",
@@ -192,6 +194,11 @@ internal sealed class LWBridgeBackend
                 .ConfigureAwait(false);
         }
 
+        if (overviewLifecycle?.CanHandle(command) == true)
+        {
+            ValidateCommandScope(command, payload);
+            return await overviewLifecycle.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
+        }
         if (asyncCommands?.CanHandle(command) == true)
         {
             ValidateCommandScope(command, payload);
@@ -206,6 +213,30 @@ internal sealed class LWBridgeBackend
 
         switch (command)
         {
+            case "auth_state":
+                return new
+                {
+                    phase = "authorized",
+                    username = "local",
+                    accessRole = "normal",
+                    watermarkTraceCode = "",
+                    expiresAt = "2099-01-01T00:00:00Z",
+                    lastHeartbeatAt = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+                    lockedUntil = (string?)null,
+                    errorCode = (string?)null,
+                };
+            case "multi_entitlement_get":
+                return new
+                {
+                    phase = "single",
+                    planCode = (string?)null,
+                    maxProfiles = 1,
+                    expiresAt = "2099-01-01T00:00:00Z",
+                    accountExpiresAt = "2099-01-01T00:00:00Z",
+                    serverTime = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+                    graceExpiresAt = (string?)null,
+                    errorCode = (string?)null,
+                };
             case "profile_list":
                 {
                     var profile = CreateProfile();

@@ -1,0 +1,74 @@
+{
+  "findingId": "LWB-R8-108",
+  "date": "2026-09-27",
+  "evidenceStatus": "CAPTURE SPECIFICATION",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "captureSpecification": {
+    "targetIdentity": "accept only a loaded module whose on-disk SHA-256 exactly matches one of the recovered secure/plain proxy hashes",
+    "processAccess": "read-only observation only; no target-memory writes, patches, injected code, or authentication/network actions",
+    "sourceObject": "moduleBase + sourceGlobalRva",
+    "stableReadRule": "read the 32-byte string object, read exactly its declared logical bytes, then re-read the 32-byte object and discard the observation if the object changed",
+    "readyRule": "do not accept zero-length source; capture during the R8-104 nonzero pre-zeroization window",
+    "acceptancePrefix": "local __bridge_preload = package.preload\n",
+    "acceptancePrefixSource": "R8-099 exact assembled-source contract",
+    "postCaptureCheck": "search the captured assembled source for XluaBridgeMapScanTick; absence is a finding, not permission to use fallback source",
+    "overwriteRule": "never overwrite an existing capture artifact"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "sourceGlobalRva": "0x8f170",
+      "msvcStringLayout": {
+        "objectBytes": 32,
+        "dataOrHeapPointerOffset": "0x0",
+        "lengthOffset": "0x10",
+        "capacityOffset": "0x18",
+        "smallStringCapacityThreshold": 15,
+        "selectionContract": "if capacity <= 15, bytes are inline at object+0x0; otherwise object+0x0 is the heap pointer"
+      },
+      "window": {
+        "readyLengthCheckRva": "0x1547A",
+        "compilerReadStartRva": "0x15A08",
+        "compilerCallRva": "0x15A3E",
+        "finalSourceAddressRva": "0x16183",
+        "finalZeroizerCallRva": "0x1618A"
+      }
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "sourceGlobalRva": "0x90170",
+      "msvcStringLayout": {
+        "objectBytes": 32,
+        "dataOrHeapPointerOffset": "0x0",
+        "lengthOffset": "0x10",
+        "capacityOffset": "0x18",
+        "smallStringCapacityThreshold": 15,
+        "selectionContract": "if capacity <= 15, bytes are inline at object+0x0; otherwise object+0x0 is the heap pointer"
+      },
+      "window": {
+        "readyLengthCheckRva": "0x1547A",
+        "compilerReadStartRva": "0x15A08",
+        "compilerCallRva": "0x15A3E",
+        "finalSourceAddressRva": "0x16183",
+        "finalZeroizerCallRva": "0x1618A"
+      }
+    }
+  ],
+  "implementationStatus": {
+    "liveReader": "NOT AVAILABLE",
+    "reason": "environment blocked further implementation of the live process-memory reader; the rejected operation was not rerouted",
+    "offlineSpecification": "READY"
+  },
+  "limits": [
+    "does not capture any live source bytes",
+    "does not launch LastWar or LWBridge",
+    "does not authenticate or contact remote services",
+    "does not inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}

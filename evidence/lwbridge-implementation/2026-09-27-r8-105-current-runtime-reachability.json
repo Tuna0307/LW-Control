@@ -1,0 +1,72 @@
+{
+  "findingId": "LWB-R8-105",
+  "date": "2026-09-27",
+  "evidenceStatus": "CURRENT-MACHINE REACHABILITY",
+  "profileRuntime": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\bridge-runtime",
+    "authorizationChallenge": {
+      "present": true,
+      "fileBytes": 44,
+      "encodedChars": 43,
+      "decodedBytes": 32,
+      "contentsRecorded": false
+    },
+    "buildManifest": {
+      "present": true,
+      "fileBytes": 588,
+      "payloadFields": 10,
+      "format": "LWBM2",
+      "buildId": "9BupJXpEgm34lybhNhbbcQ",
+      "version": "0.3.1",
+      "hostSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+      "compositeSha256": "6a9296268ffeec941a05ae6c723469f7e740c982f70bf142f5a5c37365e21403",
+      "packageSha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d",
+      "launcherSha256": "8f42adb9ed678445425e529cdee8f12a097c63053f9d4de314a758a8dfe362de",
+      "multiHookSha256": "a8b48120bbe3fb125d50c046acbd4f7c440a4d5e5775b8156fc291d01bd69d2d",
+      "field8": "1",
+      "field9Decimal": "1788602941974",
+      "field9Semantics": "not assigned by this checkpoint",
+      "signatureBytes": 64,
+      "fileSha256": "811c5763b3bd29a9b5f4c2b3ec0cdcc4ab6f3f2333595dd7eef0d3452744828e"
+    },
+    "authorizationTicket": {
+      "present": false
+    },
+    "packageKeyEnvelope": {
+      "present": false
+    }
+  },
+  "deviceKey": {
+    "supported": true,
+    "provider": "Microsoft Software Key Storage Provider",
+    "persistedKeyName": "{2D337A4D-7E6C-49EF-9486-54F0A00D8A41}",
+    "providerOpenStatus": "0x00000000",
+    "keyOpenStatus": "0x80090016",
+    "keyExists": false
+  },
+  "extractedRuntime": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\LastWar-xLua-Bridge\\runtime\\9BupJXpEgm34lybhNhbbcQ",
+    "packageHashMatch": true,
+    "launcherHashMatch": true,
+    "multiHookHashMatch": true,
+    "proxyCompositeHashMatch": true
+  },
+  "reachability": {
+    "currentProxyPrerequisitesReady": false,
+    "currentMissingPrerequisites": [
+      "persisted ECDH_P256 device key is not currently openable under the recovered key identity",
+      "package-key.envelope is absent"
+    ],
+    "interpretation": "current at-rest prerequisites are incomplete; this current-machine check does not prove that a missing device key cannot be provisioned by the original host lifecycle",
+    "observedButNotAssertedAsDirectBlocker": [
+      "authorization.ticket is absent"
+    ],
+    "networkRequestsMade": false,
+    "privateKeyReadOrExported": false
+  },
+  "limits": [
+    "build.manifest signature is structurally present but is not cryptographically reverified by this checkpoint",
+    "build.manifest field 9 semantics remain unassigned",
+    "no package-key value, envelope contents, or assembled Lua source bytes are recovered"
+  ]
+}

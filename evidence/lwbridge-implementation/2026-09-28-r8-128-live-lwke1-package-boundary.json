@@ -1,0 +1,62 @@
+{
+  "findingId": "LWB-R8-128",
+  "date": "2026-09-28",
+  "status": "LIVE-PROVEN RESEARCH BOUNDARY",
+  "reference": {
+    "hostSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+    "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "originalPackageSha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d",
+    "buildId": "9BupJXpEgm34lybhNhbbcQ"
+  },
+  "liveProof": {
+    "acceptedSyntheticEnvelopeLog": "[2026-09-28 03:55:26.909] package decrypt failed",
+    "controlledPackageManifestGateLog": "[2026-09-28 04:05:31.284] build manifest mismatch"
+  },
+  "envelope": {
+    "decodedFieldCount": 14,
+    "ecdh": "P-256",
+    "devicePublicKey": "65-byte SEC1 uncompressed, derived from public ECK1 export",
+    "privateDeviceKeyExported": false,
+    "hkdf": "HKDF-SHA256 expressed as HMAC extract + single-block expand",
+    "info": "LWKE1|<buildId>|<claim3>|<claim4>|<keyVersion>|<expires>|<devicePublicKeyHashB64Url>",
+    "outputPackageKeyBytes": 32,
+    "aesGcm": {
+      "nonceBytes": 12,
+      "ciphertextBytes": 32,
+      "tagBytes": 16,
+      "aad": "same info string"
+    }
+  },
+  "controlledPackage": {
+    "size": 99,
+    "sha256": "d03165fa5ee9634251c0b294486666b8b5b753a561917e528cba30d350eeaa8a",
+    "plaintextBytes": 33,
+    "moduleCount": 1,
+    "bootstrapSource": "return true\\n",
+    "aad": "LWBP2|9BupJXpEgm34lybhNhbbcQ"
+  },
+  "ramOnlyResearchPatches": [
+    {
+      "purpose": "authorization ticket fixed-signature acceptance",
+      "rva": "0x2066E"
+    },
+    {
+      "purpose": "package envelope fixed-signature acceptance",
+      "rva": "0x3FBC1"
+    }
+  ],
+  "toolLayerBlocks": [
+    "fresh direct branch-disassembly dump for build-manifest/package-hash mismatch",
+    "direct signed build.manifest field-5 mutation"
+  ],
+  "cleanup": {
+    "extractedPackageRestored": true,
+    "restoredSha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d"
+  },
+  "statusSummary": {
+    "syntheticEnvelope": "LIVE-PROVEN",
+    "originalPlaintext": "NOT RECOVERED",
+    "controlledPackageCompilerPath": "NOT YET REACHED",
+    "map": "NOT WORKING"
+  }
+}

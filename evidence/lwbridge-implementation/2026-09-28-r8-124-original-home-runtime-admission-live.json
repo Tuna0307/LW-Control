@@ -1,0 +1,60 @@
+{
+  "checkpoint": "LWB-R8-124",
+  "date": "2026-09-28",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "referenceExePatchedOnDisk": false,
+  "liveProcess": {
+    "pid": 10428,
+    "moduleBase": "0x7FF6B9D50000",
+    "cdpPort": 9229
+  },
+  "runtimeAdmissionHook": {
+    "helperRva": "0x23DE19",
+    "hookRva": "0x23DE50",
+    "acceptedBranchRva": "0x23DEBA",
+    "originalPrefixBytes": "48 8B",
+    "temporaryPrefixBytes": "EB 68",
+    "scope": "process-memory-only",
+    "reversible": true
+  },
+  "nativeCommandsWhileAuthStateSignedOut": {
+    "profile_list": "success",
+    "profile_instances_reconcile_autoLaunchAll_false": "success",
+    "profile_instance_status_initial": null
+  },
+  "frontend": {
+    "authStateEvent": "bridge://auth-state",
+    "homeShellReached": true,
+    "mapNavigationReached": true,
+    "panelState": "profile-switch-loading"
+  },
+  "originalLaunch": {
+    "instanceId": "instance-KfOqh8UYbbAV2pfeuOVKd8",
+    "gamePid": 55656,
+    "profileLauncherObserved": true,
+    "lastWarObserved": true,
+    "proxyInjectionMode": "secure",
+    "bridgeConnected": false,
+    "terminalHostError": "BRIDGE_START_TIMEOUT"
+  },
+  "proxyObservation": {
+    "xluaOriginalLoaded": true,
+    "xluaLibVersion": 105,
+    "luaStateCaptured": true,
+    "loadersCaptured": true,
+    "firstFlushTrigger": "lua_pcall",
+    "authorizationLine": "authorization missing",
+    "gameMainChunkLoaded": true
+  },
+  "screenshots": [
+    "evidence/lwbridge-implementation/2026-09-28-original-home-live.png",
+    "evidence/lwbridge-implementation/2026-09-28-original-home-post-timeout.png",
+    "evidence/lwbridge-implementation/2026-09-28-original-map-tab-live.png"
+  ],
+  "currentState": {
+    "nativeAuthPhase": "signedOut",
+    "admissionHookActive": true,
+    "activeManagedInstance": false,
+    "originalProcessLeftOpen": true
+  }
+}

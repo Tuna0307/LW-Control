@@ -1,0 +1,26 @@
+{
+  "checkpoint": "LWB-R8-123",
+  "date": "2026-09-27",
+  "referenceSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "referenceExe": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.1.exe",
+  "cdp": {"port": 9229, "title": "lwbridge", "url": "http://tauri.localhost/"},
+  "baseline": {"phase": "signedOut", "previousAction": "SESSION_INVALID"},
+  "tokenStage": {
+    "fieldsAdded": ["token", "expired", "username", "accessRole", "watermarkTraceCode", "expiresAt", "heartbeatIntervalSeconds"],
+    "result": "AUTHORIZATION_TICKET_INVALID",
+    "liveBanner": "原生授权票据无效。",
+    "interpretation": "nonempty login token/identity projection accepted; artifact ingest reached"
+  },
+  "ticketStage": {
+    "ticketMagic": "LWAT2",
+    "result": "KEY_ENVELOPE_INVALID",
+    "liveBanner": "本地授权密钥无效。",
+    "interpretation": "minimum source-locked LWAT2 framing accepted; package-key-envelope boundary reached"
+  },
+  "envelopeStage": {"status": "BLOCKED_BY_CHATGPT_TOOL_LAYER", "windowsPermissionFailure": false},
+  "runtimeArtifacts": ["authorization.challenge", "build.manifest"],
+  "existingPackageKeyEnvelopeFound": false,
+  "existingAuthorizationTicketFound": false,
+  "existingSessionV2Found": false,
+  "credentialFileExistsButNotRead": "C:\\Users\\chimw\\AppData\\Roaming\\lwbridge\\auth-credentials.v2.json"
+}

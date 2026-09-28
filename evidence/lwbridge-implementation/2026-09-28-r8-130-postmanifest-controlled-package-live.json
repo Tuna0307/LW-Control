@@ -1,0 +1,27 @@
+{
+  "findingId": "LWB-R8-130",
+  "date": "2026-09-28",
+  "status": "LIVE-PROVEN controlled-package decrypt/parser reachability",
+  "hostSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "secureProxySha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+  "authenticPackageSha256": "a1e23419c25c76bee16942922a643381e0d38a857902569d927f22ef02c99c8d",
+  "controlledPackage": {
+    "size": 99,
+    "sha256": "482bde0c9859e375d79ca221c744e6d4c44bf1485f99887b99642aa40ea75207",
+    "moduleCount": 1,
+    "moduleName": "bootstrap",
+    "sourceBytes": 12
+  },
+  "postManifestHook": {
+    "rva": "0x1CC1D",
+    "returnRva": "0x1CC2A",
+    "packageDecryptCall": "0x1CC3A -> 0x3D260",
+    "changedInRam": ["package bytes", "package logical length", "context+0x40 expected package SHA"]
+  },
+  "liveLog": ["loaded script package format=2 revision=1", "authorization valid", "game main chunk loaded"],
+  "absentFailureLogs": ["build manifest mismatch", "package integrity invalid", "package build mismatch", "package decrypt failed"],
+  "runtimePackageModifiedOnDisk": false,
+  "compilerExecution": "SOURCE-LOCKED, not separately LIVE-PROVEN",
+  "originalLuaPlaintextRecovered": false,
+  "originalMapWorking": false
+}

@@ -1,0 +1,78 @@
+{
+  "findingId": "LWB-R8-110",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED NEGATIVE LIFETIME",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "directTextBranch": "when the wrapper branch flag is nonzero, source is passed directly to luaL_loadbufferx in text mode and no compiled-bytecode vector is created",
+    "compiledBranch": "otherwise lua_dump writes to a wrapper-local byte vector; LENC is inserted at the beginning, bytes after LENC are transformed in place with a ChaCha-family stream transform, and the result is synchronously passed to xluaL_loadbuffer",
+    "ownedLifetime": "the encoded vector remains wrapper-local and its heap storage is freed before 0x16C10 returns; bootstrap source zeroization at 0x1618A occurs later in caller execution",
+    "retention": "the proxy has no owned global/file/cache copy of this raw encoded vector and no later lua_dump-based function export surface",
+    "semanticCaveat": "xluaL_loadbuffer may retain the loaded Lua function/prototype in Lua state; R8-110 does not claim that semantic representation disappears, only that the proxy does not retain the raw LENC buffer",
+    "residueCaveat": "the vector is freed rather than explicitly zeroized, so unowned allocator residue is not ruled out; that is not a stable retained artifact boundary"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "wrapperBranchFlagRva": "0x90d3a",
+      "directTextLoaderSlotRva": "0x90df8",
+      "encodedLoaderSlotRva": "0x90e28",
+      "compiledVector": {
+        "object": "wrapper stack local at rbp-0x31",
+        "prefix": "LENC",
+        "transform": "ChaCha-family in-place stream XOR after 4-byte LENC prefix",
+        "consumer": "xluaL_loadbuffer",
+        "release": "heap storage freed inside wrapper before return",
+        "zeroizedBeforeFree": false
+      },
+      "wrapperCallers": [
+        "0x15a3e",
+        "0x18f58",
+        "0x19eee"
+      ],
+      "luaDumpSlotRva": "0x90e18",
+      "luaDumpSlotRefs": [
+        "0x16c7b",
+        "0x17f4d",
+        "0x17f87"
+      ]
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "wrapperBranchFlagRva": "0x91d3a",
+      "directTextLoaderSlotRva": "0x91df8",
+      "encodedLoaderSlotRva": "0x91e28",
+      "compiledVector": {
+        "object": "wrapper stack local at rbp-0x31",
+        "prefix": "LENC",
+        "transform": "ChaCha-family in-place stream XOR after 4-byte LENC prefix",
+        "consumer": "xluaL_loadbuffer",
+        "release": "heap storage freed inside wrapper before return",
+        "zeroizedBeforeFree": false
+      },
+      "wrapperCallers": [
+        "0x15a3e",
+        "0x18f58",
+        "0x19eee"
+      ],
+      "luaDumpSlotRva": "0x91e18",
+      "luaDumpSlotRefs": [
+        "0x16c7b",
+        "0x17f4d",
+        "0x17f87"
+      ]
+    }
+  ],
+  "limits": [
+    "does not recover any bridge bytecode or Lua source bytes",
+    "does not inspect live process memory or allocator residue",
+    "does not create a new runtime lua_dump/export mechanism",
+    "does not contact auth services or inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}

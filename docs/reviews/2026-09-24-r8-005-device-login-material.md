@@ -64,8 +64,8 @@ Reference EXE SHA-256:
 
 Important original host functions:
 
-- device key open/create: `0x39ECBD-0x39ED6B`;
-- device key create/finalize: `0x39ED6B-0x39EE94`;
+- device key open-only + export: `0x39ECBD-0x39ED6B`;
+- device key open-or-create + export: `0x39ED6B-0x39EE94`;
 - public export/encoding: `0x39EE94-0x39F03D`;
 - persisted key open: `0x39F0CF-0x39F135`;
 - challenge file read/validation: `0x23A111-0x23A24C`;

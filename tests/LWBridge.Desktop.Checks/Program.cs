@@ -424,6 +424,7 @@ await LWBridge.Desktop.Checks.ProfileSettingsChecks.RunAsync();
 await LWBridge.Desktop.Checks.ProfileRegistryChecks.RunAsync();
 await LWBridge.Desktop.Checks.UpdateStatusChecks.RunAsync();
 await LWBridge.Desktop.Checks.FeedbackExportContractChecks.RunAsync();
+await LWBridge.Desktop.Checks.AuthBypassChecks.RunAsync();
 LWBridge.Desktop.Checks.MapSearchSortParityChecks.Run();
 await LWBridge.Desktop.Checks.MapScanClearParityChecks.RunAsync();
 await LWBridge.Desktop.Checks.MapSummaryParityChecks.RunAsync();

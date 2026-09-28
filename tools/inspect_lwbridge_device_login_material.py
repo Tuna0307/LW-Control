@@ -34,8 +34,8 @@ PUBLIC_BLOB_TYPE = "ECCPUBLICBLOB"
 URLSAFE_ALPHABET = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
 FUNCTIONS = {
-    "device_key_open_or_create": (0x39ECBD, 0x39ED6B),
-    "device_key_create": (0x39ED6B, 0x39EE94),
+    "device_key_open_only": (0x39ECBD, 0x39ED6B),
+    "device_key_open_or_create": (0x39ED6B, 0x39EE94),
     "device_public_export": (0x39EE94, 0x39F03D),
     "device_key_delete": (0x39F03D, 0x39F0CF),
     "device_key_open": (0x39F0CF, 0x39F135),

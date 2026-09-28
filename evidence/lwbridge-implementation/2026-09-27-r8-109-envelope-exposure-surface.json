@@ -1,0 +1,59 @@
+{
+  "findingId": "LWB-R8-109",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED NEGATIVE SURFACE",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "literalInventory": {
+    "packageKeyEnvelope": {
+      "literalRvas": [
+        "0xc80114",
+        "0xc80126"
+      ],
+      "codeRefs": [
+        "0x23c95e",
+        "0x23c97b"
+      ]
+    },
+    "packageKeyEnvelopeExpiresAt": {
+      "literalRvas": [
+        "0xc80126"
+      ],
+      "codeRefs": [
+        "0x23c97b"
+      ]
+    },
+    "package-key.envelope": {
+      "literalRvas": [
+        "0xc80240"
+      ],
+      "codeRefs": [
+        "0x23d130"
+      ]
+    },
+    "KEY_ENVELOPE_EXPIRED": {
+      "literalRvas": [
+        "0xc80356"
+      ],
+      "codeRefs": [
+        "0x23ef2c"
+      ]
+    }
+  },
+  "recoveredResult": {
+    "packageKeyEnvelope": "single exact literal owner at auth-response ingest 0x23C95E",
+    "packageKeyEnvelopeExpiresAt": "single exact literal owner at auth-response ingest 0x23C97B",
+    "packageKeyEnvelopePath": "single exact literal owner at auth-service path construction 0x23D130",
+    "expiredStatus": "single exact literal owner at static error/status table construction 0x23EF2C",
+    "hostExposure": "no second literal/xref surface exists for a command result, frontend/IPC payload, log/debug message, or alternate persisted-envelope owner",
+    "impact": "the original host provides no separate envelope-exposure surface to exploit as a distinct permitted recovery route"
+  },
+  "limits": [
+    "this verifier proves exact literal ownership/xref inventory, not arbitrary inaccessible OS history",
+    "does not contact auth services or inspect credentials/private keys",
+    "does not inspect the protected proxy envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}

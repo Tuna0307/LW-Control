@@ -1,0 +1,67 @@
+{
+  "findingId": "LWB-R8-112",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED DISPATCH BOUNDARY",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "hostWireContext": "R7-097 host call envelope carries payload.fn and payload.args",
+    "nativeProxyBoundary": "the native proxy does not inspect payload.fn; it forwards each queued serialized message to fixed Lua global XluaBridgeHandlePipeMessage as one string argument",
+    "luaRoutingOwnership": "mapping payload.fn to provider/function behavior belongs below the native boundary in the unrecovered bridge Lua",
+    "loadReachability": "call_lua(fn=__XluaBridgeLoad, ...) is NOT proven equivalent/reachable merely because __XluaBridgeLoad is a Lua global; XluaBridgeHandlePipeMessage routing must be recovered first",
+    "impact": "do not use generic call_lua to invoke __XluaBridgeLoad as a recovery shortcut unless authentic bridge-Lua dispatch evidence establishes that route"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "nativeDispatch": {
+        "fixedLuaGlobal": "XluaBridgeHandlePipeMessage",
+        "globalLiteralRva": "0x721C0",
+        "nativeCallSiteRva": "0x1F943-0x1F94D",
+        "recordStrideBytes": 32,
+        "argument": "one MSVC std::string value pushed with lua_pushlstring",
+        "pcall": "pcall(1,0,0)",
+        "nativeFunctionRoutingKeysPresent": false
+      },
+      "luaApiSlots": {
+        "xlua_getglobal": "0x90e38",
+        "lua_pushlstring": "0x90e68",
+        "lua_pcall": "0x90dd8",
+        "lua_tolstring": "0x90e58",
+        "lua_settop": "0x90e50"
+      },
+      "interpretation": "native proxy forwards each queued serialized message string to fixed Lua global XluaBridgeHandlePipeMessage; payload.fn routing is below this boundary in unrecovered bridge Lua"
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "nativeDispatch": {
+        "fixedLuaGlobal": "XluaBridgeHandlePipeMessage",
+        "globalLiteralRva": "0x721C0",
+        "nativeCallSiteRva": "0x1F943-0x1F94D",
+        "recordStrideBytes": 32,
+        "argument": "one MSVC std::string value pushed with lua_pushlstring",
+        "pcall": "pcall(1,0,0)",
+        "nativeFunctionRoutingKeysPresent": false
+      },
+      "luaApiSlots": {
+        "xlua_getglobal": "0x91e38",
+        "lua_pushlstring": "0x91e68",
+        "lua_pcall": "0x91dd8",
+        "lua_tolstring": "0x91e58",
+        "lua_settop": "0x91e50"
+      },
+      "interpretation": "native proxy forwards each queued serialized message string to fixed Lua global XluaBridgeHandlePipeMessage; payload.fn routing is below this boundary in unrecovered bridge Lua"
+    }
+  ],
+  "limits": [
+    "does not recover XluaBridgeHandlePipeMessage Lua source or its function allowlist/provider table",
+    "does not rule out the encrypted bridge Lua intentionally exposing __XluaBridgeLoad",
+    "does not send any pipe command or run the game",
+    "does not use live process memory, auth/network activity, or the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}

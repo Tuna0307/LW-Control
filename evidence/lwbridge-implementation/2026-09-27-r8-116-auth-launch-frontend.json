@@ -1,0 +1,50 @@
+{
+  "findingId": "LWB-R8-116",
+  "date": "2026-09-27",
+  "status": "RECOVERED FRONTEND ORCHESTRATION",
+  "sourceIdentity": {
+    "api": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\api-ClPPi2JT.js",
+      "sha256": "062ebd2362885af05e07bf4f0de00ed833293a83fefa6b54c26975fa1db9df47"
+    },
+    "index": {
+      "path": "evidence\\lwbridge-0.3.1\\frontend\\assets\\index-sfL2sT3K.js",
+      "sha256": "4d18cbc036a417b1a13a2c9905f1abc5dda1427531ad1ab4f7b03f4b269704b3"
+    }
+  },
+  "login": {
+    "command": "auth_login",
+    "request": {
+      "username": "string",
+      "password": "string"
+    },
+    "postAuthLaunch": true
+  },
+  "credentialsPrefill": "auth screen requests auth_credentials and fills only currently-empty username/password state",
+  "autoLaunch": {
+    "storageKey": "lwbridge.autoLaunchGame",
+    "default": true,
+    "disabledOnlyWhenStoredString": "false"
+  },
+  "authorizedOrGraceFlow": [
+    "best-effort multi_entitlement_get",
+    "profile_instances_reconcile(autoLaunchAll=<setting>)"
+  ],
+  "formBounds": {
+    "username": {
+      "minLength": 3,
+      "maxLength": 50
+    },
+    "password": {
+      "minLength": 8,
+      "maxLength": 72
+    }
+  },
+  "limits": [
+    "does not read credential contents",
+    "does not make auth network requests",
+    "does not invoke auth_login",
+    "does not claim successful authorization or Map source recovery",
+    "Map remains NOT WORKING"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "checkpoint": "LWB-R8-125",
+  "date": "2026-09-28",
+  "referenceExeSha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff",
+  "secureProxy": {
+    "hostRawOffset": "0x987374",
+    "size": 612352,
+    "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+    "validatorRva": "0x201C0-0x212B9",
+    "ticketReaderRva": "0x1BB20",
+    "ticketReaderCallRva": "0x202A6",
+    "signatureVerifierCallRva": "0x20667",
+    "signatureBranchRva": "0x2066E",
+    "signatureSuccessTargetRva": "0x2072E"
+  },
+  "ticketReaderContract": {
+    "file": "bridge-runtime/authorization.ticket",
+    "minBytes": 1,
+    "maxBytes": 4096,
+    "trimsTrailingCRLF": true,
+    "requiresNonemptyAfterTrim": true
+  },
+  "liveValidatorSequence": [
+    {"artifact": "absent", "result": "authorization missing"},
+    {"artifact": "x", "result": "authorization format invalid"},
+    {"artifact": "!.!", "result": "authorization encoding invalid"},
+    {"artifact": "eA.eA", "result": "authorization signature invalid"},
+    {"artifact": "eA.eA + loaded-proxy signature branch hook", "result": "authorization payload invalid"}
+  ],
+  "loadedProxyHook": {
+    "scope": "LastWar process memory only",
+    "module": "xlua-proxy-secure.dll",
+    "runtimePath": "C:\\Users\\chimw\\AppData\\Local\\LastWar-xLua-Bridge\\runtime\\9BupJXpEgm34lybhNhbbcQ\\xlua-proxy-secure.dll",
+    "testedLoadBase": "0x7FFFD4B40000",
+    "originalBytes": "0F 85 BA 00 00 00",
+    "temporaryBytes": "E9 BB 00 00 00 90",
+    "diskModified": false,
+    "liveAdvance": "authorization signature invalid -> authorization payload invalid"
+  },
+  "hostEmbeddedProxyPatchAttempt": {
+    "result": "did not propagate to injected proxy",
+    "restored": true
+  },
+  "structuredProbe": {
+    "fields": ["LWAT2","current issuedAt","expiry +600","claim3=1","claim4=1","all-zero deviceBinding64Hex","real authorization.challenge nonce"],
+    "result": "NOT_OBSERVED_BEFORE_CHECKPOINT"
+  },
+  "cleanup": {
+    "lastWarRunning": false,
+    "authorizationTicketPresent": false,
+    "packageKeyEnvelopePresent": false,
+    "runtimeArtifacts": ["authorization.challenge","build.manifest"],
+    "loadedProxyPatchStillPresent": false,
+    "originalHostAdmissionHookActive": true
+  }
+}

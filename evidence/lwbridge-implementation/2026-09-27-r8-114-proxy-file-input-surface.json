@@ -1,0 +1,137 @@
+{
+  "findingId": "LWB-R8-114",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED NEGATIVE FILE-SOURCE SURFACE",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "bootstrapInputs": "all recovered product-owned native bootstrap/runtime file inputs relevant to source recovery are semantically typed",
+    "boundedReader": "0x1BD80 has exactly two callers: package-key.envelope and LWBRIDGE_MULTI_PROOF_PATH",
+    "bridgeScripts": "bridge-scripts.dat uses dedicated reader 0x1B910 with exactly one caller in package/auth flow",
+    "alternateSource": "no recovered native file path or reader provides arbitrary Lua source/eval input/alternate chunk loading",
+    "impact": "no file-based bootstrap shortcut supersedes the authentic package/source path; return to R8-104 legitimate-source-state bottleneck after this surface is closed"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "staticPaths": [
+        {
+          "name": "bridgeScripts",
+          "rva": "0x71270",
+          "value": "\\LastWar-xLua-Bridge\\bridge-scripts.dat"
+        },
+        {
+          "name": "authorizationTicket",
+          "rva": "0x712f0",
+          "value": "\\bridge-runtime\\authorization.ticket"
+        },
+        {
+          "name": "authorizationChallenge",
+          "rva": "0x71390",
+          "value": "\\bridge-runtime\\authorization.challenge"
+        },
+        {
+          "name": "packageKeyEnvelope",
+          "rva": "0x71770",
+          "value": "\\bridge-runtime\\package-key.envelope"
+        },
+        {
+          "name": "buildManifest",
+          "rva": "0x717c0",
+          "value": "\\bridge-runtime\\build.manifest"
+        },
+        {
+          "name": "proxyBundleJson",
+          "rva": "0x71840",
+          "value": "\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua-proxy-bundle.json"
+        },
+        {
+          "name": "proxyLog",
+          "rva": "0x73c10",
+          "value": "\\logs\\xlua-proxy.log"
+        },
+        {
+          "name": "proxyLogFallback",
+          "rva": "0x73c40",
+          "value": "\\bridge-runtime\\logs\\xlua-proxy.log"
+        }
+      ],
+      "typedInputs": {
+        "bridgeScripts": "dedicated package reader 0x1B910, sole caller 0x1CAFD",
+        "packageKeyEnvelope": "bounded text reader 0x1BD80, max 0x1000",
+        "multiProofPath": "same bounded reader 0x1BD80, max 0x1000, proof validator input",
+        "authorizationTicket": "dedicated ticket reader 0x1BB20",
+        "authorizationChallenge": "challenge generation/reuse persistence path",
+        "buildManifestAndBundle": "R8-102 identity validator 0x40A70",
+        "originalXlua": "DLL/library path from LWBRIDGE_XLUA_ORIGINAL_PATH",
+        "profileRuntimeRoot": "runtime/log root, not script source"
+      }
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "staticPaths": [
+        {
+          "name": "bridgeScripts",
+          "rva": "0x71270",
+          "value": "\\LastWar-xLua-Bridge\\bridge-scripts.dat"
+        },
+        {
+          "name": "authorizationTicket",
+          "rva": "0x712f0",
+          "value": "\\bridge-runtime\\authorization.ticket"
+        },
+        {
+          "name": "authorizationChallenge",
+          "rva": "0x71390",
+          "value": "\\bridge-runtime\\authorization.challenge"
+        },
+        {
+          "name": "packageKeyEnvelope",
+          "rva": "0x71770",
+          "value": "\\bridge-runtime\\package-key.envelope"
+        },
+        {
+          "name": "buildManifest",
+          "rva": "0x717c0",
+          "value": "\\bridge-runtime\\build.manifest"
+        },
+        {
+          "name": "proxyBundleJson",
+          "rva": "0x71840",
+          "value": "\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua-proxy-bundle.json"
+        },
+        {
+          "name": "proxyLog",
+          "rva": "0x73c10",
+          "value": "\\logs\\xlua-proxy.log"
+        },
+        {
+          "name": "proxyLogFallback",
+          "rva": "0x73c40",
+          "value": "\\bridge-runtime\\logs\\xlua-proxy.log"
+        }
+      ],
+      "typedInputs": {
+        "bridgeScripts": "dedicated package reader 0x1B910, sole caller 0x1CAFD",
+        "packageKeyEnvelope": "bounded text reader 0x1BD80, max 0x1000",
+        "multiProofPath": "same bounded reader 0x1BD80, max 0x1000, proof validator input",
+        "authorizationTicket": "dedicated ticket reader 0x1BB20",
+        "authorizationChallenge": "challenge generation/reuse persistence path",
+        "buildManifestAndBundle": "R8-102 identity validator 0x40A70",
+        "originalXlua": "DLL/library path from LWBRIDGE_XLUA_ORIGINAL_PATH",
+        "profileRuntimeRoot": "runtime/log root, not script source"
+      }
+    }
+  ],
+  "limits": [
+    "this is not a claim about every generic CRT/internal filesystem operation",
+    "does not inspect the protected envelope-consumer body 0x3F8E0-0x40A6D",
+    "does not recover bridge Lua, source bytes, or XluaBridgeHandlePipeMessage routing",
+    "does not run the game, send pipe traffic, use live process memory, or contact auth services",
+    "Map remains NOT WORKING"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "findingId": "LWB-R8-106",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED CONTRACT",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "loginMode": {
+      "value": 0,
+      "meaning": "open-or-create persisted ECDH key, then export public key"
+    },
+    "supervisorMode": {
+      "value": 1,
+      "meaning": "open existing persisted ECDH key, then export public key"
+    },
+    "cleanupMode": {
+      "value": 2,
+      "meaning": "delete persisted key or accept already-missing state"
+    },
+    "propagation": "auth wrapper operation byte is stored at Tokio task+0x40 and later consumed unchanged by 0x318D61",
+    "reachabilityImpact": "a missing persisted key is locally self-provisionable by the normal original login path; package-key.envelope remains the current missing package-decrypt material"
+  },
+  "limits": [
+    "does not create or export a live private key",
+    "does not contact auth services",
+    "does not recover package-key.envelope or package key",
+    "Map remains NOT WORKING"
+  ]
+}

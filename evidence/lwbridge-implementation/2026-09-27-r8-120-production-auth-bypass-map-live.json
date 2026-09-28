@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "LWB-R8-066",
+  "state": "proven",
+  "proof": "normal_production_map_window_start_scan_search_render",
+  "windowMode": "persistent_normal_map_data",
+  "profileId": "local-9370d887d93e4475a8d4fee049b50632",
+  "instanceId": "59a74628c02a4823a9277a21de6df4fd",
+  "connectionState": "connected",
+  "gamePid": 14608,
+  "selectedTypes": [
+    "resource"
+  ],
+  "scan": {
+    "scanRunId": "7acbf2afa5db41fd8fb0c5a0af6adda5",
+    "serverId": 2212,
+    "scanMode": "fast",
+    "concurrency": 20,
+    "totalBlocks": 2500,
+    "readBlocks": 2500,
+    "failedBlocks": 0,
+    "unreadBlocks": 0,
+    "phase": "idle"
+  },
+  "search": {
+    "requestId": "4955d763-3db1-4587-8b1e-4c4eb6e79e2c",
+    "payload": {
+      "kind": "resource",
+      "query": {
+        "serverId": 2212,
+        "keyword": "",
+        "page": 1,
+        "pageSize": 50,
+        "sorts": [
+          {
+            "sortBy": "updatedAt",
+            "sortOrder": "desc"
+          }
+        ]
+      },
+      "profileId": "local-9370d887d93e4475a8d4fee049b50632"
+    },
+    "total": 864,
+    "row": {
+      "blackTileKnown": true,
+      "gatherOccupancyKnown": true,
+      "gatherOccupied": false,
+      "id": 907990,
+      "isBlackTile": false,
+      "kind": "resource",
+      "level": 2,
+      "pointId": 907990,
+      "pointType": 7,
+      "resourceConfigId": 2,
+      "resourceMaxAmount": 72000,
+      "resourceNameKey": "100281",
+      "resourceSourceType": "ResPointInfo",
+      "resourceTypeId": 1,
+      "runtimeClass": "ResPointInfo",
+      "serverId": 2212,
+      "source": "WorldPointManager._pointInfos\u002BGatherResource\u002BLuaEntry.Player.IsInBlackRange",
+      "srcServerId": 2212,
+      "worldId": 0,
+      "x": 989,
+      "y": 907,
+      "sourceKind": "resource_point",
+      "recordKey": "907990",
+      "pointIndex": 907990,
+      "updatedAt": 1790514862000,
+      "rebuildGatherOccupancyKnown": true,
+      "rebuildGatherOccupied": false,
+      "resourceDetailKnown": true,
+      "resourceRemainingAmount": 72000,
+      "resourceFullAmount": 72000,
+      "resourceFull": true,
+      "resourceCapacityMatchesConfig": true
+    }
+  },
+  "rendered": {
+    "rowText": "989,907\tIron Mine\t2\t72,000 / 72,000\tIdle\t9/27/2026, 9:14:22 PM",
+    "cells": [
+      "989,907",
+      "Iron Mine",
+      "2",
+      "72,000 / 72,000",
+      "Idle",
+      "9/27/2026, 9:14:22 PM"
+    ]
+  },
+  "screenshotPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\r8-120-normal-ui-map-proof.png",
+  "generatedAt": "2026-09-27T13:14:24.2657481+00:00"
+}

@@ -1,0 +1,40 @@
+{
+  "findingId": "LWB-R8-118",
+  "date": "2026-09-27",
+  "status": "RECOVERED NEGATIVE/BYPASS CLASSIFICATION",
+  "secureSha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+  "plainSha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+  "outerLoader": {
+    "range": "0x1C0A0-0x1D46F",
+    "directCalls": 105,
+    "branches": 144,
+    "semanticShapeEqual": true,
+    "criticalCalls": {
+      "0x1c447": "0x1b300",
+      "0x1c45b": "0x1bd80",
+      "0x1c8e2": "0x3f8e0",
+      "0x1cafd": "0x1b910",
+      "0x1cc14": "0x40a70",
+      "0x1cc3a": "0x3d260",
+      "0x1cc54": "0x125c0",
+      "0x15a3e": "0x16c10",
+      "0x1618a": "0x3f350"
+    }
+  },
+  "sourceGlobals": {
+    "secure": "0x8F170",
+    "plain": "0x90170"
+  },
+  "authorization": {
+    "proxyTicketMagic": "LWAT2 only",
+    "LWAT1Present": false,
+    "signaturePublicKeyXYHex": "00b0c33896bc67481de5fdc412d9b1549e70d736d9a5f7c1a3dbfeeccd8e135f7ae6887c7189787df7edaf33f52f3cac0849f1382b24e8d7aa6116152b425659",
+    "privateBlobMagicPresent": false
+  },
+  "conclusion": "plain proxy does not bypass envelope/package decrypt; secure/plain package/auth control flow is identical at recovered loader boundary",
+  "limits": [
+    "does not inspect protected consumer body 0x3F8E0-0x40A6D",
+    "does not patch binaries or contact auth service",
+    "Map remains NOT WORKING"
+  ]
+}

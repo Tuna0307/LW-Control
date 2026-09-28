@@ -1,0 +1,192 @@
+{
+  "findingId": "LWB-R8-113",
+  "date": "2026-09-27",
+  "evidenceStatus": "RECOVERED NEGATIVE CONFIG SURFACE",
+  "sourceIdentity": {
+    "path": "..\\LW\\lwbridge-0.3.1.exe",
+    "sha256": "2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff"
+  },
+  "recoveredResult": {
+    "inventory": "both proxies expose the same exact 13 LWBRIDGE_* wide environment variables",
+    "readerClosure": "all calls to both generic GetEnvironmentVariableW wrappers use constant keys from that same 13-name inventory; direct reads are likewise members of it",
+    "diagnostic": "LWBRIDGE_HOST_DIAGNOSTIC is enabled only by exact wide value 1 and invokes the embedded host diagnostic at most once per 2000 ms",
+    "runtimeRoot": "LWBRIDGE_PROFILE_RUNTIME_ROOT also owns the ordinary xlua-proxy.log path construction",
+    "sourceInput": "no environment variable provides Lua source, eval input, alternate bridge-script file, chunk path, or script override"
+  },
+  "proxies": [
+    {
+      "proxy": "secure",
+      "sha256": "481c636b8d0fa9bf4b8f88cba77145054b33e3701ffa42737567b211859ac400",
+      "getEnvironmentVariableWIatRva": "0x6f100",
+      "environmentVariables": [
+        {
+          "name": "LWBRIDGE_PROFILE_ID",
+          "rva": "0x6ff98"
+        },
+        {
+          "name": "LWBRIDGE_INSTANCE_ID",
+          "rva": "0x6ffc0"
+        },
+        {
+          "name": "LWBRIDGE_PIPE_TOKEN",
+          "rva": "0x6fff0"
+        },
+        {
+          "name": "LWBRIDGE_GAME_ROOT",
+          "rva": "0x70f58"
+        },
+        {
+          "name": "LWBRIDGE_XLUA_ORIGINAL_PATH",
+          "rva": "0x70ff0"
+        },
+        {
+          "name": "LWBRIDGE_XLUA_PROXY_BUNDLE_PATH",
+          "rva": "0x71800"
+        },
+        {
+          "name": "LWBRIDGE_MULTI_REQUIRED",
+          "rva": "0x718b8"
+        },
+        {
+          "name": "LWBRIDGE_BUILD_ID",
+          "rva": "0x718e8"
+        },
+        {
+          "name": "LWBRIDGE_DESCRIPTOR_SHA256",
+          "rva": "0x71910"
+        },
+        {
+          "name": "LWBRIDGE_MULTI_PROOF_PATH",
+          "rva": "0x71948"
+        },
+        {
+          "name": "LWBRIDGE_MULTI_PROOF",
+          "rva": "0x71980"
+        },
+        {
+          "name": "LWBRIDGE_HOST_DIAGNOSTIC",
+          "rva": "0x71b98"
+        },
+        {
+          "name": "LWBRIDGE_PROFILE_RUNTIME_ROOT",
+          "rva": "0x72428"
+        }
+      ],
+      "genericReaderCallers": {
+        "0x149D0": [
+          "0x15874",
+          "0x16398",
+          "0x16e54",
+          "0x180e5",
+          "0x1b5a8",
+          "0x1d742"
+        ],
+        "0x14BE0": [
+          "0x1d4aa",
+          "0x1d563",
+          "0x1d5dc",
+          "0x1d653",
+          "0x1d6cc",
+          "0x1d790"
+        ]
+      },
+      "diagnostic": {
+        "variable": "LWBRIDGE_HOST_DIAGNOSTIC",
+        "enabledValue": "1",
+        "minimumIntervalMs": 2000,
+        "runnerRva": "0x18F00"
+      },
+      "runtimeRootSecondaryUse": "constructs \\logs\\xlua-proxy.log / bridge-runtime fallback"
+    },
+    {
+      "proxy": "plain",
+      "sha256": "c9a88ec449cc6a9929fb2f2800ebd443f9b9dcdac849e3d3e8da94281dea9794",
+      "getEnvironmentVariableWIatRva": "0x6f100",
+      "environmentVariables": [
+        {
+          "name": "LWBRIDGE_PROFILE_ID",
+          "rva": "0x6ff98"
+        },
+        {
+          "name": "LWBRIDGE_INSTANCE_ID",
+          "rva": "0x6ffc0"
+        },
+        {
+          "name": "LWBRIDGE_PIPE_TOKEN",
+          "rva": "0x6fff0"
+        },
+        {
+          "name": "LWBRIDGE_GAME_ROOT",
+          "rva": "0x70f58"
+        },
+        {
+          "name": "LWBRIDGE_XLUA_ORIGINAL_PATH",
+          "rva": "0x70ff0"
+        },
+        {
+          "name": "LWBRIDGE_XLUA_PROXY_BUNDLE_PATH",
+          "rva": "0x71800"
+        },
+        {
+          "name": "LWBRIDGE_MULTI_REQUIRED",
+          "rva": "0x718b8"
+        },
+        {
+          "name": "LWBRIDGE_BUILD_ID",
+          "rva": "0x718e8"
+        },
+        {
+          "name": "LWBRIDGE_DESCRIPTOR_SHA256",
+          "rva": "0x71910"
+        },
+        {
+          "name": "LWBRIDGE_MULTI_PROOF_PATH",
+          "rva": "0x71948"
+        },
+        {
+          "name": "LWBRIDGE_MULTI_PROOF",
+          "rva": "0x71980"
+        },
+        {
+          "name": "LWBRIDGE_HOST_DIAGNOSTIC",
+          "rva": "0x71b98"
+        },
+        {
+          "name": "LWBRIDGE_PROFILE_RUNTIME_ROOT",
+          "rva": "0x72428"
+        }
+      ],
+      "genericReaderCallers": {
+        "0x149D0": [
+          "0x15874",
+          "0x16398",
+          "0x16e54",
+          "0x180e5",
+          "0x1b5a8",
+          "0x1d742"
+        ],
+        "0x14BE0": [
+          "0x1d4aa",
+          "0x1d563",
+          "0x1d5dc",
+          "0x1d653",
+          "0x1d6cc",
+          "0x1d790"
+        ]
+      },
+      "diagnostic": {
+        "variable": "LWBRIDGE_HOST_DIAGNOSTIC",
+        "enabledValue": "1",
+        "minimumIntervalMs": 2000,
+        "runnerRva": "0x18F00"
+      },
+      "runtimeRootSecondaryUse": "constructs \\logs\\xlua-proxy.log / bridge-runtime fallback"
+    }
+  ],
+  "limits": [
+    "proves the native proxy environment-variable surface, not every possible file/registry/protocol input in the product",
+    "does not recover encrypted bridge Lua or XluaBridgeHandlePipeMessage routing",
+    "does not send pipe traffic, run the game, use live process memory, contact auth services, or inspect the protected envelope-consumer body",
+    "Map remains NOT WORKING"
+  ]
+}
