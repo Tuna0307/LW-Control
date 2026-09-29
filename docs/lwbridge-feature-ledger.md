@@ -7,8 +7,8 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Surface | 0.3.17 inventory | UI parity | Function recovery | Current-client mapping | Live proof | Notes |
 |---|---|---|---|---|---|---|
 | Login/account/licensing boundary | OUT_OF_SCOPE | OUT_OF_SCOPE | OUT_OF_SCOPE except dependency trace | OUT_OF_SCOPE except dependency map | OUT_OF_SCOPE | Document boundary only; no recreation/bypass |
-| App shell / initial in-scope window | BLOCKED | NOT STARTED | N/A | N/A | BLOCKED | Exact reference launch reaches out-of-scope auth boundary; post-auth shell not visually validated |
-| Top-level navigation | EXACT_BYTES | NOT STARTED | N/A | N/A | NOT STARTED | Static order/labels recovered; visual state pending |
+| App shell / initial in-scope window | EXACT_BYTES static shell/CSS contract; runtime BLOCKED | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Single-profile shell reproduced from exact static evidence; reference post-auth visual validation blocked |
+| Top-level navigation | EXACT_BYTES definition/labels/icons/CSS | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact eight-item order and inline SVG icons reproduced; reference post-auth visual validation blocked |
 | Home | EXACT_BYTES static component/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Initial `overview` route; runtime visual observation blocked by auth boundary |
 | Automation | EXACT_BYTES static tab/card/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Seven exact top-level categories; runtime visual observation blocked by auth boundary |
 | Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | City default, Manual Scan default; runtime visual observation blocked by auth boundary |
@@ -17,7 +17,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Hotkeys | EXACT_BYTES static shortcut/card/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Seven exact shortcut cards; runtime visual observation blocked by auth boundary |
 | Mini Games | EXACT_BYTES static helper/card/status/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Four exact helper/card areas; runtime visual observation blocked by auth boundary |
 | Settings | EXACT_BYTES static settings/feedback/update/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Performance, conditional account interaction, feedback and updater UI inventoried; runtime visual observation blocked by auth boundary |
-| Advanced (conditional) | EXACT_BYTES conditional entry | NOT STARTED | NOT STARTED | NOT STARTED | UNKNOWN | Runtime visibility and exact English label still unknown |
+| Advanced (dormant navigation helper) | EXACT_BYTES helper; forced off in exact build | N/A | N/A | N/A | N/A | Exact call site passes `false` into the premium/admin gate, so the visible 0.3.17 nav has eight entries |
 | Additional visible in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after 0.3.17 evidence |
 | Hidden / conditional in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after evidence |
 | Backend/runtime functions | UNKNOWN | N/A | NOT STARTED | NOT STARTED | NOT STARTED | Add one row/function after observation/recovery |

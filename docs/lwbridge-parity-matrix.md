@@ -15,8 +15,8 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 | ID | Surface/state | Reference evidence | Reproduction status | Visual validation | Open gaps |
 |---|---|---|---|---|---|
 | UI-000 | Login/account/licensing boundary | RUNTIME OBSERVED 2026-09-29; redacted boundary screenshot | OUT_OF_SCOPE | OUT_OF_SCOPE | Dependency-only investigation if later required |
-| UI-001 | App launch / initial in-scope shell | BLOCKED BY OUT-OF-SCOPE AUTH BOUNDARY | NOT STARTED | BLOCKED | Legitimate post-auth state required for runtime visual baseline |
-| UI-002 | Top-level navigation | EXACT_BYTES static definition + English locale | NOT STARTED | NOT STARTED | Runtime geometry/icons/selected/hover/conditional Advanced visibility |
+| UI-001 | App launch / initial in-scope shell | EXACT_BYTES static shell/CSS contract; runtime blocked by auth | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Reference post-auth geometry/theme/profile-sidebar state unavailable |
+| UI-002 | Top-level navigation | EXACT_BYTES definition + English locale + inline SVGs + CSS | IMPLEMENTED_NOT_VALIDATED | BLOCKED | Reference selected/hover pixels unavailable; exact build statically disables Advanced |
 | UI-003 | Home | EXACT_BYTES component + English locale + CSS inventory | NOT STARTED | BLOCKED | Runtime Home state/geometry/theme blocked by out-of-scope auth boundary |
 | UI-004 | Automation | EXACT_BYTES tab/card/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page state/geometry blocked by out-of-scope auth boundary |
 | UI-005 | Map Data | EXACT_BYTES scan/tab/filter/table/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page data/state/geometry blocked by out-of-scope auth boundary |
