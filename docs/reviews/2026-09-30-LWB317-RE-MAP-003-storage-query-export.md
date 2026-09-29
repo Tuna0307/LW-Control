@@ -60,13 +60,22 @@ The current binary also contains schema-version metadata, `MAP_DATABASE_ERROR`,
 `open map database`, `map database is unavailable`, the `map-data` /
 `map-data.db` names, WAL checkpointing, and legacy-map-data import markers.
 
-Current store opener `0x3DE414-0x3E085E` creates the supplied Map data
-directory and appends exact `map-data.db`. Higher setup
-`0x21C5B4-0x21F35C` constructs the `map-data` directory component. Therefore
-the current proven suffix is `map-data/map-data.db`. The absolute parent/profile
-root is not promoted from this bounded trace. A separate sibling/legacy
-`map-data.db` is passed to migration code and must not be conflated with the
-current directory-backed database.
+Current path helper `0x29F983-0x29FA84` constructs
+`<runtime-root>/profiles/<profileId>/map-data`; the profile runtime then calls
+store opener `0x3DE414-0x3E085E`, which appends exact `map-data.db`. Therefore
+the current relative profile-owned database path is
+`<runtime-root>/profiles/<profileId>/map-data/map-data.db`. The absolute Windows
+runtime root remains outside this bounded trace. Startup separately constructs
+a root-level `map-data/map-data.db` for legacy/global import; that migration
+source must not be confused with the current per-profile store.
+
+Current schema version is `4`. The current create-table/index batch runs first,
+then the host reads `metadata.schema_version`. A version above 4 fails with
+`MAP_SCHEMA_TOO_NEW` / `map database schema {version} is newer than supported
+{supported}`. Versions below 2 run the explicit legacy dispatch-assist
+migration that cancels `scheduled`, `waiting_connection`, `running`, and
+`retry_wait` jobs with `legacy assist schedule replaced`; accepted lower
+versions are then stamped to version 4. No destructive reset path was found.
 
 Historical `src/LWBridge.Desktop/MapDataStore.cs` carries additional scan-run
 metadata migrations (world/tile/current-client fields). Those columns are not
@@ -317,7 +326,7 @@ Still `UNKNOWN/PARTIAL` where not needed for current product behavior:
 
 - exact no-usable-sort fallback direction;
 - numeric formatter substitutions inside the City shield CASE;
-- absolute parent/profile root above the proven `map-data/map-data.db` suffix;
+- absolute OS location of `<runtime-root>` above the proven per-profile path;
 - native arbitrary-IPC history normalization beyond current frontend input;
 - exact manual-mark tracker `state`/`checked_at` policy;
 - game/provider effects of treasure/plunder/navigation actions prior to the

@@ -104,8 +104,11 @@ The request/result field inventory is preserved in
   dispatch alliance share.
 
 No `server_jump_history_get` command is present in the recovered 0.3.17
-frontend. The historical public GET must not be added to the new 0.3.17 plane
-unless later exact native evidence establishes a reachable current contract.
+frontend. Later exact native dispatcher tracing established that GET remains a
+registered compatibility command, together with four legacy per-kind plunder
+list/retry commands. They are classified separately from the 26 commands the
+current product frontend actually invokes; registration alone does not make
+them current UI behavior.
 
 ## Scan and query frontend contract
 
