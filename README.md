@@ -1,67 +1,71 @@
-# LWBridge 0.3.1 strict parity recovery
+# LWBridge 0.3.17 parity recovery
 
-**Current checkpoint:** `LWB-R8-010` (2026-09-24)
-**Branch:** `research/offline-controller`
+This repository is the active reverse-engineering and reconstruction workspace for:
 
-This repository is now a strict one-to-one recovery of the verified LWBridge 0.3.1 reference:
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe`
 
-`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
+Reference identity:
 
-Verified SHA-256:
+- File version: `0.3.17`
+- Product version: `0.3.17`
+- Size: `15,866,880` bytes
+- SHA-256: `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`
+- Active branch: `research/offline-controller`
 
-`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
+## Current strategy
 
-## Direction reset
+The project has been reset back to reverse engineering.
 
-The earlier R1-R7 work produced substantial reverse-engineering evidence and a functioning reconstruction, but parts of the project drifted into redesign, optimization, owner-specific feature retirement, and current-game-specific substitutions that were not first established as original LWBridge behavior.
+The new execution order is:
 
-That direction is superseded.
+1. **Project preparation and evidence hygiene**
+2. **One-for-one UI reproduction of LWBridge 0.3.17**
+3. **Function-by-function reverse engineering**
+4. **Current Last War compatibility mapping**
+5. **Live validation and parity closure**
 
-From R8 onward, the product authority is the original LWBridge 0.3.1 executable. We recover what the reference actually does and reproduce it one-for-one. No new product feature, removed reference feature, changed workflow, changed default, changed label, changed scan strategy, changed timing, or convenience behavior is accepted without reference evidence.
-
-The end product must work against the current Last War client. Internal compatibility code may differ where necessary, but it must preserve the recovered original product behavior.
+Do not skip directly to function implementation while the UI inventory/reproduction phase is incomplete unless the project lead assigns a narrow dependency investigation.
 
 ## Start here
 
-1. [`AGENTS.md`](AGENTS.md) — mandatory project rules.
-2. [`docs/strict-parity-recovery.md`](docs/strict-parity-recovery.md) — current one-to-one directive.
-3. [`docs/lwbridge-parity-matrix.md`](docs/lwbridge-parity-matrix.md) — current completion authority.
-4. [`docs/implementation-handoff.md`](docs/implementation-handoff.md) — current continuation state.
-5. [`docs/README.md`](docs/README.md) — documentation index.
-6. [`BACKLOG.md`](BACKLOG.md) — current parity queue.
-7. [`task.md`](task.md) — durable historical requirements plus the R8 superseding directive.
+Read these in order:
 
-The older 47-case Home/Map acceptance matrix is retained as evidence of the reconstructed implementation. It is no longer whole-product or one-to-one completion authority.
+1. `AGENTS.md`
+2. `task.md`
+3. `docs/README.md`
+4. `docs/strict-parity-recovery.md`
+5. `docs/lwbridge-project-status.md`
+6. `docs/lwbridge-parity-matrix.md`
+7. `docs/lwbridge-ui.md`
+8. `docs/PROJECT_LEAD.md`
+9. `docs/AI_WORK_PROTOCOL.md`
+10. `docs/PROJECT_STRUCTURE.md`
+11. `docs/implementation-handoff.md`
+12. `BACKLOG.md`
 
-## Evidence labels
+## Historical 0.3.1 research
 
-- **EXACT_BYTES** — original bytes recovered from the verified reference and preserved unchanged.
-- **EXACT_CONTRACT** — original behavior recovered with source identity and durable locators.
-- **EQUIVALENT_REIMPLEMENTATION** — different internals proven to reproduce an exact recovered contract.
-- **DEVIATION** — rebuild behavior not supported by the reference or an original feature intentionally removed/changed.
-- **UNKNOWN** — original behavior still needs recovery.
+The repository contains substantial earlier LWBridge 0.3.1 research. It is **not discarded**.
 
-Historical labels such as RECOVERED, LIVE-PROVEN and IMPLEMENTED/OFFLINE-TESTED remain valid for the evidence they describe, but they do not by themselves establish one-to-one parity.
+That material remains useful as:
 
-## P0
+- architecture clues,
+- known command names,
+- prior static/dynamic findings,
+- current-client compatibility history,
+- tooling and scripts,
+- examples of evidence quality.
 
-The highest-priority recovery target is the original protected `bridge-scripts.dat` package and its complete plaintext implementation. R8-003 recovered the exact LWBP2 package/AES contract; R8-004 recovered the outer `LWKE1` transport; R8-005 recovered exact client ECDH login material; R8-006 now proves that the opaque envelope consumer's fourth output argument is the exact vector later consumed as the required 32-byte package AES key. The remaining critical seam is the decoded server `LWKE1` agreement/encrypted-key field semantics needed to reproduce that output.
+It is **not authority for 0.3.17 parity** unless a finding is revalidated against the 0.3.17 reference.
 
-Map Data is no longer allowed to consume weeks of custom redesign while original implementation evidence remains recoverable. The original script/host behavior must be recovered first, then mapped to the current client.
+The former high-level 0.3.1 management documents were preserved under:
 
-## Historical evidence
+`docs/archive/lwbridge-0.3.1-management/`
 
-Do not delete or rewrite chronological evidence to fit the new direction. R1-R7 documents remain useful provenance. When old documents describe a custom rebuild decision as current product behavior, the R8 parity directive supersedes that decision without erasing the historical record.
+Chronological reviews and evidence remain in their original locations so historical links stay valid.
 
-## Build
+## Operating model
 
-The current source is still buildable with the existing toolchain, but a successful build is not parity proof:
+The main project lead owns scope, evidence standards, master status and work assignment. Worker AIs should take one bounded work item at a time and return a durable report/checkpoint rather than independently changing project direction.
 
-```powershell
-python tools/build_lwbridge_frontend.py --check
-dotnet build src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release
-dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release
-dotnet run --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-build
-```
-
-Reference-vs-rebuild comparison and source-attributed recovery are now mandatory parts of completion.
+See `docs/AI_WORK_PROTOCOL.md`.

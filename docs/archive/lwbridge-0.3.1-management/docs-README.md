@@ -1,0 +1,62 @@
+# LWBridge documentation index
+
+**Current checkpoint:** `LWB-R8-100`, 2026-09-27.
+
+The project direction changed on 2026-09-24 from “working reconstruction with selected owner customizations” to **strict one-to-one recovery of LWBridge 0.3.1**.
+
+
+### Owner working/acceptance reset — 2026-09-27
+
+For owner-facing status, **WORKING is binary**. A feature is WORKING only when the recovered original LWBridge 0.3.1 logic for that feature is the production path and that path has succeeded against the real current Last War client. A live-successful substitute, compatibility reconstruction, `EQUIVALENT_REIMPLEMENTATION`, old custom scanner, fallback, test harness, or output-equivalent path is **NOT WORKING** for this acceptance label.
+
+For Home and Map there is **no production fallback acceptance**. Equivalent implementations may remain only as historical evidence, comparison/oracle tooling, or isolated research/test harnesses. They must not silently activate, mask failure of the recovered path, or be used to report the feature as working.
+
+Immediate priority is **original Map acquisition engine first**, then any remaining original Home lifecycle gaps. Freeze unrelated auth/entitlement/secondary-feature recovery unless it is a demonstrated direct dependency of Home/Map recovery. Server season progression is not evidence that the installed client implementation is incompatible; compatibility changes require concrete current-client evidence.
+
+
+## Read in this order
+
+1. [`../AGENTS.md`](../AGENTS.md) — mandatory repository rules.
+2. [`strict-parity-recovery.md`](strict-parity-recovery.md) — current product directive.
+3. [`lwbridge-parity-matrix.md`](lwbridge-parity-matrix.md) — current whole-program completion matrix.
+4. [`implementation-handoff.md`](implementation-handoff.md) — current continuation state.
+5. [`handoffs/2026-09-27-r8-100-chat-handoff.md`](handoffs/2026-09-27-r8-100-chat-handoff.md) — full new-chat handoff, including the mandatory ~20-minute bounded-work cadence and exact R8-099 resume point.
+6. [`../BACKLOG.md`](../BACKLOG.md) — current parity work queue.
+7. [`lwbridge-project-status.md`](lwbridge-project-status.md) — project-manager status.
+8. [`deep-binary-handoff.md`](deep-binary-handoff.md) — retained protected-package/binary recovery reference; subordinate to the current Map/Home priority.
+9. [`lwbridge-architecture.md`](lwbridge-architecture.md) — recovered original architecture.
+10. [`lwbridge-ui.md`](lwbridge-ui.md) — recovered frontend provenance.
+11. [`lwbridge-map-scan.md`](lwbridge-map-scan.md) — cumulative Map recovery evidence.
+12. [`tabs/home.md`](tabs/home.md), [`tabs/map-data.md`](tabs/map-data.md), [`tabs/shared-release.md`](tabs/shared-release.md) — current parity interpretation of previously reconstructed surfaces.
+13. [`external-audit-guide.md`](external-audit-guide.md) — reviewer guidance.
+14. [`../evidence/lwbridge-implementation/README.md`](../evidence/lwbridge-implementation/README.md) — chronological evidence navigation.
+
+## Reference authority
+
+`C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.1.exe`
+
+SHA-256:
+
+`2a2de09b35bb6a03f26b5e05f949f3aea6215f294127e605d7d78481f855cdff`
+
+The reference was re-hashed on 2026-09-24 before the R8 direction reset.
+
+## Completion authority
+
+The old 47-case Home/Map acceptance matrix remains valid evidence for the behaviors it tested. It no longer means the project is close to one-to-one completion.
+
+Current completion authority is [`lwbridge-parity-matrix.md`](lwbridge-parity-matrix.md). The matrix distinguishes exact recovered bytes/contracts, equivalent reimplementations, deviations and unknown original behavior.
+
+## Historical documents
+
+`docs/reviews/`, R1-R7 evidence, the old acceptance matrix, and cumulative recovery ledgers are intentionally retained. Do not rewrite them to make the project appear more consistent. They explain how the reconstruction evolved and where drift entered.
+
+A historical file may say a feature was intentionally removed or optimized. Those statements remain true of that checkpoint, but the R8 strict parity directive supersedes them as current product policy.
+
+## P0 evidence focus
+
+R8-097 makes the immediate P0 the **original Map acquisition engine**, followed by the remaining original Home lifecycle. R8-098 proves the original proxies compile a proxy-owned Lua-text `@bridge-scripts.dat` source through `luaL_loadbufferx` + `lua_dump`; R8-099 additionally recovers the exact decrypted format-2 module table and source-assembly rules feeding that compiler. Authentic module/source capture is the next Map recovery route. The protected `bridge-scripts.dat` package remains an important recovery source, but general package/auth work is paused unless it directly answers a Home/Map blocker. R6-039 through R6-046 established the loader/crypto boundary; R8-003 recovered the exact LWBP2/AES contract; R8-004 recovered outer `LWKE1` framing; R8-005 recovered exact client ECDH login material; R8-006 proves the precise opaque-consumer output pointer that becomes the 32-byte package AES key. That package-key chain remains documented for later continuation, but it is not the next task unless it directly blocks original Map/Home recovery.
+
+Latest owner acceptance checkpoint: [`reviews/2026-09-27-r8-097-owner-working-acceptance-reset.md`](reviews/2026-09-27-r8-097-owner-working-acceptance-reset.md).
+
+Historical SB-79 records an operation rejected by a previous environment. Preserve that record and do not reroute a prohibited operation. Do not mistake the historical denial for evidence that the underlying package is impossible to recover.

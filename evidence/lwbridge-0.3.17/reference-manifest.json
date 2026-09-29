@@ -1,0 +1,12 @@
+{
+  "findingId": "LWB317-PM-001",
+  "recordedAt": "2026-09-29",
+  "target": {
+    "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+    "fileVersion": "0.3.17",
+    "productVersion": "0.3.17",
+    "sizeBytes": 15866880,
+    "sha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+  },
+  "scope": "Reference identity only. No UI extraction, binary analysis, runtime analysis or function recovery is claimed."
+}
