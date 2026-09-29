@@ -56,10 +56,18 @@ Work only from assigned bounded work items or a project-lead-authored Loop campa
 
 ## Phase 2 — function recovery
 
-Do not start until the UI baseline is stable and the project lead opens the phase.
+Phase 2 is now open for **Map Data only**. Other subsystems remain blocked until
+the Map Goal is reviewed.
 
-- [ ] Build command/event inventory from in-scope 0.3.17 surfaces.
-- [ ] Trace functions one at a time from UI to backend/runtime.
+- [ ] Complete `LWB317-RE-MAP-001` from `docs/GOAL_CAMPAIGN_PHASE2_MAP.md`.
+- [ ] Recover/revalidate Map frontend/Tauri command surface.
+- [ ] Recover/revalidate Map scan lifecycle/state machine.
+- [ ] Recover/revalidate Map storage/query/export/marks/history/options.
+- [ ] Implement/test the 0.3.17 Map local control/data plane.
+- [ ] Produce current-client Map compatibility matrix.
+- [ ] Project-lead review Map Goal before opening another subsystem.
+- [ ] Build command/event inventory from later in-scope 0.3.17 surfaces.
+- [ ] Trace later function families one at a time from UI to backend/runtime.
 - [ ] Revalidate useful 0.3.1 findings against 0.3.17.
 - [ ] Recover storage/config/database ownership where required by in-scope features.
 - [ ] Recover game/provider/native contracts for in-scope features.

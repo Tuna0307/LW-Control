@@ -22,15 +22,15 @@ later if an in-scope feature demonstrably requires it.
 
 ## Current phase
 
-**Phase 1 — UI parity**
+**Phase 2 — function recovery**
 
-Status: the pre-authorized UI-only Loop campaign has returned and is
-`AWAITING_REVIEW`. Static inventories, the common visual system, the separate
-0.3.17 UI project, shell/navigation, inventoried pages and the static comparison
-fix pass are checkpointed. Direct post-auth runtime visual comparison remains
-blocked by the original auth boundary.
+Phase 1A static UI recovery/reconstruction has been project-lead reviewed and
+accepted. Direct post-auth runtime visual comparison remains legitimately
+blocked by the original auth boundary and stays `BLOCKED`, not fabricated.
 
-No gameplay/function reverse engineering is authorized in this campaign.
+The first Phase 2 Goal is the complete Map Data subsystem recovery:
+
+`docs/GOAL_CAMPAIGN_PHASE2_MAP.md`
 
 ## Current work items
 
@@ -38,8 +38,9 @@ No gameplay/function reverse engineering is authorized in this campaign.
 |---|---|---|---|
 | LWB317-PM-001 | Project lead | COMPLETE | Repository/documentation reset for 0.3.17 |
 | LWB317-UI-001A | Worker AI | COMPLETE / ACCEPTED | Static frontend package inventory/extraction |
-| LWB317-UI-CAMPAIGN-8H | Loop worker | AWAITING_REVIEW | Campaign returned; review checkpoints/evidence and auth-blocked visual-validation gap |
-| LWB317-RE-* | None | BLOCKED BY PHASE ORDER | Begins only after project-lead review opens Phase 2 |
+| LWB317-UI-CAMPAIGN-8H | Goal worker | ACCEPTED | Static UI recovery/reconstruction accepted; direct post-auth visual validation remains blocked |
+| LWB317-RE-MAP-001 | Goal worker | READY | End-to-end Map Data function-family recovery + local control/data-plane implementation |
+| Other LWB317-RE-* | None | BLOCKED | Do not start another subsystem until Map Goal review |
 | Login/auth/licensing reconstruction | None | OUT_OF_SCOPE | Boundary/dependency only |
 
 Loop-mode workers must follow `docs/LOOP_WORKER_PROTOCOL.md`,
@@ -63,7 +64,7 @@ After a worker/campaign returns:
 4. update parity matrix/feature ledger conservatively;
 5. run applicable checks;
 6. accept/fix/revert only coherent changes;
-7. decide whether another UI pass is needed before Phase 2.
+7. decide whether the next function-family Goal may open.
 
 ## Status discipline
 
@@ -80,7 +81,7 @@ Do not compress those into a single vague “done” percentage.
 
 ## Desktop constraint
 
-Desktop-control tooling remains available, but the UI campaign is now awaiting
-project-lead review rather than actively executing.
+Desktop-control tooling remains available, but the current Map Goal is designed
+to be static/headless first.
 
-It does not authorize Last War/gameplay testing, auth bypass or backend function reverse engineering.
+It does not authorize Last War live control or auth bypass.

@@ -2,7 +2,7 @@
 
 **Target:** LWBridge 0.3.17  
 **Branch:** `research/offline-controller`  
-**Phase:** UI parity / campaign awaiting project-lead review
+**Phase:** Phase 2 function recovery / Map Data Goal ready
 
 ## Important reset
 
@@ -58,12 +58,13 @@ It established the exact static frontend package and recovered/hash-locked 24 em
 Desktop-control tooling was used for the UI-parity campaign's clone-side smoke
 checks and captures.
 
-Last War/gameplay control, backend function reverse engineering and auth bypass are not authorized.
+Last War live control and auth bypass are not authorized. Static/headless
+function recovery is now authorized for Map Data only.
 
 The local clone Vite preview used for validation was stopped during final
 cleanup. No Last War process was launched or controlled by this campaign.
 
-## Campaign handoff
+## Phase 1 campaign handoff
 
 The project-lead-authorized campaign:
 
@@ -81,7 +82,17 @@ UI stage checkpoints end at `fc760bc`. See
 `docs/reviews/2026-09-29-LWB317-UI-CAMPAIGN-8H-handoff.md` for the final worker
 handoff.
 
-Phase 2 remains closed. Current worker state is `WAITING_FOR_PROJECT_LEAD`.
+The Phase 1A static UI recovery/reconstruction is accepted. Direct post-auth
+reference visual validation remains blocked at the excluded auth boundary.
+
+## Active continuation
+
+The next authorized Goal is:
+
+`docs/GOAL_CAMPAIGN_PHASE2_MAP.md`
+
+It opens Phase 2 for the **Map Data subsystem only**. Other function families
+remain blocked until project-lead review.
 
 ## Required worker/campaign output
 

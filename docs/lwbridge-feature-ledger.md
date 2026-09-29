@@ -11,7 +11,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Top-level navigation | EXACT_BYTES definition/labels/icons/CSS | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact eight-item order and inline SVG icons reproduced; reference post-auth visual validation blocked |
 | Home | EXACT_BYTES static component/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact unresolved Home state reproduced; reference post-auth visual validation blocked |
 | Automation | EXACT_BYTES static tab/card/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Seven exact categories and inventoried cards reproduced; runtime persisted state not claimed |
-| Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Manual Scan + City defaults and unloaded static surface reproduced |
+| Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | IMPLEMENTED_NOT_VALIDATED | READY — `LWB317-RE-MAP-001` | NOT STARTED | BLOCKED | Phase 2 Map subsystem Goal opened; no live claim yet |
 | Squads / AFK | EXACT_BYTES static AFK/equipment/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | AFK default and equipment empty state reproduced; UI-007 static-contract refinements complete, reference runtime validation blocked |
 | City Layout | EXACT_BYTES static grid/inspector/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Exact disconnected render path reproduced; no city/building data fabricated |
 | Hotkeys | EXACT_BYTES static shortcut/card/locale/CSS inventory | IMPLEMENTED_NOT_VALIDATED | N/A | N/A | BLOCKED | Seven exact shortcut cards reproduced with deterministic clone-only config fixture |

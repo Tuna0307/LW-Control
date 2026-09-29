@@ -33,7 +33,7 @@ Add one row per in-scope 0.3.17 function only after it is observed/recovered.
 
 | ID | Function | UI trigger | Frontend/API | Host/runtime | Storage/state | Current-client map | Live proof |
 |---|---|---|---|---|---|---|---|
-| — | No in-scope 0.3.17 function rows yet | | | | | | |
+| MAP-001 | Map Data subsystem | EXACT_BYTES UI inventory | RECOVERY READY | RECOVERY READY | RECOVERY READY | RECOVERY READY | NOT STARTED |
 
 ## Completion rule
 
