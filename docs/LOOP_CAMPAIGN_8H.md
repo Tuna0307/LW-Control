@@ -110,8 +110,8 @@ The worker should update this table as stages progress.
 | LWB317-UI-002D Squads / AFK inventory | COMPLETE | `31a9d57` | Static `EXACT_BYTES` AFK/equipment/string/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002E City Layout inventory | COMPLETE | `aeb22f8` | Static `EXACT_BYTES` grid/inspector/string/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002F Hotkeys inventory | COMPLETE | `273a55a` | Static `EXACT_BYTES` shortcut/card/string/CSS inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-002G Mini Games inventory | COMPLETE | | Static `EXACT_BYTES` helper/card/status/CSS inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-002H Settings inventory | PENDING | | |
+| LWB317-UI-002G Mini Games inventory | COMPLETE | `3224ec8` | Static `EXACT_BYTES` helper/card/status/CSS inventory; runtime visual observation blocked by auth boundary |
+| LWB317-UI-002H Settings inventory | COMPLETE | | Static `EXACT_BYTES` settings/feedback/update/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-003 common visual system | PENDING | | |
 | LWB317-UI-004 clean 0.3.17 UI project scaffold | PENDING | | |
 | LWB317-UI-005 shell/navigation reproduction | PENDING | | |

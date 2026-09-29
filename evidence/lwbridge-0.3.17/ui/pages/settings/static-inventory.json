@@ -1,0 +1,94 @@
+{
+  "workItem": "LWB317-UI-002H",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "SettingsPanel-DqxIWv_E.js": {
+      "bytes": 3673,
+      "sha256": "129CCBACDD5F309070A3E2728912165006F0FA35FCF748D56F7AA9500D690C2B"
+    },
+    "index-BVfnK1wp.js": {
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    }
+  },
+  "navigationLocator": "index-BVfnK1wp.js byte 0x5562B",
+  "pageTitle": "Settings",
+  "pageDescription": "In-game display, application information, and client updates.",
+  "sections": [
+    {
+      "key": "visualMetrics",
+      "title": "In-game performance",
+      "description": "Show real-time performance and network latency in the top-left corner of the game.",
+      "controls": ["Show FPS", "Show Ping"],
+      "loading": "Processing",
+      "errors": [
+        "Failed to load in-game display settings.",
+        "Failed to save in-game display settings."
+      ],
+      "effectiveDefaults": "UNKNOWN; values are loaded from persisted visual-metrics state"
+    },
+    {
+      "key": "accountInteraction",
+      "conditional": "shown only when the parent supplies showProfileFocus; exact main-bundle condition is maxProfiles > 1",
+      "title": "Account interaction",
+      "description": "Control how the account list interacts with running game windows.",
+      "controls": ["Focus the corresponding game when selecting an account"],
+      "storedDefault": "true unless lwbridge.focusGameOnProfileSelect is explicitly stored as false"
+    },
+    {
+      "key": "feedback",
+      "title": "Issue feedback",
+      "description": "Export recent local diagnostic logs to help investigate issues.",
+      "privacyNotice": "The archive automatically masks player names, UIDs, authorization data, and local paths. It is saved only to the location you choose and is never uploaded automatically.",
+      "action": "Export diagnostic archive",
+      "busy": "Collecting and compressing logs…",
+      "progress": ["Preparing logs", "Exporting", "Finishing", "Export complete"],
+      "failure": "Export failed. Check the save location and try again.",
+      "success": "Exported diagnostic archive ({size}) to: {path}"
+    },
+    {
+      "key": "clientUpdate",
+      "title": "Client Update",
+      "labels": [
+        "Current version: {version}",
+        "Latest: {version}",
+        "Updates are checked automatically with the authorization heartbeat.",
+        "Checking for updates…",
+        "You are using the latest version.",
+        "A new version is available.",
+        "The new version is opening. This window will close.",
+        "Published: {date}",
+        "Downloading {progress}%",
+        "Update folder: {path}",
+        "Check for updates",
+        "Check again in {seconds}s",
+        "Download and open"
+      ]
+    }
+  ],
+  "styleFacts": [
+    ".settings-panel aligns content to the start; its panel-title subtitle uses muted body text.",
+    ".settings-stack is a grid with 8px gap.",
+    ".update-panel uses a 1px line border, soft surface, 10px radius, 12px gap and 16px padding.",
+    ".update-heading/.update-actions/.update-progress are flex rows with 10px gap.",
+    ".update-version uses an info border/background, 7px radius and 5px 8px padding.",
+    ".update-notes uses the normal surface, 8px radius, 10px padding and 1.6 line-height.",
+    ".feedback-export-progress uses a three-column grid and collapses to full width responsively."
+  ],
+  "runtimeUnknowns": [
+    "loaded Show FPS / Show Ping values",
+    "whether multi-profile capability makes Account interaction visible in the current account",
+    "current updater phase, versions, notes, directory and errors",
+    "feedback export progress/result",
+    "post-auth rendered geometry/theme and live focus/hover states"
+  ]
+}

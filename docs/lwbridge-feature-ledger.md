@@ -16,7 +16,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | City Layout | EXACT_BYTES static grid/inspector/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Static layout editor controls/states inventoried; runtime visual observation blocked by auth boundary |
 | Hotkeys | EXACT_BYTES static shortcut/card/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Seven exact shortcut cards; runtime visual observation blocked by auth boundary |
 | Mini Games | EXACT_BYTES static helper/card/status/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Four exact helper/card areas; runtime visual observation blocked by auth boundary |
-| Settings | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| Settings | EXACT_BYTES static settings/feedback/update/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Performance, conditional account interaction, feedback and updater UI inventoried; runtime visual observation blocked by auth boundary |
 | Advanced (conditional) | EXACT_BYTES conditional entry | NOT STARTED | NOT STARTED | NOT STARTED | UNKNOWN | Runtime visibility and exact English label still unknown |
 | Additional visible in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after 0.3.17 evidence |
 | Hidden / conditional in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after evidence |
