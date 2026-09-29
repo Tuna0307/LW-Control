@@ -2,15 +2,17 @@
 
 This is the master UI workstream document.
 
-No UI reproduction has started under the 0.3.17 reset yet.
-
 ## Goal
 
-Copy the observable LWBridge 0.3.17 UI one-for-one before broad function implementation.
+Copy the observable **in-scope post-auth LWBridge 0.3.17 UI** one-for-one before broad function implementation.
+
+The original login/account/licensing experience is not part of the clone target.
+
+If the reference opens into a login/locked state, capture only enough evidence to document the access boundary. Do not implement that screen in the clone and do not bypass it.
 
 ## Required inventory
 
-For every screen/state, capture or record:
+For every accessible in-scope screen/state, capture or record:
 
 - window size/minimum behavior;
 - navigation hierarchy;
@@ -31,6 +33,17 @@ For every screen/state, capture or record:
 - responsive behavior;
 - keyboard/focus/hover/selected states where observable.
 
+## Auth-boundary rule
+
+Login/account/licensing is not a page-reproduction target.
+
+If encountered:
+
+- record the visible boundary and what in-scope surfaces are inaccessible;
+- use legitimate owner-provided/existing access only if available;
+- do not reverse engineer or bypass auth to continue;
+- static frontend evidence may still be used to inventory post-auth UI, but any runtime visual state not directly observed must remain `UNKNOWN` / not visually validated.
+
 ## Evidence layout
 
 Future UI findings should use:
@@ -49,19 +62,17 @@ The UI implementation may reuse exact recovered frontend assets where lawful/tec
 
 Synthetic backend data is allowed only in an explicitly labeled preview/test harness. It must not be confused with recovered runtime behavior.
 
+The new clone should enter the in-scope app experience without reconstructing LWBridge's original login/account/licensing system.
+
 ## Acceptance
 
-A page is visually complete only after repeatable comparison against the 0.3.17 reference in the same state.
+An in-scope page is visually complete only after repeatable comparison against the 0.3.17 reference in the same observable state.
 
 Pixel/geometry comparison should be preferred over subjective statements such as “looks close.”
 
-## First future task
+If runtime visual comparison is blocked by auth, mark that validation gap explicitly rather than bypassing the boundary.
 
-The first UI worker should inventory/capture the top-level app shell and navigation only.
-
-Do not implement backend functions in that work item.
-
-## Static frontend package baseline
+## Current work
 
 `LWB317-UI-001A` established the 0.3.17 frontend package statically. The exact
 reference contains a 24-record Brotli-compressed Tauri asset table in `.rdata`;
@@ -74,3 +85,5 @@ Detailed evidence:
 
 This is an `EXACT_BYTES` package baseline only. It does not claim visual parity,
 runtime-state parity, or any recovered gameplay/backend behavior.
+
+The next runtime work begins with shell/navigation observation and then the pre-authorized UI-only Loop campaign.
