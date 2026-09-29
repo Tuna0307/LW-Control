@@ -1,0 +1,1654 @@
+{
+  "workItem": "LWB317-UI-002D",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "SquadPanel-HC3-DJei.js": {
+      "bytes": 192855,
+      "sha256": "ED466E353AA896D8C3FC783FF1802930156FB9E9EB54327AEF73F2FF86FA06C7"
+    },
+    "index-BVfnK1wp.js": {
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    },
+    "AutomationCard-LCx_jIi7.js": {
+      "bytes": 5092,
+      "sha256": "24ED773623C237F8219EFF5443FAC3BA7B55B6E99E168E52FF066FAF2ABE7A61"
+    },
+    "GameAssetImage-Diy9VTIr.js": {
+      "bytes": 2347,
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    }
+  },
+  "componentByteOffsets": {
+    "SquadPanel.function_pd": "0x2eb51",
+    "SquadPanel.tab_strip": "0x2eeb3",
+    "SquadPanel.export": "0x2f13e",
+    "main.tab_array_afk_equipment": "0x5783B",
+    "main.default_tab_afk": "0x57852"
+  },
+  "tabs": [
+    {
+      "key": "afk",
+      "localeKey": "squad.tabAfk",
+      "label": "AFK Tasks"
+    },
+    {
+      "key": "equipment",
+      "localeKey": "squad.tabEquipment",
+      "label": "Equipment Schemes"
+    }
+  ],
+  "defaultTab": "afk",
+  "pageTitle": "Squads / AFK",
+  "directLocaleKeys": [
+    {
+      "key": "zombieBus.title",
+      "value": "Zombie Bus Garrison"
+    },
+    {
+      "key": "zombieBus.description",
+      "value": "Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds."
+    },
+    {
+      "key": "zombieBus.waiting",
+      "value": "Waiting for an attack"
+    },
+    {
+      "key": "zombieBus.gold",
+      "value": "Gold bus"
+    },
+    {
+      "key": "zombieBus.normal",
+      "value": "Regular bus"
+    },
+    {
+      "key": "zombieBus.unknown",
+      "value": "Unknown"
+    },
+    {
+      "key": "squad.afkReorder",
+      "value": "Reorder {name} (drag or press Up/Down)"
+    },
+    {
+      "key": "squad.afkSelectListTarget",
+      "value": "Select a list target"
+    },
+    {
+      "key": "squad.afkRestoreTargetRequired",
+      "value": "Select a target from the list to stop using a custom target."
+    },
+    {
+      "key": "squad.afkCustomTargetRequired",
+      "value": "Enter a target name; this change has not been saved."
+    },
+    {
+      "key": "squad.afkBasicSettings",
+      "value": "Basic settings"
+    },
+    {
+      "key": "squad.afkExecutionSettings",
+      "value": "Execution settings"
+    },
+    {
+      "key": "squad.afkTargetFilters",
+      "value": "Target filters"
+    },
+    {
+      "key": "squad.afkJoinConditions",
+      "value": "Rally join conditions"
+    },
+    {
+      "key": "squad.afkExecutionLimitLabel",
+      "value": "Execution count (0 = unlimited)"
+    },
+    {
+      "key": "squad.join.confirmMembers",
+      "value": "Confirm selection"
+    },
+    {
+      "key": "squad.join.chooseMembers",
+      "value": "Select alliance members"
+    },
+    {
+      "key": "squad.join.searchMembers",
+      "value": "Search name or UID"
+    },
+    {
+      "key": "squad.join.memberLeft",
+      "value": "Not in the current alliance"
+    },
+    {
+      "key": "squad.join.memberLeftHint",
+      "value": "Saved entries remain subject to the list rules. Remove them manually if no longer needed."
+    },
+    {
+      "key": "squad.join.membersOffline",
+      "value": "Connect to the game to load alliance members."
+    },
+    {
+      "key": "squad.join.membersFailed",
+      "value": "Alliance members could not be loaded. Saved entries are retained."
+    },
+    {
+      "key": "squad.join.membersLoading",
+      "value": "Loading alliance members…"
+    },
+    {
+      "key": "squad.join.noMembers",
+      "value": "No matching alliance members."
+    },
+    {
+      "key": "squad.join.emptyWhitelist",
+      "value": "The allowlist is empty; no rallies will be joined."
+    },
+    {
+      "key": "squad.join.mode",
+      "value": "Join timing"
+    },
+    {
+      "key": "squad.join.mode.slot",
+      "value": "Random position"
+    },
+    {
+      "key": "squad.join.mode.delay",
+      "value": "Random delay"
+    },
+    {
+      "key": "squad.join.slotDelay",
+      "value": "Delay after reaching the position (s, 0 = none)"
+    },
+    {
+      "key": "squad.join.hint",
+      "value": "Random modes pick one value per rally; equal bounds use a fixed value. Your own rallies are skipped."
+    },
+    {
+      "key": "squad.join.maxWait",
+      "value": "Maximum wait to departure (min, 0 = unlimited)"
+    },
+    {
+      "key": "squad.join.list",
+      "value": "Rally leader list"
+    },
+    {
+      "key": "squad.join.skipSolo",
+      "value": "Skip leaders with one hero"
+    },
+    {
+      "key": "squad.join.skipKicked",
+      "value": "Do not rejoin after being removed"
+    },
+    {
+      "key": "squad.join.invalid",
+      "value": "Check the ranges and UIDs. Positions must be integers ≥ 2; delays must be 0–6000 seconds with at most two decimals; UIDs must be positive numbers without duplicates."
+    },
+    {
+      "key": "squad.join.waiting",
+      "value": "Waiting to join"
+    },
+    {
+      "key": "squad.join.waitingDetail",
+      "value": "{target} · Join in {seconds}s"
+    },
+    {
+      "key": "configSave.failed",
+      "value": "Changes have not been saved."
+    },
+    {
+      "key": "automation.running",
+      "value": "Running"
+    },
+    {
+      "key": "automation.autoUsePotion",
+      "value": "Use Stamina items automatically"
+    },
+    {
+      "key": "automation.minStamina",
+      "value": "Use below Stamina"
+    },
+    {
+      "key": "automation.potionMonsterOnly",
+      "value": "Uses stamina items whenever current stamina falls below the limit."
+    },
+    {
+      "key": "automation.preferFifty",
+      "value": "Prefer 50-point item"
+    },
+    {
+      "key": "common.actionFailed",
+      "value": "The action could not be completed."
+    },
+    {
+      "key": "common.add",
+      "value": "Add"
+    },
+    {
+      "key": "common.cancel",
+      "value": "Cancel"
+    },
+    {
+      "key": "common.completed",
+      "value": "Completed"
+    },
+    {
+      "key": "common.delete",
+      "value": "Delete"
+    },
+    {
+      "key": "common.disabled",
+      "value": "Disabled"
+    },
+    {
+      "key": "common.enabled",
+      "value": "Enabled"
+    },
+    {
+      "key": "common.failed",
+      "value": "Failed"
+    },
+    {
+      "key": "common.processing",
+      "value": "Processing"
+    },
+    {
+      "key": "common.rename",
+      "value": "Rename"
+    },
+    {
+      "key": "common.saveConfig",
+      "value": "Save configuration"
+    },
+    {
+      "key": "nav.settings",
+      "value": "Settings"
+    },
+    {
+      "key": "squad.emptyEquipment",
+      "value": "Empty"
+    },
+    {
+      "key": "squad.equipmentApplyPartial",
+      "value": "Applied {applied}/{requested}; stopped at {hero}: {reason}"
+    },
+    {
+      "key": "squad.equipmentApplyRejected",
+      "value": "Equipment change rejected: {reason}"
+    },
+    {
+      "key": "squad.equipmentApplySuccess",
+      "value": "Applied and verified {applied} hero equipment schemes."
+    },
+    {
+      "key": "squad.equipmentApplying",
+      "value": "Applying equipment..."
+    },
+    {
+      "key": "squad.equipmentApplyPreparing",
+      "value": "Preparing equipment change..."
+    },
+    {
+      "key": "squad.equipmentApplyRunning",
+      "value": "Applying {current}/{total}: {hero}"
+    },
+    {
+      "key": "squad.equipmentApplyVerifying",
+      "value": "Verifying {current}/{total}"
+    },
+    {
+      "key": "squad.currentEquipmentPreset",
+      "value": "Currently active: {name}"
+    },
+    {
+      "key": "squad.mixedEquipmentPreset",
+      "value": "Mixed presets"
+    },
+    {
+      "key": "squad.unmatchedEquipmentPreset",
+      "value": "No matching preset"
+    },
+    {
+      "key": "squad.quickShortcutHint",
+      "value": "Alt+1–4 applies the matching scheme across all squads."
+    },
+    {
+      "key": "squad.presetNamePrompt",
+      "value": "Preset name"
+    },
+    {
+      "key": "squad.presetDefaultName",
+      "value": "Preset {number}"
+    },
+    {
+      "key": "squad.sameSlotRequired",
+      "value": "Equipment can only be swapped with the same slot."
+    },
+    {
+      "key": "squad.equipmentPresets",
+      "value": "Equipment presets"
+    },
+    {
+      "key": "squad.equipmentConfigUnsaved",
+      "value": "Unsaved changes"
+    },
+    {
+      "key": "squad.equipmentConfigSaved",
+      "value": "Configuration saved."
+    },
+    {
+      "key": "squad.saveEquipmentConfig",
+      "value": "Save configuration"
+    },
+    {
+      "key": "squad.saveAndApplyEquipmentConfig",
+      "value": "Save and apply to squads"
+    },
+    {
+      "key": "squad.loadCurrentEquipment",
+      "value": "Read current equipment"
+    },
+    {
+      "key": "squad.currentEquipmentLoaded",
+      "value": "Current equipment loaded; save to keep the changes."
+    },
+    {
+      "key": "squad.presetSummary",
+      "value": "{positions} positions · {equips} items"
+    },
+    {
+      "key": "squad.noEquipmentPresets",
+      "value": "No equipment presets"
+    },
+    {
+      "key": "squad.allSquadPresetSummary",
+      "value": "All 4 squads · {positions} positions · {equips} items"
+    },
+    {
+      "key": "squad.positionEquipmentCount",
+      "value": "{positions} positions · {equips} items"
+    },
+    {
+      "key": "squad.applySquad",
+      "value": "Apply this squad"
+    },
+    {
+      "key": "squad.position",
+      "value": "Position {number}"
+    },
+    {
+      "key": "squad.dragLoadout",
+      "value": "Drag equipment set"
+    },
+    {
+      "key": "squad.dragSquadLoadout",
+      "value": "Drag squad equipment"
+    },
+    {
+      "key": "squad.heroFixed",
+      "value": "Hero stays in this position"
+    },
+    {
+      "key": "squad.createFirstPreset",
+      "value": "Create an equipment preset first."
+    },
+    {
+      "key": "squad.dragEquipmentHint",
+      "value": "Heroes stay fixed. Drag squad equipment to swap shared leading positions; extra positions stay unchanged. You can also drag a full set or one item."
+    },
+    {
+      "key": "squad.autoJoinRally",
+      "value": "Automatically join Alliance Rallies"
+    },
+    {
+      "key": "squad.empty",
+      "value": "No available Squads"
+    },
+    {
+      "key": "squad.tabEquipment",
+      "value": "Equipment Schemes"
+    },
+    {
+      "key": "squad.tabAfk",
+      "value": "AFK Tasks"
+    },
+    {
+      "key": "squad.afkProfiles",
+      "value": "Shared AFK Profiles"
+    },
+    {
+      "key": "squad.afkMaster",
+      "value": "Monster AFK master switch"
+    },
+    {
+      "key": "squad.afkMasterDescription",
+      "value": "Enable or pause all monster AFK profiles below. Alliance Drill and Auto Garrison are controlled separately."
+    },
+    {
+      "key": "squad.afkAllianceDrill",
+      "value": "Auto Alliance Drill"
+    },
+    {
+      "key": "squad.afkAllianceDrillDescription",
+      "value": "Participate in squad order; the first available squad launches rallies when enabled."
+    },
+    {
+      "key": "squad.afkAllianceDrillActive",
+      "value": "Launch rallies"
+    },
+    {
+      "key": "squad.afkAllianceDrillOrder",
+      "value": "Launch priority: {order}"
+    },
+    {
+      "key": "squad.afkAllianceDrillSquadRequired",
+      "value": "Select at least one Alliance Drill squad."
+    },
+    {
+      "key": "squad.afkAllianceDrillWaiting",
+      "value": "Waiting for the drill"
+    },
+    {
+      "key": "squad.afkAllianceDrillLeading",
+      "value": "Launching a rally"
+    },
+    {
+      "key": "squad.afkAllianceDrillJoining",
+      "value": "Joining a rally"
+    },
+    {
+      "key": "squad.afkActionAttack",
+      "value": "Attack"
+    },
+    {
+      "key": "squad.afkActionRally",
+      "value": "Launch rally"
+    },
+    {
+      "key": "squad.afkLevelFilter",
+      "value": "Limit level"
+    },
+    {
+      "key": "squad.afkDistanceFilter",
+      "value": "Limit distance"
+    },
+    {
+      "key": "squad.afkMinLevel",
+      "value": "Minimum level"
+    },
+    {
+      "key": "squad.afkMaxLevel",
+      "value": "Maximum level"
+    },
+    {
+      "key": "squad.afkAttackableRange",
+      "value": "Attackable level: {min}-{max}"
+    },
+    {
+      "key": "squad.afkAttackableRangeUnavailable",
+      "value": "Attackable level: unavailable"
+    },
+    {
+      "key": "squad.afkLevelOutOfRange",
+      "value": "Configured level is outside the attackable range"
+    },
+    {
+      "key": "squad.afkProgressiveLevels",
+      "value": "Attack level by level"
+    },
+    {
+      "key": "squad.afkExecutionLimitHint",
+      "value": "Counted separately per squad after each completed attack or rally; 0 loops indefinitely"
+    },
+    {
+      "key": "squad.afkAnyLevel",
+      "value": "Any level"
+    },
+    {
+      "key": "squad.afkAnyDistance",
+      "value": "Any distance"
+    },
+    {
+      "key": "squad.afkNewProfile",
+      "value": "New AFK Profile"
+    },
+    {
+      "key": "squad.afkEditProfile",
+      "value": "Edit AFK Profile"
+    },
+    {
+      "key": "squad.afkAssignments",
+      "value": "Squad Assignments"
+    },
+    {
+      "key": "squad.afkProfileName",
+      "value": "Profile Name"
+    },
+    {
+      "key": "squad.afkCustomName",
+      "value": "Target name keyword"
+    },
+    {
+      "key": "squad.afkCustomTarget",
+      "value": "Custom target"
+    },
+    {
+      "key": "squad.afkCustomTargetHint",
+      "value": "Use only when the target is missing from the list. Match all or part of its name in the current game language; names are not translated automatically."
+    },
+    {
+      "key": "squad.afkTarget",
+      "value": "AFK Target"
+    },
+    {
+      "key": "squad.afkActiveAttack",
+      "value": "Actively attack targets"
+    },
+    {
+      "key": "squad.afkContinuousAttack",
+      "value": "Continuous attacks (no return)"
+    },
+    {
+      "key": "squad.afkContinuousAttackUnavailable",
+      "value": "Rally targets do not support continuous attacks"
+    },
+    {
+      "key": "squad.afkContinuousJoin",
+      "value": "Join next rally while returning"
+    },
+    {
+      "key": "squad.afkJoin",
+      "value": "Join Alliance rallies"
+    },
+    {
+      "key": "squad.afkBoundSquads",
+      "value": "Bound squads: {count}"
+    },
+    {
+      "key": "squad.afkNoProfiles",
+      "value": "No AFK profiles"
+    },
+    {
+      "key": "squad.afkSearchable",
+      "value": "Search"
+    },
+    {
+      "key": "squad.afkLocalTarget",
+      "value": "Live map"
+    },
+    {
+      "key": "squad.afkStep.waitingNearbyTarget",
+      "value": "Waiting for the next nearby scan"
+    },
+    {
+      "key": "squad.afkStep.scanningNearby",
+      "value": "Scanning nearby targets"
+    },
+    {
+      "key": "squad.afkStep.scanningNextTarget",
+      "value": "Scanning the next target"
+    },
+    {
+      "key": "squad.afkStep.scanningMineRoute",
+      "value": "Scanning for a route mine"
+    },
+    {
+      "key": "squad.afkStep.marchingViaMine",
+      "value": "Marching via a mine"
+    },
+    {
+      "key": "squad.afkStep.redirectingToMonster",
+      "value": "Redirecting to the monster"
+    },
+    {
+      "key": "squad.afkStep.recoveringFromMine",
+      "value": "Mine route failed, recalling"
+    },
+    {
+      "key": "squad.afkStep.scanningReturnMine",
+      "value": "Scanning for a return-speed mine"
+    },
+    {
+      "key": "squad.afkStep.boostingReturn",
+      "value": "Applying mine march speed"
+    },
+    {
+      "key": "squad.afkStep.returning",
+      "value": "Returning to Headquarters"
+    },
+    {
+      "key": "squad.afkUndiscovered",
+      "value": "Not found"
+    },
+    {
+      "key": "squad.maxDistance",
+      "value": "Maximum distance"
+    },
+    {
+      "key": "squad.number",
+      "value": "Squad {number}"
+    },
+    {
+      "key": "squad.refresh",
+      "value": "Refresh"
+    },
+    {
+      "key": "squad.status.idle",
+      "value": "Idle"
+    },
+    {
+      "key": "squad.title",
+      "value": "Squads / AFK"
+    },
+    {
+      "key": "status.disconnected",
+      "value": "Disconnected"
+    },
+    {
+      "key": "garrison.title",
+      "value": "Auto Garrison"
+    },
+    {
+      "key": "garrison.description",
+      "value": "Keep selected alliance buildings and allies reinforced."
+    },
+    {
+      "key": "garrison.summary",
+      "value": "Garrisoning {active}/{total}"
+    },
+    {
+      "key": "garrison.settings",
+      "value": "Auto Garrison Settings"
+    },
+    {
+      "key": "garrison.settingsDescription",
+      "value": "Starts immediately when enabled and only uses selected idle squads."
+    },
+    {
+      "key": "garrison.selectedTargets",
+      "value": "{count} targets selected"
+    },
+    {
+      "key": "garrison.buildings",
+      "value": "Alliance buildings"
+    },
+    {
+      "key": "garrison.center",
+      "value": "Alliance Center"
+    },
+    {
+      "key": "garrison.attachment",
+      "value": "Adjacent building"
+    },
+    {
+      "key": "garrison.full",
+      "value": "Garrison full"
+    },
+    {
+      "key": "garrison.noBuildings",
+      "value": "No available alliance buildings were found."
+    },
+    {
+      "key": "garrison.offline",
+      "value": "Connect to the game to refresh targets."
+    },
+    {
+      "key": "garrison.allies",
+      "value": "Selected allies"
+    },
+    {
+      "key": "garrison.chooseAllies",
+      "value": "Choose allies"
+    },
+    {
+      "key": "garrison.noSelectedAllies",
+      "value": "No allies selected"
+    },
+    {
+      "key": "garrison.targetPriority",
+      "value": "Target priority"
+    },
+    {
+      "key": "garrison.dragHint",
+      "value": "Drag to reorder"
+    },
+    {
+      "key": "garrison.targetRequired",
+      "value": "Select at least one garrison target."
+    },
+    {
+      "key": "garrison.squadPriority",
+      "value": "Garrison squad order"
+    },
+    {
+      "key": "garrison.squadRequired",
+      "value": "Select at least one garrison squad."
+    },
+    {
+      "key": "garrison.squadHint",
+      "value": "Garrison squads are not used by other AFK tasks while managed."
+    },
+    {
+      "key": "garrison.current",
+      "value": "Current garrisons"
+    },
+    {
+      "key": "garrison.noAssignments",
+      "value": "No active garrison assignment"
+    },
+    {
+      "key": "garrison.recallOnDisable",
+      "value": "Stop and recall when disabled"
+    },
+    {
+      "key": "garrison.runNow",
+      "value": "Refill now"
+    },
+    {
+      "key": "garrison.automatic",
+      "value": "Automatic"
+    },
+    {
+      "key": "garrison.manual",
+      "value": "Manual"
+    },
+    {
+      "key": "garrison.searchAlly",
+      "value": "Search player name"
+    },
+    {
+      "key": "garrison.allyDetail",
+      "value": "Lv. {level} · Power {power}K"
+    },
+    {
+      "key": "garrison.online",
+      "value": "Online"
+    },
+    {
+      "key": "garrison.offlineMember",
+      "value": "Offline"
+    },
+    {
+      "key": "garrison.crossServer",
+      "value": "Cross-server unavailable"
+    },
+    {
+      "key": "garrison.seasonEnded",
+      "value": "Season settlement ended"
+    },
+    {
+      "key": "garrison.targetLoading",
+      "value": "Loading city details"
+    }
+  ],
+  "directClassNameLiterals": [
+    "automation-card monster-afk-compact-card is-selectable${i?",
+    "automation-card-header",
+    "monster-afk-compact-actions",
+    "monster-afk-compact-toggle ${g.enabled?",
+    "monster-afk-master-track",
+    "automation-card monster-afk-toolbar-settings garrison-settings",
+    "monster-afk-toolbar-settings-heading",
+    "garrison-count",
+    "garrison-settings-grid",
+    "garrison-target-panel",
+    "garrison-section-heading",
+    "garrison-building-grid",
+    "garrison-building ${e.role}${e.available?",
+    "muted",
+    "garrison-selected-allies",
+    "garrison-priority-list",
+    "garrison-priority-item",
+    "garrison-runtime-panel",
+    "automation-compact-choice-group automation-squad-priority",
+    "automation-squad-priority-item${t?",
+    "automation-squad-drag-handle",
+    "garrison-assignment-list",
+    "garrison-assignment",
+    "inline-error",
+    "garrison-actions",
+    "primary-action",
+    "garrison-modal-backdrop",
+    "garrison-modal",
+    "garrison-modal-heading",
+    "garrison-ally-list",
+    "garrison-modal-actions",
+    "zombie-bus-assignments",
+    "automation-card monster-afk-toolbar-settings",
+    "monster-afk-toolbar-settings",
+    "automation-error",
+    "rally-join-settings",
+    "monster-afk-basic-grid",
+    "monster-afk-field-wide",
+    "rally-join-range",
+    "rally-join-leaders",
+    "rally-join-leader",
+    "rally-join-member-name",
+    "danger",
+    "status-error",
+    "monster-afk-layout",
+    "monster-afk-toolbar",
+    "monster-afk-card-settings",
+    "monster-afk-drill-inline",
+    "monster-afk-profiles",
+    "monster-section-title",
+    "monster-afk-add-control",
+    "monster-afk-add-menu",
+    "monster-afk-profile-list",
+    "monster-afk-profile-card ${L?.id===e.id?",
+    "monster-afk-enabled ${e.enabled?",
+    "monster-afk-enabled-track",
+    "monster-afk-profile-select",
+    "monster-afk-profile-heading",
+    "monster-afk-mode-badge ${e.kind}",
+    "monster-afk-profile-drag",
+    "monster-afk-editor ${We?",
+    "monster-afk-editor-heading",
+    "monster-afk-mode-badge ${L.kind}",
+    "monster-afk-config-section",
+    "monster-afk-custom-target",
+    "monster-afk-check-row",
+    "monster-afk-custom-name",
+    "monster-afk-config-section monster-afk-join-section",
+    "monster-afk-basic-grid monster-afk-execution-grid",
+    "monster-afk-squad-field",
+    "monster-afk-squads",
+    "monster-afk-squad-toggle",
+    "monster-afk-filter",
+    "monster-afk-filter-content",
+    "monster-afk-number-grid",
+    "monster-afk-attackable-range ${ft?",
+    "automation-error monster-afk-error",
+    "preset-equipment-slot quality-${i?.quality||0} ${te===a?",
+    "equipment-icon",
+    "equipment-icon game-asset-placeholder",
+    "equipment-preset-layout",
+    "equipment-preset-rail",
+    "equipment-preset-list",
+    "equipment-preset-main",
+    "equipment-preset-toolbar",
+    "equipment-current-config",
+    "equipment-preset-actions",
+    "primary",
+    "equipment-preset-squads",
+    "equipment-preset-squad ${te===c?",
+    "equipment-preset-squad-header",
+    "equipment-squad-drag-handle",
+    "equipment-preset-positions",
+    "equipment-position-card ${te===l?",
+    "equipment-position-header",
+    "equipment-position-hero",
+    "equipment-position-hero-icon",
+    "equipment-loadout-handle",
+    "equipment-position-items",
+    "map-empty",
+    "equipment-preset-hint",
+    "equipment-result equipment-result-${b.state}",
+    "equipment-preset-dialog-backdrop",
+    "equipment-preset-dialog",
+    "equipment-toast",
+    "equipment-apply-progress",
+    "panel squad-panel",
+    "squad-header",
+    "squad-tabs"
+  ],
+  "localeGroups": {
+    "squad": [
+      {
+        "key": "squad.afkReorder",
+        "value": "Reorder {name} (drag or press Up/Down)"
+      },
+      {
+        "key": "squad.afkSelectListTarget",
+        "value": "Select a list target"
+      },
+      {
+        "key": "squad.afkRestoreTargetRequired",
+        "value": "Select a target from the list to stop using a custom target."
+      },
+      {
+        "key": "squad.afkCustomTargetRequired",
+        "value": "Enter a target name; this change has not been saved."
+      },
+      {
+        "key": "squad.afkBasicSettings",
+        "value": "Basic settings"
+      },
+      {
+        "key": "squad.afkExecutionSettings",
+        "value": "Execution settings"
+      },
+      {
+        "key": "squad.afkTargetFilters",
+        "value": "Target filters"
+      },
+      {
+        "key": "squad.afkJoinConditions",
+        "value": "Rally join conditions"
+      },
+      {
+        "key": "squad.afkExecutionLimitLabel",
+        "value": "Execution count (0 = unlimited)"
+      },
+      {
+        "key": "squad.join.confirmMembers",
+        "value": "Confirm selection"
+      },
+      {
+        "key": "squad.join.chooseMembers",
+        "value": "Select alliance members"
+      },
+      {
+        "key": "squad.join.searchMembers",
+        "value": "Search name or UID"
+      },
+      {
+        "key": "squad.join.memberLeft",
+        "value": "Not in the current alliance"
+      },
+      {
+        "key": "squad.join.memberLeftHint",
+        "value": "Saved entries remain subject to the list rules. Remove them manually if no longer needed."
+      },
+      {
+        "key": "squad.join.membersOffline",
+        "value": "Connect to the game to load alliance members."
+      },
+      {
+        "key": "squad.join.membersFailed",
+        "value": "Alliance members could not be loaded. Saved entries are retained."
+      },
+      {
+        "key": "squad.join.membersLoading",
+        "value": "Loading alliance members…"
+      },
+      {
+        "key": "squad.join.noMembers",
+        "value": "No matching alliance members."
+      },
+      {
+        "key": "squad.join.emptyWhitelist",
+        "value": "The allowlist is empty; no rallies will be joined."
+      },
+      {
+        "key": "squad.join.mode",
+        "value": "Join timing"
+      },
+      {
+        "key": "squad.join.mode.slot",
+        "value": "Random position"
+      },
+      {
+        "key": "squad.join.mode.delay",
+        "value": "Random delay"
+      },
+      {
+        "key": "squad.join.slotDelay",
+        "value": "Delay after reaching the position (s, 0 = none)"
+      },
+      {
+        "key": "squad.join.hint",
+        "value": "Random modes pick one value per rally; equal bounds use a fixed value. Your own rallies are skipped."
+      },
+      {
+        "key": "squad.join.maxWait",
+        "value": "Maximum wait to departure (min, 0 = unlimited)"
+      },
+      {
+        "key": "squad.join.list",
+        "value": "Rally leader list"
+      },
+      {
+        "key": "squad.join.skipSolo",
+        "value": "Skip leaders with one hero"
+      },
+      {
+        "key": "squad.join.skipKicked",
+        "value": "Do not rejoin after being removed"
+      },
+      {
+        "key": "squad.join.invalid",
+        "value": "Check the ranges and UIDs. Positions must be integers ≥ 2; delays must be 0–6000 seconds with at most two decimals; UIDs must be positive numbers without duplicates."
+      },
+      {
+        "key": "squad.join.waiting",
+        "value": "Waiting to join"
+      },
+      {
+        "key": "squad.join.waitingDetail",
+        "value": "{target} · Join in {seconds}s"
+      },
+      {
+        "key": "squad.emptyEquipment",
+        "value": "Empty"
+      },
+      {
+        "key": "squad.equipmentApplyPartial",
+        "value": "Applied {applied}/{requested}; stopped at {hero}: {reason}"
+      },
+      {
+        "key": "squad.equipmentApplyRejected",
+        "value": "Equipment change rejected: {reason}"
+      },
+      {
+        "key": "squad.equipmentApplySuccess",
+        "value": "Applied and verified {applied} hero equipment schemes."
+      },
+      {
+        "key": "squad.equipmentApplying",
+        "value": "Applying equipment..."
+      },
+      {
+        "key": "squad.equipmentApplyPreparing",
+        "value": "Preparing equipment change..."
+      },
+      {
+        "key": "squad.equipmentApplyRunning",
+        "value": "Applying {current}/{total}: {hero}"
+      },
+      {
+        "key": "squad.equipmentApplyVerifying",
+        "value": "Verifying {current}/{total}"
+      },
+      {
+        "key": "squad.currentEquipmentPreset",
+        "value": "Currently active: {name}"
+      },
+      {
+        "key": "squad.mixedEquipmentPreset",
+        "value": "Mixed presets"
+      },
+      {
+        "key": "squad.unmatchedEquipmentPreset",
+        "value": "No matching preset"
+      },
+      {
+        "key": "squad.quickShortcutHint",
+        "value": "Alt+1–4 applies the matching scheme across all squads."
+      },
+      {
+        "key": "squad.presetNamePrompt",
+        "value": "Preset name"
+      },
+      {
+        "key": "squad.presetDefaultName",
+        "value": "Preset {number}"
+      },
+      {
+        "key": "squad.sameSlotRequired",
+        "value": "Equipment can only be swapped with the same slot."
+      },
+      {
+        "key": "squad.equipmentPresets",
+        "value": "Equipment presets"
+      },
+      {
+        "key": "squad.equipmentConfigUnsaved",
+        "value": "Unsaved changes"
+      },
+      {
+        "key": "squad.equipmentConfigSaved",
+        "value": "Configuration saved."
+      },
+      {
+        "key": "squad.saveEquipmentConfig",
+        "value": "Save configuration"
+      },
+      {
+        "key": "squad.saveAndApplyEquipmentConfig",
+        "value": "Save and apply to squads"
+      },
+      {
+        "key": "squad.loadCurrentEquipment",
+        "value": "Read current equipment"
+      },
+      {
+        "key": "squad.currentEquipmentLoaded",
+        "value": "Current equipment loaded; save to keep the changes."
+      },
+      {
+        "key": "squad.presetSummary",
+        "value": "{positions} positions · {equips} items"
+      },
+      {
+        "key": "squad.noEquipmentPresets",
+        "value": "No equipment presets"
+      },
+      {
+        "key": "squad.allSquadPresetSummary",
+        "value": "All 4 squads · {positions} positions · {equips} items"
+      },
+      {
+        "key": "squad.positionEquipmentCount",
+        "value": "{positions} positions · {equips} items"
+      },
+      {
+        "key": "squad.applySquad",
+        "value": "Apply this squad"
+      },
+      {
+        "key": "squad.position",
+        "value": "Position {number}"
+      },
+      {
+        "key": "squad.dragLoadout",
+        "value": "Drag equipment set"
+      },
+      {
+        "key": "squad.dragSquadLoadout",
+        "value": "Drag squad equipment"
+      },
+      {
+        "key": "squad.heroFixed",
+        "value": "Hero stays in this position"
+      },
+      {
+        "key": "squad.createFirstPreset",
+        "value": "Create an equipment preset first."
+      },
+      {
+        "key": "squad.dragEquipmentHint",
+        "value": "Heroes stay fixed. Drag squad equipment to swap shared leading positions; extra positions stay unchanged. You can also drag a full set or one item."
+      },
+      {
+        "key": "squad.autoJoinRally",
+        "value": "Automatically join Alliance Rallies"
+      },
+      {
+        "key": "squad.empty",
+        "value": "No available Squads"
+      },
+      {
+        "key": "squad.tabEquipment",
+        "value": "Equipment Schemes"
+      },
+      {
+        "key": "squad.tabAfk",
+        "value": "AFK Tasks"
+      },
+      {
+        "key": "squad.afkProfiles",
+        "value": "Shared AFK Profiles"
+      },
+      {
+        "key": "squad.afkMaster",
+        "value": "Monster AFK master switch"
+      },
+      {
+        "key": "squad.afkMasterDescription",
+        "value": "Enable or pause all monster AFK profiles below. Alliance Drill and Auto Garrison are controlled separately."
+      },
+      {
+        "key": "squad.afkAllianceDrill",
+        "value": "Auto Alliance Drill"
+      },
+      {
+        "key": "squad.afkAllianceDrillDescription",
+        "value": "Participate in squad order; the first available squad launches rallies when enabled."
+      },
+      {
+        "key": "squad.afkAllianceDrillActive",
+        "value": "Launch rallies"
+      },
+      {
+        "key": "squad.afkAllianceDrillOrder",
+        "value": "Launch priority: {order}"
+      },
+      {
+        "key": "squad.afkAllianceDrillSquadRequired",
+        "value": "Select at least one Alliance Drill squad."
+      },
+      {
+        "key": "squad.afkAllianceDrillWaiting",
+        "value": "Waiting for the drill"
+      },
+      {
+        "key": "squad.afkAllianceDrillLeading",
+        "value": "Launching a rally"
+      },
+      {
+        "key": "squad.afkAllianceDrillJoining",
+        "value": "Joining a rally"
+      },
+      {
+        "key": "squad.afkActionAttack",
+        "value": "Attack"
+      },
+      {
+        "key": "squad.afkActionRally",
+        "value": "Launch rally"
+      },
+      {
+        "key": "squad.afkLevelFilter",
+        "value": "Limit level"
+      },
+      {
+        "key": "squad.afkDistanceFilter",
+        "value": "Limit distance"
+      },
+      {
+        "key": "squad.afkMinLevel",
+        "value": "Minimum level"
+      },
+      {
+        "key": "squad.afkMaxLevel",
+        "value": "Maximum level"
+      },
+      {
+        "key": "squad.afkAttackableRange",
+        "value": "Attackable level: {min}-{max}"
+      },
+      {
+        "key": "squad.afkAttackableRangeUnavailable",
+        "value": "Attackable level: unavailable"
+      },
+      {
+        "key": "squad.afkLevelOutOfRange",
+        "value": "Configured level is outside the attackable range"
+      },
+      {
+        "key": "squad.afkProgressiveLevels",
+        "value": "Attack level by level"
+      },
+      {
+        "key": "squad.afkExecutionLimitHint",
+        "value": "Counted separately per squad after each completed attack or rally; 0 loops indefinitely"
+      },
+      {
+        "key": "squad.afkAnyLevel",
+        "value": "Any level"
+      },
+      {
+        "key": "squad.afkAnyDistance",
+        "value": "Any distance"
+      },
+      {
+        "key": "squad.afkNewProfile",
+        "value": "New AFK Profile"
+      },
+      {
+        "key": "squad.afkEditProfile",
+        "value": "Edit AFK Profile"
+      },
+      {
+        "key": "squad.afkAssignments",
+        "value": "Squad Assignments"
+      },
+      {
+        "key": "squad.afkProfileName",
+        "value": "Profile Name"
+      },
+      {
+        "key": "squad.afkCustomName",
+        "value": "Target name keyword"
+      },
+      {
+        "key": "squad.afkCustomTarget",
+        "value": "Custom target"
+      },
+      {
+        "key": "squad.afkCustomTargetHint",
+        "value": "Use only when the target is missing from the list. Match all or part of its name in the current game language; names are not translated automatically."
+      },
+      {
+        "key": "squad.afkTarget",
+        "value": "AFK Target"
+      },
+      {
+        "key": "squad.afkActiveAttack",
+        "value": "Actively attack targets"
+      },
+      {
+        "key": "squad.afkContinuousAttack",
+        "value": "Continuous attacks (no return)"
+      },
+      {
+        "key": "squad.afkContinuousAttackUnavailable",
+        "value": "Rally targets do not support continuous attacks"
+      },
+      {
+        "key": "squad.afkContinuousJoin",
+        "value": "Join next rally while returning"
+      },
+      {
+        "key": "squad.afkJoin",
+        "value": "Join Alliance rallies"
+      },
+      {
+        "key": "squad.afkBoundSquads",
+        "value": "Bound squads: {count}"
+      },
+      {
+        "key": "squad.afkNoProfiles",
+        "value": "No AFK profiles"
+      },
+      {
+        "key": "squad.afkSearchable",
+        "value": "Search"
+      },
+      {
+        "key": "squad.afkLocalTarget",
+        "value": "Live map"
+      },
+      {
+        "key": "squad.afkStep.waitingNearbyTarget",
+        "value": "Waiting for the next nearby scan"
+      },
+      {
+        "key": "squad.afkStep.scanningNearby",
+        "value": "Scanning nearby targets"
+      },
+      {
+        "key": "squad.afkStep.scanningNextTarget",
+        "value": "Scanning the next target"
+      },
+      {
+        "key": "squad.afkStep.scanningMineRoute",
+        "value": "Scanning for a route mine"
+      },
+      {
+        "key": "squad.afkStep.marchingViaMine",
+        "value": "Marching via a mine"
+      },
+      {
+        "key": "squad.afkStep.redirectingToMonster",
+        "value": "Redirecting to the monster"
+      },
+      {
+        "key": "squad.afkStep.recoveringFromMine",
+        "value": "Mine route failed, recalling"
+      },
+      {
+        "key": "squad.afkStep.scanningReturnMine",
+        "value": "Scanning for a return-speed mine"
+      },
+      {
+        "key": "squad.afkStep.boostingReturn",
+        "value": "Applying mine march speed"
+      },
+      {
+        "key": "squad.afkStep.returning",
+        "value": "Returning to Headquarters"
+      },
+      {
+        "key": "squad.afkUndiscovered",
+        "value": "Not found"
+      },
+      {
+        "key": "squad.maxDistance",
+        "value": "Maximum distance"
+      },
+      {
+        "key": "squad.number",
+        "value": "Squad {number}"
+      },
+      {
+        "key": "squad.refresh",
+        "value": "Refresh"
+      },
+      {
+        "key": "squad.status.idle",
+        "value": "Idle"
+      },
+      {
+        "key": "squad.title",
+        "value": "Squads / AFK"
+      }
+    ],
+    "garrison": [
+      {
+        "key": "garrison.title",
+        "value": "Auto Garrison"
+      },
+      {
+        "key": "garrison.description",
+        "value": "Keep selected alliance buildings and allies reinforced."
+      },
+      {
+        "key": "garrison.summary",
+        "value": "Garrisoning {active}/{total}"
+      },
+      {
+        "key": "garrison.settings",
+        "value": "Auto Garrison Settings"
+      },
+      {
+        "key": "garrison.settingsDescription",
+        "value": "Starts immediately when enabled and only uses selected idle squads."
+      },
+      {
+        "key": "garrison.selectedTargets",
+        "value": "{count} targets selected"
+      },
+      {
+        "key": "garrison.buildings",
+        "value": "Alliance buildings"
+      },
+      {
+        "key": "garrison.center",
+        "value": "Alliance Center"
+      },
+      {
+        "key": "garrison.attachment",
+        "value": "Adjacent building"
+      },
+      {
+        "key": "garrison.full",
+        "value": "Garrison full"
+      },
+      {
+        "key": "garrison.noBuildings",
+        "value": "No available alliance buildings were found."
+      },
+      {
+        "key": "garrison.offline",
+        "value": "Connect to the game to refresh targets."
+      },
+      {
+        "key": "garrison.allies",
+        "value": "Selected allies"
+      },
+      {
+        "key": "garrison.chooseAllies",
+        "value": "Choose allies"
+      },
+      {
+        "key": "garrison.noSelectedAllies",
+        "value": "No allies selected"
+      },
+      {
+        "key": "garrison.targetPriority",
+        "value": "Target priority"
+      },
+      {
+        "key": "garrison.dragHint",
+        "value": "Drag to reorder"
+      },
+      {
+        "key": "garrison.targetRequired",
+        "value": "Select at least one garrison target."
+      },
+      {
+        "key": "garrison.squadPriority",
+        "value": "Garrison squad order"
+      },
+      {
+        "key": "garrison.squadRequired",
+        "value": "Select at least one garrison squad."
+      },
+      {
+        "key": "garrison.squadHint",
+        "value": "Garrison squads are not used by other AFK tasks while managed."
+      },
+      {
+        "key": "garrison.current",
+        "value": "Current garrisons"
+      },
+      {
+        "key": "garrison.noAssignments",
+        "value": "No active garrison assignment"
+      },
+      {
+        "key": "garrison.recallOnDisable",
+        "value": "Stop and recall when disabled"
+      },
+      {
+        "key": "garrison.runNow",
+        "value": "Refill now"
+      },
+      {
+        "key": "garrison.automatic",
+        "value": "Automatic"
+      },
+      {
+        "key": "garrison.manual",
+        "value": "Manual"
+      },
+      {
+        "key": "garrison.searchAlly",
+        "value": "Search player name"
+      },
+      {
+        "key": "garrison.allyDetail",
+        "value": "Lv. {level} · Power {power}K"
+      },
+      {
+        "key": "garrison.online",
+        "value": "Online"
+      },
+      {
+        "key": "garrison.offlineMember",
+        "value": "Offline"
+      },
+      {
+        "key": "garrison.crossServer",
+        "value": "Cross-server unavailable"
+      },
+      {
+        "key": "garrison.seasonEnded",
+        "value": "Season settlement ended"
+      },
+      {
+        "key": "garrison.targetLoading",
+        "value": "Loading city details"
+      }
+    ],
+    "zombieBus": [
+      {
+        "key": "zombieBus.title",
+        "value": "Zombie Bus Garrison"
+      },
+      {
+        "key": "zombieBus.description",
+        "value": "Keep the strongest squad home; prioritize gold buses. Recall after confirmed battle completion, or after 90 seconds."
+      },
+      {
+        "key": "zombieBus.waiting",
+        "value": "Waiting for an attack"
+      },
+      {
+        "key": "zombieBus.gold",
+        "value": "Gold bus"
+      },
+      {
+        "key": "zombieBus.normal",
+        "value": "Regular bus"
+      },
+      {
+        "key": "zombieBus.unknown",
+        "value": "Unknown"
+      }
+    ],
+    "automation": [
+      {
+        "key": "automation.running",
+        "value": "Running"
+      },
+      {
+        "key": "automation.autoUsePotion",
+        "value": "Use Stamina items automatically"
+      },
+      {
+        "key": "automation.minStamina",
+        "value": "Use below Stamina"
+      },
+      {
+        "key": "automation.potionMonsterOnly",
+        "value": "Uses stamina items whenever current stamina falls below the limit."
+      },
+      {
+        "key": "automation.preferFifty",
+        "value": "Prefer 50-point item"
+      }
+    ],
+    "common": [
+      {
+        "key": "common.actionFailed",
+        "value": "The action could not be completed."
+      },
+      {
+        "key": "common.add",
+        "value": "Add"
+      },
+      {
+        "key": "common.cancel",
+        "value": "Cancel"
+      },
+      {
+        "key": "common.completed",
+        "value": "Completed"
+      },
+      {
+        "key": "common.delete",
+        "value": "Delete"
+      },
+      {
+        "key": "common.disabled",
+        "value": "Disabled"
+      },
+      {
+        "key": "common.enabled",
+        "value": "Enabled"
+      },
+      {
+        "key": "common.failed",
+        "value": "Failed"
+      },
+      {
+        "key": "common.processing",
+        "value": "Processing"
+      },
+      {
+        "key": "common.rename",
+        "value": "Rename"
+      },
+      {
+        "key": "common.saveConfig",
+        "value": "Save configuration"
+      }
+    ],
+    "configSave": [
+      {
+        "key": "configSave.failed",
+        "value": "Changes have not been saved."
+      }
+    ],
+    "status": [
+      {
+        "key": "status.disconnected",
+        "value": "Disconnected"
+      }
+    ]
+  },
+  "notes": [
+    "The top-level tab array/default are imported from exact main-bundle exports: [afk,equipment] with afk first/default.",
+    "Equipment-only Refresh is rendered by the top-level SquadPanel when the active tab is equipment.",
+    "AFK/game/config dynamic values and action outcomes are not fabricated or traced."
+  ]
+}
