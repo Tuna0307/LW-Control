@@ -60,3 +60,17 @@ Pixel/geometry comparison should be preferred over subjective statements such as
 The first UI worker should inventory/capture the top-level app shell and navigation only.
 
 Do not implement backend functions in that work item.
+
+## Static frontend package baseline
+
+`LWB317-UI-001A` established the 0.3.17 frontend package statically. The exact
+reference contains a 24-record Brotli-compressed Tauri asset table in `.rdata`;
+all 24 web assets were losslessly recovered and hashed under
+`evidence/lwbridge-0.3.17/ui/frontend-package/`.
+
+Detailed evidence:
+
+`docs/reviews/2026-09-29-LWB317-UI-001A-frontend-package-inventory.md`
+
+This is an `EXACT_BYTES` package baseline only. It does not claim visual parity,
+runtime-state parity, or any recovered gameplay/backend behavior.
