@@ -10,6 +10,8 @@ analysis/
 .env
 **/bin/
 **/obj/
+**/node_modules/
+**/dist/
 .vs/
 .codex-live/
 

@@ -112,8 +112,8 @@ The worker should update this table as stages progress.
 | LWB317-UI-002F Hotkeys inventory | COMPLETE | `273a55a` | Static `EXACT_BYTES` shortcut/card/string/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002G Mini Games inventory | COMPLETE | `3224ec8` | Static `EXACT_BYTES` helper/card/status/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002H Settings inventory | COMPLETE | `eb8e9b3` | Static `EXACT_BYTES` settings/feedback/update/CSS inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-003 common visual system | COMPLETE | | Exact static tokens/shell/control/card/tab/table/responsive system consolidated; runtime post-auth validation blocked |
-| LWB317-UI-004 clean 0.3.17 UI project scaffold | PENDING | | |
+| LWB317-UI-003 common visual system | COMPLETE | `f6a1a62` | Exact static tokens/shell/control/card/tab/table/responsive system consolidated; runtime post-auth validation blocked |
+| LWB317-UI-004 clean 0.3.17 UI project scaffold | COMPLETE | | Separate React/Vite static UI project under `src/LWBridge.UI-0.3.17`; no auth/backend; legacy desktop project untouched |
 | LWB317-UI-005 shell/navigation reproduction | PENDING | | |
 | LWB317-UI-006 accessible page reproduction | PENDING | | |
 | LWB317-UI-007 visual comparison/fix pass | PENDING | | |
