@@ -6,7 +6,8 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 
 | Surface | 0.3.17 inventory | UI parity | Function recovery | Current-client mapping | Live proof | Notes |
 |---|---|---|---|---|---|---|
-| App shell / initial window | NOT STARTED | NOT STARTED | N/A | N/A | NOT STARTED | First UI workstream |
+| Login/account/licensing boundary | OUT_OF_SCOPE | OUT_OF_SCOPE | OUT_OF_SCOPE except dependency trace | OUT_OF_SCOPE except dependency map | OUT_OF_SCOPE | Document boundary only; no recreation/bypass |
+| App shell / initial in-scope window | NOT STARTED | NOT STARTED | N/A | N/A | NOT STARTED | First runtime UI workstream |
 | Top-level navigation | EXACT_BYTES | NOT STARTED | N/A | N/A | NOT STARTED | Static order/labels recovered; visual state pending |
 | Home | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | `overview -> nav.overview -> Home` |
 | Automation | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
@@ -17,8 +18,8 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Mini Games | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
 | Settings | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
 | Advanced (conditional) | EXACT_BYTES conditional entry | NOT STARTED | NOT STARTED | NOT STARTED | UNKNOWN | Runtime visibility and exact English label still unknown |
-| Additional visible surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after 0.3.17 evidence |
-| Hidden / conditional surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after evidence |
+| Additional visible in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after 0.3.17 evidence |
+| Hidden / conditional in-scope surfaces | UNKNOWN | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Add rows only after evidence |
 | Backend/runtime functions | UNKNOWN | N/A | NOT STARTED | NOT STARTED | NOT STARTED | Add one row/function after observation/recovery |
 
 Allowed status values:
@@ -31,7 +32,10 @@ Allowed status values:
 - `LIVE_PROVEN`
 - `UNKNOWN`
 - `BLOCKED`
+- `OUT_OF_SCOPE`
 
 ## Rule
 
 A historical 0.3.1 feature name is a hypothesis, not a 0.3.17 row. Add it here only after the 0.3.17 reference confirms that the surface/function exists.
+
+Login/account/licensing remains out of scope unless a specific in-scope feature later requires a narrowly defined dependency trace.
