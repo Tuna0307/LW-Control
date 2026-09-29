@@ -14,8 +14,8 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 
 | ID | Surface/state | Reference evidence | Reproduction status | Visual validation | Open gaps |
 |---|---|---|---|---|---|
-| UI-000 | Login/account/licensing boundary | DOCUMENT IF ENCOUNTERED | OUT_OF_SCOPE | OUT_OF_SCOPE | Dependency-only investigation if later required |
-| UI-001 | App launch / initial in-scope shell | NOT CAPTURED | NOT STARTED | NOT STARTED | Full post-auth baseline |
+| UI-000 | Login/account/licensing boundary | RUNTIME OBSERVED 2026-09-29; redacted boundary screenshot | OUT_OF_SCOPE | OUT_OF_SCOPE | Dependency-only investigation if later required |
+| UI-001 | App launch / initial in-scope shell | BLOCKED BY OUT-OF-SCOPE AUTH BOUNDARY | NOT STARTED | BLOCKED | Legitimate post-auth state required for runtime visual baseline |
 | UI-002 | Top-level navigation | EXACT_BYTES static definition + English locale | NOT STARTED | NOT STARTED | Runtime geometry/icons/selected/hover/conditional Advanced visibility |
 | UI-003+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
 

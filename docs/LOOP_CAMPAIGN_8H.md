@@ -13,11 +13,11 @@ It does **not** authorize gameplay/backend function reverse engineering.
 
 ## Worker must fill at start
 
-- Local campaign start time:
-- Starting branch:
-- Starting commit:
-- Reference hash verified:
-- Desktop tooling available:
+- Local campaign start time: `2026-09-29 21:20:56 +08:00`
+- Starting branch: `research/offline-controller`
+- Starting commit: `a2e470818b000b10285a346da0306b57fa315561`
+- Reference hash verified: `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783` — exact match
+- Desktop tooling available: yes — Chat On Steroids Desktop responded successfully at campaign start
 
 Obtain the actual machine time; do not guess it.
 
@@ -103,7 +103,7 @@ The worker should update this table as stages progress.
 
 | Stage | Status | Commit | Notes |
 |---|---|---|---|
-| LWB317-UI-001B shell/navigation runtime baseline | READY | | |
+| LWB317-UI-001B shell/navigation runtime baseline | BLOCKED | | Exact reference reaches out-of-scope auth boundary; boundary captured, post-auth runtime shell not bypassed |
 | LWB317-UI-002A Home inventory | PENDING | | |
 | LWB317-UI-002B Automation inventory | PENDING | | |
 | LWB317-UI-002C Map Data inventory | PENDING | | |

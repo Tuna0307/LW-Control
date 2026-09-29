@@ -7,7 +7,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Surface | 0.3.17 inventory | UI parity | Function recovery | Current-client mapping | Live proof | Notes |
 |---|---|---|---|---|---|---|
 | Login/account/licensing boundary | OUT_OF_SCOPE | OUT_OF_SCOPE | OUT_OF_SCOPE except dependency trace | OUT_OF_SCOPE except dependency map | OUT_OF_SCOPE | Document boundary only; no recreation/bypass |
-| App shell / initial in-scope window | NOT STARTED | NOT STARTED | N/A | N/A | NOT STARTED | First runtime UI workstream |
+| App shell / initial in-scope window | BLOCKED | NOT STARTED | N/A | N/A | BLOCKED | Exact reference launch reaches out-of-scope auth boundary; post-auth shell not visually validated |
 | Top-level navigation | EXACT_BYTES | NOT STARTED | N/A | N/A | NOT STARTED | Static order/labels recovered; visual state pending |
 | Home | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | `overview -> nav.overview -> Home` |
 | Automation | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |

@@ -87,3 +87,10 @@ This is an `EXACT_BYTES` package baseline only. It does not claim visual parity,
 runtime-state parity, or any recovered gameplay/backend behavior.
 
 The next runtime work begins with shell/navigation observation and then the pre-authorized UI-only Loop campaign.
+
+`LWB317-UI-001B` runtime observation on 2026-09-29 reached the original
+authorization/login boundary before the post-auth shell. The boundary was
+captured without submitting credentials or bypassing entitlement, and the
+post-auth shell/navigation runtime baseline is therefore `BLOCKED`. The active
+campaign may continue with its separately authorized static/offline UI stages;
+static frontend evidence must not be described as runtime visual proof.
