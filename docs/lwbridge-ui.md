@@ -86,11 +86,16 @@ Detailed evidence:
 This is an `EXACT_BYTES` package baseline only. It does not claim visual parity,
 runtime-state parity, or any recovered gameplay/backend behavior.
 
-The next runtime work begins with shell/navigation observation and then the pre-authorized UI-only Loop campaign.
-
 `LWB317-UI-001B` runtime observation on 2026-09-29 reached the original
 authorization/login boundary before the post-auth shell. The boundary was
 captured without submitting credentials or bypassing entitlement, and the
 post-auth shell/navigation runtime baseline is therefore `BLOCKED`. The active
 campaign may continue with its separately authorized static/offline UI stages;
 static frontend evidence must not be described as runtime visual proof.
+
+`LWB317-UI-002A` through `LWB317-UI-002H` have now inventoried Home,
+Automation, Map Data, Squads / AFK, City Layout, Hotkeys, Mini Games and
+Settings from exact recovered frontend bytes. `LWB317-UI-003` consolidates the
+shared light/dark tokens, typography, shell geometry, navigation states,
+controls, cards, tabs, tables and responsive rules. These are static contracts;
+post-auth rendered visual comparison remains blocked by the same auth boundary.

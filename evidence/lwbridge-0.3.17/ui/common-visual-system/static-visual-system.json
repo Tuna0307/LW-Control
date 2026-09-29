@@ -1,0 +1,97 @@
+{
+  "workItem": "LWB317-UI-003",
+  "evidenceState": "EXACT_BYTES_STATIC; post-auth runtime visual validation BLOCKED",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "primaryStylesheet": {
+    "path": "evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-rIL9Fpht.css",
+    "bytes": 126217,
+    "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+  },
+  "typography": {
+    "family": "Segoe UI, -apple-system, BlinkMacSystemFont, Arial, sans-serif",
+    "caption": "11px",
+    "footnote": "12px",
+    "body": "13px",
+    "title": "16px",
+    "pageTitle": "20px",
+    "codeBinding": "Consolas, monospace"
+  },
+  "lightTheme": {
+    "bg": "#f5f5f7",
+    "surface": "#fff",
+    "surfaceSoft": "#ebebed",
+    "surfaceMuted": "#e5e5ea",
+    "surfaceRaised": "#fff",
+    "line": "#e5e5ea",
+    "lineBright": "#d1d1d6",
+    "text": "#1d1d1f",
+    "muted": "#5f5f63",
+    "mutedStrong": "#48484a",
+    "blue": "#0071e3",
+    "blueBright": "#06c",
+    "blueText": "#0071e3",
+    "successText": "#1b7a33",
+    "dangerText": "#d70015",
+    "warningText": "#c93400",
+    "switchOn": "#34c759"
+  },
+  "darkTheme": {
+    "bg": "#1e1e1e",
+    "surface": "#282828",
+    "surfaceSoft": "#323232",
+    "surfaceMuted": "#3d3d3d",
+    "surfaceRaised": "#343434",
+    "line": "#3a3a3c",
+    "lineBright": "#48484a",
+    "text": "#f5f5f7",
+    "muted": "#a8a8ad",
+    "mutedStrong": "#aeaeb2",
+    "blue": "#0071e3",
+    "blueBright": "#005bb5",
+    "blueText": "#2997ff",
+    "successText": "#30d158",
+    "dangerText": "#ff554c",
+    "warningText": "#ff9f0a",
+    "switchOn": "#30d158"
+  },
+  "shell": {
+    "appShell": "grid rows auto/1fr; 10px gap; 100vh; padding 10px 12px; overflow hidden",
+    "topBar": "minimum height 52px; 1px bright border; 10px radius; 6px 14px padding; 12px gap; shadow 0 4px 16px var(--shadow)",
+    "normalLayoutColumns": "230px 164px minmax(460px,1fr)",
+    "collapsedProfileColumns": "92px 164px minmax(460px,1fr)",
+    "singleProfileColumns": "164px minmax(460px,1fr)",
+    "mainView": "grid; 14px gap; 14px padding; overflow auto",
+    "sideNav": "grid; 5px gap; 10px padding",
+    "sideNavButton": "minimum height 38px; 8px radius; 8px 12px padding; 13px; 10px gap",
+    "navIcon": "17px square; SVG stroke width 1.8px",
+    "navIndex": "minimum width 20px; caption-size Consolas"
+  },
+  "components": {
+    "panel": "1px line border; surface background; 10px radius; 0 4px 14px shadow; 14px gap; 16px padding",
+    "panelHeading": "16px; weight 650",
+    "baseControls": "font inherited; surface background; text color; 1px line border; 8px radius; 8px padding",
+    "primaryButton": "on-accent text; blue border/background; weight 600",
+    "dangerButton": "on-accent text; danger border/background; weight 600",
+    "focusVisible": "2px solid blue outline with 2px offset",
+    "disabledButton": "opacity .45; not-allowed cursor",
+    "checkboxRadio": "15px square; blue accent",
+    "defaultSwitch": "64x32px track; 24px thumb; 4px gap; 999px radius",
+    "card": "page-specific card variants consistently use line/card borders, surface backgrounds and 6-10px radii",
+    "segmentedTabs": "map/squad/automation variants use bordered soft-surface containers and selected segmented-pill background/text/shadow",
+    "mapTable": "1px line border; 8px radius; shadow; fixed layout; minimum width 720px for base map table",
+    "hotkeyCard": "8px radius; 12px 14px padding; 10px two-column grid gap at page level",
+    "updatePanel": "1px line border; soft surface; 10px radius; 12px gap; 16px padding"
+  },
+  "responsiveBreakpointsObserved": [1160, 1100, 900, 860, 780, 760, 600, 560],
+  "reusableRasterAssets": [
+    "dot-offline-CDBA2902.png",
+    "dot-online-gjSbTzBh.png",
+    "icon-warning-D9WXqS3t.png"
+  ],
+  "runtimeLimits": [
+    "The auth-boundary client size 1120x720 is runtime observed, but post-auth window/client geometry was not observed.",
+    "The stylesheet contains both light and dark token sets; the theme active in the blocked post-auth session is unknown.",
+    "Static hover/focus/selected/disabled rules are exact bytes, but their rendered post-auth appearance has not been visually compared against the reference.",
+    "No post-auth pixel comparison exists because the reference cannot be reached legitimately in the current session."
+  ]
+}
