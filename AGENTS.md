@@ -16,17 +16,19 @@ The old 0.3.1 research remains historical evidence only unless revalidated again
 
 ## 2. Product goal
 
-The goal is one-for-one reproduction of LWBridge 0.3.17 as observed/recovered, while keeping the final implementation compatible with the current Last War client.
+The goal is one-for-one reproduction of the **in-scope post-auth LWBridge 0.3.17 product experience** as observed/recovered, while keeping the final implementation compatible with the current Last War client.
 
-Do not redesign workflows, labels, defaults, tabs, states, timing or behavior merely because another design seems better.
+Login/account/licensing is an explicit scope exception. We are **not** rebuilding the original authentication, entitlement, purchase, account-binding or licensing system as a product feature.
+
+Do not redesign in-scope workflows, labels, defaults, tabs, states, timing or behavior merely because another design seems better.
 
 ## 3. Work order
 
 Current order:
 
 1. prepare/clean the research project;
-2. reproduce the 0.3.17 UI one-for-one;
-3. reverse engineer each function;
+2. reproduce the in-scope 0.3.17 post-auth UI one-for-one;
+3. reverse engineer each in-scope function;
 4. map recovered behavior to the current game;
 5. live-prove parity.
 
@@ -44,6 +46,7 @@ Use these states:
 - `LIVE_PROVEN`
 - `UNKNOWN`
 - `BLOCKED`
+- `OUT_OF_SCOPE`
 
 Every recovered fact must name its source and locator.
 
@@ -53,7 +56,21 @@ Do not delete old reviews/evidence.
 
 A 0.3.1 finding may be used as a hypothesis or shortcut, but it must not be reported as 0.3.17 fact until checked against the 0.3.17 executable/assets/runtime.
 
-## 6. Desktop-control rule
+## 6. Login/auth/licensing boundary
+
+Login, account management, entitlement, subscription/purchase and licensing are **not reconstruction targets**.
+
+If the reference exposes a login/locked boundary:
+
+- record only the visible boundary needed to understand access;
+- do not implement the login/account/licensing UI in the new clone;
+- do not reverse engineer credentials, token exchange, purchase, subscription or license-validation protocols;
+- do not bypass authentication or entitlement;
+- use only legitimate owner-provided/existing access state when available.
+
+A later in-scope function may justify **minimal dependency tracing** if it demonstrably consumes state produced by auth, such as current account/server/profile/session readiness. In that case recover only the downstream state contract required by the feature. Do not broaden the task into reconstructing the original auth system.
+
+## 7. Desktop-control rule
 
 As of 2026-09-29, the owner has explicitly re-enabled desktop-control tooling
 for the UI-parity phase.
@@ -73,7 +90,7 @@ For UI capture work:
 - do not press gameplay/function controls outside the assigned scope;
 - preserve screenshots/state evidence under the 0.3.17 evidence tree.
 
-## 7. Live-session safety
+## 8. Live-session safety
 
 Before any future live test:
 
@@ -83,13 +100,15 @@ Before any future live test:
 - prefer assistant-owned sessions for disruptive tests;
 - fail closed if session ownership is ambiguous.
 
-## 8. Bounded work blocks
+## 9. Bounded work blocks
 
 Keep primary work blocks to roughly 20 minutes.
 
 Near minute 17–18, stop opening new branches of investigation, preserve useful state, update durable documentation, and summarize the exact continuation point.
 
-## 9. Documentation rule
+Loop campaigns may run longer only when a project-lead-authored campaign file explicitly allows it. Even then, preserve coherent checkpoints frequently.
+
+## 10. Documentation rule
 
 A useful finding is not complete until it is written into the repository.
 
@@ -100,7 +119,7 @@ For each completed work item:
 - update the parity matrix/feature ledger if status changed;
 - update the handoff if the continuation point changed.
 
-## 10. Git rule
+## 11. Git rule
 
 Work on `research/offline-controller` unless the project lead explicitly assigns another branch.
 
@@ -114,7 +133,7 @@ For coherent checkpoints:
 
 Never force-push or discard unrelated work.
 
-## 11. Tooling
+## 12. Tooling
 
 Project-related tool discovery/installation is pre-authorized.
 
@@ -122,8 +141,10 @@ Prefer existing tools first. Record tool/version/source when a new tool material
 
 PowerShell 7 is available as `pwsh` (7.6.6).
 
-## 12. Worker-AI discipline
+## 13. Worker-AI discipline
 
 Worker AIs must follow `docs/AI_WORK_PROTOCOL.md`.
+
+Loop-mode workers must additionally follow `docs/LOOP_WORKER_PROTOCOL.md` and the active project-lead campaign/queue.
 
 A worker does not redefine product scope, evidence standards, phase order or master status. Return findings to the project lead through durable files/checkpoints.
