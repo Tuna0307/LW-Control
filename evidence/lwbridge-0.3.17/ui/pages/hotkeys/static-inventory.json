@@ -1,0 +1,107 @@
+{
+  "workItem": "LWB317-UI-002F",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "HotkeyPanel-XA8idRHB.js": {
+      "bytes": 7801,
+      "sha256": "9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    "index-BVfnK1wp.js": {
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    }
+  },
+  "locators": {
+    "hotkeyCardDefinition": "HotkeyPanel-XA8idRHB.js byte 0x89",
+    "hotkeyPanelMarkup": "HotkeyPanel-XA8idRHB.js byte 0xF77",
+    "hotkeyPanelExport": "HotkeyPanel-XA8idRHB.js byte 0x1E34",
+    "navigationEntry": "index-BVfnK1wp.js byte 0x555DE"
+  },
+  "pageTitle": "Game Hotkeys",
+  "pageDescription": "Fixed shortcuts that respond while the Last War game window is active.",
+  "statusCopy": {
+    "offline": "Game disconnected. Settings are saved and will apply after connection.",
+    "loadFailed": "Failed to load hotkey settings.",
+    "saveFailed": "Failed to save hotkey settings."
+  },
+  "cards": [
+    {
+      "key": "attack",
+      "binding": "Q / W / E / R",
+      "title": "Attack target",
+      "description": "Q/W/E/R each send one march at whatever is under the cursor: enemy city, ally city reinforcement, monster, resource node, or city ruin. World bosses and rally monsters are skipped. A/S/D/F recalls.",
+      "extraControls": [
+        "Use speedup items from the inventory",
+        "Buy speedups with diamonds when items run out"
+      ],
+      "warning": "Items are spent first, cheapest tier first. Diamond purchases pick the lowest-priced tier and spend real diamonds."
+    },
+    {
+      "key": "recall",
+      "binding": "A / S / D / F",
+      "title": "Recall squad",
+      "description": "Recall squads 1–4 to the Headquarters."
+    },
+    {
+      "key": "shieldOverlay",
+      "binding": "Space",
+      "title": "Shield countdown",
+      "description": "Hold Space to display remaining Shield time above protected cities."
+    },
+    {
+      "key": "shieldUse",
+      "binding": "F6 / F7 / F8",
+      "title": "Use Shield",
+      "description": "F6 uses an 8-hour Shield, F7 a 12-hour Shield, and F8 a 24-hour Shield.",
+      "warning": "This shortcut consumes the matching Shield item immediately."
+    },
+    {
+      "key": "equipment",
+      "binding": "Alt + 1～4",
+      "title": "Equipment preset",
+      "description": "Apply equipment presets 1–4 to all configured squads."
+    },
+    {
+      "key": "randomRelocate",
+      "binding": "F9",
+      "title": "Random relocation",
+      "description": "Press F9 to use a Random Relocator.",
+      "warning": "Relocation may consume an item. This shortcut is disabled by default."
+    },
+    {
+      "key": "allianceRelocate",
+      "binding": "F10",
+      "title": "Alliance relocation",
+      "description": "Press F10 to relocate to the Alliance rally point.",
+      "warning": "Relocation may consume an item. This shortcut is disabled by default."
+    }
+  ],
+  "styleFacts": [
+    ".hotkey-grid uses two equal columns with 10px gap at normal width and one column responsively",
+    ".hotkey-card uses a 1px card border, card surface, card shadow, 8px radius, 12px 14px padding and 8px internal gap",
+    ".hotkey-binding uses blue text, info border/background, 6px radius, 6px 8px padding and 600 12px/1 Consolas, monospace",
+    ".hotkey-card-danger uses the danger-line border",
+    ".hotkey-danger uses danger text/background, caption size, 6px radius and 7px 8px padding",
+    ".hotkey-status uses muted footnote text, 1px line border, soft surface, 7px radius and 8px 10px padding"
+  ],
+  "runtimeUnknowns": [
+    "enabled/disabled values loaded from persisted hotkey configuration",
+    "attack speedup checkbox values",
+    "live connected/offline state",
+    "disabled state during saves",
+    "hover/focus rendering and final post-auth page geometry"
+  ],
+  "notes": [
+    "The component contains visible gameplay shortcut descriptions, but this inventory does not execute or reverse engineer those actions.",
+    "The relocation locale explicitly states that the shortcut is disabled by default; other effective toggle defaults are not inferred from runtime configuration loading."
+  ]
+}
