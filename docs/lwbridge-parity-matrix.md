@@ -23,7 +23,8 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 | UI-006 | Squads / AFK | EXACT_BYTES AFK/equipment/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page data/state/geometry blocked by out-of-scope auth boundary |
 | UI-007 | City Layout | EXACT_BYTES grid/inspector/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime city data/state/geometry blocked by out-of-scope auth boundary |
 | UI-008 | Hotkeys | EXACT_BYTES shortcut/card/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime toggle/config state and geometry blocked by out-of-scope auth boundary |
-| UI-009+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
+| UI-009 | Mini Games | EXACT_BYTES helper/card/status/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime task/toggle/result state and geometry blocked by out-of-scope auth boundary |
+| UI-010+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
 
 ## Function matrix
 

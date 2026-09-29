@@ -1,0 +1,108 @@
+{
+  "workItem": "LWB317-UI-002G",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "HotkeyPanel-XA8idRHB.js": {
+      "bytes": 7801,
+      "sha256": "9BD7C11768693705391060D4F79119B5EA4A5229E042758165D3AD751A961BE6"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    },
+    "index-BVfnK1wp.js": {
+      "bytes": 377972,
+      "sha256": "44C4E4043825B7DB296B64171951B27176F8850FF8D7D337CC991DF4765524C6"
+    }
+  },
+  "locators": {
+    "frontlineCardDefinition": "HotkeyPanel-XA8idRHB.js byte 0x457",
+    "sharedPanelMarkup": "HotkeyPanel-XA8idRHB.js byte 0xF77",
+    "navigationEntry": "index-BVfnK1wp.js byte 0x55602",
+    "categoryInstantiation": "index-BVfnK1wp.js byte 0x5B9DD"
+  },
+  "pageTitle": "Mini Games",
+  "pageDescription": "Optional helpers for in-game mini games.",
+  "cards": [
+    {
+      "type": "toggleHotkey",
+      "key": "frontlineReinforce",
+      "binding": "G",
+      "title": "Frontline reinforcement",
+      "description": "Press G after a Frontline Breakthrough battle starts to add 5 soldiers each time."
+    },
+    {
+      "type": "toggle",
+      "key": "treasureChestHint",
+      "title": "Black Market Chests",
+      "description": "Mark the grand prize chest in the game after the shuffle ends.",
+      "label": "Mark grand prize chest",
+      "marker": "Grand prize"
+    },
+    {
+      "type": "action",
+      "key": "landCell",
+      "title": "Unlock Land Cell",
+      "description": "Unlock the next unopened city land cell. Each click processes one cell.",
+      "action": "Unlock One Cell",
+      "busy": "Unlocking...",
+      "success": "Unlock request sent for cell #{id}",
+      "failure": "Failed to unlock the land cell."
+    },
+    {
+      "type": "task",
+      "key": "sheepGame",
+      "title": "Food House Auto Clear",
+      "description": "Open the in-game board and visibly clear the current S4 Food House level without items or entering the next level.",
+      "controls": ["Start", "Stop"],
+      "dynamicLabels": [
+        "Current level: {level}",
+        "Confirmed {confirmed}/{total} moves",
+        "Elapsed: {time}"
+      ],
+      "statusCopy": [
+        "Calculating a safe solution...",
+        "Completing the current level...",
+        "Today's available levels are complete.",
+        "All Food House levels are complete.",
+        "The Food House activity has ended.",
+        "Close the Food House game screen before starting.",
+        "Stopped because the board was changed manually.",
+        "No safe item-free solution was found.",
+        "Food House is unavailable in the current season or client.",
+        "Failed to start Food House auto clear."
+      ]
+    }
+  ],
+  "sharedStatusCopy": {
+    "offline": "Game disconnected. Settings are saved and will apply after connection.",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "stopped": "Stopped"
+  },
+  "styleFacts": [
+    "The page reuses .hotkey-panel, .hotkey-grid and .hotkey-card styling from the exact common stylesheet.",
+    ".hotkey-grid uses two equal columns with 10px gap at normal width and one column responsively.",
+    ".hotkey-card uses a 1px card border, card surface/shadow, 8px radius, 12px 14px padding and 8px internal gap.",
+    ".mini-game-actions is an aligned flex row with 8px gap; its buttons have minimum width 120px.",
+    ".hotkey-state uses caption size and weight 650; enabled state uses success text."
+  ],
+  "runtimeUnknowns": [
+    "frontlineReinforce enabled state loaded from persisted hotkey configuration",
+    "treasureChestHint enabled state loaded from persisted hotkey configuration",
+    "current land-cell result",
+    "Food House running/level/progress/elapsed/status values",
+    "live connected state and action disabled states",
+    "rendered post-auth geometry/theme, hover/focus state and pixel appearance"
+  ],
+  "notes": [
+    "The visible mini-game action descriptions and status strings are UI evidence only; no gameplay action was invoked.",
+    "The marker text 'Grand prize' exists in the exact locale but is not rendered directly by this panel; it is retained as related static copy, not as runtime visual proof."
+  ]
+}
