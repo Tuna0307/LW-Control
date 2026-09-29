@@ -2,22 +2,26 @@
 
 This protocol exists for Chat On Steroids **Loop** mode.
 
-Loop mode is allowed to keep the worker active, but it does **not** make the
-worker the project lead.
+Loop mode may keep a worker active for many continuations, but it does **not** make the worker the project lead.
 
 ## Authority
 
 The project lead owns:
 
 - phase order;
-- work-item creation;
+- campaign/work-item creation;
 - acceptance/rejection of completed work;
 - master parity status;
 - when function reverse engineering begins;
-- when Last War/live testing is allowed.
+- when Last War/live testing is allowed;
+- whether any auth-produced dependency deserves investigation.
 
-The loop worker owns only the currently `READY` work item in
-`docs/LOOP_QUEUE.md`.
+A Loop worker may execute only:
+
+1. a work item marked `READY` in `docs/LOOP_QUEUE.md`; or
+2. the ordered stages in a project-lead-authored campaign file explicitly marked `ACTIVE` in that queue.
+
+The worker must never invent the next project task.
 
 ## Required start sequence
 
@@ -27,51 +31,54 @@ At the start of every continuation:
 2. read `task.md`;
 3. read `docs/PROJECT_LEAD.md`;
 4. read `docs/AI_WORK_PROTOCOL.md`;
-5. read `docs/LOOP_QUEUE.md`;
-6. inspect `git status --short`;
-7. identify exactly one `READY` work item;
-8. read that work-item file completely before acting.
+5. read `docs/LOOP_WORKER_PROTOCOL.md`;
+6. read `docs/LOOP_QUEUE.md`;
+7. inspect `git status --short`;
+8. if the local branch is merely behind the remote and otherwise clean, fast-forward with:
+   `git pull --ff-only origin research/offline-controller`;
+9. resume exactly the first incomplete authorized task/stage.
 
 Do not select a different task because it looks more interesting.
 
-## Continuation behavior
+## Single-work-item mode
 
-If the current work item is incomplete:
+If a normal `READY` work item is active:
 
 - continue only that work item;
-- prefer concrete evidence over commentary;
-- keep findings durable in the repository;
-- use approved desktop tooling only when the work item permits it;
-- keep the work bounded to the stated non-goals.
+- follow its explicit scope/non-goals;
+- preserve concrete evidence;
+- validate/commit/push when complete;
+- change its queue state to `AWAITING_REVIEW`;
+- do not start a BLOCKED item.
 
-If the work item is complete:
+## Campaign mode
 
-1. run its required validation;
-2. run `git diff --check`;
-3. create one coherent commit;
-4. push to `origin/research/offline-controller`;
-5. update only that row in `docs/LOOP_QUEUE.md` from `READY` to
-   `AWAITING_REVIEW`;
-6. write/finish the required worker report;
-7. do **not** start another work item unless another row is explicitly already
-   marked `READY` by the project lead.
+If one campaign is marked `ACTIVE`:
 
-If no work item is `READY`:
+- read the campaign file completely;
+- execute its pre-authorized stages in order;
+- do not wait for project-lead review between stages that the campaign explicitly authorizes;
+- checkpoint/commit/push after each coherent completed stage;
+- skip to a later stage only when the campaign itself permits that behavior;
+- never continue past the campaign's explicit STOP boundary.
 
-- do not change project files;
-- do not invent a new task;
-- do not start reverse engineering;
-- do not start implementation;
-- report exactly:
+A campaign is permission to execute a prewritten plan, **not** permission to broaden the plan.
 
-`WAITING_FOR_PROJECT_LEAD`
+## Login/auth/licensing boundary
 
-The user may then stop Loop mode or wait for the project lead to queue another
-item.
+The clone is not recreating LWBridge's original login/account/licensing system.
+
+During any Loop campaign:
+
+- do not implement login/account/licensing UX;
+- do not reverse engineer credential/token/license/purchase protocols;
+- do not bypass authentication or entitlement;
+- if login blocks runtime observation, document that boundary and continue only with independently authorized static/offline UI work;
+- a dependency investigation is allowed only if a future project-lead work item explicitly names the exact downstream auth-produced state to recover.
 
 ## Desktop rules
 
-Desktop control is currently allowed for assigned UI-parity observation.
+Desktop control is currently allowed for assigned UI-parity observation/reproduction.
 
 That does not imply permission to:
 
@@ -79,9 +86,9 @@ That does not imply permission to:
 - perform gameplay tests;
 - bypass login/auth/entitlement;
 - press unrelated function/action controls;
-- expand a UI-capture task into backend reverse engineering.
+- expand UI capture into backend/gameplay reverse engineering.
 
-The work-item file decides what desktop actions are permitted.
+The active work item/campaign decides what desktop actions are permitted.
 
 ## Evidence rule
 
@@ -95,25 +102,45 @@ Use the project evidence states:
 - `LIVE_PROVEN`
 - `UNKNOWN`
 - `BLOCKED`
+- `OUT_OF_SCOPE`
 
 Every important fact must name the exact 0.3.17 source/observation.
 
-## Time/checkpoint rule
+## Checkpoint rule
 
-Even in Loop mode, preserve a coherent checkpoint roughly every 20 minutes.
+Even in a long Loop campaign, preserve a coherent checkpoint roughly every 20–30 minutes or at each completed stage, whichever comes first.
 
-If a work item cannot be finished in one block, commit only when the state is
-coherent and the work item allows an intermediate checkpoint. Otherwise leave
-the tree understandable and record the exact continuation point.
+Before a stage commit:
 
-## Prohibited loop behavior
+- finish its durable evidence/report;
+- run applicable validation;
+- run `git diff --check`;
+- review `git status --short`;
+- commit coherently;
+- push `research/offline-controller`;
+- verify the push when practical.
+
+## Stop behavior
+
+If no work item/campaign is authorized:
+
+- do not change project files;
+- do not invent a new task;
+- do not start reverse engineering;
+- report exactly:
+
+`WAITING_FOR_PROJECT_LEAD`
+
+For a timed campaign, obey its elapsed-time shutdown rule before opening another stage.
+
+## Prohibited Loop behavior
 
 Loop mode must never become:
 
 - “keep reverse engineering anything useful”;
 - “keep improving the UI”;
 - “continue until the whole project is done”;
-- “fix whatever you notice”.
+- “fix whatever you notice”;
+- “figure out login so you can get past it”.
 
 Those prompts destroy evidence boundaries and project-lead control.
-
