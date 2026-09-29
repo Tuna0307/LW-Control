@@ -1,23 +1,25 @@
 # Loop work queue
 
-Only the project lead should normally change which work item is `READY`.
+Only the project lead should normally change what is authorized here.
 
-The loop worker may change its completed item from `READY` to
-`AWAITING_REVIEW` after validation, commit and push.
+## Active authorization
 
-| Work item | State | Work-item file | Notes |
+| Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-UI-001B | READY | `docs/work-items/LWB317-UI-001B-shell-navigation-visual-baseline.md` | Runtime visual shell/navigation baseline only |
-| LWB317-UI-001C | BLOCKED | not created yet | Project lead decides after reviewing UI-001B |
-| LWB317-UI-002 | BLOCKED | not created yet | First page-level inventory; scope depends on UI-001B evidence |
+| LWB317-UI-CAMPAIGN-8H | ACTIVE | `docs/LOOP_CAMPAIGN_8H.md` | Pre-authorized UI-only campaign; stop before function reverse engineering |
+| LWB317-RE-* | BLOCKED | not assigned | No gameplay/backend function recovery in this campaign |
+| Auth/login/licensing reconstruction | OUT_OF_SCOPE | n/a | Boundary/dependency only; no recreation or bypass |
+
+When the 8-hour campaign stops, the worker must change its campaign state from
+`ACTIVE` to `AWAITING_REVIEW`, commit/push that checkpoint, and report
+`WAITING_FOR_PROJECT_LEAD`.
 
 ## State meanings
 
-- `READY` — worker may execute now.
-- `IN_PROGRESS` — optional informational state while the worker is active.
+- `ACTIVE` — project-lead-authored campaign may execute its internal ordered stages.
+- `READY` — one bounded work item may execute now.
+- `IN_PROGRESS` — informational state while a worker is active.
 - `AWAITING_REVIEW` — worker finished; project lead must review.
 - `BLOCKED` — worker must not start.
 - `ACCEPTED` — project lead accepted the result.
-
-There should normally be only one `READY` item.
-
+- `OUT_OF_SCOPE` — intentionally not part of the reconstruction target.
