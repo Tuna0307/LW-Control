@@ -12,7 +12,24 @@ SHA-256:
 
 ## Goal
 
-Reproduce the observable product behavior of LWBridge 0.3.17 one-for-one, then make that recovered behavior work against the current Last War client.
+Reproduce the observable **in-scope post-auth product behavior** of LWBridge 0.3.17 one-for-one, then make that recovered behavior work against the current Last War client.
+
+## Explicit scope exception
+
+The original LWBridge login/account/licensing/entitlement system is **out of scope for reconstruction**.
+
+We do not need parity for:
+
+- login/account-management UX;
+- credential exchange;
+- token refresh/auth protocols;
+- subscription/purchase flows;
+- license validation/activation;
+- entitlement bypass.
+
+If a login/locked screen is encountered, it may be documented as an access boundary, but it is not a clone target.
+
+If an in-scope feature later proves it consumes state produced by auth, only that downstream dependency contract should be traced.
 
 ## Authority order
 
@@ -27,20 +44,22 @@ Reproduce the observable product behavior of LWBridge 0.3.17 one-for-one, then m
 - Do not redesign before recovering.
 - Do not invent missing values.
 - Do not silently substitute a 0.3.1 behavior for 0.3.17.
-- Do not call a feature parity-complete from UI appearance alone.
+- Do not call an in-scope feature parity-complete from UI appearance alone.
 - Preserve exact recovered bytes unchanged where practical.
 - Record unknowns explicitly.
 - Separate static recovery from live proof.
-- Keep user-visible behavior as the parity target even when current-client compatibility requires different internals.
+- Keep user-visible in-scope behavior as the parity target even when current-client compatibility requires different internals.
+- Do not bypass login/auth/entitlement.
+- Do not spend project time reconstructing the original login/licensing system unless the project lead explicitly reopens that scope.
 
-## Required trace for a function
+## Required trace for an in-scope function
 
 Where evidence permits, recover:
 
 `UI -> frontend/API -> host command -> provider/runtime -> state/storage -> visible result`
 
-If the trace stops, document exactly where and why.
+If the trace reaches an auth-produced dependency, document the consumed state and stop at that boundary unless the project lead explicitly authorizes a narrower dependency investigation.
 
 ## Current order
 
-UI parity comes first. Function recovery begins after the 0.3.17 UI baseline is established.
+UI parity comes first. Function recovery begins after the in-scope 0.3.17 UI baseline is established.
