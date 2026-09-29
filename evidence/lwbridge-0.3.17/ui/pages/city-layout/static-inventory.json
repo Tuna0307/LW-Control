@@ -1,0 +1,290 @@
+{
+  "workItem": "LWB317-UI-002E",
+  "evidenceState": "EXACT_BYTES_STATIC; runtime visual observation BLOCKED by out-of-scope auth boundary",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "sources": {
+    "CityLayoutPanel-DoNWkywK.js": {
+      "bytes": 19322,
+      "sha256": "C1B83A0B6524EF9AF510A114DF9679DAE0260D34B633659EB1A5FFB2AC5CF49C"
+    },
+    "GameAssetImage-Diy9VTIr.js": {
+      "bytes": 2347,
+      "sha256": "2F92A87C3268497DF6425B1175DB6140E10AABCBDFAE02615F065D00E16458E0"
+    },
+    "en-BisSXcTB.js": {
+      "bytes": 72319,
+      "sha256": "0BF43D180EB93692A93B830B5D984E9D01DDEEA524340F2334FC63CBA527A731"
+    },
+    "index-rIL9Fpht.css": {
+      "bytes": 126217,
+      "sha256": "3D87E9F65B39EACE6A1A254BFC90A38ACB72613D1FFF7236C7CEE7AB9BFAF545"
+    }
+  },
+  "componentByteOffsets": {
+    "main_panel_class": "0x2a93",
+    "export": "0x4b5c"
+  },
+  "pageTitle": "City Layout",
+  "regionLabel": "Main city",
+  "directLocaleKeys": [
+    {
+      "key": "cityLayout.title",
+      "value": "City Layout"
+    },
+    {
+      "key": "cityLayout.stats",
+      "value": "{cells} unlocked cells · {buildings} buildings · {movable} movable"
+    },
+    {
+      "key": "cityLayout.offline",
+      "value": "The game is disconnected, so the city layout cannot be loaded."
+    },
+    {
+      "key": "cityLayout.noData",
+      "value": "No city layout data is available."
+    },
+    {
+      "key": "cityLayout.undo",
+      "value": "Undo"
+    },
+    {
+      "key": "cityLayout.redo",
+      "value": "Redo"
+    },
+    {
+      "key": "cityLayout.restoreInitial",
+      "value": "Restore initial layout"
+    },
+    {
+      "key": "cityLayout.controls.title",
+      "value": "Controls"
+    },
+    {
+      "key": "cityLayout.controls.boxSelect",
+      "value": "Drag a blank area: box select"
+    },
+    {
+      "key": "cityLayout.controls.addSelect",
+      "value": "Shift + drag: add box selection (can start on a building)"
+    },
+    {
+      "key": "cityLayout.controls.toggle",
+      "value": "Ctrl + click: add or remove"
+    },
+    {
+      "key": "cityLayout.controls.move",
+      "value": "Drag a selected building: move the group"
+    },
+    {
+      "key": "cityLayout.controls.history",
+      "value": "Ctrl+Z undo · Ctrl+Y redo · Esc clear selection"
+    },
+    {
+      "key": "cityLayout.saveDraft",
+      "value": "Save draft"
+    },
+    {
+      "key": "cityLayout.apply",
+      "value": "Apply to game"
+    },
+    {
+      "key": "cityLayout.stale",
+      "value": "The game layout changed. This draft cannot be applied directly."
+    },
+    {
+      "key": "cityLayout.discardDraft",
+      "value": "Discard draft"
+    },
+    {
+      "key": "cityLayout.enterCity",
+      "value": "Return to the inner city before applying the layout."
+    },
+    {
+      "key": "cityLayout.region.main",
+      "value": "Main city"
+    },
+    {
+      "key": "cityLayout.level",
+      "value": "Level {level}"
+    },
+    {
+      "key": "cityLayout.cell.available",
+      "value": "Available"
+    },
+    {
+      "key": "cityLayout.cell.road",
+      "value": "Road: blocked"
+    },
+    {
+      "key": "cityLayout.cell.flagOnly",
+      "value": "Flag only"
+    },
+    {
+      "key": "cityLayout.cell.locked",
+      "value": "Locked"
+    },
+    {
+      "key": "cityLayout.properties",
+      "value": "Building properties"
+    },
+    {
+      "key": "cityLayout.footprint",
+      "value": "Footprint"
+    },
+    {
+      "key": "cityLayout.movable",
+      "value": "Movable"
+    },
+    {
+      "key": "cityLayout.rule",
+      "value": "Placement rule"
+    },
+    {
+      "key": "cityLayout.rule.normal",
+      "value": "Roads and flag-only cells are blocked"
+    },
+    {
+      "key": "cityLayout.rule.flag",
+      "value": "Allowed on ordinary non-road and flag-only cells"
+    },
+    {
+      "key": "cityLayout.validation.valid",
+      "value": "Local layout checks passed"
+    },
+    {
+      "key": "cityLayout.validation.server",
+      "value": "Execution plan: {moves} moves, including {temporary} temporary moves"
+    },
+    {
+      "key": "cityLayout.changes",
+      "value": "Pending changes ({count})"
+    },
+    {
+      "key": "cityLayout.noChanges",
+      "value": "No changes"
+    },
+    {
+      "key": "cityLayout.applyConfirm",
+      "value": "Run {count} building moves? A failure stops immediately and is not rolled back automatically."
+    },
+    {
+      "key": "cityLayout.applyProgress",
+      "value": "Applying {current}/{total}"
+    },
+    {
+      "key": "cityLayout.cancelApply",
+      "value": "Stop remaining moves"
+    },
+    {
+      "key": "cityLayout.draftRevision",
+      "value": "Draft revision {revision}"
+    },
+    {
+      "key": "cityLayout.conflicts",
+      "value": "{count} conflicts"
+    },
+    {
+      "key": "common.actionFailed",
+      "value": "The action could not be completed."
+    },
+    {
+      "key": "common.no",
+      "value": "No"
+    },
+    {
+      "key": "common.processing",
+      "value": "Processing"
+    },
+    {
+      "key": "common.refresh",
+      "value": "Refresh"
+    },
+    {
+      "key": "common.yes",
+      "value": "Yes"
+    },
+    {
+      "key": "cityLayout.zoom",
+      "value": "Canvas zoom"
+    },
+    {
+      "key": "cityLayout.zoomIn",
+      "value": "Zoom in"
+    },
+    {
+      "key": "cityLayout.zoomOut",
+      "value": "Zoom out"
+    },
+    {
+      "key": "cityLayout.fitCanvas",
+      "value": "Fit canvas"
+    },
+    {
+      "key": "cityLayout.selectBuilding",
+      "value": "Select a building to view its full name"
+    }
+  ],
+  "directClassNameLiterals": [
+    "city-layout-cell${e.unlocked?",
+    "city-layout-panel",
+    "city-layout-header",
+    "city-layout-actions",
+    "primary",
+    "city-layout-warning",
+    "city-layout-error",
+    "city-layout-workbench",
+    "city-layout-center",
+    "city-layout-main-heading",
+    "city-layout-zoom",
+    "city-layout-name-preview",
+    "city-layout-controls",
+    "city-layout-grid-viewport",
+    "city-layout-grid${A?",
+    "city-layout-lasso",
+    "city-layout-building${Ue.has(e.uuid)?",
+    "city-layout-grid-icon",
+    "city-layout-building-name",
+    "city-layout-building-level",
+    "city-layout-legend",
+    "available",
+    "road",
+    "flag-only",
+    "locked",
+    "city-layout-inspector",
+    "city-layout-selected",
+    "city-layout-selected-icon",
+    "city-layout-validation ${Q.length===0?",
+    "city-layout-validation valid",
+    "city-layout-changes",
+    "city-layout-progress",
+    "city-layout-footer",
+    "panel city-layout-empty"
+  ],
+  "directStringStateDefaults": [
+    {
+      "byteOffset": "0x779",
+      "value": ""
+    },
+    {
+      "byteOffset": "0x7A9",
+      "value": ""
+    },
+    {
+      "byteOffset": "0x811",
+      "value": ""
+    },
+    {
+      "byteOffset": "0x861",
+      "value": ""
+    },
+    {
+      "byteOffset": "0x8CD",
+      "value": ""
+    }
+  ],
+  "notes": [
+    "No top-level City Layout sub-tab array is present in this recovered component.",
+    "Dynamic layout cells, buildings, game names, coordinates and validation data are not fabricated.",
+    "Visible apply/save controls are UI evidence only; their backend behavior was not traced."
+  ]
+}

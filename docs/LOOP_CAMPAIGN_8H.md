@@ -107,8 +107,8 @@ The worker should update this table as stages progress.
 | LWB317-UI-002A Home inventory | COMPLETE | `81cc933` | Static `EXACT_BYTES` inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002B Automation inventory | COMPLETE | `51adf01` | Static `EXACT_BYTES` tab/card/string/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002C Map Data inventory | COMPLETE | `17bc084` | Static `EXACT_BYTES` scan/tab/filter/table/CSS inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-002D Squads / AFK inventory | COMPLETE | | Static `EXACT_BYTES` AFK/equipment/string/CSS inventory; runtime visual observation blocked by auth boundary |
-| LWB317-UI-002E City Layout inventory | PENDING | | |
+| LWB317-UI-002D Squads / AFK inventory | COMPLETE | `31a9d57` | Static `EXACT_BYTES` AFK/equipment/string/CSS inventory; runtime visual observation blocked by auth boundary |
+| LWB317-UI-002E City Layout inventory | COMPLETE | | Static `EXACT_BYTES` grid/inspector/string/CSS inventory; runtime visual observation blocked by auth boundary |
 | LWB317-UI-002F Hotkeys inventory | PENDING | | |
 | LWB317-UI-002G Mini Games inventory | PENDING | | |
 | LWB317-UI-002H Settings inventory | PENDING | | |

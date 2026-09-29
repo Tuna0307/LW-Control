@@ -21,7 +21,8 @@ If it is encountered, record only the access boundary. Do not rebuild it or bypa
 | UI-004 | Automation | EXACT_BYTES tab/card/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page state/geometry blocked by out-of-scope auth boundary |
 | UI-005 | Map Data | EXACT_BYTES scan/tab/filter/table/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page data/state/geometry blocked by out-of-scope auth boundary |
 | UI-006 | Squads / AFK | EXACT_BYTES AFK/equipment/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime page data/state/geometry blocked by out-of-scope auth boundary |
-| UI-007+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
+| UI-007 | City Layout | EXACT_BYTES grid/inspector/English locale/CSS inventory | NOT STARTED | BLOCKED | Runtime city data/state/geometry blocked by out-of-scope auth boundary |
+| UI-008+ | Additional in-scope 0.3.17 surfaces | ADD ONLY AFTER EVIDENCE | NOT STARTED | NOT STARTED | Unknown until inventory |
 
 ## Function matrix
 

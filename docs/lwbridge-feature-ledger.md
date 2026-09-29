@@ -13,7 +13,7 @@ Do not copy feature names or statuses from the 0.3.1 ledger until the 0.3.17 ref
 | Automation | EXACT_BYTES static tab/card/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Seven exact top-level categories; runtime visual observation blocked by auth boundary |
 | Map Data | EXACT_BYTES static scan/tab/filter/table/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | City default, Manual Scan default; runtime visual observation blocked by auth boundary |
 | Squads / AFK | EXACT_BYTES static AFK/equipment/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | `AFK Tasks` exact default; runtime visual observation blocked by auth boundary |
-| City Layout | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
+| City Layout | EXACT_BYTES static grid/inspector/locale/CSS inventory | NOT STARTED | NOT STARTED | NOT STARTED | BLOCKED | Static layout editor controls/states inventoried; runtime visual observation blocked by auth boundary |
 | Hotkeys | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
 | Mini Games | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
 | Settings | EXACT_BYTES label | NOT STARTED | NOT STARTED | NOT STARTED | NOT STARTED | Static navigation evidence only |
