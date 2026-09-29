@@ -1,7 +1,7 @@
 # LWB317-UI-001B — runtime visual shell/navigation baseline
 
-Date: 2026-09-29  
-Reference: `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe`  
+Date: 2026-09-29
+Reference: `C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe`
 Reference SHA-256: `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`
 
 ## Result
@@ -124,4 +124,3 @@ conditional Advanced visibility and post-auth shell visuals remain
 The campaign may continue with its explicitly authorized static/offline page
 inventory stages. This result does not authorize login/auth work and does not
 turn static frontend evidence into runtime visual proof.
-
